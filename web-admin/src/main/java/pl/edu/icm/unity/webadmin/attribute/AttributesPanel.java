@@ -17,17 +17,15 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.event.Action;
-import com.vaadin.server.Resource;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
@@ -54,11 +52,10 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.GenericElementsTable2;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar2;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -90,7 +87,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private HorizontalLayout filtersBar;
 	private List<AttributeExt> attributes;
 	private ValuesRendererPanel attributeValues;
-//	private Table attributesTable;
 	private GenericElementsTable2<AttributeExt> attributesTable;
 	private EntityParam owner;
 	private String groupPath;
@@ -117,37 +113,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.atSupport = atSupport;
 		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
-//		attributesTable = new SmallTableDeprecated();
-//		attributesTable.setNullSelectionAllowed(false);
-//		attributesTable.setImmediate(true);
-//		BeanItemContainer<AttributeItem> tableContainer = new BeanItemContainer<AttributeItem>(AttributeItem.class);
-//		attributesTable.setSelectable(true);
-//		attributesTable.setMultiSelect(true);
-//		attributesTable.setContainerDataSource(tableContainer);
-//		attributesTable.setColumnHeaders(new String[] {msg.getMessage("Attribute.attributes")});
-//		
-//		attributesTable.addValueChangeListener(new ValueChangeListener()
-//		{
-//			@Override
-//			public void valueChange(ValueChangeEvent event)
-//			{
-//				Collection<AttributeItem> items = getItems(attributesTable.getValue()); 
-//				if (items.size() > 1 || items.isEmpty())
-//				{
-//					updateValues(null);
-//					return;
-//				}
-//				AttributeItem selected = items.iterator().next();
-//				if (selected != null)
-//					updateValues(selected.getAttribute());
-//				else
-//					updateValues(null);
-//			}
-//		});
+		
 		attributesTable = new GenericElementsTable2<>(msg.getMessage("Attribute.attributes"), 
-				element -> element.getName());
+				element -> element.getName(), true);
 		attributesTable.setMultiSelect(true);
-		attributesTable.setWidth(90, Unit.PERCENTAGE);
+		attributesTable.setWidth(100, Unit.PERCENTAGE);
 		attributesTable.setStyleGenerator(a -> {
 			StringBuilder style = new StringBuilder();
 			if (!a.isDirect())
@@ -158,7 +128,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 				style.append(" " + Styles.bold.toString());
 			return style.toString().trim();
 		});
-
 		attributesTable.addSelectionListener(event ->
 		{
 			Collection<AttributeExt> items = event.getAllSelectedItems();
@@ -173,64 +142,28 @@ public class AttributesPanel extends HorizontalSplitPanel
 			else
 				updateValues(null);
 		});
-//		attributesTable.addActionHandler(getRefreshAction());
-//		attributesTable.addActionHandler(getAddAction());
-//		attributesTable.addActionHandler(getEditAction());
-//		attributesTable.addActionHandler(getDeleteAction());
+		
+		attributesTable.addActionHandler(getAddAction());
+		attributesTable.addActionHandler(getEditAction());
+		attributesTable.addActionHandler(getDeleteAction());
+		attributesTable.addActionHandler(getResendConfirmationAction());
 		
 		Toolbar2<AttributeExt> toolbar = new Toolbar2<>(Orientation.VERTICAL);
 		attributesTable.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(attributesTable.getActionHandlers());
 		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(attributesTable, toolbar);
-		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar.setWidth(100, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 		
-		
-		
-//		Toolbar toolbar = new Toolbar(attributesTable, Orientation.VERTICAL);
-//		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable, toolbar);
-//		tableWithToolbar.setSizeFull();
-//		SingleActionHandler[] handlers = new SingleActionHandler[] {new AddAttributeActionHandler(), 
-//				new EditAttributeActionHandler(), new RemoveAttributeActionHandler(), new ResendConfirmationAttributeActionHandler()};
-//		for (SingleActionHandler handler: handlers)
-//			attributesTable.addActionHandler(handler);
-//		toolbar.addActionHandlers(handlers);
-		
 		effectiveAttrsFilter  = a -> a.isDirect();
-//		
-//		
 		internalAttrsFilter = a -> isInternal(a);
 
-		
-		
 		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
-		//showEffective.setImmediate(true);
-		showEffective.addStyleName(Styles.emphasized.toString());
-//		showEffective.addValueChangeListener(new ValueChangeListener()
-//		{
-//			@Override
-//			public void valueChange(ValueChangeEvent event)
-//			{
-//				updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter);
-//			}
-//		});
-//		
+		showEffective.addStyleName(Styles.emphasized.toString());		
 		showEffective.addValueChangeListener(event -> updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter));
-		
-		
-		
+			
 		showInternal = new CheckBox(msg.getMessage("Attribute.showInternal"), false);
-	//	showInternal.setImmediate(true);
-		showInternal.addStyleName(Styles.immutableAttribute.toString());
-//		showInternal.addValueChangeListener(new ValueChangeListener()
-//		{
-//			@Override
-//			public void valueChange(ValueChangeEvent event)
-//			{
-//				updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
-//			}
-//		});
-		
+		showInternal.addStyleName(Styles.immutableAttribute.toString());	
 		showInternal.addValueChangeListener(event -> updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter));
 		
 		Label required = new Label(msg.getMessage("Attribute.requiredBold"));
@@ -239,8 +172,8 @@ public class AttributesPanel extends HorizontalSplitPanel
 		filtersBar.setComponentAlignment(showEffective, Alignment.MIDDLE_LEFT);
 		filtersBar.setComponentAlignment(showInternal, Alignment.MIDDLE_LEFT);
 		filtersBar.setComponentAlignment(required, Alignment.MIDDLE_RIGHT);
-		filtersBar.setSpacing(true);
 		filtersBar.setSizeUndefined();
+		filtersBar.setMargin(false);
 		
 		attributeValues = new ValuesRendererPanel(msg, atSupport);
 		attributeValues.setSizeFull();
@@ -248,7 +181,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		left = new VerticalLayout();
 		left.setMargin(new MarginInfo(false, true, false, false));
 		left.setSizeFull();
-		left.setSpacing(true);
 		left.addComponents(filtersBar, tableWithToolbar);
 		left.setExpandRatio(tableWithToolbar, 1.0f);
 		
@@ -272,30 +204,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 		return !attributeType.isInstanceImmutable();
 	}
-	
-//	private void updateFilters()
-//	{
-//		ListDataProvider<AttributeExt> dataProvider = attributesTable.getDataProvider();
-//		dataProvider.clearFilters();
-//		if (!showEffective.getValue())
-//		{
-//			dataProvider.addFilter(a -> a.isDirect());
-//		}
-//
-//		if (!showInternal.getValue())
-//		{
-//			dataProvider.addFilter(a -> {
-//				AttributeType attributeType = attributeTypes.get(a.getName());
-//				if (attributeType == null)
-//				{
-//					log.error("Attribute type is not in the map: "
-//							+ a.getName());
-//					return false;
-//				}
-//				return !attributeType.isInstanceImmutable();
-//			});
-//		}
-//	}
 
 	private void refreshAttributeTypes() throws EngineException
 	{
@@ -337,20 +245,10 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private void updateAttributes() throws EngineException
 	{
 		refreshAttributeTypes();
-	//	attributesTable.removeAllItems();
 		attributeValues.removeValues();
-		if (attributes.size() == 0)
-			return;
-	//	for (AttributeExt attribute: attributes)
-	//		attributesTable.addItem(new AttributeItem(attribute));
-	//		attributesTable.addItem(attribute);
 		attributesTable.setInput(attributes);
 		attributesTable.deselectAll();
-		//	attributesTable.selectFirst();
-		
-	//	attributesTable.select(attributes.get(0));
-
-		
+		//attributesTable.selectFirst();	
 	}
 	
 	private void updateValues(AttributeExt attribute)
@@ -375,78 +273,14 @@ public class AttributesPanel extends HorizontalSplitPanel
 	
 	private void updateAttributesFilter(boolean add, SerializablePredicate<AttributeExt> filter)
 	{
-//		Container.Filterable filterable = (Filterable) attributesTable.getContainerDataSource();
-//		if (!add)
-//			filterable.removeContainerFilter(filter);
-//		else
-//			filterable.addContainerFilter(filter);
-//		ListDataProvider<AttributeExt> provider =  (ListDataProvider<AttributeExt>) attributesTable.getDataProvider();;;
-//		ConfigurableFilterDataProvider<AttributeExt, Void, ?> withConfigurableFilter = 
-//				attributesTable.getDataProvider().withConfigurableFilter(
-
-				//		withConfigurableFilter.setFilter(a -> {
-//			AttributeType attributeType = attributeTypes.get(a.getName());
-//			if (attributeType == null)
-//			{
-//				log.error("Attribute type is not in the map: " + a.getName());
-//				return false;
-//			}
-//			return !attributeType.isInstanceImmutable();
-//		});
-		
-	//	withConfigurableFilter.
-	//	attributesTable.setDataProvider(withConfigurableFilter);
-		
-//		ConfigurableFilterDataProvider<AttributeExt, Void, ?> withConfigurableFilter = provider.withConfigurableFilter();
-//		withConfigurableFilter.
 		if (add)
 			attributesTable.addFilter(filter);
 		else
 			attributesTable.removeFilter(filter);
-		
-
 	}
 	
-	public class AttributeItem
+	private void removeAttribute(AttributeExt toRemove)
 	{
-		private AttributeExt attribute;
-
-		public AttributeItem(AttributeExt value)
-		{
-			this.attribute = value;
-		}
-		
-		public Label getName()
-		{
-			Label l = new Label(attribute.getName());
-			AttributeType attributeType = attributeTypes.get(attribute.getName());
-			StringBuilder style = new StringBuilder();
-			if (!attribute.isDirect())
-				style.append(Styles.emphasized.toString());
-			if (attributeType.isInstanceImmutable())
-				style.append(" " + Styles.immutableAttribute.toString());
-			if (acHelper.isMandatory(attribute.getName()))
-				style.append(" " + Styles.bold.toString());
-			String styleS = style.toString().trim(); 
-			if (styleS.length() > 0)
-				l.setStyleName(styleS);
-			return l;
-		}
-		
-		private AttributeExt getAttribute()
-		{
-			return attribute;
-		}
-		
-		public String toString()
-		{
-			return attribute.getName();
-		}
-	}
-	
-	private void removeAttribute(AttributeItem attributeItem)
-	{
-		Attribute toRemove = attributeItem.getAttribute();
 		try
 		{
 			attributesManagement.removeAttribute(owner, toRemove.getGroupPath(), toRemove.getName());
@@ -499,50 +333,46 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 
-	private void sendConfirmation(Collection<AttributeItem> items)
+	private void sendConfirmation(Collection<AttributeExt> items)
 	{
-		for (AttributeItem item : items)
+		for (AttributeExt item : items)
 		{
 			try
 			{
-				confirmationMan.sendVerification(owner, item.getAttribute());
+				confirmationMan.sendVerification(owner, item);
 			} catch (EngineException e)
 			{
 				NotificationPopup.showError(msg, 
 						msg.getMessage("Attribute.confirmationSendError", 
-						item.attribute.getName()), e);
+						item.getName()), e);
 			}
 		}
 	}
 	
-	private boolean checkAttributeImm(AttributeItem item)
+	private boolean checkAttributeImm(AttributeExt item)
 	{
-		AttributeExt attribute = ((AttributeItem) item)
-				.getAttribute();
-		AttributeType attributeType = attributeTypes.get(attribute
+		AttributeType attributeType = attributeTypes.get(item
 				.getName());
 		return attributeType.isInstanceImmutable()
-				|| !attribute.isDirect();
+				|| !item.isDirect();
 	}
 	
-	private boolean checkAttributeMandatory(AttributeItem item)
+	private boolean checkAttributeMandatory(AttributeExt item)
 	{
-		AttributeExt attribute = (item)
-				.getAttribute();
-		return acHelper.isMandatory(attribute.getName());
+		return acHelper.isMandatory(item.getName());
 			
 	}
 	
-	private boolean checkAttributeIsVerifiable(AttributeItem item)
+	private boolean checkAttributeIsVerifiable(AttributeExt item)
 	{
-		return atSupport.getSyntaxFallingBackToDefault(item.getAttribute()).isVerifiable();
+		return atSupport.getSyntaxFallingBackToDefault(item).isVerifiable();
 	}
 	
-	private boolean checkAttributeIsConfirmed(AttributeItem item)
+	private boolean checkAttributeIsConfirmed(AttributeExt item)
 	{	
 		AttributeValueSyntax<?> syntax = atSupport.getSyntaxFallingBackToDefault(
-				item.attribute);
-		for (String valA : item.getAttribute().getValues())
+				item);
+		for (String valA : item.getValues())
 		{
 			VerifiableElement val = (VerifiableElement) syntax.convertFromString(valA);
 			ConfirmationInfo ci = val.getConfirmationInfo();
@@ -551,318 +381,104 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 		return true;	
 	}
-		
-	private Collection<AttributeItem> getItems(Object target)
+	
+	private SingleActionHandler2<AttributeExt> getDeleteAction()
 	{
-		Collection<?> c = (Collection<?>) target;
-		Collection<AttributeItem> items = new ArrayList<AttributeItem>();
-		for (Object o: c)
-		{
-			AttributeItem at = (AttributeItem) o;
-			items.add(at);	
-		}
-		return items;
+		return SingleActionHandler2.builder4Delete(msg, AttributeExt.class)
+				.withHandler(this::deleteHandler).withDisabledPredicate(a -> checkAttributeImm(a) || checkAttributeMandatory(a))
+				.build();
 	}
 	
-	/**
-	 * Extends {@link SingleActionHandler}. Returns action only for selections on an attribute. 
-	 * @author K. Benedyczak
-	 */
-	private abstract class AbstractAttributeActionHandler extends SingleActionHandler
+	private void deleteHandler(Collection<AttributeExt> items)
 	{
+		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
 
-		public AbstractAttributeActionHandler(String caption, Resource icon)
-		{
-			super(caption, icon);
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-				return EMPTY;
-			
-			if (target instanceof Collection<?>)
-			{		
-				for (AttributeItem item : getItems(target))
-				{
-					if (checkAttributeImm((AttributeItem) item))
-						return EMPTY;
-				}
-			} else
-			{
-				if (checkAttributeImm((AttributeItem) target))
-					return EMPTY;
-			}
-			return super.getActions(target, sender);
-		}
+		ConfirmDialog confirm = new ConfirmDialog(msg,
+				msg.getMessage("Attribute.removeConfirm", confirmText),
+				() -> items.forEach(this::removeAttribute));
+		confirm.show();
+	}
+	
+	private SingleActionHandler2<AttributeExt> getAddAction()
+	{
+		return SingleActionHandler2.builder4Add(msg, AttributeExt.class)
+				.withHandler(this::showAddDialog)
+				.build();
 	}
 		
-	private class RemoveAttributeActionHandler extends AbstractAttributeActionHandler
-	{
-		public RemoveAttributeActionHandler()
+	private void showAddDialog(Collection<AttributeExt> target)
+	{		
+		List<AttributeType> allowed = new ArrayList<>(attributeTypes.size());
+		for (AttributeType at: attributeTypes.values())
 		{
-			super(msg.getMessage("Attribute.removeAttribute"), 
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			Action[] ret = super.getActions(target, sender);
-			if (ret.length > 0)
+			if (at.isInstanceImmutable())
+				continue;
+			if (acHelper.isAllowed(at.getName()))
 			{
-				if (target instanceof Collection<?>)
-				{
-					for (AttributeItem item : getItems(target))
+				boolean used = false;
+				for (AttributeExt a: attributes)
+					if (a.isDirect() && a.getName().equals(at.getName()))
 					{
-						if (checkAttributeMandatory((AttributeItem) item))
-							return EMPTY;
+						used = true;
+						break;
 					}
-				} else
-				{
-					if (checkAttributeMandatory((AttributeItem) target))
-						return EMPTY;
-				}
+				if (!used)
+					allowed.add(at);
 			}
-			return ret;
 		}
 		
-		@Override
-		public void handleAction(Object sender, final Object target)
+		if (allowed.isEmpty())
 		{
-			final Collection<AttributeItem> items = getItems(target);	
-			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
-			
-			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage(
-					"Attribute.removeConfirm", confirmText), new Callback()
-			{
-				@Override
-				public void onConfirm()
-				{
-					for (AttributeItem item : items)
-					{
-						removeAttribute(item);
-					}
-				}
-			});
-			confirm.show();
-		}
-	}
-
-	private class AddAttributeActionHandler extends SingleActionHandler
-	{
-		public AddAttributeActionHandler()
-		{
-			super(msg.getMessage("Attribute.addAttribute"), 
-					Images.add.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			List<AttributeType> allowed = new ArrayList<>(attributeTypes.size());
-			for (AttributeType at: attributeTypes.values())
-			{
-				if (at.isInstanceImmutable())
-					continue;
-				if (acHelper.isAllowed(at.getName()))
-				{
-					boolean used = false;
-					for (AttributeExt a: attributes)
-						if (a.isDirect() && a.getName().equals(at.getName()))
-						{
-							used = true;
-							break;
-						}
-					if (!used)
-						allowed.add(at);
-				}
-			}
-			
-			if (allowed.isEmpty())
-			{
-				NotificationPopup.showNotice(msg, msg.getMessage("notice"),
-						msg.getMessage("Attribute.noAvailableAttributes"));
-				return;
-			}
-			
-			AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, 
-					groupPath, registry, true);
-			AttributeEditDialog dialog = new AttributeEditDialog(msg, 
-					msg.getMessage("Attribute.addAttribute"), 
-					new AttributeEditDialog.Callback()
-					{
-						@Override
-						public boolean newAttribute(Attribute newAttribute)
-						{
-							return addAttribute(newAttribute);							
-						}
-					}, attributeEditor);
-			dialog.show();
-		}
-	}
-
-	private class EditAttributeActionHandler extends AbstractAttributeActionHandler
-	{
-		public EditAttributeActionHandler()
-		{
-			super(msg.getMessage("Attribute.editAttribute"), 
-					Images.edit.getResource());
+			NotificationPopup.showNotice(msg, msg.getMessage("notice"),
+					msg.getMessage("Attribute.noAvailableAttributes"));
+			return;
 		}
 		
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			final Attribute attribute = ((AttributeItem) target).getAttribute();
-			AttributeType attributeType = attributeTypes.get(attribute.getName());
-			AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
-					registry);
-			AttributeEditDialog dialog = new AttributeEditDialog(msg, 
-					msg.getMessage("Attribute.editAttribute"), 
-					new AttributeEditDialog.Callback()
-					{
-						@Override
-						public boolean newAttribute(Attribute newAttribute)
-						{
-							return updateAttribute(newAttribute);
-						}
-					}, attributeEditor);
-			dialog.show();
-		}
+		AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, 
+				groupPath, registry, true);
+		AttributeEditDialog dialog = new AttributeEditDialog(msg, 
+				msg.getMessage("Attribute.addAttribute"), 
+				a -> addAttribute(a), attributeEditor);
+		dialog.show();
 	}
 	
-	private class ResendConfirmationAttributeActionHandler extends AbstractAttributeActionHandler
+	private SingleActionHandler2<AttributeExt> getEditAction()
 	{
-		public ResendConfirmationAttributeActionHandler()
-		{
-			super(msg.getMessage("Attribute.resendConfirmation"), 
-					Images.confirm.getResource());
-			setMultiTarget(true);
-			setHideIfNotNeeded(true);
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			Action[] ret = super.getActions(target, sender);
-			if (ret.length > 0)
-			{
-				if (target instanceof Collection<?>)
-				{
-					for (AttributeItem item : getItems(target))
-					{
-						if (!checkAttributeIsVerifiable(item))
-							return EMPTY;			
-						if (checkAttributeIsConfirmed(item))
-							return EMPTY;
-					}
-				} else
-				{
-					AttributeItem item = (AttributeItem) target;
-					if (!checkAttributeIsVerifiable(item))
-						return EMPTY;			
-					if (checkAttributeIsConfirmed(item))
-						return EMPTY;
-				}
-			}
-			return ret;
-		}	
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			final Collection<AttributeItem> items = getItems(target);
-			String confirmText = MessageUtils.createConfirmFromStrings(msg, items);
-			
-			ConfirmDialog confirm = new ConfirmDialog(msg, msg.getMessage(
-					"Attribute.confirmResendConfirmation", confirmText), new Callback()
-			{
-				@Override
-				public void onConfirm()
-				{
-					sendConfirmation(items);
-				}
-			});
-			confirm.show();
-		}
+		return SingleActionHandler2.builder4Edit(msg, AttributeExt.class)
+				.withHandler(this::showEditDialog).withDisabledPredicate(a -> checkAttributeImm(a))
+				.build();
 	}
 	
-	
-	
-//	private static class EffectiveAttributesFilter implements SerializablePredicate<AttributeExt>
-//	{
-//		
-//		@Override
-//		public boolean test(AttributeExt t)
-//		{
-//			return t.isDirect();
-//		}
-//		
-//	}
-//	
-//	private static class Filter
-//	{
-//		private SerializablePredicate<AttributeExt> predicate;
-//		private boolean applied;
-//		
-//		public Filter(SerializablePredicate<AttributeExt> predicate, boolean applied)
-//		{
-//			this.predicate = predicate;
-//			this.applied = applied;
-//		}
-//
-//		public SerializablePredicate<AttributeExt> getPredicate()
-//		{
-//			return predicate;
-//		}
-//		
-//		public boolean isApplied()
-//		{
-//			return applied;
-//		}	
-//	}
-//	
-	
-//	private static class EffectiveAttributesFilter implements Container.Filter
-//	{
-//		@Override
-//		public boolean passesFilter(Object itemId, Item item)
-//				throws UnsupportedOperationException
-//		{
-//			AttributeItem ai = (AttributeItem) itemId;
-//			return ai.getAttribute().isDirect();
-//		}
-//
-//		@Override
-//		public boolean appliesToProperty(Object propertyId)
-//		{
-//			return true;
-//		}
-//	}
+	private void showEditDialog(Collection<AttributeExt> target)
+	{
+		final Attribute attribute = target.iterator().next();
+		AttributeType attributeType = attributeTypes.get(attribute.getName());
+		AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
+				registry);
+		AttributeEditDialog dialog = new AttributeEditDialog(msg, 
+				msg.getMessage("Attribute.editAttribute"), 
+				a -> updateAttribute(a), attributeEditor);
+		dialog.show();	
+	}
 
-//	private class InternalAttributesFilter implements Container.Filter
-//	{		
-//		@Override
-//		public boolean passesFilter(Object itemId, Item item)
-//				throws UnsupportedOperationException
-//		{
-//			AttributeItem ai = (AttributeItem) itemId;
-//			AttributeType attributeType = attributeTypes.get(ai.getAttribute().getName());
-//			if (attributeType == null)
-//			{
-//				log.error("Attribute type is not in the map: " + ai.getAttribute().getName());
-//				return false;
-//			}
-//			return !attributeType.isInstanceImmutable();
-//		}
-//
-//		@Override
-//		public boolean appliesToProperty(Object propertyId)
-//		{
-//			return true;
-//		}
-//	}
+	private SingleActionHandler2<AttributeExt> getResendConfirmationAction()
+	{
+		return SingleActionHandler2.builder(AttributeExt.class)
+				.withDisabledPredicate(a -> checkAttributeImm(a)
+						|| !checkAttributeIsVerifiable(a)
+						|| checkAttributeIsConfirmed(a))
+				.withCaption(msg.getMessage("Attribute.resendConfirmation"))
+				.withIcon(Images.confirm.getResource()).multiTarget()
+				.hideIfInactive().withHandler(this::showResendDialog).build();
+	}
+
+	private void showResendDialog(Collection<AttributeExt> target)
+	{
+		String confirmText = MessageUtils.createConfirmFromNames(msg, target);
+
+		ConfirmDialog confirm = new ConfirmDialog(msg,
+				msg.getMessage("Attribute.confirmResendConfirmation", confirmText),
+				() -> sendConfirmation(target));
+		confirm.show();
+	}
 }
