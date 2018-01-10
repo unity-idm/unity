@@ -202,7 +202,7 @@ public class OutputTranslationProfile
 			attrs.put(ra.getName(), values);
 			attrObj.put(ra.getName(), values.isEmpty() ? ""
 					: attrConverter.internalValuesToObjectValues(ra.getName(),
-							ra.getValues()).get(0));
+							ra.getValues()));
 		}
 		ret.put(prefix, attr);
 		ret.put(prefix+"Obj", attrObj);
