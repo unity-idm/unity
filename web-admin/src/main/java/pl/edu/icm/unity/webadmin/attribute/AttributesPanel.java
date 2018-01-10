@@ -96,12 +96,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeTypeManagement aTypeManagement;
 	private AttributeClassManagement acMan;
 
-	
 	@Autowired
-	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributesManagement attributesManagement, GroupsManagement groupsManagement,
-			AttributeTypeManagement atManagement, AttributeClassManagement acMan,
-			AttributeTypeSupport atSupport,
+	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry,
+			AttributesManagement attributesManagement,
+			GroupsManagement groupsManagement, AttributeTypeManagement atManagement,
+			AttributeClassManagement acMan, AttributeTypeSupport atSupport,
 			ConfirmationManager confirmationMan)
 	{
 		this.msg = msg;
@@ -113,8 +112,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.atSupport = atSupport;
 		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
-		
-		attributesTable = new GenericElementsTable2<>(msg.getMessage("Attribute.attributes"), 
+
+		attributesTable = new GenericElementsTable2<>(
+				msg.getMessage("Attribute.attributes"),
 				element -> element.getName(), true);
 		attributesTable.setMultiSelect(true);
 		attributesTable.setWidth(100, Unit.PERCENTAGE);
@@ -122,14 +122,13 @@ public class AttributesPanel extends HorizontalSplitPanel
 			StringBuilder style = new StringBuilder();
 			if (!a.isDirect())
 				style.append(Styles.emphasized.toString());
-			if (!isInternal(a))
+			if (checkAttributeImmutable(a))
 				style.append(" " + Styles.immutableAttribute.toString());
 			if (acHelper.isMandatory(a.getName()))
 				style.append(" " + Styles.bold.toString());
 			return style.toString().trim();
 		});
-		attributesTable.addSelectionListener(event ->
-		{
+		attributesTable.addSelectionListener(event -> {
 			Collection<AttributeExt> items = event.getAllSelectedItems();
 			if (items.size() > 1 || items.isEmpty())
 			{
@@ -142,30 +141,33 @@ public class AttributesPanel extends HorizontalSplitPanel
 			else
 				updateValues(null);
 		});
-		
+
 		attributesTable.addActionHandler(getAddAction());
 		attributesTable.addActionHandler(getEditAction());
 		attributesTable.addActionHandler(getDeleteAction());
 		attributesTable.addActionHandler(getResendConfirmationAction());
-		
+
 		Toolbar2<AttributeExt> toolbar = new Toolbar2<>(Orientation.VERTICAL);
 		attributesTable.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(attributesTable.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(attributesTable, toolbar);
+		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(attributesTable,
+				toolbar);
 		tableWithToolbar.setWidth(100, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
-		
-		effectiveAttrsFilter  = a -> a.isDirect();
-		internalAttrsFilter = a -> isInternal(a);
+
+		effectiveAttrsFilter = a -> a.isDirect();
+		internalAttrsFilter = a -> !checkAttributeImmutable(a);
 
 		showEffective = new CheckBox(msg.getMessage("Attribute.showEffective"), true);
-		showEffective.addStyleName(Styles.emphasized.toString());		
-		showEffective.addValueChangeListener(event -> updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter));
-			
+		showEffective.addStyleName(Styles.emphasized.toString());
+		showEffective.addValueChangeListener(event -> updateAttributesFilter(
+				!showEffective.getValue(), effectiveAttrsFilter));
+
 		showInternal = new CheckBox(msg.getMessage("Attribute.showInternal"), false);
-		showInternal.addStyleName(Styles.immutableAttribute.toString());	
-		showInternal.addValueChangeListener(event -> updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter));
-		
+		showInternal.addStyleName(Styles.immutableAttribute.toString());
+		showInternal.addValueChangeListener(event -> updateAttributesFilter(
+				!showInternal.getValue(), internalAttrsFilter));
+
 		Label required = new Label(msg.getMessage("Attribute.requiredBold"));
 		required.setStyleName(Styles.bold.toString());
 		filtersBar = new HorizontalLayout(showEffective, showInternal, required);
@@ -174,7 +176,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		filtersBar.setComponentAlignment(required, Alignment.MIDDLE_RIGHT);
 		filtersBar.setSizeUndefined();
 		filtersBar.setMargin(false);
-		
+
 		attributeValues = new ValuesRendererPanel(msg, atSupport);
 		attributeValues.setSizeFull();
 
@@ -183,35 +185,22 @@ public class AttributesPanel extends HorizontalSplitPanel
 		left.setSizeFull();
 		left.addComponents(filtersBar, tableWithToolbar);
 		left.setExpandRatio(tableWithToolbar, 1.0f);
-		
+
 		setFirstComponent(left);
 		setSecondComponent(attributeValues);
 		setSplitPosition(40, Unit.PERCENTAGE);
-		
+
 		updateAttributesFilter(!showEffective.getValue(), effectiveAttrsFilter);
 		updateAttributesFilter(!showInternal.getValue(), internalAttrsFilter);
-	}
-	
-	private boolean isInternal(AttributeExt attribute)
-	{
-		AttributeType attributeType = attributeTypes
-				.get(attribute.getName());
-		if (attributeType == null)
-		{
-			log.error("Attribute type is not in the map: "
-					+ attribute.getName());
-			return false;
-		}
-		return !attributeType.isInstanceImmutable();
 	}
 
 	private void refreshAttributeTypes() throws EngineException
 	{
 		attributeTypes = aTypeManagement.getAttributeTypesAsMap();
 	}
-	
-	public void setInput(EntityParam owner, String groupPath, Collection<AttributeExt> attributesCol) 
-			throws EngineException
+
+	public void setInput(EntityParam owner, String groupPath,
+			Collection<AttributeExt> attributesCol) throws EngineException
 	{
 		this.owner = owner;
 		this.attributes = new ArrayList<AttributeExt>(attributesCol.size());
@@ -220,37 +209,38 @@ public class AttributesPanel extends HorizontalSplitPanel
 		updateACHelper(owner, groupPath);
 		updateAttributes();
 	}
-	
+
 	private void updateACHelper(EntityParam owner, String groupPath) throws EngineException
 	{
-		Group group = groupsManagement.getContents(groupPath, GroupContents.METADATA).getGroup();
+		Group group = groupsManagement.getContents(groupPath, GroupContents.METADATA)
+				.getGroup();
 		Collection<AttributesClass> acs = acMan.getEntityAttributeClasses(owner, groupPath);
 		Map<String, AttributesClass> knownClasses = acMan.getAttributeClasses();
 		Set<String> assignedClasses = new HashSet<String>(acs.size());
-		for (AttributesClass ac: acs)
+		for (AttributesClass ac : acs)
 			assignedClasses.add(ac.getName());
 		assignedClasses.addAll(group.getAttributesClasses());
-		
+
 		acHelper = new AttributeClassHelper(knownClasses, assignedClasses);
 	}
-	
+
 	private void reloadAttributes() throws EngineException
 	{
-		Collection<AttributeExt> attributesCol = attributesManagement.getAllAttributes(
-				owner, true, groupPath, null, true);
+		Collection<AttributeExt> attributesCol = attributesManagement
+				.getAllAttributes(owner, true, groupPath, null, true);
 		this.attributes = new ArrayList<AttributeExt>(attributesCol.size());
 		this.attributes.addAll(attributesCol);
 	}
-	
+
 	private void updateAttributes() throws EngineException
 	{
 		refreshAttributeTypes();
 		attributeValues.removeValues();
 		attributesTable.setInput(attributes);
 		attributesTable.deselectAll();
-		//attributesTable.selectFirst();	
+		// attributesTable.selectFirst();
 	}
-	
+
 	private void updateValues(AttributeExt attribute)
 	{
 		try
@@ -265,12 +255,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 			attributeValues.setValues(handler, attribute);
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, 
-					msg.getMessage("Attribute.addAttributeError", 
-							attribute.getName()), e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"Attribute.addAttributeError", attribute.getName()), e);
 		}
 	}
-	
+
 	private void updateAttributesFilter(boolean add, SerializablePredicate<AttributeExt> filter)
 	{
 		if (add)
@@ -278,21 +267,24 @@ public class AttributesPanel extends HorizontalSplitPanel
 		else
 			attributesTable.removeFilter(filter);
 	}
-	
+
 	private void removeAttribute(AttributeExt toRemove)
 	{
 		try
 		{
-			attributesManagement.removeAttribute(owner, toRemove.getGroupPath(), toRemove.getName());
+			attributesManagement.removeAttribute(owner, toRemove.getGroupPath(),
+					toRemove.getName());
 			reloadAttributes();
 			updateAttributes();
-			bus.fireEvent(new AttributeChangedEvent(toRemove.getGroupPath(), toRemove.getName()));
+			bus.fireEvent(new AttributeChangedEvent(toRemove.getGroupPath(),
+					toRemove.getName()));
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Attribute.removeAttributeError", toRemove.getName()), e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"Attribute.removeAttributeError", toRemove.getName()), e);
 		}
 	}
-	
+
 	private boolean addAttribute(Attribute attribute)
 	{
 		try
@@ -300,35 +292,39 @@ public class AttributesPanel extends HorizontalSplitPanel
 			attributesManagement.setAttribute(owner, attribute, false);
 			reloadAttributes();
 			updateAttributes();
-			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(), attribute.getName()));
+			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(),
+					attribute.getName()));
 			return true;
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"Attribute.addAttributeError", attribute.getName()), e);
 			return false;
 		}
 	}
-	
+
 	private boolean updateAttribute(Attribute attribute)
 	{
 		try
 		{
 			attributesManagement.setAttribute(owner, attribute, true);
-			for (int i=0; i<attributes.size(); i++)
+			for (int i = 0; i < attributes.size(); i++)
 			{
 				if (attributes.get(i).getName().equals(attribute.getName()))
 				{
 					attributes.set(i, new AttributeExt(attribute, true));
 				}
-					
+
 			}
-			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(), attribute.getName()));
+			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(),
+					attribute.getName()));
 			reloadAttributes();
 			updateAttributes();
 			return true;
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Attribute.addAttributeError", attribute.getName()), e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"Attribute.addAttributeError", attribute.getName()), e);
 			return false;
 		}
 	}
@@ -342,36 +338,44 @@ public class AttributesPanel extends HorizontalSplitPanel
 				confirmationMan.sendVerification(owner, item);
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, 
-						msg.getMessage("Attribute.confirmationSendError", 
-						item.getName()), e);
+				NotificationPopup.showError(msg,
+						msg.getMessage("Attribute.confirmationSendError",
+								item.getName()),
+						e);
 			}
 		}
 	}
-	
-	private boolean checkAttributeImm(AttributeExt item)
+
+	private boolean checkAttributeImmutable(AttributeExt attribute)
 	{
-		AttributeType attributeType = attributeTypes.get(item
-				.getName());
-		return attributeType.isInstanceImmutable()
-				|| !item.isDirect();
+		AttributeType attributeType = attributeTypes.get(attribute.getName());
+		if (attributeType == null)
+		{
+			log.error("Attribute type is not in the map: " + attribute.getName());
+			return false;
+		}
+		return attributeType.isInstanceImmutable();
 	}
 	
+	private boolean isAttributeEditable(AttributeExt item)
+	{
+		return checkAttributeImmutable(item) || !item.isDirect();
+	}
+
 	private boolean checkAttributeMandatory(AttributeExt item)
 	{
 		return acHelper.isMandatory(item.getName());
-			
+
 	}
-	
+
 	private boolean checkAttributeIsVerifiable(AttributeExt item)
 	{
 		return atSupport.getSyntaxFallingBackToDefault(item).isVerifiable();
 	}
-	
+
 	private boolean checkAttributeIsConfirmed(AttributeExt item)
-	{	
-		AttributeValueSyntax<?> syntax = atSupport.getSyntaxFallingBackToDefault(
-				item);
+	{
+		AttributeValueSyntax<?> syntax = atSupport.getSyntaxFallingBackToDefault(item);
 		for (String valA : item.getValues())
 		{
 			VerifiableElement val = (VerifiableElement) syntax.convertFromString(valA);
@@ -379,16 +383,17 @@ public class AttributesPanel extends HorizontalSplitPanel
 			if (!ci.isConfirmed())
 				return false;
 		}
-		return true;	
+		return true;
 	}
-	
+
 	private SingleActionHandler2<AttributeExt> getDeleteAction()
 	{
 		return SingleActionHandler2.builder4Delete(msg, AttributeExt.class)
-				.withHandler(this::deleteHandler).withDisabledPredicate(a -> checkAttributeImm(a) || checkAttributeMandatory(a))
-				.build();
+				.withDisabledPredicate(a -> isAttributeEditable(a)
+						|| checkAttributeMandatory(a))
+				.withHandler(this::deleteHandler).build();
 	}
-	
+
 	private void deleteHandler(Collection<AttributeExt> items)
 	{
 		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
@@ -398,25 +403,24 @@ public class AttributesPanel extends HorizontalSplitPanel
 				() -> items.forEach(this::removeAttribute));
 		confirm.show();
 	}
-	
+
 	private SingleActionHandler2<AttributeExt> getAddAction()
 	{
 		return SingleActionHandler2.builder4Add(msg, AttributeExt.class)
-				.withHandler(this::showAddDialog)
-				.build();
+				.withHandler(this::showAddDialog).build();
 	}
-		
+
 	private void showAddDialog(Collection<AttributeExt> target)
-	{		
+	{
 		List<AttributeType> allowed = new ArrayList<>(attributeTypes.size());
-		for (AttributeType at: attributeTypes.values())
+		for (AttributeType at : attributeTypes.values())
 		{
 			if (at.isInstanceImmutable())
 				continue;
 			if (acHelper.isAllowed(at.getName()))
 			{
 				boolean used = false;
-				for (AttributeExt a: attributes)
+				for (AttributeExt a : attributes)
 					if (a.isDirect() && a.getName().equals(at.getName()))
 					{
 						used = true;
@@ -426,49 +430,50 @@ public class AttributesPanel extends HorizontalSplitPanel
 					allowed.add(at);
 			}
 		}
-		
+
 		if (allowed.isEmpty())
 		{
 			NotificationPopup.showNotice(msg, msg.getMessage("notice"),
 					msg.getMessage("Attribute.noAvailableAttributes"));
 			return;
 		}
-		
-		AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, 
-				groupPath, registry, true);
-		AttributeEditDialog dialog = new AttributeEditDialog(msg, 
-				msg.getMessage("Attribute.addAttribute"), 
-				a -> addAttribute(a), attributeEditor);
+
+		AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, groupPath,
+				registry, true);
+		AttributeEditDialog dialog = new AttributeEditDialog(msg,
+				msg.getMessage("Attribute.addAttribute"), a -> addAttribute(a),
+				attributeEditor);
 		dialog.show();
 	}
-	
+
 	private SingleActionHandler2<AttributeExt> getEditAction()
 	{
 		return SingleActionHandler2.builder4Edit(msg, AttributeExt.class)
-				.withHandler(this::showEditDialog).withDisabledPredicate(a -> checkAttributeImm(a))
-				.build();
+				.withDisabledPredicate(a -> isAttributeEditable(a))
+				.withHandler(this::showEditDialog).build();
+
 	}
-	
+
 	private void showEditDialog(Collection<AttributeExt> target)
 	{
 		final Attribute attribute = target.iterator().next();
 		AttributeType attributeType = attributeTypes.get(attribute.getName());
-		AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, 
+		AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute,
 				registry);
-		AttributeEditDialog dialog = new AttributeEditDialog(msg, 
-				msg.getMessage("Attribute.editAttribute"), 
-				a -> updateAttribute(a), attributeEditor);
-		dialog.show();	
+		AttributeEditDialog dialog = new AttributeEditDialog(msg,
+				msg.getMessage("Attribute.editAttribute"), a -> updateAttribute(a),
+				attributeEditor);
+		dialog.show();
 	}
 
 	private SingleActionHandler2<AttributeExt> getResendConfirmationAction()
 	{
 		return SingleActionHandler2.builder(AttributeExt.class)
-				.withDisabledPredicate(a -> checkAttributeImm(a)
-						|| !checkAttributeIsVerifiable(a)
-						|| checkAttributeIsConfirmed(a))
 				.withCaption(msg.getMessage("Attribute.resendConfirmation"))
 				.withIcon(Images.confirm.getResource()).multiTarget()
+				.withDisabledPredicate(a -> isAttributeEditable(a)
+						|| !checkAttributeIsVerifiable(a)
+						|| checkAttributeIsConfirmed(a))
 				.hideIfInactive().withHandler(this::showResendDialog).build();
 	}
 
