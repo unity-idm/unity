@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -80,10 +80,12 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		VerticalLayout contents = new VerticalLayout();
+		contents.setMargin(false);
+		contents.setSpacing(false);
 
 		final VerticalLayout mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
-		mainWrapper.setMargin(true);
+		mainWrapper.setSpacing(false);
 
 		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
 		AdminTopHeader header = new AdminTopHeader(displayedName.getValue(msg), 

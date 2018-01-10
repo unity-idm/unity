@@ -27,6 +27,7 @@ import com.vaadin.event.ExpandEvent.ExpandListener;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.TreeGrid;
+import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
@@ -104,6 +105,12 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			final TreeNode node = getSelection();
 			bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getPath()));
 		});
+		
+		SingleSelectionModel<TreeNode> singleSelect =
+				      (SingleSelectionModel<TreeNode>) getSelectionModel();
+			
+		singleSelect.setDeselectAllowed(false);
+	
 		addActionHandler(getRefreshAction());
 		addActionHandler(getExpandAllAction());
 		addActionHandler(getCollapseAllAction());

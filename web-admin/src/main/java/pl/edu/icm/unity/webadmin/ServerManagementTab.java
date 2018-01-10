@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent;
@@ -54,9 +54,11 @@ public class ServerManagementTab  extends VerticalLayout
 
 	private void initUI()
 	{
+		setMargin(false);
+		setSpacing(false);
 		setCaption(msg.getMessage("ServerManagementTab.caption"));
 		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		wrapper.addComponent(tabs);
 		wrapper.setSizeFull();
 		addComponent(wrapper);
