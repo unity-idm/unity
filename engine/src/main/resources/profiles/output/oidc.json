@@ -131,7 +131,7 @@
 				"name": "createAttribute",
 				"parameters": [
 					"email_verified",
-					"attrObj['email'].getConfirmationInfo().isConfirmed()",
+					"attrObj['email'][0].getConfirmationInfo().isConfirmed()",
 					"false",
 					"Email verified",
 					"Email verified"
