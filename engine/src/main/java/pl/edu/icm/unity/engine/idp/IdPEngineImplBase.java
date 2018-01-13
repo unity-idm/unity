@@ -81,12 +81,23 @@ class IdPEngineImplBase implements IdPEngine
 		});
 		List<UserImportSpec> userImports = CommonIdPProperties.getUserImports(
 				importsConfig, firstIdentitiesByType);
-		List<ImportResult> importResult = userImportService.importToExistingUser(
-				userImports, fullEntity.getIdentities().get(0));
 		
+		List<ImportResult> importResult = userImportService.importToExistingUser(
+				userImports, getRegularIdentity(fullEntity.getIdentities()));
+		if (!importResult.isEmpty())
+			fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
 				requester, requesterEntity, protocol, protocolSubType, 
 				assembleImportStatus(importResult));
+	}
+	
+	private Identity getRegularIdentity(List<Identity> identities)
+	{
+		Optional<Identity> nonTargetedIdentity = identities.stream()
+				.filter(id -> id.getTarget() == null).findAny();
+		Identity ret = nonTargetedIdentity.orElse(identities.get(0));
+		log.debug("Using {} identity to require match in importer's input profile", ret);
+		return ret;
 	}
 	
 	@Override

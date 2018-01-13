@@ -38,4 +38,11 @@ public class MappedIdentity
 	{
 		return credentialRequirement;
 	}
+
+	@Override
+	public String toString()
+	{
+		return "MappedIdentity [mode=" + mode + ", identity=" + identity
+				+ ", credentialRequirement=" + credentialRequirement + "]";
+	}
 }

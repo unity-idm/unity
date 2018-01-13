@@ -178,17 +178,18 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				if (existing != null && !existing.getId().equals(found.getId()))
 				{
 					log.warn("Identity was mapped to two different entities: " + 
-							existing + " and " + found + ". Skipping.");
+							existing + " and " + found);
 					throw new ExecutionBreakException();
 				}
 				existing = found;
 				result.addAuthenticatedWith(checked.getIdentity().getValue());
 			} catch (IllegalArgumentException e)
 			{
+				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
 				{
 					log.info("The identity " + checked.getIdentity() + " doesn't exists "
-							+ "in local database, but the profile requires so. Skipping.");
+							+ "in local database, but the profile requires so.");
 					throw new ExecutionBreakException();
 				} else if (checked.getMode() == IdentityEffectMode.CREATE_OR_MATCH)
 				{
@@ -292,10 +293,11 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				throw new ExecutionBreakException();
 			} catch (IllegalArgumentException e)
 			{
+				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
 				{
 					log.info("The identity " + checked.getIdentity() + " doesn't exist "
-							+ "in local database, but the profile requires so. Skipping.");
+							+ "in local database, but the profile requires so.");
 					throw new ExecutionBreakException();
 				} else
 				{
