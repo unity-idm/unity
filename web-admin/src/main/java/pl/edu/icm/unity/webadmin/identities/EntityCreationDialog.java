@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.vaadin.ui.FormLayout;
 import com.vaadin.v7.ui.CheckBox;
 import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.EnumComboBox2;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -57,7 +57,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	
 	private CheckBox addToGroup;
 	private ComboBox credentialRequirement;
-	private EnumComboBox<EntityState> entityState;
+	private EnumComboBox2<EntityState> entityState;
 	private Collection<AttributeType> allTypes;
 	private EventsBus bus;
 	private AttributeTypeManagement attrMan;
@@ -123,7 +123,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 
 		credentialRequirement.setNullSelectionAllowed(false);
 		
-		entityState = new EnumComboBox<EntityState>(msg.getMessage("EntityCreation.initialState"), msg, 
+		entityState = new EnumComboBox2<EntityState>(msg.getMessage("EntityCreation.initialState"), msg, 
 				"EntityState.", EntityState.class, EntityState.valid);
 		
 		main.addComponents(addToGroup, credentialRequirement, entityState);
@@ -186,7 +186,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		try
 		{
 			created = identitiesMan.addEntity(toAdd, (String)credentialRequirement.getValue(), 
-					entityState.getSelectedValue(), extractAttributes.getValue(),
+					entityState.getValue(), extractAttributes.getValue(),
 					attributes);
 		} catch (Exception e)
 		{

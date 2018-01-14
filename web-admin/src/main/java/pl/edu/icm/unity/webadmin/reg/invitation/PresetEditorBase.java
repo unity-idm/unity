@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.EnumComboBox2;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 
@@ -27,7 +27,7 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 	protected UnityMessageSource msg;
 	
 	private CheckBox active;
-	private EnumComboBox<PrefilledEntryMode> mode;
+	private EnumComboBox2<PrefilledEntryMode> mode;
 	
 	public PresetEditorBase(UnityMessageSource msg)
 	{
@@ -42,7 +42,7 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 		active.addValueChangeListener(event -> {
 			setEnabled(active.getValue());
 		});
-		mode = new EnumComboBox<>(msg, "PrefilledEntryMode.", 
+		mode = new EnumComboBox2<>(msg, "PrefilledEntryMode.", 
 				PrefilledEntryMode.class, PrefilledEntryMode.DEFAULT);
 		container.add(active, mode);
 		mode.setWidth(20, Unit.EM);
@@ -75,7 +75,7 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 		if (active.getValue())
 		{
 			T value = getValueInternal();
-			return value != null ? new PrefilledEntry<>(value, mode.getSelectedValue()) : null;	
+			return value != null ? new PrefilledEntry<>(value, mode.getValue()) : null;	
 		}
 		return null;
 	}

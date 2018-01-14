@@ -23,6 +23,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.EnumComboBox2;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -34,9 +35,9 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	private final EntityWithLabel entity;
 	protected Callback callback;
 	
-	private EnumComboBox<EntityState> entityState;
+	private EnumComboBox2<EntityState> entityState;
 	private CheckBox scheduleEnable;
-	private EnumComboBox<EntityScheduledOperation> entityScheduledChange;
+	private EnumComboBox2<EntityScheduledOperation> entityScheduledChange;
 	private DateField changeTime;
 	
 	public ChangeEntityStateDialog(UnityMessageSource msg, EntityWithLabel entity, Callback callback)
@@ -51,7 +52,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	protected FormLayout getContents()
 	{
 		Label info = new Label(msg.getMessage("ChangeEntityStateDialog.info", entity));
-		entityState = new EnumComboBox<>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
+		entityState = new EnumComboBox2<>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
 				"EntityState.", EntityState.class, entity.getEntity().getState(),
 				Sets.newHashSet(EntityState.onlyLoginPermitted));
 		
@@ -72,7 +73,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		EntityInformation initial = entity.getEntity().getEntityInformation();
 		EntityScheduledOperation initialOp = initial.getScheduledOperation() != null ? 
 				initial.getScheduledOperation() : EntityScheduledOperation.DISABLE;
-		entityScheduledChange = new EnumComboBox<>(
+		entityScheduledChange = new EnumComboBox2<>(
 				msg.getMessage("ChangeEntityStateDialog.scheduledOperation"),
 				msg, 
 				"EntityScheduledOperation.", EntityScheduledOperation.class, 
@@ -111,8 +112,8 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		EntityState newState = entityState.getSelectedValue() == null ? entity.getEntity().getState() :
-			entityState.getSelectedValue();
+		EntityState newState = entityState.getValue() == null ? entity.getEntity().getState() :
+			entityState.getValue();
 		EntityInformation newInfo = new EntityInformation(entity.getEntity().getId());
 		newInfo.setState(newState);
 		changeTime.setComponentError(null);
@@ -125,7 +126,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 						msg.getMessage("fieldRequired")));
 				return;
 			}
-			newInfo.setScheduledOperation(entityScheduledChange.getSelectedValue());
+			newInfo.setScheduledOperation(entityScheduledChange.getValue());
 			newInfo.setScheduledOperationTime(changeTime.getValue());
 		}
 		

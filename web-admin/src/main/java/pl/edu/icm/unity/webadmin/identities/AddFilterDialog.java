@@ -21,6 +21,7 @@ import com.vaadin.v7.ui.TextField;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.EnumComboBox2;
 import pl.edu.icm.unity.webui.common.MapComboBox;
 
 /**
@@ -34,7 +35,7 @@ public class AddFilterDialog extends AbstractDialog
 	private Collection<?> columns;
 	
 	private MapComboBox<String> column;
-	private EnumComboBox<Operand> operand;
+	private EnumComboBox2<Operand> operand;
 	private TextField argument;
 	
 	public AddFilterDialog(UnityMessageSource msg, Collection<?> columns, Callback callback)
@@ -60,7 +61,7 @@ public class AddFilterDialog extends AbstractDialog
 		}
 		column = new MapComboBox<String>(colsMap, colsMap.keySet().iterator().next());
 		
-		operand = new EnumComboBox<AddFilterDialog.Operand>(msg, "AddFilterDialog.operand.", 
+		operand = new EnumComboBox2<AddFilterDialog.Operand>(msg, "AddFilterDialog.operand.", 
 				Operand.class, Operand.contain);
 		
 		argument = new TextField();
@@ -74,7 +75,7 @@ public class AddFilterDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		Operand op = operand.getSelectedValue();
+		Operand op = operand.getValue();
 		String opLabel = operand.getSelectedLabel();
 		String argumentV = argument.getValue();
 		if (argumentV.equals(""))

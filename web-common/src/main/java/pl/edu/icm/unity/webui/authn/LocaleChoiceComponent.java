@@ -15,14 +15,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.server.Page;
-import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinService;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.data.Property;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -41,7 +38,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class LocaleChoiceComponent extends CompactFormLayout
 {
-	private ComboBox chooser;
+	private ComboBox<String> chooser;
 	private Map<String, Locale> selectableLocales;
 	
 	@Autowired
@@ -53,28 +50,22 @@ public class LocaleChoiceComponent extends CompactFormLayout
 			return;
 		} else
 		{
-			chooser = new ComboBox(msg.getMessage("LanguageChoiceComponent.language"));
+			chooser = new ComboBox<>(msg.getMessage("LanguageChoiceComponent.language"));
 			String selected = null;
 			Locale selectedLocale = InvocationContext.getCurrent().getLocale();
-			for (Map.Entry<String, Locale> locale: selectableLocales.entrySet())
+			for (Map.Entry<String, Locale> locale : selectableLocales.entrySet())
 			{
-				chooser.addItem(locale.getKey());
-				Resource flag = Images.getFlagForLocale(locale.getValue().toString());
-				if (flag != null)
-					chooser.setItemIcon(locale.getKey(), flag);
 				if (locale.getValue().equals(selectedLocale))
 					selected = locale.getKey();
 			}
+			chooser.setItems(selectableLocales.keySet());
+			chooser.setEmptySelectionAllowed(false);
+			chooser.setItemIconGenerator(i -> Images.getFlagForLocale(selectableLocales.get(i).toString()));
 			if (selected != null)
-				chooser.select(selected);
+				chooser.setValue(selected);
 			chooser.setTextInputAllowed(false);
-			chooser.setNullSelectionAllowed(false);
-			chooser.setImmediate(true);
 			chooser.addStyleName(Styles.vComboSmall.toString());
-			chooser.addValueChangeListener(new Property.ValueChangeListener()
-			{
-				@Override
-				public void valueChange(ValueChangeEvent event)
+			chooser.addSelectionListener(event ->
 				{
 					String localeName = (String) chooser.getValue();
 					Locale l = selectableLocales.get(localeName);
@@ -90,7 +81,7 @@ public class LocaleChoiceComponent extends CompactFormLayout
 					VaadinService.getCurrent().closeSession(vSession);
 					Page.getCurrent().reload();
 				}
-			});
+			);
 			addComponent(chooser);
 			setComponentAlignment(chooser, Alignment.TOP_RIGHT);
 		}
