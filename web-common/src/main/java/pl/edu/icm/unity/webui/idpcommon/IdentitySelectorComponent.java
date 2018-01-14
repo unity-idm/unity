@@ -6,14 +6,12 @@ package pl.edu.icm.unity.webui.idpcommon;
 
 import java.util.List;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -36,7 +34,7 @@ public class IdentitySelectorComponent extends CustomComponent
 	private List<IdentityParam> validIdentities;
 	
 	protected IdentityParam selectedIdentity;
-	protected ComboBox identitiesCB;
+	protected ComboBox<IdentityParam> identitiesCB;
 	
 	public IdentitySelectorComponent(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
 			List<IdentityParam> validIdentities)
@@ -66,14 +64,14 @@ public class IdentitySelectorComponent extends CustomComponent
 					if (((Identity)id).getComparableValue().equals(selId))
 					{
 						if (identitiesCB != null)
-							identitiesCB.select(id);
+							identitiesCB.setValue(id);
 						selectedIdentity = id;
 						break;
 					}
 				} else if (id.getValue().equals(selId))
 				{
 					if (identitiesCB != null)
-						identitiesCB.select(id);
+						identitiesCB.setValue(id);
 					selectedIdentity = id;
 					break;
 				}
@@ -108,12 +106,12 @@ public class IdentitySelectorComponent extends CustomComponent
 	{
 		selectedIdentity = validIdentities.get(0);
 		VerticalLayout contents = new VerticalLayout();
-		contents.setSpacing(true);
+		contents.setMargin(false);
 		
 		if (validIdentities.size() == 1)
 		{
 			HorizontalLayout header = new HorizontalLayout();
-			header.setSpacing(true);
+			header.setMargin(false);
 			
 			Component help = getIdentityHelp(selectedIdentity);
 			ExpandCollapseButton expander = new ExpandCollapseButton(true, help);
@@ -133,20 +131,12 @@ public class IdentitySelectorComponent extends CustomComponent
 			identitiesL.setStyleName(Styles.bold.toString());
 			Label infoManyIds = new Label(msg.getMessage("IdentitySelectorComponent.infoManyIds"));
 			infoManyIds.setStyleName(Styles.vLabelSmall.toString());
-			identitiesCB = new ComboBox();
-			for (IdentityParam id: validIdentities)
-				identitiesCB.addItem(id);
-			identitiesCB.setImmediate(true);
-			identitiesCB.select(selectedIdentity);
-			identitiesCB.setNullSelectionAllowed(false);
-			identitiesCB.addValueChangeListener(new ValueChangeListener()
-			{
-				@Override
-				public void valueChange(ValueChangeEvent event)
-				{
-					selectedIdentity = (IdentityParam) identitiesCB.getValue();
-				}
-			});
+			identitiesCB = new ComboBox<IdentityParam>();
+			identitiesCB.setItems(validIdentities);
+			identitiesCB.setEmptySelectionAllowed(false);
+			identitiesCB.setValue(selectedIdentity);
+			identitiesCB.addSelectionListener(event -> selectedIdentity = event.getValue());
+			
 			contents.addComponents(identitiesL, infoManyIds, identitiesCB);
 		}
 
@@ -158,7 +148,7 @@ public class IdentitySelectorComponent extends CustomComponent
 		try
 		{
 			VerticalLayout ret = new VerticalLayout();
-			ret.setSpacing(true);
+			ret.setMargin(false);
 			IdentityTypeDefinition idTypeDef = idTypeSupport.getTypeDefinition(identity.getTypeId());
 			String displayedValue = idTypeDef.toHumanFriendlyString(msg, identity);
 			if (!displayedValue.equals(identity.getValue()))

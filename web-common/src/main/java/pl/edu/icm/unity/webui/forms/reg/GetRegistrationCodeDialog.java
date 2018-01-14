@@ -4,17 +4,15 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import com.vaadin.v7.data.Validator.InvalidValueException;
+import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Asks user for a registration code.
@@ -37,12 +35,12 @@ class GetRegistrationCodeDialog extends AbstractDialog
 	protected Component getContents() throws Exception
 	{
 		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
+		main.setMargin(false);
 		main.addComponent(new Label(msg.getMessage("GetRegistrationCodeDialog.information")));
 		FormLayout sub = new FormLayout();
-		code = new RequiredTextField(msg.getMessage("GetRegistrationCodeDialog.code"), msg);
-		code.setValidationVisible(false);
-		code.setColumns(Styles.WIDE_TEXT_FIELD);
+		code = new TextField(msg.getMessage("GetRegistrationCodeDialog.code"));
+		code.setRequiredIndicatorVisible(true);
+		code.setWidth(80, Unit.PERCENTAGE);
 		sub.addComponent(code);
 		main.addComponent(sub);
 		return main;
@@ -51,14 +49,14 @@ class GetRegistrationCodeDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		code.setValidationVisible(true);
-		try
+		if (code.isEmpty())
 		{
-			code.validate();
-		} catch (InvalidValueException e)
-		{
+			code.setComponentError(
+					new UserError(msg.getMessage("fieldRequired")));
 			return;
 		}
+		
+		code.setComponentError(null);
 		callback.onCodeGiven(code.getValue());
 		close();
 	}

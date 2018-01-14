@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webui.common.identities.ext;
 
 import com.vaadin.server.UserError;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -33,7 +33,7 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	public ComponentsContainer getEditor(boolean required, boolean adminMode)
 	{
 		field = new TextField(new IdentifierIdentity().getHumanFriendlyName(msg) + ":");
-		field.setRequired(required);
+		field.setRequiredIndicatorVisible(required);
 		this.required = required;
 		return new ComponentsContainer(field);
 	}

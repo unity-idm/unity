@@ -9,7 +9,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -51,6 +51,8 @@ public class SPInfoComponent extends CustomComponent
 	private void initUI()
 	{
 		VerticalLayout main = new VerticalLayout();
+		main.setSpacing(false);
+		main.setMargin(false);
 		
 		if (logo != null)
 		{

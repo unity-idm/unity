@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel2;
 
 /**
  * Display endpoint fields with values
@@ -246,7 +246,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		addFieldToContent(msg.getMessage("Endpoints.type"), endpoint.getType().getName());
 		addFieldToContent(msg.getMessage("Endpoints.typeDescription"), endpoint.getType()
 				.getDescription());
-		I18nLabel displayedName = new I18nLabel(msg, msg.getMessage("displayedNameF"));
+		I18nLabel2 displayedName = new I18nLabel2(msg, msg.getMessage("displayedNameF"));
 		displayedName.setValue(endpoint.getEndpoint().getConfiguration().getDisplayedName());
 		addCustomFieldToContent(displayedName);
 		addFieldToContent(msg.getMessage("Endpoints.paths"), "");
