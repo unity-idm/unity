@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -31,6 +31,8 @@ public class RegistrationFormChooserDialog extends AbstractDialog
 	protected Component getContents()
 	{
 		VerticalLayout vl = new VerticalLayout();
+		vl.setMargin(false);
+		vl.setSpacing(false);
 		vl.addComponent(editor);
 		vl.setComponentAlignment(editor, Alignment.TOP_CENTER);
 		editor.setCallback(() -> {

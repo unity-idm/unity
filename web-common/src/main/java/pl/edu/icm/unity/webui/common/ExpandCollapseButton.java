@@ -24,16 +24,11 @@ public class ExpandCollapseButton extends Button
 		
 		updateState();
 		addStyleName(Styles.vButtonLink.toString());
-		addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				collapsed = !collapsed;
-				updateState();
-				if (customListener != null)
-					customListener.buttonClick(event);
-			}
+		addClickListener(event -> {
+			collapsed = !collapsed;
+			updateState();
+			if (customListener != null)
+				customListener.buttonClick(event);
 		});
 	}
 	

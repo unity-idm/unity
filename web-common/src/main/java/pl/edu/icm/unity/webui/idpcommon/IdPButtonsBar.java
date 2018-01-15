@@ -8,7 +8,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -71,8 +71,6 @@ public class IdPButtonsBar extends CustomComponent
 			}
 		});
 		buttons.addComponents(confirmB, declineB, reloginB);
-		buttons.setSpacing(true);
-		buttons.setMargin(true);
 		buttons.setSizeUndefined();
 		setCompositionRoot(buttons);
 	}

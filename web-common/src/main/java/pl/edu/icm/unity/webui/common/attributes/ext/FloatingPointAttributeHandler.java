@@ -34,7 +34,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 	
 	public FloatingPointAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
-		super(syntax);
+		super(msg, syntax);
 		this.msg = msg;
 	}
 

@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.EnumComboBox2;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
@@ -62,7 +62,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 	private String initialGroup;
 	private CheckBox addToGroup;
 	private ComboBox<String> credentialRequirement;
-	private EnumComboBox<EntityState> entityState;
+	private EnumComboBox2<EntityState> entityState;
 	private Collection<AttributeType> allTypes;
 	private EventsBus bus;
 	
@@ -161,7 +161,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		credentialRequirement.setSelectedItem(credReqs.iterator().next().getName());
 		credentialRequirement.setEmptySelectionAllowed(false);
 		
-		entityState = new EnumComboBox<EntityState>(msg.getMessage("EntityCreation.initialState"), msg, 
+		entityState = new EnumComboBox2<EntityState>(msg.getMessage("EntityCreation.initialState"), msg, 
 				"EntityState.", EntityState.class, EntityState.valid);
 		
 		main.addComponents(addToGroup, credentialRequirement, entityState);
@@ -224,7 +224,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		try
 		{
 			created = identitiesMan.addEntity(toAdd, (String)credentialRequirement.getValue(), 
-					entityState.getSelectedValue(), extractAttributes.getValue(),
+					entityState.getValue(), extractAttributes.getValue(),
 					attributes);
 		} catch (Exception e)
 		{

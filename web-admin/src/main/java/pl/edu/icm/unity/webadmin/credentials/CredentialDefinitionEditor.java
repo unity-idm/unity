@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.EnumComboBox2;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
@@ -36,7 +36,7 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	private TextField name;
 	private I18nTextField2 displayedName;
 	private I18nTextArea2 description;
-	private EnumComboBox<LocalCredentialState> newCredState; 
+	private EnumComboBox2<LocalCredentialState> newCredState; 
 	private ComboBox<String> credentialType;
 	private SafePanel credentialEditorPanel;
 	private pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor cdEd;
@@ -71,7 +71,7 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 		
 		if (initial != null)
 		{
-			newCredState = new EnumComboBox<LocalCredentialState>(
+			newCredState = new EnumComboBox2<LocalCredentialState>(
 					msg.getMessage("CredentialDefinition.replacementState"), msg, 
 					"DesiredCredentialStatus.", 
 					LocalCredentialState.class, LocalCredentialState.outdated);
@@ -131,6 +131,6 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	
 	public LocalCredentialState getLocalCredState()
 	{
-		return newCredState == null ? null : newCredState.getSelectedValue();
+		return newCredState == null ? null : newCredState.getValue();
 	}
 }

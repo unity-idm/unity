@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.WebAttributeMetadataHandler;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel2;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -30,8 +30,8 @@ public class AttributeTypeViewer extends CompactFormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
-	private I18nLabel displayedName;
-	private I18nLabel typeDescription;
+	private I18nLabel2 displayedName;
+	private I18nLabel2 typeDescription;
 	private Label cardinality;
 	private Label uniqueVals;
 	private Label selfModificable;
@@ -52,10 +52,10 @@ public class AttributeTypeViewer extends CompactFormLayout
 		name.setCaption(msg.getMessage("AttributeType.name"));
 		addComponent(name);
 		
-		displayedName = new I18nLabel(msg, msg.getMessage("AttributeType.displayedName"));
+		displayedName = new I18nLabel2(msg, msg.getMessage("AttributeType.displayedName"));
 		addComponent(displayedName);
 		
-		typeDescription = new I18nLabel(msg, msg.getMessage("AttributeType.description"));
+		typeDescription = new I18nLabel2(msg, msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		cardinality = new Label();

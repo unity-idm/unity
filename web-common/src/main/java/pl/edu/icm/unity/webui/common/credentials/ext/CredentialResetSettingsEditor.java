@@ -6,11 +6,8 @@ package pl.edu.icm.unity.webui.common.credentials.ext;
 
 import org.vaadin.risto.stepper.IntStepper;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
@@ -18,7 +15,7 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
@@ -38,7 +35,7 @@ public class CredentialResetSettingsEditor
 	private CheckBox requireEmailConfirmation;
 	private CheckBox requireQuestionConfirmation;
 	private TextFieldWithButton questionAdder;
-	private ComboBox codeMessageTemplate;
+	private CompatibleTemplatesComboBox2 codeMessageTemplate;
 	private ListOfElements<String> questions;
 	private MessageTemplateManagement msgTplMan;
 	
@@ -98,15 +95,7 @@ public class CredentialResetSettingsEditor
 	private void initUI()
 	{
 		enable = new CheckBox(msg.getMessage("CredentialResetSettings.enable"));
-		enable.setImmediate(true);
-		enable.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				setEnabled(enable.getValue());
-			}
-		});
+		enable.addValueChangeListener(event -> setEnabled(enable.getValue()));
 		
 		codeLength = new IntStepper(msg.getMessage("CredentialResetSettings.codeLength"));
 		codeLength.setMinValue(2);
@@ -115,33 +104,23 @@ public class CredentialResetSettingsEditor
 		
 		requireEmailConfirmation = new CheckBox(
 				msg.getMessage("CredentialResetSettings.requireEmailConfirmation"));
-		requireEmailConfirmation.setImmediate(true);
-		requireEmailConfirmation.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				boolean state = requireEmailConfirmation.getValue();
-				codeMessageTemplate.setEnabled(state);
-			}
+		requireEmailConfirmation.addValueChangeListener(event -> {
+			boolean state = requireEmailConfirmation.getValue();
+			codeMessageTemplate.setEnabled(state);
 		});
+
 		requireQuestionConfirmation = new CheckBox(
 				msg.getMessage("CredentialResetSettings.requireQuestionConfirmation"));
 		
-		codeMessageTemplate = new CompatibleTemplatesComboBox(PasswordResetTemplateDef.NAME, msgTplMan);
+		codeMessageTemplate = new CompatibleTemplatesComboBox2(PasswordResetTemplateDef.NAME, msgTplMan);
 		codeMessageTemplate.setCaption(msg.getMessage("CredentialResetSettings.messageTemplate"));
 		
-		requireQuestionConfirmation.setImmediate(true);
-		requireQuestionConfirmation.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				boolean state = requireQuestionConfirmation.getValue();
-				questionAdder.setEnabled(state);
-				questions.setEnabled(state);
-			}
+		requireQuestionConfirmation.addValueChangeListener(event -> {
+			boolean state = requireQuestionConfirmation.getValue();
+			questionAdder.setEnabled(state);
+			questions.setEnabled(state);
 		});
+		
 		
 		questionAdder = new TextFieldWithButton(
 				msg.getMessage("CredentialResetSettings.defineNewQuestion"), 

@@ -11,9 +11,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -85,14 +83,8 @@ public class SelectableAttributeWithValues extends CustomComponent
 		selectableAttr.addEntry(attrNameLabel, false);
 		selectableAttr.setWidth(100, Unit.PERCENTAGE);
 		final CheckBox mainDisable = selectableAttr.getSelection().iterator().next();
-		mainDisable.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				listOfValues.setEnabled(!mainDisable.getValue());
-			}
-		});
+		mainDisable.addValueChangeListener(event -> listOfValues.setEnabled(!mainDisable.getValue()));
+		
 		selectableAttr.setCheckBoxesVisible(enableSelect);
 		
 		

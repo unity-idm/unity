@@ -34,7 +34,7 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 
 	public IntegerAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
-		super(syntax);
+		super(msg, syntax);
 		this.msg = msg;
 	}
 
