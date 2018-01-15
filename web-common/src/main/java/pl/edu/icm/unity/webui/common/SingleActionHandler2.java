@@ -28,6 +28,7 @@ public class SingleActionHandler2<T>
 	private boolean multiTarget = false;
 	private boolean hideIfInactive = false;
 	private Predicate<T> disabledPredicate;
+	private Predicate<Set<T>> disabledCompositePredicate;
 	private Consumer<Set<T>> actionHandler;
 	private String caption;
 	private Resource icon;
@@ -36,6 +37,7 @@ public class SingleActionHandler2<T>
 	private SingleActionHandler2()
 	{
 		disabledPredicate = a -> false;
+		disabledCompositePredicate = a -> false;
 	}
 	
 	public static <T> Builder<T> builder()
@@ -166,6 +168,12 @@ public class SingleActionHandler2<T>
 			this.obj.disabledPredicate = filter;
 			return this;
 		}
+
+		public Builder<T> withDisabledCompositePredicate(Predicate<Set<T>> filter)
+		{
+			this.obj.disabledCompositePredicate = filter;
+			return this;
+		}
 		
 		public SingleActionHandler2<T> build()
 		{
@@ -205,6 +213,8 @@ public class SingleActionHandler2<T>
 		if (needsTarget && selection.isEmpty())
 			return false;
 		if (selection.stream().anyMatch(disabledPredicate))
+			return false;
+		if (disabledCompositePredicate.test(selection))
 			return false;
 		if (forceDisabled)
 			return false;

@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -32,6 +35,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  * with a separate dialog, for each group.
  * @author K. Benedyczak
  */
+@Component
 public class GroupManagementHelper
 {
 	private UnityMessageSource msg;
@@ -40,6 +44,7 @@ public class GroupManagementHelper
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private AttributeClassManagement acMan;
 	
+	@Autowired
 	public GroupManagementHelper(UnityMessageSource msg, GroupsManagement groupsMan,
 			AttributeTypeManagement attrMan, 
 			AttributeClassManagement acMan,

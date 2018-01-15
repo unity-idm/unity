@@ -10,7 +10,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -72,7 +71,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
-import pl.edu.icm.unity.webadmin.identities.CredentialRequirementDialog.Callback;
+import pl.edu.icm.unity.webadmin.identities.ChangeCredentialRequirementDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -170,7 +169,7 @@ public class IdentitiesTable extends CustomComponent
 	private TreeTable table;
 	private ProgressBar loadingProgress;
 	private String group;
-	private Map<Long, IdentitiesAndAttributes> data = new HashMap<>();
+	private Map<Long, ResolvedEntity> data = new HashMap<>();
 	private boolean groupByEntity;
 	private boolean showTargeted;
 	private Entity selected;
@@ -549,7 +548,7 @@ public class IdentitiesTable extends CustomComponent
 		{
 			for (int i=offset; i<entities.size(); i+=CHUNK)
 			{
-				List<IdentitiesAndAttributes> resolved = resolveEntities(entities, i, CHUNK);
+				List<ResolvedEntity> resolved = resolveEntities(entities, i, CHUNK);
 				if (controller.isCancelled())
 					return;
 				updateTable(resolved, (float)(i+CHUNK)/entities.size());
@@ -565,11 +564,11 @@ public class IdentitiesTable extends CustomComponent
 			}); 
 		}
 		
-		private List<IdentitiesAndAttributes> resolveEntities(List<Long> entities, 
+		private List<ResolvedEntity> resolveEntities(List<Long> entities, 
 				int first, int amount) throws EngineException
 		{
 			int limit = first + amount > entities.size() ? entities.size() : amount + first;
-			List<IdentitiesAndAttributes> toAdd = new LinkedList<>();
+			List<ResolvedEntity> toAdd = new LinkedList<>();
 			for (int i=first; i<limit; i++)
 			{
 				long entity = entities.get(i);
@@ -577,7 +576,7 @@ public class IdentitiesTable extends CustomComponent
 					break;
 				try
 				{
-					IdentitiesAndAttributes resolvedEntity = resolveEntity(entity);
+					ResolvedEntity resolvedEntity = resolveEntity(entity);
 					toAdd.add(resolvedEntity);
 					if (controller.isCancelled())
 						break;
@@ -590,10 +589,10 @@ public class IdentitiesTable extends CustomComponent
 			return toAdd;
 		}
 		
-		private void updateTable(List<IdentitiesAndAttributes> toAdd, float progress)
+		private void updateTable(List<ResolvedEntity> toAdd, float progress)
 		{
 			ui.accessSynchronously(() -> {
-				for (IdentitiesAndAttributes resolvedEntity: toAdd)
+				for (ResolvedEntity resolvedEntity: toAdd)
 				{
 					if (groupByEntityLocal)
 						addGroupedEntryToTable(resolvedEntity, selected);
@@ -647,7 +646,7 @@ public class IdentitiesTable extends CustomComponent
 			long entity = entities.get(i);
 			try
 			{
-				IdentitiesAndAttributes resolvedEntity = resolveEntity(entity);
+				ResolvedEntity resolvedEntity = resolveEntity(entity);
 				if (groupByEntity)
 					addGroupedEntryToTable(resolvedEntity, selected);
 				else
@@ -666,7 +665,7 @@ public class IdentitiesTable extends CustomComponent
 		Object selected = getSingleSelectedItem();
 		table.removeAllItems();
 		removeAllFiltersFromTable();
-		for (IdentitiesAndAttributes entry: data.values())
+		for (ResolvedEntity entry: data.values())
 		{
 			if (groupByEntity)
 				addGroupedEntryToTable(entry, selected);
@@ -676,7 +675,7 @@ public class IdentitiesTable extends CustomComponent
 		addAllFilters();
 	}
 
-	private void addGroupedEntryToTable(IdentitiesAndAttributes entry, Object selected)
+	private void addGroupedEntryToTable(ResolvedEntity entry, Object selected)
 	{
 		Entity entity = entry.getEntity();
 		Object parentKey = addRow(null, entity, entry.getRootAttributes(), entry.getCurrentAttributes());
@@ -694,7 +693,7 @@ public class IdentitiesTable extends CustomComponent
 		}
 	}
 	
-	private void addFlatEntryToTable(IdentitiesAndAttributes entry, Object selected)
+	private void addFlatEntryToTable(ResolvedEntity entry, Object selected)
 	{
 		for (Identity id: entry.getIdentities())
 			{
@@ -892,7 +891,7 @@ public class IdentitiesTable extends CustomComponent
 		}
 	}
 
-	private IdentitiesAndAttributes resolveEntity(long entity) throws EngineException
+	private ResolvedEntity resolveEntity(long entity) throws EngineException
 	{		
 		Entity resolvedEntity = showTargeted ? identitiesMan
 				.getEntityNoContext(new EntityParam(entity), this.group) : identitiesMan
@@ -915,7 +914,7 @@ public class IdentitiesTable extends CustomComponent
 			rootAttrs.put(a.getName(), a);
 		for (Attribute a: rawCurAttrs)
 			curAttrs.put(a.getName(), a);
-		IdentitiesAndAttributes resolved = new IdentitiesAndAttributes(resolvedEntity, 
+		ResolvedEntity resolved = new ResolvedEntity(resolvedEntity, 
 				resolvedEntity.getIdentities(),	rootAttrs, curAttrs);
 		data.put(resolvedEntity.getId(), resolved);
 		return resolved;
@@ -1082,17 +1081,17 @@ public class IdentitiesTable extends CustomComponent
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			new EntityCreationDialog(msg, group, identitiesMan, groupsMan, credReqMan,
-					attrHandlerRegistry,
-					atMan, acMan, identityEditorReg, 
-					new EntityCreationDialog.Callback()
-					{
-						@Override
-						public void onCreated(Identity newIdentity)
-						{
-							bus.fireEvent(new GroupChangedEvent(group));
-						}
-					}).show();
+//			new EntityCreationDialog(msg, group, identitiesMan, groupsMan, credReqMan,
+//					attrHandlerRegistry,
+//					atMan, acMan, identityEditorReg, 
+//					new EntityCreationDialog.Callback()
+//					{
+//						@Override
+//						public void onCreated(Identity newIdentity)
+//						{
+//							bus.fireEvent(new GroupChangedEvent(group));
+//						}
+//					}).show();
 		}
 	}
 
@@ -1114,17 +1113,17 @@ public class IdentitiesTable extends CustomComponent
 		@Override
 		public void handleAction(Object sender, Object target)
 		{
-			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
-					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
-			new IdentityCreationDialog(msg, entity.getEntity().getId(), identitiesMan,  
-					identityEditorReg, new IdentityCreationDialog.Callback()
-					{
-						@Override
-						public void onCreated(Identity newIdentity)
-						{
-							bus.fireEvent(new GroupChangedEvent(group));
-						}
-					}).show();
+//			final EntityWithLabel entity = target instanceof IdentityWithEntity ? 
+//					((IdentityWithEntity) target).getEntityWithLabel() : ((EntityWithLabel)target);
+//			new IdentityCreationDialog(msg, entity.getEntity().getId(), identitiesMan,  
+//					identityEditorReg, new IdentityCreationDialog.Callback()
+//					{
+//						@Override
+//						public void onCreated(Identity newIdentity)
+//						{
+//							bus.fireEvent(new GroupChangedEvent(group));
+//						}
+//					}).show();
 		}
 	}
 	
@@ -1275,10 +1274,10 @@ public class IdentitiesTable extends CustomComponent
 		public void handleAction(Object sender, Object target)
 		{
 			final EntityWithLabel entity = getSingleSelect(target);
-			IdentitiesAndAttributes info = data.get(entity.getEntity().getId());
+			ResolvedEntity info = data.get(entity.getEntity().getId());
 			String currentCredId = info.getEntity().getCredentialInfo()
 					.getCredentialRequirementId();
-			new CredentialRequirementDialog(msg, entity, currentCredId, eCredMan,
+			new ChangeCredentialRequirementDialog(msg, entity, currentCredId, eCredMan,
 					credReqMan, new Callback()
 					{
 						@Override
@@ -1524,52 +1523,6 @@ public class IdentitiesTable extends CustomComponent
 	public boolean isShowTargeted()
 	{
 		return showTargeted;
-	}
-
-	/**
-	 * Complete info about entity: its identities and relevant attributes.
-	 * Used to populate table.
-	 */
-	private static class IdentitiesAndAttributes
-	{
-		private Entity entity;
-		private Set<Identity> identities;
-		private Map<String, Attribute> rootAttributes;
-		private Map<String, Attribute> currentAttributes;
-
-		public IdentitiesAndAttributes(Entity entity, List<Identity> identities, 
-				Map<String, Attribute> rootAttributes, Map<String, Attribute> currentAttributes)
-		{
-			this.identities = new LinkedHashSet<>(identities); 
-			this.rootAttributes = rootAttributes;
-			this.currentAttributes = currentAttributes;
-			this.entity = entity;
-		}
-		
-		public void removeIdentity(Identity identity)
-		{
-			identities.remove(identity);
-		}
-
-		public Collection<Identity> getIdentities()
-		{
-			return identities;
-		}
-
-		public Map<String, Attribute> getRootAttributes()
-		{
-			return rootAttributes;
-		}
-
-		public Map<String, Attribute> getCurrentAttributes()
-		{
-			return currentAttributes;
-		}
-
-		public Entity getEntity()
-		{
-			return entity;
-		}
 	}
 
 	/**

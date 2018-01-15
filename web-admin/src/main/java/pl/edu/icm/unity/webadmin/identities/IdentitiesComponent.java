@@ -8,57 +8,57 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.v7.data.Container;
-import com.vaadin.v7.data.Container.Filter;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.util.filter.Or;
-import com.vaadin.v7.data.util.filter.SimpleStringFilter;
-import com.vaadin.v7.event.FieldEvents.TextChangeEvent;
-import com.vaadin.v7.event.FieldEvents.TextChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CssLayout;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
+import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
-import pl.edu.icm.unity.webadmin.identities.AddAttributeColumnDialog.Callback;
+import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog.EntityCreationDialogHandler;
+import pl.edu.icm.unity.webadmin.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
+import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -72,115 +72,103 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class IdentitiesComponent extends SafePanel
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesComponent.class);
-	private static final List<Long> EMPTY_LIST = new ArrayList<Long>(0);
 	private UnityMessageSource msg;
 	private VerticalLayout main;
-	private GroupsManagement groupsManagement;
-	private IdentitiesTable identitiesTable;
+	private IdentitiesGrid identitiesTable;
 	private HorizontalLayout filtersBar;
-	private Or fastSearchFilter;
+	private EntityFilter fastSearchFilter;
+	private EventsBus bus;
+	private ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory;
+	private ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory;
+	private EntityManagement entityMan;
+	
 	
 	@Autowired
-	public IdentitiesComponent(final UnityMessageSource msg, GroupsManagement groupsManagement,
-			final AttributeTypeManagement attrsMan, final IdentitiesTable identitiesTable)
+	public IdentitiesComponent(UnityMessageSource msg, AttributeTypeManagement attrsMan, 
+			EntityManagement entityMan, GroupsManagement groupsMan,
+			
+			RemoveFromGroupHandler removeFromGroupHandler,
+			EntityCreationDialogHandler entityCreationDialogHandler,
+			IdentityCreationDialogHandler identityCreationDialogHanlder,
+			DeleteEntityHandler deleteEntityHandler,
+			DeleteIdentityHandler deleteIdentityHandler,
+			IdentityConfirmationResendHandler confirmationResendHandler,
+			ChangeEntityStateHandler changeEntityStateHandler,
+			ChangeCredentialRequirementHandler credentialRequirementHandler,
+			EntityMergeHandler entityMergeHandler,
+			IdentitiesGrid identitiesTable, 
+			ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory,
+			ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory)
 	{
 		this.msg = msg;
-		this.groupsManagement = groupsManagement;
+		this.entityMan = entityMan;
 		this.identitiesTable = identitiesTable;
+		this.credentialChangeDialogFactory = credentialChangeDialogFactory;
+		this.entityDetailsPanelFactory = entityDetailsPanelFactory;
 
 		main = new VerticalLayout();
 		main.addStyleName(Styles.visibleScroll.toString());
 		
 		CssLayout topBar = new CssLayout();
 		final CheckBox mode = new CheckBox(msg.getMessage("Identities.mode"));
-		mode.setImmediate(true);
-		mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
+		//TODO x2
+		//mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
 		mode.addStyleName(Styles.vSmall.toString());
 		mode.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		mode.addStyleName(Styles.horizontalMarginSmall.toString());
 		
 		final CheckBox showTargeted = new CheckBox(msg.getMessage("Identities.showTargeted"));
-		showTargeted.setImmediate(true);
-		showTargeted.setValue(IdentitiesComponent.this.identitiesTable.isShowTargeted());
+		//showTargeted.setValue(IdentitiesComponent.this.identitiesTable.isShowTargeted());
 		showTargeted.addStyleName(Styles.vSmall.toString());
 		showTargeted.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		showTargeted.addStyleName(Styles.horizontalMarginSmall.toString());
-		
-		Toolbar toolbar = new Toolbar(identitiesTable.getValueChangeNotifier(), Orientation.HORIZONTAL);
+
+		Toolbar2<IdentityEntry> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		identitiesTable.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addStyleName(Styles.floatRight.toString());
 		toolbar.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		toolbar.addStyleName(Styles.horizontalMarginSmall.toString());
 
 		filtersBar = new HorizontalLayout();
 		filtersBar.addComponent(new Label(msg.getMessage("Identities.filters")));
+		filtersBar.setMargin(false);
+		filtersBar.setSpacing(false);
 		filtersBar.setVisible(false);
 		
 		Button addAttributes = new Button();
 		addAttributes.setDescription(msg.getMessage("Identities.addAttributes"));
 		addAttributes.setIcon(Images.addColumn.getResource());
-		addAttributes.addClickListener(new ClickListener()
+		addAttributes.addClickListener(event -> 
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				new AddAttributeColumnDialog(IdentitiesComponent.this.msg, 
-						attrsMan, new Callback()
-						{
-							@Override
-							public void onChosen(String attributeType, String group)
-							{
-								IdentitiesComponent.this.identitiesTable.
-									addAttributeColumn(attributeType, group);
-							}
-						}).show(); 
-			}
+			new AddAttributeColumnDialog(msg, attrsMan, 
+					(attributeType, group) ->
+					identitiesTable.addAttributeColumn(attributeType, group)
+			).show(); 
 		});
 		
 		Button removeAttributes = new Button();
 		removeAttributes.setDescription(msg.getMessage("Identities.removeAttributes"));
 		removeAttributes.setIcon(Images.removeColumn.getResource());
-		removeAttributes.addClickListener(new ClickListener()
+		removeAttributes.addClickListener(event -> 
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				Set<String> alreadyUsedRoot = 
-						IdentitiesComponent.this.identitiesTable.getAttributeColumns(true);
-				Set<String> alreadyUsedCurrent = 
-						IdentitiesComponent.this.identitiesTable.getAttributeColumns(false);
-				new RemoveAttributeColumnDialog(IdentitiesComponent.this.msg, alreadyUsedRoot,
-						alreadyUsedCurrent, IdentitiesComponent.this.identitiesTable.getGroup(),
-						new RemoveAttributeColumnDialog.Callback()
-						{
-							@Override
-							public void onChosen(String attributeType, String group)
-							{
-								IdentitiesComponent.this.identitiesTable.
-									removeAttributeColumn(group, attributeType);
-							}
-						}).show(); 
-			}
+			Set<String> alreadyUsedRoot = identitiesTable.getAttributeColumns(true);
+			Set<String> alreadyUsedCurrent = identitiesTable.getAttributeColumns(false);
+			new RemoveAttributeColumnDialog(msg, alreadyUsedRoot,
+					alreadyUsedCurrent, identitiesTable.getGroup(),
+					(attributeType, group) -> 
+					identitiesTable.removeAttributeColumn(group, attributeType)
+			).show(); 
 		});
 		
 		Button addFilter = new Button();
 		addFilter.setDescription(msg.getMessage("Identities.addFilter"));
 		addFilter.setIcon(Images.addFilter.getResource());
-		addFilter.addClickListener(new ClickListener()
+		addFilter.addClickListener(event ->
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				Collection<?> props = IdentitiesComponent.this.identitiesTable.getContainerPropertyIds();
-				new AddFilterDialog(IdentitiesComponent.this.msg, props, 
-						new AddFilterDialog.Callback()
-						{
-							@Override
-							public void onConfirm(Filter filter, String description)
-							{
-								addFilterInfo(filter, description);
-							}
-						}).show(); 
-			}
+			List<String> columnIds = identitiesTable.getColumnIds();
+			new AddFilterDialog(msg, columnIds, 
+					(filter, description) -> addFilterInfo(filter, description)
+			).show(); 
 		});
 		
 		
@@ -189,12 +177,11 @@ public class IdentitiesComponent extends SafePanel
 		savePreferences.setIcon(Images.save.getResource());
 		savePreferences.addClickListener(new ClickListener()
 		{
-			
 			@Override
 			public void buttonClick(ClickEvent event)
 			{
-				IdentitiesComponent.this.identitiesTable.savePreferences();
-				
+//				IdentitiesComponent.this.identitiesTable.savePreferences();
+//TODO				
 			}
 		});
 		HorizontalLayout searchWrapper = new HorizontalLayout();
@@ -208,76 +195,67 @@ public class IdentitiesComponent extends SafePanel
 		spacer.setWidth(4, Unit.EM);
 		final TextField searchText = new TextField();
 		searchText.addStyleName(Styles.vSmall.toString());
-		searchText.setColumns(8);
+		searchText.setWidth(8, Unit.EM);
 		searchWrapper.addComponents(spacer, searchL, searchText);
 		searchWrapper.setComponentAlignment(searchL, Alignment.MIDDLE_RIGHT);
 		searchWrapper.setComponentAlignment(searchText, Alignment.MIDDLE_LEFT);
 		
-		searchText.setImmediate(true);
-		searchText.addTextChangeListener(new TextChangeListener()
+		searchText.addValueChangeListener(event -> 
 		{
-			@Override
-			public void textChange(TextChangeEvent event)
-			{
-				Collection<?> props = IdentitiesComponent.this.identitiesTable
-						.getContainerPropertyIds();
-				ArrayList<Container.Filter> filters = new ArrayList<Container.Filter>();
-				String searchText = event.getText();
-				if (fastSearchFilter != null)
-					identitiesTable.removeFilter(fastSearchFilter);
-				if (searchText.isEmpty())
-					return;
-				for (Object colIdRaw : props)
-				{
-					String colId = (String) colIdRaw;
-					if (IdentitiesComponent.this.identitiesTable.isColumnCollapsed(colId))
-						continue;
-					Filter filter = new SimpleStringFilter(colId, searchText, true, false);
-					filters.add(filter);
-				}
-				if (filters.size() < 1)
-					return;
-				Filter[] orFillters = filters.toArray(new Filter[filters.size()]);
-				fastSearchFilter = new Or(orFillters);
-				identitiesTable.addFilter(fastSearchFilter);
-			}
+			String searched = event.getValue();
+			if (fastSearchFilter != null)
+				identitiesTable.removeFilter(fastSearchFilter);
+			if (searched.isEmpty())
+				return;
+			fastSearchFilter = e -> e.anyFieldContains(searched, 
+					identitiesTable.getVisibleColumnIds());
+			identitiesTable.addFilter(fastSearchFilter);
 		});
 
+		
+		identitiesTable.addActionHandler(getRefreshAction());
+		identitiesTable.addActionHandler(getShowEntityAction());
+		identitiesTable.addActionHandler(removeFromGroupHandler
+				.getAction(identitiesTable::getGroup, this::refresh));
+		identitiesTable.addActionHandler(entityCreationDialogHandler.getAction(
+				identitiesTable::getGroup, added -> refresh()));
+		identitiesTable.addActionHandler(identityCreationDialogHanlder.getAction(
+				added -> refresh()));
+		identitiesTable.addActionHandler(deleteEntityHandler.getAction(
+				identitiesTable::removeEntity));
+		identitiesTable.addActionHandler(deleteIdentityHandler.getAction(
+				identitiesTable::removeIdentity, this::refresh));
+		identitiesTable.addActionHandler(changeEntityStateHandler.getAction(this::refresh));
+		identitiesTable.addActionHandler(getChangeCredentialAction());
+		identitiesTable.addActionHandler(credentialRequirementHandler.getAction(this::refresh));
+//		identitiesTable.addActionHandler(new EntityAttributesClassesHandler());
+		identitiesTable.addActionHandler(entityMergeHandler.getAction(identitiesTable::getGroup));
+		identitiesTable.addActionHandler(confirmationResendHandler.getAction());
+		//TODO	
+		
 		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
 		toolbar.addSeparator();
 		toolbar.addButtons(addFilter, addAttributes, removeAttributes, savePreferences);
 		topBar.addComponents(mode, showTargeted, searchWrapper, toolbar);
 		topBar.setWidth(100, Unit.PERCENTAGE);
 		
-		mode.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				IdentitiesComponent.this.identitiesTable.setMode(mode.getValue());
-			}
-		});
+		mode.addValueChangeListener(event -> identitiesTable.setMode(mode.getValue()));
 		
-		showTargeted.addValueChangeListener(new ValueChangeListener()
+		showTargeted.addValueChangeListener(event -> 
 		{
-			
-			@Override
-			public void valueChange(ValueChangeEvent event)
+			try
 			{
-					try
-					{
-						IdentitiesComponent.this.identitiesTable.setShowTargeted(showTargeted.getValue());
-					} catch (EngineException e)
-					{
-						setIdProblem(IdentitiesComponent.this.identitiesTable.getGroup(), e);
-					}	
-			}
+				identitiesTable.setShowTargeted(showTargeted.getValue());
+			} catch (EngineException e)
+			{
+				setIdProblem(IdentitiesComponent.this.identitiesTable.getGroup(), e);
+			}	
 		});
 
 		
 		main.addComponents(topBar, filtersBar, identitiesTable);
 		main.setExpandRatio(identitiesTable, 1.0f);
-		main.setSpacing(true);
+		main.setMargin(false);
 		main.setSizeFull();
 		
 		setSizeFull();
@@ -285,72 +263,55 @@ public class IdentitiesComponent extends SafePanel
 		setStyleName(Styles.vPanelLight.toString());
 		setCaption(msg.getMessage("Identities.caption"));
 
-		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(new EventListener<GroupChangedEvent>()
-		{
-			@Override
-			public void handleEvent(GroupChangedEvent event)
-			{
-				setGroup(event.getGroup());
-			}
-		}, GroupChangedEvent.class);
+		bus = WebSession.getCurrent().getEventBus();
 		
-		bus.addListener(new EventListener<CredentialRequirementChangedEvent>()
+		bus.addListener(event -> setGroup(event.getGroup()), GroupChangedEvent.class);
+
+		bus.addListener(event -> setGroup(identitiesTable.getGroup()), 
+				CredentialRequirementChangedEvent.class);
+		
+		bus.addListener(event -> 
 		{
-			@Override
-			public void handleEvent(CredentialRequirementChangedEvent event)
-			{
-				setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
-			}
-		}, CredentialRequirementChangedEvent.class);
-		bus.addListener(new EventListener<CredentialDefinitionChangedEvent>()
-		{
-			@Override
-			public void handleEvent(CredentialDefinitionChangedEvent event)
-			{
-				if (event.isUpdatedExisting())
-					setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
-			}
+			if (event.isUpdatedExisting())
+				setGroup(identitiesTable.getGroup());
 		}, CredentialDefinitionChangedEvent.class);
 
-		bus.addListener(new EventListener<AttributeTypesUpdatedEvent>()
-		{
-			@Override
-			public void handleEvent(AttributeTypesUpdatedEvent event)
-			{
-				setGroup(IdentitiesComponent.this.identitiesTable.getGroup());
-			}
-		}, AttributeTypesUpdatedEvent.class);
+		bus.addListener(event -> setGroup(identitiesTable.getGroup()), 
+				AttributeTypesUpdatedEvent.class);
 		
-		bus.addListener(new EventListener<AttributeChangedEvent>()
+		bus.addListener(event ->
 		{
-			@Override
-			public void handleEvent(AttributeChangedEvent event)
+			Set<String> interestingCurrent = identitiesTable.getAttributeColumns(false);
+			String curGroup = identitiesTable.getGroup();
+			if (interestingCurrent.contains(event.getAttributeName()) && curGroup.equals(event.getGroup()))
 			{
-				Set<String> interestingCurrent = 
-						IdentitiesComponent.this.identitiesTable.getAttributeColumns(false);
-				String curGroup = IdentitiesComponent.this.identitiesTable.getGroup();
-				if (interestingCurrent.contains(event.getAttributeName()) && curGroup.equals(event.getGroup()))
+				setGroup(curGroup);
+				return;
+			}
+			if (curGroup.equals("/") && curGroup.equals(event.getGroup()))
+			{
+				Set<String> interestingRoot = identitiesTable.getAttributeColumns(true);
+				if (interestingRoot.contains(event.getAttributeName()))
 				{
 					setGroup(curGroup);
 					return;
 				}
-				if (curGroup.equals("/") && curGroup.equals(event.getGroup()))
-				{
-					Set<String> interestingRoot = 
-						IdentitiesComponent.this.identitiesTable.getAttributeColumns(true);
-					if (interestingRoot.contains(event.getAttributeName()))
-					{
-						setGroup(curGroup);
-						return;
-					}
-				}
 			}
 		}, AttributeChangedEvent.class);
+		
 		setGroup(null);
 	}
+
 	
-	private void addFilterInfo(Filter filter, String description)
+	static String getConfirmTextForIdentitiesNodes(UnityMessageSource msg, Set<IdentityEntry> selection)
+	{
+		Collection<String> ids = new ArrayList<>();
+		for (IdentityEntry o: selection)
+			ids.add(o.getSourceIdentity().toString());		
+		return MessageUtils.createConfirmFromStrings(msg, ids);
+	}
+	
+	private void addFilterInfo(EntityFilter filter, String description)
 	{
 		identitiesTable.addFilter(filter);
 		filtersBar.addComponent(new FilterInfo(description, filter));
@@ -363,7 +324,7 @@ public class IdentitiesComponent extends SafePanel
 		{
 			try
 			{
-				identitiesTable.setInput(null, EMPTY_LIST);
+				identitiesTable.showGroup(null);
 			} catch (EngineException e)
 			{
 				//ignored, shouldn't happen anyway
@@ -373,11 +334,7 @@ public class IdentitiesComponent extends SafePanel
 		}
 		try
 		{
-			GroupContents contents = groupsManagement.getContents(group, GroupContents.MEMBERS);
-			List<Long> entities = contents.getMembers().stream().
-					map(GroupMembership::getEntityId).
-					collect(Collectors.toList());
-			identitiesTable.setInput(group, entities);
+			identitiesTable.showGroup(group);
 			identitiesTable.setVisible(true);
 			setCaption(msg.getMessage("Identities.caption", group));
 			setContent(main);
@@ -406,25 +363,80 @@ public class IdentitiesComponent extends SafePanel
 	
 	private class FilterInfo extends HorizontalLayout
 	{
-		public FilterInfo(String description, final Filter filter)
+		public FilterInfo(String description, EntityFilter filter)
 		{
 			Label info = new Label(description);
 			Button remove = new Button();
 			remove.addStyleName(Styles.vButtonLink.toString());
 			remove.setIcon(Images.delete.getResource());
-			remove.addClickListener(new ClickListener()
+			remove.addClickListener(event -> 
 			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					identitiesTable.removeFilter(filter);
-					filtersBar.removeComponent(FilterInfo.this);
-					if (filtersBar.getComponentCount() == 1)
-						filtersBar.setVisible(false);
-				}
+				identitiesTable.removeFilter(filter);
+				filtersBar.removeComponent(FilterInfo.this);
+				if (filtersBar.getComponentCount() == 1)
+					filtersBar.setVisible(false);
 			});
 			addComponents(info, HtmlTag.hspaceEm(1), remove);
 			setMargin(new MarginInfo(false, false, false, true));
 		}
+	}
+	
+	private void refresh()
+	{
+		bus.fireEvent(new GroupChangedEvent(identitiesTable.getGroup()));
+	}
+	
+	private SingleActionHandler2<IdentityEntry> getRefreshAction()
+	{
+		return SingleActionHandler2.builder4Refresh(msg, IdentityEntry.class)
+				.withHandler(selection -> refresh())
+				.build();
+	}
+
+	private SingleActionHandler2<IdentityEntry> getShowEntityAction()
+	{
+		return SingleActionHandler2.builder(IdentityEntry.class)
+				.withCaption(msg.getMessage("Identities.showEntityDetails"))
+				.withIcon(Images.userMagnifier.getResource())
+				.withHandler(this::showEntityDetails)
+				.build();
+	}
+
+	private void showEntityDetails(Set<IdentityEntry> selection)
+	{
+		IdentityEntry selected = selection.iterator().next();
+		EntityWithLabel entity = selected.getSourceEntity();
+		final EntityDetailsPanel identityDetailsPanel = entityDetailsPanelFactory.getObject();
+		Collection<GroupMembership> groups;
+		try
+		{
+			groups = entityMan.getGroups(new EntityParam(entity.getEntity().getId())).values();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("error"), e);
+			return;
+		}
+		identityDetailsPanel.setInput(entity, groups);
+		new EntityDetailsDialog(msg, identityDetailsPanel).show();
+	}
+	
+	private SingleActionHandler2<IdentityEntry> getChangeCredentialAction()
+	{
+		return SingleActionHandler2.builder(IdentityEntry.class)
+				.withCaption(msg.getMessage("Identities.changeCredentialAction"))
+				.withIcon(Images.key.getResource())
+				.withHandler(this::showChangeCredentialDialog)
+				.build();
+	}
+
+	private void showChangeCredentialDialog(Set<IdentityEntry> selection)
+	{
+		EntityWithLabel entity = selection.iterator().next().getSourceEntity();
+		credentialChangeDialogFactory.getObject().
+			init(entity.getEntity().getId(), false, changed -> 
+			{
+				if (changed)
+					refresh();
+			}).show();
 	}
 }

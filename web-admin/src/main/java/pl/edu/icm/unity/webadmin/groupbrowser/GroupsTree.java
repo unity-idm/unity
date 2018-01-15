@@ -33,8 +33,6 @@ import com.vaadin.ui.renderers.HtmlRenderer;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -47,7 +45,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
-import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog;
+import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog.EntityCreationDialogHandler;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -59,8 +57,6 @@ import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 /**
  * Tree with groups obtained dynamically from the engine.
@@ -74,31 +70,25 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private GroupsManagement groupsMan;
 	private EntityManagement identitiesMan;
 	private UnityMessageSource msg;
-	private CredentialRequirementManagement authnMan;
-	private IdentityEditorRegistry identityEditorReg;
 	private GroupManagementHelper groupManagementHelper;
 	private EventsBus bus;
 	private AttributeClassManagement acMan;
-	private AttributeTypeManagement atMan;
 	private TreeData<TreeNode> treeData;
 	private GridContextMenuSupport<TreeNode> contextMenuSupp;
+	private EntityCreationDialogHandler entityCreationDialogHandler;
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
-			CredentialRequirementManagement authnMan,
-			IdentityEditorRegistry identityEditorReg,
-			AttributeHandlerRegistry attrHandlerRegistry, AttributeTypeManagement atMan,
-			UnityMessageSource msg, AttributeClassManagement acMan)
+			UnityMessageSource msg, AttributeClassManagement acMan,
+			EntityCreationDialogHandler entityCreationDialogHandler,
+			GroupManagementHelper groupManagementHelper)
 	{
 		this.groupsMan = groupsMan;
 		this.identitiesMan = identitiesMan;
-		this.atMan = atMan;
 		this.msg = msg;
-		this.authnMan = authnMan;
-		this.identityEditorReg = identityEditorReg;
 		this.acMan = acMan;
-		this.groupManagementHelper = new GroupManagementHelper(msg, groupsMan, atMan, acMan,
-				attrHandlerRegistry);
+		this.entityCreationDialogHandler = entityCreationDialogHandler;
+		this.groupManagementHelper = groupManagementHelper;
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 		addExpandListener(new GroupExpandListener());
 		addSelectionListener(e -> {
@@ -485,6 +475,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 	private SingleActionHandler2<TreeNode> getAddEntityAction()
 	{
+		
 		return SingleActionHandler2.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.addEntityAction"))
 				.withIcon(Images.addEntity.getResource())
@@ -493,12 +484,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 	private void showAddEntityDialog(Collection<TreeNode> target)
 	{
-
 		final TreeNode node = target.iterator().next();
-
-		new EntityCreationDialog(msg, node.getPath(), identitiesMan, groupsMan, authnMan,
-				groupManagementHelper.getAttrHandlerRegistry(), atMan, acMan,
-				identityEditorReg, i -> onCreatedIdentity(node, i)).show();
+		entityCreationDialogHandler.showAddEntityDialog(() -> node.getPath(), 
+				i -> onCreatedIdentity(node, i));
 	}
 
 	private void onCreatedIdentity(TreeNode node, Identity newIdentity)

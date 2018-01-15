@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.Collection;
 
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  * Allows to change credential requirement for an entity
  * @author K. Benedyczak
  */
-public class CredentialRequirementDialog extends AbstractDialog
+public class ChangeCredentialRequirementDialog extends AbstractDialog
 {
 	private EntityCredentialManagement eCredMan;
 	private CredentialRequirementManagement credReqMan;
@@ -32,9 +32,9 @@ public class CredentialRequirementDialog extends AbstractDialog
 	private final String initialCR;
 	protected Callback callback;
 	
-	private ComboBox credentialRequirement;
+	private ComboBox<String> credentialRequirement;
 	
-	public CredentialRequirementDialog(UnityMessageSource msg, EntityWithLabel entity, String initialCR,
+	public ChangeCredentialRequirementDialog(UnityMessageSource msg, EntityWithLabel entity, String initialCR,
 			EntityCredentialManagement eCredMan, CredentialRequirementManagement credReqMan, 
 			Callback callback)
 	{
@@ -51,7 +51,7 @@ public class CredentialRequirementDialog extends AbstractDialog
 	protected FormLayout getContents()
 	{
 		Label info = new Label(msg.getMessage("CredentialRequirementDialog.changeFor", entity));
-		credentialRequirement = new ComboBox(msg.getMessage("CredentialRequirementDialog.credReq"));
+		credentialRequirement = new ComboBox<>(msg.getMessage("CredentialRequirementDialog.credReq"));
 		Collection<CredentialRequirements> credReqs;
 		try
 		{
@@ -68,12 +68,10 @@ public class CredentialRequirementDialog extends AbstractDialog
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalStateException();
 		}
-		for (CredentialRequirements cr: credReqs)
-		{
-			credentialRequirement.addItem(cr.getName());
-		}
-		credentialRequirement.select(initialCR);
-		credentialRequirement.setNullSelectionAllowed(false);
+		
+		credentialRequirement.setItems(credReqs.stream().map(cr -> cr.getName()));
+		credentialRequirement.setSelectedItem(initialCR);
+		credentialRequirement.setEmptySelectionAllowed(false);
 		
 		FormLayout main = new CompactFormLayout();
 		main.addComponents(info, credentialRequirement);

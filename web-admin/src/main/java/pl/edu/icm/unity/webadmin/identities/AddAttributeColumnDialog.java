@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
 
 /**
  * Allows to choose an attribute type to be added as identities table column.
@@ -30,7 +30,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 	private AttributeTypeManagement attrsMan;
 	protected Callback callback;
 	
-	private ComboBox attributeType;
+	private ComboBox<AttributeType> attributeType;
 	private CheckBox useRootGroup;
 	
 	
@@ -64,9 +64,8 @@ public class AddAttributeColumnDialog extends AbstractDialog
 			if (!at.isInstanceImmutable())
 				filtered.add(at);
 		}
-		attributeType = new AttributeSelectionComboBox(msg.getMessage("AddAttributeColumnDialog.attribute"),
+		attributeType = new AttributeSelectionComboBox2(msg.getMessage("AddAttributeColumnDialog.attribute"),
 				filtered);
-		attributeType.setNullSelectionAllowed(false);
 		
 		useRootGroup = new CheckBox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);
 		useRootGroup.setDescription(msg.getMessage("AddAttributeColumnDialog.useRootGroupTooltip"));
@@ -81,7 +80,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 	protected void onConfirm()
 	{
 		String group = useRootGroup.getValue() ? "/" : null;
-		callback.onChosen((String)attributeType.getValue(), group);
+		callback.onChosen(attributeType.getValue().getName(), group);
 		close();
 	}
 	
