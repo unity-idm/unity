@@ -45,7 +45,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
-import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog.EntityCreationDialogHandler;
+import pl.edu.icm.unity.webadmin.identities.EntityCreationHandler;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -75,12 +75,12 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private AttributeClassManagement acMan;
 	private TreeData<TreeNode> treeData;
 	private GridContextMenuSupport<TreeNode> contextMenuSupp;
-	private EntityCreationDialogHandler entityCreationDialogHandler;
+	private EntityCreationHandler entityCreationDialogHandler;
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
 			UnityMessageSource msg, AttributeClassManagement acMan,
-			EntityCreationDialogHandler entityCreationDialogHandler,
+			EntityCreationHandler entityCreationDialogHandler,
 			GroupManagementHelper groupManagementHelper)
 	{
 		this.groupsMan = groupsMan;

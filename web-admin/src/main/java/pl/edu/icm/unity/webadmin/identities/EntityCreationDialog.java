@@ -12,10 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -42,9 +38,7 @@ import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EnumComboBox2;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 /**
@@ -82,44 +76,6 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
-	@Component
-	public static class EntityCreationDialogHandler
-	{
-		@Autowired
-		private UnityMessageSource msg;
-		@Autowired
-		private EntityManagement identitiesMan;
-		@Autowired
-		private CredentialRequirementManagement credReqMan;
-		@Autowired
-		private GroupManagementHelper groupHelper;
-		@Autowired
-		private AttributeTypeManagement attrMan;
-		@Autowired
-		private IdentityEditorRegistry identityEditorReg;
-		
-		public SingleActionHandler2<IdentityEntry> getAction(
-				Supplier<String> initialGroup,
-				Consumer<Identity> callback)
-		{
-			return SingleActionHandler2.builder(IdentityEntry.class)
-					.withCaption(msg.getMessage("Identities.addEntityAction"))
-					.withIcon(Images.addEntity.getResource())
-					.dontRequireTarget()
-					.withHandler(selection -> 
-						showAddEntityDialog(initialGroup, callback))
-					.build();
-		}
-		
-		public void showAddEntityDialog(Supplier<String> initialGroup, Consumer<Identity> callback)
-		{
-			new EntityCreationDialog(msg, initialGroup.get(), identitiesMan, 
-					credReqMan, attrMan, identityEditorReg, groupHelper, 
-					callback).show();
-		}
-	}
-	
-	
 	@Override
 	protected FormLayout getContents() throws EngineException
 	{

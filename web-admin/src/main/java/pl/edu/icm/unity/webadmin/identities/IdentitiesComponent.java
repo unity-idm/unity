@@ -31,21 +31,14 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.home.iddetails.EntityDetailsDialog;
-import pl.edu.icm.unity.home.iddetails.EntityDetailsPanel;
-import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
-import pl.edu.icm.unity.webadmin.identities.EntityCreationDialog.EntityCreationDialogHandler;
 import pl.edu.icm.unity.webadmin.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
@@ -54,7 +47,6 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar2;
@@ -79,32 +71,26 @@ public class IdentitiesComponent extends SafePanel
 	private EntityFilter fastSearchFilter;
 	private EventsBus bus;
 	private ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory;
-	private ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory;
-	private EntityManagement entityMan;
-	
 	
 	@Autowired
-	public IdentitiesComponent(UnityMessageSource msg, AttributeTypeManagement attrsMan, 
-			EntityManagement entityMan, GroupsManagement groupsMan,
-			
+	public IdentitiesComponent(UnityMessageSource msg, AttributeTypeManagement attrsMan,
+			EntityAttributeClassHandler entityAttributeClassHandler,
 			RemoveFromGroupHandler removeFromGroupHandler,
-			EntityCreationDialogHandler entityCreationDialogHandler,
+			EntityCreationHandler entityCreationDialogHandler,
 			IdentityCreationDialogHandler identityCreationDialogHanlder,
 			DeleteEntityHandler deleteEntityHandler,
 			DeleteIdentityHandler deleteIdentityHandler,
 			IdentityConfirmationResendHandler confirmationResendHandler,
 			ChangeEntityStateHandler changeEntityStateHandler,
 			ChangeCredentialRequirementHandler credentialRequirementHandler,
+			EntityDetailsHandler entityDetailsHandler,
 			EntityMergeHandler entityMergeHandler,
 			IdentitiesGrid identitiesTable, 
-			ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory,
-			ObjectFactory<EntityDetailsPanel> entityDetailsPanelFactory)
+			ObjectFactory<CredentialsChangeDialog> credentialChangeDialogFactory)
 	{
 		this.msg = msg;
-		this.entityMan = entityMan;
 		this.identitiesTable = identitiesTable;
 		this.credentialChangeDialogFactory = credentialChangeDialogFactory;
-		this.entityDetailsPanelFactory = entityDetailsPanelFactory;
 
 		main = new VerticalLayout();
 		main.addStyleName(Styles.visibleScroll.toString());
@@ -214,7 +200,7 @@ public class IdentitiesComponent extends SafePanel
 
 		
 		identitiesTable.addActionHandler(getRefreshAction());
-		identitiesTable.addActionHandler(getShowEntityAction());
+		identitiesTable.addActionHandler(entityDetailsHandler.getShowEntityAction());
 		identitiesTable.addActionHandler(removeFromGroupHandler
 				.getAction(identitiesTable::getGroup, this::refresh));
 		identitiesTable.addActionHandler(entityCreationDialogHandler.getAction(
@@ -228,10 +214,10 @@ public class IdentitiesComponent extends SafePanel
 		identitiesTable.addActionHandler(changeEntityStateHandler.getAction(this::refresh));
 		identitiesTable.addActionHandler(getChangeCredentialAction());
 		identitiesTable.addActionHandler(credentialRequirementHandler.getAction(this::refresh));
-//		identitiesTable.addActionHandler(new EntityAttributesClassesHandler());
+		identitiesTable.addActionHandler(entityAttributeClassHandler.getAction(
+				this::refresh, identitiesTable::getGroup));
 		identitiesTable.addActionHandler(entityMergeHandler.getAction(identitiesTable::getGroup));
 		identitiesTable.addActionHandler(confirmationResendHandler.getAction());
-		//TODO	
 		
 		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
 		toolbar.addSeparator();
@@ -393,33 +379,6 @@ public class IdentitiesComponent extends SafePanel
 				.build();
 	}
 
-	private SingleActionHandler2<IdentityEntry> getShowEntityAction()
-	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
-				.withCaption(msg.getMessage("Identities.showEntityDetails"))
-				.withIcon(Images.userMagnifier.getResource())
-				.withHandler(this::showEntityDetails)
-				.build();
-	}
-
-	private void showEntityDetails(Set<IdentityEntry> selection)
-	{
-		IdentityEntry selected = selection.iterator().next();
-		EntityWithLabel entity = selected.getSourceEntity();
-		final EntityDetailsPanel identityDetailsPanel = entityDetailsPanelFactory.getObject();
-		Collection<GroupMembership> groups;
-		try
-		{
-			groups = entityMan.getGroups(new EntityParam(entity.getEntity().getId())).values();
-		} catch (EngineException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), e);
-			return;
-		}
-		identityDetailsPanel.setInput(entity, groups);
-		new EntityDetailsDialog(msg, identityDetailsPanel).show();
-	}
-	
 	private SingleActionHandler2<IdentityEntry> getChangeCredentialAction()
 	{
 		return SingleActionHandler2.builder(IdentityEntry.class)

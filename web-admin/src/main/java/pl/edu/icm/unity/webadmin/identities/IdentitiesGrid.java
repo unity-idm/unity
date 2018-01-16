@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.HierarchicalQuery;
-import com.vaadin.data.provider.Query;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.selection.MultiSelectionEvent;
 import com.vaadin.server.SerializablePredicate;
@@ -414,6 +413,14 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	
 	void removeIdentity(IdentityEntry entry)
 	{
+		for (ResolvedEntity cached: cachedEntitites)
+		{
+			if (cached.getEntity().getId() == entry.getSourceEntity().getEntity().getId())
+			{
+				cached.getIdentities().remove(entry.getSourceIdentity());
+				break;
+			}
+		}
 		treeData.removeItem(entry);
 		dataProvider.refreshAll();
 	}
@@ -431,8 +438,10 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		
 		if (!groupByEntity)
 		{
-			Query<IdentityEntry, SerializablePredicate<IdentityEntry>> query = new Query<>(
-					ie -> ie.getSourceEntity().getEntity().getId() == removedId);
+			HierarchicalQuery<IdentityEntry, SerializablePredicate<IdentityEntry>> query = 
+					new HierarchicalQuery<>(
+							ie -> ie.getSourceEntity().getEntity().getId() == removedId,
+							null);
 			List<IdentityEntry> fetched = dataProvider.fetch(query).collect(Collectors.toList());
 			for (IdentityEntry ie: fetched)
 				treeData.removeItem(ie);

@@ -1375,18 +1375,18 @@ public class IdentitiesTable extends CustomComponent
 		public void handleAction(Object sender, Object target)
 		{
 
-			final EntityWithLabel entity = getSingleSelect(target);
-			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(
-					msg, group, entity, acMan, groupsMan,
-					new EntityAttributesClassesDialog.Callback()
-					{
-						@Override
-						public void onChange()
-						{
-							refresh();
-						}
-					});
-			dialog.show();
+//			final EntityWithLabel entity = getSingleSelect(target);
+//			EntityAttributesClassesDialog dialog = new EntityAttributesClassesDialog(
+//					msg, group, entity, acMan, groupsMan,
+//					new EntityAttributesClassesDialog.Callback()
+//					{
+//						@Override
+//						public void onChange()
+//						{
+//							refresh();
+//						}
+//					});
+//			dialog.show();
 		}
 	}
 
