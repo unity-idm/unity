@@ -6,7 +6,6 @@ package pl.edu.icm.unity.oauth.as;
 
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -22,6 +21,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.JWSSigner;
 import com.nimbusds.jose.crypto.ECDSASigner;
+import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.RSASSASigner;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.SignedJWT;
@@ -270,24 +270,33 @@ public class OAuthProcessor
 		return userInfo;
 	}
 	
-	private JWT signIdToken(IDTokenClaimsSet idTokenClaims, OAuthAuthzContext ctx) 
-			throws JOSEException, ParseException
+	private JWT signIdToken(IDTokenClaimsSet idTokenClaims, OAuthAuthzContext ctx)
+			throws JOSEException, ParseException, EngineException
 	{
-		PrivateKey pk = ctx.getConfig().getCredential().getKey();
-		SignedJWT ret;
-		JWSSigner signer;
+		PrivateKey pk = ctx.getConfig().getCredential().getKey();	
+		String signAlg = ctx.getConfig().getSigningAlgorithm().toString();
 		
-		if (pk instanceof RSAPrivateKey)
+		SignedJWT ret = new SignedJWT(new JWSHeader(JWSAlgorithm.parse(signAlg)),
+				idTokenClaims.toJWTClaimsSet());
+		JWSSigner signer = null;
+		if (signAlg.startsWith("RS"))
 		{
-			ret = new SignedJWT(new JWSHeader(JWSAlgorithm.RS256), idTokenClaims.toJWTClaimsSet());
 			signer = new RSASSASigner(pk);
-		} else 
-		{
-			ret = new SignedJWT(new JWSHeader(JWSAlgorithm.ES256), 
-					idTokenClaims.toJWTClaimsSet());
-			signer = new ECDSASigner((ECPrivateKey)pk);
 		}
 
+		if (signAlg.startsWith("ES"))
+		{
+			signer = new ECDSASigner((ECPrivateKey) pk);
+		}
+
+		if (signAlg.startsWith("HS"))
+		{
+			signer = new MACSigner(ctx.getConfig().getSigningSecret());
+		}
+
+		if (signer == null)
+			throw new EngineException("Unsupported signing algorithm " + signAlg);
+		
 		ret.sign(signer);
 		return ret;
 	}

@@ -13,6 +13,10 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.MACSigner;
+
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -40,6 +44,11 @@ public class OAuthASProperties extends PropertiesHelper
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
 
+	public enum SigningAlgorithms
+	{
+		RS256, RS384, RS512, HS256, HS384, HS512, ES256, ES384, ES512;
+	};
+	
 	public static final String ISSUER_URI = "issuerUri";
 	public static final String ACCESS_TOKEN_VALIDITY = "accessTokenValidity";
 	public static final String MAX_EXTEND_ACCESS_TOKEN_VALIDITY = "extendAccessTokenValidityUpTo";
@@ -56,6 +65,9 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String SCOPE_ATTRIBUTES = "attributes.";
 	public static final String SCOPE_DESCRIPTION = "description";
 	public static final String SCOPE_NAME = "name";
+	
+	public static final String SIGNING_ALGORITHM = "signingAlgorithm"; 
+	public static final String SIGNING_SECRET = "signingSecret"; 
 	
 	static
 	{
@@ -103,6 +115,10 @@ public class OAuthASProperties extends PropertiesHelper
 				setDescription("List of Unity attributes that should be returned when the scope is "
 						+ "requested. Note that those attribtues are merely an input to the "
 						+ "configured output translation profile."));
+		defaults.put(SIGNING_ALGORITHM, new PropertyMD(SigningAlgorithms.RS256)
+				.setDescription("An algorithm used for token signing"));
+		defaults.put(SIGNING_SECRET, new PropertyMD().setDescription(
+				"Secret key used when one of HS* algorithms is set for token signing"));
 		
 		defaults.putAll(CommonIdPProperties.getDefaults("Name of an output translation profile "
 				+ "which can be used to dynamically modify the "
@@ -119,13 +135,14 @@ public class OAuthASProperties extends PropertiesHelper
 		super(P, properties, defaults, log);
 		this.baseAddress = baseAddress;
 		String credential = getValue(CREDENTIAL);
+		PrivateKey pk;
 		try
 		{
 			if (!pkiManamgenet.getCredentialNames().contains(credential))
 				throw new ConfigurationException("There is no credential named '" + credential + 
 						"' which is configured in the OAuth endpoint.");
 			this.credential = pkiManamgenet.getCredential(credential);
-			PrivateKey pk = this.credential.getKey();
+			pk = this.credential.getKey();
 			if (!(pk instanceof RSAPrivateKey) && !(pk instanceof ECPrivateKey))
 				throw new ConfigurationException("The private key of credential "
 						+ "is neither RSA or EC - it is unsupported.");
@@ -133,8 +150,60 @@ public class OAuthASProperties extends PropertiesHelper
 		{
 			throw new ConfigurationException("Can't obtain credential names.", e);
 		}
+		
+		String signAlg = getSigningAlgorithm();
+		if (signAlg.startsWith("HS"))
+		{
+			String secret = getSigningSecret();
+			if (secret == null || secret.isEmpty())
+				throw new ConfigurationException(
+						"signingSecret is required if one of HS signingAlgorithm is used");
+			MACSigner signer = null;
+			try
+			{
+				signer = new MACSigner(getSigningSecret());
+				
+			} catch (KeyLengthException e)
+			{
+				throw new ConfigurationException("signingSecret is incorrect", e);
+			}
+			
+			if (!signer.supportedJWSAlgorithms()
+					.contains(JWSAlgorithm.parse(signAlg)))
+				throw new ConfigurationException(
+						"signingSecret lenght is not compatible with used HS algorithm");			
+		}
+
+		if (signAlg.startsWith("RS"))
+		{
+			if (!(pk instanceof RSAPrivateKey))
+			{
+				throw new ConfigurationException(
+						"The private key must be RSA if one of RS signingAlgorithm is used");
+			}
+		}
+
+		if (signAlg.startsWith("ES"))
+		{
+			if (!(pk instanceof ECPrivateKey))
+			{
+				throw new ConfigurationException(
+						"The private key must be EC if one of ES signingAlgorithm is used");
+			}
+		}
 	}
 
+	
+	public String getSigningAlgorithm()
+	{
+		return getEnumValue(SIGNING_ALGORITHM, SigningAlgorithms.class).toString();
+	}
+	
+	public String getSigningSecret()
+	{
+		return getValue(SIGNING_SECRET);
+	}
+	
 	public String getBaseAddress()
 	{
 		return baseAddress;
