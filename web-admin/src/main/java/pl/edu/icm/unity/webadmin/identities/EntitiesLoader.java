@@ -8,18 +8,26 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.ui.UI;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -41,45 +49,55 @@ class EntitiesLoader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EntitiesLoader.class);
 	private static final int LOAD_IN_SYNC = 40;
-	private static final int CHUNK = 500;
+	private static final int CHUNK = 100;
+	private static final int UI_REFRESH = 400;
 	
 	private final EntityManagement identitiesMan;
 	private final GroupsManagement groupsMan;
 	private final AttributesManagement attrMan;
-	
-	
-/*	
-	private InvocationContext ctx;
-	private Future<?> controller;
-	private int offset;
-*/	
+	private final ExecutorsService executor;
+	private FutureTask<Object> loaderFuture;
+
 	@Autowired
 	EntitiesLoader(EntityManagement identitiesMan, GroupsManagement groupsMan,
-			AttributesManagement attrMan)
+			AttributesManagement attrMan, ExecutorsService executor)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
 		this.attrMan = attrMan;
+		this.executor = executor;
 	}
 
 	void reload(Set<IdentityEntry> selected, String group, boolean includeTargeted,
 			EntitiesConsumer consumer) throws EngineException
 	{
-		
+		cancelPreviousTask();
 		List<Long> members = getMembers(group);
 		int toSyncLoad = members.size() > LOAD_IN_SYNC ? LOAD_IN_SYNC : members.size();
 		resolveEntitiesAndUpdateTableSync(members, toSyncLoad, selected,
 				group, includeTargeted, consumer);
-	}
 		
-		//TODO
-		/*
-		if (!entitiesLoader.isDone())
+		if (members.size() > LOAD_IN_SYNC)
 		{
-			entitiesLoader.cancel(false);
+			UI.getCurrent().setPollInterval(UI_REFRESH);
+			AsyncLoader asyncLoader = new AsyncLoader();
+			loaderFuture = new FutureTask<>(() -> 
+					asyncLoader.resolveEntitiesAndUpdateTableAsync(members, group, 
+							includeTargeted, toSyncLoad, 
+							selected, consumer), null);
+			asyncLoader.controller = loaderFuture;
+			executor.getService().execute(loaderFuture);
+		}
+	}
+	
+	private void cancelPreviousTask()
+	{
+		if (loaderFuture != null && !loaderFuture.isDone())
+		{
+			loaderFuture.cancel(false);
 			try
 			{
-				entitiesLoader.get();
+				loaderFuture.get();
 			} catch (CancellationException e)
 			{
 				//ok, expected
@@ -88,43 +106,8 @@ class EntitiesLoader
 				log.warn("Background identities loader threw an exception", e);
 			}
 		}
-		
-		int toSyncLoad = entities.size() > LOAD_IN_SYNC ? LOAD_IN_SYNC : entities.size();
-		resolveEntitiesAndUpdateTableSync(entities, toSyncLoad, selected);
-		
-		if (entities.size() > LOAD_IN_SYNC)
-		{
-			UI.getCurrent().setPollInterval(500);
-			removeAllFiltersFromTable();
-			loadingProgress.removeStyleName(Styles.hidden.toString());
-			loadingProgress.setValue(0f);
-			EntitiesLoader loaderTask = new EntitiesLoader(entities, selected, toSyncLoad);
-			entitiesLoader = new FutureTask<Object>(loaderTask, null);
-			loaderTask.setController(entitiesLoader);
-			executor.getService().execute(entitiesLoader);
-		}
 	}
-	
-	private void load(List<Long> entities, Object selected, int offset)
-	{
-		this.entities = entities;
-		this.selected = selected;
-		this.offset = offset;
-		this.ctx = InvocationContext.getCurrent();
-	}
-	
-	private void run()
-	{
-		try
-		{
-			InvocationContext.setCurrent(ctx);
-			resolveEntitiesAndUpdateTable(entities);
-		} catch (EngineException e)
-		{
-			log.error("Problem retrieving group contents of " + group, e);
-		}
-	}
-*/
+
 	private void resolveEntitiesAndUpdateTableSync(List<Long> entities, int amount, 
 			Set<IdentityEntry> selected, String group, boolean includeTargeted,
 			EntitiesConsumer consumer) throws EngineException
@@ -145,60 +128,85 @@ class EntitiesLoader
 			}
 		}
 	}
-/*	
-	private void resolveEntitiesAndUpdateTable(List<Long> entities) throws EngineException
+
+
+	private class AsyncLoader
 	{
-		for (int i=offset; i<entities.size(); i+=CHUNK)
+		private Future<?> controller;
+		private UI ui;
+		private InvocationContext ctx;
+		
+		public AsyncLoader()
 		{
-			List<IdentitiesAndAttributes> resolved = resolveEntities(entities, i, CHUNK);
-			if (controller.isCancelled())
-				return;
-			updateTable(resolved, (float)(i+CHUNK)/entities.size());
+			this.ui = UI.getCurrent();
+			this.ctx = InvocationContext.getCurrent();
 		}
-		ui.accessSynchronously(() -> {
-			if (controller.isCancelled())
-				return;					
-			addAllFilters();
-			loadingProgress.addStyleName(Styles.hidden.toString());
-			if (groupByEntity != groupByEntityLocal)
-				reloadTableContentsFromData();
-			ui.setPollInterval(-1);
-		}); 
-	}
-	
-	private List<IdentitiesAndAttributes> resolveEntities(List<Long> entities, 
-			int first, int amount) throws EngineException
-	{
-		int limit = first + amount > entities.size() ? entities.size() : amount + first;
-		List<IdentitiesAndAttributes> toAdd = new LinkedList<>();
-		for (int i=first; i<limit; i++)
+
+		private void resolveEntitiesAndUpdateTableAsync(List<Long> entities, String group, 
+				boolean showTargeted, int alreadyLoaded,
+				Set<IdentityEntry> selected, EntitiesConsumer consumer)
 		{
-			long entity = entities.get(i);
-			if (controller.isCancelled())
-				break;
+			InvocationContext.setCurrent(ctx);
 			try
 			{
-				IdentitiesAndAttributes resolvedEntity = resolveEntity(entity);
-				toAdd.add(resolvedEntity);
-				if (controller.isCancelled())
-					break;
-			} catch (AuthorizationException e)
+				for (int i=alreadyLoaded; i<entities.size(); i+=CHUNK)
+				{
+					List<ResolvedEntity> resolved = resolveEntitiesAsync(entities, group, 
+							showTargeted, i, CHUNK);
+					if (controller.isCancelled())
+						return;
+					int finalI = i;
+					ui.accessSynchronously(() ->
+						consumer.consume(resolved, selected, 
+							(float)(finalI+CHUNK)/entities.size())
+					);
+				}
+				ui.accessSynchronously(() ->
+					ui.setPollInterval(-1)
+				);
+			} finally
 			{
-				log.debug("Entity " + entity + " information can not be loaded, "
-						+ "won't be in the identities table", e);
+				InvocationContext.setCurrent(null);
 			}
 		}
-		return toAdd;
+
+		private List<ResolvedEntity> resolveEntitiesAsync(List<Long> entities, 
+			String group, boolean showTargeted, int first, int amount)
+		{
+			int limit = first + amount > entities.size() ? entities.size() : amount + first;
+			List<ResolvedEntity> toAdd = new LinkedList<>();
+			for (int i=first; i<limit; i++)
+			{
+				long entity = entities.get(i);
+				if (controller.isCancelled())
+					break;
+				try
+				{
+					ResolvedEntity resolvedEntity = resolveEntity(entity, group, showTargeted);
+					toAdd.add(resolvedEntity);
+				} catch (AuthorizationException e)
+				{
+					log.debug("Entity " + entity + " information can not be loaded, "
+							+ "won't be in the identities table", e);
+				} catch (EngineException e)
+				{
+					log.warn("Entity " + entity + " information can not be loaded, "
+							+ "won't be in the identities table", e);
+				}
+			}
+			return toAdd;
+		}
 	}
-*/	
+	
+	
 	private ResolvedEntity resolveEntity(long entity, String group, boolean showTargeted) throws EngineException
 	{		
-		Entity resolvedEntity = showTargeted ? identitiesMan
-				.getEntityNoContext(new EntityParam(entity), group) : identitiesMan
-				.getEntity(new EntityParam(entity), null, false, group);
+		Entity resolvedEntity = showTargeted ? 
+				identitiesMan.getEntityNoContext(new EntityParam(entity), group) : 
+				identitiesMan.getEntity(new EntityParam(entity), null, false, group);
 		Collection<AttributeExt> rawCurAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
 				true, group, null, true);
-		Collection<AttributeExt> rawRootAttrs = new ArrayList<AttributeExt>();
+		Collection<AttributeExt> rawRootAttrs = new ArrayList<>();
 		try
 		{
 			rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
@@ -208,14 +216,14 @@ class EntitiesLoader
 			log.debug("can not resolve attributes in '/' for entity, " + entity + 
 					" only group's attributes will be available: " + e.toString());
 		}
-		Map<String, Attribute> rootAttrs = new HashMap<String, Attribute>(rawRootAttrs.size());
-		Map<String, Attribute> curAttrs = new HashMap<String, Attribute>(rawRootAttrs.size());
+		Map<String, Attribute> rootAttrs = new HashMap<>(rawRootAttrs.size());
+		Map<String, Attribute> curAttrs = new HashMap<>(rawRootAttrs.size());
 		for (Attribute a: rawRootAttrs)
 			rootAttrs.put(a.getName(), a);
 		for (Attribute a: rawCurAttrs)
 			curAttrs.put(a.getName(), a);
-		return new ResolvedEntity(resolvedEntity, 
-				resolvedEntity.getIdentities(),	rootAttrs, curAttrs);
+		return new ResolvedEntity(resolvedEntity, resolvedEntity.getIdentities(), 
+				rootAttrs, curAttrs);
 	}
 	
 	private List<Long> getMembers(String group) throws EngineException
