@@ -14,7 +14,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -71,8 +71,11 @@ public class ExposedAttributesComponent extends CustomComponent
 	{
 		VerticalLayout contents = new VerticalLayout();
 		contents.setSpacing(true);
+		contents.setMargin(false);
 
 		final VerticalLayout details = new VerticalLayout();
+		details.setMargin(false);
+		details.setMargin(false);
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
 		showDetails.setId("ExposedAttributes.showDetails");
 		

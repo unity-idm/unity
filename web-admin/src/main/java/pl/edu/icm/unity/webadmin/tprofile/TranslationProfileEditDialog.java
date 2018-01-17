@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -38,6 +38,8 @@ public class TranslationProfileEditDialog extends AbstractDialog
 	protected Component getContents() throws Exception
 	{
 		VerticalLayout vl = new VerticalLayout();
+		vl.setMargin(false);
+		vl.setSpacing(false);
 		vl.addComponent(editor);
 		vl.setComponentAlignment(editor, Alignment.TOP_LEFT);
 		vl.setHeight(100, Unit.PERCENTAGE);

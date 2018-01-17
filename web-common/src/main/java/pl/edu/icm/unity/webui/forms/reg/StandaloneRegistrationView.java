@@ -13,8 +13,8 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
@@ -143,6 +143,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		});
 		buttons.addComponents(cancel, ok);
 		buttons.setSpacing(true);
+		buttons.setMargin(false);
 		main.addComponent(buttons);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
 	}
@@ -205,6 +206,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private void showConfirm(Resource icon, String message)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setSpacing(false);
+		wrapper.setMargin(false);
 		ConfirmationComponent confirmation = new ConfirmationComponent(icon, message);
 		wrapper.addComponent(confirmation);
 		wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
