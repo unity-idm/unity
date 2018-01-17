@@ -4,20 +4,12 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
-import java.security.PrivateKey;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.RSAPrivateKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-import com.nimbusds.jose.JWSAlgorithm;
-import com.nimbusds.jose.KeyLengthException;
-import com.nimbusds.jose.crypto.MACSigner;
-
-import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
@@ -26,7 +18,6 @@ import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.TargetedPersistentIdentity;
 
 /**
@@ -90,12 +81,13 @@ public class OAuthASProperties extends PropertiesHelper
 						"). Lifetime will be extended on each successful check of the token, and each time"
 						+ "the enhancement will be for the standard validity time. "
 						+ "However the token won't be ever valid after the time specified in this property."));
-		defaults.put(CREDENTIAL, new PropertyMD().setMandatory().
-				setDescription("Name of a credential which is used to sign tokens. "
-						+ "Used only for the OpenId Connect mode, but currently it is always required."));
-		defaults.put(IDENTITY_TYPE_FOR_SUBJECT, new PropertyMD(TargetedPersistentIdentity.ID).
-				setDescription("Allows for selecting the identity type which is used to create a mandatory "
-						+ "'sub' claim of OAuth token. By default the targeted persistent identifier"
+		defaults.put(CREDENTIAL, new PropertyMD().setDescription(
+				"Name of a credential which is used to sign tokens. "
+						+ "Used only for the OpenId Connect mode and when one of RS* or ES* algorithms is set for token signing"));
+		defaults.put(IDENTITY_TYPE_FOR_SUBJECT,
+				new PropertyMD(TargetedPersistentIdentity.ID).setDescription(
+						"Allows for selecting the identity type which is used to create a mandatory "
+								+ "'sub' claim of OAuth token. By default the targeted persistent identifier"
 						+ " is used, but can be changed to use for instance the global persistent identity."));
 		defaults.put(CLIENTS_GROUP, new PropertyMD("/oauth-clients").
 				setDescription("Group in which authorized OAuth Clients must be present. "
@@ -126,71 +118,16 @@ public class OAuthASProperties extends PropertiesHelper
 				+ "When not defined the default profile is used which simply return all Unity attribtues.", null));
 	}
 	
-	private X509Credential credential;
 	private String baseAddress; 
+	private TokenSigner tokenSigner;
 	
 	public OAuthASProperties(Properties properties, PKIManagement pkiManamgenet, 
 			String baseAddress) throws ConfigurationException
 	{
 		super(P, properties, defaults, log);
 		this.baseAddress = baseAddress;
-		String credential = getValue(CREDENTIAL);
-		PrivateKey pk;
-		try
-		{
-			if (!pkiManamgenet.getCredentialNames().contains(credential))
-				throw new ConfigurationException("There is no credential named '" + credential + 
-						"' which is configured in the OAuth endpoint.");
-			this.credential = pkiManamgenet.getCredential(credential);
-			pk = this.credential.getKey();
-			if (!(pk instanceof RSAPrivateKey) && !(pk instanceof ECPrivateKey))
-				throw new ConfigurationException("The private key of credential "
-						+ "is neither RSA or EC - it is unsupported.");
-		} catch (EngineException e)
-		{
-			throw new ConfigurationException("Can't obtain credential names.", e);
-		}
 		
-		String signAlg = getSigningAlgorithm();
-		if (signAlg.startsWith("HS"))
-		{
-			String secret = getSigningSecret();
-			if (secret == null || secret.isEmpty())
-				throw new ConfigurationException(
-						"signingSecret is required if one of HS signingAlgorithm is used");
-			MACSigner signer = null;
-			try
-			{
-				signer = new MACSigner(getSigningSecret());
-				
-			} catch (KeyLengthException e)
-			{
-				throw new ConfigurationException("signingSecret is incorrect", e);
-			}
-			
-			if (!signer.supportedJWSAlgorithms()
-					.contains(JWSAlgorithm.parse(signAlg)))
-				throw new ConfigurationException(
-						"signingSecret lenght is not compatible with used HS algorithm");			
-		}
-
-		if (signAlg.startsWith("RS"))
-		{
-			if (!(pk instanceof RSAPrivateKey))
-			{
-				throw new ConfigurationException(
-						"The private key must be RSA if one of RS signingAlgorithm is used");
-			}
-		}
-
-		if (signAlg.startsWith("ES"))
-		{
-			if (!(pk instanceof ECPrivateKey))
-			{
-				throw new ConfigurationException(
-						"The private key must be EC if one of ES signingAlgorithm is used");
-			}
-		}
+		tokenSigner = new TokenSigner(this, pkiManamgenet);
 	}
 
 	
@@ -204,14 +141,14 @@ public class OAuthASProperties extends PropertiesHelper
 		return getValue(SIGNING_SECRET);
 	}
 	
+	public TokenSigner getTokenSigner()
+	{
+		return tokenSigner;
+	}
+	
 	public String getBaseAddress()
 	{
 		return baseAddress;
-	}
-	
-	public X509Credential getCredential()
-	{
-		return credential;
 	}
 	
 	public boolean isSkipConsent()

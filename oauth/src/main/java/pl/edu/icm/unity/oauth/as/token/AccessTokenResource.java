@@ -68,7 +68,6 @@ import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.oauth.as.OAuthValidationException;
 import pl.edu.icm.unity.oauth.as.webauthz.OAuthIdPEngine;
-import pl.edu.icm.unity.rest.jwt.JWTUtils;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -606,7 +605,7 @@ public class AccessTokenResource extends BaseOAuthResource
 				newClaims.putAll(userInfoClaimSet);
 		}
 
-		return JWTUtils.generate(config.getCredential(), newClaims.toJWTClaimsSet());
+		return config.getTokenSigner().sign(newClaims).serialize();
 	}
 
 	private AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken,
