@@ -38,7 +38,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea2;
-import pl.edu.icm.unity.webui.common.EnumComboBox2;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox2;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
@@ -430,14 +430,14 @@ public class BaseFormEditor extends VerticalLayout
 		protected ComponentsContainer main = new ComponentsContainer();
 		protected TextField label;
 		protected TextField description;
-		protected EnumComboBox2<ParameterRetrievalSettings> retrievalSettings;
+		protected EnumComboBox<ParameterRetrievalSettings> retrievalSettings;
 		protected ParameterRetrievalSettings fixedRetrievalSettings;
 
 		protected void initEditorComponent(RegistrationParam value)
 		{
 			label = new TextField(msg.getMessage("RegistrationFormViewer.paramLabel"));
 			description = new TextField(msg.getMessage("RegistrationFormViewer.paramDescription"));
-			retrievalSettings = new EnumComboBox2<>(
+			retrievalSettings = new EnumComboBox<>(
 					msg.getMessage("RegistrationFormViewer.paramSettings"), msg, 
 					"ParameterRetrievalSettings.", ParameterRetrievalSettings.class, 
 					ParameterRetrievalSettings.interactive);			

@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvide
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.EnumComboBox2;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 
@@ -61,7 +61,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private TabSheet tabs;
 	private CheckBox ignoreRequests;
 	
-	private EnumComboBox2<EnquiryType> enquiryType;
+	private EnumComboBox<EnquiryType> enquiryType;
 	private GroupsSelectionList targetGroups;
 	private EnquiryFormNotificationsEditor notificationsEditor;
 	
@@ -167,7 +167,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 
 		notificationsEditor = new EnquiryFormNotificationsEditor(msg, groupsMan, 
 				notificationsMan, msgTempMan);
-		enquiryType = new EnumComboBox2<>(msg.getMessage("EnquiryFormViewer.type"), 
+		enquiryType = new EnumComboBox<>(msg.getMessage("EnquiryFormViewer.type"), 
 				msg, "EnquiryType.", EnquiryType.class, 
 				EnquiryType.REQUESTED_OPTIONAL);
 		

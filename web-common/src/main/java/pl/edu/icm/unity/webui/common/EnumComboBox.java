@@ -19,23 +19,23 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  * @author K. Benedyczak
  * @param <T>
  */
-public class EnumComboBox2<T extends Enum<?>> extends ComboBox<T>{
+public class EnumComboBox<T extends Enum<?>> extends ComboBox<T>{
 	
 	private UnityMessageSource msg;
 	private String msgPrefix;
 	
-	public EnumComboBox2(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
+	public EnumComboBox(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
 	{
 		init(msg, msgPrefix, enumClass, initialValue, new HashSet<T>());
 	}
 	
-	public EnumComboBox2(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
+	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
 			T initialValue)
 	{
 		this(caption, msg, msgPrefix, enumClass, initialValue, new HashSet<T>());
 	}
 	
-	public EnumComboBox2(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
+	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
 			T initialValue,	Set<T> hidden)
 	{
 		super(caption);

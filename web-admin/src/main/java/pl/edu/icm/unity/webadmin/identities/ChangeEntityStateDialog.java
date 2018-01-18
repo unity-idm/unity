@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.EnumComboBox2;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -37,9 +37,9 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	private final EntityWithLabel entity;
 	protected Callback callback;
 	
-	private EnumComboBox2<EntityState> entityState;
+	private EnumComboBox<EntityState> entityState;
 	private CheckBox scheduleEnable;
-	private EnumComboBox2<EntityScheduledOperation> entityScheduledChange;
+	private EnumComboBox<EntityScheduledOperation> entityScheduledChange;
 	private DateTimeField changeTime;
 	
 	public ChangeEntityStateDialog(UnityMessageSource msg, EntityWithLabel entity, Callback callback)
@@ -54,7 +54,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	protected FormLayout getContents()
 	{
 		Label info = new Label(msg.getMessage("ChangeEntityStateDialog.info", entity));
-		entityState = new EnumComboBox2<>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
+		entityState = new EnumComboBox<>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
 				"EntityState.", EntityState.class, entity.getEntity().getState(),
 				Sets.newHashSet(EntityState.onlyLoginPermitted));
 		
@@ -67,7 +67,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		EntityInformation initial = entity.getEntity().getEntityInformation();
 		EntityScheduledOperation initialOp = initial.getScheduledOperation() != null ? 
 				initial.getScheduledOperation() : EntityScheduledOperation.DISABLE;
-		entityScheduledChange = new EnumComboBox2<>(
+		entityScheduledChange = new EnumComboBox<>(
 				msg.getMessage("ChangeEntityStateDialog.scheduledOperation"),
 				msg, 
 				"EntityScheduledOperation.", EntityScheduledOperation.class, 
