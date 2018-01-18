@@ -20,8 +20,6 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -97,14 +95,14 @@ public class IdentitiesComponent extends SafePanel
 		
 		CssLayout topBar = new CssLayout();
 		final CheckBox mode = new CheckBox(msg.getMessage("Identities.mode"));
-		//TODO x2
-		//mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
+		
+		mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
 		mode.addStyleName(Styles.vSmall.toString());
 		mode.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		mode.addStyleName(Styles.horizontalMarginSmall.toString());
 		
 		final CheckBox showTargeted = new CheckBox(msg.getMessage("Identities.showTargeted"));
-		//showTargeted.setValue(IdentitiesComponent.this.identitiesTable.isShowTargeted());
+		showTargeted.setValue(IdentitiesComponent.this.identitiesTable.isShowTargeted());
 		showTargeted.addStyleName(Styles.vSmall.toString());
 		showTargeted.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		showTargeted.addStyleName(Styles.horizontalMarginSmall.toString());
@@ -157,19 +155,6 @@ public class IdentitiesComponent extends SafePanel
 			).show(); 
 		});
 		
-		
-		Button savePreferences = new Button();
-		savePreferences.setDescription(msg.getMessage("Identities.savePreferences"));
-		savePreferences.setIcon(Images.save.getResource());
-		savePreferences.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-//				IdentitiesComponent.this.identitiesTable.savePreferences();
-//TODO				
-			}
-		});
 		HorizontalLayout searchWrapper = new HorizontalLayout();
 		searchWrapper.setSpacing(true);
 		searchWrapper.setMargin(false);
@@ -221,7 +206,7 @@ public class IdentitiesComponent extends SafePanel
 		
 		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
 		toolbar.addSeparator();
-		toolbar.addButtons(addFilter, addAttributes, removeAttributes, savePreferences);
+		toolbar.addButtons(addFilter, addAttributes, removeAttributes);
 		topBar.addComponents(mode, showTargeted, searchWrapper, toolbar);
 		topBar.setWidth(100, Unit.PERCENTAGE);
 		

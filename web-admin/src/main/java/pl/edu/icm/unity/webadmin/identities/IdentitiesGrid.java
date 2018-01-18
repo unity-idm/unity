@@ -7,11 +7,13 @@ package pl.edu.icm.unity.webadmin.identities;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.TreeData;
@@ -19,9 +21,13 @@ import com.vaadin.data.provider.HierarchicalQuery;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.selection.MultiSelectionEvent;
 import com.vaadin.server.SerializablePredicate;
+import com.vaadin.shared.ui.dnd.EffectAllowed;
 import com.vaadin.ui.TreeGrid;
+import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -33,6 +39,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webadmin.identities.IdentitiesTable.BaseColumnId;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -51,6 +58,8 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 @PrototypeComponent
 public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesGrid.class);
+	
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
@@ -103,18 +112,22 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private GridContextMenuSupport<IdentityEntry> contextMenuSupp;
 	private EventsBus bus;
 	private IdentityEntry lastSelected;
+	private PreferencesManagement preferencesMan;
+
 	
 	@SuppressWarnings("unchecked")
 	@Autowired
 	public IdentitiesGrid(UnityMessageSource msg, AttributeSupport attributeSupport,
 			IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
-			AttributeHandlerRegistry attrHandlerRegistry)
+			AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan)
+
 	{
 		this.msg = msg;
 		this.attributeSupport = attributeSupport;
 		this.idTypeSupport = idTypeSupport;
 		this.entitiesLoader = entitiesLoader;
 		this.attrHandlerRegistry = attrHandlerRegistry;
+		this.preferencesMan = preferencesMan;
 		createBaseColumns();
 		cachedEntitites = new ArrayList<>(200);
 		dataProvider = (TreeDataProvider<IdentityEntry>) getDataProvider();
@@ -129,6 +142,18 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		((MultiSelectionModel<IdentityEntry>)getSelectionModel())
 			.addMultiSelectionListener(this::selectionChanged);
 		setSizeFull();
+		setColumnReorderingAllowed(true);
+		
+		loadPreferences();
+		
+		addColumnVisibilityChangeListener(event -> savePreferences());
+		addColumnResizeListener(event -> savePreferences());
+		addColumnReorderListener(event -> savePreferences());
+		
+		GridDragSource<IdentityEntry> drag =  new GridDragSource<>(this);
+		drag.setEffectAllowed(EffectAllowed.MOVE);
+		drag.addGridDragStartListener(event -> drag.setDragData(event.getDraggedItems().iterator().next().getSourceEntity()));
+		drag.addGridDragEndListener(event -> drag.setDragData(null));
 	}
 	
 	private void createBaseColumns()
@@ -160,12 +185,14 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		//TODO
 		//if (entitiesLoader.isDone())
 			reloadTableContentsFromData();
+		savePreferences();
 	}
 	
 	public void setShowTargeted(boolean showTargeted) throws EngineException
 	{
 		this.showTargeted = showTargeted;
 		showGroup(group);
+		savePreferences();
 	}	
 	
 	public String getGroup()
@@ -307,6 +334,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			.setHidable(true)
 			.setHidden(false)
 			.setId(key);
+	
+		savePreferences();
 		try
 		{
 			showGroup(this.group);
@@ -327,6 +356,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 				removeColumn(ATTR_CURRENT_COL_PREFIX + attribute);
 		}
 		reloadTableContentsFromData();
+		savePreferences();
 	}
 
 	public Set<String> getAttributeColumns(boolean root)
@@ -411,6 +441,16 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 				.collect(Collectors.toSet());
 	}
 	
+	public Boolean isGroupByEntity()
+	{
+		return groupByEntity;
+	}
+
+	public Boolean isShowTargeted()
+	{
+		return showTargeted;
+	}
+	
 	void removeIdentity(IdentityEntry entry)
 	{
 		for (ResolvedEntity cached: cachedEntitites)
@@ -484,6 +524,121 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 				return;
 			lastSelected = selected;
 			bus.fireEvent(new EntityChangedEvent(selected.getSourceEntity(), group));
+		}
+	}
+	
+	
+	private void savePreferences()
+	{
+		IdentitiesTablePreferences preferences = new IdentitiesTablePreferences();
+		List<String> columns = getColumnIds();
+
+		for (String column : columns)
+		{
+			IdentitiesTablePreferences.ColumnSettings settings = new IdentitiesTablePreferences.ColumnSettings();
+			settings.setCollapsed(getColumn(column).isHidden());
+			settings.setWidth(getColumn(column).getWidth());
+
+			Iterator<Column<IdentityEntry, ?>> iterator = getColumns().iterator();
+			int i = 0;
+			while (iterator.hasNext())
+			{
+				if (iterator.next().getId().equals(column))
+				{
+					settings.setOrder(i);
+					break;
+				}
+				i++;
+			}
+
+			preferences.addColumneSettings(column, settings);
+		}
+
+		preferences.setGroupByEntitiesSetting(groupByEntity);
+		preferences.setShowTargetedSetting(showTargeted);
+		try
+		{
+			preferences.savePreferences(preferencesMan);
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("error"),
+					msg.getMessage("Identities.cannotSavePrefernces"));
+			return;
+
+		}
+
+	}
+
+	private void loadPreferences()
+	{
+
+		IdentitiesTablePreferences preferences = null;
+		try
+		{
+			preferences = IdentitiesTablePreferences.getPreferences(preferencesMan);
+		} catch (EngineException e)
+		{
+			log.debug("Can not load preferences for identities table", e);
+			return;
+		}
+		groupByEntity = preferences.getGroupByEntitiesSetting();
+		showTargeted = preferences.getShowTargetedSetting();
+
+		Set<String> columns = new HashSet<String>();
+		columns.addAll(getColumnIds());
+
+		if (preferences != null && preferences.getColumnSettings().size() > 0)
+		{
+			String[] scol = new String[preferences.getColumnSettings().size()];
+
+			for (Map.Entry<String, IdentitiesTablePreferences.ColumnSettings> entry : preferences
+					.getColumnSettings().entrySet())
+			{
+				if (!columns.contains(entry.getKey().toString()))
+				{
+					if (entry.getKey().startsWith(ATTR_ROOT_COL_PREFIX))
+						addAttributeColumn(entry.getKey().substring(
+								ATTR_ROOT_COL_PREFIX.length()),
+								"/");
+					if (entry.getKey().startsWith(ATTR_CURRENT_COL_PREFIX))
+						addAttributeColumn(entry.getKey().substring(
+								ATTR_CURRENT_COL_PREFIX.length()),
+								null);
+
+					getColumn(entry.getKey())
+							.setHidden(entry.getValue().isCollapsed());
+					if (entry.getValue().getWidth() > 0)
+						getColumn(entry.getKey()).setWidth(
+								entry.getValue().getWidth());
+
+				} else
+				{
+					if (!entry.getKey().equals(BaseColumnId.entity.toString()))
+					{
+						getColumn(entry.getKey()).setHidden(
+								entry.getValue().isCollapsed());
+					}
+
+					if (entry.getValue().getWidth() > 0)
+						getColumn(entry.getKey()).setWidth(
+								entry.getValue().getWidth());
+				}
+
+				scol[entry.getValue().getOrder()] = entry.getKey();
+			}
+
+			// get all which are not in prefs and add them at the
+			// end. Important for prefs from older version.
+			HashSet<String> missing = new HashSet<String>(columns);
+			missing.removeAll(preferences.getColumnSettings().keySet());
+			String[] scolComplete = new String[scol.length + missing.size()];
+			int i = 0;
+			for (; i < scol.length; i++)
+				scolComplete[i] = scol[i];
+			for (String miss : missing)
+				scolComplete[i++] = miss;
+
+			setColumnOrder(scolComplete);
 		}
 	}
 }

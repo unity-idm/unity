@@ -27,6 +27,7 @@ import com.vaadin.event.ExpandEvent.ExpandListener;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.TreeGrid;
+import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
@@ -122,14 +123,27 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		setHeaderVisible(false);
 		setSizeFull();
 
-		//TODO Drop support
+		
 		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this,
 				DropMode.ON_TOP);
 		dropTarget.setDropEffect(DropEffect.MOVE);
-		// dropTarget.addGridDropListener(e ->
-		// System.out.println(e.getDropTargetRow().get().getPath()));
+		dropTarget.addGridDropListener(e -> {
+			e.getDragSourceExtension().ifPresent(source -> {
+				if (source instanceof GridDragSource)
+				{
+					if (source.getDragData() != null)
+					{
+						EntityWithLabel dragData = (EntityWithLabel) source
+								.getDragData();
+						addToGroupVerification(
+								e.getDropTargetRow().get()
+										.getPath(),
+								dragData);
+					}
+				}
+			});
+		});
 
-		
 		try
 		{
 			setupRoot();
@@ -173,7 +187,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 					Images.vaadinFolder.getHtml());
 			treeData.clear();
 			treeData.addItem(null, parent);
-			setExpandEnable(parent);
 			getDataProvider().refreshAll();
 			expand(parent);
 		} catch (AuthorizationException e)
@@ -224,7 +237,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 					TreeNode parent = new TreeNode(msg, contents.getGroup(),
 							Images.vaadinFolder.getHtml());
 					treeData.addItem(null, parent);
-					setExpandEnable(parent);
 
 				} catch (AuthorizationException e2)
 				{
@@ -249,22 +261,11 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			return;
 		}
 		node.setContentsFetched(false);
-		setExpandEnable(node);
 		getDataProvider().refreshAll();
 		collapse(node);		
 		expand(node);
 	}
 
-	/**
-	 * Adding mock child, then node from param is expandable
-	 * 
-	 * @param node
-	 */
-	private void setExpandEnable(TreeNode node)
-	{
-//		if (treeData.getChildren(node).isEmpty())
-//			treeData.addItem(node, node.getAsEmpty());
-	}
 
 	private void removeGroup(TreeNode parent, String path, boolean recursive)
 	{
@@ -358,43 +359,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			ret.append(it.next()).append("  ");
 		return ret.toString();
 	}
-	
-//	private class GroupDropHandler implements DropHandler
-//	{
-//
-//		@Override
-//		public void drop(DragAndDropEvent event)
-//		{
-//			Transferable rawTransferable = event.getTransferable();
-//			if (rawTransferable instanceof TableTransferable)
-//			{
-//				TableTransferable transferable = (TableTransferable) rawTransferable;
-//				Object draggedRaw = transferable.getItemId();
-//				EntityWithLabel entity = null;
-//				if (draggedRaw instanceof IdentityWithEntity)
-//				{
-//					IdentityWithEntity dragged = (IdentityWithEntity) draggedRaw;
-//					entity = dragged.getEntityWithLabel();
-//				} else if (draggedRaw instanceof EntityWithLabel)
-//				{
-//					entity = (EntityWithLabel)draggedRaw;
-//				}
-//				if (entity != null)
-//				{
-//					AbstractSelectTargetDetails target = 
-//							(AbstractSelectTargetDetails) event.getTargetDetails();
-//					final TreeNode node = (TreeNode) target.getItemIdOver();
-//					addToGroupVerification(node.getPath(), entity);
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public AcceptCriterion getAcceptCriterion()
-//		{
-//			return VerticalLocationIs.MIDDLE;
-//		}
-//	}
 	
 	private SingleActionHandler2<TreeNode> getAddAction()
 	{
@@ -612,7 +576,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 							Images.vaadinFolder.getHtml(),
 							expandedNode);
 					treeData.addItem(node.getParentNode(), node);
-					setExpandEnable(node);
 				} catch (EngineException e)
 				{
 					log.debug("Group " + subgroup

@@ -413,7 +413,7 @@ public class IdentitiesTable extends CustomComponent
 								ATTR_CURRENT_COL_PREFIX.length()), null);
 
 					table.setColumnCollapsed(entry.getKey(), entry.getValue().isCollapsed());
-					table.setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+				//	table.setColumnWidth(entry.getKey(), entry.getValue().getWidth());
 
 				} else
 				{
@@ -422,7 +422,7 @@ public class IdentitiesTable extends CustomComponent
 						table.setColumnCollapsed(entry.getKey(), entry.getValue()
 								.isCollapsed());
 					}
-					table.setColumnWidth(entry.getKey(), entry.getValue().getWidth());
+				//	table.setColumnWidth(entry.getKey(), entry.getValue().getWidth());
 
 				}
 
