@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.HierarchicalQuery;
 import com.vaadin.data.provider.TreeDataProvider;
-import com.vaadin.event.selection.MultiSelectionEvent;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.shared.ui.dnd.EffectAllowed;
 import com.vaadin.ui.TreeGrid;
@@ -39,7 +38,6 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.webadmin.identities.IdentitiesTable.BaseColumnId;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -140,7 +138,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		GridSelectionSupport.installClickListener(this);
 		
 		((MultiSelectionModel<IdentityEntry>)getSelectionModel())
-			.addMultiSelectionListener(this::selectionChanged);
+			.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 		setSizeFull();
 		setColumnReorderingAllowed(true);
 		
@@ -182,9 +180,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	public void setMode(boolean groupByEntity)
 	{
 		this.groupByEntity = groupByEntity;
-		//TODO
-		//if (entitiesLoader.isDone())
-			reloadTableContentsFromData();
+		reloadTableContentsFromData();
 		savePreferences();
 	}
 	
@@ -214,6 +210,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		treeData.clear();
 		dataProvider.refreshAll();
 		cachedEntitites.clear();
+		getSelectionModel().deselectAll();
 		if (group != null)
 			entitiesLoader.reload(selected, group, showTargeted, 
 					this::addAndCacheResolvedEntities);
@@ -499,9 +496,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		dataProvider.refreshAll();
 	}
 	
-	private void selectionChanged(MultiSelectionEvent<IdentityEntry> event)
+	private void selectionChanged(Set<IdentityEntry> selectedItems)
 	{
-		Set<IdentityEntry> selectedItems = event.getAllSelectedItems();
 		IdentityEntry selected = null;
 		if (selectedItems.size() == 1)
 		{
@@ -613,7 +609,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 
 				} else
 				{
-					if (!entry.getKey().equals(BaseColumnId.entity.toString()))
+					if (!entry.getKey().equals(BaseColumn.entity.toString()))
 					{
 						getColumn(entry.getKey()).setHidden(
 								entry.getValue().isCollapsed());

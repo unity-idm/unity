@@ -48,8 +48,8 @@ public class AddFilterDialog extends AbstractDialog
 		Map<String, String> colsMap = new HashMap<>();
 		for (String colId: columns)
 		{
-			if (colId.startsWith(IdentitiesTable.ATTR_COL_PREFIX))
-				colsMap.put(colId.substring(IdentitiesTable.ATTR_COL_PREFIX.length()), colId);
+			if (colId.startsWith(IdentitiesGrid.ATTR_COL_PREFIX))
+				colsMap.put(colId.substring(IdentitiesGrid.ATTR_COL_PREFIX.length()), colId);
 			else
 				colsMap.put(msg.getMessage("Identities."+colId), colId);
 		}
