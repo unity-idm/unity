@@ -110,16 +110,14 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		addActionHandler(getEditACsAction());
 		addActionHandler(getDeleteAction());
 		addActionHandler(getAddEntityAction());
-		// setDropHandler(new GroupDropHandler());
 
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		treeData = new TreeData<>();
 		setDataProvider(new GroupsDataProvider(treeData));
 
-		addColumn(n -> {
-			return n.getIcon() + " " + n.getPath();
-		}, new HtmlRenderer());
+		addColumn(n -> n.getIcon() + " " + n.getPath(), 
+				new HtmlRenderer());
 		setHeaderVisible(false);
 		setSizeFull();
 
@@ -129,7 +127,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		dropTarget.setDropEffect(DropEffect.MOVE);
 		dropTarget.addGridDropListener(e -> {
 			e.getDragSourceExtension().ifPresent(source -> {
-				if (source instanceof GridDragSource)
+				if (source instanceof GridDragSource && e.getDropTargetRow().isPresent())
 				{
 					if (source.getDragData() != null)
 					{
