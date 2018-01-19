@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 /**
  * Allows to choose an attribute type to be added as identities table column.
@@ -64,7 +64,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 			if (!at.isInstanceImmutable())
 				filtered.add(at);
 		}
-		attributeType = new AttributeSelectionComboBox2(msg.getMessage("AddAttributeColumnDialog.attribute"),
+		attributeType = new AttributeSelectionComboBox(msg.getMessage("AddAttributeColumnDialog.attribute"),
 				filtered);
 		
 		useRootGroup = new CheckBox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);

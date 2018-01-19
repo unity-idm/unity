@@ -33,7 +33,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox2;
 import pl.edu.icm.unity.webui.common.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 /**
  * Editing of a single {@link AttributeStatement}.
@@ -135,7 +135,7 @@ public class AttributeStatementComponent extends CustomComponent
 			dynamicAttributeValue.setVisible(!fixed);
 		});
 		
-		dynamicAttributeName =  new AttributeSelectionComboBox2(
+		dynamicAttributeName =  new AttributeSelectionComboBox(
 				msg.getMessage("AttributeStatementComponent.dynamicAttrName"), attributeTypes);
 		dynamicAttributeValue  = new MVELExpressionField(msg, msg.getMessage("AttributeStatementComponent.dynamicAttrValue"), 
 				msg.getMessage("MVELExpressionField.conditionDesc"));

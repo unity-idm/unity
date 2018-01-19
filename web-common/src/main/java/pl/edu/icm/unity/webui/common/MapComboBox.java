@@ -16,6 +16,7 @@ import com.vaadin.v7.ui.ComboBox;
  * i.e. the map's value for the key.
  * @author K. Benedyczak
  */
+@Deprecated
 public class MapComboBox<T> extends ComboBox
 {
 	private LabelResolver<T> resolver = null;

@@ -13,7 +13,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
@@ -33,7 +33,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	private String attributeName;
 	private Label cardinality;
 	private Label unique;
-	private AttributeSelectionComboBox2 attributeTypes;
+	private AttributeSelectionComboBox attributeTypes;
 	private TypeChangeCallback callback;
 
 	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, UnityMessageSource msg)
@@ -88,7 +88,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	
 	private void createAttributeSelectionWidget(Collection<AttributeType> attributeTypes)
 	{
-		this.attributeTypes = new AttributeSelectionComboBox2(msg.getMessage("AttributeType.name"), 
+		this.attributeTypes = new AttributeSelectionComboBox(msg.getMessage("AttributeType.name"), 
 				attributeTypes); 
 		
 		if (attributeTypes.size() == 1)

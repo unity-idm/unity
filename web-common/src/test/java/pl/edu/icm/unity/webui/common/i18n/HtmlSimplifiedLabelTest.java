@@ -2,7 +2,7 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common;
+package pl.edu.icm.unity.webui.common.i18n;
 
 import org.junit.Assert;
 import org.junit.Test;

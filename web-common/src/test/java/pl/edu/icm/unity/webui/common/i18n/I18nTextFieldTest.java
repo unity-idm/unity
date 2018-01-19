@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common;
+package pl.edu.icm.unity.webui.common.i18n;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,7 +16,6 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 public class I18nTextFieldTest
 {
@@ -31,7 +30,7 @@ public class I18nTextFieldTest
 		locales.put("polski", new Locale("pl"));
 		when(msg.getEnabledLocales()).thenReturn(locales);
 		
-		I18nTextField tf= new I18nTextField(msg);
+		I18nTextField2 tf= new I18nTextField2(msg);
 		I18nString original = new I18nString("a");
 		original.addValue("en", "Value 1");
 		original.addValue("pl", "Wartość 1");

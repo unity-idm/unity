@@ -11,13 +11,13 @@ import com.vaadin.data.Binder;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 
 /**
- * {@link AttributeSelectionComboBox2} based editor of attribute  parameter.
+ * {@link AttributeSelectionComboBox} based editor of attribute  parameter.
  * @author K. Benedyczak
  */
-public class AttributeActionParameterComponent extends AttributeSelectionComboBox2 implements ActionParameterComponent
+public class AttributeActionParameterComponent extends AttributeSelectionComboBox implements ActionParameterComponent
 {
 	private Binder<StringValueBean> binder;
 

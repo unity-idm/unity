@@ -46,7 +46,7 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
 
@@ -282,7 +282,7 @@ public class BaseFormEditor extends VerticalLayout
 	private class AttributeEditorAndProvider extends OptionalParameterEditor 
 			implements EditorProvider<AttributeRegistrationParam>, Editor<AttributeRegistrationParam>
 	{
-		private AttributeSelectionComboBox2 attributeType;
+		private AttributeSelectionComboBox attributeType;
 		private GroupComboBox2 group;
 		private CheckBox showGroups;
 
@@ -297,7 +297,7 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public ComponentsContainer getEditorComponent(AttributeRegistrationParam value, int index)
 		{
-			attributeType = new AttributeSelectionComboBox2(
+			attributeType = new AttributeSelectionComboBox(
 					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
 			group = new GroupComboBox2(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
 			group.setInput("/", true);

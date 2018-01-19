@@ -35,7 +35,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private Collection<AttributeType> attributeTypes;
 	private Collection<String> allowedGroups;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
-	private AttributeSelectionComboBox2 attributeSel;
+	private AttributeSelectionComboBox attributeSel;
 	private GroupComboBox2 groupSel;
 	private VerticalLayout main = new VerticalLayout();
 	private SafePanel valuesPanel = new SafePanel();
@@ -97,7 +97,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		main.setSpacing(true);
 		main.setMargin(false);
 		FormLayout top = new CompactFormLayout();
-		attributeSel = new AttributeSelectionComboBox2(msg.getMessage("Attributes.attribute"), attributeTypes);
+		attributeSel = new AttributeSelectionComboBox(msg.getMessage("Attributes.attribute"), attributeTypes);
 		attributeSel.addSelectionListener(event -> setNewValuesUI());
 	
 		top.addComponent(attributeSel);
