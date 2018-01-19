@@ -75,7 +75,7 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 		if (active.getValue())
 		{
 			T value = getValueInternal();
-			return value != null ? new PrefilledEntry<>(value, mode.getSelectedValue()) : null;	
+			return value != null ? new PrefilledEntry<>(value, mode.getValue()) : null;	
 		}
 		return null;
 	}

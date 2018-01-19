@@ -32,11 +32,11 @@ $v-background-color: #66FF99 !default;
 	//the actual changes follow
 	
 	//in the header caption we hide the default text and instead show a Unity logo
-	#uid-headerCaption {
+	.u-textEndpointHeading {
 		text-indent: 100%;
   		white-space: nowrap;
   		overflow: hidden;
-  		background-image: url("../common/img/logo.png");
+  		background-image: url("../common/img/other/logo.png");
   		background-repeat: no-repeat;
   		height: 130px;
 	}

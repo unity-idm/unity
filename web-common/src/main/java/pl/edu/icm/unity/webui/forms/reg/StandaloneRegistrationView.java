@@ -104,8 +104,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private void initUIBase()
 	{
 		main = new VerticalLayout();
-		main.setMargin(true);
-		main.setSpacing(true);
+	
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
@@ -142,7 +141,6 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 					msg.getMessage("StandalonePublicFormView.requestCancelled"));
 		});
 		buttons.addComponents(cancel, ok);
-		buttons.setSpacing(true);
 		buttons.setMargin(false);
 		main.addComponent(buttons);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		

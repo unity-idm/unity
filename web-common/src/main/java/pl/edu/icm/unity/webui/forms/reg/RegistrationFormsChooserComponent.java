@@ -123,13 +123,13 @@ public class RegistrationFormsChooserComponent extends VerticalLayout
 	
 	public void initUI(TriggeringMode mode)
 	{
+		setSpacing(false);
+		setMargin(false);
 		this.mode = mode;
 		try
 		{
 			removeAllComponents();
 			main = new VerticalLayout();
-			main.setSpacing(true);
-			main.setMargin(true);
 			addComponent(main);
 			refresh();
 		} catch (Exception e)

@@ -12,15 +12,13 @@ import java.util.List;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GroupComboBox;
+import pl.edu.icm.unity.webui.common.GroupComboBox2;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -37,8 +35,8 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private Collection<AttributeType> attributeTypes;
 	private Collection<String> allowedGroups;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
-	private AttributeSelectionComboBox attributeSel;
-	private GroupComboBox groupSel;
+	private AttributeSelectionComboBox2 attributeSel;
+	private GroupComboBox2 groupSel;
 	private VerticalLayout main = new VerticalLayout();
 	private SafePanel valuesPanel = new SafePanel();
 
@@ -60,7 +58,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	
 	public void setInitialAttribute(Attribute initial)
 	{
-		attributeSel.setValue(initial.getName());
+		attributeSel.setSelectedItemByName(initial.getName());
 		if (groupSel != null)
 			groupSel.setValue(initial.getGroupPath());
 		setNewValuesUI();
@@ -80,7 +78,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	{
 		List<?> labelledValues = valuesComponent == null ? new ArrayList<>(0) : valuesComponent.getElements();
 		List<String> values = new ArrayList<>(labelledValues.size());
-		AttributeType at = attributeSel.getSelectedValue();
+		AttributeType at = attributeSel.getValue();
 		for (Object lv: labelledValues)
 		{
 			String value = ((LabelledValue)lv).getValue();
@@ -99,20 +97,13 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		main.setSpacing(true);
 		main.setMargin(false);
 		FormLayout top = new CompactFormLayout();
-		attributeSel = new AttributeSelectionComboBox(msg.getMessage("Attributes.attribute"), attributeTypes);
-		attributeSel.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				setNewValuesUI();
-			}
-		});
-		attributeSel.setImmediate(true);
+		attributeSel = new AttributeSelectionComboBox2(msg.getMessage("Attributes.attribute"), attributeTypes);
+		attributeSel.addSelectionListener(event -> setNewValuesUI());
+	
 		top.addComponent(attributeSel);
 		if (allowedGroups.size() > 1)
 		{
-			groupSel = new GroupComboBox(msg.getMessage("Attributes.group"), allowedGroups);
+			groupSel = new GroupComboBox2(msg.getMessage("Attributes.group"), allowedGroups);
 			groupSel.setInput("/", true);
 			top.addComponent(groupSel);
 		}
@@ -125,7 +116,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 
 	private void setNewValuesUI()
 	{
-		AttributeType selected = attributeSel.getSelectedValue();
+		AttributeType selected = attributeSel.getValue();
 		FormLayout ct = new CompactFormLayout();
 		ct.setMargin(true);
 		valuesComponent = getValuesPart(selected, selected.getName(), true, true, ct);

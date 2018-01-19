@@ -36,7 +36,6 @@ class GetRegistrationCodeDialog extends AbstractDialog
 	protected Component getContents() throws Exception
 	{
 		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
 		main.setMargin(false);
 		main.addComponent(new Label(msg.getMessage("GetRegistrationCodeDialog.information")));
 		FormLayout sub = new FormLayout();

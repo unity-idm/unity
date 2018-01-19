@@ -453,12 +453,12 @@ public class BaseFormEditor extends VerticalLayout
 					description.setValue(value.getDescription());
 					main.add(description);
 				}
-				retrievalSettings.setEnumValue(value.getRetrievalSettings());
+				retrievalSettings.setValue(value.getRetrievalSettings());
 			}
 
 			if (fixedRetrievalSettings != null)
 			{
-				retrievalSettings.setEnumValue(fixedRetrievalSettings);
+				retrievalSettings.setValue(fixedRetrievalSettings);
 				retrievalSettings.setVisible(false);
 			}
 			
@@ -471,7 +471,7 @@ public class BaseFormEditor extends VerticalLayout
 				v.setDescription(description.getValue());
 			if (!label.getValue().isEmpty())
 				v.setLabel(label.getValue());
-			v.setRetrievalSettings(retrievalSettings.getSelectedValue());
+			v.setRetrievalSettings(retrievalSettings.getValue());
 		}
 		
 		public void fixRetrievalSettings(ParameterRetrievalSettings fixedValue)

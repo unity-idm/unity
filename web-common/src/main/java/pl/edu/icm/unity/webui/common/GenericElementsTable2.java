@@ -6,12 +6,19 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.GridSortOrder;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.data.provider.Query;
+import com.vaadin.server.SerializablePredicate;
+import com.vaadin.shared.data.sort.SortDirection;
 
 /**
  * 1-column table with arbitrary objects. 
@@ -28,6 +35,8 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	private Column<T, String> col1;
 	private GridContextMenuSupport<T> contextMenuSupp;
 	private boolean sortable;
+	private Collection<SerializablePredicate<T>> filters;
+	private ValueProvider<T, String> nameProvider;
 	
 	public GenericElementsTable2(String columnHeader)
 	{
@@ -42,6 +51,7 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	public GenericElementsTable2(String columnHeader, ValueProvider<T, String> nameProvider, boolean sortable)
 	{
 		this.sortable = sortable;
+		this.nameProvider = nameProvider;
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
@@ -54,13 +64,15 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		col1.setSortable(sortable);
 		sort();
 		contextMenuSupp = new GridContextMenuSupport<>(this);
+		filters = new ArrayList<>();
+		
 	}
 	
 	public void setMultiSelect(boolean multi)
 	{
 		setSelectionMode(multi ? SelectionMode.MULTI : SelectionMode.SINGLE);
 	}
-	
+
 	public void addActionHandler(SingleActionHandler2<T> actionHandler) 
 	{
 		contextMenuSupp.addActionHandler(actionHandler);
@@ -88,6 +100,34 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		}
 	}
 	
+	public void selectFirst()
+	{
+		Optional<T> first;
+		Stream<T> fetchStream = dataProvider.fetch(new Query<>());
+
+		if (!sortable)
+		{
+			first = fetchStream.findFirst();
+
+		} else
+		{
+			List<GridSortOrder<T>> order = getSortOrder();
+			SortDirection dir = order.get(0).getDirection();
+
+			if (dir.equals(SortDirection.ASCENDING))
+
+				first = fetchStream.sorted(Comparator.comparing(nameProvider))
+						.findFirst();
+			else
+
+				first = fetchStream.sorted(
+						Comparator.comparing(nameProvider).reversed())
+						.findFirst();
+		}
+		if (first.isPresent())
+			select(first.get());
+	}
+	
 	public void addElement(T el)
 	{
 		contents.add(el);
@@ -102,7 +142,6 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 		sort();
 	}
 	
-	
 	private void sort()
 	{
 		if (sortable)
@@ -113,6 +152,28 @@ public class GenericElementsTable2<T> extends SmallGrid<T>
 	{
 		return new ArrayList<>(contents);
 	}
+	
+	private void updateFilters()
+	{
+		dataProvider.clearFilters();
+		for (SerializablePredicate<T> p : filters)
+			dataProvider.addFilter(p);
+	}
+	
+	public void addFilter(SerializablePredicate<T> filter)
+	{
+		if (!filters.contains(filter))
+			filters.add(filter);
+		updateFilters();
+	}
+	
+	public void removeFilter(SerializablePredicate<T> filter)
+	{
+		if (filters.contains(filter))
+			filters.remove(filter);
+		updateFilters();
+	}
+	
 	
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{

@@ -6,15 +6,17 @@ package pl.edu.icm.unity.webui.common.attributes;
 
 import java.util.List;
 
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
+import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.TextArea;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -27,11 +29,14 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 {
 	protected AttributeValueSyntax<?> syntax;
+	private UnityMessageSource msg;
+	
 	public static final int LARGE_STRING = 1000;
 	
-	public TextOnlyAttributeHandler(AttributeValueSyntax<?> syntax)
+	public TextOnlyAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		this.syntax = syntax;
+		this.msg = msg;
 	}
 
 	@Override
@@ -81,12 +86,12 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			
 			field = large ? new TextArea() : new TextField();
 			if (large)
-				field.setColumns(40);
+				field.setWidth(60, Unit.PERCENTAGE);
 			if (value != null)
 				field.setValue(value.toString());
 			field.setCaption(label);
-			field.setRequired(required);
-			
+			field.setRequiredIndicatorVisible(required);
+		
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
 				sb.append(hint).append("<br>");
@@ -100,8 +105,19 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-			if (!required && field.getValue().isEmpty())
-				return null;
+			
+			if (field.getValue().isEmpty())
+			{
+				if (!required)
+				{
+					return null;
+				}
+				field.setComponentError(
+						new UserError(msg.getMessage("fieldRequired")));
+				throw new IllegalAttributeValueException(
+						msg.getMessage("fieldRequired"));
+			}
+			
 			try
 			{
 				String cur= field.getValue();

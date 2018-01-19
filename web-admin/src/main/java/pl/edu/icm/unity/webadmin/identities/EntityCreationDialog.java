@@ -11,16 +11,15 @@ import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 
-import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -40,7 +39,6 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 /**
@@ -50,31 +48,31 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 public class EntityCreationDialog extends IdentityCreationDialog
 {
-	private String initialGroup;
 	private EntityManagement identitiesMan;
 	private CredentialRequirementManagement credReqMan;
 	private GroupManagementHelper groupHelper;
+	private AttributeTypeManagement attrMan;
 	
+	private String initialGroup;
 	private CheckBox addToGroup;
-	private ComboBox credentialRequirement;
+	private ComboBox<String> credentialRequirement;
 	private EnumComboBox<EntityState> entityState;
 	private Collection<AttributeType> allTypes;
 	private EventsBus bus;
-	private AttributeTypeManagement attrMan;
 	
 	public EntityCreationDialog(UnityMessageSource msg, String initialGroup, EntityManagement identitiesMan,
-			GroupsManagement groupsMan, CredentialRequirementManagement authnMan, 
-			AttributeHandlerRegistry attrHandlerRegistry, AttributeTypeManagement attrMan,
-			AttributeClassManagement acMan,
-			IdentityEditorRegistry identityEditorReg, Callback callback)
+			CredentialRequirementManagement credReqMan, 
+			AttributeTypeManagement attrMan,
+			IdentityEditorRegistry identityEditorReg, 
+			GroupManagementHelper groupHelper,
+			Consumer<Identity> callback)
 	{
 		super(msg.getMessage("EntityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
 		this.attrMan = attrMan;
-		groupHelper = new GroupManagementHelper(msg, groupsMan, 
-				attrMan, acMan, attrHandlerRegistry);
 		this.initialGroup = initialGroup;
 		this.identitiesMan = identitiesMan;
-		this.credReqMan = authnMan;
+		this.credReqMan = credReqMan;
+		this.groupHelper = groupHelper;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -98,7 +96,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		if (initialGroup.equals("/"))
 			addToGroup.setEnabled(false);
 		
-		credentialRequirement = new ComboBox(msg.getMessage("EntityCreation.credReq"));
+		credentialRequirement = new ComboBox<>(msg.getMessage("EntityCreation.credReq"));
 		Collection<CredentialRequirements> credReqs;
 		try
 		{
@@ -115,13 +113,9 @@ public class EntityCreationDialog extends IdentityCreationDialog
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalCredentialException(msg.getMessage("EntityCreation.credReqMissing"));
 		}
-		for (CredentialRequirements cr: credReqs)
-		{
-			credentialRequirement.addItem(cr.getName());
-		}
-		credentialRequirement.select(credReqs.iterator().next().getName());
-
-		credentialRequirement.setNullSelectionAllowed(false);
+		credentialRequirement.setItems(credReqs.stream().map(cr -> cr.getName()));
+		credentialRequirement.setSelectedItem(credReqs.iterator().next().getName());
+		credentialRequirement.setEmptySelectionAllowed(false);
 		
 		entityState = new EnumComboBox<EntityState>(msg.getMessage("EntityCreation.initialState"), msg, 
 				"EntityState.", EntityState.class, EntityState.valid);
@@ -186,7 +180,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		try
 		{
 			created = identitiesMan.addEntity(toAdd, (String)credentialRequirement.getValue(), 
-					entityState.getSelectedValue(), extractAttributes.getValue(),
+					entityState.getValue(), extractAttributes.getValue(),
 					attributes);
 		} catch (Exception e)
 		{
@@ -208,7 +202,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 				}
 			} );
 		}
-		callback.onCreated(created);
+		callback.accept(created);
 		close();
 	}
 }

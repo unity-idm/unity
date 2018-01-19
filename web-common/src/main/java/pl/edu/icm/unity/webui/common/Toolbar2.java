@@ -111,6 +111,24 @@ public class Toolbar2<T> extends CustomComponent
 		main.setComponentAlignment(sep, Alignment.MIDDLE_CENTER);
 	}
 	
+	/**
+	 * Adds a custom button. It is styled in the same way as other in the toolbar, but its actions must 
+	 * be configured manually.
+	 */
+	public void addButton(Button button)
+	{
+		button.addStyleName(Styles.vButtonLink.toString());
+		button.addStyleName(Styles.toolbarButton.toString());
+		buttons.add(button);
+		main.addComponent(button);
+	}
+	
+	public void addButtons(Button... buttons)
+	{
+		for (Button button: buttons)
+			addButton(button);
+	}
+	
 	public void addActionHandler(SingleActionHandler2<T> handler)
 	{
 		final Button button = new Button();
@@ -122,16 +140,13 @@ public class Toolbar2<T> extends CustomComponent
 		
 		if (handler.getCaption() != null)
 			button.setDescription(HtmlEscapers.htmlEscaper().escape(handler.getCaption()));
-		button.addStyleName(Styles.vButtonLink.toString());
-		button.addStyleName(Styles.toolbarButton.toString());
 		button.addClickListener(event ->
 		{
 			if (!handler.isEnabled(target))
 				return;
 			handler.handle(target);
 		});
-		buttons.add(button);
-		main.addComponent(button);
+		addButton(button);
 		updateButtonState(button);
 	}
 }

@@ -52,7 +52,7 @@ public class AttributeStatementsTable extends GenericElementsTable2<AttributeSta
 		this.attrsMan = attrsMan;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
-		setMultiSelect(true);
+		setMultiSelect(false);
 		
 		addActionHandler(getAddAction());
 		addActionHandler(getEditAction());

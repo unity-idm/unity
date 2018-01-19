@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.attribute.AttributesComponent;
@@ -50,6 +50,8 @@ public class ContentsManagementTab extends VerticalLayout
 
 	private void initUI()
 	{
+		setMargin(false);
+		setSpacing(false);
 		setCaption(msg.getMessage("ContentsManagementTab.caption"));
 		
 		CompositeSplitPanel rightPanel = new CompositeSplitPanel(true, false, 

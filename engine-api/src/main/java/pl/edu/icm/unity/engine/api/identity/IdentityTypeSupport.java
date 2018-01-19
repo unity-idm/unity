@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.identity;
 
 import java.util.Collection;
+import java.util.Map;
 
 import pl.edu.icm.unity.types.basic.IdentityType;
 
@@ -20,6 +21,8 @@ public interface IdentityTypeSupport
 	 * @return {@link IdentityTypeDefinition} for the given IdentityType.
 	 */
 	IdentityTypeDefinition getTypeDefinition(String idType);
+	
+	Map<String, IdentityTypeDefinition> getTypeDefinitionsMap();
 	
 	/**
 	 * @param idType

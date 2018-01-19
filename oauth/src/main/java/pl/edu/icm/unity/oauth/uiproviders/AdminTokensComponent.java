@@ -222,7 +222,6 @@ public class AdminTokensComponent extends VerticalLayout
 		try
 		{
 			List<Token> tokens = getTokens();
-			System.out.println(tokens);
 			tokensTable.setItems(tokens.stream()
 				.map(t -> new TableTokensBean(t, msg, establishOwner(attrProcessor, t))));
 			tokensTable.deselectAll();

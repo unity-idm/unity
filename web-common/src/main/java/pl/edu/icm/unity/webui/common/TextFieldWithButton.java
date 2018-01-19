@@ -8,12 +8,10 @@ import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.v7.ui.CustomField;
+import com.vaadin.ui.CustomField;
 
 /**
  * Field Component composed of a TextField with a Button.
@@ -49,22 +47,17 @@ public class TextFieldWithButton extends CustomField<String>
 		b.addStyleName(Styles.vButtonSmall.toString());
 		b.setIcon(buttonIcon);
 		b.setDescription(HtmlEscapers.htmlEscaper().escape(buttonDescription));
-		b.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
+		b.addClickListener(event -> {
+			String value = editor.getValue();
+			String error = handler.validate(value);
+			if (error == null)
 			{
-				String value = editor.getValue();
-				String error = handler.validate(value);
-				if (error == null)
-				{
-					setComponentError(null);
-					if (handler.perform(value))
-						editor.setValue("");
-				} else
-				{
-					setComponentError(new UserError(error));
-				}
+				setComponentError(null);
+				if (handler.perform(value))
+					editor.setValue("");
+			} else
+			{
+				setComponentError(new UserError(error));
 			}
 		});
 
@@ -72,12 +65,6 @@ public class TextFieldWithButton extends CustomField<String>
 		return ret;
 	}
 
-	@Override
-	public Class<? extends String> getType()
-	{
-		return String.class;
-	}
-	
 	public interface ButtonHandler
 	{
 		/**
@@ -91,6 +78,19 @@ public class TextFieldWithButton extends CustomField<String>
 		 * @return true if should clean the editor.
 		 */
 		public boolean perform(String value);
+	}
+
+	@Override
+	public String getValue()
+	{
+		return editor.getValue();
+	}
+
+	@Override
+	protected void doSetValue(String value)
+	{
+		editor.setValue(value);
+		
 	}
 	
 }

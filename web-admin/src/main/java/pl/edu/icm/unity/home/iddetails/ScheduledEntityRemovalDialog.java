@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.home.iddetails;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 
 import com.google.common.collect.ImmutableMap;

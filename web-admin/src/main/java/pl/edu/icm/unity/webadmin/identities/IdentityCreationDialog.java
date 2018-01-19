@@ -4,12 +4,15 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
+import java.util.Collection;
 import java.util.Set;
+import java.util.function.Consumer;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Panel;
 
@@ -22,7 +25,9 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -36,21 +41,21 @@ public class IdentityCreationDialog extends AbstractDialog
 	private long entityId;
 	protected EntityManagement identitiesMan;
 	protected IdentityEditorRegistry identityEditorReg;
-	protected Callback callback;
+	protected Consumer<Identity> callback;
 	
-	protected ComboBox identityType;
+	protected ComboBox<String> identityType;
 	protected IdentityEditor identityEditor;
 	protected CheckBox extractAttributes;
 	
 	public IdentityCreationDialog(UnityMessageSource msg, long entityId, EntityManagement identitiesMan,
-			IdentityEditorRegistry identityEditorReg, Callback callback)
+			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
 	{
 		this(msg.getMessage("IdentityCreation.caption"), msg, identitiesMan, identityEditorReg, callback);
 		this.entityId = entityId;
 	}
 
 	protected IdentityCreationDialog(String caption, UnityMessageSource msg, EntityManagement identitiesMan,
-			IdentityEditorRegistry identityEditorReg, Callback callback)
+			IdentityEditorRegistry identityEditorReg, Consumer<Identity> callback)
 	{
 		super(msg, caption);
 		this.identityEditorReg = identityEditorReg;
@@ -58,36 +63,58 @@ public class IdentityCreationDialog extends AbstractDialog
 		this.callback = callback;
 	}
 
+	@Component
+	public static class IdentityCreationDialogHandler
+	{
+		@Autowired
+		private UnityMessageSource msg;
+		@Autowired
+		private EntityManagement identitiesMan;
+		@Autowired
+		private IdentityEditorRegistry identityEditorReg;
+		
+		public SingleActionHandler2<IdentityEntry> getAction(Consumer<Identity> callback)
+		{
+			return SingleActionHandler2.builder(IdentityEntry.class)
+					.withCaption(msg.getMessage("Identities.addIdentityAction"))
+					.withIcon(Images.addIdentity.getResource())
+					.withHandler(selection -> showAddIdentityDialog(selection, callback))
+					.build();
+		}
+		
+		private void showAddIdentityDialog(Collection<IdentityEntry> selection, Consumer<Identity> callback)
+		{
+			IdentityEntry selected = selection.iterator().next();
+			long entityId = selected.getSourceEntity().getEntity().getId();
+			new IdentityCreationDialog(msg, entityId, identitiesMan, 
+					identityEditorReg, callback).show();
+		}
+	}
+
 	
 	@Override
 	protected FormLayout getContents() throws EngineException
 	{
-		setSizeMode(SizeMode.LARGE);
-		identityType = new ComboBox(msg.getMessage("IdentityCreation.idType"));
+		setSize(50, 50);
+		identityType = new ComboBox<>(msg.getMessage("IdentityCreation.idType"));
 		Set<String> supportedTypes = identityEditorReg.getSupportedTypes();
-		for (String type: supportedTypes)
-			identityType.addItem(type);
-		identityType.setNullSelectionAllowed(false);
-		identityType.setImmediate(true);
+		identityType.setItems(supportedTypes);
+		identityType.setEmptySelectionAllowed(false);
 
 		Panel identityPanel = new SafePanel(msg.getMessage("IdentityCreation.idValue"));
 		final FormLayout idLayout = new CompactFormLayout();
 		idLayout.setMargin(true);
 		identityPanel.setContent(idLayout);
 		
-		identityType.addValueChangeListener(new ValueChangeListener()
+		identityType.addValueChangeListener(event -> 
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				String type = (String) identityType.getValue();
-				IdentityEditor editor = identityEditorReg.getEditor(type);
-				idLayout.removeAllComponents();
-				idLayout.addComponents(editor.getEditor(true, true).getComponents());
-				IdentityCreationDialog.this.identityEditor = editor;
-			}
+			String type = (String) identityType.getValue();
+			IdentityEditor editor = identityEditorReg.getEditor(type);
+			idLayout.removeAllComponents();
+			idLayout.addComponents(editor.getEditor(true, true).getComponents());
+			identityEditor = editor;
 		});
-		identityType.select(supportedTypes.iterator().next());
+		identityType.setSelectedItem(supportedTypes.iterator().next());
 
 		extractAttributes = new CheckBox(msg.getMessage("IdentityCreation.extractAttrs"), true);
 
@@ -119,12 +146,7 @@ public class IdentityCreationDialog extends AbstractDialog
 			return;
 		}
 		
-		callback.onCreated(added);
+		callback.accept(added);
 		close();
-	}
-	
-	public interface Callback 
-	{
-		public void onCreated(Identity newIdentity);
 	}
 }

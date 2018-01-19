@@ -16,7 +16,6 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
  */
 public class ConfirmDialog extends AbstractDialog
 {
-	private static final long serialVersionUID = 1L;
 	private Callback callback;
 	private String question;
 	private boolean htmlContent = false;
@@ -59,7 +58,9 @@ public class ConfirmDialog extends AbstractDialog
 	@Override
 	protected Component getContents()
 	{
-		return htmlContent ? new HtmlSimplifiedLabel(question) : new Label(question);
+		Component ret = htmlContent ? new HtmlSimplifiedLabel(question) : new Label(question);
+		ret.setWidth(100, Unit.PERCENTAGE);
+		return ret;
 	}
 
 	@Override

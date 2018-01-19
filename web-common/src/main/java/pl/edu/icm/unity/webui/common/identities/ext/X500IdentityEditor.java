@@ -9,13 +9,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.Upload;
-import com.vaadin.v7.ui.Upload.Receiver;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
-import com.vaadin.v7.ui.Upload.SucceededListener;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.Receiver;
+import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.Upload.SucceededListener;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
@@ -28,7 +29,6 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 
 /**
@@ -51,10 +51,9 @@ public class X500IdentityEditor implements IdentityEditor
 	{
 		this.required = required;
 		field = new TextField();
-		field.setColumns(Styles.WIDE_TEXT_FIELD);
+		field.setWidth(80, Unit.PERCENTAGE);
 		Upload upload = new Upload();
 		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
-		upload.setImmediate(true);
 		CertUploader uploader = new CertUploader(); 
 		upload.setReceiver(uploader);
 		upload.addSucceededListener(uploader);
@@ -62,7 +61,7 @@ public class X500IdentityEditor implements IdentityEditor
 		FormLayout wrapper = new CompactFormLayout(upload);
 		wrapper.setMargin(false);
 		field.setCaption(new X500Identity().getHumanFriendlyName(msg) + ":");
-		field.setRequired(required);
+		field.setRequiredIndicatorVisible(required);
 		return new ComponentsContainer(field, wrapper);
 	}
 

@@ -59,14 +59,7 @@ public class EntityDetailsPanel extends FormLayout
 		scheduledAction = new Label();
 		scheduledAction.setCaption(msg.getMessage("IdentityDetails.expiration"));
 		
-		identities = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new HtmlSimplifiedLabel(value);
-			}
-		});
+		identities = new ListOfElements<>(msg, this::labelConverter);
 		identities.setAddSeparatorLine(false);
 		identities.setCaption(msg.getMessage("IdentityDetails.identities"));
 
@@ -76,18 +69,18 @@ public class EntityDetailsPanel extends FormLayout
 		credStatus = new HtmlLabel(msg);
 		credStatus.setCaption(msg.getMessage("IdentityDetails.credStatus"));
 
-		groups = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new HtmlSimplifiedLabel(value);
-			}
-		}); 
+		groups = new ListOfElements<>(msg, this::labelConverter); 
 		groups.setAddSeparatorLine(false);
 		groups.setCaption(msg.getMessage("IdentityDetails.groups"));
 		
 		addComponents(id, status, scheduledAction, identities, credReq, credStatus, groups);
+	}
+	
+	private Label labelConverter(String value) 
+	{
+		Label ret = new HtmlSimplifiedLabel(value);
+		ret.setWidth(100, Unit.PERCENTAGE);
+		return ret;
 	}
 	
 	public void setInput(EntityWithLabel entityWithLabel, Collection<GroupMembership> groups)

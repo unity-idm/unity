@@ -10,7 +10,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel2;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -22,8 +22,8 @@ public class CredentialDefinitionViewer extends CompactFormLayout
 	private UnityMessageSource msg;
 	
 	private Label name;
-	private I18nLabel displayedName;
-	private I18nLabel description;
+	private I18nLabel2 displayedName;
+	private I18nLabel2 description;
 	private Label type;
 	private SafePanel typeSpecific;
 	
@@ -38,8 +38,8 @@ public class CredentialDefinitionViewer extends CompactFormLayout
 	{
 		name = new Label();
 		name.setCaption(msg.getMessage("CredentialDefinition.name"));
-		displayedName = new I18nLabel(msg, msg.getMessage("displayedNameF"));
-		description = new I18nLabel(msg, msg.getMessage("descriptionF"));
+		displayedName = new I18nLabel2(msg, msg.getMessage("displayedNameF"));
+		description = new I18nLabel2(msg, msg.getMessage("descriptionF"));
 		type = new Label();
 		type.setCaption(msg.getMessage("CredentialDefinition.type"));
 		typeSpecific = new SafePanel(msg.getMessage("CredentialDefinition.typeSettings"));

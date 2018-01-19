@@ -131,6 +131,6 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	
 	public LocalCredentialState getLocalCredState()
 	{
-		return newCredState == null ? null : newCredState.getSelectedValue();
+		return newCredState == null ? null : newCredState.getValue();
 	}
 }

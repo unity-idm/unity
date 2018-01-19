@@ -11,9 +11,8 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.AbstractField;
+import com.vaadin.ui.AbstractField;
 
-import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -33,14 +32,12 @@ public class AttributeViewer
 	private Attribute attribute;
 	private boolean showGroup;
 	private List<Component> values;
-	private AttributeTypeSupport aTypeSupport;
 	
 	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry, 
 			AttributeType attributeType, Attribute attribute, boolean showGroup)
 	{
 		this.msg = msg;
 		this.registry = registry;
-		this.aTypeSupport = registry.getaTypeSupport();
 		this.attributeType = attributeType;
 		this.attribute = attribute;
 		this.showGroup = showGroup;

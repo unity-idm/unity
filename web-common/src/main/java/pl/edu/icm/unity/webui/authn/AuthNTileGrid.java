@@ -5,28 +5,23 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.text.Collator;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.vaadin.v7.data.Container.Filter;
-import com.vaadin.v7.data.Item;
-import com.vaadin.v7.data.Property;
-import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.v7.event.ItemClickEvent;
-import com.vaadin.v7.event.ItemClickEvent.ItemClickListener;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Grid;
-import com.vaadin.v7.ui.Grid.CellReference;
-import com.vaadin.v7.ui.Grid.CellStyleGenerator;
-import com.vaadin.v7.ui.Grid.SelectionMode;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.Column;
+import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Panel;
-import com.vaadin.v7.ui.renderers.ImageRenderer;
+import com.vaadin.ui.renderers.ImageRenderer;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -42,18 +37,17 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class AuthNTileGrid extends CustomComponent implements AuthNTile
 {
-	private static final String COLUMN_NAME = "name";
-	private static final String COLUMN_IMG = "image";
 	private List<AuthenticationOption> authenticators;
 	private SelectionChangedListener listener;
 	private Map<String, AuthenticationOption> authNOptionsById;
 	private Map<String, VaadinAuthenticationUI> authenticatorById;
-	private Grid providersChoice;
-	private IndexedContainer dataSource;
+	private Grid<AuthNTileProvider> providersChoice;
 	private String name;
 	private Panel tilePanel;
 	private String firstOptionId;
 	private Collator collator;
+	private List<AuthNTileProvider> providers;
+	private ListDataProvider<AuthNTileProvider> dataProvider;
 	
 	public AuthNTileGrid(List<AuthenticationOption> authenticators, UnityMessageSource msg, 
 			SelectionChangedListener listener, String name)
@@ -75,27 +69,33 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		tilePanel.setSizeUndefined();
 		if (name != null)
 			tilePanel.setCaption(name);
-		
-		dataSource = new IndexedContainer();
-		dataSource.addContainerProperty(COLUMN_IMG, Resource.class, Images.empty.getResource());
-		dataSource.addContainerProperty(COLUMN_NAME, NameWithTags.class, new NameWithTags("", 
-				Collections.emptySet(), collator));
-		
-		providersChoice = new Grid(dataSource);
+
+		providers = new ArrayList<>();
+		dataProvider = DataProvider.ofCollection(providers);
+		providersChoice = new Grid<AuthNTileGrid.AuthNTileProvider>(dataProvider);
 		providersChoice.setSelectionMode(SelectionMode.NONE);
+
+		providersChoice.addColumn(AuthNTileProvider::getImage, new ImageRenderer<>());
+		Column<AuthNTileProvider, NameWithTags> namColumn = providersChoice
+				.addColumn(AuthNTileProvider::getNameWithTags);
+		providersChoice.sort(namColumn);
+
 		providersChoice.addStyleName(Styles.idpTile.toString());
-		providersChoice.removeHeaderRow(0);
-		providersChoice.getColumn(COLUMN_IMG).setRenderer(new ImageRenderer());
-		providersChoice.setCellStyleGenerator(new CellStyleGenerator()
-		{
-			@Override
-			public String getStyle(CellReference cellReference)
-			{
-				return "idpentry_" + cellReference.getItemId();
-			}
+		providersChoice.setHeaderVisible(false);
+		providersChoice.setSizeFull();
+		providersChoice.setStyleGenerator(item -> "idpentry_" + item.getId());
+
+		providersChoice.addItemClickListener(event -> {
+
+			String globalId = event.getItem().getId();
+			listener.selectionChanged(authenticatorById.get(globalId),
+					authNOptionsById.get(globalId), globalId);
+
 		});
-		reloadContents(filter);
+
+		providersChoice.setWidth(600, Unit.PIXELS);
 		
+		reloadContents(filter);
 		tilePanel.setContent(providersChoice);
 		setCompositionRoot(tilePanel);
 		setSizeUndefined();
@@ -113,52 +113,42 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 	 * stays with a fixed size, while the user only sees the matching options at the top.
 	 * @param filter
 	 */
-	@SuppressWarnings("unchecked")
 	private void reloadContents(String filter)
 	{
-		dataSource.removeAllItems();
+		providers.clear();
 		authNOptionsById = new HashMap<>();
 		authenticatorById = new HashMap<>();
 		firstOptionId = null;
 
-		for (final AuthenticationOption set: authenticators)
+		for (final AuthenticationOption set : authenticators)
 		{
-			VaadinAuthentication firstAuthenticator = (VaadinAuthentication) set.getPrimaryAuthenticator();
-			
-			Collection<VaadinAuthenticationUI> uiInstances = 
-					firstAuthenticator.createUIInstance();
+			VaadinAuthentication firstAuthenticator = (VaadinAuthentication) set
+					.getPrimaryAuthenticator();
+
+			Collection<VaadinAuthenticationUI> uiInstances = firstAuthenticator
+					.createUIInstance();
 			for (final VaadinAuthenticationUI vaadinAuthenticationUI : uiInstances)
 			{
 				String name = vaadinAuthenticationUI.getLabel();
 				Resource logo = vaadinAuthenticationUI.getImage();
 				String id = vaadinAuthenticationUI.getId();
-				final String globalId = AuthenticationOptionKeyUtils.encode(set.getId(), id);
+				final String globalId = AuthenticationOptionKeyUtils
+						.encode(set.getId(), id);
 				if (firstOptionId == null)
 					firstOptionId = globalId;
 				authNOptionsById.put(globalId, set);
 				authenticatorById.put(globalId, vaadinAuthenticationUI);
 
-				NameWithTags nameWithTags = new NameWithTags(name, vaadinAuthenticationUI.getTags(),
-						collator);
-				Item item = dataSource.addItem(globalId);
-				item.getItemProperty(COLUMN_NAME).setValue(nameWithTags);
-				item.getItemProperty(COLUMN_IMG).setValue(logo == null ? 
-						Images.empty.getResource() : logo);
+				NameWithTags nameWithTags = new NameWithTags(name,
+						vaadinAuthenticationUI.getTags(), collator);
+				AuthNTileProvider providerEntry = new AuthNTileProvider(globalId, nameWithTags,
+						logo == null ? Images.empty.getResource() : logo);
+				providers.add(providerEntry);
+
 			}
 		}
-		providersChoice.addItemClickListener(new ItemClickListener()
-		{
-			@Override
-			public void itemClick(ItemClickEvent event)
-			{
-				String globalId = (String) event.getItemId();
-				
-				listener.selectionChanged(authenticatorById.get(globalId), 
-						authNOptionsById.get(globalId), globalId);
-			}
-		});
-		providersChoice.sort(COLUMN_NAME);
-		providersChoice.setWidth(600, Unit.PIXELS);
+
+		dataProvider.refreshAll();
 		setVisible(size() != 0);
 	}
 	
@@ -195,8 +185,9 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 	@Override
 	public void filter(String filter)
 	{
-		dataSource.removeAllContainerFilters();
-		dataSource.addContainerFilter(new TagAwareStringFilter(filter));
+		dataProvider.clearFilters();
+		dataProvider.addFilter(v -> v.getNameWithTags().contains(filter));
+	
 	}
 
 	@Override
@@ -210,6 +201,7 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		private String name;
 		private Set<String> tags;
 		private Collator collator;
+
 		public NameWithTags(String name, Set<String> tags, Collator collator)
 		{
 			this.name = name;
@@ -227,12 +219,12 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		{
 			return tags;
 		}
-		
+
 		public boolean contains(String what)
 		{
 			if (name.toLowerCase().contains(what))
 				return true;
-			for (String tag: tags)
+			for (String tag : tags)
 				if (tag.toLowerCase().contains(what))
 					return true;
 			return false;
@@ -244,33 +236,33 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 			return collator.compare(toString(), o.toString());
 		}
 	}
-	
-	public static class TagAwareStringFilter implements Filter
+
+	private class AuthNTileProvider
 	{
-		private String filter;
-		
-		public TagAwareStringFilter(String filter)
+		private String id;
+		private NameWithTags nameWithTags;
+		private Resource image;
+
+		public AuthNTileProvider(String id, NameWithTags nameWithTags, Resource image)
 		{
-			this.filter = filter.toLowerCase();
+			this.id = id;
+			this.nameWithTags = nameWithTags;
+			this.image = image;
 		}
 
-		@Override
-		public boolean passesFilter(Object itemId, Item item)
-				throws UnsupportedOperationException
+		public String getId()
 		{
-			final Property<?> p = item.getItemProperty(COLUMN_NAME);
-			if (p == null)
-				return false;
-			NameWithTags propertyValue = (NameWithTags) p.getValue();
-			if (propertyValue == null)
-				return false;
-			return propertyValue.contains(filter);
+			return id;
 		}
 
-		@Override
-		public boolean appliesToProperty(Object propertyId)
+		public NameWithTags getNameWithTags()
 		{
-		        return COLUMN_NAME.equals(propertyId);
+			return nameWithTags;
+		}
+
+		public Resource getImage()
+		{
+			return image;
 		}
 	}
 }

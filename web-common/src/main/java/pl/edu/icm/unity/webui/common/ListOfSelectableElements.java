@@ -11,6 +11,8 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -66,12 +68,7 @@ public class ListOfSelectableElements extends CustomComponent
 		
 		if (disableMode != DisableMode.NONE)
 		{
-			cb.addValueChangeListener(event -> {
-				Boolean value = event.getValue();
-				if (disableMode == DisableMode.WHEN_SELECTED)
-					value = !value;
-				representation.setEnabled(value);
-			});
+			cb.addValueChangeListener(new ValueDisableHandler(representation));
 		}
 		gl.addComponent(wrapWithLayout(cb), 1, row);
 		selects.add(cb);
@@ -119,5 +116,25 @@ public class ListOfSelectableElements extends CustomComponent
 	{
 		for (CheckBox cb : selects)
 			cb.setVisible(visible);
+	}
+	
+	private class ValueDisableHandler implements ValueChangeListener<Boolean>
+	{
+		private Component representation;
+		
+		public ValueDisableHandler(Component representation)
+		{
+			this.representation = representation;
+		}
+
+		@Override
+		public void valueChange(ValueChangeEvent<Boolean> event)
+		{
+			Boolean value = event.getValue();
+			if (disableMode == DisableMode.WHEN_SELECTED)
+				value = !value;
+			representation.setEnabled(value);
+			
+		}
 	}
 }

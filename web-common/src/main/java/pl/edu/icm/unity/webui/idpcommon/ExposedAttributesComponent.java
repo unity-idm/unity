@@ -70,12 +70,11 @@ public class ExposedAttributesComponent extends CustomComponent
 	private void initUI()
 	{
 		VerticalLayout contents = new VerticalLayout();
-		contents.setSpacing(true);
 		contents.setMargin(false);
 
 		final VerticalLayout details = new VerticalLayout();
 		details.setMargin(false);
-		details.setMargin(false);
+		details.setSpacing(false);
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
 		showDetails.setId("ExposedAttributes.showDetails");
 		
