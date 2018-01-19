@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 
 /**
  * Editor of {@link EnquiryFormNotifications}
@@ -20,8 +20,8 @@ import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
  */
 public class EnquiryFormNotificationsEditor extends BaseFormNotificationsEditor
 {
-	private CompatibleTemplatesComboBox2 enquiryToFillTemplate;
-	private CompatibleTemplatesComboBox2 enquiryFilledTemplate;
+	private CompatibleTemplatesComboBox enquiryToFillTemplate;
+	private CompatibleTemplatesComboBox enquiryFilledTemplate;
 	
 	public EnquiryFormNotificationsEditor(UnityMessageSource msg,
 			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
@@ -33,9 +33,9 @@ public class EnquiryFormNotificationsEditor extends BaseFormNotificationsEditor
 
 	private void initMyUI() throws EngineException
 	{
-		enquiryFilledTemplate = new CompatibleTemplatesComboBox2(EnquiryFilledTemplateDef.NAME, msgTempMan);
+		enquiryFilledTemplate = new CompatibleTemplatesComboBox(EnquiryFilledTemplateDef.NAME, msgTempMan);
 		enquiryFilledTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
-		enquiryToFillTemplate =  new CompatibleTemplatesComboBox2(NewEnquiryTemplateDef.NAME, msgTempMan);
+		enquiryToFillTemplate =  new CompatibleTemplatesComboBox(NewEnquiryTemplateDef.NAME, msgTempMan);
 		enquiryToFillTemplate.setCaption(msg.getMessage("EnquiryFormNotificationsViewer.enquiryToFillTemplate"));
 		addComponents(enquiryToFillTemplate, enquiryFilledTemplate);
 	}

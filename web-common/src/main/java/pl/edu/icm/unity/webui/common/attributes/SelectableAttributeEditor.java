@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GroupComboBox2;
+import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -36,7 +36,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 	private Collection<String> allowedGroups;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private AttributeSelectionComboBox attributeSel;
-	private GroupComboBox2 groupSel;
+	private GroupComboBox groupSel;
 	private VerticalLayout main = new VerticalLayout();
 	private SafePanel valuesPanel = new SafePanel();
 
@@ -103,7 +103,7 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		top.addComponent(attributeSel);
 		if (allowedGroups.size() > 1)
 		{
-			groupSel = new GroupComboBox2(msg.getMessage("Attributes.group"), allowedGroups);
+			groupSel = new GroupComboBox(msg.getMessage("Attributes.group"), allowedGroups);
 			groupSel.setInput("/", true);
 			top.addComponent(groupSel);
 		}

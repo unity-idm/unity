@@ -41,15 +41,15 @@ import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
@@ -62,7 +62,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private TranslationProfileManagement profileMan;
-	private GenericElementsTable2<TranslationProfile> table;
+	private GenericElementsTable<TranslationProfile> table;
 	private TranslationProfileViewer viewer;
 	private com.vaadin.ui.Component main;
 	private RadioButtonGroup<ProfileType> profileType;
@@ -127,9 +127,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 
-	private GenericElementsTable2<TranslationProfile> createTable()
+	private GenericElementsTable<TranslationProfile> createTable()
 	{
-		table = new GenericElementsTable2<>(
+		table = new GenericElementsTable<>(
 				msg.getMessage("TranslationProfilesComponent.profilesTable"),
 				element -> element.getName());
 		table.setStyleGenerator(element -> element.getProfileMode() == ProfileMode.READ_ONLY
@@ -179,10 +179,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 		profileType.setItemCaptionGenerator(p -> captions.get(p));
 		profileType.setValue(ProfileType.INPUT);
 
-		Toolbar2<TranslationProfile> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<TranslationProfile> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 

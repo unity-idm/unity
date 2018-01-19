@@ -23,17 +23,17 @@ import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryFormChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
@@ -48,7 +48,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 	private EnquiryManagement enquiriesManagement;
 	private EventsBus bus;
 	
-	private GenericElementsTable2<EnquiryForm> table;
+	private GenericElementsTable<EnquiryForm> table;
 	private com.vaadin.ui.Component main;
 	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
 	
@@ -70,7 +70,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 		setCaption(msg.getMessage("EnquiryFormsComponent.caption"));
 		
 		
-		table = new GenericElementsTable2<>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
+		table = new GenericElementsTable<>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
 				form -> form.getName());
 		table.setSizeFull();
 		table.setMultiSelect(true);
@@ -94,11 +94,11 @@ public class EnquiryFormsComponent extends VerticalLayout
 		table.addActionHandler(getDeleteAction());
 		table.addActionHandler(getResendAction());
 				
-		Toolbar2<EnquiryForm> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<EnquiryForm> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
 		
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
 		
 		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);

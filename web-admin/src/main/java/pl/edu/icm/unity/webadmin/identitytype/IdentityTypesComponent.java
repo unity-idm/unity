@@ -23,13 +23,13 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webadmin.identitytype.IdentityTypeEditDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Responsible for identity types management.
@@ -41,7 +41,7 @@ public class IdentityTypesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	
-	private GenericElementsTable2<IdentityType> table;
+	private GenericElementsTable<IdentityType> table;
 	private IdentityTypeViewer viewer;
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
@@ -65,7 +65,7 @@ public class IdentityTypesComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("IdentityTypes.caption"));
 
-		table = new GenericElementsTable2<IdentityType>(
+		table = new GenericElementsTable<IdentityType>(
 				msg.getMessage("IdentityTypes.types"),
 				element -> element.getIdentityTypeProvider());
 		table.setStyleGenerator(
@@ -94,10 +94,10 @@ public class IdentityTypesComponent extends VerticalLayout
 
 		table.addActionHandler(getRefreshAction());
 		table.addActionHandler(getEditAction());
-		Toolbar2<IdentityType> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<IdentityType> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 

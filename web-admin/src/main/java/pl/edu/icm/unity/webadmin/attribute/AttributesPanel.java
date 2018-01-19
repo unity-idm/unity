@@ -50,14 +50,14 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
@@ -87,7 +87,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private HorizontalLayout filtersBar;
 	private List<AttributeExt> attributes;
 	private ValuesRendererPanel attributeValues;
-	private GenericElementsTable2<AttributeExt> attributesTable;
+	private GenericElementsTable<AttributeExt> attributesTable;
 	private EntityParam owner;
 	private String groupPath;
 	private AttributeClassHelper acHelper;
@@ -113,7 +113,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 
-		attributesTable = new GenericElementsTable2<>(
+		attributesTable = new GenericElementsTable<>(
 				msg.getMessage("Attribute.attributes"),
 				element -> element.getName(), true);
 		attributesTable.setMultiSelect(true);
@@ -147,10 +147,10 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributesTable.addActionHandler(getDeleteAction());
 		attributesTable.addActionHandler(getResendConfirmationAction());
 
-		Toolbar2<AttributeExt> toolbar = new Toolbar2<>(Orientation.VERTICAL);
+		Toolbar<AttributeExt> toolbar = new Toolbar<>(Orientation.VERTICAL);
 		attributesTable.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(attributesTable.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(attributesTable,
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(attributesTable,
 				toolbar);
 		tableWithToolbar.setWidth(100, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);

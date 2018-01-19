@@ -35,7 +35,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea2;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -91,7 +91,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 
 		name = new TextField(msg.getMessage("MessageTemplatesEditor.name"));
 
-		description = new DescriptionTextArea2(
+		description = new DescriptionTextArea(
 				msg.getMessage("MessageTemplatesEditor.description"));
 
 		consumer = new ComboBox<>(msg.getMessage("MessageTemplatesEditor.consumer"));

@@ -30,15 +30,15 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -56,7 +56,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerRegistry;
 	
-	private GenericElementsTable2<AttributeType> table;
+	private GenericElementsTable<AttributeType> table;
 	private AttributeTypeViewer viewer;
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
@@ -84,7 +84,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("AttributeTypes.caption"));
-		table = new GenericElementsTable2<>(msg.getMessage("AttributeTypes.types"), 
+		table = new GenericElementsTable<>(msg.getMessage("AttributeTypes.types"), 
 				element -> element.getName());
 		table.setStyleGenerator(at ->  at.isTypeImmutable() ? 
 				Styles.immutableAttribute.toString() : "");
@@ -119,10 +119,10 @@ public class AttributeTypesComponent extends VerticalLayout
 		table.addActionHandler(getExportAction());
 		table.addActionHandler(getImportAction());
 		
-		Toolbar2<AttributeType> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<AttributeType> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 

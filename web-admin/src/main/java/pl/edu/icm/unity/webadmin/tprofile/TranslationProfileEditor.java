@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea2;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -120,7 +120,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		
 		name = new TextField(msg.getMessage("TranslationProfileEditor.name"));
 
-		description = new DescriptionTextArea2(
+		description = new DescriptionTextArea(
 				msg.getMessage("TranslationProfileEditor.description"));
 
 		HorizontalLayout hl = new HorizontalLayout();

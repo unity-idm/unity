@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -48,7 +48,7 @@ public class SPSettingsEditor extends FormLayout
 	protected Label spLabel;
 	protected RadioButtonGroup<Decision> decision;
 	protected RadioButtonGroup<Identity> identity;
-	protected GenericElementsTable2<TableEntry> hidden;
+	protected GenericElementsTable<TableEntry> hidden;
 	private AttributeHandlerRegistry handlerReg;
 	private IdentityTypeSupport idTypeSupport;
 	
@@ -153,7 +153,7 @@ public class SPSettingsEditor extends FormLayout
 		identity.setItemCaptionGenerator(id -> 
 			idTypeSupport.getTypeDefinition(id.getTypeId()).toPrettyString(id));
 		
-		hidden = new GenericElementsTable2<>(msg.getMessage("SAMLPreferences.hidden"));
+		hidden = new GenericElementsTable<>(msg.getMessage("SAMLPreferences.hidden"));
 		hidden.setHeight(200, Unit.PIXELS);
 		hidden.addActionHandler(getAddAction());
 		hidden.addActionHandler(getDeleteAction());

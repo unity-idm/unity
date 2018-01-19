@@ -20,13 +20,11 @@ import com.vaadin.ui.VerticalLayout;
  *  
  * @author K. Benedyczak
  */
-@Deprecated
 public class ComponentWithToolbar extends CustomComponent
 {
+	private Toolbar<?> toolbar;
 	
-	private Toolbar toolbar;
-	
-	public ComponentWithToolbar(Component main, Toolbar toolbar)
+	public ComponentWithToolbar(Component main, Toolbar<?> toolbar)
 	{
 		this.toolbar = toolbar;
 		Orientation orientation = toolbar.getOrientation();

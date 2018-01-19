@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
@@ -35,7 +35,7 @@ public class CredentialResetSettingsEditor
 	private CheckBox requireEmailConfirmation;
 	private CheckBox requireQuestionConfirmation;
 	private TextFieldWithButton questionAdder;
-	private CompatibleTemplatesComboBox2 codeMessageTemplate;
+	private CompatibleTemplatesComboBox codeMessageTemplate;
 	private ListOfElements<String> questions;
 	private MessageTemplateManagement msgTplMan;
 	
@@ -112,7 +112,7 @@ public class CredentialResetSettingsEditor
 		requireQuestionConfirmation = new CheckBox(
 				msg.getMessage("CredentialResetSettings.requireQuestionConfirmation"));
 		
-		codeMessageTemplate = new CompatibleTemplatesComboBox2(PasswordResetTemplateDef.NAME, msgTplMan);
+		codeMessageTemplate = new CompatibleTemplatesComboBox(PasswordResetTemplateDef.NAME, msgTplMan);
 		codeMessageTemplate.setCaption(msg.getMessage("CredentialResetSettings.messageTemplate"));
 		
 		requireQuestionConfirmation.addValueChangeListener(event -> {

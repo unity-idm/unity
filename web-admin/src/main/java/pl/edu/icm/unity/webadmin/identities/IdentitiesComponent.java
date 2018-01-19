@@ -47,7 +47,7 @@ import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -107,7 +107,7 @@ public class IdentitiesComponent extends SafePanel
 		showTargeted.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		showTargeted.addStyleName(Styles.horizontalMarginSmall.toString());
 
-		Toolbar2<IdentityEntry> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<IdentityEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		identitiesTable.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addStyleName(Styles.floatRight.toString());
 		toolbar.addStyleName(Styles.verticalAlignmentMiddle.toString());

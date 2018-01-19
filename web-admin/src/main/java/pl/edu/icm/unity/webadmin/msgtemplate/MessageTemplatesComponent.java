@@ -22,14 +22,14 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Responsible for message templates management
@@ -42,7 +42,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private MessageTemplateManagement msgTempMan;
-	private GenericElementsTable2<MessageTemplate> table;
+	private GenericElementsTable<MessageTemplate> table;
 	private MessageTemplateViewer viewer;
 	private com.vaadin.ui.Component main;
 	private MessageTemplateConsumersRegistry consumersRegistry;
@@ -61,7 +61,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("MessageTemplatesComponent.capion"));
 		
-		table = new GenericElementsTable2<>(msg.getMessage("MessageTemplatesComponent.templatesTable"), 
+		table = new GenericElementsTable<>(msg.getMessage("MessageTemplatesComponent.templatesTable"), 
 				element -> element.getName());
 		
 		table.setMultiSelect(true);
@@ -86,10 +86,10 @@ public class MessageTemplatesComponent extends VerticalLayout
 		table.addActionHandler(getEditAction());
 		table.addActionHandler(getDeleteAction());
 		
-		Toolbar2<MessageTemplate> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<MessageTemplate> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 		

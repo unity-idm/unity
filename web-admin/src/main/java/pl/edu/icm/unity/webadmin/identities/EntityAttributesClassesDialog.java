@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webadmin.attributeclass.AbstractAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 public class EntityAttributesClassesDialog extends AbstractAttributesClassesDialog
 {
 	private EntityWithLabel entity;
-	private GenericElementsTable2<String> groupAcs;
+	private GenericElementsTable<String> groupAcs;
 	private Runnable callback;
 	
 	public EntityAttributesClassesDialog(UnityMessageSource msg, String group, EntityWithLabel entity, 
@@ -68,7 +68,7 @@ public class EntityAttributesClassesDialog extends AbstractAttributesClassesDial
 		FormLayout extra = new CompactFormLayout();
 		extraInfo.setContent(extra);
 		
-		groupAcs = new GenericElementsTable2<>(msg.getMessage("EntityAttributesClasses.groupAcs"));
+		groupAcs = new GenericElementsTable<>(msg.getMessage("EntityAttributesClasses.groupAcs"));
 		groupAcs.setWidth(90, Unit.PERCENTAGE);
 		groupAcs.setHeight(9, Unit.EM);
 

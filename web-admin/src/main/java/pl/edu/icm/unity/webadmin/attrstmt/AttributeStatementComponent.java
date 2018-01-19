@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GroupComboBox2;
+import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
@@ -52,7 +52,7 @@ public class AttributeStatementComponent extends CustomComponent
 	private final String group;
 	
 	private CheckBox extraAttributesGroupCB;
-	private GroupComboBox2 extraAttributesGroupCombo;
+	private GroupComboBox extraAttributesGroupCombo;
 	private MVELExpressionField condition;
 	private RadioButtonGroup<String> assignMode;
 	private ComboBox<AttributeType> dynamicAttributeName;
@@ -103,7 +103,7 @@ public class AttributeStatementComponent extends CustomComponent
 		extraAttributesGroupCB.setDescription(
 				msg.getMessage("AttributeStatementComponent.extraGroupCBDesc"));
 
-		extraAttributesGroupCombo = new GroupComboBox2(
+		extraAttributesGroupCombo = new GroupComboBox(
 				msg.getMessage("AttributeStatementComponent.extraGroupSelect"),
 				groups);
 		extraAttributesGroupCombo.setEnabled(false);

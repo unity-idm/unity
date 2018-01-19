@@ -32,7 +32,7 @@ import pl.edu.icm.unity.oauth.as.OAuthToken;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
@@ -40,7 +40,7 @@ import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Allows for viewing and removing tokens 
@@ -58,7 +58,7 @@ public class AdminTokensComponent extends VerticalLayout
 	
 	protected VerticalLayout main;
 	protected VerticalLayout tokensTablePanel;
-	protected ComponentWithToolbar2 tableWithToolbar;
+	protected ComponentWithToolbar tableWithToolbar;
 	protected Grid<TableTokensBean> tokensTable;
 	private OAuthTokenViewer viewer;
 	private boolean showViewer;
@@ -129,11 +129,11 @@ public class AdminTokensComponent extends VerticalLayout
 		tokensTablePanel.setMargin(false);
 		tokensTablePanel.addComponent(tokensTable);
 			
-		Toolbar2<TableTokensBean> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<TableTokensBean> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		tokensTable.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(contextMenu.getActionHandlers());
 			
-		tableWithToolbar = new ComponentWithToolbar2(tokensTablePanel, toolbar);
+		tableWithToolbar = new ComponentWithToolbar(tokensTablePanel, toolbar);
 		tableWithToolbar.setWidth(100, Unit.PERCENTAGE);
 		
 		

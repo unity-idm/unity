@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -44,7 +44,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	protected ModificationListener listener;
 	
 	protected HorizontalLayout main;
-	protected GenericElementsTable2<String> table;
+	protected GenericElementsTable<String> table;
 	protected SamlSPSettingsViewer viewer;
 	
 	protected List<Identity> identities;
@@ -78,7 +78,7 @@ public class SamlPreferencesEditor implements PreferencesEditor
 	{
 		main = new HorizontalLayout();
 		
-		table = new GenericElementsTable2<>(msg.getMessage("SAMLPreferences.spSettings"), 
+		table = new GenericElementsTable<>(msg.getMessage("SAMLPreferences.spSettings"), 
 				this::getDisplayedName);
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setHeight(300, Unit.PIXELS);

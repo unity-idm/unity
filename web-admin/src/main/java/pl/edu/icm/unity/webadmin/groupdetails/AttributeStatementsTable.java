@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  * Table with attribute statements. Allows for management operations.
  * @author K. Benedyczak
  */
-public class AttributeStatementsTable extends GenericElementsTable2<AttributeStatement>
+public class AttributeStatementsTable extends GenericElementsTable<AttributeStatement>
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;

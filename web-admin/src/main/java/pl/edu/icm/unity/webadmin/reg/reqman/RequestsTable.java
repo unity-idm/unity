@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
@@ -43,7 +43,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 
@@ -104,11 +104,11 @@ public class RequestsTable extends CustomComponent
 		contextMenu.addActionHandler(getDropAction());
 		GridSelectionSupport.installClickListener(requestsTable);
 		
-		Toolbar2<TableRequestBean> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<TableRequestBean> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		requestsTable.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(contextMenu.getActionHandlers());
 		
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(requestsTable, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(requestsTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		
 		setCompositionRoot(tableWithToolbar);

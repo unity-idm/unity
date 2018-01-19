@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 
 /**
  * Component to edit or add confirmation configuration
@@ -35,7 +35,7 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgMan;
 	private ComboBox<String> type;
-	private CompatibleTemplatesComboBox2 msgTemplate;
+	private CompatibleTemplatesComboBox msgTemplate;
 	private ComboBox<String> notificationChannel;
 	private TextField validityTime;
 	private String forType;
@@ -84,7 +84,7 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 				notificationChannel.setValue(channels.iterator().next());
 		}
 
-		msgTemplate = new CompatibleTemplatesComboBox2(ConfirmationTemplateDef.NAME,
+		msgTemplate = new CompatibleTemplatesComboBox(ConfirmationTemplateDef.NAME,
 				msgMan);
 		msgTemplate.setCaption(
 				msg.getMessage("ConfirmationConfigurationViewer.msgTemplate"));
