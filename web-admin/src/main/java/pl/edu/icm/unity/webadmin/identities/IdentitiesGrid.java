@@ -150,7 +150,9 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		
 		GridDragSource<IdentityEntry> drag =  new GridDragSource<>(this);
 		drag.setEffectAllowed(EffectAllowed.MOVE);
-		drag.addGridDragStartListener(event -> drag.setDragData(event.getDraggedItems().iterator().next().getSourceEntity()));
+		drag.addGridDragStartListener(event -> drag.setDragData(
+				event.getDraggedItems().stream().map(i -> i.getSourceEntity())
+						.collect(Collectors.toSet())));
 		drag.addGridDragEndListener(event -> drag.setDragData(null));
 	}
 	
