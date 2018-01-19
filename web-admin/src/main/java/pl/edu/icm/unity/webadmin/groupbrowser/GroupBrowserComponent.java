@@ -16,9 +16,9 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.Toolbar2;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -47,10 +47,11 @@ public class GroupBrowserComponent extends SafePanel
 	{
 		setCaption(msg.getMessage("GroupBrowser.caption"));
 		
-		Toolbar toolbar = new Toolbar(groupsTree, Orientation.HORIZONTAL);
+		Toolbar2<TreeNode> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		groupsTree.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(groupsTree.getActionHandlers());
-		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, toolbar);
-		treeWithToolbar.setWidth(100, Unit.PERCENTAGE);
+		ComponentWithToolbar2 treeWithToolbar = new ComponentWithToolbar2(groupsTree, toolbar);
+		treeWithToolbar.setSizeFull();
 		
 		setContent(treeWithToolbar);
 		setStyleName(Styles.vPanelLight.toString());

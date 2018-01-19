@@ -7,15 +7,15 @@ package pl.edu.icm.unity.webadmin.groupbrowser;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
 
 /**
  * Asks about group name and description, returns output in the callback. Useful for group creation and editing.
@@ -26,8 +26,8 @@ public class GroupEditDialog extends AbstractDialog
 	private static final long serialVersionUID = 1L;
 	private Callback callback;
 	private TextField name;
-	private I18nTextField displayedName;
-	private I18nTextArea description;
+	private I18nTextField2 displayedName;
+	private I18nTextArea2 description;
 	private String parent;
 	private String originalName;
 	private Group originalGroup;
@@ -62,10 +62,10 @@ public class GroupEditDialog extends AbstractDialog
 			name.setReadOnly(true);
 		fl.addComponent(name);
 		
-		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
+		displayedName = new I18nTextField2(msg, msg.getMessage("displayedNameF"));
 		displayedName.setValue(originalDispName);
 		
-		description = new I18nTextArea(msg, msg.getMessage("GroupEditDialog.groupDesc"));
+		description = new I18nTextArea2(msg, msg.getMessage("GroupEditDialog.groupDesc"));
 		description.setValue(originalDesc);
 		fl.addComponents(displayedName, description);
 		if (name.isReadOnly())
