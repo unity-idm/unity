@@ -9,7 +9,7 @@ import com.vaadin.ui.FormLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Editor of {@link FormCaptionElement} - allows for editing the capition value.
@@ -19,7 +19,7 @@ public class CaptionElementEditor extends CustomComponent implements FormElement
 {
 	private FormCaptionElement element;
 	private UnityMessageSource msg;
-	private I18nTextField2 caption;
+	private I18nTextField caption;
 	
 	public CaptionElementEditor(UnityMessageSource msg, FormCaptionElement element)
 	{
@@ -37,7 +37,7 @@ public class CaptionElementEditor extends CustomComponent implements FormElement
 
 	private void initUI()
 	{
-		caption = new I18nTextField2(msg, msg.getMessage("CaptionElementEditor.caption"));
+		caption = new I18nTextField(msg, msg.getMessage("CaptionElementEditor.caption"));
 		FormLayout layout = new FormLayout(caption);
 		setCompositionRoot(layout);
 	}

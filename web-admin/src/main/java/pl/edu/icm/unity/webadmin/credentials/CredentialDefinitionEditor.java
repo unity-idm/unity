@@ -19,8 +19,8 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -34,8 +34,8 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	private UnityMessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;
 	private TextField name;
-	private I18nTextField2 displayedName;
-	private I18nTextArea2 description;
+	private I18nTextField displayedName;
+	private I18nTextArea description;
 	private EnumComboBox<LocalCredentialState> newCredState; 
 	private ComboBox<String> credentialType;
 	private SafePanel credentialEditorPanel;
@@ -63,10 +63,10 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 		name = new TextField(msg.getMessage("CredentialDefinition.name"));
 		addComponent(name);
 
-		displayedName = new I18nTextField2(msg, msg.getMessage("displayedNameF"));
+		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
 		addComponent(displayedName);
 		
-		description = new I18nTextArea2(msg, msg.getMessage("descriptionF"));
+		description = new I18nTextArea(msg, msg.getMessage("descriptionF"));
 		addComponent(description);
 		
 		if (initial != null)

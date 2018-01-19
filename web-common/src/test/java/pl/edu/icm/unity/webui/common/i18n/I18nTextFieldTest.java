@@ -30,7 +30,7 @@ public class I18nTextFieldTest
 		locales.put("polski", new Locale("pl"));
 		when(msg.getEnabledLocales()).thenReturn(locales);
 		
-		I18nTextField2 tf= new I18nTextField2(msg);
+		I18nTextField tf= new I18nTextField(msg);
 		I18nString original = new I18nString("a");
 		original.addValue("en", "Value 1");
 		original.addValue("pl", "Wartość 1");

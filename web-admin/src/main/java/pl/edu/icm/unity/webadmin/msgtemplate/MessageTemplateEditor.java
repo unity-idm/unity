@@ -40,8 +40,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Component to edit or add message template
@@ -55,8 +55,8 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private MessageTemplateConsumersRegistry registry;
 	private TextField name;
 	private TextArea description;
-	private I18nTextField2 subject;
-	private I18nTextArea2 body;
+	private I18nTextField subject;
+	private I18nTextArea body;
 	private ComboBox<String> consumer;
 	private MessageTypeComboBox messageType;
 	private Label consumerDescription;
@@ -101,8 +101,8 @@ public class MessageTemplateEditor extends CompactFormLayout
 		consumer.setItems(consumers);
 		consumerDescription = new Label();
 		
-		subject = new I18nTextField2(msg, msg.getMessage("MessageTemplatesEditor.subject"));
-		body = new I18nTextArea2(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
+		subject = new I18nTextField(msg, msg.getMessage("MessageTemplatesEditor.subject"));
+		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 
 		messageType = new MessageTypeComboBox(msg, this::getBodyForPreview);
 		subjectValidator = new MessageValidator(null, false);

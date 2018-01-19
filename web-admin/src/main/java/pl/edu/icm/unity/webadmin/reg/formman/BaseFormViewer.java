@@ -21,7 +21,7 @@ import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel2;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -37,8 +37,8 @@ public class BaseFormViewer extends VerticalLayout
 	protected Label name;
 	protected Label description;
 	
-	protected I18nLabel2 displayedName;
-	protected I18nLabel2 formInformation;
+	protected I18nLabel displayedName;
+	protected I18nLabel formInformation;
 	protected Label collectComments;
 	protected Label layout;
 	private ListOfElements<AgreementRegistrationParam> agreements;	
@@ -116,8 +116,8 @@ public class BaseFormViewer extends VerticalLayout
 	
 	protected void setupCommonFormInformationComponents()
 	{
-		displayedName = new I18nLabel2(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
-		formInformation = new I18nLabel2(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
+		displayedName = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
+		formInformation = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		collectComments = new Label();
 		collectComments.setCaption(msg.getMessage("RegistrationFormViewer.collectComments"));
 		layout = new Label();
@@ -146,7 +146,7 @@ public class BaseFormViewer extends VerticalLayout
 			public VerticalLayout toLabel(AgreementRegistrationParam value)
 			{
 				Label mandatory = new Label(getOptionalStr(!value.isManatory()));
-				I18nLabel2 main = new I18nLabel2(msg);
+				I18nLabel main = new I18nLabel(msg);
 				main.setValue(value.getText());
 				VerticalLayout vl = new VerticalLayout(mandatory, main);
 				vl.setSpacing(false);

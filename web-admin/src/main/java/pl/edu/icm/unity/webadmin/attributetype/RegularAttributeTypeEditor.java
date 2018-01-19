@@ -30,8 +30,8 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -49,8 +49,8 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	private Binder<AttributeType> binder;
 	
 	private AbstractTextField name;
-	private I18nTextField2 displayedName;
-	private I18nTextArea2 typeDescription;
+	private I18nTextField displayedName;
+	private I18nTextArea typeDescription;
 	private TextField min;
 	private IntegerBoundEditor2 max;
 	private CheckBox uniqueVals;
@@ -89,10 +89,10 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 			name.setReadOnly(true);
 		addComponent(name);
 		
-		displayedName = new I18nTextField2(msg, msg.getMessage("AttributeType.displayedName"));
+		displayedName = new I18nTextField(msg, msg.getMessage("AttributeType.displayedName"));
 		addComponent(displayedName);
 		
-		typeDescription = new I18nTextArea2(msg, msg.getMessage("AttributeType.description"));
+		typeDescription = new I18nTextArea(msg, msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		min = new TextField(msg.getMessage("AttributeType.min"));

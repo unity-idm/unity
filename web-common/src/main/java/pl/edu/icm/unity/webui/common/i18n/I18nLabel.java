@@ -14,7 +14,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.ui.CustomField;
+import com.vaadin.ui.CustomField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -40,7 +40,8 @@ public class I18nLabel extends CustomField<I18nString>
 	private HtmlConfigurableLabel defaultTf;
 	private Map<String, HPairLayout> translationTFs = new HashMap<>();
 	private VerticalLayout main;
-
+	private I18nString value;
+	
 	public I18nLabel(UnityMessageSource msg)
 	{
 		this.msg = msg;
@@ -86,9 +87,9 @@ public class I18nLabel extends CustomField<I18nString>
 	}
 
 	@Override
-	public void setValue(I18nString value)
+	public void doSetValue(I18nString value)
 	{
-		super.setValue(value);
+		this.value = value;
 		for (HPairLayout locE : translationTFs.values())
 			locE.setVisible(false);
 		defaultTf.setVisible(false);
@@ -154,12 +155,6 @@ public class I18nLabel extends CustomField<I18nString>
 		return sb.toString();
 	}
 
-	@Override
-	public Class<? extends I18nString> getType()
-	{
-		return I18nString.class;
-	}
-
 	private class HPairLayout extends HorizontalLayout
 	{
 		private HtmlConfigurableLabel label;
@@ -191,4 +186,10 @@ public class I18nLabel extends CustomField<I18nString>
 			this.label.setValue(value);
 		}
 	}
+
+	@Override
+	public I18nString getValue()
+	{
+		return value;
+	}	
 }

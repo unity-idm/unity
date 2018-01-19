@@ -47,8 +47,8 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox2;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Base code for both registration and enquiry forms editing
@@ -68,8 +68,8 @@ public class BaseFormEditor extends VerticalLayout
 	protected TextField name;
 	protected DescriptionTextArea2 description;
 	
-	protected I18nTextField2 displayedName;
-	protected I18nTextArea2 formInformation;
+	protected I18nTextField displayedName;
+	protected I18nTextArea formInformation;
 	protected CheckBox collectComments;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
 	private ListOfEmbeddedElements<IdentityRegistrationParam> identityParams;
@@ -139,8 +139,8 @@ public class BaseFormEditor extends VerticalLayout
 	
 	protected void initCommonDisplayedFields()
 	{
-		displayedName = new I18nTextField2(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
-		formInformation = new I18nTextArea2(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
+		displayedName = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
+		formInformation = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 	}
 	
@@ -198,7 +198,7 @@ public class BaseFormEditor extends VerticalLayout
 		Editor<AgreementRegistrationParam>
 	{
 		private CheckBox required;
-		private I18nTextArea2 text;
+		private I18nTextArea text;
 		
 		@Override
 		public Editor<AgreementRegistrationParam> getEditor()
@@ -210,7 +210,7 @@ public class BaseFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(AgreementRegistrationParam value, int index)
 		{
 			required = new CheckBox(msg.getMessage("RegistrationFormEditor.mandatory"));
-			text = new I18nTextArea2(msg, msg.getMessage("RegistrationFormViewer.agreement"));
+			text = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.agreement"));
 			if (value != null)
 			{
 				required.setValue(value.isManatory());

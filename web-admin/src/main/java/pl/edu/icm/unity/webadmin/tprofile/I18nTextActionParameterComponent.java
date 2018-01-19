@@ -11,9 +11,9 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
-public class I18nTextActionParameterComponent extends I18nTextField2 implements ActionParameterComponent
+public class I18nTextActionParameterComponent extends I18nTextField implements ActionParameterComponent
 {
 	private Binder<StringValueBean> binder;
 	
