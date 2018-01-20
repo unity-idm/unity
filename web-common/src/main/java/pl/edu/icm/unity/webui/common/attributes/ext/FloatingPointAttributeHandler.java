@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
@@ -21,7 +22,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor;
+import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor2;
 
 
 /**
@@ -59,9 +60,10 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 	private static class FloatingPointSyntaxEditor implements AttributeSyntaxEditor<Double>
 	{
 		private FloatingPointAttributeSyntax initial;
-		private DoubleBoundEditor max, min;
+		private DoubleBoundEditor2 max;
+		private DoubleBoundEditor2 min;
 		private UnityMessageSource msg;
-		
+		private Binder<DoubleBindingValue> binder;
 		
 		public FloatingPointSyntaxEditor(FloatingPointAttributeSyntax initial, UnityMessageSource msg)
 		{
@@ -73,19 +75,32 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new CompactFormLayout();
-			min = new DoubleBoundEditor(msg, msg.getMessage("NumericAttributeHandler.minUndef"), 
-					msg.getMessage("NumericAttributeHandler.minE"), Double.MIN_VALUE);
-			max = new DoubleBoundEditor(msg, msg.getMessage("NumericAttributeHandler.maxUndef"), 
-					msg.getMessage("NumericAttributeHandler.maxE"), Double.MAX_VALUE);
+			min = new DoubleBoundEditor2(msg,
+					msg.getMessage("NumericAttributeHandler.minUndef"),
+					msg.getMessage("NumericAttributeHandler.minE"),
+					Double.MIN_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
+			max = new DoubleBoundEditor2(msg,
+					msg.getMessage("NumericAttributeHandler.maxUndef"),
+					msg.getMessage("NumericAttributeHandler.maxE"),
+					Double.MAX_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
+
+			binder = new Binder<>(DoubleBindingValue.class);
+			max.configureBinding(binder, "max");
+			min.configureBinding(binder, "min");
+
+			DoubleBindingValue value = new DoubleBindingValue();
 			if (initial != null)
 			{
-				max.setValue(initial.getMax());
-				min.setValue(initial.getMin());
+				value.setMax(initial.getMax());
+				value.setMin(initial.getMin());
+
 			} else
 			{
-				max.setValue(Double.MAX_VALUE);
-				min.setValue(0d);
+				value.setMax(Double.MAX_VALUE);
+				value.setMin(0d);
 			}
+			binder.setBean(value);
+
 			fl.addComponents(min, max);
 			return fl;
 		}
@@ -96,15 +111,24 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		{
 			try
 			{
+				if (!binder.isValid())
+				{	
+					binder.validate();
+					throw new IllegalAttributeTypeException("");
+				}
+				
 				FloatingPointAttributeSyntax ret = new FloatingPointAttributeSyntax();
-				ret.setMax(max.getValue());
-				ret.setMin(min.getValue());
+				DoubleBindingValue value = binder.getBean();
+				ret.setMax(value.getMax());
+				ret.setMin(value.getMin());
 				return ret;
 			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}
 		}
+		
+		public class DoubleBindingValue extends MinMaxBindingValue<Double>{}	
 	}
 	
 	

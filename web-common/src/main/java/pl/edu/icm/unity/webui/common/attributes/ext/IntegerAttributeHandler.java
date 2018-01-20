@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 
@@ -21,7 +22,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor;
+import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor2;
 
 
 /**
@@ -60,9 +61,10 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 	private static class IntegerSyntaxEditor implements AttributeSyntaxEditor<Long>
 	{
 		private IntegerAttributeSyntax initial;
-		private LongBoundEditor max, min;
+		private LongBoundEditor2 max;
+		private LongBoundEditor2 min;
 		private UnityMessageSource msg;
-		
+		private Binder<LongBindingValue> binder;
 		
 		public IntegerSyntaxEditor(IntegerAttributeSyntax initial, UnityMessageSource msg)
 		{
@@ -74,38 +76,58 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new CompactFormLayout();
-			min = new LongBoundEditor(msg, msg.getMessage("NumericAttributeHandler.minUndef"), 
-					msg.getMessage("NumericAttributeHandler.minE"), Long.MIN_VALUE);
-			max = new LongBoundEditor(msg, msg.getMessage("NumericAttributeHandler.maxUndef"), 
-					msg.getMessage("NumericAttributeHandler.maxE"), Long.MAX_VALUE);
+			min = new LongBoundEditor2(msg,
+					msg.getMessage("NumericAttributeHandler.minUndef"),
+					msg.getMessage("NumericAttributeHandler.minE"),
+					Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+			max = new LongBoundEditor2(msg,
+					msg.getMessage("NumericAttributeHandler.maxUndef"),
+					msg.getMessage("NumericAttributeHandler.maxE"),
+					Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
+
+			binder = new Binder<>(LongBindingValue.class);		
+			max.configureBinding(binder, "max");
+			min.configureBinding(binder, "min");
+
+			LongBindingValue value = new LongBindingValue();
 			if (initial != null)
 			{
-				max.setValue(initial.getMax());
-				min.setValue(initial.getMin());
+				value.setMax(initial.getMax());
+				value.setMin(initial.getMin());
+
 			} else
 			{
-				max.setValue(Long.MAX_VALUE);
-				min.setValue(0l);
+				value.setMax(Long.MAX_VALUE);
+				value.setMin(0l);
 			}
+			binder.setBean(value);
 			fl.addComponents(min, max);
 			return fl;
 		}
-
+	
 		@Override
 		public AttributeValueSyntax<Long> getCurrentValue()
 				throws IllegalAttributeTypeException
 		{
 			try
 			{
+				if (!binder.isValid())
+				{	
+					binder.validate();
+					throw new IllegalAttributeTypeException("");
+				}
 				IntegerAttributeSyntax ret = new IntegerAttributeSyntax();
-				ret.setMax(max.getValue());
-				ret.setMin(min.getValue());
+				LongBindingValue value = binder.getBean();
+				ret.setMax(value.getMax());
+				ret.setMin(value.getMin());
 				return ret;
 			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}
 		}
+		
+		public class LongBindingValue extends MinMaxBindingValue<Long>{}	
 	}
 
 	
@@ -140,4 +162,5 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 			return new IntegerSyntaxEditor((IntegerAttributeSyntax) initialValue, msg);
 		}
 	}
+	
 }

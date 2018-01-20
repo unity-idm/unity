@@ -16,6 +16,7 @@ import java.util.Random;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.data.Binder;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
@@ -48,7 +49,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
 
 /**
  * Jpeg image attribute handler for the web
@@ -328,10 +329,11 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	private static class JpegSyntaxEditor implements AttributeSyntaxEditor<BufferedImage>
 	{
 		private JpegImageAttributeSyntax initial;
-		private IntegerBoundEditor maxHeight, maxWidth, maxSize;
+		private IntegerBoundEditor2 maxHeight, maxSize;
+		private IntegerBoundEditor2 maxWidth;
 		private UnityMessageSource msg;
-		
-		
+		private Binder<JpgBindingValue> binder;
+
 		public JpegSyntaxEditor(JpegImageAttributeSyntax initial, UnityMessageSource msg)
 		{
 			this.initial = initial;
@@ -342,27 +344,39 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new CompactFormLayout();
-			maxWidth = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"), 
-					msg.getMessage("JpegAttributeHandler.maxWidthE"), Integer.MAX_VALUE);
-			maxWidth.setMin(1);
-			maxHeight = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxHeightUnlimited"), 
-					msg.getMessage("JpegAttributeHandler.maxHeightE"), Integer.MAX_VALUE);
-			maxHeight.setMin(1);
-			maxSize = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"), 
-					msg.getMessage("JpegAttributeHandler.maxSizeE"), Integer.MAX_VALUE);
-			maxSize.setMin(100);
+			maxWidth = new IntegerBoundEditor2(msg,
+					msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"),
+					msg.getMessage("JpegAttributeHandler.maxWidthE"),
+					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
+			maxHeight = new IntegerBoundEditor2(msg,
+					msg.getMessage("JpegAttributeHandler.maxHeightUnlimited"),
+					msg.getMessage("JpegAttributeHandler.maxHeightE"),
+					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
+			maxSize = new IntegerBoundEditor2(msg,
+					msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"),
+					msg.getMessage("JpegAttributeHandler.maxSizeE"),
+					Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
+
+			binder = new Binder<>(JpgBindingValue.class);
+			maxWidth.configureBinding(binder, "maxWidth");
+			maxHeight.configureBinding(binder, "maxHeight");
+			maxSize.configureBinding(binder, "maxSize");
+
 			fl.addComponents(maxWidth, maxHeight, maxSize);
+
+			JpgBindingValue value = new JpgBindingValue();
 			if (initial != null)
 			{
-				maxWidth.setValue(initial.getMaxWidth());
-				maxHeight.setValue(initial.getMaxHeight());
-				maxSize.setValue(initial.getMaxSize());
+				value.setMaxWidth(initial.getMaxWidth());
+				value.setMaxHeight(initial.getMaxHeight());
+				value.setMaxSize(initial.getMaxSize());
 			} else
 			{
-				maxWidth.setValue(200);
-				maxHeight.setValue(200);
-				maxSize.setValue(1024000);
+				value.setMaxWidth(200);
+				value.setMaxHeight(200);
+				value.setMaxSize(1024000);
 			}
+			binder.setBean(value);
 			return fl;
 		}
 
@@ -370,16 +384,67 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		public AttributeValueSyntax<BufferedImage> getCurrentValue()
 				throws IllegalAttributeTypeException
 		{
+
 			try
 			{
+				if (!binder.isValid())
+				{
+					binder.validate();
+					throw new IllegalAttributeTypeException("");
+				}
+
+				JpgBindingValue value = binder.getBean();
 				JpegImageAttributeSyntax ret = new JpegImageAttributeSyntax();
-				ret.setMaxHeight((int)(long)maxHeight.getValue());
-				ret.setMaxWidth((int)(long)maxWidth.getValue());
-				ret.setMaxSize((int)(long)maxSize.getValue());
+				ret.setMaxHeight(value.getMaxHeight());
+				ret.setMaxWidth(value.getMaxWidth());
+				ret.setMaxSize(value.getMaxSize());
 				return ret;
 			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
+			}
+
+		}
+
+		public class JpgBindingValue
+		{
+			private Integer maxSize;
+			private Integer maxWidth;
+			private Integer maxHeight;
+			
+			public JpgBindingValue()
+			{
+
+			}
+
+			public Integer getMaxSize()
+			{
+				return maxSize;
+			}
+
+			public void setMaxSize(Integer maxSize)
+			{
+				this.maxSize = maxSize;
+			}
+
+			public Integer getMaxWidth()
+			{
+				return maxWidth;
+			}
+
+			public void setMaxWidth(Integer maxWidth)
+			{
+				this.maxWidth = maxWidth;
+			}
+
+			public Integer getMaxHeight()
+			{
+				return maxHeight;
+			}
+
+			public void setMaxHeight(Integer maxHeight)
+			{
+				this.maxHeight = maxHeight;
 			}
 		}
 	}
