@@ -106,7 +106,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		});
 
 		reloadButton = new Button();
-		reloadButton.setIcon(Images.transfer.getResource());
+		reloadButton.setIcon(Images.reload.getResource());
 		reloadButton.addStyleName(Styles.vButtonLink.toString());
 		reloadButton.addStyleName(Styles.toolbarButton.toString());
 		reloadButton.setDescription(msg.getMessage("DeployableComponentBase.reload"));
@@ -120,7 +120,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		});
 
 		undeplyButton = new Button();
-		undeplyButton.setIcon(Images.delete.getResource());
+		undeplyButton.setIcon(Images.undeploy.getResource());
 		undeplyButton.addStyleName(Styles.vButtonLink.toString());
 		undeplyButton.addStyleName(Styles.toolbarButton.toString());
 		undeplyButton.setDescription(msg.getMessage("DeployableComponentBase.undeploy"));
@@ -186,8 +186,8 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 						
 		}
 		
-		showHideContentButton.setIcon(content.isVisible() ? Images.zoomout.getResource()
-				: Images.zoomin.getResource());
+		showHideContentButton.setIcon(content.isVisible() ? Images.upArrow.getResource()
+				: Images.downArrow.getResource());
 		updateContent();
 		updateHeader();
 		footer.setVisible(content.isVisible());

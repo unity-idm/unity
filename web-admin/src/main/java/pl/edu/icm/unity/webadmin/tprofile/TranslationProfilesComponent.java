@@ -399,7 +399,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		return SingleActionHandler.builder(TranslationProfile.class)
 				.withCaption(msg.getMessage(
 						"TranslationProfilesComponent.exportAction"))
-				.withIcon(Images.save.getResource())
+				.withIcon(Images.export.getResource())
 				.withHandler(this::exportHandler).multiTarget().build();
 
 	}

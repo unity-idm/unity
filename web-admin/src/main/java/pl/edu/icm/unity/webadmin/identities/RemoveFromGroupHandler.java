@@ -45,7 +45,7 @@ class RemoveFromGroupHandler
 	{
 		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.removeFromGroupAction"))
-				.withIcon(Images.delete.getResource())
+				.withIcon(Images.removeFromGroup.getResource())
 				.withHandler(selection -> showRemoveFromGroupDialog(selection,
 						groupSupplier, refresher))
 				.multiTarget()

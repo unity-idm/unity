@@ -73,7 +73,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		String defStyle = Styles.getFlagBgStyleForLocale(defaultLocaleCode);
 		if (defStyle != null)
 			defaultTf.addStyleName(defStyle);
-		final Button showAll = new Button(Images.zoomin.getResource());
+		final Button showAll = new Button(Images.downArrow.getResource());
 		showAll.addStyleName(Styles.vButtonLink.toString());
 		showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
 		showAll.addClickListener((event) -> 
@@ -81,12 +81,12 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 				show();
 				if (shown)
 				{
-					showAll.setIcon(Images.zoomout.getResource());
+					showAll.setIcon(Images.upArrow.getResource());
 					showAll.setDescription(msg.getMessage("I18TextField.hideLanguages"));
 				}
 				else
 				{
-					showAll.setIcon(Images.zoomin.getResource());
+					showAll.setIcon(Images.upArrow.getResource());
 					showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
 				}
 		});

@@ -160,22 +160,22 @@ public class IdentitiesComponent extends SafePanel
 				.getShowEntityAction();
 		identitiesTable.addActionHandler(entityDetailsAction);
 
-		SingleActionHandler<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
-				.getAction(identitiesTable::getGroup, this::refresh);
-		identitiesTable.addActionHandler(removeFromGroupAction);
-
 		SingleActionHandler<IdentityEntry> entityCreationAction = entityCreationDialogHandler
 				.getAction(identitiesTable::getGroup, added -> refresh());
 		identitiesTable.addActionHandler(entityCreationAction);
+
+		SingleActionHandler<IdentityEntry> deleteEntityAction = deleteEntityHandler
+				.getAction(identitiesTable::removeEntity);
+		identitiesTable.addActionHandler(deleteEntityAction);
+
+		SingleActionHandler<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
+				.getAction(identitiesTable::getGroup, this::refresh);
+		identitiesTable.addActionHandler(removeFromGroupAction);
 
 		SingleActionHandler<IdentityEntry> identityCreationAction = identityCreationDialogHanlder
 				.getAction(added -> refresh());
 
 		identitiesTable.addActionHandler(identityCreationAction);
-
-		SingleActionHandler<IdentityEntry> deleteEntityAction = deleteEntityHandler
-				.getAction(identitiesTable::removeEntity);
-		identitiesTable.addActionHandler(deleteEntityAction);
 
 		SingleActionHandler<IdentityEntry> deleteIdentityAction = deleteIdentityHandler
 				.getAction(identitiesTable::removeIdentity, this::refresh);
@@ -204,16 +204,17 @@ public class IdentitiesComponent extends SafePanel
 				.getAction();
 		identitiesTable.addActionHandler(confirmationResendAction);
 
-		toolbar.addActionHandler(refreshAction);
 		toolbar.addActionHandler(entityDetailsAction);
-		toolbar.addActionHandler(removeFromGroupAction);
-		toolbar.addActionHandler(deleteEntityAction);
 		toolbar.addActionHandler(entityCreationAction);
-
+		toolbar.addActionHandler(deleteEntityAction);
+		toolbar.addActionHandler(removeFromGroupAction);
+		toolbar.addHamburger(hamburgerMenu);
+		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(identityCreationAction);
 		hamburgerMenu.addActionHandler(deleteIdentityAction);
 		hamburgerMenu.addActionHandler(changeEntityStateAction);
 		hamburgerMenu.addActionHandler(changeCredentialAction);
+		hamburgerMenu.addActionHandler(credentialRequirementAction);
 		hamburgerMenu.addActionHandler(entityAttributeAction);
 		hamburgerMenu.addActionHandler(entityMergeAction);
 		hamburgerMenu.addActionHandler(confirmationResendAction);
@@ -255,7 +256,7 @@ public class IdentitiesComponent extends SafePanel
 
 		
 		Label sep = new Label("");
-		topBar.addComponents(mode, showTargeted, searchWrapper,sep, toolbar, hamburgerMenu);
+		topBar.addComponents(mode, showTargeted, searchWrapper,sep, toolbar);
 		topBar.setExpandRatio(sep, 2);
 			
 		topBar.setWidth(100, Unit.PERCENTAGE);

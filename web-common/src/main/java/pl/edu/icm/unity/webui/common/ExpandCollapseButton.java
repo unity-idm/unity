@@ -39,8 +39,8 @@ public class ExpandCollapseButton extends Button
 
 	private void updateState()
 	{
-		setIcon(collapsed ? Images.zoomin.getResource() 
-				: Images.zoomout.getResource());
+		setIcon(collapsed ? Images.downArrow.getResource() 
+				: Images.upArrow.getResource());
 		for (Component c: components)
 			c.setVisible(!collapsed);
 	}

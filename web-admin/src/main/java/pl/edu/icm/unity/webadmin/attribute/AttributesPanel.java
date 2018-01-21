@@ -470,7 +470,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{
 		return SingleActionHandler.builder(AttributeExt.class)
 				.withCaption(msg.getMessage("Attribute.resendConfirmation"))
-				.withIcon(Images.confirm.getResource()).multiTarget()
+				.withIcon(Images.messageSend.getResource()).multiTarget()
 				.withDisabledPredicate(a -> isAttributeEditable(a)
 						|| !checkAttributeIsVerifiable(a)
 						|| checkAttributeIsConfirmed(a))

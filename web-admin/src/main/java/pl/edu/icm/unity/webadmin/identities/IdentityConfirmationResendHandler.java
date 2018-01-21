@@ -39,7 +39,7 @@ class IdentityConfirmationResendHandler
 	{
 		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.resendConfirmationAction"))
-				.withIcon(Images.confirm.getResource())
+				.withIcon(Images.messageSend.getResource())
 				.withDisabledPredicate(ie -> ie.getSourceIdentity() == null ||
 						!identityIsVerifiable(ie) ||
 						identityIsConfirmed(ie))

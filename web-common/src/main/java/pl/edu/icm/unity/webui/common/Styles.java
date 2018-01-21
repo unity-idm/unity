@@ -70,6 +70,7 @@ public enum Styles
 	link("u-link"),
 	hamburgerMenu("u-hamburgerMenu"),
 	uGridNoHorizontalLines("u-noGridHorizontalLines"),
+	largeIcon("u-largeIcon"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

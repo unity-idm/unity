@@ -157,7 +157,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		{
 			// this will show error node
 			TreeNode parent = new TreeNode(msg, new Group("/"),
-					Images.vaadinFolder.getHtml());
+					Images.folder.getHtml());
 			treeData.addItems(null, parent);
 			getDataProvider().refreshAll();
 			expand(parent);
@@ -190,7 +190,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			GroupContents contents = groupsMan.getContents("/",
 					GroupContents.GROUPS | GroupContents.METADATA);
 			TreeNode parent = new TreeNode(msg, contents.getGroup(),
-					Images.vaadinFolder.getHtml());
+					Images.folder.getHtml());
 			treeData.clear();
 			treeData.addItem(null, parent);
 			getDataProvider().refreshAll();
@@ -241,7 +241,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 							accessibleGroups.get(i),
 							GroupContents.METADATA);
 					TreeNode parent = new TreeNode(msg, contents.getGroup(),
-							Images.vaadinFolder.getHtml());
+							Images.folder.getHtml());
 					treeData.addItem(null, parent);
 
 				} catch (AuthorizationException e2)
@@ -465,7 +465,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 	private SingleActionHandler<TreeNode> getAddEntityAction()
 	{
-		
 		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.addEntityAction"))
 				.withIcon(Images.addEntity.getResource())
@@ -581,12 +580,12 @@ public class GroupsTree extends TreeGrid<TreeNode>
 						GroupContents.GROUPS | GroupContents.METADATA);
 			} catch (Exception e)
 			{
-				expandedNode.setIcon(Images.vaadinNoAuthzGrp.getHtml());
+				expandedNode.setIcon(Images.noAuthzGrp.getHtml());
 				expandedNode.setContentsFetched(true);
 				expand(expandedNode);
 				return;
 			}
-			expandedNode.setIcon(Images.vaadinFolder.getHtml());
+			expandedNode.setIcon(Images.folder.getHtml());
 			expandedNode.setGroupMetadata(contents.getGroup());
 
 			List<String> subgroups = contents.getSubGroups();
@@ -599,7 +598,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 					contents2 = groupsMan.getContents(subgroup,
 							GroupContents.METADATA);
 					TreeNode node = new TreeNode(msg, contents2.getGroup(),
-							Images.vaadinFolder.getHtml(),
+							Images.folder.getHtml(),
 							expandedNode);
 					treeData.addItem(node.getParentNode(), node);
 				} catch (EngineException e)

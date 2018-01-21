@@ -122,6 +122,12 @@ public class Toolbar<T> extends CustomComponent
 		buttons.add(button);
 		main.addComponent(button);
 	}
+
+	public void addHamburger(HamburgerMenu<?> menuBar)
+	{
+		main.addComponent(menuBar);
+		menuBar.addStyleName(Styles.toolbarButton.toString());
+	}
 	
 	public void addButtons(Button... buttons)
 	{

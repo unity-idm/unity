@@ -30,7 +30,7 @@ public class HamburgerMenu<T> extends MenuBar
 	{
 		items = new HashMap<>();
 		target = Collections.emptySet();
-		top = super.addItem("", Images.vaadinMenu.getResource(), null);
+		top = super.addItem("", Images.menu.getResource(), null);
 		top.setStyleName(Styles.hamburgerMenu.toString());
 		setStyleName(ValoTheme.MENUBAR_BORDERLESS);
 	}

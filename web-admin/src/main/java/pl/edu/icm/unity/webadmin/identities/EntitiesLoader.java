@@ -73,13 +73,14 @@ class EntitiesLoader
 	{
 		cancelPreviousTask();
 		List<Long> members = getMembers(group);
-		int toSyncLoad = members.size() > LOAD_IN_SYNC ? LOAD_IN_SYNC : members.size();
+		UI ui = UI.getCurrent();
+		int toSyncLoad = (members.size() > LOAD_IN_SYNC) && (ui != null) ? 
+				LOAD_IN_SYNC : members.size();
 		resolveEntitiesAndUpdateTableSync(members, toSyncLoad, selected,
 				group, includeTargeted, consumer);
-		
 		if (members.size() > LOAD_IN_SYNC)
 		{
-			UI.getCurrent().setPollInterval(UI_REFRESH);
+			ui.setPollInterval(UI_REFRESH);
 			AsyncLoader asyncLoader = new AsyncLoader();
 			loaderFuture = new FutureTask<>(() -> 
 					asyncLoader.resolveEntitiesAndUpdateTableAsync(members, group, 
@@ -133,13 +134,13 @@ class EntitiesLoader
 	private class AsyncLoader
 	{
 		private Future<?> controller;
-		private UI ui;
 		private InvocationContext ctx;
-		
+		private UI ui;
+
 		public AsyncLoader()
 		{
-			this.ui = UI.getCurrent();
 			this.ctx = InvocationContext.getCurrent();
+			this.ui = UI.getCurrent();
 		}
 
 		private void resolveEntitiesAndUpdateTableAsync(List<Long> entities, String group, 

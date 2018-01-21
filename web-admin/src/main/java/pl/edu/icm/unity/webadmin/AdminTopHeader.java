@@ -64,6 +64,7 @@ public class AdminTopHeader extends TopHeader
 		});
 		support.setDescription(msg.getMessage("AdminTopHeader.toSupport"));
 		support.setIcon(Images.support32.getResource());
+		support.addStyleName(Styles.largeIcon.toString());
 		return support;
 	}
 	
@@ -71,6 +72,7 @@ public class AdminTopHeader extends TopHeader
 	{
 		switchView = new Button();
 		switchView.addStyleName(Styles.vButtonLink.toString());
+		switchView.addStyleName(Styles.largeIcon.toString());
 		switchView.addClickListener(new Button.ClickListener()
 		{
 			@Override

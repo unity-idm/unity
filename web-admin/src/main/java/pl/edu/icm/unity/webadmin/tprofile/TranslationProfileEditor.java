@@ -127,7 +127,7 @@ public class TranslationProfileEditor extends VerticalLayout
 		hl.setMargin(false);
 		Button addRule = new Button();
 		addRule.setDescription(msg.getMessage("TranslationProfileEditor.newRule"));
-		addRule.setIcon(Images.vaadinAdd.getResource());
+		addRule.setIcon(Images.add.getResource());
 		addRule.addStyleName(Styles.vButtonLink.toString());
 		addRule.addStyleName(Styles.toolbarButton.toString());
 		addRule.addClickListener(new ClickListener()

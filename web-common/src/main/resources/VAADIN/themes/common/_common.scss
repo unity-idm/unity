@@ -364,6 +364,15 @@
 		vertical-align: .15em;
 	}
 
+	.v-menubar-u-toolbarButton {
+		height: auto;
+		line-height: inherit;
+	}
+
+	.v-caption-u-emphasized {
+		font-size: 150%;
+	}
+
     .u-noGridHorizontalLines .v-grid-cell-focused:before {
         display: none !important;
     }
@@ -402,5 +411,9 @@
 	.groupBrowser .v-treegrid-row  > td {
 		background-color: transparent;
 		border: none;
+	}
+
+	.u-largeIcon {
+		
 	}
 }

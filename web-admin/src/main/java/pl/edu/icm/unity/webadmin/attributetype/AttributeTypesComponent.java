@@ -222,7 +222,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	{
 		return SingleActionHandler.builder(AttributeType.class)
 				.withCaption(msg.getMessage("AttributeTypes.importAction"))
-				.withIcon(Images.transfer.getResource())
+				.withIcon(Images.download.getResource())
 				.withHandler(this::importHandler)
 				.withDisabledPredicate(at -> at.isTypeImmutable())
 				.dontRequireTarget()
@@ -312,7 +312,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	{
 		return SingleActionHandler.builder(AttributeType.class)
 				.withCaption(msg.getMessage("AttributeTypes.exportAction"))
-				.withIcon(Images.save.getResource())
+				.withIcon(Images.export.getResource())
 				.multiTarget()
 				.withHandler(this::exportHandler)
 				.withDisabledPredicate(at -> at.isTypeImmutable())
