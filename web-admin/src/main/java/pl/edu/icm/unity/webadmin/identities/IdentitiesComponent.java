@@ -21,7 +21,6 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.CssLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -44,6 +43,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
+import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -93,7 +93,10 @@ public class IdentitiesComponent extends SafePanel
 		main = new VerticalLayout();
 		main.addStyleName(Styles.visibleScroll.toString());
 		
-		CssLayout topBar = new CssLayout();
+		HorizontalLayout topBar = new HorizontalLayout();
+		topBar.setMargin(false);
+		topBar.setSpacing(false);
+		
 		final CheckBox mode = new CheckBox(msg.getMessage("Identities.mode"));
 		
 		mode.setValue(IdentitiesComponent.this.identitiesTable.isGroupByEntity());
@@ -113,48 +116,15 @@ public class IdentitiesComponent extends SafePanel
 		toolbar.addStyleName(Styles.verticalAlignmentMiddle.toString());
 		toolbar.addStyleName(Styles.horizontalMarginSmall.toString());
 
+		HamburgerMenu<IdentityEntry> hamburgerMenu= new HamburgerMenu<>();
+		identitiesTable.addSelectionListener(hamburgerMenu.getSelectionListener());
+		
 		filtersBar = new HorizontalLayout();
 		filtersBar.addComponent(new Label(msg.getMessage("Identities.filters")));
 		filtersBar.setMargin(false);
 		filtersBar.setSpacing(false);
 		filtersBar.setVisible(false);
-		
-		Button addAttributes = new Button();
-		addAttributes.setDescription(msg.getMessage("Identities.addAttributes"));
-		addAttributes.setIcon(Images.addColumn.getResource());
-		addAttributes.addClickListener(event -> 
-		{
-			new AddAttributeColumnDialog(msg, attrsMan, 
-					(attributeType, group) ->
-					identitiesTable.addAttributeColumn(attributeType, group)
-			).show(); 
-		});
-		
-		Button removeAttributes = new Button();
-		removeAttributes.setDescription(msg.getMessage("Identities.removeAttributes"));
-		removeAttributes.setIcon(Images.removeColumn.getResource());
-		removeAttributes.addClickListener(event -> 
-		{
-			Set<String> alreadyUsedRoot = identitiesTable.getAttributeColumns(true);
-			Set<String> alreadyUsedCurrent = identitiesTable.getAttributeColumns(false);
-			new RemoveAttributeColumnDialog(msg, alreadyUsedRoot,
-					alreadyUsedCurrent, identitiesTable.getGroup(),
-					(attributeType, group) -> 
-					identitiesTable.removeAttributeColumn(group, attributeType)
-			).show(); 
-		});
-		
-		Button addFilter = new Button();
-		addFilter.setDescription(msg.getMessage("Identities.addFilter"));
-		addFilter.setIcon(Images.addFilter.getResource());
-		addFilter.addClickListener(event ->
-		{
-			List<String> columnIds = identitiesTable.getColumnIds();
-			new AddFilterDialog(msg, columnIds, 
-					(filter, description) -> addFilterInfo(filter, description)
-			).show(); 
-		});
-		
+	
 		HorizontalLayout searchWrapper = new HorizontalLayout();
 		searchWrapper.setSpacing(true);
 		searchWrapper.setMargin(false);
@@ -183,44 +153,124 @@ public class IdentitiesComponent extends SafePanel
 			identitiesTable.addFilter(fastSearchFilter);
 		});
 
+		SingleActionHandler2<IdentityEntry> refreshAction = getRefreshAction();
+		identitiesTable.addActionHandler(refreshAction);
+
+		SingleActionHandler2<IdentityEntry> entityDetailsAction = entityDetailsHandler
+				.getShowEntityAction();
+		identitiesTable.addActionHandler(entityDetailsAction);
+
+		SingleActionHandler2<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
+				.getAction(identitiesTable::getGroup, this::refresh);
+		identitiesTable.addActionHandler(removeFromGroupAction);
+
+		SingleActionHandler2<IdentityEntry> entityCreationAction = entityCreationDialogHandler
+				.getAction(identitiesTable::getGroup, added -> refresh());
+		identitiesTable.addActionHandler(entityCreationAction);
+
+		SingleActionHandler2<IdentityEntry> identityCreationAction = identityCreationDialogHanlder
+				.getAction(added -> refresh());
+
+		identitiesTable.addActionHandler(identityCreationAction);
+
+		SingleActionHandler2<IdentityEntry> deleteEntityAction = deleteEntityHandler
+				.getAction(identitiesTable::removeEntity);
+		identitiesTable.addActionHandler(deleteEntityAction);
+
+		SingleActionHandler2<IdentityEntry> deleteIdentityAction = deleteIdentityHandler
+				.getAction(identitiesTable::removeIdentity, this::refresh);
+		identitiesTable.addActionHandler(deleteIdentityAction);
+
+		SingleActionHandler2<IdentityEntry> changeEntityStateAction = changeEntityStateHandler
+				.getAction(this::refresh);
+		identitiesTable.addActionHandler(changeEntityStateAction);
+
+		SingleActionHandler2<IdentityEntry> changeCredentialAction= getChangeCredentialAction();
+		identitiesTable.addActionHandler(changeCredentialAction);
+
+		SingleActionHandler2<IdentityEntry> credentialRequirementAction = credentialRequirementHandler
+				.getAction(this::refresh);
+		identitiesTable.addActionHandler(credentialRequirementAction);
+
+		SingleActionHandler2<IdentityEntry> entityAttributeAction = entityAttributeClassHandler
+				.getAction(this::refresh, identitiesTable::getGroup);
+		identitiesTable.addActionHandler(entityAttributeAction);
+
+		SingleActionHandler2<IdentityEntry> entityMergeAction = entityMergeHandler
+				.getAction(identitiesTable::getGroup);
+		identitiesTable.addActionHandler(entityMergeAction);
+
+		SingleActionHandler2<IdentityEntry> confirmationResendAction = confirmationResendHandler
+				.getAction();
+		identitiesTable.addActionHandler(confirmationResendAction);
+
+		toolbar.addActionHandler(refreshAction);
+		toolbar.addActionHandler(entityDetailsAction);
+		toolbar.addActionHandler(removeFromGroupAction);
+		toolbar.addActionHandler(deleteEntityAction);
+		toolbar.addActionHandler(entityCreationAction);
+
+		hamburgerMenu.addActionHandler(identityCreationAction);
+		hamburgerMenu.addActionHandler(deleteIdentityAction);
+		hamburgerMenu.addActionHandler(changeEntityStateAction);
+		hamburgerMenu.addActionHandler(changeCredentialAction);
+		hamburgerMenu.addActionHandler(entityAttributeAction);
+		hamburgerMenu.addActionHandler(entityMergeAction);
+		hamburgerMenu.addActionHandler(confirmationResendAction);
+
+		hamburgerMenu.addSeparator();
+
+		hamburgerMenu.addItem(msg.getMessage("Identities.addFilter"),
+				Images.addFilter.getResource(), c -> {
+					List<String> columnIds = identitiesTable.getColumnIds();
+					new AddFilterDialog(msg, columnIds,
+							(filter, description) -> addFilterInfo(
+									filter, description))
+											.show();
+				});
+
+		hamburgerMenu.addItem(msg.getMessage("Identities.addAttributes"),
+				Images.addColumn.getResource(), c -> {
+					new AddAttributeColumnDialog(msg, attrsMan,
+							(attributeType, group) -> identitiesTable
+									.addAttributeColumn(
+											attributeType,
+											group)).show();
+				});
+
+		hamburgerMenu.addItem(msg.getMessage("Identities.removeAttributes"),
+				Images.removeColumn.getResource(), c -> {
+					Set<String> alreadyUsedRoot = identitiesTable
+							.getAttributeColumns(true);
+					Set<String> alreadyUsedCurrent = identitiesTable
+							.getAttributeColumns(false);
+					new RemoveAttributeColumnDialog(msg, alreadyUsedRoot,
+							alreadyUsedCurrent,
+							identitiesTable.getGroup(),
+							(attributeType, group) -> identitiesTable
+									.removeAttributeColumn(
+											group,
+											attributeType)).show();
+				});
+
 		
-		identitiesTable.addActionHandler(getRefreshAction());
-		identitiesTable.addActionHandler(entityDetailsHandler.getShowEntityAction());
-		identitiesTable.addActionHandler(removeFromGroupHandler
-				.getAction(identitiesTable::getGroup, this::refresh));
-		identitiesTable.addActionHandler(entityCreationDialogHandler.getAction(
-				identitiesTable::getGroup, added -> refresh()));
-		identitiesTable.addActionHandler(identityCreationDialogHanlder.getAction(
-				added -> refresh()));
-		identitiesTable.addActionHandler(deleteEntityHandler.getAction(
-				identitiesTable::removeEntity));
-		identitiesTable.addActionHandler(deleteIdentityHandler.getAction(
-				identitiesTable::removeIdentity, this::refresh));
-		identitiesTable.addActionHandler(changeEntityStateHandler.getAction(this::refresh));
-		identitiesTable.addActionHandler(getChangeCredentialAction());
-		identitiesTable.addActionHandler(credentialRequirementHandler.getAction(this::refresh));
-		identitiesTable.addActionHandler(entityAttributeClassHandler.getAction(
-				this::refresh, identitiesTable::getGroup));
-		identitiesTable.addActionHandler(entityMergeHandler.getAction(identitiesTable::getGroup));
-		identitiesTable.addActionHandler(confirmationResendHandler.getAction());
-		
-		toolbar.addActionHandlers(identitiesTable.getActionHandlers());
-		toolbar.addSeparator();
-		toolbar.addButtons(addFilter, addAttributes, removeAttributes);
-		topBar.addComponents(mode, showTargeted, searchWrapper, toolbar);
+		Label sep = new Label("");
+		topBar.addComponents(mode, showTargeted, searchWrapper,sep, toolbar, hamburgerMenu);
+		topBar.setExpandRatio(sep, 2);
+			
 		topBar.setWidth(100, Unit.PERCENTAGE);
-		
+
 		mode.addValueChangeListener(event -> identitiesTable.setMode(mode.getValue()));
-		
-		showTargeted.addValueChangeListener(event -> 
-		{
+
+		showTargeted.addValueChangeListener(event -> {
 			try
 			{
 				identitiesTable.setShowTargeted(showTargeted.getValue());
 			} catch (EngineException e)
 			{
-				setIdProblem(IdentitiesComponent.this.identitiesTable.getGroup(), e);
-			}	
+				setIdProblem(IdentitiesComponent.this.identitiesTable.getGroup(),
+						e);
+			}
 		});
 
 		

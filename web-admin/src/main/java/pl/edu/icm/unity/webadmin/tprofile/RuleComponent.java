@@ -17,7 +17,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DragSourceExtension;
@@ -114,7 +113,7 @@ public class RuleComponent extends CustomComponent
 		header.addComponent(img);	
 		header.setComponentAlignment(img, Alignment.MIDDLE_RIGHT);
 		
-		MenuBar menuBar = new HamburgerMenu();			
+		HamburgerMenu<String> menuBar = new HamburgerMenu<String>();			
 		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), Images.vaadinRemove.getResource(), s -> callback.remove(RuleComponent.this));
 		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), Images.vaadinTopArrow.getResource(), 
 				s -> callback.moveTop(RuleComponent.this));	
