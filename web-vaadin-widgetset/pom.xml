@@ -27,11 +27,6 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.vaadin</groupId>
-			<artifactId>vaadin-compatibility-client</artifactId>
-			<version>${vaadin.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>org.vaadin.addons</groupId>
 			<artifactId>stepper</artifactId>
 		</dependency>
@@ -81,7 +76,7 @@
 									<pluginExecutionFilter>
 										<groupId>com.vaadin</groupId>
 										<artifactId>vaadin-maven-plugin</artifactId>
-										<versionRange>[7.1,)</versionRange>
+										<versionRange>[8.1,)</versionRange>
 										<goals>
 											<goal>compile</goal>
 										</goals>
