@@ -48,6 +48,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.identities.EntityCreationHandler;
+import pl.edu.icm.unity.webadmin.identities.IdentitiesGrid;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
@@ -55,6 +56,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
+import pl.edu.icm.unity.webui.common.DnDGridUtils;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.Images;
@@ -130,22 +132,20 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this,
 				DropMode.ON_TOP);
 		dropTarget.setDropEffect(DropEffect.MOVE);
-	
-		
-		dropTarget.addGridDropListener(e -> {
-			e.getDragSourceExtension().ifPresent(source -> {
-				if (source instanceof GridDragSource && e.getDropTargetRow().isPresent())
+		dropTarget.setDropCriteriaScript(DnDGridUtils.getTypedCriteriaScript(
+				IdentitiesGrid.ENTITY_DND_TYPE));
+		dropTarget.addGridDropListener(e -> 
+		{
+			e.getDragSourceExtension().ifPresent(source -> 
+			{
+				if (source instanceof GridDragSource 
+						&& e.getDropTargetRow().isPresent()
+						&& source.getDragData() != null)
 				{
-					if (source.getDragData() != null)
-					{
-						
-						Set<EntityWithLabel> dragData = (Set<EntityWithLabel>) source
-								.getDragData();
-						addToGroupVerification(
-								e.getDropTargetRow().get()
-										.getPath(),
-								dragData);
-					}
+					Set<EntityWithLabel> dragData = (Set<EntityWithLabel>) source
+							.getDragData();
+					addToGroupVerification(e.getDropTargetRow().get().getPath(),
+							dragData);
 				}
 			});
 		});

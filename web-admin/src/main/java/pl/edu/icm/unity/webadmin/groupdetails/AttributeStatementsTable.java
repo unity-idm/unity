@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.groupdetails;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.shared.ui.grid.DropMode;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.DnDGridUtils;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -33,13 +35,13 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  */
 public class AttributeStatementsTable extends GenericElementsTable<AttributeStatement>
 {
+	private final String DND_TYPE = "attribute_statement";
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private AttributeTypeManagement attrsMan;
 	private Group group;
 	private EventsBus bus;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	private AttributeStatement dragged;
 	
 	public AttributeStatementsTable(UnityMessageSource msg, GroupsManagement groupsMan,
 			AttributeTypeManagement attrsMan,
@@ -58,20 +60,25 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 		addActionHandler(getEditAction());
 		addActionHandler(getDeleteAction());
 
+		
 		GridDragSource<AttributeStatement> source = new GridDragSource<>(this);
-		source.addGridDragStartListener(e -> {
-			dragged = e.getDraggedItems().iterator().next();
-		});
+		source.setDragDataGenerator(DND_TYPE, as -> "{}");
+		source.addGridDragStartListener(e -> source.setDragData(e.getDraggedItems().iterator().next()));
+		source.addGridDragEndListener(e -> source.setDragData(null));
 
 		GridDropTarget<AttributeStatement> target = new GridDropTarget<>(this,
 				DropMode.ON_TOP_OR_BETWEEN);
-		target.addGridDropListener(e -> {
-
-			if (e.getDropTargetRow() == null || e.getDropTargetRow().get() == null)
+		target.setDropCriteriaScript(DnDGridUtils.getTypedCriteriaScript(DND_TYPE));
+		target.addGridDropListener(e -> 
+		{
+			Optional<Object> dragData = e.getDragData();
+			if (!dragData.isPresent() || e.getDropTargetRow() == null 
+					|| e.getDropTargetRow().get() == null)
 				return;
 			int index = contents.indexOf(e.getDropTargetRow().get());
-			contents.remove(dragged);
-			contents.add(index, dragged);
+			AttributeStatement attrS = (AttributeStatement) dragData.get();
+			contents.remove(attrS);
+			contents.add(index, attrS);
 			updateGroup();
 		});
 	}

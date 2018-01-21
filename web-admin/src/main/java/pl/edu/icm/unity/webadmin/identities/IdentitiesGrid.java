@@ -57,6 +57,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesGrid.class);
+	public static final String ENTITY_DND_TYPE = "entity"; 
 	
 	public static final String ATTR_COL_PREFIX = "a::";
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
@@ -150,9 +151,12 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		
 		GridDragSource<IdentityEntry> drag =  new GridDragSource<>(this);
 		drag.setEffectAllowed(EffectAllowed.MOVE);
-		drag.addGridDragStartListener(event -> drag.setDragData(
-				event.getDraggedItems().stream().map(i -> i.getSourceEntity())
-						.collect(Collectors.toSet())));
+		drag.setDragDataGenerator(ENTITY_DND_TYPE, entity -> "{}");
+		drag.addGridDragStartListener(event -> 
+		{
+			drag.setDragData(event.getDraggedItems().stream().map(
+					i -> i.getSourceEntity()).collect(Collectors.toSet()));
+		});
 		drag.addGridDragEndListener(event -> drag.setDragData(null));
 	}
 	

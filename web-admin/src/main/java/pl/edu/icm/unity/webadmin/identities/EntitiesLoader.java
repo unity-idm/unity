@@ -161,11 +161,11 @@ class EntitiesLoader
 							(float)(finalI+CHUNK)/entities.size())
 					);
 				}
+			} finally
+			{
 				ui.accessSynchronously(() ->
 					ui.setPollInterval(-1)
 				);
-			} finally
-			{
 				InvocationContext.setCurrent(null);
 			}
 		}
