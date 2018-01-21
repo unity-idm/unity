@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which allow for merging 2 entities
@@ -30,9 +30,9 @@ class EntityMergeHandler
 	@Autowired
 	private UnityMessageSource msg;
 	
-	SingleActionHandler2<IdentityEntry> getAction(Supplier<String> groupSupplier)
+	SingleActionHandler<IdentityEntry> getAction(Supplier<String> groupSupplier)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.mergeEntitiesAction"))
 				.withIcon(Images.transfer.getResource())
 				.multiTarget()

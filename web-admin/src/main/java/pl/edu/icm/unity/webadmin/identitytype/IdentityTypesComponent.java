@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
@@ -143,15 +143,15 @@ public class IdentityTypesComponent extends VerticalLayout
 		}
 	}
 
-	private SingleActionHandler2<IdentityType> getRefreshAction()
+	private SingleActionHandler<IdentityType> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, IdentityType.class)
+		return SingleActionHandler.builder4Refresh(msg, IdentityType.class)
 				.withHandler(selection -> refresh()).build();
 	}
 
-	private SingleActionHandler2<IdentityType> getEditAction()
+	private SingleActionHandler<IdentityType> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, IdentityType.class)
+		return SingleActionHandler.builder4Edit(msg, IdentityType.class)
 				.withHandler(this::showEditDialog).build();
 	}
 

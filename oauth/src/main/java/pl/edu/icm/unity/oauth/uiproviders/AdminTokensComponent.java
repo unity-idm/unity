@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
@@ -115,8 +115,8 @@ public class AdminTokensComponent extends VerticalLayout
 			viewer.setInput(item.getOAuthToken(), item.getToken());
 		});
 		
-		SingleActionHandler2<TableTokensBean> refreshAction = getRefreshAction();
-		SingleActionHandler2<TableTokensBean> deleteAction = getDeleteAction();
+		SingleActionHandler<TableTokensBean> refreshAction = getRefreshAction();
+		SingleActionHandler<TableTokensBean> deleteAction = getDeleteAction();
 		
 		GridContextMenuSupport<TableTokensBean> contextMenu = 
 				new GridContextMenuSupport<>(tokensTable);
@@ -165,16 +165,16 @@ public class AdminTokensComponent extends VerticalLayout
 			.setHidable(true).setId(key).setHidden(hidden);
 	}
 	
-	private SingleActionHandler2<TableTokensBean> getRefreshAction()
+	private SingleActionHandler<TableTokensBean> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, TableTokensBean.class)
+		return SingleActionHandler.builder4Refresh(msg, TableTokensBean.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<TableTokensBean> getDeleteAction()
+	private SingleActionHandler<TableTokensBean> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, TableTokensBean.class)
+		return SingleActionHandler.builder4Delete(msg, TableTokensBean.class)
 				.withHandler(this::deleteHandler)
 				.build();
 	}

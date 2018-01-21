@@ -24,7 +24,7 @@ public class HamburgerMenu<T> extends MenuBar
 {
 	private MenuItem top;
 	private Set<T> target;
-	private Map<MenuItem, SingleActionHandler2<T>> items;
+	private Map<MenuItem, SingleActionHandler<T>> items;
 
 	public HamburgerMenu()
 	{
@@ -57,13 +57,13 @@ public class HamburgerMenu<T> extends MenuBar
 		};
 	}
 
-	public void addActionHandlers(Collection<SingleActionHandler2<T>> handlers)
+	public void addActionHandlers(Collection<SingleActionHandler<T>> handlers)
 	{
-		for (SingleActionHandler2<T> handler : handlers)
+		for (SingleActionHandler<T> handler : handlers)
 			addActionHandler(handler);
 	}
 
-	public void addActionHandler(SingleActionHandler2<T> handler)
+	public void addActionHandler(SingleActionHandler<T> handler)
 	{
 		MenuItem menuItem = addItem(handler.getCaption(), c -> {
 			if (!handler.isEnabled(target))
@@ -77,7 +77,7 @@ public class HamburgerMenu<T> extends MenuBar
 
 	private void updateMenuState(MenuItem item)
 	{
-		SingleActionHandler2<T> handler = items.get(item);
+		SingleActionHandler<T> handler = items.get(item);
 
 		if (handler.isVisible(target))
 		{

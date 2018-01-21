@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -73,9 +73,9 @@ public class IdentityCreationDialog extends AbstractDialog
 		@Autowired
 		private IdentityEditorRegistry identityEditorReg;
 		
-		public SingleActionHandler2<IdentityEntry> getAction(Consumer<Identity> callback)
+		public SingleActionHandler<IdentityEntry> getAction(Consumer<Identity> callback)
 		{
-			return SingleActionHandler2.builder(IdentityEntry.class)
+			return SingleActionHandler.builder(IdentityEntry.class)
 					.withCaption(msg.getMessage("Identities.addIdentityAction"))
 					.withIcon(Images.addIdentity.getResource())
 					.withHandler(selection -> showAddIdentityDialog(selection, callback))

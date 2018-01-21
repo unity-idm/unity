@@ -17,7 +17,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which allow for changing entity status
@@ -32,9 +32,9 @@ class ChangeEntityStateHandler
 	@Autowired
 	private UnityMessageSource msg;
 	
-	SingleActionHandler2<IdentityEntry> getAction(Runnable refreshCallback)
+	SingleActionHandler<IdentityEntry> getAction(Runnable refreshCallback)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.changeEntityStatusAction"))
 				.withIcon(Images.editUser.getResource())
 				.withHandler(selection -> showDialog(selection,

@@ -19,7 +19,6 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 /**
@@ -38,10 +37,7 @@ public class IdentityTypeEditor extends FormLayout
 	private TextField min;
 	private TextField minVerified;
 	private IntegerBoundEditor max;
-	private FormValidator validator;
-	
 	private Binder<IdentityType> binder;
-
 	private IdentityTypeSupport idTypeSupport;
 
 	public IdentityTypeEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
@@ -116,8 +112,6 @@ public class IdentityTypeEditor extends FormLayout
 
 		binder.setBean(toEdit);
 		refresh();
-		validator = new FormValidator(this);
-
 	}
 
 	private void refresh()
@@ -130,7 +124,6 @@ public class IdentityTypeEditor extends FormLayout
 
 	public IdentityType getIdentityType() throws FormValidationException
 	{
-		validator.validate();
 		if (!binder.isValid())
 			throw new FormValidationException();
 		IdentityType ret = binder.getBean();

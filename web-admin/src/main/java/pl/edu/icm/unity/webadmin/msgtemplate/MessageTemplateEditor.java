@@ -36,8 +36,6 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
@@ -68,7 +66,6 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private MessageTemplateManagement msgTemplateMgr;
 	private Binder<MessageTemplate> binder;
 	private Binder<I18nMessage> messageBinder;
-	private FormValidator validator;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
@@ -165,7 +162,6 @@ public class MessageTemplateEditor extends CompactFormLayout
 		}
 		
 		setSpacing(true);
-		validator = new FormValidator(this);
 	}
 
 	private String getBodyForPreview(String locale)
@@ -189,14 +185,6 @@ public class MessageTemplateEditor extends CompactFormLayout
 	
 	public MessageTemplate getTemplate()
 	{
-		try
-		{
-			validator.validate();
-		} catch (FormValidationException e)
-		{
-			return null;
-		}
-		
 		if (!binder.isValid())
 		{	
 			binder.validate();

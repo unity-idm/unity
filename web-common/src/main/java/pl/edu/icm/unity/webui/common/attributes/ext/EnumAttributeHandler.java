@@ -33,7 +33,7 @@ import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -233,9 +233,9 @@ public class EnumAttributeHandler implements WebAttributeHandler
 			return ret;
 		}
 		
-		private SingleActionHandler2<String> getDeleteAction()
+		private SingleActionHandler<String> getDeleteAction()
 		{
-			return SingleActionHandler2.builder4Delete(msg, String.class)
+			return SingleActionHandler.builder4Delete(msg, String.class)
 					.withHandler(this::deleteHandler)
 					.build();
 		}

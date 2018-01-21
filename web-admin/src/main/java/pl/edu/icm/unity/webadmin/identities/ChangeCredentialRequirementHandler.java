@@ -14,7 +14,7 @@ import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which allow for changing entity's credential requirements
@@ -31,9 +31,9 @@ class ChangeCredentialRequirementHandler
 	@Autowired
 	private UnityMessageSource msg;
 	
-	SingleActionHandler2<IdentityEntry> getAction(Runnable refreshCallback)
+	SingleActionHandler<IdentityEntry> getAction(Runnable refreshCallback)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.changeCredentialRequirementAction"))
 				.withIcon(Images.key.getResource())
 				.withHandler(selection -> showDialog(selection,

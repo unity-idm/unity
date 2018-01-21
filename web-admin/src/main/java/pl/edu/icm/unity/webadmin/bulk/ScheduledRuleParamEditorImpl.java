@@ -13,7 +13,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.MVELExpressionField;
 
 /**
@@ -68,7 +67,6 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 	@Override
 	public ScheduledProcessingRuleParam getRule() throws FormValidationException
 	{
-		new FormValidator(main).validate();
 		if (!binder.isValid())
 		{
 			binder.validate();

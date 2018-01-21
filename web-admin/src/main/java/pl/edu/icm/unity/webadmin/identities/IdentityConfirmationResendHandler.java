@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which trigger re-sending of (verifiable) identity confirmation.
@@ -35,9 +35,9 @@ class IdentityConfirmationResendHandler
 	@Autowired
 	private UnityMessageSource msg;
 	
-	public SingleActionHandler2<IdentityEntry> getAction()
+	public SingleActionHandler<IdentityEntry> getAction()
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.resendConfirmationAction"))
 				.withIcon(Images.confirm.getResource())
 				.withDisabledPredicate(ie -> ie.getSourceIdentity() == null ||

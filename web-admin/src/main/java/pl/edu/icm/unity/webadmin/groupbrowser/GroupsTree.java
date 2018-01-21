@@ -59,7 +59,7 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -165,13 +165,13 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 	}
 
-	private void addActionHandler(SingleActionHandler2<TreeNode> actionHandler)
+	private void addActionHandler(SingleActionHandler<TreeNode> actionHandler)
 	{
 		contextMenuSupp.addActionHandler(actionHandler);
 
 	}
 
-	public List<SingleActionHandler2<TreeNode>> getActionHandlers()
+	public List<SingleActionHandler<TreeNode>> getActionHandlers()
 	{
 		return contextMenuSupp.getActionHandlers();
 	}
@@ -386,9 +386,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 	}
 	
-	private SingleActionHandler2<TreeNode> getAddAction()
+	private SingleActionHandler<TreeNode> getAddAction()
 	{
-		return SingleActionHandler2.builder(TreeNode.class)
+		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("add"))
 				.withIcon(Images.add.getResource()).withHandler(this::showAddDialog)
 				.build();
@@ -404,9 +404,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		}).show();
 	}
 
-	private SingleActionHandler2<TreeNode> getEditACsAction()
+	private SingleActionHandler<TreeNode> getEditACsAction()
 	{
-		return SingleActionHandler2.builder(TreeNode.class)
+		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupDetails.editACAction"))
 				.withIcon(Images.attributes.getResource())
 				.withHandler(this::showEditACsDialog).build();
@@ -422,9 +422,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 	}
 
-	private SingleActionHandler2<TreeNode> getEditAction()
+	private SingleActionHandler<TreeNode> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, TreeNode.class)
+		return SingleActionHandler.builder4Edit(msg, TreeNode.class)
 				.withHandler(this::showEditDialog).build();
 	}
 
@@ -463,10 +463,10 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		}
 	}
 
-	private SingleActionHandler2<TreeNode> getAddEntityAction()
+	private SingleActionHandler<TreeNode> getAddEntityAction()
 	{
 		
-		return SingleActionHandler2.builder(TreeNode.class)
+		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.addEntityAction"))
 				.withIcon(Images.addEntity.getResource())
 				.withHandler(this::showAddEntityDialog).build();
@@ -485,16 +485,16 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			bus.fireEvent(new GroupChangedEvent(node.getPath()));
 	}
 
-	private SingleActionHandler2<TreeNode> getRefreshAction()
+	private SingleActionHandler<TreeNode> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, TreeNode.class)
+		return SingleActionHandler.builder4Refresh(msg, TreeNode.class)
 				.withHandler(selection -> selection.forEach(this::refreshNode))
 				.build();
 	}
 
-	private SingleActionHandler2<TreeNode> getDeleteAction()
+	private SingleActionHandler<TreeNode> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, TreeNode.class)
+		return SingleActionHandler.builder4Delete(msg, TreeNode.class)
 				.withHandler(this::deleteHandler).build();
 	}
 
@@ -509,9 +509,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		).show();
 	}
 
-	private SingleActionHandler2<TreeNode> getExpandAllAction()
+	private SingleActionHandler<TreeNode> getExpandAllAction()
 	{
-		return SingleActionHandler2.builder(TreeNode.class)
+		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.expandGroupsAction"))
 				.withIcon(Images.expand.getResource())
 				.withHandler(this::expandItemsRecursively).build();
@@ -527,9 +527,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		}
 	}
 
-	private SingleActionHandler2<TreeNode> getCollapseAllAction()
+	private SingleActionHandler<TreeNode> getCollapseAllAction()
 	{
-		return SingleActionHandler2.builder(TreeNode.class)
+		return SingleActionHandler.builder(TreeNode.class)
 				.withCaption(msg.getMessage("GroupsTree.collapseGroupsAction"))
 				.withIcon(Images.collapse.getResource())
 				.withHandler(this::collapseItemsRecursively).build();

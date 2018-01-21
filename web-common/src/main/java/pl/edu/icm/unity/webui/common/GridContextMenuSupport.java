@@ -14,13 +14,13 @@ import com.vaadin.contextmenu.GridContextMenu;
 import com.vaadin.ui.Grid;
 
 /**
- * Supports installing {@link ContextMenu} on {@link Grid} using {@link SingleActionHandler2}.
+ * Supports installing {@link ContextMenu} on {@link Grid} using {@link SingleActionHandler}.
  * 
  * @author K. Benedyczak
  */
 public class GridContextMenuSupport<T>
 {
-	private List<SingleActionHandler2<T>> actionHandlers = new ArrayList<>();
+	private List<SingleActionHandler<T>> actionHandlers = new ArrayList<>();
 	
 	@SuppressWarnings("unchecked")
 	public GridContextMenuSupport(Grid<T> grid)
@@ -35,12 +35,12 @@ public class GridContextMenuSupport<T>
 		});
 	}
 	
-	public void addActionHandler(SingleActionHandler2<T> actionHandler) 
+	public void addActionHandler(SingleActionHandler<T> actionHandler) 
 	{
 		actionHandlers.add(actionHandler);
 	}
 
-	public List<SingleActionHandler2<T>> getActionHandlers()
+	public List<SingleActionHandler<T>> getActionHandlers()
 	{
 		return actionHandlers;
 	}
@@ -48,7 +48,7 @@ public class GridContextMenuSupport<T>
 	private void fillContextMenu(GridContextMenu<T> contextMenu, Set<T> selection)
 	{
 		contextMenu.removeItems();
-		for (SingleActionHandler2<T> handler: actionHandlers)
+		for (SingleActionHandler<T> handler: actionHandlers)
 		{
 			if (handler.isVisible(selection))
 			{

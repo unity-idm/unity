@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which (after confirmation) trigger removal of entity
@@ -36,9 +36,9 @@ class DeleteEntityHandler
 	@Autowired
 	private UnityMessageSource msg;
 	
-	public SingleActionHandler2<IdentityEntry> getAction(Consumer<EntityWithLabel> callback)
+	public SingleActionHandler<IdentityEntry> getAction(Consumer<EntityWithLabel> callback)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.deleteEntityAction"))
 				.withIcon(Images.deleteEntity.getResource())
 				.withHandler(selection -> showConfirmationDialog(selection,

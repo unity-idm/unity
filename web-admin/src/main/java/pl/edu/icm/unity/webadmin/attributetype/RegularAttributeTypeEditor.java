@@ -24,8 +24,6 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -59,7 +57,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	private VerticalLayout syntaxPanel;
 	private AttributeSyntaxEditor<?> editor;
 	private MetadataEditor metaEditor;
-	private FormValidator validator;
 	private AttributeTypeSupport atSupport;
 	
 	public RegularAttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
@@ -165,8 +162,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 			def.setValueSyntax(syntaxes.first());
 			binder.setBean(def);
 		}
-		
-		validator = new FormValidator(this);
 	}
 	
 	public void setCopyMode()
@@ -189,13 +184,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	@Override
 	public AttributeType getAttributeType() throws IllegalAttributeTypeException
 	{
-		try
-		{
-			validator.validate();
-		} catch (FormValidationException e)
-		{
-			throw new IllegalAttributeTypeException("");
-		}
 		if (!binder.isValid())
 			throw new IllegalAttributeTypeException("");
 		AttributeValueSyntax<?> syntax = editor.getCurrentValue();

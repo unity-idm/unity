@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -107,9 +107,9 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 		return false;
 	}
 
-	private SingleActionHandler2<AttributeStatement> getAddAction()
+	private SingleActionHandler<AttributeStatement> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, AttributeStatement.class)
+		return SingleActionHandler.builder4Add(msg, AttributeStatement.class)
 				.withHandler(this::showAddDialog).build();
 	}
 
@@ -127,9 +127,9 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 		updateGroup();
 	}
 
-	private SingleActionHandler2<AttributeStatement> getEditAction()
+	private SingleActionHandler<AttributeStatement> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, AttributeStatement.class)
+		return SingleActionHandler.builder4Edit(msg, AttributeStatement.class)
 				.withHandler(this::showEditDialog).build();
 	}
 
@@ -155,9 +155,9 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 		updateGroup();
 	}
 
-	private SingleActionHandler2<AttributeStatement> getDeleteAction()
+	private SingleActionHandler<AttributeStatement> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, AttributeStatement.class)
+		return SingleActionHandler.builder4Delete(msg, AttributeStatement.class)
 				.withHandler(this::deleteHandler).build();
 	}
 

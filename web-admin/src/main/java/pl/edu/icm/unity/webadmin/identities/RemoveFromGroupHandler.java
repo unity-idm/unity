@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which show remove from group confirmation 
@@ -40,10 +40,10 @@ class RemoveFromGroupHandler
 		this.msg = msg;
 	}
 
-	public SingleActionHandler2<IdentityEntry> getAction(Supplier<String> groupSupplier,
+	public SingleActionHandler<IdentityEntry> getAction(Supplier<String> groupSupplier,
 			Runnable refresher)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.removeFromGroupAction"))
 				.withIcon(Images.delete.getResource())
 				.withHandler(selection -> showRemoveFromGroupDialog(selection,

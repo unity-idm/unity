@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which allow for changing entity's attribute classes
@@ -32,10 +32,10 @@ class EntityAttributeClassHandler
 	@Autowired
 	private UnityMessageSource msg;
 	
-	SingleActionHandler2<IdentityEntry> getAction(Runnable refreshCallback, 
+	SingleActionHandler<IdentityEntry> getAction(Runnable refreshCallback, 
 			Supplier<String> groupSupplier)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.editEntityACs"))
 				.withIcon(Images.attributes.getResource())
 				.withHandler(selection -> showDialog(selection,

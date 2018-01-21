@@ -55,7 +55,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -386,9 +386,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		return true;
 	}
 
-	private SingleActionHandler2<AttributeExt> getDeleteAction()
+	private SingleActionHandler<AttributeExt> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, AttributeExt.class)
+		return SingleActionHandler.builder4Delete(msg, AttributeExt.class)
 				.withDisabledPredicate(a -> isAttributeEditable(a)
 						|| checkAttributeMandatory(a))
 				.withHandler(this::deleteHandler).build();
@@ -404,9 +404,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		confirm.show();
 	}
 
-	private SingleActionHandler2<AttributeExt> getAddAction()
+	private SingleActionHandler<AttributeExt> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, AttributeExt.class)
+		return SingleActionHandler.builder4Add(msg, AttributeExt.class)
 				.withHandler(this::showAddDialog).build();
 	}
 
@@ -446,9 +446,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		dialog.show();
 	}
 
-	private SingleActionHandler2<AttributeExt> getEditAction()
+	private SingleActionHandler<AttributeExt> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, AttributeExt.class)
+		return SingleActionHandler.builder4Edit(msg, AttributeExt.class)
 				.withDisabledPredicate(a -> isAttributeEditable(a))
 				.withHandler(this::showEditDialog).build();
 
@@ -466,9 +466,9 @@ public class AttributesPanel extends HorizontalSplitPanel
 		dialog.show();
 	}
 
-	private SingleActionHandler2<AttributeExt> getResendConfirmationAction()
+	private SingleActionHandler<AttributeExt> getResendConfirmationAction()
 	{
-		return SingleActionHandler2.builder(AttributeExt.class)
+		return SingleActionHandler.builder(AttributeExt.class)
 				.withCaption(msg.getMessage("Attribute.resendConfirmation"))
 				.withIcon(Images.confirm.getResource()).multiTarget()
 				.withDisabledPredicate(a -> isAttributeEditable(a)

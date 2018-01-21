@@ -17,7 +17,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
 /**
@@ -40,11 +40,11 @@ public class EntityCreationHandler
 	@Autowired
 	private IdentityEditorRegistry identityEditorReg;
 
-	SingleActionHandler2<IdentityEntry> getAction(
+	SingleActionHandler<IdentityEntry> getAction(
 			Supplier<String> initialGroup,
 			Consumer<Identity> callback)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.addEntityAction"))
 				.withIcon(Images.addEntity.getResource())
 				.dontRequireTarget()

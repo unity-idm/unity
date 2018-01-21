@@ -43,7 +43,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
@@ -316,9 +316,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		}
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getAddAction()
+	private SingleActionHandler<ConfirmationConfiguration> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Add(msg, ConfirmationConfiguration.class)
 				.withHandler(this::showAddDialog).build();
 	}
 
@@ -380,15 +380,15 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		dialog.show();
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getRefreshAction()
+	private SingleActionHandler<ConfirmationConfiguration> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Refresh(msg, ConfirmationConfiguration.class)
 				.withHandler(selection -> refresh()).build();
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getDeleteAction()
+	private SingleActionHandler<ConfirmationConfiguration> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Delete(msg, ConfirmationConfiguration.class)
 				.withHandler(this::deleteHandler).build();
 	}
 
@@ -409,9 +409,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				}).show();
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getEditAction()
+	private SingleActionHandler<ConfirmationConfiguration> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Edit(msg, ConfirmationConfiguration.class)
 				.withHandler(this::showEditDialog).build();
 	}
 

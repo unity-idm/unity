@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
@@ -165,16 +165,16 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getRefreshAction()
+	private SingleActionHandler<RegistrationForm> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Refresh(msg, RegistrationForm.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getAddAction()
+	private SingleActionHandler<RegistrationForm> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Add(msg, RegistrationForm.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -196,16 +196,16 @@ public class RegistrationFormsComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getCopyAction()
+	private SingleActionHandler<RegistrationForm> getCopyAction()
 	{
-		return SingleActionHandler2.builder4Copy(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Copy(msg, RegistrationForm.class)
 				.withHandler(this::showCopyDialog)
 				.build();
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getEditAction()
+	private SingleActionHandler<RegistrationForm> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Edit(msg, RegistrationForm.class)
 				.withHandler(this::showEditDialog)
 				.build();
 	}
@@ -242,9 +242,9 @@ public class RegistrationFormsComponent extends VerticalLayout
 		dialog.show();	
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getDeleteAction()
+	private SingleActionHandler<RegistrationForm> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Delete(msg, RegistrationForm.class)
 				.withHandler(this::handleDelete)
 				.build();
 	}

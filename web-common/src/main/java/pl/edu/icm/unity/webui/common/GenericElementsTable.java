@@ -73,12 +73,12 @@ public class GenericElementsTable<T> extends SmallGrid<T>
 		setSelectionMode(multi ? SelectionMode.MULTI : SelectionMode.SINGLE);
 	}
 
-	public void addActionHandler(SingleActionHandler2<T> actionHandler) 
+	public void addActionHandler(SingleActionHandler<T> actionHandler) 
 	{
 		contextMenuSupp.addActionHandler(actionHandler);
 	}
 
-	public List<SingleActionHandler2<T>> getActionHandlers()
+	public List<SingleActionHandler<T>> getActionHandlers()
 	{
 		return contextMenuSupp.getActionHandlers();
 	}

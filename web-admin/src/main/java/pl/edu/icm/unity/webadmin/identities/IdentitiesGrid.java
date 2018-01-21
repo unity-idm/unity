@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -169,12 +169,12 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		}
 	}
 
-	public void addActionHandler(SingleActionHandler2<IdentityEntry> actionHandler) 
+	public void addActionHandler(SingleActionHandler<IdentityEntry> actionHandler) 
 	{
 		contextMenuSupp.addActionHandler(actionHandler);
 	}
 
-	public List<SingleActionHandler2<IdentityEntry>> getActionHandlers()
+	public List<SingleActionHandler<IdentityEntry>> getActionHandlers()
 	{
 		return contextMenuSupp.getActionHandlers();
 	}

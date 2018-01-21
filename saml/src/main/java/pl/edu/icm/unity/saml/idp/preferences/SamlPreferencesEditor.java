@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
 
@@ -128,9 +128,9 @@ public class SamlPreferencesEditor implements PreferencesEditor
 		return JsonUtil.serialize(preferences.getSerializedConfiguration());
 	}
 	
-	protected SingleActionHandler2<String> getAddAction()
+	protected SingleActionHandler<String> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, String.class)
+		return SingleActionHandler.builder4Add(msg, String.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -156,9 +156,9 @@ public class SamlPreferencesEditor implements PreferencesEditor
 		}).show();
 	}
 	
-	protected SingleActionHandler2<String> getEditAction()
+	protected SingleActionHandler<String> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, String.class)
+		return SingleActionHandler.builder4Edit(msg, String.class)
 				.withHandler(this::showEditDialog)
 				.build();
 	}
@@ -185,9 +185,9 @@ public class SamlPreferencesEditor implements PreferencesEditor
 		}).show();
 	}
 	
-	private SingleActionHandler2<String> getDeleteAction()
+	private SingleActionHandler<String> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, String.class)
+		return SingleActionHandler.builder4Delete(msg, String.class)
 				.withHandler(this::deleteHandler)
 				.build();
 	}

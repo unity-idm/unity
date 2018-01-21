@@ -31,7 +31,7 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryFormChangedEvent;
@@ -181,16 +181,16 @@ public class EnquiryFormsComponent extends VerticalLayout
 		}
 	}
 	
-	private SingleActionHandler2<EnquiryForm> getRefreshAction()
+	private SingleActionHandler<EnquiryForm> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, EnquiryForm.class)
+		return SingleActionHandler.builder4Refresh(msg, EnquiryForm.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<EnquiryForm> getAddAction()
+	private SingleActionHandler<EnquiryForm> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, EnquiryForm.class)
+		return SingleActionHandler.builder4Add(msg, EnquiryForm.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -219,9 +219,9 @@ public class EnquiryFormsComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<EnquiryForm> getResendAction()
+	private SingleActionHandler<EnquiryForm> getResendAction()
 	{
-		return SingleActionHandler2.builder(EnquiryForm.class)
+		return SingleActionHandler.builder(EnquiryForm.class)
 				.withCaption(msg.getMessage("RegistrationFormsComponent.resendAction"))
 				.withIcon(Images.messageSend.getResource())
 				.withHandler(this::showResendDialog)
@@ -237,16 +237,16 @@ public class EnquiryFormsComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<EnquiryForm> getCopyAction()
+	private SingleActionHandler<EnquiryForm> getCopyAction()
 	{
-		return SingleActionHandler2.builder4Copy(msg, EnquiryForm.class)
+		return SingleActionHandler.builder4Copy(msg, EnquiryForm.class)
 				.withHandler(this::showCopyDialog)
 				.build();
 	}
 	
-	private SingleActionHandler2<EnquiryForm> getEditAction()
+	private SingleActionHandler<EnquiryForm> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, EnquiryForm.class)
+		return SingleActionHandler.builder4Edit(msg, EnquiryForm.class)
 				.withHandler(this::showEditDialog)
 				.build();
 	}
@@ -288,9 +288,9 @@ public class EnquiryFormsComponent extends VerticalLayout
 		dialog.show();		
 	}
 	
-	private SingleActionHandler2<EnquiryForm> getDeleteAction()
+	private SingleActionHandler<EnquiryForm> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, EnquiryForm.class)
+		return SingleActionHandler.builder4Delete(msg, EnquiryForm.class)
 				.withHandler(this::handleDelete)
 				.build();
 	}

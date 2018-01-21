@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 
@@ -175,16 +175,16 @@ public class MessageTemplatesComponent extends VerticalLayout
 		}
 	}
 	
-	private SingleActionHandler2<MessageTemplate> getRefreshAction()
+	private SingleActionHandler<MessageTemplate> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, MessageTemplate.class)
+		return SingleActionHandler.builder4Refresh(msg, MessageTemplate.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<MessageTemplate> getAddAction()
+	private SingleActionHandler<MessageTemplate> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, MessageTemplate.class)
+		return SingleActionHandler.builder4Add(msg, MessageTemplate.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -199,9 +199,9 @@ public class MessageTemplatesComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<MessageTemplate> getEditAction()
+	private SingleActionHandler<MessageTemplate> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, MessageTemplate.class)
+		return SingleActionHandler.builder4Edit(msg, MessageTemplate.class)
 				.withHandler(this::showEditDialog)
 				.build();
 	}
@@ -221,9 +221,9 @@ public class MessageTemplatesComponent extends VerticalLayout
 		
 	}
 	
-	private SingleActionHandler2<MessageTemplate> getDeleteAction()
+	private SingleActionHandler<MessageTemplate> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, MessageTemplate.class)
+		return SingleActionHandler.builder4Delete(msg, MessageTemplate.class)
 				.withHandler(this::deleteHandler)
 				.build();
 	}

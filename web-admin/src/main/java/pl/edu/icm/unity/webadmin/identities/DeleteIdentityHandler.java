@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Factory of actions which (after confirmation) trigger removal of identities
@@ -35,10 +35,10 @@ class DeleteIdentityHandler
 	@Autowired
 	private UnityMessageSource msg;
 	
-	SingleActionHandler2<IdentityEntry> getAction(Consumer<IdentityEntry> removeCallback,
+	SingleActionHandler<IdentityEntry> getAction(Consumer<IdentityEntry> removeCallback,
 			Runnable resetAllCallback)
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.deleteIdentityAction"))
 				.withIcon(Images.deleteIdentity.getResource())
 				.withHandler(selection -> showConfirmationDialog(selection,

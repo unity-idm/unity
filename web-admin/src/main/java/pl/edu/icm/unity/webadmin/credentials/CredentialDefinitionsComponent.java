@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
@@ -180,16 +180,16 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		}
 	}
 
-	private SingleActionHandler2<CredentialDefinition> getRefreshAction()
+	private SingleActionHandler<CredentialDefinition> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, CredentialDefinition.class)
+		return SingleActionHandler.builder4Refresh(msg, CredentialDefinition.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<CredentialDefinition> getAddAction()
+	private SingleActionHandler<CredentialDefinition> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, CredentialDefinition.class)
+		return SingleActionHandler.builder4Add(msg, CredentialDefinition.class)
 				.withHandler(this::showAddCredDialog)
 				.build();
 	}
@@ -203,9 +203,9 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 		dialog.show();
 	}
 
-	private SingleActionHandler2<CredentialDefinition> getEditAction()
+	private SingleActionHandler<CredentialDefinition> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, CredentialDefinition.class)
+		return SingleActionHandler.builder4Edit(msg, CredentialDefinition.class)
 				.withHandler(this::showEditCredDialog)
 				.withDisabledPredicate(cr -> cr.isReadOnly())
 				.build();
@@ -225,9 +225,9 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 	}
 
 	
-	private SingleActionHandler2<CredentialDefinition> getDeleteAction()
+	private SingleActionHandler<CredentialDefinition> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, CredentialDefinition.class)
+		return SingleActionHandler.builder4Delete(msg, CredentialDefinition.class)
 				.withHandler(this::handleDelete)
 				.withDisabledPredicate(cr -> cr.isReadOnly())
 				.build();

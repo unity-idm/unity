@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
@@ -175,9 +175,9 @@ public class InvitationsTable extends CustomComponent
 	}
 
 
-	private SingleActionHandler2<TableInvitationBean> getSendAction()
+	private SingleActionHandler<TableInvitationBean> getSendAction()
 	{
-		return SingleActionHandler2.builder(TableInvitationBean.class)
+		return SingleActionHandler.builder(TableInvitationBean.class)
 			.withCaption(msg.getMessage("InvitationsTable.sendCodeAction"))
 			.withIcon(Images.messageSend.getResource())
 			.multiTarget()
@@ -211,9 +211,9 @@ public class InvitationsTable extends CustomComponent
 		return notificationsManagement.getNotificationChannels().keySet();
 	}
 	
-	private SingleActionHandler2<TableInvitationBean> getRefreshAction()
+	private SingleActionHandler<TableInvitationBean> getRefreshAction()
 	{
-		return SingleActionHandler2
+		return SingleActionHandler
 			.builder4Refresh(msg, TableInvitationBean.class)
 			.withHandler(selection -> refresh())
 			.build();
@@ -245,9 +245,9 @@ public class InvitationsTable extends CustomComponent
 		}
 	}
 	
-	private SingleActionHandler2<TableInvitationBean> getAddAction()
+	private SingleActionHandler<TableInvitationBean> getAddAction()
 	{
-		return SingleActionHandler2.builder(TableInvitationBean.class)
+		return SingleActionHandler.builder(TableInvitationBean.class)
 			.withCaption(msg.getMessage("InvitationsTable.addInvitationAction"))
 			.withIcon(Images.add.getResource())
 			.dontRequireTarget()
@@ -278,9 +278,9 @@ public class InvitationsTable extends CustomComponent
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<TableInvitationBean> getDeleteAction()
+	private SingleActionHandler<TableInvitationBean> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, TableInvitationBean.class)
+		return SingleActionHandler.builder4Delete(msg, TableInvitationBean.class)
 			.withHandler(this::handleDelete)
 			.build();
 	}

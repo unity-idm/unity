@@ -45,7 +45,7 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
@@ -153,54 +153,54 @@ public class IdentitiesComponent extends SafePanel
 			identitiesTable.addFilter(fastSearchFilter);
 		});
 
-		SingleActionHandler2<IdentityEntry> refreshAction = getRefreshAction();
+		SingleActionHandler<IdentityEntry> refreshAction = getRefreshAction();
 		identitiesTable.addActionHandler(refreshAction);
 
-		SingleActionHandler2<IdentityEntry> entityDetailsAction = entityDetailsHandler
+		SingleActionHandler<IdentityEntry> entityDetailsAction = entityDetailsHandler
 				.getShowEntityAction();
 		identitiesTable.addActionHandler(entityDetailsAction);
 
-		SingleActionHandler2<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
+		SingleActionHandler<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
 				.getAction(identitiesTable::getGroup, this::refresh);
 		identitiesTable.addActionHandler(removeFromGroupAction);
 
-		SingleActionHandler2<IdentityEntry> entityCreationAction = entityCreationDialogHandler
+		SingleActionHandler<IdentityEntry> entityCreationAction = entityCreationDialogHandler
 				.getAction(identitiesTable::getGroup, added -> refresh());
 		identitiesTable.addActionHandler(entityCreationAction);
 
-		SingleActionHandler2<IdentityEntry> identityCreationAction = identityCreationDialogHanlder
+		SingleActionHandler<IdentityEntry> identityCreationAction = identityCreationDialogHanlder
 				.getAction(added -> refresh());
 
 		identitiesTable.addActionHandler(identityCreationAction);
 
-		SingleActionHandler2<IdentityEntry> deleteEntityAction = deleteEntityHandler
+		SingleActionHandler<IdentityEntry> deleteEntityAction = deleteEntityHandler
 				.getAction(identitiesTable::removeEntity);
 		identitiesTable.addActionHandler(deleteEntityAction);
 
-		SingleActionHandler2<IdentityEntry> deleteIdentityAction = deleteIdentityHandler
+		SingleActionHandler<IdentityEntry> deleteIdentityAction = deleteIdentityHandler
 				.getAction(identitiesTable::removeIdentity, this::refresh);
 		identitiesTable.addActionHandler(deleteIdentityAction);
 
-		SingleActionHandler2<IdentityEntry> changeEntityStateAction = changeEntityStateHandler
+		SingleActionHandler<IdentityEntry> changeEntityStateAction = changeEntityStateHandler
 				.getAction(this::refresh);
 		identitiesTable.addActionHandler(changeEntityStateAction);
 
-		SingleActionHandler2<IdentityEntry> changeCredentialAction= getChangeCredentialAction();
+		SingleActionHandler<IdentityEntry> changeCredentialAction= getChangeCredentialAction();
 		identitiesTable.addActionHandler(changeCredentialAction);
 
-		SingleActionHandler2<IdentityEntry> credentialRequirementAction = credentialRequirementHandler
+		SingleActionHandler<IdentityEntry> credentialRequirementAction = credentialRequirementHandler
 				.getAction(this::refresh);
 		identitiesTable.addActionHandler(credentialRequirementAction);
 
-		SingleActionHandler2<IdentityEntry> entityAttributeAction = entityAttributeClassHandler
+		SingleActionHandler<IdentityEntry> entityAttributeAction = entityAttributeClassHandler
 				.getAction(this::refresh, identitiesTable::getGroup);
 		identitiesTable.addActionHandler(entityAttributeAction);
 
-		SingleActionHandler2<IdentityEntry> entityMergeAction = entityMergeHandler
+		SingleActionHandler<IdentityEntry> entityMergeAction = entityMergeHandler
 				.getAction(identitiesTable::getGroup);
 		identitiesTable.addActionHandler(entityMergeAction);
 
-		SingleActionHandler2<IdentityEntry> confirmationResendAction = confirmationResendHandler
+		SingleActionHandler<IdentityEntry> confirmationResendAction = confirmationResendHandler
 				.getAction();
 		identitiesTable.addActionHandler(confirmationResendAction);
 
@@ -407,16 +407,16 @@ public class IdentitiesComponent extends SafePanel
 		bus.fireEvent(new GroupChangedEvent(identitiesTable.getGroup()));
 	}
 	
-	private SingleActionHandler2<IdentityEntry> getRefreshAction()
+	private SingleActionHandler<IdentityEntry> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, IdentityEntry.class)
+		return SingleActionHandler.builder4Refresh(msg, IdentityEntry.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 
-	private SingleActionHandler2<IdentityEntry> getChangeCredentialAction()
+	private SingleActionHandler<IdentityEntry> getChangeCredentialAction()
 	{
-		return SingleActionHandler2.builder(IdentityEntry.class)
+		return SingleActionHandler.builder(IdentityEntry.class)
 				.withCaption(msg.getMessage("Identities.changeCredentialAction"))
 				.withIcon(Images.key.getResource())
 				.withHandler(this::showChangeCredentialDialog)

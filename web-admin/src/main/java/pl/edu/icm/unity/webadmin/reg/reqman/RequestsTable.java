@@ -41,7 +41,7 @@ import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
@@ -136,9 +136,9 @@ public class RequestsTable extends CustomComponent
 				null : ((TableRequestBean)beans.iterator().next());
 	}
 	
-	private SingleActionHandler2<TableRequestBean> getRefreshAction()
+	private SingleActionHandler<TableRequestBean> getRefreshAction()
 	{
-		return SingleActionHandler2
+		return SingleActionHandler
 			.builder4Refresh(msg, TableRequestBean.class)
 			.withHandler(selection -> refresh())
 			.build();
@@ -212,19 +212,19 @@ public class RequestsTable extends CustomComponent
 		}
 	}
 	
-	private SingleActionHandler2<TableRequestBean> getRejectAction()
+	private SingleActionHandler<TableRequestBean> getRejectAction()
 	{
 		return createAction(RegistrationRequestAction.reject, Images.delete);
 	}
 	
-	private SingleActionHandler2<TableRequestBean> getAcceptAction()
+	private SingleActionHandler<TableRequestBean> getAcceptAction()
 	{
 		return createAction(RegistrationRequestAction.accept, Images.ok);
 	}
 	
-	private SingleActionHandler2<TableRequestBean> createAction(RegistrationRequestAction action, Images img)
+	private SingleActionHandler<TableRequestBean> createAction(RegistrationRequestAction action, Images img)
 	{
-		return SingleActionHandler2.builder(TableRequestBean.class)
+		return SingleActionHandler.builder(TableRequestBean.class)
 				.withCaption(msg.getMessage("RequestProcessingPanel." + action.toString()))
 				.withIcon(img.getResource())
 				.multiTarget()
@@ -238,9 +238,9 @@ public class RequestsTable extends CustomComponent
 		return bean -> bean.request.getStatus() != RegistrationRequestStatus.pending;
 	}
 
-	private SingleActionHandler2<TableRequestBean> getDropAction()
+	private SingleActionHandler<TableRequestBean> getDropAction()
 	{
-		return SingleActionHandler2.builder(TableRequestBean.class)
+		return SingleActionHandler.builder(TableRequestBean.class)
 				.withCaption(msg.getMessage("RequestProcessingPanel.drop"))
 				.withIcon(Images.trashBin.getResource())
 				.multiTarget()

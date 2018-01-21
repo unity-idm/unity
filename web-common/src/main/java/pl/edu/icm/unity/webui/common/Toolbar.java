@@ -24,7 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 
 /**
  * Component with a list of small buttons. Buttons are bound to actions via 
- * {@link SingleActionHandler2}.
+ * {@link SingleActionHandler}.
  * 
  * Additionally toolbar's buttons have their state enabled or disabled depending 
  * whether the toolbar's target is set or not.
@@ -74,10 +74,10 @@ public class Toolbar<T> extends CustomComponent
 	private void updateButtonState(Button button)
 	{
 		Object buttonData = button.getData();
-		if (buttonData == null || !(buttonData instanceof SingleActionHandler2))
+		if (buttonData == null || !(buttonData instanceof SingleActionHandler))
 			return;
 		@SuppressWarnings("unchecked")
-		SingleActionHandler2<T> handler = (SingleActionHandler2<T>) button.getData();
+		SingleActionHandler<T> handler = (SingleActionHandler<T>) button.getData();
 		if (handler.isVisible(target))
 		{
 			button.setVisible(true);
@@ -88,9 +88,9 @@ public class Toolbar<T> extends CustomComponent
 		}
 	}
 	
-	public void addActionHandlers(Collection<SingleActionHandler2<T>> handlers)
+	public void addActionHandlers(Collection<SingleActionHandler<T>> handlers)
 	{
-		for (SingleActionHandler2<T> handler: handlers)
+		for (SingleActionHandler<T> handler: handlers)
 			addActionHandler(handler);
 	}
 	
@@ -129,7 +129,7 @@ public class Toolbar<T> extends CustomComponent
 			addButton(button);
 	}
 	
-	public void addActionHandler(SingleActionHandler2<T> handler)
+	public void addActionHandler(SingleActionHandler<T> handler)
 	{
 		final Button button = new Button();
 		button.setData(handler);
