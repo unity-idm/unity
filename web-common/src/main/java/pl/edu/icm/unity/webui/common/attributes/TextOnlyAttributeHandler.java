@@ -8,6 +8,7 @@ import java.util.List;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -95,7 +96,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
 				sb.append(hint).append("<br>");
-			field.setDescription(sb.toString());
+			field.setDescription(sb.toString(), ContentMode.HTML);
 			if (label != null)
 				field.setId("ValueEditor."+label);
 			
