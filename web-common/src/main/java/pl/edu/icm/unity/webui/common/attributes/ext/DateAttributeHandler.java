@@ -115,8 +115,17 @@ public class DateAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 
-			if (!required && date.getValue() == null)
-				return null;
+			if (date.getValue() == null)
+			{
+				if (!required)
+				{
+					return null;
+				}
+				date.setComponentError(
+						new UserError(msg.getMessage("fieldRequired")));
+				throw new IllegalAttributeValueException(
+						msg.getMessage("fieldRequired"));
+			}
 
 			try
 			{
