@@ -117,6 +117,7 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 			datetime.setResolution(DateTimeResolution.SECOND);
 			datetime.setCaption(label);
 			datetime.setDateFormat("yyyy-MM-dd HH:mm:ss");
+			datetime.setRequiredIndicatorVisible(required);
 			if (value != null)
 			{
 				datetime.setValue(value.toLocalDateTime());
