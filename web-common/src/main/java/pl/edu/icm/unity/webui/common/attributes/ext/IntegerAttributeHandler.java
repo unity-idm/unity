@@ -64,7 +64,7 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 		private LongBoundEditor2 max;
 		private LongBoundEditor2 min;
 		private UnityMessageSource msg;
-		private Binder<LongBindingValue> binder;
+		private Binder<LongSyntaxBindingValue> binder;
 		
 		public IntegerSyntaxEditor(IntegerAttributeSyntax initial, UnityMessageSource msg)
 		{
@@ -85,11 +85,11 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 					msg.getMessage("NumericAttributeHandler.maxE"),
 					Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
 
-			binder = new Binder<>(LongBindingValue.class);		
+			binder = new Binder<>(LongSyntaxBindingValue.class);		
 			max.configureBinding(binder, "max");
 			min.configureBinding(binder, "min");
 
-			LongBindingValue value = new LongBindingValue();
+			LongSyntaxBindingValue value = new LongSyntaxBindingValue();
 			if (initial != null)
 			{
 				value.setMax(initial.getMax());
@@ -117,7 +117,7 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 					throw new IllegalAttributeTypeException("");
 				}
 				IntegerAttributeSyntax ret = new IntegerAttributeSyntax();
-				LongBindingValue value = binder.getBean();
+				LongSyntaxBindingValue value = binder.getBean();
 				ret.setMax(value.getMax());
 				ret.setMin(value.getMin());
 				return ret;
@@ -127,7 +127,7 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 			}
 		}
 		
-		public class LongBindingValue extends MinMaxBindingValue<Long>{}	
+		public class LongSyntaxBindingValue extends MinMaxBindingValue<Long>{}	
 	}
 
 	

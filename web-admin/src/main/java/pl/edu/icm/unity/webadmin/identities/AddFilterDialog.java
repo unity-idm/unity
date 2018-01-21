@@ -5,10 +5,9 @@
 package pl.edu.icm.unity.webadmin.identities;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 import com.vaadin.server.UserError;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -17,7 +16,6 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
-import pl.edu.icm.unity.webui.common.MapComboBox;
 
 /**
  * Allows to create a filter for the identities table.
@@ -29,7 +27,7 @@ public class AddFilterDialog extends AbstractDialog
 	protected Callback callback;
 	private Collection<String> columns;
 	
-	private MapComboBox<String> column;
+	private ComboBox<String> column;
 	private EnumComboBox<Operand> operand;
 	private TextField argument;
 	
@@ -45,15 +43,17 @@ public class AddFilterDialog extends AbstractDialog
 	protected Component getContents()
 	{
 		Label info = new Label(msg.getMessage("AddFilterDialog.column"));
-		Map<String, String> colsMap = new HashMap<>();
-		for (String colId: columns)
-		{
-			if (colId.startsWith(IdentitiesGrid.ATTR_COL_PREFIX))
-				colsMap.put(colId.substring(IdentitiesGrid.ATTR_COL_PREFIX.length()), colId);
+		column = new ComboBox<>();
+		column.setItems(columns);
+		column.setEmptySelectionAllowed(false);
+		column.setSelectedItem(columns.iterator().next());
+		column.setItemCaptionGenerator(i -> {
+
+			if (i.startsWith(IdentitiesGrid.ATTR_COL_PREFIX))
+				return i.substring(IdentitiesGrid.ATTR_COL_PREFIX.length());
 			else
-				colsMap.put(msg.getMessage("Identities."+colId), colId);
-		}
-		column = new MapComboBox<>(colsMap, colsMap.keySet().iterator().next());
+				return msg.getMessage("Identities." + i);
+		});
 		
 		operand = new EnumComboBox<>(msg, "AddFilterDialog.operand.", 
 				Operand.class, Operand.contain);
@@ -80,16 +80,16 @@ public class AddFilterDialog extends AbstractDialog
 		} else
 			argument.setComponentError(null);
 		
-		String propertyId = column.getSelectedValue();
-		String propertyLabel = column.getSelectedLabel();
+		String colId = column.getValue();
+		String colCaption = column.getItemCaptionGenerator().apply(colId);
 		
 		EntityFilter baseFilter = (op == Operand.notEqual || op == Operand.equal) ? 
-			ie -> argumentV.equals(ie.getAnyValue(propertyId)) : 
-			ie -> testForContain(ie, propertyId, argumentV.toLowerCase());
+			ie -> argumentV.equals(ie.getAnyValue(colId)) : 
+			ie -> testForContain(ie, colId, argumentV.toLowerCase());
 		EntityFilter filter = (op == Operand.notEqual || op == Operand.notContain) ?
 			ie -> !baseFilter.test(ie) : baseFilter;
 		
-		String description = propertyLabel + " " + opLabel + " '" + argumentV + "'";
+		String description = colCaption + " " + opLabel + " '" + argumentV + "'";
 		
 		callback.onConfirm(filter, description);
 		close();

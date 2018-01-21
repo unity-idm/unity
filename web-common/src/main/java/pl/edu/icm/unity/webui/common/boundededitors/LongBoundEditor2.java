@@ -30,7 +30,7 @@ public class LongBoundEditor2 extends AbstractBoundEditor2<Long>
 		binder.forField(this)
 			.withConverter(vW -> vW.isUnlimited() ? bound : Long.parseLong(vW.getValue()), 
 					v -> new ValueWrapper(String.valueOf(v), v.equals(bound)),
-					msg.getMessage("IntegerBoundEditor.notANumber"))
+					msg.getMessage("LongBoundEditor.notANumber"))
 			.withValidator(getValidator(msg, min, max))
 			.bind(fieldName);
 	}

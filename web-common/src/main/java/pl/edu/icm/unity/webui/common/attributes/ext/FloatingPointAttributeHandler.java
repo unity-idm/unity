@@ -63,7 +63,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		private DoubleBoundEditor2 max;
 		private DoubleBoundEditor2 min;
 		private UnityMessageSource msg;
-		private Binder<DoubleBindingValue> binder;
+		private Binder<DoubleSyntaxBindingValue> binder;
 		
 		public FloatingPointSyntaxEditor(FloatingPointAttributeSyntax initial, UnityMessageSource msg)
 		{
@@ -84,11 +84,11 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 					msg.getMessage("NumericAttributeHandler.maxE"),
 					Double.MAX_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
 
-			binder = new Binder<>(DoubleBindingValue.class);
+			binder = new Binder<>(DoubleSyntaxBindingValue.class);
 			max.configureBinding(binder, "max");
 			min.configureBinding(binder, "min");
 
-			DoubleBindingValue value = new DoubleBindingValue();
+			DoubleSyntaxBindingValue value = new DoubleSyntaxBindingValue();
 			if (initial != null)
 			{
 				value.setMax(initial.getMax());
@@ -118,7 +118,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 				}
 				
 				FloatingPointAttributeSyntax ret = new FloatingPointAttributeSyntax();
-				DoubleBindingValue value = binder.getBean();
+				DoubleSyntaxBindingValue value = binder.getBean();
 				ret.setMax(value.getMax());
 				ret.setMin(value.getMin());
 				return ret;
@@ -128,7 +128,7 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 			}
 		}
 		
-		public class DoubleBindingValue extends MinMaxBindingValue<Double>{}	
+		public class DoubleSyntaxBindingValue extends MinMaxBindingValue<Double>{}	
 	}
 	
 	

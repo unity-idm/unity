@@ -30,7 +30,7 @@ public class DoubleBoundEditor2 extends AbstractBoundEditor2<Double>
 		binder.forField(this)
 			.withConverter(vW -> vW.isUnlimited() ? bound : Double.parseDouble(vW.getValue()), 
 					v -> new ValueWrapper(String.valueOf(v), v.equals(bound)),
-					msg.getMessage("IntegerBoundEditor.notANumber"))
+					msg.getMessage("DoubleBoundEditor.notANumber"))
 			.withValidator(getValidator(msg, min, max))
 			.bind(fieldName);
 	}

@@ -332,7 +332,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		private IntegerBoundEditor2 maxHeight, maxSize;
 		private IntegerBoundEditor2 maxWidth;
 		private UnityMessageSource msg;
-		private Binder<JpgBindingValue> binder;
+		private Binder<JpegSyntaxBindingValue> binder;
 
 		public JpegSyntaxEditor(JpegImageAttributeSyntax initial, UnityMessageSource msg)
 		{
@@ -357,14 +357,14 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 					msg.getMessage("JpegAttributeHandler.maxSizeE"),
 					Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
 
-			binder = new Binder<>(JpgBindingValue.class);
+			binder = new Binder<>(JpegSyntaxBindingValue.class);
 			maxWidth.configureBinding(binder, "maxWidth");
 			maxHeight.configureBinding(binder, "maxHeight");
 			maxSize.configureBinding(binder, "maxSize");
 
 			fl.addComponents(maxWidth, maxHeight, maxSize);
 
-			JpgBindingValue value = new JpgBindingValue();
+			JpegSyntaxBindingValue value = new JpegSyntaxBindingValue();
 			if (initial != null)
 			{
 				value.setMaxWidth(initial.getMaxWidth());
@@ -393,7 +393,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 					throw new IllegalAttributeTypeException("");
 				}
 
-				JpgBindingValue value = binder.getBean();
+				JpegSyntaxBindingValue value = binder.getBean();
 				JpegImageAttributeSyntax ret = new JpegImageAttributeSyntax();
 				ret.setMaxHeight(value.getMaxHeight());
 				ret.setMaxWidth(value.getMaxWidth());
@@ -406,13 +406,13 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 
 		}
 
-		public class JpgBindingValue
+		public class JpegSyntaxBindingValue
 		{
 			private Integer maxSize;
 			private Integer maxWidth;
 			private Integer maxHeight;
 			
-			public JpgBindingValue()
+			public JpegSyntaxBindingValue()
 			{
 
 			}

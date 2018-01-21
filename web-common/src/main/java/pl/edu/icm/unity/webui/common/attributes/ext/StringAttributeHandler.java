@@ -19,7 +19,6 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
@@ -67,7 +66,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		private TextField min;
 		private TextField regexp;
 		private UnityMessageSource msg;
-		private Binder<StringAttributeSyntax> binder;
+		private Binder<StringSyntaxBindingValue> binder;
 		
 		public StringSyntaxEditor(StringAttributeSyntax initial, UnityMessageSource msg)
 		{
@@ -78,7 +77,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		@Override
 		public Component getEditor()
 		{
-			binder = new Binder<>(StringAttributeSyntax.class);
+			binder = new Binder<>(StringSyntaxBindingValue.class);
 
 			FormLayout fl = new CompactFormLayout();
 
@@ -102,35 +101,24 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 					.withValidator(new IntegerRangeValidator(msg.getMessage(
 							"StringAttributeHandler.wrongMin"), 0,
 							Integer.MAX_VALUE))
-					.bind("minLength");
-			max.configureBinding(binder, "maxLength");
+					.bind("min");
+			max.configureBinding(binder, "max");
 			binder.forField(regexp).bind("regexp");
 
-			StringAttributeSyntax syntax = new StringAttributeSyntax();
+			StringSyntaxBindingValue value = new StringSyntaxBindingValue();
 			if (initial != null)
 			{
-
-				try
-				{
-					syntax.setMaxLength(initial.getMaxLength());
-					syntax.setMinLength(initial.getMinLength());
-				} catch (WrongArgumentException e)
-				{
-
-				}
-
-				syntax.setRegexp(initial.getRegexp());
+				value.setMax(initial.getMaxLength());
+				value.setMin(initial.getMinLength());
+				value.setRegexp(initial.getRegexp());
 			} else
 			{
-				try
-				{
-					syntax.setMaxLength(200);
-					syntax.setMinLength(0);
-				} catch (WrongArgumentException e)
-				{
-				}
+				
+				value.setMax(200);
+				value.setMin(0);
+				
 			}
-			binder.setBean(syntax);
+			binder.setBean(value);
 			return fl;
 		}
 
@@ -140,12 +128,38 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		{
 			try
 			{
-				return binder.getBean();
+				if (!binder.isValid())
+				{	
+					binder.validate();
+					throw new IllegalAttributeTypeException("");
+				}
+				StringAttributeSyntax ret = new StringAttributeSyntax();
+				StringSyntaxBindingValue value = binder.getBean();
+				ret.setMaxLength(value.getMax());
+				ret.setMinLength(value.getMin());
+				ret.setRegexp(value.getRegexp());
+				return ret;
 			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}
 		}
+		
+		public class StringSyntaxBindingValue extends MinMaxBindingValue<Integer>
+		{
+			String regexp;
+
+			public String getRegexp()
+			{
+				return regexp;
+			}
+
+			public void setRegexp(String regexp)
+			{
+				this.regexp = regexp;
+			}			
+		}
+		
 	}
 	
 	
