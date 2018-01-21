@@ -60,6 +60,7 @@ import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Tree with groups obtained dynamically from the engine.
@@ -122,8 +123,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		addColumn(n -> n.getIcon() + " " + n.getPath(), 
 				new HtmlRenderer());
 		setHeaderVisible(false);
+		setStyleName(Styles.vGroupBrowser.toString());
 		setSizeFull();
-
+		
 		
 		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this,
 				DropMode.ON_TOP);

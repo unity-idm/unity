@@ -378,15 +378,29 @@
 	.u-noGridHorizontalLines .v-grid-tablewrapper table tbody tr:last-child td {
 		border-bottom: 1px solid #d4d4d4;
 	}
+	
     .drop-layout .v-horizontallayout-drag-center {
  		background-color: #197de1;}
+	
+
+
+ 	.v-assistive-device-only-label label {
+		font-size:0;
+		width: 0px; 
+ 	}
+
+	.groupBrowser .v-treegrid-row-stripe > td {
+		background-color: transparent;
+		border: none;
+	}
+
+    .groupBrowser .v-treegrid-row  > th {
+		background-color: transparent;
+		border: none;
+	}
+	
+	.groupBrowser .v-treegrid-row  > td {
+		background-color: transparent;
+		border: none;
+	}
 }
-
-
- .v-assistive-device-only-label  label {
-    font-size:0;
-    width: 0px; 
- }
-
-
-
