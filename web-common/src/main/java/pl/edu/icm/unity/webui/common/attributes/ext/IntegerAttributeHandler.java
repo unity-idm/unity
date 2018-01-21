@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor2;
+import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor;
 
 
 /**
@@ -61,8 +61,8 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 	private static class IntegerSyntaxEditor implements AttributeSyntaxEditor<Long>
 	{
 		private IntegerAttributeSyntax initial;
-		private LongBoundEditor2 max;
-		private LongBoundEditor2 min;
+		private LongBoundEditor max;
+		private LongBoundEditor min;
 		private UnityMessageSource msg;
 		private Binder<LongSyntaxBindingValue> binder;
 		
@@ -76,11 +76,11 @@ public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new CompactFormLayout();
-			min = new LongBoundEditor2(msg,
+			min = new LongBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.minUndef"),
 					msg.getMessage("NumericAttributeHandler.minE"),
 					Long.MIN_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);
-			max = new LongBoundEditor2(msg,
+			max = new LongBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.maxUndef"),
 					msg.getMessage("NumericAttributeHandler.maxE"),
 					Long.MAX_VALUE, Long.MIN_VALUE, Long.MAX_VALUE);

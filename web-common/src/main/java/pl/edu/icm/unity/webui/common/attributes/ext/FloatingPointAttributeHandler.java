@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor2;
+import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor;
 
 
 /**
@@ -60,8 +60,8 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 	private static class FloatingPointSyntaxEditor implements AttributeSyntaxEditor<Double>
 	{
 		private FloatingPointAttributeSyntax initial;
-		private DoubleBoundEditor2 max;
-		private DoubleBoundEditor2 min;
+		private DoubleBoundEditor max;
+		private DoubleBoundEditor min;
 		private UnityMessageSource msg;
 		private Binder<DoubleSyntaxBindingValue> binder;
 		
@@ -75,11 +75,11 @@ public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new CompactFormLayout();
-			min = new DoubleBoundEditor2(msg,
+			min = new DoubleBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.minUndef"),
 					msg.getMessage("NumericAttributeHandler.minE"),
 					Double.MIN_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);
-			max = new DoubleBoundEditor2(msg,
+			max = new DoubleBoundEditor(msg,
 					msg.getMessage("NumericAttributeHandler.maxUndef"),
 					msg.getMessage("NumericAttributeHandler.maxE"),
 					Double.MAX_VALUE, Double.MIN_VALUE, Double.MAX_VALUE);

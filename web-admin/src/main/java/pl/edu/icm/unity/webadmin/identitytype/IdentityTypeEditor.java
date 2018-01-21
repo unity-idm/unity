@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.FormValidator;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and self modifiable flag. 
@@ -37,7 +37,7 @@ public class IdentityTypeEditor extends FormLayout
 	private CheckBox selfModifiable;
 	private TextField min;
 	private TextField minVerified;
-	private IntegerBoundEditor2 max;
+	private IntegerBoundEditor max;
 	private FormValidator validator;
 	
 	private Binder<IdentityType> binder;
@@ -88,7 +88,7 @@ public class IdentityTypeEditor extends FormLayout
 		if (!typeDefinition.isVerifiable())
 			minVerified.setVisible(false);
 
-		max = new IntegerBoundEditor2(msg, msg.getMessage("IdentityType.maxUnlimited"),
+		max = new IntegerBoundEditor(msg, msg.getMessage("IdentityType.maxUnlimited"),
 				msg.getMessage("IdentityType.max"), Integer.MAX_VALUE, 0, null);
 
 		addComponent(max);

@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 
 /**
@@ -62,7 +62,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 	private static class StringSyntaxEditor implements AttributeSyntaxEditor<String>
 	{
 		private StringAttributeSyntax initial;
-		private IntegerBoundEditor2 max;
+		private IntegerBoundEditor max;
 		private TextField min;
 		private TextField regexp;
 		private UnityMessageSource msg;
@@ -84,7 +84,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 			min = new TextField(msg.getMessage("StringAttributeHandler.minLenE"));
 			fl.addComponent(min);
 
-			max = new IntegerBoundEditor2(msg,
+			max = new IntegerBoundEditor(msg,
 					msg.getMessage("StringAttributeHandler.maxLenUndef"),
 					msg.getMessage("NumericAttributeHandler.maxE"),
 					Integer.MAX_VALUE, 0, null);

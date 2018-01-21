@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -52,7 +52,7 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	private I18nTextField displayedName;
 	private I18nTextArea typeDescription;
 	private TextField min;
-	private IntegerBoundEditor2 max;
+	private IntegerBoundEditor max;
 	private CheckBox uniqueVals;
 	private CheckBox selfModificable;
 	private ComboBox<String> syntax;
@@ -98,7 +98,7 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 		min = new TextField(msg.getMessage("AttributeType.min"));
 		addComponent(min);
 
-		max = new IntegerBoundEditor2(msg, msg.getMessage("AttributeType.maxUnlimited"), 
+		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), 
 				msg.getMessage("AttributeType.max"), Integer.MAX_VALUE, 0, null);
 		addComponent(max);
 		

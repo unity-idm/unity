@@ -49,7 +49,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
 
 /**
  * Jpeg image attribute handler for the web
@@ -329,8 +329,8 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	private static class JpegSyntaxEditor implements AttributeSyntaxEditor<BufferedImage>
 	{
 		private JpegImageAttributeSyntax initial;
-		private IntegerBoundEditor2 maxHeight, maxSize;
-		private IntegerBoundEditor2 maxWidth;
+		private IntegerBoundEditor maxHeight, maxSize;
+		private IntegerBoundEditor maxWidth;
 		private UnityMessageSource msg;
 		private Binder<JpegSyntaxBindingValue> binder;
 
@@ -344,15 +344,15 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new CompactFormLayout();
-			maxWidth = new IntegerBoundEditor2(msg,
+			maxWidth = new IntegerBoundEditor(msg,
 					msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"),
 					msg.getMessage("JpegAttributeHandler.maxWidthE"),
 					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
-			maxHeight = new IntegerBoundEditor2(msg,
+			maxHeight = new IntegerBoundEditor(msg,
 					msg.getMessage("JpegAttributeHandler.maxHeightUnlimited"),
 					msg.getMessage("JpegAttributeHandler.maxHeightE"),
 					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
-			maxSize = new IntegerBoundEditor2(msg,
+			maxSize = new IntegerBoundEditor(msg,
 					msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"),
 					msg.getMessage("JpegAttributeHandler.maxSizeE"),
 					Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
