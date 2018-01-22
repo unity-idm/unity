@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.serverman;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -14,7 +15,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
@@ -212,14 +212,15 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		Label statusLabel = new Label(msg.getMessage("DeployableComponentBase.status"));
 		statusLabel.addStyleName(Styles.bold.toString());
 
-		Image statusIcon = new Image();
+		Label statusIcon = new Label();
+		statusIcon.setContentMode(ContentMode.HTML);
 		if (status.equals(Status.deployed))
 		{
-			statusIcon.setSource(Images.ok.getResource());
+			statusIcon.setValue(Images.ok.getHtml());
 			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.deployed"));
 		} else if (status.equals(Status.undeployed))
 		{
-			statusIcon.setSource(Images.error.getResource());
+			statusIcon.setValue(Images.error.getHtml());
 			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.undeployed"));
 		}
 		HorizontalLayout statusBar = new HorizontalLayout(statusLabel, statusIcon);
