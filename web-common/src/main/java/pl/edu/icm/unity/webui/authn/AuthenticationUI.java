@@ -208,7 +208,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		//Extra safety - it can happen that we entered the UI in pipeline of authentication,
 		// if this UI expired in the meantime. Shouldn't happen often as heart of authentication UI
 		// is beating very slowly but in case of very slow user we may still need to refresh.
-		refresh(VaadinService.getCurrentRequest());
+		refreshAuthenticationState(VaadinService.getCurrentRequest());
 	}
 	
 	/**
@@ -412,6 +412,12 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	@Override
 	protected void refresh(VaadinRequest request) 
+	{
+		refreshAuthenticationState(request);
+		showOutdatedCredentialDialog();
+	}
+	
+	private void refreshAuthenticationState(VaadinRequest request) 
 	{
 		setContent(topLevelLayout);		//in case somebody refreshes UI which was previously replaced with empty
 							//may happen that the following code will clean it but it is OK.
