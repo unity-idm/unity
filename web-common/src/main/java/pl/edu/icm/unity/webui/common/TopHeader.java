@@ -63,7 +63,7 @@ public class TopHeader extends TopHeaderLight
 	protected Button createLogoutButton()
 	{
 		Button logout = new Button();
-		logout.setIcon(Images.exit32.getResource());
+		logout.setIcon(Images.exit.getResource());
 		logout.setDescription(msg.getMessage("MainHeader.logout"));
 		logout.setId("MainHeader.logout");
 		logout.addStyleName(Styles.vButtonLink.toString());

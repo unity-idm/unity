@@ -6,7 +6,6 @@ package pl.edu.icm.unity.oauth.uiproviders;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
@@ -63,8 +62,8 @@ public class OAuthTokenHomeUIProvider implements HomeUITabProvider
 	}
 
 	@Override
-	public Resource getIcon()
+	public Images getIcon()
 	{
-		return Images.usertoken64.getResource();
+		return Images.usertoken;
 	}
 }

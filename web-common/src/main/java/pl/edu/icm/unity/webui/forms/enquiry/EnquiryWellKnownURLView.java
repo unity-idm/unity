@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -61,14 +60,14 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 		ok.addStyleName(Styles.vButtonPrimary.toString());
 		ok.addClickListener(event -> {
 			if (callback.submitted())
-				showConfirm(Images.ok32.getResource(),
+				showConfirm(Images.ok,
 					msg.getMessage("EnquiryWellKnownURLView.responseSubmitted"));
 		});
 		
 		Button cancel = new Button(msg.getMessage("cancel"));
 		cancel.addClickListener(event -> {
 			callback.cancelled();
-			showConfirm(Images.error32.getResource(), 
+			showConfirm(Images.error, 
 					msg.getMessage("EnquiryWellKnownURLView.responseCancelled"));
 		});
 		buttons.addComponents(cancel, ok);
@@ -92,7 +91,7 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 		main.addComponent(header);
 	}
 	
-	private void showConfirm(Resource icon, String message)
+	private void showConfirm(Images icon, String message)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
 		TopHeader header = new TopHeader("", authnProcessor, msg);

@@ -20,26 +20,16 @@ public enum Images
 	password	(I.PB + "password.png"),
 	certificate	(I.PB + "certificate.png"),
 	empty		(I.PB + "empty.png"),
-	 
-	info64		(I.PH + "64/bullet_info.png"),
-	key64		(I.PH + "64/key.png"),
-	settings64	(I.PH + "64/settings.png"),
-	usertoken64	(I.PH + "64/user_token.png"),
 
-	stderror64	(I.P + "64/error.png"),
-	stdwarn64	(I.P + "64/warning.png"),
-	stdinfo64	(I.P + "64/info.png"),
-	
-	exit32		(I.P + "32/exit.png"),
-	error32		(I.P + "32/error.png"),
-	warn32		(VaadinIcons.WARNING),
-	info32		(I.P + "32/information.png"),
-	toAdmin32	(I.P + "32/manager.png"),
-	toProfile32	(I.P + "32/personal.png"),
-	support32	(I.P + "32/support.png"),
-	ok32		(I.P + "32/ok.png"),
+	info		(VaadinIcons.INFO),
+	key_o		(VaadinIcons.KEY_O),
+	settings	(VaadinIcons.COG_O),
+	usertoken	(VaadinIcons.TAGS),
+	exit		(VaadinIcons.SIGN_OUT),
+	toAdmin		(VaadinIcons.TOOLS),
+	toProfile	(VaadinIcons.USER),
+	support		(VaadinIcons.LIFEBUOY),
 
-	
 	refresh		(VaadinIcons.REFRESH),
 	userMagnifier	(VaadinIcons.SEARCH),
 	folder		(VaadinIcons.FOLDER_OPEN_O),
@@ -136,6 +126,5 @@ public enum Images
 	{
 		public static final String P = "../common/img/standard/";
 		public static final String PB = "../common/img/other/";
-		public static final String PH = "../common/img/hand/";
 	}
 }

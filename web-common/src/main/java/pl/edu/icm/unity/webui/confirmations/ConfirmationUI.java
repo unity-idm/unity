@@ -126,13 +126,13 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 
 	private com.vaadin.ui.Component getSuccessfullStatus(String info)
 	{
-		return new ConfirmationComponent(Images.ok32.getResource(), 
+		return new ConfirmationComponent(Images.ok, 
 				msg.getMessage("ConfirmationStatus.successful"), info);
 	}
 
 	private com.vaadin.ui.Component getUnsuccessfullStatus(String info)
 	{
-		return new ConfirmationComponent(Images.error32.getResource(), 
+		return new ConfirmationComponent(Images.error, 
 				msg.getMessage("ConfirmationStatus.unsuccessful"), info);
 	}
 

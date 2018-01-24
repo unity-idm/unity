@@ -30,20 +30,20 @@ public class NotificationPopup
 	
 	public static void showSuccess(UnityMessageSource msg, String caption, String description)
 	{
-		showGeneric(caption, description, Type.HUMANIZED_MESSAGE, Images.stdinfo64.getResource(), 
+		showGeneric(caption, description, Type.HUMANIZED_MESSAGE, Images.info.getResource(), 
 				ValoTheme.NOTIFICATION_SUCCESS, 
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 
 	public static void showNotice(UnityMessageSource msg, String caption, String description)
 	{
-		showGeneric(caption, description, Type.WARNING_MESSAGE, Images.stdwarn64.getResource(),
+		showGeneric(caption, description, Type.WARNING_MESSAGE, Images.warn.getResource(),
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 
 	public static void showError(UnityMessageSource msg, String caption, String description)
 	{
-		showGeneric(caption, description, Type.ERROR_MESSAGE, Images.stderror64.getResource(),
+		showGeneric(caption, description, Type.ERROR_MESSAGE, Images.error.getResource(),
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 
@@ -105,7 +105,7 @@ public class NotificationPopup
 		StringBuilder sb = new StringBuilder(notification.getStyleName());
 		for (String style: styles)
 			sb.append(" ").append(style);
-		
+		sb.append(Styles.veryLargeIcon.toString());
 		notification.setStyleName(sb.toString());
 		notification.setIcon(icon);
 		notification.setDelayMsec(-1);

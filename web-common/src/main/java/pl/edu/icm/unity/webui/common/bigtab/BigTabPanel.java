@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.webui.common.bigtab;
 
-import com.vaadin.server.Resource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -50,7 +50,7 @@ public class BigTabPanel extends HorizontalLayout
 		return tabs.getTabsCount();
 	}
 	
-	public void addTab(String labelKey, String descriptionKey, Resource image, final Component contents)
+	public void addTab(String labelKey, String descriptionKey, Images image, final Component contents)
 	{
 		String label = labelKey == null ? null : msg.getMessage(labelKey);
 		String description = descriptionKey == null ? null : msg.getMessage(descriptionKey);

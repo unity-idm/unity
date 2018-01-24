@@ -4,11 +4,10 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -21,17 +20,17 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class ConfirmationComponent extends CustomComponent
 {
-	public ConfirmationComponent(Resource icon, String title, String information)
+	public ConfirmationComponent(Images icon, String title, String information)
 	{
 		initUI(icon, title, information);
 	}
 
-	public ConfirmationComponent(Resource icon, String title)
+	public ConfirmationComponent(Images icon, String title)
 	{
 		initUI(icon, title, null);
 	}
 	
-	private void initUI(Resource icon, String title, String information)
+	private void initUI(Images icon, String title, String information)
 	{
 		VerticalLayout mainStatus = new VerticalLayout();
 		mainStatus.setMargin(false);
@@ -43,8 +42,11 @@ public class ConfirmationComponent extends CustomComponent
 		HorizontalLayout headerWrapper = new HorizontalLayout();
 		headerWrapper.setSpacing(false);
 		headerWrapper.setMargin(false);
-		Image statusIcon = new Image();
-		statusIcon.setSource(icon);
+		
+		Label statusIcon = new Label(icon.getHtml());
+		statusIcon.setContentMode(ContentMode.HTML);
+		statusIcon.addStyleName(Styles.largeIcon.toString());
+		
 		Label titleL = new Label(title);
 		titleL.addStyleName(Styles.textXLarge.toString());
 		headerWrapper.addComponents(statusIcon, titleL);

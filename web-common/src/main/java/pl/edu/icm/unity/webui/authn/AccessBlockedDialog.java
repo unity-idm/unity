@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webui.authn;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
@@ -50,8 +49,9 @@ public class AccessBlockedDialog extends Window
 		setCaption(msg.getMessage("error"));
 		
 		HorizontalLayout main = new HorizontalLayout();
-		Image img = new Image();
-		img.setSource(Images.stderror64.getResource());
+		Label img = new Label(Images.error.getHtml());
+		img.setStyleName(Styles.veryLargeIcon.toString());
+		
 		main.addComponent(img);
 		main.setComponentAlignment(img, Alignment.MIDDLE_CENTER);
 		main.addComponent(HtmlTag.hspaceEm(4));

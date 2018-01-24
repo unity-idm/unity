@@ -22,6 +22,7 @@ import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -87,7 +88,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		} catch (Exception e)
 		{
 			log.warn("Problem getting value's image as resource: " + e, e);
-			return Images.error32.getResource();
+			return null;
 		}
 	}
 
@@ -95,12 +96,28 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	public Component getRepresentation(String valueRaw)
 	{
 		BufferedImage value = syntax.convertFromString(valueRaw);
-		Image image = new Image();
 		int width = value.getWidth();
 		int height = value.getHeight();
-		
-		image.setSource(getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width, height));
-		return image;
+		Resource resValue = getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width,
+				height);
+		if (resValue != null)
+		{
+			Image image = new Image();
+
+			image.setSource(resValue);
+			return image;
+		} else
+		{
+			return  getErrorImage();
+		}	
+	}
+	
+	private Label getErrorImage()
+	{
+		Label errorImage =  new Label(Images.error.getHtml());
+		errorImage.setContentMode(ContentMode.HTML);
+		errorImage.addStyleName(Styles.largeIcon.toString());
+		return errorImage;
 	}
 
 	private BufferedImage scaleIfNeeded(BufferedImage value, int maxWidth, int maxHeight)
@@ -153,6 +170,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 			error = new Label();
 			error.setStyleName(Styles.error.toString());
 			error.setVisible(false);
+				
+			Label errorImage = getErrorImage();
+			errorImage.setVisible(false);
 			
 			field = new Image();
 			if (value != null)
@@ -162,10 +182,13 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 					BufferedImage scalledPreview = scaleIfNeeded(value, PREVIEW_WIDTH, PREVIEW_HEIGHT);
 					SimpleImageSource source = new SimpleImageSource(scalledPreview, syntax, "jpg");
 					field.setSource(source.getResource());
+					errorImage.setVisible(false);
+					field.setVisible(true);
 				} catch (Exception e)
 				{
 					log.warn("Problem getting value's image as resource for editing: " + e, e);
-					field.setSource(Images.error32.getResource());
+					errorImage.setVisible(true);
+					field.setVisible(false);
 				}
 			}
 			field.addClickListener(new MouseEvents.ClickListener()
@@ -189,7 +212,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 
 			scale = new CheckBox(msg.getMessage("JpegAttributeHandler.scaleIfNeeded"));
 			scale.setValue(true);
-			return new ComponentsContainer(field, error, upload, progressIndicator, scale, 
+			return new ComponentsContainer(field, errorImage, error, upload, progressIndicator, scale, 
 					getHints(syntax));
 		}
 

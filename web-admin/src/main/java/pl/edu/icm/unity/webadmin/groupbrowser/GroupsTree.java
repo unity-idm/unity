@@ -25,6 +25,7 @@ import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.event.ExpandEvent;
 import com.vaadin.event.ExpandEvent.ExpandListener;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.TreeGrid;
@@ -59,10 +60,12 @@ import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.DnDGridUtils;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
+import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Tree with groups obtained dynamically from the engine.
@@ -82,6 +85,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private TreeData<TreeNode> treeData;
 	private GridContextMenuSupport<TreeNode> contextMenuSupp;
 	private EntityCreationHandler entityCreationDialogHandler;
+	private Toolbar<TreeNode> toolbar;
 	
 	@SuppressWarnings("unchecked")
 	@Autowired
@@ -96,6 +100,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		this.acMan = acMan;
 		this.entityCreationDialogHandler = entityCreationDialogHandler;
 		this.groupManagementHelper = groupManagementHelper;
+		
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 		addExpandListener(new GroupExpandListener());
 		addSelectionListener(e -> {
@@ -108,15 +113,49 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			
 		singleSelect.setDeselectAllowed(false);
 	
-		addActionHandler(getRefreshAction());
-		addActionHandler(getExpandAllAction());
-		addActionHandler(getCollapseAllAction());
-		addActionHandler(getAddAction());
-		addActionHandler(getEditAction());
-		addActionHandler(getEditACsAction());
-		addActionHandler(getDeleteAction());
-		addActionHandler(getAddEntityAction());
+		
+		toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		addSelectionListener(toolbar.getSelectionListener());
+		
+		HamburgerMenu<TreeNode> hamburgerMenu= new HamburgerMenu<>();
+		addSelectionListener(hamburgerMenu.getSelectionListener());
+		
+		
+		SingleActionHandler<TreeNode> refreshAction = getRefreshAction();
+		addActionHandler(refreshAction);
+		
+		SingleActionHandler<TreeNode> expandAllAction = getExpandAllAction();
+		addActionHandler(expandAllAction);
+		
+		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAllAction();
+		addActionHandler(collapseAllAction);
+		
+		SingleActionHandler<TreeNode> addAction = getAddAction();
+		addActionHandler(addAction);
+		
+		SingleActionHandler<TreeNode> editAction = getEditAction();
+		addActionHandler(editAction);
+		
+		SingleActionHandler<TreeNode> editACAction = getEditACsAction();
+		addActionHandler(editACAction);
+		
+		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
+		addActionHandler(deleteAction);
 
+		SingleActionHandler<TreeNode> addEntityAction = getAddEntityAction();
+		addActionHandler(addEntityAction);
+		
+		toolbar.addActionHandler(addAction);
+		toolbar.addActionHandler(deleteAction);
+		hamburgerMenu.addActionHandler(refreshAction);
+		hamburgerMenu.addActionHandler(expandAllAction);
+		hamburgerMenu.addActionHandler(collapseAllAction);
+		hamburgerMenu.addActionHandler(addEntityAction);
+		hamburgerMenu.addActionHandler(editAction);
+		hamburgerMenu.addActionHandler(editACAction);
+		hamburgerMenu.addActionHandler(addEntityAction);
+		toolbar.addHamburger(hamburgerMenu);
+		
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		treeData = new TreeData<>();
@@ -176,6 +215,11 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		return contextMenuSupp.getActionHandlers();
 	}
 
+	public Toolbar<TreeNode> getToolbar()
+	{
+		return toolbar;
+	}
+	
 	/**
 	 * We can have two cases: either we can read '/' or not. In the latter
 	 * case we take groups where the logged user is the member, and we put

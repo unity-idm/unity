@@ -6,13 +6,13 @@ package pl.edu.icm.unity.webui.common;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * The component should be used instead of a ordinary component, when there is problem
@@ -32,9 +32,10 @@ public class ErrorComponent extends FormLayout
 	
 	public void setError(String description, Exception error)
 	{
-		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
+		Label errorL = new Label(Images.error.getHtml());
+		errorL.setContentMode(ContentMode.HTML);
 		errorL.addStyleName(Styles.error.toString());
-		errorL.setIcon(Images.error32.getResource());
+		errorL.addStyleName(Styles.largeIcon.toString());
 		errorL.setValue(description + ": " + NotificationPopup.getHumanMessage(error));
 		if (error instanceof AuthorizationException)
 			log.debug("Error component initialized with the authZ error: " + description);
@@ -54,18 +55,20 @@ public class ErrorComponent extends FormLayout
 
 	public void setError(String error)
 	{
-		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
+		Label errorL = new Label(Images.error.getHtml());
+		errorL.setContentMode(ContentMode.HTML);
 		errorL.addStyleName(Styles.error.toString());
-		errorL.setIcon(Images.error32.getResource());
+		errorL.addStyleName(Styles.largeIcon.toString());
 		errorL.setValue(error);
 		addCommon(errorL);
 	}
 		
 	public void setWarning(String warning)
 	{
-		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
+		Label errorL = new Label(Images.warn.getHtml());
+		errorL.setContentMode(ContentMode.HTML);
 		errorL.addStyleName(Styles.emphasized.toString());
-		errorL.setIcon(Images.warn32.getResource());
+		errorL.addStyleName(Styles.largeIcon.toString());
 		errorL.setValue(warning);
 		addCommon(errorL);
 	}

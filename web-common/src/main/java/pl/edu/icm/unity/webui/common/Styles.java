@@ -71,6 +71,7 @@ public enum Styles
 	hamburgerMenu("u-hamburgerMenu"),
 	uGridNoHorizontalLines("u-noGridHorizontalLines"),
 	largeIcon("u-largeIcon"),
+	veryLargeIcon("u-veryLargeIcon"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

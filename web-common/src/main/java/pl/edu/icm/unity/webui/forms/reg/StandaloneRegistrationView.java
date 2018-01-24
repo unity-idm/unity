@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -137,7 +136,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					regMan.getFormAutomationSupport(form))
 				.cancelled(true, context);
-			showConfirm(Images.error32.getResource(),
+			showConfirm(Images.error,
 					msg.getMessage("StandalonePublicFormView.requestCancelled"));
 		});
 		buttons.addComponents(cancel, ok);
@@ -183,7 +182,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					regMan.getFormAutomationSupport(form))
 				.submittedRegistrationRequest(requestId, regMan, request, context);
-			showConfirm(Images.ok32.getResource(),
+			showConfirm(Images.ok,
 					msg.getMessage("StandalonePublicFormView.requestSubmitted"));
 		} catch (WrongArgumentException e)
 		{
@@ -196,12 +195,12 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					regMan.getFormAutomationSupport(form))
 				.submissionError(e, context);
-			showConfirm(Images.error32.getResource(),
+			showConfirm(Images.error,
 					msg.getMessage("StandalonePublicFormView.submissionFailed"));
 		}
 	}
 
-	private void showConfirm(Resource icon, String message)
+	private void showConfirm(Images icon, String message)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);

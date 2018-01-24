@@ -364,6 +364,16 @@
 		vertical-align: .15em;
 	}
 
+	.v-menubar-popup .v-menubar-menuitem .v-icon  {
+		color: #197de1;
+	}
+	
+	.v-menubar-popup .v-menubar-menuitem-selected {
+		background-image: -webkit-linear-gradient(top, #8ebef0 2%, #a5cbf3 98%);
+		background-image: linear-gradient(to bottom,#8ebef0 2%, #a5cbf3 98%); 
+		background-color: transparent;
+	}
+
 	.v-menubar-u-toolbarButton {
 		height: auto;
 		line-height: inherit;
@@ -413,7 +423,11 @@
 		border: none;
 	}
 
-	.u-largeIcon {
-		
+	.u-largeIcon .v-icon {
+		font-size : 24px;
+	}
+	
+	.u-veryLargeIcon .v-icon {
+		font-size : 32px;
 	}
 }
