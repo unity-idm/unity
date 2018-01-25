@@ -70,6 +70,7 @@ public enum Styles
 	link("u-link"),
 	hamburgerMenu("u-hamburgerMenu"),
 	uGridNoHorizontalLines("u-noGridHorizontalLines"),
+	uDenseTreeGrid("u-denseTreeGrid"),
 	largeIcon("u-largeIcon"),
 	veryLargeIcon("u-veryLargeIcon"),
 	

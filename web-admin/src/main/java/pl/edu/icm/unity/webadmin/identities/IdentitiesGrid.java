@@ -45,6 +45,7 @@ import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -142,6 +143,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 		setSizeFull();
 		setColumnReorderingAllowed(true);
+		addStyleName(Styles.uDenseTreeGrid.toString());
 		
 		loadPreferences();
 		

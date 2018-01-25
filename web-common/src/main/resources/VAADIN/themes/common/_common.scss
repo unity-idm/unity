@@ -397,6 +397,15 @@
 	.u-noGridHorizontalLines .v-grid-tablewrapper table tbody tr:last-child td {
 		border-bottom: 1px solid #d4d4d4;
 	}
+
+	.u-denseTreeGrid .v-treegrid-tablewrapper table tbody tr td {
+		line-height: 34px;
+		height: 34px;
+	}
+
+	.u-denseTreeGrid .v-treegrid-tablewrapper .v-treegrid-cell-content {
+    	padding-bottom: 6px;
+	}
 	
     .drop-layout .v-horizontallayout-drag-center {
  		background-color: #197de1;}
