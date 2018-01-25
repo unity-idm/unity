@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
@@ -112,8 +113,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.emphasized.toString());
 		errorDetailLabel.setVisible(false);
+		errorDetailLabel.setWidth(50, Unit.EM);
 		ret.addComponents(messageLabel, errorDetailLabel);
-
+		ret.setComponentAlignment(messageLabel, Alignment.TOP_CENTER);
+		ret.setComponentAlignment(errorDetailLabel, Alignment.TOP_CENTER);
 		main = ret;
 	}
 
