@@ -87,7 +87,7 @@
 			"action": {
 				"name": "mapAttributeName",
 				"parameters": [
-					"userCertificate",
+					"certificate",
 					"urn:oid:2.5.4.36",
 					"false"
 				]

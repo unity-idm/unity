@@ -505,8 +505,8 @@ public class EngineInitialization extends LifecycleBase
 						" Log in and change the admin's password immediatelly! U: " + 
 						adminU + " P: " + adminP + "\n"
 						+ "The credential used for this user is named: '" + credDef.getName() + 
-						"' make sure that this credential is configured for the admin UI endpoint "
-						+ "(if not add a new authenticator definition using this credential and add the authenticator to the endpoint)");
+						"' make sure that this credential is enabled for the admin UI endpoint. "
+						+ "If not add an authenticator using this credential to the admin endpoint.");
 			}
 		} catch (EngineException e)
 		{

@@ -68,7 +68,7 @@
 		"syntaxState": {
 			"maxWidth": 100,
 			"maxHeight": 100,
-			"maxSize": 2000000
+			"maxSize": 1000000
 		},
 		"displayedName": {
 			"DefaultValue": "avatar",
@@ -365,7 +365,7 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 9,
-			"maxLength": 13
+			"maxLength": 20
 		},
 		"displayedName": {
 			"DefaultValue": "facsimileTelephoneNumber",
@@ -544,7 +544,7 @@
 		"syntaxState": {
 			"regexp": "(\\+)?(\\d){9,12}",
 			"minLength": 9,
-			"maxLength": 13
+			"maxLength": 20
 		},
 		"displayedName": {
 			"DefaultValue": "mobile",
@@ -638,7 +638,7 @@
 		"displayedName": {
 			"DefaultValue": "organizationRole",
 			"Map": {
-				"pl": "Rola jednostki organizacyjnej",
+				"pl": "Rola w organizacji",
 				"en": "Organization role"
 			}
 		},
@@ -693,7 +693,7 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 1,
-			"maxLength": 1000
+			"maxLength": 8000
 		},
 		"displayedName": {
 			"DefaultValue": "pgpPublicKey",
@@ -723,7 +723,7 @@
 		"syntaxState": {
 			"maxWidth": 1000,
 			"maxHeight": 1000,
-			"maxSize": 6000000
+			"maxSize": 3000000
 		},
 		"displayedName": {
 			"DefaultValue": "picture",
@@ -811,7 +811,6 @@
 		"selfModificable": false,
 		"uniqueValues": false,
 		"syntaxState": {
-			"regexp": "[0-9][0-9]-[0-9][0-9][0-9]",
 			"minLength": 0,
 			"maxLength": 6
 		},
@@ -1171,7 +1170,7 @@
 		"syntaxState": {
 			"regexp": "(\\+)?(\\d){9,12}",
 			"minLength": 9,
-			"maxLength": 13
+			"maxLength": 20
 		},
 		"displayedName": {
 			"DefaultValue": "telephoneNumber",
@@ -1261,10 +1260,10 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 1000
+			"maxLength": 20000
 		},
 		"displayedName": {
-			"DefaultValue": "userCertificate",
+			"DefaultValue": "certificate",
 			"Map": {
 				"pl": "Certyfikat użytkownika",
 				"en": "User certificate"
@@ -1279,7 +1278,7 @@
 		"metadata": {
 			
 		},
-		"name": "userCertificate",
+		"name": "certificate",
 		"syntaxId": "string"
 	},
 	{

@@ -105,7 +105,7 @@ public class NotificationPopup
 		StringBuilder sb = new StringBuilder(notification.getStyleName());
 		for (String style: styles)
 			sb.append(" ").append(style);
-		sb.append(Styles.veryLargeIcon.toString());
+		sb.append(" ").append(Styles.veryLargeIcon.toString());
 		notification.setStyleName(sb.toString());
 		notification.setIcon(icon);
 		notification.setDelayMsec(-1);

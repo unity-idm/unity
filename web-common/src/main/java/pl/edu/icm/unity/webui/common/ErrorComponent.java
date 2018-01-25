@@ -32,7 +32,7 @@ public class ErrorComponent extends FormLayout
 	
 	public void setError(String description, Exception error)
 	{
-		Label errorL = new Label(Images.error.getHtml());
+		Label100 errorL = new Label100(Images.error.getHtml());
 		errorL.setContentMode(ContentMode.HTML);
 		errorL.addStyleName(Styles.error.toString());
 		errorL.addStyleName(Styles.largeIcon.toString());
@@ -55,7 +55,7 @@ public class ErrorComponent extends FormLayout
 
 	public void setError(String error)
 	{
-		Label errorL = new Label(Images.error.getHtml());
+		Label100 errorL = new Label100(Images.error.getHtml());
 		errorL.setContentMode(ContentMode.HTML);
 		errorL.addStyleName(Styles.error.toString());
 		errorL.addStyleName(Styles.largeIcon.toString());
@@ -65,7 +65,7 @@ public class ErrorComponent extends FormLayout
 		
 	public void setWarning(String warning)
 	{
-		Label errorL = new Label(Images.warn.getHtml());
+		Label100 errorL = new Label100(Images.warn.getHtml());
 		errorL.setContentMode(ContentMode.HTML);
 		errorL.addStyleName(Styles.emphasized.toString());
 		errorL.addStyleName(Styles.largeIcon.toString());

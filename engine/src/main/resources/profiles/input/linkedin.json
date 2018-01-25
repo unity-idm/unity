@@ -27,7 +27,7 @@
 				"parameters": [
 					"name",
 					"/",
-					"attr['headline']",
+					"(attr contains 'headline') ? (attr['headline']) : (attr['firstName'] + ' ' + attr['lastName'])",
 					"CREATE_OR_UPDATE"
 				]
 			}

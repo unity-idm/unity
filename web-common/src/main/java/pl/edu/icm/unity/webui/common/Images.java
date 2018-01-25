@@ -59,7 +59,7 @@ public enum Images
 	key		(VaadinIcons.KEY),
 	attributes	(VaadinIcons.TAGS),
 	warn		(VaadinIcons.WARNING),
-	error		(VaadinIcons.CLOSE_CIRCLE),
+	error		(VaadinIcons.EXCLAMATION_CIRCLE),
 	transfer	(VaadinIcons.LINK),
 	reload		(VaadinIcons.RETWEET),
 	download	(VaadinIcons.DOWNLOAD),
