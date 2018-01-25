@@ -143,7 +143,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 		setSizeFull();
 		setColumnReorderingAllowed(true);
-		addStyleName(Styles.uDenseTreeGrid.toString());
+		setStyleName(Styles.uDenseTreeGrid.toString());
 		
 		loadPreferences();
 		

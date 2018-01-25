@@ -91,7 +91,7 @@ public enum Styles
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
 	vDropLayout("drop-layout"),
-	vGroupBrowser("groupBrowser");
+	vGroupBrowser("v-tree8");
 	
 	
 	/**

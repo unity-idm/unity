@@ -398,7 +398,7 @@
 		border-bottom: 1px solid #d4d4d4;
 	}
 
-	.u-denseTreeGrid .v-treegrid-tablewrapper table tbody tr td {
+	.u-denseTreeGrid td {
 		line-height: 34px;
 		height: 34px;
 	}
@@ -416,21 +416,6 @@
 		font-size:0;
 		width: 0px; 
  	}
-
-	.groupBrowser .v-treegrid-row-stripe > td {
-		background-color: transparent;
-		border: none;
-	}
-
-    .groupBrowser .v-treegrid-row  > th {
-		background-color: transparent;
-		border: none;
-	}
-	
-	.groupBrowser .v-treegrid-row  > td {
-		background-color: transparent;
-		border: none;
-	}
 
 	.u-largeIcon .v-icon {
 		font-size : 24px;

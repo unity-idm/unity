@@ -165,6 +165,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 				new HtmlRenderer());
 		setHeaderVisible(false);
 		setStyleName(Styles.vGroupBrowser.toString());
+	        setPrimaryStyleName("v-tree8");
+	        setRowHeight(34);
+	        
 		setSizeFull();
 		
 		
