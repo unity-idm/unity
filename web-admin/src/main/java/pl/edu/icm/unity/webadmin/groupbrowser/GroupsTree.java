@@ -161,11 +161,10 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		treeData = new TreeData<>();
 		setDataProvider(new GroupsDataProvider(treeData));
 
-		addColumn(n -> n.getIcon() + " " + n.getPath(), 
+		addColumn(n -> n.getIcon() + " " + n.toString(), 
 				new HtmlRenderer());
 		setHeaderVisible(false);
-		setStyleName(Styles.vGroupBrowser.toString());
-	        setPrimaryStyleName("v-tree8");
+		setPrimaryStyleName(Styles.vGroupBrowser.toString());
 	        setRowHeight(34);
 	        
 		setSizeFull();

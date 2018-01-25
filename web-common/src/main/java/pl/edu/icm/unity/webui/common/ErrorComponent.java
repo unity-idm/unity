@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.common;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -32,11 +31,8 @@ public class ErrorComponent extends FormLayout
 	
 	public void setError(String description, Exception error)
 	{
-		Label100 errorL = new Label100(Images.error.getHtml());
-		errorL.setContentMode(ContentMode.HTML);
-		errorL.addStyleName(Styles.error.toString());
-		errorL.addStyleName(Styles.largeIcon.toString());
-		errorL.setValue(description + ": " + NotificationPopup.getHumanMessage(error));
+		Label100 errorL = getGeneric(description + ": " + NotificationPopup.getHumanMessage(error), 
+				Images.error, Styles.error); 
 		if (error instanceof AuthorizationException)
 			log.debug("Error component initialized with the authZ error: " + description);
 		else
@@ -55,24 +51,24 @@ public class ErrorComponent extends FormLayout
 
 	public void setError(String error)
 	{
-		Label100 errorL = new Label100(Images.error.getHtml());
-		errorL.setContentMode(ContentMode.HTML);
-		errorL.addStyleName(Styles.error.toString());
-		errorL.addStyleName(Styles.largeIcon.toString());
-		errorL.setValue(error);
-		addCommon(errorL);
+		addComponent(getGeneric(error, Images.error, Styles.error));
 	}
 		
 	public void setWarning(String warning)
 	{
-		Label100 errorL = new Label100(Images.warn.getHtml());
-		errorL.setContentMode(ContentMode.HTML);
-		errorL.addStyleName(Styles.emphasized.toString());
-		errorL.addStyleName(Styles.largeIcon.toString());
-		errorL.setValue(warning);
-		addCommon(errorL);
+		addComponent(getGeneric(warning, Images.warn, Styles.emphasized));
 	}
-
+	
+	private Label100 getGeneric(String msg, Images icon, Styles style)
+	{
+		Label100 label = new Label100(msg);
+		label.setCaptionAsHtml(true);
+		label.setCaption(icon.getHtml());
+		label.addStyleName(style.toString());
+		label.addStyleName(Styles.largeIcon.toString());
+		return label;
+	}
+	
 	private void addCommon(Label errorL)
 	{
 		addComponent(errorL);

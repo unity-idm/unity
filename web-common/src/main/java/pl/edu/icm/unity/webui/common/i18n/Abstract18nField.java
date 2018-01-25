@@ -86,7 +86,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 				}
 				else
 				{
-					showAll.setIcon(Images.upArrow.getResource());
+					showAll.setIcon(Images.downArrow.getResource());
 					showAll.setDescription(msg.getMessage("I18TextField.showLanguages"));
 				}
 		});
