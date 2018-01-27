@@ -62,6 +62,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -534,6 +535,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		for (Map.Entry<String, List<String>> attr: attributes.getFlatAttributes().entrySet())
 		{
 			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
+			if (attr.getKey().equals("sub") && !attr.getValue().isEmpty())
+				input.addIdentity(new RemoteIdentity(attr.getValue().get(0), "sub"));
 		}
 		input.setRawAttributes(attributes.getRawAttributes());
 		
