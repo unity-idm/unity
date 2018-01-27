@@ -87,13 +87,14 @@ public class GenericElementsTable<T> extends SmallGrid<T>
 	{
 		Set<T> selectedItems = getSelectedItems();
 		contents.clear();
-		contents.addAll(elements);
+		if (elements != null)
+			contents.addAll(elements);
 		dataProvider.refreshAll();
 		sort();
 		deselectAll();
 		for (T toSelect : selectedItems)
 		{
-			if (elements.contains(toSelect))
+			if (elements != null && elements.contains(toSelect))
 			{
 				select(toSelect);
 			}
@@ -174,6 +175,10 @@ public class GenericElementsTable<T> extends SmallGrid<T>
 		updateFilters();
 	}
 	
+	public void clearFilters()
+	{
+		dataProvider.clearFilters();
+	}
 	
 	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{
