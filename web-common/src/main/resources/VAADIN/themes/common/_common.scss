@@ -118,7 +118,14 @@
 		color: #464646;
 	}
 		
-	.u-bigTab {
+	.u-bigTab .v-icon {
+		margin-top: -8px;
+		margin-bottom: 8px;
+	}
+
+	.u-bigTabSelected .v-icon {
+		margin-top: -8px;
+		margin-bottom: 8px;
 	}
 	
 	.u-toolbarButton:hover {
@@ -422,6 +429,6 @@
 	}
 	
 	.u-veryLargeIcon .v-icon {
-		font-size : 48px;
+		font-size : 34px;
 	}
 }

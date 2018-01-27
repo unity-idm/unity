@@ -1,8 +1,5 @@
 # This configuration module enables demo contents. Do not use it for production instances.
 
 
-unityServer.core.script.900.file=${CONF}/scripts/oauthDemoInitializer.groovy
-unityServer.core.script.900.trigger=pre-init
-
 unityServer.core.script.901.file=${CONF}/scripts/demoContentInitializer.groovy
 unityServer.core.script.901.trigger=pre-init

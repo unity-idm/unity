@@ -74,5 +74,25 @@ with a single statement in the main configuration file. We suggest moving to thi
 however the old style of configuration, where all components are directly defined in +unityServer.conf+ 
 are still fully supported. In fact the difference is merely in the default organization of configuration files.
  
+==== From 2.2.0 to 2.3.0
+
+No configuration changes or manual steps are neccessary
+
+==== From 2.3.0 to 2.4.0
+
+Update should be straightforward as no configuration syntax changes were introduced. Note however that 
+there were few important changes in the way how default configuration and server initialization works:
+
+. There is a new +sys:password+ credential that is always defined. Its settings are read only. It is the default
+credential: by default configured on initial credential requirements and authenticators. 
+It is always used for the initialAdmin user credential (so far an ad-hoc credential was generated).
+. Default credentials configuration was moved to its own configuration module +credential.module+ 
+and includes only the certificate credential definition. 
+. There is a new attributeType config module, activating a new initialization script: 
++scripts/defaultAttributeTypeInitializer.groovy+. The script loads predefined attribute types. You can enable this 
+when updating old configuration. The attribute types may be alternatively loaded from Admin UI in Schema management.
+. There is a new configuration module  +oauthAuthenticator.module+. It loads a standard configuration of OAuth
+web authenticator. The default configuration provided in +conf/modules/oauth/remoteOAuth.properties+ is a good starting 
+template.
 
 

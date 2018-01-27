@@ -1,6 +1,9 @@
 # This configuration module enables OAuth Authorization Server feature. 
 # Authentication is configured for local Unity users.
 
+# - not the default user created by this script needs to be updated with secure password
+unityServer.core.script.900.file=${CONF}/scripts/oauthDemoInitializer.groovy
+unityServer.core.script.900.trigger=pre-init
 
 unityServer.core.endpoints.oauthAuthz.endpointType=OAuth2Authz
 unityServer.core.endpoints.oauthAuthz.endpointConfigurationFile=${CONF}/modules/oauth/oauth2-as.properties
