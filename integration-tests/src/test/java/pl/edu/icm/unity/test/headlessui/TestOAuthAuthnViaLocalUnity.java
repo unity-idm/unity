@@ -11,8 +11,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebElement;
 
 /**
  * Test login via Local OAuth with output profile which create dynamic attribute
@@ -27,11 +25,7 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 	{
 		driver.get(baseUrl + "/admin/admin");
 		waitForPageLoad(By.className("idpentry_oauthWeb.local"));	
-		WebElement element = driver.findElement(By.className("idpentry_oauthWeb.local"));
-		((JavascriptExecutor) driver)
-		    .executeScript("arguments[0].click();", element);
-		element.click();		
-		//waitForPageLoad(By.className("idpentry_oauthWeb.local")).click();	
+		driver.findElement(By.className("idpentry_oauthWeb.local")).click();
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		waitForElement(By.id("AuthenticationUI.username")).clear();
 		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");

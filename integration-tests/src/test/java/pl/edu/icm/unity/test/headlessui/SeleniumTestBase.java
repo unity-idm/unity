@@ -42,7 +42,7 @@ import pl.edu.icm.unity.engine.server.JettyServer;
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServerSelenium.conf" })
-public class SeleniumTestBase
+public abstract class SeleniumTestBase
 {
 	protected String baseUrl = "https://localhost:2443";
 	public static final int WAIT_TIME_S = Integer.parseInt(
