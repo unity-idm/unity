@@ -164,13 +164,13 @@ public class IdentitiesComponent extends SafePanel
 				.getAction(identitiesTable::getGroup, added -> refresh());
 		identitiesTable.addActionHandler(entityCreationAction);
 
-		SingleActionHandler<IdentityEntry> deleteEntityAction = deleteEntityHandler
-				.getAction(identitiesTable::removeEntity);
-		identitiesTable.addActionHandler(deleteEntityAction);
-
 		SingleActionHandler<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
 				.getAction(identitiesTable::getGroup, this::refresh);
 		identitiesTable.addActionHandler(removeFromGroupAction);
+
+		SingleActionHandler<IdentityEntry> deleteEntityAction = deleteEntityHandler
+				.getAction(identitiesTable::removeEntity);
+		identitiesTable.addActionHandler(deleteEntityAction);
 
 		SingleActionHandler<IdentityEntry> identityCreationAction = identityCreationDialogHanlder
 				.getAction(added -> refresh());
@@ -206,8 +206,8 @@ public class IdentitiesComponent extends SafePanel
 
 		toolbar.addActionHandler(entityDetailsAction);
 		toolbar.addActionHandler(entityCreationAction);
-		toolbar.addActionHandler(deleteEntityAction);
 		toolbar.addActionHandler(removeFromGroupAction);
+		toolbar.addActionHandler(deleteEntityAction);
 		toolbar.addHamburger(hamburgerMenu);
 		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(identityCreationAction);

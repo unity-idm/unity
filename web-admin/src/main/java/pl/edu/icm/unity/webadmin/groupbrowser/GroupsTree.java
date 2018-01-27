@@ -150,7 +150,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(expandAllAction);
 		hamburgerMenu.addActionHandler(collapseAllAction);
-		hamburgerMenu.addActionHandler(addEntityAction);
 		hamburgerMenu.addActionHandler(editAction);
 		hamburgerMenu.addActionHandler(editACAction);
 		hamburgerMenu.addActionHandler(addEntityAction);

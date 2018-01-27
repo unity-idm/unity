@@ -214,7 +214,7 @@ public class RequestsTable extends CustomComponent
 	
 	private SingleActionHandler<TableRequestBean> getRejectAction()
 	{
-		return createAction(RegistrationRequestAction.reject, Images.delete);
+		return createAction(RegistrationRequestAction.reject, Images.reject);
 	}
 	
 	private SingleActionHandler<TableRequestBean> getAcceptAction()
