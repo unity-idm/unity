@@ -12,6 +12,7 @@ import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * The component should be used instead of a ordinary component, when there is problem
@@ -31,7 +32,7 @@ public class ErrorComponent extends FormLayout
 	
 	public void setError(String description, Exception error)
 	{
-		Label100 errorL = getGeneric(description + ": " + NotificationPopup.getHumanMessage(error), 
+		Label errorL = getGeneric(description + ": " + NotificationPopup.getHumanMessage(error), 
 				Images.error, Styles.error); 
 		if (error instanceof AuthorizationException)
 			log.debug("Error component initialized with the authZ error: " + description);
@@ -59,10 +60,11 @@ public class ErrorComponent extends FormLayout
 		addComponent(getGeneric(warning, Images.warn, Styles.emphasized));
 	}
 	
-	private Label100 getGeneric(String msg, Images icon, Styles style)
+	private Label getGeneric(String msg, Images icon, Styles style)
 	{
-		Label100 label = new Label100(msg);
+		HtmlSimplifiedLabel label = new HtmlSimplifiedLabel(msg);
 		label.setCaptionAsHtml(true);
+		label.setWidth(100, Unit.PERCENTAGE);
 		label.setCaption(icon.getHtml());
 		label.addStyleName(style.toString());
 		label.addStyleName(Styles.largeIcon.toString());
