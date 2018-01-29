@@ -5,16 +5,20 @@
 
 package pl.edu.icm.unity.oauth.as;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
+import com.nimbusds.jose.JWSAlgorithm;
+
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 
 public class TokenSignerTest
 {
-	
+
 	@Test(expected = ConfigurationException.class)
 	public void shouldThrowConfigExceptionWhenEmptyHMACsecret()
 	{
@@ -23,9 +27,9 @@ public class TokenSignerTest
 				OAuthASProperties.SigningAlgorithms.HS512.toString());
 		new TokenSigner(config, new MockPKIMan());
 	}
-	
+
 	@Test(expected = ConfigurationException.class)
-	public void shouldThrowConfigExceptionWhenToShortHMACsecret()
+	public void shouldThrowConfigExceptionWhenTooShortHMACsecret()
 	{
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		config.setProperty(OAuthASProperties.SIGNING_SECRET,
@@ -43,14 +47,19 @@ public class TokenSignerTest
 				"b8e7ae12510bdfb1812e463a7f086122cf37e4f7");
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.HS256.toString());
+
+		TokenSigner signer = null;
 		try
 		{
-			new TokenSigner(config, new MockPKIMan());
+			signer = new TokenSigner(config, new MockPKIMan());
 
 		} catch (Exception e)
 		{
 			fail("Cannot create HMAC token signer");
 		}
+
+		assertThat(signer, notNullValue());
+		assertThat(signer.getSigningAlgorithm(), is(JWSAlgorithm.HS256));
 	}
 
 	@Test(expected = ConfigurationException.class)
@@ -63,18 +72,59 @@ public class TokenSignerTest
 	}
 	
 	@Test
+	public void shouldCreateECTokenSigner()
+	{
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
+				OAuthASProperties.SigningAlgorithms.ES512.toString());
+
+		TokenSigner signer = null;
+		try
+		{
+			signer = new TokenSigner(config, new MockPKIMan(
+					"src/test/resources/demoECKey.p12", "123456"));
+
+		} catch (Exception e)
+		{
+			e.printStackTrace();
+			fail("Cannot create EC token signer ");
+		}
+
+		assertThat(signer, notNullValue());
+		assertThat(signer.getSigningAlgorithm(), is(JWSAlgorithm.ES512));
+
+	}
+
+	@Test(expected = ConfigurationException.class)
+	public void shouldThrowConfigExceptionWhenIncorrectRSAPrivateKey()
+	{
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
+				OAuthASProperties.SigningAlgorithms.RS512.toString());
+		new TokenSigner(config,
+				new MockPKIMan("src/test/resources/demoECKey.p12", "123456"));
+	}
+
+	@Test
 	public void shouldCreateRSTokenSigner()
 	{
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.RS512.toString());
+
+		TokenSigner signer = null;
 		try
 		{
-			new TokenSigner(config, new MockPKIMan());
+			signer = new TokenSigner(config, new MockPKIMan());
 
 		} catch (Exception e)
 		{
 			fail("Cannot create RS token signer");
 		}
+
+		assertThat(signer, notNullValue());
+		assertThat(signer.getSigningAlgorithm(), is(JWSAlgorithm.RS512));
+
 	}
+
 }

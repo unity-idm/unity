@@ -18,7 +18,23 @@ import pl.edu.icm.unity.exceptions.InternalException;
 
 public class MockPKIMan implements PKIManagement
 {
-
+	private String keyPath;
+	private String keyPass;
+	
+	public MockPKIMan()
+	{
+		keyPath = "src/test/resources/demoKeystore.p12";
+		keyPass = "the!uvos";
+				
+	}
+	
+	public MockPKIMan(String keyPath, String keyPass)
+	{
+		this.keyPath = keyPath;
+		this.keyPass = keyPass;
+				
+	}
+	
 	@Override
 	public Set<String> getCredentialNames() throws EngineException
 	{
@@ -30,8 +46,8 @@ public class MockPKIMan implements PKIManagement
 	{
 		try
 		{
-			return new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-					"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "pkcs12");
+			return new KeystoreCredential(keyPath, 
+					keyPass.toCharArray(), keyPass.toCharArray(), null, "pkcs12");
 		} catch (Exception e)
 		{
 			throw new InternalException("ups", e);

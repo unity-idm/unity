@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
- * Helper for tokens signing
+ * Wrapper for  {@link JWSSigner}. Can signs token using RSA, EC or HMAC algorithm. 
  * @author P.Piernik
  *
  */
@@ -48,57 +48,17 @@ public class TokenSigner
 		if (Family.RSA.contains(algorithm))
 		{
 			setupCredential(config, pkiManamgenet);
-			PrivateKey pk = credential.getKey();
-			if (pk == null || !(pk instanceof RSAPrivateKey))
-			{
-				throw new ConfigurationException(
-						"The private key must be RSA if one of RS signingAlgorithm is used");
-			}
-			internalSigner = new RSASSASigner(pk);
+			setupRSASigner();
 		}
 
 		else if (Family.EC.contains(algorithm))
 		{
 			setupCredential(config, pkiManamgenet);
-			PrivateKey pk = credential.getKey();
-			if (pk == null || !(pk instanceof ECPrivateKey))
-			{
-				throw new ConfigurationException(
-						"The private key must be EC if one of ES signingAlgorithm is used");
-			}
-
-			try
-			{
-				internalSigner = new ECDSASigner((ECPrivateKey) pk);
-			} catch (JOSEException e)
-			{
-				throw new ConfigurationException("The EC key is incorrect", e);
-			}
-
-			if (!internalSigner.supportedJWSAlgorithms()
-					.contains(JWSAlgorithm.parse(signAlg)))
-				throw new ConfigurationException(
-						"privateKey is not compatible with used ES algorithm");
+			setupECSigner(signAlg);
 
 		} else if (Family.HMAC_SHA.contains(algorithm))
 		{
-			String secret = config.getSigningSecret();
-			if (secret == null || secret.isEmpty())
-				throw new ConfigurationException(
-						"signingSecret is required if one of HS signingAlgorithm is used");
-			try
-			{
-				internalSigner = new MACSigner(config.getSigningSecret());
-
-			} catch (KeyLengthException e)
-			{
-				throw new ConfigurationException("signingSecret is incorrect", e);
-			}
-
-			if (!internalSigner.supportedJWSAlgorithms()
-					.contains(JWSAlgorithm.parse(signAlg)))
-				throw new ConfigurationException(
-						"signingSecret lenght is not compatible with used HS algorithm");
+			setupHMACSigner(config, signAlg);
 		} else
 		{
 			throw new ConfigurationException(
@@ -107,6 +67,61 @@ public class TokenSigner
 
 	}
 
+	private void setupRSASigner()
+	{
+		
+		PrivateKey pk = credential.getKey();
+		if (pk == null || !(pk instanceof RSAPrivateKey))
+		{
+			throw new ConfigurationException(
+					"The private key must be RSA if one of RS signingAlgorithm is used");
+		}
+		internalSigner = new RSASSASigner(pk);
+	}
+	
+	private void setupECSigner(String signAlg)
+	{
+		PrivateKey pk = credential.getKey();
+		if (pk == null || !(pk instanceof ECPrivateKey))
+		{
+			throw new ConfigurationException(
+					"The private key must be EC if one of ES signingAlgorithm is used");
+		}
+
+		try
+		{
+			internalSigner = new ECDSASigner((ECPrivateKey) pk);
+		} catch (JOSEException e)
+		{
+			throw new ConfigurationException("The EC key is incorrect", e);
+		}
+
+		if (!internalSigner.supportedJWSAlgorithms()
+				.contains(JWSAlgorithm.parse(signAlg)))
+			throw new ConfigurationException(
+					"privateKey is not compatible with used ES algorithm");
+	}
+	
+	private void setupHMACSigner(OAuthASProperties config, String signAlg)
+	{
+		String secret = config.getSigningSecret();
+		if (secret == null || secret.isEmpty())
+			throw new ConfigurationException(
+					"signingSecret is required if one of HS signingAlgorithm is used");
+		try
+		{
+			internalSigner = new MACSigner(config.getSigningSecret());
+
+		} catch (KeyLengthException e)
+		{
+			throw new ConfigurationException("signingSecret is incorrect", e);
+		}
+
+		if (!internalSigner.supportedJWSAlgorithms()
+				.contains(JWSAlgorithm.parse(signAlg)))
+			throw new ConfigurationException(
+					"signingSecret lenght is not compatible with used HS algorithm");
+	}
 	
 	private void setupCredential(OAuthASProperties config, PKIManagement pkiManamgenet)
 	{		
