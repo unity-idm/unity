@@ -63,7 +63,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 	
 	public MappingResult translate(RemotelyAuthenticatedInput input) throws EngineException
 	{
-		NDC.push("[TrProfile " + profile.getName() + "]");
+		NDC.push("TrProfile " + profile.getName());
 		if (log.isDebugEnabled())
 			log.debug("Input received from IdP " + input.getIdpName() + ":\n"
 					+ input.getTextDump());
@@ -74,7 +74,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 			MappingResult translationState = new MappingResult();
 			for (InputTranslationRule rule : ruleInstances)
 			{
-				NDC.push("[r: " + (i++) + "]");
+				NDC.push("r: " + (i++));
 				try
 				{
 					TranslationRuleInvocationContext context = rule.invoke(

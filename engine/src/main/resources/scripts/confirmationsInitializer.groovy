@@ -51,7 +51,8 @@ try
 				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
 				at.getName(),
 				firstChannel,
-				firstTemplate);
+				firstTemplate,
+				2880);
 			confirmationConfigurationManagement.addConfiguration(emailAttr);
 			log.info("Added confirmation subsystem configuration for email attribute "
 				+ "with the template " + firstTemplate);
@@ -67,7 +68,8 @@ try
 					ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
 					idType.getIdentityTypeProvider(),
 					firstChannel,
-					firstTemplate);
+					firstTemplate,
+					2880);
 			confirmationConfigurationManagement.addConfiguration(emailId);
 			log.info("Added confirmation subsystem configuration for email identity "
 					+ "with the template " + firstTemplate);

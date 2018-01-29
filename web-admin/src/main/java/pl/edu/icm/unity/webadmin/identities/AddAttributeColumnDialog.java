@@ -8,8 +8,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
@@ -30,7 +30,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 	private AttributeTypeManagement attrsMan;
 	protected Callback callback;
 	
-	private ComboBox attributeType;
+	private ComboBox<AttributeType> attributeType;
 	private CheckBox useRootGroup;
 	
 	
@@ -66,7 +66,6 @@ public class AddAttributeColumnDialog extends AbstractDialog
 		}
 		attributeType = new AttributeSelectionComboBox(msg.getMessage("AddAttributeColumnDialog.attribute"),
 				filtered);
-		attributeType.setNullSelectionAllowed(false);
 		
 		useRootGroup = new CheckBox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);
 		useRootGroup.setDescription(msg.getMessage("AddAttributeColumnDialog.useRootGroupTooltip"));
@@ -81,7 +80,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 	protected void onConfirm()
 	{
 		String group = useRootGroup.getValue() ? "/" : null;
-		callback.onChosen((String)attributeType.getValue(), group);
+		callback.onChosen(attributeType.getValue().getName(), group);
 		close();
 	}
 	

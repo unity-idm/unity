@@ -11,12 +11,10 @@ import java.math.RoundingMode;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
@@ -123,14 +121,8 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		historySize.setMaxValue(50);
 		historySize.setWidth(3, Unit.EM);
 		limitMaxAge = new CheckBox(msg.getMessage("PasswordDefinitionEditor.limitMaxAge"));
-		limitMaxAge.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				maxAge.setEnabled(limitMaxAge.getValue());
-			}
-		});
+		limitMaxAge.addValueChangeListener(event -> maxAge.setEnabled(limitMaxAge.getValue()));
+		
 		maxAge = new IntStepper(msg.getMessage("PasswordDefinitionEditor.maxAge"));
 		maxAge.setMinValue(1);
 		maxAge.setMaxValue(MAX_MONTHS);

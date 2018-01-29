@@ -17,7 +17,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.dnd.DragSourceExtension;
@@ -86,7 +85,7 @@ public class RuleComponent extends CustomComponent
 		header.setSizeFull();
 		header.setMargin(false);
 	
-		showHide = new Button(Images.vaadinDownArrow.getResource());
+		showHide = new Button(Images.downArrow.getResource());
 		showHide.addStyleName(Styles.vButtonLink.toString());
 		showHide.addStyleName(Styles.toolbarButton.toString());
 		showHide.addStyleName(Styles.vButtonBorderless.toString());
@@ -100,7 +99,7 @@ public class RuleComponent extends CustomComponent
 		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
 		header.setExpandRatio(info, 1);
 
-		Button img = new Button(Images.vaadinResize.getResource());
+		Button img = new Button(Images.resize.getResource());
 		img.setSizeFull();
 		img.setWidth(1, Unit.EM);
 		img.setStyleName(Styles.vButtonLink.toString());
@@ -114,11 +113,14 @@ public class RuleComponent extends CustomComponent
 		header.addComponent(img);	
 		header.setComponentAlignment(img, Alignment.MIDDLE_RIGHT);
 		
-		MenuBar menuBar = new HamburgerMenu();			
-		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), Images.vaadinRemove.getResource(), s -> callback.remove(RuleComponent.this));
-		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), Images.vaadinTopArrow.getResource(), 
+		HamburgerMenu<String> menuBar = new HamburgerMenu<String>();			
+		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
+				Images.remove.getResource(), s -> callback.remove(RuleComponent.this));
+		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
+				Images.topArrow.getResource(), 
 				s -> callback.moveTop(RuleComponent.this));	
-		bottom = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), Images.vaadinBottomArrow.getResource(), 
+		bottom = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
+				Images.bottomArrow.getResource(), 
 				s -> callback.moveBottom(RuleComponent.this));
 
 		header.addComponent(menuBar);
@@ -314,8 +316,8 @@ public class RuleComponent extends CustomComponent
 	
 	private void showHideContent(boolean show)
 	{
-		showHide.setIcon(show ? Images.vaadinUpArrow.getResource()
-				: Images.vaadinDownArrow.getResource());
+		showHide.setIcon(show ? Images.upArrow.getResource()
+				: Images.downArrow.getResource());
 		content.setVisible(show);
 	}
 	

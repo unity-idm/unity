@@ -29,6 +29,11 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 	private int maxLength = 10240;
 	private Pattern pattern = null;
 	
+	
+	public StringAttributeSyntax()
+	{
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */

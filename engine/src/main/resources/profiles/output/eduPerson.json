@@ -79,6 +79,19 @@
 					"false"
 				]
 			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"certificate",
+					"userCertificate",
+					"false"
+				]
+			}
 		}
 	]
 }

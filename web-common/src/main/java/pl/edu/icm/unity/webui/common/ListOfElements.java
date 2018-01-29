@@ -112,6 +112,7 @@ public class ListOfElements<T> extends VerticalLayout
 			HorizontalLayout cont = new HorizontalLayout();
 			cont.setMargin(false);
 			cont.setSpacing(false);
+			cont.setWidth(100, Unit.PERCENTAGE);
 			
 			this.element = elementV;
 			setSpacing(true);

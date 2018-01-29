@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
@@ -25,7 +26,7 @@ public interface PasswordExchange extends CredentialExchange
 	 * @return
 	 */
 	public AuthenticationResult checkPassword(String username, String password, 
-			SandboxAuthnResultCallback sandboxCallback); 
+			SandboxAuthnResultCallback sandboxCallback) throws AuthenticationException; 
 	
 	/**
 	 * @return credential reset backend

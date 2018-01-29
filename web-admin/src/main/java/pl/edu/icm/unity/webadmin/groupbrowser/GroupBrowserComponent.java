@@ -9,16 +9,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.shared.ui.Orientation;
-
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.WebSession;
-import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.bus.RefreshEvent;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -26,7 +22,6 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author K. Benedyczak
  */
-@SuppressWarnings("serial")
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GroupBrowserComponent extends SafePanel
@@ -47,23 +42,17 @@ public class GroupBrowserComponent extends SafePanel
 	{
 		setCaption(msg.getMessage("GroupBrowser.caption"));
 		
-		Toolbar toolbar = new Toolbar(groupsTree, Orientation.HORIZONTAL);
-		toolbar.addActionHandlers(groupsTree.getActionHandlers());
-		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, toolbar);
-		treeWithToolbar.setWidth(100, Unit.PERCENTAGE);
+//		Toolbar<TreeNode> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+//		groupsTree.addSelectionListener(toolbar.getSelectionListener());
+//		toolbar.addActionHandlers(groupsTree.getActionHandlers());
+		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, groupsTree.getToolbar());
+		treeWithToolbar.setSizeFull();
 		
 		setContent(treeWithToolbar);
 		setStyleName(Styles.vPanelLight.toString());
 		setSizeFull();
 		EventsBus bus = WebSession.getCurrent().getEventBus();
-		bus.addListener(new EventListener<RefreshEvent>()
-		{
-			@Override
-			public void handleEvent(RefreshEvent event)
-			{
-				groupsTree.refresh();
-			}
-		}, RefreshEvent.class);
+		bus.addListener(event -> groupsTree.refresh(), RefreshEvent.class);
 	}
 }
 

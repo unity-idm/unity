@@ -18,17 +18,19 @@ public class TreeNode
 	private TreeNode parent;
 	private boolean contentsFetched = false;
 	private UnityMessageSource msg;
+	private String icon;
 	
-	public TreeNode(UnityMessageSource msg, Group group)
+	public TreeNode(UnityMessageSource msg, Group group, String icon)
 	{
-		this(msg, group, null);
+		this(msg, group, icon, null);
 	}
 	
-	public TreeNode(UnityMessageSource msg, Group group, TreeNode parent)
+	public TreeNode(UnityMessageSource msg, Group group, String icon, TreeNode parent)
 	{
 		this.msg = msg;
 		this.path = group.toString();
 		this.parent = parent;
+		this.icon = icon;
 		setGroupMetadata(group);
 	}
 	
@@ -48,6 +50,16 @@ public class TreeNode
 			if (!realName.equals(name))
 				this.name = name + " (" + realName + ")";
 		}
+	}
+	
+	public String getIcon()
+	{
+		return icon;
+	}
+
+	public void setIcon(String icon)
+	{
+		this.icon = icon;
 	}
 	
 	public TreeNode getParentNode()
@@ -84,16 +96,17 @@ public class TreeNode
 	@Override
 	public int hashCode()
 	{
+		
 		return path.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj)
-	{
+	{	
 		if (obj instanceof String)
 			return path.equals(obj);
 		if (obj instanceof TreeNode)
-			return path.equals(((TreeNode)obj).path);
+			return path.equals(((TreeNode)obj).path);	
 		return false;
 	}
 }

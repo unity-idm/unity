@@ -105,7 +105,6 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 	private void initUI() throws EngineException
 	{
 		VerticalLayout contents = new VerticalLayout();
-		contents.setSpacing(true);
 		contents.setMargin(false);
 
 		final VerticalLayout details = new VerticalLayout();

@@ -4,109 +4,80 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import com.vaadin.server.UserError;
+import com.vaadin.data.Binder;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.data.util.converter.Converter;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.CustomField;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Shows a checkbox and a textfield to query for a limit number with optional unlimited setting.
- * <p>
- * Implementation note: Vaadin's {@link CustomField} overriding is far from trivial when advanced topics come into
- * play (validation, converters of individual fields). After long evaluation it seems that the simplest way
- * is to perform the whole logic in value change listeners.
  * @author K. Benedyczak
  */
-public abstract class AbstractBoundEditor<T extends Number> extends CustomField<T>
+public class AbstractBoundEditor<T extends Number> extends CustomField<ValueWrapper>
 {
 	protected UnityMessageSource msg;
-	protected CheckBox unlimited;
-	protected TextField limit;
-	protected T bound;
 	protected T min;
 	protected T max;
-	protected Converter<String, ?> converter;
+	protected T bound;
+
+	private CheckBox unlimited;
+	private TextField limit;
+	private Binder<ValueWrapper> binder;
 	
-	public AbstractBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit, final T bound, 
-			Converter<String, ?> converter)
+	public AbstractBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
+			T bound, T min, T max)
 	{
-		this.bound = bound;
 		this.msg = msg;
-		this.min = null;
-		this.max = null;
-		this.converter = converter;
+		this.bound = bound;
+		this.min = min;
+		this.max = max;
 		
 		setCaption(labelLimit);
 		unlimited = new CheckBox();
 		unlimited.setCaption(labelUnlimited);
 		limit = new TextField();
-		limit.setConverter(converter);
+		binder = new Binder<>(ValueWrapper.class);
+		binder.bind(limit, "value");
+		binder.bind(unlimited, "unlimited");
+		binder.setBean(new ValueWrapper("", false));
 		limit.setLocale(msg.getLocale());
-		limit.setNullRepresentation("");
-		limit.setValidationVisible(false);
-		setValidationVisible(true);
-		unlimited.addValueChangeListener(new ValueChangeListener()
+		unlimited.addValueChangeListener(event ->
 		{
-			@Override
-			public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event)
-			{
-				boolean limited = !unlimited.getValue();
-				limit.setEnabled(limited);
-				setComponentError(null);
-				if (limited)
-					internalSetValueFromLimit();
-				else
-					setValue(bound);
-			}
+			boolean limited = !unlimited.getValue();
+			limit.setEnabled(limited);
+			fireEvent(event);
 		});
-		limit.addValueChangeListener(new ValueChangeListener()
+		limit.addValueChangeListener(event ->
 		{
-			@Override
-			public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event)
-			{
-				boolean limited = !unlimited.getValue();
-				setComponentError(null);
-				if (limited)
-					internalSetValueFromLimit();
-			}
+			fireEvent(event);
 		});
-		addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(com.vaadin.v7.data.Property.ValueChangeEvent event)
-			{
-				T value = getValue();
-				if (bound.equals(value))
-					unlimited.setValue(true);
-				else
-				{
-					unlimited.setValue(false);
-					limit.setConvertedValue(value);
-				}
-			}
-		});
-		updateValidators();
+		
 	}
-	
-	
-	@SuppressWarnings("unchecked")
-	private void internalSetValueFromLimit()
+
+	@Override
+	public ValueWrapper getValue()
 	{
-		try
+		return new ValueWrapper(limit.getValue(), unlimited.getValue());
+	}
+
+	@Override
+	protected void doSetValue(ValueWrapper value)
+	{
+		if (value.isUnlimited())
 		{
-			setValue((T) limit.getConvertedValue());
-		} catch(Exception e)
+			unlimited.setValue(true);
+			limit.setValue("");
+		} else
 		{
-			UserError error = new UserError(e.getMessage());
-			setComponentError(error);
-		}
+			unlimited.setValue(false);
+			limit.setValue(value.getValue());
+		}	
 	}
 
 	@Override
@@ -129,14 +100,12 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 	public AbstractBoundEditor<T> setMin(T min)
 	{
 		this.min = min;
-		updateValidators();
 		return this;
 	}
 	
 	public AbstractBoundEditor<T> setMax(T max)
 	{
 		this.max = max;
-		updateValidators();
 		return this;
 	}
 	
@@ -146,6 +115,4 @@ public abstract class AbstractBoundEditor<T extends Number> extends CustomField<
 		limit.setReadOnly(true);
 		return this;
 	}
-
-	protected abstract void updateValidators();
 }

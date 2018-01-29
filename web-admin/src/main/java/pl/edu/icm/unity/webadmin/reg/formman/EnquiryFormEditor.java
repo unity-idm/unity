@@ -132,7 +132,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		EnquiryFormBuilder builder = new EnquiryFormBuilder();
 		super.buildCommon(builder);
 		
-		builder.withType(enquiryType.getSelectedValue());
+		builder.withType(enquiryType.getValue());
 		builder.withTargetGroups(targetGroups.getSelectedGroups().toArray(new String[0]));
 		return builder;
 	}
@@ -141,7 +141,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	{
 		super.setValue(toEdit);
 		notificationsEditor.setValue(toEdit.getNotificationsConfiguration());
-		enquiryType.setEnumValue(toEdit.getType());
+		enquiryType.setValue(toEdit.getType());
 		targetGroups.setSelectedGroups(Lists.newArrayList(toEdit.getTargetGroups()));
 		
 		TranslationProfile profile = new TranslationProfile(

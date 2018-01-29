@@ -14,7 +14,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -97,11 +97,10 @@ public class AuthNTiles extends CustomComponent
 	{
 		TextField search = new TextField();
 		search.addStyleName(Styles.vSmall.toString());
-		search.setImmediate(true);
-		search.addTextChangeListener(event -> 
+		search.addValueChangeListener(event -> 
 		{
 			for (AuthNTile tile: tiles)
-				tile.filter(event.getText());
+				tile.filter(event.getValue());
 		});
 		search.addFocusListener(event -> selectedAuthNPanel.removeEnterKeyBinding());
 		search.addBlurListener(event ->	selectedAuthNPanel.restoreEnterKeyBinding());

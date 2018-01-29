@@ -7,11 +7,11 @@ package pl.edu.icm.unity.webui.common.bigtab;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
 
@@ -45,7 +45,7 @@ public class BigTabs extends VerticalLayout
 		return tabs.size();
 	}
 	
-	public void addTab(String label, String description, Resource image, final TabCallback callback)
+	public void addTab(String label, String description, Images image, final TabCallback callback)
 	{
 		BigTab tab = new BigTab(width, unit, label, description, image, new TabCallback()
 		{

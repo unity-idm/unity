@@ -16,7 +16,7 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea2;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
 /**
  * Allows to edit a credential requirement. Can be configured to edit an existing requirement (name is fixed,
@@ -50,7 +50,7 @@ public class CredentialRequirementEditor extends CompactFormLayout
 		if (initial != null)
 			name.setReadOnly(true);
 		
-		DescriptionTextArea2 description = new DescriptionTextArea2(
+		DescriptionTextArea description = new DescriptionTextArea(
 				msg.getMessage("CredentialRequirements.description"));
 		addComponent(description);
 		

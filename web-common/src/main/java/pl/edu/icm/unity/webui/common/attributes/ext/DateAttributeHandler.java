@@ -105,6 +105,7 @@ public class DateAttributeHandler implements WebAttributeHandler
 			date.setResolution(DateResolution.DAY);
 			date.setCaption(label);	
 			date.setDateFormat("yyyy-MM-dd");
+			date.setRequiredIndicatorVisible(required);
 			if (value != null)
 				date.setValue(value);
 			ComponentsContainer ret = new ComponentsContainer(date);

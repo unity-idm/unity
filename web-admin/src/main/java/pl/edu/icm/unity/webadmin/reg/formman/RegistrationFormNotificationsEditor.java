@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 
 /**
  * Editor of {@link RegistrationFormNotifications}
@@ -20,8 +20,8 @@ import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
  */
 public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEditor
 {
-	private CompatibleTemplatesComboBox2 invitationTemplate;
-	private CompatibleTemplatesComboBox2 submittedTemplate;
+	private CompatibleTemplatesComboBox invitationTemplate;
+	private CompatibleTemplatesComboBox submittedTemplate;
 	
 	public RegistrationFormNotificationsEditor(UnityMessageSource msg,
 			GroupsManagement groupsMan, NotificationsManagement notificationsMan,
@@ -33,9 +33,9 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 
 	private void initMyUI() throws EngineException
 	{
-		submittedTemplate = new CompatibleTemplatesComboBox2(SubmitRegistrationTemplateDef.NAME, msgTempMan);
+		submittedTemplate = new CompatibleTemplatesComboBox(SubmitRegistrationTemplateDef.NAME, msgTempMan);
 		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
-		invitationTemplate =  new CompatibleTemplatesComboBox2(InvitationTemplateDef.NAME, msgTempMan);
+		invitationTemplate =  new CompatibleTemplatesComboBox(InvitationTemplateDef.NAME, msgTempMan);
 		invitationTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationTemplate"));
 		addComponents(submittedTemplate, invitationTemplate);
 	}

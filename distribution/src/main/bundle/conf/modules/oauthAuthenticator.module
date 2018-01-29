@@ -1,0 +1,3 @@
+unityServer.core.authenticators.oauthWeb.authenticatorName=oauthWeb
+unityServer.core.authenticators.oauthWeb.authenticatorType=oauth2 with web-oauth2
+unityServer.core.authenticators.oauthWeb.verificatorConfigurationFile=${CONF}/modules/oauth/remoteOAuth.properties

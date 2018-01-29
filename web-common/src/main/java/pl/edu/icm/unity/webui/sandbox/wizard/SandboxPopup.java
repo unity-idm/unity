@@ -6,9 +6,8 @@ package pl.edu.icm.unity.webui.sandbox.wizard;
 
 import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.UI;
 
 /**
@@ -21,7 +20,8 @@ public class SandboxPopup extends BrowserWindowOpener
 {
 	
 	private static final int POLLING_INTERVAL = 1000;
-
+	private Registration buttonClickReqistration;
+	
 	public SandboxPopup(Resource resource) 
 	{
 		super(resource);
@@ -32,28 +32,16 @@ public class SandboxPopup extends BrowserWindowOpener
 	public void attachButton(final Button button)
 	{
 		extend(button);
-		button.addClickListener(new ClickListener() 
-		{
-			@Override
-			public void buttonClick(ClickEvent event) 
-			{
-				enablePolling();
-			}
-		});		
+		button.addClickListener(event -> enablePolling());		
 	}
 	
 	public void attachButtonOnce(final Button button)
 	{
-		extend(button);
-		button.addClickListener(new ClickListener() 
-		{
-			@Override
-			public void buttonClick(ClickEvent event) 
-			{
-				button.removeClickListener(this);
-				button.removeExtension(SandboxPopup.this);
-				enablePolling();
-			}
+		extend(button);	
+		buttonClickReqistration = button.addClickListener(event -> {
+			buttonClickReqistration.remove();
+			button.removeExtension(SandboxPopup.this);
+			enablePolling();
 		});		
 	}
 	

@@ -4,16 +4,19 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+
 import com.google.common.collect.Sets;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.datefield.DateTimeResolution;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.DateTimeField;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Panel;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.shared.ui.datefield.Resolution;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.DateField;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -37,7 +40,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	private EnumComboBox<EntityState> entityState;
 	private CheckBox scheduleEnable;
 	private EnumComboBox<EntityScheduledOperation> entityScheduledChange;
-	private DateField changeTime;
+	private DateTimeField changeTime;
 	
 	public ChangeEntityStateDialog(UnityMessageSource msg, EntityWithLabel entity, Callback callback)
 	{
@@ -58,15 +61,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		final Panel schedulePanel = new SafePanel();
 		FormLayout schedLay = new CompactFormLayout();
 		scheduleEnable = new CheckBox(msg.getMessage("ChangeEntityStateDialog.enableScheduled"));
-		scheduleEnable.setImmediate(true);
-		scheduleEnable.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				schedulePanel.setEnabled(scheduleEnable.getValue());
-			}
-		});
+		scheduleEnable.addValueChangeListener(event -> schedulePanel.setEnabled(scheduleEnable.getValue()));
 		
 		schedulePanel.setContent(schedLay);
 		EntityInformation initial = entity.getEntity().getEntityInformation();
@@ -77,13 +72,15 @@ public class ChangeEntityStateDialog extends AbstractDialog
 				msg, 
 				"EntityScheduledOperation.", EntityScheduledOperation.class, 
 				initialOp);
-		changeTime = new DateField(msg.getMessage("ChangeEntityStateDialog.scheduledChangeTime"));
-		changeTime.setResolution(Resolution.SECOND);
-		changeTime.setRequired(true);
+		changeTime = new DateTimeField(msg.getMessage("ChangeEntityStateDialog.scheduledChangeTime"));
+		changeTime.setResolution(DateTimeResolution.SECOND);
+		changeTime.setRequiredIndicatorVisible(true);
 		if (initial.getScheduledOperation() != null)
 		{
 			scheduleEnable.setValue(true);
-			changeTime.setValue(initial.getScheduledOperationTime());
+			Instant scheduledAsInstant = initial.getScheduledOperationTime().toInstant();
+			LocalDateTime ldt = LocalDateTime.ofInstant(scheduledAsInstant, ZoneId.systemDefault());
+			changeTime.setValue(ldt);
 		} else
 		{
 			schedulePanel.setEnabled(false);
@@ -111,22 +108,24 @@ public class ChangeEntityStateDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		EntityState newState = entityState.getSelectedValue() == null ? entity.getEntity().getState() :
-			entityState.getSelectedValue();
+		EntityState newState = entityState.getValue() == null ? entity.getEntity().getState() :
+			entityState.getValue();
 		EntityInformation newInfo = new EntityInformation(entity.getEntity().getId());
 		newInfo.setState(newState);
 		changeTime.setComponentError(null);
 
 		if (scheduleEnable.getValue())
 		{
-			if (!changeTime.isValid())
+			if (changeTime.getValue() == null)
 			{
 				changeTime.setComponentError(new UserError(
 						msg.getMessage("fieldRequired")));
 				return;
 			}
-			newInfo.setScheduledOperation(entityScheduledChange.getSelectedValue());
-			newInfo.setScheduledOperationTime(changeTime.getValue());
+			newInfo.setScheduledOperation(entityScheduledChange.getValue());
+			LocalDateTime ldt = changeTime.getValue();
+			Date zonedDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+			newInfo.setScheduledOperationTime(zonedDate);
 		}
 		
 		if (callback.onChanged(newInfo))

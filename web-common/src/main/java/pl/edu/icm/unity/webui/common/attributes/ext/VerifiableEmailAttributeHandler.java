@@ -10,9 +10,9 @@ import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.AbstractTextField;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -122,7 +122,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				field.setId("EmailValueEditor."+label);
 			if (value != null)
 				field.setValue(value.getValue());
-			field.setRequired(required);
+			field.setRequiredIndicatorVisible(required);
 			ComponentsContainer ret = new ComponentsContainer(field);
 			if (adminMode)
 			{
@@ -146,6 +146,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		{
 			if (!required && field.getValue().isEmpty())
 				return null;
+			
 			try
 			{
 				VerifiableEmail email = new VerifiableEmail(field.getValue());

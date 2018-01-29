@@ -38,14 +38,14 @@ import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Responsible for confirmation configuration management
@@ -63,7 +63,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 	private IdentityTypeSupport idMan;
 	private NotificationsManagement notificationsMan;
 	private AttributeTypeSupport atSupport;
-	private GenericElementsTable2<ConfirmationConfiguration> table;
+	private GenericElementsTable<ConfirmationConfiguration> table;
 	private com.vaadin.ui.Component main;
 	private RadioButtonGroup<String> toConfirmType;
 	private ConfirmationConfigurationViewer viewer;
@@ -87,7 +87,7 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		HorizontalLayout hl = new HorizontalLayout();
 		setCaption(msg.getMessage("ConfirmationConfigurationsComponent.capion"));
 
-		table = new GenericElementsTable2<>(msg.getMessage(
+		table = new GenericElementsTable<>(msg.getMessage(
 				"ConfirmationConfigurationsComponent.configurationTable"),
 				element -> element.getNameToConfirm());
 
@@ -111,11 +111,11 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		table.addActionHandler(getEditAction());
 		table.addActionHandler(getDeleteAction());
 
-		Toolbar2<ConfirmationConfiguration> toolbar = new Toolbar2<>(
+		Toolbar<ConfirmationConfiguration> toolbar = new Toolbar<>(
 				Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 
@@ -316,9 +316,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		}
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getAddAction()
+	private SingleActionHandler<ConfirmationConfiguration> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Add(msg, ConfirmationConfiguration.class)
 				.withHandler(this::showAddDialog).build();
 	}
 
@@ -380,15 +380,15 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		dialog.show();
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getRefreshAction()
+	private SingleActionHandler<ConfirmationConfiguration> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Refresh(msg, ConfirmationConfiguration.class)
 				.withHandler(selection -> refresh()).build();
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getDeleteAction()
+	private SingleActionHandler<ConfirmationConfiguration> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Delete(msg, ConfirmationConfiguration.class)
 				.withHandler(this::deleteHandler).build();
 	}
 
@@ -409,9 +409,9 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 				}).show();
 	}
 
-	private SingleActionHandler2<ConfirmationConfiguration> getEditAction()
+	private SingleActionHandler<ConfirmationConfiguration> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, ConfirmationConfiguration.class)
+		return SingleActionHandler.builder4Edit(msg, ConfirmationConfiguration.class)
 				.withHandler(this::showEditDialog).build();
 	}
 

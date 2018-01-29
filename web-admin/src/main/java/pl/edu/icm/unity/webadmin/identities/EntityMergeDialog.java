@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.OptionGroup;
+import com.vaadin.ui.RadioButtonGroup;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -27,10 +27,13 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 public class EntityMergeDialog extends AbstractDialog
 {
-	private static final String FIRST_INTO_SECOND = "fis";
-	private static final String SECOND_INTO_FISRT = "sif";
+	private enum Direction
+	{
+		FIRST_INTO_SECOND,
+		SECOND_INTO_FISRT
+	}
 	private EntityManagement identitiesMan;
-	private OptionGroup mergeDirection; 
+	private RadioButtonGroup<Direction> mergeDirection; 
 	private CheckBox safeMode;
 	private EventsBus bus;
 	private EntityWithLabel first;
@@ -55,15 +58,16 @@ public class EntityMergeDialog extends AbstractDialog
 		FormLayout main = new FormLayout();
 
 		Label info = new Label(msg.getMessage("EntitiesMergeDialog.info"));
-		
-		mergeDirection = new OptionGroup(msg.getMessage("EntitiesMergeDialog.mergeDirection"));
-		mergeDirection.addItem(FIRST_INTO_SECOND);
-		mergeDirection.setItemCaption(FIRST_INTO_SECOND, msg.getMessage("EntitiesMergeDialog.mergeSpec",
-				getEntityDesc(first), getEntityDesc(second)));
-		mergeDirection.addItem(SECOND_INTO_FISRT);
-		mergeDirection.setItemCaption(SECOND_INTO_FISRT, msg.getMessage("EntitiesMergeDialog.mergeSpec",
-				getEntityDesc(second), getEntityDesc(first)));
-		mergeDirection.setValue(FIRST_INTO_SECOND);
+		info.setWidth(100, Unit.PERCENTAGE);
+		mergeDirection = new RadioButtonGroup<>(msg.getMessage("EntitiesMergeDialog.mergeDirection"));
+		mergeDirection.setItems(Direction.FIRST_INTO_SECOND, Direction.SECOND_INTO_FISRT);
+		mergeDirection.setItemCaptionGenerator(value -> value == Direction.FIRST_INTO_SECOND ? 
+				msg.getMessage("EntitiesMergeDialog.mergeSpec",
+						getEntityDesc(first), getEntityDesc(second)) :
+				msg.getMessage("EntitiesMergeDialog.mergeSpec",
+						getEntityDesc(second), getEntityDesc(first))
+				);
+		mergeDirection.setValue(Direction.FIRST_INTO_SECOND);
 		
 		
 		safeMode = new CheckBox(msg.getMessage("EntitiesMergeDialog.safeMode"));
@@ -83,7 +87,7 @@ public class EntityMergeDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		if (FIRST_INTO_SECOND.equals(mergeDirection.getValue()))
+		if (Direction.FIRST_INTO_SECOND.equals(mergeDirection.getValue()))
 		{
 			doMerge(second.getEntity(), first.getEntity());
 		} else

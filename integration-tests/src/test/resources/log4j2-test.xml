@@ -49,7 +49,7 @@
 		<!-- <Logger name="unity.server.rest" level="INFO"/> -->
 
 		<!-- Mapping of remotely obtained data by translation profiles -->
-		<!-- <Logger name="unity.server.externaltranslation" level="INFO"/> -->
+		<Logger name="unity.server.externaltranslation" level="DEBUG"/>
 
 		<!-- Security related - low level (SAML processing, XML DSig, X.509 PKI)  -->
 		<!-- <Logger name="unicore.security" level="INFO"/> -->
@@ -76,7 +76,7 @@
 	<!-- Where to log? -->
 	<Appenders>
 		<Console name="CONSOLE">
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
 		</Console>
 	</Appenders>
 	

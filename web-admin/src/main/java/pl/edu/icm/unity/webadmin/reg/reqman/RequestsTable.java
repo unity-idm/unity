@@ -7,15 +7,17 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import com.google.common.collect.Lists;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.util.BeanItemContainer;
-import com.vaadin.event.Action;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.Table;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -35,11 +37,12 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
+import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
@@ -56,7 +59,7 @@ public class RequestsTable extends CustomComponent
 	private UnityMessageSource msg;
 	private EventsBus bus;
 	
-	private Table requestsTable;
+	private Grid<TableRequestBean> requestsTable;
 
 	public RequestsTable(RegistrationsManagement regMan, EnquiryManagement enquiryManagement, UnityMessageSource msg)
 	{
@@ -69,40 +72,42 @@ public class RequestsTable extends CustomComponent
 
 	private void initUI()
 	{
-		requestsTable = new SmallTableDeprecated();
-		requestsTable.setNullSelectionAllowed(false);
-		requestsTable.setImmediate(true);
+		requestsTable = new SmallGrid<>();
+		requestsTable.setSelectionMode(SelectionMode.MULTI);
 		requestsTable.setSizeFull();
-		BeanItemContainer<TableRequestBean> tableContainer = new BeanItemContainer<>(TableRequestBean.class);
-		tableContainer.removeContainerProperty("element");
-		requestsTable.setSelectable(true);
-		requestsTable.setMultiSelect(true);
-		requestsTable.setContainerDataSource(tableContainer);
-		requestsTable.setVisibleColumns(new Object[] {"type", "form", "requestId", "submitTime", "status", 
-				"requestedIdentity"});
-		requestsTable.setColumnHeaders(new String[] {
-				msg.getMessage("RegistrationRequest.type"),
-				msg.getMessage("RegistrationRequest.form"),
-				msg.getMessage("RegistrationRequest.requestId"),
-				msg.getMessage("RegistrationRequest.submitTime"),
-				msg.getMessage("RegistrationRequest.status"),
-				msg.getMessage("RegistrationRequest.requestedIdentity")});
-		requestsTable.setSortContainerPropertyId(requestsTable.getContainerPropertyIds().iterator().next());
-		requestsTable.setSortAscending(true);
-
-		RefreshActionHandler refreshA = new RefreshActionHandler();
-		BulkProcessActionHandler acceptA = new BulkProcessActionHandler(
-				RegistrationRequestAction.accept, Images.ok);
-		BulkProcessActionHandler deleteA = new BulkProcessActionHandler(
-				RegistrationRequestAction.drop, Images.trashBin);
-		BulkProcessActionHandler rejectA = new BulkProcessActionHandler(
-				RegistrationRequestAction.reject, Images.delete);
-		Toolbar toolbar = new Toolbar(requestsTable, Orientation.HORIZONTAL);
-		addAction(refreshA, toolbar);
-		addAction(acceptA, toolbar);
-		addAction(rejectA, toolbar);
-		addAction(deleteA, toolbar);
-
+		
+		requestsTable.addColumn(TableRequestBean::getType, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationRequest.type"))
+			.setId("type");
+		requestsTable.addColumn(TableRequestBean::getForm, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationRequest.form"))
+			.setId("form");
+		requestsTable.addColumn(TableRequestBean::getRequestId, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationRequest.requestId"))
+			.setId("requestId");
+		requestsTable.addColumn(TableRequestBean::getSubmitTime, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationRequest.submitTime"))
+			.setId("submitTime");
+		requestsTable.addColumn(TableRequestBean::getStatus, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationRequest.status"))
+			.setId("status");
+		requestsTable.addColumn(TableRequestBean::getRequestedIdentity, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationRequest.requestedIdentity"))
+			.setId("requestedIdentity");
+		
+		requestsTable.sort("type", SortDirection.ASCENDING);
+		
+		GridContextMenuSupport<TableRequestBean> contextMenu = new GridContextMenuSupport<>(requestsTable);
+		contextMenu.addActionHandler(getRefreshAction());
+		contextMenu.addActionHandler(getAcceptAction());
+		contextMenu.addActionHandler(getRejectAction());
+		contextMenu.addActionHandler(getDropAction());
+		GridSelectionSupport.installClickListener(requestsTable);
+		
+		Toolbar<TableRequestBean> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		requestsTable.addSelectionListener(toolbar.getSelectionListener());
+		toolbar.addActionHandlers(contextMenu.getActionHandlers());
+		
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(requestsTable, toolbar);
 		tableWithToolbar.setSizeFull();
 		
@@ -110,62 +115,61 @@ public class RequestsTable extends CustomComponent
 		refresh();
 	}
 
-	private void addAction(SingleActionHandler action, Toolbar toolbar)
-	{
-		requestsTable.addActionHandler(action);
-		toolbar.addActionHandler(action);
-	}
-	
 	public void addValueChangeListener(final RequestSelectionListener listener)
 	{
-		requestsTable.addValueChangeListener(new ValueChangeListener()
+		requestsTable.addSelectionListener(event -> 
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				TableRequestBean selected = getOnlyOneSelected();
-				if (selected == null)
-					listener.deselected();
-				else if (selected.request instanceof RegistrationRequestState)
-					listener.registrationChanged((RegistrationRequestState) selected.request);
-				else
-					listener.enquiryChanged((EnquiryResponseState) selected.request);
-			}
+			TableRequestBean selected = getOnlyOneSelected();
+			if (selected == null)
+				listener.deselected();
+			else if (selected.request instanceof RegistrationRequestState)
+				listener.registrationChanged((RegistrationRequestState) selected.request);
+			else
+				listener.enquiryChanged((EnquiryResponseState) selected.request);
 		});
 	}
 	
 	private TableRequestBean getOnlyOneSelected()
 	{
-		Collection<?> beans = (Collection<?>) requestsTable.getValue();
+		Collection<TableRequestBean> beans = requestsTable.getSelectedItems();
 		return beans == null || beans.isEmpty() || beans.size() > 1 ? 
 				null : ((TableRequestBean)beans.iterator().next());
+	}
+	
+	private SingleActionHandler<TableRequestBean> getRefreshAction()
+	{
+		return SingleActionHandler
+			.builder4Refresh(msg, TableRequestBean.class)
+			.withHandler(selection -> refresh())
+			.build();
 	}
 	
 	public void refresh()
 	{
 		try
 		{
+			Stream<TableRequestBean> regRequestsStream = registrationsManagement.getRegistrationRequests().stream()
+				.map(registration -> new TableRequestBean(registration, msg));
+			Stream<TableRequestBean> enqRequestsStream = enquiryManagement.getEnquiryResponses().stream()
+				.map(enquiry -> new TableRequestBean(enquiry, msg));
+			List<TableRequestBean> requests = Stream.concat(regRequestsStream, enqRequestsStream)
+					.collect(Collectors.toList());
+			requestsTable.setItems(requests);
 			TableRequestBean selected = getOnlyOneSelected();
-			requestsTable.removeAllItems();
-
-			fill(selected, registrationsManagement.getRegistrationRequests());
-			fill(selected, enquiryManagement.getEnquiryResponses());
+			if (selected != null)
+			{
+				String requestId = selected.request.getRequestId();
+				requests.stream()
+					.filter(request -> requestId.equals(request.request.getRequestId()))
+					.findFirst()
+					.ifPresent(request -> requestsTable.select(request));
+			}
+			
 		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
 			error.setError(msg.getMessage("RequestsTable.errorGetRequests"), e);
 			setCompositionRoot(error);
-		}
-	}
-
-	private void fill(TableRequestBean selected, List<? extends UserRequestState<?>> requests)
-	{
-		for (UserRequestState<?> req: requests)
-		{
-			TableRequestBean item = new TableRequestBean(req, msg);
-			requestsTable.addItem(item);
-			if (selected != null && selected.request.getRequestId().equals(req.getRequestId()))
-				requestsTable.setValue(Lists.newArrayList(item));
 		}
 	}
 	
@@ -208,64 +212,48 @@ public class RequestsTable extends CustomComponent
 		}
 	}
 	
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler<TableRequestBean> getRejectAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("RequestsTable.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
+		return createAction(RegistrationRequestAction.reject, Images.reject);
 	}
 	
-	private class BulkProcessActionHandler extends SingleActionHandler
+	private SingleActionHandler<TableRequestBean> getAcceptAction()
 	{
-		private final RegistrationRequestAction action;
-		
-		
-		public BulkProcessActionHandler(RegistrationRequestAction action, Images image)
-		{
-			super(msg.getMessage("RequestProcessingPanel." + action.toString()), 
-					image.getResource());
-			this.action = action;
-			setMultiTarget(true);
-		}
-		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (action != RegistrationRequestAction.drop && target instanceof Collection<?>)
-			{
-				Collection<?> t = (Collection<?>) target;
-				boolean hasPending = t.stream().allMatch(o -> {
-					TableRequestBean bean = (TableRequestBean) o;
-					return bean.request.getStatus() == RegistrationRequestStatus.pending;
-				});
-				return hasPending ? super.getActions(target, sender) : EMPTY;
-			} 
-			return super.getActions(target, sender);
-		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{	
-			final Collection<?> items = (Collection<?>) requestsTable.getValue();
-			new ConfirmDialog(msg, msg.getMessage(
-					"RequestsTable.confirmAction."+action, items.size()),
-					new ConfirmDialog.Callback()
-					{
-						@Override
-						public void onConfirm()
-						{
-							process(items, action);
-						}
-					}).show();
-		}
+		return createAction(RegistrationRequestAction.accept, Images.ok);
+	}
+	
+	private SingleActionHandler<TableRequestBean> createAction(RegistrationRequestAction action, Images img)
+	{
+		return SingleActionHandler.builder(TableRequestBean.class)
+				.withCaption(msg.getMessage("RequestProcessingPanel." + action.toString()))
+				.withIcon(img.getResource())
+				.multiTarget()
+				.withHandler(items -> handleRegistrationAction(items, action))
+				.withDisabledPredicate(disableWhenNotPending())
+				.build();
+	}
+	
+	private Predicate<TableRequestBean> disableWhenNotPending()
+	{
+		return bean -> bean.request.getStatus() != RegistrationRequestStatus.pending;
+	}
+
+	private SingleActionHandler<TableRequestBean> getDropAction()
+	{
+		return SingleActionHandler.builder(TableRequestBean.class)
+				.withCaption(msg.getMessage("RequestProcessingPanel.drop"))
+				.withIcon(Images.trashBin.getResource())
+				.multiTarget()
+				.withHandler(items -> handleRegistrationAction(items, RegistrationRequestAction.drop))
+				.build();
+	}
+	
+	public void handleRegistrationAction(Set<TableRequestBean> items, RegistrationRequestAction action)
+	{	
+		new ConfirmDialog(msg, msg.getMessage(
+				"RequestsTable.confirmAction."+action, items.size()),
+				() -> process(items, action)
+		).show();
 	}
 
 	public static class TableRequestBean

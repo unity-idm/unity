@@ -24,14 +24,12 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.FormValidator;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
-import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -49,17 +47,16 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	private Binder<AttributeType> binder;
 	
 	private AbstractTextField name;
-	private I18nTextField2 displayedName;
-	private I18nTextArea2 typeDescription;
+	private I18nTextField displayedName;
+	private I18nTextArea typeDescription;
 	private TextField min;
-	private IntegerBoundEditor2 max;
+	private IntegerBoundEditor max;
 	private CheckBox uniqueVals;
 	private CheckBox selfModificable;
 	private ComboBox<String> syntax;
 	private VerticalLayout syntaxPanel;
 	private AttributeSyntaxEditor<?> editor;
 	private MetadataEditor metaEditor;
-	private FormValidator validator;
 	private AttributeTypeSupport atSupport;
 	
 	public RegularAttributeTypeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
@@ -89,16 +86,16 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 			name.setReadOnly(true);
 		addComponent(name);
 		
-		displayedName = new I18nTextField2(msg, msg.getMessage("AttributeType.displayedName"));
+		displayedName = new I18nTextField(msg, msg.getMessage("AttributeType.displayedName"));
 		addComponent(displayedName);
 		
-		typeDescription = new I18nTextArea2(msg, msg.getMessage("AttributeType.description"));
+		typeDescription = new I18nTextArea(msg, msg.getMessage("AttributeType.description"));
 		addComponent(typeDescription);
 		
 		min = new TextField(msg.getMessage("AttributeType.min"));
 		addComponent(min);
 
-		max = new IntegerBoundEditor2(msg, msg.getMessage("AttributeType.maxUnlimited"), 
+		max = new IntegerBoundEditor(msg, msg.getMessage("AttributeType.maxUnlimited"), 
 				msg.getMessage("AttributeType.max"), Integer.MAX_VALUE, 0, null);
 		addComponent(max);
 		
@@ -165,8 +162,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 			def.setValueSyntax(syntaxes.first());
 			binder.setBean(def);
 		}
-		
-		validator = new FormValidator(this);
 	}
 	
 	public void setCopyMode()
@@ -189,13 +184,6 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 	@Override
 	public AttributeType getAttributeType() throws IllegalAttributeTypeException
 	{
-		try
-		{
-			validator.validate();
-		} catch (FormValidationException e)
-		{
-			throw new IllegalAttributeTypeException("");
-		}
 		if (!binder.isValid())
 			throw new IllegalAttributeTypeException("");
 		AttributeValueSyntax<?> syntax = editor.getCurrentValue();

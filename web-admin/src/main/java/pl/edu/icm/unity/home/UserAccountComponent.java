@@ -201,7 +201,7 @@ public class UserAccountComponent extends VerticalLayout
 			EntityDetailsWithActions tabRoot = new EntityDetailsWithActions(disabled, 
 					userInfo, idsPanel, attrsPanel, removalButton, msg, connectIdProvider);
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
-					Images.info64.getResource(), tabRoot);
+					Images.info, tabRoot);
 		} catch (AuthorizationException e)
 		{
 			//OK - rather shouldn't happen but the user is not authorized to even see the entity details.
@@ -211,7 +211,7 @@ public class UserAccountComponent extends VerticalLayout
 			ErrorComponent errorC = new ErrorComponent();
 			errorC.setError(msg.getMessage("error") + ": " + NotificationPopup.getHumanMessage(e));
 			tabPanel.addTab("UserHomeUI.accountInfoLabel", "UserHomeUI.accountInfoDesc", 
-					Images.info64.getResource(), errorC);
+					Images.info, errorC);
 		}
 	}
 	
@@ -223,7 +223,7 @@ public class UserAccountComponent extends VerticalLayout
 					credMan, ecredMan, idsMan, credReqMan, credEditorReg, true);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
-					Images.key64.getResource(), credentialsPanel);
+					Images.key_o, credentialsPanel);
 		} catch (Exception e)
 		{
 			if (!(e instanceof AuthorizationException || 
@@ -233,7 +233,7 @@ public class UserAccountComponent extends VerticalLayout
 				ErrorComponent errorC = new ErrorComponent();
 				errorC.setError(msg.getMessage("error") + ": " + NotificationPopup.getHumanMessage(e));
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
-					Images.key64.getResource(), errorC);
+					Images.key_o, errorC);
 			}
 		}
 	}
@@ -242,7 +242,7 @@ public class UserAccountComponent extends VerticalLayout
 	{
 		PreferencesComponent preferencesComponent = new PreferencesComponent(msg, registry, prefMan, endpMan);
 		tabPanel.addTab("UserHomeUI.preferencesLabel", "UserHomeUI.preferencesDesc", 
-				Images.settings64.getResource(), preferencesComponent);
+				Images.settings, preferencesComponent);
 	}
 	
 	private void addExtraTab(BigTabPanel tabPanel)

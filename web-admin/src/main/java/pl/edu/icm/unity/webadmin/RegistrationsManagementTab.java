@@ -9,7 +9,7 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.reg.formfill.FormsChooserComponent;
@@ -46,9 +46,11 @@ public class RegistrationsManagementTab  extends VerticalLayout
 
 	private void initUI()
 	{
+		setMargin(false);
+		setSpacing(false);
 		setCaption(msg.getMessage("RegistrationsManagementTab.caption"));
 		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
 		wrapper.addComponent(tabs);
 		wrapper.setSizeFull();
 		addComponent(wrapper);

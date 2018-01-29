@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.serverman;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -14,7 +15,6 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
@@ -106,7 +106,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		});
 
 		reloadButton = new Button();
-		reloadButton.setIcon(Images.transfer.getResource());
+		reloadButton.setIcon(Images.reload.getResource());
 		reloadButton.addStyleName(Styles.vButtonLink.toString());
 		reloadButton.addStyleName(Styles.toolbarButton.toString());
 		reloadButton.setDescription(msg.getMessage("DeployableComponentBase.reload"));
@@ -120,7 +120,7 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		});
 
 		undeplyButton = new Button();
-		undeplyButton.setIcon(Images.delete.getResource());
+		undeplyButton.setIcon(Images.undeploy.getResource());
 		undeplyButton.addStyleName(Styles.vButtonLink.toString());
 		undeplyButton.addStyleName(Styles.toolbarButton.toString());
 		undeplyButton.setDescription(msg.getMessage("DeployableComponentBase.undeploy"));
@@ -186,8 +186,8 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 						
 		}
 		
-		showHideContentButton.setIcon(content.isVisible() ? Images.zoomout.getResource()
-				: Images.zoomin.getResource());
+		showHideContentButton.setIcon(content.isVisible() ? Images.upArrow.getResource()
+				: Images.downArrow.getResource());
 		updateContent();
 		updateHeader();
 		footer.setVisible(content.isVisible());
@@ -212,14 +212,15 @@ public abstract class DeployableComponentViewBase extends CustomComponent
 		Label statusLabel = new Label(msg.getMessage("DeployableComponentBase.status"));
 		statusLabel.addStyleName(Styles.bold.toString());
 
-		Image statusIcon = new Image();
+		Label statusIcon = new Label();
+		statusIcon.setContentMode(ContentMode.HTML);
 		if (status.equals(Status.deployed))
 		{
-			statusIcon.setSource(Images.ok.getResource());
+			statusIcon.setValue(Images.ok.getHtml());
 			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.deployed"));
 		} else if (status.equals(Status.undeployed))
 		{
-			statusIcon.setSource(Images.error.getResource());
+			statusIcon.setValue(Images.error.getHtml());
 			statusIcon.setDescription(msg.getMessage("DeployableComponentBase.undeployed"));
 		}
 		HorizontalLayout statusBar = new HorizontalLayout(statusLabel, statusIcon);

@@ -30,15 +30,15 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -56,7 +56,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	private AttributeHandlerRegistry attrHandlerRegistry;
 	private AttributeMetadataHandlerRegistry attrMetaHandlerRegistry;
 	
-	private GenericElementsTable2<AttributeType> table;
+	private GenericElementsTable<AttributeType> table;
 	private AttributeTypeViewer viewer;
 	private com.vaadin.ui.Component main;
 	private EventsBus bus;
@@ -84,7 +84,7 @@ public class AttributeTypesComponent extends VerticalLayout
 		
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("AttributeTypes.caption"));
-		table = new GenericElementsTable2<>(msg.getMessage("AttributeTypes.types"), 
+		table = new GenericElementsTable<>(msg.getMessage("AttributeTypes.types"), 
 				element -> element.getName());
 		table.setStyleGenerator(at ->  at.isTypeImmutable() ? 
 				Styles.immutableAttribute.toString() : "");
@@ -119,10 +119,10 @@ public class AttributeTypesComponent extends VerticalLayout
 		table.addActionHandler(getExportAction());
 		table.addActionHandler(getImportAction());
 		
-		Toolbar2<AttributeType> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<AttributeType> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 
@@ -194,16 +194,16 @@ public class AttributeTypesComponent extends VerticalLayout
 		}
 	}
 	
-	private SingleActionHandler2<AttributeType> getRefreshAction()
+	private SingleActionHandler<AttributeType> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, AttributeType.class)
+		return SingleActionHandler.builder4Refresh(msg, AttributeType.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<AttributeType> getAddAction()
+	private SingleActionHandler<AttributeType> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, AttributeType.class)
+		return SingleActionHandler.builder4Add(msg, AttributeType.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -218,11 +218,11 @@ public class AttributeTypesComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<AttributeType> getImportAction()
+	private SingleActionHandler<AttributeType> getImportAction()
 	{
-		return SingleActionHandler2.builder(AttributeType.class)
+		return SingleActionHandler.builder(AttributeType.class)
 				.withCaption(msg.getMessage("AttributeTypes.importAction"))
-				.withIcon(Images.transfer.getResource())
+				.withIcon(Images.download.getResource())
 				.withHandler(this::importHandler)
 				.withDisabledPredicate(at -> at.isTypeImmutable())
 				.dontRequireTarget()
@@ -237,9 +237,9 @@ public class AttributeTypesComponent extends VerticalLayout
 		dialog.show();
 	}
 		
-	private SingleActionHandler2<AttributeType> getEditAction()
+	private SingleActionHandler<AttributeType> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, AttributeType.class)
+		return SingleActionHandler.builder4Edit(msg, AttributeType.class)
 				.withHandler(this::showEditDialog)
 				.withDisabledPredicate(at -> at.isTypeImmutable())
 				.build();
@@ -261,9 +261,9 @@ public class AttributeTypesComponent extends VerticalLayout
 				dialog.show();
 	}
 
-	private SingleActionHandler2<AttributeType> getDeleteAction()
+	private SingleActionHandler<AttributeType> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, AttributeType.class)
+		return SingleActionHandler.builder4Delete(msg, AttributeType.class)
 				.withHandler(this::deleteHandler)
 				.withDisabledPredicate(at -> at.isTypeImmutable())
 				.build();
@@ -282,9 +282,9 @@ public class AttributeTypesComponent extends VerticalLayout
 				}).show();
 	}
 	
-	private SingleActionHandler2<AttributeType> getCopyAction()
+	private SingleActionHandler<AttributeType> getCopyAction()
 	{
-		return SingleActionHandler2.builder(AttributeType.class)
+		return SingleActionHandler.builder(AttributeType.class)
 				.withCaption(msg.getMessage("AttributeTypes.copyAction"))
 				.withIcon(Images.copy.getResource())
 				.withHandler(this::copyHandler)
@@ -308,11 +308,11 @@ public class AttributeTypesComponent extends VerticalLayout
 		dialog.show();
 	}
 
-	private SingleActionHandler2<AttributeType> getExportAction()
+	private SingleActionHandler<AttributeType> getExportAction()
 	{
-		return SingleActionHandler2.builder(AttributeType.class)
+		return SingleActionHandler.builder(AttributeType.class)
 				.withCaption(msg.getMessage("AttributeTypes.exportAction"))
-				.withIcon(Images.save.getResource())
+				.withIcon(Images.export.getResource())
 				.multiTarget()
 				.withHandler(this::exportHandler)
 				.withDisabledPredicate(at -> at.isTypeImmutable())

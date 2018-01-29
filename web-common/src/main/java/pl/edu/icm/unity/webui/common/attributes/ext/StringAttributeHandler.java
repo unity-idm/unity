@@ -9,17 +9,18 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
+import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -33,12 +34,10 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
  */
 public class StringAttributeHandler extends TextOnlyAttributeHandler
 {
-	private UnityMessageSource msg;
-
+	
 	public StringAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
-		super(syntax);
-		this.msg = msg;
+		super(msg, syntax);
 	}
 
 	@Override
@@ -65,7 +64,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		private TextField min;
 		private TextField regexp;
 		private UnityMessageSource msg;
-		
+		private Binder<StringSyntaxBindingValue> binder;
 		
 		public StringSyntaxEditor(StringAttributeSyntax initial, UnityMessageSource msg)
 		{
@@ -76,30 +75,48 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		@Override
 		public Component getEditor()
 		{
+			binder = new Binder<>(StringSyntaxBindingValue.class);
+
 			FormLayout fl = new CompactFormLayout();
-			min = new RequiredTextField(msg);
-			min.setCaption(msg.getMessage("StringAttributeHandler.minLenE"));
-			min.addValidator(new IntegerRangeValidator(msg.getMessage("StringAttributeHandler.wrongMin"), 
-					0, Integer.MAX_VALUE));
-			min.setConverter(Integer.class);
-			min.setValue("0");
+
+			min = new TextField(msg.getMessage("StringAttributeHandler.minLenE"));
 			fl.addComponent(min);
-			max = new IntegerBoundEditor(msg, msg.getMessage("StringAttributeHandler.maxLenUndef"), 
-					msg.getMessage("NumericAttributeHandler.maxE"), Integer.MAX_VALUE);
+
+			max = new IntegerBoundEditor(msg,
+					msg.getMessage("StringAttributeHandler.maxLenUndef"),
+					msg.getMessage("NumericAttributeHandler.maxE"),
+					Integer.MAX_VALUE, 0, null);
+
 			max.setMax(Integer.MAX_VALUE).setMin(1);
 			fl.addComponent(max);
+
 			regexp = new TextField(msg.getMessage("StringAttributeHandler.regexpE"));
 			fl.addComponent(regexp);
+
+			binder.forField(min).asRequired(msg.getMessage("fieldRequired"))
+					.withConverter(new StringToIntegerConverter(msg.getMessage(
+							"IntegerBoundEditor.notANumber")))
+					.withValidator(new IntegerRangeValidator(msg.getMessage(
+							"StringAttributeHandler.wrongMin"), 0,
+							Integer.MAX_VALUE))
+					.bind("min");
+			max.configureBinding(binder, "max");
+			binder.forField(regexp).bind("regexp");
+
+			StringSyntaxBindingValue value = new StringSyntaxBindingValue();
 			if (initial != null)
 			{
-				max.setValue(initial.getMaxLength());
-				min.setValue(Integer.toString(initial.getMinLength()));
-				regexp.setValue(initial.getRegexp());
+				value.setMax(initial.getMaxLength());
+				value.setMin(initial.getMinLength());
+				value.setRegexp(initial.getRegexp());
 			} else
 			{
-				min.setValue("0");
-				max.setValue(200);
+				
+				value.setMax(200);
+				value.setMin(0);
+				
 			}
+			binder.setBean(value);
 			return fl;
 		}
 
@@ -109,16 +126,38 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		{
 			try
 			{
+				if (!binder.isValid())
+				{	
+					binder.validate();
+					throw new IllegalAttributeTypeException("");
+				}
 				StringAttributeSyntax ret = new StringAttributeSyntax();
-				ret.setMaxLength(max.getValue());
-				ret.setMinLength((Integer)min.getConvertedValue());
-				ret.setRegexp(regexp.getValue());
+				StringSyntaxBindingValue value = binder.getBean();
+				ret.setMaxLength(value.getMax());
+				ret.setMinLength(value.getMin());
+				ret.setRegexp(value.getRegexp());
 				return ret;
 			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
 			}
 		}
+		
+		public class StringSyntaxBindingValue extends MinMaxBindingValue<Integer>
+		{
+			String regexp;
+
+			public String getRegexp()
+			{
+				return regexp;
+			}
+
+			public void setRegexp(String regexp)
+			{
+				this.regexp = regexp;
+			}			
+		}
+		
 	}
 	
 	

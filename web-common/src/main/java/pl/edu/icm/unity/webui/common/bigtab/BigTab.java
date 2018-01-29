@@ -6,13 +6,13 @@ package pl.edu.icm.unity.webui.common.bigtab;
 
 import com.vaadin.event.LayoutEvents.LayoutClickEvent;
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
-import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -23,13 +23,14 @@ public class BigTab extends VerticalLayout
 {
 	private final TabCallback callback;
 	
-	public BigTab(int width, Unit unit, String label, String description, Resource image, TabCallback callback)
+	public BigTab(int width, Unit unit, String label, String description, Images image, TabCallback callback)
 	{
 		this.callback = callback;
 		if (image != null)
 		{
-			Image img = new Image();
-			img.setSource(image);
+			Label img = new Label(image.getHtml());
+			img.setContentMode(ContentMode.HTML);
+			img.addStyleName(Styles.veryLargeIcon.toString());
 			addComponent(img);
 			setComponentAlignment(img, Alignment.TOP_CENTER);
 		}

@@ -41,15 +41,15 @@ import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
 
@@ -62,7 +62,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private TranslationProfileManagement profileMan;
-	private GenericElementsTable2<TranslationProfile> table;
+	private GenericElementsTable<TranslationProfile> table;
 	private TranslationProfileViewer viewer;
 	private com.vaadin.ui.Component main;
 	private RadioButtonGroup<ProfileType> profileType;
@@ -74,8 +74,8 @@ public class TranslationProfilesComponent extends VerticalLayout
 	private String sandboxURL;
 	private ActionParameterComponentProvider actionComponentFactory;
 
-	private SingleActionHandler2<TranslationProfile> dryRunAction;
-	private SingleActionHandler2<TranslationProfile> wizardAction;	
+	private SingleActionHandler<TranslationProfile> dryRunAction;
+	private SingleActionHandler<TranslationProfile> wizardAction;	
 
 	@Autowired
 	public TranslationProfilesComponent(UnityMessageSource msg,
@@ -127,9 +127,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 
-	private GenericElementsTable2<TranslationProfile> createTable()
+	private GenericElementsTable<TranslationProfile> createTable()
 	{
-		table = new GenericElementsTable2<>(
+		table = new GenericElementsTable<>(
 				msg.getMessage("TranslationProfilesComponent.profilesTable"),
 				element -> element.getName());
 		table.setStyleGenerator(element -> element.getProfileMode() == ProfileMode.READ_ONLY
@@ -179,10 +179,10 @@ public class TranslationProfilesComponent extends VerticalLayout
 		profileType.setItemCaptionGenerator(p -> captions.get(p));
 		profileType.setValue(ProfileType.INPUT);
 
-		Toolbar2<TranslationProfile> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<TranslationProfile> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 
@@ -289,9 +289,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		}
 	}
 
-	private SingleActionHandler2<TranslationProfile> getRefreshAction()
+	private SingleActionHandler<TranslationProfile> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, TranslationProfile.class)
+		return SingleActionHandler.builder4Refresh(msg, TranslationProfile.class)
 				.withHandler(selection -> refresh()).build();
 	}
 
@@ -312,9 +312,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		return isInputProfileSelection() ? inputActionsRegistry : outputActionsRegistry;
 	}
 
-	private SingleActionHandler2<TranslationProfile> getAddAction()
+	private SingleActionHandler<TranslationProfile> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, TranslationProfile.class)
+		return SingleActionHandler.builder4Add(msg, TranslationProfile.class)
 				.withHandler(this::showAddDialog).build();
 	}
 
@@ -337,9 +337,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		dialog.show();
 	}
 
-	private SingleActionHandler2<TranslationProfile> getEditAction()
+	private SingleActionHandler<TranslationProfile> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, TranslationProfile.class)
+		return SingleActionHandler.builder4Edit(msg, TranslationProfile.class)
 				.withDisabledPredicate(
 						tp -> tp.getProfileMode() == ProfileMode.READ_ONLY)
 				.withHandler(this::showEditDialog).build();
@@ -367,9 +367,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 
 	}
 
-	private SingleActionHandler2<TranslationProfile> getCopyAction()
+	private SingleActionHandler<TranslationProfile> getCopyAction()
 	{
-		return SingleActionHandler2.builder4Copy(msg, TranslationProfile.class)
+		return SingleActionHandler.builder4Copy(msg, TranslationProfile.class)
 				.withHandler(this::showCopyDialog).build();
 	}
 
@@ -394,12 +394,12 @@ public class TranslationProfilesComponent extends VerticalLayout
 		dialog.show();
 	}
 
-	private SingleActionHandler2<TranslationProfile> getExportAction()
+	private SingleActionHandler<TranslationProfile> getExportAction()
 	{
-		return SingleActionHandler2.builder(TranslationProfile.class)
+		return SingleActionHandler.builder(TranslationProfile.class)
 				.withCaption(msg.getMessage(
 						"TranslationProfilesComponent.exportAction"))
-				.withIcon(Images.save.getResource())
+				.withIcon(Images.export.getResource())
 				.withHandler(this::exportHandler).multiTarget().build();
 
 	}
@@ -438,9 +438,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		downloader.download();
 	}
 
-	private SingleActionHandler2<TranslationProfile> getDeleteAction()
+	private SingleActionHandler<TranslationProfile> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, TranslationProfile.class)
+		return SingleActionHandler.builder4Delete(msg, TranslationProfile.class)
 				.withDisabledPredicate(
 						tp -> tp.getProfileMode() == ProfileMode.READ_ONLY)
 				.withHandler(this::deleteHandler).build();
@@ -453,9 +453,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 				confirmText), () -> items.forEach(this::removeProfile)).show();
 	}
 
-	private SingleActionHandler2<TranslationProfile> getWizardAction()
+	private SingleActionHandler<TranslationProfile> getWizardAction()
 	{
-		return SingleActionHandler2.builder(TranslationProfile.class)
+		return SingleActionHandler.builder(TranslationProfile.class)
 				.withCaption(msg.getMessage(
 						"TranslationProfilesComponent.wizardAction"))
 				.withDisabledPredicate(t -> !isInputProfileSelection())
@@ -485,9 +485,9 @@ public class TranslationProfilesComponent extends VerticalLayout
 		dialog.show();
 	}
 
-	private SingleActionHandler2<TranslationProfile> getDryRunAction()
+	private SingleActionHandler<TranslationProfile> getDryRunAction()
 	{
-		return SingleActionHandler2.builder(TranslationProfile.class)
+		return SingleActionHandler.builder(TranslationProfile.class)
 				.withCaption(msg.getMessage(
 						"TranslationProfilesComponent.dryrunAction"))
 				.withDisabledPredicate(t -> !isInputProfileSelection())

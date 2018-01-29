@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.engine.identity;
 
 import java.util.Collection;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -48,5 +50,13 @@ public class IdentityTypeSupportImpl implements IdentityTypeSupport
 	public IdentityType getType(String idType)
 	{
 		return helper.getIdentityType(idType);
+	}
+
+	@Override
+	public Map<String, IdentityTypeDefinition> getTypeDefinitionsMap()
+	{
+		Collection<IdentityType> identityTypes = getIdentityTypes();
+		return identityTypes.stream().map(idType -> getTypeDefinition(idType.getName()))
+			.collect(Collectors.toMap(idDef -> idDef.getId(), idDef -> idDef));
 	}
 }

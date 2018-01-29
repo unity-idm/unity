@@ -107,6 +107,7 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 			datetime.setResolution(DateTimeResolution.SECOND);
 			datetime.setCaption(label);
 			datetime.setDateFormat("yyyy-MM-dd HH:mm:ss");
+			datetime.setRequiredIndicatorVisible(required);
 			if (value != null)
 				datetime.setValue(value);
 			ComponentsContainer ret = new ComponentsContainer(datetime);
@@ -119,7 +120,7 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 
 			if (!required && datetime.getValue() == null)
 				return null;
-
+			
 			try
 			{
 				LocalDateTime cur = datetime.getValue();

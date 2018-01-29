@@ -118,9 +118,7 @@ public class RemotelyAuthenticatedInput
 	@Override
 	public String toString()
 	{
-		String identity = getIdentities().isEmpty() ? "unknown" : 
-			(String)getIdentities().keySet().iterator().next();
-		return idpName + " - " + identity;
+		return idpName;
 	}
 	
 	/**

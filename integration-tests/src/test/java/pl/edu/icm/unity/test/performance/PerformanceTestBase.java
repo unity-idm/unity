@@ -50,7 +50,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  * Contains all necessary db and time method for integration tests
  * @author P.Piernik
  */
-public class PerformanceTestBase extends TestRESTBase
+public abstract class PerformanceTestBase extends TestRESTBase
 {
 	public final int TEST_REPETITIONS = 10;
 	

@@ -70,6 +70,9 @@ public enum Styles
 	link("u-link"),
 	hamburgerMenu("u-hamburgerMenu"),
 	uGridNoHorizontalLines("u-noGridHorizontalLines"),
+	uDenseTreeGrid("u-denseTreeGrid"),
+	largeIcon("u-largeIcon"),
+	veryLargeIcon("u-veryLargeIcon"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -87,7 +90,9 @@ public enum Styles
 	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
-	vDropLayout("drop-layout");
+	vDropLayout("drop-layout"),
+	vGroupBrowser("v-tree8");
+	
 	
 	/**
 	 * Number of columns for wider then regular text fields.

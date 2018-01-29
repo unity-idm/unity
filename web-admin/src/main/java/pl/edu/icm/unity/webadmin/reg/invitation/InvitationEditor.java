@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
-import pl.edu.icm.unity.webui.common.NotNullComboBox2;
+import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 
@@ -50,10 +50,10 @@ public class InvitationEditor extends CustomComponent
 	private Map<String, RegistrationForm> formsByName;
 	private Map<String, AttributeType> attrTypes;
 	
-	private NotNullComboBox2<String> forms;
+	private NotNullComboBox<String> forms;
 	private DateTimeField expiration;
 	private TextField contactAddress;
-	private NotNullComboBox2<String> channelId;
+	private NotNullComboBox<String> channelId;
 	
 	private TabSheet tabs;
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
@@ -88,7 +88,7 @@ public class InvitationEditor extends CustomComponent
 		expiration.setResolution(DateTimeResolution.MINUTE);
 		expiration.setValue(LocalDateTime.now(DEFAULT_ZONE_ID).plusDays(DEFAULT_TTL_DAYS));
 		
-		channelId = new NotNullComboBox2<>(msg.getMessage("InvitationViewer.channelId"));
+		channelId = new NotNullComboBox<>(msg.getMessage("InvitationViewer.channelId"));
 		channelId.setItems(channels);
 		
 		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
@@ -97,7 +97,7 @@ public class InvitationEditor extends CustomComponent
 		
 		tabs = new TabSheet();
 		
-		forms = new NotNullComboBox2<>(msg.getMessage("InvitationViewer.formId"));
+		forms = new NotNullComboBox<>(msg.getMessage("InvitationViewer.formId"));
 		forms.setEmptySelectionAllowed(false);
 		forms.addValueChangeListener(event -> {
 			setPerFormUI(formsByName.get(forms.getValue()));

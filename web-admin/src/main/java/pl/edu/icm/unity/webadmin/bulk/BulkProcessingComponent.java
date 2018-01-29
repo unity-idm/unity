@@ -31,15 +31,15 @@ import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Component responsible for management of bulk processing actions. 
@@ -55,7 +55,7 @@ public class BulkProcessingComponent extends CustomComponent
 	private EntityActionsRegistry registry;
 	private ActionParameterComponentProvider parameterFactory;
 
-	private GenericElementsTable2<ScheduledProcessingRule> table;
+	private GenericElementsTable<ScheduledProcessingRule> table;
 	private ScheduledRuleViewerPanel viewer;
 	private VerticalLayout main;
 	
@@ -88,7 +88,7 @@ public class BulkProcessingComponent extends CustomComponent
 
 		viewer = new ScheduledRuleViewerPanel(msg, registry);
 
-		table = new GenericElementsTable2<>(
+		table = new GenericElementsTable<>(
 				msg.getMessage("BulkProcessingComponent.tableCaption"),
 				this::getCompactName);
 
@@ -110,10 +110,10 @@ public class BulkProcessingComponent extends CustomComponent
 		table.addActionHandler(getRunScheduledAction());
 		table.addActionHandler(getDeleteAction());
 
-		Toolbar2<ScheduledProcessingRule> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<ScheduledProcessingRule> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 
@@ -194,9 +194,9 @@ public class BulkProcessingComponent extends CustomComponent
 		}
 	}
 
-	private SingleActionHandler2<ScheduledProcessingRule> getDeleteAction()
+	private SingleActionHandler<ScheduledProcessingRule> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, ScheduledProcessingRule.class)
+		return SingleActionHandler.builder4Delete(msg, ScheduledProcessingRule.class)
 				.withHandler(this::deleteHandler).build();
 	}
 
@@ -211,15 +211,15 @@ public class BulkProcessingComponent extends CustomComponent
 		confirm.show();
 	}
 
-	private SingleActionHandler2<ScheduledProcessingRule> getRefreshAction()
+	private SingleActionHandler<ScheduledProcessingRule> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, ScheduledProcessingRule.class)
+		return SingleActionHandler.builder4Refresh(msg, ScheduledProcessingRule.class)
 				.withHandler(selection -> refresh()).build();
 	}
 
-	private SingleActionHandler2<ScheduledProcessingRule> getAddAction()
+	private SingleActionHandler<ScheduledProcessingRule> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, ScheduledProcessingRule.class)
+		return SingleActionHandler.builder4Add(msg, ScheduledProcessingRule.class)
 				.withHandler(this::showAddDialog).build();
 	}
 
@@ -245,9 +245,9 @@ public class BulkProcessingComponent extends CustomComponent
 		dialog.show();
 	}
 
-	private SingleActionHandler2<ScheduledProcessingRule> getEditAction()
+	private SingleActionHandler<ScheduledProcessingRule> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, ScheduledProcessingRule.class)
+		return SingleActionHandler.builder4Edit(msg, ScheduledProcessingRule.class)
 				.withHandler(this::showEditDialog).build();
 	}
 
@@ -278,9 +278,9 @@ public class BulkProcessingComponent extends CustomComponent
 
 	}
 
-	private SingleActionHandler2<ScheduledProcessingRule> getRunScheduledAction()
+	private SingleActionHandler<ScheduledProcessingRule> getRunScheduledAction()
 	{
-		return SingleActionHandler2.builder(ScheduledProcessingRule.class)
+		return SingleActionHandler.builder(ScheduledProcessingRule.class)
 				.withCaption(msg.getMessage("BulkProcessingComponent.runNowAction"))
 				.withIcon(Images.play.getResource())
 				.withHandler(this::runScheduledHandler).build();

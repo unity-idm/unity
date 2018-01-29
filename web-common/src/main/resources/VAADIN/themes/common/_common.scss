@@ -118,7 +118,14 @@
 		color: #464646;
 	}
 		
-	.u-bigTab {
+	.u-bigTab .v-icon {
+		margin-top: -8px;
+		margin-bottom: 8px;
+	}
+
+	.u-bigTabSelected .v-icon {
+		margin-top: -8px;
+		margin-bottom: 8px;
 	}
 	
 	.u-toolbarButton:hover {
@@ -364,6 +371,25 @@
 		vertical-align: .15em;
 	}
 
+	.v-menubar-popup .v-menubar-menuitem .v-icon  {
+		color: #197de1;
+	}
+	
+	.v-menubar-popup .v-menubar-menuitem-selected {
+		background-image: -webkit-linear-gradient(top, #8ebef0 2%, #a5cbf3 98%);
+		background-image: linear-gradient(to bottom,#8ebef0 2%, #a5cbf3 98%); 
+		background-color: transparent;
+	}
+
+	.v-menubar-u-toolbarButton {
+		height: auto;
+		line-height: inherit;
+	}
+
+	.v-caption-u-emphasized {
+		font-size: 150%;
+	}
+
     .u-noGridHorizontalLines .v-grid-cell-focused:before {
         display: none !important;
     }
@@ -378,6 +404,31 @@
 	.u-noGridHorizontalLines .v-grid-tablewrapper table tbody tr:last-child td {
 		border-bottom: 1px solid #d4d4d4;
 	}
+
+	.u-denseTreeGrid td {
+		line-height: 34px;
+		height: 34px;
+	}
+
+	.u-denseTreeGrid .v-treegrid-tablewrapper .v-treegrid-cell-content {
+    	padding-bottom: 6px;
+	}
+	
     .drop-layout .v-horizontallayout-drag-center {
  		background-color: #197de1;}
+	
+
+
+ 	.v-assistive-device-only-label label {
+		font-size:0;
+		width: 0px; 
+ 	}
+
+	.u-largeIcon .v-icon {
+		font-size : 24px;
+	}
+	
+	.u-veryLargeIcon .v-icon {
+		font-size : 34px;
+	}
 }

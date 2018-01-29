@@ -29,11 +29,11 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventListener;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -79,18 +79,18 @@ public class GroupDetailsComponent extends SafePanel
 		topLayout.setSizeFull();
 		
 		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, acMan);
-		Toolbar2<String> acToolbar = new Toolbar2<String>(Orientation.VERTICAL);
+		Toolbar<String> acToolbar = new Toolbar<String>(Orientation.VERTICAL);
 		acToolbar.addActionHandlers(acPanel.getActionHandlers());
 		acPanel.addSelectionListener(acToolbar.getSelectionListener());
-		ComponentWithToolbar2 acWithToolbar = new ComponentWithToolbar2(acPanel, acToolbar);
+		ComponentWithToolbar acWithToolbar = new ComponentWithToolbar(acPanel, acToolbar);
 		acWithToolbar.setSizeFull();
 		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
 				atMan, attributeHandlersReg);
-		Toolbar2<AttributeStatement> asToolbar = new Toolbar2<AttributeStatement>(Orientation.VERTICAL);
+		Toolbar<AttributeStatement> asToolbar = new Toolbar<AttributeStatement>(Orientation.VERTICAL);
 		asToolbar.addActionHandlers(attrStatements.getActionHandlers());
 		attrStatements.addSelectionListener(asToolbar.getSelectionListener());
-		ComponentWithToolbar2 asWithToolbar = new ComponentWithToolbar2(attrStatements, asToolbar);
+		ComponentWithToolbar asWithToolbar = new ComponentWithToolbar(attrStatements, asToolbar);
 		asWithToolbar.setSizeFull();
 		
 		main.addComponents(topLayout, acWithToolbar, asWithToolbar);

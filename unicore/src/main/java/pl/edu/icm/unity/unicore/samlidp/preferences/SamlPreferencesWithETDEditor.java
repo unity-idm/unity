@@ -17,7 +17,7 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesEditor;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -64,9 +64,9 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 	}
 	
 	@Override
-	protected SingleActionHandler2<String> getAddAction()
+	protected SingleActionHandler<String> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, String.class)
+		return SingleActionHandler.builder4Add(msg, String.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -93,9 +93,9 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 	}
 
 	@Override
-	protected SingleActionHandler2<String> getEditAction()
+	protected SingleActionHandler<String> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, String.class)
+		return SingleActionHandler.builder4Edit(msg, String.class)
 				.withHandler(this::showEditDialog)
 				.build();
 	}

@@ -10,13 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callback;
 
@@ -52,7 +52,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
-		return new Label(msg.getMessage("OutdatedCredentialDialog.info"));
+		return new Label100(msg.getMessage("OutdatedCredentialDialog.info"));
 	}
 
 	@Override
@@ -101,7 +101,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 			{
 				String info = changed ? msg.getMessage("OutdatedCredentialDialog.finalInfo") :
 					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged");
-				return new Label(info);
+				return new Label100(info);
 			}
 		}.show();
 	}

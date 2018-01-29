@@ -111,13 +111,13 @@ void createExampleUser()
 	Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "Regular User");
 	attributesManagement.setAttribute(entityP, a, false);
 
-	VerifiableEmail emailVal = new VerifiableEmail("some@email.com", new ConfirmationInfo(true));
+	VerifiableEmail emailVal = new VerifiableEmail("some@example.com", new ConfirmationInfo(true));
 	emailVal.getConfirmationInfo().setConfirmationDate(System.currentTimeMillis());
 	emailVal.getConfirmationInfo().setConfirmed(true);
 	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", emailVal);
 	attributesManagement.setAttribute(entityP, emailA, false);
 
-	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "Hiper user");
+	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "Demo user");
 	attributesManagement.setAttribute(entityP, cnA, false);
 
 	PasswordToken pToken = new PasswordToken("the!test12");

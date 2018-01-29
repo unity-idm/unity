@@ -15,15 +15,15 @@ import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog.Callback;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Table with group {@link AttributesClass}es with possibility to active edit dialog.
  * @author K. Benedyczak
  */
-public class GroupAttributesClassesTable extends GenericElementsTable2<String>
+public class GroupAttributesClassesTable extends GenericElementsTable<String>
 {
 	private UnityMessageSource msg;
 	private GroupsManagement groupsManagement;
@@ -50,9 +50,9 @@ public class GroupAttributesClassesTable extends GenericElementsTable2<String>
 	
 	}
 
-	private SingleActionHandler2<String> getEditAction()
+	private SingleActionHandler<String> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, String.class).dontRequireTarget()
+		return SingleActionHandler.builder4Edit(msg, String.class).dontRequireTarget()
 				.withIcon(Images.attributes.getResource())
 				.withHandler(this::showEditDialog).build();
 	}

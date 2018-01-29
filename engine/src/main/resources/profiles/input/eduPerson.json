@@ -162,7 +162,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"userCertificate",
+					"certificate",
 					"/",
 					"attrs['userCertificate']",
 					"CREATE_OR_UPDATE"
@@ -176,7 +176,7 @@
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
-					"userCertificate",
+					"certificate",
 					"/",
 					"attrs['urn:oid:2.5.4.36']",
 					"CREATE_OR_UPDATE"
