@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 {
 	protected AttributeValueSyntax<?> syntax;
-	private UnityMessageSource msg;
+	protected UnityMessageSource msg;
 	
 	public static final int LARGE_STRING = 1000;
 	
@@ -91,7 +91,6 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			if (value != null)
 				field.setValue(value.toString());
 			field.setCaption(label);
-			field.setRequiredIndicatorVisible(required);
 		
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
@@ -107,17 +106,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 			
-			if (field.getValue().isEmpty())
-			{
-				if (!required)
-				{
-					return null;
-				}
-				field.setComponentError(
-						new UserError(msg.getMessage("fieldRequired")));
-				throw new IllegalAttributeValueException(
-						msg.getMessage("fieldRequired"));
-			}
+			if (!required && field.getValue().isEmpty())
+				return null;
 			
 			try
 			{

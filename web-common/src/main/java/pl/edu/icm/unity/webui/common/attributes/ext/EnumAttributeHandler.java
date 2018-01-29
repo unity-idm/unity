@@ -101,18 +101,8 @@ public class EnumAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{	
 			String cur = field.getValue();
-			if (cur == null)
-			{
-				if (!required)
-				{
-					return null;
-				}
-				field.setComponentError(
-						new UserError(msg.getMessage("fieldRequired")));
-				throw new IllegalAttributeValueException(
-						msg.getMessage("fieldRequired"));
-			}
-			
+			if (cur == null && !required)
+				return null;
 			
 			try
 			{

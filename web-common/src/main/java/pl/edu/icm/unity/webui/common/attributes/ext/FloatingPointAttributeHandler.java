@@ -30,13 +30,11 @@ import pl.edu.icm.unity.webui.common.boundededitors.DoubleBoundEditor;
  * @author K. Benedyczak
  */
 public class FloatingPointAttributeHandler extends TextOnlyAttributeHandler
-{
-	private UnityMessageSource msg;
+{	
 	
 	public FloatingPointAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		super(msg, syntax);
-		this.msg = msg;
 	}
 
 	@Override

@@ -131,17 +131,8 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 
-			if (datetime.getValue() == null)
-			{
-				if (!required)
-				{
-					return null;
-				}
-				datetime.setComponentError(
-						new UserError(msg.getMessage("fieldRequired")));
-				throw new IllegalAttributeValueException(
-						msg.getMessage("fieldRequired"));
-			}
+			if (!required && datetime.getValue() == null)
+				return null;
 
 			try
 			{

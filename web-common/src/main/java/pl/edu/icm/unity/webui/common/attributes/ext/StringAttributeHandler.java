@@ -34,12 +34,10 @@ import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
  */
 public class StringAttributeHandler extends TextOnlyAttributeHandler
 {
-	private UnityMessageSource msg;
 	
 	public StringAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		super(msg, syntax);
-		this.msg = msg;
 	}
 
 	@Override

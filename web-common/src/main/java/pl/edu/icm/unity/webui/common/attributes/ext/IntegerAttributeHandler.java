@@ -31,12 +31,10 @@ import pl.edu.icm.unity.webui.common.boundededitors.LongBoundEditor;
  */
 public class IntegerAttributeHandler extends TextOnlyAttributeHandler
 {
-	private UnityMessageSource msg;
-
+	
 	public IntegerAttributeHandler(UnityMessageSource msg, AttributeValueSyntax<?> syntax)
 	{
 		super(msg, syntax);
-		this.msg = msg;
 	}
 
 

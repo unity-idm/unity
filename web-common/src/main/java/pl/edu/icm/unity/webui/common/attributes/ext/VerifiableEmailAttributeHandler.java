@@ -144,17 +144,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-			if (field.getValue().isEmpty())
-			{
-				if (!required)
-				{
-					return null;
-				}
-				field.setComponentError(
-						new UserError(msg.getMessage("fieldRequired")));
-				throw new IllegalAttributeValueException(
-						msg.getMessage("fieldRequired"));
-			}
+			if (!required && field.getValue().isEmpty())
+				return null;
 			
 			try
 			{
