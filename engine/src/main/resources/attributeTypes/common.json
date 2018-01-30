@@ -811,6 +811,7 @@
 		"selfModificable": false,
 		"uniqueValues": false,
 		"syntaxState": {
+			"regexp": "",
 			"minLength": 0,
 			"maxLength": 6
 		},

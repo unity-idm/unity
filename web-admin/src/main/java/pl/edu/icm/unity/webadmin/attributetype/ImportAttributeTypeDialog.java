@@ -29,7 +29,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webadmin.utils.FileUploder;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -222,8 +221,11 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
-					msg.getMessage("ImportAttributeTypes.cannotParseFile"));
+			NotificationPopup.showError(msg,
+					msg.getMessage("ImportAttributeTypes.cannotParseFile"),
+					e.getCause() != null ? e.getCause().getMessage()
+							: e.toString());
+					
 		}
 		
 		selectionTable.setInput(toAdd);
@@ -256,7 +258,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 					attrTypeMan.updateAttributeType(at);
 				}
 			}
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg,
 					msg.getMessage("ImportAttributeTypes.errorImport"), e);

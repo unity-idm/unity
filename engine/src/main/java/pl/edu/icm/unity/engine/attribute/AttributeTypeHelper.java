@@ -125,6 +125,38 @@ public class AttributeTypeHelper
 		unconfigured.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 	}
 
+	/**
+	 * Check attribute syntax - whether exists and its configuration is valid
+	 * @param at
+	 */
+	public void validateSyntax(AttributeType at)
+	{
+		AttributeValueSyntaxFactory<?> factory;
+		try
+		{
+			factory = atSyntaxRegistry.getByName(at.getValueSyntax());
+		} catch (Exception e)
+		{
+			throw new IllegalArgumentException(
+					"There is no attribute syntax defined with name "
+							+ at.getValueSyntax(),
+					e);
+		}
+
+		try
+		{
+			AttributeValueSyntax<?> ret = factory.createInstance();
+			if (at.getValueSyntaxConfiguration() != null)
+				ret.setSerializedConfiguration(at.getValueSyntaxConfiguration());
+		} catch (Exception e)
+		{
+			throw new IllegalArgumentException(
+					"Incorrect configuration defined for syntax  "
+							+ at.getValueSyntax() + " in attribute type " + at.getName(),
+					e);
+		}
+	}
+	
 	public List<AttributeType> loadAttributeTypesFromResource(Resource r)
 	{
 		if (r == null)
@@ -145,9 +177,13 @@ public class AttributeTypeHelper
 			while (jp.currentToken() == JsonToken.START_OBJECT)
 			{
 				AttributeType at = new AttributeType(jp.readValueAsTree());
+				at.validateInitialization();
+				validateSyntax(at);
 				toAdd.add(at);
 				jp.nextToken();
+				
 			}
+		
 
 		} catch (Exception e)
 		{
