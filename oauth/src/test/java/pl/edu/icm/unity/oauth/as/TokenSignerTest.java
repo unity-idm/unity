@@ -8,7 +8,6 @@ package pl.edu.icm.unity.oauth.as;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 
 import org.junit.Test;
 
@@ -46,18 +45,9 @@ public class TokenSignerTest
 		config.setProperty(OAuthASProperties.SIGNING_SECRET,
 				"b8e7ae12510bdfb1812e463a7f086122cf37e4f7");
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
-				OAuthASProperties.SigningAlgorithms.HS256.toString());
-
-		TokenSigner signer = null;
-		try
-		{
-			signer = new TokenSigner(config, new MockPKIMan());
-
-		} catch (Exception e)
-		{
-			fail("Cannot create HMAC token signer");
-		}
-
+				OAuthASProperties.SigningAlgorithms.HS256.toString());	
+		
+		TokenSigner signer = new TokenSigner(config, new MockPKIMan());
 		assertThat(signer, notNullValue());
 		assertThat(signer.getSigningAlgorithm(), is(JWSAlgorithm.HS256));
 	}
@@ -77,19 +67,9 @@ public class TokenSignerTest
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.ES512.toString());
-
-		TokenSigner signer = null;
-		try
-		{
-			signer = new TokenSigner(config, new MockPKIMan(
+		
+		TokenSigner signer = new TokenSigner(config, new MockPKIMan(
 					"src/test/resources/demoECKey.p12", "123456"));
-
-		} catch (Exception e)
-		{
-			e.printStackTrace();
-			fail("Cannot create EC token signer ");
-		}
-
 		assertThat(signer, notNullValue());
 		assertThat(signer.getSigningAlgorithm(), is(JWSAlgorithm.ES512));
 
@@ -111,17 +91,8 @@ public class TokenSignerTest
 		OAuthASProperties config = OAuthTestUtils.getConfig();
 		config.setProperty(OAuthASProperties.SIGNING_ALGORITHM,
 				OAuthASProperties.SigningAlgorithms.RS512.toString());
-
-		TokenSigner signer = null;
-		try
-		{
-			signer = new TokenSigner(config, new MockPKIMan());
-
-		} catch (Exception e)
-		{
-			fail("Cannot create RS token signer");
-		}
-
+	
+		TokenSigner signer = new TokenSigner(config, new MockPKIMan());
 		assertThat(signer, notNullValue());
 		assertThat(signer.getSigningAlgorithm(), is(JWSAlgorithm.RS512));
 
