@@ -83,6 +83,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 				StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
 				if (sas.getMaxLength() > LARGE_STRING)
 					large = true;
+				this.required = required && sas.getMinLength() > 0;
 			}
 			
 			field = large ? new TextArea() : new TextField();
@@ -91,7 +92,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			if (value != null)
 				field.setValue(value.toString());
 			field.setCaption(label);
-		
+			field.setRequiredIndicatorVisible(this.required);
+			
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
 				sb.append(hint).append("<br>");
@@ -107,7 +109,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		{
 			
 			if (!required && field.getValue().isEmpty())
-				return null;
+				return field.getValue();
 			
 			try
 			{
