@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
@@ -188,6 +189,8 @@ public class RegularAttributeTypeEditor extends FormLayout implements AttributeT
 			throw new IllegalAttributeTypeException("");
 		AttributeValueSyntax<?> syntax = editor.getCurrentValue();
 		AttributeType ret = binder.getBean();
+		if (ret.getDisplayedName().getMap().isEmpty())
+			ret.setDisplayedName(new I18nString(ret.getName()));
 		ret.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		ret.setMetadata(metaEditor.getValue());
 		return ret;

@@ -135,7 +135,8 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 				StringSyntaxBindingValue value = binder.getBean();
 				ret.setMaxLength(value.getMax());
 				ret.setMinLength(value.getMin());
-				ret.setRegexp(value.getRegexp());
+				if (value.getRegexp() != null && !value.getRegexp().isEmpty())
+					ret.setRegexp(value.getRegexp());
 				return ret;
 			} catch (Exception e)
 			{
