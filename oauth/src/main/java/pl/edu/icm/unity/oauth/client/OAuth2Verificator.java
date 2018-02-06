@@ -10,6 +10,7 @@ import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +40,20 @@ import com.nimbusds.oauth2.sdk.auth.ClientAuthenticationMethod;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretPost;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.CommonContentTypes;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
@@ -58,6 +62,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
+import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -68,6 +73,7 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
@@ -250,7 +256,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		boolean openIdConnectMode = config.getProvider(context.getProviderConfigKey()).getBooleanValue(
 				CustomProviderProperties.OPENID_CONNECT);
 		
-		Map<String, String> attributes;
+		AttributeFetchResult attributes;
 		try
 		{
 			attributes = openIdConnectMode ? getAccessTokenAndProfileOpenIdConnect(context) :
@@ -263,6 +269,15 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return convertInput(context, attributes);
 	}
 	
+	private AccessTokenFormat getAccessTokenFormat(OAuthContext context)
+	{
+		CustomProviderProperties providerCfg = config
+				.getProvider(context.getProviderConfigKey());
+		return providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
+				AccessTokenFormat.class);
+
+	}
+
 	private HTTPResponse retrieveAccessTokenGeneric(OAuthContext context, String tokenEndpoint, 
 			ClientAuthnMode mode) 
 			throws IOException, URISyntaxException
@@ -280,8 +295,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 				new URI(tokenEndpoint),
 				clientAuthn,
 				authzCodeGrant);
+		
 		HTTPRequest httpRequest = new CustomHttpRequestFactory()
 				.wrapRequest(request.toHTTPRequest(), context, config); 
+		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
+			httpRequest.setAccept(CommonContentTypes.APPLICATION_JSON.toString());
+		
 		if (log.isTraceEnabled())
 		{
 			String notSecretQuery = httpRequest.getQuery().replaceFirst(
@@ -316,7 +335,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		}
 	}
 	
-	private Map<String, String> getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
+	private AttributeFetchResult getAccessTokenAndProfileOpenIdConnect(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String discoveryEndpoint = providerCfg.getValue(CustomProviderProperties.OPENID_DISCOVERY);
@@ -338,22 +357,24 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
 		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
-		Map<String, String> ret = OpenIdUtils.toAttributes(accessTokenClaimsSet);
+		Map<String, List<String>> ret = ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
 		
 		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		String userInfoEndpoint = userInfoEndpointStr == null ? 
 				providerMeta.getUserInfoEndpointURI().toString() : userInfoEndpointStr;
 
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
+		AttributeFetchResult fetchRet = new AttributeFetchResult();
 		if (userInfoEndpoint != null && userAttributesFetcher != null)
 		{
-			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
-					ret));
+			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
+					ret);
 		}
+		fetchRet.getFlatAttributes().putAll(ret);
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
 		
-		return ret;
+		return fetchRet;
 	}
 	
 	private ClientAuthnMode establishOpenIDAuthnMode(OIDCProviderMetadata providerMeta,
@@ -391,22 +412,21 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return selectedMethod;
 	}
 	
-	private Map<String, String> getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
+	private AttributeFetchResult getAccessTokenAndProfilePlain(OAuthContext context) throws Exception 
 	{
 		CustomProviderProperties providerCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = providerCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
 		ClientAuthnMode selectedMethod = providerCfg.getEnumValue(CustomProviderProperties.CLIENT_AUTHN_MODE, 
 					ClientAuthnMode.class);
 		HTTPResponse response = retrieveAccessTokenGeneric(context, tokenEndpoint, selectedMethod);
-		
-		AccessTokenFormat accessTokenFormat = providerCfg.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT, 
-				AccessTokenFormat.class);
-
-		Map<String, String> ret = new HashMap<>();
+		Map<String, List<String>> ret = new HashMap<>();
 		BearerAccessToken accessToken;
-		if (accessTokenFormat == AccessTokenFormat.standard)
+		if (getAccessTokenFormat(context) == AccessTokenFormat.standard)
 		{
-			AccessTokenResponse atResponse = AccessTokenResponse.parse(response);
+			JSONObject jsonResp = response.getContentAsJSONObject();
+			if (!jsonResp.containsKey("token_type"))
+				jsonResp.put("token_type", AccessTokenType.BEARER.getValue());
+			AccessTokenResponse atResponse = AccessTokenResponse.parse(jsonResp);
 			accessToken = extractAccessToken(atResponse);
 			extractUserInfoFromStandardAccessToken(atResponse, ret);
 		} else
@@ -435,29 +455,31 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
+		AttributeFetchResult fetchRet = new AttributeFetchResult();
 		if (userInfoEndpoint != null && userAttributesFetcher != null)
 		{
-			ret.putAll(userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
-					ret));
+			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
+					ret);
 		}
+		fetchRet.getFlatAttributes().putAll(ret);
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
-		return ret;
+		return fetchRet;
 	}
 	
 	
-	private void extractUserInfoFromStandardAccessToken(AccessTokenResponse atResponse, Map<String, String> ret)
+	private void extractUserInfoFromStandardAccessToken(AccessTokenResponse atResponse, Map<String, List<String>> ret)
 	{
 		Map<String, Object> customParameters = atResponse.getCustomParameters();
 		for (Map.Entry<String, Object> e: customParameters.entrySet())
 		{
 			if (attributeIgnored(e.getKey()))
 				continue;
-			ret.put(e.getKey(), e.getValue().toString());
+			ret.put(e.getKey(), Arrays.asList(e.getValue().toString()));
 		}
 	}
 
-	private void extractUserInfoFromHttpParamsAccessToken(MultiMap<String> params, Map<String, String> ret)
+	private void extractUserInfoFromHttpParamsAccessToken(MultiMap<String> params, Map<String, List<String>> ret)
 	{
 		for (Map.Entry<String, List<String>> param: params.entrySet())
 		{
@@ -465,8 +487,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			List<String> values = param.getValue();
 			if (attributeIgnored(key) || values.isEmpty())
 				continue;
-			String value = values.size() == 1 ? values.get(0) : values.toString();
-			ret.put(key, value);
+			ret.put(key, values);
 		}
 	}
 	
@@ -489,7 +510,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return (BearerAccessToken) accessTokenGeneric;
 	}
 	
-	private RemotelyAuthenticatedInput convertInput(OAuthContext context, Map<String, String> attributes)
+	private RemotelyAuthenticatedInput convertInput(OAuthContext context, AttributeFetchResult attributes)
 	{
 		CustomProviderProperties provCfg = config.getProvider(context.getProviderConfigKey());
 		String tokenEndpoint = provCfg.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT);
@@ -511,10 +532,14 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, String> attr: attributes.entrySet())
+		for (Map.Entry<String, List<String>> attr: attributes.getFlatAttributes().entrySet())
 		{
-			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue()));
+			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
+			if (attr.getKey().equals("sub") && !attr.getValue().isEmpty())
+				input.addIdentity(new RemoteIdentity(attr.getValue().get(0), "sub"));
 		}
+		input.setRawAttributes(attributes.getRawAttributes());
+		
 		return input;
 	}
 	

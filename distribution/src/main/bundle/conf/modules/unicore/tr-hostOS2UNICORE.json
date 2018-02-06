@@ -33,7 +33,7 @@
           },
           "action" : {
             "name" : "mapAttribute",
-            "parameters" : [ "cn", "/", "attr['name']", "CREATE_OR_UPDATE" ]
+            "parameters" : [ "name", "/", "attr['name']", "CREATE_OR_UPDATE" ]
           }
         } ]
 }

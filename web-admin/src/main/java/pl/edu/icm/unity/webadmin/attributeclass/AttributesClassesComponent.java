@@ -25,14 +25,14 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 
 /**
@@ -47,7 +47,7 @@ public class AttributesClassesComponent extends VerticalLayout
 	private AttributeClassManagement acMan;
 	private AttributeTypeManagement attrMan;
 	
-	private GenericElementsTable2<String> table;
+	private GenericElementsTable<String> table;
 	private AttributesClassViewer viewer;
 	private com.vaadin.ui.Component main;
 	private Map<String, AttributesClass> allACs;
@@ -70,7 +70,7 @@ public class AttributesClassesComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("AttributesClass.caption"));
 		viewer = new AttributesClassViewer(msg);
-		table = new GenericElementsTable2<>(
+		table = new GenericElementsTable<>(
 				msg.getMessage("AttributesClass.attributesClassesHeader"));
 		table.setMultiSelect(true);
 		table.addSelectionListener(event ->
@@ -93,10 +93,10 @@ public class AttributesClassesComponent extends VerticalLayout
 		table.addActionHandler(getEditAction());
 		table.addActionHandler(getDeleteAction());
 		table.setWidth(90, Unit.PERCENTAGE);
-		Toolbar2<String> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<String> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
 		
@@ -170,16 +170,16 @@ public class AttributesClassesComponent extends VerticalLayout
 		}
 	}
 	
-	private SingleActionHandler2<String> getRefreshAction()
+	private SingleActionHandler<String> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, String.class)
+		return SingleActionHandler.builder4Refresh(msg, String.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<String> getAddAction()
+	private SingleActionHandler<String> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, String.class)
+		return SingleActionHandler.builder4Add(msg, String.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -202,9 +202,9 @@ public class AttributesClassesComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<String> getEditAction()
+	private SingleActionHandler<String> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, String.class)
+		return SingleActionHandler.builder4Edit(msg, String.class)
 				.withHandler(this::showEditDialog)
 				.build();
 	}
@@ -229,9 +229,9 @@ public class AttributesClassesComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<String> getDeleteAction()
+	private SingleActionHandler<String> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, String.class)
+		return SingleActionHandler.builder4Delete(msg, String.class)
 				.withHandler(this::handleDelete)
 				.build();
 	}

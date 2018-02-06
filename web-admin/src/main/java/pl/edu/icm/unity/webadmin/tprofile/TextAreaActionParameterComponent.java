@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.TextArea;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Trivial, {@link TextArea} based implementation of {@link ActionParameterComponent}. 
@@ -16,28 +16,40 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class TextAreaActionParameterComponent extends TextArea implements ActionParameterComponent
 {
+	private Binder<StringValueBean> binder;
+	
 	public TextAreaActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
-		setColumns(Styles.WIDE_TEXT_FIELD);
+		setWidth(70, Unit.PERCENTAGE);
+		binder = new Binder<>(StringValueBean.class);
+		binder.forField(this).bind("value");
+		binder.setBean(new StringValueBean());		
 	}
 	
 	@Override
 	public String getActionValue()
 	{
-		return getValue();
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		setValue(value);
+		binder.setBean(new StringValueBean(value));
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });		
+		binder.addValueChangeListener((e) -> { callback.run(); });		
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		binder.validate();
+		return binder.isValid();
 	}
 }

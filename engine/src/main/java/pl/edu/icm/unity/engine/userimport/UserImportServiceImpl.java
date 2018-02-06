@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,12 +27,14 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPIFactory;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 
 /**
  * Implementation of user import service. Loads configured importers, configures them and run when requested.
- * Maintains timers to skip too often imports.
+ * Maintains timers to skip too frequent imports.
  * 
  * @author K. Benedyczak
  */
@@ -39,7 +42,7 @@ import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 public class UserImportServiceImpl implements UserImportSerivce
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, UserImportServiceImpl.class);
-	private List<SingleUserImportHandler> handlers;
+	private Map<String, SingleUserImportHandler> handlersByKey;
 	
 	@Autowired
 	public UserImportServiceImpl(UnityServerConfiguration mainCfg, Optional<List<UserImportSPIFactory>> importersF,
@@ -55,17 +58,20 @@ public class UserImportServiceImpl implements UserImportSerivce
 	{
 		Map<String, UserImportSPIFactory> importersFM = new HashMap<>();
 		importersF.forEach(spiF -> importersFM.put(spiF.getName(), spiF));
-		List<String> definedImporters = mainCfg.getListOfValues(UnityServerConfiguration.IMPORT_PFX);
-		handlers = new ArrayList<>();
-		int i=0;
-		for (String importerCfg: definedImporters)
-			handlers.add(loadHandler(importerCfg, importersFM, cacheProvider, i++, 
-					verificatorUtil, configLoader));
+		List<String> definedImporters = mainCfg.getSortedListKeys(
+				UnityServerConfiguration.IMPORT_PFX);
+		handlersByKey = new HashMap<>();
+		for (String key: definedImporters)
+		{
+			String importerCfg = mainCfg.getValue(UnityServerConfiguration.IMPORT_PFX + key);
+			handlersByKey.put(key, loadHandler(importerCfg, importersFM, cacheProvider,  
+					verificatorUtil, configLoader, key));
+		}
 	}
 	
 	private SingleUserImportHandler loadHandler(String importerCfg, Map<String, UserImportSPIFactory> importersFM,
-			CacheProvider cacheProvider, int index, RemoteAuthnResultProcessor verificatorUtil, 
-			ConfigurationLoader cfgLoader)
+			CacheProvider cacheProvider, RemoteAuthnResultProcessor verificatorUtil, 
+			ConfigurationLoader cfgLoader, String key)
 	{
 		Properties properties = cfgLoader.getProperties(importerCfg);
 		UserImportProperties cfg = new UserImportProperties(properties);
@@ -77,39 +83,85 @@ public class UserImportServiceImpl implements UserImportSerivce
 					". Known types are: " + importersFM.keySet());
 		String remoteIdp = cfg.getValue(UserImportProperties.REMOTE_IDP_NAME);
 		UserImportSPI instance = userImportSPIFactory.getInstance(properties, remoteIdp);
-		return new SingleUserImportHandler(verificatorUtil, instance, cfg, cacheProvider, index);
+		return new SingleUserImportHandler(verificatorUtil, instance, cfg, cacheProvider, key);
 	}
 
 	@Override
-	public AuthenticationResult importUser(String identity, String type)
+	public List<ImportResult> importToExistingUser(List<UserImportSpec> imports,
+			IdentityTaV existingUser)
 	{
-		log.debug("Trying to import user " + identity);
-		
-		for (SingleUserImportHandler handler: handlers)
+		return importUser(imports, Optional.of(existingUser));
+	}
+	
+	@Override
+	public List<ImportResult> importUser(List<UserImportSpec> imports)
+	{
+		return importUser(imports, Optional.empty());
+	}
+	
+	private List<ImportResult> importUser(List<UserImportSpec> imports, 
+			Optional<IdentityTaV> existingIdentity)
+	{
+		if (imports.size() == 1 && imports.get(0).isUseAllImporters())
+			imports = getAllImportersFor(imports.get(0).identityValue, 
+					imports.get(0).identityType);
+
+		List<ImportResult> ret = new ArrayList<>();
+		for (UserImportSpec userImport: imports)
 		{
+			log.debug("Trying to import user {} from {}", userImport.identityValue,
+					userImport.importerKey);
+			SingleUserImportHandler handler = handlersByKey.get(userImport.importerKey);
+			if (handler == null)
+			{
+				log.warn("There is no importer configured with key {}, skipping it",
+						userImport.importerKey);
+				continue;
+			}
+			
 			AuthenticationResult result;
 			try
 			{
-				result = handler.importUser(identity, type);
+				result = handler.importUser(userImport.identityValue, 
+						userImport.identityType, existingIdentity);
 			} catch (AuthenticationException e)
 			{
 				log.debug("User import has thrown an authentication exception, skipping it", e);
+				ret.add(new ImportResult(userImport.importerKey,
+						new AuthenticationResult(Status.notApplicable, null)));
 				continue;
 			} catch (Exception e)
 			{
 				log.error("User import has thrown an exception, skipping it", e);
+				ret.add(new ImportResult(userImport.importerKey,
+						new AuthenticationResult(Status.notApplicable, null)));
 				continue;
 			}
+			
+			if (result != null)
+				ret.add(new ImportResult(userImport.importerKey, result));
+			else
+				ret.add(new ImportResult(userImport.importerKey, 
+						new AuthenticationResult(Status.notApplicable, null)));
+			
 			if (result != null && result.getStatus() != Status.notApplicable)
 			{
-				log.debug("Import handler " + handler.getIndex() + " has imported the user " 
-						+ identity);
-				return result;
+				log.debug("Import handler {} has imported the user {}", 
+						userImport.importerKey, userImport.identityValue);
 			} else
 			{
-				log.debug("Import handler " + handler.getIndex() + " returned nothing.");
+				log.debug("Import handler {} returned nothing or notApplicable status",
+						userImport.importerKey);
 			}
 		}
-		return new AuthenticationResult(Status.notApplicable, null);
+		return ret;
+	}
+
+	
+	private List<UserImportSpec> getAllImportersFor(String identityValue, String identityType)
+	{
+		return handlersByKey.keySet().stream()
+			.map(key -> new UserImportSpec(key, identityValue, identityType))
+			.collect(Collectors.toList());
 	}
 }

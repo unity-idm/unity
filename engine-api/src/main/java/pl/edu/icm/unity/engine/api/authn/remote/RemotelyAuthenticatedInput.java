@@ -29,13 +29,16 @@ public class RemotelyAuthenticatedInput
 	private Set<SessionParticipant> sessionParticipants = new HashSet<>();
 	private Map<String, RemoteGroupMembership> groups;
 	private Map<String, RemoteAttribute> attributes;
+	private Map<String, ? extends Object> rawAttributes;
 	private Map<String, RemoteIdentity> identities;
+	
 
 	public RemotelyAuthenticatedInput(String idpName)
 	{
 		this.idpName = idpName;
 		groups = new HashMap<>();
 		attributes = new HashMap<>();
+		rawAttributes = new HashMap<>();
 		identities = new LinkedHashMap<>();
 	}
 
@@ -71,6 +74,7 @@ public class RemotelyAuthenticatedInput
 	{
 		this.attributes.put(attribute.getName(), attribute);
 	}
+	
 	public void addGroup(RemoteGroupMembership group)
 	{
 		this.groups.put(group.getName(), group);
@@ -101,12 +105,20 @@ public class RemotelyAuthenticatedInput
 		this.sessionParticipants.add(sessionParticipant);
 	}
 
+	public Map<String, ? extends Object> getRawAttributes()
+	{
+		return rawAttributes;
+	}
+
+	public void setRawAttributes(Map<String, ? extends Object> rawAttributes)
+	{
+		this.rawAttributes = rawAttributes;
+	}
+	
 	@Override
 	public String toString()
 	{
-		String identity = getIdentities().isEmpty() ? "unknown" : 
-			(String)getIdentities().keySet().iterator().next();
-		return idpName + " - " + identity;
+		return idpName;
 	}
 	
 	/**

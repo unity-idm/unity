@@ -7,15 +7,12 @@ package pl.edu.icm.unity.webadmin.attribute;
 import java.util.Collection;
 import java.util.Collections;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.MapComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
@@ -36,7 +33,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	private String attributeName;
 	private Label cardinality;
 	private Label unique;
-	private MapComboBox<AttributeType> attributeTypes;
+	private AttributeSelectionComboBox attributeTypes;
 	private TypeChangeCallback callback;
 
 	public AttributeMetaEditorPanel(AttributeType attributeType, String groupPath, UnityMessageSource msg)
@@ -93,7 +90,6 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 	{
 		this.attributeTypes = new AttributeSelectionComboBox(msg.getMessage("AttributeType.name"), 
 				attributeTypes); 
-		this.attributeTypes.setImmediate(true);
 		
 		if (attributeTypes.size() == 1)
 		{
@@ -101,14 +97,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 		} else
 		{
 			addComponent(this.attributeTypes);
-			this.attributeTypes.addValueChangeListener(new ValueChangeListener()
-			{
-				@Override
-				public void valueChange(ValueChangeEvent event)
-				{
-					changeAttribute();
-				}
-			});
+			this.attributeTypes.addSelectionListener(event -> changeAttribute());
 		}
 	}
 	
@@ -124,7 +113,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 
 	private void changeAttribute()
 	{
-		AttributeType type = attributeTypes.getSelectedValue();
+		AttributeType type = attributeTypes.getValue();
 		setAttributeType(type);
 		if (callback != null)
 			callback.attributeTypeChanged(type);
@@ -132,7 +121,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 
 	public void setAttributeType(String name)
 	{
-		attributeTypes.select(name);
+		attributeTypes.setSelectedItemByName(name);
 	}
 	
 	private void setAttributeType(AttributeType type)
@@ -153,7 +142,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 
 	public AttributeType getAttributeType()
 	{
-		return attributeTypes.getSelectedValue();
+		return attributeTypes.getValue();
 	}
 	
 	public interface TypeChangeCallback

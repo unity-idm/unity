@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.data.Binder;
+import com.vaadin.ui.CheckBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -15,30 +16,42 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  *
  */
 public class BooleanActionParameterComponent extends CheckBox implements ActionParameterComponent
-{
-
-	public BooleanActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
+{	
+	private Binder<StringValueBean> binder;
+	
+	public BooleanActionParameterComponent(ActionParameterDefinition desc,
+			UnityMessageSource msg)
 	{
 		super(desc.getName());
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
+		binder = new Binder<>(StringValueBean.class);
+		binder.forField(this).withConverter(v -> String.valueOf(v), v -> Boolean.valueOf(v))
+				.bind("value");
+		binder.setBean(new StringValueBean());
 	}
 	
 	@Override
 	public String getActionValue()
 	{
-		return getValue().toString();
+		return binder.getBean().getValue();
 	}
 
 	@Override
 	public void setActionValue(String value)
 	{
-		setValue(Boolean.valueOf(value));
-		
+		binder.setBean(new StringValueBean(value));	
 	}
 
 	@Override
 	public void addValueChangeCallback(Runnable callback)
 	{
-		addValueChangeListener((e) -> { callback.run(); });		
+		binder.addValueChangeListener((e) -> { callback.run(); });		
+	}
+
+	@Override
+	public boolean isValid()
+	{
+		binder.validate();
+		return binder.isValid();
 	}
 }

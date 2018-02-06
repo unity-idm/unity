@@ -138,7 +138,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			TopHeader header = new TopHeader("", authnProcessor, msg);
 			wrapper.addComponent(header);
 			
-			ConfirmationComponent confirmation = new ConfirmationComponent(Images.error32.getResource(), 
+			ConfirmationComponent confirmation = new ConfirmationComponent(Images.error, 
 					msg.getMessage("EnquiryWellKnownURLViewProvider.notApplicableEnquiry"));
 			wrapper.addComponent(confirmation);
 			wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);

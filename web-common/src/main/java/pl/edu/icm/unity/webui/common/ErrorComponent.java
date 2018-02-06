@@ -32,10 +32,8 @@ public class ErrorComponent extends FormLayout
 	
 	public void setError(String description, Exception error)
 	{
-		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
-		errorL.addStyleName(Styles.error.toString());
-		errorL.setIcon(Images.error32.getResource());
-		errorL.setValue(description + ": " + NotificationPopup.getHumanMessage(error));
+		Label errorL = getGeneric(description + ": " + NotificationPopup.getHumanMessage(error), 
+				Images.error, Styles.error); 
 		if (error instanceof AuthorizationException)
 			log.debug("Error component initialized with the authZ error: " + description);
 		else
@@ -54,22 +52,25 @@ public class ErrorComponent extends FormLayout
 
 	public void setError(String error)
 	{
-		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
-		errorL.addStyleName(Styles.error.toString());
-		errorL.setIcon(Images.error32.getResource());
-		errorL.setValue(error);
-		addCommon(errorL);
+		addComponent(getGeneric(error, Images.error, Styles.error));
 	}
 		
 	public void setWarning(String warning)
 	{
-		HtmlSimplifiedLabel errorL = new HtmlSimplifiedLabel();
-		errorL.addStyleName(Styles.emphasized.toString());
-		errorL.setIcon(Images.warn32.getResource());
-		errorL.setValue(warning);
-		addCommon(errorL);
+		addComponent(getGeneric(warning, Images.warn, Styles.emphasized));
 	}
-
+	
+	private Label getGeneric(String msg, Images icon, Styles style)
+	{
+		HtmlSimplifiedLabel label = new HtmlSimplifiedLabel(msg);
+		label.setCaptionAsHtml(true);
+		label.setWidth(100, Unit.PERCENTAGE);
+		label.setCaption(icon.getHtml());
+		label.addStyleName(style.toString());
+		label.addStyleName(Styles.largeIcon.toString());
+		return label;
+	}
+	
 	private void addCommon(Label errorL)
 	{
 		addComponent(errorL);

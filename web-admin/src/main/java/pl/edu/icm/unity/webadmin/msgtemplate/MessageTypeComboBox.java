@@ -7,18 +7,16 @@ package pl.edu.icm.unity.webadmin.msgtemplate;
 import java.util.Locale;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
-import com.vaadin.v7.data.util.converter.Converter.ConversionException;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.CustomField;
+import com.vaadin.ui.CustomField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.MessageType;
@@ -38,7 +36,7 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 {
 	private UnityMessageSource msg;
 	private Function<String, String> i18nTextProvider;
-	private ComboBox bodyType;
+	private ComboBox<MessageType> bodyType;
 	private Component main;
 	
 	public MessageTypeComboBox(UnityMessageSource msg, Function<String, String> i18nTextProvider)
@@ -46,7 +44,6 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 		this.msg = msg;
 		this.i18nTextProvider = i18nTextProvider;
 		setCaption(msg.getMessage("MessageTemplatesEditor.bodyType"));
-		setRequired(true);
 		initUI();
 	}
 
@@ -54,12 +51,10 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 	{
 		HorizontalLayout msgTypeWithPreviewLinks = new HorizontalLayout();
 		msgTypeWithPreviewLinks.setSpacing(true);
-		bodyType = new ComboBox();
-		bodyType.setImmediate(true);
-		bodyType.setValidationVisible(false);
-		bodyType.setNullSelectionAllowed(false);
-		Stream.of(MessageType.values()).forEach(bodyType::addItem);
-		
+		bodyType = new ComboBox<MessageType>();
+		bodyType.setEmptySelectionAllowed(false);
+		bodyType.setItems(MessageType.values());
+		bodyType.addValueChangeListener(e -> fireEvent(e));
 		HorizontalLayout contentWithLinks = new HorizontalLayout();
 		contentWithLinks.setSpacing(true);
 		msg.getEnabledLocales().values().stream()
@@ -86,21 +81,15 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 	}
 	
 	@Override
-	public void setValue(MessageType newFieldValue) throws ReadOnlyException, ConversionException
+	public MessageType getValue()
 	{
-		bodyType.setValue(newFieldValue);
+		return bodyType.getValue();
 	}
 	
 	@Override
-	public MessageType getValue()
+	protected void doSetValue(MessageType value)
 	{
-		return (MessageType) bodyType.getValue();
-	}
-
-	@Override
-	public Class<? extends MessageType> getType()
-	{
-		return MessageType.class;
+		bodyType.setValue(value);	
 	}
 	
 	/**
@@ -124,7 +113,7 @@ public class MessageTypeComboBox extends CustomField<MessageType>
 		private ContentMode getMode()
 		{
 			return getValue() == MessageType.HTML ? 
-					ContentMode.HTML : ContentMode.PREFORMATTED;			
+					ContentMode.HTML : ContentMode.PREFORMATTED;		
 		}
 		
 		public void addImage(Resource res)

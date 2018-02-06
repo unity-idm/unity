@@ -4,11 +4,12 @@
  */
 package pl.edu.icm.unity.saml.idp.web;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TimeZone;
 
 import org.apache.logging.log4j.Logger;
@@ -18,11 +19,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
@@ -125,14 +127,13 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			throws EngineException
 	{
 		String profile = samlCtx.getSamlConfiguration().getValue(CommonIdPProperties.TRANSLATION_PROFILE);
-		boolean skipImport = samlCtx.getSamlConfiguration().getBooleanValue(
-				CommonIdPProperties.SKIP_USERIMPORT);
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
+		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
-				samlProcessor.getIdentityTarget(), "SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
+				samlProcessor.getIdentityTarget(), Optional.empty(), 
+				"SAML2", SAMLConstants.BINDING_HTTP_REDIRECT,
 				processor.isIdentityCreationAllowed(),
-				!skipImport);
+				samlCtx.getSamlConfiguration());
 	}
 
 	@Override
@@ -144,6 +145,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		samlResponseHandler = new SamlResponseHandler(freemarkerHandler, samlProcessor);
 		
 		VerticalLayout vmain = new VerticalLayout();
+		vmain.setMargin(false);
+		vmain.setSpacing(false);
 		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
 		TopHeaderLight header = new TopHeaderLight(displayedName.getValue(msg), msg);
 		vmain.addComponent(header);
@@ -151,8 +154,6 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		
 		VerticalLayout contents = new VerticalLayout();
 		contents.addStyleName(Styles.maxWidthColumn.toString());
-		contents.setMargin(true);
-		contents.setSpacing(true);
 		vmain.addComponent(contents);
 		vmain.setComponentAlignment(contents, Alignment.TOP_CENTER);
 		
@@ -195,13 +196,12 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		SafePanel exposedInfoPanel = new SafePanel();
 		contents.addComponent(exposedInfoPanel);
 		VerticalLayout eiLayout = new VerticalLayout();
-		eiLayout.setMargin(true);
-		eiLayout.setSpacing(true);
 		eiLayout.setWidth(100, Unit.PERCENTAGE);
 		exposedInfoPanel.setContent(eiLayout);
 		try
 		{
 			TranslationResult translationResult = getUserInfo(samlCtx, samlProcessor);
+			handleRedirectIfNeeded(translationResult);
 			createIdentityPart(translationResult, eiLayout);
 			eiLayout.addComponent(HtmlTag.br());
 			createAttributesPart(translationResult, eiLayout, samlCtx.getSamlConfiguration().getBooleanValue(
@@ -212,6 +212,9 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 			log.debug("SAML problem when handling client request", e);
 			samlResponseHandler.handleException(e, true);
 			return;
+		}  catch (EopException eop) 
+		{
+			throw eop;
 		} catch (Exception e)
 		{
 			log.error("Engine problem when handling client request", e);
@@ -222,6 +225,17 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		
 		rememberCB = new CheckBox(msg.getMessage("SamlIdPWebUI.rememberSettings"));
 		contents.addComponent(rememberCB);
+	}
+	
+	private void handleRedirectIfNeeded(TranslationResult userInfo) 
+			throws IOException, EopException
+	{
+		String redirectURL = userInfo.getRedirectURL();
+		if (redirectURL != null)
+		{
+			Page.getCurrent().open(redirectURL, null);
+			throw new EopException();
+		}
 	}
 	
 	protected void createIdentityPart(TranslationResult translationResult, VerticalLayout contents) 
@@ -368,12 +382,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	protected Collection<Attribute> getExposedAttributes()
 	{
-		Map<String, Attribute> userFilteredAttributes = attrsPresenter.getUserFilteredAttributes();
-		Collection<Attribute> nonNull = new ArrayList<>(userFilteredAttributes.size());
-		for (Attribute a: userFilteredAttributes.values())
-			if (a != null)
-				nonNull.add(a);
-		return nonNull;
+		return attrsPresenter.getUserFilteredAttributes().values();
 	}
 	
 	protected void addSessionParticipant(SAMLAuthnContext samlCtx, NameIDType returnedSubject,

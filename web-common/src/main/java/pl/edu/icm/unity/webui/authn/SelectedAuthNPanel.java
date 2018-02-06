@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -77,6 +78,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private String sandboxURL;
 	private SandboxAuthnNotifier sandboxNotifier;
 	private InputTranslationEngine inputTranslationEngine;
+	private String endpointPath;
 	
 	
 	public SelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
@@ -84,7 +86,7 @@ public class SelectedAuthNPanel extends CustomComponent
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
 			final CancelHandler cancelHandler, AuthenticationRealm realm,
 			String sandboxURL, SandboxAuthnNotifier sandboxNotifier,
-			InputTranslationEngine inputTranslationEngine)
+			InputTranslationEngine inputTranslationEngine, String endpointPath)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -95,6 +97,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.sandboxURL = sandboxURL;
 		this.sandboxNotifier = sandboxNotifier;
 		this.inputTranslationEngine = inputTranslationEngine;
+		this.endpointPath = endpointPath;
 
 		VerticalLayout main = new VerticalLayout();
 		main.addStyleName("u-selectedAuthn");
@@ -343,7 +346,7 @@ public class SelectedAuthNPanel extends CustomComponent
 			if (authNListener != null)
 				authNListener.authenticationStateChanged(true);
 
-			AuthenticationUI.setLastIdpCookie(authnId);
+			setLastIdpCookie(authnId);
 
 			authenticateButton.setEnabled(false);
 
@@ -359,7 +362,14 @@ public class SelectedAuthNPanel extends CustomComponent
 		}
 	}
 
-
+	private void setLastIdpCookie(String idpKey)
+	{
+		if (endpointPath == null)
+			return;
+		VaadinResponse resp = VaadinService.getCurrentResponse();
+		resp.addCookie(AuthenticationUI.createLastIdpCookie(endpointPath, idpKey));
+	}
+	
 	/**
 	 * Collects authN result from the first authenticator of the selected {@link AuthenticationOption} 
 	 * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 

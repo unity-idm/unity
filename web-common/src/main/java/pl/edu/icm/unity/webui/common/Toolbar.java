@@ -6,50 +6,44 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import com.google.common.html.HtmlEscapers;
-import com.vaadin.event.Action;
+import com.vaadin.event.selection.SelectionListener;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.Property.ValueChangeNotifier;
-import com.vaadin.v7.ui.Table;
-import com.vaadin.v7.ui.Tree;
 
 /**
- * Component with a list of small buttons. Buttons are bound to {@link Action}s via 
- * {@link SingleActionHandler}. The wrapped Action must have at least caption or image set.
+ * Component with a list of small buttons. Buttons are bound to actions via 
+ * {@link SingleActionHandler}.
  * 
- * Additionally toolbar's buttons have their state enabled or disabled depending whether the toolbar's target is set 
- * or not.
- * @deprecated use {@link Toolbar2}
+ * Additionally toolbar's buttons have their state enabled or disabled depending 
+ * whether the toolbar's target is set or not.
+ *  
  * @author K. Benedyczak
  */
-@Deprecated
-public class Toolbar extends CustomComponent
+public class Toolbar<T> extends CustomComponent
 {
 	private Orientation orientation;
-	private ValueChangeNotifier source;
-	private Object target;
+	private Set<T> target;
 	private List<Button> buttons;
 	private AbstractOrderedLayout main;
 	
-	public Toolbar(ValueChangeNotifier source, Orientation orientation)
+	public Toolbar(Orientation orientation)
 	{
-		this.source = source;
 		this.orientation = orientation;
-		this.main = orientation == Orientation.HORIZONTAL ? new HorizontalLayout() : new VerticalLayout();
-		
-		source.addValueChangeListener(getValueChangeListener());
+		this.main = orientation == Orientation.HORIZONTAL ? 
+				new HorizontalLayout() : new VerticalLayout();
+		target = Collections.emptySet();
 		buttons = new ArrayList<>();
 		main.setSpacing(true);
 		main.setMargin(false);
@@ -67,19 +61,13 @@ public class Toolbar extends CustomComponent
 	 * @return a listener that can be registered on a selectable component as {@link Tree} or {@link Table}
 	 * to update the toolbar's target.
 	 */
-	public ValueChangeListener getValueChangeListener()
+	public SelectionListener<T> getSelectionListener()
 	{
-		return new ValueChangeListener()
+		return event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				target = event.getProperty().getValue();
-				for (Button button: buttons)
-				{
-					updateButtonState(button);
-				}
-			}
+			target = event.getAllSelectedItems();
+			for (Button button: buttons)
+				updateButtonState(button);
 		};
 	}
 	
@@ -88,45 +76,29 @@ public class Toolbar extends CustomComponent
 		Object buttonData = button.getData();
 		if (buttonData == null || !(buttonData instanceof SingleActionHandler))
 			return;
-		SingleActionHandler handler = (SingleActionHandler) button.getData();
-		if (handler.isNeeded())
+		@SuppressWarnings("unchecked")
+		SingleActionHandler<T> handler = (SingleActionHandler<T>) button.getData();
+		if (handler.isVisible(target))
 		{
 			button.setVisible(true);
-			if (handler.isNeedsTarget() && target == null)
-			{
-				button.setEnabled(false);
-				if (handler.isHideIfNotNeeded())
-					button.setVisible(false);
-			} else
-			{
-				boolean en = handler.getActions(target, source).length == 1;
-				button.setEnabled(en);
-				if (handler.isHideIfNotNeeded())
-					button.setVisible(en);
-				
-			}
+			button.setEnabled(handler.isEnabled(target));
 		} else
 		{
 			button.setVisible(false);
 		}
 	}
 	
-	public void addActionHandlers(Collection<SingleActionHandler> handlers)
+	public void addActionHandlers(Collection<SingleActionHandler<T>> handlers)
 	{
-		for (SingleActionHandler handler: handlers)
+		for (SingleActionHandler<T> handler: handlers)
 			addActionHandler(handler);
 	}
-
-	public void addActionHandlers(SingleActionHandler... handlers)
+	
+	public void refresh()
 	{
-		for (SingleActionHandler handler: handlers)
-			addActionHandler(handler);
-	}
-
-	public void addButtons(Button... buttons)
-	{
+		target = new HashSet<>();
 		for (Button button: buttons)
-			addButton(button);
+			updateButtonState(button);
 	}
 	
 	public void addSeparator()
@@ -150,33 +122,37 @@ public class Toolbar extends CustomComponent
 		buttons.add(button);
 		main.addComponent(button);
 	}
-	
-	public void addActionHandler(SingleActionHandler handler)
+
+	public void addHamburger(HamburgerMenu<?> menuBar)
 	{
-		Action action = handler.getActionUnconditionally();
+		main.addComponent(menuBar);
+		menuBar.addStyleName(Styles.toolbarButton.toString());
+	}
+	
+	public void addButtons(Button... buttons)
+	{
+		for (Button button: buttons)
+			addButton(button);
+	}
+	
+	public void addActionHandler(SingleActionHandler<T> handler)
+	{
 		final Button button = new Button();
 		button.setData(handler);
-		if (action.getIcon() != null)
-			button.setIcon(action.getIcon());
-		else
-			button.setCaption(action.getCaption());
-		if (action.getCaption() != null)
-			button.setDescription(HtmlEscapers.htmlEscaper().escape(action.getCaption()));
-		button.addStyleName(Styles.vButtonLink.toString());
-		button.addStyleName(Styles.toolbarButton.toString());
-		button.addClickListener(new Button.ClickListener()
+		if (handler.getIcon() != null)
+			button.setIcon(handler.getIcon());
+		else if (handler.getCaption() != null)
+			button.setCaption(handler.getCaption());
+		
+		if (handler.getCaption() != null)
+			button.setDescription(HtmlEscapers.htmlEscaper().escape(handler.getCaption()));
+		button.addClickListener(event ->
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				SingleActionHandler handler = (SingleActionHandler) button.getData();
-				if (handler.isNeedsTarget() && target == null)
-					return;
-				handler.handleAction(handler.getActionUnconditionally(), source, target);
-			}
+			if (!handler.isEnabled(target))
+				return;
+			handler.handle(target);
 		});
-		buttons.add(button);
-		main.addComponent(button);
+		addButton(button);
 		updateButtonState(button);
 	}
 }

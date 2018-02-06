@@ -4,12 +4,10 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.web;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
-import com.vaadin.v7.ui.Slider;
+import com.vaadin.ui.Slider;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
@@ -36,28 +34,18 @@ public class ETDSettingsEditor
 	{
 		final Label infoVal = new Label();
 		generateETD = new CheckBox(msg.getMessage("SamlUnicoreIdPWebUI.generateETD"));
-		generateETD.setImmediate(true);
-		generateETD.addValueChangeListener(new ValueChangeListener()
+		generateETD.addValueChangeListener(event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				boolean how = generateETD.getValue();
-				validityDays.setEnabled(how);
-				infoVal.setEnabled(how);
-			}
+			boolean how = generateETD.getValue();
+			validityDays.setEnabled(how);
+			infoVal.setEnabled(how);
 		});
 		validityDays = new Slider(1, 90);
 		validityDays.setSizeFull();
-		validityDays.setImmediate(true);
-		validityDays.addValueChangeListener(new ValueChangeListener()
+		validityDays.addValueChangeListener(event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				int days = validityDays.getValue().intValue();
-				infoVal.setValue(msg.getMessage("SamlUnicoreIdPWebUI.etdValidity", days));
-			}
+			int days = validityDays.getValue().intValue();
+			infoVal.setValue(msg.getMessage("SamlUnicoreIdPWebUI.etdValidity", days));
 		});
 		infoVal.setValue(msg.getMessage("SamlUnicoreIdPWebUI.etdValidity", 
 				String.valueOf(validityDays.getValue().intValue())));

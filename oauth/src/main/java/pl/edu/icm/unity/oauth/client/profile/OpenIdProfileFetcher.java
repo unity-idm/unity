@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.client.profile;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Map;
 
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -18,10 +19,11 @@ import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
+import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
-import pl.edu.icm.unity.oauth.client.OpenIdUtils;
+import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.client.UserProfileFetcher;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 
@@ -32,8 +34,8 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 public class OpenIdProfileFetcher implements UserProfileFetcher
 {
 	@Override
-	public Map<String, String> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
-			BaseRemoteASProperties providerConfig, Map<String, String> attributesSoFar) throws Exception
+	public AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
+			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesSoFar) throws Exception
 	{
 		UserInfoRequest uiRequest = new UserInfoRequest(new URI(userInfoEndpoint), accessToken);
 		ServerHostnameCheckingMode checkingMode = providerConfig.getEnumValue(
@@ -54,12 +56,14 @@ public class OpenIdProfileFetcher implements UserProfileFetcher
 		if (uiResponseS.getUserInfoJWT() != null)
 		{
 			JWTClaimsSet claimSet = uiResponseS.getUserInfoJWT().getJWTClaimsSet();
-			return OpenIdUtils.toAttributes(claimSet);
+			JSONObject raw = new JSONObject(claimSet.getClaims());
+			return ProfileFetcherUtils.fetchFromJsonObject(raw);
 		} else
 		{
 			UserInfo ui = uiResponseS.getUserInfo();
 			JWTClaimsSet claimSet = ui.toJWTClaimsSet();
-			return OpenIdUtils.toAttributes(claimSet);
+			JSONObject raw = new JSONObject(claimSet.getClaims());
+			return ProfileFetcherUtils.fetchFromJsonObject(raw);			
 		}
 	}
 }

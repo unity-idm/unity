@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.identitytype;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,17 +11,12 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
-import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -32,8 +26,6 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -57,71 +49,66 @@ public class IdentityTypesComponent extends VerticalLayout
 	private IdentityTypesManagement identitiesManagement;
 
 	private IdentityTypeSupport idTypeSupport;
-	
-	
+
 	@Autowired
-	public IdentityTypesComponent(UnityMessageSource msg, IdentityTypesManagement identitiesManagement,
+	public IdentityTypesComponent(UnityMessageSource msg,
+			IdentityTypesManagement identitiesManagement,
 			IdentityTypeSupport idTypeSupport)
 	{
 		this.msg = msg;
 		this.identitiesManagement = identitiesManagement;
 		this.idTypeSupport = idTypeSupport;
 		this.bus = WebSession.getCurrent().getEventBus();
+
+		setMargin(false);
 		HorizontalLayout hl = new HorizontalLayout();
-		
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("IdentityTypes.caption"));
-		table = new GenericElementsTable<IdentityType>(msg.getMessage("IdentityTypes.types"), 
-				new GenericElementsTable.NameProvider<IdentityType>()
-				{
-					@Override
-					public Label toRepresentation(IdentityType element)
-					{
-						Label ret = new Label(element.getIdentityTypeProvider());
-						IdentityTypeDefinition typeDefinition = 
-								idTypeSupport.getTypeDefinition(element.getName());
-						if (typeDefinition.isDynamic())
-							ret.addStyleName(Styles.immutableAttribute.toString());
-						return ret;
-					}
-				});
+
+		table = new GenericElementsTable<IdentityType>(
+				msg.getMessage("IdentityTypes.types"),
+				element -> element.getIdentityTypeProvider());
+		table.setStyleGenerator(
+				id -> idTypeSupport.getTypeDefinition(id.getName()).isDynamic()
+						? Styles.immutableAttribute.toString()
+						: "");
+
+		table.setMultiSelect(true);
+		table.setWidth(90, Unit.PERCENTAGE);
 
 		viewer = new IdentityTypeViewer(msg, idTypeSupport);
-		table.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
+		table.addSelectionListener(event -> {
+			Collection<IdentityType> items = event.getAllSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
 			{
-				Collection<IdentityType> items = getItems(table.getValue());
-				if (items.size() > 1 || items.isEmpty())
-				{
-					viewer.setInput(null);
-					return;		
-				}	
-				IdentityType at = items.iterator().next();	
-				if (at != null)
-					viewer.setInput(at);
-				else
-					viewer.setInput(null);
+				viewer.setInput(null);
+				return;
 			}
+			IdentityType at = items.iterator().next();
+			if (at != null)
+				viewer.setInput(at);
+			else
+				viewer.setInput(null);
+
 		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getEditAction());
+		Toolbar<IdentityType> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
-		hl.setMargin(true);
-		hl.setSpacing(true);
 		hl.setMargin(new MarginInfo(true, false, true, false));
 		main = hl;
 		refresh();
+
 	}
-	
+
 	public void refresh()
 	{
 		try
@@ -138,9 +125,9 @@ public class IdentityTypesComponent extends VerticalLayout
 			removeAllComponents();
 			addComponent(error);
 		}
-		
+
 	}
-	
+
 	private boolean updateType(IdentityType type)
 	{
 		try
@@ -150,59 +137,39 @@ public class IdentityTypesComponent extends VerticalLayout
 			return true;
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("IdentityTypes.errorUpdate"), e);
+			NotificationPopup.showError(msg,
+					msg.getMessage("IdentityTypes.errorUpdate"), e);
 			return false;
 		}
 	}
 
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler<IdentityType> getRefreshAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("IdentityTypes.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
+		return SingleActionHandler.builder4Refresh(msg, IdentityType.class)
+				.withHandler(selection -> refresh()).build();
 	}
 
-	private Collection<IdentityType> getItems(Object target)
+	private SingleActionHandler<IdentityType> getEditAction()
 	{
-		if (target == null)
-			return new ArrayList<>();
-		GenericItem<?> i = (GenericItem<?>) target;
-		IdentityType at = (IdentityType) i.getElement();
-		return Lists.newArrayList(at);
+		return SingleActionHandler.builder4Edit(msg, IdentityType.class)
+				.withHandler(this::showEditDialog).build();
 	}
-	
-	private class EditActionHandler extends SingleActionHandler
-	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("IdentityTypes.editAction"), Images.edit.getResource());
-		}
 
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			
-			GenericItem<?> item = (GenericItem<?>) target;	
-			IdentityType at = (IdentityType) item.getElement();
-			IdentityTypeEditor editor = new IdentityTypeEditor(msg, idTypeSupport, at);
-			IdentityTypeEditDialog dialog = new IdentityTypeEditDialog(msg, 
-					msg.getMessage("IdentityTypes.editAction"), new Callback()
+	private void showEditDialog(Collection<IdentityType> target)
+	{
+		IdentityType idType = target.iterator().next();
+		idType = idType.clone();
+		IdentityTypeEditor editor = new IdentityTypeEditor(msg, idTypeSupport, idType);
+		IdentityTypeEditDialog dialog = new IdentityTypeEditDialog(msg,
+				msg.getMessage("IdentityTypes.editAction"), new Callback()
+				{
+					@Override
+					public boolean updatedIdentityType(
+							IdentityType newIdentityType)
 					{
-						@Override
-						public boolean updatedIdentityType(IdentityType newIdentityType)
-						{
-							return updateType(newIdentityType);
-						}
-					}, editor);
-			dialog.show();
-		}
+						return updateType(newIdentityType);
+					}
+				}, editor);
+		dialog.show();
 	}
 }

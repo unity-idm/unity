@@ -4,10 +4,14 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -23,6 +28,7 @@ import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationCapable;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
@@ -32,7 +38,8 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> implements VaadinAuthentication
+public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> 
+		implements VaadinAuthentication, ProxyAuthenticationCapable
 {
 	public static final String NAME = "web-saml2";
 	public static final String DESC = "WebSAMLRetrievalFactory.desc";
@@ -40,6 +47,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> imp
 	
 	private UnityMessageSource msg;
 	private SamlContextManagement samlContextManagement;
+	private SAMLProxyAuthnHandler proxyAuthnHandler;
 	
 	@Autowired
 	public SAMLRetrieval(UnityMessageSource msg, NetworkServer jettyServer, 
@@ -68,18 +76,36 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange> imp
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
 		Set<String> allIdps = samlProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
-		for (String key: allIdps)
-			if (samlProperties.isIdPDefinitionComplete(key))
+		for (String configKey: allIdps)
+			if (samlProperties.isIdPDefinitionComplete(configKey))
 			{
-				Binding binding = samlProperties.getEnumValue(key + 
+				String idpKey = configKey.substring(SAMLSPProperties.IDP_PREFIX.length(), 
+						configKey.length()-1);
+				Binding binding = samlProperties.getEnumValue(configKey + 
 						SAMLSPProperties.IDP_BINDING, Binding.class);
 				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
 				{
 					ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
-							samlContextManagement, key, samlProperties));
+							samlContextManagement, idpKey, 
+							samlProperties, configKey));
 				}
 			}
 		return ret;
+	}
+
+	@Override
+	public void setCredentialExchange(CredentialExchange e, String id)
+	{
+		super.setCredentialExchange(e, id);
+		proxyAuthnHandler = new SAMLProxyAuthnHandler((SAMLExchange) e, 
+				samlContextManagement);
+	}
+	
+	@Override
+	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse) throws IOException
+	{
+		return proxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse);
 	}
 
 	@Override

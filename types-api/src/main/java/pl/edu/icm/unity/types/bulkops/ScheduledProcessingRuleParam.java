@@ -38,6 +38,11 @@ public class ScheduledProcessingRuleParam extends TranslationRule
 	{
 		return cronExpression;
 	}
+	
+	public void setCronExpression(String cronExpression)
+	{
+		this.cronExpression = cronExpression;
+	}
 
 	@JsonValue
 	public ObjectNode toJson()

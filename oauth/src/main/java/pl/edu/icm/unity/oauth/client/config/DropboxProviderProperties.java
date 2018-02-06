@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Preset configuration for Facebook OAuth provider.
@@ -25,11 +26,14 @@ public class DropboxProviderProperties extends CustomProviderProperties
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
 		setIfUnset(properties, prefix + PROVIDER_NAME, "Dropbox");
-		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://www.dropbox.com/1/oauth2/authorize");
+		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://www.dropbox.com/oauth2/authorize");
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretBasic.toString());
-		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://api.dropbox.com/1/oauth2/token");
-		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.dropbox.com/1/account/info");
+		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://api.dropboxapi.com/oauth2/token");
+		setIfUnset(properties, prefix + CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS, ClientHttpMethod.post.toString());
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.dropboxapi.com/2/users/get_current_account");
+		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/dropbox-small.png");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:dropbox");
 		return properties;
 	}
 

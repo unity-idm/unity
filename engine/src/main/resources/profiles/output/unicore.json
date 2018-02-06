@@ -1,0 +1,45 @@
+{
+	"ver": "2",
+	"name": "sys:unicore",
+	"description": "Translation profile for UNICORE",
+	"type": "OUTPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "includeOutputProfile",
+				"parameters": [
+					"sys:default"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"organization",
+					"o",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"picture",
+					"jpegPhoto",
+					"false"
+				]
+			}
+		}
+	]
+}

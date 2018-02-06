@@ -8,20 +8,18 @@ package pl.edu.icm.unity.webadmin.tprofile;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import com.vaadin.server.Resource;
+import com.vaadin.data.Binder;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.ui.dnd.EffectAllowed;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.DragAndDropWrapper.DragStartMode;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.dnd.DragSourceExtension;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -32,11 +30,11 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -53,7 +51,7 @@ public class RuleComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	private ActionEditor actionEditor;
-	private AbstractTextField condition;
+	private MVELExpressionField condition;
 	private MappingResultComponent mappingResultComponent;
 	private Callback callback;
 	private MenuItem top;
@@ -63,6 +61,7 @@ public class RuleComponent extends CustomComponent
 	private FormLayout content;
 	private Label info;
 	private Button showHide;
+	private Binder<TranslationRule> binder;
 	
 	public RuleComponent(UnityMessageSource msg, TypesRegistryBase<? extends TranslationActionFactory<?>> tc,
 			TranslationRule toEdit, ActionParameterComponentProvider actionComponentProvider, 
@@ -79,13 +78,14 @@ public class RuleComponent extends CustomComponent
 	private void initUI(TranslationRule toEdit)
 	{
 		VerticalLayout headerWrapper = new VerticalLayout();
+		headerWrapper.setMargin(false);
+		headerWrapper.setSpacing(false);
 		
 		HorizontalLayout header = new HorizontalLayout();
 		header.setSizeFull();
 		header.setMargin(false);
-		header.setSpacing(true);
-
-		showHide = new Button(Images.vaadinDownArrow.getResource());
+	
+		showHide = new Button(Images.downArrow.getResource());
 		showHide.addStyleName(Styles.vButtonLink.toString());
 		showHide.addStyleName(Styles.toolbarButton.toString());
 		showHide.addStyleName(Styles.vButtonBorderless.toString());
@@ -99,23 +99,28 @@ public class RuleComponent extends CustomComponent
 		header.setComponentAlignment(info, Alignment.MIDDLE_LEFT);
 		header.setExpandRatio(info, 1);
 
-		
-		DragHtmlLabel img = new DragHtmlLabel(this, Images.vaadinResize.getResource());
-		img.addStyleName(Styles.link.toString());
+		Button img = new Button(Images.resize.getResource());
 		img.setSizeFull();
+		img.setWidth(1, Unit.EM);
+		img.setStyleName(Styles.vButtonLink.toString());
+		img.addStyleName(Styles.vButtonBorderless.toString());
+		img.addStyleName(Styles.link.toString());
 		
-		DragAndDropWrapper dragWrapper = new DragAndDropWrapper(img);
-		dragWrapper.setDragStartMode(DragStartMode.WRAPPER);
-		dragWrapper.setWidth(1, Unit.EM);
+		DragSourceExtension<Button> dragSource = new DragSourceExtension<>(img);
+		dragSource.setEffectAllowed(EffectAllowed.MOVE);
+		dragSource.setDragData(this);
 		
-		header.addComponent(dragWrapper);	
-		header.setComponentAlignment(dragWrapper, Alignment.MIDDLE_RIGHT);
+		header.addComponent(img);	
+		header.setComponentAlignment(img, Alignment.MIDDLE_RIGHT);
 		
-		MenuBar menuBar = new HamburgerMenu();			
-		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), Images.vaadinRemove.getResource(), s -> callback.remove(RuleComponent.this));
-		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), Images.vaadinTopArrow.getResource(), 
+		HamburgerMenu<String> menuBar = new HamburgerMenu<String>();			
+		menuBar.addItem(msg.getMessage("TranslationProfileEditor.remove"), 
+				Images.remove.getResource(), s -> callback.remove(RuleComponent.this));
+		top = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveTop"), 
+				Images.topArrow.getResource(), 
 				s -> callback.moveTop(RuleComponent.this));	
-		bottom = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), Images.vaadinBottomArrow.getResource(), 
+		bottom = menuBar.addItem(msg.getMessage("TranslationProfileEditor.moveBottom"), 
+				Images.bottomArrow.getResource(), 
 				s -> callback.moveBottom(RuleComponent.this));
 
 		header.addComponent(menuBar);
@@ -135,7 +140,6 @@ public class RuleComponent extends CustomComponent
 		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		condition.setStyleName(Styles.vTiny.toString());
-		
 		
 		Consumer<String> editorCallback = s -> info.setValue(s);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
@@ -158,18 +162,24 @@ public class RuleComponent extends CustomComponent
 		main.addComponent(content);
 	
 		setCompositionRoot(main);
-		
 		info.setValue(actionEditor.getStringRepresentation());
-		condition.setValue(editMode? toEdit.getCondition() : "true");
+		
+		binder = new Binder<>(TranslationRule.class);
+		condition.configureBinding(binder, "condition");		
+		binder.setBean(new TranslationRule(editMode? toEdit.getCondition() : "true", null));
+
 	}
 
 	public TranslationRule getRule() throws FormValidationException
-	{
-		TranslationAction action = actionEditor.getAction();
-		TranslationCondition cnd = new TranslationCondition();
-		cnd.setCondition(condition.getValue());			
-		
-		return new TranslationRule(condition.getValue(), action);
+	{	
+		if (!binder.isValid())
+		{
+			binder.validate();
+			throw new FormValidationException();
+		}
+		TranslationRule rule = binder.getBean();
+		rule.setTranslationAction(actionEditor.getAction());
+		return rule;
 	}
 	
 	public void setTopVisible(boolean v)
@@ -199,9 +209,11 @@ public class RuleComponent extends CustomComponent
 			ok = false;
 		}
 		
-		condition.setValidationVisible(true);
-		if (!condition.isValid())
+		if (!binder.isValid())
+		{
+			binder.validate();
 			ok = false;
+		}
 		
 		if (!ok)
 			showHideContent(true);
@@ -265,7 +277,6 @@ public class RuleComponent extends CustomComponent
 	{
 		condition.setStyleName(Styles.errorBackground.toString());
 		condition.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
-		condition.setValidationVisible(true);
 	}
 
 
@@ -288,7 +299,6 @@ public class RuleComponent extends CustomComponent
 		condition.removeStyleName(Styles.errorBackground.toString());
 		condition.removeStyleName(Styles.falseConditionBackground.toString());
 		condition.setComponentError(null);
-		condition.setValidationVisible(false);
 		
 		actionEditor.removeComponentEvaluationStyle();
 	}
@@ -306,28 +316,10 @@ public class RuleComponent extends CustomComponent
 	
 	private void showHideContent(boolean show)
 	{
-		showHide.setIcon(show ? Images.vaadinUpArrow.getResource()
-				: Images.vaadinDownArrow.getResource());
+		showHide.setIcon(show ? Images.upArrow.getResource()
+				: Images.downArrow.getResource());
 		content.setVisible(show);
 	}
-
-	public static class DragHtmlLabel extends Button
-	{
-		private RuleComponent parentRule;
-		
-		public DragHtmlLabel(RuleComponent parent, Resource icon)
-		{
-			super(icon);
-			setStyleName(Styles.vButtonLink.toString());
-			addStyleName(Styles.vButtonBorderless.toString());
-			this.parentRule = parent;
-		}
-		
-		public RuleComponent getParentRule()
-		{
-			return parentRule;
-		}
-	}	
 	
 	public interface Callback
 	{

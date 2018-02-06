@@ -1,0 +1,321 @@
+[
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonEntitlement",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonEntitlement",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonAssurance",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonAssurance",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonOrcid",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonOrcid",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonUniqueId",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonUniqueId",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonOrgDN",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonOrgDN",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonOrgUnitDN",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonOrgUnitDN",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonPrimaryOrgUnitDN",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonPrimaryOrgUnitDN",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonPrincipalName",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonPrincipalName",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonPrincipalNamePrior",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonPrincipalNamePrior",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonScopedAffiliation",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonScopedAffiliation",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 10,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 0,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "eduPersonTargetedID",
+			"Map": {
+				
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "eduPersonTargetedID",
+		"syntaxId": "string"
+	}
+]

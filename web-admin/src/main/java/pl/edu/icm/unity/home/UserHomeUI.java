@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -64,6 +64,8 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 	protected void appInit(VaadinRequest request)
 	{
 		VerticalLayout contents = new VerticalLayout();
+		contents.setMargin(false);
+		contents.setSpacing(false);
 		I18nString displayedName = endpointDescription.getEndpoint().getConfiguration().getDisplayedName();
 		TopHeader header = new TopHeader(displayedName.getValue(msg), authnProcessor, msg);
 		contents.addComponent(header);

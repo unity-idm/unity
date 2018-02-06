@@ -4,10 +4,11 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -16,12 +17,11 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
 /**
  * A {@link ComboBox} showing only the templates which are compatible with a given description.
  * @author K. Benedyczak
- * 
- * @deprecated use {@link CompatibleTemplatesComboBox2}
  */
-@Deprecated
-public class CompatibleTemplatesComboBox extends ComboBox
+public class CompatibleTemplatesComboBox extends ComboBox<String>
 {
+	private Collection<String> values; 
+	 
 	public CompatibleTemplatesComboBox(String definitionName, MessageTemplateManagement msgTplMan) 
 	{
 		Map<String, MessageTemplate> templates;
@@ -32,9 +32,13 @@ public class CompatibleTemplatesComboBox extends ComboBox
 		{
 			templates = new HashMap<>();
 		}
-		for (String key: templates.keySet())
-		{
-			addItem(key);
-		}
+		values = templates.keySet();
+		setItems(values);
+	}
+	
+	public void setDefaultValue()
+	{
+		if (values != null && !values.isEmpty())
+			setValue(values.iterator().next());
 	}
 }

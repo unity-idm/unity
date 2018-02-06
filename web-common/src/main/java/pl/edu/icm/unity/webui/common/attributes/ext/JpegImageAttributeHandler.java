@@ -16,19 +16,21 @@ import java.util.Random;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.data.Binder;
 import com.vaadin.event.MouseEvents;
 import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.Upload;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.SucceededEvent;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -86,7 +88,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		} catch (Exception e)
 		{
 			log.warn("Problem getting value's image as resource: " + e, e);
-			return Images.error32.getResource();
+			return null;
 		}
 	}
 
@@ -94,12 +96,28 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	public Component getRepresentation(String valueRaw)
 	{
 		BufferedImage value = syntax.convertFromString(valueRaw);
-		Image image = new Image();
 		int width = value.getWidth();
 		int height = value.getHeight();
-		
-		image.setSource(getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width, height));
-		return image;
+		Resource resValue = getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width,
+				height);
+		if (resValue != null)
+		{
+			Image image = new Image();
+
+			image.setSource(resValue);
+			return image;
+		} else
+		{
+			return  getErrorImage();
+		}	
+	}
+	
+	private Label getErrorImage()
+	{
+		Label errorImage =  new Label(Images.error.getHtml());
+		errorImage.setContentMode(ContentMode.HTML);
+		errorImage.addStyleName(Styles.largeIcon.toString());
+		return errorImage;
 	}
 
 	private BufferedImage scaleIfNeeded(BufferedImage value, int maxWidth, int maxHeight)
@@ -152,6 +170,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 			error = new Label();
 			error.setStyleName(Styles.error.toString());
 			error.setVisible(false);
+				
+			Label errorImage = getErrorImage();
+			errorImage.setVisible(false);
 			
 			field = new Image();
 			if (value != null)
@@ -161,10 +182,13 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 					BufferedImage scalledPreview = scaleIfNeeded(value, PREVIEW_WIDTH, PREVIEW_HEIGHT);
 					SimpleImageSource source = new SimpleImageSource(scalledPreview, syntax, "jpg");
 					field.setSource(source.getResource());
+					errorImage.setVisible(false);
+					field.setVisible(true);
 				} catch (Exception e)
 				{
 					log.warn("Problem getting value's image as resource for editing: " + e, e);
-					field.setSource(Images.error32.getResource());
+					errorImage.setVisible(true);
+					field.setVisible(false);
 				}
 			}
 			field.addClickListener(new MouseEvents.ClickListener()
@@ -179,7 +203,6 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 			field.setDescription(msg.getMessage("JpegAttributeHandler.clickToEnlarge"));
 			
 			upload = new Upload();
-			upload.setImmediate(true);
 			progressIndicator = new ProgressBar(0);
 			progressIndicator.setVisible(false);
 			
@@ -189,7 +212,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 
 			scale = new CheckBox(msg.getMessage("JpegAttributeHandler.scaleIfNeeded"));
 			scale.setValue(true);
-			return new ComponentsContainer(field, error, upload, progressIndicator, scale, 
+			return new ComponentsContainer(field, errorImage, error, upload, progressIndicator, scale, 
 					getHints(syntax));
 		}
 
@@ -329,10 +352,11 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	private static class JpegSyntaxEditor implements AttributeSyntaxEditor<BufferedImage>
 	{
 		private JpegImageAttributeSyntax initial;
-		private IntegerBoundEditor maxHeight, maxWidth, maxSize;
+		private IntegerBoundEditor maxHeight, maxSize;
+		private IntegerBoundEditor maxWidth;
 		private UnityMessageSource msg;
-		
-		
+		private Binder<JpegSyntaxBindingValue> binder;
+
 		public JpegSyntaxEditor(JpegImageAttributeSyntax initial, UnityMessageSource msg)
 		{
 			this.initial = initial;
@@ -343,27 +367,39 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		public Component getEditor()
 		{
 			FormLayout fl = new CompactFormLayout();
-			maxWidth = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"), 
-					msg.getMessage("JpegAttributeHandler.maxWidthE"), Integer.MAX_VALUE);
-			maxWidth.setMin(1);
-			maxHeight = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxHeightUnlimited"), 
-					msg.getMessage("JpegAttributeHandler.maxHeightE"), Integer.MAX_VALUE);
-			maxHeight.setMin(1);
-			maxSize = new IntegerBoundEditor(msg, msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"), 
-					msg.getMessage("JpegAttributeHandler.maxSizeE"), Integer.MAX_VALUE);
-			maxSize.setMin(100);
+			maxWidth = new IntegerBoundEditor(msg,
+					msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"),
+					msg.getMessage("JpegAttributeHandler.maxWidthE"),
+					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
+			maxHeight = new IntegerBoundEditor(msg,
+					msg.getMessage("JpegAttributeHandler.maxHeightUnlimited"),
+					msg.getMessage("JpegAttributeHandler.maxHeightE"),
+					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
+			maxSize = new IntegerBoundEditor(msg,
+					msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"),
+					msg.getMessage("JpegAttributeHandler.maxSizeE"),
+					Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
+
+			binder = new Binder<>(JpegSyntaxBindingValue.class);
+			maxWidth.configureBinding(binder, "maxWidth");
+			maxHeight.configureBinding(binder, "maxHeight");
+			maxSize.configureBinding(binder, "maxSize");
+
 			fl.addComponents(maxWidth, maxHeight, maxSize);
+
+			JpegSyntaxBindingValue value = new JpegSyntaxBindingValue();
 			if (initial != null)
 			{
-				maxWidth.setValue(initial.getMaxWidth());
-				maxHeight.setValue(initial.getMaxHeight());
-				maxSize.setValue(initial.getMaxSize());
+				value.setMaxWidth(initial.getMaxWidth());
+				value.setMaxHeight(initial.getMaxHeight());
+				value.setMaxSize(initial.getMaxSize());
 			} else
 			{
-				maxWidth.setValue(200);
-				maxHeight.setValue(200);
-				maxSize.setValue(1024000);
+				value.setMaxWidth(200);
+				value.setMaxHeight(200);
+				value.setMaxSize(1024000);
 			}
+			binder.setBean(value);
 			return fl;
 		}
 
@@ -371,16 +407,67 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		public AttributeValueSyntax<BufferedImage> getCurrentValue()
 				throws IllegalAttributeTypeException
 		{
+
 			try
 			{
+				if (!binder.isValid())
+				{
+					binder.validate();
+					throw new IllegalAttributeTypeException("");
+				}
+
+				JpegSyntaxBindingValue value = binder.getBean();
 				JpegImageAttributeSyntax ret = new JpegImageAttributeSyntax();
-				ret.setMaxHeight((int)(long)maxHeight.getValue());
-				ret.setMaxWidth((int)(long)maxWidth.getValue());
-				ret.setMaxSize((int)(long)maxSize.getValue());
+				ret.setMaxHeight(value.getMaxHeight());
+				ret.setMaxWidth(value.getMaxWidth());
+				ret.setMaxSize(value.getMaxSize());
 				return ret;
 			} catch (Exception e)
 			{
 				throw new IllegalAttributeTypeException(e.getMessage(), e);
+			}
+
+		}
+
+		public class JpegSyntaxBindingValue
+		{
+			private Integer maxSize;
+			private Integer maxWidth;
+			private Integer maxHeight;
+			
+			public JpegSyntaxBindingValue()
+			{
+
+			}
+
+			public Integer getMaxSize()
+			{
+				return maxSize;
+			}
+
+			public void setMaxSize(Integer maxSize)
+			{
+				this.maxSize = maxSize;
+			}
+
+			public Integer getMaxWidth()
+			{
+				return maxWidth;
+			}
+
+			public void setMaxWidth(Integer maxWidth)
+			{
+				this.maxWidth = maxWidth;
+			}
+
+			public Integer getMaxHeight()
+			{
+				return maxHeight;
+			}
+
+			public void setMaxHeight(Integer maxHeight)
+			{
+				this.maxHeight = maxHeight;
 			}
 		}
 	}

@@ -1,0 +1,66 @@
+{
+	"ver": "2",
+	"name": "tr-local-out",
+	"description": "",
+	"type": "OUTPUT",
+	"mode": "DEFAULT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "filterAttribute",
+				"parameters": [
+					"sys:.*"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"memberOf",
+					"groups",
+					"false",
+					"MemberOf",
+					"User groups"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"username",
+					"idsByType['userName']",
+					"false",
+					"username",
+					"username"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"picture",
+					"'url'",
+					"false",
+					"picture",
+					"picture"
+				]
+			}
+		}
+		
+	]
+}

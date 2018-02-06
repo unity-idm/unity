@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.ws.rs.FormParam;
@@ -50,6 +51,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
@@ -529,14 +531,17 @@ public class AccessTokenResource extends BaseOAuthResource
 	private TranslationResult getAttributes(long clientId, long ownerId, String grant)
 			throws OAuthErrorException
 	{
+		EntityInGroup client = new EntityInGroup(
+				config.getValue(OAuthASProperties.CLIENTS_GROUP), 
+				new EntityParam(clientId));
 		TranslationResult userInfoRes = null;
 		try
 		{
 			userInfoRes = notAuthorizedOauthIdpEngine.getUserInfoUnsafe(ownerId,
-					String.valueOf(clientId),
+					String.valueOf(clientId), Optional.of(client),
 					config.getValue(OAuthASProperties.USERS_GROUP),
 					config.getValue(CommonIdPProperties.TRANSLATION_PROFILE),
-					grant, false);
+					grant, config);
 		} catch (ExecutionFailException e)
 		{
 			log.debug("Authentication failed due to profile's decision, returning error");

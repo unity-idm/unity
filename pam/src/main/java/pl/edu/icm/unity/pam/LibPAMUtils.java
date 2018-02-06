@@ -37,7 +37,7 @@ public class LibPAMUtils
 		if (unixUser.getShell() != null)
 			attributes.add(new RemoteAttribute("shell", unixUser.getShell()));
 		ret.setAttributes(attributes);
-		
+		ret.setRawAttributes(ret.getAttributes());
 		ret.setGroups(unixUser.getGroups().stream()
 				.map(RemoteGroupMembership::new)
 				.collect(Collectors.toList()));

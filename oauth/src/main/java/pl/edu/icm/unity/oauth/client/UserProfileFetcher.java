@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.oauth.client;
 
+import java.util.List;
 import java.util.Map;
 
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
@@ -19,7 +20,7 @@ public interface UserProfileFetcher
 	 * @return
 	 * @throws Exception
 	 */
-	Map<String, String> fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
-			BaseRemoteASProperties providerConfig, Map<String, String> attributesFromACResponse) 
+	AttributeFetchResult fetchProfile(BearerAccessToken accessToken, String userInfoEndpoint,
+			BaseRemoteASProperties providerConfig, Map<String, List<String>> attributesFromACResponse) 
 					throws Exception;
 }

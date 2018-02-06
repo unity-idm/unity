@@ -1,0 +1,34 @@
+{
+	"ver": "2",
+	"name": "sys:default",
+	"description": "Default output profile. Hide sys* attribues  and add memberOf. ",
+	"type": "OUTPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "filterAttribute",
+				"parameters": [
+					"sys:.*"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"memberOf",
+					"groups",
+					"false",
+					"MemberOf",
+					"User groups"
+				]
+			}
+		}
+	]
+}

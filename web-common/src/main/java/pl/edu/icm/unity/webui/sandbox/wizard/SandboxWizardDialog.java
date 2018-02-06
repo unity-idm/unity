@@ -13,7 +13,7 @@ import org.vaadin.teemu.wizards.event.WizardStepSetChangedEvent;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
 /**
@@ -39,7 +39,7 @@ public class SandboxWizardDialog extends Window implements WizardProgressListene
 	{
 		VerticalLayout mainLayout = new VerticalLayout();
 		mainLayout.setSizeFull();
-		mainLayout.setMargin(true);
+		mainLayout.setSpacing(false);
 		mainLayout.addComponent(wizard);
 		return mainLayout;
 	}

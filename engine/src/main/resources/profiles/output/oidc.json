@@ -1,0 +1,142 @@
+{
+	"ver": "2",
+	"name": "sys:oidc",
+	"description": "OpenID connect core translation profile",
+	"type": "OUTPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "includeOutputProfile",
+				"parameters": [
+					"sys:default"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"firstname",
+					"given_name",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"surname",
+					"family_name",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"middleName",
+					"middle_name",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"pictureURL",
+					"picture",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"timezone",
+					"zoneinfo",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttributeName",
+				"parameters": [
+					"telephoneNumber",
+					"phone_number",
+					"false"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "(!(attr contains 'address')) && (attr contains 'street') && (attr contains 'locality') && (attr contains 'postalCode') && (attr contains 'provinceName') && (attr contains 'country')"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"address",
+					"'{ \"formatted\" :\"' +  attr['street'] + ', ' + attr['locality'] + ', ' + attr['postalCode'] + ', ' + attr['provinceName'] + ', ' + attr['country'] + '\" }'",
+					"false",
+					"Address",
+					"Address"
+				]
+			}
+		},	
+		{
+			"condition": {
+				"conditionValue": "attr contains 'address'"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"address",
+					"'{ \"formatted\" :\"' + attr['address'] + '\" }'",
+					"false",
+					"Address",
+					"Address"
+				]
+			}
+		},	
+		{
+			"condition": {
+				"conditionValue": "attr contains 'email'"
+			},
+			"action": {
+				"name": "createAttribute",
+				"parameters": [
+					"email_verified",
+					"attrObj['email'][0].getConfirmationInfo().isConfirmed()",
+					"false",
+					"Email verified",
+					"Email verified"
+				]
+			}
+		}
+	]
+}

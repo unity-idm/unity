@@ -24,16 +24,11 @@ public class ExpandCollapseButton extends Button
 		
 		updateState();
 		addStyleName(Styles.vButtonLink.toString());
-		addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				collapsed = !collapsed;
-				updateState();
-				if (customListener != null)
-					customListener.buttonClick(event);
-			}
+		addClickListener(event -> {
+			collapsed = !collapsed;
+			updateState();
+			if (customListener != null)
+				customListener.buttonClick(event);
 		});
 	}
 	
@@ -44,8 +39,8 @@ public class ExpandCollapseButton extends Button
 
 	private void updateState()
 	{
-		setIcon(collapsed ? Images.zoomin.getResource() 
-				: Images.zoomout.getResource());
+		setIcon(collapsed ? Images.downArrow.getResource() 
+				: Images.upArrow.getResource());
 		for (Component c: components)
 			c.setVisible(!collapsed);
 	}

@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.server.SessionDestroyEvent;
 import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.VaadinService;
+import com.vaadin.shared.Registration;
 
 import pl.edu.icm.unity.base.utils.Log;
 
@@ -72,18 +73,31 @@ public class SandboxAuthnRouterImpl implements SandboxAuthnRouter
 	private void addCleanupTaskToSessionDestroy(final String sessionId)
 	{
 		final VaadinService vaadinService = VaadinService.getCurrent();
-		vaadinService.addSessionDestroyListener(new SessionDestroyListener() 
+		RemoveFromAuthnList listener = new RemoveFromAuthnList(sessionId);
+		Registration listenerRegistration = vaadinService.addSessionDestroyListener(listener);
+		listener.registration = listenerRegistration;
+	}
+	
+	private class RemoveFromAuthnList implements SessionDestroyListener
+	{
+		private Registration registration;
+		private String sessionId;
+		
+		public RemoveFromAuthnList(String sessionId)
 		{
-			@Override
-			public void sessionDestroy(SessionDestroyEvent event) 
+			this.sessionId = sessionId;
+		}
+
+		@Override
+		public void sessionDestroy(SessionDestroyEvent event) 
+		{
+			synchronized (authnListenerList)
 			{
-				synchronized (authnListenerList)
-				{
-					authnListenerList.remove(sessionId);
-				}				
-				vaadinService.removeSessionDestroyListener(this);
+				authnListenerList.remove(sessionId);
 			}
-		}); 	
+			if (registration != null)
+				registration.remove();
+		}
 	}
 	
 	@Override

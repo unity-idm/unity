@@ -14,7 +14,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -70,11 +70,14 @@ public class ExposedAttributesComponent extends CustomComponent
 	private void initUI()
 	{
 		VerticalLayout contents = new VerticalLayout();
-		contents.setSpacing(true);
+		contents.setMargin(false);
 
 		final VerticalLayout details = new VerticalLayout();
+		details.setMargin(false);
+		details.setSpacing(false);
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
-
+		showDetails.setId("ExposedAttributes.showDetails");
+		
 		Label attributesL = new Label(
 				msg.getMessage("ExposedAttributesComponent.attributes"));
 		attributesL.addStyleName(Styles.bold.toString());
@@ -111,14 +114,19 @@ public class ExposedAttributesComponent extends CustomComponent
 	private List<Component> getAttributeComponent(DynamicAttribute dat)
 	{
 		Attribute at = dat.getAttribute();
-		AttributeType attributeType;
-		try
+		AttributeType attributeType = dat.getAttributeType();
+		if (attributeType == null)
 		{
-			attributeType = atSupport.getType(at);
-		} catch (IllegalArgumentException e)
-		{
-			// can happen for dynamic attributes from output translation profile
-			attributeType = new AttributeType(at.getName(),	StringAttributeSyntax.ID);
+			try
+			{
+				attributeType = atSupport.getType(at);
+			} catch (IllegalArgumentException e)
+			{
+				// can happen for dynamic attributes from output
+				// translation profile
+				attributeType = new AttributeType(at.getName(),
+						StringAttributeSyntax.ID);
+			}
 		}
 		AttributeViewer attrViewer = new AttributeViewer(msg, handlersRegistry, 
 				attributeType, at, false); 

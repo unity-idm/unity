@@ -19,8 +19,8 @@ import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
-import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox2;
-import pl.edu.icm.unity.webui.common.GroupComboBox2;
+import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 
 /**
@@ -36,11 +36,11 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	
 	private ComboBox<String> channel;
 	private CheckBox sendAdminCopy;
-	private GroupComboBox2 adminsNotificationGroup;
+	private GroupComboBox adminsNotificationGroup;
 
-	private CompatibleTemplatesComboBox2 rejectedTemplate;
-	private CompatibleTemplatesComboBox2 acceptedTemplate;
-	private CompatibleTemplatesComboBox2 updatedTemplate;
+	private CompatibleTemplatesComboBox rejectedTemplate;
+	private CompatibleTemplatesComboBox acceptedTemplate;
+	private CompatibleTemplatesComboBox updatedTemplate;
 	
 	public BaseFormNotificationsEditor(UnityMessageSource msg, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan, MessageTemplateManagement msgTempMan) throws EngineException
@@ -60,16 +60,16 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		channel.setItems(channels);
 		sendAdminCopy = new CheckBox(msg.getMessage("BaseFormNotificationsEditor.sendAdminCopy"));
 		
-		adminsNotificationGroup = new GroupComboBox2(
+		adminsNotificationGroup = new GroupComboBox(
 				msg.getMessage("RegistrationFormViewer.adminsNotificationsGroup"), groupsMan);
 		adminsNotificationGroup.setEmptySelectionAllowed(true);
 		adminsNotificationGroup.setInput("/", true);
 		
-		rejectedTemplate =  new CompatibleTemplatesComboBox2(RejectRegistrationTemplateDef.NAME, msgTempMan);
+		rejectedTemplate =  new CompatibleTemplatesComboBox(RejectRegistrationTemplateDef.NAME, msgTempMan);
 		rejectedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.rejectedTemplate"));
-		acceptedTemplate =  new CompatibleTemplatesComboBox2(AcceptRegistrationTemplateDef.NAME, msgTempMan);
+		acceptedTemplate =  new CompatibleTemplatesComboBox(AcceptRegistrationTemplateDef.NAME, msgTempMan);
 		acceptedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.acceptedTemplate"));
-		updatedTemplate =  new CompatibleTemplatesComboBox2(UpdateRegistrationTemplateDef.NAME, msgTempMan);
+		updatedTemplate =  new CompatibleTemplatesComboBox(UpdateRegistrationTemplateDef.NAME, msgTempMan);
 		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
 		
 		addComponents(channel, sendAdminCopy, adminsNotificationGroup,

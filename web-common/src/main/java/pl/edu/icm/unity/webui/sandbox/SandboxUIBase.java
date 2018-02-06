@@ -19,7 +19,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
@@ -81,7 +81,8 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	protected SelectedAuthNPanel createSelectedAuthNPanel()
 	{
 		return new SandboxSelectedAuthNPanel(msg, authnProcessor, idsMan, formLauncher, 
-				execService, cancelHandler, endpointDescription.getRealm());
+				execService, cancelHandler, endpointDescription.getRealm(),
+				endpointDescription.getEndpoint().getContextAddress());
 	}
 
 	protected abstract List<AuthenticationOptionDescription> getAllVaadinAuthenticators(
@@ -150,6 +151,8 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	private void noRemoteAuthnUI()
 	{
 		VerticalLayout main = new VerticalLayout();
+		main.setSpacing(false);
+		main.setMargin(false);
 		Label errorLabel = new Label(msg.getMessage("SandboxUI.noRemoteAuthNTitle"));
 		Label errorDescLabel = new Label(msg.getMessage("SandboxUI.noRemoteAuthNDesc"));
 		errorLabel.addStyleName(Styles.error.toString());

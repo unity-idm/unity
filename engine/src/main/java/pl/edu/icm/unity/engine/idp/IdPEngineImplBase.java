@@ -4,29 +4,30 @@
  */
 package pl.edu.icm.unity.engine.idp;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
-import eu.unicore.util.configuration.ConfigurationException;
+import eu.unicore.util.configuration.PropertiesHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce;
-import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
-import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
-import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -34,10 +35,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.translation.ProfileType;
-import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
  * IdP engine is responsible for performing common IdP-related functionality. It resolves the information
@@ -46,93 +43,109 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  * 
  * @author K. Benedyczak
  */
-public class IdPEngineImplBase implements IdPEngine
+class IdPEngineImplBase implements IdPEngine
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, IdPEngineImplBase.class);
 
 	private AttributesManagement attributesMan;
 	private EntityManagement identitiesMan;
-	private OutputTranslationEngine translationEngine;
-	private OutputTranslationProfileRepository outputProfileRepo;
 	private UserImportSerivce userImportService;
-	private OutputTranslationActionsRegistry actionsRegistry;
-	private UnityMessageSource msg;
-	private AttributeValueConverter attrValueConverter; 
+	private OutputProfileExecutor outputProfileExecutor;
+	private AttributesManagement alwaysInsecureAttributesMan;
 	
-	private OutputTranslationProfile defaultProfile;
-
-	
-	public IdPEngineImplBase(AttributesManagement attributesMan, 
+	IdPEngineImplBase(AttributesManagement attributesMan,
+			AttributesManagement alwaysInsecureAttributesMan, 
 			EntityManagement identitiesMan,
-			OutputTranslationProfileRepository outputProfileRepo,
-			OutputTranslationEngine translationEngine,
 			UserImportSerivce userImportService,
-			OutputTranslationActionsRegistry actionsRegistry,
-			AttributeValueConverter attrValueConverter,
-			UnityMessageSource msg)
+			OutputProfileExecutor outputProfileExecutor)
 	{
 		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
-		this.translationEngine = translationEngine;
-		this.outputProfileRepo = outputProfileRepo;
 		this.userImportService = userImportService;
-		this.actionsRegistry = actionsRegistry;
-		this.attrValueConverter = attrValueConverter;
-		this.msg = msg;
+		this.outputProfileExecutor = outputProfileExecutor;
+		this.alwaysInsecureAttributesMan = alwaysInsecureAttributesMan;
+	}
 
-		this.defaultProfile = createDefaultOutputProfile();
+	@Override
+	public TranslationResult obtainUserInformationWithEnrichingImport(EntityParam entity,
+			String group, String profile, String requester, 
+			Optional<EntityInGroup> requesterEntity, String protocol,
+			String protocolSubType, boolean allowIdentityCreate,
+			PropertiesHelper importsConfig) throws EngineException
+	{
+		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
+		Map<String, String> firstIdentitiesByType = new HashMap<>();
+		fullEntity.getIdentities().forEach(id -> {
+			if (!firstIdentitiesByType.containsKey(id.getTypeId()))
+				firstIdentitiesByType.put(id.getTypeId(), id.getValue());
+		});
+		List<UserImportSpec> userImports = CommonIdPProperties.getUserImports(
+				importsConfig, firstIdentitiesByType);
+		
+		List<ImportResult> importResult = userImportService.importToExistingUser(
+				userImports, getRegularIdentity(fullEntity.getIdentities()));
+		if (!importResult.isEmpty())
+			fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
+		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
+				requester, requesterEntity, protocol, protocolSubType, 
+				assembleImportStatus(importResult));
 	}
 	
-	/**
-	 * Obtains a complete and translated information about entity, authorized to be published.
-	 * @param entity entity for which the query is performed
-	 * @param group the group from which attributes shall be resolved
-	 * @param profile output translation profile to be consulted. Can be null -> then default profile is used. 
-	 * @param requester identity of requester
-	 * @param protocol identifier of access protocol
-	 * @param protocolSubType sub identifier of protocol (e.g. binding)
-	 * @param allowIdentityCreate whether a dynamic id can be established
-	 * @return obtained data
-	 * @throws EngineException
-	 */
+	private Identity getRegularIdentity(List<Identity> identities)
+	{
+		Optional<Identity> nonTargetedIdentity = identities.stream()
+				.filter(id -> id.getTarget() == null).findAny();
+		Identity ret = nonTargetedIdentity.orElse(identities.get(0));
+		log.debug("Using {} identity to require match in importer's input profile", ret);
+		return ret;
+	}
+	
 	@Override
-	public TranslationResult obtainUserInformation(EntityParam entity, String group, String profile,
-			String requester, String protocol, String protocolSubType, boolean allowIdentityCreate,
-			boolean triggerImport) 
+	public TranslationResult obtainUserInformationWithEarlyImport(IdentityTaV identity, String group, String profile,
+			String requester, Optional<EntityInGroup> requesterEntity, 
+			String protocol, String protocolSubType, boolean allowIdentityCreate,
+			PropertiesHelper config)
 			throws EngineException
 	{
-		IdentityTaV identityTaV = entity.getIdentity();
-		if (identityTaV != null && triggerImport)
-			userImportService.importUser(identityTaV.getValue(), identityTaV.getTypeId());
+		List<UserImportSpec> userImports = CommonIdPProperties.getUserImportsLegacy(
+				config, identity.getValue(), identity.getTypeId());
+		List<ImportResult> importResult = userImportService.importUser(userImports);
+		EntityParam entity = new EntityParam(identity);
+		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
+		
+		return obtainUserInformationPostImport(entity, fullEntity, group, profile, 
+				requester, requesterEntity, protocol, protocolSubType, 
+				assembleImportStatus(importResult));
+	}
+	
+	private TranslationResult obtainUserInformationPostImport(EntityParam entity, Entity fullEntity,
+			String group, String profile,
+			String requester, Optional<EntityInGroup> requesterEntity, 
+			String protocol, String protocolSubType,
+			Map<String, Status> importStatus) throws EngineException
+	{
 		Collection<String> allGroups = identitiesMan.getGroups(entity).keySet();
 		Collection<AttributeExt> allAttributes = attributesMan.getAttributes(
 				entity, group, null);
-		Entity fullEntity = identitiesMan.getEntity(entity, requester, allowIdentityCreate, group);
 		if (log.isTraceEnabled())
 			log.trace("Attributes to be returned (before postprocessing): " + 
 					allAttributes + "\nGroups: " + allGroups + "\nIdentities: " + 
 					fullEntity.getIdentities());
-
-		OutputTranslationProfile profileInstance;
-		if (profile != null)
-		{
-			TranslationProfile translationProfile = outputProfileRepo.listAllProfiles().get(profile);
-			if (translationProfile == null)
-				throw new ConfigurationException("The translation profile '" + profile + 
-					"' configured for the authenticator does not exist");
-			profileInstance = new OutputTranslationProfile(translationProfile, outputProfileRepo, 
-					actionsRegistry, attrValueConverter);
-		} else
-		{
-			profileInstance = defaultProfile;
-		}
+		Collection<AttributeExt> requesterAttributes = requesterEntity.isPresent() ?
+			alwaysInsecureAttributesMan.getAttributes(requesterEntity.get().entityParam, 
+					requesterEntity.get().group, null) :
+			Collections.emptyList();
 		TranslationInput input = new TranslationInput(allAttributes, fullEntity, group, allGroups, 
-				requester, protocol, protocolSubType);
-		TranslationResult result = profileInstance.translate(input);
-		translationEngine.process(input, result);
-		return result;
+				requester, requesterAttributes, protocol, protocolSubType, importStatus);
+		return outputProfileExecutor.execute(profile, input);
 	}
 
+	private Map<String, Status> assembleImportStatus(List<ImportResult> results)
+	{
+		return results.stream().collect(
+				Collectors.toMap(r -> r.importerKey, 
+						r -> r.authenticationResult.getStatus()));
+	}
 
 	/**
 	 * Returns an {@link IdentityParam} out of valid identities which is either equal to the provided selected 
@@ -166,21 +179,5 @@ public class IdPEngineImplBase implements IdPEngine
 			}
 		}
 		return validIdentities.get(0);
-	}
-	
-	private OutputTranslationProfile createDefaultOutputProfile()
-	{
-		List<TranslationRule> rules = new ArrayList<>();
-		TranslationAction action1 = new TranslationAction(CreateAttributeActionFactory.NAME, 
-				new String[] {"memberOf", "groups", "false", 
-						msg.getMessage("DefaultOutputTranslationProfile.attr.memberOf"), 
-						msg.getMessage("DefaultOutputTranslationProfile.attr.memberOfDesc")});
-		rules.add(new TranslationRule("true", action1));
-		TranslationAction action2 = new TranslationAction(FilterAttributeActionFactory.NAME,
-				"sys:.*");
-		rules.add(new TranslationRule("true", action2));
-		TranslationProfile profile = new TranslationProfile("DEFAULT OUTPUT PROFILE", "", ProfileType.OUTPUT,
-				rules);
-		return new OutputTranslationProfile(profile, outputProfileRepo, actionsRegistry, attrValueConverter);
 	}
 }

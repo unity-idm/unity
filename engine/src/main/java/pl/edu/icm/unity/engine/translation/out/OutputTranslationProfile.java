@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class OutputTranslationProfile
 		return translate(input, null);
 	}
 
-	public TranslationResult translate(TranslationInput input, TranslationResult partialState) throws EngineException
+	private TranslationResult translate(TranslationInput input, TranslationResult partialState) throws EngineException
 	{
 		NDC.push("[TrProfile " + profile.getName() + "]");
 		if (log.isDebugEnabled())
@@ -123,40 +124,36 @@ public class OutputTranslationProfile
 		return ret;
 	}
 
-	public static Map<String, Object> createMvelContext(TranslationInput input, AttributeValueConverter attrConverter) throws IllegalAttributeValueException
+	static Map<String, Object> createMvelContext(TranslationInput input, 
+			AttributeValueConverter attrConverter) throws IllegalAttributeValueException
 	{
 		Map<String, Object> ret = new HashMap<>();
 
 		ret.put("protocol", input.getProtocol());
 		ret.put("protocolSubtype", input.getProtocolSubType());
 		ret.put("requester", input.getRequester());
-		Map<String, Object> attr = new HashMap<String, Object>();
-		Map<String, List<? extends Object>> attrs = new HashMap<String, List<?>>();
 		
-		for (Attribute ra: input.getAttributes())
-		{
-			List<String> values = attrConverter.internalValuesToExternal(ra.getName(), ra.getValues());	
-			String v = values.isEmpty() ? "" : values.get(0);
-			attr.put(ra.getName(), v);
-			attrs.put(ra.getName(), values);
-		}
-		ret.put("attr", attr);
-		ret.put("attrs", attrs);
+		addAttributesToContext("attr", ret, input.getAttributes(), attrConverter);
+		addAttributesToContext("requesterAttr", ret, input.getRequesterAttributes(), 
+				attrConverter);
 
-		Map<String, List<String>> idsByType = new HashMap<String, List<String>>();
+		Map<String, List<String>> idsByType = new HashMap<>();
 		for (Identity id : input.getEntity().getIdentities())
 		{
 			List<String> vals = idsByType.get(id.getTypeId());
 			if (vals == null)
 			{
-				vals = new ArrayList<String>();
+				vals = new ArrayList<>();
 				idsByType.put(id.getTypeId(), vals);
 			}
 			vals.add(id.getValue());
 		}
 		ret.put("idsByType", idsByType);
 
-		ret.put("groups", new ArrayList<String>(input.getGroups()));
+		ret.put("importStatus", input.getImportStatus().entrySet().stream()
+		                  .collect(Collectors.toMap(Entry::getKey, e -> String.valueOf(e.getValue()))));
+		
+		ret.put("groups", new ArrayList<>(input.getGroups()));
 
 		ret.put("usedGroup", input.getChosenGroup());
 
@@ -188,6 +185,30 @@ public class OutputTranslationProfile
 		return ret;
 	}
 
+	private static void addAttributesToContext(String prefix, Map<String, Object> ret, 
+			Collection<Attribute> attributes, AttributeValueConverter attrConverter) 
+					throws IllegalAttributeValueException
+	{
+		Map<String, Object> attr = new HashMap<>();
+		Map<String, Object> attrObj = new HashMap<>();
+		Map<String, List<? extends Object>> attrs = new HashMap<>();
+		
+		for (Attribute ra: attributes)
+		{
+			List<String> values = attrConverter.internalValuesToExternal(ra.getName(),
+					ra.getValues());
+			String v = values.isEmpty() ? "" : values.get(0);
+			attr.put(ra.getName(), v);
+			attrs.put(ra.getName(), values);
+			attrObj.put(ra.getName(), values.isEmpty() ? ""
+					: attrConverter.internalValuesToObjectValues(ra.getName(),
+							ra.getValues()));
+		}
+		ret.put(prefix, attr);
+		ret.put(prefix+"Obj", attrObj);
+		ret.put(prefix+"s", attrs);
+	}
+	
 	@Override
 	protected OutputTranslationRule createRule(TranslationActionInstance action,
 			TranslationCondition condition)

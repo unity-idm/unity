@@ -4,18 +4,14 @@
  */
 package pl.edu.icm.unity.webadmin.groupdetails;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
-import com.vaadin.v7.data.Container;
-import com.vaadin.event.Action;
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
-import com.vaadin.event.dd.acceptcriteria.Not;
-import com.vaadin.shared.ui.dd.VerticalDropLocation;
+import com.vaadin.shared.ui.grid.DropMode;
+import com.vaadin.ui.components.grid.GridDragSource;
+import com.vaadin.ui.components.grid.GridDropTarget;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -23,70 +19,80 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementEditDialog;
-import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.DnDGridUtils;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.SmallGrid;
-import pl.edu.icm.unity.webui.common.SmallTableDeprecated;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Table with attribute statements. Allows for management operations.
  * @author K. Benedyczak
  */
-public class AttributeStatementsTable extends SmallTableDeprecated
+public class AttributeStatementsTable extends GenericElementsTable<AttributeStatement>
 {
-	private static final String MAIN_COL = "main";
+	private final String DND_TYPE = "attribute_statement";
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private AttributeTypeManagement attrsMan;
 	private Group group;
 	private EventsBus bus;
-	private List<SingleActionHandler> actionHandlers;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
 	
-	
 	public AttributeStatementsTable(UnityMessageSource msg, GroupsManagement groupsMan,
-			AttributeTypeManagement attrsMan, 
+			AttributeTypeManagement attrsMan,
 			AttributeHandlerRegistry attributeHandlerRegistry)
 	{
+
+		super(msg.getMessage("AttributeStatements.tableHdr"), a -> a.toString(), false);
 		this.msg = msg;
 		this.groupsMan = groupsMan;
 		this.attrsMan = attrsMan;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
-		this.actionHandlers = new ArrayList<>();
+		setMultiSelect(false);
 		
-		addContainerProperty(MAIN_COL, String.class, null);
-		setColumnHeader(MAIN_COL, msg.getMessage("AttributeStatements.tableHdr"));
-		setSizeFull();
-		setSortEnabled(false);
-		setSelectable(true);
-		setMultiSelect(true);
-		setImmediate(true);
-		addActionHandler(new AddHandler());
-		addActionHandler(new EditHandler());
-		addActionHandler(new DeleteHandler());
-		setDragMode(TableDragMode.ROW);
-		setDropHandler(new DropHandlerImpl());
+		addActionHandler(getAddAction());
+		addActionHandler(getEditAction());
+		addActionHandler(getDeleteAction());
+
+		
+		GridDragSource<AttributeStatement> source = new GridDragSource<>(this);
+		source.setDragDataGenerator(DND_TYPE, as -> "{}");
+		source.addGridDragStartListener(e -> source.setDragData(e.getDraggedItems().iterator().next()));
+		source.addGridDragEndListener(e -> source.setDragData(null));
+
+		GridDropTarget<AttributeStatement> target = new GridDropTarget<>(this,
+				DropMode.ON_TOP_OR_BETWEEN);
+		target.setDropCriteriaScript(DnDGridUtils.getTypedCriteriaScript(DND_TYPE));
+		target.addGridDropListener(e -> 
+		{
+			Optional<Object> dragData = e.getDragData();
+			if (!dragData.isPresent() || e.getDropTargetRow() == null 
+					|| e.getDropTargetRow().get() == null)
+				return;
+			int index = contents.indexOf(e.getDropTargetRow().get());
+			AttributeStatement attrS = (AttributeStatement) dragData.get();
+			contents.remove(attrS);
+			contents.add(index, attrS);
+			updateGroup();
+		});
 	}
-	
+
 	public void setInput(Group group)
 	{
 		this.group = group;
-		removeAllItems();
-		AttributeStatement[] ases = group.getAttributeStatements();
-		for (AttributeStatement as: ases)
-			addItem(new Object[] {as.toString()}, as);
-	}	
-	
-	private void updateGroup(AttributeStatement[] attributeStatements)
+		super.setInput(Arrays.asList(group.getAttributeStatements()));
+	}
+
+	private void updateGroup()
 	{
+		AttributeStatement[] attributeStatements = contents
+				.toArray(new AttributeStatement[contents.size()]);
 		Group updated = group.clone();
 		updated.setAttributeStatements(attributeStatements);
 		try
@@ -95,217 +101,83 @@ public class AttributeStatementsTable extends SmallTableDeprecated
 			bus.fireEvent(new GroupChangedEvent(group.toString()));
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("AttributeStatements.cantUpdateGroup"), e);
+			NotificationPopup.showError(msg,
+					msg.getMessage("AttributeStatements.cantUpdateGroup"), e);
 		}
 	}
-	
-	private void removeStatements(Collection<AttributeStatement> removedStatements)
+
+	private boolean checkExists(AttributeStatement toCheck)
 	{
-		Collection<?> items = getItemIds();
-		Iterator<?> it = items.iterator();
-		AttributeStatement[] attributeStatements = new AttributeStatement
-				[items.size()-removedStatements.size()];
-		for (int i=0; it.hasNext(); i++)
-		{
-			AttributeStatement s = (AttributeStatement) it.next();
-			boolean check = false;
-			for (AttributeStatement st : removedStatements)
-			{
-				if (st.equals(s))
-				{
-					check = true;
-					break;
-				}					
-			}
-			if (!check)
-			{
-				attributeStatements[i] = s;
-			} else
-			{
-				i--;
-			}
-		}
-		updateGroup(attributeStatements);
+		for (AttributeStatement a : contents)
+			if (a.equals(toCheck))
+				return true;
+		return false;
+	}
+
+	private SingleActionHandler<AttributeStatement> getAddAction()
+	{
+		return SingleActionHandler.builder4Add(msg, AttributeStatement.class)
+				.withHandler(this::showAddDialog).build();
+	}
+
+	private void showAddDialog(Set<AttributeStatement> target)
+	{
+
+		new AttributeStatementEditDialog(msg, null, attrsMan, group.toString(),
+				attributeHandlerRegistry, groupsMan, st -> addStatement(st)).show();
 	}
 
 	private void addStatement(AttributeStatement newStatement)
 	{
-		Collection<?> items = getItemIds();
-		Iterator<?> it = items.iterator();
-		AttributeStatement[] attributeStatements = new AttributeStatement[items.size()+1];
-		for (int i=0; it.hasNext(); i++)
-		{
-			AttributeStatement s = (AttributeStatement) it.next();
-			attributeStatements[i] = s;
-		}
-		attributeStatements[items.size()] = newStatement;
-		
-		updateGroup(attributeStatements);
+		if (!checkExists(newStatement))
+			addElement(newStatement);
+		updateGroup();
 	}
 
-	private void updateStatement(AttributeStatement oldStatement, AttributeStatement newStatement)
+	private SingleActionHandler<AttributeStatement> getEditAction()
 	{
-		Collection<?> items = getItemIds();
-		Iterator<?> it = items.iterator();
-		AttributeStatement[] attributeStatements = new AttributeStatement[items.size()];
-		for (int i=0; it.hasNext(); i++)
-		{
-			AttributeStatement s = (AttributeStatement) it.next();
-			if (!oldStatement.equals(s))
-				attributeStatements[i] = s;
-			else
-				attributeStatements[i] = newStatement;
-		}
-		
-		updateGroup(attributeStatements);
+		return SingleActionHandler.builder4Edit(msg, AttributeStatement.class)
+				.withHandler(this::showEditDialog).build();
 	}
 
-	private void moveItemAfter(AttributeStatement toMoveItemId, AttributeStatement moveAfterItemId)
+	private void showEditDialog(Collection<AttributeStatement> target)
 	{
-		Collection<?> items = getItemIds();
-		Iterator<?> it = items.iterator();
-		List<AttributeStatement> attributeStatements = new ArrayList<AttributeStatement>(items.size());
-		if (moveAfterItemId == null)
-			attributeStatements.add(toMoveItemId);
-		while (it.hasNext())
-		{
-			AttributeStatement s = (AttributeStatement) it.next();
-			
-			if (!s.equals(toMoveItemId))
-			{
-				attributeStatements.add(s);
-			} 
-			
-			if (s.equals(moveAfterItemId))
-			{
-				attributeStatements.add(toMoveItemId);
-			}
-		}
-		AttributeStatement[] aStmtsA = attributeStatements.toArray(
-				new AttributeStatement[attributeStatements.size()]);
-		updateGroup(aStmtsA);
+		AttributeStatement st = target.iterator().next();
+		AttributeStatement old = st.clone();
+		new AttributeStatementEditDialog(msg, old, attrsMan, group.toString(),
+				attributeHandlerRegistry, groupsMan,
+				newSt -> updateStatement(st, newSt)).show();
 	}
-	
-	
-	private class DropHandlerImpl implements DropHandler
+
+	private void updateStatement(AttributeStatement oldStatement,
+			AttributeStatement newStatement)
 	{
-		@Override
-		public void drop(DragAndDropEvent event)
+
+		int index = contents.indexOf(oldStatement);
+		contents.remove(oldStatement);
+		if (!checkExists(newStatement))
 		{
-			TableTransferable t = (TableTransferable) event.getTransferable();
-			if (t.getSourceComponent() != AttributeStatementsTable.this)
-				return;
-
-			AbstractSelectTargetDetails target = (AbstractSelectTargetDetails) event.getTargetDetails();
-			Object sourceItemId = t.getItemId();
-			Object targetItemId = target.getItemIdOver();
-	                VerticalDropLocation location = target.getDropLocation();
-
-			if (sourceItemId == targetItemId)
-				return;
-
-			if (location == VerticalDropLocation.TOP) 
-			{
-				Container.Ordered container = (Container.Ordered)getContainerDataSource();
-				Object previous = container.prevItemId(targetItemId);
-				if (sourceItemId == previous)
-					return;
-				moveItemAfter((AttributeStatement)sourceItemId, (AttributeStatement) previous);
-			} else if (location == VerticalDropLocation.BOTTOM) 
-			{
-				moveItemAfter((AttributeStatement)sourceItemId, (AttributeStatement) targetItemId);
-			}
+			contents.add(index, newStatement);
 		}
-
-		@Override
-		public AcceptCriterion getAcceptCriterion()
-		{
-			return new Not(VerticalLocationIs.MIDDLE);
-		}
+		updateGroup();
 	}
 
-	@Override
-	public void addActionHandler(Action.Handler actionHandler) {
-		super.addActionHandler(actionHandler);
-		if (actionHandler instanceof SingleActionHandler)
-			actionHandlers.add((SingleActionHandler) actionHandler);
-	}
-
-	public List<SingleActionHandler> getActionHandlers()
+	private SingleActionHandler<AttributeStatement> getDeleteAction()
 	{
-		return actionHandlers;
+		return SingleActionHandler.builder4Delete(msg, AttributeStatement.class)
+				.withHandler(this::deleteHandler).build();
 	}
-	
-	private class DeleteHandler extends SingleActionHandler
+
+	private void deleteHandler(Set<AttributeStatement> items)
 	{
-		public DeleteHandler()
-		{
-			super(msg.getMessage("AttributeStatements.removeStatement"), 
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			final Collection<AttributeStatement> items = new ArrayList<AttributeStatement>();
-			Collection<?> ats = (Collection<?>) target;
-			for (Object o: ats)
-				items.add((AttributeStatement) o);
-					
-			new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"), () -> {
-				removeStatements(items);
-			}).show();
-		}
+		new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"), () -> {
+			removeStatements(items);
+		}).show();
 	}
 
-	private class AddHandler extends SingleActionHandler
+	private void removeStatements(Collection<AttributeStatement> removedStatements)
 	{
-		public AddHandler()
-		{
-			super(msg.getMessage("AttributeStatements.addStatement"), 
-					Images.add.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			new AttributeStatementEditDialog(msg, null, attrsMan, group.toString(),
-					attributeHandlerRegistry, groupsMan, new Callback()
-					{
-						@Override
-						public void onConfirm(AttributeStatement newStatement)
-						{
-							addStatement(newStatement);
-						}
-					}).show();
-		}
+		removedStatements.forEach(this::removeElement);
+		updateGroup();
 	}
-
-	private class EditHandler extends SingleActionHandler
-	{
-		public EditHandler()
-		{
-			super(msg.getMessage("AttributeStatements.editStatement"), 
-					Images.edit.getResource());
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			
-			AttributeStatement st = (AttributeStatement) target;
-			new AttributeStatementEditDialog(msg, st, attrsMan, group.toString(), 
-					attributeHandlerRegistry, groupsMan, new Callback()
-					{
-						@Override
-						public void onConfirm(AttributeStatement newStatement)
-						{
-							updateStatement((AttributeStatement) target, newStatement);
-						}
-					}).show();
-		}
-	}
-
 }

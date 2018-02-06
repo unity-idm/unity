@@ -24,9 +24,9 @@ import pl.edu.icm.unity.types.basic.GroupContents
 import groovy.transform.Field
 
 
-@Field final String CN_ATTR = "cn"
-@Field final String JPEG_ATTR = "jpegPhoto";
-@Field final String ORG_ATTR = "o";
+@Field final String CN_ATTR = "name"
+@Field final String JPEG_ATTR = "picture";
+@Field final String ORG_ATTR = "organization";
 @Field final String EMAIL_ATTR = "email";
 
 @Field final String MAIN_AC = "Common attributes";
@@ -49,7 +49,7 @@ try
 		!existingATs.containsKey(JPEG_ATTR) || !existingATs.containsKey(ORG_ATTR))
 	{
 		log.error("UNICORE contents can be only installed if standard types were installed " +
-			"prior to it. Attribute types cn, o, jpegPhoto and email are required.");
+			"prior to it. Attribute types name, organization, picture and email are required.");
 		return;
 	}
 	if (attributeClassManagement.getAttributeClasses().containsKey(PORTAL_AC))

@@ -15,13 +15,14 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -57,7 +58,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private UnityMessageSource msg;
 	private OAuthExchange credentialExchange;
 	private OAuthContextsManagement contextManagement;
-	private String idpKey;
+	private final String configKey;
+	private final String idpKey;
 	
 	private AuthenticationResultCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
@@ -67,14 +69,17 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private HtmlSimplifiedLabel errorDetailLabel;
 	
 	private Component main;
+
 	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
-			OAuthContextsManagement contextManagement, ExecutorsService executorsService, String idpKey)
+			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
+			String idpKey, String configKey)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
+		this.configKey = configKey;
 		initUI();
 	}
 
@@ -90,11 +95,11 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
+		ret.setMargin(false);
 
 		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.SELECTED_ICON_SCALE, 
 				ScaleMode.class); 
-		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
@@ -108,8 +113,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		errorDetailLabel = new HtmlSimplifiedLabel();
 		errorDetailLabel.addStyleName(Styles.emphasized.toString());
 		errorDetailLabel.setVisible(false);
+		errorDetailLabel.setWidth(50, Unit.EM);
 		ret.addComponents(messageLabel, errorDetailLabel);
-
+		ret.setComponentAlignment(messageLabel, Alignment.TOP_CENTER);
+		ret.setComponentAlignment(errorDetailLabel, Alignment.TOP_CENTER);
 		main = ret;
 	}
 
@@ -135,7 +142,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public String getLabel()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		return providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 	}
 
@@ -143,7 +150,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public Resource getImage()
 	{
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		CustomProviderProperties providerProps = clientProperties.getProvider(idpKey);
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String url = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
 		if (url == null)
@@ -236,7 +243,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String currentRelativeURI = servletPath + query;
 		try
 		{
-			context = credentialExchange.createRequest(idpKey);
+			context = credentialExchange.createRequest(configKey);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);

@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
+
+package pl.edu.icm.unity.webadmin.tprofile;
+
+/**
+ * Trivial bean for simply vaadin bindings
+ * @author P.Piernik
+ *
+ */
+public class StringValueBean
+{
+	private String value;
+	
+	public StringValueBean()
+	{
+
+	}
+	
+	public StringValueBean(String value)
+	{
+		this.value = value;
+	}
+	
+	/**
+	 * @return the value
+	 */
+	public String getValue() 
+	{
+		return value;
+	}
+	
+	/**
+	 * @param value the value to set
+	 */
+	public void setValue(String value) 
+	{
+		this.value = value;
+	}
+}

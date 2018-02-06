@@ -8,12 +8,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import com.vaadin.v7.data.util.IndexedContainer;
-import com.vaadin.v7.shared.ui.combobox.FilteringMode;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.OptionGroup;
+import com.vaadin.ui.RadioButtonGroup;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -24,7 +22,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 /**
  * Allows to edit settings for a single OAuth Client.
  * <p>
- * TODO  Implementation note: currently this code is very similar to the SAML SP Settings Editor. 
+ * TODO  Implementation note: currently this code is very similar to the OAuth SP Settings Editor. 
  * The code should be better reused in future.
  * 
  * @author K. Benedyczak
@@ -35,10 +33,10 @@ public class OAuthSPSettingsEditor extends FormLayout
 	private IdentityTypeSupport idTypeSupport;
 	protected List<Identity> identities;
 	
-	protected ComboBox client;
+	protected ComboBox<String> client;
 	protected Label clientLabel;
-	protected OptionGroup decision;
-	protected OptionGroup identity;
+	protected RadioButtonGroup<Decision> decision;
+	protected RadioButtonGroup<Identity> identity;
 	
 	public OAuthSPSettingsEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
 			List<Identity> identities, 
@@ -62,13 +60,12 @@ public class OAuthSPSettingsEditor extends FormLayout
 	public OAuthClientSettings getClientSettings()
 	{
 		OAuthClientSettings ret = new OAuthClientSettings();
-		IndexedContainer decContainer = ((IndexedContainer)decision.getContainerDataSource());
-		int idx = decContainer.indexOfId(decision.getValue());
-		if (idx == 0)
+		Decision selDecision = decision.getSelectedItem().get();
+		if (selDecision == Decision.AUTO_ACCEPT)
 		{
 			ret.setDefaultAccept(true);
 			ret.setDoNotAsk(true);
-		} else if (idx == 1)
+		} else if (selDecision == Decision.AUTO_DENY)
 		{
 			ret.setDefaultAccept(false);
 			ret.setDoNotAsk(true);			
@@ -78,11 +75,9 @@ public class OAuthSPSettingsEditor extends FormLayout
 			ret.setDoNotAsk(false);
 		}
 		
-		String identityV = (String) identity.getValue();
-		if (identityV != null)
+		Identity id = identity.getValue();
+		if (id != null)
 		{
-			IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
-			Identity id = identities.get(idContainer.indexOfId(identityV));
 			IdentityTypeDefinition idType = idTypeSupport.getTypeDefinition(id.getTypeId());
 			if (!idType.isDynamic() && !idType.isTargeted())
 				ret.setSelectedIdentity(id.getComparableValue());
@@ -100,17 +95,14 @@ public class OAuthSPSettingsEditor extends FormLayout
 	{
 		if (initial == null)
 		{
-			client = new ComboBox(msg.getMessage("OAuthPreferences.client"));
-			client.setInputPrompt(msg.getMessage("OAuthPreferences.clientPrompt"));
+			client = new ComboBox<>(msg.getMessage("OAuthPreferences.client"));
+			client.setTextInputAllowed(true);
 			client.setDescription(msg.getMessage("OAuthPreferences.clientDesc"));
 			client.setWidth(100, Unit.PERCENTAGE);
 			client.setTextInputAllowed(true);
-			client.setFilteringMode(FilteringMode.OFF);
-			client.setNewItemsAllowed(true);
-			client.setNullSelectionAllowed(true);
-			client.setImmediate(true);
-			for (String spName: allSps)
-				client.addItem(spName);
+			client.setNewItemHandler((s) -> {});
+			client.setEmptySelectionAllowed(true);
+			client.setItems(allSps);
 			addComponent(client);
 		} else
 		{
@@ -119,16 +111,14 @@ public class OAuthSPSettingsEditor extends FormLayout
 			addComponent(clientLabel);
 		}
 		
-		decision = new OptionGroup(msg.getMessage("OAuthPreferences.decision"));
-		decision.setNullSelectionAllowed(false);
-		decision.addItem(msg.getMessage("OAuthPreferences.autoAccept"));
-		decision.addItem(msg.getMessage("OAuthPreferences.autoDeny"));
-		decision.addItem(msg.getMessage("OAuthPreferences.noAuto"));
+		decision = new RadioButtonGroup<>(msg.getMessage("OAuthPreferences.decision"));
+		decision.setItemCaptionGenerator(this::getDecisionCaption);
+		decision.setItems(Decision.AUTO_ACCEPT, Decision.AUTO_DENY, Decision.NO_AUTO);
 
-		identity = new OptionGroup(msg.getMessage("OAuthPreferences.identity"));
-		identity.setNullSelectionAllowed(true);
-		for (Identity id: identities)
-			identity.addItem(idTypeSupport.getTypeDefinition(id.getTypeId()).toPrettyString(id));
+		identity = new RadioButtonGroup<>(msg.getMessage("OAuthPreferences.identity"));
+		identity.setItems(identities);
+		identity.setItemCaptionGenerator(id -> 
+			idTypeSupport.getTypeDefinition(id.getTypeId()).toPrettyString(id));
 		
 		addComponents(decision, identity);
 		
@@ -140,21 +130,18 @@ public class OAuthSPSettingsEditor extends FormLayout
 	
 	private void setDefaults()
 	{
-		IndexedContainer decContainer = ((IndexedContainer)decision.getContainerDataSource());
-		decision.select(decContainer.getIdByIndex(2));
-		IndexedContainer idContainer = ((IndexedContainer)identity.getContainerDataSource());
-		identity.select(idContainer.getIdByIndex(0));
+		decision.setSelectedItem(Decision.NO_AUTO);
+		identity.setSelectedItem(identities.get(0));
 	}
 	
 	private void setValues(OAuthClientSettings initial)
 	{
-		IndexedContainer decContainer = ((IndexedContainer)decision.getContainerDataSource());
 		if (!initial.isDoNotAsk())
-			decision.select(decContainer.getIdByIndex(2));
+			decision.setSelectedItem(Decision.NO_AUTO);
 		else if (initial.isDefaultAccept())
-			decision.select(decContainer.getIdByIndex(0));
+			decision.setSelectedItem(Decision.AUTO_ACCEPT);
 		else
-			decision.select(decContainer.getIdByIndex(1));
+			decision.setSelectedItem(Decision.AUTO_DENY);
 		
 		String selId = initial.getSelectedIdentity();
 		if (selId != null)
@@ -163,12 +150,33 @@ public class OAuthSPSettingsEditor extends FormLayout
 			{
 				if (i.getComparableValue().equals(selId))
 				{
-					IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(
-							i.getTypeId());
-					identity.select(typeDefinition.toPrettyString(i));
+					identity.setSelectedItem(i);
 					break;
 				}
 			}
 		}
+	}
+	
+	
+	private String getDecisionCaption(Decision dec)
+	{
+		switch (dec)
+		{
+		case AUTO_ACCEPT:
+			return msg.getMessage("OAuthPreferences.autoAccept");
+		case AUTO_DENY:
+			return 	msg.getMessage("OAuthPreferences.autoDeny");
+		case NO_AUTO:
+			return msg.getMessage("OAuthPreferences.noAuto");
+		default:
+			throw new IllegalArgumentException("Unknown decision");
+		}
+	}
+	
+	private enum Decision
+	{
+		AUTO_ACCEPT,
+		AUTO_DENY,
+		NO_AUTO
 	}
 }

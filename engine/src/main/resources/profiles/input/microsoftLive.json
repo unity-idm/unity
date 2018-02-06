@@ -1,0 +1,262 @@
+{
+	"ver": "2",
+	"name": "sys:microsoftLive",
+	"description": "Translation profile for microsoft live  authn",
+	"type": "INPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"attr['id']",
+					"sys:all",
+					"CREATE_OR_MATCH"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"uid",
+					"/",
+					"attr['user_id']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"name",
+					"/",
+					"attr['name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"firstname",
+					"/",
+					"attr['first_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"surname",
+					"/",
+					"attr['last_name']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"profileURL",
+					"/",
+					"attr['link']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "(attr contains 'birth_day') && (attr contains 'birth_month') && (attr contains 'birth_year')"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"birthday",
+					"/",
+					"String.format('%02d', Integer.parseInt(attr['birth_day'])) + '/' +  String.format('%02d', Integer.parseInt(attr['birth_month'])) + '/' + attr['birth_year']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"company",
+					"/",
+					"attr['employer']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"email",
+					"/",
+					"attr['emails.account']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'phones.personal'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"telephoneNumber",
+					"/",
+					"String.valueOf(attr['phones.personal']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'phones.mobile'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"mobile",
+					"/",
+					"String.valueOf(attr['phones.mobile']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"locale",
+					"/",
+					"attr['locale']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'addresses.personal'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"address",
+					"/",
+					"attr['addresses.personal.street'] + ',' + attr['addresses.personal.street2'] + ',' + attr['addresses.personal.city'] + ',' + attr['addresses.personal.state'] + ',' + attr['addresses.personal.postal_code'] + ',' + attr['addresses.personal.region']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		}
+		,
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"street",
+					"/",
+					"attr['addrresses.personal.street']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"postalCode",
+					"/",
+					"attr['addresses.personal.postal_code']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		}
+		,
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"city",
+					"/",
+					"attr['addresses.personal.city']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"provinceName",
+					"/",
+					"attr['addresses.personal.state']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"country",
+					"/",
+					"attr['addresses.personal.region']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		}
+	]
+}

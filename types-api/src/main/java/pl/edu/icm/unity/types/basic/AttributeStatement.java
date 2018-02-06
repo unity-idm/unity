@@ -279,13 +279,13 @@ public class AttributeStatement
 	public String toString()
 	{
 		return "Assign " + (dynamicAttributeMode() ? 
-				(dynamicAttributeType + "= expr(" + dynamicAttributeExpression) + ")":
+				(dynamicAttributeType + " = expr(" + dynamicAttributeExpression) + ")":
 				fixedAttribute.toString())
 				+ " if '" + condition + "' is true";
 	}
 
 	@JsonValue
-	public JsonNode toJson()
+	public ObjectNode toJson()
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
 		main.put("resolution", getConflictResolution().name());
@@ -325,6 +325,12 @@ public class AttributeStatement
 			String aTypeName = as.get("dynamicAttributeName").asText();
 			setDynamicAttributeType(aTypeName);
 		}
+	}
+	
+	public AttributeStatement clone()
+	{
+		ObjectNode json = toJson();
+		return new AttributeStatement(json);
 	}
 	
 	@Override

@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.UI;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.Upload;
-import com.vaadin.v7.ui.Upload.FinishedEvent;
-import com.vaadin.v7.ui.Upload.FinishedListener;
-import com.vaadin.v7.ui.Upload.ProgressListener;
-import com.vaadin.v7.ui.Upload.Receiver;
-import com.vaadin.v7.ui.Upload.StartedEvent;
-import com.vaadin.v7.ui.Upload.StartedListener;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
-import com.vaadin.v7.ui.Upload.SucceededListener;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.FinishedEvent;
+import com.vaadin.ui.Upload.FinishedListener;
+import com.vaadin.ui.Upload.ProgressListener;
+import com.vaadin.ui.Upload.Receiver;
+import com.vaadin.ui.Upload.StartedEvent;
+import com.vaadin.ui.Upload.StartedListener;
+import com.vaadin.ui.Upload.SucceededEvent;
+import com.vaadin.ui.Upload.SucceededListener;
 
 /**
  * Base class for implementing Receivers needed for Vaadin Upload component.

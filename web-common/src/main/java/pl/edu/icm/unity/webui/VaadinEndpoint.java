@@ -44,6 +44,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
@@ -77,6 +78,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	protected UnityVaadinServlet theServlet;
 	protected UnityVaadinServlet authenticationServlet;
 	protected AuthenticationFilter authnFilter;
+	protected ProxyAuthenticationFilter proxyAuthnFilter;
 	protected InvocationContextSetupFilter contextSetupFilter;
 	protected UnityServerConfiguration serverConfig;
 	protected UnityMessageSource msg;
@@ -133,6 +135,13 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+		
+		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticators, 
+				description.getEndpoint().getContextAddress(),
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
+		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+		
 		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
 				getServletUrl(uiServletPath));
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
@@ -293,13 +302,14 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	}
 	
 	@Override
-	public synchronized void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
+	public final synchronized void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
 	{
 		setAuthenticators(authenticators);
 		if (authenticationServlet != null)
 		{
 			authenticationServlet.updateAuthenticators(authenticators);
 			theServlet.updateAuthenticators(authenticators);
+			proxyAuthnFilter.updateAuthenticators(authenticators);
 		}
 	}
 	

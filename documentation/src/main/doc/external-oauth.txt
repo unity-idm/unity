@@ -18,44 +18,46 @@ in file +conf/authenticators/remoteOAuth.properties+:
 ----
 unity.oauth2.client.displayName=OAuth2 authentication
 
+unity.oauth2.client.providers.fb.type=facebook
+unity.oauth2.client.providers.fb.clientId=UNITY_APP_ID_FROM_FACEBOOK
+unity.oauth2.client.providers.fb.clientSecret=UNITY_APP_SECRET_FROM_FACEBOOK
+
 unity.oauth2.client.providers.google.type=google
 unity.oauth2.client.providers.google.clientId=UNITY_APP_ID_FROM_GOOGLE
 unity.oauth2.client.providers.google.clientSecret=UNITY_APP_SECRET_FROM_GOOGLE
 unity.oauth2.client.providers.google.scopes=profile openid email
 unity.oauth2.client.providers.google.translationProfile=googleProfile
-
-unity.oauth2.client.providers.fb.type=facebook
-unity.oauth2.client.providers.fb.clientId=UNITY_APP_ID_FROM_FACEBOOK
-unity.oauth2.client.providers.fb.clientSecret=UNITY_APP_SECRET_FROM_FACEBOOK
-unity.oauth2.client.providers.fb.translationProfile=facebookProfile
 ----
 
-In the above example two providers are configured: Google and Facebook. You can select
-among several providers for which we have a predefined type, or use the +custom+ type, however in the latter
-case you will have to provide a lot of complicated settings of the provider (see the reference table below). What's
-more we can't guarantee that each and every provider will work: OAuth2 is only a framework of a standard. There
-are providers which implement some earlier drafts also some of the providers follows some non-standard extensions.  
+In the above example two providers are configured: Facebook and Google. Facebook is configuraed with default settings
+which are most of the time sufficient: you have to select provider's type ad provide OAuth client's id and secret.
+In the 2nd example some of the default values are overriden for Google provider. See reference below for a complete list
+of fine-tuning options you can use.  
 
-In the case of a predefined provider one have to register the Unity service as an application at the providers 
-service. Note that in some cases it may require paid account. During the registration a client identifier and secret
+You can select among several providers for which we have a predefined type, or use the +custom+ type, where nearly arbitrary
+standards compliant OAuth identity provider can be configured.   
+
+Typically Unity service needs to be registered as a trusted application at the providers service. 
+Note that in some cases it may require paid account. During the registration a client identifier and secret
 are generated, which need to be configured in Unity (+clientId+ and +clientSecret+). What's more the provider 
 typically should require to enter the client's 'callback URL'. For Unity it will be:
 
   https://YOUR-EXTERNAL-UNITY-ADDRESS/unitygw/oauth2ResponseConsumer
   
-Links to client management pages of the well known providers:
+Links to client management pages of some of the well known providers:
 
 . Google: https://console.developers.google.com/project
 . Microsoft Live: https://account.live.com/developers/applications
 . Facebook: https://developers.facebook.com
 
-As with every remote authenticator a 'translation profile' must be provided to translate the remote user attributes
-to a local representation.
+As with every remote authenticator a 'translation profile' is used to map external data to local representation.
+Unity is shipped with default profiles for the supported providers, but you can use your own. Typically custom profile
+inherits rules from the base one and enriches or overwrites them with custom settings. 
 
 Finally you can override some of the default settings for the provider. The most useful is the +scopes+ setting:
 it controls how much of the information is requested to be fetched from the provider (of course the user must agree 
 to provide this level of access). Each provider uses different names for scopes so please check up
- providers documentation to learn the available values. 
+providers documentation to learn the available values. 
 
 The complete OAuth options reference follows. First a general table shows what are the options pertaining to 
 the whole authenticator, then a separate table shows the options which can be set for each OAuth2 provider.

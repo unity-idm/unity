@@ -61,16 +61,17 @@ public class AttributeStatementProcessor
 	private GroupDAO groupDAO;
 	private AttributeTypeDAO atDAO;
 	private AttributeTypeHelper atHelper;
-	
+	private AttributeValueConverter attrConverter;
 
 	
 	@Autowired
 	public AttributeStatementProcessor(GroupDAO groupDAO, AttributeTypeDAO atDAO,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper, AttributeValueConverter attrConverter)
 	{
 		this.groupDAO = groupDAO;
 		this.atDAO = atDAO;
 		this.atHelper = atHelper;
+		this.attrConverter = attrConverter;
 	}
 
 	/**
@@ -254,6 +255,10 @@ public class AttributeStatementProcessor
 				processAttributeStatement(direction, group, as, queriedAttribute, identities, 
 						collectedAttributes, regularAttributesInGroup, extraAttributes, 
 						allGroups, acHelper);
+			} catch (Exception e) 
+			{
+				log.error("Error processing statement " + 
+						as + " is skipped", e);
 			} finally
 			{
 				ThreadContext.pop();
@@ -380,8 +385,21 @@ public class AttributeStatementProcessor
 	private Attribute evaluateStatementValue(AttributeStatement statement, 
 			String group, Map<String, Object> context)
 	{
-		Object value = MVEL.executeExpression(statement.getCompiledDynamicAttributeExpression(), context, 
+		Object value;
+		try
+		{
+			value = MVEL.executeExpression(statement.getCompiledDynamicAttributeExpression(), context,
 				new HashMap<>());
+		} catch (Exception e)
+		{
+			log.warn("Error during attribute statement value evaluation, expression '"
+					+ statement.getDynamicAttributeExpression() + 
+					"' is invalid. Skipping statement.\n" + e.toString());
+			if (log.isTraceEnabled())
+				log.trace("Full stack trace of the problematic attribute statement error", e);
+			return null;
+		}
+		
 		if (value == null)
 		{
 			log.debug("Attribute value evaluated to null, skipping");
@@ -428,7 +446,7 @@ public class AttributeStatementProcessor
 		return ret;
 	}
 
-	private static Map<String, Object> createMvelContext(Set<String> allGroups, String groupName, 
+	private Map<String, Object> createMvelContext(Set<String> allGroups, String groupName, 
 			List<Identity> identities,
 			Map<String, AttributeExt> directAttributes, Map<String, AttributeExt> extraAttributes)
 	{
@@ -464,14 +482,16 @@ public class AttributeStatementProcessor
 		return ret;
 	}
 	
-	private static void addAttributesToContext(Map<String, AttributeExt> attributes, ContextKey fullKey,
+	private void addAttributesToContext(Map<String, AttributeExt> attributes, ContextKey fullKey,
 			ContextKey oneValueKey, Map<String, Object> target)
 	{
 		Map<String, Object> attr = new HashMap<>();
 		Map<String, List<String>> attrs = new HashMap<>();
 		for (AttributeExt a: attributes.values())
 		{
-			Object v = a.getValues().isEmpty() ? "" : a.getValues().get(0);
+			List<String> values = attrConverter.internalValuesToExternal(
+					a.getName(), a.getValues());	
+			String v = values.isEmpty() ? "" : values.get(0);
 			attr.put(a.getName(), v);
 			attrs.put(a.getName(), a.getValues());
 		}

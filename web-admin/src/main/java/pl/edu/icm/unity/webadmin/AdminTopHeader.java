@@ -63,7 +63,8 @@ public class AdminTopHeader extends TopHeader
 			}
 		});
 		support.setDescription(msg.getMessage("AdminTopHeader.toSupport"));
-		support.setIcon(Images.support32.getResource());
+		support.setIcon(Images.support.getResource());
+		support.addStyleName(Styles.largeIcon.toString());
 		return support;
 	}
 	
@@ -71,6 +72,7 @@ public class AdminTopHeader extends TopHeader
 	{
 		switchView = new Button();
 		switchView.addStyleName(Styles.vButtonLink.toString());
+		switchView.addStyleName(Styles.largeIcon.toString());
 		switchView.addClickListener(new Button.ClickListener()
 		{
 			@Override
@@ -88,12 +90,12 @@ public class AdminTopHeader extends TopHeader
 	{
 		if (adminView)
 		{
-			switchView.setIcon(Images.toAdmin32.getResource());
+			switchView.setIcon(Images.toAdmin.getResource());
 			switchView.setDescription(msg.getMessage("AdminTopHeader.toAdmin"));
 			adminView = false;
 		} else
 		{
-			switchView.setIcon(Images.toProfile32.getResource());
+			switchView.setIcon(Images.toProfile.getResource());
 			switchView.setDescription(msg.getMessage("AdminTopHeader.toProfile"));
 			adminView = true;
 		}

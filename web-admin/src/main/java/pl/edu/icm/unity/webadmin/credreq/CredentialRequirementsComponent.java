@@ -25,13 +25,13 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Provides {@link CredentialRequirements} management UI
@@ -46,7 +46,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 	private CredentialManagement credMan;
 	private EventsBus bus;
 	
-	private GenericElementsTable2<CredentialRequirements> table;
+	private GenericElementsTable<CredentialRequirements> table;
 	private CredentialRequirementViewer viewer;
 	private com.vaadin.ui.Component main;
 	
@@ -69,7 +69,7 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("CredentialRequirements.caption"));
 		viewer = new CredentialRequirementViewer(msg);
-		table =  new GenericElementsTable2<>(
+		table =  new GenericElementsTable<>(
 				msg.getMessage("CredentialRequirements.credentialRequirementsHeader"),
 				cr -> cr.getName());
 		table.setStyleGenerator(item -> item.isReadOnly() ? 
@@ -91,10 +91,10 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		table.addActionHandler(getEditAction());
 		table.addActionHandler(getDeleteAction());
 		table.setWidth(90, Unit.PERCENTAGE);
-		Toolbar2<CredentialRequirements> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<CredentialRequirements> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
 		
 		HorizontalLayout hl = new HorizontalLayout();
@@ -194,16 +194,16 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		}
 	}
 	
-	private SingleActionHandler2<CredentialRequirements> getRefreshAction()
+	private SingleActionHandler<CredentialRequirements> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, CredentialRequirements.class)
+		return SingleActionHandler.builder4Refresh(msg, CredentialRequirements.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 
-	private SingleActionHandler2<CredentialRequirements> getAddAction()
+	private SingleActionHandler<CredentialRequirements> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, CredentialRequirements.class)
+		return SingleActionHandler.builder4Add(msg, CredentialRequirements.class)
 				.withHandler(this::showAddCRDialog)
 				.build();
 	}
@@ -220,9 +220,9 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<CredentialRequirements> getEditAction()
+	private SingleActionHandler<CredentialRequirements> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, CredentialRequirements.class)
+		return SingleActionHandler.builder4Edit(msg, CredentialRequirements.class)
 				.withHandler(this::showEditCRDialog)
 				.withDisabledPredicate(cr -> cr.isReadOnly())
 				.build();
@@ -245,9 +245,9 @@ public class CredentialRequirementsComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<CredentialRequirements> getDeleteAction()
+	private SingleActionHandler<CredentialRequirements> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, CredentialRequirements.class)
+		return SingleActionHandler.builder4Delete(msg, CredentialRequirements.class)
 				.withHandler(this::deleteHandler)
 				.withDisabledPredicate(cr -> cr.isReadOnly())
 				.build();

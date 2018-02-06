@@ -10,9 +10,9 @@ import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.ui.ComboBox;
-import com.vaadin.v7.ui.PasswordField;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.PasswordField;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
@@ -35,7 +35,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	private PasswordField passwordCurrent;
 	private PasswordField password1;
 	private PasswordField password2;
-	private ComboBox questionSelection;
+	private ComboBox<String> questionSelection;
 	private TextField answer;
 	private boolean requireQA;
 	private PasswordCredential helper;
@@ -69,10 +69,10 @@ public class PasswordCredentialEditor implements CredentialEditor
 		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
 		if (required)
 		{
-			password1.setRequired(true);
-			password2.setRequired(true);
+			password1.setRequiredIndicatorVisible(true);
+			password2.setRequiredIndicatorVisible(true);
 			if (askAboutCurrent)
-				passwordCurrent.setRequired(true);
+				passwordCurrent.setRequiredIndicatorVisible(true);
 		}
 		ret.add(password1, password2);
 		
@@ -80,14 +80,13 @@ public class PasswordCredentialEditor implements CredentialEditor
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 
 		if (requireQA)
 		{
-			questionSelection = new ComboBox(msg.getMessage("PasswordCredentialEditor.selectQuestion"));
-			for (String question: resetSettings.getQuestions())
-				questionSelection.addItem(question);
-			questionSelection.select(resetSettings.getQuestions().get(0));
-			questionSelection.setNullSelectionAllowed(false);
+			questionSelection = new ComboBox<String>(msg.getMessage("PasswordCredentialEditor.selectQuestion"));
+			questionSelection.setItems(resetSettings.getQuestions());
+			questionSelection.setValue(resetSettings.getQuestions().get(0));
+			questionSelection.setEmptySelectionAllowed(false);
 			answer = new TextField(msg.getMessage("PasswordCredentialEditor.answer"));
 			if (required)
-				answer.setRequired(true);
+				answer.setRequiredIndicatorVisible(true);
 			ret.add(questionSelection, answer);
 		}
 		return ret;

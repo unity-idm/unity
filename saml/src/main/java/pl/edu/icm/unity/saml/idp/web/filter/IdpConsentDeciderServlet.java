@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -194,6 +195,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		{
 			TranslationResult userInfo = getUserInfo(samlCtx.getSamlConfiguration(), samlProcessor, 
 					SAMLConstants.BINDING_HTTP_POST);
+			handleRedirectIfNeeded(userInfo, request.getSession(), response);
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
@@ -210,19 +212,30 @@ public class IdpConsentDeciderServlet extends HttpServlet
 				samlCtx.getRelayState(), request, response);
 	}
 	
+	private void handleRedirectIfNeeded(TranslationResult userInfo, HttpSession session,
+			HttpServletResponse response) 
+			throws IOException, EopException
+	{
+		String redirectURL = userInfo.getRedirectURL();
+		if (redirectURL != null)
+		{
+			response.sendRedirect(redirectURL);
+			session.removeAttribute(SamlParseServlet.SESSION_SAML_CONTEXT);
+			throw new EopException();
+		}
+	}
+	
 	protected TranslationResult getUserInfo(SamlIdpProperties samlProperties, AuthnResponseProcessor processor,
 			String binding) 
 			throws EngineException
 	{
 		String profile = samlProperties.getValue(CommonIdPProperties.TRANSLATION_PROFILE);
-		boolean skipImport = samlProperties.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-
 		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
-		return idpEngine.obtainUserInformation(new EntityParam(ae.getEntityId()), 
+		return idpEngine.obtainUserInformationWithEnrichingImport(new EntityParam(ae.getEntityId()), 
 				processor.getChosenGroup(), profile, 
-				processor.getIdentityTarget(), "SAML2", binding,
+				processor.getIdentityTarget(), Optional.empty(), "SAML2", binding,
 				processor.isIdentityCreationAllowed(),
-				!skipImport);
+				samlProperties);
 	}
 
 	

@@ -82,6 +82,7 @@ import pl.edu.icm.unity.engine.utils.LifecycleBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -107,6 +108,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileMode;
+import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -472,10 +474,9 @@ public class EngineInitialization extends LifecycleBase
 						" in the database, admin account will not be created. It is a good idea to remove or comment the "
 						+ UnityServerConfiguration.INITIAL_ADMIN_USER + " setting from the main configuration file to "
 						+ "disable this message and use it only to add a default user in case of locked access.");
-			} catch (IllegalArgumentException e)
+			} catch (UnknownIdentityException e)
 			{
 				log.info("Database contains no admin user, creating the configured admin user");
-				
 				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
 				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
 				
@@ -504,8 +505,8 @@ public class EngineInitialization extends LifecycleBase
 						" Log in and change the admin's password immediatelly! U: " + 
 						adminU + " P: " + adminP + "\n"
 						+ "The credential used for this user is named: '" + credDef.getName() + 
-						"' make sure that this credential is configured for the admin UI endpoint "
-						+ "(if not add a new authenticator definition using this credential and add the authenticator to the endpoint)");
+						"' make sure that this credential is enabled for the admin UI endpoint. "
+						+ "If not add an authenticator using this credential to the admin endpoint.");
 			}
 		} catch (EngineException e)
 		{
@@ -809,10 +810,12 @@ public class EngineInitialization extends LifecycleBase
 	private void initializeTranslationProfiles()
 	{
 		List<String> profileFiles = config.getListOfValues(UnityServerConfiguration.TRANSLATION_PROFILES);
-		Map<String, TranslationProfile> existingProfiles;
+		Map<String, TranslationProfile> existingInputProfiles;
+		Map<String, TranslationProfile> existingOutputProfiles;
 		try
 		{
-			existingProfiles = profilesManagement.listInputProfiles();
+			existingInputProfiles = profilesManagement.listInputProfiles();
+			existingOutputProfiles = profilesManagement.listOutputProfiles();
 		} catch (EngineException e1)
 		{
 			throw new InternalException("Can't list the existing translation profiles", e1);
@@ -833,7 +836,8 @@ public class EngineInitialization extends LifecycleBase
 			TranslationProfile tp = new TranslationProfile(json);
 			try
 			{
-				if (existingProfiles.containsKey(tp.getName()))
+				if ((tp.getProfileType() == ProfileType.INPUT && existingInputProfiles.containsKey(tp.getName()))
+						|| tp.getProfileType() == ProfileType.OUTPUT && existingOutputProfiles.containsKey(tp.getName()))
 				{
 					log.info(" - updated the in-DB translation profile : " + tp.getName() + 
 							" with file definition: " + profileFile);
@@ -858,7 +862,7 @@ public class EngineInitialization extends LifecycleBase
 		{
 			if (profile.getProfileMode() != ProfileMode.READ_ONLY)
 				throw new IllegalArgumentException("Sytem profile " + profile + " is not in READ_ONLY mode");
-			profileHelper.checkProfileContent(profile);
+			profileHelper.checkBaseProfileContent(profile);
 		}
 	}
 	

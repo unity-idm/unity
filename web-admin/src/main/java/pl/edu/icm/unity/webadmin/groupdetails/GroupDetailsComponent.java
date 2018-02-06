@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -66,34 +67,36 @@ public class GroupDetailsComponent extends SafePanel
 		this.groupsManagement = groupsManagement;
 
 		main = new VerticalLayout();
-		main.setSpacing(true);
+		main.setMargin(false);
 		main.setSizeFull();
-	
+		
 		FormLayout topLayout = new CompactFormLayout();
 		displayedName = new Label();
 		displayedName.setCaption(msg.getMessage("displayedNameF"));
 		description = new Label();
 		description.setCaption(msg.getMessage("GroupDetails.description"));
 		topLayout.addComponents(displayedName, description);
+		topLayout.setSizeFull();
 		
 		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, acMan);
-		Toolbar acToolbar = new Toolbar(acPanel, Orientation.VERTICAL);
-		acToolbar.addActionHandlers(acPanel.getHandlers());
+		Toolbar<String> acToolbar = new Toolbar<String>(Orientation.VERTICAL);
+		acToolbar.addActionHandlers(acPanel.getActionHandlers());
+		acPanel.addSelectionListener(acToolbar.getSelectionListener());
 		ComponentWithToolbar acWithToolbar = new ComponentWithToolbar(acPanel, acToolbar);
 		acWithToolbar.setSizeFull();
 		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
 				atMan, attributeHandlersReg);
-		
-		Toolbar asToolbar = new Toolbar(attrStatements, Orientation.VERTICAL);
+		Toolbar<AttributeStatement> asToolbar = new Toolbar<AttributeStatement>(Orientation.VERTICAL);
 		asToolbar.addActionHandlers(attrStatements.getActionHandlers());
+		attrStatements.addSelectionListener(asToolbar.getSelectionListener());
 		ComponentWithToolbar asWithToolbar = new ComponentWithToolbar(attrStatements, asToolbar);
 		asWithToolbar.setSizeFull();
 		
 		main.addComponents(topLayout, acWithToolbar, asWithToolbar);
 		main.setExpandRatio(acWithToolbar, 0.5f);
 		main.setExpandRatio(asWithToolbar, 0.5f);
-		
+				
 		setSizeFull();
 		setContent(main);
 		setStyleName(Styles.vPanelLight.toString());

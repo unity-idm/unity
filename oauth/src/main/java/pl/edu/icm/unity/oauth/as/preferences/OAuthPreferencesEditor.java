@@ -5,13 +5,11 @@
 package pl.edu.icm.unity.oauth.as.preferences;
 
 import java.util.List;
+import java.util.Set;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.event.Action.Handler;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -25,8 +23,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesEditor;
@@ -72,53 +68,41 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 	{
 		main = new HorizontalLayout();
 		
-		table = new GenericElementsTable<String>(msg.getMessage("OAuthPreferences.spSettings"), 
-				new GenericElementsTable.NameProvider<String>()
-				{
-					public Object toRepresentation(String element)
-					{
-						return element.equals("") ? 
-								msg.getMessage("OAuthPreferences.defaultSP") : element;
-					}
-				});
+		table = new GenericElementsTable<>(msg.getMessage("OAuthPreferences.spSettings"), 
+				this::getDisplayedName);
 		table.setWidth(90, Unit.PERCENTAGE);
 		table.setHeight(300, Unit.PIXELS);
 		main.addComponent(table);
 		viewer = configureViewer();
 		main.addComponent(viewer);
-		for (Handler h: getHandlers())
-			table.addActionHandler(h);
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getDeleteAction());
 		main.setSizeFull();
-		main.setSpacing(true);
+		main.setMargin(false);
 
 		table.setInput(preferences.getKeys());
 		viewer.setInput(null);
 	}
 	
-	protected Handler[] getHandlers()
+	private String getDisplayedName(String element)
 	{
-		return new Handler[] {new AddActionHandler(),
-					new EditActionHandler(),
-					new DeleteActionHandler()};
+		return element.equals("") ? msg.getMessage("OAuthPreferences.defaultSP") : element;
 	}
 	
 	protected OAuthSPSettingsViewer configureViewer()
 	{
 		final OAuthSPSettingsViewer viewer = new OAuthSPSettingsViewer(msg);
-		table.addValueChangeListener(new ValueChangeListener()
+		table.addSelectionListener(event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
+			Set<String> items = event.getAllSelectedItems();
+			if (!items.isEmpty())
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<String> item = (GenericItem<String>)table.getValue();
-				if (item != null)
-				{
-					OAuthClientSettings sp = preferences.getSPSettings(item.getElement());
-					viewer.setInput(sp);
-				} else
-					viewer.setInput(null);
-			}
+				OAuthClientSettings sp = preferences.getSPSettings(
+						items.iterator().next());
+				viewer.setInput(sp);
+			} else
+				viewer.setInput(null);
 		});
 		return viewer;
 	}
@@ -135,92 +119,74 @@ public class OAuthPreferencesEditor implements PreferencesEditor
 		return JsonUtil.serialize(preferences.getSerializedConfiguration());
 	}
 	
-	protected class AddActionHandler extends SingleActionHandler
+	private SingleActionHandler<String> getAddAction()
 	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("OAuthPreferences.addAction"), Images.add.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			try
-			{
-				initStateData();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("OAuthPreferences.errorLoadindSystemInfo"), e);
-				return;
-			}
-			OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, idTypeSupport, identities, 
-					preferences.getKeys());
-			new OAuthSettingsDialog(msg, editor, new OAuthSettingsDialog.Callback()
-			{
-				@Override
-				public void updatedClient(OAuthClientSettings spSettings, String sp)
-				{
-					preferences.setSPSettings(sp, spSettings);
-					table.setInput(preferences.getKeys());
-					listener.preferencesModified();
-				}
-			}).show();
-		}
+		return SingleActionHandler.builder4Add(msg, String.class)
+				.withHandler(this::showAddDialog)
+				.build();
 	}
-	
-	protected class EditActionHandler extends SingleActionHandler
-	{
-		public EditActionHandler()
-		{
-			super(msg.getMessage("OAuthPreferences.editAction"), Images.edit.getResource());
-		}
 
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			try
-			{
-				initStateData();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("OAuthPreferences.errorLoadindSystemInfo"), e);
-				return;
-			}
-			@SuppressWarnings("unchecked")
-			GenericItem<String> item = (GenericItem<String>)target;
-			OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, idTypeSupport, identities, 
-					item.getElement(), preferences.getSPSettings(item.getElement()));
-			new OAuthSettingsDialog(msg, editor, new OAuthSettingsDialog.Callback()
-			{
-				@Override
-				public void updatedClient(OAuthClientSettings spSettings, String sp)
-				{
-					preferences.setSPSettings(sp, spSettings);
-					table.setInput(preferences.getKeys());
-					listener.preferencesModified();
-				}
-			}).show();
-		}
-	}
-	
-	protected class DeleteActionHandler extends SingleActionHandler
+	private void showAddDialog(Set<String> items)
 	{
-		public DeleteActionHandler()
+		try
 		{
-			super(msg.getMessage("OAuthPreferences.deleteAction"), 
-					Images.delete.getResource());
+			initStateData();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("OAuthPreferences.errorLoadindSystemInfo"), e);
+			return;
 		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
+		OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, idTypeSupport, identities, 
+				preferences.getKeys());
+		new OAuthSettingsDialog(msg, editor, (spSettings, sp) ->
 		{
-			
-			GenericItem<?> item = (GenericItem<?>)target;
-			preferences.removeSPSettings((String)item.getElement());
+			preferences.setSPSettings(sp, spSettings);
 			table.setInput(preferences.getKeys());
 			listener.preferencesModified();
+		}).show();
+	}
+	
+	private SingleActionHandler<String> getEditAction()
+	{
+		return SingleActionHandler.builder4Edit(msg, String.class)
+				.withHandler(this::showEditDialog)
+				.build();
+	}
+
+	private void showEditDialog(Set<String> items)
+	{
+		try
+		{
+			initStateData();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("OAuthPreferences.errorLoadindSystemInfo"), e);
+			return;
 		}
+		String item = items.iterator().next();
+		OAuthSPSettingsEditor editor = new OAuthSPSettingsEditor(msg, idTypeSupport, identities, 
+				item, preferences.getSPSettings(item));
+		new OAuthSettingsDialog(msg, editor, (spSettings, sp) ->
+		{
+			preferences.setSPSettings(sp, spSettings);
+			table.setInput(preferences.getKeys());
+			listener.preferencesModified();
+		}).show();
+	}
+	
+	private SingleActionHandler<String> getDeleteAction()
+	{
+		return SingleActionHandler.builder4Delete(msg, String.class)
+				.withHandler(this::deleteHandler)
+				.build();
+	}
+
+	private void deleteHandler(Set<String> items)
+	{
+		String item = items.iterator().next();
+		preferences.removeSPSettings(item);
+		table.setInput(preferences.getKeys());
+		listener.preferencesModified();
 	}
 
 	@Override

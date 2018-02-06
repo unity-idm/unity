@@ -6,47 +6,66 @@ package pl.edu.icm.unity.webadmin.bulk;
 
 import org.quartz.CronExpression;
 
-import com.vaadin.v7.data.validator.AbstractStringValidator;
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
+import com.vaadin.data.ValueContext;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
 
 /**
  * Field allowing for editing a Quartz cron expression
  * @author K. Benedyczak
  */
-public class CronExpressionField extends RequiredTextField
+public class CronExpressionField extends TextField
 {
 	private UnityMessageSource msg;
-	
+
 	public CronExpressionField(UnityMessageSource msg, String caption)
 	{
-		super(caption, msg);
 		this.msg = msg;
+		setCaption(caption);
 		setDescription(msg.getMessage("CronExpressionField.cronExpressionDescription"));
-		initUI();
 	}
 
-	private void initUI()
+	public void configureBinding(Binder<?> binder, String fieldName)
 	{
-		addValidator(new AbstractStringValidator(
-				msg.getMessage("CronExpressionField.invalidValue"))
+		binder.forField(this).withValidator(getValidator(msg))
+				.asRequired(msg.getMessage("fieldRequired")).bind(fieldName);
+
+	}
+
+	private static Validator<String> getValidator(UnityMessageSource msg)
+	{
+		Validator<String> expressionValidator = new Validator<String>()
 		{
+
 			@Override
-			protected boolean isValidValue(String value)
+			public ValidationResult apply(String value, ValueContext context)
 			{
 				try
 				{
 					CronExpression.validateExpression(value);
 				} catch (Exception e)
 				{
-					setErrorMessage(msg.getMessage("CronExpressionField.invalidValueWithReason", 
-							e.getMessage()));
-					return false;
-				}
+					String info;
+					try
+					{
+						info = e.getMessage();
+					} catch (Exception ee)
+					{
+						info = "Other MVEL error";
+					}
 
-				return true;
+					return ValidationResult.error(msg.getMessage(
+							"MVELExpressionField.invalidValueWithReason",
+							info));
+
+				}
+				return ValidationResult.ok();
 			}
-		});
-	}
+		};
+		return expressionValidator;
+	}	
 }

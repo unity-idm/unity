@@ -96,7 +96,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		refreshViewButton.setDescription(msg.getMessage("Authenticators.refreshList"));
 		
 		Button reloadAllButton = new Button();
-		reloadAllButton.setIcon(Images.transfer.getResource());
+		reloadAllButton.setIcon(Images.reload.getResource());
 		reloadAllButton.addStyleName(Styles.vButtonLink.toString());
 		reloadAllButton.addStyleName(Styles.toolbarButton.toString());
 		reloadAllButton.addClickListener(new Button.ClickListener()

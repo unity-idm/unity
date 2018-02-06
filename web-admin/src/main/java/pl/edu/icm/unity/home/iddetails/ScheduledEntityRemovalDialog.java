@@ -5,18 +5,19 @@
 package pl.edu.icm.unity.home.iddetails;
 
 import java.util.Date;
+import java.util.Map;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
+import com.google.common.collect.ImmutableMap;
+import com.vaadin.data.Binder;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.OptionGroup;
-import com.vaadin.v7.ui.TextField;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.RadioButtonGroup;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -42,8 +43,10 @@ public class ScheduledEntityRemovalDialog extends AbstractDialog
 	private long entity;
 	private WebAuthenticationProcessor authnProcessor;
 	private EntityManagement identitiesMan;
-	private OptionGroup nowOrLater;
-	private TextField days;
+	private RadioButtonGroup<String> nowOrLater;
+	private TextField daysField;
+	private Integer days = 0;
+	private Binder<Integer> daysBinder;
 	
 	public ScheduledEntityRemovalDialog(UnityMessageSource msg, long entityId, 
 			EntityManagement identitiesManagement, WebAuthenticationProcessor authnProcessor)
@@ -58,43 +61,39 @@ public class ScheduledEntityRemovalDialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
-		nowOrLater = new OptionGroup();
-		nowOrLater.addItem(NOW);
-		nowOrLater.addItem(SCHEDULE);
-		nowOrLater.setItemCaption(NOW, msg.getMessage("RemoveEntityDialog.removeNow"));
-		nowOrLater.setItemCaption(SCHEDULE, msg.getMessage("RemoveEntityDialog.scheduleRemoval"));
-		nowOrLater.setImmediate(true);
-		
-		days = new TextField();
-		days.addValidator(new IntegerRangeValidator(msg.getMessage("RemoveEntityDialog.notANumber", 
-				365), 1, 365));
-		days.setConverter(new StringToIntegerConverter());
-		days.setConversionError(msg.getMessage("RemoveEntityDialog.notANumber"));
-		days.setValue("30");
-		days.setColumns(4);
+		nowOrLater = new RadioButtonGroup<>();
+		Map<String, String> captions = ImmutableMap.of(NOW,
+				msg.getMessage("RemoveEntityDialog.removeNow"), SCHEDULE,
+				msg.getMessage("RemoveEntityDialog.scheduleRemoval"));
+		nowOrLater.setItems(captions.keySet());
+		nowOrLater.setItemCaptionGenerator(i -> captions.get(i));
+			
+		daysField = new TextField();	
+		daysBinder = new Binder<Integer>();
+		daysBinder.forField(daysField).withConverter(new StringToIntegerConverter(msg.getMessage("RemoveEntityDialog.notANumber")))
+		.withValidator(new IntegerRangeValidator(msg.getMessage("RemoveEntityDialog.notANumber", 
+				365), 1, 365)).bind(s -> this.days, (s, v) -> this.days = v);
+		daysBinder.setBean(days);
+		daysField.setValue("30");
 		
 		Label daysL = new Label(msg.getMessage("RemoveEntityDialog.days"));
-		final HorizontalLayout daysHL = new HorizontalLayout(HtmlTag.hspaceEm(1), days, daysL);
-		daysHL.setSpacing(true);
+		final HorizontalLayout daysHL = new HorizontalLayout(HtmlTag.hspaceEm(1), daysField, daysL);
+		daysHL.setMargin(false);
 		daysHL.setComponentAlignment(daysL, Alignment.BOTTOM_LEFT);
-		
+	
 		final Label schedInfo = new Label(msg.getMessage("RemoveEntityDialog.scheduleInfo"));
-		schedInfo.addStyleName(Styles.vLabelSmall.toString());
-
-		nowOrLater.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				boolean enableSched = SCHEDULE.equals(nowOrLater.getValue());
-				daysHL.setEnabled(enableSched);
-				schedInfo.setEnabled(enableSched);
-			}
+		schedInfo.addStyleName(Styles.vLabelSmall.toString());	
+		nowOrLater.addValueChangeListener(e -> {
+			boolean enableSched = SCHEDULE.equals(nowOrLater.getValue());
+			daysHL.setEnabled(enableSched);
+			schedInfo.setEnabled(enableSched);
 		});
-		nowOrLater.select(SCHEDULE);
+		
+		
+		nowOrLater.setValue(SCHEDULE);
 		
 		VerticalLayout main = new VerticalLayout(nowOrLater, daysHL, schedInfo);
-		main.setSpacing(true);
+		main.setMargin(false);
 		return main;
 	}
 
@@ -110,10 +109,13 @@ public class ScheduledEntityRemovalDialog extends AbstractDialog
 			confirmQuestion = msg.getMessage("RemoveEntityDialog.confirmImmediate");
 		} else
 		{
-			if (!days.isValid())
+			if (!daysBinder.isValid())
+			{
+				daysBinder.validate();
 				return;
-			Integer daysI = (Integer) days.getConvertedValue();
-			time = new Date(System.currentTimeMillis() + 1000L * 3600 * 24 * daysI);
+			}
+			
+			time = new Date(System.currentTimeMillis() + 1000L * 3600 * 24 * this.days);
 			confirmQuestion = msg.getMessage("RemoveEntityDialog.confirmScheduled", time);
 		}
 		

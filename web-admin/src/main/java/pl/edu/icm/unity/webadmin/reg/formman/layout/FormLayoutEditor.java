@@ -10,13 +10,13 @@ import java.util.stream.Collectors;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.v7.ui.CheckBox;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -71,6 +71,7 @@ public class FormLayoutEditor extends CustomComponent
 		
 		main = new VerticalLayout();
 		main.setSpacing(true);
+		main.setMargin(false);
 		enableCustom = new CheckBox(msg.getMessage("FormLayoutEditor.enableCustom"));
 		enableCustom.addValueChangeListener(event -> {
 			boolean enabled = enableCustom.getValue();
@@ -95,12 +96,14 @@ public class FormLayoutEditor extends CustomComponent
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
+		main.setMargin(false);
 		
 		main.addComponent(getAddMetaElementControl());
 		main.addComponent(HtmlTag.horizontalLine());
 		
 		entriesLayout = new VerticalLayout();
 		entriesLayout.setSpacing(true);
+		entriesLayout.setMargin(false);
 		main.addComponent(entriesLayout);
 		return main;
 	}
@@ -109,15 +112,15 @@ public class FormLayoutEditor extends CustomComponent
 	{
 		HorizontalLayout addElementLayout = new HorizontalLayout();
 		addElementLayout.setSpacing(true);
+		addElementLayout.setMargin(false);
 		
 		Label label = new Label(msg.getMessage("FormLayoutEditor.addCaption"));
 		addElementLayout.addComponent(label);
 		addElementLayout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
-		ComboBox elementSelector = new ComboBox();
-		elementSelector.addItem(FormLayout.SEPARATOR);
-		elementSelector.addItem(FormLayout.CAPTION);
-		elementSelector.setNullSelectionAllowed(false);
-		elementSelector.setValue(FormLayout.CAPTION);
+		ComboBox<String> elementSelector = new ComboBox<>();
+		elementSelector.setItems(FormLayout.SEPARATOR, FormLayout.CAPTION);
+		elementSelector.setSelectedItem(FormLayout.CAPTION);
+		elementSelector.setEmptySelectionAllowed(false);
 		
 		Button add = new Button();
 		add.setIcon(Images.add.getResource());

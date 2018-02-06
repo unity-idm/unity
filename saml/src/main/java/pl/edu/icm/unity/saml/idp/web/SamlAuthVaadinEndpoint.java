@@ -61,10 +61,12 @@ import pl.edu.icm.unity.saml.slo.SLOSAMLServlet;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityVaadinServlet;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -219,6 +221,13 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+
+		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticators, 
+				description.getEndpoint().getContextAddress(),
+				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
+		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
+				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(),
 				null);
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 

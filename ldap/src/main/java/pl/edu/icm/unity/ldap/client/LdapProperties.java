@@ -46,7 +46,7 @@ public class LdapProperties extends PropertiesHelper
 		}
 	}
 	
-	public enum BindAs {user, system}
+	public enum BindAs {user, system, none}
 
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "ldap.";
@@ -93,6 +93,7 @@ public class LdapProperties extends PropertiesHelper
 	
 	public static final String TRUSTSTORE = "truststore";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
+	public static final String DEFAULT_TRANSLATION_PROFILE = "sys:ldap";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META=new HashMap<String, PropertyMD>();
@@ -124,7 +125,9 @@ public class LdapProperties extends PropertiesHelper
 				+ "predefined user ('system or unity user') and password. Then the credentials provided"
 				+ " by the user are only compared if are genuine, but all searches "
 				+ "(and LDAP authorization) is run as the designated system user. In this mode, "
-				+ "the system user's DN, password and user's password attribute must be configured."));
+				+ "the system user's DN, password and user's password attribute must be configured. "
+				+ "The +user+ option will only work with authenticator and not with importer. "
+				+ "Conversly the +none+ option is suitable for use only in case of LDAP import and not in authenticator."));
 		
 		META.put(USER_DN_TEMPLATE, new PropertyMD().setCategory(main).setDescription("Template of a DN of " +
 				"the user that should be used to log in. The tempalte must possess a single occurence " +
@@ -162,8 +165,8 @@ public class LdapProperties extends PropertiesHelper
 				"might have stricter limit."));
 
 		META.put(SYSTEM_DN, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
-				BIND_AS + " is set to " + BindAs.system + ". The value must be the DN of the system "
-				+ "user to authenticate as before performing any queries."));
+				BIND_AS + " is set to " + BindAs.system + " or when using custom user search. "
+				+ "The value must be the DN of the system user to authenticate as before performing any queries."));
 		META.put(SYSTEM_PASSWORD, new PropertyMD().setCategory(main).setDescription("Relevant and mandatory only if " +
 				BIND_AS + " is set to " + BindAs.system + ". The value must be the password of the system "
 				+ "user to authenticate as before performing any queries."));
@@ -223,7 +226,7 @@ public class LdapProperties extends PropertiesHelper
 		META.put(ADV_SEARCH_SCOPE, new PropertyMD(SearchScope.sub).setStructuredListEntry(ADV_SEARCH_PFX).setCategory(advSearch).
 				setDescription("LDAP search scope to be used for this search."));
 
-		META.put(TRANSLATION_PROFILE, new PropertyMD().setMandatory().setCategory(main).setDescription("Name of a translation" +
+		META.put(TRANSLATION_PROFILE, new PropertyMD(DEFAULT_TRANSLATION_PROFILE).setCategory(main).setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
 

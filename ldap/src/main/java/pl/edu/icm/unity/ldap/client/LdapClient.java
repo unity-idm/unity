@@ -44,6 +44,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**
@@ -113,7 +114,7 @@ public class LdapClient
 			return ret;
 		}
 		
-		if (!configuration.isBindAsUser())
+		if (configuration.getBindAs() == BindAs.system)
 			bindAsSystem(connection, configuration);
 		
 		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
@@ -122,6 +123,7 @@ public class LdapClient
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
 		performAdditionalQueries(connection, configuration, user, ret);
+		ret.setRawAttributes(ret.getAttributes());
 		
 		connection.close();
 		return ret;
@@ -142,7 +144,7 @@ public class LdapClient
 			throws LDAPException, LdapAuthenticationException, 
 			KeyManagementException, NoSuchAlgorithmException
 	{
-		if (configuration.isBindAsUser())
+		if (configuration.getBindAs() == BindAs.user)
 		{
 			log.error("LDAP verification of externaly verified credentials (as TLS verified certificates)"
 					+ " can be only performed when the LDAP subsystem is configured to bind "
@@ -164,7 +166,8 @@ public class LdapClient
 			return ret;
 		}
 		
-		bindAsSystem(connection, configuration);
+		if (configuration.getBindAs() == BindAs.system)
+			bindAsSystem(connection, configuration);
 		
 		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
 		
@@ -172,6 +175,7 @@ public class LdapClient
 		findGroupsMembership(connection, entry, configuration, ret.getGroups());
 		
 		performAdditionalQueries(connection, configuration, user, ret);
+		ret.setRawAttributes(ret.getAttributes());
 		
 		connection.close();
 		return ret;
@@ -287,7 +291,7 @@ public class LdapClient
 	}
 
 	private void bindAsSystem(LDAPConnection connection, LdapClientConfiguration configuration) 
-	throws LdapAuthenticationException, LDAPException
+			throws LdapAuthenticationException, LDAPException
 	{
 		String systemDN = configuration.getSystemDN();
 		String systemPassword = configuration.getSystemPassword();
@@ -332,9 +336,9 @@ public class LdapClient
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
 		for (Attribute a: entry.getAttributes())
 		{
-			ret.addAttribute(new RemoteAttribute(a.getBaseName(), (Object[])a.getValues()));
+			ret.addAttribute(new RemoteAttribute(a.getName(), (Object[])a.getValues()));
 		}
-		
+		ret.setRawAttributes(ret.getAttributes());
 		ret.addIdentity(new RemoteIdentity(entry.getDN(), X500Identity.ID));
 		return ret;
 	}

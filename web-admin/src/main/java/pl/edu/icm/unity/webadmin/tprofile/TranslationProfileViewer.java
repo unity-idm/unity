@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
@@ -45,7 +45,6 @@ public class TranslationProfileViewer extends VerticalLayout
 		name = new Label();
 		name.setCaption(msg.getMessage("TranslationProfileViewer.name"));
 		description = new Label();
-		description.setReadOnly(true);
 		description.setCaption(msg.getMessage("TranslationProfileViewer.description"));	
 		mode = new Label();
 		mode.setCaption(msg.getMessage("TranslationProfileViewer.mode"));

@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
@@ -117,6 +118,8 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 			Attribute newAttr = new Attribute(attrNameString, StringAttributeSyntax.ID,
 					"/", sValues);
 			DynamicAttribute dynamicAttribute = new DynamicAttribute(newAttr,
+					new AttributeType(StringAttributeSyntax.ID,
+							StringAttributeSyntax.ID),
 					attrDisplayname, attrDescription, attrMandatory);
 			result.getAttributes().add(dynamicAttribute);
 			log.debug("Created a new attribute: " + dynamicAttribute);

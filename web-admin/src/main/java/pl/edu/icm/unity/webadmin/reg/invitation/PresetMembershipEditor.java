@@ -6,7 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.List;
 
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

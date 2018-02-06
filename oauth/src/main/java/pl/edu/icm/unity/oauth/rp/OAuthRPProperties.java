@@ -10,6 +10,8 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
+
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -23,6 +25,7 @@ import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.BaseRemoteASProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.rp.verificator.InternalTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.MitreTokenVerificator;
 import pl.edu.icm.unity.oauth.rp.verificator.TokenVerificatorProtocol;
@@ -78,6 +81,11 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 						+ "authorize the call."));
 		META.put(CLIENT_AUTHN_MODE, new PropertyMD(ClientAuthnMode.secretBasic).
 				setDescription("Defines how the client access token should be passed to the AS."));
+		META.put(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, new PropertyMD().setDescription(
+				"Defines how the client secret and id should be passed to the provider's user's profile endpoint. If not set the "
+						+ CLIENT_AUTHN_MODE + " is used"));
+		META.put(CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS, new PropertyMD(ClientHttpMethod.get)
+				.setDescription("Http method used in query to profile endpoint"));
 		META.put(REQUIRED_SCOPES, new PropertyMD().setList(false).
 				setDescription("Optional list of scopes which must be associated with the validated"
 						+ " access token to make the authentication successful"));
@@ -129,6 +137,21 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 					" property is mandatory unless the '" + VerificationProtocol.internal +
 					"' verification protocol is used");
 	}
+	
+	@Override
+	public ClientAuthnMode getClientAuthModeForProfileAccess()
+	{
+		ClientAuthnMode mode = getEnumValue(CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS,
+				ClientAuthnMode.class);
+		return mode != null ? mode : getEnumValue(CLIENT_AUTHN_MODE, ClientAuthnMode.class);
+	}
+	
+	public Method getClientHttpMethodForProfileAccess()
+	{
+		return (getEnumValue(CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS,
+				ClientHttpMethod.class) == ClientHttpMethod.get) ? Method.GET
+						: Method.POST;
+	}	
 	
 	public Properties getProperties()
 	{

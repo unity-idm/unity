@@ -11,6 +11,7 @@ import java.util.Set;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.samly2.SAMLBindings;
+import eu.unicore.samly2.assertion.AssertionParser;
 import eu.unicore.samly2.assertion.AttributeAssertionParser;
 import eu.unicore.samly2.attrprofile.ParsedAttribute;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import xmlbeans.org.oasis.saml2.assertion.AssertionDocument;
 import xmlbeans.org.oasis.saml2.assertion.AssertionType;
+import xmlbeans.org.oasis.saml2.assertion.AuthnContextType;
 import xmlbeans.org.oasis.saml2.assertion.AuthnStatementType;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -40,6 +42,7 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
  */
 public class SAMLResponseValidatorUtil
 {
+	public static final String AUTHN_CONTEXT_CLASS_REF_ATTR = "authnContextClassRef";
 	private SAMLSPProperties samlProperties;
 	private ReplayAttackChecker replayAttackChecker;
 	private String responseConsumerAddress;
@@ -90,7 +93,7 @@ public class SAMLResponseValidatorUtil
 	}
 	
 	
-	private RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
+	RemotelyAuthenticatedInput convertAssertion(ResponseDocument responseDocument,
 			SSOAuthnResponseValidator validator, String groupA, String configKey) throws AuthenticationException
 	{
 		xmlbeans.org.oasis.saml2.protocol.ResponseType resp = responseDocument.getResponse();
@@ -99,7 +102,9 @@ public class SAMLResponseValidatorUtil
 		
 		input.setIdentities(getAuthenticatedIdentities(validator));
 		List<RemoteAttribute> remoteAttributes = getAttributes(validator);
+		remoteAttributes.add(getAuthnContextClassAttribute(validator));
 		input.setAttributes(remoteAttributes);
+		input.setRawAttributes(input.getAttributes());
 		input.setGroups(getGroups(remoteAttributes, groupA));
 
 		addSessionParticipants(validator, issuer, input, configKey);
@@ -150,7 +155,7 @@ public class SAMLResponseValidatorUtil
 	
 	private List<RemoteAttribute> getAttributes(SSOAuthnResponseValidator validator) throws AuthenticationException
 	{
-		List<AssertionDocument> assertions = validator.getOtherAssertions();
+		List<AssertionDocument> assertions = validator.getAttributeAssertions();
 		List<RemoteAttribute> ret = new ArrayList<>(assertions.size());
 		for (AssertionDocument assertion: assertions)
 		{
@@ -171,6 +176,29 @@ public class SAMLResponseValidatorUtil
 			}
 		}
 		return ret;
+	}
+
+	private RemoteAttribute getAuthnContextClassAttribute(SSOAuthnResponseValidator validator)
+	{
+		List<AssertionDocument> assertions = validator.getAuthNAssertions();
+		List<String> values = new ArrayList<>();
+		for (AssertionDocument assertion: assertions)
+		{
+			AssertionParser parser = new AssertionParser(assertion);
+			AuthnStatementType[] authnStatements = parser.getXMLBean().getAuthnStatementArray();
+			for (AuthnStatementType statement: authnStatements)
+			{
+				AuthnContextType authnContext = statement.getAuthnContext();
+				if (authnContext != null)
+				{
+					String authnContextClassRef = authnContext.getAuthnContextClassRef();
+					if (authnContextClassRef != null)
+						values.add(authnContextClassRef);
+				}
+			}
+		}
+		return new RemoteAttribute(AUTHN_CONTEXT_CLASS_REF_ATTR,
+				(Object[]) values.toArray(new String[values.size()]));
 	}
 	
 	private List<RemoteGroupMembership> getGroups(List<RemoteAttribute> remoteAttributes, String groupA)

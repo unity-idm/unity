@@ -86,6 +86,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	public void addAttributeType(AttributeType toAdd) throws EngineException
 	{
 		toAdd.validateInitialization();
+		atHelper.validateSyntax(toAdd);
 		if (toAdd.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		authz.checkAuthorization(AuthzCapability.maintenance);
@@ -101,6 +102,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	public void updateAttributeType(AttributeType at) throws EngineException
 	{
 		at.validateInitialization();
+		atHelper.validateSyntax(at);
 		if (at.getFlags() != 0)
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		authz.checkAuthorization(AuthzCapability.maintenance);

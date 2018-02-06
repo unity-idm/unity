@@ -12,9 +12,9 @@ import java.io.OutputStream;
 import java.util.Date;
 
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.ProgressBar;
-import com.vaadin.v7.ui.Upload;
-import com.vaadin.v7.ui.Upload.SucceededEvent;
+import com.vaadin.ui.ProgressBar;
+import com.vaadin.ui.Upload;
+import com.vaadin.ui.Upload.SucceededEvent;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractUploadReceiver;
@@ -36,17 +36,24 @@ public class FileUploder extends AbstractUploadReceiver
 	private boolean blocked = false;
 	private UnityMessageSource msg;
 	private File tempDir;
+	private Runnable uploadSucceededCallback;
 
-	public FileUploder(Upload upload, ProgressBar progress, Label info, UnityMessageSource msg, File tempDir)
+	public FileUploder(Upload upload, ProgressBar progress, Label info, UnityMessageSource msg, File tempDir, Runnable callback)
 	{
 		super(upload, progress);
 		this.info = info;
 		this.msg = msg;
 		this.tempDir = tempDir;
+		this.uploadSucceededCallback = callback;
 		info.setValue(msg.getMessage("FileUploader.noFileUploaded"));
 		upload.setCaption(msg.getMessage("FileUploader.uploadCaption"));
 	}
-
+	
+	public FileUploder(Upload upload, ProgressBar progress, Label info, UnityMessageSource msg, File tempDir)
+	{
+		this(upload, progress, info, msg, tempDir, null);
+	}
+	
 	@Override
 	public synchronized void uploadSucceeded(SucceededEvent event)
 	{
@@ -59,6 +66,8 @@ public class FileUploder extends AbstractUploadReceiver
 		else
 			info.setValue(msg.getMessage("FileUploader.uploadFileTooBig"));
 		setUploading(false);
+		if (uploadSucceededCallback != null)
+			uploadSucceededCallback.run();
 	}
 
 	@Override
@@ -143,6 +152,7 @@ public class FileUploder extends AbstractUploadReceiver
 	
 	public synchronized void clear()
 	{
+		info.setValue(msg.getMessage("FileUploader.noFileUploaded"));
 		if (target != null && target.exists())
 			target.delete();
 		uploading = false;

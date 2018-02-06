@@ -31,7 +31,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 2147483647,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -68,7 +68,7 @@
 		"syntaxState": {
 			"maxWidth": 100,
 			"maxHeight": 100,
-			"maxSize": 2000000
+			"maxSize": 1000000
 		},
 		"displayedName": {
 			"DefaultValue": "avatar",
@@ -79,6 +79,7 @@
 		"i18nDescription": {
 			"DefaultValue": null,
 			"Map": {
+				"en": "Small picture in JPEG format",
 				"pl": "Małe zdjęcie w formacie JPEG"
 			}
 		},
@@ -187,10 +188,10 @@
 			"maxLength": 300
 		},
 		"displayedName": {
-			"DefaultValue": "cityAddress",
+			"DefaultValue": "city",
 			"Map": {
-				"pl": "Adres - miasto",
-				"en": "Adress - city"
+				"pl": "Miasto",
+				"en": "City"
 			}
 		},
 		"i18nDescription": {
@@ -202,7 +203,7 @@
 		"metadata": {
 			
 		},
-		"name": "cityAddress",
+		"name": "city",
 		"syntaxId": "string"
 	},
 	{
@@ -364,7 +365,7 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 9,
-			"maxLength": 13
+			"maxLength": 20
 		},
 		"displayedName": {
 			"DefaultValue": "facsimileTelephoneNumber",
@@ -543,7 +544,7 @@
 		"syntaxState": {
 			"regexp": "(\\+)?(\\d){9,12}",
 			"minLength": 9,
-			"maxLength": 13
+			"maxLength": 20
 		},
 		"displayedName": {
 			"DefaultValue": "mobile",
@@ -637,7 +638,7 @@
 		"displayedName": {
 			"DefaultValue": "organizationRole",
 			"Map": {
-				"pl": "Rola jednostki organizacyjnej",
+				"pl": "Rola w organizacji",
 				"en": "Organization role"
 			}
 		},
@@ -692,7 +693,7 @@
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 1,
-			"maxLength": 1000
+			"maxLength": 8000
 		},
 		"displayedName": {
 			"DefaultValue": "pgpPublicKey",
@@ -722,7 +723,7 @@
 		"syntaxState": {
 			"maxWidth": 1000,
 			"maxHeight": 1000,
-			"maxSize": 6000000
+			"maxSize": 3000000
 		},
 		"displayedName": {
 			"DefaultValue": "picture",
@@ -810,7 +811,7 @@
 		"selfModificable": false,
 		"uniqueValues": false,
 		"syntaxState": {
-			"regexp": "[0-9][0-9]-[0-9][0-9][0-9]",
+			"regexp": "",
 			"minLength": 0,
 			"maxLength": 6
 		},
@@ -895,7 +896,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -925,7 +926,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -960,6 +961,36 @@
 		"selfModificable": false,
 		"uniqueValues": false,
 		"syntaxState": {
+			"regexp": "",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"displayedName": {
+			"DefaultValue": "Locality",
+			"Map": {
+				"pl": "Localizacja",
+				"en": "Locality"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "locality",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
 			"min": 0.0,
 			"max": 1.7976931348623157E308
 		},
@@ -983,7 +1014,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1013,7 +1044,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1043,7 +1074,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1140,7 +1171,7 @@
 		"syntaxState": {
 			"regexp": "(\\+)?(\\d){9,12}",
 			"minLength": 9,
-			"maxLength": 13
+			"maxLength": 20
 		},
 		"displayedName": {
 			"DefaultValue": "telephoneNumber",
@@ -1193,7 +1224,7 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
@@ -1223,17 +1254,17 @@
 	},
 	{
 		"flags": 0,
-		"maxElements": 1,
+		"maxElements": 10,
 		"minElements": 1,
 		"selfModificable": false,
 		"uniqueValues": false,
 		"syntaxState": {
 			"regexp": "",
 			"minLength": 0,
-			"maxLength": 1000
+			"maxLength": 20000
 		},
 		"displayedName": {
-			"DefaultValue": "userCertificate",
+			"DefaultValue": "certificate",
 			"Map": {
 				"pl": "Certyfikat użytkownika",
 				"en": "User certificate"
@@ -1248,7 +1279,7 @@
 		"metadata": {
 			
 		},
-		"name": "userCertificate",
+		"name": "certificate",
 		"syntaxId": "string"
 	},
 	{
@@ -1280,5 +1311,96 @@
 		},
 		"name": "website",
 		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "displayName",
+			"Map": {
+				"pl": "Wyświetlana nazwa",
+				"en": "Display name"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "displayName",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "userName",
+			"Map": {
+				"pl": "Nazwa użytkownika",
+				"en": "Username"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "userName",
+		"syntaxId": "string"
+	},
+	{
+		"flags": 0,
+		"maxElements": 1,
+		"minElements": 1,
+		"selfModificable": false,
+		"uniqueValues": false,
+		"syntaxState": {
+			"regexp": "",
+			"minLength": 2,
+			"maxLength": 300
+		},
+		"displayedName": {
+			"DefaultValue": "uid",
+			"Map": {
+				"pl": "Identyfikator uzytkownika",
+				"en": "User id"
+			}
+		},
+		"i18nDescription": {
+			"DefaultValue": null,
+			"Map": {
+				
+			}
+		},
+		"metadata": {
+			
+		},
+		"name": "uid",
+		"syntaxId": "string"
 	}
+	
 ]

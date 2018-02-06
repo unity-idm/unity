@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.v7.ui.CheckBox;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -42,7 +42,7 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 		active.addValueChangeListener(event -> {
 			setEnabled(active.getValue());
 		});
-		mode = new EnumComboBox<PrefilledEntryMode>(msg, "PrefilledEntryMode.", 
+		mode = new EnumComboBox<>(msg, "PrefilledEntryMode.", 
 				PrefilledEntryMode.class, PrefilledEntryMode.DEFAULT);
 		container.add(active, mode);
 		mode.setWidth(20, Unit.EM);
@@ -75,7 +75,7 @@ public abstract class PresetEditorBase <T> implements Editor<PrefilledEntry<T>>
 		if (active.getValue())
 		{
 			T value = getValueInternal();
-			return value != null ? new PrefilledEntry<>(value, mode.getSelectedValue()) : null;	
+			return value != null ? new PrefilledEntry<>(value, mode.getValue()) : null;	
 		}
 		return null;
 	}

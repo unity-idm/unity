@@ -7,13 +7,11 @@ package pl.edu.icm.unity.webui.common.attributes;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -85,14 +83,7 @@ public class SelectableAttributeWithValues extends CustomComponent
 		selectableAttr.addEntry(attrNameLabel, false);
 		selectableAttr.setWidth(100, Unit.PERCENTAGE);
 		final CheckBox mainDisable = selectableAttr.getSelection().iterator().next();
-		mainDisable.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				listOfValues.setEnabled(!mainDisable.getValue());
-			}
-		});
+		mainDisable.addValueChangeListener(event -> listOfValues.setEnabled(!mainDisable.getValue()));
 		selectableAttr.setCheckBoxesVisible(enableSelect);
 		
 		
@@ -146,42 +137,53 @@ public class SelectableAttributeWithValues extends CustomComponent
 	}
 	
 	/**
-	 * @return the attribute without any hidden value. Null if the whole attribute is hidden.
+	 * @return whether an attribute is completely hidden
 	 */
-	public Attribute getHiddenAttributeValues()
+	public boolean isHidden()
+	{
+		return selectableAttr.getSelection().get(0).getValue();
+	}
+	
+	/**
+	 * @return the attribute with only hidden values. Null if the attribute is not hidden.
+	 */
+	public Attribute getHiddenValues()
+	{
+		return isAnythingHidden() ? getAttribute(true) : null;
+	}
+	
+	private boolean isAnythingHidden()
 	{
 		if (selectableAttr.getSelection().get(0).getValue())
-			return null;
+			return true;
 		List<CheckBox> selection = listOfValues.getSelection();
-		List<String> filteredValues = new ArrayList<>(attribute.getValues().size());
-		for (int i = 0; i < attribute.getValues().size(); i++)
-		{
-			String t = attribute.getValues().get(i);
-			if (selection.get(i).getValue())
-				filteredValues.add(t);
-		}
-		attribute.setValues(filteredValues);
-		return attribute;
+		for (CheckBox checkbox: selection)
+			if (checkbox.getValue())
+				return true;
+		return false;
 	}
-
-	
+		
 	/**
 	 * @return the attribute without any hidden value. Null if the whole attribute is hidden.
 	 */
-	public Attribute getAttributeWithoutHidden()
+	public Attribute getWithoutHiddenValues()
 	{
 		if (selectableAttr.getSelection().get(0).getValue())
 			return null;
+		return getAttribute(false);
+	}
+
+	private Attribute getAttribute(boolean hidden)
+	{
 		List<CheckBox> selection = listOfValues.getSelection();
 		List<String> filteredValues = new ArrayList<>(attribute.getValues().size());
 		for (int i = 0; i < attribute.getValues().size(); i++)
 		{
 			String t = attribute.getValues().get(i);
-			if (!selection.get(i).getValue())
+			if (selection.get(i).getValue() == hidden)
 				filteredValues.add(t);
 		}
-		attribute.setValues(filteredValues);
-		return attribute;
+		return new Attribute(attribute.getName(), attribute.getValueSyntax(), 
+				attribute.getGroupPath(), filteredValues);
 	}
-	
 }

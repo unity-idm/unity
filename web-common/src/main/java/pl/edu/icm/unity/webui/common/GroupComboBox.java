@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 
@@ -17,11 +17,8 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
  * Combo box allowing to choose a group. This components can automatically populate the combobox 
  * with subgroups of a given group, both immediate and recursive.
  * @author K. Benedyczak
- * 
- * @deprecated use {@link GroupComboBox2}
  */
-@Deprecated
-public class GroupComboBox extends ComboBox
+public class GroupComboBox extends ComboBox<String>
 {
 	private Collection<String> groups;
 	private GroupsManagement groupsMan;
@@ -43,7 +40,7 @@ public class GroupComboBox extends ComboBox
 	
 	private void init()
 	{
-		setNullSelectionAllowed(false);
+		setEmptySelectionAllowed(false);
 	}
 	
 	public List<String> getAllGroups()
@@ -53,18 +50,16 @@ public class GroupComboBox extends ComboBox
 	
 	public void setInput(String rootGroup, boolean inclusive)
 	{
-		removeAllItems();
 		processedGroups = GroupSelectionUtils.establishGroups(rootGroup, 
 				inclusive, groupsMan, groups);
-		for (String group: processedGroups)
-			addItem(group);
+		setItems(processedGroups);
 		if (!processedGroups.isEmpty())
-			select(processedGroups.get(0));
+			setSelectedItem(processedGroups.get(0));
 	}
 
 	@Override
 	public String getValue()
 	{
-		return (String) super.getValue();
+		return super.getValue();
 	}
 }

@@ -32,7 +32,7 @@ public class IdentitiesTablePreferences
 	public static final String ID = IdentitiesTablePreferences.class.getName();
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	private Map<String, ColumnSettings> colSettings = new HashMap<>();
-	private boolean groupbyEntitiesSetting = false;
+	private boolean groupbyEntitiesSetting = true;
 	private boolean showTargetedSetting = false;
 
 	public IdentitiesTablePreferences()
@@ -92,7 +92,7 @@ public class IdentitiesTablePreferences
 	protected ColumnSettings deserializeSingle(ObjectNode from)
 	{
 		ColumnSettings ret = new ColumnSettings();
-		ret.setWidth(from.get("width").asInt());
+		ret.setWidth(from.get("width").asDouble());
 		ret.setOrder(from.get("order").asInt());
 		ret.setCollapsed(from.get("collapsed").asBoolean());
 
@@ -144,16 +144,16 @@ public class IdentitiesTablePreferences
 
 	public static class ColumnSettings
 	{
-		private int width;
+		private double width;
 		private int order;
 		private boolean collapsed;
 
-		public int getWidth()
+		public double getWidth()
 		{
 			return width;
 		}
 
-		public void setWidth(int width)
+		public void setWidth(double width)
 		{
 			this.width = width;
 		}

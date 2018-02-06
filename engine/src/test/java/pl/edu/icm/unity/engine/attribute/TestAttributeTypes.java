@@ -22,10 +22,13 @@ import java.util.List;
 
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
@@ -408,6 +411,27 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		assertEquals(new I18nString("Foo"), crAt.getDisplayedName());
 		assertEquals(new I18nString("FooDesc"), crAt.getDescription());
 		assertTrue(crAt.isSelfModificable());
+	}
+	
+	@Test
+	public void cantAddTypeIfSyntaxNotExists() throws EngineException
+	{
+		AttributeType at = createSimpleAT("some");
+		at.setValueSyntax("INCORRECT");
+		catchException(aTypeMan).addAttributeType(at);
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
+	}
+	
+	@Test
+	public void cantAddTypeIfSyntaxConfigIsIncorrect() throws EngineException
+	{
+		AttributeType at = createSimpleAT("some");
+		ObjectNode main = Constants.MAPPER.createObjectNode();
+		main.put("minLength", 1);
+		main.put("maxLength", 2);
+		at.setValueSyntaxConfiguration(main);
+		catchException(aTypeMan).addAttributeType(at);
+		assertThat(caughtException(), isA(IllegalArgumentException.class));
 	}
 }
 

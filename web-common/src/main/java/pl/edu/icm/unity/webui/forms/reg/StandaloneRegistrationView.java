@@ -9,12 +9,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
@@ -104,8 +103,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private void initUIBase()
 	{
 		main = new VerticalLayout();
-		main.setMargin(true);
-		main.setSpacing(true);
+	
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
@@ -138,11 +136,11 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					regMan.getFormAutomationSupport(form))
 				.cancelled(true, context);
-			showConfirm(Images.error32.getResource(),
+			showConfirm(Images.error,
 					msg.getMessage("StandalonePublicFormView.requestCancelled"));
 		});
 		buttons.addComponents(cancel, ok);
-		buttons.setSpacing(true);
+		buttons.setMargin(false);
 		main.addComponent(buttons);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
 	}
@@ -184,7 +182,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					regMan.getFormAutomationSupport(form))
 				.submittedRegistrationRequest(requestId, regMan, request, context);
-			showConfirm(Images.ok32.getResource(),
+			showConfirm(Images.ok,
 					msg.getMessage("StandalonePublicFormView.requestSubmitted"));
 		} catch (WrongArgumentException e)
 		{
@@ -197,14 +195,16 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					regMan.getFormAutomationSupport(form))
 				.submissionError(e, context);
-			showConfirm(Images.error32.getResource(),
+			showConfirm(Images.error,
 					msg.getMessage("StandalonePublicFormView.submissionFailed"));
 		}
 	}
 
-	private void showConfirm(Resource icon, String message)
+	private void showConfirm(Images icon, String message)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setSpacing(false);
+		wrapper.setMargin(false);
 		ConfirmationComponent confirmation = new ConfirmationComponent(icon, message);
 		wrapper.addComponent(confirmation);
 		wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);

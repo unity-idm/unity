@@ -14,6 +14,10 @@ public class I18nMessage
 	private I18nString body;
 	private I18nString subject;
 	
+	public I18nMessage()
+	{
+	}	
+	
 	public I18nMessage(I18nString subject, I18nString body)
 	{
 		this.subject = subject;

@@ -80,7 +80,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	@Override
 	public void process(MappingResult result) throws EngineException
 	{
-		EntityParam entity = processIdentities(result);
+		Set<Attribute> processedAttributes = new HashSet<>();
+		EntityParam entity = processIdentities(result, processedAttributes);
 		result.setMappedAtExistingEntity(entity);
 		if (entity == null)
 		{
@@ -89,8 +90,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 					+ "will be available for the registration form (if any)");
 			return;
 		}
-		processGroups(result, entity);
-		processAttributes(result, entity);
+		processGroups(result, entity, processedAttributes);
+		processAttributes(result, entity, processedAttributes);
 		processEntityChanges(result, entity);
 	}
 	
@@ -108,9 +109,10 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		result.setCleanStaleIdentities(false);
 		result.setCleanStaleGroups(false);
 		
+		Set<Attribute> processedAttributes = new HashSet<>();
 		processIdentitiesForMerge(result, baseEntity);
-		processGroups(result, baseEntity);
-		processAttributes(result, baseEntity);
+		processGroups(result, baseEntity, processedAttributes);
+		processAttributes(result, baseEntity, processedAttributes);
 		processEntityChanges(result, baseEntity);
 	}
 	
@@ -164,7 +166,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	 * @return an mapped identity - previously existing or newly created; or null if identity mapping was not successful
 	 * @throws EngineException
 	 */
-	private EntityParam processIdentities(MappingResult result) throws EngineException
+	private EntityParam processIdentities(MappingResult result, Set<Attribute> processedAttributes) throws EngineException
 	{
 		List<MappedIdentity> mappedMissingIdentitiesToCreate = new ArrayList<>();
 		List<MappedIdentity> mappedMissingIdentities = new ArrayList<>();
@@ -178,17 +180,18 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				if (existing != null && !existing.getId().equals(found.getId()))
 				{
 					log.warn("Identity was mapped to two different entities: " + 
-							existing + " and " + found + ". Skipping.");
+							existing + " and " + found);
 					throw new ExecutionBreakException();
 				}
 				existing = found;
 				result.addAuthenticatedWith(checked.getIdentity().getValue());
 			} catch (IllegalArgumentException e)
 			{
+				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
 				{
 					log.info("The identity " + checked.getIdentity() + " doesn't exists "
-							+ "in local database, but the profile requires so. Skipping.");
+							+ "in local database, but the profile requires so.");
 					throw new ExecutionBreakException();
 				} else if (checked.getMode() == IdentityEffectMode.CREATE_OR_MATCH)
 				{
@@ -231,7 +234,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			return new EntityParam(existing.getId());
 		} else
 		{
-			Identity created = createNewEntity(result, mappedMissingIdentitiesToCreate);
+			Identity created = createNewEntity(result, mappedMissingIdentitiesToCreate,
+					processedAttributes);
 			return new EntityParam(created.getEntityId());
 		}
 
@@ -292,10 +296,11 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				throw new ExecutionBreakException();
 			} catch (IllegalArgumentException e)
 			{
+				log.trace("Identity " + checked + " not found in DB, details of exception follows", e);
 				if (checked.getMode() == IdentityEffectMode.REQUIRE_MATCH)
 				{
 					log.info("The identity " + checked.getIdentity() + " doesn't exist "
-							+ "in local database, but the profile requires so. Skipping.");
+							+ "in local database, but the profile requires so.");
 					throw new ExecutionBreakException();
 				} else
 				{
@@ -331,7 +336,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	}
 	
 	private Identity createNewEntity(MappingResult result,
-			List<MappedIdentity> mappedMissingIdentities) throws EngineException
+			List<MappedIdentity> mappedMissingIdentities, 
+			Set<Attribute> processedAttributes) throws EngineException
 	{
 		MappedIdentity first = mappedMissingIdentities.remove(0);
 		
@@ -341,14 +347,15 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		added = idsMan.addEntity(first.getIdentity(), first.getCredentialRequirement(), 
 				EntityState.valid, false, attributes);
 		result.addAuthenticatedWith(first.getIdentity().getValue());
+		processedAttributes.addAll(attributes);
 		
 		addEquivalents(mappedMissingIdentities, new EntityParam(added), result);
 		return added;
 	}
 
-	private Map<String, List<Attribute>> getAttributesByGroup(MappingResult result) throws EngineException
+	private Map<String, List<Attribute>> getAttributesByGroup(MappingResult result)
 	{
-		Map<String, List<Attribute>> ret = new HashMap<String, List<Attribute>>();
+		Map<String, List<Attribute>> ret = new HashMap<>();
 		
 		ret.put("/", getAttributesInGroup("/", result));
 		for (MappedGroup mg: result.getGroups())
@@ -360,7 +367,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		return ret;
 	}
 
-	private List<Attribute> getAttributesInGroup(String group, MappingResult result) throws EngineException
+	private List<Attribute> getAttributesInGroup(String group, MappingResult result)
 	{
 		List<Attribute> ret = new ArrayList<>();
 		for (MappedAttribute mappedAttr: result.getAttributes())
@@ -371,7 +378,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		return ret;
 	}
 	
-	private void processGroups(MappingResult result, EntityParam principal) throws EngineException
+	private void processGroups(MappingResult result, EntityParam principal,
+			Set<Attribute> processedAttributes) throws EngineException
 	{
 		Map<String, List<Attribute>> attributesByGroup = getAttributesByGroup(result);
 		Map<String, GroupMembership> currentGroups = idsMan.getGroups(principal);
@@ -385,7 +393,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				log.info("Adding to group " + gm);
 				addToGroupRecursive(principal, missingGroups, currentSimple, gm.getIdp(), 
 						gm.getProfile(), gm.getCreateIfMissing(),
-						attributesByGroup);
+						attributesByGroup, processedAttributes);
 			} else
 			{
 				log.debug("Entity already in the group " + gm + ", skipping");
@@ -427,13 +435,14 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	
 	private void addToGroupRecursive(EntityParam who, Deque<String> missingGroups, 
 			Set<String> currentGroups, String idp, String profile, 
-			GroupEffectMode createMissingGroups, Map<String, List<Attribute>> attributesByGroup) 
+			GroupEffectMode createMissingGroups, Map<String, List<Attribute>> attributesByGroup,
+			Set<Attribute> processedAttributes) 
 					throws EngineException
 	{
 		String group = missingGroups.pollLast();
 		List<Attribute> attributes = attributesByGroup.get(group);
 		if (attributes == null)
-			attributes = new ArrayList<Attribute>();
+			attributes = new ArrayList<>();
 		
 		boolean present = groupsMan.isPresent(group);
 		if (!present)
@@ -444,6 +453,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 						+ "will be created to fullfil translation profile rule");
 				groupsMan.addGroup(new Group(group));
 				groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
+				processedAttributes.addAll(attributes);
 			} else if (createMissingGroups == GroupEffectMode.REQUIRE_EXISTING_GROUP)
 			{
 				log.debug("Entity should be added to a group " + group + " which is missing, failing.");
@@ -456,17 +466,20 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		} else
 		{
 			groupsMan.addMemberFromParent(group, who, attributes, idp, profile);
+			processedAttributes.addAll(attributes);
 		}
 		
 		currentGroups.add(group);
 		if (!missingGroups.isEmpty())
 		{
 			addToGroupRecursive(who, missingGroups, currentGroups, 
-					idp, profile, createMissingGroups, attributesByGroup);
+					idp, profile, createMissingGroups, attributesByGroup, 
+					processedAttributes);
 		}
 	}
 	
-	private void processAttributes(MappingResult result, EntityParam principal) throws EngineException
+	private void processAttributes(MappingResult result, EntityParam principal, 
+			Set<Attribute> alreadyProcessedAttributes) throws EngineException
 	{
 		Map<String, AttributeExt> existingAttributes = new HashMap<>();
 		Collection<AttributeExt> existingAttrs = attrMan.getAllAttributes(principal, 
@@ -479,6 +492,8 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 		for (MappedAttribute attr: attrs)
 		{
 			Attribute att = attr.getAttribute();
+			if (alreadyProcessedAttributes.contains(att))
+				continue;
 			AttributeExt existing = existingAttributes.get(att.getGroupPath()+"///"+att.getName());
 			switch (attr.getMode())
 			{
@@ -516,7 +531,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 	{
 		if (existing != null && attributesEqual(att, existing))
 		{
-			log.info("Attribute {} is present in DB, skiping update", att);
+			log.debug("Attribute {} in DB is up to date, skiping update", att);
 			return;
 		}
 		log.info("Updating attribute {}", att);

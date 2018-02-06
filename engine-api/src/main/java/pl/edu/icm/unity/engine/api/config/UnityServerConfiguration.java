@@ -20,6 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -564,6 +565,18 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 			inizializers.add(new ScriptConfiguration(type, trigger, location));
 		}
 		return inizializers;
+	}
+	
+	/**
+	 * @return list of keys which have a common prefix 'listPrefix'. Values have only the suffix.
+	 */
+	public List<String> getSortedListKeys(String listPrefix)
+	{
+		Set<String> sortedStringKeys = getSortedStringKeys(prefix+listPrefix, false);
+		int toStrip = (prefix+listPrefix).length();
+		return sortedStringKeys.stream()
+				.map(k -> k.substring(toStrip))
+				.collect(Collectors.toList());
 	}
 	
 	public Properties getProperties()

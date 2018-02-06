@@ -70,14 +70,14 @@
 	<!-- Where to log? -->
 	<Appenders>
 		<Console name="CONSOLE">
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
 		</Console>
 		
 		<RollingRandomAccessFile name="LOGFILE" 
 				fileName="/var/log/unity-idm/unity-server.log" 
 				filePattern="/var/log/unity-idm/unity-server.log.%d{yyyy-MM-dd}">
 				
-			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c: %equals{%1x}{[]}{}%m%n"/>
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
 			
 			<Policies>
 				<TimeBasedTriggeringPolicy interval="1" modulate="true"/>

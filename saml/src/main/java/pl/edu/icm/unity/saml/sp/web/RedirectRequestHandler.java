@@ -1,18 +1,14 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.saml.sp.web;
 
 import java.io.IOException;
 
-import org.apache.logging.log4j.Logger;
+import javax.servlet.http.HttpServletResponse;
 
-import com.vaadin.server.RequestHandler;
-import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.VaadinResponse;
-import com.vaadin.server.VaadinServletResponse;
-import com.vaadin.server.VaadinSession;
+import org.apache.logging.log4j.Logger;
 
 import eu.unicore.samly2.binding.HttpPostBindingSupport;
 import eu.unicore.samly2.binding.HttpRedirectBindingSupport;
@@ -20,28 +16,19 @@ import eu.unicore.samly2.binding.SAMLMessageType;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
-import pl.edu.icm.unity.webui.authn.remote.AbstractRedirectRequestHandler;
 
 /**
- * Custom Vaadin {@link RequestHandler} which is used to produce a proper GET response to the browser, 
- * redirecting it to IdP. It supports both HTTP POST and HTTP Redirect bindings.
+ * Final redirection code. Universal, can be used from both UI/vaadin and filter.
  * 
  * @author K. Benedyczak
  */
-public class RedirectRequestHandler extends AbstractRedirectRequestHandler
+class RedirectRequestHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, RedirectRequestHandler.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML,
+			RedirectRequestHandler.class);
 	
-	public RedirectRequestHandler()
+	static boolean handleRequest(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
-		super(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
-	}
-	
-	@Override
-	protected boolean handleRequestInternal(Object contextO, VaadinSession vaadinSession,
-			VaadinRequest request, VaadinResponse response) throws IOException
-	{
-		RemoteAuthnContext context = (RemoteAuthnContext)contextO;
 		Binding binding = context.getRequestBinding();
 		if (binding == Binding.HTTP_POST)
 		{
@@ -55,7 +42,7 @@ public class RedirectRequestHandler extends AbstractRedirectRequestHandler
 			return false;
 	}
 	
-	private void handlePost(RemoteAuthnContext context, VaadinResponse response) throws IOException
+	private static void handlePost(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
 		response.setContentType("text/html; charset=utf-8");
 		setCommonHeaders(response);
@@ -73,9 +60,8 @@ public class RedirectRequestHandler extends AbstractRedirectRequestHandler
 		response.getWriter().append(htmlResponse);
 	}
 	
-	private void handleRedirect(RemoteAuthnContext context, VaadinResponse response) throws IOException
+	private static void handleRedirect(RemoteAuthnContext context, HttpServletResponse response) throws IOException
 	{
-		VaadinServletResponse rr = (VaadinServletResponse) response;
 		setCommonHeaders(response);
 		log.debug("Starting SAML HTTP Redirect binding exchange with IdP " + context.getIdpUrl());
 		String redirectURL = HttpRedirectBindingSupport.getRedirectURL(SAMLMessageType.SAMLRequest, 
@@ -85,6 +71,12 @@ public class RedirectRequestHandler extends AbstractRedirectRequestHandler
 			log.trace("SAML request is:\n" + context.getRequest());
 			log.trace("Returned Redirect URL is:\n" + redirectURL);
 		}
-		rr.sendRedirect(redirectURL);
+		response.sendRedirect(redirectURL);
+	}
+	
+	private static void setCommonHeaders(HttpServletResponse response)
+	{
+		response.setHeader("Cache-Control","no-cache,no-store");
+		response.setHeader("Pragma","no-cache");
 	}
 }

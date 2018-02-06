@@ -42,6 +42,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 		idsByType,
 		attrs,
 		attr,
+		attrObj,
 		idp,
 		groups;
 	}
@@ -62,7 +63,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 	
 	public MappingResult translate(RemotelyAuthenticatedInput input) throws EngineException
 	{
-		NDC.push("[TrProfile " + profile.getName() + "]");
+		NDC.push("TrProfile " + profile.getName());
 		if (log.isDebugEnabled())
 			log.debug("Input received from IdP " + input.getIdpName() + ":\n"
 					+ input.getTextDump());
@@ -73,7 +74,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 			MappingResult translationState = new MappingResult();
 			for (InputTranslationRule rule : ruleInstances)
 			{
-				NDC.push("[r: " + (i++) + "]");
+				NDC.push("r: " + (i++));
 				try
 				{
 					TranslationRuleInvocationContext context = rule.invoke(
@@ -117,6 +118,7 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 		}
 		ret.put(ContextKey.attr.name(), attr);
 		ret.put(ContextKey.attrs.name(), attrs);
+		ret.put(ContextKey.attrObj.name(), input.getRawAttributes());
 		
 		if (!input.getIdentities().isEmpty())
 		{
@@ -164,6 +166,8 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 				throw new IllegalArgumentException("Incorrect MVEL context, unknown context key: " + 
 						context.getKey());
 			}
+			if (ContextKey.valueOf(contextKey) == ContextKey.attrObj)
+				continue;
 			
 			if (contextValue instanceof Map)
 			{
@@ -171,6 +175,10 @@ public class InputTranslationProfile extends TranslationProfileInstance<InputTra
 				HashMap<String, Object> value = (HashMap<String, Object>) contextValue;
 				for (Map.Entry<String, Object> entry : value.entrySet())
 				{
+					if (entry.getValue()  == null) 
+					{
+						continue;
+					}
 					exprValMap.put(String.format("%s['%s']", contextKey, entry.getKey()), 
 							entry.getValue().toString());
 				}

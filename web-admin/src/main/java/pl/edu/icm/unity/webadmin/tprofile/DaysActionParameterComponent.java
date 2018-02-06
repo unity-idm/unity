@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile;
 
-import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
+import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
@@ -15,20 +15,24 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
  * @author K. Benedyczak
  */
 public class DaysActionParameterComponent extends DefaultActionParameterComponent
-{	
+{
 	public DaysActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
 		super(desc, msg);
-		setColumns(4);
-		addValidator(new IntegerRangeValidator(msg.getMessage("DaysActionParameterComponent.notANumber"), 
-				1, 365*20));
-		setConverter(new StringToIntegerConverter());
-		setNullRepresentation("");
 	}
-	
+
 	@Override
-	public String getActionValue()
+	protected void configureBinding(UnityMessageSource msg, boolean required)
 	{
-		return String.valueOf(getValue());
+		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(new StringToIntegerConverter(msg.getMessage(
+						"DaysActionParameterComponent.notANumber")))
+				.withValidator(new IntegerRangeValidator(msg.getMessage(
+						"DaysActionParameterComponent.notANumber"), 1,
+						365 * 20))
+				.withConverter(v -> String.valueOf(v), v -> Integer.valueOf(v))
+				.bind("value");
+
+		binder.setBean(new StringValueBean("1"));
 	}
 }

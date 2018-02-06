@@ -88,4 +88,36 @@ public class AttributeValueConverter
 		}
 		return ret;
 	}
+	
+	/**
+	* Converts a list of internal values to the object value
+	 * @param attributeName
+	 * @param internalValue
+	 * @return
+	 * @throws IllegalAttributeValueException
+	 */
+	public <T> List<?> internalValuesToObjectValues(String attributeName, List<String> internalValues) 
+			throws IllegalAttributeValueException
+	{
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(attributeName);
+		return internalValuesToObjectValues(syntax, internalValues);
+	}
+	
+	/**
+	 * As {@link #internalValuesToObjectValues(AttributeValueSyntax, List)} but requires full syntax object as argument
+	 * @param syntax
+	 * @param internalValues
+	 * @return
+	 */
+	public <T> List<?> internalValuesToObjectValues(AttributeValueSyntax<T> syntax, List<String> internalValues) 
+			throws IllegalAttributeValueException
+	{
+		List<T> ret = new ArrayList<>(internalValues.size());
+		for (String internal : internalValues)
+		{
+			T deserialized = syntax.convertFromString(internal);
+			ret.add(deserialized);
+		}
+		return ret;
+	}	
 }

@@ -4,13 +4,12 @@
  */
 package pl.edu.icm.unity.webui.common;
 
-import com.vaadin.v7.ui.TextArea;
+import com.vaadin.ui.TextArea;
 
 /**
  * {@link TextArea} specialization with settings common for description areas.
  * @author K. Benedyczak
  */
-@Deprecated
 public class DescriptionTextArea extends TextArea
 {
 	/**
@@ -45,7 +44,7 @@ public class DescriptionTextArea extends TextArea
 	
 	protected void init(String initialValue)
 	{
-		setWordwrap(true);
+		setWordWrap(true);
 		setWidth(100, Unit.PERCENTAGE);
 		setValue(initialValue);
 		setRows(3);

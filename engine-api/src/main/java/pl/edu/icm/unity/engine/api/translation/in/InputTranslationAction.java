@@ -42,7 +42,7 @@ public abstract class InputTranslationAction extends TranslationActionInstance
 	{
 		try
 		{
-			NDC.push("[" + input + "]");
+			NDC.push(input.toString());
 			return invokeWrapped(input, mvelCtx, currentProfile);
 		} catch (Exception e)
 		{

@@ -7,13 +7,13 @@ package pl.edu.icm.unity.webui.common;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.GridLayout;
+import com.vaadin.data.HasValue.ValueChangeEvent;
+import com.vaadin.data.HasValue.ValueChangeListener;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.CheckBox;
 
 /**
  * List of elements displayed in two columns. The first column contains an arbitrary component
@@ -40,9 +40,9 @@ public class ListOfSelectableElements extends CustomComponent
 		gl.setSpacing(true);
 		gl.setWidth(100, Unit.PERCENTAGE);
 		if (firstHeader != null)
-			gl.addComponent(new VerticalLayout(firstHeader), 0, 0);
+			gl.addComponent(wrapWithLayout(firstHeader), 0, 0);
 		if (secondHeader != null)
-			gl.addComponent(new VerticalLayout(secondHeader), 1, 0);
+			gl.addComponent(wrapWithLayout(secondHeader), 1, 0);
 		gl.setColumnExpandRatio(0, 10);
 		gl.setColumnExpandRatio(1, 1);
 		selects = new ArrayList<>();
@@ -59,7 +59,7 @@ public class ListOfSelectableElements extends CustomComponent
 	public void addEntry(Component representation, boolean selected, Object data)
 	{
 		gl.setRows(gl.getRows()+1);
-		gl.addComponent(new VerticalLayout(representation), 0, row);
+		gl.addComponent(wrapWithLayout(representation), 0, row);
 
 		CheckBox cb = new CheckBox();
 		if (data != null)
@@ -68,13 +68,20 @@ public class ListOfSelectableElements extends CustomComponent
 		
 		if (disableMode != DisableMode.NONE)
 		{
-			cb.setImmediate(true);
 			cb.addValueChangeListener(new ValueDisableHandler(representation));
 		}
-		gl.addComponent(new VerticalLayout(cb), 1, row);
+		gl.addComponent(wrapWithLayout(cb), 1, row);
 		selects.add(cb);
 		row++;
 		
+	}
+	
+	private VerticalLayout wrapWithLayout(Component component)
+	{
+		VerticalLayout layout = new VerticalLayout(component);
+		layout.setMargin(false);
+		layout.setSpacing(false);
+		return layout;
 	}
 	
 	public void clearEntries()
@@ -111,7 +118,7 @@ public class ListOfSelectableElements extends CustomComponent
 			cb.setVisible(visible);
 	}
 	
-	private class ValueDisableHandler implements ValueChangeListener
+	private class ValueDisableHandler implements ValueChangeListener<Boolean>
 	{
 		private Component representation;
 		
@@ -121,12 +128,13 @@ public class ListOfSelectableElements extends CustomComponent
 		}
 
 		@Override
-		public void valueChange(ValueChangeEvent event)
+		public void valueChange(ValueChangeEvent<Boolean> event)
 		{
-			Boolean value = (Boolean)event.getProperty().getValue();
+			Boolean value = event.getValue();
 			if (disableMode == DisableMode.WHEN_SELECTED)
 				value = !value;
 			representation.setEnabled(value);
+			
 		}
 	}
 }

@@ -26,10 +26,10 @@ public class SandboxSelectedAuthNPanel extends SelectedAuthNPanel
 	public SandboxSelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
 			EntityManagement idsMan,
 			InsecureRegistrationFormLauncher formLauncher, ExecutorsService execService,
-			final CancelHandler cancelHandler, AuthenticationRealm realm)
+			final CancelHandler cancelHandler, AuthenticationRealm realm, String endpointContext)
 	{
 		super(msg, authnProcessor, idsMan, formLauncher, execService, cancelHandler, realm,
-				null, null, null);
+				null, null, null, endpointContext);
 	}
 
 	@Override

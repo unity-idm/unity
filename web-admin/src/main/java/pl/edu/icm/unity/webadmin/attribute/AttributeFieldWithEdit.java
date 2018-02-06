@@ -12,9 +12,9 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.v7.ui.CustomField;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.v7.ui.TextField;
+import com.vaadin.ui.CustomField;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  * 
  * @author K. Benedyczak
  */
-public class AttributeFieldWithEdit extends CustomField<String>
+public class AttributeFieldWithEdit extends CustomField<Attribute>
 {
 	private UnityMessageSource msg;
 	protected AttributeHandlerRegistry attrHandlerRegistry;
@@ -53,12 +53,11 @@ public class AttributeFieldWithEdit extends CustomField<String>
 		this.valuesRequired = valuesRequired;
 		this.attributeTypes = attributeTypes;
 		setCaption(caption);
-		setRequired(true);
 		this.attribute = initial;
 		attributeTF = new TextField();
 		attributeTF.setValue(msg.getMessage("AttributeField.noAttribute"));
 		attributeTF.setReadOnly(true);
-		attributeTF.setWidth(100, Unit.PERCENTAGE);
+		attributeTF.addValueChangeListener(e -> fireEvent(e));
 		Button editAssignedAttribute = new Button();
 		editAssignedAttribute.setIcon(Images.edit.getResource());
 		editAssignedAttribute.setDescription(msg.getMessage("AttributeField.edit"));
@@ -71,8 +70,9 @@ public class AttributeFieldWithEdit extends CustomField<String>
 			}
 		});
 		hl = new HorizontalLayout();
+		hl.setSpacing(false);
+		hl.setMargin(false);
 		hl.addComponents(attributeTF, editAssignedAttribute);
-		hl.setWidth(100, Unit.PERCENTAGE);
 	}
 	
 	
@@ -146,10 +146,24 @@ public class AttributeFieldWithEdit extends CustomField<String>
 	{
 		attributeTF.setComponentError(message);
 	}
-	
+
 	@Override
-	public Class<String> getType()
+	public Attribute getValue() 
 	{
-		return String.class;
+		try
+		{
+			return getAttribute();
+		} catch (FormValidationException e)
+		{
+			return null;
+		}
+	}
+
+
+	@Override
+	protected void doSetValue(Attribute value)
+	{
+		setAttribute(value);
+		
 	}
 }

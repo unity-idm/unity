@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Preset configuration for Facebook OAuth provider.
@@ -29,9 +30,10 @@ public class GitHubProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
 		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://github.com/login/oauth/access_token");
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.github.com/user");
-		setIfUnset(properties, prefix + SCOPES, "user:email");
+		setIfUnset(properties, prefix + SCOPES, "read:user user:email");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.httpParams.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/github-small.png");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:github");
 		return properties;
 	}
 

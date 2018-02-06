@@ -44,7 +44,7 @@ import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.NotNullComboBox2;
+import pl.edu.icm.unity.webui.common.NotNullComboBox;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -72,7 +72,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private TextField registrationCode;
 
-	private NotNullComboBox2<String> credentialRequirementAssignment;
+	private NotNullComboBox<String> credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private FormLayoutEditor layoutEditor;
@@ -243,7 +243,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		wrapper.setSpacing(false);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.assignedTab"));
 		
-		credentialRequirementAssignment = new NotNullComboBox2<>(
+		credentialRequirementAssignment = new NotNullComboBox<>(
 				msg.getMessage("RegistrationFormViewer.credentialRequirementAssignment"));
 		List<String> credentialReqirementNames = credReqMan.getCredentialRequirements().stream()
 				.map(CredentialRequirements::getName)

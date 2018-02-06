@@ -20,6 +20,8 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 {	
 	private Label description;
 	private Label consumer;
+	private Label messageType;
+	
 	private MessageTemplateConsumersRegistry registry;
 
 	public MessageTemplateViewer(UnityMessageSource msg, MessageTemplateConsumersRegistry registry)
@@ -37,6 +39,9 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description"));
 		consumer = new Label();
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer"));
+		messageType = new Label();
+		messageType.setCaption(msg.getMessage("MessageTemplateViewer.messageType"));
+		main.addComponent(messageType, 1);
 		main.addComponent(consumer, 1);	
 		main.addComponent(description, 1);
 		
@@ -54,6 +59,8 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		}
 		setInput(template);	
 		description.setValue(template.getDescription());
+		messageType.setValue(template.getType().toString());
+		
 		String cons = template.getConsumer();
 		if (cons != null)
 		{

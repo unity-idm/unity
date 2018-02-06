@@ -13,9 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractComponent;
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.v7.ui.ComboBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -27,7 +25,6 @@ import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.LayoutEmbeddable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.RequiredComboBox;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -40,7 +37,7 @@ public class ActionEditor extends LayoutEmbeddable
 	private UnityMessageSource msg;
 	private TypesRegistryBase<? extends TranslationActionFactory<?>> tc;
 	
-	private ComboBox actions;
+	private ComboBox<String> actions;
 	private Label actionParams;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private List<ActionParameterComponent> paramComponents = new ArrayList<>();
@@ -66,24 +63,21 @@ public class ActionEditor extends LayoutEmbeddable
 
 	private void initUI(TranslationAction toEdit)
 	{
-		actions = new RequiredComboBox(msg.getMessage("ActionEditor.ruleAction"), msg);
+		actions = new ComboBox<String>(msg.getMessage("ActionEditor.ruleAction"));	
+		ArrayList<String> items = new ArrayList<>();
 		tc.getAll().stream().
 			map(af -> af.getActionType().getName()).
 			sorted().
-			forEach(actionName -> actions.addItem(actionName));
+			forEach(actionName -> items.add(actionName));
+	
 		actions.setStyleName(Styles.vTiny.toString());
-		
-		actions.setNullSelectionAllowed(false);
-		actions.addValueChangeListener(new ValueChangeListener()
-		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
-			{
-				String action = (String) actions.getValue();
-				setParams(action, null);
-				if (callback != null)
-					callback.accept(getStringRepresentation());
-			}
+		actions.setItems(items);
+		actions.setEmptySelectionAllowed(false);
+		actions.setRequiredIndicatorVisible(true);
+		actions.addSelectionListener(e -> {
+			setParams(actions.getValue(), null);
+			if (callback != null)
+				callback.accept(getStringRepresentation());
 		});
 		
 		actionParams = new Label();
@@ -96,10 +90,9 @@ public class ActionEditor extends LayoutEmbeddable
 			setInput(toEdit);
 		} else
 		{
-			if (!actions.getItemIds().isEmpty())
+			if (!items.isEmpty())
 			{
-				Object firstItem = actions.getItemIds().iterator().next();
-				actions.setValue(firstItem);
+				actions.setValue(items.iterator().next());
 				setParams((String) actions.getValue(), null);
 			}
 		}
@@ -128,7 +121,6 @@ public class ActionEditor extends LayoutEmbeddable
 			ActionParameterComponent p = actionComponentProvider.getParameterComponent(params[i]);
 			p.setStyleName(Styles.vTiny.toString());
 			p.addValueChangeCallback(paramCallback);
-			p.setValidationVisible(false);
 			if (values != null && values.length > i)
 			{
 				p.setActionValue(values[i]);
@@ -143,14 +135,19 @@ public class ActionEditor extends LayoutEmbeddable
 	{
 		List<String> params = new ArrayList<>();
 		boolean errors = false;
-		for (ActionParameterComponent tc: paramComponents)
+		for (ActionParameterComponent tc : paramComponents)
 		{
-			tc.setValidationVisible(true);
 			if (!tc.isValid())
+			{
 				errors = true;
-			else
-				params.add(tc.getActionValue());
+			} else
+			{
+				if (tc.getActionValue() != null && !tc.getActionValue().isEmpty())
+					params.add(tc.getActionValue());
+			}
+
 		}
+
 		if (errors)
 			throw new FormValidationException();
 		String[] wrapper = new String[params.size()];
@@ -173,8 +170,7 @@ public class ActionEditor extends LayoutEmbeddable
 
 	public TranslationAction getAction() throws FormValidationException
 	{
-		String ac = (String) actions.getValue();
-		TranslationActionFactory<?> factory = getActionFactory(ac);
+		TranslationActionFactory<?> factory = getActionFactory(actions.getValue());
 		try
 		{
 			return factory.getInstance(getActionParams());
@@ -209,7 +205,6 @@ public class ActionEditor extends LayoutEmbeddable
 				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
 				extension.setStyleName(Styles.errorBackground.toString());
 				extension.setComponentError(new UserError(NotificationPopup.getHumanMessage(e)));
-				extension.setValidationVisible(true);
 				break;
 			}
 		}	
@@ -237,7 +232,6 @@ public class ActionEditor extends LayoutEmbeddable
 			{
 				ExpressionActionParameterComponent extension = (ExpressionActionParameterComponent) c;
 				extension.setComponentError(null);
-				extension.setValidationVisible(false);
 			}			
 		}	
 	}

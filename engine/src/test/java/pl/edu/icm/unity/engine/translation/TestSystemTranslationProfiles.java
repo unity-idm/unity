@@ -6,8 +6,9 @@ package pl.edu.icm.unity.engine.translation;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
-import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class TestSystemTranslationProfiles extends DBIntegrationTestBase
 				new String[] { "test", "/", "'val'", "CREATE_OR_UPDATE" });
 		rules.add(new TranslationRule("true", action));
 
-		TranslationProfile tp1Cfg = new TranslationProfile("sys:test", "",
+		TranslationProfile tp1Cfg = new TranslationProfile("sys:oidc", "",
 				ProfileType.INPUT, ProfileMode.DEFAULT, rules);
 
 		catchException(tprofMan).updateProfile(tp1Cfg);
@@ -66,14 +67,14 @@ public class TestSystemTranslationProfiles extends DBIntegrationTestBase
 	@Test
 	public void shouldListSystemProfilesFromAllProviders() throws Exception
 	{
-		assertThat(tprofMan.listInputProfiles().size(), is(1));
-		assertThat(tprofMan.listOutputProfiles().size(), is(1));		
+		assertThat(tprofMan.listInputProfiles().size(), not(0));
+		assertThat(tprofMan.listOutputProfiles().size(), not(0));		
 	}
 	
 	@Test
 	public void shouldGetSystemProfile() throws Exception
 	{
-		assertThat(tprofMan.getInputProfile("sys:test").getRules().size(), is(2));
-		assertThat(tprofMan.getOutputProfile("sys:test").getRules().size(), is(1));		
+		assertThat(tprofMan.getInputProfile("sys:oidc"), notNullValue());
+		assertThat(tprofMan.getOutputProfile("sys:oidc"), notNullValue());		
 	}
 }

@@ -86,7 +86,8 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	}
 
 	@Override
-	public AuthenticationResult checkPassword(String username, String password, SandboxAuthnResultCallback callback)
+	public AuthenticationResult checkPassword(String username, String password, 
+			SandboxAuthnResultCallback callback) throws AuthenticationException
 	{
 		RemoteAuthnState state = startAuthnResponseProcessing(callback, 
 				Log.U_SERVER_TRANSLATION, Log.U_SERVER_LDAP);
@@ -98,13 +99,13 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);
-			return new AuthenticationResult(Status.deny, null, null);
+			throw e;
 		}
 	}
 	
 
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(
-			String username, String password) throws AuthenticationException, LdapAuthenticationException
+			String username, String password) throws AuthenticationException
 	{
 		RemotelyAuthenticatedInput input = null;
 		try 

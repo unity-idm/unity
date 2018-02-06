@@ -37,18 +37,18 @@ import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.DescriptionTextArea2;
+import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GroupComboBox2;
+import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
-import pl.edu.icm.unity.webui.common.NotNullComboBox2;
+import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextArea2;
-import pl.edu.icm.unity.webui.common.i18n.I18nTextField2;
+import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Base code for both registration and enquiry forms editing
@@ -66,10 +66,10 @@ public class BaseFormEditor extends VerticalLayout
 	protected boolean copyMode;
 	
 	protected TextField name;
-	protected DescriptionTextArea2 description;
+	protected DescriptionTextArea description;
 	
-	protected I18nTextField2 displayedName;
-	protected I18nTextArea2 formInformation;
+	protected I18nTextField displayedName;
+	protected I18nTextArea formInformation;
 	protected CheckBox collectComments;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
 	private ListOfEmbeddedElements<IdentityRegistrationParam> identityParams;
@@ -134,13 +134,13 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		name = new TextField(msg.getMessage("RegistrationFormEditor.name"));
 		name.setValue(defaultName);
-		description = new DescriptionTextArea2(msg.getMessage("RegistrationFormViewer.description"));
+		description = new DescriptionTextArea(msg.getMessage("RegistrationFormViewer.description"));
 	}
 	
 	protected void initCommonDisplayedFields()
 	{
-		displayedName = new I18nTextField2(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
-		formInformation = new I18nTextArea2(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
+		displayedName = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
+		formInformation = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 	}
 	
@@ -198,7 +198,7 @@ public class BaseFormEditor extends VerticalLayout
 		Editor<AgreementRegistrationParam>
 	{
 		private CheckBox required;
-		private I18nTextArea2 text;
+		private I18nTextArea text;
 		
 		@Override
 		public Editor<AgreementRegistrationParam> getEditor()
@@ -210,7 +210,7 @@ public class BaseFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(AgreementRegistrationParam value, int index)
 		{
 			required = new CheckBox(msg.getMessage("RegistrationFormEditor.mandatory"));
-			text = new I18nTextArea2(msg, msg.getMessage("RegistrationFormViewer.agreement"));
+			text = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.agreement"));
 			if (value != null)
 			{
 				required.setValue(value.isManatory());
@@ -248,7 +248,7 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public ComponentsContainer getEditorComponent(IdentityRegistrationParam value, int index)
 		{
-			identityType = new NotNullComboBox2<>(msg.getMessage("RegistrationFormViewer.paramIdentity"));
+			identityType = new NotNullComboBox<>(msg.getMessage("RegistrationFormViewer.paramIdentity"));
 			Set<String> items = Sets.newHashSet();
 			for (IdentityType it: identityTypes)
 			{
@@ -282,8 +282,8 @@ public class BaseFormEditor extends VerticalLayout
 	private class AttributeEditorAndProvider extends OptionalParameterEditor 
 			implements EditorProvider<AttributeRegistrationParam>, Editor<AttributeRegistrationParam>
 	{
-		private AttributeSelectionComboBox2 attributeType;
-		private GroupComboBox2 group;
+		private AttributeSelectionComboBox attributeType;
+		private GroupComboBox group;
 		private CheckBox showGroups;
 
 		@Override
@@ -297,9 +297,9 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public ComponentsContainer getEditorComponent(AttributeRegistrationParam value, int index)
 		{
-			attributeType = new AttributeSelectionComboBox2(
+			attributeType = new AttributeSelectionComboBox(
 					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
-			group = new GroupComboBox2(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
+			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
 			group.setInput("/", true);
 			showGroups = new CheckBox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
 			
@@ -334,7 +334,7 @@ public class BaseFormEditor extends VerticalLayout
 	private class GroupEditorAndProvider extends ParameterEditor implements EditorProvider<GroupRegistrationParam>,
 			Editor<GroupRegistrationParam>
 	{
-		private GroupComboBox2 group;
+		private GroupComboBox group;
 
 		@Override
 		public Editor<GroupRegistrationParam> getEditor()
@@ -347,7 +347,7 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public ComponentsContainer getEditorComponent(GroupRegistrationParam value, int index)
 		{
-			group = new GroupComboBox2(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
+			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
 			group.setInput("/", false);
 			if (value != null)
 				group.setValue(value.getGroupPath());
@@ -385,7 +385,7 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public ComponentsContainer getEditorComponent(CredentialRegistrationParam value, int index)
 		{
-			credential = new NotNullComboBox2<>(msg.getMessage("RegistrationFormViewer.paramCredential"));
+			credential = new NotNullComboBox<>(msg.getMessage("RegistrationFormViewer.paramCredential"));
 			credential.setItems(credentialTypes);
 			label = new TextField(msg.getMessage("RegistrationFormViewer.paramLabel"));
 			description = new TextField(msg.getMessage("RegistrationFormViewer.paramDescription"));
@@ -453,12 +453,12 @@ public class BaseFormEditor extends VerticalLayout
 					description.setValue(value.getDescription());
 					main.add(description);
 				}
-				retrievalSettings.setEnumValue(value.getRetrievalSettings());
+				retrievalSettings.setValue(value.getRetrievalSettings());
 			}
 
 			if (fixedRetrievalSettings != null)
 			{
-				retrievalSettings.setEnumValue(fixedRetrievalSettings);
+				retrievalSettings.setValue(fixedRetrievalSettings);
 				retrievalSettings.setVisible(false);
 			}
 			
@@ -471,7 +471,7 @@ public class BaseFormEditor extends VerticalLayout
 				v.setDescription(description.getValue());
 			if (!label.getValue().isEmpty())
 				v.setLabel(label.getValue());
-			v.setRetrievalSettings(retrievalSettings.getSelectedValue());
+			v.setRetrievalSettings(retrievalSettings.getValue());
 		}
 		
 		public void fixRetrievalSettings(ParameterRetrievalSettings fixedValue)

@@ -37,51 +37,28 @@ import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_SEARCH_KEY;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_TEMPLATE;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.VALID_USERS_FILTER;
 
-import java.net.InetAddress;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.X509Certificate;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.regex.Pattern;
-
-import javax.net.ssl.SSLServerSocketFactory;
-import javax.net.ssl.SSLSocketFactory;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
-import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
-import com.unboundid.ldap.listener.InMemoryListenerConfig;
-import com.unboundid.ldap.sdk.LDAPConnection;
 import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.schema.Schema;
 
-import eu.emi.security.authn.x509.X509CertChainValidatorExt;
-import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
-import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
-import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.ldap.client.LdapAuthenticationException;
 import pl.edu.icm.unity.ldap.client.LdapClient;
 import pl.edu.icm.unity.ldap.client.LdapClientConfiguration;
 import pl.edu.icm.unity.ldap.client.LdapProperties;
 import pl.edu.icm.unity.ldap.client.LdapUtils;
+import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
 
 public class LdapTest
 {
@@ -92,117 +69,17 @@ public class LdapTest
 	private static String sslHostname;
 	
 	private static PKIManagement pkiManagement;
-	private static X509CertChainValidatorExt regularValidator, emptyValidator;
 	
 	@BeforeClass
 	public static void startEmbeddedServer() throws Exception
 	{
-		InMemoryDirectoryServerConfig config =
-				new InMemoryDirectoryServerConfig("dc=unity-example,dc=com");
-
-		List<InMemoryListenerConfig> listenerConfigs = new ArrayList<>();
-		
-		BinaryCertChainValidator acceptAll = new BinaryCertChainValidator(true);
-		KeystoreCredential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12");
-		SSLServerSocketFactory serverSocketFactory = SocketFactoryCreator.getServerSocketFactory(credential, 
-				acceptAll);
-		SSLSocketFactory clientSocketFactory = SocketFactoryCreator.getSocketFactory(null, acceptAll);
-		System.out.println(Arrays.toString(serverSocketFactory.getSupportedCipherSuites()));
-		System.out.println(Arrays.toString(clientSocketFactory.getSupportedCipherSuites()));
-		
-		InMemoryListenerConfig sslListener = new InMemoryListenerConfig("SSL", InetAddress.getByName("localhost"), 
-				0, serverSocketFactory, clientSocketFactory, null);
-		InMemoryListenerConfig plainWithTlsListener = new InMemoryListenerConfig("plain", 
-				InetAddress.getByName("localhost"), 0, null, null, clientSocketFactory);
-		listenerConfigs.add(plainWithTlsListener);
-		listenerConfigs.add(sslListener);
-		config.setListenerConfigs(listenerConfigs);
-		
-		Schema def = Schema.getDefaultStandardSchema();
-		Schema mini = Schema.getSchema("src/test/resources/nis-cut.ldif");
-		Schema merged = Schema.mergeSchemas(mini, def);
-		config.setSchema(merged);
-		
-		ds = new InMemoryDirectoryServer(config);
-		ds.importFromLDIF(true, "src/test/resources/test-data.ldif");
-		ds.startListening();
-		LDAPConnection conn = ds.getConnection("plain");
-		hostname = conn.getConnectedAddress();
-		port = conn.getConnectedPort()+"";
-		LDAPConnection sslConn = ds.getConnection("SSL");
-		sslHostname = sslConn.getConnectedAddress();
-		sslPort = sslConn.getConnectedPort()+"";
-		
-		regularValidator = new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1);
-		emptyValidator = new KeystoreCertChainValidator("src/test/resources/empty.jks", 
-				"the!empty".toCharArray(), "JKS", -1);
-		
-		pkiManagement = new PKIManagement()
-		{
-			@Override
-			public Set<String> getValidatorNames() throws EngineException
-			{
-				return Collections.singleton("main");
-			}
-			
-			@Override
-			public X509CertChainValidatorExt getValidator(String name) throws EngineException
-			{
-				if (name.equals("REGULAR"))
-					return regularValidator;
-				if (name.equals("EMPTY"))
-					return emptyValidator;
-				throw new WrongArgumentException("No such validator " + name);
-			}
-			
-			@Override
-			public Set<String> getCredentialNames() throws EngineException
-			{
-				return null;
-			}
-			@Override
-			public X509Credential getCredential(String name) throws EngineException
-			{
-				return null;
-			}
-
-			@Override
-			public IAuthnAndTrustConfiguration getMainAuthnAndTrust()
-			{
-				return null;
-			}
-
-			@Override
-			public Set<String> getCertificateNames() throws EngineException
-			{
-				return null;
-			}
-
-			@Override
-			public X509Certificate getCertificate(String name) throws EngineException
-			{
-				return null;
-			}
-
-			@Override
-			public void updateCertificate(String name, X509Certificate updated)
-					throws EngineException
-			{
-			}
-
-			@Override
-			public void removeCertificate(String name) throws EngineException
-			{
-			}
-
-			@Override
-			public void addCertificate(String name, X509Certificate updated)
-					throws EngineException
-			{
-			}
-		};
+		EmbeddedDirectoryServer embeddedDirectoryServer = new EmbeddedDirectoryServer();
+		ds = embeddedDirectoryServer.startEmbeddedServer();
+		hostname = embeddedDirectoryServer.getPlainConnection().getConnectedAddress();
+		port = embeddedDirectoryServer.getPlainConnection().getConnectedPort()+"";
+		sslHostname = embeddedDirectoryServer.getSSLConnection().getConnectedAddress();
+		sslPort = embeddedDirectoryServer.getSSLConnection().getConnectedPort()+"";
+		pkiManagement = embeddedDirectoryServer.getPKIManagement4Client();
 	}
 	
 	@AfterClass
@@ -210,9 +87,10 @@ public class LdapTest
 	{
 		ds.shutDown(true);
 	}
+
 	
 	@Test
-	public void testBind()
+	public void shouldNotBindOnlyAsUserWithWrongPassword()
 	{
 		Properties p = new Properties();
 
@@ -239,6 +117,23 @@ public class LdapTest
 			e.printStackTrace();
 			fail("authn only failed");
 		} 
+	}
+	
+	@Test
+	public void shouldNotBindOnlyAsUserWithWrongUsername()
+	{
+		Properties p = new Properties();
+
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+BIND_ONLY, "true");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		LdapProperties lp = new LdapProperties(p);
+		
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		
+		LdapClient client = new LdapClient("test");
 
 		try
 		{
@@ -252,7 +147,24 @@ public class LdapTest
 			e.printStackTrace();
 			fail("authn only failed");
 		}
+	}
+	
+	@Test
+	public void shouldBindOnlyAsUserWithCorrectCredentials()
+	{
+		Properties p = new Properties();
+
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+BIND_ONLY, "true");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		LdapProperties lp = new LdapProperties(p);
 		
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		
+		LdapClient client = new LdapClient("test");
+
 		try
 		{
 			RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
@@ -267,10 +179,31 @@ public class LdapTest
 			e.printStackTrace();
 			fail("authn only failed");
 		}
-	}
+	}	
+	
 	
 	@Test
-	public void testSSL() throws Exception
+	public void shouldConnectToSSLServerWithTruststore() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", sslHostname);
+		p.setProperty(PREFIX+PORTS+"1", sslPort);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+BIND_ONLY, "true");
+		p.setProperty(PREFIX+CONNECTION_MODE, "ssl");
+		p.setProperty(PREFIX+TLS_TRUST_ALL, "false");
+		p.setProperty(PREFIX+TRUSTSTORE, "REGULAR");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+
+		client.bindAndSearch("user1", "user1", clientConfig);
+	}
+
+	@Test
+	public void shouldConnectToSSLServerWithTrustAllSetting() throws Exception
 	{
 		Properties p = new Properties();
 
@@ -300,27 +233,19 @@ public class LdapTest
 			e.printStackTrace();
 			fail("authn only failed");
 		}
-		
-		p.setProperty(PREFIX+TLS_TRUST_ALL, "false");
-		p.setProperty(PREFIX+TRUSTSTORE, "REGULAR");
-		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
-		client = new LdapClient("test");
-		client.bindAndSearch("user1", "user1", clientConfig);
-		
 	}
 	
 	/**
-	 * Requires external server. For unknown reason the inmemory unboundID server doesn't handle startTLS correctly.
-	 * @throws Exception
+	 * For unknown reason the inmemory unboundID server doesn't handle startTLS correctly.
 	 */
-	//@Test
+	@Test
+	@Ignore
 	public void testStartTls() throws Exception
 	{
 		Properties p = new Properties();
 
-		p.setProperty(PREFIX+SERVERS+"1", "centos6-unity1");
-		p.setProperty(PREFIX+PORTS+"1", "389");
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
 		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+BIND_ONLY, "true");
 		p.setProperty(PREFIX+CONNECTION_MODE, "startTLS");
@@ -346,12 +271,10 @@ public class LdapTest
 		{
 			//OK
 		}
-
 	}
 	
 	@Test
-	public void testSimpleAttributes() throws LDAPException, LdapAuthenticationException, 
-		KeyManagementException, NoSuchAlgorithmException
+	public void shouldNotbindAsUserNotMatchingValidUserFilter() throws Exception
 	{
 		Properties p = new Properties();
 		p.setProperty(PREFIX+SERVERS+"1", hostname);
@@ -372,6 +295,20 @@ public class LdapTest
 		{
 			//ok, expected
 		}
+	}
+
+	@Test
+	public void shouldReturnDirectAttributesWithoutFilter() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
 		
 		RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
 
@@ -382,35 +319,95 @@ public class LdapTest
 		assertTrue(containsAttribute(ret.getAttributes(), "userPassword", "user1"));
 		assertTrue(containsAttribute(ret.getAttributes(), "objectClass", "inetOrgPerson", 
 				"organizationalPerson", "person", "top"));
+	}
+	
+	@Test
+	public void shouldReturnDirectAttributesWithOptions() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "l");
 		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user1", clientConfig);
+
+		assertEquals(0, ret.getGroups().size());
+		assertEquals(2, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "l", "locality"));
+		assertTrue(containsAttribute(ret.getAttributes(), "l;x-foo-option", "foo locality"));
+	}
+	
+	@Test
+	public void shouldFilterAttributes() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+VALID_USERS_FILTER, "(!(cn=user2))");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		p.setProperty(PREFIX+ATTRIBUTES+"1", "sn");
 		p.setProperty(PREFIX+ATTRIBUTES+"2", "cn");
-		
-		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
-		client = new LdapClient("test");
-		ret = client.bindAndSearch("user1", "user1", clientConfig);
+
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
 		assertEquals(2, ret.getAttributes().size());
 		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User1 surname"));
 		assertTrue(containsAttribute(ret.getAttributes(), "cn", "user1"));
-		
-
+	}
+	
+	@Test
+	public void shouldReturnAttributeFromAdvancedSearch() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+VALID_USERS_FILTER, "(!(cn=user2))");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=groups,dc=unity-example,dc=com");
 		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(memberUid={USERNAME})");
 		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_ATTRIBUTES, "dummy  gidNumber");
+
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
 		
-		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
-		client = new LdapClient("test");
-		ret = client.bindAndSearch("user1", "user1", clientConfig);
-		assertEquals(3, ret.getAttributes().size());
-		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User1 surname"));
-		assertTrue(containsAttribute(ret.getAttributes(), "cn", "user1"));
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
 		assertTrue(containsAttribute(ret.getAttributes(), "gidNumber", "1"));
 	}
 
 	@Test
-	public void testMemberOfGroups() throws Exception
+	public void shouldReturnAttributeWithOptionsFromAdvancedSearch() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+VALID_USERS_FILTER, "(!(cn=user2))");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=groups,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(memberUid={USERNAME})");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_ATTRIBUTES, "dummy  gidNumber;x-foo-option");
+
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user1", "user1", clientConfig);
+		assertTrue(containsAttribute(ret.getAttributes(), "gidNumber;x-foo-option", "99"));
+	}
+	
+	@Test
+	public void shouldExtractMemberOfGroups() throws Exception
 	{
 		Properties p = new Properties();
 		p.setProperty(PREFIX+SERVERS+"1", hostname);
@@ -426,17 +423,26 @@ public class LdapTest
 		assertEquals(2, ret.getGroups().size());
 		assertTrue(containsGroup(ret.getGroups(), "cn=nice,dc=org"));
 		assertTrue(containsGroup(ret.getGroups(), "cn=nicer,dc=org"));
+	}
 
-		
+	@Test
+	public void shouldExtractMemberOfGroupsConvertingToSimpleName() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+MEMBER_OF_ATTRIBUTE, "secretary");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
 		p.setProperty(PREFIX+MEMBER_OF_GROUP_ATTRIBUTE, "cn");
-		lp = new LdapProperties(p);
-		clientConfig = new LdapClientConfiguration(lp, pkiManagement);
-		client = new LdapClient("test");
-		ret = client.bindAndSearch("user2", "user1", clientConfig);
+
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.bindAndSearch("user2", "user1", clientConfig);
 		assertEquals(2, ret.getGroups().size());
 		assertTrue(containsGroup(ret.getGroups(), "nice"));
 		assertTrue(containsGroup(ret.getGroups(), "nicer"));
-
 	}
 
 	@Test
@@ -471,7 +477,7 @@ public class LdapTest
 	}
 
 	@Test
-	public void testExtraSearches() throws Exception
+	public void shouldReturnAttributesFromExtraSearch() throws Exception
 	{
 		Properties p = new Properties();
 		p.setProperty(PREFIX+SERVERS+"1", hostname);
@@ -495,7 +501,7 @@ public class LdapTest
 	}
 
 	@Test
-	public void testUserDNSearch() throws Exception
+	public void shouldReturnAttributesWithBindsAsUserAndDNSearchWithSystemCredentials() throws Exception
 	{
 		Properties p = new Properties();
 		p.setProperty(PREFIX+SERVERS+"1", hostname);
@@ -520,7 +526,7 @@ public class LdapTest
 
 	
 	@Test
-	public void testBindAsSystem() throws Exception
+	public void shouldSearchForAttributesWhenUsingBindsAsSystem() throws Exception
 	{
 		Properties p = new Properties();
 		p.setProperty(PREFIX+SERVERS+"1", hostname);
@@ -541,6 +547,52 @@ public class LdapTest
 		assertEquals(1, ret.getAttributes().size());
 		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User2 Surname"));
 	}
+	
+	
+	@Test
+	public void shouldReturnAttributesWithUserTemplateAndAnonymousConnect() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "sn");
+		p.setProperty(PREFIX+BIND_AS, BindAs.none.toString());
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		p.setProperty(PREFIX+USER_DN_TEMPLATE, "cn={USERNAME},ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.search("user2", clientConfig);
+
+		assertEquals(1, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "sn", "User2 Surname"));
+	}
+	
+	@Test
+	public void shouldReturnAttributesWithUserSearchAndAnonymousConnect() throws Exception
+	{
+		Properties p = new Properties();
+		p.setProperty(PREFIX+SERVERS+"1", hostname);
+		p.setProperty(PREFIX+PORTS+"1", port);
+		p.setProperty(PREFIX+ATTRIBUTES+"1", "ou");
+		p.setProperty(PREFIX+BIND_AS, BindAs.none.toString());
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		p.setProperty(PREFIX+USER_DN_SEARCH_KEY, "1");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_BASE, "ou=users,dc=unity-example,dc=com");
+		p.setProperty(PREFIX+ADV_SEARCH_PFX+"1."+ADV_SEARCH_FILTER, "(sn={USERNAME})");
+		p.setProperty(PREFIX+TRANSLATION_PROFILE, "dummy");
+		
+		LdapProperties lp = new LdapProperties(p);
+		LdapClientConfiguration clientConfig = new LdapClientConfiguration(lp, pkiManagement);
+		LdapClient client = new LdapClient("test");
+		RemotelyAuthenticatedInput ret = client.search("user2", clientConfig);
+
+		assertEquals(1, ret.getAttributes().size());
+		assertTrue(containsAttribute(ret.getAttributes(), "ou", "grant2"));
+	}	
+	
 	
 	private boolean containsGroup(Map<String, RemoteGroupMembership> groups, String group)
 	{

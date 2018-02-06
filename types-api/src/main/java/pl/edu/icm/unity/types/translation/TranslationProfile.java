@@ -181,7 +181,7 @@ public class TranslationProfile extends DescribedObjectROImpl
 	public int hashCode()
 	{
 		final int prime = 31;
-		int result = 1;
+		int result = super.hashCode();
 		result = prime * result + ((profileType == null) ? 0 : profileType.hashCode());
 		result = prime * result + ((rules == null) ? 0 : rules.hashCode());
 		result = prime * result + ((profileMode == null) ? 0 : profileMode.hashCode());
@@ -208,14 +208,13 @@ public class TranslationProfile extends DescribedObjectROImpl
 			return false;
 		if (profileMode != other.profileMode)
 			return false;
-			
-		return true;
+		
+		return super.equals(obj);
 	}
 	
 	public TranslationProfile clone()
 	{
-		TranslationProfile clone = new TranslationProfile(name, description, profileType,
-				profileMode, rules);
-		return clone;
+		ObjectNode p = toJsonObject();
+		return new TranslationProfile(p);	
 	}
 }

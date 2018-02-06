@@ -6,146 +6,184 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Stream;
 
-import com.vaadin.v7.data.util.BeanItemContainer;
-import com.vaadin.event.Action;
-import com.vaadin.ui.Label;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.data.provider.DataProvider;
+import com.vaadin.data.provider.GridSortOrder;
+import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.data.provider.Query;
+import com.vaadin.server.SerializablePredicate;
+import com.vaadin.shared.data.sort.SortDirection;
 
 /**
  * 1-column table with arbitrary objects. 
- * Allows for sorting and default disable multiselect, uses {@link BeanItemContainer}.
- * The value is obtained either via toString() method of the content item or via a given implementation 
- * of {@link NameProvider}.
+ * Allows for sorting and by default disables multiselect.
+ * The value is obtained either via toString() method of the content item or via a 
+ * given implementation.
  * 
- * @deprecated use {@link GenericElementsTable2} instead.
  * @author K. Benedyczak
  */
-@Deprecated
-public class GenericElementsTable<T> extends SmallTableDeprecated
+public class GenericElementsTable<T> extends SmallGrid<T>
 {
-	private NameProvider<T> nameProvider;
-	private List<SingleActionHandler> actionHandlers;
-	
+	protected List<T> contents;
+	private ListDataProvider<T> dataProvider;
+	private Column<T, String> col1;
+	private GridContextMenuSupport<T> contextMenuSupp;
+	private boolean sortable;
+	private Collection<SerializablePredicate<T>> filters;
+	private ValueProvider<T, String> nameProvider;
 	
 	public GenericElementsTable(String columnHeader)
 	{
 		this(columnHeader, new DefaultNameProvider<T>());
 	}
 	
-	public GenericElementsTable(String columnHeader, NameProvider<T> nameProvider)
+	public GenericElementsTable(String columnHeader, ValueProvider<T, String> nameProvider)
 	{
-		this.nameProvider = nameProvider;
-		this.actionHandlers = new ArrayList<>();
-		setNullSelectionAllowed(false);
-		setImmediate(true);
-		setSizeFull();
-		BeanItemContainer<GenericItem<T>> tableContainer = new BeanItemContainer<GenericItem<T>>(
-				GenericItem.class);
-		tableContainer.removeContainerProperty("element");
-		setSelectable(true);
-		setMultiSelect(false);
-		setContainerDataSource(tableContainer);
-		setColumnHeaders(new String[] {columnHeader});
-		setSortContainerPropertyId(getContainerPropertyIds().iterator().next());
-		setSortAscending(true);
+		this(columnHeader, nameProvider, true);
 	}
 	
-	@Override
-	public void addActionHandler(Action.Handler actionHandler) {
-		super.addActionHandler(actionHandler);
-		if (actionHandler instanceof SingleActionHandler)
-			actionHandlers.add((SingleActionHandler) actionHandler);
+	public GenericElementsTable(String columnHeader, ValueProvider<T, String> nameProvider, boolean sortable)
+	{
+		this.sortable = sortable;
+		this.nameProvider = nameProvider;
+		contents = new ArrayList<>();
+		dataProvider = DataProvider.ofCollection(contents);
+		setDataProvider(dataProvider);
+		setSizeFull();
+		setSelectionMode(SelectionMode.SINGLE);
+		col1 = addColumn(nameProvider, n -> n)
+				.setCaption(columnHeader)
+				.setResizable(false);
+		GridSelectionSupport.installClickListener(this);
+		col1.setSortable(sortable);
+		sort();
+		contextMenuSupp = new GridContextMenuSupport<>(this);
+		filters = new ArrayList<>();
+		
+	}
+	
+	public void setMultiSelect(boolean multi)
+	{
+		setSelectionMode(multi ? SelectionMode.MULTI : SelectionMode.SINGLE);
 	}
 
-	public List<SingleActionHandler> getActionHandlers()
+	public void addActionHandler(SingleActionHandler<T> actionHandler) 
 	{
-		return actionHandlers;
+		contextMenuSupp.addActionHandler(actionHandler);
+	}
+
+	public List<SingleActionHandler<T>> getActionHandlers()
+	{
+		return contextMenuSupp.getActionHandlers();
 	}
 	
-	public void setInput(Collection<? extends T> types)
+	public void setInput(Collection<? extends T> elements)
 	{
-		if (!isMultiSelect())
+		Set<T> selectedItems = getSelectedItems();
+		contents.clear();
+		if (elements != null)
+			contents.addAll(elements);
+		dataProvider.refreshAll();
+		sort();
+		deselectAll();
+		for (T toSelect : selectedItems)
 		{
-			@SuppressWarnings("unchecked")
-			GenericItem<T> selected = (GenericItem<T>) getValue();
-			removeAllItems();
-			for (T attributeType : types)
+			if (elements != null && elements.contains(toSelect))
 			{
-				GenericItem<T> item = new GenericItem<T>(attributeType,
-						nameProvider);
-				addItem(item);
-				if (selected != null && selected.getElement().equals(attributeType))
-					setValue(item);
+				select(toSelect);
 			}
+		}
+	}
+	
+	public void selectFirst()
+	{
+		Optional<T> first;
+		Stream<T> fetchStream = dataProvider.fetch(new Query<>());
+
+		if (!sortable)
+		{
+			first = fetchStream.findFirst();
+
 		} else
 		{
-			@SuppressWarnings("unchecked")
-			Collection<GenericItem<T>> selected = (Collection<GenericItem<T>>) getValue();
-			removeAllItems();
-			Collection<GenericItem<T>> nselected = new LinkedHashSet<GenericItem<T>>();
-			for (T attributeType : types)
-			{
-				GenericItem<T> item = new GenericItem<T>(attributeType,
-						nameProvider);
-				addItem(item);
-				for (GenericItem<T> s : selected)
-				{
-					if (s.getElement().equals(attributeType))
-						nselected.add(item);
-				}
-			}
-			setValue(nselected);
-		}	
-		sort();
+			List<GridSortOrder<T>> order = getSortOrder();
+			SortDirection dir = order.get(0).getDirection();
+
+			if (dir.equals(SortDirection.ASCENDING))
+
+				first = fetchStream.sorted(Comparator.comparing(nameProvider))
+						.findFirst();
+			else
+
+				first = fetchStream.sorted(
+						Comparator.comparing(nameProvider).reversed())
+						.findFirst();
+		}
+		if (first.isPresent())
+			select(first.get());
 	}
 	
 	public void addElement(T el)
 	{
-		addItem(new GenericItem<T>(el, nameProvider));
+		contents.add(el);
+		dataProvider.refreshItem(el);
+		sort();
+	}
+
+	public void removeElement(T el)
+	{
+		contents.remove(el);
+		dataProvider.refreshAll();
 		sort();
 	}
 	
-	public interface NameProvider<T>
+	private void sort()
 	{
-		/**
-		 * @param element
-		 * @return object of {@link Label} type or any other. In the latter case to toString method will be called 
-		 * on the returned object, and the result will be wrapped as {@link Label}.
-		 */
-		public Object toRepresentation(T element);
+		if (sortable)
+			sort(col1);
 	}
 
-	public static class GenericItem<T>
+	public List<T> getElements()
 	{
-		private T element;
-		private NameProvider<T> nameProvider;
-
-		public GenericItem(T value, NameProvider<T> nameProvider)
-		{
-			this.element = value;
-			this.nameProvider = nameProvider;
-		}
-		
-		public Label getName()
-		{
-			Object representation = nameProvider.toRepresentation(element);
-			if (representation instanceof Label)
-				return (Label) representation;
-			return new Label(representation.toString());
-		}
-		
-		public T getElement()
-		{
-			return element;
-		}
+		return new ArrayList<>(contents);
 	}
 	
-	private static class DefaultNameProvider<T> implements NameProvider<T>
+	private void updateFilters()
+	{
+		dataProvider.clearFilters();
+		for (SerializablePredicate<T> p : filters)
+			dataProvider.addFilter(p);
+	}
+	
+	public void addFilter(SerializablePredicate<T> filter)
+	{
+		if (!filters.contains(filter))
+			filters.add(filter);
+		updateFilters();
+	}
+	
+	public void removeFilter(SerializablePredicate<T> filter)
+	{
+		if (filters.contains(filter))
+			filters.remove(filter);
+		updateFilters();
+	}
+	
+	public void clearFilters()
+	{
+		dataProvider.clearFilters();
+	}
+	
+	private static class DefaultNameProvider<T> implements ValueProvider<T, String>
 	{
 		@Override
-		public String toRepresentation(T element)
+		public String apply(T element)
 		{
 			return element.toString();
 		}

@@ -17,7 +17,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -144,11 +144,13 @@ public class FormsChooserComponent extends CustomComponent
 			
 			registrationForms = new VerticalLayout();
 			registrationForms.setSpacing(true);
+			registrationForms.setMargin(false);
 			registrationForms.setCaption(msg.getMessage("FormsChooserComponent.registrationForms"));
 			main.addComponent(registrationForms);
 
 			enquiryForms = new VerticalLayout();
 			enquiryForms.setSpacing(true);
+			enquiryForms.setMargin(false);
 			enquiryForms.setCaption(msg.getMessage("FormsChooserComponent.enquiryForms"));
 			main.addComponent(enquiryForms);
 			

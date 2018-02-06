@@ -22,15 +22,15 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ComponentWithToolbar2;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable2;
+import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.SingleActionHandler2;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.Toolbar2;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
 /**
@@ -44,7 +44,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private RegistrationsManagement registrationsManagement;
 	private EventsBus bus;
 	
-	private GenericElementsTable2<RegistrationForm> table;
+	private GenericElementsTable<RegistrationForm> table;
 	private com.vaadin.ui.Component main;
 	private ObjectFactory<RegistrationFormEditor> editorFactory;
 	
@@ -65,7 +65,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
 		
 		viewer.setInput(null);
-		table = new GenericElementsTable2<>(
+		table = new GenericElementsTable<>(
 				msg.getMessage("RegistrationFormsComponent.formsTable"), 
 				form -> form.getName());
 
@@ -89,11 +89,11 @@ public class RegistrationFormsComponent extends VerticalLayout
 		table.addActionHandler(getCopyAction());
 		table.addActionHandler(getDeleteAction());
 				
-		Toolbar2<RegistrationForm> toolbar = new Toolbar2<>(Orientation.HORIZONTAL);
+		Toolbar<RegistrationForm> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
 		
-		ComponentWithToolbar2 tableWithToolbar = new ComponentWithToolbar2(table, toolbar);
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
 
 		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);
@@ -165,16 +165,16 @@ public class RegistrationFormsComponent extends VerticalLayout
 		}
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getRefreshAction()
+	private SingleActionHandler<RegistrationForm> getRefreshAction()
 	{
-		return SingleActionHandler2.builder4Refresh(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Refresh(msg, RegistrationForm.class)
 				.withHandler(selection -> refresh())
 				.build();
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getAddAction()
+	private SingleActionHandler<RegistrationForm> getAddAction()
 	{
-		return SingleActionHandler2.builder4Add(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Add(msg, RegistrationForm.class)
 				.withHandler(this::showAddDialog)
 				.build();
 	}
@@ -196,16 +196,16 @@ public class RegistrationFormsComponent extends VerticalLayout
 		dialog.show();
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getCopyAction()
+	private SingleActionHandler<RegistrationForm> getCopyAction()
 	{
-		return SingleActionHandler2.builder4Copy(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Copy(msg, RegistrationForm.class)
 				.withHandler(this::showCopyDialog)
 				.build();
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getEditAction()
+	private SingleActionHandler<RegistrationForm> getEditAction()
 	{
-		return SingleActionHandler2.builder4Edit(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Edit(msg, RegistrationForm.class)
 				.withHandler(this::showEditDialog)
 				.build();
 	}
@@ -242,9 +242,9 @@ public class RegistrationFormsComponent extends VerticalLayout
 		dialog.show();	
 	}
 	
-	private SingleActionHandler2<RegistrationForm> getDeleteAction()
+	private SingleActionHandler<RegistrationForm> getDeleteAction()
 	{
-		return SingleActionHandler2.builder4Delete(msg, RegistrationForm.class)
+		return SingleActionHandler.builder4Delete(msg, RegistrationForm.class)
 				.withHandler(this::handleDelete)
 				.build();
 	}

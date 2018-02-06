@@ -7,21 +7,21 @@ package pl.edu.icm.unity.webadmin.tprofile;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import com.vaadin.event.dd.DragAndDropEvent;
-import com.vaadin.event.dd.DropHandler;
-import com.vaadin.event.dd.acceptcriteria.AcceptAll;
-import com.vaadin.event.dd.acceptcriteria.AcceptCriterion;
+import com.vaadin.data.Binder;
+import com.vaadin.shared.ui.dnd.DropEffect;
+import com.vaadin.ui.AbstractComponent;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.DragAndDropWrapper;
-import com.vaadin.ui.DragAndDropWrapper.WrapperTransferable;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.v7.ui.AbstractTextField;
-import com.vaadin.v7.ui.HorizontalLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.TextArea;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.dnd.DropTargetExtension;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -32,14 +32,12 @@ import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.Callback;
-import pl.edu.icm.unity.webadmin.tprofile.RuleComponent.DragHtmlLabel;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStartEvent;
 import pl.edu.icm.unity.webadmin.tprofile.StartStopButton.ClickStopEvent;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.RequiredTextField;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -53,14 +51,15 @@ public class TranslationProfileEditor extends VerticalLayout
 	protected UnityMessageSource msg;
 	protected ProfileType type;
 	protected TypesRegistryBase<? extends TranslationActionFactory<?>> registry;
-	protected AbstractTextField name;
-	protected DescriptionTextArea description;
+	protected TextField name;
+	protected TextArea description;
 	protected VerticalLayout rulesLayout;
 	protected List<RuleComponent> rules;
 	
 	private RemotelyAuthenticatedInput remoteAuthnInput;
 	private StartStopButton testProfileButton;
 	private ActionParameterComponentProvider actionComponentProvider;
+	private Binder<TranslationProfile> binder;
 	
 	public TranslationProfileEditor(UnityMessageSource msg,
 			TypesRegistryBase<? extends TranslationActionFactory<?>> registry, ProfileType type, 
@@ -77,10 +76,8 @@ public class TranslationProfileEditor extends VerticalLayout
 
 	public void setValue(TranslationProfile toEdit)
 	{
-		name.setReadOnly(false);
-		name.setValue(toEdit.getName());
+		binder.setBean(toEdit);
 		name.setReadOnly(true);
-		description.setValue(toEdit.getDescription());
 		for (TranslationRule trule : toEdit.getRules())
 		{
 			addRuleComponent(trule);
@@ -95,9 +92,13 @@ public class TranslationProfileEditor extends VerticalLayout
 			if (!cr.validateRule())
 				nvalidr++;
 		}	
-		name.setValidationVisible(true);
-		if (!name.isValid() || nvalidr != 0)
+		
+		if (!binder.isValid()  || nvalidr != 0)
+		{
+			binder.validate();
 			throw new FormValidationException();
+		}
+		
 		List<TranslationRule> trules = new ArrayList<>();
 		for (RuleComponent cr : rules)
 		{
@@ -115,22 +116,18 @@ public class TranslationProfileEditor extends VerticalLayout
 		rulesLayout.setSpacing(false);
 		rulesLayout.setMargin(false);
 		rulesLayout.setHeightUndefined();
+		rulesLayout.setStyleName(Styles.vDropLayout.toString());
 		
-		
-		name = new RequiredTextField(msg);
-		name.setCaption(msg.getMessage("TranslationProfileEditor.name"));
-		name.setSizeFull();
-		name.setValidationVisible(false);
+		name = new TextField(msg.getMessage("TranslationProfileEditor.name"));
+
 		description = new DescriptionTextArea(
 				msg.getMessage("TranslationProfileEditor.description"));
 
-		name.setValue(msg.getMessage("TranslationProfileEditor.defaultName"));
-
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.setSpacing(true);
+		hl.setMargin(false);
 		Button addRule = new Button();
 		addRule.setDescription(msg.getMessage("TranslationProfileEditor.newRule"));
-		addRule.setIcon(Images.vaadinAdd.getResource());
+		addRule.setIcon(Images.add.getResource());
 		addRule.addStyleName(Styles.vButtonLink.toString());
 		addRule.addStyleName(Styles.toolbarButton.toString());
 		addRule.addClickListener(new ClickListener()
@@ -169,9 +166,15 @@ public class TranslationProfileEditor extends VerticalLayout
 
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.addComponents(main, hl, rulesLayout);
-		//wrapper.setMargin(false);
-		//wrapper.setSpacing(false);
-		
+			
+		binder = new Binder<>(TranslationProfile.class);
+		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
+		binder.bind(description, "description");
+		binder.setBean(new TranslationProfile(
+				msg.getMessage("TranslationProfileEditor.defaultName"), null, type,
+				new ArrayList<TranslationRule>()));
+		setSpacing(false);
+		setMargin(false);
 		addComponents(wrapper);
 		refreshRules();
 	}
@@ -234,35 +237,29 @@ public class TranslationProfileEditor extends VerticalLayout
 		}	
 	}
 
-	private DragAndDropWrapper getDropElement(int pos)
+	private HorizontalLayout getDropElement(int pos)
 	{
-		Label l = new Label(" ");
-		DragAndDropWrapper wr = new DragAndDropWrapper(l);
-		wr.setDropHandler(new DropHandler()
-		{
+		HorizontalLayout drop = new HorizontalLayout();
+		drop.setWidth(100, Unit.PERCENTAGE);
+		drop.setHeight(1, Unit.EM);
 
-			@Override
-			public AcceptCriterion getAcceptCriterion()
+		DropTargetExtension<HorizontalLayout> dropTarget = new DropTargetExtension<>(drop);
+		dropTarget.setDropEffect(DropEffect.MOVE);	
+		dropTarget.addDropListener(event -> {
+			Optional<AbstractComponent> dragSource = event.getDragSourceComponent();
+			if (dragSource.isPresent() && dragSource.get() instanceof Button)
 			{
-				return AcceptAll.get();
+				event.getDragData().ifPresent(data -> {
+					RuleComponent sourceRule = (RuleComponent) data;
+					rules.remove(sourceRule);
+					rules.add(pos, sourceRule);
+					refreshRules();
+				});
 			}
 
-			@Override
-			public void drop(DragAndDropEvent event)
-			{
-				WrapperTransferable t = (WrapperTransferable) event
-						.getTransferable();
-
-				DragHtmlLabel source = (DragHtmlLabel) t.getDraggedComponent();
-				RuleComponent sourceRule = source.getParentRule();
-
-				rules.remove(sourceRule);
-				rules.add(pos, sourceRule);
-				refreshRules();
-			}
 		});
 		
-		return wr;
+		return drop;
 	}
 	
 	public void setRemoteAuthnInput(RemotelyAuthenticatedInput remoteAuthnInput)

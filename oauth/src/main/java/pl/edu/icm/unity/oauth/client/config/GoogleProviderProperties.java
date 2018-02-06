@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Preset configuration for Google OAuth provider, OpenID Connect compliant.
@@ -29,6 +30,7 @@ public class GoogleProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + OPENID_DISCOVERY, 
 				"https://accounts.google.com/.well-known/openid-configuration");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/google-small.png");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:oidc");
 		return properties;
 	}
 

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.as.webauthz;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
@@ -14,12 +16,13 @@ import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
+import pl.edu.icm.unity.engine.api.idp.EntityInGroup;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.translation.ExecutionFailException;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
 import pl.edu.icm.unity.oauth.as.OAuthErrorResponseException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -92,21 +95,25 @@ public class OAuthIdPEngine
 		String flow = ctx.getRequest().getResponseType().impliesCodeFlow()
 				? GrantFlow.authorizationCode.toString()
 				: GrantFlow.implicit.toString();
-		Boolean skipImport = ctx.getConfig()
-				.getBooleanValue(CommonIdPProperties.SKIP_USERIMPORT);
-
+		EntityInGroup requesterEntity = new EntityInGroup(
+				ctx.getConfig().getValue(OAuthASProperties.CLIENTS_GROUP), 
+				new EntityParam(ctx.getClientEntityId()));
 		return getUserInfoUnsafe(ae.getEntityId(),
-				ctx.getRequest().getClientID().getValue(), ctx.getUsersGroup(),
-				ctx.getTranslationProfile(), flow, skipImport);
+				ctx.getRequest().getClientID().getValue(), 
+				Optional.of(requesterEntity), 
+				ctx.getUsersGroup(),
+				ctx.getTranslationProfile(), flow, ctx.getConfig());
 	}
 
-	public TranslationResult getUserInfoUnsafe(long entityId, String clientId,
+	public TranslationResult getUserInfoUnsafe(long entityId, String clientId, 
+			Optional<EntityInGroup> requesterEntity, 
 			String userGroup, String translationProfile, String flow,
-			boolean skipImport) throws EngineException
+			OAuthASProperties config) throws EngineException
 	{
-		return idpEngine.obtainUserInformation(
-				new EntityParam(entityId), userGroup, translationProfile, clientId,
-				"OAuth2", flow, true, !skipImport);
+		return idpEngine.obtainUserInformationWithEnrichingImport(
+				new EntityParam(entityId), userGroup, translationProfile, 
+				clientId, requesterEntity,
+				"OAuth2", flow, true, config);
 	}
 	
 }

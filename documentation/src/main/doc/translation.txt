@@ -240,12 +240,19 @@ MVEL context used in conditions and as value of some action parameters can use t
 If the attribute is multi-valued then the first value is returned. 
 If the attribute has no value then empty string is returned. 
 . +attrs+ Map indexed with attribute names. Value of each entry is a list of the attribute values.
+. +attrObj+ Map indexed with attribute names. Value of each entry is a list of all values provided as 
+objects with attribute-type specific contents. Useful for inspecting complex types like email and accessing its confirmation status.
+. +requesterAttr+, +requesterAttrs+ and +requesterObj+ attributes of the requester, 
+if it is represented by an entity in Unity. This is the case for OAuth authentication.
 . +idsByType+ Map of identity values indexed by type.
 . +groups+ List of all groups the user is a member. 
 . +authenticatedWith+ List of identities that were used to authenticate the user. 
 If remote authentication was used the list contains a single identity that was used 
 to map the remote user to the local entity (as chosen by the input translation profile). 
 The list can have two elements when MFA was used.
+. +importStatus+ Map indexed with importer names which are enabled for the endpoint on which output profile 
+is executed. Status of each importer is value of map entries. The following values are possible: +notApplicable+ and
++success+.
 . +idp+ Identifier of a remote IdP that was used to authenticate the current user's session. 
 In case when only a local authentication was used, the value is set to +_LOCAL+.  
  

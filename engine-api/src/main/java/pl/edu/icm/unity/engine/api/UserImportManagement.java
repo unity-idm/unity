@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.engine.api;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import java.util.List;
+
+import pl.edu.icm.unity.engine.api.userimport.UserImportSerivce.ImportResult;
+import pl.edu.icm.unity.engine.api.userimport.UserImportSpec;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -15,11 +18,8 @@ public interface UserImportManagement
 {
 	/**
 	 * Perform user import.
-	 * @param identity
-	 * @param type
 	 * @return the returned object can be typically ignored, but is provided if caller is interested in 
-	 * the results of import. The object's class is bit misnamed here, but it provides the complete information
-	 * which is the same as after remote authentication of a user. 
+	 * the results of import.
 	 */
-	AuthenticationResult importUser(String identity, String type) throws EngineException;
+	List<ImportResult> importUser(List<UserImportSpec> imports) throws EngineException;
 }

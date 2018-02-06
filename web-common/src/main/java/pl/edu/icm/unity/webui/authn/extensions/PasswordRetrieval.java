@@ -36,6 +36,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -215,8 +216,21 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				return new AuthenticationResult(Status.notApplicable, null);
 			}
 
-			AuthenticationResult authenticationResult = credentialExchange.checkPassword(
+			
+			AuthenticationResult authenticationResult;
+			try
+			{
+				authenticationResult = credentialExchange.checkPassword(
 						username, password, sandboxCallback);
+			} catch (AuthenticationException e)
+			{
+				log.debug("Authentication error during password checking", e);
+				authenticationResult = e.getResult();
+			} catch (Exception e)
+			{
+				log.error("Runtime error during password checking", e);
+				authenticationResult = new AuthenticationResult(Status.deny, null);
+			}
 			if (registrationFormForUnknown != null) 
 				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
 			authenticationResult.setEnableAssociation(enableAssociation);

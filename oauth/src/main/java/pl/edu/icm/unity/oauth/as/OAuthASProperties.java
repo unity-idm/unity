@@ -107,7 +107,7 @@ public class OAuthASProperties extends PropertiesHelper
 		defaults.putAll(CommonIdPProperties.getDefaults("Name of an output translation profile "
 				+ "which can be used to dynamically modify the "
 				+ "data being returned on this endpoint. "
-				+ "When not defined the default profile is used which simply return all Unity attribtues."));
+				+ "When not defined the default profile is used which simply return all Unity attribtues.", null));
 	}
 	
 	private X509Credential credential;

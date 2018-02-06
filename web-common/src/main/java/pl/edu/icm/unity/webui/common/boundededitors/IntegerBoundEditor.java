@@ -4,8 +4,9 @@
  */
 package pl.edu.icm.unity.webui.common.boundededitors;
 
-import com.vaadin.v7.data.util.converter.StringToIntegerConverter;
-import com.vaadin.v7.data.validator.IntegerRangeValidator;
+import com.vaadin.data.Binder;
+import com.vaadin.data.Validator;
+import com.vaadin.data.validator.IntegerRangeValidator;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
@@ -16,26 +17,28 @@ import pl.edu.icm.unity.webui.common.AttributeTypeUtils;
  */
 public class IntegerBoundEditor extends AbstractBoundEditor<Integer>
 {
+
 	public IntegerBoundEditor(UnityMessageSource msg, String labelUnlimited, String labelLimit,
-			Integer bound)
+			Integer bound, Integer min, Integer max)
 	{
-		super(msg, labelUnlimited, labelLimit, bound, new StringToIntegerConverter());
+		super(msg, labelUnlimited, labelLimit, bound, min, max);
 	}
 
-	@Override
-	protected void updateValidators()
+	
+	public void configureBinding(Binder<?> binder, String fieldName)
 	{
-		removeAllValidators();
-		
+		binder.forField(this)
+			.withConverter(vW -> vW.isUnlimited() ? bound : Integer.parseInt(vW.getValue()), 
+					v -> new ValueWrapper(String.valueOf(v), v.equals(bound)),
+					msg.getMessage("IntegerBoundEditor.notANumber"))
+			.withValidator(getValidator(msg, min, max))
+			.bind(fieldName);
+	}
+	
+	private static Validator<Integer> getValidator(UnityMessageSource msg, Integer min, Integer max)
+	{
 		String range = AttributeTypeUtils.getBoundsDesc(msg, min, max);
-		addValidator(new ConditionalRequiredValidator<Integer>(msg, unlimited, Integer.class));
-		addValidator(new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
-				min, max));		
-	}
-
-	@Override
-	public Class<? extends Integer> getType()
-	{
-		return Integer.class;
+		return new IntegerRangeValidator(msg.getMessage("NumericAttributeHandler.rangeError", range), 
+				min, max);		
 	}
 }

@@ -34,7 +34,6 @@ public interface VaadinAuthentication extends BindingAuthn
 	 */
 	Collection<VaadinAuthenticationUI> createUIInstance();
 	
-	
 	public interface VaadinAuthenticationUI
 	{
 		/**

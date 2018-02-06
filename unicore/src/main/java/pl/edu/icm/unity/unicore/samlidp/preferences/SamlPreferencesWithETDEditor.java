@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.unicore.samlidp.preferences;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.event.Action.Handler;
+import java.util.Set;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -18,8 +16,8 @@ import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferencesEditor;
 import pl.edu.icm.unity.unicore.samlidp.preferences.SamlPreferencesWithETD.SPETDSettings;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
@@ -40,33 +38,21 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 	}
 
 	@Override
-	protected Handler[] getHandlers()
-	{
-		return new Handler[] {new AddActionHandler(),
-					new EditActionHandler(),
-					new DeleteActionHandler()};
-	}
-	
-	@Override
 	protected SamlSPSettingsWithETDViewer configureViewer()
 	{
 		final SamlSPSettingsWithETDViewer viewer = new SamlSPSettingsWithETDViewer(msg, 
 				attributeHandlerRegistry);
-		table.addValueChangeListener(new ValueChangeListener()
+		table.addSelectionListener(event -> 
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
+			Set<String> items = event.getAllSelectedItems();
+			if (!items.isEmpty())
 			{
-				@SuppressWarnings("unchecked")
-				GenericItem<String> item = (GenericItem<String>)table.getValue();
-				if (item != null)
-				{
-					SPSettings sp = preferences.getSPSettings(item.getElement());
-					SPETDSettings spEtd = preferences.getSPETDSettings(item.getElement());
-					viewer.setInput(sp, spEtd);
-				} else
-					viewer.setInput(null);
-			}
+				String item = items.iterator().next();
+				SPSettings sp = preferences.getSPSettings(item);
+				SPETDSettings spEtd = preferences.getSPETDSettings(item);
+				viewer.setInput(sp, spEtd);
+			} else
+				viewer.setInput(null);
 		});
 		return viewer;
 	}
@@ -77,67 +63,63 @@ public class SamlPreferencesWithETDEditor extends SamlPreferencesEditor
 		return JsonUtil.serialize(preferences.getSerializedConfiguration());
 	}
 	
-	private class AddActionHandler extends SamlPreferencesEditor.AddActionHandler
+	@Override
+	protected SingleActionHandler<String> getAddAction()
 	{
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			try
-			{
-				initStateData();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
-				return;
-			}
-			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry,
-					idTpeSupport, identities, atTypes, preferences.getKeys());
-			new SPSettingsWithETDDialog(msg, editor, new SPSettingsWithETDDialog.Callback()
-			{
-				@Override
-				public void updatedSP(SPSettings spSettings,
-						SPETDSettings etdSettings, String sp)
-				{
-					preferences.setSPSettings(sp, spSettings);
-					preferences.setSPETDSettings(sp, etdSettings);
-					table.setInput(preferences.getKeys());
-					listener.preferencesModified();
-				}
-			}).show();
-		}
+		return SingleActionHandler.builder4Add(msg, String.class)
+				.withHandler(this::showAddDialog)
+				.build();
 	}
-	
-	private class EditActionHandler extends SamlPreferencesEditor.EditActionHandler
+
+	private void showAddDialog(Set<String> items)
 	{
-		@Override
-		public void handleAction(Object sender, final Object target)
+		try
 		{
-			try
-			{
-				initStateData();
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
-				return;
-			}
-			@SuppressWarnings("unchecked")
-			GenericItem<String> item = (GenericItem<String>)target;
-			String sp = item.getElement();
-			SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry, 
-					idTpeSupport, identities, atTypes, sp, preferences.getSPSettings(sp),
-					preferences.getSPETDSettings(sp));
-			new SPSettingsWithETDDialog(msg, editor, new SPSettingsWithETDDialog.Callback()
-			{
-				@Override
-				public void updatedSP(SPSettings spSettings,
-						SPETDSettings etdSettings, String sp)
-				{
-					preferences.setSPSettings(sp, spSettings);
-					preferences.setSPETDSettings(sp, etdSettings);
-					table.setInput(preferences.getKeys());
-					listener.preferencesModified();
-				}
-			}).show();
+			initStateData();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
+			return;
 		}
+		SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry,
+				idTpeSupport, identities, atTypes, preferences.getKeys());
+		new SPSettingsWithETDDialog(msg, editor, (spSettings, etdSettings, sp) ->
+		{
+			preferences.setSPSettings(sp, spSettings);
+			preferences.setSPETDSettings(sp, etdSettings);
+			table.setInput(preferences.getKeys());
+			listener.preferencesModified();
+		}).show();
+	}
+
+	@Override
+	protected SingleActionHandler<String> getEditAction()
+	{
+		return SingleActionHandler.builder4Edit(msg, String.class)
+				.withHandler(this::showEditDialog)
+				.build();
+	}
+
+	private void showEditDialog(Set<String> items)
+	{
+		try
+		{
+			initStateData();
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("SAMLPreferences.errorLoadindSystemInfo"), e);
+			return;
+		}
+		String sp = items.iterator().next();
+		SPSettingsWithETDEditor editor = new SPSettingsWithETDEditor(msg, attributeHandlerRegistry, 
+				idTpeSupport, identities, atTypes, sp, preferences.getSPSettings(sp),
+				preferences.getSPETDSettings(sp));
+		new SPSettingsWithETDDialog(msg, editor, (spSettings, etdSettings, sp2) -> 
+		{
+			preferences.setSPSettings(sp2, spSettings);
+			preferences.setSPETDSettings(sp2, etdSettings);
+			table.setInput(preferences.getKeys());
+			listener.preferencesModified();
+		}).show();
 	}
 }

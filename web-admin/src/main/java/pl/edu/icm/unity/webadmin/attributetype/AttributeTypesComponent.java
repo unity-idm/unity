@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webadmin.attributetype;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -14,16 +14,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
-import com.vaadin.v7.data.Property.ValueChangeEvent;
-import com.vaadin.v7.data.Property.ValueChangeListener;
-import com.vaadin.event.Action;
-import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.shared.ui.Orientation;
-import com.vaadin.v7.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.v7.ui.VerticalLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -32,7 +27,6 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webadmin.attributetype.AttributeTypeEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -40,7 +34,6 @@ import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.GenericElementsTable.GenericItem;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
@@ -85,67 +78,56 @@ public class AttributeTypesComponent extends VerticalLayout
 		this.attrMetaHandlerRegistry = attrMetaHandlerRegistry;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.serverConfig = serverConfig;
+		
+		setMargin(false);
 		HorizontalLayout hl = new HorizontalLayout();
 		
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("AttributeTypes.caption"));
-		table = new GenericElementsTable<AttributeType>(msg.getMessage("AttributeTypes.types"), 
-				new GenericElementsTable.NameProvider<AttributeType>()
-				{
-					@Override
-					public Label toRepresentation(AttributeType element)
-					{
-						Label ret = new Label(element.getName());
-						if (element.isTypeImmutable())
-							ret.addStyleName(Styles.immutableAttribute.toString());
-						return ret;
-					}
-				});
-
+		table = new GenericElementsTable<>(msg.getMessage("AttributeTypes.types"), 
+				element -> element.getName());
+		table.setStyleGenerator(at ->  at.isTypeImmutable() ? 
+				Styles.immutableAttribute.toString() : "");
 		viewer = new AttributeTypeViewer(msg);
 		table.setMultiSelect(true);
-		table.addValueChangeListener(new ValueChangeListener()
+		table.addSelectionListener(event ->
 		{
-			@Override
-			public void valueChange(ValueChangeEvent event)
+			Collection<AttributeType> items = event.getAllSelectedItems();
+			if (items.size() > 1 || items.isEmpty())
 			{
-				Collection<AttributeType> items = getItems(table.getValue());
-				if (items.size() > 1 || items.isEmpty())
-				{
-					viewer.setInput(null, null, 
-							AttributeTypesComponent.this.attrMetaHandlerRegistry);
-					return;		
-				}	
-				AttributeType at = items.iterator().next();	
-				if (at != null)
-				{
-					AttributeValueSyntax<?> syntax = atSupport.getSyntax(at);
-					WebAttributeHandler handler = 
-							AttributeTypesComponent.this.attrHandlerRegistry.getHandler(syntax);
-					viewer.setInput(at, handler, 
-							AttributeTypesComponent.this.attrMetaHandlerRegistry);
-				} else
-					viewer.setInput(null, null, 
-							AttributeTypesComponent.this.attrMetaHandlerRegistry);
-			}
+				viewer.setInput(null, null, 
+						AttributeTypesComponent.this.attrMetaHandlerRegistry);
+				return;		
+			}	
+			AttributeType at = items.iterator().next();	
+			if (at != null)
+			{
+				AttributeValueSyntax<?> syntax = atSupport.getSyntax(at);
+				WebAttributeHandler handler = 
+						AttributeTypesComponent.this.attrHandlerRegistry.getHandler(syntax);
+				viewer.setInput(at, handler, 
+						AttributeTypesComponent.this.attrMetaHandlerRegistry);
+			} else
+				viewer.setInput(null, null, 
+						AttributeTypesComponent.this.attrMetaHandlerRegistry);
 		});
-		table.addActionHandler(new RefreshActionHandler());
-		table.addActionHandler(new ImportActionHandler());
-		table.addActionHandler(new AddActionHandler());
-		table.addActionHandler(new EditActionHandler());
-		table.addActionHandler(new CopyActionHandler());
-		table.addActionHandler(new DeleteActionHandler());
-		table.addActionHandler(new ExportActionHandler());
+		table.addActionHandler(getRefreshAction());
+		table.addActionHandler(getAddAction());
+		table.addActionHandler(getEditAction());
+		table.addActionHandler(getCopyAction());
+		table.addActionHandler(getDeleteAction());
+		table.addActionHandler(getExportAction());
+		table.addActionHandler(getImportAction());
 		
-		Toolbar toolbar = new Toolbar(table, Orientation.HORIZONTAL);
+		Toolbar<AttributeType> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		table.addSelectionListener(toolbar.getSelectionListener());
 		toolbar.addActionHandlers(table.getActionHandlers());
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setWidth(90, Unit.PERCENTAGE);
+		tableWithToolbar.setHeight(100, Unit.PERCENTAGE);
 
 		hl.addComponents(tableWithToolbar, viewer);
 		hl.setSizeFull();
-		hl.setMargin(true);
-		hl.setSpacing(true);
 		hl.setMargin(new MarginInfo(true, false, true, false));
 		main = hl;
 		refresh();
@@ -212,255 +194,162 @@ public class AttributeTypesComponent extends VerticalLayout
 		}
 	}
 	
-	private class RefreshActionHandler extends SingleActionHandler
+	private SingleActionHandler<AttributeType> getRefreshAction()
 	{
-		public RefreshActionHandler()
-		{
-			super(msg.getMessage("AttributeTypes.refreshAction"), Images.refresh.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			refresh();
-		}
-	}
-
-	private class AddActionHandler extends SingleActionHandler
-	{
-		public AddActionHandler()
-		{
-			super(msg.getMessage("AttributeTypes.addAction"), Images.add.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			RegularAttributeTypeEditor editor = new RegularAttributeTypeEditor(msg, attrHandlerRegistry, 
-					attrMetaHandlerRegistry, atSupport);
-			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
-					msg.getMessage("AttributeTypes.addAction"), new Callback()
-					{
-						@Override
-						public boolean newAttribute(AttributeType newAttributeType)
-						{
-							return addType(newAttributeType);
-						}
-					}, editor);
-			dialog.show();
-		}
+		return SingleActionHandler.builder4Refresh(msg, AttributeType.class)
+				.withHandler(selection -> refresh())
+				.build();
 	}
 	
-	private class ImportActionHandler extends SingleActionHandler
+	private SingleActionHandler<AttributeType> getAddAction()
 	{
-		public ImportActionHandler()
-		{
-			super(msg.getMessage("AttributeTypes.importAction"), Images.transfer.getResource());
-			setNeedsTarget(false);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			
-			ImportAttributeTypeDialog dialog = new ImportAttributeTypeDialog(msg,
-					msg.getMessage("AttributeTypes.importAction"), serverConfig,
-					attrManagement, atSupport, () -> refresh());
-
-			dialog.show();
-		}
-	}
-		
-	private Collection<AttributeType> getItems(Object target)
-	{
-		Collection<?> c = (Collection<?>) target;
-		Collection<AttributeType> items = new ArrayList<AttributeType>();
-		for (Object o: c)
-		{
-			GenericItem<?> i = (GenericItem<?>) o;
-			AttributeType at = (AttributeType) i.getElement();
-			items.add(at);	
-		}
-		return items;
+		return SingleActionHandler.builder4Add(msg, AttributeType.class)
+				.withHandler(this::showAddDialog)
+				.build();
 	}
 	
-	/**
-	 * Extends {@link SingleActionHandler}. Returns action only for selections on mutable attribute type items. 
-	 * @author K. Benedyczak
-	 */
-	private abstract class AbstractAttributeTypeActionHandler extends SingleActionHandler
+	private void showAddDialog(Set<AttributeType> target)
 	{
-
-		public AbstractAttributeTypeActionHandler(String caption, Resource icon)
-		{
-			super(caption, icon);
-		}
+		RegularAttributeTypeEditor editor = new RegularAttributeTypeEditor(msg, attrHandlerRegistry, 
+				attrMetaHandlerRegistry, atSupport);
+		AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
+				msg.getMessage("AttributeTypes.addAction"), 
+				newAttributeType -> addType(newAttributeType), editor);
+		dialog.show();
+	}
+	
+	private SingleActionHandler<AttributeType> getImportAction()
+	{
+		return SingleActionHandler.builder(AttributeType.class)
+				.withCaption(msg.getMessage("AttributeTypes.importAction"))
+				.withIcon(Images.download.getResource())
+				.withHandler(this::importHandler)
+				.withDisabledPredicate(at -> at.isTypeImmutable())
+				.dontRequireTarget()
+				.build();
+	}
+	
+	private void importHandler(Set<AttributeType> items)
+	{
+		ImportAttributeTypeDialog dialog = new ImportAttributeTypeDialog(msg,
+				msg.getMessage("AttributeTypes.importAction"), serverConfig,
+				attrManagement, atSupport, () -> refresh());
+		dialog.show();
+	}
 		
-		@Override
-		public Action[] getActions(Object target, Object sender)
-		{
-			if (target == null)
-				return EMPTY;
-				
-			if (target instanceof Collection<?>)
-			{
-				for (AttributeType item : getItems(target))
+	private SingleActionHandler<AttributeType> getEditAction()
+	{
+		return SingleActionHandler.builder4Edit(msg, AttributeType.class)
+				.withHandler(this::showEditDialog)
+				.withDisabledPredicate(at -> at.isTypeImmutable())
+				.build();
+	}
+
+	
+	private void showEditDialog(Collection<AttributeType> target)
+	{
+		AttributeType at = target.iterator().next();
+		at = at.clone();
+		AttributeTypeEditor editor = at.isTypeImmutable() ? 
+				new ImmutableAttributeTypeEditor(msg, at) : 
+					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
+							attrMetaHandlerRegistry, atSupport);
+				AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
+						msg.getMessage("AttributeTypes.editAction"), 
+						newAttributeType -> updateType(newAttributeType), 
+						editor);
+				dialog.show();
+	}
+
+	private SingleActionHandler<AttributeType> getDeleteAction()
+	{
+		return SingleActionHandler.builder4Delete(msg, AttributeType.class)
+				.withHandler(this::deleteHandler)
+				.withDisabledPredicate(at -> at.isTypeImmutable())
+				.build();
+	}
+	
+	private void deleteHandler(Set<AttributeType> items)
+	{	
+		String confirmText = MessageUtils.createConfirmFromNames(msg, items);
+		new ConfirmWithOptionDialog(msg, msg.getMessage(
+				"AttributeTypes.confirmDelete", confirmText),
+				msg.getMessage("AttributeTypes.withInstances"),
+				withInstances ->
 				{
-					if (item.isTypeImmutable())
-						return EMPTY;
-				}
+					for (AttributeType item : items)
+						removeType(item.getName(), withInstances);
+				}).show();
+	}
+	
+	private SingleActionHandler<AttributeType> getCopyAction()
+	{
+		return SingleActionHandler.builder(AttributeType.class)
+				.withCaption(msg.getMessage("AttributeTypes.copyAction"))
+				.withIcon(Images.copy.getResource())
+				.withHandler(this::copyHandler)
+				.withDisabledPredicate(at -> at.isTypeImmutable())
+				.build();
+	}
+	
+	private void copyHandler(Set<AttributeType> items)
+	{
+		AttributeType at = items.iterator().next();
+		at = at.clone();
+		RegularAttributeTypeEditor editor = 
+				new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
+						attrMetaHandlerRegistry, atSupport);
+		editor.setCopyMode();
+
+		AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
+				msg.getMessage("AttributeTypes.copyAction"), 
+				newAttributeType -> addType(newAttributeType), 
+				editor);
+		dialog.show();
+	}
+
+	private SingleActionHandler<AttributeType> getExportAction()
+	{
+		return SingleActionHandler.builder(AttributeType.class)
+				.withCaption(msg.getMessage("AttributeTypes.exportAction"))
+				.withIcon(Images.export.getResource())
+				.multiTarget()
+				.withHandler(this::exportHandler)
+				.withDisabledPredicate(at -> at.isTypeImmutable())
+				.build();
+	}
+	
+	private void exportHandler(Set<AttributeType> items)
+	{			
+		SimpleFileDownloader downloader = new SimpleFileDownloader();
+		addExtension(downloader);
+		StreamResource resource = null;
+		try
+		{
+			if (items.size() == 1)
+			{
+				AttributeType item = items.iterator().next();
+				byte[] content = Constants.MAPPER.writeValueAsBytes(item);
+				resource = new StreamResource(
+						() -> new ByteArrayInputStream(content),
+						item.getName() + ".json");
 			} else
 			{
-				
-				GenericItem<?> item = (GenericItem<?>) target;	
-				AttributeType at = (AttributeType) item.getElement();
-				if (at.isTypeImmutable())
-					return EMPTY;
+
+				byte[] content = Constants.MAPPER.writeValueAsBytes(items);
+				resource = new StreamResource(
+						() -> new ByteArrayInputStream(content),
+						"attributeTypes.json");
 			}
-			return super.getActions(target, sender);
-		}
-	}
-
-	
-	private class EditActionHandler extends SingleActionHandler
-	{
-		public EditActionHandler()
+		} catch (Exception e)
 		{
-			super(msg.getMessage("AttributeTypes.editAction"), Images.edit.getResource());
+			NotificationPopup.showError(msg,
+					msg.getMessage("AttributeTypes.errorExport"), e);
+			return;
 		}
 
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			
-			GenericItem<?> item = (GenericItem<?>) target;	
-			AttributeType at = (AttributeType) item.getElement();
-			AttributeTypeEditor editor = at.isTypeImmutable() ? 
-					new ImmutableAttributeTypeEditor(msg, at) : 
-					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
-							attrMetaHandlerRegistry, atSupport);
-			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
-					msg.getMessage("AttributeTypes.editAction"), new Callback()
-					{
-						@Override
-						public boolean newAttribute(AttributeType newAttributeType)
-						{
-							return updateType(newAttributeType);
-						}
-					}, editor);
-			dialog.show();
-		}
-	}
-	
-	private class DeleteActionHandler extends AbstractAttributeTypeActionHandler
-	{
-		public DeleteActionHandler()
-		{
-			super(msg.getMessage("AttributeTypes.deleteAction"), 
-					Images.delete.getResource());
-			setMultiTarget(true);
-		}
-		
-		@Override
-		public void handleAction(Object sender, Object target)
-		{	
-			final Collection<AttributeType> items = getItems(target);
-			String confirmText = MessageUtils.createConfirmFromNames(msg, items);
-			new ConfirmWithOptionDialog(msg, msg.getMessage(
-					"AttributeTypes.confirmDelete", confirmText),
-					msg.getMessage("AttributeTypes.withInstances"),
-					new ConfirmWithOptionDialog.Callback()
-					{
-						@Override
-						public void onConfirm(boolean withInstances)
-						{
 
-							for (AttributeType item : items)
-							{
-								removeType(item.getName(),
-										withInstances);
-							}
-						}
-					}).show();
-		}
-	}
-	
-	private class CopyActionHandler extends SingleActionHandler
-	{
-		
-		public CopyActionHandler()
-		{
-			super(msg.getMessage("AttributeTypes.copyAction"), Images.copy.getResource());
-		}
-		
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{
-			
-			GenericItem<?> item = (GenericItem<?>) target;	
-			AttributeType at = (AttributeType) item.getElement();
-			RegularAttributeTypeEditor editor = 
-					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
-							attrMetaHandlerRegistry, atSupport);
-			editor.setCopyMode();
-			
-			AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
-					msg.getMessage("AttributeTypes.copyAction"), new Callback()
-					{
-						@Override
-						public boolean newAttribute(AttributeType newAttributeType)
-						{
-							return addType(newAttributeType);
-						}
-					}, editor);
-			dialog.show();
-		}
-	}
-
-	private class ExportActionHandler extends AbstractAttributeTypeActionHandler
-	{
-		public ExportActionHandler()
-		{
-			super(msg.getMessage("AttributeTypes.exportAction"), Images.save.getResource());
-			setMultiTarget(true);
-		}
-
-		@Override
-		public void handleAction(Object sender, final Object target)
-		{			
-			final Collection<AttributeType> items = getItems(target);
-			SimpleFileDownloader downloader = new SimpleFileDownloader();
-			addExtension(downloader);
-			StreamResource resource = null;
-			try
-			{
-				if (items.size() == 1)
-				{
-					AttributeType item = items.iterator().next();
-					byte[] content = Constants.MAPPER.writeValueAsBytes(item);
-					resource = new StreamResource(
-							() -> new ByteArrayInputStream(content),
-							item.getName() + ".json");
-				} else
-				{
-
-					byte[] content = Constants.MAPPER.writeValueAsBytes(items);
-					resource = new StreamResource(
-							() -> new ByteArrayInputStream(content),
-							"attributeTypes.json");
-				}
-			} catch (Exception e)
-			{
-				NotificationPopup.showError(msg,
-						msg.getMessage("AttributeTypes.errorExport"), e);
-				return;
-			}
-			
-			
-			downloader.setFileDownloadResource(resource);
-			downloader.download();	
-		}
+		downloader.setFileDownloadResource(resource);
+		downloader.download();	
 	}
 }
