@@ -80,6 +80,7 @@ public class SAMLETDAuthnImpl extends SAMLAuthnImpl implements SAMLAuthnInterfac
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
+					context.getResponseDestination(),
 					getRestrictions(spEtdPreferences));
 		} catch (Exception e)
 		{

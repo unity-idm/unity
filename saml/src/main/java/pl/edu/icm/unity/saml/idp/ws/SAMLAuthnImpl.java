@@ -90,7 +90,8 @@ public class SAMLAuthnImpl implements SAMLAuthnInterface
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes);
+			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
+					context.getResponseDestination());
 		} catch (Exception e)
 		{
 			log.debug("Throwing SAML fault, caused by processing exception", e);

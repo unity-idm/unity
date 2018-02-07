@@ -89,10 +89,7 @@ public class SamlResponseHandler
 			SessionDisposal error = session.getAttribute(SessionDisposal.class);
 			
 			SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
-			String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
-			if (serviceUrl == null)
-				serviceUrl = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
-						samlCtx.getRequest().getIssuer());
+			String serviceUrl = samlCtx.getResponseDestination();
 			Map<String, String> data = new HashMap<String, String>();
 			data.put("SAMLResponse", encodedAssertion);
 			data.put("samlService", serviceUrl);
