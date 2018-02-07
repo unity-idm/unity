@@ -10,7 +10,8 @@ import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 
 /**
- * Configured instance of {@link NotificationFacility} able to send notifications.
+ * Configured object created by {@link NotificationFacility} able to send notifications.
+ * 
  * @author K. Benedyczak
  */
 public interface NotificationChannelInstance

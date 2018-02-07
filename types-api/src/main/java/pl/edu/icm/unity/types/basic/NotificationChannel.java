@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
 /**
- * Notification channel.
+ * Notification channel stores configuration used by a facility to create channel instances.
  * @author K. Benedyczak
  */
 public class NotificationChannel extends DescribedObjectImpl
