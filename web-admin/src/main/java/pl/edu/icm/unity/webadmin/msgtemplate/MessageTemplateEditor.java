@@ -12,6 +12,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.ValueContext;
 import com.vaadin.event.FieldEvents.FocusListener;
+import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
@@ -62,7 +63,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private HorizontalLayout buttons;
 	private MessageValidator bodyValidator;
 	private MessageValidator subjectValidator;
-	private TextArea focussedField;
+	private AbstractTextField focussedField;
 	private MessageTemplateManagement msgTemplateMgr;
 	private Binder<MessageTemplate> binder;
 	private Binder<I18nMessage> messageBinder;
@@ -108,6 +109,8 @@ public class MessageTemplateEditor extends CompactFormLayout
 		focussedField = null;
 		FocusListener focusListener = event -> {
 			Component c = event.getComponent();
+			if (c instanceof TextField)
+				focussedField = (TextField) c;	
 			if (c instanceof TextArea)
 				focussedField = (TextArea) c;
 		};
@@ -248,7 +251,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		return consumer;
 	}
 
-	private void addVar(TextArea focussedField2, String val)
+	private void addVar(AbstractTextField focussedField2, String val)
 	{
 		String v = focussedField2.getValue();
 		String st = v.substring(0, focussedField2.getCursorPosition());
