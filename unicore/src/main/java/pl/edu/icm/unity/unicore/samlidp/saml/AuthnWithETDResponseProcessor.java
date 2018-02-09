@@ -56,6 +56,7 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 
 	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, 
 			Collection<Attribute> attributes,
+			String destination,
 			DelegationRestrictions restrictions) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
@@ -67,7 +68,8 @@ public class AuthnWithETDResponseProcessor extends AuthnResponseProcessor
 		boolean etdMode = checkX500Issuer(getContext().getRequest().getIssuer()) && 
 				SAMLConstants.NFORMAT_DN.equals(getRequestedFormat());
 		if (!etdMode)
-			return super.processAuthnRequest(authenticatedIdentity, attributes, false);
+			return super.processAuthnRequest(authenticatedIdentity, attributes, false,
+					destination);
 		
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
