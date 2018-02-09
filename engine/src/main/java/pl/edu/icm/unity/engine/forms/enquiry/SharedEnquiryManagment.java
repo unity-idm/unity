@@ -59,9 +59,9 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	private EnquiryResponseDB enquiryResponseDB;
 	private IdentityHelper dbIdentities;
 	private RegistrationConfirmationRewriteSupport confirmationsSupport;
-	private InternalFacilitiesManagement facilitiesManagement;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private EnquiryResponseValidator responseValidator;
+	
 
 	private AttributeTypeHelper atHelper;
 	
@@ -78,11 +78,10 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			AttributeTypeHelper atHelper)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
-				entityCredentialsHelper);
+				entityCredentialsHelper, facilitiesManagement);
 		this.enquiryResponseDB = enquiryResponseDB;
 		this.dbIdentities = dbIdentities;
 		this.confirmationsSupport = confirmationsSupport;
-		this.facilitiesManagement = facilitiesManagement;
 		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 		this.responseValidator = responseValidator;
 		this.atHelper = atHelper;
@@ -137,9 +136,9 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		applyRequestedCredentials(currentRequest, entityId);
 		
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		
-		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg);
-		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(), currentRequest,
+		String templateId = notificationsCfg.getAcceptedTemplate();
+		String requesterAddress = getRequesterAddress(currentRequest, templateId);
+		sendProcessingNotification(templateId, currentRequest,
 				form.getName(), true, publicComment,
 				internalComment, notificationsCfg, requesterAddress);
 		if (rewriteConfirmationToken)
@@ -157,11 +156,10 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		currentRequest.setStatus(RegistrationRequestStatus.rejected);
 		enquiryResponseDB.update(currentRequest);
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg);
-		sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
-				currentRequest, form.getName(),
-				true, publicComment, 
-				internalComment, notificationsCfg, requesterAddress);
+		String templateId = notificationsCfg.getRejectedTemplate();
+		String requesterAddress = getRequesterAddress(currentRequest, templateId);
+		sendProcessingNotification(templateId, currentRequest, form.getName(), true,
+				publicComment, internalComment, notificationsCfg, requesterAddress);
 	}
 	
 	public void sendProcessingNotification(EnquiryForm form, String templateId,
@@ -170,7 +168,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			throws EngineException
 	{
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg);
+		String requesterAddress = getRequesterAddress(currentRequest, templateId);
 		sendProcessingNotification(templateId, currentRequest, formId, false, 
 				publicComment, internalComment, notificationsCfg, requesterAddress);
 	}
@@ -215,14 +213,13 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	}
 	
 	private String getRequesterAddress(EnquiryResponseState currentRequest,
-			EnquiryFormNotifications notificationsCfg)
+			String templateId)
 			throws EngineException
 	{
-		if (notificationsCfg.getChannel() == null)
+		
+		NotificationFacility notificationFacility = getNotificationFacilityFromTemplate(templateId);
+		if (notificationFacility == null)
 			return null;
-
-		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
-				notificationsCfg.getChannel());
 		try
 		{
 			return notificationFacility.getAddressForEntity(

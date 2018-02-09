@@ -1,6 +1,8 @@
 package pl.edu.icm.unity.engine;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collections;
@@ -10,8 +12,14 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
+import pl.edu.icm.unity.engine.notifications.sms.SMSFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -33,7 +41,9 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		I18nString body = new I18nString("btest");
 		body.addValue("pl", "Tekst");
 		I18nMessage imsg = new I18nMessage(subject, body);
-		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "PasswordResetCode", MessageType.PLAIN);
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg,
+				"PasswordResetCode", MessageType.PLAIN,
+				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
 		msgTempMan.addTemplate(template);
 		assertEquals(3, msgTempMan.listTemplates().size());
 		MessageTemplate added = msgTempMan.getTemplate("tName");
@@ -63,7 +73,9 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	public void testValidationConsumer() throws EngineException 
 	{
 		I18nMessage imsg = new I18nMessage(new I18nString("stest"), new I18nString("btest"));
-		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "FailConsumer", MessageType.PLAIN);
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg,
+				"FailConsumer", MessageType.PLAIN,
+				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
 		try
 		{
 			msgTempMan.addTemplate(template);
@@ -78,7 +90,8 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 	public void testValidationMessage() throws EngineException 
 	{
 		I18nMessage imsg = new I18nMessage(new I18nString("stest${code}"), new I18nString("btest"));
-		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "RejectForm", MessageType.PLAIN);
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, "RejectForm",
+				MessageType.PLAIN, UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
 		try
 		{
 			msgTempMan.addTemplate(template);
@@ -86,5 +99,67 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		} catch (IllegalArgumentException e)
 		{
 		}
+	}
+	
+	@Test
+	public void incompatibleChannelShouldThrowException() throws EngineException
+	{
+
+		try
+		{
+			notMan.removeNotificationChannel(
+					UnityServerConfiguration.DEFAULT_SMS_CHANNEL);
+		} catch (Exception e)
+		{
+		}
+
+		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
+				.withName(UnityServerConfiguration.DEFAULT_SMS_CHANNEL)
+				.withDescription("")
+				.withConfiguration("unity.sms.provider=clickatell\n"
+						+ "unity.sms.clickatell.apiKey=xx\n"
+						+ "unity.sms.clickatell.charset=ASCII")
+				.withFacilityId(SMSFacility.NAME).build());
+
+		I18nMessage imsg = new I18nMessage(new I18nString("stest"),
+				new I18nString("btest"));
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg,
+				EmailConfirmationTemplateDef.NAME, MessageType.PLAIN,
+				UnityServerConfiguration.DEFAULT_SMS_CHANNEL);
+		try
+		{
+			msgTempMan.addTemplate(template);
+			fail("Exception not throw.");
+		} catch (WrongArgumentException e)
+		{
+		}
+	}
+	
+	@Test
+	public void ifNotExistingChannelShouldThrowException() throws EngineException 
+	{
+	
+		I18nMessage imsg = new I18nMessage(new I18nString("stest"), new I18nString("btest"));
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, EmailConfirmationTemplateDef.NAME,
+				MessageType.PLAIN, "ch1");
+		try
+		{
+			msgTempMan.addTemplate(template);
+			fail("Exception not throw.");
+		} catch (WrongArgumentException e)
+		{
+		}
+	}
+	
+	@Test
+	public void shouldAddGenericTemplateWithEmptyChannel() throws EngineException 
+	{
+	
+		I18nMessage imsg = new I18nMessage(new I18nString("stest"), new I18nString("btest"));
+		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg, GenericMessageTemplateDef.NAME,
+				MessageType.PLAIN, null);
+		
+		msgTempMan.addTemplate(template);
+		assertThat(msgTempMan.getTemplate("tName").getConsumer(), is(GenericMessageTemplateDef.NAME));		
 	}
 }

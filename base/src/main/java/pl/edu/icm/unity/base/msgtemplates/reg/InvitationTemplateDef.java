@@ -5,12 +5,17 @@
 package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.base.notifications.FacilityName;
 
 /**
  * Template definition of a message send with an invitation to fill a registration request. 
@@ -50,6 +55,13 @@ public class InvitationTemplateDef implements MessageTemplateDefinition
 		vars.put(EXPIRES, new MessageTemplateVariable(EXPIRES, 
 				"MessageTemplateConsumer.InvitationWithCode.var.expires", false));
 		return vars;
+	}
+	
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return Stream.of(FacilityName.EMAIL.toString(),FacilityName.SMS.toString() )
+				    .collect(Collectors.toCollection(HashSet::new));
 	}
 
 }

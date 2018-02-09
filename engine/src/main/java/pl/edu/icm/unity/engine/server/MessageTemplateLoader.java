@@ -26,6 +26,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.FilePropertiesHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -33,6 +34,7 @@ import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 /**
  * Loads message templates from file configuration
@@ -46,12 +48,15 @@ class MessageTemplateLoader
 			MessageTemplateLoader.class);
 	
 	private MessageTemplateManagement msgTemplatesManagement;
+	private NotificationsManagement notificationMan;
 	
 	@Autowired
 	public MessageTemplateLoader(
-			@Qualifier("insecure") MessageTemplateManagement msgTemplatesManagement)
+			@Qualifier("insecure") MessageTemplateManagement msgTemplatesManagement,
+			@Qualifier("insecure") NotificationsManagement notificationMan)
 	{
 		this.msgTemplatesManagement = msgTemplatesManagement;
+		this.notificationMan = notificationMan;
 	}
 
 	void initializeMsgTemplates(File file)
@@ -74,6 +79,15 @@ class MessageTemplateLoader
 	
 	void initializeMsgTemplates(Properties props)
 	{
+		Map<String, NotificationChannel> notificationChannels;
+		try
+		{
+			notificationChannels = notificationMan.getNotificationChannels();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't load existing notification channels list", e);
+		}
+		
 		Map<String, MessageTemplate> existingTemplates;
 		try
 		{
@@ -101,7 +115,14 @@ class MessageTemplateLoader
 			try
 			{
 				MessageTemplate templ = loadTemplate(props, key);
-				msgTemplatesManagement.addTemplate(templ);
+				String channel = templ.getNotificationChannel();
+				if (channel.isEmpty() || notificationChannels.keySet().contains(channel))
+					msgTemplatesManagement.addTemplate(templ);
+				else
+					log.debug("Skip adding message template " + templ.getName()
+							+ " - configured notification channel "
+							+ channel
+							+ " does not exists");
 			} catch (WrongArgumentException e)
 			{
 				log.error("Template with id " + key + " is invalid, reason: "
@@ -116,10 +137,12 @@ class MessageTemplateLoader
 	
 	private MessageTemplate loadTemplate(Properties properties, String id) throws WrongArgumentException
 	{
-		String consumer = properties.getProperty(id+".consumer", "");
-		String description = properties.getProperty(id+".description", "");
-		String typeStr = properties.getProperty(id+".type", MessageType.PLAIN.name());
-
+		String consumer = properties.getProperty(id + ".consumer", "");
+		String description = properties.getProperty(id + ".description", "");
+		String typeStr = properties.getProperty(id + ".type", MessageType.PLAIN.name());
+		String notificationChannel = properties.getProperty(id + ".notificationChannel",
+				"");
+		
 		MessageType type;
 		try
 		{
@@ -134,7 +157,7 @@ class MessageTemplateLoader
 		I18nString subjectI18 = getSubject(properties, id);
 		I18nString bodyI18 = getBody(properties, id);
 		I18nMessage tempMsg = new I18nMessage(subjectI18, bodyI18);
-		return new MessageTemplate(id, description, tempMsg, consumer, type);
+		return new MessageTemplate(id, description, tempMsg, consumer, type, notificationChannel);
 	}
 
 	private I18nString getSubject(Properties properties, String id)

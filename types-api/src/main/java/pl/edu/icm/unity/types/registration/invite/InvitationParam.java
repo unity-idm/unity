@@ -36,18 +36,15 @@ public class InvitationParam
 	private String formId;
 	private Instant expiration;
 	private String contactAddress;
-	private String channelId;
 	
 	private Map<Integer, PrefilledEntry<IdentityParam>> identities = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Selection>> groupSelections = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 
-	public InvitationParam(String formId, Instant expiration, String contactAddress, 
-			String channelId)
+	public InvitationParam(String formId, Instant expiration, String contactAddress)
 	{
 		this(formId, expiration);
 		this.contactAddress = contactAddress;
-		this.channelId = channelId;
 	}
 
 	public InvitationParam(String formId, Instant expiration)
@@ -75,11 +72,6 @@ public class InvitationParam
 	public String getContactAddress()
 	{
 		return contactAddress;
-	}
-
-	public String getChannelId()
-	{
-		return channelId;
 	}
 
 	public Map<Integer, PrefilledEntry<IdentityParam>> getIdentities()
@@ -112,8 +104,6 @@ public class InvitationParam
 		json.put("expiration", getExpiration().toEpochMilli());
 		if (getContactAddress() != null)
 			json.put("contactAddress", getContactAddress());
-		if (getChannelId() != null)
-			json.put("channelId", getChannelId());
 
 		json.putPOJO("identities", getIdentities());
 		json.putPOJO("groupSelections", getGroupSelections());
@@ -126,7 +116,6 @@ public class InvitationParam
 		formId = json.get("formId").asText();
 		expiration = Instant.ofEpochMilli(json.get("expiration").asLong());
 		contactAddress = JsonUtil.getNullable(json, "contactAddress");
-		channelId = JsonUtil.getNullable(json, "channelId");
 		
 		JsonNode n;
 		
@@ -169,8 +158,7 @@ public class InvitationParam
 	public String toString()
 	{
 		return "InvitationParam [formId=" + formId + ", expiration=" + expiration
-				+ ", contactAddress=" + contactAddress + ", channelId="
-				+ channelId + "]";
+				+ ", contactAddress=" + contactAddress + "]";
 	}
 
 	@Override
@@ -179,7 +167,6 @@ public class InvitationParam
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result + ((channelId == null) ? 0 : channelId.hashCode());
 		result = prime * result
 				+ ((contactAddress == null) ? 0 : contactAddress.hashCode());
 		result = prime * result + ((expiration == null) ? 0 : expiration.hashCode());
@@ -205,12 +192,6 @@ public class InvitationParam
 			if (other.attributes != null)
 				return false;
 		} else if (!attributes.equals(other.attributes))
-			return false;
-		if (channelId == null)
-		{
-			if (other.channelId != null)
-				return false;
-		} else if (!channelId.equals(other.channelId))
 			return false;
 		if (contactAddress == null)
 		{

@@ -220,7 +220,7 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 	{
 		tx.runInTransaction(() -> {
 			msgTplDB.create(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-					new I18nString("")), "consumer", MessageType.PLAIN));
+					new I18nString("")), "consumer", MessageType.PLAIN, "channel"));
 			
 			T obj = getObject("name1");
 			getDAO().create(obj);
@@ -235,9 +235,9 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 	{
 		T afterDependencyRename = renameTest(
 				new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-						new I18nString("")), AcceptRegistrationTemplateDef.NAME, MessageType.PLAIN), 
+						new I18nString("")), AcceptRegistrationTemplateDef.NAME, MessageType.PLAIN, "channel"), 
 				new MessageTemplate("changed", "", new I18nMessage(new I18nString(""),
-						new I18nString("")), AcceptRegistrationTemplateDef.NAME, MessageType.PLAIN), 
+						new I18nString("")), AcceptRegistrationTemplateDef.NAME, MessageType.PLAIN, "channel"), 
 				msgTplDB);
 		
 		assertThat(afterDependencyRename.getNotificationsConfiguration().getAcceptedTemplate(),
@@ -249,13 +249,13 @@ public abstract class BaseFormTest<T extends BaseForm> extends AbstractNamedWith
 	{
 		tx.runInTransaction(() -> {
 			msgTplDB.create(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-					new I18nString("")), SubmitRegistrationTemplateDef.NAME, MessageType.PLAIN));
+					new I18nString("")), SubmitRegistrationTemplateDef.NAME, MessageType.PLAIN, "channel"));
 			
 			T obj = getObject("name1");
 			getDAO().create(obj);
 
 			catchException(msgTplDB).update(new MessageTemplate("template", "", new I18nMessage(new I18nString(""),
-					new I18nString("")), "CHANGED-CONSUMER", MessageType.PLAIN));
+					new I18nString("")), "CHANGED-CONSUMER", MessageType.PLAIN, "channel"));
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}

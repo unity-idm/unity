@@ -5,10 +5,15 @@
 package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.base.notifications.FacilityName;
 
 /**
  * Base class for all {@link MessageTemplateDefinition}s of the registration & enquiry forms subsystem. 
@@ -51,5 +56,12 @@ public abstract class BaseRegistrationTemplateDef implements MessageTemplateDefi
 		vars.put(REQUEST_ID, new MessageTemplateVariable(REQUEST_ID, 
 				"MessageTemplateConsumer.BaseForm.var.requestId", false));
 		return vars;
+	}
+	
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return Stream.of(FacilityName.EMAIL.toString(),FacilityName.SMS.toString() )
+			    .collect(Collectors.toCollection(HashSet::new));
 	}
 }

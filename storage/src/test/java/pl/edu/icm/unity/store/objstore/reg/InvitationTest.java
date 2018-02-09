@@ -37,8 +37,7 @@ public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 	{
 		InvitationParam param = new InvitationParam("formId", 
 				Instant.ofEpochMilli(1000), 
-				"contactAddress", 
-				"facilityId");
+				"contactAddress");
 		param.getAttributes().put(0, new PrefilledEntry<>(
 				new Attribute("a1", "string", "/", Lists.newArrayList("v1")), 
 				PrefilledEntryMode.DEFAULT));
@@ -57,8 +56,7 @@ public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 	{
 		InvitationParam param = new InvitationParam("formId2", 
 				Instant.ofEpochMilli(1001), 
-				"contactAddress2", 
-				"facilityId2");
+				"contactAddress2");
 		param.getAttributes().put(0, new PrefilledEntry<>(
 				new Attribute("a2", "string", "/", Lists.newArrayList("v1")), 
 				PrefilledEntryMode.DEFAULT));

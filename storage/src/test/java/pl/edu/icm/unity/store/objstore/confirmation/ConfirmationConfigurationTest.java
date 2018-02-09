@@ -13,7 +13,7 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
@@ -84,7 +84,7 @@ public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<Confi
 		tx.runInTransaction(() -> {
 			MessageTemplate msgT = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
-					"consumer", MessageType.PLAIN);
+					"consumer", MessageType.PLAIN, "channel");
 			msgTmplDAO.create(msgT);
 			
 			ConfirmationConfiguration obj = getObject("name1");
@@ -102,7 +102,7 @@ public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<Confi
 		tx.runInTransaction(() -> {
 			MessageTemplate msgT = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
-					ConfirmationTemplateDef.NAME, MessageType.PLAIN);
+					EmailConfirmationTemplateDef.NAME, MessageType.PLAIN, "channel"); 
 			msgTmplDAO.create(msgT);
 			
 			ConfirmationConfiguration obj = getObject("name1");
@@ -110,7 +110,7 @@ public class ConfirmationConfigurationTest extends AbstractNamedWithTSTest<Confi
 
 			MessageTemplate msgT2 = new MessageTemplate("msgTemplate", "description",
 					new I18nMessage(new I18nString("s"), new I18nString("b")),
-					"consumer2", MessageType.PLAIN);
+					"consumer2", MessageType.PLAIN, "channel"); 
 			catchException(msgTmplDAO).updateByName("msgTemplate", msgT2);
 			
 			assertThat(caughtException(), isA(IllegalArgumentException.class));

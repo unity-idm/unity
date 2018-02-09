@@ -28,7 +28,7 @@ import net.sf.ehcache.config.PersistenceConfiguration;
 import net.sf.ehcache.config.Searchable;
 import net.sf.ehcache.search.Query;
 import net.sf.ehcache.search.Results;
-import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
@@ -166,7 +166,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		
 		if (force || !taf.hasDuplicate)
 		{
-			sendConfirmationRequest(baseState.getValue(), configEntry.getNotificationChannel(),
+			sendConfirmationRequest(baseState.getValue(),
 					configEntry.getMsgTemplate(), 
 					facility, baseState.getLocale(), taf.token);
 			
@@ -213,7 +213,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		return token;
 	}
 	
-	private void sendConfirmationRequest(String recipientAddress, String channelName,
+	private void sendConfirmationRequest(String recipientAddress,
 			String templateId, ConfirmationFacility<?> facility, String locale, String token)
 			throws EngineException
 	{
@@ -224,14 +224,14 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 				template = tpl;
 		}
 		if (!(template != null && template.getConsumer().equals(
-				ConfirmationTemplateDef.NAME)))
+				EmailConfirmationTemplateDef.NAME)))
 			throw new IllegalArgumentException("Illegal type of template");
 
 		String link = advertisedAddress.toExternalForm()
 				+ SharedEndpointManagementImpl.CONTEXT_PATH
 				+ ConfirmationServletProvider.SERVLET_PATH;
 		HashMap<String, String> params = new HashMap<>();
-		params.put(ConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
+		params.put(EmailConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
 				+ ConfirmationServletProvider.CONFIRMATION_TOKEN_ARG + "=" + token);
 
 		log.debug("Send confirmation request to " + recipientAddress + " with token = "
@@ -239,7 +239,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		confirmationReqCache.put(new Element(token, recipientAddress));
 		
-		notificationProducer.sendNotification(recipientAddress, channelName, templateId,
+		notificationProducer.sendNotification(recipientAddress, templateId,
 				params, locale);
 	}
 

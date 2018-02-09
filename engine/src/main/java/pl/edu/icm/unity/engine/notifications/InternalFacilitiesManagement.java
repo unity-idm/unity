@@ -16,4 +16,7 @@ public interface InternalFacilitiesManagement
 {
 	NotificationFacility getNotificationFacilityForChannel(String channelName) 
 			throws EngineException;
+	
+	NotificationFacility getNotificationFacilityForMessageTemplate(String templateId) 
+			throws EngineException;
 }

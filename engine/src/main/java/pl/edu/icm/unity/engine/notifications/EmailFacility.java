@@ -30,6 +30,7 @@ import com.sun.mail.util.MailSSLSocketFactory;
 
 import eu.emi.security.authn.x509.X509CertChainValidator;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
+import pl.edu.icm.unity.base.notifications.FacilityName;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -62,7 +63,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 public class EmailFacility implements NotificationFacility
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EmailFacility.class);
-	public static final String NAME = "email";
+	public static final String NAME = FacilityName.EMAIL.toString();
 	
 	private static final String CFG_USER = "mailx.smtp.auth.username"; 
 	private static final String CFG_PASSWD = "mailx.smtp.auth.password";

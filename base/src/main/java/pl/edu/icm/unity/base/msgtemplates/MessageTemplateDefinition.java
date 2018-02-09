@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.base.msgtemplates;
 
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Message template definition. The implementation defines the contract between the template and the 
@@ -31,4 +32,11 @@ public interface MessageTemplateDefinition
 	 * are the keys in the message bundle with descriptions.  
 	 */
 	public Map<String, MessageTemplateVariable> getVariables();
+	
+	
+	/**
+	 * @return set of supported facilities. Message template can be 
+	 * sent only by notification channels which using this facilities.  
+	 */
+	public Set<String> getCompatibleFacilities();
 }

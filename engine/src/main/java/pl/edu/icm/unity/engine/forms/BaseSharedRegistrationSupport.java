@@ -16,8 +16,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.logging.log4j.Logger;
+
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RegistrationWithCommentsTemplateDef;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -27,6 +30,8 @@ import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationReques
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.group.GroupHelper;
+import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
+import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -51,6 +56,9 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
  */
 public class BaseSharedRegistrationSupport
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER,
+			BaseSharedRegistrationSupport.class);
+	
 	public static final String AUTO_PROCESS_COMMENT = "Automatically processed";
 
 	protected UnityMessageSource msg;
@@ -58,17 +66,20 @@ public class BaseSharedRegistrationSupport
 	protected AttributesHelper attributesHelper;
 	protected GroupHelper groupHelper;
 	protected EntityCredentialsHelper credentialHelper;
+	protected InternalFacilitiesManagement facilitiesManagement;
 
 	public BaseSharedRegistrationSupport(UnityMessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
-			EntityCredentialsHelper entityCredentialsHelper)
+			EntityCredentialsHelper entityCredentialsHelper,
+			InternalFacilitiesManagement facilitiesManagement)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
 		this.attributesHelper = attributesHelper;
 		this.groupHelper = groupHelper;
 		this.credentialHelper = entityCredentialsHelper;
+		this.facilitiesManagement = facilitiesManagement;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
@@ -223,7 +234,7 @@ public class BaseSharedRegistrationSupport
 			BaseFormNotifications notificationsCfg, String requesterAddress)
 			throws EngineException
 	{
-		if (notificationsCfg.getChannel() == null || templateId == null || requesterAddress == null)
+		if (templateId == null || requesterAddress == null)
 			return;
 		Map<String, String> notifyParams = getBaseNotificationParams(formId, currentRequest.getRequestId());
 		notifyParams.put(RegistrationWithCommentsTemplateDef.PUBLIC_COMMENT,
@@ -233,8 +244,7 @@ public class BaseSharedRegistrationSupport
 		if (sendToRequester || publicComment != null)
 		{
 			String userLocale = currentRequest.getRequest().getUserLocale();
-			notificationProducer.sendNotification(requesterAddress,
-					notificationsCfg.getChannel(), templateId,
+			notificationProducer.sendNotification(requesterAddress, templateId,
 					notifyParams, userLocale);
 		}
 
@@ -247,9 +257,8 @@ public class BaseSharedRegistrationSupport
 					internalComment == null ? "" : internalComment
 							.getContents());
 			notificationProducer.sendNotificationToGroup(
-					notificationsCfg.getAdminsNotificationGroup(),
-					notificationsCfg.getChannel(), templateId, notifyParams,
-					msg.getDefaultLocaleCode());
+					notificationsCfg.getAdminsNotificationGroup(), templateId,
+					notifyParams, msg.getDefaultLocaleCode());
 		}
 	}
 	
@@ -283,5 +292,20 @@ public class BaseSharedRegistrationSupport
 					req.getStatus() == RegistrationRequestStatus.pending)
 				throw new SchemaConsistencyException("There are requests bound to " +
 						"this form, and it was not chosen to ignore them.");
+	}
+	
+	public NotificationFacility getNotificationFacilityFromTemplate(String templateId)
+			throws EngineException
+	{
+		try
+		{
+			return facilitiesManagement
+					.getNotificationFacilityForMessageTemplate(templateId);
+		} catch (Exception e)
+		{
+			log.error("Cannot get notification channel from template " + templateId, e);
+			return null;
+		}
+
 	}
 }

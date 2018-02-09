@@ -32,7 +32,7 @@ public class InvitationTest
 	public void mnimalFormSerializationIsIdempotent()
 	{
 		InvitationWithCode minimal = new InvitationWithCode(
-				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), null, null, "registrationCode");
+				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), null, "registrationCode");
 		
 		String jsonStr = JsonUtil.toJsonString(minimal);
 		InvitationWithCode minimalParsed = JsonUtil.parse(jsonStr, 
@@ -45,7 +45,7 @@ public class InvitationTest
 	public void completeFormSerializationIsIdempotent()
 	{
 		InvitationWithCode complete = new InvitationWithCode(
-				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), "add", "chan", "registrationCode");
+				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), "add", "registrationCode");
 		List<String> vals = new ArrayList<>();
 		vals.add("value");
 		Attribute attrP = new Attribute("attr", "string", "/", vals);

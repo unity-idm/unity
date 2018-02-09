@@ -19,7 +19,7 @@ import com.vaadin.ui.Grid.SelectionMode;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
@@ -52,26 +52,26 @@ public class InvitationsTable extends CustomComponent
 	private Grid<TableInvitationBean> invitationsTable;
 	private RegistrationsManagement registrationManagement;
 	private InvitationManagement invitationManagement;
-	private NotificationsManagement notificationsManagement;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private AttributeTypeManagement attributesManagement;
+	private MessageTemplateManagement msgTemplateManagement;
 	
 	public InvitationsTable(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
 			InvitationManagement invitationManagement,
-			NotificationsManagement notificationsManagement,
 			AttributeTypeManagement attributesManagement,
 			IdentityEditorRegistry identityEditorRegistry,
-			AttributeHandlerRegistry attrHandlersRegistry)
+			AttributeHandlerRegistry attrHandlersRegistry,
+			MessageTemplateManagement msgTemplateManagement)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
 		this.invitationManagement = invitationManagement;
-		this.notificationsManagement = notificationsManagement;
 		this.attributesManagement = attributesManagement;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.attrHandlersRegistry = attrHandlersRegistry;
+		this.msgTemplateManagement = msgTemplateManagement;
 		initUI();
 	}
 
@@ -206,11 +206,6 @@ public class InvitationsTable extends CustomComponent
 		return registrationManagement.getForms();
 	}
 	
-	private Collection<String> getChannels() throws EngineException
-	{
-		return notificationsManagement.getNotificationChannels().keySet();
-	}
-	
 	private SingleActionHandler<TableInvitationBean> getRefreshAction()
 	{
 		return SingleActionHandler
@@ -260,8 +255,9 @@ public class InvitationsTable extends CustomComponent
 		InvitationEditor editor;
 		try
 		{
-			editor = new InvitationEditor(msg, identityEditorRegistry, attrHandlersRegistry, 
-					getForms(), getChannels(), attributesManagement.getAttributeTypesAsMap());
+			editor = new InvitationEditor(msg, identityEditorRegistry,
+					attrHandlersRegistry, msgTemplateManagement.listTemplates(),
+					getForms(), attributesManagement.getAttributeTypesAsMap());
 		} catch (WrongArgumentException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("InvitationsTable.noValidForms"), 

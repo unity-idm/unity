@@ -102,9 +102,10 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void invitationIsSentWhenRequested() throws Exception
 	{
 		initAndCreateForm(true);
-		notMan.addNotificationChannel(new NotificationChannel("mock-chan", "", "", MockNotificationFacility.NAME));
+		notMan.removeNotificationChannel("Default e-mail channel");
+		notMan.addNotificationChannel(new NotificationChannel("Default e-mail channel", "", "", MockNotificationFacility.NAME));
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100), 
-				"someAddr", "mock-chan");
+				"someAddr");
 		String code = invitationMan.addInvitation(invitation);
 		mockNotificationFacility.resetSent();
 		

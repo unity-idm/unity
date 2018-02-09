@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator;
@@ -36,6 +38,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.CompatibleNotificationChannelsComboBox;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -52,11 +55,13 @@ public class MessageTemplateEditor extends CompactFormLayout
 {
 	private UnityMessageSource msg;
 	private MessageTemplateConsumersRegistry registry;
+	private NotificationsManagement notChannelsMan;
 	private TextField name;
 	private TextArea description;
 	private I18nTextField subject;
 	private I18nTextArea body;
 	private ComboBox<String> consumer;
+	private CompatibleNotificationChannelsComboBox notificationChannels;
 	private MessageTypeComboBox messageType;
 	private Label consumerDescription;
 	private boolean editMode;
@@ -70,13 +75,14 @@ public class MessageTemplateEditor extends CompactFormLayout
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
-			MessageTemplateManagement msgTemplateMgr)
+			MessageTemplateManagement msgTemplateMgr,  NotificationsManagement notChannelsMan)
 	{
 		super();
 		this.msgTemplateMgr = msgTemplateMgr;
 		editMode = toEdit != null;
 		this.msg = msg;
 		this.registry = registry;
+		this.notChannelsMan = notChannelsMan;
 		initUI(toEdit);
 
 	}
@@ -99,6 +105,11 @@ public class MessageTemplateEditor extends CompactFormLayout
 		consumer.setItems(consumers);
 		consumerDescription = new Label();
 		
+		notificationChannels = new CompatibleNotificationChannelsComboBox(Collections.emptySet(), notChannelsMan);
+		notificationChannels.setCaption(msg.getMessage("MessageTemplatesEditor.notificationChannel"));
+		notificationChannels.setEmptySelectionAllowed(false);
+		notificationChannels.setRequiredIndicatorVisible(true);
+		
 		subject = new I18nTextField(msg, msg.getMessage("MessageTemplatesEditor.subject"));
 		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 
@@ -110,7 +121,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		FocusListener focusListener = event -> {
 			Component c = event.getComponent();
 			if (c instanceof TextField)
-				focussedField = (TextField) c;	
+				focussedField = (TextField) c;
 			if (c instanceof TextArea)
 				focussedField = (TextArea) c;
 		};
@@ -119,19 +130,26 @@ public class MessageTemplateEditor extends CompactFormLayout
 		body.addFocusListener(focusListener);
 
 		consumer.addValueChangeListener(event -> {
+			notificationChannels.reload(registry.getByName(event.getValue())
+					.getCompatibleFacilities());
+			notificationChannels.setDefaultValue();
+			notificationChannels.setVisible(!notificationChannels.getItems().isEmpty());
 			setMessageConsumerDesc();
 			updateValidator();
 			messageBinder.validate();
 		});
-		
-		addComponents(name, description, consumer, consumerDescription, buttons, subject,
-				messageType, body);
-		
+
+		Label separator = new Label("");
+		addComponents(name, description, consumer, consumerDescription,
+				notificationChannels, separator, buttons, subject, messageType,
+				body);
+
 		binder = new Binder<>(MessageTemplate.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
 		binder.bind(description, "description");
 		binder.forField(consumer).asRequired(msg.getMessage("fieldRequired"))
 				.bind("consumer");
+		binder.forField(notificationChannels).withNullRepresentation("").bind("notificationChannel");
 		binder.forField(messageType).asRequired(msg.getMessage("fieldRequired"))
 				.bind("type");
 		messageBinder = new Binder<>(I18nMessage.class);
@@ -142,6 +160,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		if (editMode)
 		{
 			name.setReadOnly(true);
+			String channel = toEdit.getNotificationChannel();
 			binder.setBean(toEdit);
 			// Using empty locale!
 			I18nMessage ms = toEdit.getMessage();
@@ -149,6 +168,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 			{
 				messageBinder.setBean(ms);
 			}
+			notificationChannels.setValue(channel);
 			setMessageConsumerDesc();
 		} else
 		{
@@ -158,6 +178,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 			{
 				msgTemplate.setConsumer(consumers.iterator().next());
 			}
+			
 			msgTemplate.setType(MessageType.PLAIN);
 			msgTemplate.setDescription("");
 			binder.setBean(msgTemplate);

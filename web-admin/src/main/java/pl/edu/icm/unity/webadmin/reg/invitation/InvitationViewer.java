@@ -12,6 +12,8 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -36,6 +38,8 @@ public class InvitationViewer extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private AttributeHandlerRegistry attrHandlersRegistry;
+	private MessageTemplateManagement msgTemplateMan;
+	private RegistrationsManagement regMan;
 	
 	private Label formId;
 	private Label code;
@@ -52,12 +56,16 @@ public class InvitationViewer extends CustomComponent
 	private SafePanel attributesPanel;
 	private SafePanel groupsPanel;
 	private FormLayout main;
+
 	
 	public InvitationViewer(UnityMessageSource msg,
-			AttributeHandlerRegistry attrHandlersRegistry)
+			AttributeHandlerRegistry attrHandlersRegistry,
+			MessageTemplateManagement msgTemplateMan, RegistrationsManagement regMan)
 	{
 		this.msg = msg;
 		this.attrHandlersRegistry = attrHandlersRegistry;
+		this.msgTemplateMan = msgTemplateMan;
+		this.regMan = regMan;
 		initUI();
 	}
 
@@ -139,7 +147,7 @@ public class InvitationViewer extends CustomComponent
 		code.setValue(invitation.getRegistrationCode());
 		expiration.setValue(TimeUtil.formatMediumInstant(invitation.getExpiration()));
 		contactAddress.setValue(invitation.getContactAddress());
-		channelId.setValue(invitation.getChannelId());
+		channelId.setValue(getChannel(invitation.getFormId()));
 		notificationsSent.setValue(String.valueOf(invitation.getNumberOfSends()));
 		lastSentTime.setValue(invitation.getLastSentTime() != null ? 
 				TimeUtil.formatMediumInstant(invitation.getLastSentTime()) : "-");
@@ -169,4 +177,22 @@ public class InvitationViewer extends CustomComponent
 					e.getValue()));
 		});
 	}
+	
+	private String getChannel(String formId)
+	{
+		try
+		{
+			RegistrationForm form = regMan.getForms().stream()
+					.filter(r -> r.getName().equals(formId)).findFirst().get();
+			return msgTemplateMan
+					.getTemplate(form.getNotificationsConfiguration()
+							.getInvitationTemplate())
+					.getNotificationChannel();
+
+		} catch (Exception e)
+		{
+			return "";
+		}
+	}
+
 }

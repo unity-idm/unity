@@ -25,16 +25,16 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 	private int numberOfSends;
 
 	public InvitationWithCode(String formId, Instant expiration, String contactAddress,
-			String facilityId, String registrationCode)
+			String registrationCode)
 	{
-		super(formId, expiration, contactAddress, facilityId);
+		super(formId, expiration, contactAddress);
 		this.registrationCode = registrationCode;
 	}
 
 	public InvitationWithCode(InvitationParam base, String registrationCode,
 			Instant lastSentTime, int numberOfSends)
 	{
-		super(base.getFormId(), base.getExpiration(), base.getContactAddress(), base.getChannelId());
+		super(base.getFormId(), base.getExpiration(), base.getContactAddress());
 		this.registrationCode = registrationCode;
 		this.lastSentTime = lastSentTime;
 		this.numberOfSends = numberOfSends;

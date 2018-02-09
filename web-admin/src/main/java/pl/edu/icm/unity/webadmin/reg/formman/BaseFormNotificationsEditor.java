@@ -5,10 +5,8 @@
 package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.List;
-import java.util.Set;
 
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
@@ -34,7 +32,6 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	protected final NotificationsManagement notificationsMan;
 	protected final MessageTemplateManagement msgTempMan;
 	
-	private ComboBox<String> channel;
 	private CheckBox sendAdminCopy;
 	private GroupComboBox adminsNotificationGroup;
 
@@ -55,9 +52,6 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 
 	protected void initUI() throws EngineException
 	{
-		channel = new ComboBox<>(msg.getMessage("RegistrationFormViewer.channel"));
-		Set<String> channels = notificationsMan.getNotificationChannels().keySet();
-		channel.setItems(channels);
 		sendAdminCopy = new CheckBox(msg.getMessage("BaseFormNotificationsEditor.sendAdminCopy"));
 		
 		adminsNotificationGroup = new GroupComboBox(
@@ -72,14 +66,13 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 		updatedTemplate =  new CompatibleTemplatesComboBox(UpdateRegistrationTemplateDef.NAME, msgTempMan);
 		updatedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.updatedTemplate"));
 		
-		addComponents(channel, sendAdminCopy, adminsNotificationGroup,
+		addComponents(sendAdminCopy, adminsNotificationGroup,
 				rejectedTemplate, acceptedTemplate, updatedTemplate);
 	}
 	
 	protected void setValue(BaseFormNotifications toEdit)
 	{
 		adminsNotificationGroup.setValue(toEdit.getAdminsNotificationGroup());
-		channel.setValue(toEdit.getChannel());
 		sendAdminCopy.setValue(toEdit.isSendUserNotificationCopyToAdmin());
 		rejectedTemplate.setValue(toEdit.getRejectedTemplate());
 		acceptedTemplate.setValue(toEdit.getAcceptedTemplate());
@@ -90,7 +83,6 @@ public class BaseFormNotificationsEditor extends LayoutEmbeddable
 	{
 		notCfg.setAcceptedTemplate(acceptedTemplate.getValue());
 		notCfg.setAdminsNotificationGroup(adminsNotificationGroup.getValue());
-		notCfg.setChannel(channel.getValue());
 		notCfg.setSendUserNotificationCopyToAdmin(sendAdminCopy.getValue());
 		notCfg.setRejectedTemplate(rejectedTemplate.getValue());
 		notCfg.setUpdatedTemplate(updatedTemplate.getValue());

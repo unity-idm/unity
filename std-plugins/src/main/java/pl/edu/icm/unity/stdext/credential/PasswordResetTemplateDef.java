@@ -5,12 +5,17 @@
 package pl.edu.icm.unity.stdext.credential;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.base.notifications.FacilityName;
 
 /**
  * Defines template used for sending password reset confirmation code.
@@ -43,5 +48,12 @@ public class PasswordResetTemplateDef implements MessageTemplateDefinition
 		vars.put(VAR_USER, new MessageTemplateVariable(VAR_USER, "MessageTemplateConsumer.PasswordReset.var.user", false));
 		vars.put(VAR_CODE, new MessageTemplateVariable(VAR_CODE, "MessageTemplateConsumer.PasswordReset.var.code", false));
 		return vars;
+	}
+	
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return Stream.of(FacilityName.EMAIL.toString(),FacilityName.SMS.toString() )
+				    .collect(Collectors.toCollection(HashSet::new));
 	}
 }

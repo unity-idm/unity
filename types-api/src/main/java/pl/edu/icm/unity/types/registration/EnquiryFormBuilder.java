@@ -103,12 +103,6 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 			return this;
 		}
 
-		public EnquiryFormNotificationsBuilder withChannel(String aValue)
-		{
-			instance.setChannel(aValue);
-			return this;
-		}
-
 		public EnquiryFormNotificationsBuilder withAdminsNotificationGroup(String aValue)
 		{
 			instance.setAdminsNotificationGroup(aValue);

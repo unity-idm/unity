@@ -212,8 +212,13 @@ public class RegistrationForm extends BaseForm
 			
 			n = root.get("NotificationsConfiguration");
 			if (n != null)
-			{
-				String v = jsonMapper.writeValueAsString(n);
+			{	
+				//backwards compatible
+				ObjectNode notCfg = (ObjectNode) n;
+				if (notCfg.get("channel") != null)
+					notCfg.remove("channel");
+				
+				String v = jsonMapper.writeValueAsString(notCfg);
 				RegistrationFormNotifications r = jsonMapper.readValue(v, 
 						new TypeReference<RegistrationFormNotifications>(){});
 				setNotificationsConfiguration(r);

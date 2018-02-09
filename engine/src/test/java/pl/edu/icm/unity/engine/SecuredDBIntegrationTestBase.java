@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
@@ -101,6 +102,8 @@ public abstract class SecuredDBIntegrationTestBase
 	protected JettyServer httpServer;
 	@Autowired
 	protected RealmsManagement realmsMan;
+	@Autowired
+	protected MessageTemplateManagement messageTemplateMan;
 	
 	@Before
 	public void clear() throws Exception

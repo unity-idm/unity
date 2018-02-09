@@ -86,7 +86,12 @@ public class EnquiryForm extends BaseForm
 			n = root.get("NotificationsConfiguration");
 			if (n != null)
 			{
-				String v = jsonMapper.writeValueAsString(n);
+				//backwards compatible
+				ObjectNode notCfg = (ObjectNode) n;
+				if (notCfg.get("channel") != null)
+					notCfg.remove("channel");
+				
+				String v = jsonMapper.writeValueAsString(notCfg);
 				EnquiryFormNotifications r = jsonMapper.readValue(v, EnquiryFormNotifications.class);
 				setNotificationsConfiguration(r);
 			}

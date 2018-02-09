@@ -37,17 +37,19 @@ public class MessageTemplate extends DescribedObjectImpl
 	private I18nMessage message;
 	private String consumer;
 	private MessageType type;
+	private String notificationChannel;
 
 	public MessageTemplate()
 	{
 	}
 	
 	public MessageTemplate(String name, String description,
-			I18nMessage message, String consumer, MessageType type)
+			I18nMessage message, String consumer, MessageType type, String notificationChannel)
 	{
 		this.message = message;
 		this.consumer = consumer;
 		this.type = type;
+		this.notificationChannel = notificationChannel;
 		setName(name);
 		setDescription(description);
 	}
@@ -69,6 +71,9 @@ public class MessageTemplate extends DescribedObjectImpl
 		if (JsonUtil.notNull(root, "type"))
 			messageType = MessageType.valueOf(root.get("type").asText());
 		setType(messageType);
+		
+		if (JsonUtil.notNull(root, "notificationChannel"))
+			setNotificationChannel(root.get("notificationChannel").asText());
 		
 		ArrayNode messagesA = (ArrayNode) root.get("messages");
 		//note: JSON representation is legacy, that's why standard tool to serialize/deserialize 
@@ -111,7 +116,8 @@ public class MessageTemplate extends DescribedObjectImpl
 		if (getType() != null)
 			root.put("type", getType().name());
 		ArrayNode jsonMessages = root.putArray("messages");
-
+		root.put("notificationChannel", getNotificationChannel());
+		
 		I18nString subject = message.getSubject();
 		I18nString body = message.getBody();
 		Set<String> allUsedLocales = new HashSet<>(body.getMap().keySet());
@@ -152,6 +158,16 @@ public class MessageTemplate extends DescribedObjectImpl
 	{
 		this.type = type;
 	}
+	
+	public String getNotificationChannel()
+	{
+		return notificationChannel;
+	}
+
+	public void setNotificationChannel(String notificationChannel)
+	{
+		this.notificationChannel = notificationChannel;
+	}
 
 	public Message getMessage(String locale, String defaultLocale, Map<String, String> params,
 			Map<String, MessageTemplate> genericTemplates)
@@ -181,7 +197,7 @@ public class MessageTemplate extends DescribedObjectImpl
 							entry.getKey()));
 		I18nMessage processedMessage = new I18nMessage(getMessage().getSubject(), 
 				preprocessedBody);
-		return new MessageTemplate(getName(), getDescription(), processedMessage, consumer, type);
+		return new MessageTemplate(getName(), getDescription(), processedMessage, consumer, type, notificationChannel);
 	}
 
 	private String preprocessString(String source, Map<String, MessageTemplate> genericTemplates,
@@ -312,7 +328,8 @@ public class MessageTemplate extends DescribedObjectImpl
 	@Override
 	public String toString()
 	{
-		return "MessageTemplate [message=" + message + ", consumer=" + consumer + ", type=" + type + "]";
+		return "MessageTemplate [message=" + message + ", consumer=" + consumer + ", type="
+				+ type + ", notificationChannel=" + notificationChannel + "]";
 	}
 
 	@Override
@@ -323,6 +340,7 @@ public class MessageTemplate extends DescribedObjectImpl
 		result = prime * result + ((consumer == null) ? 0 : consumer.hashCode());
 		result = prime * result + ((message == null) ? 0 : message.hashCode());
 		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((notificationChannel == null) ? 0 : notificationChannel.hashCode());
 		return result;
 	}
 
@@ -347,6 +365,12 @@ public class MessageTemplate extends DescribedObjectImpl
 			if (other.message != null)
 				return false;
 		} else if (!message.equals(other.message))
+			return false;	
+		if (notificationChannel == null)
+		{
+			if (other.notificationChannel != null)
+				return false;
+		} else if (!notificationChannel.equals(other.notificationChannel))
 			return false;
 		if (type != other.type)
 			return false;

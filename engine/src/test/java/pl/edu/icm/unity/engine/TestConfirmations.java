@@ -15,7 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
+import pl.edu.icm.unity.base.notifications.FacilityName;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
@@ -776,16 +777,19 @@ public class TestConfirmations extends DBIntegrationTestBase
 			String templateName, String channelName) throws EngineException
 	{
 		I18nMessage message = new I18nMessage(new I18nString("test"), new I18nString(
-				"test ${" + ConfirmationTemplateDef.CONFIRMATION_LINK + "}"));
-		templateMan.addTemplate(new MessageTemplate(templateName, "demo", message,
-				ConfirmationTemplateDef.NAME, MessageType.PLAIN));
-		
+				"test ${" + EmailConfirmationTemplateDef.CONFIRMATION_LINK + "}"));
 		notMan.addNotificationChannel(NotificationChannelBuilder.notificationChannel()
 				.withName(channelName)
 				.withConfiguration("test")
 				.withDescription("test")
-				.withFacilityId("test")
+				.withFacilityId(FacilityName.EMAIL.toString())
 				.build());
+		
+		
+		templateMan.addTemplate(new MessageTemplate(templateName, "demo", message,
+				EmailConfirmationTemplateDef.NAME, MessageType.PLAIN, channelName));
+		
+		
 		
 		configurationMan.addConfiguration(ConfirmationConfiguration.builder()
 				.withNameToConfirm(name)

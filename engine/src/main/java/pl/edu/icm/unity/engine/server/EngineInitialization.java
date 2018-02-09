@@ -326,11 +326,11 @@ public class EngineInitialization extends LifecycleBase
 		initializeAdminUser();
 		initializeCredentials();
 		initializeCredentialReqirements();
+	
+		notificationChannelLoader.initialize();
 		
 		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
 		msgTemplateLoader.initializeMsgTemplates(file);
-		
-		notificationChannelLoader.initialize();
 		
 		runInitializers();
 		

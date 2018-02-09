@@ -5,12 +5,17 @@
 package pl.edu.icm.unity.base.msgtemplates.confirm;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.base.notifications.FacilityName;
 
 /**
  * Message template definition for confirmation subsystem
@@ -18,15 +23,15 @@ import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
  * @author P. Piernik
  */
 @Component
-public class ConfirmationTemplateDef implements MessageTemplateDefinition
+public class EmailConfirmationTemplateDef implements MessageTemplateDefinition
 {
-	public static final String NAME = "Confirmation";
+	public static final String NAME = "EmailConfirmation";
 	public static final String CONFIRMATION_LINK = "confirmationLink";
 
 	@Override
 	public String getDescriptionKey()
 	{
-		return "MessageTemplateConsumer.Confirmation.desc";
+		return "MessageTemplateConsumer.EmailConfirmation.desc";
 	}
 
 	@Override
@@ -39,7 +44,14 @@ public class ConfirmationTemplateDef implements MessageTemplateDefinition
 	public Map<String, MessageTemplateVariable> getVariables()
 	{
 		Map<String, MessageTemplateVariable> vars = new HashMap<>();
-		vars.put(CONFIRMATION_LINK, new MessageTemplateVariable(CONFIRMATION_LINK, "MessageTemplateConsumer.Confirmation.var.confirmationLink", true));
+		vars.put(CONFIRMATION_LINK, new MessageTemplateVariable(CONFIRMATION_LINK, "MessageTemplateConsumer.EmailConfirmation.var.confirmationLink", true));
 		return vars;
+	}
+
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return Stream.of(FacilityName.EMAIL.toString())
+	                        .collect(Collectors.toCollection(HashSet::new));
 	}
 }

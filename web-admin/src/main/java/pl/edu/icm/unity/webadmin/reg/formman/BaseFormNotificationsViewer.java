@@ -25,7 +25,6 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 	private SimpleMessageTemplateViewer updatedTemplate;
 	private SimpleMessageTemplateViewer rejectedTemplate;
 	private SimpleMessageTemplateViewer acceptedTemplate;
-	private Label channel;
 	private Label sendAdminCopy;
 	private Label adminsNotificationGroup;
 	
@@ -39,9 +38,6 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 
 	private void initUI()
 	{
-		channel = new Label();
-		channel.setCaption(msg.getMessage("RegistrationFormViewer.channel"));
-
 		sendAdminCopy = new Label();
 		sendAdminCopy.setCaption(msg.getMessage("RegistrationFormViewer.sendAdminCopy"));
 		
@@ -54,7 +50,7 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 				msg, msgTempMan);
 		updatedTemplate = new SimpleMessageTemplateViewer(msg.getMessage("RegistrationFormViewer.updatedTemplate"),
 				msg, msgTempMan);
-		addComponents(channel, sendAdminCopy, adminsNotificationGroup, rejectedTemplate, 
+		addComponents(sendAdminCopy, adminsNotificationGroup, rejectedTemplate, 
 				acceptedTemplate, updatedTemplate);
 	}
 	
@@ -63,7 +59,6 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 		rejectedTemplate.clearContent();
 		acceptedTemplate.clearContent();
 		updatedTemplate.clearContent();
-		channel.setValue("");
 		sendAdminCopy.setValue("");
 		adminsNotificationGroup.setValue("");
 	}
@@ -73,7 +68,6 @@ public class BaseFormNotificationsViewer extends LayoutEmbeddable
 		rejectedTemplate.setInput(notCfg.getRejectedTemplate());
 		acceptedTemplate.setInput(notCfg.getAcceptedTemplate());
 		updatedTemplate.setInput(notCfg.getUpdatedTemplate());
-		channel.setValue(notCfg.getChannel());
 		sendAdminCopy.setValue(msg.getYesNo(notCfg.isSendUserNotificationCopyToAdmin()));
 		adminsNotificationGroup.setValue(notCfg.getAdminsNotificationGroup());
 	}
