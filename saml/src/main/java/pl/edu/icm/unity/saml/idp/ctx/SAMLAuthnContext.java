@@ -50,4 +50,13 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 		long timeout = 1000L*samlConfiguration.getIntValue(SamlIdpProperties.AUTHENTICATION_TIMEOUT);
 		return System.currentTimeMillis() > timeout+creationTs.getTime();
 	}
+	
+	public String getResponseDestination()
+	{
+		String serviceUrl = getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
+		if (serviceUrl == null)
+			serviceUrl = getSamlConfiguration().getReturnAddressForRequester(
+					getRequest().getIssuer());
+		return serviceUrl;
+	}
 }

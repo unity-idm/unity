@@ -202,7 +202,7 @@ public class SamlUnicoreIdPWebUI extends SamlIdPWebUI implements UnityWebUI
 		try
 		{
 			respDoc = samlWithEtdProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), 
-					getExposedAttributes(), 
+					getExposedAttributes(), samlCtx.getResponseDestination(),
 					etdEditor.getSPETDSettings().toDelegationRestrictions());
 		} catch (Exception e)
 		{

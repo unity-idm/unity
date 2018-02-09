@@ -11,7 +11,9 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 
 /**
- * Implementations are providing messaging functionality. 
+ * Implementations are providing messaging functionality. Facility can be configured in 
+ * multiple ways and used to produce various notification channels. 
+ * Returned {@link NotificationChannelInstance} is used for actual communication.  
  * 
  * @author K. Benedyczak
  */

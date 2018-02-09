@@ -199,7 +199,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			IdentityParam selectedIdentity = getIdentity(userInfo, samlProcessor, spPreferences);
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
-			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes);
+			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
+					samlCtx.getResponseDestination());
 		} catch (Exception e)
 		{
 			ssoResponseHandler.handleException(samlProcessor, e, Binding.HTTP_POST, 

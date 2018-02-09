@@ -369,7 +369,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		try
 		{
 			respDoc = samlProcessor.processAuthnRequest(idSelector.getSelectedIdentity(), 
-					getExposedAttributes());
+					getExposedAttributes(), samlCtx.getResponseDestination());
 		} catch (Exception e)
 		{
 			samlResponseHandler.handleException(e, false);

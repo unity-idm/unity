@@ -104,6 +104,7 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			log.debug("Authentication of " + selectedIdentity);
 			Collection<Attribute> attributes = samlProcessor.getAttributes(userInfo, spPreferences);
 			respDoc = samlProcessor.processAuthnRequest(selectedIdentity, attributes, 
+					samlCtx.getResponseDestination(),
 					etdSettings.toDelegationRestrictions());
 		} catch (Exception e)
 		{

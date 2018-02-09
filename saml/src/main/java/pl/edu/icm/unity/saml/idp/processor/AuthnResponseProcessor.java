@@ -78,28 +78,31 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		return nameIdPolicy.getAllowCreate();
 	}
 	
-	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity) 
+	public ResponseDocument processAuthnRequest(Identity authenticatedIdentity, String destination) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
-		return processAuthnRequest(authenticatedIdentity, null);
+		return processAuthnRequest(authenticatedIdentity, null, destination);
 	}
 	
-	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, Collection<Attribute> attributes) 
+	public ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, 
+			Collection<Attribute> attributes, String destination) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		boolean returnSingleAssertion = samlConfiguration.getBooleanValue(
 				SamlIdpProperties.RETURN_SINGLE_ASSERTION);
-		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion);
+		return processAuthnRequest(authenticatedIdentity, attributes, returnSingleAssertion,
+				destination);
 	}
 	
 	protected ResponseDocument processAuthnRequest(IdentityParam authenticatedIdentity, 
-			Collection<Attribute> attributes, boolean returnSingleAssertion) 
+			Collection<Attribute> attributes, boolean returnSingleAssertion, String destination) 
 			throws SAMLRequesterException, SAMLProcessingException
 	{
 		SubjectType authenticatedOne = establishSubject(authenticatedIdentity);
 
 		AssertionResponse resp = getOKResponseDocument();
-		
+		if (destination != null)
+			resp.getXMLBean().setDestination(destination);
 		if (returnSingleAssertion)
 		{
 			Assertion authnAssertion = createAuthenticationAssertion(authenticatedOne, attributes);
@@ -119,7 +122,12 @@ public class AuthnResponseProcessor extends BaseResponseProcessor<AuthnRequestDo
 		}
 		
 		if (doSignResponse())
+		{
+			if (destination == null)
+				throw new SAMLProcessingException("Unable to determine Destination "
+						+ "value which is mandatory when signing response is requested");
 			signResponse(resp);
+		}
 		return resp.getXMLBeanDoc();
 	}
 	
