@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.components.grid.GridDragSource;
@@ -33,7 +34,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
  * Table with attribute statements. Allows for management operations.
  * @author K. Benedyczak
  */
-public class AttributeStatementsTable extends GenericElementsTable<AttributeStatement>
+public class AttributeStatementsTable extends GenericElementsTable<AttrStatementWithId>
 {
 	private final String DND_TYPE = "attribute_statement";
 	private UnityMessageSource msg;
@@ -61,12 +62,12 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 		addActionHandler(getDeleteAction());
 
 		
-		GridDragSource<AttributeStatement> source = new GridDragSource<>(this);
+		GridDragSource<AttrStatementWithId> source = new GridDragSource<>(this);
 		source.setDragDataGenerator(DND_TYPE, as -> "{}");
 		source.addGridDragStartListener(e -> source.setDragData(e.getDraggedItems().iterator().next()));
 		source.addGridDragEndListener(e -> source.setDragData(null));
 
-		GridDropTarget<AttributeStatement> target = new GridDropTarget<>(this,
+		GridDropTarget<AttrStatementWithId> target = new GridDropTarget<>(this,
 				DropMode.ON_TOP_OR_BETWEEN);
 		target.setDropCriteriaScript(DnDGridUtils.getTypedCriteriaScript(DND_TYPE));
 		target.addGridDropListener(e -> 
@@ -76,7 +77,7 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 					|| e.getDropTargetRow().get() == null)
 				return;
 			int index = contents.indexOf(e.getDropTargetRow().get());
-			AttributeStatement attrS = (AttributeStatement) dragData.get();
+			AttrStatementWithId attrS = (AttrStatementWithId) dragData.get();
 			contents.remove(attrS);
 			contents.add(index, attrS);
 			updateGroup();
@@ -86,12 +87,16 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 	public void setInput(Group group)
 	{
 		this.group = group;
-		super.setInput(Arrays.asList(group.getAttributeStatements()));
+		super.setInput(Arrays.stream(group.getAttributeStatements())
+				.map(AttrStatementWithId::new)
+				.collect(Collectors.toList()));
 	}
 
 	private void updateGroup()
 	{
-		AttributeStatement[] attributeStatements = contents
+		AttributeStatement[] attributeStatements = contents.stream()
+				.map(withId -> withId.statement)
+				.collect(Collectors.toList())
 				.toArray(new AttributeStatement[contents.size()]);
 		Group updated = group.clone();
 		updated.setAttributeStatements(attributeStatements);
@@ -106,21 +111,13 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 		}
 	}
 
-	private boolean checkExists(AttributeStatement toCheck)
+	private SingleActionHandler<AttrStatementWithId> getAddAction()
 	{
-		for (AttributeStatement a : contents)
-			if (a.equals(toCheck))
-				return true;
-		return false;
-	}
-
-	private SingleActionHandler<AttributeStatement> getAddAction()
-	{
-		return SingleActionHandler.builder4Add(msg, AttributeStatement.class)
+		return SingleActionHandler.builder4Add(msg, AttrStatementWithId.class)
 				.withHandler(this::showAddDialog).build();
 	}
 
-	private void showAddDialog(Set<AttributeStatement> target)
+	private void showAddDialog(Set<AttrStatementWithId> target)
 	{
 
 		new AttributeStatementEditDialog(msg, null, attrsMan, group.toString(),
@@ -129,53 +126,47 @@ public class AttributeStatementsTable extends GenericElementsTable<AttributeStat
 
 	private void addStatement(AttributeStatement newStatement)
 	{
-		if (!checkExists(newStatement))
-			addElement(newStatement);
+		addElement(new AttrStatementWithId(newStatement));
 		updateGroup();
 	}
 
-	private SingleActionHandler<AttributeStatement> getEditAction()
+	private SingleActionHandler<AttrStatementWithId> getEditAction()
 	{
-		return SingleActionHandler.builder4Edit(msg, AttributeStatement.class)
+		return SingleActionHandler.builder4Edit(msg, AttrStatementWithId.class)
 				.withHandler(this::showEditDialog).build();
 	}
 
-	private void showEditDialog(Collection<AttributeStatement> target)
+	private void showEditDialog(Collection<AttrStatementWithId> target)
 	{
-		AttributeStatement st = target.iterator().next();
-		AttributeStatement old = st.clone();
+		AttrStatementWithId st = target.iterator().next();
+		AttributeStatement old = st.statement.clone();
 		new AttributeStatementEditDialog(msg, old, attrsMan, group.toString(),
 				attributeHandlerRegistry, groupsMan,
 				newSt -> updateStatement(st, newSt)).show();
 	}
 
-	private void updateStatement(AttributeStatement oldStatement,
+	private void updateStatement(AttrStatementWithId oldStatement,
 			AttributeStatement newStatement)
 	{
-
 		int index = contents.indexOf(oldStatement);
-		contents.remove(oldStatement);
-		if (!checkExists(newStatement))
-		{
-			contents.add(index, newStatement);
-		}
+		contents.set(index, new AttrStatementWithId(newStatement));
 		updateGroup();
 	}
 
-	private SingleActionHandler<AttributeStatement> getDeleteAction()
+	private SingleActionHandler<AttrStatementWithId> getDeleteAction()
 	{
-		return SingleActionHandler.builder4Delete(msg, AttributeStatement.class)
+		return SingleActionHandler.builder4Delete(msg, AttrStatementWithId.class)
 				.withHandler(this::deleteHandler).build();
 	}
 
-	private void deleteHandler(Set<AttributeStatement> items)
+	private void deleteHandler(Set<AttrStatementWithId> items)
 	{
 		new ConfirmDialog(msg, msg.getMessage("AttributeStatements.confirmDelete"), () -> {
 			removeStatements(items);
 		}).show();
 	}
 
-	private void removeStatements(Collection<AttributeStatement> removedStatements)
+	private void removeStatements(Collection<AttrStatementWithId> removedStatements)
 	{
 		removedStatements.forEach(this::removeElement);
 		updateGroup();
