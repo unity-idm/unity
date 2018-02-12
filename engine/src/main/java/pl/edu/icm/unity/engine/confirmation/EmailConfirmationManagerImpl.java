@@ -31,18 +31,17 @@ import net.sf.ehcache.search.Results;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationServletProvider;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.AttribiuteConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.BaseConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.IdentityConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -55,15 +54,14 @@ import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
@@ -72,18 +70,17 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
  * @author P. Piernik
  */
 @Component
-public class ConfirmationManagerImpl implements ConfirmationManager
+public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, ConfirmationManagerImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER, EmailConfirmationManagerImpl.class);
 	private static final String CACHE_ID = "ConfirmationCache";
 	
 	private IdentityTypeHelper idTypeHelper;
 	private AttributeTypeHelper atTypeHelper;
 	private TokensManagement tokensMan;
 	private NotificationProducer notificationProducer;
-	private ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
+	private EmailConfirmationFacilitiesRegistry confirmationFacilitiesRegistry;
 	private MessageTemplateDB mtDB;
-	private ConfirmationConfigurationDB configurationDB;
 	private URL advertisedAddress;
 	private UnityMessageSource msg;
 	private EntityResolver idResolver;
@@ -93,12 +90,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	private TransactionalRunner tx;
 
 	@Autowired
-	public ConfirmationManagerImpl(IdentityTypeHelper idTypeHelper,
+	public EmailConfirmationManagerImpl(IdentityTypeHelper idTypeHelper,
 			AttributeTypeHelper atTypeHelper, TokensManagement tokensMan,
 			NotificationProducer notificationProducer,
-			ConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
-			MessageTemplateDB mtDB, ConfirmationConfigurationDB configurationDB,
-			NetworkServer server, UnityMessageSource msg, EntityResolver idResolver,
+			EmailConfirmationFacilitiesRegistry confirmationFacilitiesRegistry,
+			MessageTemplateDB mtDB, NetworkServer server, 
+			UnityMessageSource msg, EntityResolver idResolver,
 			TransactionalRunner tx, CacheProvider cacheProvider, UnityServerConfiguration mainConf)
 	{
 		this.idTypeHelper = idTypeHelper;
@@ -107,7 +104,6 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		this.notificationProducer = notificationProducer;
 		this.confirmationFacilitiesRegistry = confirmationFacilitiesRegistry;
 		this.mtDB = mtDB;
-		this.configurationDB = configurationDB;
 		this.advertisedAddress = server.getAdvertisedAddress();
 		this.msg = msg;
 		this.idResolver = idResolver;
@@ -129,12 +125,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 
 	@Override
-	public void sendConfirmationRequest(BaseConfirmationState baseState) throws EngineException
+	public void sendConfirmationRequest(BaseEmailConfirmationState baseState) throws EngineException
 	{
 		sendConfirmationRequest(baseState, false);
 	}
 	
-	private void sendConfirmationRequest(BaseConfirmationState baseState, boolean force) throws EngineException
+	private void sendConfirmationRequest(BaseEmailConfirmationState baseState, boolean force) throws EngineException
 	{
 		class TokenAndFlag
 		{
@@ -148,10 +144,17 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 		
 		String facilityId = baseState.getFacilityId();
-		ConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(facilityId);
-		ConfirmationConfiguration configEntry = getConfiguration(baseState);
-		if (configEntry == null)
+		EmailConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(facilityId);
+		EmailConfirmationConfiguration configEntry = getConfiguration(baseState);
+		if (configEntry == null) 
+		{
+			log.debug("Cannot get confirmation configuration for "
+					+ baseState.getType()
+					+ ", skiping sendig confirmation request to "
+					+ baseState.getValue());
 			return;
+		}
+			
 		String serializedState = baseState.getSerializedConfiguration();
 		
 		if (!checkSendingLimit(baseState.getValue()))
@@ -167,7 +170,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		if (force || !taf.hasDuplicate)
 		{
 			sendConfirmationRequest(baseState.getValue(),
-					configEntry.getMsgTemplate(), 
+					configEntry.getMessageTemplate(), 
 					facility, baseState.getLocale(), taf.token);
 			
 		} else
@@ -214,7 +217,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	}
 	
 	private void sendConfirmationRequest(String recipientAddress,
-			String templateId, ConfirmationFacility<?> facility, String locale, String token)
+			String templateId, EmailConfirmationFacility<?> facility, String locale, String token)
 			throws EngineException
 	{
 		MessageTemplate template = null;
@@ -229,10 +232,10 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 
 		String link = advertisedAddress.toExternalForm()
 				+ SharedEndpointManagementImpl.CONTEXT_PATH
-				+ ConfirmationServletProvider.SERVLET_PATH;
+				+ EmailConfirmationServletProvider.SERVLET_PATH;
 		HashMap<String, String> params = new HashMap<>();
 		params.put(EmailConfirmationTemplateDef.CONFIRMATION_LINK, link + "?"
-				+ ConfirmationServletProvider.CONFIRMATION_TOKEN_ARG + "=" + token);
+				+ EmailConfirmationServletProvider.CONFIRMATION_TOKEN_ARG + "=" + token);
 
 		log.debug("Send confirmation request to " + recipientAddress + " with token = "
 				+ token);
@@ -247,51 +250,51 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ConfirmationStatus processConfirmation(String token)
+	public EmailConfirmationStatus processConfirmation(String token)
 			throws EngineException
 	{
 		if (token == null)
 		{
-			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
+			String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, 
 					Status.elementConfirmationError).
 					setErrorCode("noToken").build();
-			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
+			return new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 		}
 		
 		return tx.runInTransactionRetThrowing(() -> {
 			Token tk = null;
 			try
 			{
-				tk = tokensMan.getTokenById(ConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
+				tk = tokensMan.getTokenById(EmailConfirmationManagerImpl.CONFIRMATION_TOKEN_TYPE, token);
 			} catch (IllegalArgumentException e)
 			{
-				String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
+				String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, 
 						Status.elementConfirmationError).
 						setErrorCode("invalidToken").build();
-				return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
+				return new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
 			}
 
 			return processConfirmationInternal(tk, true);
 		});
 	}
 
-	private ConfirmationStatus processConfirmationInternal(Token tk, boolean withDuplicates)
+	private EmailConfirmationStatus processConfirmationInternal(Token tk, boolean withDuplicates)
 			throws EngineException
 	{
 		Date today = new Date();
 		if (tk.getExpires().compareTo(today) < 0)
 		{
-			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirectURL, 
+			String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, 
 					Status.elementConfirmationError).
 					setErrorCode("expiredToken").build();
-			return new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.expiredToken");
+			return new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.expiredToken");
 		}
 		String rawState = tk.getContentsString();
-		BaseConfirmationState baseState = new BaseConfirmationState(rawState);
-		ConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(baseState.getFacilityId());
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
+		BaseEmailConfirmationState baseState = new BaseEmailConfirmationState(rawState);
+		EmailConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(baseState.getFacilityId());
+		tokensMan.removeToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		log.debug("Process confirmation using " + facility.getName() + " facility");
-		ConfirmationStatus status = facility.processConfirmation(rawState);
+		EmailConfirmationStatus status = facility.processConfirmation(rawState);
 
 		if (withDuplicates)
 		{
@@ -314,9 +317,9 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 	 * @return
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Collection<Token> getDuplicateTokens(ConfirmationFacility facility, String baseState)
+	private Collection<Token> getDuplicateTokens(EmailConfirmationFacility facility, String baseState)
 	{
-		BaseConfirmationState state;
+		BaseEmailConfirmationState state;
 		try
 		{
 			state = facility.parseState(baseState);
@@ -326,7 +329,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 		
 		Set<Token> ret = new HashSet<>();
-		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
+		List<Token> tks = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
 			if (facility.isDuplicate(state, tk.getContentsString()))
@@ -341,7 +344,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			throws EngineException
 	{
 		AttributeValueSyntax<?> syntax = atTypeHelper.getUnconfiguredSyntax(attribute.getValueSyntax());
-		if (!syntax.isVerifiable())
+		if (!syntax.isEmailVerifiable())
 			return;
 		for (String valA : attribute.getValues())
 		{
@@ -351,7 +354,7 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			{
 				// TODO - should use user's preferred locale
 				long entityId = resolveEntityId(entity);
-				AttribiuteConfirmationState state = new AttribiuteConfirmationState(
+				EmailAttribiuteConfirmationState state = new EmailAttribiuteConfirmationState(
 						entityId,
 						attribute.getName(), val.getValue(),
 						msg.getDefaultLocaleCode(),
@@ -395,12 +398,12 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 			throws EngineException
 	{
 		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identity.getTypeId());
-		if (!typeDefinition.isVerifiable())
+		if (!typeDefinition.isEmailVerifiable())
 			return;
 		if (identity.isConfirmed() || (!force && identity.getConfirmationInfo().getSentRequestAmount() > 0))
 			return;
 		//TODO - should use user's preferred locale
-		IdentityConfirmationState state = new IdentityConfirmationState(
+		EmailIdentityConfirmationState state = new EmailIdentityConfirmationState(
 				identity.getEntityId(), identity.getTypeId(),  
 				identity.getValue(), msg.getDefaultLocaleCode(),
 				defaultRedirectURL);
@@ -421,39 +424,29 @@ public class ConfirmationManagerImpl implements ConfirmationManager
 		}
 	}
 	
-	private ConfirmationConfiguration getConfiguration(BaseConfirmationState baseState)
+	private EmailConfirmationConfiguration getConfiguration(BaseEmailConfirmationState baseState)
 	{
 		String facilityId = baseState.getFacilityId();
 		try
 		{
-			if (facilityId.equals(AttribiuteConfirmationState.FACILITY_ID)
-					|| facilityId.equals(RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
-				return getConfiguration(
-						ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-						baseState.getType());
+			if (facilityId.equals(EmailAttribiuteConfirmationState.FACILITY_ID)
+					|| facilityId.equals(RegistrationReqEmailAttribiuteConfirmationState.FACILITY_ID))
+			{
+				AttributeValueSyntax<?> syntax = atTypeHelper.getSyntax(atTypeHelper.getTypeForAttributeName(baseState.getType()));
+				return syntax.getEmailConfirmationConfiguration();
+			}
 			else
-				return getConfiguration(
-						ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
-						baseState.getType());
-
+			{
+				return idTypeHelper.getIdentityType(baseState.getType()).getEmailConfirmationConfiguration();	
+			}
+				
 		} catch (Exception e)
-		{
-			log.debug("Cannot get confirmation configuration for "
-					+ baseState.getType()
-					+ ", skiping sendig confirmation request to "
-					+ baseState.getValue());
+		{	
+			log.error("Cannot get confirmation configuration", e);
 			return null;
 		}
 	}
 	
-	private ConfirmationConfiguration getConfiguration(String typeToConfirm,
-			String nameToConfirm) throws EngineException
-	{
-		return tx.runInTransactionRet(() -> {
-			return configurationDB.get(typeToConfirm + nameToConfirm);
-		});
-	}
-
 	private Collection<MessageTemplate> getAllTemplatesFromDB() throws EngineException
 	{
 		return tx.runInTransactionRet(() -> {

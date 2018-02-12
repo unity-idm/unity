@@ -11,14 +11,14 @@ package pl.edu.icm.unity.engine.api.confirmation;
  * @author P. Piernik
  * 
  */
-public class ConfirmationStatus
+public class EmailConfirmationStatus
 {
 	private String returnUrl;	
 	private boolean success;
 	private String userMessageKey;
 	private String[] userMessageArgs;
 	
-	public ConfirmationStatus(boolean status, String returnUrl, String userMessage, String...userMessageArgs)
+	public EmailConfirmationStatus(boolean status, String returnUrl, String userMessage, String...userMessageArgs)
 	{
 		this.success = status;
 		this.returnUrl = returnUrl;

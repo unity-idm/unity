@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * to confirmations associated with an existing user).
  * @author K. Benedyczak
  */
-public class RegistrationConfirmationState extends BaseConfirmationState
+public class RegistrationEmailConfirmationState extends BaseEmailConfirmationState
 {
 	public enum RequestType {REGISTRATION, ENQUIRY}
 	
@@ -19,7 +19,7 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 	protected RequestType requestType;
 	
 	
-	public RegistrationConfirmationState(String facilityId, String type, String value, String locale,
+	public RegistrationEmailConfirmationState(String facilityId, String type, String value, String locale,
 			String requestId, RequestType requestType)
 	{
 		super(facilityId, type, value, locale);
@@ -28,7 +28,7 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 	}
 
 
-	public RegistrationConfirmationState(String facilityId, String type, String value, String locale,
+	public RegistrationEmailConfirmationState(String facilityId, String type, String value, String locale,
 			String redirectUrl, String requestId, RequestType requestType)
 	{
 		super(facilityId, type, value, locale, redirectUrl);
@@ -37,13 +37,13 @@ public class RegistrationConfirmationState extends BaseConfirmationState
 	}
 
 
-	public RegistrationConfirmationState(String serializedState)
+	public RegistrationEmailConfirmationState(String serializedState)
 	{
 		super();
 		setSerializedConfiguration(serializedState);
 	}
 
-	protected RegistrationConfirmationState()
+	protected RegistrationEmailConfirmationState()
 	{
 		super();
 	}

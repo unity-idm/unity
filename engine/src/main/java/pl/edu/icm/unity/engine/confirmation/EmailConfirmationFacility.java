@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.confirmation;
 
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.BaseConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.DescribedObject;
 
@@ -15,7 +15,7 @@ import pl.edu.icm.unity.types.DescribedObject;
  * @author P. Piernik
  *
  */
-public interface ConfirmationFacility<T extends BaseConfirmationState> extends DescribedObject
+public interface EmailConfirmationFacility<T extends BaseEmailConfirmationState> extends DescribedObject
 {
 	/**
 	 * Try to confirm verifiable element based on state. 
@@ -23,7 +23,7 @@ public interface ConfirmationFacility<T extends BaseConfirmationState> extends D
 	 * @return
 	 * @throws EngineException
 	 */
-	ConfirmationStatus processConfirmation(String state) throws EngineException;
+	EmailConfirmationStatus processConfirmation(String state) throws EngineException;
 	
 	/**
 	 * Update verifiable element set as unconfirmed and increase the value of

@@ -10,10 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationConfirmationState.RequestType;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
 import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment;
@@ -36,13 +36,13 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
  * 
  */
 @Component
-public class RegistrationReqAttributeFacility extends RegistrationFacility<RegistrationReqAttribiuteConfirmationState>
+public class RegistrationReqEmailAttributeFacility extends RegistrationEmailFacility<RegistrationReqEmailAttribiuteConfirmationState>
 {
 	public static final String NAME = "registrationRequestVerificator";
 	private AttributeTypeHelper atHelper;
 
 	@Autowired
-	public RegistrationReqAttributeFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB, 
+	public RegistrationReqEmailAttributeFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB, 
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			SharedRegistrationManagment internalRegistrationManagment,
 			AttributeTypeHelper atHelper,
@@ -56,7 +56,7 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	@Override
 	public String getName()
 	{
-		return RegistrationReqAttribiuteConfirmationState.FACILITY_ID;
+		return RegistrationReqEmailAttribiuteConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -66,13 +66,13 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(UserRequestState<?> reqState, 
-			RegistrationReqAttribiuteConfirmationState attrState) throws EngineException
+	protected EmailConfirmationStatus confirmElements(UserRequestState<?> reqState, 
+			RegistrationReqEmailAttribiuteConfirmationState attrState) throws EngineException
 	{
 		Collection<Attribute> confirmedList = confirmAttributes(reqState.getRequest().getAttributes(),
 				attrState.getType(), attrState.getGroup(), attrState.getValue(), atHelper);
 		boolean confirmed = (confirmedList.size() > 0);
-		return new ConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(attrState, reqState)
+		return new EmailConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(attrState, reqState)
 				: getErrorRedirect(attrState, reqState),
 				confirmed ? "ConfirmationStatus.successAttribute"
 						: "ConfirmationStatus.attributeChanged",
@@ -83,8 +83,8 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
-		RegistrationReqAttribiuteConfirmationState attrState = 
-				new RegistrationReqAttribiuteConfirmationState(state);
+		RegistrationReqEmailAttribiuteConfirmationState attrState = 
+				new RegistrationReqEmailAttribiuteConfirmationState(state);
 		String requestId = attrState.getRequestId();
 		UserRequestState<?> reqState = attrState.getRequestType() == RequestType.REGISTRATION ?
 				requestDB.get(requestId) : enquiryResponsesDB.get(requestId);
@@ -93,7 +93,7 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 			if (attr == null)
 				continue;
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
-			if (syntax.isVerifiable())
+			if (syntax.isEmailVerifiable())
 				updateConfirmationForAttributeValues(attr.getValues(), syntax, attrState.getValue());
 		}
 		
@@ -104,14 +104,14 @@ public class RegistrationReqAttributeFacility extends RegistrationFacility<Regis
 	}
 
 	@Override
-	public RegistrationReqAttribiuteConfirmationState parseState(String state)
+	public RegistrationReqEmailAttribiuteConfirmationState parseState(String state)
 	{
-		return new RegistrationReqAttribiuteConfirmationState(state);
+		return new RegistrationReqEmailAttribiuteConfirmationState(state);
 	}
 
 	@Override
 	protected ConfirmedElementType getConfirmedElementType(
-			RegistrationReqAttribiuteConfirmationState state)
+			RegistrationReqEmailAttribiuteConfirmationState state)
 	{
 		return ConfirmedElementType.attribute;
 	}

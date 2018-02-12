@@ -98,7 +98,7 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}	

@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.AttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
@@ -28,13 +28,13 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  * @author P. Piernik
  */
 @Component
-public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
+public class EmailAttributeFacility extends UserEmailFacility<EmailAttribiuteConfirmationState>
 {
 	private AttributeDAO dbAttributes;
 	private AttributeTypeHelper atHelper;
 
 	@Autowired
-	public AttributeFacility(AttributeDAO dbAttributes, EntityDAO dbIdentities,
+	public EmailAttributeFacility(AttributeDAO dbAttributes, EntityDAO dbIdentities,
 			AttributeTypeHelper atHelper)
 	{
 		super(dbIdentities);
@@ -45,7 +45,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	@Override
 	public String getName()
 	{
-		return AttribiuteConfirmationState.FACILITY_ID;
+		return EmailAttribiuteConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -55,10 +55,10 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(AttribiuteConfirmationState attrState) 
+	protected EmailConfirmationStatus confirmElements(EmailAttribiuteConfirmationState attrState) 
 			throws EngineException
 	{
-		ConfirmationStatus status;
+		EmailConfirmationStatus status;
 		List<AttributeExt> allAttrs = dbAttributes.getEntityAttributes(attrState.getOwnerEntityId(), 
 				attrState.getType(), attrState.getGroup());
 
@@ -72,7 +72,7 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 			dbAttributes.updateAttribute(confirmed);
 		}
 		boolean confirmed = (confirmedList.size() > 0);
-		status = new ConfirmationStatus(confirmed, 
+		status = new EmailConfirmationStatus(confirmed, 
 				confirmed ? getSuccessRedirect(attrState) : getErrorRedirect(attrState),
 						confirmed ? "ConfirmationStatus.successAttribute"
 								: "ConfirmationStatus.attributeChanged",
@@ -84,14 +84,14 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
-		AttribiuteConfirmationState attrState = new AttribiuteConfirmationState(state);
+		EmailAttribiuteConfirmationState attrState = new EmailAttribiuteConfirmationState(state);
 		Collection<AttributeExt> allAttrs = dbAttributes.getEntityAttributes(
 				attrState.getOwnerEntityId(),
 				attrState.getType(), attrState.getGroup());
 		for (AttributeExt attr : allAttrs)
 		{
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
-			if (syntax.isVerifiable())
+			if (syntax.isEmailVerifiable())
 			{
 				updateConfirmationForAttributeValues(attr.getValues(), syntax, attrState.getValue());
 				StoredAttribute updated = new StoredAttribute(attr, attrState.getOwnerEntityId());
@@ -101,13 +101,13 @@ public class AttributeFacility extends UserFacility<AttribiuteConfirmationState>
 	}
 
 	@Override
-	public AttribiuteConfirmationState parseState(String state)
+	public EmailAttribiuteConfirmationState parseState(String state)
 	{
-		return new AttribiuteConfirmationState(state);
+		return new EmailAttribiuteConfirmationState(state);
 	}
 
 	@Override
-	protected ConfirmedElementType getConfirmedElementType(AttribiuteConfirmationState state)
+	protected ConfirmedElementType getConfirmedElementType(EmailAttribiuteConfirmationState state)
 	{
 		return ConfirmedElementType.attribute;
 	}

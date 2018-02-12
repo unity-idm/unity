@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
  * Type of identity. Contains stateful configuration which can be modified by administrator.
@@ -33,6 +34,7 @@ public class IdentityType implements NamedObject
 	private int minInstances = 0;
 	private int maxInstances = Integer.MAX_VALUE;
 	private int minVerifiedInstances = 0;
+	private EmailConfirmationConfiguration emailConfirmationConfiguration;
 
 	public IdentityType(String name)
 	{
@@ -140,6 +142,16 @@ public class IdentityType implements NamedObject
 	{
 		this.identityTypeProviderSettings = identityTypeProviderSettings;
 	}
+	
+	public EmailConfirmationConfiguration getEmailConfirmationConfiguration()
+	{
+		return emailConfirmationConfiguration;
+	}
+
+	public void setEmailConfirmationConfiguration(EmailConfirmationConfiguration confirmationConfiguration)
+	{
+		this.emailConfirmationConfiguration = confirmationConfiguration;
+	}
 
 	@Override
 	public String getName()
@@ -166,6 +178,8 @@ public class IdentityType implements NamedObject
 		main.put("maxInstances", getMaxInstances());
 		main.put("minVerifiedInstances", getMinVerifiedInstances());
 		main.put("identityTypeProviderSettings", getIdentityTypeProviderSettings());
+		if (getEmailConfirmationConfiguration() != null)
+			main.set("emailConfirmationConfiguration", getEmailConfirmationConfiguration().toJson());
 		ArrayNode extractedA = main.putArray("extractedAttributes");
 		for (Map.Entry<String, String> a: getExtractedAttributes().entrySet())
 		{
@@ -199,6 +213,9 @@ public class IdentityType implements NamedObject
 		setMinVerifiedInstances(main.get("minVerifiedInstances").asInt());
 		setMaxInstances(main.get("maxInstances").asInt());
 		setIdentityTypeProviderSettings(JsonUtil.getWithDef(main, "identityTypeProviderSettings", null));
+		if (main.get("emailConfirmationConfiguration") != null)
+			setEmailConfirmationConfiguration(new EmailConfirmationConfiguration(
+					(ObjectNode) main.get("emailConfirmationConfiguration")));
 	}
 	
 	public IdentityType clone()

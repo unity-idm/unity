@@ -12,22 +12,22 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**
- * Maintains a simple registry of available {@link ConfirmationFacility}ies.
+ * Maintains a simple registry of available {@link EmailConfirmationFacility}ies.
  * 
  * @author P. Piernik
  */
 @Component
-public class ConfirmationFacilitiesRegistry extends TypesRegistryBase<ConfirmationFacility<?>>
+public class EmailConfirmationFacilitiesRegistry extends TypesRegistryBase<EmailConfirmationFacility<?>>
 {
 	
 	@Autowired
-	public ConfirmationFacilitiesRegistry(List<ConfirmationFacility<?>> typeElements)
+	public EmailConfirmationFacilitiesRegistry(List<EmailConfirmationFacility<?>> typeElements)
 	{
 		super(typeElements);
 	}
 
 	@Override
-	protected String getId(ConfirmationFacility<?> from)
+	protected String getId(EmailConfirmationFacility<?> from)
 	{
 		return from.getName();
 	}

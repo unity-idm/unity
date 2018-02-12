@@ -189,7 +189,7 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}

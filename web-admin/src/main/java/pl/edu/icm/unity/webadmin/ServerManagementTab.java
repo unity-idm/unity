@@ -13,7 +13,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent;
-import pl.edu.icm.unity.webadmin.confirmations.ConfirmationConfigurationsComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
@@ -40,14 +39,13 @@ public class ServerManagementTab  extends VerticalLayout
 	public ServerManagementTab(UnityMessageSource msg, ImportExportComponent ieComponent,
 			EndpointsComponent eComponent, AuthenticatorsComponent aComponent,
 			TranslationProfilesComponent tComponent, MessageTemplatesComponent msgComponent, 
-			ConfirmationConfigurationsComponent confirmCfgComponent,
 			BulkProcessingComponent bulkProcessingComponent, AdminUITabProvider provider)
 	{
 		super();
 		this.msg = msg;
 		this.tComponent = tComponent;
 		this.tabs = new MainTabPanel(eComponent, aComponent, tComponent, 
-				msgComponent, ieComponent, confirmCfgComponent, bulkProcessingComponent, provider.getUI());
+				msgComponent, ieComponent, bulkProcessingComponent, provider.getUI());
 		this.tabs.addStyleName(Styles.vTabsheetMinimal.toString());
 		initUI();
 	}

@@ -98,7 +98,7 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}

@@ -38,7 +38,7 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}

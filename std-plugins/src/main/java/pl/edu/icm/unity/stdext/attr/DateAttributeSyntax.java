@@ -101,7 +101,7 @@ public class DateAttributeSyntax implements AttributeValueSyntax<LocalDate>
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}

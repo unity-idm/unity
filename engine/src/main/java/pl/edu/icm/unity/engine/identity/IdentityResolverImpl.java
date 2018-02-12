@@ -136,7 +136,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	private boolean isIdentityConfirmed(Identity identity)
 	{
 		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identity.getTypeId());
-		if (!typeDefinition.isVerifiable())
+		if (!typeDefinition.isEmailVerifiable())
 			return true;
 		return identity.isConfirmed();
 	}

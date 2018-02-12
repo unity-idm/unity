@@ -6,7 +6,7 @@ package pl.edu.icm.unity.engine.api.confirmation;
 
 import java.util.Collection;
 
-import pl.edu.icm.unity.engine.api.confirmation.states.BaseConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -17,7 +17,7 @@ import pl.edu.icm.unity.types.basic.Identity;
  * 
  * @author P. Piernik
  */
-public interface ConfirmationManager
+public interface EmailConfirmationManager
 {
 	public static final String CONFIRMATION_TOKEN_TYPE = "Confirmation";
 	
@@ -30,7 +30,7 @@ public interface ConfirmationManager
 	 * @param state 
 	 * @throws EngineException
 	 */
-	void sendConfirmationRequest(BaseConfirmationState state) throws EngineException;
+	void sendConfirmationRequest(BaseEmailConfirmationState state) throws EngineException;
 	
 	/**
 	 * Process confirmation based on token. 
@@ -38,7 +38,7 @@ public interface ConfirmationManager
 	 * @return Confirmation status which contains user message key and args
 	 * @throws EngineException
 	 */
-	ConfirmationStatus processConfirmation(String tokenValue) throws EngineException;
+	EmailConfirmationStatus processConfirmation(String tokenValue) throws EngineException;
 
 	/**
 	 * Sends confirmation messages for the values of an attribute which are verifiable, 

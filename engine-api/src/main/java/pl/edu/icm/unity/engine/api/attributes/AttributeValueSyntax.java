@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.api.attributes;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
  * Base interface defining attribute value syntax. It provides handling of the 
@@ -132,5 +133,25 @@ public interface AttributeValueSyntax<T>
 	/**
 	 * @return true if values can be confirmed by user
 	 */
-	boolean isVerifiable();
+	boolean isEmailVerifiable();
+	
+	
+	/**
+	 * If syntax is verifiable by email sets confirmation configuration
+	 * @param confirmationConfiguration
+	 */
+	default void setEmailConfirmationConfiguration(
+			EmailConfirmationConfiguration confirmationConfiguration)
+	{
+		
+	}
+	/**
+	 * If syntax is verifiable by email return confirmation configuration
+	 * @return
+	 */
+	default EmailConfirmationConfiguration getEmailConfirmationConfiguration()
+	{
+		return null;
+	}
+	
 }

@@ -102,7 +102,7 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}

@@ -9,10 +9,10 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationConfirmationState.RequestType;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
  * 
  * @author K. Benedyczak
  */
-public abstract class RegistrationFacility <T extends RegistrationConfirmationState> extends BaseFacility<T>
+public abstract class RegistrationEmailFacility <T extends RegistrationEmailConfirmationState> extends BaseEmailFacility<T>
 {
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
@@ -50,7 +50,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 
 	private TxManager txMan;
 
-	public RegistrationFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
+	public RegistrationEmailFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			SharedRegistrationManagment sharedRegistrationManagment,
 			SharedEnquiryManagment internalEnquiryManagment,
@@ -76,7 +76,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		return base.getRequestId().equals(requestId) && base.getValue().equals(value);
 	}
 	
-	protected abstract ConfirmationStatus confirmElements(UserRequestState<?> reqState, T state) 
+	protected abstract EmailConfirmationStatus confirmElements(UserRequestState<?> reqState, T state) 
 			throws EngineException;
 	
 	protected abstract ConfirmedElementType getConfirmedElementType(T state);
@@ -98,7 +98,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 	}
 	
 	@Override
-	public ConfirmationStatus processConfirmation(String rawState) throws EngineException
+	public EmailConfirmationStatus processConfirmation(String rawState) throws EngineException
 	{
 		ConfirmationResult confirmResult = doConfirm(rawState);
 
@@ -131,7 +131,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 				setErrorCode("requestDeleted").
 				setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 				build();
-			return new ConfirmationResult(new ConfirmationStatus(false, redirect, 
+			return new ConfirmationResult(new EmailConfirmationStatus(false, redirect, 
 					"ConfirmationStatus.requestDeleted"));
 		}
 		
@@ -142,11 +142,11 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 				setErrorCode("requestRejected").
 				setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 				build();
-			return new ConfirmationResult(new ConfirmationStatus(false, redirect, 
+			return new ConfirmationResult(new EmailConfirmationStatus(false, redirect, 
 					"ConfirmationStatus.requestRejected"));
 		}
 		BaseRegistrationInput req = reqState.getRequest();
-		ConfirmationStatus status = confirmElements(reqState, state);
+		EmailConfirmationStatus status = confirmElements(reqState, state);
 		
 		if (state.getRequestType() == RequestType.REGISTRATION)
 			requestDB.update((RegistrationRequestState) reqState);
@@ -155,7 +155,7 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 		return new ConfirmationResult(status, state, req.getFormId(), reqState);
 	}
 	
-	private void autoProcess(ConfirmationStatus status, T state, UserRequestState<?> reqState, String formId) 
+	private void autoProcess(EmailConfirmationStatus status, T state, UserRequestState<?> reqState, String formId) 
 				throws EngineException
 	{
 		if (state.getRequestType() == RequestType.REGISTRATION)
@@ -181,17 +181,17 @@ public abstract class RegistrationFacility <T extends RegistrationConfirmationSt
 	
 	private class ConfirmationResult
 	{
-		private ConfirmationStatus status;
+		private EmailConfirmationStatus status;
 		private T state;
 		private String formId;
 		private UserRequestState<?> reqState;
 		
-		public ConfirmationResult(ConfirmationStatus status)
+		public ConfirmationResult(EmailConfirmationStatus status)
 		{
 			this.status = status;
 		}
 
-		public ConfirmationResult(ConfirmationStatus status, T state, String formId, 
+		public ConfirmationResult(EmailConfirmationStatus status, T state, String formId, 
 				UserRequestState<?> reqState)
 		{
 			this.status = status;

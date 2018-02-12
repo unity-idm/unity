@@ -85,11 +85,6 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean class="pl.edu.icm.unity.engine.confirmation.ConfirmationConfigurationManagementImpl">
-		<qualifier value="insecure"/>
-		<constructor-arg name="authz" ref="noauthz"/>
-	</bean>
-	
 	<bean class="pl.edu.icm.unity.engine.bulkops.BulkProcessingManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>

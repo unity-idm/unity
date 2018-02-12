@@ -131,7 +131,7 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	}
 	
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}

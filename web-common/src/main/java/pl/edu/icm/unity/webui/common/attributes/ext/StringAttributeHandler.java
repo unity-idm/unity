@@ -146,7 +146,7 @@ public class StringAttributeHandler extends TextOnlyAttributeHandler
 		
 		public class StringSyntaxBindingValue extends MinMaxBindingValue<Integer>
 		{
-			String regexp;
+			private String regexp;
 
 			public String getRegexp()
 			{

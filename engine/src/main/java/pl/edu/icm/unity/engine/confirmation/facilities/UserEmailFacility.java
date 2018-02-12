@@ -8,11 +8,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.UserConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.UserEmailConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -24,23 +24,23 @@ import pl.edu.icm.unity.types.basic.EntityState;
  * 
  * @author K. Benedyczak
  */
-public abstract class UserFacility <T extends UserConfirmationState> extends BaseFacility<T>
+public abstract class UserEmailFacility <T extends UserEmailConfirmationState> extends BaseEmailFacility<T>
 {
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	protected EntityDAO entityDAO;
 
-	protected UserFacility(EntityDAO entityDAO)
+	protected UserEmailFacility(EntityDAO entityDAO)
 	{
 		this.entityDAO = entityDAO;
 	}
 
-	protected abstract ConfirmationStatus confirmElements(T state) throws EngineException;
+	protected abstract EmailConfirmationStatus confirmElements(T state) throws EngineException;
 	
 	protected abstract ConfirmedElementType getConfirmedElementType(T state);
 	
 	protected String getSuccessRedirect(T state)
 	{
-		return new ConfirmationRedirectURLBuilder(state.getRedirectUrl(), 
+		return new EmailConfirmationRedirectURLBuilder(state.getRedirectUrl(), 
 				Status.elementConfirmed).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 			build();
@@ -48,7 +48,7 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 	
 	protected String getErrorRedirect(T state)
 	{
-		return new ConfirmationRedirectURLBuilder(state.getRedirectUrl(), Status.elementConfirmationError).
+		return new EmailConfirmationRedirectURLBuilder(state.getRedirectUrl(), Status.elementConfirmationError).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 			build();
 	}
@@ -72,7 +72,7 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 	}
 	
 	@Override
-	public ConfirmationStatus processConfirmation(String state) throws EngineException
+	public EmailConfirmationStatus processConfirmation(String state) throws EngineException
 	{
 		T idState = parseState(state);
 		EntityState entityState = null;
@@ -81,13 +81,13 @@ public abstract class UserFacility <T extends UserConfirmationState> extends Bas
 			entityState = entityDAO.getByKey(idState.getOwnerEntityId()).getEntityState();
 		} catch (Exception e)
 		{
-			return new ConfirmationStatus(false, idState.getRedirectUrl(), 
+			return new EmailConfirmationStatus(false, idState.getRedirectUrl(), 
 					"ConfirmationStatus.entityRemoved");
 		}
 
 		if (!entityState.equals(EntityState.valid))
 		{
-			return new ConfirmationStatus(false, idState.getRedirectUrl(), 
+			return new EmailConfirmationStatus(false, idState.getRedirectUrl(), 
 					"ConfirmationStatus.entityInvalid");
 		}
 			

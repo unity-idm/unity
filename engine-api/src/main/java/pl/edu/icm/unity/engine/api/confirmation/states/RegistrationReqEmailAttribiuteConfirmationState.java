@@ -15,19 +15,19 @@ import pl.edu.icm.unity.JsonUtil;
  * @author P. Piernik
  * 
  */
-public class RegistrationReqAttribiuteConfirmationState extends RegistrationConfirmationState
+public class RegistrationReqEmailAttribiuteConfirmationState extends RegistrationEmailConfirmationState
 {
 	public static final String FACILITY_ID = "RegistrationReqAttributeFacility";
 	
 	private String group;
 	
-	public RegistrationReqAttribiuteConfirmationState(String serializedState)
+	public RegistrationReqEmailAttribiuteConfirmationState(String serializedState)
 	{
 		super();
 		setSerializedConfiguration(serializedState);
 	}
 
-	public RegistrationReqAttribiuteConfirmationState(String requestId,
+	public RegistrationReqEmailAttribiuteConfirmationState(String requestId,
 			String type, String value, String locale, String group, String redirectUrl, 
 			RequestType requestType)
 	{
@@ -35,7 +35,7 @@ public class RegistrationReqAttribiuteConfirmationState extends RegistrationConf
 		this.group = group;
 	}
 	
-	public RegistrationReqAttribiuteConfirmationState(String requestId,
+	public RegistrationReqEmailAttribiuteConfirmationState(String requestId,
 			String type, String value, String locale, String group, RequestType requestType)
 	{
 		super(FACILITY_ID, type, value, locale, requestId, requestType);

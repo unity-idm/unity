@@ -13,12 +13,12 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * to confirmations associated with a registration request).
  * @author K. Benedyczak
  */
-public class UserConfirmationState extends BaseConfirmationState
+public class UserEmailConfirmationState extends BaseEmailConfirmationState
 {
 	protected long ownerEntityId;
 	
 	
-	public UserConfirmationState(String facilityId, String type, String value, String locale,
+	public UserEmailConfirmationState(String facilityId, String type, String value, String locale,
 			long ownerEntityId)
 	{
 		super(facilityId, type, value, locale);
@@ -26,7 +26,7 @@ public class UserConfirmationState extends BaseConfirmationState
 	}
 
 
-	public UserConfirmationState(String facilityId, String type, String value, String locale,
+	public UserEmailConfirmationState(String facilityId, String type, String value, String locale,
 			String redirectUrl, long ownerEntityId)
 	{
 		super(facilityId, type, value, locale, redirectUrl);
@@ -34,13 +34,13 @@ public class UserConfirmationState extends BaseConfirmationState
 	}
 
 
-	public UserConfirmationState(String serializedState) throws WrongArgumentException
+	public UserEmailConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		super();
 		setSerializedConfiguration(serializedState);
 	}
 
-	protected UserConfirmationState()
+	protected UserEmailConfirmationState()
 	{
 		super();
 	}

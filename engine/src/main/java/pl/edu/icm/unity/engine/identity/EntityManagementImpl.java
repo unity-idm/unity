@@ -24,7 +24,7 @@ import com.google.common.collect.Sets;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -96,7 +96,7 @@ public class EntityManagementImpl implements EntityManagement
 	private EntityResolver idResolver;
 	private AuthorizationManager authz;
 	private IdentityTypesRegistry idTypesRegistry;
-	private ConfirmationManager confirmationManager;
+	private EmailConfirmationManager confirmationManager;
 	private AttributeClassUtil acUtil;
 	private TransactionalRunner tx;
 	
@@ -109,7 +109,7 @@ public class EntityManagementImpl implements EntityManagement
 			AttributesHelper attributesHelper, IdentityHelper identityHelper,
 			EntityResolver idResolver, AuthorizationManager authz,
 			IdentityTypesRegistry idTypesRegistry,
-			ConfirmationManager confirmationManager, AttributeClassUtil acUtil,
+			EmailConfirmationManager confirmationManager, AttributeClassUtil acUtil,
 			TransactionalRunner tx)
 	{
 		this.idTypeDAO = idTypeDAO;
@@ -217,7 +217,7 @@ public class EntityManagementImpl implements EntityManagement
 			IdentityType type) throws SchemaConsistencyException, IllegalIdentityValueException
 	{
 		IdentityTypeDefinition typeDef = idTypeHelper.getTypeDefinition(type);
-		if (!typeDef.isVerifiable())
+		if (!typeDef.isEmailVerifiable())
 			return;
 		int existing = 0;
 		String comparableValue = typeDef.getComparableValue(toRemove.getValue(), 
@@ -345,7 +345,7 @@ public class EntityManagementImpl implements EntityManagement
 					+ "the configured maximum number of instances would be violated "
 					+ "for the identity type " + type.getIdentityTypeProvider());
 		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(type);
-		if (typeDefinition.isVerifiable())
+		if (typeDefinition.isEmailVerifiable())
 		{
 			int newConfirmedCount = 0;
 			int currentConfirmedCount = 0;

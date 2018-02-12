@@ -17,7 +17,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
  * @author P. Piernik
  *
  */
-public class BaseConfirmationState
+public class BaseEmailConfirmationState
 {
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
@@ -27,7 +27,7 @@ public class BaseConfirmationState
 	protected String locale;
 	protected String redirectUrl;
 	
-	public BaseConfirmationState(String facilityId, String type, String value, String locale)
+	public BaseEmailConfirmationState(String facilityId, String type, String value, String locale)
 	{
 		this.type = type;
 		this.value = value;
@@ -35,19 +35,19 @@ public class BaseConfirmationState
 		this.facilityId = facilityId;
 	}
 	
-	public BaseConfirmationState(String facilityId, String type, String value,
+	public BaseEmailConfirmationState(String facilityId, String type, String value,
 			String locale, String redirectUrl)
 	{
 		this(facilityId, type, value, locale);
 		this.redirectUrl = redirectUrl;
 	}
 
-	public BaseConfirmationState(String serializedState) throws WrongArgumentException
+	public BaseEmailConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		setSerializedConfiguration(serializedState);
 	}
 
-	protected BaseConfirmationState()
+	protected BaseEmailConfirmationState()
 	{
 	}
 

@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.engine.api.registration;
 
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 
 /**
  * Creates redirect URL which shall be used in certain situations after registration request submission 
  * or confirmation of request's email.   
  * @author K. Benedyczak
  */
-public class RegistrationRedirectURLBuilder extends ConfirmationRedirectURLBuilder
+public class RegistrationRedirectURLBuilder extends EmailConfirmationRedirectURLBuilder
 {
 	public enum Status {submitted, submittedAccepted, submittedWithError, cancelled, elementConfirmed,
 		elementConfirmationError}

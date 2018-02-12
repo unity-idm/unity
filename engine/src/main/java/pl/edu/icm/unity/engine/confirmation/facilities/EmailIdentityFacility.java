@@ -11,9 +11,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.IdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.types.basic.Identity;
  * @author P. Piernik
  */
 @Component
-public class IdentityFacility extends UserFacility<IdentityConfirmationState>
+public class EmailIdentityFacility extends UserEmailFacility<EmailIdentityConfirmationState>
 {
 	private IdentityTypeHelper identityTypeHelper;
 	private IdentityDAO idDAO;
@@ -37,7 +37,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	
 
 	@Autowired
-	protected IdentityFacility(EntityDAO dbIdentities, IdentityTypeHelper identityTypeHelper,
+	protected EmailIdentityFacility(EntityDAO dbIdentities, IdentityTypeHelper identityTypeHelper,
 			IdentityDAO idDAO, TxManager tx)
 	{
 		super(dbIdentities);
@@ -49,7 +49,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	@Override
 	public String getName()
 	{
-		return IdentityConfirmationState.FACILITY_ID;
+		return EmailIdentityConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -59,7 +59,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(IdentityConfirmationState idState) 
+	protected EmailConfirmationStatus confirmElements(EmailIdentityConfirmationState idState) 
 			throws EngineException
 	{
 		List<Identity> ids = idDAO.getByEntity(idState.getOwnerEntityId());
@@ -67,7 +67,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 		ArrayList<Identity> idsA = new ArrayList<>();
 		for (Identity id : ids)
 		{
-			if (identityTypeHelper.getTypeDefinition(id.getTypeId()).isVerifiable())
+			if (identityTypeHelper.getTypeDefinition(id.getTypeId()).isEmailVerifiable())
 				idsA.add(id);
 		}
 
@@ -81,7 +81,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 		txMan.commit();
 		
 		boolean confirmed = (confirmedList.size() > 0);
-		ConfirmationStatus status = new ConfirmationStatus(confirmed, 
+		EmailConfirmationStatus status = new EmailConfirmationStatus(confirmed, 
 				confirmed ? getSuccessRedirect(idState) : getErrorRedirect(idState),
 				confirmed ? "ConfirmationStatus.successIdentity"
 						: "ConfirmationStatus.identityChanged",
@@ -93,7 +93,7 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
-		IdentityConfirmationState idState = new IdentityConfirmationState(state);
+		EmailIdentityConfirmationState idState = new EmailIdentityConfirmationState(state);
 		List<Identity> ids = idDAO.getByEntity(idState.getOwnerEntityId());
 		for (Identity id : ids)
 		{
@@ -106,13 +106,13 @@ public class IdentityFacility extends UserFacility<IdentityConfirmationState>
 	}
 
 	@Override
-	public IdentityConfirmationState parseState(String state)
+	public EmailIdentityConfirmationState parseState(String state)
 	{
-		return new IdentityConfirmationState(state);
+		return new EmailIdentityConfirmationState(state);
 	}
 
 	@Override
-	protected ConfirmedElementType getConfirmedElementType(IdentityConfirmationState state)
+	protected ConfirmedElementType getConfirmedElementType(EmailIdentityConfirmationState state)
 	{
 		return ConfirmedElementType.identity;
 	}

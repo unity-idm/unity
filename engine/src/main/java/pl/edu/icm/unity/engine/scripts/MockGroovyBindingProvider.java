@@ -17,7 +17,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
-import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -76,9 +75,6 @@ public class MockGroovyBindingProvider
 				withSettings().verboseLogging());
 		AuthenticatorManagement authenticatorManagement = mock(AuthenticatorManagement.class, 
 				withSettings().verboseLogging());
-		ConfirmationConfigurationManagement confirmationConfigurationManagement = 
-				mock(ConfirmationConfigurationManagement.class, 
-				withSettings().verboseLogging());
 		CredentialManagement credentialManagement = mock(CredentialManagement.class, 
 				withSettings().verboseLogging());
 		CredentialRequirementManagement credentialRequirementManagement = 
@@ -114,7 +110,6 @@ public class MockGroovyBindingProvider
 		binding.setVariable("attributeTypeManagement", attributeTypeManagement);
 		binding.setVariable("authenticatorManagement", authenticatorManagement);
 		binding.setVariable("bulkProcessingManagement", bulkProcessingManagement);
-		binding.setVariable("confirmationConfigurationManagement", confirmationConfigurationManagement);
 		binding.setVariable("credentialManagement", credentialManagement);
 		binding.setVariable("credentialRequirementManagement", credentialRequirementManagement);
 		binding.setVariable("endpointManagement", endpointManagement);

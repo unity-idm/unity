@@ -12,7 +12,7 @@ import org.apache.http.client.utils.URIBuilder;
  * Creates redirect URL which shall be used in certain situations after confirmation of email.   
  * @author K. Benedyczak
  */
-public class ConfirmationRedirectURLBuilder
+public class EmailConfirmationRedirectURLBuilder
 {
 	public enum Status {elementConfirmed, elementConfirmationError}
 	public enum ConfirmedElementType {identity, attribute}
@@ -26,12 +26,12 @@ public class ConfirmationRedirectURLBuilder
 	protected URIBuilder uriBuilder;
 	protected boolean noRedirect;
 
-	public ConfirmationRedirectURLBuilder(String baseUrl, Status status)
+	public EmailConfirmationRedirectURLBuilder(String baseUrl, Status status)
 	{
 		this(baseUrl, status.toString());
 	}
 	
-	protected ConfirmationRedirectURLBuilder(String baseUrl, String status)
+	protected EmailConfirmationRedirectURLBuilder(String baseUrl, String status)
 	{
 		if (baseUrl == null)
 		{
@@ -49,13 +49,13 @@ public class ConfirmationRedirectURLBuilder
 		uriBuilder.addParameter(PARAM_STATUS, status);
 	}
 	
-	public ConfirmationRedirectURLBuilder setErrorCode(String errorCode)
+	public EmailConfirmationRedirectURLBuilder setErrorCode(String errorCode)
 	{
 		uriBuilder.addParameter(PARAM_ERROR_CODE, errorCode);
 		return this;
 	}
 	
-	public ConfirmationRedirectURLBuilder setConfirmationInfo(ConfirmedElementType type, String name, String value)
+	public EmailConfirmationRedirectURLBuilder setConfirmationInfo(ConfirmedElementType type, String name, String value)
 	{
 		uriBuilder.addParameter(PARAM_CONFIRMED_ELEMENT_TYPE, type.toString()).
 			addParameter(PARAM_CONFIRMED_ELEMENT_NAME, name).

@@ -34,7 +34,6 @@ import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
 import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
-import pl.edu.icm.unity.store.objstore.confirmation.ConfirmationConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
@@ -102,8 +101,6 @@ public class UpdateFrom1_9_x implements Update
 		convertGenericType(AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
 		convertGenericType(AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE, 
-				genericsByType, newGenerics, ctx);
-		convertGenericType(ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
 		convertGenericType(CredentialHandler.CREDENTIAL_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);

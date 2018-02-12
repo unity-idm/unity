@@ -14,13 +14,13 @@ import pl.edu.icm.unity.JsonUtil;
  * @author P. Piernik
  * 
  */
-public class AttribiuteConfirmationState extends UserConfirmationState
+public class EmailAttribiuteConfirmationState extends UserEmailConfirmationState
 {
 	public static final String FACILITY_ID = "AttributeFacility";
 	private String group;
 
 	
-	public AttribiuteConfirmationState(long owner, String type,
+	public EmailAttribiuteConfirmationState(long owner, String type,
 			String value, String locale, String group)
 	{
 		super(FACILITY_ID, type, value, locale, owner);
@@ -28,14 +28,14 @@ public class AttribiuteConfirmationState extends UserConfirmationState
 	}
 	
 	
-	public AttribiuteConfirmationState(long owner, String type,
+	public EmailAttribiuteConfirmationState(long owner, String type,
 			String value, String locale, String group, String redirectUrl)
 	{
 		super(FACILITY_ID, type, value, locale, redirectUrl, owner);
 		this.group = group;
 	}
 
-	public AttribiuteConfirmationState(String serializedState)
+	public EmailAttribiuteConfirmationState(String serializedState)
 	{
 		super();
 		setSerializedConfiguration(serializedState);

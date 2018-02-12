@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -66,7 +66,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private EntityResolver idResolver;
-	private ConfirmationManager confirmationManager;
+	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner tx;
 	private AttributeClassUtil acUtil;
 
@@ -76,7 +76,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			GroupHelper groupHelper, AttributeDAO dbAttributes,
 			AttributeTypeDAO attributeTypeDAO, AttributeClassDB acDB,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
-			EntityResolver idResolver, ConfirmationManager confirmationManager,
+			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
 			AttributeClassUtil acUtil, TransactionalRunner tx)
 	{
 		this.dbGroups = dbGroups;

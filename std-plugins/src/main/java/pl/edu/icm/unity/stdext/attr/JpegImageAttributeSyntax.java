@@ -192,7 +192,7 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return false;
 	}

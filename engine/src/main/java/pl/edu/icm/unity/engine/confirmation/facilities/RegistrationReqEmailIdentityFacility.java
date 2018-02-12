@@ -9,10 +9,10 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationConfirmationState.RequestType;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqIdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
 import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment;
@@ -34,12 +34,12 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
  * @author P. Piernik
  */
 @Component
-public class RegistrationReqIdentityFacility extends RegistrationFacility<RegistrationReqIdentityConfirmationState>
+public class RegistrationReqEmailIdentityFacility extends RegistrationEmailFacility<RegistrationReqEmailIdentityConfirmationState>
 {
 	private IdentityTypesRegistry identityTypesRegistry;
 
 	@Autowired
-	public RegistrationReqIdentityFacility(
+	public RegistrationReqEmailIdentityFacility(
 			RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB, 
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			SharedRegistrationManagment internalRegistrationManagment,
@@ -55,7 +55,7 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	@Override
 	public String getName()
 	{
-		return RegistrationReqIdentityConfirmationState.FACILITY_ID;
+		return RegistrationReqEmailIdentityConfirmationState.FACILITY_ID;
 	}
 
 	@Override
@@ -65,16 +65,16 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	}
 
 	@Override
-	protected ConfirmationStatus confirmElements(UserRequestState<?> reqState,
-			RegistrationReqIdentityConfirmationState idState) throws EngineException
+	protected EmailConfirmationStatus confirmElements(UserRequestState<?> reqState,
+			RegistrationReqEmailIdentityConfirmationState idState) throws EngineException
 	{
-		if (!(identityTypesRegistry.getByName(idState.getType()).isVerifiable()))
-			return new ConfirmationStatus(false, "ConfirmationStatus.identityChanged", idState.getType());
+		if (!(identityTypesRegistry.getByName(idState.getType()).isEmailVerifiable()))
+			return new EmailConfirmationStatus(false, "ConfirmationStatus.identityChanged", idState.getType());
 		Collection<IdentityParam> confirmedList = confirmIdentity(reqState.getRequest().getIdentities(),
 				idState.getType(), idState.getValue());
 		boolean confirmed = (confirmedList.size() > 0);
 		
-		return new ConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(idState, reqState)
+		return new EmailConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(idState, reqState)
 				: getErrorRedirect(idState, reqState),
 				confirmed ? "ConfirmationStatus.successIdentity"
 						: "ConfirmationStatus.identityChanged",
@@ -85,7 +85,7 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	@Transactional
 	public void processAfterSendRequest(String state) throws EngineException
 	{
-		RegistrationReqIdentityConfirmationState idState = new RegistrationReqIdentityConfirmationState(state);
+		RegistrationReqEmailIdentityConfirmationState idState = new RegistrationReqEmailIdentityConfirmationState(state);
 		String requestId = idState.getRequestId();
 
 		UserRequestState<?> reqState = idState.getRequestType() == RequestType.REGISTRATION ?
@@ -94,7 +94,7 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 		{
 			if (id == null)
 				continue;
-			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable())
+			if (identityTypesRegistry.getByName(id.getTypeId()).isEmailVerifiable())
 				updateConfirmationInfo(id, id.getValue());
 		}
 		if (idState.getRequestType() == RequestType.REGISTRATION)
@@ -104,14 +104,14 @@ public class RegistrationReqIdentityFacility extends RegistrationFacility<Regist
 	}
 
 	@Override
-	public RegistrationReqIdentityConfirmationState parseState(String state)
+	public RegistrationReqEmailIdentityConfirmationState parseState(String state)
 	{
-		return new RegistrationReqIdentityConfirmationState(state);
+		return new RegistrationReqEmailIdentityConfirmationState(state);
 	}
 
 	@Override
 	protected ConfirmedElementType getConfirmedElementType(
-			RegistrationReqIdentityConfirmationState state)
+			RegistrationReqEmailIdentityConfirmationState state)
 	{
 		return ConfirmedElementType.identity;
 	}

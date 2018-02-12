@@ -84,7 +84,7 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 			
 			IdentityParam newId = idType.convertFromString(value, null, currentProfile);
 			//for output profile we can't confirm - not yet implemented and rather not needed.
-			if (idType.isVerifiable())
+			if (idType.isEmailVerifiable())
 				newId.setConfirmationInfo(new ConfirmationInfo(true));
 			
 			if (result.removeIdentityToPersistByType(idType.getId()))

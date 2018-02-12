@@ -14,7 +14,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
  * @author P. Piernik
  *
  */
-public interface ConfirmationServletProvider
+public interface EmailConfirmationServletProvider
 {
 	public static final String SERVLET_PATH = "/confirmation";
 	public static final String CONFIRMATION_TOKEN_ARG ="token";

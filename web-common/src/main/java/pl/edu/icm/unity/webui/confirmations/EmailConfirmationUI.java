@@ -22,11 +22,11 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationServletProvider;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationStatus;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -45,16 +45,16 @@ import pl.edu.icm.unity.webui.common.TopHeaderLight;
 @Component("ConfirmationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-public class ConfirmationUI extends UnityUIBase implements UnityWebUI
+public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ConfirmationUI.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailConfirmationUI.class);
 
-	private ConfirmationManager confirmationMan;
+	private EmailConfirmationManager confirmationMan;
 	private boolean autoRedirect;
 	private String defaultRedirect;
 
 	@Autowired
-	public ConfirmationUI(UnityMessageSource msg, ConfirmationManager confirmationMan,
+	public EmailConfirmationUI(UnityMessageSource msg, EmailConfirmationManager confirmationMan,
 			TokensManagement tokensMan, UnityServerConfiguration serverConfig)
 	{
 		super(msg);
@@ -63,7 +63,7 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 		this.defaultRedirect = serverConfig.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
-	public void initUI(ConfirmationStatus status)
+	public void initUI(EmailConfirmationStatus status)
 	{
 		final String returnUrl = status.getReturnUrl();
 		
@@ -139,18 +139,18 @@ public class ConfirmationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		ConfirmationStatus status = null;
-		String token = request.getParameter(ConfirmationServletProvider.CONFIRMATION_TOKEN_ARG);
+		EmailConfirmationStatus status = null;
+		String token = request.getParameter(EmailConfirmationServletProvider.CONFIRMATION_TOKEN_ARG);
 		try
 		{
 			status = confirmationMan.processConfirmation(token);
 		} catch (Exception e)
 		{
 			log.error("Internal unity problem with confirmation", e);
-			String redirectURL = new ConfirmationRedirectURLBuilder(defaultRedirect, 
+			String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirect, 
 					Status.elementConfirmationError).
 				setErrorCode(e.toString()).build();
-			status = new ConfirmationStatus(false, redirectURL, "ConfirmationStatus.internalError");
+			status = new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.internalError");
 		}
 		initUI(status);
 	}

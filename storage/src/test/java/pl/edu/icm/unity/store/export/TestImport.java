@@ -36,7 +36,6 @@ import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
 import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
-import pl.edu.icm.unity.store.objstore.confirmation.ConfirmationConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
@@ -120,9 +119,6 @@ public class TestImport
 			assertThat(genericDao.getObjectsOfType(
 					AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE ).size(), 
 					is(8)); 
-			assertThat(genericDao.getObjectsOfType(
-					ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE).size(), 
-					is(2)); 
 			assertThat(genericDao.getObjectsOfType(
 					CredentialHandler.CREDENTIAL_OBJECT_TYPE).size(), 
 					is(3)); 

@@ -11,22 +11,22 @@ package pl.edu.icm.unity.engine.api.confirmation.states;
  * @author P. Piernik
  * 
  */
-public class RegistrationReqIdentityConfirmationState extends RegistrationConfirmationState
+public class RegistrationReqEmailIdentityConfirmationState extends RegistrationEmailConfirmationState
 {
 	public static final String FACILITY_ID = "RegistrationReqIdentityFacility";
 
-	public RegistrationReqIdentityConfirmationState(String serializedState)
+	public RegistrationReqEmailIdentityConfirmationState(String serializedState)
 	{
 		super(serializedState);
 	}
 
-	public RegistrationReqIdentityConfirmationState(String requestId, String type,
+	public RegistrationReqEmailIdentityConfirmationState(String requestId, String type,
 			String value, String locale, String redirectUrl, RequestType requestType)
 	{
 		super(FACILITY_ID, type, value, locale, redirectUrl, requestId, requestType);
 	}
 	
-	public RegistrationReqIdentityConfirmationState(String requestId, String type,
+	public RegistrationReqEmailIdentityConfirmationState(String requestId, String type,
 			String value, String locale, RequestType requestType)
 	{
 		super(FACILITY_ID, type, value, locale, requestId, requestType);
