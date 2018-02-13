@@ -4,14 +4,14 @@
  */
 package pl.edu.icm.unity.base.msgtemplates.confirm;
 
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
@@ -51,7 +51,7 @@ public class EmailConfirmationTemplateDef implements MessageTemplateDefinition
 	@Override
 	public Set<String> getCompatibleFacilities()
 	{
-		return Stream.of(FacilityName.EMAIL.toString())
-	                        .collect(Collectors.toCollection(HashSet::new));
+		return Collections.unmodifiableSet(Sets
+				.newHashSet(FacilityName.EMAIL.toString()));
 	}
 }

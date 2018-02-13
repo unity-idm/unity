@@ -21,7 +21,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
@@ -87,7 +86,7 @@ public class GroupDetailsComponent extends SafePanel
 		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
 				atMan, attributeHandlersReg);
-		Toolbar<AttributeStatement> asToolbar = new Toolbar<AttributeStatement>(Orientation.VERTICAL);
+		Toolbar<AttrStatementWithId> asToolbar = new Toolbar<>(Orientation.VERTICAL);
 		asToolbar.addActionHandlers(attrStatements.getActionHandlers());
 		attrStatements.addSelectionListener(asToolbar.getSelectionListener());
 		ComponentWithToolbar asWithToolbar = new ComponentWithToolbar(attrStatements, asToolbar);

@@ -32,14 +32,11 @@ public class MessageTemplateLoaderTest
 	public void shouldLoadWithDefaultLocale() throws EngineException
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
-		NotificationsManagement notMan = mock(NotificationsManagement.class);
-		Map<String, NotificationChannel> res = new HashMap<>();
-		res.put("", null);	
-		when(notMan.getNotificationChannels()).thenReturn(res);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man, notMan);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
@@ -59,14 +56,11 @@ public class MessageTemplateLoaderTest
 	public void shouldLoadWithNonDefaultLocale() throws EngineException
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
-		NotificationsManagement notMan = mock(NotificationsManagement.class);
-		Map<String, NotificationChannel> res = new HashMap<>();
-		res.put("", null);
-		when(notMan.getNotificationChannels()).thenReturn(res);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man, notMan);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject.en", "sub");
@@ -88,14 +82,11 @@ public class MessageTemplateLoaderTest
 	public void shouldLoadTwoLocalesAndDef() throws EngineException
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
-		NotificationsManagement notMan = mock(NotificationsManagement.class);
-		Map<String, NotificationChannel> res = new HashMap<>();
-		res.put("", null);
-		when(notMan.getNotificationChannels()).thenReturn(res);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man, notMan);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
@@ -119,14 +110,11 @@ public class MessageTemplateLoaderTest
 	public void shouldLoadOverrwriteInlineBodyWithFileBody() throws EngineException
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
-		NotificationsManagement notMan = mock(NotificationsManagement.class);
-		Map<String, NotificationChannel> res = new HashMap<>();
-		res.put("", null);	
-		when(notMan.getNotificationChannels()).thenReturn(res);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man, notMan);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
@@ -144,5 +132,14 @@ public class MessageTemplateLoaderTest
 		assertThat(msg.getBody().getMap().toString(), 
 				msg.getBody().getMap().size(), is(1));
 
+	}
+	
+	private NotificationsManagement getMockNotificationManager() throws EngineException
+	{
+		NotificationsManagement notMan = mock(NotificationsManagement.class);
+		Map<String, NotificationChannel> res = new HashMap<>();
+		res.put("", null);	
+		when(notMan.getNotificationChannels()).thenReturn(res);
+		return notMan;
 	}
 }

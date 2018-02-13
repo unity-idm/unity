@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility;
 import pl.edu.icm.unity.engine.mock.MockNotificationFacility.Message;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -102,8 +103,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void invitationIsSentWhenRequested() throws Exception
 	{
 		initAndCreateForm(true);
-		notMan.removeNotificationChannel("Default e-mail channel");
-		notMan.addNotificationChannel(new NotificationChannel("Default e-mail channel", "", "", MockNotificationFacility.NAME));
+		notMan.removeNotificationChannel(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
+		notMan.addNotificationChannel(new NotificationChannel(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, "", "", MockNotificationFacility.NAME));
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100), 
 				"someAddr");
 		String code = invitationMan.addInvitation(invitation);

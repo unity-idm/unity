@@ -7,6 +7,7 @@ package pl.edu.icm.unity.base.notifications;
 
 /**
  * @author P.Piernik
+ * Name of notification facility
  *
  */
 public enum FacilityName

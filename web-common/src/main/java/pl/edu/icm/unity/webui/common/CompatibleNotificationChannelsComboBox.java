@@ -7,12 +7,14 @@ package pl.edu.icm.unity.webui.common;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.ui.ComboBox;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
@@ -25,6 +27,7 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  */
 public class CompatibleNotificationChannelsComboBox extends ComboBox<String>
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, CompatibleNotificationChannelsComboBox.class);
 	private Collection<String> values;
 	private NotificationsManagement notChannelsMan;
 
@@ -52,25 +55,16 @@ public class CompatibleNotificationChannelsComboBox extends ComboBox<String>
 			return;
 		}
 
-		Map<String, NotificationChannel> channels;
+		Map<String, NotificationChannel> channels = new HashMap<>();
 		try
 		{
-			channels = notChannelsMan.getNotificationChannels();
+			channels = notChannelsMan.getNotificationChannelsForFacilities(facilites);
 
 		} catch (EngineException e)
 		{
-			channels = new HashMap<>();
+			LOG.error("Cannot get notification channels", e);
 		}
-		values = new HashSet<>();
-		for (NotificationChannel channel : channels.values())
-		{
-			if (facilites.contains(channel.getFacilityId()))
-			{
-				values.add(channel.getName());
-
-			}
-		}
-
+		values = channels.keySet();
 		setItems(values);
 	}
 

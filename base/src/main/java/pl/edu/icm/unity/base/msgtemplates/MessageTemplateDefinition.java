@@ -4,8 +4,13 @@
  */
 package pl.edu.icm.unity.base.msgtemplates;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.base.notifications.FacilityName;
 
 /**
  * Message template definition. The implementation defines the contract between the template and the 
@@ -16,6 +21,9 @@ import java.util.Set;
  */
 public interface MessageTemplateDefinition
 {
+	public static final Set<String> ALL_FACILITIES = Collections.unmodifiableSet(Sets
+			.newHashSet(FacilityName.EMAIL.toString(), FacilityName.SMS.toString()));
+
 	/**
 	 * @return message bundle key with the description of the template definition, with information on
 	 * the purpose of the messages created with this template.
@@ -35,8 +43,9 @@ public interface MessageTemplateDefinition
 	
 	
 	/**
-	 * @return set of supported facilities. Message template can be 
-	 * sent only by notification channels which using this facilities.  
+	 * @return set of supported facilities. Message from the template can be 
+	 * sent only by notification channels which are using this facilities.  
 	 */
 	public Set<String> getCompatibleFacilities();
+	
 }
