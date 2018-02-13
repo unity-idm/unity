@@ -53,8 +53,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public enum LogoutMode {internalOnly, internalAndSyncPeers, internalAndAsyncPeers}
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final String CONFIGURATION_FILE = "conf/unityServer.conf";
-	public static final String DEFAULT_EMAIL_CHANNEL = "Default e-mail channel";
-	public static final String DEFAULT_SMS_CHANNEL = "Default SMS channel";
+	public static final String DEFAULT_EMAIL_CHANNEL = "default_email";
+	public static final String DEFAULT_SMS_CHANNEL = "default_sms";
 
 	public static final String SYSTEM_ALLOW_FULL_HTML = "unity.server.allowFullHtml"; 
 	

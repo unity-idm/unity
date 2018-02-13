@@ -5,17 +5,13 @@
 package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
-import pl.edu.icm.unity.base.notifications.FacilityName;
 
 /**
  * Defines a template for new enquiry notification - intended for end users.
@@ -55,8 +51,7 @@ public class NewEnquiryTemplateDef implements MessageTemplateDefinition
 	@Override
 	public Set<String> getCompatibleFacilities()
 	{
-		return Stream.of(FacilityName.EMAIL.toString(),FacilityName.SMS.toString() )
-				    .collect(Collectors.toCollection(HashSet::new));
+		return ALL_FACILITIES;
 	}
 
 }

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -104,4 +105,21 @@ public class NotificationsManagementImpl implements NotificationsManagement
 		return notificationDB.getAllAsMap();
 	}
 
+	@Transactional
+	@Override
+	public Map<String, NotificationChannel> getNotificationChannelsForFacilities(
+			Set<String> facilites) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+
+		if (facilites == null)
+			return new HashMap<>();
+
+		Map<String, NotificationChannel> all = notificationDB.getAllAsMap();
+		Map<String, NotificationChannel> ret = new HashMap<>(all);
+		for (NotificationChannel ch : all.values())
+			if (!facilites.contains(ch.getFacilityId()))
+				ret.remove(ch.getName());
+		return ret;
+	}
 }

@@ -224,6 +224,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationFormNotifications notificationsCfg)
 			throws EngineException
 	{
+		if (templateId == null || templateId.isEmpty())
+				return;
 		String requesterAddress = getRequesterAddress(currentRequest, templateId);
 		sendProcessingNotification(templateId, currentRequest, formId, sendToRequester, 
 				publicComment, internalComment, notificationsCfg, requesterAddress);
@@ -232,7 +234,11 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private String getRequesterAddress(RegistrationRequestState currentRequest,
 			String templateId) throws EngineException
 	{
-		NotificationFacility notificationFacility = getNotificationFacilityFromTemplate(templateId);
+		if (templateId == null || templateId.isEmpty())
+			return null;
+		
+		NotificationFacility notificationFacility = facilitiesManagement
+				.getNotificationFacilityForMessageTemplate(templateId);
 		if (notificationFacility == null)
 			return null;
 		return notificationFacility.getAddressForUserRequest(currentRequest);

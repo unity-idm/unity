@@ -217,7 +217,11 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			throws EngineException
 	{
 		
-		NotificationFacility notificationFacility = getNotificationFacilityFromTemplate(templateId);
+		if (templateId == null || templateId.isEmpty())
+			return null;
+		
+		NotificationFacility notificationFacility = facilitiesManagement
+				.getNotificationFacilityForMessageTemplate(templateId);
 		if (notificationFacility == null)
 			return null;
 		try

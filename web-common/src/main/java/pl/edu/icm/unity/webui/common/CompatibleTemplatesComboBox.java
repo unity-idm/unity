@@ -8,8 +8,11 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.ui.ComboBox;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -20,17 +23,19 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
  */
 public class CompatibleTemplatesComboBox extends ComboBox<String>
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, CompatibleTemplatesComboBox.class);
+	
 	private Collection<String> values; 
 	 
 	public CompatibleTemplatesComboBox(String definitionName, MessageTemplateManagement msgTplMan) 
 	{
-		Map<String, MessageTemplate> templates;
+		Map<String, MessageTemplate> templates = new HashMap<>();
 		try
 		{
 			templates = msgTplMan.getCompatibleTemplates(definitionName);
 		} catch (EngineException e)
 		{
-			templates = new HashMap<>();
+			LOG.error("Cannot get message templates", e);
 		}
 		values = templates.keySet();
 		setItems(values);
