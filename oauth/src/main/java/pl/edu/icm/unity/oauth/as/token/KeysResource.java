@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.oauth.as.token;
 
-import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
 
@@ -12,6 +11,8 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSAlgorithm.Family;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
 import com.nimbusds.jose.jwk.JWK;
@@ -40,21 +41,32 @@ public class KeysResource extends BaseOAuthResource
 
 	@Path("/")
 	@GET
-	public String getKeys() 
+	public String getKeys()
 	{
-		X509Certificate certificate = config.getCredential().getCertificate();
-		JWK jwk;
-		if (certificate.getPublicKey() instanceof RSAPublicKey)
+		JWSAlgorithm signAlg = config.getTokenSigner().getSigningAlgorithm();
+		JWKSet set;
+		if (Family.RSA.contains(signAlg))
 		{
-			jwk = new RSAKey.Builder((RSAPublicKey) certificate.getPublicKey()).
-					keyUse(KeyUse.SIGNATURE).build();
-		} else if (certificate.getPublicKey() instanceof ECPublicKey)
+			set = new JWKSet(new RSAKey.Builder((RSAPublicKey) config.getTokenSigner()
+					.getCredentialCertificate().getPublicKey())
+							.keyUse(KeyUse.SIGNATURE).build());
+		} else if (Family.EC.contains(signAlg))
 		{
-			jwk = new ECKey.Builder(Curve.P_256, (ECPublicKey)certificate.getPublicKey()).
-					keyUse(KeyUse.SIGNATURE).build();
+			set = new JWKSet(new ECKey.Builder(
+					Curve.forJWSAlgorithm(signAlg).iterator().next(),
+					(ECPublicKey) config.getTokenSigner()
+							.getCredentialCertificate().getPublicKey())
+									.keyUse(KeyUse.SIGNATURE)
+									.build());
+		} else if (Family.HMAC_SHA.contains(signAlg))
+		{
+			set = new JWKSet();
 		} else
-			throw new InternalException("Unsupported key in certificate, shouldn't happen");
-		JWKSet set = new JWKSet(jwk);
+		{
+			throw new InternalException(
+					"Unsupported key in certificate, shouldn't happen");
+		}
+
 		return set.toString();
 	}
 }
