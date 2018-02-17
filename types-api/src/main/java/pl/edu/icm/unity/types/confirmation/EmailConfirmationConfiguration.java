@@ -30,6 +30,11 @@ public class EmailConfirmationConfiguration
 	{
 	}
 	
+	public EmailConfirmationConfiguration(String messageTemplate)
+	{
+		this.messageTemplate = messageTemplate;
+	}
+	
 	@JsonCreator
 	public EmailConfirmationConfiguration(ObjectNode root)
 	{
@@ -47,8 +52,7 @@ public class EmailConfirmationConfiguration
 
 
 	private void fromJson(ObjectNode root)
-	{
-		
+	{	
 		if (JsonUtil.notNull(root, "messageTemplate")) 
 			setMessageTemplate(root.get("messageTemplate").asText());
 		if (JsonUtil.notNull(root, "validityTime")) 

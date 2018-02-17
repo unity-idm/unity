@@ -50,6 +50,8 @@ import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityType;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -190,6 +192,43 @@ public class TestImport
 				String value = sa.getAttribute().getValues().get(0);
 				assertThat(value, containsString("SHA256"));
 			}
+		});
+	}
+	
+	@Test
+	public void testImportFrom2_4_x()
+	{
+		tx.runInTransaction(() -> {
+			try
+			{
+				ie.load(new BufferedInputStream(new FileInputStream(
+						"src/test/resources/updateData/from2.4.x/"
+								+ "testbed-from2.4.0-confirmationConfig.json")));
+				ie.store(new FileOutputStream("target/afterImport.json"));
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
+			assertThat(atDAO.getAll().size(), is(67));
+			assertThat(itDAO.getAll().size(), is(7));
+
+			AttributeType emailAttrType = atDAO.get("email");
+			assertThat(emailAttrType.getValueSyntaxConfiguration()
+					.get("messageTemplate").asText(), is("emailConfirmation"));
+			assertThat(emailAttrType.getValueSyntaxConfiguration().get("validityTime")
+					.asInt(), is(2880));
+
+			IdentityType emailIdentityType = itDAO.get("email");
+
+			assertThat(emailIdentityType.getEmailConfirmationConfiguration()
+					.getMessageTemplate(), is("emailConfirmation"));
+			assertThat(emailIdentityType.getEmailConfirmationConfiguration()
+					.getValidityTime(), is(2880));
+
+			assertThat(genericDao.getObjectsOfType("confirmationConfiguration").size(),
+					is(0));
+
 		});
 	}
 }

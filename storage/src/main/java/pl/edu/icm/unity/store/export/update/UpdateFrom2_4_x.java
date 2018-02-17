@@ -8,7 +8,9 @@ package pl.edu.icm.unity.store.export.update;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +26,7 @@ import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
  * Update db from 2.4.1 to 2.5.0
@@ -46,8 +49,77 @@ public class UpdateFrom2_4_x implements Update
 		updateGenericForm(contents, RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE);
 		updateInvitationWithCode(contents);
 		updateConfirmationTemplateName(contents);
+		moveConfirmationConfiguration(contents);
 
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
+	}
+
+	private void moveConfirmationConfiguration(ObjectNode contents)
+	{
+		Map<String, EmailConfirmationConfiguration> attrsConfig = new HashMap<>();
+		Map<String, EmailConfirmationConfiguration> idsConfig = new HashMap<>();
+
+		for (ObjectNode objContent : getGenericContent(contents,
+				"confirmationConfiguration"))
+		{
+
+			EmailConfirmationConfiguration emailConfig = new EmailConfirmationConfiguration();
+			emailConfig.setMessageTemplate(objContent.get("msgTemplate").asText());
+			emailConfig.setValidityTime(objContent.get("validityTime").asInt());
+
+			if (objContent.get("typeToConfirm").asText().equals("attribute"))
+			{
+
+				attrsConfig.put(objContent.get("nameToConfirm").asText(),
+						emailConfig);
+
+			} else if (objContent.get("typeToConfirm").asText().equals("identity"))
+			{
+
+				idsConfig.put(objContent.get("nameToConfirm").asText(),
+						emailConfig);
+
+			}
+		}
+
+		ArrayNode attrTypes = (ArrayNode) contents.get("attributeTypes");
+		if (attrTypes != null)
+		{
+			for (JsonNode node : attrTypes)
+			{
+				String name = node.get("name").asText();
+				EmailConfirmationConfiguration emailConfig = attrsConfig.get(name);
+				if (emailConfig != null)
+					if (node.get("syntaxId").asText().equals("verifiableEmail"))
+
+					{
+						ObjectNode nodeO = (ObjectNode) node;
+						nodeO.set("syntaxState", emailConfig.toJson());
+					}
+
+			}
+		}
+		ArrayNode idTypes = (ArrayNode) contents.get("identityTypes");
+		if (idTypes != null)
+
+		{
+			for (JsonNode node : idTypes)
+			{
+				String name = node.get("name").asText();
+				EmailConfirmationConfiguration emailConfig = attrsConfig.get(name);
+				if (emailConfig != null)
+					if (node.get("identityTypeProvider").asText()
+							.equals("email"))
+
+					{
+						ObjectNode nodeO = (ObjectNode) node;
+						nodeO.set("emailConfirmationConfiguration",
+								emailConfig.toJson());
+					}
+			}
+		}
+		
+		contents.remove("confirmationConfiguration");
 	}
 
 	private Set<ObjectNode> getGenericContent(ObjectNode contents, String type)

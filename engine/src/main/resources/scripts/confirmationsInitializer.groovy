@@ -1,13 +1,15 @@
 import java.util.Collection
 import java.util.Map
 
-import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef
-import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef
 import pl.edu.icm.unity.types.basic.AttributeType
 import pl.edu.icm.unity.types.basic.IdentityType
 import pl.edu.icm.unity.types.basic.MessageTemplate
-import pl.edu.icm.unity.types.basic.NotificationChannel
-import pl.edu.icm.unity.types.confirmation.ConfirmationConfiguration
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
+import pl.edu.icm.unity.Constants;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 if (!isColdStart)
 {
@@ -19,62 +21,58 @@ log.info("E-mail confirmation initialization...");
 
 try
 {
-	if (!confirmationConfigurationManagement.getAllConfigurations().isEmpty())
-		log.debug("Skipping initialization of confirmations subsystem as there are "
-				+ "some configurations already present.");
-	
 	Map<String, MessageTemplate> templates =
-			messageTemplateManagement.getCompatibleTemplates(ConfirmationTemplateDef.NAME);
+			messageTemplateManagement.getCompatibleTemplates(EmailConfirmationTemplateDef.NAME);
 	if (templates.isEmpty())
 	{
 		log.warn("No message template is defined, which is suitable for e-mail confirmations. "
-				+ "The confirmation configurations were NOT initialized.");
+				+ "The email confirmation configurations were NOT initialized.");
 		return;
 	}
 	String firstTemplate = templates.keySet().iterator().next();
 	
-	Map<String, NotificationChannel> channels = notificationsManagement.getNotificationChannels();
-	if (channels.isEmpty())
-	{
-		log.warn("No notification channel is available. The confirmation configurations "
-				+ "were NOT initialized.");
-		return;
-	}
-	String firstChannel = channels.keySet().iterator().next();
-	
+	EmailConfirmationConfiguration emailConf = new EmailConfirmationConfiguration(firstTemplate);
+		
 	Collection<AttributeType> attributeTypes = attributeTypeSupport.getAttributeTypes();
 	for (AttributeType at: attributeTypes)
-	{
-		if (attributeTypeSupport.getSyntax(at).isVerifiable())
 		{
-			ConfirmationConfiguration emailAttr = new ConfirmationConfiguration(
-				ConfirmationConfigurationManagement.ATTRIBUTE_CONFIG_TYPE,
-				at.getName(),
-				firstChannel,
-				firstTemplate,
-				2880);
-			confirmationConfigurationManagement.addConfiguration(emailAttr);
-			log.info("Added confirmation subsystem configuration for email attribute "
-				+ "with the template " + firstTemplate);
-		}
-	}
-	
+			if (attributeTypeSupport.getSyntax(at).isEmailVerifiable())
+			{			
+				if (at.getValueSyntaxConfiguration() == null || at.getValueSyntaxConfiguration().isEmpty())
+				{
+					ObjectNode main = Constants.MAPPER.createObjectNode();
+					main.set("emailConfirmationConfiguration", emailConf.toJson());
+					at.setValueSyntaxConfiguration(main)
+				
+					attributeTypeManagement.updateAttributeType(at);
+					log.info("Added confirmation subsystem configuration for email attribute "
+							+ "with the template " + firstTemplate);	
+				} else
+				{
+    				log.info("Skip add confirmation subsystem configuration for attribute type " + at.getName());		
+				}
+			}
+		}	
 	Collection<IdentityType> identityTypes = identityTypeSupport.getIdentityTypes();
 	for (IdentityType idType: identityTypes)
 	{
-		if (identityTypeSupport.getTypeDefinition(idType.getIdentityTypeProvider()).isVerifiable())
-		{
-			ConfirmationConfiguration emailId = new ConfirmationConfiguration(
-					ConfirmationConfigurationManagement.IDENTITY_CONFIG_TYPE,
-					idType.getIdentityTypeProvider(),
-					firstChannel,
-					firstTemplate,
-					2880);
-			confirmationConfigurationManagement.addConfiguration(emailId);
-			log.info("Added confirmation subsystem configuration for email identity "
-					+ "with the template " + firstTemplate);
+		if (identityTypeSupport.getTypeDefinition(idType.getIdentityTypeProvider()).isEmailVerifiable())
+		{		
+			if (idType.getEmailConfirmationConfiguration() == null)
+			{
+    			idType.setEmailConfirmationConfiguration(emailConf);
+				identityTypesManagement.updateIdentityType(idType);	
+				log.info("Added confirmation subsystem configuration for email identity "
+						+ "with the template " + firstTemplate);
+			}
+			else
+			{
+    			log.info("Skip add confirmation subsystem configuration for identity type " + idType.getName());		
+			}		
 		}
 	}
+	
+	
 } catch (Exception e)
 {
 	log.warn("Error initializing default confirmations", e);
