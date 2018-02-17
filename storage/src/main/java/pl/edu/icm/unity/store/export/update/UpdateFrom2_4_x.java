@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
+import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
@@ -48,10 +49,24 @@ public class UpdateFrom2_4_x implements Update
 		updateGenericForm(contents, EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE);
 		updateGenericForm(contents, RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE);
 		updateInvitationWithCode(contents);
-		updateConfirmationTemplateName(contents);
+		updateNotificationChannels(contents);
+		updateMessageTemplates(contents);
+		
 		moveConfirmationConfiguration(contents);
 
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
+	}
+
+	private void updateNotificationChannels(ObjectNode contents)
+	{
+		for (ObjectNode objContent : getGenericContent(contents,
+				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID))
+		{
+			if (objContent.get("name").asText().equals("Default e-mail channel"))
+				objContent.put("name", "default_email");
+			if (objContent.get("name").asText().equals("Default SMS channel"))
+				objContent.put("name", "default_sms");
+		}	
 	}
 
 	private void moveConfirmationConfiguration(ObjectNode contents)
@@ -146,7 +161,7 @@ public class UpdateFrom2_4_x implements Update
 		}
 	}
 
-	private void updateConfirmationTemplateName(ObjectNode contents)
+	private void updateMessageTemplates(ObjectNode contents)
 	{
 		for (ObjectNode objContent : getGenericContent(contents,
 				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE))
@@ -155,6 +170,8 @@ public class UpdateFrom2_4_x implements Update
 			{
 				objContent.put("consumer", "EmailConfirmation");
 			}
+			if (!objContent.get("consumer").asText().equals("Generic"))
+				objContent.put("notificationChannel", "default_email");
 		}
 	}
 

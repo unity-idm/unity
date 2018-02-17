@@ -226,9 +226,17 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			if (tpl.getName().equals(templateId))
 				template = tpl;
 		}
-		if (!(template != null && template.getConsumer().equals(
+		
+		if (template == null)
+			throw new IllegalArgumentException(
+					"The message template " + templateId + " does not exists");
+		
+		if (!(template.getConsumer().equals(
 				EmailConfirmationTemplateDef.NAME)))
-			throw new IllegalArgumentException("Illegal type of template");
+			throw new IllegalArgumentException(
+					"Illegal type of template. Only message templates with "
+							+ EmailConfirmationTemplateDef.NAME
+							+ " are allowed");
 
 		String link = advertisedAddress.toExternalForm()
 				+ SharedEndpointManagementImpl.CONTEXT_PATH
