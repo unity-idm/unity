@@ -33,6 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.server.api.IdentitiesManagement;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.EntityInformation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeVisibility;
@@ -40,6 +41,8 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  *
@@ -60,7 +63,7 @@ public class LdapAttributeUtilsTest {
         Properties properties = new Properties();
 
         properties.put(LdapServerProperties.PREFIX + LdapServerProperties.ATTRIBUTES_MAP_PFX+"1."+LdapServerProperties.ATTRIBUTES_MAP_LDAP_AT, "mail");
-        properties.put(LdapServerProperties.PREFIX + LdapServerProperties.ATTRIBUTES_MAP_PFX+"1."+LdapServerProperties.ATTRIBUTES_MAP_LDAP_OID, "0.9.2342.19200300.100.1.1");
+        properties.put(LdapServerProperties.PREFIX + LdapServerProperties.ATTRIBUTES_MAP_PFX+"1."+LdapServerProperties.ATTRIBUTES_MAP_LDAP_OID, "0.9.2342.19200300.100.1.3");
         properties.put(LdapServerProperties.PREFIX + LdapServerProperties.ATTRIBUTES_MAP_PFX+"1."+LdapServerProperties.ATTRIBUTES_MAP_UNITY_ATRIBUTE, "");
         properties.put(LdapServerProperties.PREFIX + LdapServerProperties.ATTRIBUTES_MAP_PFX+"1."+LdapServerProperties.ATTRIBUTES_MAP_UNITY_IDENTITY, "email");
 
@@ -82,7 +85,12 @@ public class LdapAttributeUtilsTest {
     @Test
     public void testAddAttribute() throws EngineException, LdapException {
         
-        Entity userEntity = new Entity(1L, new Identity[] {}, new EntityInformation(null), null);
+        IdentityType idType = new IdentityType(new EmailIdentity());
+        ConfirmationInfo cInfo = new ConfirmationInfo(true);
+        Date timestamp = new Date();
+        Identity id = new Identity(idType, "test@clarin.eu", 1L, null, null, null, null, timestamp, timestamp, cInfo);
+        
+        Entity userEntity = new Entity(1L, new Identity[] {id}, new EntityInformation(null), null);
         Collection<AttributeExt<?>> unityUserAttrs = new HashSet<>();
         
         List<String> values = new ArrayList<>();
