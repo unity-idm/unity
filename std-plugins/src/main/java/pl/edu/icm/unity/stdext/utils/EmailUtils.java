@@ -8,8 +8,8 @@ import java.util.List;
 
 import org.apache.commons.validator.routines.EmailValidator;
 
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 /**
  * Email utils shared.
@@ -18,8 +18,6 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 public class EmailUtils
 {
 	private static final int MAX_LENGTH = 80;
-	public final static String CONFIRMED_POSTFIX = "[CONFIRMED]"; 
-	public final static String UNCONFIRMED_POSTFIX = "[UNCONFIRMED]"; 
 	
 	/**
 	 * @param value
@@ -41,27 +39,12 @@ public class EmailUtils
 	
 	public static VerifiableEmail convertFromString(String stringRepresentationRaw)
 	{
-		String stringRepresentation = stringRepresentationRaw.trim();
-		String email = stringRepresentation;
-		boolean confirmed = false;
-		if (stringRepresentation.endsWith(CONFIRMED_POSTFIX))
-		{
-			confirmed = true;
-			email = stringRepresentation.substring(0, stringRepresentation.length() - 
-					CONFIRMED_POSTFIX.length());
-		}
-		if (stringRepresentation.endsWith(UNCONFIRMED_POSTFIX))
-		{
-			confirmed = false;
-			email = stringRepresentation.substring(0, stringRepresentation.length() - 
-					UNCONFIRMED_POSTFIX.length());
-		}
-		
-		List<String> tags = VerifiableEmail.extractTags(email);
-		VerifiableEmail ret = new VerifiableEmail(email);
+		VerifiableElementBase verifiableBase = ConfirmationUtils.convertFromString(stringRepresentationRaw);
+		VerifiableEmail ret = new VerifiableEmail(verifiableBase.getValue(), verifiableBase.getConfirmationInfo());
+	
+		List<String> tags = VerifiableEmail.extractTags(verifiableBase.getValue());
 		ret.setTags(tags);
-		if (confirmed)
-			ret.setConfirmationInfo(new ConfirmationInfo(true));
+	
 		return ret;
 	}
 }

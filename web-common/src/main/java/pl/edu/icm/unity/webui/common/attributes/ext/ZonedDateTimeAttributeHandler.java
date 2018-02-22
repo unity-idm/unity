@@ -107,7 +107,7 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required, boolean adminMode)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode, String attrName)
 		{
 			this.required = required;
 			datetime = new DateTimeField();

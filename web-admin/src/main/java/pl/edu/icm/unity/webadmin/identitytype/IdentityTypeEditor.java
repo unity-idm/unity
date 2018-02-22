@@ -18,6 +18,7 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
@@ -136,7 +137,8 @@ public class IdentityTypeEditor extends FormLayout
 		minVerified.setEnabled(state);
 	}
 
-	public IdentityType getIdentityType() throws FormValidationException
+	public IdentityType getIdentityType()
+			throws FormValidationException, IllegalAttributeTypeException
 	{
 		if (!binder.isValid())
 			throw new FormValidationException();

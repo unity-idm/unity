@@ -44,6 +44,13 @@ public class ConfirmationInfo
 		fromJson(root);
 	}
 	
+	public void confirm()
+	{
+		this.confirmed = true;
+		this.sentRequestAmount = 0;
+		this.confirmationDate = System.currentTimeMillis();
+	}
+	
 	public boolean isConfirmed()
 	{
 		return confirmed;

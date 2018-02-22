@@ -19,7 +19,7 @@ public interface AttributeValueEditor
 	 * admins only (as confirmation status). In the most cases can be ignored.
 	 * @return
 	 */
-	public ComponentsContainer getEditor(boolean required, boolean adminMode);
+	public ComponentsContainer getEditor(boolean required, boolean adminMode, String attributeName);
 	
 	/**
 	 * @return the edited value 

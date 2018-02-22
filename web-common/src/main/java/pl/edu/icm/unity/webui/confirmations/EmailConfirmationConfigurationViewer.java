@@ -38,7 +38,6 @@ public class EmailConfirmationConfigurationViewer extends VerticalLayout
 			EmailConfirmationConfiguration init)
 	{
 		this(msg);
-		
 		setValue(init);
 	}
 

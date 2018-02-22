@@ -140,7 +140,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required, boolean adminMode)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode, String attrName)
 		{
 			this.required = required;
 			this.adminMode = adminMode;
@@ -185,10 +185,12 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				return syntax.convertToString(email);
 			} catch (IllegalAttributeValueException e)
 			{
+				e.printStackTrace();
 				field.setComponentError(new UserError(e.getMessage()));
 				throw e;
 			} catch (Exception e)
 			{
+				e.printStackTrace();
 				field.setComponentError(new UserError(e.getMessage()));
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}

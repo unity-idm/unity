@@ -65,7 +65,7 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
- * Confirmation manager, send or process confirmation request
+ * Email confirmation manager, send or process confirmation request
  * 
  * @author P. Piernik
  */

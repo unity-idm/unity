@@ -82,7 +82,7 @@ public abstract class AbstractAttributeEditor
 			WebAttributeHandler handler = registry.getHandler(syntax);
 			editor = handler.getEditorComponent(value.getValue(), value.getLabel());
 			editedValue = value;
-			ComponentsContainer ret = editor.getEditor(required, adminMode);
+			ComponentsContainer ret = editor.getEditor(required, adminMode, at.getName());
 			String description = at.getDescription().getValue(msg);
 			if (description != null && !description.equals(""))
 				ret.setDescription(HtmlConfigurableLabel.conditionallyEscape(description));

@@ -165,7 +165,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required, boolean adminMode)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode, String attrName)
 		{
 			error = new Label();
 			error.setStyleName(Styles.error.toString());

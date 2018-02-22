@@ -79,7 +79,7 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  * @author P. Piernik
  * 
  */
-public class TestConfirmations extends DBIntegrationTestBase
+public class TestEmailConfirmations extends DBIntegrationTestBase
 {
 	@Autowired
 	private MessageTemplateManagement templateMan;

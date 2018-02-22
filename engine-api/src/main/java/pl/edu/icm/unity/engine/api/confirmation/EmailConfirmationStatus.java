@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.engine.api.confirmation;
 
 /**
- * Confirmation status. Contains key for user friendly message about confirmation
+ * Email confirmation status. Contains key for user friendly message about confirmation
  * process
  * 
  * @author P. Piernik

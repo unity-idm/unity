@@ -13,30 +13,32 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 
 /**
- * Email confirmation subsystem configuration entry
+ * Mobile number confirmation subsystem configuration entry
  * 
  * @author P. Piernik
  * 
  */
-public class EmailConfirmationConfiguration
+public class MobileNumberConfirmationConfiguration
 {	
-	public static final int DEFAULT_VALIDITY = 48*60;
+	public static final int DEFAULT_VALIDITY = 1;
+	public static final int DEFAULT_CODE_LENGHT = 6;
 	
 	private String messageTemplate;	
 	private int validityTime = DEFAULT_VALIDITY;
+	private int codeLenght = DEFAULT_CODE_LENGHT;
 
 	
-	public EmailConfirmationConfiguration()
+	public MobileNumberConfirmationConfiguration()
 	{
 	}
 	
-	public EmailConfirmationConfiguration(String messageTemplate)
+	public MobileNumberConfirmationConfiguration(String messageTemplate)
 	{
 		this.messageTemplate = messageTemplate;
 	}
 	
 	@JsonCreator
-	public EmailConfirmationConfiguration(ObjectNode root)
+	public MobileNumberConfirmationConfiguration(ObjectNode root)
 	{
 		fromJson(root);
 	}
@@ -49,6 +51,16 @@ public class EmailConfirmationConfiguration
 	public void setValidityTime(int validityTime)
 	{
 		this.validityTime = validityTime;
+	}
+	
+	public int getCodeLenght()
+	{
+		return codeLenght;
+	}
+
+	public void setCodeLenght(int codeLenght)
+	{
+		this.codeLenght = codeLenght;
 	}
 
 	public String getMessageTemplate()
@@ -66,7 +78,9 @@ public class EmailConfirmationConfiguration
 		if (JsonUtil.notNull(root, "messageTemplate")) 
 			setMessageTemplate(root.get("messageTemplate").asText());
 		if (JsonUtil.notNull(root, "validityTime")) 
-			setValidityTime(root.get("validityTime").asInt());	
+			setValidityTime(root.get("validityTime").asInt());
+		if (JsonUtil.notNull(root, "codeLenght")) 
+			setCodeLenght(root.get("codeLenght").asInt());
 	}
 
 	@JsonValue
@@ -75,6 +89,7 @@ public class EmailConfirmationConfiguration
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.put("messageTemplate", getMessageTemplate());
 		root.put("validityTime", getValidityTime());
+		root.put("codeLenght", getCodeLenght());
 		return root;
 	}
 }

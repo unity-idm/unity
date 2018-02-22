@@ -18,20 +18,20 @@ import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
 import pl.edu.icm.unity.base.notifications.FacilityName;
 
 /**
- * Message template definition for email confirmation subsystem
+ * Message template definition for mobile number confirmation subsystem
  *   
  * @author P. Piernik
  */
 @Component
-public class EmailConfirmationTemplateDef implements MessageTemplateDefinition
+public class MobileNumberConfirmationTemplateDef implements MessageTemplateDefinition
 {
-	public static final String NAME = "EmailConfirmation";
-	public static final String CONFIRMATION_LINK = "confirmationLink";
+	public static final String NAME = "MobileNumberConfirmation";
+	public static final String CONFIRMATION_CODE = "confirmationCode";
 
 	@Override
 	public String getDescriptionKey()
 	{
-		return "MessageTemplateConsumer.EmailConfirmation.desc";
+		return "MessageTemplateConsumer.MobileNumberConfirmation.desc";
 	}
 
 	@Override
@@ -44,14 +44,15 @@ public class EmailConfirmationTemplateDef implements MessageTemplateDefinition
 	public Map<String, MessageTemplateVariable> getVariables()
 	{
 		Map<String, MessageTemplateVariable> vars = new HashMap<>();
-		vars.put(CONFIRMATION_LINK, new MessageTemplateVariable(CONFIRMATION_LINK, "MessageTemplateConsumer.EmailConfirmation.var.confirmationLink", true));
+		vars.put(CONFIRMATION_CODE, new MessageTemplateVariable(CONFIRMATION_CODE,
+				"MessageTemplateConsumer.MobileNumberConfirmation.var.confirmationCode",
+				true));
 		return vars;
 	}
 
 	@Override
 	public Set<String> getCompatibleFacilities()
 	{
-		return Collections.unmodifiableSet(Sets
-				.newHashSet(FacilityName.EMAIL.toString()));
+		return Collections.unmodifiableSet(Sets.newHashSet(FacilityName.SMS.toString()));
 	}
 }

@@ -13,7 +13,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
- * Confirmation manager
+ * Confirmation manager for email attribute or identity
  * 
  * @author P. Piernik
  */
@@ -24,7 +24,7 @@ public interface EmailConfirmationManager
 	/**
 	 * Send confirmation request to the user with confirmation state. 
 	 * Confirmations configuration appropriate for the confirmation is used to establish
-	 * message template id and notification channel id. The template is filled by manager with confirmation
+	 * message template id. The template is filled by manager with confirmation
 	 * link and the whole message is sent via configured notification channel.  
 	 * 
 	 * @param state 
