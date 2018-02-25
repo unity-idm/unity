@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
 /**
@@ -74,7 +75,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required, boolean adminMode, String attrName)
+		public ComponentsContainer getEditor(boolean required, boolean adminMode,
+				String attrName, EntityParam owner, String group)
 		{
 			this.required = required;
 			boolean large = false;

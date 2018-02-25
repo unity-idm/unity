@@ -725,7 +725,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				true,
 				InitializerCommon.EMAIL_ATTR, "demoTemplate", "demoChannel");	
 		setupAdmin();
-		for (int i = 0; i < mainConfig.getIntValue(UnityServerConfiguration.CONFIRMATION_REQUEST_LIMIT); i++)
+		for (int i = 0; i < mainConfig.getIntValue(UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT); i++)
 		{
 			at1.setValues(new VerifiableEmail("test6@ex.com", new ConfirmationInfo(false)).toJsonString());
 			attrsMan.setAttribute(entity, at1, true);

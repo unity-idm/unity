@@ -25,6 +25,7 @@ import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * Dialog for verify mobile number
@@ -126,6 +127,9 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 
 		} catch (EngineException er)
 		{
+			NotificationPopup.showError(msg, msg.getMessage(
+					"MobileNumberConfirmationDialog.confirmationSendError",
+					mobileToConfirm), er);
 			log.error("Cannot send confirmation request message", er);
 		}
 	}

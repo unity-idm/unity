@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common;
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -24,30 +25,46 @@ public class TextFieldWithButton extends CustomField<String>
 	private TextField editor;
 	private Resource buttonIcon;
 	private String buttonDescription;
+	private Button button;
+	private HorizontalLayout fieldWithButton;
+	private String initVal;
 	
 	public TextFieldWithButton(String caption, Resource buttonIcon,	String buttonDescription,
 			ButtonHandler handler)
 	{
-		setCaption(caption);
+		if (caption != null)
+			setCaption(caption);
 		this.handler = handler;
 		this.buttonDescription = buttonDescription;
 		this.buttonIcon = buttonIcon;
 	}
 	
+	public TextFieldWithButton(String caption, Resource buttonIcon,	String buttonDescription,
+			ButtonHandler handler, String initVal)
+	{
+		this(caption, buttonIcon, buttonDescription, handler);
+		this.initVal = initVal;
+		
+	}
+
 	@Override
 	protected Component initContent()
 	{
-		HorizontalLayout ret = new HorizontalLayout();
-		ret.setSpacing(true);
-		ret.setMargin(false);
-		editor = new TextField();
-		ret.addComponent(editor);
+		System.out.println("INITTTTT \n\n\n\n");
 		
-		Button b = new Button();
-		b.addStyleName(Styles.vButtonSmall.toString());
-		b.setIcon(buttonIcon);
-		b.setDescription(HtmlEscapers.htmlEscaper().escape(buttonDescription));
-		b.addClickListener(event -> {
+		fieldWithButton = new HorizontalLayout();
+		fieldWithButton.setSpacing(true);
+		fieldWithButton.setMargin(false);
+		editor = new TextField();
+		if (initVal != null)
+			editor.setValue(initVal);
+		fieldWithButton.addComponent(editor);
+		
+		button = new Button();
+		button.addStyleName(Styles.vButtonSmall.toString());
+		button.setIcon(buttonIcon);
+		button.setDescription(HtmlEscapers.htmlEscaper().escape(buttonDescription));
+		button.addClickListener(event -> {
 			String value = editor.getValue();
 			String error = handler.validate(value);
 			if (error == null)
@@ -61,8 +78,8 @@ public class TextFieldWithButton extends CustomField<String>
 			}
 		});
 
-		ret.addComponents(editor, b);
-		return ret;
+		fieldWithButton.addComponents(editor, button);
+		return fieldWithButton;
 	}
 
 	public interface ButtonHandler
@@ -87,10 +104,37 @@ public class TextFieldWithButton extends CustomField<String>
 	}
 
 	@Override
+	public void setId(String id)
+	{
+		if (editor != null)
+			editor.setId(id);
+	}
+	
+	@Override
 	protected void doSetValue(String value)
 	{
 		editor.setValue(value);
 		
 	}
+	
+	@Override
+	public Registration addValueChangeListener(ValueChangeListener<String> listener)
+	{
+		if (editor != null)
+			return editor.addValueChangeListener(listener);
+		return null;
+	}
+	
+	public Button getButton()
+	{
+		return button;
+	}
+
+	public void removeButton()
+	{
+		fieldWithButton.removeComponent(button);		
+	}
+	
+	
 	
 }

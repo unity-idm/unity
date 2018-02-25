@@ -12,6 +12,7 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 
@@ -29,6 +30,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private String caption;
 	private String description;
 	private String group;
+	private EntityParam owner;
 	private boolean showGroup;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private boolean required;
@@ -36,7 +38,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	private AbstractOrderedLayout parent;
 
 	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributeType attributeType, boolean showGroup, String group, 
+			AttributeType attributeType, EntityParam owner, boolean showGroup, String group, 
 			String caption, String description, boolean required, boolean adminMode, 
 			AbstractOrderedLayout parent)
 	{
@@ -49,6 +51,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		this.required = required;
 		this.adminMode = adminMode;
 		this.parent = parent;
+		this.owner = owner;
 		initUI();
 	}
 	
@@ -98,7 +101,7 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		if (description == null)
 			description = attributeType.getDescription().getValue(msg);
 		
-		valuesComponent = getValuesPart(attributeType, caption, required, adminMode, parent);
+		valuesComponent = getValuesPart(attributeType, owner, group, caption, required, adminMode, parent);
 	}
 	
 	public void clear()

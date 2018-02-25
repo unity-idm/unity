@@ -101,5 +101,5 @@ Configuration syntax change
 
 . New email confirmation consumer name = +EmailConfirmation+
 . There is new message template config param +notificationChannel+. All message templates (except Generic) from db after update will have set default_email channel.
-
+. Config key unityServer.core.confirmationRequestLimit now is unityServer.core.emailConfirmationRequestLimit
   

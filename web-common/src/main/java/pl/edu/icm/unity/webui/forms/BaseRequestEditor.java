@@ -613,7 +613,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					aParam.getDescription() : null;
 			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
-					aType, aParam.isShowGroups(), aParam.getGroup(), 
+					aType, null, aParam.isShowGroups(), aParam.getGroup(), 
 					aName, description, !aParam.isOptional(), false, layout);
 			
 			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 

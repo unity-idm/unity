@@ -73,7 +73,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EmailConfirmationManagerImpl.class);
-	private static final String CACHE_ID = "ConfirmationCache";
+	private static final String CACHE_ID = "EmailConfirmationCache";
 	
 	private IdentityTypeHelper idTypeHelper;
 	private AttributeTypeHelper atTypeHelper;
@@ -120,7 +120,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		persistCfg.setStrategy("none");
 		cacheConfig.persistence(persistCfg);		
 		confirmationReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
-		requestLimit = mainConf.getIntValue(UnityServerConfiguration.CONFIRMATION_REQUEST_LIMIT);
+		requestLimit = mainConf.getIntValue(UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT);
 		defaultRedirectURL = mainConf.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
@@ -188,7 +188,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 				Query.VALUE.ilike(address)).execute();
 		if (results.size() >= requestLimit)
 		{		
-			log.warn("Limit of sent confirmation requests to " + address + 
+			log.warn("Limit of sent confirmation requests to email " + address + 
 					" was reached. (Limit=" +requestLimit + "/24H)");
 			return false;
 		}

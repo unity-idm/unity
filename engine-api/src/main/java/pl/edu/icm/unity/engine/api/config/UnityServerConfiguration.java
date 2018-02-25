@@ -136,10 +136,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
-	public static final String CONFIRMATION_REQUEST_LIMIT = "confirmationRequestLimit";
+	public static final String EMAIL_CONFIRMATION_REQUEST_LIMIT = "emailConfirmationRequestLimit";
 	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
 	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
 
+	public static final String MOBILE_CONFIRMATION_REQUEST_LIMIT = "mobileConfirmationRequestLimit";
+	
 	public static final String SCRIPTS = "script.";
 	public static final String SCRIPT_FILE = "file";
 	public static final String SCRIPT_TYPE = "type";
@@ -348,7 +350,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 		
-		defaults.put(CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
+		defaults.put(EMAIL_CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
 				setDescription("Defines number of confirmation request that can be send to particular address in day"));
 		defaults.put(CONFIRMATION_DEFAULT_RETURN_URL, new PropertyMD().setCategory(mainCat).
 				setDescription("If set the value should be a valid URL. The URL is used as a return (redirect) URL "
@@ -357,6 +359,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(CONFIRMATION_AUTO_REDIRECT, new PropertyMD("false").setCategory(mainCat).
 				setDescription("If false Unity will show its confirmation screen after email verification. "
 						+ "If true and a return URL is defined for the confirmation then the screen is not shown and redirect is immediate."));
+		defaults.put(MOBILE_CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
+				setDescription("Defines number of confirmation request that can be send to particular mobile number in day"));
 		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));

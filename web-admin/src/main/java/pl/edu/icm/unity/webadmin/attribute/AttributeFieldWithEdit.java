@@ -85,8 +85,8 @@ public class AttributeFieldWithEdit extends CustomField<Attribute>
 	private void editAttribute()
 	{
 		AttributeEditor theEditor = fixedAttributeType == null ? 
-				new AttributeEditor(msg, attributeTypes, group, attrHandlerRegistry, valuesRequired) :
-				new AttributeEditor(msg, fixedAttributeType, group, attrHandlerRegistry);
+				new AttributeEditor(msg, attributeTypes, null, group, attrHandlerRegistry, valuesRequired) :
+				new AttributeEditor(msg, fixedAttributeType, null, group, attrHandlerRegistry);
 		if (attribute != null)
 			theEditor.setInitialAttribute(attribute);
 		AttributeEditDialog dialog = new AttributeEditDialog(msg, 

@@ -10,6 +10,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
@@ -37,11 +38,11 @@ public abstract class AbstractAttributeEditor
 		this.registry = registry;
 	}
 	
-	protected ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(AttributeType at, String label, 
+	protected ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(AttributeType at, EntityParam owner, String group, String label, 
 			boolean required, boolean adminMode, AbstractOrderedLayout layout)
 	{
 		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<LabelledValue>(msg, 
-				new AttributeValueEditorAndProvider(at, label, required, adminMode), 
+				new AttributeValueEditorAndProvider(at, owner, group, label, required, adminMode), 
 				at.getMinElements(), at.getMaxElements(), false, layout);
 		ret.setLonelyLabel(label);
 		return ret;
@@ -51,25 +52,29 @@ public abstract class AbstractAttributeEditor
 	protected class AttributeValueEditorAndProvider implements EditorProvider<LabelledValue>, Editor<LabelledValue>
 	{
 		private AttributeType at;
+		private EntityParam owner;
+		private String group;
 		private AttributeValueEditor editor;
 		private LabelledValue editedValue;
 		private String baseLabel;
 		private boolean required;
 		private boolean adminMode;
 		
-		public AttributeValueEditorAndProvider(AttributeType at, String label, boolean required, 
+		public AttributeValueEditorAndProvider(AttributeType at, EntityParam owner, String group, String label, boolean required, 
 				boolean adminMode)
 		{
 			this.at = at;
 			this.baseLabel = label;
 			this.required = required;
 			this.adminMode = adminMode;
+			this.owner = owner;
+			this.group = group;
 		}
 
 		@Override
 		public Editor<LabelledValue> getEditor()
 		{
-			return new AttributeValueEditorAndProvider(at, baseLabel, required, adminMode);
+			return new AttributeValueEditorAndProvider(at, owner, group, baseLabel, required, adminMode);
 		}
 
 		@Override
@@ -82,7 +87,7 @@ public abstract class AbstractAttributeEditor
 			WebAttributeHandler handler = registry.getHandler(syntax);
 			editor = handler.getEditorComponent(value.getValue(), value.getLabel());
 			editedValue = value;
-			ComponentsContainer ret = editor.getEditor(required, adminMode, at.getName());
+			ComponentsContainer ret = editor.getEditor(required, adminMode, at.getName(), owner, group);
 			String description = at.getDescription().getValue(msg);
 			if (description != null && !description.equals(""))
 				ret.setDescription(HtmlConfigurableLabel.conditionallyEscape(description));

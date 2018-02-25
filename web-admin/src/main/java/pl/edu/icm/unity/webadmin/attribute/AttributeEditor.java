@@ -15,6 +15,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCallback;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -41,14 +42,14 @@ public class AttributeEditor extends CustomComponent
 	 * @param groupPath
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(final UnityMessageSource msg, Collection<AttributeType> attributeTypes, String groupPath,
+	public AttributeEditor(final UnityMessageSource msg, Collection<AttributeType> attributeTypes, EntityParam owner, String groupPath,
 			final AttributeHandlerRegistry handlerRegistry, final boolean required)
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new CompactFormLayout();
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, 
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, owner, 
 				false, AttributeEditor.this.groupPath, null, null, 
 				required, true, attrValuesContainer);
 
@@ -58,7 +59,7 @@ public class AttributeEditor extends CustomComponent
 			public void attributeTypeChanged(AttributeType newType)
 			{
 				attrValuesContainer.removeAllComponents();
-				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, 
+				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, owner, 
 						false, AttributeEditor.this.groupPath, 
 						null, null, required, true, attrValuesContainer);
 			}
@@ -84,13 +85,13 @@ public class AttributeEditor extends CustomComponent
 	 * @param attribute
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute attribute, 
+	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, Attribute attribute, EntityParam owner, 
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, owner, 
 				false, AttributeEditor.this.groupPath, null, null, true, true, 
 				attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
@@ -104,13 +105,13 @@ public class AttributeEditor extends CustomComponent
 	 * @param attribute
 	 * @param handlerRegistry
 	 */
-	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, String groupPath, 
+	public AttributeEditor(UnityMessageSource msg, AttributeType attributeType, EntityParam owner, String groupPath, 
 			AttributeHandlerRegistry handlerRegistry)
 	{
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, 
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, owner, 
 				false, AttributeEditor.this.groupPath, null, null, true, true, 
 				attrValuesContainer);
 		typeFixed = true;

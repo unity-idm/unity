@@ -79,7 +79,7 @@ public enum Images
 	menu		(VaadinIcons.MENU),
 	remove		(VaadinIcons.CLOSE_CIRCLE_O),
 	resize		(VaadinIcons.RESIZE_H),
-	verify		(VaadinIcons.CHECK_SQUARE_O);
+	mobile		(VaadinIcons.MOBILE_RETRO);
 	
 	
 	private final Resource resource;
