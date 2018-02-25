@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.engine.confirmation;
 
 import java.util.HashMap;
-import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
+import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
@@ -89,7 +89,7 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		if (!checkSendingLimit(mobileToConfirm))
 			return null;
 		
-		String code = generateCode(configEntry.getCodeLenght());
+		String code = CodeGenerator.generateCode(configEntry.getCodeLenght());
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put(MobileNumberConfirmationTemplateDef.CONFIRMATION_CODE, code);
@@ -112,16 +112,6 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		return ret;
 	}
 	
-	private String generateCode(int codeLenght)
-	{
-		Random rand = new Random();
-		String code = "";
-		for (int i=0; i < codeLenght ; i++)
-			code += String.valueOf(rand.nextInt(10));
-		
-		return code;
-	}
-
 	private void updateConfirmationInfo (ConfirmationInfo toUpdate)
 	{
 		toUpdate.setConfirmationDate(0);
