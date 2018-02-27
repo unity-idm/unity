@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
@@ -55,6 +56,7 @@ import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -89,7 +91,7 @@ public class TestImport
 	@Autowired
 	private GroupDAO groupDAO;
 	@Autowired
-	private MembershipDAO memberDAO;
+	private MembershipDAO memberDAO;	
 	
 	@Before
 	public void cleanDB()
@@ -282,6 +284,42 @@ public class TestImport
 
 			assertThat(genericDao.getObjectsOfType("confirmationConfiguration").size(),
 					is(0));
+			
+			
+			assertThat(genericDao.getObjectsOfType(
+					CredentialHandler.CREDENTIAL_OBJECT_TYPE).size(), 
+					is(2));
+			
+			for (GenericObjectBean cred : genericDao
+					.getObjectsOfType(CredentialHandler.CREDENTIAL_OBJECT_TYPE))
+			{
+				CredentialDefinition credential = null;
+				try
+				{
+					credential = new CredentialDefinition(
+							(ObjectNode) Constants.MAPPER.readTree(
+									cred.getContents()));
+					if (credential.getName().equals("newCredential"))
+					{
+						JsonNode config = Constants.MAPPER.readTree(
+								credential.getConfiguration());
+						
+						JsonNode resetSet = config.get("resetSettings");				
+						assertThat(resetSet.get("enable").asBoolean(),
+								is(true));
+						assertThat(resetSet.get("confirmationMode")
+								.asText(), is("RequireEmail"));
+						assertThat(resetSet
+								.get("emailSecurityCodeMsgTemplate")
+								.asText(), is("passwordResetCode"));
+					}
+
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+					fail("Import failed " + e);
+				}
+			}
 
 		});
 	}

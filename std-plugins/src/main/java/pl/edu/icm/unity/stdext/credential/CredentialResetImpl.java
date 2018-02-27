@@ -151,7 +151,7 @@ public class CredentialResetImpl implements CredentialReset
 	}
 	
 	@Override
-	public void sendCode() throws EngineException
+	public void sendCode(String msgTemplate) throws EngineException
 	{
 		if (credState == null)
 			throw new IllegalIdentityValueException("Identity was not resolved.");
@@ -162,14 +162,14 @@ public class CredentialResetImpl implements CredentialReset
 			createCode();
 
 		Map<String, String> params = new HashMap<>();
-		params.put(PasswordResetTemplateDef.VAR_CODE, codeSent);
-		params.put(PasswordResetTemplateDef.VAR_USER, requestedSubject.getValue());
-		String msgTemplate = settings.getSecurityCodeMsgTemplate();
+		params.put(PasswordResetTemplateDefBase.VAR_CODE, codeSent);
+		params.put(PasswordResetTemplateDefBase.VAR_USER, requestedSubject.getValue());
 		Locale currentLocale = UnityMessageSource.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 		notificationProducer.sendNotification(new EntityParam(resolved.getEntityId()), 
 				msgTemplate, params, locale, requestedSubject.getValue());
 	}
+	
 
 
 	@Override
@@ -182,6 +182,10 @@ public class CredentialResetImpl implements CredentialReset
 			throw new TooManyAttempts();
 		if (codeSent == null || !codeSent.equals(answer))
 			throw new WrongArgumentException("The code is invalid");
+	
+		dynamicAnswerAttempts = 0;
+		codeSendingAttempts = 0;
+		codeSent = null;
 	}
 	
 	@Override

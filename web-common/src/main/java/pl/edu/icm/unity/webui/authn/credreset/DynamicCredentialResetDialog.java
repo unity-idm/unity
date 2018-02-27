@@ -25,26 +25,26 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
- * 3rd step of credential reset pipeline. In this dialog the user must provide the reset code which was
- * sent via e-mail. In future other channels may be implemented here as SMS. 
- * <p>
- * This dialog checks at startup if the username exists, channel exists and the username has address - 
- * if not then error is shown and the pipline is closed. If everything is correct the code is sent. 
- * 
- * @author K. Benedyczak
+ * Base for credential reset step in which reset code must be sent - via email or sms.  
+ * @author P.Piernik
+ *
  */
-public class CredentialReset3Dialog extends AbstractDialog
+public abstract class DynamicCredentialResetDialog extends AbstractDialog
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CredentialReset3Dialog.class);
-	private UnityMessageSource msg;
-	private CredentialReset backend;
-	private String username;
-	private CredentialEditor credEditor;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DynamicCredentialResetDialog.class);
+	protected UnityMessageSource msg;
+	protected CredentialReset backend;
+	protected String username;
+	protected CredentialEditor credEditor;
 	
 	private TextField answer;
+	private int expectedState;
+	private String messageTemplate;
+	private String answerLabel;
+	private String resendDesc;
 	
-	public CredentialReset3Dialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor,
-			String username)
+	public DynamicCredentialResetDialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor,
+			String username,int expectedState, String messageTemplate, String answerLabel, String resendDesc)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
 				msg.getMessage("cancel"));
@@ -52,12 +52,17 @@ public class CredentialReset3Dialog extends AbstractDialog
 		this.backend = backend;
 		this.username = username;
 		this.credEditor = credEditor;
+		this.expectedState = expectedState;
+		this.messageTemplate = messageTemplate;
+		this.answerLabel = answerLabel;
+		this.resendDesc = resendDesc;
+		
 	}
 
 	@Override
 	protected Component getContents() throws Exception
 	{
-		if (CredentialResetStateVariable.get() != 2)
+		if (CredentialResetStateVariable.get() != expectedState)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
@@ -66,20 +71,21 @@ public class CredentialReset3Dialog extends AbstractDialog
 		
 		try
 		{
-			backend.sendCode();
+			backend.sendCode(messageTemplate);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			CredentialResetStateVariable.reset();
-			log.debug("Credential reset e-mail notification failed", e);
+			log.debug("Credential reset notification failed", e);
 			throw e;
 		}
 		
 		Label userLabel = new Label(msg.getMessage("CredentialReset.changingFor", username));
 		
-		answer = new TextField(msg.getMessage("CredentialReset.emailCode"));
-		final Button resend = new Button(msg.getMessage("CredentialReset.resendEmail"));
+		answer = new TextField(answerLabel);
+		final Button resend = new Button(msg.getMessage("CredentialReset.resend"));
+		resend.setDescription(resendDesc);
 		resend.addClickListener(new ClickListener()
 		{
 			@Override
@@ -87,13 +93,13 @@ public class CredentialReset3Dialog extends AbstractDialog
 			{
 				try
 				{
-					backend.sendCode();
+					backend.sendCode(messageTemplate);
 				} catch (TooManyAttempts e)
 				{
 					resend.setEnabled(false);
 				} catch (Exception e)
 				{
-					log.debug("Credential reset e-mail notification failed", e);
+					log.debug("Credential reset notification failed", e);
 					NotificationPopup.showError(msg, msg.getMessage("error"),
 							msg.getMessage("CredentialReset.resetNotPossible"));
 					onCancel();
@@ -118,7 +124,7 @@ public class CredentialReset3Dialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		if (CredentialResetStateVariable.get() != 2)
+		if (CredentialResetStateVariable.get() != expectedState)
 			throw new IllegalStateException("Wrong application security state in password reset!" +
 					" This should never happen.");
 
@@ -147,10 +153,15 @@ public class CredentialReset3Dialog extends AbstractDialog
 			return;
 		}
 		
+		
+		
 		close();
 
 		CredentialResetStateVariable.inc(); //ok - next step allowed
-		CredentialResetFinalDialog dialogFinal = new CredentialResetFinalDialog(msg, backend, credEditor);
-		dialogFinal.show();
+		nextStep();
 	}
+	
+	protected abstract void nextStep();
+	
+	
 }

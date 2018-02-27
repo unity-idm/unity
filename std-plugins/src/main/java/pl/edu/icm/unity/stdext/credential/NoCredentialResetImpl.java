@@ -50,7 +50,7 @@ public class NoCredentialResetImpl implements CredentialReset
 	}
 
 	@Override
-	public void sendCode() throws EngineException
+	public void sendCode(String messageTemplate) throws EngineException
 	{
 	}
 

@@ -17,7 +17,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
- * 4th, last step of credential reset pipeline. In this dialog the user must provide the new credential.
+ * 6th, last step of credential reset pipeline. In this dialog the user must provide the new credential.
  * 
  * @author K. Benedyczak
  */
@@ -42,7 +42,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
-		if (CredentialResetStateVariable.get() != 3)
+		if (CredentialResetStateVariable.get() != 5)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
@@ -69,7 +69,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		if (CredentialResetStateVariable.get() != 3)
+		if (CredentialResetStateVariable.get() != 5)
 			throw new IllegalStateException("Wrong application security state in password reset!" +
 					" This should never happen.");
 		String updatedValue;

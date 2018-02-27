@@ -42,14 +42,14 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		body.addValue("pl", "Tekst");
 		I18nMessage imsg = new I18nMessage(subject, body);
 		MessageTemplate template = new MessageTemplate("tName", "tDesc", imsg,
-				"PasswordResetCode", MessageType.PLAIN,
+				"EmailPasswordResetCode", MessageType.PLAIN,
 				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
 		msgTempMan.addTemplate(template);
 		assertEquals(3, msgTempMan.listTemplates().size());
 		MessageTemplate added = msgTempMan.getTemplate("tName");
 		assertEquals("tName", added.getName());
 		assertEquals("tDesc", added.getDescription());
-		assertEquals("PasswordResetCode", added.getConsumer());
+		assertEquals("EmailPasswordResetCode", added.getConsumer());
 		assertEquals(subject, added.getMessage().getSubject());
 		assertEquals(body, added.getMessage().getBody());
 		

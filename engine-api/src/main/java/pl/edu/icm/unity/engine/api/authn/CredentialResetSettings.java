@@ -18,12 +18,16 @@ import pl.edu.icm.unity.exceptions.InternalException;
  */
 public class CredentialResetSettings
 {
+	
+	public enum ConfirmationMode {RequireEmail, RequireMobile, RequireEmailAndMobile, RequireEmailOrMobile, NothingRequire}
+	
 	private boolean enabled = false;
-	private boolean requireEmailConfirmation = true;
 	private boolean requireSecurityQuestion = true;
 	private int codeLength = 4;
 	private List<String> questions = new ArrayList<>();
-	private String securityCodeMsgTemplate;
+	private String emailSecurityCodeMsgTemplate;
+	private String mobileSecurityCodeMsgTemplate;
+	private ConfirmationMode confirmationMode = ConfirmationMode.NothingRequire;
 	
 	public CredentialResetSettings()
 	{
@@ -39,11 +43,6 @@ public class CredentialResetSettings
 		this.enabled = enable;
 	}
 
-	public void setRequireEmailConfirmation(boolean requireEmailConfirmation)
-	{
-		this.requireEmailConfirmation = requireEmailConfirmation;
-	}
-
 	public void setRequireSecurityQuestion(boolean requireSecurityQuestion)
 	{
 		this.requireSecurityQuestion = requireSecurityQuestion;
@@ -51,7 +50,15 @@ public class CredentialResetSettings
 
 	public boolean isRequireEmailConfirmation()
 	{
-		return requireEmailConfirmation;
+		return confirmationMode.equals(ConfirmationMode.RequireEmail)
+				|| confirmationMode.equals(ConfirmationMode.RequireEmailAndMobile);
+
+	}
+	
+	public boolean isRequireMobileConfirmation()
+	{
+		return confirmationMode.equals(ConfirmationMode.RequireMobile)
+				|| confirmationMode.equals(ConfirmationMode.RequireEmailAndMobile);
 	}
 
 	public boolean isRequireSecurityQuestion()
@@ -79,14 +86,24 @@ public class CredentialResetSettings
 		this.questions = questions;
 	}
 
-	public String getSecurityCodeMsgTemplate()
+	public String getEmailSecurityCodeMsgTemplate()
 	{
-		return securityCodeMsgTemplate;
+		return emailSecurityCodeMsgTemplate;
 	}
 
-	public void setSecurityCodeMsgTemplate(String securityCodeMsgTemplate)
+	public void setEmailSecurityCodeMsgTemplate(String emailSecurityCodeMsgTemplate)
 	{
-		this.securityCodeMsgTemplate = securityCodeMsgTemplate;
+		this.emailSecurityCodeMsgTemplate = emailSecurityCodeMsgTemplate;
+	}
+
+	public String getMobileSecurityCodeMsgTemplate()
+	{
+		return mobileSecurityCodeMsgTemplate;
+	}
+
+	public void setMobileSecurityCodeMsgTemplate(String mobileSecurityCodeMsgTemplate)
+	{
+		this.mobileSecurityCodeMsgTemplate = mobileSecurityCodeMsgTemplate;
 	}
 
 	public void serializeTo(ObjectNode node)
@@ -95,12 +112,13 @@ public class CredentialResetSettings
 		if (!enabled)
 			return;
 		node.put("codeLength", codeLength);
-		node.put("requireEmailConfirmation", requireEmailConfirmation);
+		node.put("confirmationMode", confirmationMode.toString());
 		node.put("requireSecurityQuestion", requireSecurityQuestion);
 		ArrayNode questionsNode = node.putArray("questions");
 		for (String question: questions)
 			questionsNode.add(question);
-		node.put("securityCodeMsgTemplate", securityCodeMsgTemplate);
+		node.put("emailSecurityCodeMsgTemplate", emailSecurityCodeMsgTemplate);
+		node.put("mobileSecurityCodeMsgTemplate", mobileSecurityCodeMsgTemplate);
 	}
 	
 	public void deserializeFrom(ObjectNode node)
@@ -109,7 +127,7 @@ public class CredentialResetSettings
 		if (!enabled)
 			return;
 		this.codeLength = node.get("codeLength").asInt();
-		this.requireEmailConfirmation = node.get("requireEmailConfirmation").asBoolean();
+		this.confirmationMode = ConfirmationMode.valueOf(node.get("confirmationMode").asText());
 		this.requireSecurityQuestion = node.get("requireSecurityQuestion").asBoolean();
 		ArrayNode questionsNode = (ArrayNode) node.get("questions");
 		if (questionsNode.size() == 0 && requireSecurityQuestion)
@@ -118,9 +136,46 @@ public class CredentialResetSettings
 		for (int i=0; i<questionsNode.size(); i++)
 			this.questions.add(questionsNode.get(i).asText());
 		
-		if (node.has("securityCodeMsgTemplate") && !node.get("securityCodeMsgTemplate").isNull())
-			securityCodeMsgTemplate = node.get("securityCodeMsgTemplate").asText();
+		if (node.has("emailSecurityCodeMsgTemplate") && !node.get("emailSecurityCodeMsgTemplate").isNull())
+			emailSecurityCodeMsgTemplate = node.get("emailSecurityCodeMsgTemplate").asText();
 		else
-			securityCodeMsgTemplate = "PasswordResetCode"; //backwards compatibility
+			emailSecurityCodeMsgTemplate = "PasswordResetCode"; //backwards compatibility
+		
+		if (node.has("mobileSecurityCodeMsgTemplate") && !node.get("mobileSecurityCodeMsgTemplate").isNull())
+			mobileSecurityCodeMsgTemplate = node.get("mobileSecurityCodeMsgTemplate").asText();
+		validate();
+	}	
+	
+	public void validate()
+	{
+
+		if ((confirmationMode.equals(ConfirmationMode.RequireEmail)
+				|| confirmationMode.equals(ConfirmationMode.RequireEmailAndMobile)
+				|| confirmationMode.equals(ConfirmationMode.RequireEmailOrMobile))
+				&& (emailSecurityCodeMsgTemplate == null
+						|| emailSecurityCodeMsgTemplate.isEmpty()))
+			throw new InternalException("Email reset code message template must be defined");
+		
+		if ((confirmationMode.equals(ConfirmationMode.RequireMobile)
+				|| confirmationMode.equals(ConfirmationMode.RequireEmailAndMobile)
+				|| confirmationMode.equals(ConfirmationMode.RequireEmailOrMobile))
+				&& (mobileSecurityCodeMsgTemplate == null
+						|| mobileSecurityCodeMsgTemplate.isEmpty()))
+			throw new InternalException("Mobile reset code message template must be defined");
+		
+		if (confirmationMode.equals(ConfirmationMode.NothingRequire)
+				&& !requireSecurityQuestion)
+			throw new InternalException(
+					"Security question must be defined or another option of cofirmation method must be choose");		
+	}
+
+	public ConfirmationMode getConfirmationMode()
+	{
+		return confirmationMode;
+	}
+
+	public void setConfirmationMode(ConfirmationMode confirmationMode)
+	{
+		this.confirmationMode = confirmationMode;
 	}
 }

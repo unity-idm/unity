@@ -22,7 +22,8 @@ import pl.edu.icm.unity.engine.notifications.EmailFacility;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDef;
+import pl.edu.icm.unity.stdext.credential.EmailPasswordResetTemplateDef;
+import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDefBase;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.types.I18nMessage;
@@ -71,17 +72,17 @@ public class TestNotifications extends DBIntegrationTestBase
 		
 		aTypeMan.addAttributeType(attributeType);
 
-		messageTemplateMan.addTemplate(new MessageTemplate(PasswordResetTemplateDef.NAME,
-				"", new I18nMessage(new I18nString("x"), new I18nString("x")), PasswordResetTemplateDef.NAME,
+		messageTemplateMan.addTemplate(new MessageTemplate(EmailPasswordResetTemplateDef.NAME,
+				"", new I18nMessage(new I18nString("x"), new I18nString("x")), EmailPasswordResetTemplateDef.NAME,
 				MessageType.PLAIN, "ch1"));
 
 		Map<String, String> params = new HashMap<String, String>();
-		params.put(PasswordResetTemplateDef.VAR_CODE, "AAAA");
-		params.put(PasswordResetTemplateDef.VAR_USER, "some user");
+		params.put(PasswordResetTemplateDefBase.VAR_CODE, "AAAA");
+		params.put(PasswordResetTemplateDefBase.VAR_USER, "some user");
 		
 		try
 		{
-			notProducer.sendNotification(admin, PasswordResetTemplateDef.NAME, params, null, null);
+			notProducer.sendNotification(admin, EmailPasswordResetTemplateDef.NAME, params, null, null);
 			fail("Managed to send email for an entity without email attribute");
 		} catch(IllegalIdentityValueException e){}
 
@@ -90,7 +91,7 @@ public class TestNotifications extends DBIntegrationTestBase
 		attrsMan.setAttribute(admin, emailA, false);
 		
 		Future<NotificationStatus> statusFuture = notProducer.sendNotification(admin, 
-				PasswordResetTemplateDef.NAME, params, null, null);
+				EmailPasswordResetTemplateDef.NAME, params, null, null);
 		NotificationStatus status = statusFuture.get();
 		if (!status.isSuccessful())
 			status.getProblem().printStackTrace();
