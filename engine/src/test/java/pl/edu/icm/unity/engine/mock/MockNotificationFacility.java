@@ -63,7 +63,7 @@ public class MockNotificationFacility implements NotificationFacility
 	}
 
 	@Override
-	public String getAddressForEntity(EntityParam recipient, String address)
+	public String getAddressForEntity(EntityParam recipient, String address, boolean confirmedOnly)
 			throws EngineException
 	{
 		throw new IllegalIdentityValueException("no address");

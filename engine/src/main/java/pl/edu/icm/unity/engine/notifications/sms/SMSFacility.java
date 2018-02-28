@@ -83,33 +83,60 @@ public class SMSFacility implements NotificationFacility
 	 * Address (i.e. the number) is established from the attribute marked as contactMobile 
 	 */
 	@Override
-	public String getAddressForEntity(EntityParam recipient, String preferred)
+	public String getAddressForEntity(EntityParam recipient, String preferred, boolean onlyConfirmed)
 			throws EngineException
 	{
 		AttributeExt mobileAttr = attributesHelper.getAttributeByMetadata(recipient, "/", 
 				ContactMobileMetadataProvider.NAME);
-		if (isPresent(preferred, mobileAttr))
+		if (isPresent(preferred, mobileAttr, onlyConfirmed))
 			return preferred;
 		
 		String confirmedOnly = getAddressFrom(mobileAttr, true);
 		if (confirmedOnly != null)
 			return confirmedOnly;
 		
-		String plain = getAddressFrom(mobileAttr, false);
-		if (plain != null)
-			return plain;
-		
-		
-		throw new IllegalIdentityValueException("The entity " + recipient + 
-				" does not have the mobile number specified");
+		if (!onlyConfirmed)
+		{
+			String plain = getAddressFrom(mobileAttr, false);
+			if (plain != null)
+				return plain;
+
+		}
+		throw new IllegalIdentityValueException("The entity " + recipient
+				+ " does not have the" + (onlyConfirmed ? " confirmed" : "")
+				+ " mobile number specified");
 	}
 
-	private boolean isPresent(String number, AttributeExt mobileNumAttr)
+	private boolean isPresent(String number, AttributeExt mobileNumAttr, boolean onlyConfirmed)
 	{
 		if (mobileNumAttr != null)
-			for (String mobile: mobileNumAttr.getValues())
+		{
+			for (String mobile : mobileNumAttr.getValues())
+			{
 				if (mobile.equals(number))
-					return true;
+				{
+
+					if (onlyConfirmed)
+					{
+						AttributeValueSyntax<?> syntax = atHelper
+								.getUnconfiguredSyntax(mobileNumAttr
+										.getValueSyntax());
+						if (syntax.getValueSyntaxId().equals(
+								VerifiableMobileNumberAttributeSyntax.ID))
+						{
+							VerifiableMobileNumber vmobile = (VerifiableMobileNumber) syntax
+									.convertFromString(mobile);
+							if (vmobile.isConfirmed())
+								return true;
+						}
+
+					} else
+					{
+						return true;
+					}
+				}
+			}
+		}
 		return false;
 	}
 	

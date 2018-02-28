@@ -27,11 +27,12 @@ public interface NotificationProducer
 	 * @param locale can be null. In such case the server's default locale will be used
 	 * @param preferredAddress can be null. If not null then this address will be used if can be found among all 
 	 * valid addresses of entity. 
+	 * @param sendOnlyToConfirmed send notification only to confirmed recipient address
 	 * @return
 	 * @throws EngineException
 	 */
 	Future<NotificationStatus> sendNotification(EntityParam recipient, String templateId,
-			Map<String, String> params, String locale, String preferredAddress)
+			Map<String, String> params, String locale, String preferredAddress, boolean sendOnlyToConfirmed)
 			throws EngineException;
 
 	/**

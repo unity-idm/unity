@@ -227,7 +227,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		try
 		{
 			return notificationFacility.getAddressForEntity(
-				new EntityParam(currentRequest.getEntityId()), null);
+				new EntityParam(currentRequest.getEntityId()), null, false);
 		} catch (Exception e)
 		{
 			return notificationFacility.getAddressForUserRequest(currentRequest);

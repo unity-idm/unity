@@ -167,7 +167,7 @@ public class CredentialResetImpl implements CredentialReset
 		Locale currentLocale = UnityMessageSource.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 		notificationProducer.sendNotification(new EntityParam(resolved.getEntityId()), 
-				msgTemplate, params, locale, requestedSubject.getValue());
+				msgTemplate, params, locale, requestedSubject.getValue(), true);
 	}
 	
 

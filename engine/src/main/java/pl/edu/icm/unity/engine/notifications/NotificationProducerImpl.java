@@ -123,7 +123,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 	@Transactional(autoCommit=false)
 	@Override
 	public Future<NotificationStatus> sendNotification(EntityParam recipient, String templateId,
-			Map<String, String> params, String locale, String preferredAddress)
+			Map<String, String> params, String locale, String preferredAddress, boolean onlyToConfirmed)
 			throws EngineException
 	{
 		recipient.validateInitialization();
@@ -131,7 +131,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		Map<String, MessageTemplate> allTemplates = mtDB.getAllAsMap();
 		NotificationChannelInstance channel = loadChannel(getChannelFromTemplate(allTemplates, templateId));
 		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
-		String recipientAddress = facility.getAddressForEntity(recipient, preferredAddress);
+		String recipientAddress = facility.getAddressForEntity(recipient, preferredAddress, onlyToConfirmed);
 		txManager.commit();
 		Message templateMsg = getResolvedMessage(allTemplates, templateId, params, locale);
 		return channel.sendNotification(recipientAddress, templateMsg);
@@ -158,7 +158,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 			try
 			{
 				String recipientAddress = facility.getAddressForEntity(
-						new EntityParam(membership.getEntityId()), null);
+						new EntityParam(membership.getEntityId()), null, false);
 				channel.sendNotification(recipientAddress, templateMsg);
 			} catch (IllegalIdentityValueException e)
 			{
