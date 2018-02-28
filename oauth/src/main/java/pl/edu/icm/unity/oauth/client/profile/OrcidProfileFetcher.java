@@ -112,7 +112,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 			throw new AuthenticationException("Authentication was successful "
 					+ "but the orcid id is missing in the received access token");
 		
-		String userBioEndpoint = "https://pub.orcid.org/v1.2/" + userid;
+		String userBioEndpoint = "https://pub.orcid.org/v2.1/" + userid;
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(userBioEndpoint));
 		CustomHTTPSRequest httpReq = new CustomHTTPSRequest(httpReqRaw, providerConfig.getValidator(), checkingMode);
 		httpReq.setAuthorization(clientAccessToken.toAuthorizationHeader());
