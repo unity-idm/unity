@@ -87,8 +87,10 @@ public abstract class BaseFacility<T extends BaseConfirmationState> implements C
 		List<K> confirmed = new ArrayList<>();
 		for (K attr : attrs)
 		{
+			if (attr == null)
+				continue;
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
-			if (attr != null && attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
+			if (attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
 					&& attr.getValues() != null && syntax.isVerifiable())
 			{
 				List<String> updatedValues = new ArrayList<>();
