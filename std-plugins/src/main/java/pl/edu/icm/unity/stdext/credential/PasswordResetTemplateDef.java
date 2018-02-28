@@ -6,6 +6,7 @@ package pl.edu.icm.unity.stdext.credential;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -43,5 +44,11 @@ public class PasswordResetTemplateDef implements MessageTemplateDefinition
 		vars.put(VAR_USER, new MessageTemplateVariable(VAR_USER, "MessageTemplateConsumer.PasswordReset.var.user", false));
 		vars.put(VAR_CODE, new MessageTemplateVariable(VAR_CODE, "MessageTemplateConsumer.PasswordReset.var.code", false));
 		return vars;
+	}
+	
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return ALL_FACILITIES;
 	}
 }

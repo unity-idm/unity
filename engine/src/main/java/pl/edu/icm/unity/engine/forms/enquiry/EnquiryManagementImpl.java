@@ -127,7 +127,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		EnquiryForm form = enquiryFormDB.get(enquiryId);
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
 		
-		if (notificationsCfg.getChannel() != null && notificationsCfg.getEnquiryToFillTemplate() != null)
+		if (notificationsCfg.getEnquiryToFillTemplate() != null)
 		{
 
 			Map<String, String> params = new HashMap<>();
@@ -138,7 +138,6 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			for (String group: form.getTargetGroups())
 				notificationProducer.sendNotificationToGroup(
 					group, 
-					notificationsCfg.getChannel(), 
 					notificationsCfg.getEnquiryToFillTemplate(),
 					params,
 					msg.getDefaultLocaleCode());
@@ -262,7 +261,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private void sendNotificationOnNewResponse(EnquiryForm form, EnquiryResponse response) throws EngineException
 	{
 		EnquiryFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
+		if (notificationsCfg.getSubmittedTemplate() != null
 				&& notificationsCfg.getAdminsNotificationGroup() != null)
 		{
 			Map<String, String> params = new HashMap<>();
@@ -271,7 +270,6 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			params.put(EnquiryFilledTemplateDef.USER, loginSession.getEntityLabel());
 			notificationProducer.sendNotificationToGroup(
 					notificationsCfg.getAdminsNotificationGroup(), 
-					notificationsCfg.getChannel(), 
 					notificationsCfg.getSubmittedTemplate(),
 					params,
 					msg.getDefaultLocaleCode());

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -45,6 +46,12 @@ public class NewEnquiryTemplateDef implements MessageTemplateDefinition
 		vars.put(URL, new MessageTemplateVariable(URL, 
 				"MessageTemplateConsumer.NewEnquiry.var.url", false));
 		return vars;
+	}
+	
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return ALL_FACILITIES;
 	}
 
 }

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
@@ -46,6 +47,12 @@ public class EnquiryFilledTemplateDef implements MessageTemplateDefinition
 		vars.put(USER, new MessageTemplateVariable(USER, 
 				"MessageTemplateConsumer.EnquiryFilled.var.user", false));
 		return vars;
+	}
+	
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return ALL_FACILITIES;
 	}
 
 }

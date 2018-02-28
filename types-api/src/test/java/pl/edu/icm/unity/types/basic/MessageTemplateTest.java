@@ -28,7 +28,7 @@ public class MessageTemplateTest
 		// given
 		MessageTemplate msg = new MessageTemplate("name", "description", 
 				new I18nMessage(new I18nString("test"), new I18nString("test")), 
-				"customer", null); 
+				"customer", null, "channel"); 
 		String jsonString = JsonUtil.toJsonString(msg);
 		ObjectNode objNode = JsonUtil.parse(jsonString);
 		objNode.remove("type");
@@ -48,15 +48,15 @@ public class MessageTemplateTest
 		MessageTemplate msg = new MessageTemplate("name", "description", 
 				new I18nMessage(new I18nString("test"), 
 						new I18nString("PREF${include:g1}BODY${include:g2}POST")), 
-				"customer", null);
+				"customer", null, "channel");
 		MessageTemplate generic1 = new MessageTemplate("g1", "", 
 				new I18nMessage(new I18nString(""), new I18nString("header")), 
 				"generic", 
-				MessageType.PLAIN);
+				MessageType.PLAIN, "channel");
 		MessageTemplate generic2 = new MessageTemplate("g2", "", 
 				new I18nMessage(new I18nString(""), new I18nString("footer")), 
 				"generic", 
-				MessageType.PLAIN);
+				MessageType.PLAIN, "channel");
 		Map<String, MessageTemplate> genericTemplates = new HashMap<>();
 		genericTemplates.put(generic2.getName(), generic2);
 		genericTemplates.put(generic1.getName(), generic1);
@@ -76,15 +76,15 @@ public class MessageTemplateTest
 		body.addValue("pl", "PREF${include:g1}BODY${include:g2}POST");
 		MessageTemplate msg = new MessageTemplate("name", "description", 
 				new I18nMessage(new I18nString("test"), body), 
-				"customer", null);
+				"customer", null, "channel"); 
 		MessageTemplate generic1 = new MessageTemplate("g1", "", 
 				new I18nMessage(new I18nString(""), new I18nString("header")), 
 				"generic", 
-				MessageType.PLAIN);
+				MessageType.PLAIN, "channel"); 
 		MessageTemplate generic2 = new MessageTemplate("g2", "", 
 				new I18nMessage(new I18nString(""), new I18nString("footer")), 
 				"generic", 
-				MessageType.PLAIN);
+				MessageType.PLAIN, "channel"); 
 		
 		Map<String, MessageTemplate> genericTemplates = new HashMap<>();
 		genericTemplates.put(generic2.getName(), generic2);
@@ -105,17 +105,17 @@ public class MessageTemplateTest
 		body.addValue("pl", "PREF${include:g1}BODY${include:g2}POST");
 		MessageTemplate msg = new MessageTemplate("name", "description", 
 				new I18nMessage(new I18nString("test"), body), 
-				"customer", null);
+				"customer", null, "channel");
 		I18nString genbody = new I18nString("");
 		genbody.addValue("pl", "header");
 		MessageTemplate generic1 = new MessageTemplate("g1", "", 
 				new I18nMessage(new I18nString(""), genbody), 
 				"generic", 
-				MessageType.PLAIN);
+				MessageType.PLAIN, "channel"); 
 		MessageTemplate generic2 = new MessageTemplate("g2", "", 
 				new I18nMessage(new I18nString(""), new I18nString("footer")), 
 				"generic", 
-				MessageType.PLAIN);
+				MessageType.PLAIN, "channel"); 
 		
 		Map<String, MessageTemplate> genericTemplates = new HashMap<>();
 		genericTemplates.put(generic2.getName(), generic2);

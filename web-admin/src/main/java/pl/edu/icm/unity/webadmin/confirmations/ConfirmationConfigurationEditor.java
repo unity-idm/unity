@@ -13,7 +13,7 @@ import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.TextField;
 
-import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
@@ -84,7 +84,7 @@ public class ConfirmationConfigurationEditor extends CompactFormLayout
 				notificationChannel.setValue(channels.iterator().next());
 		}
 
-		msgTemplate = new CompatibleTemplatesComboBox(ConfirmationTemplateDef.NAME,
+		msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME,
 				msgMan);
 		msgTemplate.setCaption(
 				msg.getMessage("ConfirmationConfigurationViewer.msgTemplate"));

@@ -18,6 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -42,6 +43,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 {
 	private UnityMessageSource msg;
 	private MessageTemplateManagement msgTempMan;
+	private NotificationsManagement notificationMan;
 	private GenericElementsTable<MessageTemplate> table;
 	private MessageTemplateViewer viewer;
 	private com.vaadin.ui.Component main;
@@ -50,12 +52,14 @@ public class MessageTemplatesComponent extends VerticalLayout
 	@Autowired
 	public MessageTemplatesComponent(UnityMessageSource msg,
 			MessageTemplateManagement msgTempMan,
-			MessageTemplateConsumersRegistry consumersRegistry)
+			MessageTemplateConsumersRegistry consumersRegistry,
+			NotificationsManagement notificationMan)
 	{
 		this.msg = msg;
 		this.msgTempMan = msgTempMan;
 		this.consumersRegistry = consumersRegistry;
-
+		this.notificationMan = notificationMan;
+		
 		setMargin(false);
 		addStyleName(Styles.visibleScroll.toString());
 		HorizontalLayout hl = new HorizontalLayout();
@@ -192,7 +196,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 	
 	private void showAddDialog(Collection<MessageTemplate> target)
 	{		
-		MessageTemplateEditor editor = new MessageTemplateEditor(msg, consumersRegistry, null, msgTempMan);	
+		MessageTemplateEditor editor = new MessageTemplateEditor(msg, consumersRegistry, null, msgTempMan, notificationMan);	
 		MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 				msg.getMessage("MessageTemplatesComponent.addAction"), newTemplate -> addTemplate(newTemplate)
 				, editor);
@@ -212,7 +216,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		msgTemp = msgTemp.clone();
 		MessageTemplateEditor editor;
 		
-		editor = new MessageTemplateEditor(msg, consumersRegistry, msgTemp, msgTempMan);
+		editor = new MessageTemplateEditor(msg, consumersRegistry, msgTemp, msgTempMan, notificationMan);
 		
 		MessageTemplateEditDialog dialog = new MessageTemplateEditDialog(msg, 
 				msg.getMessage("MessageTemplatesComponent.editAction"), newTemplate -> updateTemplate(newTemplate)

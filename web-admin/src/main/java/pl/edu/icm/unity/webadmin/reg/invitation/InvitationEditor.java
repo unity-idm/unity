@@ -26,6 +26,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
@@ -47,13 +48,13 @@ public class InvitationEditor extends CustomComponent
 	private UnityMessageSource msg;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private AttributeHandlerRegistry attrHandlersRegistry;
+	private Map<String, MessageTemplate> msgTemplates;
 	private Map<String, RegistrationForm> formsByName;
 	private Map<String, AttributeType> attrTypes;
 	
 	private NotNullComboBox<String> forms;
 	private DateTimeField expiration;
 	private TextField contactAddress;
-	private NotNullComboBox<String> channelId;
 	
 	private TabSheet tabs;
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
@@ -62,20 +63,19 @@ public class InvitationEditor extends CustomComponent
 
 	
 	public InvitationEditor(UnityMessageSource msg, IdentityEditorRegistry identityEditorRegistry,
-			AttributeHandlerRegistry attrHandlersRegistry,
+			AttributeHandlerRegistry attrHandlersRegistry, Map<String, MessageTemplate> msgTemplates, 
 			Collection<RegistrationForm> availableForms,
-			Collection<String> channels,
 			Map<String, AttributeType> attrTypes) throws WrongArgumentException
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.attrTypes = attrTypes;
-		initUI(availableForms, channels);
+		this.msgTemplates = msgTemplates;
+		initUI(availableForms);
 	}
 
-	private void initUI(Collection<RegistrationForm> availableForms,
-			Collection<String> channels) throws WrongArgumentException
+	private void initUI(Collection<RegistrationForm> availableForms) throws WrongArgumentException
 	{
 		formsByName = availableForms.stream()
 				.filter(form -> form.getRegistrationCode() == null && form.isPubliclyAvailable())
@@ -88,24 +88,32 @@ public class InvitationEditor extends CustomComponent
 		expiration.setResolution(DateTimeResolution.MINUTE);
 		expiration.setValue(LocalDateTime.now(DEFAULT_ZONE_ID).plusDays(DEFAULT_TTL_DAYS));
 		
-		channelId = new NotNullComboBox<>(msg.getMessage("InvitationViewer.channelId"));
-		channelId.setItems(channels);
-		
 		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
 		
 		Label prefillInfo = new Label(msg.getMessage("InvitationEditor.prefillInfo"));
 		
 		tabs = new TabSheet();
 		
+		Label channel = new Label();
+		channel.setCaption(msg.getMessage("InvitationViewer.channelId"));
+		
 		forms = new NotNullComboBox<>(msg.getMessage("InvitationViewer.formId"));
 		forms.setEmptySelectionAllowed(false);
 		forms.addValueChangeListener(event -> {
-			setPerFormUI(formsByName.get(forms.getValue()));
+			RegistrationForm registrationForm = formsByName.get(forms.getValue());
+			setPerFormUI(registrationForm);
+			
+			String invTemplate = registrationForm.getNotificationsConfiguration().getInvitationTemplate();
+			if (invTemplate != null && msgTemplates.get(invTemplate) != null)
+				channel.setValue(msgTemplates.get(invTemplate).getNotificationChannel());
+			else
+				channel.setValue("");
 		});
+		
 		forms.setItems(formsByName.keySet());
 		
 		FormLayout top = new FormLayout();
-		top.addComponents(forms, expiration, channelId, contactAddress);
+		top.addComponents(forms, channel, expiration, contactAddress);
 		
 		VerticalLayout main = new VerticalLayout(top, prefillInfo, tabs);
 		main.setSpacing(true);
@@ -158,11 +166,9 @@ public class InvitationEditor extends CustomComponent
 	public InvitationParam getInvitation() throws FormValidationException
 	{
 		String addr = contactAddress.isEmpty() ? null : contactAddress.getValue();
-		String channel = channelId.isEmpty() ? null : (String)channelId.getValue();
 		InvitationParam ret = new InvitationParam(forms.getValue(), 
 				expiration.getValue().atZone(DEFAULT_ZONE_ID).toInstant(),
-				addr,
-				channel);
+				addr);
 		
 		prefill(presetIdentities.getElements(), ret.getIdentities());
 		prefill(presetAttributes.getElements(), ret.getAttributes());

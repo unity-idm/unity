@@ -20,6 +20,8 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
+import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
+import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
@@ -39,15 +41,18 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	private AuthorizationManager authz;
 	private MessageTemplateDB mtDB;
 	private MessageTemplateConsumersRegistry registry;
+	private InternalFacilitiesManagement facilityMan;
 	
 	
 	@Autowired
-	public MessageTemplateManagementImpl(AuthorizationManager authz,
-			MessageTemplateDB mtDB, MessageTemplateConsumersRegistry registry)
+	public MessageTemplateManagementImpl(AuthorizationManager authz, MessageTemplateDB mtDB,
+			MessageTemplateConsumersRegistry registry,
+			InternalFacilitiesManagement facilityMan)
 	{
 		this.authz = authz;
 		this.mtDB = mtDB;
 		this.registry = registry;
+		this.facilityMan = facilityMan;
 	}
 	
 	@Transactional
@@ -153,6 +158,35 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		} catch (MandatoryVariablesException e)
 		{
 			throw new WrongArgumentException("The following variables must be used: " + e.getMandatory());
+		}
+
+		if (toValidate.getConsumer().equals(GenericMessageTemplateDef.NAME))
+			return; 
+		
+
+		String channel = toValidate.getNotificationChannel();
+		if (channel == null || channel.isEmpty())
+		{
+			throw new WrongArgumentException(
+					"Notification channel must be set in message template");
+		}
+
+		NotificationFacility facility;
+		try
+		{
+			facility = facilityMan.getNotificationFacilityForChannel(channel);
+		} catch (Exception e)
+		{
+			throw new WrongArgumentException(
+					"Cannot get facility for channel: " + channel, e);
+		}
+
+		if (!con.getCompatibleFacilities().contains(facility.getName()))
+		{
+			throw new WrongArgumentException("Notification channel "
+					+ toValidate.getNotificationChannel()
+					+ " is not compatible with used message consumer "
+					+ toValidate.getConsumer());
 		}
 	}
 }

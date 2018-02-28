@@ -168,14 +168,13 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			throws EngineException
 	{
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		if (notificationsCfg.getChannel() != null && notificationsCfg.getSubmittedTemplate() != null
+		if (notificationsCfg.getSubmittedTemplate() != null
 				&& notificationsCfg.getAdminsNotificationGroup() != null)
 		{
 			Map<String, String> params = internalManagment.getBaseNotificationParams(
 					form.getName(), requestFull.getRequestId()); 
 			notificationProducer.sendNotificationToGroup(
 					notificationsCfg.getAdminsNotificationGroup(), 
-					notificationsCfg.getChannel(), 
 					notificationsCfg.getSubmittedTemplate(),
 					params,
 					msg.getDefaultLocaleCode());

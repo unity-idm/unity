@@ -18,7 +18,7 @@ import com.vaadin.ui.CustomComponent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -41,9 +41,9 @@ public class InvitationsComponent extends CustomComponent
 
 	private UnityMessageSource msg;
 	private RegistrationsManagement registrationManagement;
-	private NotificationsManagement notificationsManagement;
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private IdentityEditorRegistry identityEditorRegistry;
+	private MessageTemplateManagement msgTemplateManagement;
 
 	private AttributeTypeManagement attributesManagement;
 
@@ -52,31 +52,32 @@ public class InvitationsComponent extends CustomComponent
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
-			NotificationsManagement notificationsManagement,
 			AttributeTypeManagement attributesManagement,
 			InvitationManagement invitationManagement,
 			AttributeHandlerRegistry attrHandlersRegistry,
-			IdentityEditorRegistry identityEditorRegistry)
+			IdentityEditorRegistry identityEditorRegistry,
+			MessageTemplateManagement msgTemplateManagement)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
-		this.notificationsManagement = notificationsManagement;
 		this.attributesManagement = attributesManagement;
 		this.invitationManagement = invitationManagement;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.identityEditorRegistry = identityEditorRegistry;
+		this.msgTemplateManagement = msgTemplateManagement;
 		initUI();
 	}
 
 	private void initUI()
 	{
 		addStyleName(Styles.visibleScroll.toString());
-		InvitationsTable invitationsTable = new InvitationsTable(msg, registrationManagement, 
-				invitationManagement, notificationsManagement,
-				attributesManagement, identityEditorRegistry, 
-				attrHandlersRegistry);
-		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry);
-		
+		InvitationsTable invitationsTable = new InvitationsTable(msg,
+				registrationManagement, invitationManagement, attributesManagement,
+				identityEditorRegistry, attrHandlersRegistry,
+				msgTemplateManagement);
+		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry,
+				msgTemplateManagement, registrationManagement);
+
 		invitationsTable.addValueChangeListener(invitation -> 
 			viewer.setInput(invitation, getForm(invitation))
 		);

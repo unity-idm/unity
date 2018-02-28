@@ -128,13 +128,6 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 			return this;
 		}
 
-		public RegistrationFormNotificationsBuilder withChannel(String aValue)
-		{
-			instance.setChannel(aValue);
-
-			return this;
-		}
-
 		public RegistrationFormNotificationsBuilder withAdminsNotificationGroup(String aValue)
 		{
 			instance.setAdminsNotificationGroup(aValue);

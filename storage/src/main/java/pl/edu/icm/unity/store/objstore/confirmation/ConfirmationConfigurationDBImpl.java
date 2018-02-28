@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.store.api.generic.ConfirmationConfigurationDB;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeDAOInternal;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
@@ -47,7 +47,7 @@ public class ConfirmationConfigurationDBImpl extends GenericObjectsDAOImpl<Confi
 		{
 			if (modifiedName.equals(cfg.getMsgTemplate())
 					&& !newValue.getConsumer().equals(
-							ConfirmationTemplateDef.NAME))
+							EmailConfirmationTemplateDef.NAME))
 			{
 				throw new IllegalArgumentException(
 						"The message template is used by a "

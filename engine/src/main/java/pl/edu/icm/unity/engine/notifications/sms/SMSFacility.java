@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.notifications.FacilityName;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
@@ -35,7 +36,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 @Component
 public class SMSFacility implements NotificationFacility
 {
-	public static final String NAME = "sms";
+	public static final String NAME = FacilityName.SMS.toString();
 	private ExecutorsService executorsService;
 	private AttributesHelper attributesHelper;
 	

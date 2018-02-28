@@ -57,7 +57,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 
 	private RegistrationRequestDB requestDB;
 	private RegistrationConfirmationRewriteSupport confirmationsSupport;
-	private InternalFacilitiesManagement facilitiesManagement;
+	
 	private RegistrationRequestValidator registrationRequestValidator;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private IdentityHelper identityHelper;
@@ -75,16 +75,17 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			IdentityHelper identityHelper,
 			AttributeTypeHelper atHelper)
+			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
-				entityCredentialsHelper);
+				entityCredentialsHelper, facilitiesManagement);
 		this.requestDB = requestDB;
 		this.confirmationsSupport = confirmationsSupport;
-		this.facilitiesManagement = facilitiesManagement;
 		this.registrationRequestValidator = registrationRequestValidator;
 		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 		this.identityHelper = identityHelper;
 		this.atHelper = atHelper;
+	
 	}
 
 	/**
@@ -160,11 +161,10 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		currentRequest.setStatus(RegistrationRequestStatus.rejected);
 		requestDB.update(currentRequest);
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();
-		String receipentAddress = getRequesterAddress(currentRequest, notificationsCfg);
-		sendProcessingNotification(notificationsCfg.getRejectedTemplate(), 
-				currentRequest, form.getName(),
-				true, publicComment, 
-				internalComment, notificationsCfg, receipentAddress);
+		String templateId = notificationsCfg.getRejectedTemplate();
+		String receipentAddress = getRequesterAddress(currentRequest, templateId);
+		sendProcessingNotification(templateId, currentRequest, form.getName(), true,
+				publicComment, internalComment, notificationsCfg, receipentAddress);
 	}
 	
 	/**
@@ -224,19 +224,23 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationFormNotifications notificationsCfg)
 			throws EngineException
 	{
-		String requesterAddress = getRequesterAddress(currentRequest, notificationsCfg);
+		if (templateId == null || templateId.isEmpty())
+				return;
+		String requesterAddress = getRequesterAddress(currentRequest, templateId);
 		sendProcessingNotification(templateId, currentRequest, formId, sendToRequester, 
 				publicComment, internalComment, notificationsCfg, requesterAddress);
 	}
 
 	private String getRequesterAddress(RegistrationRequestState currentRequest,
-			RegistrationFormNotifications notificationsCfg)
-			throws EngineException
+			String templateId) throws EngineException
 	{
-		if (notificationsCfg.getChannel() == null)
+		if (templateId == null || templateId.isEmpty())
 			return null;
-		NotificationFacility notificationFacility = facilitiesManagement.getNotificationFacilityForChannel(
-				notificationsCfg.getChannel());
+		
+		NotificationFacility notificationFacility = facilitiesManagement
+				.getNotificationFacilityForMessageTemplate(templateId);
+		if (notificationFacility == null)
+			return null;
 		return notificationFacility.getAddressForUserRequest(currentRequest);
 	}
 }

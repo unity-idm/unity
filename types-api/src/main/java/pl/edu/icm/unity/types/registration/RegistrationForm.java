@@ -212,7 +212,7 @@ public class RegistrationForm extends BaseForm
 			
 			n = root.get("NotificationsConfiguration");
 			if (n != null)
-			{
+			{		
 				String v = jsonMapper.writeValueAsString(n);
 				RegistrationFormNotifications r = jsonMapper.readValue(v, 
 						new TypeReference<RegistrationFormNotifications>(){});

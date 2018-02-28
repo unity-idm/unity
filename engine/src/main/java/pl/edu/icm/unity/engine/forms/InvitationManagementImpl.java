@@ -90,7 +90,7 @@ public class InvitationManagementImpl implements InvitationManagement
 		String userLocale = msg.getDefaultLocaleCode();
 		
 		InvitationWithCode invitation = invitationDB.get(code);
-		if (invitation.getContactAddress() == null || invitation.getChannelId() == null)
+		if (invitation.getContactAddress() == null)
 			throw new WrongArgumentException("The invitation has no contact address configured");
 		if (invitation.getExpiration().isBefore(Instant.now()))
 			throw new WrongArgumentException("The invitation is expired");
@@ -112,7 +112,7 @@ public class InvitationManagementImpl implements InvitationManagement
 		
 		Instant sentTime = Instant.now();
 		notificationProducer.sendNotification(invitation.getContactAddress(),
-				invitation.getChannelId(), form.getNotificationsConfiguration().getInvitationTemplate(),
+				form.getNotificationsConfiguration().getInvitationTemplate(),
 				notifyParams, userLocale);
 		
 		invitation.setLastSentTime(sentTime);

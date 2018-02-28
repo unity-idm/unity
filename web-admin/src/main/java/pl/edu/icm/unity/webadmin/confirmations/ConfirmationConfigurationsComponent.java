@@ -22,7 +22,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.RadioButtonGroup;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.base.msgtemplates.confirm.ConfirmationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
@@ -282,12 +282,12 @@ public class ConfirmationConfigurationsComponent extends VerticalLayout
 		try
 		{
 			Map<String, MessageTemplate> compatibleTemplates = msgMan
-					.getCompatibleTemplates(ConfirmationTemplateDef.NAME);
+					.getCompatibleTemplates(EmailConfirmationTemplateDef.NAME);
 			if (compatibleTemplates.isEmpty())
 			{
 				NotificationPopup.showNotice(msg, "", msg.getMessage(
 						"ConfirmationConfigurationsComponent.firstAddMsqTemplate",
-						ConfirmationTemplateDef.NAME));
+						EmailConfirmationTemplateDef.NAME));
 				return false;
 			}
 			return true;

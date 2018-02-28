@@ -20,6 +20,7 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 {	
 	private Label description;
 	private Label consumer;
+	private Label notificationChannel;
 	private Label messageType;
 	
 	private MessageTemplateConsumersRegistry registry;
@@ -39,10 +40,13 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		description.setCaption(msg.getMessage("MessageTemplateViewer.description"));
 		consumer = new Label();
 		consumer.setCaption(msg.getMessage("MessageTemplateViewer.consumer"));
+		notificationChannel = new Label();
+		notificationChannel.setCaption(msg.getMessage("MessageTemplateViewer.notificationChannel"));	
 		messageType = new Label();
 		messageType.setCaption(msg.getMessage("MessageTemplateViewer.messageType"));
 		main.addComponent(messageType, 1);
 		main.addComponent(consumer, 1);	
+		main.addComponent(notificationChannel, 1);	
 		main.addComponent(description, 1);
 		
 	}
@@ -52,6 +56,8 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		clearContent();
 		description.setValue("");
 		consumer.setValue("");	
+		notificationChannel.setValue("");
+		notificationChannel.setVisible(true);
 		if (template == null)
 		{	
 			main.setVisible(false);	
@@ -60,6 +66,11 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		setInput(template);	
 		description.setValue(template.getDescription());
 		messageType.setValue(template.getType().toString());
+		String channel = template.getNotificationChannel();
+		if (channel != null && !channel.isEmpty())
+			notificationChannel.setValue(channel);
+		else
+			notificationChannel.setVisible(false);
 		
 		String cons = template.getConsumer();
 		if (cons != null)

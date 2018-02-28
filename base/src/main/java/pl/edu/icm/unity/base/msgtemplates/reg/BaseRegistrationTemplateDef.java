@@ -6,6 +6,7 @@ package pl.edu.icm.unity.base.msgtemplates.reg;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
@@ -51,5 +52,11 @@ public abstract class BaseRegistrationTemplateDef implements MessageTemplateDefi
 		vars.put(REQUEST_ID, new MessageTemplateVariable(REQUEST_ID, 
 				"MessageTemplateConsumer.BaseForm.var.requestId", false));
 		return vars;
+	}
+	
+	@Override
+	public Set<String> getCompatibleFacilities()
+	{
+		return ALL_FACILITIES;
 	}
 }

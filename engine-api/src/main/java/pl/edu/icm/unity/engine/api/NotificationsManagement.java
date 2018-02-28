@@ -50,4 +50,11 @@ public interface NotificationsManagement
 	 * @throws EngineException
 	 */
 	public Map<String, NotificationChannel> getNotificationChannels() throws EngineException;
+	
+	/**
+	 * 
+	 * @return get available notification channels which are using given facilities.
+	 * @throws EngineException
+	 */
+	public Map<String, NotificationChannel> getNotificationChannelsForFacilities(Set<String> facilites) throws EngineException;
 }

@@ -12,15 +12,19 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 public class MessageTemplateLoaderTest
 {
@@ -29,9 +33,10 @@ public class MessageTemplateLoaderTest
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
@@ -52,9 +57,10 @@ public class MessageTemplateLoaderTest
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject.en", "sub");
@@ -77,9 +83,10 @@ public class MessageTemplateLoaderTest
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
@@ -104,9 +111,10 @@ public class MessageTemplateLoaderTest
 	{
 		MessageTemplateManagement man = mock(MessageTemplateManagement.class);
 		when(man.listTemplates()).thenReturn(Collections.emptyMap());
-		ArgumentCaptor<MessageTemplate> captor = 
-				ArgumentCaptor.forClass(MessageTemplate.class);
-		MessageTemplateLoader loader = new MessageTemplateLoader(man);
+		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
+				.forClass(MessageTemplate.class);
+		MessageTemplateLoader loader = new MessageTemplateLoader(man,
+				getMockNotificationManager());
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
@@ -124,5 +132,14 @@ public class MessageTemplateLoaderTest
 		assertThat(msg.getBody().getMap().toString(), 
 				msg.getBody().getMap().size(), is(1));
 
+	}
+	
+	private NotificationsManagement getMockNotificationManager() throws EngineException
+	{
+		NotificationsManagement notMan = mock(NotificationsManagement.class);
+		Map<String, NotificationChannel> res = new HashMap<>();
+		res.put("", null);	
+		when(notMan.getNotificationChannels()).thenReturn(res);
+		return notMan;
 	}
 }

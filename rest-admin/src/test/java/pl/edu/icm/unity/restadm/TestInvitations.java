@@ -177,7 +177,7 @@ public class TestInvitations extends RESTAdminTestBase
 	{
 		InvitationParam ret = new InvitationParam("exForm", 
 				Instant.now().plusSeconds(200).truncatedTo(ChronoUnit.SECONDS), 
-				"someAddr@example.com", "channelId");
+				"someAddr@example.com");
 		Attribute attrP = StringAttribute.of("cn", "/", "value");
 		ret.getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
 		ret.getIdentities().put(0, new PrefilledEntry<>(new IdentityParam(UsernameIdentity.ID, 
