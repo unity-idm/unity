@@ -135,7 +135,6 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		private VerifiableEmail value;
 		private String label;
 		private boolean required;
-		private boolean adminMode;
 		private ConfirmationInfo confirmationInfo;
 		private TextFieldWithVerifyButton editor;
 
@@ -150,15 +149,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				String attrName, EntityParam owner, String group)
 		{
 			this.required = required;
-			this.adminMode = adminMode;
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 			
 			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
 					"VerifiableEmailAttributeHandler.resendConfirmation"),
 					Images.messageSend.getResource(),
-					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"),
-					false);
+					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"));
 			if (label != null)
 				editor.setTextFieldId("EmailValueEditor." + label);
 
@@ -177,9 +174,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				{
 					ConfirmDialog confirm = new ConfirmDialog(msg, msg
 							.getMessage("VerifiableEmailAttributeHandler.confirmResendConfirmation"),
-							() -> sendConfirmation(owner, group,
+							() -> { sendConfirmation(owner, group,
 									attrName,
-									value.getValue()));
+									value.getValue());
+								confirmationInfo.setSentRequestAmount(confirmationInfo.getSentRequestAmount() + 1);
+								editor.setStatusIcon(formatter.getConfirmationStatusString(
+										confirmationInfo), confirmationInfo.isConfirmed());
+							      });
 					confirm.show();
 				}
 
@@ -195,13 +196,25 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 				if (e.getValue().equals(value.getValue()))
 				{
+					confirmationInfo  = value.getConfirmationInfo();
 					editor.setVerifyButtonVisiable(true);
 				} else
 				{
-					editor.setVerifyButtonVisiable(false);
+					confirmationInfo = new ConfirmationInfo();
+					editor.setVerifyButtonVisiable(false);					
 				}
 			});
 
+			editor.addAdminConfirmCheckBoxValueChangeListener(e -> {	
+					confirmationInfo = new ConfirmationInfo(e.getValue());
+					editor.setStatusIcon(formatter.getConfirmationStatusString(
+							confirmationInfo), confirmationInfo.isConfirmed());
+					editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty() && editor.getValue().equals(value.getValue()));
+			});
+			
+			editor.setStatusIcon(formatter.getConfirmationStatusString(
+					confirmationInfo), confirmationInfo.isConfirmed());
+			
 			return new ComponentsContainer(editor);
 
 		}
@@ -232,9 +245,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			try
 			{
 				VerifiableEmail email = new VerifiableEmail(editor.getValue());
-				if (adminMode)
-					email.setConfirmationInfo(new ConfirmationInfo(
-							editor.getAdminCheckBoxValue()));
+				email.setConfirmationInfo(confirmationInfo);
 				syntax.validate(email);
 				editor.setComponentError(null);
 				return syntax.convertToString(email);

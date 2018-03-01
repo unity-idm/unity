@@ -154,7 +154,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		private TextFieldWithVerifyButton editor;
 		private ConfirmationInfo confirmationInfo;
 		private boolean required;
-		private boolean adminMode;
+		private boolean skipUpdate = false;
 		
 		
 		public VerifiableMobileNumberValueEditor(String valueRaw, String label)
@@ -167,9 +167,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		public ComponentsContainer getEditor(boolean required, boolean adminMode,
 				String attrName, EntityParam owner, String group)
 		{	
-			this.required = required;
-			this.adminMode = adminMode;
-			
+			this.required = required;	
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
@@ -179,8 +177,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
 					"VerifiableMobileNumberAttributeHandler.verify"),
 					Images.mobile.getResource(),
-					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"),
-					!adminMode);
+					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"));
 			if (label != null)
 				editor.setTextFieldId("MobileNumberValueEditor." + label);
 
@@ -231,19 +228,26 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			});
 			
 			editor.addAdminConfirmCheckBoxValueChangeListener(e -> {
-				editor.setVerifyButtonVisiable(!e.getValue() && !editor.getValue().isEmpty());
+				if (!skipUpdate)
+				{
+					confirmationInfo = new ConfirmationInfo(e.getValue());
+					updateConfirmationLabelAndButtons();
+				}
 			});
 			
 			updateConfirmationLabelAndButtons();
+			
 			return new ComponentsContainer(editor);
 		}
 		
 		private void updateConfirmationLabelAndButtons()
 		{
-			editor.setInfoLabelValue(formatter.getConfirmationStatusString(
-					confirmationInfo));
+			editor.setStatusIcon(formatter.getConfirmationStatusString(
+					confirmationInfo), confirmationInfo.isConfirmed());
 			editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
+			skipUpdate = true;
 			editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());	
+			skipUpdate = false;
 		}
 
 		@Override
@@ -256,14 +260,6 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			try
 			{
 				VerifiableMobileNumber mobile = new VerifiableMobileNumber(editor.getValue());
-				if (adminMode)
-				{
-					mobile.setConfirmationInfo(
-							new ConfirmationInfo(editor.getAdminCheckBoxValue()));
-				} else
-				{
-					mobile.setConfirmationInfo(confirmationInfo);
-				}
 				syntax.validate(mobile);
 				editor.setComponentError(null);
 				return syntax.convertToString(mobile);

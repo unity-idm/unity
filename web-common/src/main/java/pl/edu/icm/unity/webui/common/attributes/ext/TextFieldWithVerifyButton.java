@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
@@ -17,6 +18,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -30,15 +32,14 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	private CheckBox adminConfirmCheckBox;
 	private Button verifyButton;
 	private TextField editor;
-	private HorizontalLayout fieldWithButton;
+	private HorizontalLayout fieldLayout;
 	private VerticalLayout main;
-	private Label infoLabel;
+	private Label statusIcon;
 	
 	public TextFieldWithVerifyButton(boolean adminMode, boolean required,
 			String verifyButtonDesc, Resource verifyButtonIcon,
-			String adminConfirmCheckBoxLabel, boolean showInfoLabel)
+			String adminConfirmCheckBoxLabel)
 	{
-
 		setRequiredIndicatorVisible(required);
 		verifyButton = new Button();
 		verifyButton.setIcon(verifyButtonIcon);
@@ -50,20 +51,21 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		editor = new TextField();
 
 		adminConfirmCheckBox = new CheckBox(adminConfirmCheckBoxLabel);
-		fieldWithButton = new HorizontalLayout();
-		fieldWithButton.setMargin(false);
-		fieldWithButton.setSpacing(false);
-		fieldWithButton.addComponents(editor, verifyButton);
-
+		fieldLayout = new HorizontalLayout();
+		fieldLayout.setMargin(false);
+		fieldLayout.setSpacing(true);
+		
+		statusIcon = new Label();
+		statusIcon.setContentMode(ContentMode.HTML);
+		statusIcon.setStyleName(Styles.largeIcon.toString());
+		
+		fieldLayout.addComponents(editor, statusIcon,  verifyButton);
+	
 		main = new VerticalLayout();
 		main.setMargin(false);
-		main.addComponent(fieldWithButton);
+		main.addComponent(fieldLayout);
 		if (adminMode)
 			main.addComponent(adminConfirmCheckBox);
-
-		infoLabel = new Label();
-		if (showInfoLabel)
-			main.addComponent(infoLabel);
 	}
 
 	@Override
@@ -84,12 +86,13 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		editor.setValue(value);
 
 	}
-
-	public void setInfoLabelValue(String value)
+	
+	public void setStatusIcon(String value, boolean confirmed)
 	{
-		infoLabel.setValue(value);
+		statusIcon.setValue(confirmed ? Images.ok.getHtml() : Images.remove.getHtml()); 		
+		statusIcon.setDescription(value);
 	}
-
+		
 	public void addTextFieldValueChangeListener(ValueChangeListener<String> listener)
 
 	{
@@ -107,7 +110,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		adminConfirmCheckBox.addValueChangeListener(listener);
 	}
-
+	
 	public void setVerifyButtonVisiable(boolean visible)
 	{
 		verifyButton.setVisible(visible);
@@ -125,7 +128,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 
 	public void removeVerifyButton()
 	{
-		fieldWithButton.removeComponent(verifyButton);
+		fieldLayout.removeComponent(verifyButton);
 	}
 
 	@Override
