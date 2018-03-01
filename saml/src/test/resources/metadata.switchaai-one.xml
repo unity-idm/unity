@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntitiesDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:mdrpi="urn:oasis:names:tc:SAML:metadata:rpi" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ID="SWITCHaai-20140606235901" Name="urn:mace:switch.ch:SWITCHaai" validUntil="2014-06-11T21:59:01Z" xsi:schemaLocation="urn:oasis:names:tc:SAML:2.0:metadata saml-schema-metadata-2.0.xsd urn:mace:shibboleth:metadata:1.0 shibboleth-metadata-1.0.xsd http://www.w3.org/2000/09/xmldsig# xmldsig-core-schema.xsd">
+	<EntityDescriptor entityID="https://fake.idp.eu">
+		<IDPSSODescriptor errorURL="http://www.unifr.ch/aai" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.1:protocol urn:mace:shibboleth:1.0">
+			<Extensions>
+				<shibmd:Scope regexp="false">unifr.ch</shibmd:Scope>
+				<mdui:UIInfo>
+					<mdui:DisplayName xml:lang="de">Universität Freiburg</mdui:DisplayName>
+					<mdui:DisplayName xml:lang="en">University of Fribourg</mdui:DisplayName>
+					<mdui:DisplayName xml:lang="fr">Université de Fribourg</mdui:DisplayName>
+					<mdui:Description xml:lang="de">Universität Freiburg</mdui:Description>
+					<mdui:Description xml:lang="en">University of Fribourg</mdui:Description>
+					<mdui:Description xml:lang="fr">Université de Fribourg</mdui:Description>
+					<mdui:Logo height="16" width="16">data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAAZiS0dEAP8A/wD/oL2nkwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAAd0SU1FB90KHwg5DseRCzwAAAIaSURBVDjLlZO9T1NRGMZ/595akF5bWuQjNrJgIguJizUEk+pIY4gkEP4L3FkM/AFCZWkZSJjLKh8TGCQgTCQyyGolBIwkeNvKxz2PQ0OlGg08yZlO3t85z/u+j7HWyhjDTSSJyxrHGMPOzg75fI7Dw0Oy2Tf4vs/i4hIrK6v4/g+mp99yfn7B/HyBhYV31D0oSVNTU0okEtra+ihAxeIXjYwMKxy+pXw+J2NQqVRSKvVYAwMvJEnWWkmSAxAKhWhqaiQS8QiHXYxx8DyP7u6HTEyM09p6FzA0NzcTjcbq7DgAqdQTQAwOvqSn5xGxWAxrRSaTYWxsDGvBGHAcF9d16xsSBIEkyfd97e9/1dnZmSTp5ORElUpFklQsFhUEgQ4ODnR0dKQgCGoWQo7jsLa2xvj4a6LRKNbC7OwsMzN51tc/4Hl3GB19RTKZpK2tDWstAMYYJFUtHB9/Z2Njg97eXvr7M8TjCXZ3P+F5HpVKmWx28rdnx6kVG2OqAKk620KhwPLyEsZAKOSyubnJ9vY2Q0PDNYAxpnYAQgAtLS2k08+Ym5sjHk8A0NX1gL6+pwRBwOrq+zrIVRlrpXK5hO/7nJ6eIomOjg4aGhr+2r7LH/x5oVwup0jktjo77yuZvKe9vc+6rhwA162SHccAwhhdOxchgHL5J75fRvqGtQEXFzcEpNPPyWYnaWxsQhLt7e3XBph/xflqZP+nX5gqPWD6ar6SAAAAAElFTkSuQmCC</mdui:Logo>
+					<mdui:Logo height="60" width="90">data:image/png;base64,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</mdui:Logo>
+				</mdui:UIInfo>
+				<mdui:DiscoHints>
+					<mdui:IPHint>192.47.244.0/22</mdui:IPHint>
+					<mdui:IPHint>192.47.248.0/23</mdui:IPHint>
+					<mdui:IPHint>134.21.0.0/16</mdui:IPHint>
+					<mdui:DomainHint>unifr.ch</mdui:DomainHint>
+					<mdui:GeolocationHint>geo:46.806228,7.152400</mdui:GeolocationHint>
+				</mdui:DiscoHints>
+			</Extensions>
+			<KeyDescriptor use="signing">
+				<ds:KeyInfo>
+					<ds:X509Data>
+						<ds:X509Certificate>
+MIIDEDCCAfigAwIBAgIJAIp+DMI5Xj2FMA0GCSqGSIb3DQEBBQUAMBcxFTATBgNV
+BAMTDGFhaS51bmlmci5jaDAeFw0xNDA0MDkwNjI2MDVaFw0xNzA0MDgwNjI2MDVa
+MBcxFTATBgNVBAMTDGFhaS51bmlmci5jaDCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBALXStAT8W6nX2N3ZvU84FpTKuAmdfleTr+f1usWoKz1jnKKkayFu
+lNc39OiJIgqlh3FX1QXV39AJf3AC0OqBAhpeaONnyhdf/ZZ7zhWYbUBsL/3ilSL9
+N1sPzzxGkod0feZlAkXrse2NeZZ7n4pDEz0c59bfe7Egv5iYaaKytNgU8NLpLN9p
+SqpI9okOf7a2H/Fs9PTvTfMagi/VSNcTuKb6UMyhtbS7kSJwyjUQPC9tWyGln5/4
+N5559ice8Cv3Se9sYvBqTojDRgV8XyDtHkcDoTqJgseSLOzF647fs1hDoAZss/Yu
+gfqwPOPcvNWRgsQYfuy9K93Wv4cON8S5+9sCAwEAAaNfMF0wPAYDVR0RBDUwM4IM
+YWFpLnVuaWZyLmNohiNodHRwczovL2FhaS51bmlmci5jaC9pZHAvc2hpYmJvbGV0
+aDAdBgNVHQ4EFgQUc+thXESrJ14M3LZRKwaX2rAt+kQwDQYJKoZIhvcNAQEFBQAD
+ggEBAI+oyk62mRG3tZ5cv5cNM7wAPRpZ/GLjxvM08T5UuIS2zEzMKLGNYIBQXHyV
+4ag2oaNzxaeDejks0v4ixkyT/X+uxe7H0wsHvfBUFGBIpp/F3RF1wLi1fadeQZbn
+bTS8R+Ie5ZvPjfwFLLB8C8kqp587RHcVr9N6IWAKY/2R2wfXATJ5cGrneQirgu3D
+/mKOvEvu+I1xF3b4gc+e2LL7IHhOMNbQFMRkE1+NBWlMCL/C7UqF4ZHeeZSC8CXQ
+/yx90ElnzFiImgYBLDF5a8Aa7UO8f7+hU+m2YaFbj/CNdD+XwFWbfr0va1UP0xas
+ACCNIbiIfzXCYUVLsTaQK7e25kA=
+						</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</KeyDescriptor>
+			<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://aai.unifr.ch:8443/idp/profile/SAML1/SOAP/ArtifactResolution" index="1"/>
+			<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://aai.unifr.ch:8443/idp/profile/SAML2/SOAP/ArtifactResolution" index="2"/>
+			<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+			<SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="https://aai.unifr.ch/idp/profile/Shibboleth/SSO"/>
+			<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://aai.unifr.ch/idp/profile/SAML2/Redirect/SSO"/>
+			<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://aai.unifr.ch/idp/profile/SAML2/POST/SSO"/>
+			<SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://aai.unifr.ch/idp/profile/SAML2/POST-SimpleSign/SSO"/>
+		</IDPSSODescriptor>
+		<AttributeAuthorityDescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol urn:oasis:names:tc:SAML:1.1:protocol">
+			<Extensions>
+				<shibmd:Scope regexp="false">unifr.ch</shibmd:Scope>
+			</Extensions>
+			<KeyDescriptor use="signing">
+				<ds:KeyInfo>
+					<ds:X509Data>
+						<ds:X509Certificate>
+MIIDEDCCAfigAwIBAgIJAIp+DMI5Xj2FMA0GCSqGSIb3DQEBBQUAMBcxFTATBgNV
+BAMTDGFhaS51bmlmci5jaDAeFw0xNDA0MDkwNjI2MDVaFw0xNzA0MDgwNjI2MDVa
+MBcxFTATBgNVBAMTDGFhaS51bmlmci5jaDCCASIwDQYJKoZIhvcNAQEBBQADggEP
+ADCCAQoCggEBALXStAT8W6nX2N3ZvU84FpTKuAmdfleTr+f1usWoKz1jnKKkayFu
+lNc39OiJIgqlh3FX1QXV39AJf3AC0OqBAhpeaONnyhdf/ZZ7zhWYbUBsL/3ilSL9
+N1sPzzxGkod0feZlAkXrse2NeZZ7n4pDEz0c59bfe7Egv5iYaaKytNgU8NLpLN9p
+SqpI9okOf7a2H/Fs9PTvTfMagi/VSNcTuKb6UMyhtbS7kSJwyjUQPC9tWyGln5/4
+N5559ice8Cv3Se9sYvBqTojDRgV8XyDtHkcDoTqJgseSLOzF647fs1hDoAZss/Yu
+gfqwPOPcvNWRgsQYfuy9K93Wv4cON8S5+9sCAwEAAaNfMF0wPAYDVR0RBDUwM4IM
+YWFpLnVuaWZyLmNohiNodHRwczovL2FhaS51bmlmci5jaC9pZHAvc2hpYmJvbGV0
+aDAdBgNVHQ4EFgQUc+thXESrJ14M3LZRKwaX2rAt+kQwDQYJKoZIhvcNAQEFBQAD
+ggEBAI+oyk62mRG3tZ5cv5cNM7wAPRpZ/GLjxvM08T5UuIS2zEzMKLGNYIBQXHyV
+4ag2oaNzxaeDejks0v4ixkyT/X+uxe7H0wsHvfBUFGBIpp/F3RF1wLi1fadeQZbn
+bTS8R+Ie5ZvPjfwFLLB8C8kqp587RHcVr9N6IWAKY/2R2wfXATJ5cGrneQirgu3D
+/mKOvEvu+I1xF3b4gc+e2LL7IHhOMNbQFMRkE1+NBWlMCL/C7UqF4ZHeeZSC8CXQ
+/yx90ElnzFiImgYBLDF5a8Aa7UO8f7+hU+m2YaFbj/CNdD+XwFWbfr0va1UP0xas
+ACCNIbiIfzXCYUVLsTaQK7e25kA=
+						</ds:X509Certificate>
+					</ds:X509Data>
+				</ds:KeyInfo>
+			</KeyDescriptor>
+			<AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://aai.unifr.ch:8443/idp/profile/SAML1/SOAP/AttributeQuery"/>
+			<AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://aai.unifr.ch:8443/idp/profile/SAML2/SOAP/AttributeQuery"/>
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+			<NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+		</AttributeAuthorityDescriptor>
+		<Organization>
+			<OrganizationName xml:lang="en">unifr.ch</OrganizationName>
+			<OrganizationDisplayName xml:lang="de">Universität Freiburg</OrganizationDisplayName>
+			<OrganizationDisplayName xml:lang="en">University of Fribourg</OrganizationDisplayName>
+			<OrganizationDisplayName xml:lang="fr">Université de Fribourg</OrganizationDisplayName>
+			<OrganizationURL xml:lang="de">http://www.unifr.ch/</OrganizationURL>
+			<OrganizationURL xml:lang="en">http://www.unifr.ch/</OrganizationURL>
+			<OrganizationURL xml:lang="fr">http://www.unifr.ch/</OrganizationURL>
+		</Organization>
+		<ContactPerson contactType="support">
+			<GivenName>AAI</GivenName>
+			<SurName>Support Uni Fribourg</SurName>
+			<EmailAddress>mailto:aai@unifr.ch</EmailAddress>
+			<TelephoneNumber>+4126 300 7207</TelephoneNumber>
+		</ContactPerson>
+	</EntityDescriptor>
+</EntitiesDescriptor>
