@@ -36,7 +36,7 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 		super(NAME, new ActionParameterDefinition(
 				"identityType",
 				"TranslationAction.createIdentity.paramDesc.idType",
-				Type.EXPRESSION),
+				Type.TEXT),
 		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createIdentity.paramDesc.idValueExpression",

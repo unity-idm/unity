@@ -62,7 +62,8 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		
 		AccessToken clientAccessToken = getClientAccessToken(providerConfig, checkingMode);
 		
-		JSONObject userBio = fetchUserBio(providerConfig, attributesSoFar, checkingMode, clientAccessToken);
+		JSONObject userBio = fetchUserBio(userInfoEndpoint, providerConfig, 
+				attributesSoFar, checkingMode, clientAccessToken);
 		
 		return ProfileFetcherUtils.fetchFromJsonObject(userBio);
 	}
@@ -101,7 +102,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 		return successResponse.getTokens().getAccessToken();
 	}
 	
-	private JSONObject fetchUserBio(BaseRemoteASProperties providerConfig, 
+	private JSONObject fetchUserBio(String bioEndpointBase, BaseRemoteASProperties providerConfig, 
 			Map<String, List<String>> attributesSoFar, ServerHostnameCheckingMode checkingMode,
 			AccessToken clientAccessToken) throws Exception
 	{
@@ -112,7 +113,7 @@ public class OrcidProfileFetcher implements UserProfileFetcher
 			throw new AuthenticationException("Authentication was successful "
 					+ "but the orcid id is missing in the received access token");
 		
-		String userBioEndpoint = "https://pub.orcid.org/v1.2/" + userid;
+		String userBioEndpoint = bioEndpointBase + userid;
 		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(userBioEndpoint));
 		CustomHTTPSRequest httpReq = new CustomHTTPSRequest(httpReqRaw, providerConfig.getValidator(), checkingMode);
 		httpReq.setAuthorization(clientAccessToken.toAuthorizationHeader());

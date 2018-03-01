@@ -42,7 +42,7 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 		super(NAME, new ActionParameterDefinition(
 				"attributeName",
 				"TranslationAction.createAttribute.paramDesc.attributeName",
-				Type.EXPRESSION),
+				Type.TEXT),
 		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createAttribute.paramDesc.expression",
