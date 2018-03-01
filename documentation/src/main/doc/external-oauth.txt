@@ -32,7 +32,11 @@ unity.oauth2.client.providers.google.translationProfile=googleProfile
 In the above example two providers are configured: Facebook and Google. Facebook is configuraed with default settings
 which are most of the time sufficient: you have to select provider's type ad provide OAuth client's id and secret.
 In the 2nd example some of the default values are overriden for Google provider. See reference below for a complete list
-of fine-tuning options you can use.  
+of fine-tuning options you can use.
+
+NOTE: ORCID identity provider is supported, but its profile returns a super complex user information record. 
+Unity doesn't provide an out of the box input translation profile for ORCID yet, one must be always manually created.
+For Orcid the attrObj contrrust is very useful to traverse complex JSON data returned in the input profile rules. 
 
 You can select among several providers for which we have a predefined type, or use the +custom+ type, where nearly arbitrary
 standards compliant OAuth identity provider can be configured.   
