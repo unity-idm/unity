@@ -10,9 +10,9 @@ import java.util.Date;
 import java.util.List;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.BaseConfirmationState;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.confirmation.EmailConfirmationFacility;
+import pl.edu.icm.unity.engine.confirmation.ConfirmationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
  * @author P. Piernik
  * 
  */
-public abstract class BaseEmailFacility<T extends BaseEmailConfirmationState> implements EmailConfirmationFacility<T>
+public abstract class BaseFacility<T extends BaseConfirmationState> implements ConfirmationFacility<T>
 {
 	/**
 	 * Check if verifiable element has given value, if yes set element 
@@ -88,10 +88,10 @@ public abstract class BaseEmailFacility<T extends BaseEmailConfirmationState> im
 		for (K attr : attrs)
 		{
 			if (attr == null)
-				 continue;
+				continue;
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
-					&& attr.getValues() != null && syntax.isEmailVerifiable())
+					&& attr.getValues() != null && syntax.isVerifiable())
 			{
 				List<String> updatedValues = new ArrayList<>();
 				boolean attrConfirmed = confirmAttributeValues(attr, syntax, updatedValues, value);
