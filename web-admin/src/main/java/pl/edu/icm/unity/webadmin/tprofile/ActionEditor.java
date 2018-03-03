@@ -243,7 +243,10 @@ public class ActionEditor extends LayoutEmbeddable
 		rep.append("|");
 		for (ActionParameterComponent tc: paramComponents)
 		{
-			rep.append(tc.getCaption() + " "
+			String caption = tc.getCaption();
+			if (caption != null && !caption.endsWith(":"))
+				caption = caption + ":";
+			rep.append(caption + " "
 					+ (tc.getActionValue() != null
 							&& !tc.getActionValue().equals("null")
 									? tc.getActionValue()
