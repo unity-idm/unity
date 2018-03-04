@@ -34,7 +34,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	private TextField editor;
 	private HorizontalLayout fieldLayout;
 	private VerticalLayout main;
-	private Label statusIcon;
+	private Label confirmationStatusIcon;
 	
 	public TextFieldWithVerifyButton(boolean adminMode, boolean required,
 			String verifyButtonDesc, Resource verifyButtonIcon,
@@ -55,11 +55,11 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		fieldLayout.setMargin(false);
 		fieldLayout.setSpacing(true);
 		
-		statusIcon = new Label();
-		statusIcon.setContentMode(ContentMode.HTML);
-		statusIcon.setStyleName(Styles.largeIcon.toString());
+		confirmationStatusIcon = new Label();
+		confirmationStatusIcon.setContentMode(ContentMode.HTML);
+		confirmationStatusIcon.setStyleName(Styles.largeIcon.toString());
 		
-		fieldLayout.addComponents(editor, statusIcon,  verifyButton);
+		fieldLayout.addComponents(editor, confirmationStatusIcon,  verifyButton);
 	
 		main = new VerticalLayout();
 		main.setMargin(false);
@@ -87,10 +87,10 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 
 	}
 	
-	public void setStatusIcon(String value, boolean confirmed)
+	public void setConfirmationStatusIcon(String value, boolean confirmed)
 	{
-		statusIcon.setValue(confirmed ? Images.ok.getHtml() : Images.remove.getHtml()); 		
-		statusIcon.setDescription(value);
+		confirmationStatusIcon.setValue(confirmed ? Images.ok.getHtml() : Images.remove.getHtml()); 		
+		confirmationStatusIcon.setDescription(value);
 	}
 		
 	public void addTextFieldValueChangeListener(ValueChangeListener<String> listener)

@@ -137,6 +137,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		private boolean required;
 		private ConfirmationInfo confirmationInfo;
 		private TextFieldWithVerifyButton editor;
+		private boolean skipUpdate = false;
 
 		public VerifiableEmailValueEditor(String valueRaw, String label)
 		{
@@ -152,6 +153,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 			
+			EmailConfirmationConfiguration confirmationConfig = emailConfirmationMan.getConfirmationConfigurationForAttribute(
+					attrName);
+			
 			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
 					"VerifiableEmailAttributeHandler.resendConfirmation"),
 					Images.messageSend.getResource(),
@@ -163,9 +167,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				editor.setValue(value.getValue());
 
 			if (value != null)
-				editor.setAdminCheckBoxValue(value.isConfirmed());
-
-			if (confirmationInfo.isConfirmed() || owner == null || value == null)
+				editor.setAdminCheckBoxValue(value.isConfirmed());		
+			
+			if (confirmationInfo.isConfirmed() || owner == null || value == null
+					|| confirmationConfig == null)
 				editor.removeVerifyButton();
 
 			editor.addVerifyButtonClickListener(e -> {
@@ -178,8 +183,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 									attrName,
 									value.getValue());
 								confirmationInfo.setSentRequestAmount(confirmationInfo.getSentRequestAmount() + 1);
-								editor.setStatusIcon(formatter.getConfirmationStatusString(
-										confirmationInfo), confirmationInfo.isConfirmed());
+								updateConfirmationStatusIcon();
 							      });
 					confirm.show();
 				}
@@ -188,37 +192,46 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 			editor.addTextFieldValueChangeListener(e -> {
 
-				if (value == null)
+				if (value != null && e.getValue().equals(value.getValue()))
 				{
-					editor.setVerifyButtonVisiable(false);
-					return;
-				}
-
-				if (e.getValue().equals(value.getValue()))
-				{
-					confirmationInfo  = value.getConfirmationInfo();
-					editor.setVerifyButtonVisiable(true);
+					confirmationInfo = value.getConfirmationInfo();
 				} else
 				{
 					confirmationInfo = new ConfirmationInfo();
-					editor.setVerifyButtonVisiable(false);					
 				}
+				updateConfirmationStatusIcon();
 			});
 
-			editor.addAdminConfirmCheckBoxValueChangeListener(e -> {	
+			editor.addAdminConfirmCheckBoxValueChangeListener(e -> {
+				
+				if (!skipUpdate)
+				{
 					confirmationInfo = new ConfirmationInfo(e.getValue());
-					editor.setStatusIcon(formatter.getConfirmationStatusString(
-							confirmationInfo), confirmationInfo.isConfirmed());
-					editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty() && editor.getValue().equals(value.getValue()));
+					updateConfirmationStatusIcon();
+				}
 			});
 			
-			editor.setStatusIcon(formatter.getConfirmationStatusString(
-					confirmationInfo), confirmationInfo.isConfirmed());
+			updateConfirmationStatusIcon();
 			
 			return new ComponentsContainer(editor);
 
 		}
 
+		private void updateConfirmationStatusIcon()
+		{
+			editor.setConfirmationStatusIcon(formatter.getConfirmationStatusString(
+					confirmationInfo), confirmationInfo.isConfirmed());
+			editor.setVerifyButtonVisiable(!confirmationInfo
+					.isConfirmed()
+					&& !editor.getValue().isEmpty()
+					&& value != null && editor.getValue()
+							.equals(value.getValue()));
+			skipUpdate = true;
+			editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());	
+			skipUpdate = false;
+		}
+		
+		
 		private void sendConfirmation(EntityParam owner,String group, String attrName, String attrValue)
 		{
 			try

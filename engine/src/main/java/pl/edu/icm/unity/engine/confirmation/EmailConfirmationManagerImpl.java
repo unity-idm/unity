@@ -440,8 +440,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			if (facilityId.equals(EmailAttribiuteConfirmationState.FACILITY_ID)
 					|| facilityId.equals(RegistrationReqEmailAttribiuteConfirmationState.FACILITY_ID))
 			{
-				AttributeValueSyntax<?> syntax = atTypeHelper.getSyntax(atTypeHelper.getTypeForAttributeName(baseState.getType()));
-				return syntax.getEmailConfirmationConfiguration();
+				return getConfirmationConfigurationForAttribute(baseState.getType());
 			}
 			else
 			{
@@ -477,5 +476,26 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		tx.runInTransactionThrowing(() -> {
 			sendVerificationNoTx(entity, identity, true);
 		});
+	}
+	
+	@Override
+	public EmailConfirmationConfiguration getConfirmationConfigurationForAttribute(
+			String attributeName)
+	{
+		try
+		{
+			AttributeValueSyntax<?> syntax = atTypeHelper.getSyntax(
+					atTypeHelper.getTypeForAttributeName(attributeName));
+			if (!syntax.isEmailVerifiable())
+				throw new IllegalArgumentException("Unsupported attribute type: "
+						+ attributeName + " for email confirmation");
+			return syntax.getEmailConfirmationConfiguration();
+
+		} catch (Exception e)
+		{
+			log.debug("Cannot get confirmation configuration for attribute "
+					+ attributeName, e);
+			return null;
+		}
 	}
 }

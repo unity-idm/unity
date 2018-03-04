@@ -209,7 +209,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 							@Override
 							public void onConfirm()
 							{
-								updateConfirmationLabelAndButtons();
+								updateConfirmationStatusIconAndButtons();
 							}
 						});
 				confirmationDialog.show();
@@ -224,25 +224,25 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				{
 					confirmationInfo = new ConfirmationInfo();
 				}
-				updateConfirmationLabelAndButtons();
+				updateConfirmationStatusIconAndButtons();
 			});
 			
 			editor.addAdminConfirmCheckBoxValueChangeListener(e -> {
 				if (!skipUpdate)
 				{
 					confirmationInfo = new ConfirmationInfo(e.getValue());
-					updateConfirmationLabelAndButtons();
+					updateConfirmationStatusIconAndButtons();
 				}
 			});
 			
-			updateConfirmationLabelAndButtons();
+			updateConfirmationStatusIconAndButtons();
 			
 			return new ComponentsContainer(editor);
 		}
 		
-		private void updateConfirmationLabelAndButtons()
+		private void updateConfirmationStatusIconAndButtons()
 		{
-			editor.setStatusIcon(formatter.getConfirmationStatusString(
+			editor.setConfirmationStatusIcon(formatter.getConfirmationStatusString(
 					confirmationInfo), confirmationInfo.isConfirmed());
 			editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
 			skipUpdate = true;
@@ -260,6 +260,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			try
 			{
 				VerifiableMobileNumber mobile = new VerifiableMobileNumber(editor.getValue());
+				mobile.setConfirmationInfo(confirmationInfo);
 				syntax.validate(mobile);
 				editor.setComponentError(null);
 				return syntax.convertToString(mobile);
