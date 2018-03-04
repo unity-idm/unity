@@ -12,6 +12,7 @@ import static org.junit.Assert.fail;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
@@ -32,11 +36,11 @@ import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
 import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
-import pl.edu.icm.unity.store.objstore.confirmation.ConfirmationConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
@@ -51,6 +55,10 @@ import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.InputTranslationProfileHandler;
 import pl.edu.icm.unity.store.objstore.tprofile.OutputTranslationProfileHandler;
 import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.NotificationChannel;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -120,9 +128,6 @@ public class TestImport
 			assertThat(genericDao.getObjectsOfType(
 					AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE ).size(), 
 					is(8)); 
-			assertThat(genericDao.getObjectsOfType(
-					ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE).size(), 
-					is(2)); 
 			assertThat(genericDao.getObjectsOfType(
 					CredentialHandler.CREDENTIAL_OBJECT_TYPE).size(), 
 					is(3)); 
@@ -194,6 +199,90 @@ public class TestImport
 				String value = sa.getAttribute().getValues().get(0);
 				assertThat(value, containsString("SHA256"));
 			}
+		});
+	}
+	
+	@Test
+	public void testImportFrom2_0_0()
+	{
+		tx.runInTransaction(() -> {
+			try
+			{
+				ie.load(new BufferedInputStream(new FileInputStream(
+						"src/test/resources/updateData/from2.4.x/"
+								+ "testbed-from2.4.0-confirmationConfig.json")));
+				ie.store(new FileOutputStream("target/afterImport.json"));
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
+			assertThat(atDAO.getAll().size(), is(67));
+			assertThat(itDAO.getAll().size(), is(7));
+
+			AttributeType emailAttrType = atDAO.get("email");
+			assertThat(emailAttrType.getValueSyntaxConfiguration()
+					.get("messageTemplate").asText(), is("emailConfirmation"));
+			assertThat(emailAttrType.getValueSyntaxConfiguration().get("validityTime")
+					.asInt(), is(2880));
+
+			IdentityType emailIdentityType = itDAO.get("email");
+
+			assertThat(emailIdentityType.getEmailConfirmationConfiguration()
+					.getMessageTemplate(), is("emailConfirmation"));
+			assertThat(emailIdentityType.getEmailConfirmationConfiguration()
+					.getValidityTime(), is(2880));
+
+			assertThat(genericDao.getObjectsOfType(
+					MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE).size(),
+					is(11));
+
+			for (GenericObjectBean msg : genericDao.getObjectsOfType(
+					MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE))
+			{
+				MessageTemplate template = null;
+				try
+				{
+					template = new MessageTemplate((ObjectNode) Constants.MAPPER
+							.readTree(msg.getContents()));
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+					fail("Import failed " + e);
+				}
+				if (!template.getConsumer().equals("Generic"))
+					assertThat(template.getNotificationChannel(),
+							is("default_email"));
+
+				if (template.getName().equals("emailConfirmation"))
+					assertThat(template.getConsumer(), is("EmailConfirmation"));
+			}
+
+			assertThat(genericDao.getObjectsOfType(
+					NotificationChannelHandler.NOTIFICATION_CHANNEL_ID).size(),
+					is(1));
+
+			for (GenericObjectBean rawChannel : genericDao.getObjectsOfType(
+					NotificationChannelHandler.NOTIFICATION_CHANNEL_ID))
+			{
+				NotificationChannel channel = null;
+				try
+				{
+					channel = new NotificationChannel(
+							(ObjectNode) Constants.MAPPER.readTree(
+									rawChannel.getContents()));
+				} catch (IOException e)
+				{
+					e.printStackTrace();
+					fail("Import failed " + e);
+				}
+				if (channel.getDescription().equals("Default email channel"))
+					assertThat(channel.getName(), is("default_email"));
+			}
+
+			assertThat(genericDao.getObjectsOfType("confirmationConfiguration").size(),
+					is(0));
+
 		});
 	}
 }

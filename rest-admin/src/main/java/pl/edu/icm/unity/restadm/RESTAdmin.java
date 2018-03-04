@@ -51,7 +51,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -103,7 +103,7 @@ public class RESTAdmin
 	private AttributesManagement attributesMan;
 	private ObjectMapper mapper = Constants.MAPPER;
 	private IdentityTypesRegistry identityTypesRegistry;
-	private ConfirmationManager confirmationManager;
+	private EmailConfirmationManager confirmationManager;
 	private EndpointManagement endpointManagement;
 	private RegistrationsManagement registrationManagement;
 	private BulkProcessingManagement bulkProcessingManagement;
@@ -118,7 +118,7 @@ public class RESTAdmin
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
 			AttributesManagement attributesMan, IdentityTypesRegistry identityTypesRegistry,
-			ConfirmationManager confirmationManager, EndpointManagement endpointManagement,
+			EmailConfirmationManager confirmationManager, EndpointManagement endpointManagement,
 			RegistrationsManagement registrationManagement, 
 			BulkProcessingManagement bulkProcessingManagement, 
 			UserImportManagement userImportManagement,

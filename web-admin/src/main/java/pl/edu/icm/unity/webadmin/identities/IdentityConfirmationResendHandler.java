@@ -9,7 +9,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 class IdentityConfirmationResendHandler
 {
 	@Autowired
-	private ConfirmationManager confirmationMan;
+	private EmailConfirmationManager confirmationMan;
 	@Autowired
 	private IdentityTypeSupport idTypeSupport;
 	@Autowired
@@ -55,7 +55,7 @@ class IdentityConfirmationResendHandler
 	
 	private boolean identityIsVerifiable(IdentityEntry id)
 	{
-		return idTypeSupport.getTypeDefinition(id.getSourceIdentity().getTypeId()).isVerifiable();
+		return idTypeSupport.getTypeDefinition(id.getSourceIdentity().getTypeId()).isEmailVerifiable();
 	}
 
 	

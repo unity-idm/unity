@@ -254,6 +254,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	}
 
 	@Override
+	@Transactional
 	public AttributeType getAttributeType(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);

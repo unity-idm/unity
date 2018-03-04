@@ -51,7 +51,7 @@ import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationServletProvider;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -196,7 +196,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private SharedEndpointManagementImpl sharedEndpointManagement;
 	@Autowired(required = false)
-	private ConfirmationServletProvider confirmationServletFactory;
+	private EmailConfirmationServletProvider confirmationServletFactory;
 	@Autowired
 	private EventProcessor eventsProcessor;
 	@Autowired
@@ -405,9 +405,9 @@ public class EngineInitialization extends LifecycleBase
 		try
 		{
 			sharedEndpointManagement.deployInternalEndpointServlet(
-					ConfirmationServletProvider.SERVLET_PATH, holder, true);
+					EmailConfirmationServletProvider.SERVLET_PATH, holder, true);
 			sharedEndpointManagement.deployInternalEndpointFilter(
-					ConfirmationServletProvider.SERVLET_PATH, filterHolder);
+					EmailConfirmationServletProvider.SERVLET_PATH, filterHolder);
 		} catch (EngineException e)
 		{
 			throw new InternalException("Cannot deploy internal confirmation servlet", e);

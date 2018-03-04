@@ -14,12 +14,12 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
-import pl.edu.icm.unity.engine.api.confirmation.states.AttribiuteConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.IdentityConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqAttribiuteConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqIdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
@@ -59,13 +59,13 @@ public class RegistrationConfirmationRewriteSupport
 	public void rewriteRequestToken(UserRequestState<?> finalRequest, long entityId) 
 			throws EngineException
 	{
-		List<Token> tks = tokensMan.getAllTokens(ConfirmationManager.CONFIRMATION_TOKEN_TYPE);
+		List<Token> tks = tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE);
 		for (Token tk : tks)
 		{
-			RegistrationConfirmationState state;
+			RegistrationEmailConfirmationState state;
 			try
 			{
-				state = new RegistrationConfirmationState(tk.getContentsString());
+				state = new RegistrationEmailConfirmationState(tk.getContentsString());
 			} catch (IllegalArgumentException e)
 			{
 				//OK - not a registration token
@@ -74,11 +74,11 @@ public class RegistrationConfirmationRewriteSupport
 			if (state.getRequestId().equals(finalRequest.getRequestId()))
 			{
 				if (state.getFacilityId().equals(
-						RegistrationReqAttribiuteConfirmationState.FACILITY_ID))
+						RegistrationReqEmailAttribiuteConfirmationState.FACILITY_ID))
 				{
 					rewriteSingleAttributeToken(finalRequest, tk, entityId);
 				} else if (state.getFacilityId().equals(
-						RegistrationReqIdentityConfirmationState.FACILITY_ID))
+						RegistrationReqEmailIdentityConfirmationState.FACILITY_ID))
 				{
 					rewriteSingleIdentityToken(finalRequest, tk, entityId);
 				}
@@ -90,7 +90,7 @@ public class RegistrationConfirmationRewriteSupport
 			long entityId) throws EngineException
 	{
 
-		RegistrationReqAttribiuteConfirmationState oldState = new RegistrationReqAttribiuteConfirmationState(
+		RegistrationReqEmailAttribiuteConfirmationState oldState = new RegistrationReqEmailAttribiuteConfirmationState(
 				new String(tk.getContents(), StandardCharsets.UTF_8));
 		boolean inRequest = false;
 		for (Attribute attribute : request.getRequest().getAttributes())
@@ -101,7 +101,7 @@ public class RegistrationConfirmationRewriteSupport
 				break;
 			AttributeValueSyntax<?> syntax = attributeTypeHelper.getUnconfiguredSyntax(
 					attribute.getValueSyntax());
-			if (syntax.isVerifiable()
+			if (syntax.isEmailVerifiable()
 					&& attribute.getName().equals(oldState.getType())
 					&& attribute.getValues() != null)
 			{
@@ -117,16 +117,16 @@ public class RegistrationConfirmationRewriteSupport
 				}
 			}
 		}
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
+		tokensMan.removeToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
-			AttribiuteConfirmationState newstate = new AttribiuteConfirmationState(
+			EmailAttribiuteConfirmationState newstate = new EmailAttribiuteConfirmationState(
 					entityId, oldState.getType(), oldState.getValue(),
 					oldState.getLocale(), oldState.getGroup(),
 					oldState.getRedirectUrl());
 			log.debug("Update confirmation token " + tk.getValue()
 					+ ", changing facility to " + newstate.getFacilityId());
-			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
+			tokensMan.addToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
 					.getValue(), newstate.getSerializedConfiguration()
 					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
 					.getExpires());
@@ -137,7 +137,7 @@ public class RegistrationConfirmationRewriteSupport
 	private void rewriteSingleIdentityToken(UserRequestState<?> request, Token tk, 
 			long entityId) throws EngineException
 	{
-		RegistrationReqIdentityConfirmationState oldState = new RegistrationReqIdentityConfirmationState(
+		RegistrationReqEmailIdentityConfirmationState oldState = new RegistrationReqEmailIdentityConfirmationState(
 				new String(tk.getContents(), StandardCharsets.UTF_8));
 		boolean inRequest = false;
 		for (IdentityParam id : request.getRequest().getIdentities())
@@ -153,15 +153,15 @@ public class RegistrationConfirmationRewriteSupport
 			}
 		}
 
-		tokensMan.removeToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
+		tokensMan.removeToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		if (inRequest)
 		{
-			IdentityConfirmationState newstate = new IdentityConfirmationState(
+			EmailIdentityConfirmationState newstate = new EmailIdentityConfirmationState(
 					entityId, oldState.getType(), oldState.getValue(),
 					oldState.getLocale(), oldState.getRedirectUrl());
 			log.debug("Update confirmation token " + tk.getValue()
 					+ ", changing facility to " + newstate.getFacilityId());
-			tokensMan.addToken(ConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
+			tokensMan.addToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
 					.getValue(), newstate.getSerializedConfiguration()
 					.getBytes(StandardCharsets.UTF_8), tk.getCreated(), tk
 					.getExpires());

@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer;
 
 /**
  * Allows to inspect a single identity type
@@ -31,6 +32,7 @@ public class IdentityTypeViewer extends CompactFormLayout
 	private Label min;
 	private Label max;
 	private Label minVerified;
+	private EmailConfirmationConfigurationViewer confirmationViewer;
 
 	private IdentityTypeSupport idTypeSupport;
 	
@@ -89,6 +91,9 @@ public class IdentityTypeViewer extends CompactFormLayout
 		confirmable.addStyleName(Styles.immutableAttribute.toString());
 		addComponent(confirmable);
 		
+		confirmationViewer = new EmailConfirmationConfigurationViewer(msg);
+		addComponent(confirmationViewer);
+		
 		setContentsVisible(false);
 	}
 	
@@ -123,14 +128,21 @@ public class IdentityTypeViewer extends CompactFormLayout
 		dynamic.setValue(msg.getYesNo(typeDefinition.isDynamic()));
 		selfModificable.setValue(msg.getYesNo(iType.isSelfModificable()));
 		targeted.setValue(msg.getYesNo(typeDefinition.isTargeted()));
-		confirmable.setValue(msg.getYesNo(typeDefinition.isVerifiable()));
+		confirmable.setValue(msg.getYesNo(typeDefinition.isEmailVerifiable()));
 		min.setValue(String.valueOf(iType.getMinInstances()));
 		max.setValue(String.valueOf(iType.getMaxInstances()));
 		minVerified.setValue(String.valueOf(iType.getMinVerifiedInstances()));
 		
-		if (!typeDefinition.isVerifiable())
+		confirmationViewer.setVisible(false);
+		if (!typeDefinition.isEmailVerifiable())
+		{
 			minVerified.setVisible(false);
-		
+		} else
+		{
+			confirmationViewer.setValue(iType.getEmailConfirmationConfiguration());
+			confirmationViewer.setVisible(true);
+		}
+			
 		if (iType.getMaxInstances() == Integer.MAX_VALUE)
 			max.setVisible(false);
 

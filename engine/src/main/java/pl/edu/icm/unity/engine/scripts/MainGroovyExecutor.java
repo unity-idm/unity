@@ -25,7 +25,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
-import pl.edu.icm.unity.engine.api.ConfirmationConfigurationManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -94,9 +93,6 @@ public class MainGroovyExecutor
 	@Autowired
 	@Qualifier("insecure")
 	private AuthenticatorManagement authenticatorManagement;
-	@Autowired
-	@Qualifier("insecure")
-	private ConfirmationConfigurationManagement confirmationConfigurationManagement;
 	@Autowired
 	@Qualifier("insecure")
 	private CredentialManagement credentialManagement;
@@ -188,7 +184,6 @@ public class MainGroovyExecutor
 		binding.setVariable("attributeTypeManagement", attributeTypeManagement);
 		binding.setVariable("authenticatorManagement", authenticatorManagement);
 		binding.setVariable("bulkProcessingManagement", bulkProcessingManagement);
-		binding.setVariable("confirmationConfigurationManagement", confirmationConfigurationManagement);
 		binding.setVariable("credentialManagement", credentialManagement);
 		binding.setVariable("credentialRequirementManagement", credentialRequirementManagement);
 		binding.setVariable("endpointManagement", endpointManagement);

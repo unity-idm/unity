@@ -35,7 +35,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -76,7 +76,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
-	private ConfirmationManager confirmationMan;
+	private EmailConfirmationManager confirmationMan;
 	private AttributeTypeSupport atSupport;
 	
 	private VerticalLayout left;
@@ -101,7 +101,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			AttributesManagement attributesManagement,
 			GroupsManagement groupsManagement, AttributeTypeManagement atManagement,
 			AttributeClassManagement acMan, AttributeTypeSupport atSupport,
-			ConfirmationManager confirmationMan)
+			EmailConfirmationManager confirmationMan)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -370,7 +370,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 
 	private boolean checkAttributeIsVerifiable(AttributeExt item)
 	{
-		return atSupport.getSyntaxFallingBackToDefault(item).isVerifiable();
+		return atSupport.getSyntaxFallingBackToDefault(item).isEmailVerifiable();
 	}
 
 	private boolean checkAttributeIsConfirmed(AttributeExt item)

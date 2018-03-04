@@ -95,4 +95,11 @@ when updating old configuration. The attribute types may be alternatively loaded
 web authenticator. The default configuration provided in +conf/modules/oauth/remoteOAuth.properties+ is a good starting 
 template.
 
+==== From 2.4.0 to 2.5.0
+ 
+Configuration syntax change
 
+. New email confirmation consumer name = +EmailConfirmation+
+. There is new message template config param +notificationChannel+. All message templates (except Generic) from db after update will have set default_email channel.
+
+  

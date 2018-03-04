@@ -17,6 +17,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
@@ -49,15 +50,18 @@ public class IdentityTypesComponent extends VerticalLayout
 	private IdentityTypesManagement identitiesManagement;
 
 	private IdentityTypeSupport idTypeSupport;
+	private MessageTemplateManagement msgTemplateMan;
 
 	@Autowired
 	public IdentityTypesComponent(UnityMessageSource msg,
 			IdentityTypesManagement identitiesManagement,
-			IdentityTypeSupport idTypeSupport)
+			IdentityTypeSupport idTypeSupport,
+			MessageTemplateManagement msgTemplateMan)
 	{
 		this.msg = msg;
 		this.identitiesManagement = identitiesManagement;
 		this.idTypeSupport = idTypeSupport;
+		this.msgTemplateMan = msgTemplateMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		setMargin(false);
@@ -159,7 +163,7 @@ public class IdentityTypesComponent extends VerticalLayout
 	{
 		IdentityType idType = target.iterator().next();
 		idType = idType.clone();
-		IdentityTypeEditor editor = new IdentityTypeEditor(msg, idTypeSupport, idType);
+		IdentityTypeEditor editor = new IdentityTypeEditor(msg, idTypeSupport, msgTemplateMan, idType);
 		IdentityTypeEditDialog dialog = new IdentityTypeEditDialog(msg,
 				msg.getMessage("IdentityTypes.editAction"), new Callback()
 				{

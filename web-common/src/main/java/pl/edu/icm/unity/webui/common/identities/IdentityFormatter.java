@@ -33,7 +33,7 @@ public class IdentityFormatter
 	{
 		StringBuilder sb = new StringBuilder();
 		IdentityTypeDefinition typeDefinition = idTypeSupport.getTypeDefinition(id.getTypeId());
-		boolean verifiable = typeDefinition.isVerifiable();
+		boolean verifiable = typeDefinition.isEmailVerifiable();
 		sb.append(toStringSimple(id.getValue(), id, verifiable));
 		if (id.getCreationTs() != null && id.getUpdateTs() != null)
 		{
@@ -46,7 +46,7 @@ public class IdentityFormatter
 	
 	public String toString(IdentityParam id, IdentityTypeDefinition idType)
 	{
-		return toStringSimple(id.getValue(), id, idType.isVerifiable());
+		return toStringSimple(id.getValue(), id, idType.isEmailVerifiable());
 	}
 
 

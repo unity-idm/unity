@@ -58,7 +58,7 @@ public interface IdentityTypeDefinition
 	/**
 	 * @return if true then identities of this type can be confirmed. 
 	 */
-	boolean isVerifiable();	
+	boolean isEmailVerifiable();	
 
 	/**
 	 * Checks if the identity is expired. 

@@ -114,7 +114,7 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return true;
 	}

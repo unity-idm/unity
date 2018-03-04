@@ -7,13 +7,14 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.UserError;
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -21,12 +22,15 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor;
+import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer;
 
 /**
  * VerifiableEmail attribute handler for the web
@@ -71,6 +75,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		ret.setMargin(false);
 		Label info = new Label(msg.getMessage("VerifiableEmailAttributeHandler.info"));
 		ret.addComponent(info);
+		ret.addComponent(new EmailConfirmationConfigurationViewer(msg,
+				syntax.getEmailConfirmationConfiguration().get()));
 		return ret;
 	}
 
@@ -78,21 +84,44 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	private static class VerifiableEmailSyntaxEditor implements AttributeSyntaxEditor<VerifiableEmail>
 	{
 
+		
+		private VerifiableEmailAttributeSyntax initial;
+		private UnityMessageSource msg;
+		private MessageTemplateManagement msgTemplateMan;
+		private EmailConfirmationConfigurationEditor editor;
+		
+			
+		public VerifiableEmailSyntaxEditor(VerifiableEmailAttributeSyntax initial,
+				UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+		{
+			this.initial = initial;
+			this.msg = msg;
+			this.msgTemplateMan = msgTemplateMan;
+		}
+
 		@Override
 		public Component getEditor()
 		{
-			VerticalLayout layout = new VerticalLayout();
-			layout.setSpacing(false);
-			layout.setMargin(false);
-			return layout;
+
+			EmailConfirmationConfiguration confirmationConfig = null;
+			if (initial != null && initial.getEmailConfirmationConfiguration().isPresent())
+				confirmationConfig = initial.getEmailConfirmationConfiguration().get();
+
+			editor = new EmailConfirmationConfigurationEditor(confirmationConfig, msg,
+					msgTemplateMan);
+			return editor;
+
 		}
 
 		@Override
 		public AttributeValueSyntax<VerifiableEmail> getCurrentValue()
 				throws IllegalAttributeTypeException
 		{
-			return new VerifiableEmailAttributeSyntax();
+			VerifiableEmailAttributeSyntax syntax = new VerifiableEmailAttributeSyntax();
+			syntax.setEmailConfirmationConfiguration(editor.getCurrentValue());
+			return syntax;
 		}
+	
 
 	}
 
@@ -186,12 +215,14 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	{
 		private UnityMessageSource msg;
 		private IdentityFormatter formatter;
+		private MessageTemplateManagement msgTemplateMan;
 
 		@Autowired
-		public VerifiableEmailAttributeHandlerFactory(UnityMessageSource msg, IdentityFormatter formatter)
+		public VerifiableEmailAttributeHandlerFactory(UnityMessageSource msg, IdentityFormatter formatter, MessageTemplateManagement msgTemplateMan)
 		{
 			this.msg = msg;
 			this.formatter = formatter;
+			this.msgTemplateMan = msgTemplateMan;
 		}
 		
 
@@ -212,7 +243,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		public AttributeSyntaxEditor<VerifiableEmail> getSyntaxEditorComponent(
 				AttributeValueSyntax<?> initialValue)
 		{
-			return new VerifiableEmailSyntaxEditor();
+			return new VerifiableEmailSyntaxEditor(
+					(VerifiableEmailAttributeSyntax) initialValue, msg,
+					msgTemplateMan);
 		}
 	}
 }

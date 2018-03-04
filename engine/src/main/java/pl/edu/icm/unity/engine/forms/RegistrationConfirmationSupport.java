@@ -10,13 +10,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
-import pl.edu.icm.unity.engine.api.confirmation.states.AttribiuteConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.BaseConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.IdentityConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationConfirmationState.RequestType;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqAttribiuteConfirmationState;
-import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqIdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -50,7 +50,7 @@ public class RegistrationConfirmationSupport
 	@Autowired
 	private IdentityTypesRegistry identityTypesRegistry;
 	@Autowired
-	private ConfirmationManager confirmationManager;
+	private EmailConfirmationManager confirmationManager;
 	@Autowired
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	@Autowired
@@ -95,17 +95,17 @@ public class RegistrationConfirmationSupport
 			if (attr == null)
 				continue;
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
-			if (syntax.isVerifiable())
+			if (syntax.isEmailVerifiable())
 			{
 				for (String v : attr.getValues())
 				{
 					VerifiableElement val = (VerifiableElement) syntax.convertFromString(v);
 					if (val.isConfirmed())
 						continue;
-					BaseConfirmationState state;
+					BaseEmailConfirmationState state;
 					if (entityId == null)
 					{
-						state = new RegistrationReqAttribiuteConfirmationState(
+						state = new RegistrationReqEmailAttribiuteConfirmationState(
 							requestState.getRequestId(), 
 							attr.getName(), 
 							val.getValue(), 
@@ -115,7 +115,7 @@ public class RegistrationConfirmationSupport
 							type);
 					} else
 					{
-						state = new AttribiuteConfirmationState(
+						state = new EmailAttribiuteConfirmationState(
 							entityId, 
 							attr.getName(), 
 							val.getValue(), 
@@ -137,12 +137,12 @@ public class RegistrationConfirmationSupport
 			if (id == null)
 				continue;
 			
-			if (identityTypesRegistry.getByName(id.getTypeId()).isVerifiable() && !id.isConfirmed())
+			if (identityTypesRegistry.getByName(id.getTypeId()).isEmailVerifiable() && !id.isConfirmed())
 			{
-				BaseConfirmationState state;
+				BaseEmailConfirmationState state;
 				if (entityId == null)
 				{
-					state = new RegistrationReqIdentityConfirmationState(
+					state = new RegistrationReqEmailIdentityConfirmationState(
 							requestState.getRequestId(),
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
@@ -150,7 +150,7 @@ public class RegistrationConfirmationSupport
 							requestType);
 				} else
 				{
-					state = new IdentityConfirmationState(entityId, 
+					state = new EmailIdentityConfirmationState(entityId, 
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
 							getRedirectUrlForIdentity(requestState, id, profile));

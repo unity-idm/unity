@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationManager;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -47,14 +47,14 @@ public class AttributesManagementImpl implements AttributesManagement
 	private EntityResolver idResolver;
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
-	private ConfirmationManager confirmationManager;
+	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner txRunner;
 
 	@Autowired
 	public AttributesManagementImpl(AttributeClassUtil acUtil,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO dbAttributes,
 			EntityResolver idResolver, AuthorizationManager authz,
-			AttributesHelper attributesHelper, ConfirmationManager confirmationManager,
+			AttributesHelper attributesHelper, EmailConfirmationManager confirmationManager,
 			TransactionalRunner txRunner)
 	{
 		this.acUtil = acUtil;

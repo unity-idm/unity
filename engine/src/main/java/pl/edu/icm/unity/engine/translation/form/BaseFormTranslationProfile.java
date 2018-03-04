@@ -11,7 +11,7 @@ import org.apache.log4j.NDC;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.ConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
@@ -165,7 +165,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 	{
 		return getPostConfirmationRedirectURL(request.getRequest(), request.getRegistrationContext(),
 				requestId,
-				ConfirmationRedirectURLBuilder.ConfirmedElementType.identity.toString(), 
+				EmailConfirmationRedirectURLBuilder.ConfirmedElementType.identity.toString(), 
 				confirmed.getTypeId(), confirmed.getValue());
 	}
 
@@ -178,7 +178,7 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		VerifiableElement parsed = (VerifiableElement) syntax.convertFromString(confirmed.getValues().get(0));
 		return getPostConfirmationRedirectURL(request.getRequest(), request.getRegistrationContext(),
 				requestId,
-				ConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
+				EmailConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
 				confirmed.getName(), parsed.getValue());
 	}
 	

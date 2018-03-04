@@ -14,12 +14,14 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.boundededitors.IntegerBoundEditor;
+import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor;
 
 /**
  * Allows to edit an identity type. It is only possible to edit description and self modifiable flag. 
@@ -39,13 +41,17 @@ public class IdentityTypeEditor extends FormLayout
 	private IntegerBoundEditor max;
 	private Binder<IdentityType> binder;
 	private IdentityTypeSupport idTypeSupport;
+	private EmailConfirmationConfigurationEditor confirmationEditor;
+	private MessageTemplateManagement msgTemplateMan;
+	private IdentityTypeDefinition typeDefinition;
 
-	public IdentityTypeEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport,
+	public IdentityTypeEditor(UnityMessageSource msg, IdentityTypeSupport idTypeSupport, MessageTemplateManagement msgTemplateMan,
 			IdentityType toEdit)
 	{
 		super();
 		this.msg = msg;
 		this.idTypeSupport = idTypeSupport;
+		this.msgTemplateMan = msgTemplateMan;
 		original = toEdit;
 
 		initUI(toEdit);
@@ -79,16 +85,24 @@ public class IdentityTypeEditor extends FormLayout
 
 		minVerified = new TextField(msg.getMessage("IdentityType.minVerified"));
 		addComponent(minVerified);
-		IdentityTypeDefinition typeDefinition = idTypeSupport
+		typeDefinition = idTypeSupport
 				.getTypeDefinition(toEdit.getName());
-		if (!typeDefinition.isVerifiable())
+		if (!typeDefinition.isEmailVerifiable())
+		{	
 			minVerified.setVisible(false);
+		}
 
 		max = new IntegerBoundEditor(msg, msg.getMessage("IdentityType.maxUnlimited"),
 				msg.getMessage("IdentityType.max"), Integer.MAX_VALUE, 0, null);
 
 		addComponent(max);
 
+		if (typeDefinition.isEmailVerifiable())
+		{
+			confirmationEditor = new EmailConfirmationConfigurationEditor(toEdit.getEmailConfirmationConfiguration(), msg, msgTemplateMan);
+			confirmationEditor.addFieldToLayout(this);
+		}
+				
 		binder = new Binder<>(IdentityType.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
 		binder.forField(description).bind("description");
@@ -110,7 +124,7 @@ public class IdentityTypeEditor extends FormLayout
 						Integer.MAX_VALUE))
 				.bind("minVerifiedInstances");
 
-		binder.setBean(toEdit);
+		binder.setBean(toEdit);		
 		refresh();
 	}
 
@@ -129,6 +143,8 @@ public class IdentityTypeEditor extends FormLayout
 		IdentityType ret = binder.getBean();
 		ret.setIdentityTypeProvider(original.getIdentityTypeProvider());
 		ret.setExtractedAttributes(original.getExtractedAttributes());
+		if (typeDefinition.isEmailVerifiable())
+			ret.setEmailConfirmationConfiguration(confirmationEditor.getCurrentValue());
 		return ret;
 	}
 }

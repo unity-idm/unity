@@ -387,7 +387,7 @@ public class AttributesHelper
 	{
 		@SuppressWarnings("rawtypes")
 		AttributeValueSyntax syntax = atHelper.getUnconfiguredSyntax(attribute.getValueSyntax());
-		if (!syntax.isVerifiable() || honorInitialConfirmation)
+		if (!syntax.isEmailVerifiable() || honorInitialConfirmation)
 			return;
 		
 		if (!update)

@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
@@ -15,6 +18,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
  * Verifiable email attribute value syntax.
@@ -23,6 +27,8 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
 public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<VerifiableEmail> 
 {
 	public static final String ID = "verifiableEmail";
+	private EmailConfirmationConfiguration emailConfirmationConfiguration;
+
 	
 	@Override
 	public String getValueSyntaxId()
@@ -55,17 +61,23 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	@Override
 	public JsonNode getSerializedConfiguration()
 	{
-		return Constants.MAPPER.createObjectNode();
+		ObjectNode main = Constants.MAPPER.createObjectNode();
+		if (getEmailConfirmationConfiguration().isPresent())
+		{
+			main.set("emailConfirmationConfiguration", getEmailConfirmationConfiguration().get().toJson());
+		}
+		return main;
 	}
-
+	
 	@Override
 	public void setSerializedConfiguration(JsonNode json)
 	{
-	      //OK
+		if (JsonUtil.notNull(json, "emailConfirmationConfiguration")) 
+			setEmailConfirmationConfiguration(new EmailConfirmationConfiguration((ObjectNode) json.get("emailConfirmationConfiguration")));		
 	}
 
 	@Override
-	public boolean isVerifiable()
+	public boolean isEmailVerifiable()
 	{
 		return true;
 	}
@@ -96,7 +108,17 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		return ret;
 	}
 	
+	public void setEmailConfirmationConfiguration(
+			EmailConfirmationConfiguration confirmationConfiguration)
+	{
+		this.emailConfirmationConfiguration = confirmationConfiguration;
+	}
 	
+	public Optional<EmailConfirmationConfiguration> getEmailConfirmationConfiguration()
+	{
+		return Optional.of(emailConfirmationConfiguration);
+	}
+
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<VerifiableEmail>
 	{
