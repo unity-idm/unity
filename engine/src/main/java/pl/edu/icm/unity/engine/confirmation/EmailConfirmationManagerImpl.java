@@ -147,7 +147,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		String facilityId = baseState.getFacilityId();
 		EmailConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(facilityId);
 		Optional<EmailConfirmationConfiguration> configEntry = getConfiguration(baseState);
-		if (configEntry.isPresent()) 
+		if (!configEntry.isPresent()) 
 		{
 			log.debug("Cannot get confirmation configuration for "
 					+ baseState.getType()

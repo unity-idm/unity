@@ -18,8 +18,6 @@ import pl.edu.icm.unity.types.basic.VerifiableMobileNumber;
 public class MobileNumberUtils
 {
 	private static final int MAX_LENGTH = 15;
-	public final static String CONFIRMED_POSTFIX = "[CONFIRMED]"; 
-	public final static String UNCONFIRMED_POSTFIX = "[UNCONFIRMED]"; 
 	public final static Pattern mobileNumberPattern = Pattern.compile("(\\+)?(\\d){9,12}");
 	
 	
