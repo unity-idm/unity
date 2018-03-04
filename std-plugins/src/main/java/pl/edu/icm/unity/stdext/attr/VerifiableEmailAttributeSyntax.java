@@ -116,7 +116,7 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	
 	public Optional<EmailConfirmationConfiguration> getEmailConfirmationConfiguration()
 	{
-		return Optional.of(emailConfirmationConfiguration);
+		return Optional.ofNullable(emailConfirmationConfiguration);
 	}
 
 	@Component
