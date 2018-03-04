@@ -6,7 +6,9 @@ package pl.edu.icm.unity.saml.metadata.cfg;
 
 import java.security.cert.X509Certificate;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
@@ -36,6 +38,7 @@ public class RemoteMetaManager
 	private String metaPrefix;
 	private RemoteMetadataService metadataService;
 	private Set<String> registeredConsumers = new HashSet<>();
+	private Map<String, Properties> configurationsFromMetadata = new HashMap<>();
 	
 	public RemoteMetaManager(SamlProperties configuration, 
 			PKIManagement pkiManagement,
@@ -93,11 +96,15 @@ public class RemoteMetaManager
 		registeredConsumers.forEach(id -> metadataService.unregisterConsumer(id));
 	}
 	
-	private synchronized void setVirtualConfiguration(Properties virtualConfigurationProperties)
+	private synchronized void assembleProperties(String key, Properties newProperties)
 	{
-		this.virtualConfiguration.setProperties(virtualConfigurationProperties);
+		Properties virtualConfigProps = configuration.getSourceProperties();
+		configurationsFromMetadata.put(key, newProperties);
+		for (Properties properties: configurationsFromMetadata.values())
+			virtualConfigProps.putAll(properties);
+		this.virtualConfiguration.setProperties(virtualConfigProps);
 	}
-	
+
 	private void reloadSingle(EntitiesDescriptorDocument metadata, String key, String url,
 			Properties virtualProps, SamlProperties configuration)
 	{
@@ -141,7 +148,7 @@ public class RemoteMetaManager
 		{
 			Properties virtualConfigProps = configuration.getSourceProperties();
 			reloadSingle(metadata, propertiesKey, url, virtualConfigProps, configuration);
-			setVirtualConfiguration(virtualConfigProps);
+			assembleProperties(propertiesKey, virtualConfigProps);
 		}
 	}
 }

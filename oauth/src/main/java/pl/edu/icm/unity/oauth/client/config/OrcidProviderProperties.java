@@ -32,7 +32,7 @@ public class OrcidProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://orcid.org/oauth/authorize");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://pub.orcid.org/oauth/token");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/orcid-small.png");
-		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://pub.orcid.org/v1.2/");
+		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://pub.orcid.org/v2.1/");
 		setIfUnset(properties, prefix + SCOPES, "/authenticate");
 		setIfUnset(properties, prefix + ADDITIONAL_AUTHZ_PARAMS + "1", "show_login=true");
 		return properties;

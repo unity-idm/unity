@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.oauth.client.profile;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -62,7 +63,9 @@ public class ProfileFetcherUtils
 
 	public static void resolveNestedJsonType(JSONArray array)
 	{
-		for (Object v : array)
+		
+		ArrayList<Object> copy = new ArrayList<>(array);
+		for (Object v : copy)
 		{
 			Object r = JSONValue.parse(v.toString());
 			if (r instanceof JSONObject)
