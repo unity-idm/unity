@@ -87,8 +87,10 @@ public abstract class BaseEmailFacility<T extends BaseEmailConfirmationState> im
 		List<K> confirmed = new ArrayList<>();
 		for (K attr : attrs)
 		{
+			if (attr == null)
+				 continue;
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
-			if (attr != null && attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
+			if (attr.getName().equals(attrName) && attr.getGroupPath().equals(group)
 					&& attr.getValues() != null && syntax.isEmailVerifiable())
 			{
 				List<String> updatedValues = new ArrayList<>();

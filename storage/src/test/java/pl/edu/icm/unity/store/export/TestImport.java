@@ -205,7 +205,7 @@ public class TestImport
 	}
 	
 	@Test
-	public void testImportFrom2_4_x()
+	public void testImportFrom2_0_0()
 	{
 		tx.runInTransaction(() -> {
 			try

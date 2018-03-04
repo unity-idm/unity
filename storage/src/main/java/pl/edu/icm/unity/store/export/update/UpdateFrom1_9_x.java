@@ -102,6 +102,8 @@ public class UpdateFrom1_9_x implements Update
 				genericsByType, newGenerics, ctx);
 		convertGenericType(AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
+		convertGenericType("confirmationConfiguration", 
+				genericsByType, newGenerics, ctx);
 		convertGenericType(CredentialHandler.CREDENTIAL_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
 		convertGenericType(CredentialRequirementHandler.CREDENTIAL_REQ_OBJECT_TYPE, 
@@ -216,7 +218,7 @@ public class UpdateFrom1_9_x implements Update
 			newGeneric.set("obj", content);
 
 			if ((obj.get("subType") != null && obj.get("subType").asText().equals("OUTPUT")) ||
-					(content.get("type") != null && content.get("type").equals("OUTPUT")))
+					(content.get("type") != null && content.get("type").asText().equals("OUTPUT")))
 				outputArray.add(newGeneric);
 			else
 				inputArray.add(updateInputProfileContent(newGeneric));

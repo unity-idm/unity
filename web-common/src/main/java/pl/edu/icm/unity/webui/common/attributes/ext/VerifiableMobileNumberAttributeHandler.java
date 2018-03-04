@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.UserError;
@@ -86,19 +88,19 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		ret.addComponent(validityTime);
 		Label codeLenght = new Label();
 		ret.addComponent(codeLenght);
-		MobileNumberConfirmationConfiguration config = syntax
+		Optional<MobileNumberConfirmationConfiguration> config = syntax
 				.getMobileNumberConfirmationConfiguration();
 
 		msgTemplate.setValue(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.confirmationMsgTemplate")
-				+ " " + (config != null ? config.getMessageTemplate() : ""));
+				+ " " + (config.isPresent() ? config.get().getMessageTemplate() : ""));
 
 		validityTime.setValue(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.validityTime") + " "
-				+ (config != null ? String.valueOf(config.getValidityTime()) : ""));
+				+ (config.isPresent()? String.valueOf(config.get().getValidityTime()) : ""));
 		codeLenght.setValue(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.codeLenght") + " "
-				+ (config != null ? String.valueOf(config.getCodeLenght()) : ""));
+				+ (config.isPresent() ? String.valueOf(config.get().getCodeLenght()) : ""));
 		return ret;
 	}
 
@@ -125,9 +127,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		{
 
 			MobileNumberConfirmationConfiguration confirmationConfig = null;
-			if (initial != null)
+			if (initial != null && initial.getEmailConfirmationConfiguration().isPresent())
 				confirmationConfig = initial
-						.getMobileNumberConfirmationConfiguration();
+						.getMobileNumberConfirmationConfiguration().get();
 
 			editor = new MobileNumberConfirmationConfigurationEditor(confirmationConfig,
 					msg, msgTemplateMan);
@@ -154,7 +156,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		private TextFieldWithVerifyButton editor;
 		private ConfirmationInfo confirmationInfo;
 		private boolean required;
-		private boolean adminMode;
+		private boolean skipUpdate = false;
 		
 		
 		public VerifiableMobileNumberValueEditor(String valueRaw, String label)
@@ -167,20 +169,17 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		public ComponentsContainer getEditor(boolean required, boolean adminMode,
 				String attrName, EntityParam owner, String group)
 		{	
-			this.required = required;
-			this.adminMode = adminMode;
-			
+			this.required = required;	
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
-			MobileNumberConfirmationConfiguration confirmationConfig = mobileConfirmationMan.getConfirmationConfigurationForAttribute(
+			Optional<MobileNumberConfirmationConfiguration> confirmationConfig = mobileConfirmationMan.getConfirmationConfigurationForAttribute(
 					attrName);
 			
 			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
 					"VerifiableMobileNumberAttributeHandler.verify"),
 					Images.mobile.getResource(),
-					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"),
-					!adminMode);
+					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"));
 			if (label != null)
 				editor.setTextFieldId("MobileNumberValueEditor." + label);
 
@@ -190,7 +189,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			if (value != null)
 				editor.setAdminCheckBoxValue(value.isConfirmed());
 			
-			if (confirmationConfig == null)
+			if (!confirmationConfig.isPresent())
 				editor.removeVerifyButton();
 			
 			editor.addVerifyButtonClickListener(e -> {
@@ -206,13 +205,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				MobileNumberConfirmationDialog confirmationDialog = new MobileNumberConfirmationDialog(
 						syntax.convertFromString(value).getValue(),
 						confirmationInfo, msg, mobileConfirmationMan,
-						confirmationConfig,
+						confirmationConfig.get(),
 						new MobileNumberConfirmationDialog.Callback()
 						{
 							@Override
 							public void onConfirm()
 							{
-								updateConfirmationLabelAndButtons();
+								updateConfirmationStatusIconAndButtons();
 							}
 						});
 				confirmationDialog.show();
@@ -227,23 +226,30 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				{
 					confirmationInfo = new ConfirmationInfo();
 				}
-				updateConfirmationLabelAndButtons();
+				updateConfirmationStatusIconAndButtons();
 			});
 			
 			editor.addAdminConfirmCheckBoxValueChangeListener(e -> {
-				editor.setVerifyButtonVisiable(!e.getValue() && !editor.getValue().isEmpty());
+				if (!skipUpdate)
+				{
+					confirmationInfo = new ConfirmationInfo(e.getValue());
+					updateConfirmationStatusIconAndButtons();
+				}
 			});
 			
-			updateConfirmationLabelAndButtons();
+			updateConfirmationStatusIconAndButtons();
+			
 			return new ComponentsContainer(editor);
 		}
 		
-		private void updateConfirmationLabelAndButtons()
+		private void updateConfirmationStatusIconAndButtons()
 		{
-			editor.setInfoLabelValue(formatter.getConfirmationStatusString(
-					confirmationInfo));
+			editor.setConfirmationStatusIcon(formatter.getConfirmationStatusString(
+					confirmationInfo), confirmationInfo.isConfirmed());
 			editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
+			skipUpdate = true;
 			editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());	
+			skipUpdate = false;
 		}
 
 		@Override
@@ -256,14 +262,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			try
 			{
 				VerifiableMobileNumber mobile = new VerifiableMobileNumber(editor.getValue());
-				if (adminMode)
-				{
-					mobile.setConfirmationInfo(
-							new ConfirmationInfo(editor.getAdminCheckBoxValue()));
-				} else
-				{
-					mobile.setConfirmationInfo(confirmationInfo);
-				}
+				mobile.setConfirmationInfo(confirmationInfo);
 				syntax.validate(mobile);
 				editor.setComponentError(null);
 				return syntax.convertToString(mobile);

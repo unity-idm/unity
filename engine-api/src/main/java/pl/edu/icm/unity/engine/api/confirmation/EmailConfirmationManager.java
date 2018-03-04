@@ -5,12 +5,14 @@
 package pl.edu.icm.unity.engine.api.confirmation;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
  * Confirmation manager for email attribute or identity
@@ -113,4 +115,10 @@ public interface EmailConfirmationManager
 	void sendVerificationsQuietNoTx(EntityParam entity, 
 			Collection<? extends Attribute> attributes, boolean force);
 
+	
+	/**
+	 * @return attribute confirmation configuration
+	 */
+	Optional<EmailConfirmationConfiguration> getConfirmationConfigurationForAttribute(
+			String attributeName);
 }

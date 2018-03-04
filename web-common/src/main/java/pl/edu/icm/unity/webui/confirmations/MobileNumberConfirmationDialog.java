@@ -26,6 +26,7 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Dialog for verify mobile number
@@ -47,6 +48,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 	private Component capchaComponent;
 	private Component confirmCodeComponent;
 	private boolean capchaVerified = false;
+	private Label errorLabel;
 	
 	
 	public MobileNumberConfirmationDialog(String mobileToConfirm, ConfirmationInfo confirmatioInfo,
@@ -90,8 +92,14 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 		Label infoLabel = new Label(msg.getMessage("MobileNumberConfirmationDialog.confirmInfo",
 				mobileToConfirm));
 		infoLabel.setSizeFull();
+	
+		errorLabel = new Label();
+		errorLabel.setSizeFull();
+		errorLabel.setVisible(false);
+		errorLabel.setStyleName(Styles.error.toString());
+		
 		CompactFormLayout mainForm = new CompactFormLayout();
-		mainForm.addComponent(field);
+		mainForm.addComponents(field,errorLabel);
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setMargin(false);
 		wrapper.addComponents(infoLabel, mainForm);
@@ -159,7 +167,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 		{
 			if (System.currentTimeMillis() > code.getValidTo())
 			{
-				field.setComponentError(new UserError(msg.getMessage(
+				setError((msg.getMessage(
 						"MobileNumberConfirmationDialog.invalidCode")));
 				return;
 			}
@@ -168,10 +176,27 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 			callback.onConfirm();
 		} else
 		{
-			field.setComponentError(new UserError(msg.getMessage(
-					"MobileNumberConfirmationDialog.incorrectCode")));
+			setError(msg.getMessage(
+					"MobileNumberConfirmationDialog.incorrectCode"));
 			return;
 		}
+	}
+
+	private void setError(String msg)
+	{
+		if (msg != null)
+		{
+			errorLabel.setVisible(true);
+			errorLabel.setValue(msg);
+			field.setComponentError(new UserError(msg));
+
+		} else
+		{
+			errorLabel.setValue("");
+			errorLabel.setVisible(false);
+			field.setComponentError(null);
+		}
+
 	}
 
 	public interface Callback

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.update.UpdateFrom1_9_x;
-import pl.edu.icm.unity.store.export.update.UpdateFrom2_4_x;
+import pl.edu.icm.unity.store.export.update.UpdateFrom2_0_0;
 
 /**
  * Updates a JSON dump before it is actually imported.
@@ -32,7 +32,7 @@ public class DumpUpdater
 	private UpdateFrom1_9_x updateFrom1_9_x;
 	
 	@Autowired
-	private UpdateFrom2_4_x updateFrom2_4_x;
+	private UpdateFrom2_0_0 updateFrom2_4_x;
 	
 	public InputStream update(InputStream is, DumpHeader header) throws IOException
 	{
@@ -46,10 +46,9 @@ public class DumpUpdater
 		if (header.getVersionMajor() < DumpSchemaVersion.V_INITIAL2.getVersionCode())
 			is = performUpdate(is, updateFrom1_9_x, DumpSchemaVersion.V_INITIAL2);
 		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_INITIAL2_4_x.getVersionCode())
-			is = performUpdate(is, updateFrom2_4_x, DumpSchemaVersion.V_INITIAL2_4_x);
-		
-		
+		if (header.getVersionMajor() < DumpSchemaVersion.V_2_5.getVersionCode())
+			is = performUpdate(is, updateFrom2_4_x, DumpSchemaVersion.V_2_5);
+			
 		return is;
 	}
 
