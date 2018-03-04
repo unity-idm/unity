@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.attributes;
 
+import java.util.Optional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -140,9 +142,9 @@ public interface AttributeValueSyntax<T>
 	 * If syntax is verifiable by email return confirmation configuration
 	 * @return
 	 */
-	default EmailConfirmationConfiguration getEmailConfirmationConfiguration()
+	default Optional<EmailConfirmationConfiguration> getEmailConfirmationConfiguration()
 	{
-		return null;
+		return Optional.empty();
 	}
 	
 }

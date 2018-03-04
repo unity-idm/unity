@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -145,8 +146,8 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		
 		String facilityId = baseState.getFacilityId();
 		EmailConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(facilityId);
-		EmailConfirmationConfiguration configEntry = getConfiguration(baseState);
-		if (configEntry == null) 
+		Optional<EmailConfirmationConfiguration> configEntry = getConfiguration(baseState);
+		if (configEntry.isPresent()) 
 		{
 			log.debug("Cannot get confirmation configuration for "
 					+ baseState.getType()
@@ -163,14 +164,14 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		TokenAndFlag taf = tx.runInTransactionRetThrowing(() -> {
 			boolean hasDuplicate = !getDuplicateTokens(facility, serializedState).isEmpty();
 			String token = insertConfirmationToken(serializedState, 
-					configEntry.getValidityTime());
+					configEntry.get().getValidityTime());
 			return new TokenAndFlag(token, hasDuplicate);
 		});
 		
 		if (force || !taf.hasDuplicate)
 		{
 			sendConfirmationRequest(baseState.getValue(),
-					configEntry.getMessageTemplate(), 
+					configEntry.get().getMessageTemplate(), 
 					facility, baseState.getLocale(), taf.token);
 			
 		} else
@@ -432,7 +433,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		}
 	}
 	
-	private EmailConfirmationConfiguration getConfiguration(BaseEmailConfirmationState baseState)
+	private Optional<EmailConfirmationConfiguration> getConfiguration(BaseEmailConfirmationState baseState)
 	{
 		String facilityId = baseState.getFacilityId();
 		try
@@ -444,13 +445,13 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			}
 			else
 			{
-				return idTypeHelper.getIdentityType(baseState.getType()).getEmailConfirmationConfiguration();	
+				return Optional.ofNullable(idTypeHelper.getIdentityType(baseState.getType()).getEmailConfirmationConfiguration());	
 			}
 				
 		} catch (Exception e)
 		{	
 			log.error("Cannot get confirmation configuration", e);
-			return null;
+			return Optional.empty();
 		}
 	}
 	
@@ -479,9 +480,9 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 	}
 	
 	@Override
-	public EmailConfirmationConfiguration getConfirmationConfigurationForAttribute(
+	public Optional<EmailConfirmationConfiguration> getConfirmationConfigurationForAttribute(
 			String attributeName)
-	{
+	{	
 		try
 		{
 			AttributeValueSyntax<?> syntax = atTypeHelper.getSyntax(
@@ -495,7 +496,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		{
 			log.debug("Cannot get confirmation configuration for attribute "
 					+ attributeName, e);
-			return null;
+			return Optional.empty();
 		}
 	}
 }
