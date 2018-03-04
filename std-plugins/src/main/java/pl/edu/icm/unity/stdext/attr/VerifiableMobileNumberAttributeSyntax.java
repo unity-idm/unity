@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -61,9 +63,9 @@ public class VerifiableMobileNumberAttributeSyntax implements AttributeValueSynt
 	public JsonNode getSerializedConfiguration()
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
-		if (getMobileNumberConfirmationConfiguration() != null)
+		if (getMobileNumberConfirmationConfiguration().isPresent())
 		{
-			main.set("mobileConfirmationConfiguration", getMobileNumberConfirmationConfiguration().toJson());
+			main.set("mobileConfirmationConfiguration", getMobileNumberConfirmationConfiguration().get().toJson());
 		}
 		return main;
 	}
@@ -113,9 +115,9 @@ public class VerifiableMobileNumberAttributeSyntax implements AttributeValueSynt
 		this.mobileNumberConfirmationConfiguration = confirmationConfiguration;
 	}
 	
-	public MobileNumberConfirmationConfiguration getMobileNumberConfirmationConfiguration()
+	public Optional<MobileNumberConfirmationConfiguration> getMobileNumberConfirmationConfiguration()
 	{
-		return mobileNumberConfirmationConfiguration;
+		return Optional.ofNullable(mobileNumberConfirmationConfiguration);
 	}
 
 	@Component

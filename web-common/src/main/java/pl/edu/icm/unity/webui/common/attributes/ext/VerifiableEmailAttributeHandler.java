@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.UserError;
@@ -154,7 +156,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 			
-			EmailConfirmationConfiguration confirmationConfig = emailConfirmationMan.getConfirmationConfigurationForAttribute(
+			Optional<EmailConfirmationConfiguration> confirmationConfig = emailConfirmationMan.getConfirmationConfigurationForAttribute(
 					attrName);
 			
 			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
@@ -171,7 +173,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				editor.setAdminCheckBoxValue(value.isConfirmed());		
 			
 			if (confirmationInfo.isConfirmed() || owner == null || value == null
-					|| confirmationConfig == null)
+					|| !confirmationConfig.isPresent())
 				editor.removeVerifyButton();
 
 			editor.addVerifyButtonClickListener(e -> {

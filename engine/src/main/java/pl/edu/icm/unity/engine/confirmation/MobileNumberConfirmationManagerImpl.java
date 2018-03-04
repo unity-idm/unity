@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.confirmation;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,7 +121,7 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 	}
 	
 	@Override
-	public MobileNumberConfirmationConfiguration getConfirmationConfigurationForAttribute(
+	public Optional<MobileNumberConfirmationConfiguration> getConfirmationConfigurationForAttribute(
 			String attributeName)
 	{
 		try
@@ -139,7 +140,7 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		{
 			log.debug("Cannot get confirmation configuration for attribute "
 					+ attributeName, e);
-			return null;
+			return Optional.empty();
 		}
 	}
 	

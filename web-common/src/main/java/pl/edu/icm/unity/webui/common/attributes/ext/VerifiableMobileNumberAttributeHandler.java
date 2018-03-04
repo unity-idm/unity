@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.UserError;
@@ -86,19 +88,19 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		ret.addComponent(validityTime);
 		Label codeLenght = new Label();
 		ret.addComponent(codeLenght);
-		MobileNumberConfirmationConfiguration config = syntax
+		Optional<MobileNumberConfirmationConfiguration> config = syntax
 				.getMobileNumberConfirmationConfiguration();
 
 		msgTemplate.setValue(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.confirmationMsgTemplate")
-				+ " " + (config != null ? config.getMessageTemplate() : ""));
+				+ " " + (config.isPresent() ? config.get().getMessageTemplate() : ""));
 
 		validityTime.setValue(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.validityTime") + " "
-				+ (config != null ? String.valueOf(config.getValidityTime()) : ""));
+				+ (config.isPresent()? String.valueOf(config.get().getValidityTime()) : ""));
 		codeLenght.setValue(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.codeLenght") + " "
-				+ (config != null ? String.valueOf(config.getCodeLenght()) : ""));
+				+ (config.isPresent() ? String.valueOf(config.get().getCodeLenght()) : ""));
 		return ret;
 	}
 
@@ -125,9 +127,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		{
 
 			MobileNumberConfirmationConfiguration confirmationConfig = null;
-			if (initial != null)
+			if (initial != null && initial.getEmailConfirmationConfiguration().isPresent())
 				confirmationConfig = initial
-						.getMobileNumberConfirmationConfiguration();
+						.getMobileNumberConfirmationConfiguration().get();
 
 			editor = new MobileNumberConfirmationConfigurationEditor(confirmationConfig,
 					msg, msgTemplateMan);
@@ -171,7 +173,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
-			MobileNumberConfirmationConfiguration confirmationConfig = mobileConfirmationMan.getConfirmationConfigurationForAttribute(
+			Optional<MobileNumberConfirmationConfiguration> confirmationConfig = mobileConfirmationMan.getConfirmationConfigurationForAttribute(
 					attrName);
 			
 			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
@@ -187,7 +189,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			if (value != null)
 				editor.setAdminCheckBoxValue(value.isConfirmed());
 			
-			if (confirmationConfig == null)
+			if (!confirmationConfig.isPresent())
 				editor.removeVerifyButton();
 			
 			editor.addVerifyButtonClickListener(e -> {
@@ -203,7 +205,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				MobileNumberConfirmationDialog confirmationDialog = new MobileNumberConfirmationDialog(
 						syntax.convertFromString(value).getValue(),
 						confirmationInfo, msg, mobileConfirmationMan,
-						confirmationConfig,
+						confirmationConfig.get(),
 						new MobileNumberConfirmationDialog.Callback()
 						{
 							@Override

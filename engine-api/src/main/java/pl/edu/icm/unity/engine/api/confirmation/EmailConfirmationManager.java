@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.confirmation;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -118,6 +119,6 @@ public interface EmailConfirmationManager
 	/**
 	 * @return attribute confirmation configuration
 	 */
-	EmailConfirmationConfiguration getConfirmationConfigurationForAttribute(
+	Optional<EmailConfirmationConfiguration> getConfirmationConfigurationForAttribute(
 			String attributeName);
 }

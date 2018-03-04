@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
@@ -37,7 +39,7 @@ public interface MobileNumberConfirmationManager
 	/**
 	 * @return attribute confirmation configuration
 	 */
-	MobileNumberConfirmationConfiguration getConfirmationConfigurationForAttribute(
+	Optional<MobileNumberConfirmationConfiguration> getConfirmationConfigurationForAttribute(
 			String attributeName);
 
 }
