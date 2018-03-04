@@ -37,8 +37,7 @@ public class EmailConfirmationConfigurationViewer extends VerticalLayout
 	public EmailConfirmationConfigurationViewer(UnityMessageSource msg,
 			EmailConfirmationConfiguration init)
 	{
-		this(msg);
-		
+		this(msg);		
 		setValue(init);
 	}
 

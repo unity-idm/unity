@@ -35,7 +35,7 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
  *
  */
 @Component
-public class UpdateFrom2_4_x implements Update
+public class UpdateFrom2_0_0 implements Update
 
 {
 	@Autowired
@@ -76,11 +76,11 @@ public class UpdateFrom2_4_x implements Update
 
 		for (ObjectNode objContent : getGenericContent(contents,
 				"confirmationConfiguration"))
-		{
-
+		{	
 			EmailConfirmationConfiguration emailConfig = new EmailConfirmationConfiguration();
 			emailConfig.setMessageTemplate(objContent.get("msgTemplate").asText());
-			emailConfig.setValidityTime(objContent.get("validityTime").asInt());
+			if (objContent.get("validityTime") != null) 
+				emailConfig.setValidityTime(objContent.get("validityTime").asInt());
 
 			if (objContent.get("typeToConfirm").asText().equals("attribute"))
 			{

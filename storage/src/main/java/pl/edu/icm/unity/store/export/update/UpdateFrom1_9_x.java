@@ -34,7 +34,6 @@ import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
 import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
 import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
-import pl.edu.icm.unity.store.objstore.confirmation.ConfirmationConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
@@ -103,7 +102,7 @@ public class UpdateFrom1_9_x implements Update
 				genericsByType, newGenerics, ctx);
 		convertGenericType(AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
-		convertGenericType(ConfirmationConfigurationHandler.CONFIRMATION_CONFIGURATION_OBJECT_TYPE, 
+		convertGenericType("confirmationConfiguration", 
 				genericsByType, newGenerics, ctx);
 		convertGenericType(CredentialHandler.CREDENTIAL_OBJECT_TYPE, 
 				genericsByType, newGenerics, ctx);
@@ -219,7 +218,7 @@ public class UpdateFrom1_9_x implements Update
 			newGeneric.set("obj", content);
 
 			if ((obj.get("subType") != null && obj.get("subType").asText().equals("OUTPUT")) ||
-					(content.get("type") != null && content.get("type").equals("OUTPUT")))
+					(content.get("type") != null && content.get("type").asText().equals("OUTPUT")))
 				outputArray.add(newGeneric);
 			else
 				inputArray.add(updateInputProfileContent(newGeneric));

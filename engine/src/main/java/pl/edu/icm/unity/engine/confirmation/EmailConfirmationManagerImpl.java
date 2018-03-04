@@ -441,7 +441,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 					|| facilityId.equals(RegistrationReqEmailAttribiuteConfirmationState.FACILITY_ID))
 			{
 				AttributeValueSyntax<?> syntax = atTypeHelper.getSyntax(atTypeHelper.getTypeForAttributeName(baseState.getType()));
-				return syntax.getEmailConfirmationConfiguration();
+				return syntax.getEmailConfirmationConfiguration().get();
 			}
 			else
 			{

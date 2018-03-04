@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -60,9 +62,9 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	public JsonNode getSerializedConfiguration()
 	{
 		ObjectNode main = Constants.MAPPER.createObjectNode();
-		if (getEmailConfirmationConfiguration() != null)
+		if (getEmailConfirmationConfiguration().isPresent())
 		{
-			main.set("emailConfirmationConfiguration", getEmailConfirmationConfiguration().toJson());
+			main.set("emailConfirmationConfiguration", getEmailConfirmationConfiguration().get().toJson());
 		}
 		return main;
 	}
@@ -112,9 +114,9 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 		this.emailConfirmationConfiguration = confirmationConfiguration;
 	}
 	
-	public EmailConfirmationConfiguration getEmailConfirmationConfiguration()
+	public Optional<EmailConfirmationConfiguration> getEmailConfirmationConfiguration()
 	{
-		return emailConfirmationConfiguration;
+		return Optional.of(emailConfirmationConfiguration);
 	}
 
 	@Component
