@@ -118,17 +118,20 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 			Attribute newAttr = new Attribute(attrNameString, StringAttributeSyntax.ID,
 					"/", sValues);
 			DynamicAttribute dynamicAttribute = new DynamicAttribute(newAttr,
-					new AttributeType(StringAttributeSyntax.ID,
+					new AttributeType(attrNameString,
 							StringAttributeSyntax.ID),
 					attrDisplayname, attrDescription, attrMandatory);
 			result.getAttributes().add(dynamicAttribute);
 			log.debug("Created a new attribute: " + dynamicAttribute);
+		
 		}
 
 		private void setParameters(String[] parameters)
 		{
 			if (parameters.length < 3)
 				throw new IllegalArgumentException("Action requires min 3 parameters");
+			if (parameters.length > 3 && parameters.length < 5)
+				throw new IllegalArgumentException("attributeDisplayName or attributeDescription is empty");
 			
 			attrNameString = parameters[0];
 			valuesExpression = MVEL.compileExpression(parameters[1]);
@@ -136,8 +139,7 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 			if (parameters.length > 3)
 				attrDisplayname = parameters[3];
 			if (parameters.length > 4) 
-				attrDescription = parameters[4];
-			
+				attrDescription = parameters[4];		
 		}
 
 	}
