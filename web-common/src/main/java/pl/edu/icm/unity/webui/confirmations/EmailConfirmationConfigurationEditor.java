@@ -14,10 +14,10 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
  * Editor for {@link EmailConfirmationConfiguration}
@@ -37,7 +37,6 @@ public class EmailConfirmationConfigurationEditor extends CompactFormLayout
 	public EmailConfirmationConfigurationEditor(EmailConfirmationConfiguration initial,
 			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
-		super();
 		this.initial = initial;
 		this.msg = msg;
 		this.msgTemplateMan = msgTemplateMan;
@@ -88,13 +87,12 @@ public class EmailConfirmationConfigurationEditor extends CompactFormLayout
 		parent.addComponent(validityTime);
 	}
 
-	public EmailConfirmationConfiguration getCurrentValue() throws IllegalAttributeTypeException
+	public EmailConfirmationConfiguration getCurrentValue() throws FormValidationException
 	{
-
+		binder.validate();
 		if (!binder.isValid())
 		{
-			binder.validate();
-			throw new IllegalAttributeTypeException("");
+			throw new FormValidationException("");
 		}
 
 		return binder.getBean();

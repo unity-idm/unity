@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
@@ -126,7 +127,15 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				throws IllegalAttributeTypeException
 		{
 			VerifiableEmailAttributeSyntax syntax = new VerifiableEmailAttributeSyntax();
-			syntax.setEmailConfirmationConfiguration(editor.getCurrentValue());
+			EmailConfirmationConfiguration config;
+			try
+			{
+				config = editor.getCurrentValue();
+			} catch (FormValidationException e)
+			{
+				throw new IllegalAttributeTypeException("", e);
+			}
+			syntax.setEmailConfirmationConfiguration(config);
 			return syntax;
 		}
 	
@@ -267,12 +276,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				return syntax.convertToString(email);
 			} catch (IllegalAttributeValueException e)
 			{
-				e.printStackTrace();
 				editor.setComponentError(new UserError(e.getMessage()));
 				throw e;
 			} catch (Exception e)
 			{
-				e.printStackTrace();
 				editor.setComponentError(new UserError(e.getMessage()));
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}

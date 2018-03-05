@@ -14,11 +14,11 @@ import com.vaadin.ui.TextField;
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
  * Editor for {@link MobileNumberConfirmationConfiguration}
@@ -39,7 +39,6 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
 	{
-		super();
 		this.initial = initial;
 		this.msg = msg;
 		this.msgTemplateMan = msgTemplateMan;
@@ -105,12 +104,12 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 		parent.addComponent(codeLenght);
 	}
 
-	public MobileNumberConfirmationConfiguration getCurrentValue() throws IllegalAttributeTypeException
+	public MobileNumberConfirmationConfiguration getCurrentValue() throws FormValidationException
 	{
+		binder.validate();
 		if (!binder.isValid())
 		{
-			binder.validate();
-			throw new IllegalAttributeTypeException("");
+			throw new FormValidationException("");
 		}
 
 		return binder.getBean();

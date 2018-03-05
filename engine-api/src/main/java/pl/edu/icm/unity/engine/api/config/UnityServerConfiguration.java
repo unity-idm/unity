@@ -136,6 +136,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	
 	public static final String TRANSLATION_PROFILES = "translationProfiles.";
 	
+	public static final String EMAIL_CONFIRMATION_REQUEST_LIMIT_OLD = "confirmationRequestLimit";
 	public static final String EMAIL_CONFIRMATION_REQUEST_LIMIT = "emailConfirmationRequestLimit";
 	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
 	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
@@ -350,6 +351,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
 		
+		defaults.put(EMAIL_CONFIRMATION_REQUEST_LIMIT_OLD, new PropertyMD().setCategory(mainCat).setDeprecated());
 		defaults.put(EMAIL_CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
 				setDescription("Defines number of confirmation request that can be send to particular address in day"));
 		defaults.put(CONFIRMATION_DEFAULT_RETURN_URL, new PropertyMD().setCategory(mainCat).

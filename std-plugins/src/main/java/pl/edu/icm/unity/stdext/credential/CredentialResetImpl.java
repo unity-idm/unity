@@ -146,7 +146,7 @@ public class CredentialResetImpl implements CredentialReset
 	private void createCode()
 	{
 		int codeLen = settings.getCodeLength();
-		codeSent = CodeGenerator.generateCode(codeLen);
+		codeSent = CodeGenerator.generateMixedCharCode(codeLen);
 		codeValidityEnd = System.currentTimeMillis() + MAX_CODE_VALIDITY;
 	}
 	

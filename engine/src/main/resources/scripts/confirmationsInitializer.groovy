@@ -53,7 +53,7 @@ try
 								+ "with the template " + firstTemplate);	
 					} else
 					{
-	    				log.info("Skip add confirmation subsystem configuration for attribute type " + at.getName());		
+	    				log.info("Skip adding confirmation subsystem configuration for attribute type " + at.getName());		
 					}
 				}
 		}	
@@ -72,7 +72,7 @@ try
 				}
 				else
 				{
-	    			log.info("Skip add confirmation subsystem configuration for identity type " + idType.getName());		
+	    			log.info("Skip adding confirmation subsystem configuration for identity type " + idType.getName());		
 				}		
 			}
 		}
@@ -108,7 +108,7 @@ try
 								+ "with the template " + firstTemplate);	
 					} else
 					{
-	    				log.info("Skip add confirmation subsystem configuration for attribute type " + at.getName());		
+	    				log.info("Skip adding confirmation subsystem configuration for attribute type " + at.getName());		
 					}
 				}
 		}	

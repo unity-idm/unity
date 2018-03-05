@@ -9,6 +9,7 @@ import com.vaadin.ui.Component;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
  * Dialog allowing to edit an identity type.
@@ -41,7 +42,7 @@ public class IdentityTypeEditDialog extends AbstractDialog
 		try
 		{
 			identityType = editor.getIdentityType();
-		} catch (Exception e)
+		} catch (FormValidationException e)
 		{
 			return;
 		}
