@@ -350,10 +350,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("Credential requirement description"));
 		defaults.put(CREDENTIAL_REQ_CONTENTS, new PropertyMD().setStructuredListEntry(CREDENTIAL_REQS).setList(false).setCategory(initCredReqCat).
 				setDescription("Credential requirement contents, i.e. credentials that belongs to it"));
-		
-		defaults.put(EMAIL_CONFIRMATION_REQUEST_LIMIT_OLD, new PropertyMD().setCategory(mainCat).setDeprecated());
-		defaults.put(EMAIL_CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
-				setDescription("Defines number of confirmation request that can be send to particular address in day"));
+		defaults.put(EMAIL_CONFIRMATION_REQUEST_LIMIT_OLD, new PropertyMD().setCategory(mainCat).setDeprecated()
+				.setDescription("Deprecated, please use "
+						+ EMAIL_CONFIRMATION_REQUEST_LIMIT));
+		defaults.put(EMAIL_CONFIRMATION_REQUEST_LIMIT,
+				new PropertyMD("3").setCategory(mainCat).setDescription("Defines number of confirmation request that can be send to particular address in day"));
 		defaults.put(CONFIRMATION_DEFAULT_RETURN_URL, new PropertyMD().setCategory(mainCat).
 				setDescription("If set the value should be a valid URL. The URL is used as a return (redirect) URL "
 						+ "to be used after confirmation of a verifiable element as email. "
@@ -588,5 +589,20 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public Properties getProperties()
 	{
 		return properties;
+	}
+	
+	public int getEmailConfirmationRequestLimit()
+	{
+		if (isSet(EMAIL_CONFIRMATION_REQUEST_LIMIT))
+		{
+			return getIntValue(
+					UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT);
+		} else if (isSet(EMAIL_CONFIRMATION_REQUEST_LIMIT_OLD))
+		{
+			return getIntValue(
+					UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT_OLD);
+		}
+
+		return getIntValue(UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT);
 	}
 }

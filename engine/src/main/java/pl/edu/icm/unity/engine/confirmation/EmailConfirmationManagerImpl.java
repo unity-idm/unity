@@ -121,7 +121,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		persistCfg.setStrategy("none");
 		cacheConfig.persistence(persistCfg);		
 		confirmationReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
-		requestLimit = mainConf.getIntValue(UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT);
+		requestLimit = mainConf.getEmailConfirmationRequestLimit();
 		defaultRedirectURL = mainConf.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
