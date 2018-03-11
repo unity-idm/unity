@@ -136,7 +136,8 @@ public class IdentityTypeEditor extends FormLayout
 		minVerified.setEnabled(state);
 	}
 
-	public IdentityType getIdentityType() throws FormValidationException
+	public IdentityType getIdentityType()
+			throws FormValidationException
 	{
 		if (!binder.isValid())
 			throw new FormValidationException();

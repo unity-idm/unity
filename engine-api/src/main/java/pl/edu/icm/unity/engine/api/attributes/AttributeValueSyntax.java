@@ -139,15 +139,6 @@ public interface AttributeValueSyntax<T>
 	
 	
 	/**
-	 * If syntax is verifiable by email sets confirmation configuration
-	 * @param confirmationConfiguration
-	 */
-	default void setEmailConfirmationConfiguration(
-			EmailConfirmationConfiguration confirmationConfiguration)
-	{
-		
-	}
-	/**
 	 * If syntax is verifiable by email return confirmation configuration
 	 * @return
 	 */

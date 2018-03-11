@@ -64,7 +64,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 		selectedParam = formParams.get(position);
 		AttributeType at = attrTypes.get(selectedParam.getAttributeType());
 		fixedAttributeEditor = new FixedAttributeEditor(msg, attrHandlersRegistry, 
-				at, true, selectedParam.getGroup(), 
+				at, null, true, selectedParam.getGroup(), 
 				selectedParam.getAttributeType(), null, true, true, wrapper);
 	}
 	

@@ -14,17 +14,21 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.notifications.FacilityName;
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
 import pl.edu.icm.unity.stdext.utils.ContactMobileMetadataProvider;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.VerifiableMobileNumber;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 
 /**
@@ -39,12 +43,14 @@ public class SMSFacility implements NotificationFacility
 	public static final String NAME = FacilityName.SMS.toString();
 	private ExecutorsService executorsService;
 	private AttributesHelper attributesHelper;
+	private AttributeTypeHelper atHelper;
 	
 	@Autowired
-	public SMSFacility(ExecutorsService executorsService, AttributesHelper attributesHelper)
+	public SMSFacility(ExecutorsService executorsService, AttributesHelper attributesHelper, AttributeTypeHelper atHelper)
 	{
 		this.executorsService = executorsService;
 		this.attributesHelper = attributesHelper;
+		this.atHelper = atHelper;
 	}
 
 	@Override
@@ -84,8 +90,16 @@ public class SMSFacility implements NotificationFacility
 				ContactMobileMetadataProvider.NAME);
 		if (isPresent(preferred, mobileAttr))
 			return preferred;
-		if (mobileAttr != null)
-			return mobileAttr.getValues().get(0);
+		
+		String confirmedOnly = getAddressFrom(mobileAttr, true);
+		if (confirmedOnly != null)
+			return confirmedOnly;
+		
+		String plain = getAddressFrom(mobileAttr, false);
+		if (plain != null)
+			return plain;
+		
+		
 		throw new IllegalIdentityValueException("The entity " + recipient + 
 				" does not have the mobile number specified");
 	}
@@ -93,10 +107,40 @@ public class SMSFacility implements NotificationFacility
 	private boolean isPresent(String number, AttributeExt mobileNumAttr)
 	{
 		if (mobileNumAttr != null)
-			for (String emailO: mobileNumAttr.getValues())
-				if (emailO.equals(number))
+			for (String mobile: mobileNumAttr.getValues())
+				if (mobile.equals(number))
 					return true;
 		return false;
+	}
+	
+	
+	private String getAddressFrom(Attribute mobileAttr, boolean useConfirmed)
+	{
+
+		if (mobileAttr != null)
+		{
+			AttributeValueSyntax<?> syntax = atHelper
+					.getUnconfiguredSyntax(mobileAttr.getValueSyntax());
+			if (!useConfirmed || syntax.getValueSyntaxId()
+					.equals(VerifiableMobileNumberAttributeSyntax.ID))
+			{
+				for (String mobileO : mobileAttr.getValues())
+				{
+					if (syntax.getValueSyntaxId().equals(
+							VerifiableMobileNumberAttributeSyntax.ID))
+					{
+						VerifiableMobileNumber mobile = (VerifiableMobileNumber) syntax
+								.convertFromString(mobileO);
+						if (!useConfirmed || mobile.isConfirmed())
+							return mobile.getValue();
+					} else if (!useConfirmed)
+					{
+						return mobileO.toString();
+					}
+				}
+			}
+		}
+		return null;
 	}
 	
 	@Override
@@ -104,9 +148,7 @@ public class SMSFacility implements NotificationFacility
 			throws EngineException
 	{
 		Attribute mobileAttr = getMobileAttributeFromRequest(currentRequest); 
-		if (mobileAttr != null)
-			return mobileAttr.getValues().get(0);
-		return null;
+		return getAddressFrom(mobileAttr, false);
 	}
 
 	private Attribute getMobileAttributeFromRequest(UserRequestState<?> currentRequest)

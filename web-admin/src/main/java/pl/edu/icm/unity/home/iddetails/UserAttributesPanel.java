@@ -109,7 +109,7 @@ public class UserAttributesPanel
 		if (editable && at.isSelfModificable())
 		{
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
-				at, showGroup, group, 
+				at, new EntityParam(entityId), showGroup, group, 
 				null, null, false, false, parent);
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());

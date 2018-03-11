@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common.attributes;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 
 /**
@@ -17,10 +18,12 @@ public interface AttributeValueEditor
 	 * @param required if true the editor should be set in required mode
 	 * @param adminMode if true then the editor should allow to set value settings which are intended for
 	 * admins only (as confirmation status). In the most cases can be ignored.
+	 * @param owner 
 	 * @return
 	 */
-	public ComponentsContainer getEditor(boolean required, boolean adminMode);
-	
+	public ComponentsContainer getEditor(boolean required, boolean adminMode,
+			String attributeName, EntityParam owner, String group);
+
 	/**
 	 * @return the edited value 
 	 * @throws IllegalAttributeValueException if the current state of the editor is invalid

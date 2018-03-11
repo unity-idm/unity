@@ -9,7 +9,7 @@ import javax.servlet.Filter;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
- * Provides servlet used as a confirmation endpoint
+ * Provides servlet used as a email confirmation endpoint
  *
  * @author P. Piernik
  *

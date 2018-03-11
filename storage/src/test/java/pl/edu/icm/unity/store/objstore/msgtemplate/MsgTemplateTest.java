@@ -30,7 +30,7 @@ public class MsgTemplateTest extends AbstractNamedWithTSTest<MessageTemplate>
 	{
 		return new MessageTemplate(id, "description",
 				new I18nMessage(new I18nString("s"), new I18nString("b")),
-				"consumer", MessageType.PLAIN, "channel");
+				"consumer", MessageType.PLAIN, "default_email");
 	}
 
 	@Override

@@ -5,15 +5,17 @@
 package pl.edu.icm.unity.engine.api.confirmation;
 
 import java.util.Collection;
+import java.util.Optional;
 
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
- * Confirmation manager
+ * Confirmation manager for email attribute or identity
  * 
  * @author P. Piernik
  */
@@ -24,7 +26,7 @@ public interface EmailConfirmationManager
 	/**
 	 * Send confirmation request to the user with confirmation state. 
 	 * Confirmations configuration appropriate for the confirmation is used to establish
-	 * message template id and notification channel id. The template is filled by manager with confirmation
+	 * message template id. The template is filled by manager with confirmation
 	 * link and the whole message is sent via configured notification channel.  
 	 * 
 	 * @param state 
@@ -113,4 +115,10 @@ public interface EmailConfirmationManager
 	void sendVerificationsQuietNoTx(EntityParam entity, 
 			Collection<? extends Attribute> attributes, boolean force);
 
+	
+	/**
+	 * @return attribute confirmation configuration
+	 */
+	Optional<EmailConfirmationConfiguration> getConfirmationConfigurationForAttribute(
+			String attributeName);
 }

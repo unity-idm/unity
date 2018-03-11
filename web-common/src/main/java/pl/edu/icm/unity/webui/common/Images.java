@@ -78,7 +78,8 @@ public enum Images
 	deFlag		(I.P + "16-flags/de.png"),
 	menu		(VaadinIcons.MENU),
 	remove		(VaadinIcons.CLOSE_CIRCLE_O),
-	resize		(VaadinIcons.RESIZE_H);
+	resize		(VaadinIcons.RESIZE_H),
+	mobile		(VaadinIcons.MOBILE_RETRO);
 	
 	
 	private final Resource resource;

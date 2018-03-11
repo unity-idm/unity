@@ -4,12 +4,10 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
-import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import org.apache.logging.log4j.Logger;
 
@@ -25,6 +23,7 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
@@ -44,11 +43,6 @@ public class CredentialResetImpl implements CredentialReset
 	private static final int MAX_RESENDS = 3;
 	private static final long MAX_CODE_VALIDITY = 30*3600;
 	
-	private static final char[] CHARS_POOL = {'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
-			'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
-			'Z', 'X', 'C', 'V', 'B', 'N', 'M', 
-			'1', '2', '3', '4', '5', '6', '7', '8', '9', '0'};
-	
 	private NotificationProducer notificationProducer;
 	private IdentityResolver identityResolver;
 	private CredentialHelper credentialHelper;
@@ -67,7 +61,6 @@ public class CredentialResetImpl implements CredentialReset
 	private int answerAttempts = 0;
 	private int dynamicAnswerAttempts = 0;
 	private int codeSendingAttempts = 0;
-	private static final Random rnd = new SecureRandom();
 	
 	public CredentialResetImpl(NotificationProducer notificationProducer,
 			IdentityResolver identityResolver,
@@ -153,10 +146,7 @@ public class CredentialResetImpl implements CredentialReset
 	private void createCode()
 	{
 		int codeLen = settings.getCodeLength();
-		char[] codeA = new char[codeLen];
-		for (int i=0; i<codeLen; i++)
-			codeA[i] = CHARS_POOL[rnd.nextInt(CHARS_POOL.length)];
-		codeSent = new String(codeA);
+		codeSent = CodeGenerator.generateMixedCharCode(codeLen);
 		codeValidityEnd = System.currentTimeMillis() + MAX_CODE_VALIDITY;
 	}
 	

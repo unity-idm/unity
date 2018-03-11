@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -65,7 +66,7 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
- * Confirmation manager, send or process confirmation request
+ * Email confirmation manager, send or process confirmation request
  * 
  * @author P. Piernik
  */
@@ -73,7 +74,7 @@ import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EmailConfirmationManagerImpl.class);
-	private static final String CACHE_ID = "ConfirmationCache";
+	private static final String CACHE_ID = "EmailConfirmationCache";
 	
 	private IdentityTypeHelper idTypeHelper;
 	private AttributeTypeHelper atTypeHelper;
@@ -120,7 +121,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		persistCfg.setStrategy("none");
 		cacheConfig.persistence(persistCfg);		
 		confirmationReqCache = cacheProvider.getManager().addCacheIfAbsent(new Cache(cacheConfig));
-		requestLimit = mainConf.getIntValue(UnityServerConfiguration.CONFIRMATION_REQUEST_LIMIT);
+		requestLimit = mainConf.getEmailConfirmationRequestLimit();
 		defaultRedirectURL = mainConf.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
@@ -145,8 +146,8 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		
 		String facilityId = baseState.getFacilityId();
 		EmailConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(facilityId);
-		EmailConfirmationConfiguration configEntry = getConfiguration(baseState);
-		if (configEntry == null) 
+		Optional<EmailConfirmationConfiguration> configEntry = getConfiguration(baseState);
+		if (!configEntry.isPresent()) 
 		{
 			log.debug("Cannot get confirmation configuration for "
 					+ baseState.getType()
@@ -163,14 +164,14 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		TokenAndFlag taf = tx.runInTransactionRetThrowing(() -> {
 			boolean hasDuplicate = !getDuplicateTokens(facility, serializedState).isEmpty();
 			String token = insertConfirmationToken(serializedState, 
-					configEntry.getValidityTime());
+					configEntry.get().getValidityTime());
 			return new TokenAndFlag(token, hasDuplicate);
 		});
 		
 		if (force || !taf.hasDuplicate)
 		{
 			sendConfirmationRequest(baseState.getValue(),
-					configEntry.getMessageTemplate(), 
+					configEntry.get().getMessageTemplate(), 
 					facility, baseState.getLocale(), taf.token);
 			
 		} else
@@ -188,7 +189,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 				Query.VALUE.ilike(address)).execute();
 		if (results.size() >= requestLimit)
 		{		
-			log.warn("Limit of sent confirmation requests to " + address + 
+			log.warn("Limit of sent confirmation requests to email " + address + 
 					" was reached. (Limit=" +requestLimit + "/24H)");
 			return false;
 		}
@@ -432,7 +433,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		}
 	}
 	
-	private EmailConfirmationConfiguration getConfiguration(BaseEmailConfirmationState baseState)
+	private Optional<EmailConfirmationConfiguration> getConfiguration(BaseEmailConfirmationState baseState)
 	{
 		String facilityId = baseState.getFacilityId();
 		try
@@ -440,18 +441,17 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			if (facilityId.equals(EmailAttribiuteConfirmationState.FACILITY_ID)
 					|| facilityId.equals(RegistrationReqEmailAttribiuteConfirmationState.FACILITY_ID))
 			{
-				AttributeValueSyntax<?> syntax = atTypeHelper.getSyntax(atTypeHelper.getTypeForAttributeName(baseState.getType()));
-				return syntax.getEmailConfirmationConfiguration().get();
+				return getConfirmationConfigurationForAttribute(baseState.getType());
 			}
 			else
 			{
-				return idTypeHelper.getIdentityType(baseState.getType()).getEmailConfirmationConfiguration();	
+				return Optional.ofNullable(idTypeHelper.getIdentityType(baseState.getType()).getEmailConfirmationConfiguration());	
 			}
 				
 		} catch (Exception e)
 		{	
 			log.error("Cannot get confirmation configuration", e);
-			return null;
+			return Optional.empty();
 		}
 	}
 	
@@ -477,5 +477,26 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		tx.runInTransactionThrowing(() -> {
 			sendVerificationNoTx(entity, identity, true);
 		});
+	}
+	
+	@Override
+	public Optional<EmailConfirmationConfiguration> getConfirmationConfigurationForAttribute(
+			String attributeName)
+	{	
+		try
+		{
+			AttributeValueSyntax<?> syntax = atTypeHelper.getSyntax(
+					atTypeHelper.getTypeForAttributeName(attributeName));
+			if (!syntax.isEmailVerifiable())
+				throw new IllegalArgumentException("Unsupported attribute type: "
+						+ attributeName + " for email confirmation");
+			return syntax.getEmailConfirmationConfiguration();
+
+		} catch (Exception e)
+		{
+			log.debug("Cannot get confirmation configuration for attribute "
+					+ attributeName, e);
+			return Optional.empty();
+		}
 	}
 }

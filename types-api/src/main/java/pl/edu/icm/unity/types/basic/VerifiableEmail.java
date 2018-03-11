@@ -15,21 +15,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 
 /**
  * Email which can be confirmed by user. 
  * 
  * @author P. Piernik
  */
-public class VerifiableEmail implements VerifiableElement
+public class VerifiableEmail extends VerifiableElementBase
 {
-	private String value;
-	private ConfirmationInfo confirmationInfo;
+	
 	private List<String> tags;
 
 	public VerifiableEmail()
@@ -44,8 +41,7 @@ public class VerifiableEmail implements VerifiableElement
 
 	public VerifiableEmail(String value, ConfirmationInfo confirmationData)
 	{
-		this.value = value == null ? null : value.trim();
-		this.confirmationInfo = confirmationData;
+		super(value, confirmationData);
 		this.tags = value == null ? new ArrayList<>() : extractTags(value);
 	}
 
@@ -57,8 +53,7 @@ public class VerifiableEmail implements VerifiableElement
 	@JsonCreator
 	public VerifiableEmail(JsonNode jsonN) throws InternalException
 	{
-		value = jsonN.get("value").asText();
-		setConfirmationInfo(new ConfirmationInfo((ObjectNode)jsonN.get("confirmationData")));
+		super(jsonN);
 		List<String> tags = new ArrayList<>();
 		if (jsonN.has("tags"))
 		{
@@ -72,42 +67,11 @@ public class VerifiableEmail implements VerifiableElement
 	@JsonValue
 	public JsonNode toJson()
 	{
-		ObjectNode main = Constants.MAPPER.createObjectNode();
-		main.put("value", getValue());
-		main.set("confirmationData", getConfirmationInfo().toJson());
+		ObjectNode main = (ObjectNode) super.toJson();
 		ArrayNode tagsJ = main.putArray("tags");
 		for (String tag: getTags())
 			tagsJ.add(tag);
 		return main;
-	}
-
-	public String toJsonString()
-	{
-		return JsonUtil.serialize(toJson());
-	}
-	
-	@Override
-	public ConfirmationInfo getConfirmationInfo()
-	{
-		return confirmationInfo;
-	}
-
-	@Override
-	public void setConfirmationInfo(ConfirmationInfo confirmationData)
-	{
-		this.confirmationInfo = confirmationData;
-	}
-
-	@Override
-	public String getValue()
-	{
-		return value;
-	}
-
-	@Override
-	public boolean isConfirmed()
-	{
-		return confirmationInfo.isConfirmed();
 	}
 	
 	public List<String> getTags()
@@ -171,15 +135,6 @@ public class VerifiableEmail implements VerifiableElement
 		
 		return local+domain;
 	}
-	
-	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((value == null) ? 0 : value.hashCode());
-		return result;
-	}
 
 	@Override
 	public boolean equals(Object obj)
@@ -200,11 +155,5 @@ public class VerifiableEmail implements VerifiableElement
 		} else	if (!cmpValue.equals(otherCmpValue))
 				return false;
 		return true;
-	}
-
-	@Override
-	public String toString()
-	{
-		return value;
 	}
 }

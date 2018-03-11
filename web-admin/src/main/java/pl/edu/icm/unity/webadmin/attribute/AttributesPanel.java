@@ -35,7 +35,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -45,15 +44,12 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -76,7 +72,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 	private AttributeHandlerRegistry registry;
 	private AttributesManagement attributesManagement;
 	private GroupsManagement groupsManagement;
-	private EmailConfirmationManager confirmationMan;
 	private AttributeTypeSupport atSupport;
 	
 	private VerticalLayout left;
@@ -100,8 +95,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	public AttributesPanel(UnityMessageSource msg, AttributeHandlerRegistry registry,
 			AttributesManagement attributesManagement,
 			GroupsManagement groupsManagement, AttributeTypeManagement atManagement,
-			AttributeClassManagement acMan, AttributeTypeSupport atSupport,
-			EmailConfirmationManager confirmationMan)
+			AttributeClassManagement acMan, AttributeTypeSupport atSupport)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -110,7 +104,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		this.aTypeManagement = atManagement;
 		this.acMan = acMan;
 		this.atSupport = atSupport;
-		this.confirmationMan = confirmationMan;
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		attributesTable = new GenericElementsTable<>(
@@ -145,7 +138,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		attributesTable.addActionHandler(getAddAction());
 		attributesTable.addActionHandler(getEditAction());
 		attributesTable.addActionHandler(getDeleteAction());
-		attributesTable.addActionHandler(getResendConfirmationAction());
 
 		Toolbar<AttributeExt> toolbar = new Toolbar<>(Orientation.VERTICAL);
 		attributesTable.addSelectionListener(toolbar.getSelectionListener());
@@ -329,23 +321,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 		}
 	}
 
-	private void sendConfirmation(Collection<AttributeExt> items)
-	{
-		for (AttributeExt item : items)
-		{
-			try
-			{
-				confirmationMan.sendVerification(owner, item);
-			} catch (EngineException e)
-			{
-				NotificationPopup.showError(msg,
-						msg.getMessage("Attribute.confirmationSendError",
-								item.getName()),
-						e);
-			}
-		}
-	}
-
 	private boolean checkAttributeImmutable(AttributeExt attribute)
 	{
 		AttributeType attributeType = attributeTypes.get(attribute.getName());
@@ -366,24 +341,6 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{
 		return acHelper.isMandatory(item.getName());
 
-	}
-
-	private boolean checkAttributeIsVerifiable(AttributeExt item)
-	{
-		return atSupport.getSyntaxFallingBackToDefault(item).isEmailVerifiable();
-	}
-
-	private boolean checkAttributeIsConfirmed(AttributeExt item)
-	{
-		AttributeValueSyntax<?> syntax = atSupport.getSyntaxFallingBackToDefault(item);
-		for (String valA : item.getValues())
-		{
-			VerifiableElement val = (VerifiableElement) syntax.convertFromString(valA);
-			ConfirmationInfo ci = val.getConfirmationInfo();
-			if (!ci.isConfirmed())
-				return false;
-		}
-		return true;
 	}
 
 	private SingleActionHandler<AttributeExt> getDeleteAction()
@@ -438,7 +395,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 			return;
 		}
 
-		AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, groupPath,
+		AttributeEditor attributeEditor = new AttributeEditor(msg, allowed, owner, groupPath,
 				registry, true);
 		AttributeEditDialog dialog = new AttributeEditDialog(msg,
 				msg.getMessage("Attribute.addAttribute"), a -> addAttribute(a),
@@ -458,32 +415,11 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{
 		final Attribute attribute = target.iterator().next();
 		AttributeType attributeType = attributeTypes.get(attribute.getName());
-		AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute,
+		AttributeEditor attributeEditor = new AttributeEditor(msg, attributeType, attribute, owner,
 				registry);
 		AttributeEditDialog dialog = new AttributeEditDialog(msg,
 				msg.getMessage("Attribute.editAttribute"), a -> updateAttribute(a),
 				attributeEditor);
 		dialog.show();
-	}
-
-	private SingleActionHandler<AttributeExt> getResendConfirmationAction()
-	{
-		return SingleActionHandler.builder(AttributeExt.class)
-				.withCaption(msg.getMessage("Attribute.resendConfirmation"))
-				.withIcon(Images.messageSend.getResource()).multiTarget()
-				.withDisabledPredicate(a -> isAttributeEditable(a)
-						|| !checkAttributeIsVerifiable(a)
-						|| checkAttributeIsConfirmed(a))
-				.hideIfInactive().withHandler(this::showResendDialog).build();
-	}
-
-	private void showResendDialog(Collection<AttributeExt> target)
-	{
-		String confirmText = MessageUtils.createConfirmFromNames(msg, target);
-
-		ConfirmDialog confirm = new ConfirmDialog(msg,
-				msg.getMessage("Attribute.confirmResendConfirmation", confirmText),
-				() -> sendConfirmation(target));
-		confirm.show();
 	}
 }
