@@ -59,7 +59,7 @@ public interface CredentialReset
 	 * 
 	 * @throws EngineException 
 	 */
-	void sendCode(String messageTemplateId) throws EngineException;
+	void sendCode(String messageTemplateId, boolean onlyNumberCode) throws EngineException;
 
 	/**
 	 * @return JSON with the current credential configuration of the subject

@@ -28,7 +28,7 @@ public class MobileCodeCredentialReset5Dialog extends DynamicCredentialResetDial
 		super(msg, backend, credEditor, username,  4,
 				backend.getSettings().getMobileSecurityCodeMsgTemplate(),
 				msg.getMessage("CredentialReset.mobileCode"),
-				msg.getMessage("CredentialReset.resendMobileDesc"));
+				msg.getMessage("CredentialReset.resendMobileDesc"), true);
 
 	}
 

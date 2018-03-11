@@ -28,7 +28,7 @@ public class EmailCodeCredentialReset4Dialog extends DynamicCredentialResetDialo
 		super(msg, backend, credEditor, username,  3,
 				backend.getSettings().getEmailSecurityCodeMsgTemplate(),
 				msg.getMessage("CredentialReset.emailCode"),
-				msg.getMessage("CredentialReset.resendEmailDesc"));
+				msg.getMessage("CredentialReset.resendEmailDesc"), false);
 
 	}
 

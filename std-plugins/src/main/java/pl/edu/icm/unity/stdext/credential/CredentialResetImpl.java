@@ -143,15 +143,21 @@ public class CredentialResetImpl implements CredentialReset
 			throw new WrongArgumentException("The answer is incorrect");
 	}
 
-	private void createCode()
+	private void createCode(boolean onlyNumberCode)
 	{
 		int codeLen = settings.getCodeLength();
-		codeSent = CodeGenerator.generateMixedCharCode(codeLen);
+		if (!onlyNumberCode)
+		{
+			codeSent = CodeGenerator.generateMixedCharCode(codeLen);
+		} else
+		{
+			codeSent = CodeGenerator.generateNumberCode(codeLen);
+		}
 		codeValidityEnd = System.currentTimeMillis() + MAX_CODE_VALIDITY;
 	}
 	
 	@Override
-	public void sendCode(String msgTemplate) throws EngineException
+	public void sendCode(String msgTemplate, boolean onlyNumberCode) throws EngineException
 	{
 		if (credState == null)
 			throw new IllegalIdentityValueException("Identity was not resolved.");
@@ -159,7 +165,7 @@ public class CredentialResetImpl implements CredentialReset
 			throw new TooManyAttempts();
 		codeSendingAttempts++;
 		if (codeSent == null)
-			createCode();
+			createCode(onlyNumberCode);
 
 		Map<String, String> params = new HashMap<>();
 		params.put(PasswordResetTemplateDefBase.VAR_CODE, codeSent);

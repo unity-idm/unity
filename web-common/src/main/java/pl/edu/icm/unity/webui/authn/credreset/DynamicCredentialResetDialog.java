@@ -42,9 +42,10 @@ public abstract class DynamicCredentialResetDialog extends AbstractDialog
 	private String messageTemplate;
 	private String answerLabel;
 	private String resendDesc;
+	private boolean onlyNumberCode;
 	
 	public DynamicCredentialResetDialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor,
-			String username,int expectedState, String messageTemplate, String answerLabel, String resendDesc)
+			String username,int expectedState, String messageTemplate, String answerLabel, String resendDesc, boolean onlyNumberCode)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
 				msg.getMessage("cancel"));
@@ -56,6 +57,7 @@ public abstract class DynamicCredentialResetDialog extends AbstractDialog
 		this.messageTemplate = messageTemplate;
 		this.answerLabel = answerLabel;
 		this.resendDesc = resendDesc;
+		this.onlyNumberCode = onlyNumberCode;
 		
 	}
 
@@ -71,7 +73,7 @@ public abstract class DynamicCredentialResetDialog extends AbstractDialog
 		
 		try
 		{
-			backend.sendCode(messageTemplate);
+			backend.sendCode(messageTemplate, onlyNumberCode);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
@@ -93,7 +95,7 @@ public abstract class DynamicCredentialResetDialog extends AbstractDialog
 			{
 				try
 				{
-					backend.sendCode(messageTemplate);
+					backend.sendCode(messageTemplate, onlyNumberCode);
 				} catch (TooManyAttempts e)
 				{
 					resend.setEnabled(false);
