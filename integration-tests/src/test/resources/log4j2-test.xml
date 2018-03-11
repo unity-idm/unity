@@ -37,7 +37,7 @@
 		<Logger name="unity.server.saml" level="TRACE"/> 
 
 		<!-- OAuth related -->
-		<!-- <Logger name="unity.server.oauth" level="INFO"/> -->
+		<Logger name="unity.server.oauth" level="TRACE"/>
 
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->

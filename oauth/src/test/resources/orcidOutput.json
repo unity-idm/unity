@@ -1,0 +1,101 @@
+{
+	"message-version": "1.2",
+	"orcid-profile": {
+		"orcid": null,
+		"orcid-id": null,
+		"orcid-identifier": {
+			"value": null,
+			"uri": "http://orcid.org/0000-0001-5020-7876",
+			"path": "0000-0001-5020-7876",
+			"host": "orcid.org"
+		},
+		"orcid-deprecated": null,
+		"orcid-preferences": {
+			"locale": "EN"
+		},
+		"orcid-history": {
+			"creation-method": "DIRECT",
+			"completion-date": null,
+			"submission-date": {
+				"value": 1462784382628
+			},
+			"last-modified-date": {
+				"value": 1519860086004
+			},
+			"claimed": {
+				"value": true
+			},
+			"source": null,
+			"deactivation-date": null,
+			"verified-email": {
+				"value": true
+			},
+			"verified-primary-email": {
+				"value": true
+			},
+			"visibility": null
+		},
+		"orcid-bio": {
+			"personal-details": {
+				"given-names": {
+					"value": "Krzysztof",
+					"visibility": null
+				},
+				"family-name": {
+					"value": "Benedyczak",
+					"visibility": null
+				},
+				"credit-name": null,
+				"other-names": null
+			},
+			"biography": null,
+			"researcher-urls": {
+				"researcher-url": [
+					{
+						"url-name": {
+							"value": "Unity"
+						},
+						"url": {
+							"value": "http://unity-idm.eu"
+						}
+					}
+				],
+				"visibility": "PUBLIC"
+			},
+			"contact-details": {
+				"email": [
+					{
+						"value": "foo1@foo.bixbit.net",
+						"primary": false,
+						"current": true,
+						"verified": false,
+						"visibility": "PUBLIC",
+						"source": "0000-0001-5020-7876",
+						"source-client-id": null
+					},
+					{
+						"value": "foo2@foo.bixbit.net",
+						"primary": false,
+						"current": true,
+						"verified": false,
+						"visibility": "PUBLIC",
+						"source": "0000-0001-5020-7876",
+						"source-client-id": null
+					}
+				],
+				"address": null
+			},
+			"keywords": null,
+			"external-identifiers": null,
+			"delegation": null,
+			"scope": null
+		},
+		"orcid-activities": null,
+		"orcid-internal": null,
+		"type": "USER",
+		"group-type": null,
+		"client-type": null
+	},
+	"orcid-search-results": null,
+	"error-desc": null
+}

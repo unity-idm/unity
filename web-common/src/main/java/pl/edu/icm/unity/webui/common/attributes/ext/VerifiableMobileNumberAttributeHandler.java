@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.basic.VerifiableMobileNumber;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
@@ -142,7 +143,16 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				throws IllegalAttributeTypeException
 		{
 			VerifiableMobileNumberAttributeSyntax syntax = new VerifiableMobileNumberAttributeSyntax();
-			syntax.setMobileNumberConfirmationConfiguration(editor.getCurrentValue());
+			MobileNumberConfirmationConfiguration config;
+			try
+			{
+				config = editor.getCurrentValue();
+			} catch (FormValidationException e)
+			{
+				throw new IllegalAttributeTypeException("", e);
+			}
+
+			syntax.setMobileNumberConfirmationConfiguration(config);
 			return syntax;
 		}
 
@@ -206,14 +216,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 						syntax.convertFromString(value).getValue(),
 						confirmationInfo, msg, mobileConfirmationMan,
 						confirmationConfig.get(),
-						new MobileNumberConfirmationDialog.Callback()
-						{
-							@Override
-							public void onConfirm()
-							{
-								updateConfirmationStatusIconAndButtons();
-							}
-						});
+						() -> updateConfirmationStatusIconAndButtons());
 				confirmationDialog.show();
 			});
 

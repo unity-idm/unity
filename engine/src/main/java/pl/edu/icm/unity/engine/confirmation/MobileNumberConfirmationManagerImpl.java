@@ -90,7 +90,7 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		if (!checkSendingLimit(mobileToConfirm))
 			return null;
 		
-		String code = CodeGenerator.generateCode(configEntry.getCodeLenght());
+		String code = CodeGenerator.generateNumberCode(configEntry.getCodeLenght());
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put(MobileNumberConfirmationTemplateDef.CONFIRMATION_CODE, code);
@@ -101,7 +101,7 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		notificationProducer.sendNotification(mobileToConfirm,
 				configEntry.getMessageTemplate(), params, msg.getLocaleCode());	
 		if (relatedConfirmationInfo != null)
-			updateConfirmationInfo(relatedConfirmationInfo);
+			relatedConfirmationInfo.incRequestSent();
 		
 		SMSCode ret = new SMSCode(
 				System.currentTimeMillis()
@@ -111,13 +111,6 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		confirmationReqCache.put(new Element(ret, mobileToConfirm));
 		
 		return ret;
-	}
-	
-	private void updateConfirmationInfo (ConfirmationInfo toUpdate)
-	{
-		toUpdate.setConfirmationDate(0);
-		toUpdate.setConfirmed(false);
-		toUpdate.setSentRequestAmount(toUpdate.getSentRequestAmount() + 1);
 	}
 	
 	@Override

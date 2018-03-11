@@ -44,7 +44,7 @@ public class MapAttributeNameActionFactory extends AbstractOutputTranslationActi
 				Type.UNITY_ATTRIBUTE),
 				new ActionParameterDefinition("attributeName",
 						"TranslationAction.mapAttributeName.paramDesc.attributeName",
-						Type.EXPRESSION),
+						Type.TEXT),
 				new ActionParameterDefinition("mandatory",
 						"TranslationAction.mapAttributeName.paramDesc.mandatory",
 						Type.BOOLEAN),
