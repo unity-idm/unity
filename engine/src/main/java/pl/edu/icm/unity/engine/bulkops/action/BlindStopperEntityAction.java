@@ -21,7 +21,7 @@ public class BlindStopperEntityAction extends EntityAction
 	
 	public BlindStopperEntityAction(TranslationActionType actionType, String[] parameters)
 	{
-		super(actionType, parameters);
+		super(actionType, parameters, false);
 	}
 
 	@Override

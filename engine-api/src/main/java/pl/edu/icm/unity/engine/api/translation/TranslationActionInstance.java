@@ -21,9 +21,15 @@ public abstract class TranslationActionInstance extends TranslationAction
 	
 	public TranslationActionInstance(TranslationActionType actionType, String[] parameters)
 	{
+		this(actionType, parameters, true);
+	}
+	
+	public TranslationActionInstance(TranslationActionType actionType, String[] parameters, boolean checkParams)
+	{
 		super(actionType.getName(), parameters);
 		this.actionType = actionType;
-		checkParams();
+		if (checkParams)
+			checkParams();
 	}
 
 	public TranslationActionType getActionType()

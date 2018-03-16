@@ -24,7 +24,13 @@ public abstract class RegistrationTranslationAction extends TranslationActionIns
 	
 	public RegistrationTranslationAction(TranslationActionType actionType, String[] parameters)
 	{
-		super(actionType, parameters);
+		this(actionType, parameters, true);
+	}
+
+	public RegistrationTranslationAction(TranslationActionType actionType, String[] parameters,
+			boolean checkParams)
+	{
+		super(actionType, parameters, checkParams);
 	}
 
 	/**
