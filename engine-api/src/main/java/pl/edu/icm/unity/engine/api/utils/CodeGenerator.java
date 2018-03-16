@@ -26,20 +26,20 @@ public class CodeGenerator
 	
 	private static final Random rnd = new SecureRandom();
 
-	public static String generateMixedCharCode(int codeLenght)
+	public static String generateMixedCharCode(int codeLength)
 	{
-		return generateCode(codeLenght, Chars.concat(LETTER_CHARS_POOL, NUMBER_CHARS_POOL));
+		return generateCode(codeLength, Chars.concat(LETTER_CHARS_POOL, NUMBER_CHARS_POOL));
 	}
 	
-	public static String generateNumberCode(int codeLenght)
+	public static String generateNumberCode(int codeLength)
 	{
-		return generateCode(codeLenght, NUMBER_CHARS_POOL);	
+		return generateCode(codeLength, NUMBER_CHARS_POOL);	
 	}
 
-	public static String generateCode(int codeLenght, char[] pool )
+	public static String generateCode(int codeLength, char[] pool )
 	{
-		char[] codeA = new char[codeLenght];
-		for (int i=0; i<codeLenght; i++)
+		char[] codeA = new char[codeLength];
+		for (int i=0; i<codeLength; i++)
 			codeA[i] = pool[rnd.nextInt(pool.length)];
 		return  new String(codeA);
 	}

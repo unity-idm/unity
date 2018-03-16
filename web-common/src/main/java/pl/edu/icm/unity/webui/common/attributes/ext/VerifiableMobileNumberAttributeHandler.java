@@ -87,8 +87,8 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		ret.addComponent(msgTemplate);
 		Label validityTime = new Label();
 		ret.addComponent(validityTime);
-		Label codeLenght = new Label();
-		ret.addComponent(codeLenght);
+		Label codeLength = new Label();
+		ret.addComponent(codeLength);
 		Optional<MobileNumberConfirmationConfiguration> config = syntax
 				.getMobileNumberConfirmationConfiguration();
 
@@ -99,9 +99,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		validityTime.setValue(msg.getMessage(
 				"MobileNumberConfirmationConfiguration.validityTime") + " "
 				+ (config.isPresent()? String.valueOf(config.get().getValidityTime()) : ""));
-		codeLenght.setValue(msg.getMessage(
-				"MobileNumberConfirmationConfiguration.codeLenght") + " "
-				+ (config.isPresent() ? String.valueOf(config.get().getCodeLenght()) : ""));
+		codeLength.setValue(msg.getMessage(
+				"MobileNumberConfirmationConfiguration.codeLength") + " "
+				+ (config.isPresent() ? String.valueOf(config.get().getCodeLength()) : ""));
 		return ret;
 	}
 
@@ -128,10 +128,10 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		{
 
 			MobileNumberConfirmationConfiguration confirmationConfig = null;
-			if (initial != null && initial.getEmailConfirmationConfiguration().isPresent())
+			if (initial != null && initial.getMobileNumberConfirmationConfiguration().isPresent())
 				confirmationConfig = initial
 						.getMobileNumberConfirmationConfiguration().get();
-
+			
 			editor = new MobileNumberConfirmationConfigurationEditor(confirmationConfig,
 					msg, msgTemplateMan);
 			return editor;
