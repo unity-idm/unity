@@ -27,16 +27,38 @@ public class AttributeActionParameterComponent extends AttributeSelectionComboBo
 		super(desc.getName() + ":", attributeTypes);
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
-		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(v -> v.getName(),
-						v -> attributeTypesByName.get(v) != null
-								? attributeTypesByName.get(v)
-								: new AttributeType(v, null))
-				.withValidator(v -> attributeTypesByName.keySet().contains(v), msg
-						.getMessage("TranslationProfileEditor.outdatedValue",
-								desc.getName()))
-				.bind("value");
-		binder.setBean(new StringValueBean(getValue().getName()));
+		
+		if (desc.isMandatory())
+		{
+			binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+					.withConverter(v -> v.getName(),
+							v -> attributeTypesByName.get(v) != null
+									? attributeTypesByName
+											.get(v)
+									: new AttributeType(v,
+											null))
+					.withValidator(v -> attributeTypesByName.keySet()
+							.contains(v),
+							msg.getMessage("TranslationProfileEditor.outdatedValue",
+									desc.getName()))
+					.bind("value");
+			binder.setBean(new StringValueBean(
+					getValue() != null ? getValue().getName() : null));
+
+		} else
+		{
+			binder.forField(this).withConverter(v -> v != null ? v.getName() : null,
+					v -> v != null ? attributeTypesByName.get(v) != null
+							? attributeTypesByName.get(v)
+							: new AttributeType(v, null) : null)
+					.withValidator(v -> v != null ? attributeTypesByName.keySet()
+							.contains(v) : true,
+							msg.getMessage("TranslationProfileEditor.outdatedValue",
+									desc.getName()))
+					.bind("value");
+			binder.setBean(new StringValueBean());
+		}
+
 	}
 
 	@Override

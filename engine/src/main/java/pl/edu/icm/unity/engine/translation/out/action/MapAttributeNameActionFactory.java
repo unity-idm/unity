@@ -41,19 +41,19 @@ public class MapAttributeNameActionFactory extends AbstractOutputTranslationActi
 	{
 		super(NAME, new ActionParameterDefinition("unityAttribute",
 				"TranslationAction.mapAttributeName.paramDesc.unityAttribute",
-				Type.UNITY_ATTRIBUTE),
+				Type.UNITY_ATTRIBUTE, true),
 				new ActionParameterDefinition("attributeName",
 						"TranslationAction.mapAttributeName.paramDesc.attributeName",
-						Type.TEXT),
+						Type.TEXT, true),
 				new ActionParameterDefinition("mandatory",
 						"TranslationAction.mapAttributeName.paramDesc.mandatory",
-						Type.BOOLEAN),
+						Type.BOOLEAN, true),
 				new ActionParameterDefinition("attributeDisplayName",
 						"TranslationAction.mapAttributeName.paramDesc.attributeDisplayName",
-						Type.TEXT),
+						Type.TEXT, false),
 				new ActionParameterDefinition("attributeDescription",
 						"TranslationAction.mapAttributeName.paramDesc.attributeDescription",
-						Type.TEXT));
+						Type.TEXT, false));
 		this.atHelper = atHelper;
 	}
 
@@ -134,12 +134,6 @@ public class MapAttributeNameActionFactory extends AbstractOutputTranslationActi
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length < 3)
-				throw new IllegalArgumentException(
-						"Action requires minimum 3 parameters");
-			if (parameters.length > 3 && parameters.length < 5)
-				throw new IllegalArgumentException("attributeDisplayName or attributeDescription is empty");
-			
 			unityAttribute = parameters[0];
 			attrName = parameters[1];
 			attrMandatory = Boolean.valueOf(parameters[2]);
@@ -148,9 +142,5 @@ public class MapAttributeNameActionFactory extends AbstractOutputTranslationActi
 			if (parameters.length > 4) 
 				attrDescription = parameters[4];
 		}
-		
-		
-		
-
 	}
 }

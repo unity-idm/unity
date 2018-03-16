@@ -35,11 +35,11 @@ public class FilterIdentityActionFactory extends AbstractOutputTranslationAction
 		super(NAME, new ActionParameterDefinition(
 				"identity",
 				"TranslationAction.filterIdentity.paramDesc.idType",
-				Type.UNITY_ID_TYPE),
+				Type.UNITY_ID_TYPE, true),
 		new ActionParameterDefinition(
 				"identityValueRegexp",
 				"TranslationAction.filterIdentity.paramDesc.idValueReqexp",
-				Type.EXPRESSION));
+				Type.EXPRESSION, true));
 	}
 
 	@Override
@@ -85,8 +85,6 @@ public class FilterIdentityActionFactory extends AbstractOutputTranslationAction
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			identity = parameters[0];
 			idValueRegexp = parameters[1] == null ? null : Pattern.compile(parameters[1]);
 		}

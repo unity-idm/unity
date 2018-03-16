@@ -31,7 +31,7 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		setItems(values);
 		String def = values.isEmpty() ? null : values.iterator().next().toString(); 
 		
-		initCommon(desc, msg, def);
+		initCommon(desc, msg, def, desc.isMandatory());
 	}
 
 	public BaseEnumActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, 
@@ -40,21 +40,30 @@ public class BaseEnumActionParameterComponent extends ComboBox<String> implement
 		values = Arrays.stream(vals).map(v -> v.toString()).collect(Collectors.toList());
 		setItems(values);
 		String def = values.isEmpty() ? null : values.iterator().next().toString(); 
-		initCommon(desc, msg, def);
+		initCommon(desc, msg, def, desc.isMandatory());
 	}
 	
 	protected final void initCommon(ActionParameterDefinition desc, UnityMessageSource msg,
-			String def)
+			String def, boolean mandatory)
 	{
-		setEmptySelectionAllowed(false);
+		setEmptySelectionAllowed(!mandatory);
 		binder = new Binder<>(StringValueBean.class);
-		binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
-				.withValidator(v -> values.contains(v), msg.getMessage(
-						"TranslationProfileEditor.outdatedValue",
-						desc.getName()))
-				.bind("value");
+		if (mandatory)
+		{
+			binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+					.withValidator(v -> values.contains(v), msg.getMessage(
+							"TranslationProfileEditor.outdatedValue",
+							desc.getName()))
+					.bind("value");
+		} else
+		{
+			binder.forField(this)
+					.withValidator(v -> v != null ? values.contains(v) : true, msg.getMessage(
+							"TranslationProfileEditor.outdatedValue",
+							desc.getName()))
+					.bind("value");
+		}	
 		binder.setBean(new StringValueBean(def));
-		
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		setCaption(desc.getName() + ":");
 	}

@@ -37,7 +37,7 @@ public class IncludeInputProfileActionFactory extends AbstractInputTranslationAc
 	{
 		super(NAME, new ActionParameterDefinition("inputProfile",
 				"TranslationAction.includeInputProfile.paramDesc.inputProfile",
-				Type.UNITY_INPUT_TRANSLATION_PROFILE));
+				Type.UNITY_INPUT_TRANSLATION_PROFILE, true));
 	}
 
 	@Override
@@ -71,8 +71,6 @@ public class IncludeInputProfileActionFactory extends AbstractInputTranslationAc
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires 1 parameters");
 			profile = parameters[0];
 		}
 

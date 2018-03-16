@@ -49,7 +49,7 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Transl
 		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		binder = new Binder<>(TranslationRule.class);
-		condition.configureBinding(binder, "condition");
+		condition.configureBinding(binder, "condition", true);
 		binder.setBean(new TranslationRule("status == 'DISABLED'", null));
 
 		main.addComponents(condition);

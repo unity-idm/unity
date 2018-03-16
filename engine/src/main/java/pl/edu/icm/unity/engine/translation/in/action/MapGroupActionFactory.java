@@ -38,11 +38,11 @@ public class MapGroupActionFactory extends AbstractInputTranslationActionFactory
 		super(NAME, new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.mapGroup.paramDesc.expression",
-				Type.EXPRESSION),
+				Type.EXPRESSION, true),
 			new ActionParameterDefinition(
 				"mode",
 				"TranslationAction.mapGroup.paramDesc.createMissing",
-				GroupEffectMode.class));
+				GroupEffectMode.class, false));
 	}
 
 	@Override
@@ -94,10 +94,8 @@ public class MapGroupActionFactory extends AbstractInputTranslationActionFactory
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length < 1 || parameters.length > 2)
-				throw new IllegalArgumentException("Action requires 2 parameters");
 			expressionCompiled = MVEL.compileExpression(parameters[0]);
-			if (parameters.length > 1)
+			if (parameters.length > 1 && parameters[1] != null)
 				groupEffect = GroupEffectMode.valueOf(parameters[1]);
 			else
 				groupEffect = GroupEffectMode.REQUIRE_EXISTING_GROUP;

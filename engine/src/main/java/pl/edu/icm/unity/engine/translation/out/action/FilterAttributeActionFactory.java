@@ -34,7 +34,7 @@ public class FilterAttributeActionFactory extends AbstractOutputTranslationActio
 		super(NAME, new ActionParameterDefinition(
 				"attribute",
 				"TranslationAction.filterAttribute.paramDesc.attributeRegexp",
-				Type.TEXT));
+				Type.TEXT, true));
 	}
 	
 	@Override
@@ -75,8 +75,6 @@ public class FilterAttributeActionFactory extends AbstractOutputTranslationActio
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			attrPattern = Pattern.compile(parameters[0]);
 		}
 

@@ -49,19 +49,19 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 			new ActionParameterDefinition(
 				"unityAttribute",
 				"TranslationAction.mapAttribute.paramDesc.unityAttribute",
-				Type.UNITY_ATTRIBUTE),
+				Type.UNITY_ATTRIBUTE, true),
 			new ActionParameterDefinition(
 				"group",
 				"TranslationAction.mapAttribute.paramDesc.group",
-				Type.UNITY_GROUP),
+				Type.UNITY_GROUP, true),
 			new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.mapAttribute.paramDesc.expression",
-				Type.EXPRESSION),
+				Type.EXPRESSION, true),
 			new ActionParameterDefinition(
 				"effect",
 				"TranslationAction.mapAttribute.paramDesc.effect",
-				AttributeEffectMode.class));
+				AttributeEffectMode.class, true));
 		
 		this.attrsMan = attrsMan;
 		this.attrValueConverter = attrValueConverter;
@@ -127,8 +127,6 @@ public class MapAttributeActionFactory extends AbstractInputTranslationActionFac
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 4)
-				throw new IllegalArgumentException("Action requires exactly 4 parameters");
 			unityAttribute = parameters[0];
 			group = parameters[1];
 			expressionCompiled = MVEL.compileExpression(parameters[2]);

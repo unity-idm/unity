@@ -20,24 +20,23 @@ public class DefaultActionParameterComponent extends TextField implements Action
 
 	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg)
 	{
-		this(desc, msg, false);
-	}
-	
-	public DefaultActionParameterComponent(ActionParameterDefinition desc, UnityMessageSource msg, boolean required)
-	{
 		setCaption(desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
-		configureBinding(msg, required);
+		configureBinding(msg, desc.isMandatory());
 	}
 	
-	protected void configureBinding(UnityMessageSource msg, boolean required)
+	protected void configureBinding(UnityMessageSource msg, boolean mandatory)
 	{	
-		if (required)
+		if (mandatory)
+		{
 			binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
 			.bind("value");
-		else 
+		}
+		else
+		{
 			binder.forField(this).bind("value");
+		}
 		binder.setBean(new StringValueBean());	
 	}
 		

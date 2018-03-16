@@ -47,19 +47,19 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 				new ActionParameterDefinition(
 						"unityIdentityType",
 						"TranslationAction.mapIdentity.paramDesc.unityIdentityType",
-						Type.UNITY_ID_TYPE),
+						Type.UNITY_ID_TYPE, true),
 				new ActionParameterDefinition(
 						"expression",
 						"TranslationAction.mapIdentity.paramDesc.expression",
-						Type.EXPRESSION),
+						Type.EXPRESSION, true),
 				new ActionParameterDefinition(
 						"credential requirement",
 						"TranslationAction.mapIdentity.paramDesc.credentialRequirement",
-						Type.UNITY_CRED_REQ),
+						Type.UNITY_CRED_REQ, true),
 				new ActionParameterDefinition(
 						"effect",
 						"TranslationAction.mapIdentity.paramDesc.effect",
-						IdentityEffectMode.class)});
+						IdentityEffectMode.class, true)});
 		this.idsRegistry = idsRegistry;
 	}
 
@@ -112,8 +112,6 @@ public class MapIdentityActionFactory extends AbstractInputTranslationActionFact
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 4)
-				throw new IllegalArgumentException("Action requires exactly 4 parameters");
 			unityType = parameters[0];
 			expressionCompiled = MVEL.compileExpression(parameters[1]);
 			credentialRequirement = parameters[2];

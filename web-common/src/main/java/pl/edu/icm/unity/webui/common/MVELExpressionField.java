@@ -32,23 +32,37 @@ public class MVELExpressionField extends TextField
 		setDescription(description);
 	}
 
-	public void configureBinding(Binder<?> binder, String fieldName)
+	public void configureBinding(Binder<?> binder, String fieldName, boolean mandatory)
 	{
-		binder.forField(this).withValidator(getValidator(msg))
-				.asRequired(msg.getMessage("fieldRequired")).bind(fieldName);
+		if (mandatory)
+		{
+			binder.forField(this).withValidator(getValidator(msg, mandatory))
+					.asRequired(msg.getMessage("fieldRequired")).bind(fieldName);
+					
+		} else
+		{
+			binder.forField(this).withValidator(getValidator(msg, mandatory)).bind(fieldName);
+		}
 
 	}
-	
+
 	public <T> void configureBinding(Binder<String> binder,
-			ValueProvider<String, String> getter, Setter<String, String> setter)
+			ValueProvider<String, String> getter, Setter<String, String> setter,
+			boolean mandatory)
 	{
-
-		binder.forField(this).withValidator(getValidator(msg))
-				.asRequired(msg.getMessage("fieldRequired")).bind(getter, setter);
+		if (mandatory)
+		{
+			binder.forField(this).withValidator(getValidator(msg, mandatory))
+					.asRequired(msg.getMessage("fieldRequired"))
+					.bind(getter, setter);
+		} else
+		{
+			binder.forField(this).withValidator(getValidator(msg, mandatory));
+		}
 
 	}
 
-	private static Validator<String> getValidator(UnityMessageSource msg)
+	private static Validator<String> getValidator(UnityMessageSource msg, boolean mandatory)
 	{
 		Validator<String> expressionValidator = new Validator<String>()
 		{
@@ -56,9 +70,12 @@ public class MVELExpressionField extends TextField
 			@Override
 			public ValidationResult apply(String value, ValueContext context)
 			{
+				if (!mandatory && value == null)
+					return ValidationResult.ok();
 				try
 				{
 					MVEL.compileExpression(value);
+					
 				} catch (Exception e)
 				{
 					String info;

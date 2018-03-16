@@ -48,11 +48,11 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 				new ActionParameterDefinition(
 						"mapping",
 						"TranslationAction.multiMapAttribute.paramDesc.mapping",
-						Type.LARGE_TEXT),
+						Type.LARGE_TEXT, true),
 				new ActionParameterDefinition(
 						"effect",
 						"TranslationAction.mapAttribute.paramDesc.effect",
-						AttributeEffectMode.class)});
+						AttributeEffectMode.class, true)});
 		this.attrsMan = attrsMan;
 		this.attrValueConverter = attrValueConverter;
 	}
@@ -149,8 +149,6 @@ public class MultiMapAttributeActionFactory extends AbstractInputTranslationActi
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			mapping = parameters[0];
 			mode = AttributeEffectMode.valueOf(parameters[1]);
 		}

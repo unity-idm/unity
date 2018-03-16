@@ -43,11 +43,11 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 		super(NAME, new ActionParameterDefinition(
 				"identityType",
 				"TranslationAction.createPersistedIdentity.paramDesc.idType",
-				Type.UNITY_ID_TYPE),
+				Type.UNITY_ID_TYPE, true),
 		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createPersistedIdentity.paramDesc.idValueExpression",
-				Type.EXPRESSION));
+				Type.EXPRESSION, true));
 		this.idTypesReg = idTypesReg;
 	}
 
@@ -101,8 +101,6 @@ public class CreatePersistentIdentityActionFactory extends AbstractOutputTransla
 
 		private void setParameters(String[] parameters, IdentityTypesRegistry idTypesReg)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			idValueExpression = MVEL.compileExpression(parameters[1]);
 
 			idType = idTypesReg.getByName(parameters[0]);

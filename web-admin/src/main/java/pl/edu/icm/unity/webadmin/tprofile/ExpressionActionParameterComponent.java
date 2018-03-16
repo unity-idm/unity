@@ -33,7 +33,7 @@ public class ExpressionActionParameterComponent extends MVELExpressionField
 	{
 		super(msg, param.getName() + ":", msg.getMessage(param.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
-		configureBinding(binder, "value");
+		configureBinding(binder, "value", param.isMandatory());
 		binder.setBean(new StringValueBean());
 		addBlurListener(event -> markAsDirtyRecursive());
 		addDropHandler();

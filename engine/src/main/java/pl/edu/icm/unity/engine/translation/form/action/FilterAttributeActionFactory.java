@@ -35,10 +35,10 @@ public class FilterAttributeActionFactory extends AbstractRegistrationTranslatio
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("attribute", 
 						"RegTranslationAction.regFilterAttribute.paramDesc.attribute",
-						Type.EXPRESSION),
+						Type.EXPRESSION, true),
 				new ActionParameterDefinition("group", 
 						"RegTranslationAction.regFilterAttribute.paramDesc.group",
-						Type.UNITY_GROUP)
+						Type.UNITY_GROUP, true)
 		});
 	}
 
@@ -76,8 +76,6 @@ public class FilterAttributeActionFactory extends AbstractRegistrationTranslatio
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			attributePattern = Pattern.compile(parameters[0]);
 			group = parameters[1];
 		}

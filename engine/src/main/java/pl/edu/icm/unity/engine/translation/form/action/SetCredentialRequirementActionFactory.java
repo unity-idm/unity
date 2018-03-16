@@ -28,7 +28,7 @@ public class SetCredentialRequirementActionFactory extends AbstractRegistrationT
 				new ActionParameterDefinition(
 						"credential requirement",
 						"RegTranslationAction.setCredReq.paramDesc.credentialRequirement",
-						Type.UNITY_CRED_REQ)
+						Type.UNITY_CRED_REQ, true)
 		});
 	}
 
@@ -57,8 +57,6 @@ public class SetCredentialRequirementActionFactory extends AbstractRegistrationT
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			credReq = parameters[0];
 		}
 	}

@@ -36,11 +36,11 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 				new ActionParameterDefinition(
 						"identityType",
 						"RegTranslationAction.addIdentity.paramDesc.identityType",
-						Type.UNITY_ID_TYPE),
+						Type.UNITY_ID_TYPE, true),
 				new ActionParameterDefinition(
 						"identity",
 						"RegTranslationAction.addIdentity.paramDesc.identity",
-						Type.EXPRESSION)
+						Type.EXPRESSION, true)
 		});
 	}
 
@@ -81,8 +81,6 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			identityType = parameters[0];
 			expressionCompiled = MVEL.compileExpression(parameters[1]);
 		}

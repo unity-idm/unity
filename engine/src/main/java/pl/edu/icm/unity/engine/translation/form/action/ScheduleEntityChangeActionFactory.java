@@ -34,11 +34,11 @@ public class ScheduleEntityChangeActionFactory extends AbstractRegistrationTrans
 				new ActionParameterDefinition(
 						"schedule change",
 						"RegTranslationAction.scheduleChange.paramDesc.scheduleChange",
-						EntityScheduledOperation.class),
+						EntityScheduledOperation.class, true),
 				new ActionParameterDefinition(
 						"scheduled after days",
 						"RegTranslationAction.scheduleChange.paramDesc.scheduledTime",
-						Type.DAYS)
+						Type.DAYS, true)
 		});
 	}
 
@@ -72,8 +72,6 @@ public class ScheduleEntityChangeActionFactory extends AbstractRegistrationTrans
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			changeDate = new Date(System.currentTimeMillis() + 
 					Long.parseLong(parameters[1]) * 24 * 3600 * 1000L);
 			scheduledOp = EntityScheduledOperation.valueOf(parameters[0]);

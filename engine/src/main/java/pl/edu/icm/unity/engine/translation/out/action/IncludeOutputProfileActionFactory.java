@@ -37,7 +37,7 @@ public class IncludeOutputProfileActionFactory extends AbstractOutputTranslation
 	{
 		super(NAME, new ActionParameterDefinition("outputProfile",
 				"TranslationAction.includeOutputProfile.paramDesc.outputProfile",
-				Type.UNITY_OUTPUT_TRANSLATION_PROFILE));
+				Type.UNITY_OUTPUT_TRANSLATION_PROFILE, true));
 	}
 
 	@Override
@@ -63,8 +63,6 @@ public class IncludeOutputProfileActionFactory extends AbstractOutputTranslation
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires 1 parameters");
 			profile = parameters[0];
 		}
 

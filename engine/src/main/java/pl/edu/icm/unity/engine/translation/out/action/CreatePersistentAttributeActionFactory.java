@@ -51,19 +51,19 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 				new ActionParameterDefinition(
 						"attributeName",
 						"TranslationAction.createPersistentAttribute.paramDesc.attributeName",
-						Type.UNITY_ATTRIBUTE),
+						Type.UNITY_ATTRIBUTE, true),
 				new ActionParameterDefinition(
 						"expression",
 						"TranslationAction.createPersistentAttribute.paramDesc.expression",
-						Type.EXPRESSION),
+						Type.EXPRESSION, true),
 				new ActionParameterDefinition(
 						"mandatory",
 						"TranslationAction.createPersistentAttribute.paramDesc.mandatory",
-						Type.BOOLEAN),
+						Type.BOOLEAN, true),
 				new ActionParameterDefinition(
 						"group",
 						"TranslationAction.createPersistentAttribute.paramDesc.group",
-						Type.UNITY_GROUP)
+						Type.UNITY_GROUP, true)
 		});
 		this.attrsMan = attrsMan;
 		this.attrValueConverter = attrValueConverter;
@@ -146,8 +146,6 @@ public class CreatePersistentAttributeActionFactory extends AbstractOutputTransl
 
 		private void setParameters(String[] parameters, AttributeTypeSupport attrsMan)
 		{
-			if (parameters.length != 4)
-				throw new IllegalArgumentException("Action requires exactly 4 parameters");
 			attrNameString = parameters[0];
 			valuesExpression = MVEL.compileExpression(parameters[1]);
 			attrMandatory = Boolean.valueOf(parameters[2]);

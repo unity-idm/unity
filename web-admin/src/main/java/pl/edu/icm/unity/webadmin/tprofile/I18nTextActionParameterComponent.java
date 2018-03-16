@@ -22,8 +22,18 @@ public class I18nTextActionParameterComponent extends I18nTextField implements A
 		super(msg, desc.getName() + ":");
 		setDescription(msg.getMessage(desc.getDescriptionKey()));	
 		binder = new Binder<>(StringValueBean.class);
-		binder.forField(this).withConverter(v -> getString(v), v -> getI18nValue(v))
-				.bind("value");
+		
+		if (desc.isMandatory())
+		{
+			binder.forField(this).asRequired(msg.getMessage("fieldRequired"))
+					.withConverter(v -> getString(v), v -> getI18nValue(v))
+					.bind("value");
+		} else
+		{
+
+			binder.forField(this).withConverter(v -> getString(v), v -> getI18nValue(v))
+					.bind("value");
+		}
 		binder.setBean(new StringValueBean());
 	}
 	

@@ -28,7 +28,7 @@ public class AutoProcessActionFactory extends AbstractRegistrationTranslationAct
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("action", 
 						"RegTranslationAction.autoProcess.paramDesc.action", 
-						AutomaticRequestAction.class)
+						AutomaticRequestAction.class, true)
 		});
 	}
 
@@ -57,8 +57,6 @@ public class AutoProcessActionFactory extends AbstractRegistrationTranslationAct
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			action = AutomaticRequestAction.valueOf(parameters[0]);
 		}
 	}

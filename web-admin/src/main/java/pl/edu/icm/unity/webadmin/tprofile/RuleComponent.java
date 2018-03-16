@@ -165,7 +165,7 @@ public class RuleComponent extends CustomComponent
 		info.setValue(actionEditor.getStringRepresentation());
 		
 		binder = new Binder<>(TranslationRule.class);
-		condition.configureBinding(binder, "condition");		
+		condition.configureBinding(binder, "condition", true);		
 		binder.setBean(new TranslationRule(editMode? toEdit.getCondition() : "true", null));
 
 	}

@@ -36,7 +36,7 @@ public class RedirectActionFactory extends AbstractRegistrationTranslationAction
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("URL", 
 						"RegTranslationAction.redirect.paramDesc.URL",
-						Type.EXPRESSION)
+						Type.EXPRESSION, true)
 		});
 	}
 
@@ -74,8 +74,6 @@ public class RedirectActionFactory extends AbstractRegistrationTranslationAction
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			urlExpression = MVEL.compileExpression(parameters[0]);
 		}
 	}

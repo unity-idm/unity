@@ -55,7 +55,7 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 
 		binder = new Binder<>(ScheduledProcessingRuleParam.class);
-		condition.configureBinding(binder, "condition");
+		condition.configureBinding(binder, "condition", true);
 		cronExpression.configureBinding(binder, "cronExpression");
 		binder.setBean(new ScheduledProcessingRuleParam("status == 'DISABLED'", null,
 				"0 0 6 * * ?"));

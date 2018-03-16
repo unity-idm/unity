@@ -36,11 +36,11 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 		super(NAME, new ActionParameterDefinition(
 				"attribute",
 				"TranslationAction.filterAttributeValue.paramDesc.attribute",
-				Type.UNITY_ATTRIBUTE),
+				Type.UNITY_ATTRIBUTE, true),
 		new ActionParameterDefinition(
 				"attributeValueRegexp",
 				"TranslationAction.filterAttributeValue.paramDesc.attributeValueRegexp",
-				Type.EXPRESSION));
+				Type.EXPRESSION, true));
 	}
 	
 	@Override
@@ -114,8 +114,6 @@ public class FilterAttributeValuesActionFactory extends AbstractOutputTranslatio
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			attr = parameters[0];
 			pattern = Pattern.compile(parameters[1]);
 		}

@@ -41,7 +41,6 @@ public class RemoveStaleDataActionFactory extends AbstractInputTranslationAction
 		public RemoveStaleDataAction(TranslationActionType description, String[] params)
 		{
 			super(description, params);
-			setParameters(params);
 		}
 
 		@Override
@@ -55,12 +54,7 @@ public class RemoveStaleDataActionFactory extends AbstractInputTranslationAction
 			ret.setCleanStaleIdentities(true);
 			return ret;
 		}
-		
-		private void setParameters(String[] parameters)
-		{
-			if (parameters.length != 0)
-				throw new IllegalArgumentException("Action requires no parameters");
-		}
+	
 	}
 
 }

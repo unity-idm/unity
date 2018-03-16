@@ -36,11 +36,11 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 		super(NAME, new ActionParameterDefinition(
 				"identityType",
 				"TranslationAction.createIdentity.paramDesc.idType",
-				Type.TEXT),
+				Type.TEXT, true),
 		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createIdentity.paramDesc.idValueExpression",
-				Type.EXPRESSION));
+				Type.EXPRESSION, true));
 	}
 	
 	@Override
@@ -90,8 +90,6 @@ public class CreateIdentityActionFactory extends AbstractOutputTranslationAction
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			idTypeString = parameters[0];
 			idValueExpression = MVEL.compileExpression(parameters[1]);
 		}
