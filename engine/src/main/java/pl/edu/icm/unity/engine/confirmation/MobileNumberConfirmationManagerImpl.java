@@ -90,7 +90,7 @@ public class MobileNumberConfirmationManagerImpl implements MobileNumberConfirma
 		if (!checkSendingLimit(mobileToConfirm))
 			return null;
 		
-		String code = CodeGenerator.generateNumberCode(configEntry.getCodeLenght());
+		String code = CodeGenerator.generateNumberCode(configEntry.getCodeLength());
 
 		HashMap<String, String> params = new HashMap<>();
 		params.put(MobileNumberConfirmationTemplateDef.CONFIRMATION_CODE, code);

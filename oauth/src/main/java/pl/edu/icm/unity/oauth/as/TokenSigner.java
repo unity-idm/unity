@@ -120,7 +120,7 @@ public class TokenSigner
 		if (!internalSigner.supportedJWSAlgorithms()
 				.contains(JWSAlgorithm.parse(signAlg)))
 			throw new ConfigurationException(
-					"signingSecret lenght is not compatible with used HS algorithm");
+					"signingSecret length is not compatible with used HS algorithm");
 	}
 	
 	private void setupCredential(OAuthASProperties config, PKIManagement pkiManamgenet)

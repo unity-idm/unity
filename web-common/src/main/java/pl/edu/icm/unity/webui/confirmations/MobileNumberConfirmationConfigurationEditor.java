@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.webui.confirmations;
 
+import org.vaadin.risto.stepper.IntStepper;
+
 import com.vaadin.data.Binder;
 import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
@@ -34,7 +36,7 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 	private MobileNumberConfirmationConfiguration initial;
 	private CompatibleTemplatesComboBox msgTemplate;
 	private TextField validityTime;
-	private TextField codeLenght;
+	private IntStepper codeLength;
 
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
@@ -58,9 +60,11 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 		validityTime = new TextField(
 				msg.getMessage("MobileNumberConfirmationConfiguration.validityTime"));
 		
-		codeLenght = new TextField(
-				msg.getMessage("MobileNumberConfirmationConfiguration.codeLenght"));
-		
+		codeLength = new IntStepper(
+				msg.getMessage("MobileNumberConfirmationConfiguration.codeLength"));
+		codeLength.setMinValue(1);
+		codeLength.setMaxValue(50);
+		codeLength.setWidth(3, Unit.EM);
 		
 		addFieldToLayout(this);
 		
@@ -74,13 +78,11 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 						1, 60 * 24 * 365))
 				.bind("validityTime");
 
-		binder.forField(codeLenght).asRequired(msg.getMessage("fieldRequired"))
-		.withConverter(new StringToIntegerConverter(
-				msg.getMessage("notAnIntNumber")))
+		binder.forField(codeLength).asRequired(msg.getMessage("fieldRequired"))
 		.withValidator(new IntegerRangeValidator(msg
 				.getMessage("outOfBoundsNumber", 1, 50),
 				1, 50))
-		.bind("codeLenght");
+		.bind("codeLength");
 		
 		
 		if (initial != null)
@@ -91,7 +93,7 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 			MobileNumberConfirmationConfiguration init = new MobileNumberConfirmationConfiguration();
 			init.setMessageTemplate(msgTemplate.getValue());
 			init.setValidityTime(EmailConfirmationConfiguration.DEFAULT_VALIDITY);
-			init.setCodeLenght(MobileNumberConfirmationConfiguration.DEFAULT_CODE_LENGHT);
+			init.setCodeLength(MobileNumberConfirmationConfiguration.DEFAULT_CODE_LENGTH);
 			binder.setBean(init);
 		}
 		
@@ -101,7 +103,7 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 	{
 		parent.addComponent(msgTemplate);
 		parent.addComponent(validityTime);
-		parent.addComponent(codeLenght);
+		parent.addComponent(codeLength);
 	}
 
 	public MobileNumberConfirmationConfiguration getCurrentValue() throws FormValidationException

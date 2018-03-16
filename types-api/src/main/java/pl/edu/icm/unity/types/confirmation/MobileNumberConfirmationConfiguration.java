@@ -21,11 +21,11 @@ import pl.edu.icm.unity.JsonUtil;
 public class MobileNumberConfirmationConfiguration
 {	
 	public static final int DEFAULT_VALIDITY = 1;
-	public static final int DEFAULT_CODE_LENGHT = 6;
+	public static final int DEFAULT_CODE_LENGTH = 6;
 	
 	private String messageTemplate;	
 	private int validityTime = DEFAULT_VALIDITY;
-	private int codeLenght = DEFAULT_CODE_LENGHT;
+	private int codeLength = DEFAULT_CODE_LENGTH;
 
 	
 	public MobileNumberConfirmationConfiguration()
@@ -53,14 +53,14 @@ public class MobileNumberConfirmationConfiguration
 		this.validityTime = validityTime;
 	}
 	
-	public int getCodeLenght()
+	public int getCodeLength()
 	{
-		return codeLenght;
+		return codeLength;
 	}
 
-	public void setCodeLenght(int codeLenght)
+	public void setCodeLength(int codeLength)
 	{
-		this.codeLenght = codeLenght;
+		this.codeLength = codeLength;
 	}
 
 	public String getMessageTemplate()
@@ -79,8 +79,8 @@ public class MobileNumberConfirmationConfiguration
 			setMessageTemplate(root.get("messageTemplate").asText());
 		if (JsonUtil.notNull(root, "validityTime")) 
 			setValidityTime(root.get("validityTime").asInt());
-		if (JsonUtil.notNull(root, "codeLenght")) 
-			setCodeLenght(root.get("codeLenght").asInt());
+		if (JsonUtil.notNull(root, "codeLength")) 
+			setCodeLength(root.get("codeLength").asInt());
 	}
 
 	@JsonValue
@@ -89,7 +89,7 @@ public class MobileNumberConfirmationConfiguration
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.put("messageTemplate", getMessageTemplate());
 		root.put("validityTime", getValidityTime());
-		root.put("codeLenght", getCodeLenght());
+		root.put("codeLength", getCodeLength());
 		return root;
 	}
 }
