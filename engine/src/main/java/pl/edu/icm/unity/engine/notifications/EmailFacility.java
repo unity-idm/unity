@@ -144,9 +144,9 @@ public class EmailFacility implements NotificationFacility
 		if (preferredAddress != null && isPresent(preferredAddress, emailIds, emailAttr, onlyConfirmed))
 			return preferredAddress;
 		
-		String confirmedOnly = getAddressFrom(emailIds, emailAttr, true);
-		if (confirmedOnly != null)
-			return confirmedOnly;
+		String confirmedAddress= getAddressFrom(emailIds, emailAttr, true);
+		if (confirmedAddress != null)
+			return confirmedAddress;
 		if (!onlyConfirmed)
 		{
 			String plain = getAddressFrom(emailIds, emailAttr, false);

@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  * @author P.Piernik
  *
  */
-public class EmailCodeCredentialReset4Dialog extends DynamicCredentialResetDialog
+public class EmailCodeCredentialReset4Dialog extends CodeVerificationCredentialResetDialog
 {
 
 	public EmailCodeCredentialReset4Dialog(UnityMessageSource msg, CredentialReset backend,

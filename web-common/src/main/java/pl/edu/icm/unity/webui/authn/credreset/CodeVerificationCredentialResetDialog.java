@@ -29,9 +29,9 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  * @author P.Piernik
  *
  */
-public abstract class DynamicCredentialResetDialog extends AbstractDialog
+public abstract class CodeVerificationCredentialResetDialog extends AbstractDialog
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, DynamicCredentialResetDialog.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CodeVerificationCredentialResetDialog.class);
 	protected UnityMessageSource msg;
 	protected CredentialReset backend;
 	protected String username;
@@ -44,7 +44,7 @@ public abstract class DynamicCredentialResetDialog extends AbstractDialog
 	private String resendDesc;
 	private boolean onlyNumberCode;
 	
-	public DynamicCredentialResetDialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor,
+	public CodeVerificationCredentialResetDialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor,
 			String username,int expectedState, String messageTemplate, String answerLabel, String resendDesc, boolean onlyNumberCode)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
@@ -154,8 +154,6 @@ public abstract class DynamicCredentialResetDialog extends AbstractDialog
 					msg.getMessage("CredentialReset.codeInvalid"));
 			return;
 		}
-		
-		
 		
 		close();
 

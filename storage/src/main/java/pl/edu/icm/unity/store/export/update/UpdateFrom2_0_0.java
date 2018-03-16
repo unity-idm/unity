@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
@@ -40,6 +42,7 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 public class UpdateFrom2_0_0 implements Update
 
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateFrom2_0_0.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -80,6 +83,7 @@ public class UpdateFrom2_0_0 implements Update
 					.readTree(content.get("configuration").asText());
 		} catch (IOException e)
 		{
+			log.warn("Can't update credential reset settings, skipping it", e);
 			return;
 		}
 

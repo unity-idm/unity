@@ -91,9 +91,9 @@ public class SMSFacility implements NotificationFacility
 		if (isPresent(preferred, mobileAttr, onlyConfirmed))
 			return preferred;
 		
-		String confirmedOnly = getAddressFrom(mobileAttr, true);
-		if (confirmedOnly != null)
-			return confirmedOnly;
+		String confirmedNumber = getAddressFrom(mobileAttr, true);
+		if (confirmedNumber != null)
+			return confirmedNumber;
 		
 		if (!onlyConfirmed)
 		{

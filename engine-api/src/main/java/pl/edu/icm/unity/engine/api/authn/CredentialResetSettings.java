@@ -166,7 +166,7 @@ public class CredentialResetSettings
 		if (confirmationMode.equals(ConfirmationMode.NothingRequire)
 				&& !requireSecurityQuestion)
 			throw new InternalException(
-					"Security question must be defined or another option of cofirmation method must be choose");		
+					"Security question must be defined or another option of confirmation method must be choosen");		
 	}
 
 	public ConfirmationMode getConfirmationMode()
