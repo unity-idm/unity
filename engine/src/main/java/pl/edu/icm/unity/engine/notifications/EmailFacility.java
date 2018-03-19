@@ -134,74 +134,114 @@ public class EmailFacility implements NotificationFacility
 	 * In each case if there are more then one addresses the first in the list is returned.
 	 */
 	@Override
-	public String getAddressForEntity(EntityParam recipient, String preferredAddress)
+	public String getAddressForEntity(EntityParam recipient, String preferredAddress, boolean onlyConfirmed)
 			throws EngineException
 	{
 		List<VerifiableEmail> emailIds = getEmailIdentities(recipient);
 		AttributeExt emailAttr = attributesHelper.getAttributeByMetadata(recipient, "/", 
 				ContactEmailMetadataProvider.NAME);		
 		
-		if (preferredAddress != null && isPresent(preferredAddress, emailIds, emailAttr))
+		if (preferredAddress != null && isPresent(preferredAddress, emailIds, emailAttr, onlyConfirmed))
 			return preferredAddress;
 		
-		String confirmedOnly = getAddressFrom(emailIds, emailAttr, true);
-		if (confirmedOnly != null)
-			return confirmedOnly;
-		
-		String plain = getAddressFrom(emailIds, emailAttr, false);
-		if (plain != null)
-			return plain;
-
-		throw new IllegalIdentityValueException("The entity does not have the email address specified");
+		String confirmedAddress= getAddressFrom(emailIds, emailAttr, true);
+		if (confirmedAddress != null)
+			return confirmedAddress;
+		if (!onlyConfirmed)
+		{
+			String plain = getAddressFrom(emailIds, emailAttr, false);
+			if (plain != null)
+				return plain;
+		}
+		throw new IllegalIdentityValueException("The entity does not have the"
+				+ (onlyConfirmed ? " confirmed" : "") + " email address specified");
 	}
 	
-	private boolean isPresent(String address, List<VerifiableEmail> emailIds, AttributeExt emailAttr)
+	private boolean isPresent(String address, List<VerifiableEmail> emailIds,
+			AttributeExt emailAttr, boolean onlyConfirmed)
 	{
-		for (VerifiableEmail ve: emailIds)
+		for (VerifiableEmail ve : emailIds)
+		{
 			if (ve.getValue().equals(address))
-				return true;
+			{
+				if (onlyConfirmed)
+				{
+					if (ve.isConfirmed())
+						return true;
+				} else
+				{
+					return true;
+				}
+			}
+
+		}
+
 		if (emailAttr != null)
 		{
-			for (String emailO: emailAttr.getValues())
+			for (String emailO : emailAttr.getValues())
 			{
 				if (emailO.equals(address))
-					return true;
+				{
+
+					if (onlyConfirmed)
+					{
+						AttributeValueSyntax<?> syntax = atHelper
+								.getUnconfiguredSyntax(emailAttr
+										.getValueSyntax());
+						if (syntax.isEmailVerifiable())
+						{
+							VerifiableEmail email = (VerifiableEmail) syntax
+									.convertFromString(emailO);
+							if (email.isConfirmed())
+								return true;
+						}
+					} else
+					{
+						return true;
+					}
+
+				}
+
 			}
 		}
 		return false;
 	}
 
 	/**
-	 * Address is established as in {@link #getAddressForEntity(EntityParamSession)} however only the input
-	 * from the registration request is used and the cases with "confirmed" status are skipped.
-	 */ 
+	 * Address is established as in
+	 * {@link #getAddressForEntity(EntityParamSession)} however only the
+	 * input from the registration request is used and the cases with
+	 * "confirmed" status are skipped.
+	 */
 	@Override
-	public String getAddressForUserRequest(UserRequestState<?> currentRequest) throws EngineException
+	public String getAddressForUserRequest(UserRequestState<?> currentRequest)
+			throws EngineException
 	{
 		List<VerifiableEmail> emailIds = getEmailIdentities(currentRequest);
-		Attribute emailAttr = getEmailAttributeFromRequest(currentRequest); 
+		Attribute emailAttr = getEmailAttributeFromRequest(currentRequest);
 
 		return getAddressFrom(emailIds, emailAttr, false);
 	}
-	
-	
-	private String getAddressFrom(List<VerifiableEmail> emailIds, Attribute emailAttr, boolean useConfirmed)
+
+	private String getAddressFrom(List<VerifiableEmail> emailIds, Attribute emailAttr,
+			boolean useConfirmed)
 	{
-		for (VerifiableEmail id: emailIds)
+		for (VerifiableEmail id : emailIds)
 			if (!useConfirmed || id.isConfirmed())
 				return id.getValue();
 
 		if (emailAttr != null)
 		{
-			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(emailAttr.getValueSyntax());
+			AttributeValueSyntax<?> syntax = atHelper
+					.getUnconfiguredSyntax(emailAttr.getValueSyntax());
 			if (!useConfirmed || syntax.isEmailVerifiable())
 			{
-				for (String emailO: emailAttr.getValues())
+				for (String emailO : emailAttr.getValues())
 				{
 					if (syntax.isEmailVerifiable())
 					{
-						VerifiableEmail email = (VerifiableEmail) 
-								syntax.convertFromString(emailO);
+						VerifiableEmail email = (VerifiableEmail) syntax
+								.convertFromString(emailO);
 						if (!useConfirmed || email.isConfirmed())
 							return email.getValue();
 					} else if (!useConfirmed)
@@ -213,7 +253,7 @@ public class EmailFacility implements NotificationFacility
 		}
 		return null;
 	}
-	
+
 	private List<VerifiableEmail> getEmailIdentities(EntityParam recipient) throws EngineException
 	{
 		List<VerifiableEmail> emailIds = new ArrayList<>();

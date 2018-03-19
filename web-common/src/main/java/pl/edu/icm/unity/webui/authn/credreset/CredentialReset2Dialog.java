@@ -12,6 +12,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
+import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -19,7 +20,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
- * 2nd step of credential reset pipeline. In this dialog the user must provide an answet to the security question.
+ * 2nd step of credential reset pipeline. In this dialog the user must provide an answer to the security question.
  * In future other attributes might be queried here.
  * <p>
  * This dialog fails if either username or the answer is wrong. This is done to make guessing usernames 
@@ -115,16 +116,39 @@ public class CredentialReset2Dialog extends AbstractDialog
 		
 		close();
 
-		CredentialResetStateVariable.inc(); //ok - next step allowed
+		CredentialResetStateVariable.inc(); // ok - next step allowed
 		if (backend.getSettings().isRequireEmailConfirmation())
 		{
-			CredentialReset3Dialog dialog3 = new CredentialReset3Dialog(msg, backend, credEditor, username);
-			dialog3.show();
-		} else
-		{
-			//nothing more required, jump to final step 4 
 			CredentialResetStateVariable.inc();
-			CredentialResetFinalDialog dialogFinal = new CredentialResetFinalDialog(msg, backend, credEditor);
+			EmailCodeCredentialReset4Dialog dialog4 = new EmailCodeCredentialReset4Dialog(
+					msg, backend, credEditor, username);
+			dialog4.show();
+		} else if (backend.getSettings().isRequireMobileConfirmation())
+
+		{
+			CredentialResetStateVariable.inc();
+			CredentialResetStateVariable.inc();
+			MobileCodeCredentialReset5Dialog dialog5 = new MobileCodeCredentialReset5Dialog(
+					msg, backend, credEditor, username);
+			dialog5.show();
+
+		} else if (backend.getSettings().getConfirmationMode()
+				.equals(ConfirmationMode.RequireEmailOrMobile))
+
+		{
+			CredentialResetVerificationChoose3Dialog dialog3 = new CredentialResetVerificationChoose3Dialog(
+					msg, backend, credEditor, username);
+			dialog3.show();
+		}
+
+		else
+		{
+			// nothing more required, jump to final step 6
+			CredentialResetStateVariable.inc();
+			CredentialResetStateVariable.inc();
+			CredentialResetStateVariable.inc();
+			CredentialResetFinalDialog dialogFinal = new CredentialResetFinalDialog(msg,
+					backend, credEditor);
 			dialogFinal.show();
 		}
 	}

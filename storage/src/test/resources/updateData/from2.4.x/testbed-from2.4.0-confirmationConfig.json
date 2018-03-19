@@ -2582,7 +2582,24 @@
           "Map" : { }
         }
       }
-    } ],
+    },
+    {
+      "_updateTS" : 1519670848712,
+      "obj" : {
+        "typeId" : "password",
+        "name" : "newCredential",
+        "readOnly" : false,
+        "configuration" : "{\"minLength\":8,\"historySize\":0,\"minClassesNum\":3,\"maxAge\":6220800000000,\"denySequences\":true,\"allowLegacy\":true,\"scryptParams\":{\"workFactor\":14,\"blockSize\":8,\"parallelization\":1,\"length\":64},\"resetSettings\":{\"enable\":true,\"codeLength\":4,\"requireEmailConfirmation\":true,\"requireSecurityQuestion\":true,\"questions\":[\"q1\"],\"securityCodeMsgTemplate\":\"passwordResetCode\"}}",
+        "displayedName" : {
+          "DefaultValue" : "newCredential",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "",
+          "Map" : { }
+        }
+      }
+    }  ],
     "credentialRequirement" : [ {
       "_updateTS" : 1518567207955,
       "obj" : {

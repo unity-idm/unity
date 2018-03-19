@@ -91,13 +91,32 @@ public class CredentialReset1Dialog extends AbstractDialog
 		//in future here we can also go to the 2nd dialog if other attributes are required.
 		if (backend.getSettings().isRequireSecurityQuestion())
 		{
-			CredentialReset2Dialog dialog2 = new CredentialReset2Dialog(msg, backend, credEditor, user);
+			CredentialReset2Dialog dialog2 = new CredentialReset2Dialog(msg, backend,
+					credEditor, user);
 			dialog2.show();
-		} else
+		} else if (backend.getSettings().isRequireEmailConfirmation())
 		{
-			//nothing more required, jump to step 3 
 			CredentialResetStateVariable.inc();
-			CredentialReset3Dialog dialog3 = new CredentialReset3Dialog(msg, backend, credEditor, user);
+			CredentialResetStateVariable.inc();
+			EmailCodeCredentialReset4Dialog dialog4 = new EmailCodeCredentialReset4Dialog(
+					msg, backend, credEditor, user);
+			dialog4.show();
+		} else if (backend.getSettings().isRequireMobileConfirmation())
+
+		{
+			CredentialResetStateVariable.inc();
+			CredentialResetStateVariable.inc();
+			CredentialResetStateVariable.inc();
+			MobileCodeCredentialReset5Dialog dialog5 = new MobileCodeCredentialReset5Dialog(
+					msg, backend, credEditor, user);
+			dialog5.show();
+
+		} else
+
+		{
+			CredentialResetStateVariable.inc();
+			CredentialResetVerificationChoose3Dialog dialog3 = new CredentialResetVerificationChoose3Dialog(
+					msg, backend, credEditor, user);
 			dialog3.show();
 		}
 	}

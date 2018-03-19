@@ -31,7 +31,7 @@ public interface NotificationFacility extends DescribedObject
 	 * @return never null, in case no address is found then exception is thrown
 	 * @throws EngineException
 	 */
-	String getAddressForEntity(EntityParam recipient, String preferred) throws EngineException;
+	String getAddressForEntity(EntityParam recipient, String preferred, boolean onlyConfirmed) throws EngineException;
 	
 	/**
 	 * Returns an address of the person who filled registration form.

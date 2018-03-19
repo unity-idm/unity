@@ -13,6 +13,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.Update;
+import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
@@ -38,6 +42,7 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 public class UpdateFrom2_0_0 implements Update
 
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateFrom2_0_0.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -51,12 +56,61 @@ public class UpdateFrom2_0_0 implements Update
 		updateInvitationWithCode(contents);
 		updateNotificationChannels(contents);
 		updateMessageTemplates(contents);
+		updateCredentialsDefinition(contents);
 		
 		moveConfirmationConfiguration(contents);
 
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
+	private void updateCredentialsDefinition(ObjectNode contents)
+	{
+		for (ObjectNode objContent : getGenericContent(contents,
+				CredentialHandler.CREDENTIAL_OBJECT_TYPE))
+		{
+			if (objContent.get("typeId").asText().equals("password"))
+				updateResetSettings(objContent);
+		}	
+		
+	}
+	
+	private void updateResetSettings(ObjectNode content)
+	{
+		ObjectNode configurationNode = null;
+		try
+		{
+			configurationNode = (ObjectNode) Constants.MAPPER
+					.readTree(content.get("configuration").asText());
+		} catch (IOException e)
+		{
+			log.warn("Can't update credential reset settings, skipping it", e);
+			return;
+		}
+
+		if (configurationNode.get("resetSettings") != null)
+		{
+
+			ObjectNode reset = (ObjectNode) configurationNode.get("resetSettings");
+			boolean reqEmail = reset.get("requireEmailConfirmation").asBoolean();
+			reset.remove("requireEmailConfirmation");
+			if (reqEmail)
+			{
+				reset.put("confirmationMode", "RequireEmail");
+				if (reset.get("securityCodeMsgTemplate") != null)
+				{
+					reset.put("emailSecurityCodeMsgTemplate", reset
+							.get("securityCodeMsgTemplate").asText());
+					reset.remove("securityCodeMsgTemplate");
+				}
+			} else
+			{
+				reset.put("confirmationMode", "NothingRequire");
+			}
+			configurationNode.set("resetSettings", reset);
+			content.put("configuration", configurationNode.toString());
+		}
+	}
+	
 	private void updateNotificationChannels(ObjectNode contents)
 	{
 		for (ObjectNode objContent : getGenericContent(contents,
@@ -170,6 +224,12 @@ public class UpdateFrom2_0_0 implements Update
 			{
 				objContent.put("consumer", "EmailConfirmation");
 			}
+			
+			if (objContent.get("consumer").asText().equals("PasswordResetCode"))
+			{
+				objContent.put("consumer", "EmailPasswordResetCode");
+			}
+			
 			if (!objContent.get("consumer").asText().equals("Generic"))
 				objContent.put("notificationChannel", "default_email");
 		}

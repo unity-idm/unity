@@ -20,17 +20,17 @@ public class CodeGenerator
 	private static final char[] LETTER_CHARS_POOL = {'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
 			'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L',
 			'Z', 'X', 'C', 'V', 'B', 'N', 'M'};
-
 	private static final char[] NUMBER_CHARS_POOL = { '1', '2', '3', '4', '5', '6', '7', '8',
 			'9', '0' };
+	private static final char[] MIXED_CHARS_POOL = Chars.concat(LETTER_CHARS_POOL, NUMBER_CHARS_POOL);
 	
 	private static final Random rnd = new SecureRandom();
 
 	public static String generateMixedCharCode(int codeLength)
 	{
-		return generateCode(codeLength, Chars.concat(LETTER_CHARS_POOL, NUMBER_CHARS_POOL));
+		return generateCode(codeLength, MIXED_CHARS_POOL);
 	}
-	
+
 	public static String generateNumberCode(int codeLength)
 	{
 		return generateCode(codeLength, NUMBER_CHARS_POOL);	

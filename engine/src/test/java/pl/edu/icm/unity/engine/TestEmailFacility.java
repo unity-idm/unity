@@ -67,7 +67,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	private void check(EntityParam entity, String expected) throws Exception
 	{
 		tx.runInTransactionThrowing(() -> {
-			assertEquals(expected, emailFacility.getAddressForEntity(entity, null));
+			assertEquals(expected, emailFacility.getAddressForEntity(entity, null, false));
 		}); 
 	}
 	
@@ -93,11 +93,11 @@ public class TestEmailFacility extends DBIntegrationTestBase
 		
 		tx.runInTransactionThrowing(() -> {
 			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
-					entityP, "email2@ex.com"));
+					entityP, "email2@ex.com", false));
 			assertEquals("email1@ex.com", emailFacility.getAddressForEntity(
-					entityP, "email1@ex.com"));
+					entityP, "email1@ex.com", false));
 			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
-					entityP, "emailNNN@ex.com"));
+					entityP, "emailNNN@ex.com", false));
 		});
 	}
 	
