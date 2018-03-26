@@ -37,7 +37,7 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 				new ActionParameterDefinition(
 						"status",
 						"EntityAction.changeStatus.paramDesc.status",
-						EntityStateLimited.class)
+						EntityStateLimited.class, true)
 		});
 		this.idsMan = idsMan;
 	}
@@ -81,8 +81,6 @@ public class ChangeStatusActionFactory extends AbstractEntityActionFactory
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			state = EntityState.valueOf(parameters[0]);
 		}
 	}

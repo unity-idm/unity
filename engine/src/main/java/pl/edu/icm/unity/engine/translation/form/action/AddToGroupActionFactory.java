@@ -36,7 +36,7 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("group", 
 						"RegTranslationAction.addToGroup.paramDesc.group", 
-						Type.EXPRESSION),
+						Type.EXPRESSION, true),
 		});
 	}
 
@@ -87,8 +87,6 @@ public class AddToGroupActionFactory extends AbstractRegistrationTranslationActi
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			expression = MVEL.compileExpression(parameters[0]);
 		}
 	}

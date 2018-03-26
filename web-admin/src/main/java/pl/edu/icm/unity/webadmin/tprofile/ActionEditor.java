@@ -142,8 +142,7 @@ public class ActionEditor extends LayoutEmbeddable
 				errors = true;
 			} else
 			{
-				if (tc.getActionValue() != null && !tc.getActionValue().isEmpty())
-					params.add(tc.getActionValue());
+				params.add(tc.getActionValue());
 			}
 
 		}

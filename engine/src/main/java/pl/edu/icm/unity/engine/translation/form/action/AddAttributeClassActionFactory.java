@@ -35,10 +35,10 @@ public class AddAttributeClassActionFactory extends AbstractRegistrationTranslat
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("group", 
 						"RegTranslationAction.addAttributeClass.paramDesc.group", 
-						Type.UNITY_GROUP),
+						Type.UNITY_GROUP, true),
 				new ActionParameterDefinition("attribute class", 
 						"RegTranslationAction.addAttributeClass.paramDesc.ac", 
-						Type.EXPRESSION)
+						Type.EXPRESSION, true)
 		});
 	}
 
@@ -88,8 +88,6 @@ public class AddAttributeClassActionFactory extends AbstractRegistrationTranslat
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			group = parameters[0];
 			expression = MVEL.compileExpression(parameters[1]);
 		}

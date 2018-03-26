@@ -32,10 +32,10 @@ public class SubmitMessageActionFactory extends AbstractRegistrationTranslationA
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("caption", 
 						"RegTranslationAction.submissionMessage.paramDesc.caption",
-						Type.I18N_TEXT),
+						Type.I18N_TEXT, true),
 				new ActionParameterDefinition("message", 
 						"RegTranslationAction.submissionMessage.paramDesc.message",
-						Type.I18N_TEXT)
+						Type.I18N_TEXT, true)
 		});
 	}
 
@@ -65,8 +65,6 @@ public class SubmitMessageActionFactory extends AbstractRegistrationTranslationA
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			try
 			{
 				caption = Constants.MAPPER.readValue(parameters[0], I18nString.class);

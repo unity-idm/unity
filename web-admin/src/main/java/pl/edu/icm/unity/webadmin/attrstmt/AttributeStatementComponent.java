@@ -168,7 +168,7 @@ public class AttributeStatementComponent extends CustomComponent
 				.asRequired(msg.getMessage("fieldRequired"))
 				.withNullRepresentation(extraAttributesGroupCombo.getValue())
 				.bind("extraAttributesGroup");
-		condition.configureBinding(binder, "condition");
+		condition.configureBinding(binder, "condition", true);
 		binder.forField(fixedAttribute).asRequired(msg.getMessage("fieldRequired"))
 				.bind("fixedAttribute");
 		Map<String, AttributeType> typesMap = attributeTypes.stream()
@@ -177,7 +177,7 @@ public class AttributeStatementComponent extends CustomComponent
 				.withConverter(d -> d.getName(), d -> typesMap.get(d))
 				.asRequired(msg.getMessage("fieldRequired"))
 				.bind("dynamicAttributeType");
-		dynamicAttributeValue.configureBinding(binder,"dynamicAttributeExpression");	
+		dynamicAttributeValue.configureBinding(binder,"dynamicAttributeExpression", true);	
 		binder.forField(conflictResolution).asRequired(msg.getMessage("fieldRequired"))
 				.bind("conflictResolution");
 

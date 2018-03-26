@@ -48,15 +48,15 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 				new ActionParameterDefinition(
 						"attributeName",
 						"RegTranslationAction.addAttribute.paramDesc.attributeName",
-						Type.UNITY_ATTRIBUTE),
+						Type.UNITY_ATTRIBUTE, true),
 				new ActionParameterDefinition(
 						"group",
 						"RegTranslationAction.addAttribute.paramDesc.group",
-						Type.UNITY_GROUP),
+						Type.UNITY_GROUP, true),
 				new ActionParameterDefinition(
 						"expression",
 						"RegTranslationAction.addAttribute.paramDesc.expression",
-						Type.EXPRESSION)
+						Type.EXPRESSION, true)
 		});
 		this.attrsSupport = attrsSupport;
 		this.attrValueConverter = attrValueConverter;
@@ -134,8 +134,6 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 3)
-				throw new IllegalArgumentException("Action requires exactly 3 parameters");
 			unityAttribute = parameters[0];
 			group = parameters[1];
 			expressionCompiled = MVEL.compileExpression(parameters[2]);

@@ -24,7 +24,14 @@ public class TextAreaActionParameterComponent extends TextArea implements Action
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		setWidth(70, Unit.PERCENTAGE);
 		binder = new Binder<>(StringValueBean.class);
-		binder.forField(this).bind("value");
+		if (desc.isMandatory())
+		{
+			binder.forField(this).asRequired(msg.getMessage("fieldRequired")).bind("value");
+
+		} else
+		{
+			binder.forField(this).bind("value");
+		}
 		binder.setBean(new StringValueBean());		
 	}
 	

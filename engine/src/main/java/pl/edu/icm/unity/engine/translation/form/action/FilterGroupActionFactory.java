@@ -35,7 +35,7 @@ public class FilterGroupActionFactory extends AbstractRegistrationTranslationAct
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("group", 
 						"RegTranslationAction.regFilterGroup.paramDesc.group",
-						Type.EXPRESSION)
+						Type.EXPRESSION, true)
 		});
 	}
 
@@ -72,8 +72,6 @@ public class FilterGroupActionFactory extends AbstractRegistrationTranslationAct
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			groupPattern = Pattern.compile(parameters[0]);
 		}
 	}

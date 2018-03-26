@@ -35,10 +35,10 @@ public class FilterIdentityActionFactory extends AbstractRegistrationTranslation
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("identity", 
 						"RegTranslationAction.regFilterIdentity.paramDesc.identity",
-						Type.EXPRESSION),
+						Type.EXPRESSION, true),
 				new ActionParameterDefinition("type", 
 						"RegTranslationAction.regFilterIdentity.paramDesc.identityType",
-						Type.UNITY_ID_TYPE)
+						Type.UNITY_ID_TYPE, true)
 		});
 	}
 
@@ -76,8 +76,6 @@ public class FilterIdentityActionFactory extends AbstractRegistrationTranslation
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 2)
-				throw new IllegalArgumentException("Action requires exactly 2 parameters");
 			identityPattern = Pattern.compile(parameters[0]);
 			type = parameters[1];
 		}

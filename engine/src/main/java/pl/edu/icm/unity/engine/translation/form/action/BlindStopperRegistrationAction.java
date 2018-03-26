@@ -22,7 +22,7 @@ public class BlindStopperRegistrationAction extends RegistrationTranslationActio
 	
 	public BlindStopperRegistrationAction(TranslationActionType description, String[] params)
 	{
-		super(description, params);
+		super(description, params, false);
 	}
 
 	@Override

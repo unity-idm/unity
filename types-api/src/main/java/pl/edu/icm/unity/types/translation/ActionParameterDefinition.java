@@ -19,22 +19,24 @@ public class ActionParameterDefinition
 	private String name;
 	private String descriptionKey;
 	private Type type;
+	private boolean mandatory;
 	private Class<? extends Enum<?>> enumClass;
 	
-	
-	public ActionParameterDefinition(String name, String descriptionKey, Type type)
+	public ActionParameterDefinition(String name, String descriptionKey, Type type, boolean mandatory)
 	{
 		this.name = name;
 		this.descriptionKey = descriptionKey;
 		this.type = type;
+		this.mandatory = mandatory;
 	}
 
-	public ActionParameterDefinition(String name, String descriptionKey, Class<? extends Enum<?>> enumClass)
+	public ActionParameterDefinition(String name, String descriptionKey, Class<? extends Enum<?>> enumClass, boolean mandatory)
 	{
 		this.name = name;
 		this.descriptionKey = descriptionKey;
 		this.type = Type.ENUM;
 		this.enumClass = enumClass;
+		this.mandatory = mandatory;
 	}
 
 	public String getName()
@@ -57,4 +59,14 @@ public class ActionParameterDefinition
 		return enumClass;
 	}
 	
+	public boolean isMandatory()
+	{
+		return mandatory;
+	}
+
+
+	public void setMandatory(boolean mandatory)
+	{
+		this.mandatory = mandatory;
+	}	
 }

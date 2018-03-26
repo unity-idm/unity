@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine.api.translation;
 
+import java.util.stream.Stream;
+
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
 
@@ -18,8 +21,15 @@ public abstract class TranslationActionInstance extends TranslationAction
 	
 	public TranslationActionInstance(TranslationActionType actionType, String[] parameters)
 	{
+		this(actionType, parameters, true);
+	}
+	
+	public TranslationActionInstance(TranslationActionType actionType, String[] parameters, boolean checkParams)
+	{
 		super(actionType.getName(), parameters);
 		this.actionType = actionType;
+		if (checkParams)
+			checkParams();
 	}
 
 	public TranslationActionType getActionType()
@@ -34,6 +44,53 @@ public abstract class TranslationActionInstance extends TranslationAction
 		int result = super.hashCode();
 		result = prime * result + ((actionType == null) ? 0 : actionType.hashCode());
 		return result;
+	}
+
+	protected void checkParams()
+	{
+		ActionParameterDefinition[] paramDef = getActionType().getParameters();
+		String[] paramVal = getParameters();
+		int mandatorySize = Long
+				.valueOf(Stream.of(paramDef).filter(d -> d.isMandatory()).count())
+				.intValue();
+		int defSize = paramDef.length;
+		int valSize = paramVal.length;
+
+		if (valSize < mandatorySize)
+		{
+			if (mandatorySize < defSize)
+			{
+				throw new IllegalArgumentException(
+
+						"Action require min " + defSize + " parameters");
+			} else
+			{
+				throw new IllegalArgumentException(
+						"Action require exacly " + defSize + " parameters");
+			}
+		}
+
+		if (valSize > defSize)
+		{
+			if (defSize == 0)
+			{
+				throw new IllegalArgumentException(
+						"Action require max " + defSize + " parameters");
+			} else
+			{
+				throw new IllegalArgumentException("Action requires no parameters");
+			}
+
+		}
+		
+		for (int i = 0; i < defSize; i++)
+		{
+			if (paramDef[i].isMandatory() && (i >= valSize  || paramVal[i] == null || paramVal[i].isEmpty()))
+			{
+				throw new IllegalArgumentException("Action requires "
+						+ paramDef[i].getName() + " parameter");
+			}
+		}
 	}
 
 	@Override

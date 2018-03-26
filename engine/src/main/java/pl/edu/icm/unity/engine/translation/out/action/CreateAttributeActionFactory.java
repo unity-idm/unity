@@ -42,23 +42,23 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 		super(NAME, new ActionParameterDefinition(
 				"attributeName",
 				"TranslationAction.createAttribute.paramDesc.attributeName",
-				Type.TEXT),
+				Type.TEXT, true),
 		new ActionParameterDefinition(
 				"expression",
 				"TranslationAction.createAttribute.paramDesc.expression",
-				Type.EXPRESSION),
+				Type.EXPRESSION, true),
 		new ActionParameterDefinition(
 				"mandatory",
 				"TranslationAction.createAttribute.paramDesc.mandatory",
-				Type.BOOLEAN),
+				Type.BOOLEAN, true),
 		new ActionParameterDefinition(
 				"attributeDisplayName",
 				"TranslationAction.createAttribute.paramDesc.attributeDisplayName",
-				Type.TEXT),
+				Type.TEXT, false),
 		new ActionParameterDefinition(
 				"attributeDescription",
 				"TranslationAction.createAttribute.paramDesc.attributeDescription",
-				Type.TEXT));
+				Type.TEXT, false));
 		
 	}
 	
@@ -118,27 +118,23 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 			Attribute newAttr = new Attribute(attrNameString, StringAttributeSyntax.ID,
 					"/", sValues);
 			DynamicAttribute dynamicAttribute = new DynamicAttribute(newAttr,
-					new AttributeType(StringAttributeSyntax.ID,
+					new AttributeType(attrNameString,
 							StringAttributeSyntax.ID),
 					attrDisplayname, attrDescription, attrMandatory);
 			result.getAttributes().add(dynamicAttribute);
 			log.debug("Created a new attribute: " + dynamicAttribute);
+		
 		}
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length < 3)
-				throw new IllegalArgumentException("Action requires min 3 parameters");
-			
 			attrNameString = parameters[0];
 			valuesExpression = MVEL.compileExpression(parameters[1]);
 			attrMandatory = Boolean.valueOf(parameters[2]);
 			if (parameters.length > 3)
 				attrDisplayname = parameters[3];
 			if (parameters.length > 4) 
-				attrDescription = parameters[4];
-			
+				attrDescription = parameters[4];				
 		}
-
 	}
 }

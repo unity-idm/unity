@@ -33,7 +33,7 @@ public class SetEntityStateActionFactory extends AbstractRegistrationTranslation
 				new ActionParameterDefinition(
 						"state",
 						"RegTranslationAction.setState.paramDesc.state",
-						EntityStateLimited.class)
+						EntityStateLimited.class, true)
 		});
 	}
 
@@ -62,8 +62,6 @@ public class SetEntityStateActionFactory extends AbstractRegistrationTranslation
 		
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			state = EntityState.valueOf(parameters[0]);
 		}
 	}

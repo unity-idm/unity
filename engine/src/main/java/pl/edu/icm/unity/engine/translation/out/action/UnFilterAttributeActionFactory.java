@@ -35,7 +35,7 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 		super(NAME, new ActionParameterDefinition(
 				"attribute",
 				"TranslationAction.unfilterAttribute.paramDesc.attributeRegexp",
-				Type.EXPRESSION));
+				Type.EXPRESSION, true));
 	}
 	
 	@Override
@@ -76,8 +76,6 @@ public class UnFilterAttributeActionFactory extends AbstractOutputTranslationAct
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			attrPattern = Pattern.compile(parameters[0]);
 		}
 	}

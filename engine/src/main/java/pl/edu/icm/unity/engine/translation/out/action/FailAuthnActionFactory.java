@@ -32,7 +32,7 @@ public class FailAuthnActionFactory extends AbstractOutputTranslationActionFacto
 		super(NAME, new ActionParameterDefinition(
 				"message",
 				"TranslationAction.failAuthentication.paramDesc.message",
-				Type.LARGE_TEXT));
+				Type.LARGE_TEXT, true));
 	}
 	
 	@Override
@@ -62,8 +62,6 @@ public class FailAuthnActionFactory extends AbstractOutputTranslationActionFacto
 
 		private void setParameters(String[] parameters)
 		{
-			if (parameters.length != 1)
-				throw new IllegalArgumentException("Action requires exactly 1 parameter");
 			error = parameters[0];
 		}
 	}

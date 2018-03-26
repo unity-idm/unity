@@ -25,8 +25,8 @@ public class BooleanActionParameterComponent extends CheckBox implements ActionP
 		super(desc.getName());
 		setDescription(msg.getMessage(desc.getDescriptionKey()));
 		binder = new Binder<>(StringValueBean.class);
-		binder.forField(this).withConverter(v -> String.valueOf(v), v -> Boolean.valueOf(v))
-				.bind("value");
+		binder.forField(this).withConverter(v -> String.valueOf(v),
+					v -> Boolean.valueOf(v)).bind("value");
 		binder.setBean(new StringValueBean(String.valueOf(false)));
 	}
 	

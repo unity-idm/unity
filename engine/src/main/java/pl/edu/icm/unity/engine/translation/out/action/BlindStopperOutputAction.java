@@ -23,7 +23,7 @@ public class BlindStopperOutputAction extends OutputTranslationAction
 	
 	public BlindStopperOutputAction(TranslationActionType description, String[] params)
 	{
-		super(description, params);
+		super(description, params, false);
 	}
 
 	@Override
