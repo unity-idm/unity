@@ -21,15 +21,9 @@ public abstract class TranslationActionInstance extends TranslationAction
 	
 	public TranslationActionInstance(TranslationActionType actionType, String[] parameters)
 	{
-		this(actionType, parameters, true);
-	}
-	
-	public TranslationActionInstance(TranslationActionType actionType, String[] parameters, boolean checkParams)
-	{
 		super(actionType.getName(), parameters);
 		this.actionType = actionType;
-		if (checkParams)
-			checkParams();
+		checkParams();
 	}
 
 	public TranslationActionType getActionType()
@@ -49,7 +43,12 @@ public abstract class TranslationActionInstance extends TranslationAction
 	protected void checkParams()
 	{
 		ActionParameterDefinition[] paramDef = getActionType().getParameters();
+		if (paramDef == null)
+			paramDef = new ActionParameterDefinition[0];
 		String[] paramVal = getParameters();
+		if (paramVal == null)
+			paramVal = new String[0];
+		
 		int mandatorySize = Long
 				.valueOf(Stream.of(paramDef).filter(d -> d.isMandatory()).count())
 				.intValue();
@@ -74,11 +73,12 @@ public abstract class TranslationActionInstance extends TranslationAction
 		{
 			if (defSize == 0)
 			{
-				throw new IllegalArgumentException(
-						"Action require max " + defSize + " parameters");
+				throw new IllegalArgumentException("Action requires no parameters");
+				
 			} else
 			{
-				throw new IllegalArgumentException("Action requires no parameters");
+				throw new IllegalArgumentException(
+						"Action require max " + defSize + " parameters");
 			}
 
 		}

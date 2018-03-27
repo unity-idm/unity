@@ -10,6 +10,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
@@ -20,9 +21,12 @@ public class BlindStopperRegistrationAction extends RegistrationTranslationActio
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BlindStopperRegistrationAction.class);
 	
-	public BlindStopperRegistrationAction(TranslationActionType description, String[] params)
+	public BlindStopperRegistrationAction(TranslationActionType sourceActionDescription, String[] sourceActionParams)
 	{
-		super(description, params, false);
+		super(new TranslationActionType(sourceActionDescription.getSupportedProfileType(),
+				sourceActionDescription.getDescriptionKey(),
+				sourceActionDescription.getName(),
+				new ActionParameterDefinition[0]), new String[0]);
 	}
 
 	@Override

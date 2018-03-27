@@ -11,6 +11,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
@@ -21,9 +22,12 @@ public class BlindStopperOutputAction extends OutputTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BlindStopperOutputAction.class);
 	
-	public BlindStopperOutputAction(TranslationActionType description, String[] params)
+	public BlindStopperOutputAction(TranslationActionType sourceActionDescription, String[] sourceActionParams)
 	{
-		super(description, params, false);
+		super(new TranslationActionType(sourceActionDescription.getSupportedProfileType(),
+				sourceActionDescription.getDescriptionKey(),
+				sourceActionDescription.getName(),
+				new ActionParameterDefinition[0]), new String[0]);
 	}
 
 	@Override

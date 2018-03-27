@@ -19,13 +19,7 @@ public abstract class OutputTranslationAction extends TranslationActionInstance
 {
 	public OutputTranslationAction(TranslationActionType actionType, String[] parameters)
 	{
-		this(actionType, parameters, true);
-	}
-
-	public OutputTranslationAction(TranslationActionType actionType, String[] parameters,
-			boolean checkParams)
-	{
-		super(actionType, parameters, checkParams);
+		super(actionType, parameters);
 	}
 	
 	public void invoke(TranslationInput input, Object mvelCtx, String currentProfile,

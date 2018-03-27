@@ -9,6 +9,7 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
@@ -19,9 +20,12 @@ public class BlindStopperEntityAction extends EntityAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BlindStopperEntityAction.class);
 	
-	public BlindStopperEntityAction(TranslationActionType actionType, String[] parameters)
+	public BlindStopperEntityAction(TranslationActionType sourceActionDescription, String[] sourceActionParams)
 	{
-		super(actionType, parameters, false);
+		super(new TranslationActionType(sourceActionDescription.getSupportedProfileType(),
+				sourceActionDescription.getDescriptionKey(),
+				sourceActionDescription.getName(),
+				new ActionParameterDefinition[0]), new String[0]);
 	}
 
 	@Override
