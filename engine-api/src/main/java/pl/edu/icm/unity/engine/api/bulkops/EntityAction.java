@@ -16,13 +16,7 @@ public abstract class EntityAction extends TranslationActionInstance
 {
 	public EntityAction(TranslationActionType actionType, String[] parameters)
 	{
-		this(actionType, parameters, true);
-	}
-
-	public EntityAction(TranslationActionType actionType, String[] parameters,
-			boolean checkParams)
-	{
-		super(actionType, parameters, checkParams);
+		super(actionType, parameters);
 	}
 	
 	/**

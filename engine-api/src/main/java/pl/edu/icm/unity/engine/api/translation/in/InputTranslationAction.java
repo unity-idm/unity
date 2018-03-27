@@ -25,13 +25,7 @@ public abstract class InputTranslationAction extends TranslationActionInstance
 	
 	public InputTranslationAction(TranslationActionType actionType, String[] parameters)
 	{
-		this(actionType, parameters, true);
-	}
-
-	public InputTranslationAction(TranslationActionType actionType, String[] parameters,
-			boolean checkParams)
-	{
-		super(actionType, parameters, checkParams);
+		super(actionType, parameters);
 	}
 
 	/**

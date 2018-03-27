@@ -11,6 +11,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
 
 /**
@@ -21,9 +22,12 @@ public class BlindStopperInputAction extends InputTranslationAction
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, BlindStopperInputAction.class);
 	
-	public BlindStopperInputAction(TranslationActionType description, String[] params)
+	public BlindStopperInputAction(TranslationActionType sourceActionDescription, String[] sourceActionParams)
 	{
-		super(description, params, false);
+		super(new TranslationActionType(sourceActionDescription.getSupportedProfileType(),
+				sourceActionDescription.getDescriptionKey(),
+				sourceActionDescription.getName(),
+				new ActionParameterDefinition[0]), new String[0]);
 	}
 
 	@Override
