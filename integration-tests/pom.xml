@@ -25,7 +25,7 @@
 			<groupId>org.seleniumhq.selenium</groupId>
 			<artifactId>selenium-java</artifactId>
 			<version>${selenium.version}</version>
-			<scope>test</scope>
+			<scope>test</scope>		 
 		</dependency>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
@@ -97,6 +97,12 @@
 			<artifactId>unity-server-saml</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
+		 <exclusions>
+		  <exclusion>
+		   <groupId>xml-apis</groupId>
+		   <artifactId>xml-apis</artifactId>
+		  </exclusion>
+		 </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
@@ -109,6 +115,12 @@
 			<artifactId>unity-server-ldap</artifactId>
 			<version>${project.version}</version>
 			<scope>test</scope>
+		 <exclusions>
+		  <exclusion>
+		   <groupId>xml-apis</groupId>
+		   <artifactId>xml-apis</artifactId>
+		  </exclusion>
+		 </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>

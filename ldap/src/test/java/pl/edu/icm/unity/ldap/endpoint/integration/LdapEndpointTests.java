@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.ldap;
+package pl.edu.icm.unity.ldap.endpoint.integration;
 
 import com.unboundid.ldap.sdk.*;
 import org.junit.Before;
@@ -38,6 +38,7 @@ import java.io.StringReader;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import pl.edu.icm.unity.ldap.endpoint.LdapEndpointFactory;
 
 import static org.junit.Assert.*;
 

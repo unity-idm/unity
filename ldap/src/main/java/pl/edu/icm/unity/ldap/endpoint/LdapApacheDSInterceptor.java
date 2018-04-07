@@ -4,22 +4,17 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.directory.api.ldap.model.cursor.ListCursor;
 
-import javax.imageio.ImageIO;
 
 import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
-import org.apache.directory.api.ldap.model.entry.Attribute;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
@@ -27,7 +22,6 @@ import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
 import org.apache.directory.api.ldap.model.filter.AndNode;
-import org.apache.directory.api.ldap.model.filter.BranchNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
@@ -72,7 +66,6 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * This is the integration part between ApacheDS and Unity.
@@ -109,6 +102,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
     private final IdentitiesManagement identitiesMan;
 
     private final LdapServerProperties configuration;
+    
+    private final LdapAttributeUtils attributeUtils;
 
     /**
      * Creates a new instance of DefaultAuthorizationInterceptor.
@@ -134,6 +129,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         this.attributesMan = attributesMan;
         this.identitiesMan = identitiesMan;
         this.configuration = configuration;
+        this.attributeUtils = new LdapAttributeUtils(lsf, identitiesMan, configuration);
     }
 
     public void setLdapServerFacade(LdapServerFacade lsf)
@@ -241,9 +237,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
             }
             entries.add(getUnityUserEntry(searchContext, username));
         } else {
-            String username = LdapNodeUtils.parseGroupOfNamesSearch(
-                schemaManager, configuration, node
-            );
+            String username = 
+                LdapNodeUtils.parseGroupOfNamesSearch(dnFactory, configuration, node);
             if (null != username) {
                 long userEntityId;
                 try {
@@ -386,7 +381,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         setUnityInvocationContext(session.getSession());
         try
         {
-
             AttributeType at = compareContext.getAttributeType();
             if (null == at) {
                 log.warn("compare got invalid AttributeType");
@@ -519,103 +513,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         return new EntryFilteringCursorImpl(new EmptyCursor<>(), searchContext, lsf
                 .getDs().getSchemaManager());
     }
-
-    /**
-     * Add user attributes to LDAP answer
-     *
-     * TODO: this should be configurable
-     * KB: and part should clearly be in a separated class with generic value type -> LDAP representation handling.
-     */
-    private void addAttribute(String name, Entity userEntity, String username, Collection<AttributeExt<?>> attrs,
-            Entry toEntry) throws LdapException, EngineException
-    {
-        final String MEMBER_OF_AT = "memberof";
-        final String MEMBER_OF_AT_OID = "2.16.840.1.113894.1.1.424";
-            
-        Attribute da = null;
-        switch (name)
-        {
-        case SchemaConstants.USER_PASSWORD_AT:
-            da = lsf.getAttribute(SchemaConstants.USER_PASSWORD_AT,
-                    SchemaConstants.USER_PASSWORD_AT_OID);
-            da.add("not disclosing");
-            break;
-        case SchemaConstants.CN_AT:
-            da = lsf.getAttribute(SchemaConstants.CN_AT, SchemaConstants.CN_AT_OID);
-            da.add(username);
-            break;
-        case SchemaConstants.MAIL_AT:
-            da = mapUnityIdentityToLdapAttribute(userEntity, "email", SchemaConstants.MAIL_AT, SchemaConstants.MAIL_AT_OID);
-            //TODO: Also support mail attribute in addition to email identity?
-            break;
-        case SchemaConstants.EMAIL_AT:
-            da = mapUnityIdentityToLdapAttribute(userEntity, "email", SchemaConstants.EMAIL_AT, SchemaConstants.EMAIL_AT_OID);
-            //TODO: Also support email attribute in addition to email identity?
-            break;    
-        case SchemaConstants.DISPLAY_NAME_AT:
-            da = mapUnityAttributeToLdapAttribute(attrs, "fullName", SchemaConstants.DISPLAY_NAME_AT, SchemaConstants.DISPLAY_NAME_AT_OID);
-            break;
-        case MEMBER_OF_AT:
-            Map<String, GroupMembership> grps = identitiesMan.getGroups(new EntityParam(userEntity.getId()));
-            //Abuse title attribute for now
-            da = lsf.getAttribute(MEMBER_OF_AT, MEMBER_OF_AT_OID);
-            for (Map.Entry<String, GroupMembership> agroup : grps.entrySet()) {
-                    String group = agroup.getValue().getGroup();
-                    String[] groupParts = group.split("/");
-                    String values = "";
-                    for(int i = groupParts.length-1; i >= 0; i--) {
-                        String g = groupParts[i];
-                        if(!g.isEmpty()) {
-                            values += "cn="+g+",";
-                        }
-                    }
-                    //Remove trailing comma
-                    if(values.endsWith(",")) {
-                        values = values.substring(0, values.length()-1);
-                    }
-                    //Add value to attribute
-                    if(!values.isEmpty()) {
-                        da.add(values);
-                    }
-            }
-            break;            
-        default:
-            for (AttributeExt<?> ae : attrs)
-            {
-                if (ae.getName().equals(name))
-                {
-                    da = lsf.getAttribute(name, null);
-
-                    Object o = ae.getValues().get(0);
-                    if (o instanceof BufferedImage)
-                    {
-                        try
-                        {
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                            ImageIO.write((BufferedImage) o, "jpg",	baos);
-                            baos.flush();
-                            byte[] imageInByte = baos.toByteArray();
-                            da.add(imageInByte);
-                            baos.close();
-                        } catch (IOException e)
-                        {
-                            throw new LdapOtherException(
-                                    "Can not serialize image to byte array", e);
-                        }
-                    } else
-                    {
-                        da.add(o.toString());
-                    }
-                }
-            }
-            break;
-        }
-
-        if (null != da)
-        {
-            toEntry.add(da);
-        }
-    }
     
      /**
      * Get Unity user from LDAP search context.
@@ -626,13 +523,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         Entry entry = new DefaultEntry(lsf.getDs().getSchemaManager());
         try
         {
-            long userEntityId = userMapper.resolveUser(username, realm.getName());
-            
-            Entity userEntity = identitiesMan.getEntity(new EntityParam(userEntityId));
-            for(Identity identity : userEntity.getIdentities()) {
-                identity.getType();
-            }
-            
+            long userEntityId = userMapper.resolveUser(username, realm.getName());            
+            Entity userEntity = identitiesMan.getEntity(new EntityParam(userEntityId));            
             
             // get attributes if any
             Collection<AttributeExt<?>> attrs = attributesMan.getAttributes(
@@ -678,7 +570,9 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
                         }
                         entry.setDn(requestDn);
                     } else {
-                        addAttribute(aName, userEntity, username, attrs, entry);
+                        attributeUtils.
+                            addAttribute(aName, userEntity, username, attrs, entry);
+                        
                     }
                 }
             }
@@ -708,73 +602,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
     private EntryFilteringCursor getUnityUser(SearchOperationContext searchContext, String username)
             throws LdapException
     {
-        //Entry entry = new DefaultEntry(lsf.getDs().getSchemaManager());
         try
         {
-            /*
-            long userEntityId = userMapper.resolveUser(username, realm.getName());
-            
-            Entity userEntity = identitiesMan.getEntity(new EntityParam(userEntityId));
-            for(Identity identity : userEntity.getIdentities()) {
-                identity.getType();
-            }
-            
-            
-            // get attributes if any
-            Collection<AttributeExt<?>> attrs = attributesMan.getAttributes(
-                new EntityParam(userEntityId), null, null
-            );
-
-            Set<AttributeTypeOptions> attributes = new HashSet<AttributeTypeOptions>();
-            if (null != searchContext.getReturningAttributes())
-            {
-                attributes.addAll(searchContext.getReturningAttributes());
-            } else
-            {
-                String default_attributes = configuration.getValue(
-                    LdapServerProperties.RETURNED_USER_ATTRIBUTES
-                );
-                for (String at : default_attributes.split(","))
-                {
-                    attributes.add(
-                        new AttributeTypeOptions(
-                            schemaManager.lookupAttributeTypeRegistry(at.trim())
-                        )
-                    );
-                }
-            }
-
-            // iterate through requested attributes and try to match them with
-            // identity attributes
-            String[] aliases = configuration.getValue(
-                LdapServerProperties.USER_NAME_ALIASES
-            ).split(",");
-            for (String alias : aliases)
-            {
-                for (AttributeTypeOptions ao : attributes)
-                {
-                    String aName = ao.getAttributeType().getName();
-                    if (aName.equals(alias))
-                    {
-                        String requestDn = String.format("%s=%s", alias, username);
-                        // FIXME: is this what we want in all cases?
-                        if (null != searchContext.getDn())
-                        {
-                            requestDn += "," + searchContext.getDn().toString();
-                        }
-                        entry.setDn(requestDn);
-                    } else {
-                        addAttribute(aName, userEntity, username, attrs, entry);
-                    }
-                }
-            }
-
-            // the purpose of a search can be to get DN (from another attribute)
-            //  - even if no attributes are in getReturningAttributes()
-            if (null == entry.getDn() || entry.getDn().isEmpty() ) {
-                entry.setDn(searchContext.getDn());
-            }
-            */
             Entry userEntry = getUnityUserEntry(searchContext, username);
             if (userEntry != null) {
                 return new EntryFilteringCursorImpl(new SingletonCursor<>(userEntry),
@@ -789,82 +618,5 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
         }
 
         return emptyResult(searchContext);
-    }
-
-    /**
-     * Return an LDAP attribute with its value set to the first value of the 
-     * unity attribute specified by attributeName, or null if the unity attribute 
-     * is not found in the collection.
-     * 
-     * @param unityAttrs Collection of unity attributes
-     * @param attributeName Name of the unity attribute
-     * @param uid LDAP attribute name
-     * @param upId LDAP attribute name (OID)
-     * @return  LDAP attribute
-     * @throws LdapException
-     */
-    private Attribute mapUnityAttributeToLdapAttribute(Collection<AttributeExt<?>> unityAttrs, String attributeName, String uid, String upId) throws LdapException {
-        //Lookup the first value of the unity attribute
-        String value = null;
-        for (AttributeExt<?> ae : unityAttrs) {
-            if (ae.getName().equals(attributeName)) {
-                value = ae.getValues().get(0).toString();
-            }                            
-        }
-        
-        //Add the unity attribute value to the LDAP attribute
-        if (value != null) {
-            Attribute da = lsf.getAttribute(uid, upId);
-            da.add(value);
-            log.debug(String.format("Mapped unity attribute [%s] to ldap attribute [%s/%s] with value: %s.", attributeName, uid, upId, value));
-            return da;
-        } else {
-            log.warn(String.format("Failed to map unity attribute [%s] to ldap attribute [%s/%s]. Cause: unity attribute not found.", attributeName, uid, upId));
-            String availableAttributes = "";
-            for (AttributeExt<?> ae : unityAttrs) {
-                availableAttributes += ae.getName()+",";                 
-            }
-            log.debug(String.format("Available unity attributes [%s].", availableAttributes.substring(0, availableAttributes.length()-1)));
-            return null;
-        }
-    }
-    
-    /**
-     * Return an LDAP attribute with its value set to value of the unity  
-     * identity of the specified type, or null if the unity identity of that 
-     * type does not exist.
-     * 
-     * @param userEntity
-     * @param identityTypeId
-     * @param uid
-     * @param upId
-     * @return
-     * @throws LdapException 
-     */
-    private Attribute mapUnityIdentityToLdapAttribute(Entity userEntity, String identityTypeId, String uid, String upId) throws LdapException {
-        //Lookup identity of the requested type
-        Identity id = null;
-        for(Identity identity : userEntity.getIdentities()) {
-            if (identity.getTypeId().equals(identityTypeId)) {
-                id = identity;
-                break;
-            }
-        }
-            
-        //Add the unity identity value to the LDAP attribute
-        if (id != null) {
-            Attribute da = lsf.getAttribute(uid, upId);
-            da.add(id.getValue());
-            log.debug(String.format("Mapped unity identity of type [%s] to ldap attribute [%s/%s] with value: %s.", identityTypeId, uid, upId, id.getValue()));
-            return da;
-        } else {
-            log.warn(String.format("Failed to map unity identity to ldap attribute [%s/%s]. Cause: no unity identity of type %s found.", uid, upId, identityTypeId));
-            String availableIdentities = "";
-            for(Identity identity : userEntity.getIdentities()) {
-                availableIdentities += identity.getTypeId() + ",";
-            }
-            log.debug(String.format("Available unity identities [%s].", availableIdentities.substring(0, availableIdentities.length()-1)));
-            return null;
-        }
     }
 }

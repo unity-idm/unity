@@ -41,6 +41,23 @@ public class LdapServerProperties extends PropertiesHelper
 	public static final String GROUP_OF_NAMES_RETURN_FORMAT = "groupOfNamesReturnFormat";
 	public static final String RETURNED_USER_ATTRIBUTES = "returnedUserAttributes";
 	public static final String USER_NAME_ALIASES = "userNameAliases";
+        public static final String ATTRIBUTES_MAP_PFX = "attributes.";
+        public static final String ATTRIBUTES_MAP_UNITY_IDENTITY = "unity.identity";
+        public static final String ATTRIBUTES_MAP_UNITY_ATRIBUTE = "unity.attribute";
+        public static final String ATTRIBUTES_MAP_LDAP_AT = "ldap.at";
+        public static final String ATTRIBUTES_MAP_LDAP_OID = "ldap.oid";
+        
+        /*
+        unity.ldapServer.attributes.1.ldap.at=mail
+        unity.ldapServer.attributes.1.ldap.oid=0.9.2342.19200300.100.1.1
+        unity.ldapServer.attributes.1.unity.identity=email
+        
+        unity.ldapServer.attributes.2.ldap.at=displayName
+        unity.ldapServer.attributes.2.ldap.oid=2.16.840.1.113730.3.1.241
+        unity.ldapServer.attributes.2.unity.attribute=fullName
+        
+        ...
+        */
 
 	static
 	{
@@ -74,6 +91,17 @@ public class LdapServerProperties extends PropertiesHelper
 			.setDescription("Attributes that should be returned if return all user attributes flag is set"));
 		META.put(USER_NAME_ALIASES, new PropertyMD().setCategory(main)
 			.setDescription("Attributes that will be used to get username from Dn"));
+                
+                META.put(ATTRIBUTES_MAP_PFX, new PropertyMD().setStructuredList(true).setCategory(main)
+			.setDescription("Unity attribute to LDAP attribute mappings defined under this prefix"));
+                META.put(ATTRIBUTES_MAP_UNITY_IDENTITY, new PropertyMD().setMandatory().setCategory(main).setStructuredListEntry(ATTRIBUTES_MAP_PFX).
+				setDescription("Object class of the group."));
+                META.put(ATTRIBUTES_MAP_UNITY_ATRIBUTE, new PropertyMD().setMandatory().setCategory(main).setStructuredListEntry(ATTRIBUTES_MAP_PFX).
+				setDescription("Object class of the group."));
+                META.put(ATTRIBUTES_MAP_LDAP_AT, new PropertyMD().setMandatory().setCategory(main).setStructuredListEntry(ATTRIBUTES_MAP_PFX).
+				setDescription("LDAP attribute name"));
+                META.put(ATTRIBUTES_MAP_LDAP_OID, new PropertyMD().setMandatory().setCategory(main).setStructuredListEntry(ATTRIBUTES_MAP_PFX).
+				setDescription("LDAP attribute OID."));
 	}
 	
 	public LdapServerProperties(Properties properties) throws ConfigurationException

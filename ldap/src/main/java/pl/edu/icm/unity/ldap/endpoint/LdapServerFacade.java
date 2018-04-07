@@ -71,6 +71,9 @@ public class LdapServerFacade
 
     public Attribute getAttribute(String uid, String upId) throws LdapException
     {
+        if(ds == null) {
+            throw new NullPointerException("DirectoryService is null");
+        }        
         AttributeType at = ds.getSchemaManager().lookupAttributeTypeRegistry(
                 null == upId ? uid : upId);
         Attribute da = new DefaultAttribute(uid, at);
