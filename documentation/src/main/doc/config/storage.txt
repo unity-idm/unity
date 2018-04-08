@@ -36,7 +36,7 @@ for production use as handling backups and redundancy is very problematic with i
 
 ===== MySQL setup
 
-Unity can work with both MariaDB (min supported version is 10.0.1) and Oracle's MySQL 
+Unity can work with both MariaDB (min supported version is 10.2.1) and Oracle's MySQL 
 (minimum supported version is 5.6.4). 
 
 The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
