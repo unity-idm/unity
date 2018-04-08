@@ -36,6 +36,9 @@ for production use as handling backups and redundancy is very problematic with i
 
 ===== MySQL setup
 
+Unity can work with both MariaDB (min supported version is 10.0.1) and Oracle's MySQL 
+(minimum supported version is 5.6.4). 
+
 The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
 In mysql console (when logged with admin privileges) execute:
  
@@ -66,7 +69,8 @@ unityServer.storage.engine.rdbms.password=unitypass
 
 ===== PostgreSQL setup
 
-The setup of PostgreSQL requires creation of a database with a separate role (user) 
+The setup of PostgreSQL (Unity should be compatible with any recent version) 
+requires creation of a database with a separate role (user) 
 which is able to connect to the database. Typically on Linux system you have to invoke:
 
  createuser -P unity
