@@ -36,8 +36,11 @@ for production use as handling backups and redundancy is very problematic with i
 
 ===== MySQL setup
 
-Unity can work with both MariaDB (min supported version is 10.2.1) and Oracle's MySQL 
-(minimum supported version is 5.6.4). 
+Unity can work with:
+
+. MariaDB: for Unity version 2.0.0 -- 2.4.x, the minimum supported version of MariaDB is 10.2.1. 
+Since the Unity release 2.5.0 version 5.3 version of MariaDB should be fine.
+. Oracle's MySQL, the minimum supported version is 5.6.4. 
 
 The setup of MySQL requires creation of a database with a separate user which is able to connect to the database.
 In mysql console (when logged with admin privileges) execute:
