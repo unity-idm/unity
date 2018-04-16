@@ -22,18 +22,16 @@ public class ASConsentDeciderServletFactory
 {
 	protected PreferencesManagement preferencesMan;
 	protected IdPEngine idpEngine;
-	protected FreemarkerHandler freemarker;
 	protected TokensManagement tokensMan;
 	private SessionManagement sessionMan;
 
 	@Autowired
 	public ASConsentDeciderServletFactory(PreferencesManagement preferencesMan,
-			IdPEngine idpEngine, FreemarkerHandler freemarker,
+			IdPEngine idpEngine, 
 			TokensManagement tokensMan, SessionManagement sessionMan)
 	{
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
-		this.freemarker = freemarker;
 		this.tokensMan = tokensMan;
 		this.sessionMan = sessionMan;
 	}
@@ -41,7 +39,7 @@ public class ASConsentDeciderServletFactory
 
 	public ASConsentDeciderServlet getInstance(String oauthUiServletPath)
 	{
-		return new ASConsentDeciderServlet(preferencesMan, idpEngine, freemarker, 
+		return new ASConsentDeciderServlet(preferencesMan, idpEngine,  
 				tokensMan, sessionMan, oauthUiServletPath);
 	}
 }

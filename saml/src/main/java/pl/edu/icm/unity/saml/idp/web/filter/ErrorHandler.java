@@ -18,8 +18,8 @@ import org.apache.xml.security.utils.Base64;
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.SAMLProcessingException;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.saml.web.ResponseHandlerBase;
@@ -37,7 +37,7 @@ public class ErrorHandler extends ResponseHandlerBase
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, ErrorHandler.class);
 	private AttributeTypeSupport aTypeSupport;
 
-	public ErrorHandler(AttributeTypeSupport aTypeSupport, FreemarkerHandler freemarker)
+	public ErrorHandler(AttributeTypeSupport aTypeSupport, FreemarkerAppHandler freemarker)
 	{
 		super(freemarker);
 		this.aTypeSupport = aTypeSupport;
@@ -100,14 +100,14 @@ public class ErrorHandler extends ResponseHandlerBase
 	public void showHoldOnPage(String request, String relayState, String method, HttpServletResponse response) 
 			throws IOException, EopException
 	{
-		response.setContentType("application/xhtml+xml; charset=utf-8");
+		response.setContentType("text/html; charset=utf-8");
 		PrintWriter w = response.getWriter();
 		Map<String, String> data = new HashMap<String, String>();
 		data.put("originalRequest", request);
 		if (relayState != null)
 			data.put("RelayState", relayState);
 		data.put("method", method);
-		freemarker.process("holdonError.ftl", data, w);
+		freemarker.printGenericPage(w, "samlHoldon.ftl", data);
 		throw new EopException();
 	}
 }

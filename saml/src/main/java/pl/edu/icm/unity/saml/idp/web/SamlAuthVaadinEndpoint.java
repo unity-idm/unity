@@ -35,11 +35,11 @@ import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.IdpSamlTrustProvider;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
@@ -91,7 +91,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	protected String publicEntryPointPath;
 	protected SamlIdpProperties samlProperties;
-	protected FreemarkerHandler freemarkerHandler;
+	protected FreemarkerAppHandler freemarkerHandler;
 	protected PKIManagement pkiManagement;
 	protected ExecutorsService executorsService;
 	protected RemoteMetaManager myMetadataManager;
@@ -104,7 +104,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	
 	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
-			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
+			ApplicationContext applicationContext, FreemarkerAppHandler freemarkerHandler,
 			PKIManagement pkiManagement,
 			ExecutorsService executorsService, 
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
@@ -119,7 +119,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	}
 	
 	protected SamlAuthVaadinEndpoint(String publicEntryServletPath, NetworkServer server,
-			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
+			ApplicationContext applicationContext, FreemarkerAppHandler freemarkerHandler,
 			Class<?> uiClass, PKIManagement pkiManagement,
 			ExecutorsService executorsService, 
 			IdpConsentDeciderServletFactory dispatcherServletFactory,

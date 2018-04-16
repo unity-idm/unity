@@ -59,7 +59,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
-			FreemarkerHandler freemarker, TokensManagement tokensMan, SessionManagement sessionMan,
+			TokensManagement tokensMan, SessionManagement sessionMan,
 			String oauthUiServletPath)
 	{
 		this.tokensMan = tokensMan;

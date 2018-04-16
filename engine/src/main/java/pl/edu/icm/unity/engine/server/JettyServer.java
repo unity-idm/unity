@@ -26,7 +26,6 @@ import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.JettyDefaultHandler;
 import eu.unicore.util.jetty.JettyServerBase;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -56,17 +55,26 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	private Map<String, ServletContextHandler> usedContextPaths;
 	private ContextHandlerCollection mainContextHandler;
 	private FilterHolder dosFilter = null;
+	private UnityServerConfiguration cfg;
 	
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
 	{
 		super(createURLs(cfg.getJettyProperties()), pkiManagement.getMainAuthnAndTrust(), 
 				cfg.getJettyProperties(), null);
+		this.cfg = cfg;
 		initServer();
 		dosFilter = getDOSFilter();
 		addRedirectHandler(cfg);
 	}
 
+	@Override
+	protected void configureErrorHandler()
+	{
+		String webContentsDir = cfg.getValue(UnityServerConfiguration.DEFAULT_WEB_CONTENT_PATH);
+		getServer().setErrorHandler(new JettyErrorHandler(webContentsDir));
+	}
+	
 	private static URL[] createURLs(UnityHttpServerConfiguration conf)
 	{
 		try
@@ -113,10 +121,9 @@ public class JettyServer extends JettyServerBase implements Lifecycle, NetworkSe
 	@Override
 	protected synchronized Handler createRootHandler() throws ConfigurationException
 	{
-		usedContextPaths = new HashMap<String, ServletContextHandler>();
+		usedContextPaths = new HashMap<>();
 		mainContextHandler = new ContextHandlerCollection();
-		deployedEndpoints = new ArrayList<WebAppEndpointInstance>(16);
-		mainContextHandler.addHandler(new JettyDefaultHandler());
+		deployedEndpoints = new ArrayList<>(16);
 		return mainContextHandler;
 	}
 

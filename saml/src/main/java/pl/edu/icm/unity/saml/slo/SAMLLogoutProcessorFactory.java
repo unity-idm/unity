@@ -14,7 +14,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.IdentityTypeMapper;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 
@@ -38,7 +38,7 @@ public class SAMLLogoutProcessorFactory
 	@Autowired
 	public SAMLLogoutProcessorFactory(SessionManagement sessionManagement, PKIManagement pkiManagement,
 			IdentityResolver idResolver, LogoutContextsStore contextsStore,
-			ReplayAttackChecker replayChecker, FreemarkerHandler freemarker, 
+			ReplayAttackChecker replayChecker, FreemarkerAppHandler freemarker, 
 			SessionParticipantTypesRegistry registry, UnityServerConfiguration serverConfig)
 	{
 		super();

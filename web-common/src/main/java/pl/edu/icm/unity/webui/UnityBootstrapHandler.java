@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.webui;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
@@ -19,16 +15,10 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.server.communication.ServletBootstrapHandler;
 import com.vaadin.shared.Version;
 
-import freemarker.cache.ClassTemplateLoader;
-import freemarker.cache.FileTemplateLoader;
-import freemarker.cache.MultiTemplateLoader;
-import freemarker.cache.TemplateLoader;
 import freemarker.ext.beans.BeansWrapperBuilder;
 import freemarker.template.Configuration;
-import freemarker.template.Template;
-import freemarker.template.TemplateException;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerUtils;
 
 /**
  * Handler responsible for returning a bootstrap web page - on first page load. Used
@@ -40,10 +30,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  */
 public class UnityBootstrapHandler extends SynchronizedRequestHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, UnityBootstrapHandler.class);
-	
-	public static final String TEMPLATES_ROOT = "/templates";
-	
 	private final Configuration cfg;
 	private final String mainTemplate;
 	private final UnityMessageSource msg;
@@ -63,28 +49,11 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 		this.uiPath = uiPath;
 		cfg = new Configuration(Configuration.VERSION_2_3_21);
 		
-		cfg.setTemplateLoader(getTemplateLoader(webContentsDirectory));
+		cfg.setTemplateLoader(FreemarkerUtils.getTemplateLoader(webContentsDirectory, 
+				FreemarkerUtils.TEMPLATES_ROOT, getClass()));
 		BeansWrapperBuilder builder = new BeansWrapperBuilder(Configuration.VERSION_2_3_21);
 		cfg.setObjectWrapper(builder.build());
 	}
-
-	private TemplateLoader getTemplateLoader(String webContentsDirectory)
-	{
-		ClassTemplateLoader fallbackLoader = new ClassTemplateLoader(getClass(), TEMPLATES_ROOT);
-		FileTemplateLoader primaryLoader;
-		File webContents = new File(webContentsDirectory, TEMPLATES_ROOT);
-		try
-		{
-			primaryLoader = new FileTemplateLoader(webContents);
-		} catch (IOException e)
-		{
-			log.warn("Templates directory " + webContentsDirectory + 
-					" can not be read. Will use the default bundled templates only.");
-			return fallbackLoader;
-		}
-		return new MultiTemplateLoader(new TemplateLoader [] {primaryLoader, fallbackLoader});
-	}
-	
 
 	@Override
 	public boolean synchronizedHandleRequest(VaadinSession session, VaadinRequest request,
@@ -94,7 +63,7 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 	        response.setHeader("Cache-Control", "no-cache");
 	        response.setHeader("Pragma", "no-cache");
 	        response.setDateHeader("Expires", 0);
-		process(mainTemplate, createContext(), response.getWriter());
+	        FreemarkerUtils.processTemplate(cfg, mainTemplate, createContext(), response.getWriter());
 		return true;
 	}
 	
@@ -113,20 +82,5 @@ public class UnityBootstrapHandler extends SynchronizedRequestHandler
 		data.put("sessExpMsgCaption", msg.getMessage("UIWrappingServlet.sessExpMsgCaption"));
 		data.put("sessExpMsg", msg.getMessage("UIWrappingServlet.sessExpMsg"));
 		return data;
-	}
-	
-	private void process(String view, Map<String, String> datamodel, Writer out) 
-			throws IOException
-	{
-		Template temp = cfg.getTemplate(view);
-		log.debug("Using template " + temp.getName());
-		try
-		{
-			temp.process(datamodel, out);
-		} catch (TemplateException e)
-		{
-			throw new IOException(e);
-		}
-		out.flush();
 	}
 }

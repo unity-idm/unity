@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.RoutingServlet;
@@ -67,7 +68,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	public static final String OAUTH_CONSENT_DECIDER_SERVLET_PATH = "/oauth2-authz-consentdecider";
 	
 	private OAuthASProperties oauthProperties;
-	private FreemarkerHandler freemarkerHandler;
+	private FreemarkerAppHandler freemarkerHandler;
 	private EntityManagement identitiesManagement;
 	private AttributesManagement attributesManagement;
 	private PKIManagement pkiManagement;
@@ -76,7 +77,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 	
 	@Autowired
 	public OAuthAuthzWebEndpoint(NetworkServer server,
-			ApplicationContext applicationContext, FreemarkerHandler freemarkerHandler,
+			ApplicationContext applicationContext, FreemarkerAppHandler freemarkerHandler,
 			@Qualifier("insecure") EntityManagement identitiesManagement, 
 			@Qualifier("insecure") AttributesManagement attributesManagement,
 			PKIManagement pkiManagement, OAuthEndpointsCoordinator coordinator,

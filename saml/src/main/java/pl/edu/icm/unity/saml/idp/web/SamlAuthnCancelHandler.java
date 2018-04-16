@@ -9,7 +9,7 @@ import java.util.TimeZone;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -21,10 +21,10 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
  */
 public class SamlAuthnCancelHandler implements CancelHandler
 {
-	private FreemarkerHandler freemarkerHandler;
+	private FreemarkerAppHandler freemarkerHandler;
 	private AttributeTypeSupport aTypeSupport;
 	
-	public SamlAuthnCancelHandler(FreemarkerHandler freemarkerHandler, AttributeTypeSupport aTypeSupport)
+	public SamlAuthnCancelHandler(FreemarkerAppHandler freemarkerHandler, AttributeTypeSupport aTypeSupport)
 	{
 		this.freemarkerHandler = freemarkerHandler;
 		this.aTypeSupport = aTypeSupport;

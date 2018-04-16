@@ -16,6 +16,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -26,9 +27,9 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 public class ErrorHandler
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ErrorHandler.class);
-	private FreemarkerHandler freemarker;
+	private FreemarkerAppHandler freemarker;
 	
-	public ErrorHandler(FreemarkerHandler freemarker)
+	public ErrorHandler(FreemarkerAppHandler freemarker)
 	{
 		this.freemarker = freemarker;
 	}
@@ -38,25 +39,21 @@ public class ErrorHandler
 	{
 		log.debug("OAuth error is going to be shown to the user redirected to Unity by the " +
 				"OAuth client: " + error + " " + (errorReason == null ? "" : errorReason));
-		response.setContentType("application/xhtml+xml; charset=utf-8");
+		response.setContentType("text/html; charset=utf-8");
 		PrintWriter w = response.getWriter();
-		Map<String, String> data = new HashMap<String, String>();
-		data.put("error", error);
-		if (errorReason != null)
-			data.put("errorCause", errorReason);
-		freemarker.process("finishError.ftl", data, w);
+		freemarker.printAppErrorPage(w, "OAuth", "Authorization Server got an invalid request.", error, errorReason);
 		throw new EopException();
 	}
 
 	public void showHoldOnPage(String requestUri, HttpServletResponse response) 
 			throws IOException, EopException
 	{
-		response.setContentType("application/xhtml+xml; charset=utf-8");
+		response.setContentType("text/html; charset=utf-8");
 		PrintWriter w = response.getWriter();
-		Map<String, String> data = new HashMap<String, String>();
+		Map<String, String> data = new HashMap<>();
 		String originalUri = Base64.encodeBase64URLSafeString(requestUri.getBytes(StandardCharsets.UTF_8));
 		data.put("originalRequest", originalUri);
-		freemarker.process("holdonError.ftl", data, w);
+		freemarker.printGenericPage(w, "oauthHoldon.ftl", data);
 		throw new EopException();
 	}
 }

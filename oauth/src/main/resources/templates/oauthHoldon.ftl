@@ -1,5 +1,8 @@
-<#include "headerTop.ftl">
-
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+</head>
 
 <body>
 
@@ -37,4 +40,5 @@ function forceContinue()
 	</div>
 </form>
 
-<#include "footer.ftl">
+</body>
+</html>

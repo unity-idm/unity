@@ -42,6 +42,8 @@ There are couple of facts that it might be useful to know:
   the same theme as the endpoint's main authentication UI.
 * Confirmation screen shown after email confirmation uses the default theme or the one configured separately 
   with the +unityServer.core.confirmationUITheme+ option.
+* Templates used for generating generic server-wide error pages (e.g. 404 - page not found) are always using a template
+  defined in the +defaultWebContentDirectory+.
 
 
 ==== Preparing a custom theme

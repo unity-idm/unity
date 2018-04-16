@@ -336,7 +336,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.5.0</version>
+				<version>4.5.1-SNAPSHOT</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -557,6 +557,11 @@
 				<groupId>org.kohsuke</groupId>
 				<artifactId>libpam4j</artifactId>
 				<version>1.8</version>
+			</dependency>
+			<dependency>
+				<groupId>org.codehaus.groovy</groupId>
+				<artifactId>groovy-all</artifactId>
+				<version>${groovy-all.version}</version>
 			</dependency>
 			
 			<dependency>

@@ -21,7 +21,7 @@ import com.vaadin.server.VaadinSession;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -35,10 +35,10 @@ import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 public class SamlResponseHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, SamlResponseHandler.class);
-	protected FreemarkerHandler freemarkerHandler;
+	protected FreemarkerAppHandler freemarkerHandler;
 	protected AuthnResponseProcessor samlProcessor;
 	
-	public SamlResponseHandler(FreemarkerHandler freemarkerHandler,
+	public SamlResponseHandler(FreemarkerAppHandler freemarkerHandler,
 			AuthnResponseProcessor samlProcessor)
 	{
 		this.freemarkerHandler = freemarkerHandler;
@@ -113,7 +113,7 @@ public class SamlResponseHandler
 				session.getSession().invalidate();
 			response.setContentType("application/xhtml+xml; charset=utf-8");
 			PrintWriter writer = response.getWriter();
-			freemarkerHandler.process("finishSaml.ftl", data, writer);
+			freemarkerHandler.printGenericPage(writer, "samlFinish.ftl", data);
 			return true;
 		}
 	}

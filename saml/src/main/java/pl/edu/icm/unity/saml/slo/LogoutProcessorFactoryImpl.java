@@ -11,9 +11,9 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.LogoutProcessor;
 import pl.edu.icm.unity.engine.api.authn.LogoutProcessorFactory;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 
 /**
  * Factory of {@link LogoutProcessor}s.
@@ -24,13 +24,13 @@ public class LogoutProcessorFactoryImpl implements LogoutProcessorFactory
 {
 	private LogoutContextsStore contextsStore;
 	private PKIManagement pkiManagement;
-	private FreemarkerHandler freemarker;
+	private FreemarkerAppHandler freemarker;
 	private String consumerUri;
 	private SessionParticipantTypesRegistry registry;
 	
 	@Autowired
 	public LogoutProcessorFactoryImpl(LogoutContextsStore contextsStore,
-			PKIManagement pkiManagement, FreemarkerHandler freemarker,
+			PKIManagement pkiManagement, FreemarkerAppHandler freemarker,
 			SLOReplyInstaller sloReplyInstaller, SessionParticipantTypesRegistry registry)
 	{
 		super();

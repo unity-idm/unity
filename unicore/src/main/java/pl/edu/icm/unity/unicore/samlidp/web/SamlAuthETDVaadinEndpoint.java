@@ -16,8 +16,8 @@ import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.saml.idp.FreemarkerHandler;
 import pl.edu.icm.unity.saml.idp.web.SamlAuthVaadinEndpoint;
 import pl.edu.icm.unity.saml.idp.web.filter.ErrorHandler;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
@@ -38,7 +38,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	
 	@Autowired
 	public SamlAuthETDVaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
-			FreemarkerHandler freemarkerHandler,
+			FreemarkerAppHandler freemarkerHandler,
 			PKIManagement pkiManagement, ExecutorsService executorsService,
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			SLOReplyInstaller sloReplyInstaller, 
