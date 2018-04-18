@@ -193,7 +193,8 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				new RoutingServlet(SAML_CONSENT_DECIDER_SERVLET_PATH), true);
 		context.addServlet(routingServletHolder, SAML_ENTRY_SERVLET_PATH + "/*");
 		
-		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(SAML_UI_SERVLET_PATH);
+		Servlet samlConsentDeciderServlet = dispatcherServletFactory.getInstance(
+				SAML_UI_SERVLET_PATH, AUTHENTICATION_PATH);
 		ServletHolder samlConsentDeciderHolder = createServletHolder(samlConsentDeciderServlet, true);
 		context.addServlet(samlConsentDeciderHolder, SAML_CONSENT_DECIDER_SERVLET_PATH + "/*");
 		

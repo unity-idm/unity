@@ -125,10 +125,10 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 		private ObjectFactory<UnicoreIdpConsentDeciderServlet> factory;
 		
 		@Override
-		public IdpConsentDeciderServlet getInstance(String uiServletPath)
+		public IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath)
 		{
 			UnicoreIdpConsentDeciderServlet ret = factory.getObject();
-			ret.init(uiServletPath);
+			ret.init(uiServletPath, authenticationUIServletPath);
 			return ret;
 		}
 	}

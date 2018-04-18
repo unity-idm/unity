@@ -37,9 +37,9 @@ public class ASConsentDeciderServletFactory
 	}
 
 
-	public ASConsentDeciderServlet getInstance(String oauthUiServletPath)
+	public ASConsentDeciderServlet getInstance(String oauthUiServletPath, String authenticationUIServletPath)
 	{
 		return new ASConsentDeciderServlet(preferencesMan, idpEngine,  
-				tokensMan, sessionMan, oauthUiServletPath);
+				tokensMan, sessionMan, oauthUiServletPath, authenticationUIServletPath);
 	}
 }

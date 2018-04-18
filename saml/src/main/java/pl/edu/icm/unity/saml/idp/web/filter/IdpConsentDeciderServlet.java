@@ -52,6 +52,7 @@ import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -74,6 +75,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected SSOResponseHandler ssoResponseHandler;
 	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
+	private String authenticationUIServletPath;
 
 	protected AttributeTypeSupport aTypeSupport;
 	
@@ -91,9 +93,28 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		this.sessionMan = sessionMan;
 	}
 
-	protected void init(String samlUiServletPath)
+	protected void init(String samlUiServletPath, String authenticationUIServletPath)
 	{
 		this.samlUiServletPath = samlUiServletPath;
+		this.authenticationUIServletPath = authenticationUIServletPath;
+	}
+	
+	@Override
+	protected void service(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException
+	{
+		//if we got this request here it means that this is a request from Authentication UI
+		// which was not reloaded with something new - either regular endpoint UI or navigated away with a redirect. 
+		if (VaadinRequestMatcher.isVaadinRequest(req))
+		{
+			String forwardURI = authenticationUIServletPath;
+			if (req.getPathInfo() != null) 
+				forwardURI += req.getPathInfo();
+			log.debug("Request to Vaadin internal address will be forwarded to authN {}", req.getRequestURI());
+			req.getRequestDispatcher(forwardURI).forward(req, resp);
+			return;
+		}
+		super.service(req, resp);
 	}
 	
 	@Override
@@ -209,6 +230,7 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		}
 		addSessionParticipant(samlCtx, samlProcessor.getAuthenticatedSubject().getNameID(), 
 				samlProcessor.getSessionId(), sessionMan);
+		
 		ssoResponseHandler.sendResponse(Binding.HTTP_POST, respDoc, serviceUrl, 
 				samlCtx.getRelayState(), request, response);
 	}
@@ -293,10 +315,10 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		private ObjectFactory<IdpConsentDeciderServlet> factory;
 		
 		@Override
-		public IdpConsentDeciderServlet getInstance(String uiServletPath)
+		public IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath)
 		{
 			IdpConsentDeciderServlet ret = factory.getObject();
-			ret.init(uiServletPath);
+			ret.init(uiServletPath, authenticationUIServletPath);
 			return ret;
 		}
 	}

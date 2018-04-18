@@ -38,6 +38,7 @@ import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -56,19 +57,39 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private OAuthIdPEngine idpEngine;
 	private SessionManagement sessionMan;
 	private String oauthUiServletPath;
+	private String authenticationUIServletPath;
 
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			TokensManagement tokensMan, SessionManagement sessionMan,
-			String oauthUiServletPath)
+			String oauthUiServletPath, String authenticationUIServletPath)
 	{
 		this.tokensMan = tokensMan;
 		this.preferencesMan = preferencesMan;
 		this.sessionMan = sessionMan;
+		this.authenticationUIServletPath = authenticationUIServletPath;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.oauthUiServletPath = oauthUiServletPath;
 	}
 
+	@Override
+	protected void service(HttpServletRequest req, HttpServletResponse resp)
+			throws ServletException, IOException
+	{
+		//if we got this request here it means that this is a request from Authnentication UI
+		// which was not reloaded with something new - either regular endpoint UI or navigated away with a redirect. 
+		if (VaadinRequestMatcher.isVaadinRequest(req))
+		{
+			String forwardURI = authenticationUIServletPath;
+			if (req.getPathInfo() != null) 
+				forwardURI += req.getPathInfo();
+			log.debug("Request to Vaadin internal address will be forwarded to authN {}", req.getRequestURI());
+			req.getRequestDispatcher(forwardURI).forward(req, resp);
+			return;
+		}
+		super.service(req, resp);
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException
@@ -151,7 +172,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		try
 		{
 			TranslationResult userInfo = idpEngine.getUserInfo(oauthCtx);
-			handleRedirectIfNeeded(userInfo, request.getSession(), response);
+			handleTranslationProfileRedirectIfNeeded(userInfo, request.getSession(), response);
 			IdentityParam selectedIdentity = idpEngine.getIdentity(userInfo, 
 					oauthCtx.getConfig().getSubjectIdentityType());
 			log.debug("Authentication of " + selectedIdentity);
@@ -177,7 +198,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 		sendReturnRedirect(respDoc, request, response, false);
 	}
 	
-	private void handleRedirectIfNeeded(TranslationResult userInfo, HttpSession session,
+	private void handleTranslationProfileRedirectIfNeeded(TranslationResult userInfo, HttpSession session,
 			HttpServletResponse response) 
 			throws IOException, EopException
 	{

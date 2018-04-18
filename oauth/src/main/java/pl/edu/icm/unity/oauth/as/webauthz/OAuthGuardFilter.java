@@ -19,8 +19,9 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.webui.idpcommon.EopException;
 import pl.edu.icm.unity.oauth.as.OAuthAuthzContext;
+import pl.edu.icm.unity.webui.VaadinRequestMatcher;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Filter which is invoked prior to authentication. 
@@ -63,6 +64,14 @@ public class OAuthGuardFilter implements Filter
 		HttpServletRequest request = (HttpServletRequest) requestBare;
 		HttpServletResponse response = (HttpServletResponse) responseBare;
 		HttpSession session = request.getSession();
+		
+		if (VaadinRequestMatcher.isVaadinRequest(request))
+		{
+			log.trace("Ignoring request to Vaadin internal address {}", request.getRequestURI());
+			chain.doFilter(request, response);
+			return;
+		}
+		
 		OAuthAuthzContext context = (OAuthAuthzContext) session.getAttribute(
 				OAuthParseServlet.SESSION_OAUTH_CONTEXT); 
 

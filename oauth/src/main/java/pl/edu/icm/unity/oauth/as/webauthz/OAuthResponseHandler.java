@@ -62,7 +62,6 @@ public class OAuthResponseHandler
 			{
 				try
 				{
-					
 					String redirectURL = oauthResponse.toURI().toString();
 					response.sendRedirect(redirectURL);
 				} catch (SerializeException e)

@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
@@ -48,6 +50,7 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.api.session.SessionParticipantTypesRegistry;
 import pl.edu.icm.unity.engine.api.session.SessionParticipants;
+import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -83,7 +86,8 @@ public class WebAuthenticationProcessor
 	private AuthenticationProcessor authnProcessor;
 	@Autowired
 	private EntityManagement entityMan;
-	
+	@Autowired
+	private ExecutorsService executorsService;
 	
 	/**
 	 * Return partial authn result if additional authentication is required or null, if authentication is 
@@ -158,7 +162,7 @@ public class WebAuthenticationProcessor
 			return;
 		}
 		
-		gotoOrigin();
+		gotoOrigin(executorsService.getService());
 	}
 	
 	private String getLabel(long entityId)
@@ -248,7 +252,7 @@ public class WebAuthenticationProcessor
 		servletResponse.addCookie(unitySessionCookie);
 	}
 	
-	private static void gotoOrigin() throws AuthenticationException
+	private static void gotoOrigin(ScheduledExecutorService executor) throws AuthenticationException
 	{
 		UI ui = UI.getCurrent();
 		if (ui == null)
@@ -256,7 +260,8 @@ public class WebAuthenticationProcessor
 			log.error("BUG Can't get UI to redirect the authenticated user.");
 			throw new AuthenticationException("AuthenticationProcessor.authnInternalError");
 		}
-		ui.getSession().close();
+		
+		executor.schedule(() -> ui.getSession().close(), 10, TimeUnit.SECONDS);
 		ui.getPage().reload();
 	}
 	

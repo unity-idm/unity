@@ -6,5 +6,5 @@ package pl.edu.icm.unity.saml.idp.web.filter;
 
 public interface IdpConsentDeciderServletFactory
 {
-	IdpConsentDeciderServlet getInstance(String uiServletPath);
+	IdpConsentDeciderServlet getInstance(String uiServletPath, String authenticationUIServletPath);
 }

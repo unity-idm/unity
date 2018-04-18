@@ -130,7 +130,8 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 				new RoutingServlet(OAUTH_CONSENT_DECIDER_SERVLET_PATH), true);
 		context.addServlet(routingServletHolder, OAUTH_ROUTING_SERVLET_PATH + "/*");
 		
-		Servlet oauthConsentDeciderServlet = dispatcherServletFactory.getInstance(OAUTH_UI_SERVLET_PATH);
+		Servlet oauthConsentDeciderServlet = dispatcherServletFactory.getInstance(
+				OAUTH_UI_SERVLET_PATH, AUTHENTICATION_PATH);
 		ServletHolder oauthConsentDeciderHolder = createServletHolder(oauthConsentDeciderServlet, true);
 		context.addServlet(oauthConsentDeciderHolder, OAUTH_CONSENT_DECIDER_SERVLET_PATH + "/*");
 		
