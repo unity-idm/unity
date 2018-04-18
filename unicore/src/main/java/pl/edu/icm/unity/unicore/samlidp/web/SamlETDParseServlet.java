@@ -28,9 +28,9 @@ import pl.edu.icm.unity.webui.idpcommon.EopException;
 public class SamlETDParseServlet extends SamlParseServlet
 {
 	public SamlETDParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
-			String samlUiServletPath, ErrorHandler errorHandler, boolean assumeForce)
+			String samlUiServletPath, ErrorHandler errorHandler)
 	{
-		super(samlConfigProvider, endpointAddress, samlUiServletPath, errorHandler, assumeForce);
+		super(samlConfigProvider, endpointAddress, samlUiServletPath, errorHandler);
 	}
 
 	@Override

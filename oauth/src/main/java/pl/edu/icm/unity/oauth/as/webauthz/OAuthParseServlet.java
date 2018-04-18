@@ -72,11 +72,6 @@ public class OAuthParseServlet extends HttpServlet
 	public static final Set<ResponseType.Value> KNOWN_RESPONSE_TYPES = Sets.newHashSet(
 			ResponseType.Value.CODE, ResponseType.Value.TOKEN, OIDCResponseTypeValue.ID_TOKEN);
 	
-	/**
-	 * key used by hold on form to mark that the new authn session should be started even 
-	 * when an existing auth is in progress. 
-	 */
-	public static final String REQ_FORCE = "force";
 	protected OAuthASProperties oauthConfig;
 	protected String endpointAddress;
 	protected String oauthUiServletPath;
@@ -84,7 +79,6 @@ public class OAuthParseServlet extends HttpServlet
 	protected EntityManagement identitiesMan;
 	protected AttributesManagement attributesMan;
 	protected OAuthRequestValidator requestValidator;
-	private boolean assumeForce;
 	
 	public OAuthParseServlet(OAuthASProperties oauthConfig, String endpointAddress,
 			String oauthUiServletPath, ErrorHandler errorHandler, EntityManagement identitiesMan,
@@ -97,7 +91,6 @@ public class OAuthParseServlet extends HttpServlet
 		this.errorHandler = errorHandler;
 		this.identitiesMan = identitiesMan;
 		this.attributesMan = attributesMan;
-		this.assumeForce = oauthConfig.getBooleanValue(CommonIdPProperties.ASSUME_FORCE);
 		this.requestValidator = new OAuthRequestValidator(oauthConfig, identitiesMan, attributesMan);
 	}
 
@@ -182,26 +175,11 @@ public class OAuthParseServlet extends HttpServlet
 		//is there processing in progress?
 		if (context != null)
 		{
-			//We can have the old session expired or order to forcefully close it.
-			String forceStr = request.getParameter(REQ_FORCE);
-			boolean force = assumeForce || (forceStr != null && !forceStr.equals("false"));
-			
-			if (!force && !context.isExpired())
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to OAuth2 consumer address, with OAuth input and we have " +
-							"OAuth login in progress, redirecting to hold on page: " + 
-							request.getRequestURI());
-				errorHandler.showHoldOnPage(request.getQueryString(), response);
-				return;
-			} else
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to OAuth2 authZ address, we are " +
-							"forced to break the previous login: " + 
-							request.getRequestURI());
-				session.removeAttribute(SESSION_OAUTH_CONTEXT);
-			}
+			if (!context.isExpired() && log.isTraceEnabled())
+				log.trace("Request to OAuth2 authZ address, we are " +
+						"forced to break the previous login: " + 
+						request.getRequestURI());
+			session.removeAttribute(SESSION_OAUTH_CONTEXT);
 		}
 		
 		if (log.isTraceEnabled())

@@ -26,12 +26,12 @@ public class CommonIdPProperties
 {
 	public static final String SKIP_CONSENT = "skipConsent";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
-	public static final String ASSUME_FORCE = "assumeForceOnSessionClash";
 	public static final String SKIP_USERIMPORT = "skipUserImport";
 	public static final String USERIMPORT_PFX = "userImport.";
 	public static final String USERIMPORT_IMPORTER = "importer";
 	public static final String USERIMPORT_IDENTITY_TYPE = "identityType";
 
+	private static final String ASSUME_FORCE = "assumeForceOnSessionClash";
 
 	public static Map<String, PropertyMD> getDefaultsWithCategory(DocumentationCategory category,
 			String defaultProfileMessage, String defaultProfile)
@@ -56,13 +56,8 @@ public class CommonIdPProperties
 						.setDescription(defaultProfileMessage)
 				: new PropertyMD().setDescription(defaultProfileMessage));
 
-		defaults.put(ASSUME_FORCE, new PropertyMD("true").
-				setDescription("Controls what to do in case of initialization of a new authentication, "
-						+ "while another one was not finished within the same browser session."
-						+ " By default a warning page is rendered and the user has "
-						+ "a choice to cancel or forcefully continue. However, "
-						+ "if this setting is set to true, then the new interaction forcefully"
-						+ "takes over the old interaction, without asking the user."));
+		defaults.put(ASSUME_FORCE, new PropertyMD("true").setDeprecated().
+				setDescription("Ignored since 2.5.0, please remove the option from configuration"));
 
 		defaults.put(USERIMPORT_PFX, new PropertyMD().setStructuredList(false)
 				.setDescription("Under this prefix it is possible to configure enabled "

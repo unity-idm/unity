@@ -5,10 +5,7 @@
 package pl.edu.icm.unity.saml.idp.web.filter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -95,19 +92,5 @@ public class ErrorHandler extends ResponseHandlerBase
 		log.debug("SAML error is going to be shown to the user redirected to Unity IdP by the " +
 				"SAML requester", reason);
 		super.showError(reason, response);
-	}
-
-	public void showHoldOnPage(String request, String relayState, String method, HttpServletResponse response) 
-			throws IOException, EopException
-	{
-		response.setContentType("text/html; charset=utf-8");
-		PrintWriter w = response.getWriter();
-		Map<String, String> data = new HashMap<String, String>();
-		data.put("originalRequest", request);
-		if (relayState != null)
-			data.put("RelayState", relayState);
-		data.put("method", method);
-		freemarker.printGenericPage(w, "samlHoldon.ftl", data);
-		throw new EopException();
 	}
 }

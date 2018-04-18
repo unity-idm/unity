@@ -12,7 +12,6 @@ import org.springframework.context.ApplicationContext;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -62,7 +61,6 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	protected Servlet getSamlParseServlet(String endpointURL, String uiUrl)
 	{
 		return new SamlETDParseServlet(myMetadataManager, 
-				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, freemarkerHandler),
-				samlProperties.getBooleanValue(CommonIdPProperties.ASSUME_FORCE));
+				endpointURL, uiUrl, new ErrorHandler(aTypeSupport, freemarkerHandler));
 	}
 }

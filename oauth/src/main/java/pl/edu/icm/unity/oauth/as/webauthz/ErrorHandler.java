@@ -6,13 +6,9 @@ package pl.edu.icm.unity.oauth.as.webauthz;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -42,18 +38,6 @@ public class ErrorHandler
 		response.setContentType("text/html; charset=utf-8");
 		PrintWriter w = response.getWriter();
 		freemarker.printAppErrorPage(w, "OAuth", "Authorization Server got an invalid request.", error, errorReason);
-		throw new EopException();
-	}
-
-	public void showHoldOnPage(String requestUri, HttpServletResponse response) 
-			throws IOException, EopException
-	{
-		response.setContentType("text/html; charset=utf-8");
-		PrintWriter w = response.getWriter();
-		Map<String, String> data = new HashMap<>();
-		String originalUri = Base64.encodeBase64URLSafeString(requestUri.getBytes(StandardCharsets.UTF_8));
-		data.put("originalRequest", originalUri);
-		freemarker.printGenericPage(w, "oauthHoldon.ftl", data);
 		throw new EopException();
 	}
 }

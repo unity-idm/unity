@@ -46,26 +46,19 @@ public class SamlParseServlet extends SamlHttpServlet
 	 */
 	public static final String SESSION_SAML_CONTEXT = "samlAuthnContextKey";
 	
-	/**
-	 * key used by hold on form to mark that the new authn session should be started even 
-	 * when an existing auth is in progress. 
-	 */
-	public static final String REQ_FORCE = "force";
 	protected RemoteMetaManager samlConfigProvider;
 	protected String endpointAddress;
 	protected String samlDispatcherServletPath;
 	protected ErrorHandler errorHandler;
-	private boolean assumeForce;
 
 	public SamlParseServlet(RemoteMetaManager samlConfigProvider, String endpointAddress,
-			String samlDispatcherServletPath, ErrorHandler errorHandler, boolean assumeForce)
+			String samlDispatcherServletPath, ErrorHandler errorHandler)
 	{
 		super(true, false, false);
 		this.samlConfigProvider = samlConfigProvider;
 		this.endpointAddress = endpointAddress;
 		this.samlDispatcherServletPath = samlDispatcherServletPath;
 		this.errorHandler = errorHandler;
-		this.assumeForce = assumeForce;
 	}
 
 	/**
@@ -129,28 +122,11 @@ public class SamlParseServlet extends SamlHttpServlet
 		//is there processing in progress?
 		if (context != null)
 		{
-			//We can have the old session expired or order to forcefully close it.
-			String forceStr = request.getParameter(REQ_FORCE);
-			boolean force = assumeForce || (forceStr != null && !forceStr.equals("false"));
-			
-			if (!force && !context.isExpired())
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to SAML consumer address, with SAML input and we have " +
-							"SAML login in progress, redirecting to hold on page: " + 
-							request.getRequestURI());
-				errorHandler.showHoldOnPage(samlRequestStr, 
-						request.getParameter(SAMLConstants.RELAY_STATE),
-						request.getMethod(), response);
-				return;
-			} else
-			{
-				if (log.isTraceEnabled())
-					log.trace("Request to SAML consumer address, with SAML input and we are " +
-							"forced to break the previous SAML login: " + 
-							request.getRequestURI());
-				session.removeAttribute(SESSION_SAML_CONTEXT);
-			}
+			if (log.isTraceEnabled() && !context.isExpired())
+				log.trace("Request to SAML consumer address, with SAML input and we are " +
+						"forced to break the previous SAML login: " + 
+						request.getRequestURI());
+			session.removeAttribute(SESSION_SAML_CONTEXT);
 		}
 		
 		if (log.isTraceEnabled())
