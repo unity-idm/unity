@@ -94,6 +94,9 @@ when updating old configuration. The attribute types may be alternatively loaded
 . There is a new configuration module  +oauthAuthenticator.module+. It loads a standard configuration of OAuth
 web authenticator. The default configuration provided in +conf/modules/oauth/remoteOAuth.properties+ is a good starting 
 template.
+. As Unity moved to Vaadin 8 all custom themes needs to be re-compiled. In some cases (typically more advanced ones) 
+themes may also require a small update, as upstream Vaadin Valo theme was also updated, and some of the components 
+has changed.
 
 ==== From 2.4.0 to 2.5.0
  
@@ -102,8 +105,8 @@ Configuration syntax change
 . New email confirmation consumer name = +EmailConfirmation+
 . There is new message template config param +notificationChannel+. 
 All message templates (except Generic) from db after update will have set default_email channel.
+. Channel configuration is removed from other places in the system as registration forms or invitations.
+Note that this may also influence REST calls if such elements are created automatically.
 . Config key unityServer.core.confirmationRequestLimit now is unityServer.core.emailConfirmationRequestLimit
-. As Unity moved to Vaadin 8 all custom themes needs to be re-compiled. In some cases (typically more advanced ones) 
-themes may also require a small update, as upstream Vaadin Valo theme was also updated, and some of the components 
-has changed.
+
 
