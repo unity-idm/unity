@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -66,6 +67,7 @@ import pl.edu.icm.unity.rest.exception.JSONParsingException;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -432,6 +434,45 @@ public class RESTAdmin
 		Group toAdd = new Group(group);
 		groupsMan.addGroup(toAdd);
 	}
+
+	@Path("/group/{groupPath}/statements")
+	@GET
+	public String getGroupStatements(@PathParam("groupPath") String group) 
+			throws EngineException, JsonProcessingException
+	{
+		if (!group.startsWith("/"))
+			group = "/" + group;
+		log.debug("getGroupStatements query for " + group);
+		GroupContents contents = groupsMan.getContents(group, GroupContents.METADATA);
+		return mapper.writeValueAsString(contents.getGroup().getAttributeStatements());
+	}
+
+	@Path("/group/{groupPath}/statements")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateGroupStatements(@PathParam("groupPath") String group,
+			String statementsJson) throws EngineException, JsonProcessingException
+	{
+		if (!group.startsWith("/"))
+			group = "/" + group;
+		log.debug("updateGroup statements " + group);
+		
+		List<AttributeStatement> statements;
+		try
+		{
+			statements = Constants.MAPPER.readValue(statementsJson, 
+					new TypeReference<List<AttributeStatement>>() {});
+		} catch (IOException e)
+		{
+			throw new WrongArgumentException("Can not parse input as list of attribute statements", e);
+		}
+		
+		Group contents = groupsMan.getContents(group, GroupContents.METADATA).getGroup();
+		contents.setAttributeStatements(statements.toArray(new AttributeStatement[statements.size()]));
+		groupsMan.updateGroup(group, contents);
+	}
+
+	
 	
 	@Path("/group/{groupPath}/entity/{entityId}")
 	@DELETE
@@ -440,6 +481,8 @@ public class RESTAdmin
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
+		if (!group.startsWith("/"))
+			group = "/" + group;
 		log.debug("removeMember " + entityId + " from " + group);
 		groupsMan.removeMember(group, getEP(entityId, idType));
 	}
@@ -451,6 +494,8 @@ public class RESTAdmin
 			@QueryParam("identityType") String idType) 
 			throws EngineException, JsonProcessingException
 	{
+		if (!group.startsWith("/"))
+			group = "/" + group;
 		log.debug("addMember " + entityId + " to " + group);
 		groupsMan.addMemberFromParent(group, getEP(entityId, idType));
 	}

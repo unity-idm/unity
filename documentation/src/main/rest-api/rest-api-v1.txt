@@ -1,7 +1,7 @@
 RESTful Administration API
 ==========================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 2.1.0
+:revnumber: 2.5.0
 :numbered:
 :toc: left
 :linkcss:
@@ -218,7 +218,33 @@ Creates a new group. The created group will be empty.
 Removes a given group. The optional +recursive+ query parameter can be used to 
 enforce recursive removal (off by default).
 
+=== Get group attribute statements
 
++@Path("/group/{groupPath}/statements")+ +
++@GET+ +
+
+Returns a JSON array with all attribute statements of a group. 
+Example output:
+----
+[ 
+  {
+    "resolution":"skip",
+    "condition":"true",
+    "extraGroupName":"/",
+    "dynamicAttributeExpression":"eattr['name']",
+    "dynamicAttributeName":"name"
+  }
+]
+----
+
+=== Update group attribute statements
+
++@Path("/group/{groupPath}/statements")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates given group's attribute statements. The body should contain statements list, same format as 
+returned by the corresponding GET.
 
 === Create entity
 

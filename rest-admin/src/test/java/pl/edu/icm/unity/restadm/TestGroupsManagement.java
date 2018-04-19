@@ -8,16 +8,27 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
+
 import javax.ws.rs.core.Response.Status;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.junit.Test;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.google.common.collect.Lists;
+
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.GroupContents;
 
 /**
@@ -58,5 +69,32 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
 		GroupContents groupContent = JsonUtil.parse(contents, GroupContents.class);
 		assertThat(groupContent.getSubGroups().contains("/subgroup"), is(false));
+	}
+	
+	@Test
+	public void addedAttributeStatementIsReturned() throws Exception
+	{
+		HttpPost add = new HttpPost("/restadm/v1/group/subgroup");
+		HttpResponse addResponse = client.execute(host, add, localcontext);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getStatusLine().getStatusCode());
+
+		
+		AttributeStatement statement = new AttributeStatement("true", "/", ConflictResolution.skip, 
+				"sys:AuthorizationRole", "eattr['name']");
+		HttpPut addStmt = new HttpPut("/restadm/v1/group/subgroup/statements");
+		String jsonString = JsonUtil.toJsonString(Lists.newArrayList(statement));
+		System.out.println("Statements:\n" + jsonString);
+		addStmt.setEntity(new StringEntity(jsonString, ContentType.APPLICATION_JSON));
+		HttpResponse addStmtResponse = client.execute(host, addStmt, localcontext);
+		assertEquals(Status.NO_CONTENT.getStatusCode(), addStmtResponse.getStatusLine().getStatusCode());
+		
+		HttpGet getGroupContents = new HttpGet("/restadm/v1/group/subgroup/statements");
+		HttpResponse getResponse = client.execute(host, getGroupContents, localcontext);
+		String contents = EntityUtils.toString(getResponse.getEntity());
+		System.out.println("Statements:\n" + contents);
+		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
+		List<AttributeStatement> groupStatements = Constants.MAPPER.readValue(contents, 
+				new TypeReference<List<AttributeStatement>>(){});
+		assertThat(groupStatements.size(), is(1));
 	}
 }
