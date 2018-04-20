@@ -33,7 +33,7 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 public class DB implements StoreLoaderInternal
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, DB.class);
-	public static final String DB_VERSION = "2_2_0";
+	public static final String DB_VERSION = "2_3_0";
 	
 	public static final String NAME = StorageCleanerImpl.BEAN_PFX + "rdbms";
 

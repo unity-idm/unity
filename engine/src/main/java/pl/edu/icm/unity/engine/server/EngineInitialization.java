@@ -220,6 +220,7 @@ public class EngineInitialization extends LifecycleBase
 	public void start()
 	{
 		installEventListeners();
+		endpointsLoadTime = System.currentTimeMillis();
 		boolean skipLoading = config.getBooleanValue(
 				UnityServerConfiguration.IGNORE_CONFIGURED_CONTENTS_SETTING);
 		if (!skipLoading)

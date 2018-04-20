@@ -38,7 +38,7 @@ public class InitDB
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
-	public static final String LAST_SUPPORTED_DB_VERSION = "2_2_0";
+	public static final String LAST_SUPPORTED_DB_VERSION = "2_3_0";
 	
 	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
