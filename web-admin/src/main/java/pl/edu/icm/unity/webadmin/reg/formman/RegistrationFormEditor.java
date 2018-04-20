@@ -220,7 +220,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		
-		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false, 1);
+		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
 		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
 	}
 	

@@ -157,8 +157,7 @@ public class BaseFormEditor extends VerticalLayout
 		}
 	}
 	
-	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval,
-			int minIdentities)
+	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval)
 	{
 		this.groups = groups;
 		TabSheet tabOfLists = new TabSheet();
@@ -171,7 +170,7 @@ public class BaseFormEditor extends VerticalLayout
 		if (forceInteractiveRetrieval)
 			identityEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		identityParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.identityParams"),
-				msg, identityEditorAndProvider, minIdentities, 20, true);
+				msg, identityEditorAndProvider, 0, 20, true);
 
 		AttributeEditorAndProvider attributeEditorAndProvider = new AttributeEditorAndProvider();
 		if (forceInteractiveRetrieval)

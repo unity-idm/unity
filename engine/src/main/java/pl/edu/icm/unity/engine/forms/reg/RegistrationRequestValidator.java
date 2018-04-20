@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine.forms.reg;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,6 @@ import pl.edu.icm.unity.engine.forms.BaseRequestValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
-import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -51,12 +49,6 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 		
 		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate);
 
-		Optional<IdentityParam> identity = request.getIdentities().stream()
-				.filter(param -> param != null)
-				.findAny();
-		if (!identity.isPresent())
-			throw new IllegalFormContentsException("At least one identity must be defined in the "
-					+ "registration request.");
 		if (byInvitation)
 		{
 			String code = request.getRegistrationCode();
