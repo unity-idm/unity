@@ -30,6 +30,7 @@ import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormBuilder;
+import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
@@ -235,7 +236,8 @@ public class BaseFormEditor extends VerticalLayout
 			implements EditorProvider<IdentityRegistrationParam>, Editor<IdentityRegistrationParam>
 	{
 		private ComboBox<String> identityType;
-
+		private EnumComboBox<ConfirmationMode> confirmationMode;
+		
 		@Override
 		public Editor<IdentityRegistrationParam> getEditor()
 		{
@@ -257,10 +259,19 @@ public class BaseFormEditor extends VerticalLayout
 				items.add(it.getIdentityTypeProvider());
 			}
 			identityType.setItems(items);
-			
-			main.add(identityType);
+			confirmationMode = new EnumComboBox<>(
+					msg.getMessage("RegistrationFormViewer.paramConfirmationMode"), 
+					msg, 
+					"ConfirmationMode.", 
+					ConfirmationMode.class, 
+					ConfirmationMode.ON_SUBMIT);
+			confirmationMode.setDescription(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
+			main.add(identityType, confirmationMode);
 			if (value != null)
+			{
 				identityType.setValue(value.getIdentityType());
+				confirmationMode.setValue(value.getConfirmationMode());
+			}
 			initEditorComponent(value);
 			return main;
 		}
@@ -270,6 +281,7 @@ public class BaseFormEditor extends VerticalLayout
 		{
 			IdentityRegistrationParam ret = new IdentityRegistrationParam();
 			ret.setIdentityType(identityType.getValue());
+			ret.setConfirmationMode(confirmationMode.getValue());
 			fill(ret);
 			return ret;
 		}
@@ -284,6 +296,7 @@ public class BaseFormEditor extends VerticalLayout
 		private AttributeSelectionComboBox attributeType;
 		private GroupComboBox group;
 		private CheckBox showGroups;
+		private EnumComboBox<ConfirmationMode> confirmationMode;
 
 		@Override
 		public Editor<AttributeRegistrationParam> getEditor()
@@ -301,14 +314,22 @@ public class BaseFormEditor extends VerticalLayout
 			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
 			group.setInput("/", true);
 			showGroups = new CheckBox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
+			confirmationMode = new EnumComboBox<>(
+					msg.getMessage("RegistrationFormViewer.paramConfirmationMode"), 
+					msg, 
+					"ConfirmationMode.", 
+					ConfirmationMode.class, 
+					ConfirmationMode.ON_SUBMIT);
+			confirmationMode.setDescription(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
 			
-			main.add(attributeType, group, showGroups);
+			main.add(attributeType, group, showGroups, confirmationMode);
 			
 			if (value != null)
 			{
 				attributeType.setSelectedItemByName(value.getAttributeType());
 				group.setValue(value.getGroup());
 				showGroups.setValue(value.isShowGroups());
+				confirmationMode.setValue(value.getConfirmationMode());
 			}
 			initEditorComponent(value);
 			return main;
@@ -321,6 +342,7 @@ public class BaseFormEditor extends VerticalLayout
 			ret.setAttributeType(attributeType.getValue().getName());
 			ret.setGroup(group.getValue());
 			ret.setShowGroups(showGroups.getValue());
+			ret.setConfirmationMode(confirmationMode.getValue());
 			fill(ret);
 			return ret;
 		}

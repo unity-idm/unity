@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
@@ -190,8 +191,10 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		
 		Long entityId = accepted ? responseFull.getEntityId() : null;
 		tx.runInTransactionThrowing(() -> {
-			confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form, entityId);
-			confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form, entityId);
+			confirmationsSupport.sendAttributeConfirmationRequest(responseFull, form, entityId,
+					Phase.ON_SUBMIT);
+			confirmationsSupport.sendIdentityConfirmationRequest(responseFull, form, entityId,
+					Phase.ON_SUBMIT);
 		});
 		
 		return responseFull.getRequestId();

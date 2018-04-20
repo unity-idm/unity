@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -26,6 +27,8 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.forms.BaseSharedRegistrationSupport;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.engine.forms.reg.RegistrationConfirmationRewriteSupport;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
@@ -58,7 +61,8 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 
 	private EnquiryResponseDB enquiryResponseDB;
 	private IdentityHelper dbIdentities;
-	private RegistrationConfirmationRewriteSupport confirmationsSupport;
+	private RegistrationConfirmationRewriteSupport confirmationsRewriteSupport;
+	private RegistrationConfirmationSupport confirmationsSupport;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private EnquiryResponseValidator responseValidator;
 	
@@ -71,20 +75,22 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
 			EnquiryResponseDB enquiryResponseDB, IdentityHelper dbIdentities,
-			RegistrationConfirmationRewriteSupport confirmationsSupport,
+			RegistrationConfirmationRewriteSupport confirmationsRewriteSupport,
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			EnquiryResponseValidator responseValidator,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper,
+			RegistrationConfirmationSupport confirmationsSupport)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
 				entityCredentialsHelper, facilitiesManagement);
 		this.enquiryResponseDB = enquiryResponseDB;
 		this.dbIdentities = dbIdentities;
-		this.confirmationsSupport = confirmationsSupport;
+		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 		this.responseValidator = responseValidator;
 		this.atHelper = atHelper;
+		this.confirmationsSupport = confirmationsSupport;
 	}
 
 	/**
@@ -141,8 +147,13 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		sendProcessingNotification(templateId, currentRequest,
 				form.getName(), true, publicComment,
 				internalComment, notificationsCfg, requesterAddress);
+		
+		confirmationsSupport.sendAttributeConfirmationRequest(currentRequest, form, entityId,
+				Phase.ON_ACCEPT);
+		confirmationsSupport.sendIdentityConfirmationRequest(currentRequest, form, entityId,
+				Phase.ON_ACCEPT);
 		if (rewriteConfirmationToken)
-			confirmationsSupport.rewriteRequestToken(currentRequest, entityId);
+			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, entityId);
 	}
 	
 	public void dropEnquiryResponse(String id) throws EngineException
@@ -210,6 +221,18 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		default:
 		}
 		return false;
+	}
+	
+	@EventListener
+	public void onAutoProcessEvent(EnquiryResponseAutoProcessEvent event)
+	{
+		try
+		{
+			autoProcessEnquiry(event.form, event.requestFull, event.logMessageTemplate);
+		} catch (EngineException e)
+		{
+			log.error("Auto processing of registration form in result of async event failed", e);
+		}
 	}
 	
 	private String getRequesterAddress(EnquiryResponseState currentRequest,

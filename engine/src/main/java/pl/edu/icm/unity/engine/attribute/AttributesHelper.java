@@ -452,17 +452,29 @@ public class AttributesHelper
 		}
 	}
 	
-	private <T extends VerifiableElement> void setUnconfirmed(Attribute attribute, AttributeValueSyntax<T> syntax)
+	public static <T extends VerifiableElement> void setUnconfirmed(Attribute attribute, AttributeValueSyntax<T> syntax)
+	{
+		setConfirmationStatus(attribute, syntax, false);
+	}
+
+	public static <T extends VerifiableElement> void setConfirmed(Attribute attribute, AttributeValueSyntax<T> syntax)
+	{
+		setConfirmationStatus(attribute, syntax, true);
+	}
+
+	private static <T extends VerifiableElement> void setConfirmationStatus(Attribute attribute, 
+			AttributeValueSyntax<T> syntax, boolean confirmed)
 	{
 		List<String> updated = new ArrayList<>(attribute.getValues().size());
 		for (String v : attribute.getValues())
 		{
 			T val = syntax.convertFromString(v);
-			val.setConfirmationInfo(new ConfirmationInfo(0));
+			val.setConfirmationInfo(new ConfirmationInfo(confirmed));
 			updated.add(syntax.convertToString(val));
 		}
 		attribute.setValues(updated);
 	}
+
 	
 	/**
 	 * Checks if the given set of attributes fulfills rules of ACs of a specified group 

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.confirmation.facilities;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
@@ -14,8 +15,6 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
-import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
-import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
@@ -42,13 +41,11 @@ public class RegistrationReqEmailIdentityFacility extends RegistrationEmailFacil
 	public RegistrationReqEmailIdentityFacility(
 			RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB, 
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
-			SharedRegistrationManagment internalRegistrationManagment,
+			ApplicationEventPublisher publisher,
 			IdentityTypesRegistry identityTypesRegistry,
-			SharedEnquiryManagment internalEnquiryManagment,
 			TxManager tx)
 	{
-		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, internalRegistrationManagment,
-				internalEnquiryManagment, tx);
+		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, tx);
 		this.identityTypesRegistry = identityTypesRegistry;
 	}
 

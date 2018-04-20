@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.confirmation.facilities;
 
+import org.springframework.context.ApplicationEventPublisher;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -15,8 +17,8 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirma
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
-import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment;
+import pl.edu.icm.unity.engine.forms.enquiry.EnquiryResponseAutoProcessEvent;
+import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestAutoProcessEvent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
@@ -45,23 +47,21 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 	protected EnquiryResponseDB enquiryResponsesDB;
 	protected RegistrationFormDB formsDB;
 	protected EnquiryFormDB enquiresDB;
-	protected SharedRegistrationManagment sharedRegistrationManagment;
-	protected SharedEnquiryManagment internalEnquiryManagment;
+	private ApplicationEventPublisher publisher;
 
 	private TxManager txMan;
 
+
 	public RegistrationEmailFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
-			SharedRegistrationManagment sharedRegistrationManagment,
-			SharedEnquiryManagment internalEnquiryManagment,
+			ApplicationEventPublisher publisher,
 			TxManager txMan)
 	{
 		this.requestDB = requestDB;
 		this.enquiryResponsesDB = enquiryResponsesDB;
 		this.formsDB = formsDB;
 		this.enquiresDB = enquiresDB;
-		this.sharedRegistrationManagment = sharedRegistrationManagment;
-		this.internalEnquiryManagment = internalEnquiryManagment;
+		this.publisher = publisher;
 		this.txMan = txMan;
 	}
 
@@ -162,11 +162,10 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 		{
 			RegistrationForm form = formsDB.get(formId);
 			String info = "Automatically processing registration request " + state.getRequestId()
-			+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
-			+ state.getFacilityId() + ". Action: {0}";
-
-			sharedRegistrationManagment.autoProcess(form, 
-					(RegistrationRequestState) reqState, info);
+				+ " after confirmation [" + state.getType() + "]" + state.getValue() + " by "
+				+ state.getFacilityId() + ". Action: {0}";
+			publisher.publishEvent(new RegistrationRequestAutoProcessEvent(form, 
+					(RegistrationRequestState) reqState, info));
 		} else
 		{
 			String info = "Automatically processing enquiry response " + state.getRequestId()
@@ -174,8 +173,8 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 			state.getValue() + " by "
 			+ state.getFacilityId() + ". Action: {0}";
 			EnquiryForm form = enquiresDB.get(formId);
-			internalEnquiryManagment.autoProcessEnquiry(form, 
-					(EnquiryResponseState) reqState, info);
+			publisher.publishEvent(new EnquiryResponseAutoProcessEvent(form, 
+					(EnquiryResponseState) reqState, info));
 		}
 	}
 	

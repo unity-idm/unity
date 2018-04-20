@@ -14,6 +14,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -26,6 +27,8 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.forms.BaseSharedRegistrationSupport;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
@@ -56,12 +59,13 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			SharedRegistrationManagment.class);
 
 	private RegistrationRequestDB requestDB;
-	private RegistrationConfirmationRewriteSupport confirmationsSupport;
+	private RegistrationConfirmationRewriteSupport confirmationsRewriteSupport;
 	
 	private RegistrationRequestValidator registrationRequestValidator;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private IdentityHelper identityHelper;
 	private AttributeTypeHelper atHelper;
+	private RegistrationConfirmationSupport confirmationsSupport;
 
 	@Autowired
 	public SharedRegistrationManagment(UnityMessageSource msg,
@@ -69,22 +73,24 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
 			RegistrationRequestDB requestDB,
-			RegistrationConfirmationRewriteSupport confirmationsSupport,
+			RegistrationConfirmationRewriteSupport confirmationsRewriteSupport,
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationRequestValidator registrationRequestValidator,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			IdentityHelper identityHelper,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper,
+			RegistrationConfirmationSupport confirmationsSupport)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
 				entityCredentialsHelper, facilitiesManagement);
 		this.requestDB = requestDB;
-		this.confirmationsSupport = confirmationsSupport;
+		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationRequestValidator = registrationRequestValidator;
 		this.registrationTranslationActionsRegistry = registrationTranslationActionsRegistry;
 		this.identityHelper = identityHelper;
 		this.atHelper = atHelper;
+		this.confirmationsSupport = confirmationsSupport;
 	
 	}
 
@@ -144,8 +150,12 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		sendProcessingNotification(notificationsCfg.getAcceptedTemplate(), currentRequest,
 				form.getName(), true, publicComment,
 				internalComment, notificationsCfg);
+		confirmationsSupport.sendAttributeConfirmationRequest(currentRequest, initial.getEntityId(), form,
+				Phase.ON_ACCEPT);
+		confirmationsSupport.sendIdentityConfirmationRequest(currentRequest, initial.getEntityId(), form,
+				Phase.ON_ACCEPT);
 		if (rewriteConfirmationToken)
-			confirmationsSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
+			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
 
 		return initial.getEntityId();
 	}
@@ -206,6 +216,18 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		return null;
 	}
 
+	@EventListener
+	public void onAutoProcessEvent(RegistrationRequestAutoProcessEvent event)
+	{
+		try
+		{
+			autoProcess(event.form, event.requestFull, event.logMessageTemplate);
+		} catch (EngineException e)
+		{
+			log.error("Auto processing of registration form in result of async event failed", e);
+		}
+	}
+	
 	/**
 	 * Creates and sends notifications to the requester and admins in effect
 	 * of request processing.

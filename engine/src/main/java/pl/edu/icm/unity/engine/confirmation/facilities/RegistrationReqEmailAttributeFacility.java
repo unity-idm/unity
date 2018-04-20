@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.confirmation.facilities;
 import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -15,8 +16,6 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.forms.enquiry.SharedEnquiryManagment;
-import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
@@ -44,12 +43,11 @@ public class RegistrationReqEmailAttributeFacility extends RegistrationEmailFaci
 	@Autowired
 	public RegistrationReqEmailAttributeFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB, 
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
-			SharedRegistrationManagment internalRegistrationManagment,
+			ApplicationEventPublisher publisher,
 			AttributeTypeHelper atHelper,
-			SharedEnquiryManagment internalEnquiryManagment, TxManager txMan)
+			TxManager txMan)
 	{
-		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, internalRegistrationManagment,
-				internalEnquiryManagment, txMan);
+		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, txMan);
 		this.atHelper = atHelper;
 	}
 

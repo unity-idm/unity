@@ -14,6 +14,8 @@ public class AttributeRegistrationParam extends OptionalRegistrationParam
 	private String group;
 	private boolean showGroups;
 	private boolean useDescription;
+	private ConfirmationMode confirmationMode = ConfirmationMode.ON_SUBMIT;
+	
 	public String getAttributeType()
 	{
 		return attributeType;
@@ -38,7 +40,14 @@ public class AttributeRegistrationParam extends OptionalRegistrationParam
 	{
 		this.showGroups = showGroups;
 	}
-	
+	public ConfirmationMode getConfirmationMode()
+	{
+		return confirmationMode;
+	}
+	public void setConfirmationMode(ConfirmationMode confirmationMode)
+	{
+		this.confirmationMode = confirmationMode;
+	}
 	/**
 	 * @deprecated do not use, the feature is disabled, the attribute type's description is always used, 
 	 * unless in legacy form where it is overridden with a fixed value in the form. The method is left
@@ -66,6 +75,8 @@ public class AttributeRegistrationParam extends OptionalRegistrationParam
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((attributeType == null) ? 0 : attributeType.hashCode());
+		result = prime * result
+				+ ((confirmationMode == null) ? 0 : confirmationMode.hashCode());
 		result = prime * result + ((group == null) ? 0 : group.hashCode());
 		result = prime * result + (showGroups ? 1231 : 1237);
 		result = prime * result + (useDescription ? 1231 : 1237);
@@ -86,6 +97,8 @@ public class AttributeRegistrationParam extends OptionalRegistrationParam
 			if (other.attributeType != null)
 				return false;
 		} else if (!attributeType.equals(other.attributeType))
+			return false;
+		if (confirmationMode != other.confirmationMode)
 			return false;
 		if (group == null)
 		{

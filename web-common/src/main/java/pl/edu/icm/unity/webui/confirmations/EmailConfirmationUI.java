@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.TopHeaderLight;
  * @author P. Piernik
  * 
  */
-@Component("ConfirmationUI")
+@Component("EmailConfirmationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
 public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI

@@ -11,7 +11,8 @@ package pl.edu.icm.unity.types.registration;
 public class IdentityRegistrationParam extends OptionalRegistrationParam
 {
 	private String identityType;
-
+	private ConfirmationMode confirmationMode = ConfirmationMode.ON_SUBMIT;
+	
 	public String getIdentityType()
 	{
 		return identityType;
@@ -22,11 +23,23 @@ public class IdentityRegistrationParam extends OptionalRegistrationParam
 		this.identityType = identityType;
 	}
 
+	public ConfirmationMode getConfirmationMode()
+	{
+		return confirmationMode;
+	}
+
+	public void setConfirmationMode(ConfirmationMode confirmationMode)
+	{
+		this.confirmationMode = confirmationMode;
+	}
+
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result
+				+ ((confirmationMode == null) ? 0 : confirmationMode.hashCode());
 		result = prime * result + ((identityType == null) ? 0 : identityType.hashCode());
 		return result;
 	}
@@ -41,6 +54,8 @@ public class IdentityRegistrationParam extends OptionalRegistrationParam
 		if (getClass() != obj.getClass())
 			return false;
 		IdentityRegistrationParam other = (IdentityRegistrationParam) obj;
+		if (confirmationMode != other.confirmationMode)
+			return false;
 		if (identityType == null)
 		{
 			if (other.identityType != null)

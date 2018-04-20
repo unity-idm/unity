@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
+import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
@@ -145,8 +146,10 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		Long entityId = tryAutoProcess(form, requestFull, context);
 		
 		tx.runInTransactionThrowing(() -> {
-			confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form);
-			confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form);	
+			confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form,
+					Phase.ON_SUBMIT);
+			confirmationsSupport.sendIdentityConfirmationRequest(requestFull, entityId, form,
+					Phase.ON_SUBMIT);	
 		});
 		
 		return requestFull.getRequestId();

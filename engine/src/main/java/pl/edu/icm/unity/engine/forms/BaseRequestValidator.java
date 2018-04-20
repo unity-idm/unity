@@ -10,10 +10,13 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -26,11 +29,15 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
+import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 
@@ -46,6 +53,8 @@ public class BaseRequestValidator
 	private AttributeTypeDAO dbAttributes;
 	@Autowired
 	private AttributesHelper attributesHelper;
+	@Autowired
+	private AttributeTypeHelper attributeTypesHelper;
 	@Autowired
 	private EntityResolver idResolver;
 	@Autowired
@@ -149,6 +158,19 @@ public class BaseRequestValidator
 						+ " in group " + attr.getGroupPath()
 						+ " is not allowed for this form",
 						i, Category.ATTRIBUTE);
+
+			AttributeValueSyntax<?> syntax = attributeTypesHelper
+					.getUnconfiguredSyntaxForAttributeName(attr.getName());
+			if (syntax.isEmailVerifiable())
+			{
+				@SuppressWarnings("unchecked")
+				AttributeValueSyntax<? extends VerifiableElement> vsyntax = 
+					(AttributeValueSyntax<? extends VerifiableElement>) syntax;
+				if (regParam.getConfirmationMode() == ConfirmationMode.CONFIRMED)
+					AttributesHelper.setConfirmed(attr, vsyntax);
+				else
+					AttributesHelper.setUnconfirmed(attr, vsyntax);
+			}
 		}
 	}
 
@@ -165,10 +187,19 @@ public class BaseRequestValidator
 			if (idParam.getTypeId() == null || idParam.getValue() == null)
 				throw new IllegalFormContentsException("Identity nr " + i + " contains null values",
 						i, Category.IDENTITY);
-			if (!form.getIdentityParams().get(i).getIdentityType().equals(idParam.getTypeId()))
+			IdentityRegistrationParam formParam = form.getIdentityParams().get(i);
+			if (!formParam.getIdentityType().equals(idParam.getTypeId()))
 				throw new IllegalFormContentsException("Identity nr " + i + " must be of " 
 						+ form.getIdentityParams().get(i).getIdentityType() + " type",
 						i, Category.IDENTITY);
+			
+			IdentityTypeDefinition idTypeDef = identityTypesRegistry.getByName(formParam.getIdentityType());
+			if (idTypeDef.isEmailVerifiable())
+			{
+				boolean initiallyConfirmed = 
+						formParam.getConfirmationMode() == ConfirmationMode.CONFIRMED;
+				idParam.setConfirmationInfo(new ConfirmationInfo(initiallyConfirmed));
+			}
 		}
 	}
 
