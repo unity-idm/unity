@@ -303,21 +303,36 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private boolean isCurrentCredentialOutdated(PasswordCredentialDBState credState)
 	{
 		if (credState.isOutdated())
+		{
+			log.debug("Password is outdated: was previously set to outdated state");
 			return true;
+		}
 		if (credState.getSecurityQuestion() == null && 
 				credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion())
+		{
+			log.debug("Password is outdated: security question is not set while it is required now");
 			return true;
+		}
 		PasswordInfo current = credState.getPasswords().getFirst();
 		Date validityEnd = new Date(current.getTime().getTime() + credential.getMaxAge());
 		if (new Date().after(validityEnd))
+		{
+			log.debug("Password is outdated: its validity expired on {}", validityEnd);
 			return true;
+		}
 		if (!passwordEngine.checkParamsUpToDate(credential, current))
+		{
+			log.debug("Password is outdated: hashing parameters were changed");
 			return true;
+		}
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion() &&
 				!passwordEngine.checkParamsUpToDate(credential, credState.getAnswer()))
+		{
+			log.debug("Password is outdated: security question answers do not meet current requirements");
 			return true;
+		}
 		return false;
 	}
 	
