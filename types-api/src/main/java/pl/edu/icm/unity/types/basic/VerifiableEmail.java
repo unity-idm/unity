@@ -85,11 +85,11 @@ public class VerifiableEmail extends VerifiableElementBase
 	}
 	
 	/**
-	 * @return comparable value has all tags removed and local part is normalized to lowercase.
+	 * @return comparable value has all tags removed and is normalized to lowercase.
 	 */
 	public String getComparableValue()
 	{
-		return value == null ? null : lowercaseLocalPart(removeTags(value));
+		return value == null ? null : removeTags(value).toLowerCase();
 	}
 	
 
@@ -122,16 +122,6 @@ public class VerifiableEmail extends VerifiableElementBase
 		int sepPos = local.indexOf('+');
 		if (sepPos != -1)
 			local = local.substring(0, sepPos);
-		
-		return local+domain;
-	}
-
-	private String lowercaseLocalPart(String address)
-	{
-		int atPos = address.indexOf('@');
-		String local = address.substring(0, atPos);
-		String domain = address.substring(atPos);
-		local = local.toLowerCase();
 		
 		return local+domain;
 	}

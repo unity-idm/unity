@@ -31,6 +31,7 @@ import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.form.RegistrationFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.invite.InvitationHandler;
+import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
@@ -60,6 +61,8 @@ public class UpdateFrom2_0_0 implements Update
 		
 		moveConfirmationConfiguration(contents);
 
+		updateEmailIdentitiesCmpValueToLowercase(contents);
+		
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
@@ -246,4 +249,25 @@ public class UpdateFrom2_0_0 implements Update
 		}
 	}
 
+	
+	private void updateEmailIdentitiesCmpValueToLowercase(ObjectNode contents)
+	{
+		ArrayNode ids = (ArrayNode) contents.get("identities");
+		if (ids == null)
+			return;
+		for (JsonNode node: ids)
+			updateEmailIdentityCmpValueToLowercase((ObjectNode) node);
+	}
+
+	private void updateEmailIdentityCmpValueToLowercase(ObjectNode src)
+	{
+		String type = src.get("typeId").asText();
+		if (!"email".equals(type))
+			return;
+		
+		String value = src.get("value").asText();
+		String updated = new VerifiableEmail(value).getComparableValue();
+		
+		src.put("comparableValue", updated);
+	}
 }
