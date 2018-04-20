@@ -177,6 +177,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 			if (value != null)
 				editor.setValue(value.getValue());
+			
+			if (value == null)
+				editor.removeConfirmationStatusIcon();
 
 			if (value != null)
 				editor.setAdminCheckBoxValue(value.isConfirmed());		

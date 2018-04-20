@@ -92,7 +92,12 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		confirmationStatusIcon.setValue(confirmed ? Images.ok.getHtml() : Images.remove.getHtml()); 		
 		confirmationStatusIcon.setDescription(value);
 	}
-		
+
+	public void removeConfirmationStatusIcon()
+	{
+		fieldLayout.removeComponent(confirmationStatusIcon); 		
+	}
+
 	public void addTextFieldValueChangeListener(ValueChangeListener<String> listener)
 
 	{
