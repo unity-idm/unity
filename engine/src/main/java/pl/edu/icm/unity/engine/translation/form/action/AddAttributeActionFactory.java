@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.translation.form.action;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
@@ -119,19 +117,6 @@ public class AddAttributeActionFactory extends AbstractRegistrationTranslationAc
 			state.addAttribute(attribute);
 		}
 
-		public static List<Object> convertValues(Object value, AttributeValueSyntax<?> syntax) 
-				throws IllegalAttributeValueException
-		{
-			List<?> aValues = value instanceof List ? (List<?>)value : Collections.singletonList(value);
-			List<Object> ret = new ArrayList<Object>(aValues.size());
-			for (Object o: aValues)
-			{
-				Object converted = syntax.convertFromString(o.toString());
-				ret.add(converted);
-			}
-			return ret;
-		}
-		
 		private void setParameters(String[] parameters)
 		{
 			unityAttribute = parameters[0];

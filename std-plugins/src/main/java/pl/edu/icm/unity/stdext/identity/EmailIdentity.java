@@ -52,7 +52,7 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	{
 		String error = EmailUtils.validate(value);
 		if (error != null)
-			throw new IllegalIdentityValueException(error);
+			throw new IllegalIdentityValueException(value + ": " + error);
 	}
 	
 	@Override

@@ -25,6 +25,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
@@ -49,6 +50,7 @@ import pl.edu.icm.unity.engine.translation.form.action.SetEntityStateActionFacto
 import pl.edu.icm.unity.engine.translation.form.action.SetEntityStateActionFactory.EntityStateLimited;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
@@ -169,9 +171,11 @@ public class TestFormProfileActions
 	@Test
 	public void testAddIdentity() throws EngineException
 	{
-		AddIdentityActionFactory factory = new AddIdentityActionFactory();
+		IdentityTypeSupport idTypeSupport = mock(IdentityTypeSupport.class);
+		when(idTypeSupport.getTypeDefinition("identifier")).thenReturn(new IdentifierIdentity());
+		AddIdentityActionFactory factory = new AddIdentityActionFactory(idTypeSupport);
 		
-		RegistrationTranslationAction action = factory.getInstance("idType", "'identity'");
+		RegistrationTranslationAction action = factory.getInstance("identifier", "'identity'");
 				
 		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
 		
@@ -180,7 +184,7 @@ public class TestFormProfileActions
 		assertThat(state.getIdentities().size(), is(1));
 		IdentityParam id = state.getIdentities().iterator().next();
 		assertThat(id.getValue(), is("identity"));
-		assertThat(id.getTypeId(), is("idType"));
+		assertThat(id.getTypeId(), is("identifier"));
 	}
 
 	@Test

@@ -9,9 +9,12 @@ import java.util.HashMap;
 
 import org.apache.logging.log4j.Logger;
 import org.mvel2.MVEL;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -29,8 +32,10 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
 public class AddIdentityActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "addIdentity";
+	private IdentityTypeSupport idTypeSupport;
 	
-	public AddIdentityActionFactory()
+	@Autowired
+	public AddIdentityActionFactory(IdentityTypeSupport idTypeSupport)
 	{
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition(
@@ -42,12 +47,13 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 						"RegTranslationAction.addIdentity.paramDesc.identity",
 						Type.EXPRESSION, true)
 		});
+		this.idTypeSupport = idTypeSupport;
 	}
 
 	@Override
 	public RegistrationTranslationAction getInstance(String... parameters)
 	{
-		return new AddIdentityAction(getActionType(), parameters);
+		return new AddIdentityAction(getActionType(), parameters, idTypeSupport);
 	}
 	
 	public static class AddIdentityAction extends RegistrationTranslationAction
@@ -56,10 +62,14 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 				AddIdentityActionFactory.AddIdentityAction.class);
 		private String identityType;
 		private Serializable expressionCompiled;
+		private IdentityTypeSupport idTypeSupport;
+		private IdentityTypeDefinition typeDefinition;
 		
-		public AddIdentityAction(TranslationActionType description, String[] parameters) 
+		public AddIdentityAction(TranslationActionType description, String[] parameters,
+				IdentityTypeSupport idTypeSupport) 
 		{
 			super(description, parameters);
+			this.idTypeSupport = idTypeSupport;
 			setParameters(parameters);
 		}
 
@@ -74,7 +84,8 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 				return;
 			}
 			
-			IdentityParam identity = new IdentityParam(identityType, value.toString(), null, currentProfile);
+			IdentityParam identity = typeDefinition.convertFromString(
+					value.toString(), null, currentProfile);
 			log.debug("Mapped identity: " + identity);
 			state.addIdentity(identity);
 		}
@@ -82,6 +93,7 @@ public class AddIdentityActionFactory extends AbstractRegistrationTranslationAct
 		private void setParameters(String[] parameters)
 		{
 			identityType = parameters[0];
+			typeDefinition = idTypeSupport.getTypeDefinition(identityType);
 			expressionCompiled = MVEL.compileExpression(parameters[1]);
 		}
 	}
