@@ -114,6 +114,12 @@ public class FloatingPointAttributeSyntax implements AttributeValueSyntax<Double
 	{
 		return value.toString();
 	}
+
+	@Override
+	public boolean isUserVerifiable()
+	{
+		return false;
+	}
 	
 	
 	@Component

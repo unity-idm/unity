@@ -102,7 +102,13 @@ public class IntegerAttributeSyntax implements AttributeValueSyntax<Long>
 	{
 		return false;
 	}
-	
+
+	@Override
+	public boolean isUserVerifiable()
+	{
+		return false;
+	}
+
 	@Override
 	public Long convertFromString(String stringRepresentation)
 	{

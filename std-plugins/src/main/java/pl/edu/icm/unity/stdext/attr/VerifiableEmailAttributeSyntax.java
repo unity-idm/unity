@@ -83,6 +83,12 @@ public class VerifiableEmailAttributeSyntax implements AttributeValueSyntax<Veri
 	}
 
 	@Override
+	public boolean isUserVerifiable()
+	{
+		return true;
+	}
+
+	@Override
 	public VerifiableEmail convertFromString(String stringRepresentation)
 	{
 		return new VerifiableEmail(JsonUtil.parse(stringRepresentation));

@@ -133,10 +133,16 @@ public interface AttributeValueSyntax<T>
 	
 	
 	/**
-	 * @return true if values can be confirmed by user
+	 * @return true if values can be confirmed by user using out-of bounds verification (via email)
+	 * Note that if this method returns true then {@link #isUserVerifiable()} must also return true
 	 */
 	boolean isEmailVerifiable();
-	
+
+	/**
+	 * @return true if values are implementing VerifiableElement and can be in confirmed or not state
+	 */
+	boolean isUserVerifiable();
+
 	
 	/**
 	 * If syntax is verifiable by email return confirmation configuration

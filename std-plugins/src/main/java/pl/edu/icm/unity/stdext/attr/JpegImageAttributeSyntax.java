@@ -196,7 +196,13 @@ public class JpegImageAttributeSyntax implements AttributeValueSyntax<BufferedIm
 	{
 		return false;
 	}
-	
+
+	@Override
+	public boolean isUserVerifiable()
+	{
+		return false;
+	}
+
 	/**
 	 * it is assumed that we have a Base64 encoded JPEG
 	 */

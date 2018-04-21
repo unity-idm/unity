@@ -107,6 +107,12 @@ public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedD
 		return false;
 	}
 
+	@Override
+	public boolean isUserVerifiable()
+	{
+		return false;
+	}
+
 	@Component
 	public static class Factory extends AbstractAttributeValueSyntaxFactory<ZonedDateTime>
 	{

@@ -44,6 +44,12 @@ public abstract class AbstractStringAttributeSyntax implements AttributeValueSyn
 	}
 
 	@Override
+	public boolean isUserVerifiable()
+	{
+		return false;
+	}
+
+	@Override
 	public String convertFromString(String stringRepresentation)
 	{
 		return stringRepresentation;

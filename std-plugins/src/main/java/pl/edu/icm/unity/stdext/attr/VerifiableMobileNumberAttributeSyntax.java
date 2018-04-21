@@ -84,6 +84,12 @@ public class VerifiableMobileNumberAttributeSyntax implements AttributeValueSynt
 	}
 
 	@Override
+	public boolean isUserVerifiable()
+	{
+		return true;
+	}
+
+	@Override
 	public VerifiableMobileNumber convertFromString(String stringRepresentation)
 	{
 		return new VerifiableMobileNumber(JsonUtil.parse(stringRepresentation));

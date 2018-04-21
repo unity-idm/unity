@@ -161,7 +161,7 @@ public class BaseRequestValidator
 
 			AttributeValueSyntax<?> syntax = attributeTypesHelper
 					.getUnconfiguredSyntaxForAttributeName(attr.getName());
-			if (syntax.isEmailVerifiable())
+			if (syntax.isUserVerifiable())
 			{
 				@SuppressWarnings("unchecked")
 				AttributeValueSyntax<? extends VerifiableElement> vsyntax = 
