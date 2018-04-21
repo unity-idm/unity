@@ -43,7 +43,7 @@ try
 	log.warn("Default OAuth client user was created with default password.  Please change it! U: oauth-client P: oauth-pass1");
 	
 	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "OAuth client");
-	attributesManagement.setAttribute(entityP, cnA, false);
+	attributesManagement.createAttribute(entityP, cnA);
 	
 	groupsManagement.addMemberFromParent("/oauth-clients", entityP);
 	Attribute flowsA = EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS,
@@ -51,11 +51,11 @@ try
 			Lists.newArrayList(
 			GrantFlow.authorizationCode.toString(), GrantFlow.implicit.toString(),
 			GrantFlow.openidHybrid.toString()));
-	attributesManagement.setAttribute(entityP, flowsA, false);
+	attributesManagement.createAttribute(entityP, flowsA);
 	Attribute returnUrlA = StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI,
 			"/oauth-clients",
 			"https://localhost:2443/unitygw/oauth2ResponseConsumer");
-	attributesManagement.setAttribute(entityP, returnUrlA, false);
+	attributesManagement.createAttribute(entityP, returnUrlA);
 } catch (Exception e)
 {
 	log.warn("Error loading OAuth demo contents. This can happen and by far is not critical." +

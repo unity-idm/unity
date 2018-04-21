@@ -62,5 +62,5 @@ void addDemoServer(String dn, String cn)
 	groupsManagement.addMemberFromParent("/unicore/servers", demoServer);
 	
 	Attribute cnA = StringAttribute.of(CN_ATTR, "/", cn);
-	attributesManagement.setAttribute(demoServer, cnA, false);
+	attributesManagement.createAttribute(demoServer, cnA);
 }

@@ -95,6 +95,13 @@ public class AttributesManagementImpl implements AttributesManagement
 		setAttribute(entity, attribute, true, false);
 	}
 	
+	@Override
+	public void setAttribute(EntityParam entity, Attribute attribute, boolean allowUpdate)
+			throws EngineException
+	{
+		setAttribute(entity, attribute, allowUpdate, true);
+	}
+	
 	private void setAttribute(EntityParam entity, Attribute attribute, boolean allowUpdate, 
 			boolean sendConfirmations) throws EngineException
 	{

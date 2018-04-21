@@ -109,16 +109,16 @@ void createExampleUser()
 	groupsManagement.addMemberFromParent("/A", entityP);
 
 	Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "Regular User");
-	attributesManagement.setAttribute(entityP, a, false);
+	attributesManagement.createAttribute(entityP, a);
 
 	VerifiableEmail emailVal = new VerifiableEmail("some@example.com", new ConfirmationInfo(true));
 	emailVal.getConfirmationInfo().setConfirmationDate(System.currentTimeMillis());
 	emailVal.getConfirmationInfo().setConfirmed(true);
 	Attribute emailA = VerifiableEmailAttribute.of(EMAIL_ATTR, "/", emailVal);
-	attributesManagement.setAttribute(entityP, emailA, false);
+	attributesManagement.createAttribute(entityP, emailA);
 
 	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "Demo user");
-	attributesManagement.setAttribute(entityP, cnA, false);
+	attributesManagement.createAttribute(entityP, cnA);
 
 	PasswordToken pToken = new PasswordToken("the!test12");
 	entityCredentialManagement.setEntityCredential(entityP, EngineInitialization.DEFAULT_CREDENTIAL,

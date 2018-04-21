@@ -132,7 +132,7 @@ void assignNameToAdmin() throws EngineException
 	try
 	{
 		if (attributesManagement.getAttributes(entity, "/", NAME_ATTR).isEmpty())
-			attributesManagement.setAttribute(entity, nameA, false);
+			attributesManagement.createAttribute(entity, nameA);
 	} catch (IllegalIdentityValueException e)
 	{
 		//ok - no default admin, no default Name.

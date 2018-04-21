@@ -18,6 +18,13 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public interface AttributesManagement
 {
 	/**
+	 * @deprecated use any of other create or set methods. Left as may be popular in groovy scripts 
+	 * around
+	 */
+	@Deprecated
+	void setAttribute(EntityParam entity, Attribute attribute, boolean allowUpdate) throws EngineException;
+	
+	/**
 	 * Creates an attribute (must not be present). Confirmation will be sent if needed for attribute.
 	 * @param entity
 	 * @param attribute
