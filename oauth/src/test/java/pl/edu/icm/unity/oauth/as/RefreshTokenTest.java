@@ -149,7 +149,7 @@ public class RefreshTokenTest extends TokenTestBase
 		
 		IdentityParam identity = new IdentityParam(UsernameIdentity.ID, "userA");
 		attrsMan.setAttribute(new EntityParam(identity),
-				StringAttribute.of("c", "/oauth-users", "new"), true);
+				StringAttribute.of("c", "/oauth-users", "new"));
 		
 		claimSet = refreshAndGetUserInfo(refreshToken, "foo bar", ca);
 		assertThat(claimSet.getClaim("c"), is("new"));	

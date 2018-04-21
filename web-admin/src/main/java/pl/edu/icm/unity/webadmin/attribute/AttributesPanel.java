@@ -281,7 +281,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{
 		try
 		{
-			attributesManagement.setAttribute(owner, attribute, false);
+			attributesManagement.createAttributeSuppressingConfirmation(owner, attribute);
 			reloadAttributes();
 			updateAttributes();
 			bus.fireEvent(new AttributeChangedEvent(attribute.getGroupPath(),
@@ -299,7 +299,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 	{
 		try
 		{
-			attributesManagement.setAttribute(owner, attribute, true);
+			attributesManagement.setAttributeSuppressingConfirmation(owner, attribute);
 			for (int i = 0; i < attributes.size(); i++)
 			{
 				if (attributes.get(i).getName().equals(attribute.getName()))

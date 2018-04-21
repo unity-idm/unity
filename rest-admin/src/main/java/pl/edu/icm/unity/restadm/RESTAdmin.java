@@ -348,7 +348,7 @@ public class RESTAdmin
 			throws EngineException
 	{
 		log.debug("setAttribute: " + attributeParam.getName() + " in " + attributeParam.getGroupPath());
-		attributesMan.setAttribute(entityParam, attributeParam, true);
+		attributesMan.setAttributeSuppressingConfirmation(entityParam, attributeParam);
 	}
 	
 	@Path("/entity/{entityId}/credential-adm/{credential}")

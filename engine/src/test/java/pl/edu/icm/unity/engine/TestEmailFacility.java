@@ -61,7 +61,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 	{
 		Attribute attribute = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/", emails);
-		attrsMan.setAttribute(entity, attribute, true);
+		attrsMan.setAttribute(entity, attribute);
 	}
 
 	private void check(EntityParam entity, String expected) throws Exception
@@ -89,7 +89,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 
 		Attribute attribute = StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/", "email1@ex.com");
-		attrsMan.setAttribute(entityP, attribute, true);
+		attrsMan.setAttribute(entityP, attribute);
 		
 		tx.runInTransactionThrowing(() -> {
 			assertEquals("email2@ex.com", emailFacility.getAddressForEntity(
@@ -119,7 +119,7 @@ public class TestEmailFacility extends DBIntegrationTestBase
 
 		Attribute attribute = StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/", "email1@ex.com");
-		attrsMan.setAttribute(entityP, attribute, true);
+		attrsMan.setAttribute(entityP, attribute);
 		
 		check(entityP, "email1@ex.com");
 	}

@@ -88,7 +88,7 @@ public class TestNotifications extends DBIntegrationTestBase
 
 		Attribute emailA = VerifiableEmailAttribute.of("email", 
 				"/", destinationAddress);
-		attrsMan.setAttribute(admin, emailA, false);
+		attrsMan.createAttribute(admin, emailA);
 		
 		Future<NotificationStatus> statusFuture = notProducer.sendNotification(admin, 
 				EmailPasswordResetTemplateDef.NAME, params, null, null, false);

@@ -289,7 +289,7 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		assertEquals("merge2", aRet.iterator().next().getValues().get(1));
 		
 		//additionally add a direct attribute
-		attrsMan.setAttribute(entity, StringAttribute.of("a2", "/A/B", "direct"), false);
+		attrsMan.createAttribute(entity, StringAttribute.of("a2", "/A/B", "direct"));
 		aRet = attrsMan.getAllAttributes(entity, true, "/A/B", "a2", false);
 		assertEquals(1, aRet.size());
 		assertEquals(aRet.iterator().next().getValues().toString(), 2, aRet.iterator().next().getValues().size());
@@ -479,8 +479,8 @@ public class TestAttributeStatements extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A/D", entity);
 		groupsMan.addMemberFromParent("/A/B/C", entity);
 		
-		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/A", "va1"), false);
-		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/A/B", "va1"), false);
+		attrsMan.createAttribute(entity, StringAttribute.of("a1", "/A", "va1"));
+		attrsMan.createAttribute(entity, StringAttribute.of("a1", "/A/B", "va1"));
 	}
 	
 	private AttributeType createSimpleAT(String name)

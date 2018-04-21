@@ -119,7 +119,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		{
 			Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", Lists.newArrayList(role));
-			attrsMan.setAttribute(new EntityParam(added1), sa, false);
+			attrsMan.createAttribute(new EntityParam(added1), sa);
 		}
 		return added1;
 	}
@@ -141,7 +141,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		{
 			Attribute sa = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
 				"/", Lists.newArrayList(role));
-			attrsMan.setAttribute(new EntityParam(added2), sa, false);
+			attrsMan.createAttribute(new EntityParam(added2), sa);
 		}
 		return added2;
 	}

@@ -253,7 +253,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 		Attribute attr = StringAttribute.of("o", "/", "v1");
 		attr.setRemoteIdp("test");
 		attr.setTranslationProfile("p1");
-		attrsMan.setAttribute(ep, attr, false);
+		attrsMan.createAttribute(ep, attr);
 		
 		List<TranslationRule> rules = new ArrayList<>();
 		TranslationAction action1 = new TranslationAction(MapIdentityActionFactory.NAME, new String[] {

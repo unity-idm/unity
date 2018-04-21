@@ -183,7 +183,7 @@ public class UserAttributesPanel
 	
 	private void updateAttribute(Attribute a) throws EngineException
 	{
-		attributesMan.setAttribute(new EntityParam(entityId), a, true);
+		attributesMan.setAttribute(new EntityParam(entityId), a);
 	}
 	
 	private void removeAttribute(FixedAttributeEditor ae) throws EngineException

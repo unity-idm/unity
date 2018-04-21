@@ -207,18 +207,18 @@ public class TestQuery extends TestRESTBase
 		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 		
-		attrsMan.setAttribute(e, StringAttribute.of("stringA", "/example", 
-				"value"), false);
-		attrsMan.setAttribute(e, IntegerAttribute.of("intA", "/example", 
-				12), false);
-		attrsMan.setAttribute(e, FloatingPointAttribute.of("floatA", "/example", 
-				12.9), false);
-		attrsMan.setAttribute(e, JpegImageAttribute.of("jpegA", "/example", 
-				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)), false);
-		attrsMan.setAttribute(e, EnumAttribute.of("enumA", "/example", 
-				"V1"), false);
-		attrsMan.setAttribute(e, VerifiableEmailAttribute.of("emailA", "/example", 
-				new VerifiableEmail("some@example.com")), false);
+		attrsMan.createAttribute(e, StringAttribute.of("stringA", "/example", 
+				"value"));
+		attrsMan.createAttribute(e, IntegerAttribute.of("intA", "/example", 
+				12));
+		attrsMan.createAttribute(e, FloatingPointAttribute.of("floatA", "/example", 
+				12.9));
+		attrsMan.createAttribute(e, JpegImageAttribute.of("jpegA", "/example", 
+				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)));
+		attrsMan.createAttribute(e, EnumAttribute.of("enumA", "/example", 
+				"V1"));
+		attrsMan.createAttribute(e, VerifiableEmailAttribute.of("emailA", "/example", 
+				new VerifiableEmail("some@example.com")));
 		return id.getEntityId();
 	}
 	

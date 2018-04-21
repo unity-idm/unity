@@ -89,11 +89,10 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/oauth-users", new EntityParam(identity));
 		aTypeMan.addAttributeType(new AttributeType("email", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("c", StringAttributeSyntax.ID));
-		attrsMan.setAttribute(new EntityParam(identity),
-				StringAttribute.of("email", "/oauth-users", "example@example.com"),
-				false);
-		attrsMan.setAttribute(new EntityParam(identity),
-				StringAttribute.of("c", "/oauth-users", "PL"), false);
+		attrsMan.createAttribute(new EntityParam(identity),
+				StringAttribute.of("email", "/oauth-users", "example@example.com"));
+		attrsMan.createAttribute(new EntityParam(identity),
+				StringAttribute.of("c", "/oauth-users", "PL"));
 		return identity;
 	}
 	

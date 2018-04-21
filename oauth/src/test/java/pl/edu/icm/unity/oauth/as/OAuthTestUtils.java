@@ -172,19 +172,18 @@ public class OAuthTestUtils
 			groupsMan.addGroup(new Group("/oauth-users"));
 		groupsMan.addMemberFromParent("/oauth-users", e1);
 		
-		attrsMan.setAttribute(e1, EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
+		attrsMan.createAttribute(e1, EnumAttribute.of(OAuthSystemAttributesProvider.ALLOWED_FLOWS, 
 				"/oauth-clients", 
 				Lists.newArrayList(GrantFlow.authorizationCode.name(),
-						GrantFlow.client.name())), 
-				false);
-		attrsMan.setAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
-				"/oauth-clients", "https://dummy-return.net"), false);
+						GrantFlow.client.name())));
+		attrsMan.createAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.ALLOWED_RETURN_URI, 
+				"/oauth-clients", "https://dummy-return.net"));
 		
-		attrsMan.setAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.CLIENT_NAME, 
-				"/oauth-clients", "clientName"), false);
+		attrsMan.createAttribute(e1, StringAttribute.of(OAuthSystemAttributesProvider.CLIENT_NAME, 
+				"/oauth-clients", "clientName"));
 		
-		attrsMan.setAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
-				"/", "Regular User"), false);
+		attrsMan.createAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", "Regular User"));
 		return clientId1;
 	}
 	

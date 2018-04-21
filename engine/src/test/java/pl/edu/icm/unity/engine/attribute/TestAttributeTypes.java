@@ -137,7 +137,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
 		Attribute at1 = StringAttribute.of("some", "/", "123456");
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 		
 		catchException(aTypeMan).removeAttributeType("some", false);
 		
@@ -153,7 +153,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
 		Attribute at1 = StringAttribute.of("some", "/", "123456");
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 		
 		aTypeMan.removeAttributeType("some", true);
 		
@@ -200,7 +200,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
 		Attribute at1 = StringAttribute.of("some", "/", vals);
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 		
 		at.setMinElements(1);
 		at.setMaxElements(3);
@@ -221,7 +221,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		Identity id = createUsernameUser("user");
 		EntityParam entity = new EntityParam(id.getEntityId());
 		Attribute at1 = StringAttribute.of("some", "/", vals);
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 		
 		at.setMaxElements(2);
 		catchException(aTypeMan).updateAttributeType(at);
@@ -255,14 +255,14 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		List<String> vals = new ArrayList<String>();
 		Collections.addAll(vals, "MA__g", "MA_ _ _g");
 		Attribute atOK = StringAttribute.of("some", "/", vals);
-		attrsMan.setAttribute(entity, atOK, false);
+		attrsMan.createAttribute(entity, atOK);
 		
 		//now try to break restrictions:
 		// - unique
 		atOK.setValues("MA__g", "MA__g");
 		try
 		{
-			attrsMan.setAttribute(entity, atOK, true);
+			attrsMan.setAttribute(entity, atOK);
 			fail("Managed to add attribute with duplicated values");
 		} catch (IllegalAttributeValueException e) {/*OK*/}
 
@@ -270,7 +270,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		atOK.setValues("MA__g", "MA___g", "MA_____g");
 		try
 		{
-			attrsMan.setAttribute(entity, atOK, true);
+			attrsMan.setAttribute(entity, atOK);
 			fail("Managed to add attribute with too many values");
 		} catch (IllegalAttributeValueException e) {/*OK*/}
 		
@@ -278,7 +278,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		atOK.setValues("MA_g");
 		try
 		{
-			attrsMan.setAttribute(entity, atOK, true);
+			attrsMan.setAttribute(entity, atOK);
 			fail("Managed to add attribute with too short value");
 		} catch (IllegalAttributeValueException e) {/*OK*/}
 		
@@ -286,7 +286,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		atOK.setValues("MA__________g");
 		try
 		{
-			attrsMan.setAttribute(entity, atOK, true);
+			attrsMan.setAttribute(entity, atOK);
 			fail("Managed to add attribute with too long value");
 		} catch (IllegalAttributeValueException e) {/*OK*/}
 		
@@ -295,7 +295,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		atOK.setValues("M____g");
 		try
 		{
-			attrsMan.setAttribute(entity, atOK, true);
+			attrsMan.setAttribute(entity, atOK);
 			fail("Managed to add attribute with not matching value");
 		} catch (IllegalAttributeValueException e) {/*OK*/}
 		

@@ -18,13 +18,41 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public interface AttributesManagement
 {
 	/**
-	 * Creates or updates an attribute.
+	 * Creates an attribute (must not be present). Confirmation will be sent if needed for attribute.
 	 * @param entity
 	 * @param attribute
 	 * @param update
 	 * @throws EngineException
 	 */
-	void setAttribute(EntityParam entity, Attribute attribute, boolean update) throws EngineException;
+	void createAttribute(EntityParam entity, Attribute attribute) throws EngineException;
+
+	/**
+	 * Updates or creates an attribute (may be present). Confirmation will be sent if needed for attribute.
+	 * @param entity
+	 * @param attribute
+	 * @param update
+	 * @throws EngineException
+	 */
+	void setAttribute(EntityParam entity, Attribute attribute) throws EngineException;
+
+	/**
+	 * Creates an attribute (must not be present). Confirmation will not be sent.
+	 * @param entity
+	 * @param attribute
+	 * @param update
+	 * @throws EngineException
+	 */
+	void createAttributeSuppressingConfirmation(EntityParam entity, Attribute attribute) throws EngineException;
+
+	/**
+	 * Updates or creates an attribute (may be present). Confirmation will not be sent.
+	 * @param entity
+	 * @param attribute
+	 * @param update
+	 * @throws EngineException
+	 */
+	void setAttributeSuppressingConfirmation(EntityParam entity, Attribute attribute) throws EngineException;
+
 	
 	/**
 	 * Removes a given attribute

@@ -311,7 +311,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		
 		try
 		{
-			attrsMan.setAttribute(entity, StringAttribute.of("a3", "/A", ""), true);
+			attrsMan.setAttribute(entity, StringAttribute.of("a3", "/A", ""));
 			fail("Managed to add an attribute disallowed by group's AC");
 		} catch (SchemaConsistencyException e) {}
 		
@@ -326,7 +326,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		acMan.addAttributeClass(ac2);
 		
 		acMan.setEntityAttributeClasses(entity, "/A", Collections.singleton(ac2.getName()));
-		attrsMan.setAttribute(entity, StringAttribute.of("a3", "/A", ""), true);
+		attrsMan.setAttribute(entity, StringAttribute.of("a3", "/A", ""));
 	}	
 	
 	/**
@@ -360,7 +360,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		acs.add(ac2.getName());
 		acMan.setEntityAttributeClasses(entity, "/A", acs);
 		
-		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/A", ""), true);
+		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/A", ""));
 
 		try
 		{
@@ -373,7 +373,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		groupA.setAttributesClasses(Collections.singleton(ac2.getName()));
 		groupsMan.updateGroup("/A", groupA);
 		
-		attrsMan.setAttribute(entity, StringAttribute.of("a2", "/A", ""), true);
+		attrsMan.setAttribute(entity, StringAttribute.of("a2", "/A", ""));
 		
 		try
 		{
@@ -423,8 +423,8 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 			acMan.setEntityAttributeClasses(entity, "/", Collections.singleton(ac.getName()));
 			fail("Managed to assign AC to an entity without mandatory attr");
 		} catch (SchemaConsistencyException e) {}
-		attrsMan.setAttribute(entity, StringAttribute.of("a1", "/"), false);
-		attrsMan.setAttribute(entity, StringAttribute.of("a3", "/"), false);
+		attrsMan.createAttribute(entity, StringAttribute.of("a1", "/"));
+		attrsMan.createAttribute(entity, StringAttribute.of("a3", "/"));
 		try
 		{
 			acMan.setEntityAttributeClasses(entity, "/", Collections.singleton(ac.getName()));
@@ -446,7 +446,7 @@ public class TestAttributeClasses extends DBIntegrationTestBase
 		
 		try
 		{
-			attrsMan.setAttribute(entity, StringAttribute.of("a3", "/"), false);
+			attrsMan.createAttribute(entity, StringAttribute.of("a3", "/"));
 			fail("Managed to add a disallowed attribute");
 		} catch (SchemaConsistencyException e) {}
 	}

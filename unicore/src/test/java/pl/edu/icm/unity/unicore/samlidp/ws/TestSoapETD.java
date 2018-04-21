@@ -154,8 +154,8 @@ public class TestSoapETD extends DBIntegrationTestBase
 		EntityParam e2 = new EntityParam(added2);
 		eCredMan.setEntityCredential(e2, "credential2", "");
 		
-		attrsMan.setAttribute(e2, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
-				"/", "Regular User"), false);
+		attrsMan.createAttribute(e2, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", "Regular User"));
 	}
 	
 	protected void setupMockAuthn() throws Exception

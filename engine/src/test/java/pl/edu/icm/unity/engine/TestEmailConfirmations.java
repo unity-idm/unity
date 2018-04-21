@@ -113,7 +113,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				false));
 		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
@@ -129,7 +129,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		Attribute at1P = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1P,
 				e2P, e3P);
-		attrsMan.setAttribute(entity, at1P, true);
+		attrsMan.setAttribute(entity, at1P);
 
 		AttributeExt returnedP = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
@@ -157,7 +157,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
 		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
@@ -183,7 +183,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
 		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
-		attrsMan.setAttribute(entity, at1, true);
+		attrsMan.setAttribute(entity, at1);
 
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
@@ -199,7 +199,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				new ConfirmationInfo(true));
 		at1 = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 				e3, e2, e1);
-		attrsMan.setAttribute(entity, at1, true);
+		attrsMan.setAttribute(entity, at1);
 
 		returned = attrsMan.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
 				.iterator().next();
@@ -226,7 +226,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
 		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/", e1, e2);
-		attrsMan.setAttribute(entity, at1, true);
+		attrsMan.setAttribute(entity, at1);
 
 		AttributeExt returned = attrsMan
 				.getAttributes(entity, "/", InitializerCommon.EMAIL_ATTR)
@@ -241,7 +241,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				e1, e2);
 		try
 		{
-			attrsMan.setAttribute(entity, at1, true);
+			attrsMan.setAttribute(entity, at1);
 			fail("Ordinary user managed to remove the last confirmed attribute value");
 		} catch (IllegalAttributeValueException e)
 		{
@@ -263,7 +263,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				VerifiableEmailAttributeSyntax.ID));
 		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/test", "example2@ex.com");
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 		EmailAttribiuteConfirmationState attrState = new EmailAttribiuteConfirmationState(
 				entity.getEntityId(), InitializerCommon.EMAIL_ATTR,
 				"example2@ex.com", "pl", "/test", "");
@@ -288,7 +288,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				VerifiableEmailAttributeSyntax.ID));
 		Attribute at1 = VerifiableEmailAttribute.of(
 				InitializerCommon.EMAIL_ATTR, "/test", "example2@ex.com");
-		attrsMan.setAttribute(entity, at1, false);
+		attrsMan.createAttribute(entity, at1);
 		addSimpleConfirmationConfiguration(
 				true,
 				InitializerCommon.EMAIL_ATTR, "demoTemplate", "demoChannel");
@@ -728,7 +728,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		for (int i = 0; i < mainConfig.getIntValue(UnityServerConfiguration.EMAIL_CONFIRMATION_REQUEST_LIMIT); i++)
 		{
 			at1.setValues(new VerifiableEmail("test6@ex.com", new ConfirmationInfo(false)).toJsonString());
-			attrsMan.setAttribute(entity, at1, true);
+			attrsMan.setAttribute(entity, at1);
 			String token = tokensMan
 					.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
 					.get(0).getValue();
@@ -742,7 +742,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			}
 			
 		}	
-		attrsMan.setAttribute(entity, at1, true);
+		attrsMan.setAttribute(entity, at1);
 		Assert.assertTrue(tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE).isEmpty());	
 		
 		Collection<AttributeExt>  attrs = attrsMan.getAttributes(entity, "/test", InitializerCommon.EMAIL_ATTR);

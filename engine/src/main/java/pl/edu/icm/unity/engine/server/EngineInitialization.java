@@ -500,7 +500,7 @@ public class EngineInitialization extends LifecycleBase
 				
 				Attribute roleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 						"/", Lists.newArrayList(AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
-				attrManagement.setAttribute(adminEntity, roleAt, false);
+				attrManagement.createAttribute(adminEntity, roleAt);
 				log.warn("IMPORTANT:\n"
 						+ "Database was initialized with a default admin user and password." +
 						" Log in and change the admin's password immediatelly! U: " + 

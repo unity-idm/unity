@@ -171,23 +171,23 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		fAT.setMaxElements(100);
 		aTypeMan.addAttributeType(fAT);
 		
-		attrsMan.setAttribute(e1, StringAttribute.of("stringA", "/", "value"), false);
-		attrsMan.setAttribute(e1, IntegerAttribute.of("intA", "/", 123), false);
+		attrsMan.createAttribute(e1, StringAttribute.of("stringA", "/", "value"));
+		attrsMan.createAttribute(e1, IntegerAttribute.of("intA", "/", 123));
 		List<Double> vals = new ArrayList<Double>();
 		vals.add(123.1);
 		vals.add(124.1);
 		vals.add(14.2);
-		attrsMan.setAttribute(e1, FloatingPointAttribute.of("floatA", "/", vals), false);
-		attrsMan.setAttribute(e1, VerifiableEmailAttribute.of("emailA", "/", "example@example.com"), false);
+		attrsMan.createAttribute(e1, FloatingPointAttribute.of("floatA", "/", vals));
+		attrsMan.createAttribute(e1, VerifiableEmailAttribute.of("emailA", "/", "example@example.com"));
 
-		attrsMan.setAttribute(e2, StringAttribute.of("stringA", "/"), false);
-		attrsMan.setAttribute(e2, IntegerAttribute.of("intA", "/", 1), false);
-		attrsMan.setAttribute(e2, FloatingPointAttribute.of("floatA", "/", vals), false);
+		attrsMan.createAttribute(e2, StringAttribute.of("stringA", "/"));
+		attrsMan.createAttribute(e2, IntegerAttribute.of("intA", "/", 1));
+		attrsMan.createAttribute(e2, FloatingPointAttribute.of("floatA", "/", vals));
 		
-		attrsMan.setAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
-				"/", "Inspector"), false);
-		attrsMan.setAttribute(e2, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
-				"/", "Regular User"), false);
+		attrsMan.createAttribute(e1, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", "Inspector"));
+		attrsMan.createAttribute(e2, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, 
+				"/", "Regular User"));
 	}
 	
 	protected void setupMockAuthn() throws Exception

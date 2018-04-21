@@ -427,7 +427,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 			Attribute a = JpegImageAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(im));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 
@@ -437,7 +437,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 			Attribute a = StringAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(new String(typeName)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 
@@ -447,7 +447,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 			Attribute a = IntegerAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(new Long(i + 100)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 
@@ -457,7 +457,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 			Attribute a = FloatingPointAttribute.of(typeName, enInGroup.get(i%NU),
 					Collections.singletonList(new Double(i + 100)));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 		return op;

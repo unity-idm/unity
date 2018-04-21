@@ -111,7 +111,7 @@ public class OutputTranslationEngine
 		for (Attribute a: result.getAttributesToPersist())
 		{
 			log.debug("Adding attribute: " + a + " for " + parent);
-			attrMan.setAttribute(parent, a, true);
+			attrMan.setAttribute(parent, a);
 		}
 	}
 }

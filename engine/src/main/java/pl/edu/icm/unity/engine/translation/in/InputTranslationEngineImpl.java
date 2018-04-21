@@ -501,7 +501,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 				if (existing == null)
 				{
 					log.info("Creating attribute " + att);
-					attrMan.setAttribute(principal, att, false);					
+					attrMan.createAttribute(principal, att);					
 				} else
 				{
 					log.debug("Skipping attribute which is already present: " + att);
@@ -535,7 +535,7 @@ public class InputTranslationEngineImpl implements InputTranslationEngine
 			return;
 		}
 		log.info("Updating attribute {}", att);
-		attrMan.setAttribute(principal, att, true);
+		attrMan.setAttribute(principal, att);
 	}
 	
 	private boolean attributesEqual(Attribute attribute, AttributeExt fromDB)

@@ -366,7 +366,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 			String typeName = "jpeg_" + r.nextInt((nDefAttr / 4) - 2);
 			Attribute a = JpegImageAttribute.of(typeName, enInGroup.get(i%NU), im);
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 
@@ -375,7 +375,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 			String typeName = "string_" + r.nextInt((nDefAttr  / 4) - 2);
 			Attribute a = StringAttribute.of(typeName, enInGroup.get(i%NU), typeName);
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 
@@ -385,7 +385,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 			Attribute a = IntegerAttribute.of(typeName, enInGroup.get(i%NU),
 					new Long(i + 100));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 
@@ -395,7 +395,7 @@ public abstract class PerformanceTestBase extends TestRESTBase
 			Attribute a = FloatingPointAttribute.of(typeName, enInGroup.get(i%NU),
 					new Double(i + 100));
 			EntityParam par = new EntityParam(entities.get(i%NU).getId());
-			attrsMan.setAttribute(par, a, true);
+			attrsMan.setAttribute(par, a);
 			op++;
 		}
 		return op;

@@ -67,9 +67,36 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.txRunner = txRunner;
 	}
 
+	
+
 	@Override
-	public void setAttribute(EntityParam entity, Attribute attribute, boolean update)
+	public void createAttribute(EntityParam entity, Attribute attribute) throws EngineException
+	{
+		setAttribute(entity, attribute, false, true);
+	}
+
+	@Override
+	public void setAttribute(EntityParam entity, Attribute attribute) throws EngineException
+	{
+		setAttribute(entity, attribute, true, true);
+	}
+
+	@Override
+	public void createAttributeSuppressingConfirmation(EntityParam entity, Attribute attribute)
 			throws EngineException
+	{
+		setAttribute(entity, attribute, false, false);
+	}
+
+	@Override
+	public void setAttributeSuppressingConfirmation(EntityParam entity, Attribute attribute)
+			throws EngineException
+	{
+		setAttribute(entity, attribute, true, false);
+	}
+	
+	private void setAttribute(EntityParam entity, Attribute attribute, boolean allowUpdate, 
+			boolean sendConfirmations) throws EngineException
 	{
 		entity.validateInitialization(); 
 		txRunner.runInTransactionThrowing(() -> {
@@ -81,9 +108,10 @@ public class AttributesManagementImpl implements AttributesManagement
 			fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName());
 
-			attributesHelper.addAttribute(entityId, attribute, at, update, fullAuthz);
+			attributesHelper.addAttribute(entityId, attribute, at, allowUpdate, fullAuthz);
 		});
-		confirmationManager.sendVerificationQuietNoTx(entity, attribute, false);
+		if (sendConfirmations)
+			confirmationManager.sendVerificationQuietNoTx(entity, attribute, false);
 	}
 	
 	private boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute attribute) 
