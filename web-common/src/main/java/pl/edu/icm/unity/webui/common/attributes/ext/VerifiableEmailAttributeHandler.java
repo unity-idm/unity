@@ -84,7 +84,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		ret.setMargin(false);
 		Label info = new Label(msg.getMessage("VerifiableEmailAttributeHandler.info"));
 		ret.addComponent(info);
-		ret.addComponent(new EmailConfirmationConfigurationViewer(msg,
+		if (syntax.getEmailConfirmationConfiguration().isPresent())
+			ret.addComponent(new EmailConfirmationConfigurationViewer(msg,
 				syntax.getEmailConfirmationConfiguration().get()));
 		return ret;
 	}

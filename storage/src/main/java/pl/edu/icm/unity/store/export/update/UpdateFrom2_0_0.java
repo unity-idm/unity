@@ -94,23 +94,26 @@ public class UpdateFrom2_0_0 implements Update
 		{
 
 			ObjectNode reset = (ObjectNode) configurationNode.get("resetSettings");
-			boolean reqEmail = reset.get("requireEmailConfirmation").asBoolean();
-			reset.remove("requireEmailConfirmation");
-			if (reqEmail)
+			if (reset.has("requireEmailConfirmation"))
 			{
-				reset.put("confirmationMode", "RequireEmail");
-				if (reset.get("securityCodeMsgTemplate") != null)
+				boolean reqEmail = reset.get("requireEmailConfirmation").asBoolean();
+				reset.remove("requireEmailConfirmation");
+				if (reqEmail)
 				{
-					reset.put("emailSecurityCodeMsgTemplate", reset
+					reset.put("confirmationMode", "RequireEmail");
+					if (reset.get("securityCodeMsgTemplate") != null)
+					{
+						reset.put("emailSecurityCodeMsgTemplate", reset
 							.get("securityCodeMsgTemplate").asText());
-					reset.remove("securityCodeMsgTemplate");
+						reset.remove("securityCodeMsgTemplate");
+					}
+				} else
+				{
+					reset.put("confirmationMode", "NothingRequire");
 				}
-			} else
-			{
-				reset.put("confirmationMode", "NothingRequire");
+				configurationNode.set("resetSettings", reset);
+				content.put("configuration", configurationNode.toString());
 			}
-			configurationNode.set("resetSettings", reset);
-			content.put("configuration", configurationNode.toString());
 		}
 	}
 	
