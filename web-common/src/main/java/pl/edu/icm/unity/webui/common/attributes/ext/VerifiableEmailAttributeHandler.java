@@ -166,8 +166,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 			
-			Optional<EmailConfirmationConfiguration> confirmationConfig = emailConfirmationMan.getConfirmationConfigurationForAttribute(
-					attrName);
+			Optional<EmailConfirmationConfiguration> confirmationConfig = 
+					emailConfirmationMan.getConfirmationConfigurationForAttribute(attrName);
 			
 			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
 					"VerifiableEmailAttributeHandler.resendConfirmation"),
