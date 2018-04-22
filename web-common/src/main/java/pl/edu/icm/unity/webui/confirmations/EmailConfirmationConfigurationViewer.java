@@ -44,9 +44,10 @@ public class EmailConfirmationConfigurationViewer extends VerticalLayout
 
 	public void setValue(EmailConfirmationConfiguration init)
 	{
+		String msgTemplateName = init != null ? init.getMessageTemplate() : null;
 		msgTemplate.setValue(msg
 				.getMessage("EmailConfirmationConfiguration.confirmationMsgTemplate")
-				+ " " + (init != null ? init.getMessageTemplate() : ""));
+				+ " " + (msgTemplateName != null ? msgTemplateName : ""));
 
 		validityTime.setValue(msg.getMessage("EmailConfirmationConfiguration.validityTime")
 				+ " "

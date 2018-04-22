@@ -50,16 +50,16 @@ public class EmailConfirmationConfigurationEditor extends CompactFormLayout
 		msgTemplate = new CompatibleTemplatesComboBox(EmailConfirmationTemplateDef.NAME, msgTemplateMan);
 		msgTemplate.setCaption(msg.getMessage(
 				"EmailConfirmationConfiguration.confirmationMsgTemplate"));
-		msgTemplate.setEmptySelectionAllowed(false);
-		msgTemplate.setDefaultValue();
+		msgTemplate.setDescription(msg.getMessage(
+				"EmailConfirmationConfiguration.confirmationMsgTemplateDesc"));
+		msgTemplate.setEmptySelectionAllowed(true);
 
 		validityTime = new TextField(
 				msg.getMessage("EmailConfirmationConfiguration.validityTime"));
 		
 		addFieldToLayout(this);
 		
-		binder.forField(msgTemplate).asRequired(msg.getMessage("fieldRequired"))
-				.bind("messageTemplate");
+		binder.forField(msgTemplate).bind("messageTemplate");
 		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))
 				.withConverter(new StringToIntegerConverter(
 						msg.getMessage("notAnIntNumber")))
