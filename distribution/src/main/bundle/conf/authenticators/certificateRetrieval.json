@@ -2,7 +2,8 @@
 	"i18nName" : {
 		"Map": {
 			"en": "Certificate authentication",
-			"pl": "Uwierzytelnianie certyfikatem"
+			"pl": "Uwierzytelnianie certyfikatem",
+			"de": "Authentifikation mit Zertifikat"
 		}
 	}
 }
