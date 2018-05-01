@@ -4,8 +4,11 @@
  */
 package pl.edu.icm.unity.stdext.credential;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
@@ -14,16 +17,18 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class NoCredentialResetImpl implements CredentialReset
 {
-	private CredentialResetSettings settings;
+	private PasswordCredentialResetSettings settings;
 	
 	{
-		settings = new CredentialResetSettings();
+		settings = new PasswordCredentialResetSettings();
 		settings.setEnabled(false);
 	}
 	@Override
-	public CredentialResetSettings getSettings()
+	public String getSettings()
 	{
-		return settings;
+		ObjectNode node = Constants.MAPPER.createObjectNode();
+		settings.serializeTo(node);
+		return JsonUtil.toJsonString(node);
 	}
 
 	@Override
@@ -63,5 +68,11 @@ public class NoCredentialResetImpl implements CredentialReset
 	@Override
 	public void updateCredential(String newCredential) throws EngineException
 	{
+	}
+
+	@Override
+	public Long getEntityId()
+	{
+		return null;
 	}
 }

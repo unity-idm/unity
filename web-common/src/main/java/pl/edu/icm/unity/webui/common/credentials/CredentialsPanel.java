@@ -215,7 +215,7 @@ public class CredentialsPanel extends VerticalLayout
 		askAboutCurrent = isCurrentCredentialVerificationRequired(chosen);
 		
 		ComponentsContainer credEditorComp = credEditor.getEditor(askAboutCurrent, 
-				chosen.getConfiguration(), true); 
+				chosen.getConfiguration(), true, entityId, !simpleMode); 
 		credLayout.addComponents(credEditorComp.getComponents());
 		editor.setContent(credLayout);
 		Component viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());

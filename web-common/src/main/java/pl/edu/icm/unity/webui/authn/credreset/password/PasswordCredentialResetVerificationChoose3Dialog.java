@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.authn.credreset;
+package pl.edu.icm.unity.webui.authn.credreset.password;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -13,6 +13,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.credreset.CredentialResetStateVariable;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
@@ -21,7 +22,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  * @author P.Piernik
  *
  */
-public class CredentialResetVerificationChoose3Dialog  extends AbstractDialog
+public class PasswordCredentialResetVerificationChoose3Dialog  extends AbstractDialog
 {	
 	private enum VerificationMethod {Email, Mobile}
 	
@@ -31,7 +32,7 @@ public class CredentialResetVerificationChoose3Dialog  extends AbstractDialog
 	private String username;
 	private CredentialEditor credEditor;
 	
-	public CredentialResetVerificationChoose3Dialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor, 
+	public PasswordCredentialResetVerificationChoose3Dialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor, 
 			String username)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
@@ -68,13 +69,13 @@ public class CredentialResetVerificationChoose3Dialog  extends AbstractDialog
 		
 		if (choose.getValue().equals(VerificationMethod.Email))
 		{
-			EmailCodeCredentialReset4Dialog dialog4 = new EmailCodeCredentialReset4Dialog(msg, backend, credEditor, username);
+			EmailCodePasswordCredentialReset4Dialog dialog4 = new EmailCodePasswordCredentialReset4Dialog(msg, backend, credEditor, username);
 			dialog4.show();
 		} else
 		{
 			//go to mobile
 			CredentialResetStateVariable.inc();
-			MobileCodeCredentialReset5Dialog dialog5 = new MobileCodeCredentialReset5Dialog(msg, backend, credEditor, username);
+			MobileCodePasswordCredentialReset5Dialog dialog5 = new MobileCodePasswordCredentialReset5Dialog(msg, backend, credEditor, username);
 			dialog5.show();
 		}	
 	}

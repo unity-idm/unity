@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.credreset;
+package pl.edu.icm.unity.webui.authn.credreset.password;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
@@ -11,10 +11,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.TooManyAttempts;
+import pl.edu.icm.unity.stdext.credential.PasswordCredentialResetSettings;
+import pl.edu.icm.unity.stdext.credential.PasswordCredentialResetSettings.ConfirmationMode;
+import pl.edu.icm.unity.webui.authn.credreset.CredentialResetStateVariable;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
@@ -32,16 +35,17 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  * 
  * @author K. Benedyczak
  */
-public class CredentialReset2Dialog extends AbstractDialog
+public class PasswordCredentialReset2Dialog extends AbstractDialog
 {
 	private UnityMessageSource msg;
 	private CredentialReset backend;
 	private String username;
 	private CredentialEditor credEditor;
+	private PasswordCredentialResetSettings settings;
 	
 	private TextField answer;
 	
-	public CredentialReset2Dialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor, 
+	public PasswordCredentialReset2Dialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor, 
 			String username)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
@@ -50,6 +54,8 @@ public class CredentialReset2Dialog extends AbstractDialog
 		this.backend = backend;
 		this.username = username;
 		this.credEditor = credEditor;
+		this.settings = new PasswordCredentialResetSettings(
+				JsonUtil.parse(backend.getSettings()));
 	}
 
 	@Override
@@ -117,26 +123,26 @@ public class CredentialReset2Dialog extends AbstractDialog
 		close();
 
 		CredentialResetStateVariable.inc(); // ok - next step allowed
-		if (backend.getSettings().isRequireEmailConfirmation())
+		if (settings.isRequireEmailConfirmation())
 		{
 			CredentialResetStateVariable.inc();
-			EmailCodeCredentialReset4Dialog dialog4 = new EmailCodeCredentialReset4Dialog(
+			EmailCodePasswordCredentialReset4Dialog dialog4 = new EmailCodePasswordCredentialReset4Dialog(
 					msg, backend, credEditor, username);
 			dialog4.show();
-		} else if (backend.getSettings().isRequireMobileConfirmation())
+		} else if (settings.isRequireMobileConfirmation())
 
 		{
 			CredentialResetStateVariable.inc();
 			CredentialResetStateVariable.inc();
-			MobileCodeCredentialReset5Dialog dialog5 = new MobileCodeCredentialReset5Dialog(
+			MobileCodePasswordCredentialReset5Dialog dialog5 = new MobileCodePasswordCredentialReset5Dialog(
 					msg, backend, credEditor, username);
 			dialog5.show();
 
-		} else if (backend.getSettings().getConfirmationMode()
+		} else if (settings.getConfirmationMode()
 				.equals(ConfirmationMode.RequireEmailOrMobile))
 
 		{
-			CredentialResetVerificationChoose3Dialog dialog3 = new CredentialResetVerificationChoose3Dialog(
+			PasswordCredentialResetVerificationChoose3Dialog dialog3 = new PasswordCredentialResetVerificationChoose3Dialog(
 					msg, backend, credEditor, username);
 			dialog3.show();
 		}
@@ -147,7 +153,7 @@ public class CredentialReset2Dialog extends AbstractDialog
 			CredentialResetStateVariable.inc();
 			CredentialResetStateVariable.inc();
 			CredentialResetStateVariable.inc();
-			CredentialResetFinalDialog dialogFinal = new CredentialResetFinalDialog(msg,
+			PasswordResetFinalDialog dialogFinal = new PasswordResetFinalDialog(msg,
 					backend, credEditor);
 			dialogFinal.show();
 		}

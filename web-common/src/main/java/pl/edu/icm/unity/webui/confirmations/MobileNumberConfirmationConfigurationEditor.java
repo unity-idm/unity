@@ -8,10 +8,8 @@ package pl.edu.icm.unity.webui.confirmations;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
-import com.vaadin.data.converter.StringToIntegerConverter;
 import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.base.msgtemplates.confirm.MobileNumberConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
@@ -35,17 +33,26 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 	private Binder<MobileNumberConfirmationConfiguration> binder;
 	private MobileNumberConfirmationConfiguration initial;
 	private CompatibleTemplatesComboBox msgTemplate;
-	private TextField validityTime;
+	private IntStepper validityTime;
 	private IntStepper codeLength;
-
+	private String msgPrefix;
+	
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
-			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix)
 	{
 		this.initial = initial;
 		this.msg = msg;
 		this.msgTemplateMan = msgTemplateMan;
+		this.msgPrefix = msgPrefix;
 		initUI();
 	}
+	
+	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
+			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan)
+	{
+		this(initial, msg, msgTemplateMan, "MobileNumberConfirmationConfiguration.");
+	}
+	
 
 	private void initUI()
 	{
@@ -53,15 +60,18 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 		
 		msgTemplate = new CompatibleTemplatesComboBox(MobileNumberConfirmationTemplateDef.NAME, msgTemplateMan);
 		msgTemplate.setCaption(msg.getMessage(
-				"MobileNumberConfirmationConfiguration.confirmationMsgTemplate"));
+				msgPrefix + "confirmationMsgTemplate"));
 		msgTemplate.setEmptySelectionAllowed(false);
 		msgTemplate.setDefaultValue();
 
-		validityTime = new TextField(
-				msg.getMessage("MobileNumberConfirmationConfiguration.validityTime"));
+		
+		validityTime = new IntStepper(msg.getMessage(msgPrefix + "validityTime"));
+		validityTime.setMinValue(1);
+		validityTime.setMaxValue(60 * 24 * 365);
+		validityTime.setWidth(4, Unit.EM);
 		
 		codeLength = new IntStepper(
-				msg.getMessage("MobileNumberConfirmationConfiguration.codeLength"));
+				msg.getMessage(msgPrefix + "codeLength"));
 		codeLength.setMinValue(1);
 		codeLength.setMaxValue(50);
 		codeLength.setWidth(3, Unit.EM);
@@ -71,8 +81,6 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 		binder.forField(msgTemplate).asRequired(msg.getMessage("fieldRequired"))
 				.bind("messageTemplate");
 		binder.forField(validityTime).asRequired(msg.getMessage("fieldRequired"))
-				.withConverter(new StringToIntegerConverter(
-						msg.getMessage("notAnIntNumber")))
 				.withValidator(new IntegerRangeValidator(msg
 						.getMessage("outOfBoundsNumber", 1, 60 * 24 * 365),
 						1, 60 * 24 * 365))

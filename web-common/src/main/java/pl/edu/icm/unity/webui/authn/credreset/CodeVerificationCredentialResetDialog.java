@@ -40,12 +40,14 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 	private TextField answer;
 	private int expectedState;
 	private String messageTemplate;
+
 	private String answerLabel;
+	private String infoLabel;
 	private String resendDesc;
 	private boolean onlyNumberCode;
 	
 	public CodeVerificationCredentialResetDialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor,
-			String username,int expectedState, String messageTemplate, String answerLabel, String resendDesc, boolean onlyNumberCode)
+			String username,int expectedState, String messageTemplate, String answerLabel, String resendDesc, String infoLabel, boolean onlyNumberCode)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
 				msg.getMessage("cancel"));
@@ -56,11 +58,17 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 		this.expectedState = expectedState;
 		this.messageTemplate = messageTemplate;
 		this.answerLabel = answerLabel;
+		this.infoLabel = infoLabel;
 		this.resendDesc = resendDesc;
 		this.onlyNumberCode = onlyNumberCode;
 		
 	}
 
+	public void setMessageTemplate(String messageTemplate)
+	{
+		this.messageTemplate = messageTemplate;
+	}
+	
 	@Override
 	protected Component getContents() throws Exception
 	{
@@ -84,6 +92,7 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 		}
 		
 		Label userLabel = new Label(msg.getMessage("CredentialReset.changingFor", username));
+		Label info = new Label(infoLabel);
 		
 		answer = new TextField(answerLabel);
 		final Button resend = new Button(msg.getMessage("CredentialReset.resend"));
@@ -111,6 +120,7 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
 		ret.addComponent(userLabel);
+		ret.addComponent(info);
 		FormLayout form = new FormLayout(answer, resend);
 		ret.addComponent(form);
 		return ret;

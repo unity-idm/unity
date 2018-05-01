@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer;
 
@@ -47,11 +47,11 @@ import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer
 public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 {
 	private UnityMessageSource msg;
-	private IdentityFormatter formatter;
+	private ConfirmationInfoFormatter formatter;
 	private VerifiableEmailAttributeSyntax syntax;
 	private EmailConfirmationManager emailConfirmationMan;
 
-	public VerifiableEmailAttributeHandler(UnityMessageSource msg, IdentityFormatter formatter, 
+	public VerifiableEmailAttributeHandler(UnityMessageSource msg, ConfirmationInfoFormatter formatter, 
 			AttributeValueSyntax<?> syntax, EmailConfirmationManager emailConfirmationMan)
 	{
 		this.msg = msg;
@@ -235,7 +235,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 		private void updateConfirmationStatusIcon()
 		{
-			editor.setConfirmationStatusIcon(formatter.getConfirmationStatusString(
+			editor.setConfirmationStatusIcon(formatter.getSimpleConfirmationStatusString(
 					confirmationInfo), confirmationInfo.isConfirmed());
 			editor.setVerifyButtonVisiable(!confirmationInfo
 					.isConfirmed()
@@ -308,13 +308,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	public static class VerifiableEmailAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
 		private UnityMessageSource msg;
-		private IdentityFormatter formatter;
+		private ConfirmationInfoFormatter formatter;
 		private MessageTemplateManagement msgTemplateMan;
 		private EmailConfirmationManager emailConfirmationMan;
 
 		@Autowired
 		public VerifiableEmailAttributeHandlerFactory(UnityMessageSource msg,
-				IdentityFormatter formatter,
+				ConfirmationInfoFormatter formatter,
 				MessageTemplateManagement msgTemplateMan,
 				EmailConfirmationManager emailConfirmationMan)
 		{

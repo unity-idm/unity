@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.identities;
 
-import java.sql.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +12,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 /**
  * Utility class presenting an {@link Identity} or {@link IdentityParam} in web-ready and readable form.
@@ -28,6 +26,8 @@ public class IdentityFormatter
 	private UnityMessageSource msg;
 	@Autowired
 	private IdentityTypeSupport idTypeSupport;
+	@Autowired
+	private ConfirmationInfoFormatter confirmationInfoFormatter;
 	
 	public String toString(Identity id)
 	{
@@ -55,31 +55,9 @@ public class IdentityFormatter
 		StringBuilder sb = new StringBuilder();
 		sb.append(msg.getMessage("IdentityFormatter.identityCore", id.getTypeId(), coreValue));
 		if (verifiable)
-			sb.append(getConfirmationStatusString(id.getConfirmationInfo()));
+			sb.append(confirmationInfoFormatter.getConfirmationStatusString(id.getConfirmationInfo()));
 		sb.append(getRemoteInfoString(id));
 		return sb.toString();
-	}
-	
-	public String getConfirmationStatusString(ConfirmationInfo cdata)
-	{
-		StringBuilder rep = new StringBuilder();
-		if (cdata != null)
-		{
-			rep.append(" ");
-			if (cdata.isConfirmed())
-			{
-				rep.append(msg.getMessage("VerifiableEmail.confirmed",
-						new Date(cdata.getConfirmationDate())));
-			} else
-			{
-				if (cdata.getSentRequestAmount() == 0)
-					rep.append(msg.getMessage("VerifiableEmail.unconfirmed"));
-				else
-					rep.append(msg.getMessage("VerifiableEmail.unconfirmedWithRequests",
-							cdata.getSentRequestAmount()));
-			}
-		}
-		return rep.toString();
 	}
 	
 	private String getRemoteInfoString(IdentityParam id)

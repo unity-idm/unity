@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.stdext.credential;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -16,7 +15,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
-import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
@@ -32,14 +30,14 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
- * Default implementation of {@link CredentialReset}. This implementation is stateful, i.e. from creation it
+ * Base for credential reset implementation of {@link CredentialReset}. This implementation is stateful, i.e. from creation it
  * must be used exclusively by a single reset procedure.
- * @author K. Benedyczak
+ * @author P. Piernik
  */
-public class CredentialResetImpl implements CredentialReset
+public abstract class CredentialResetBase implements CredentialReset
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, CredentialResetImpl.class);
-	private static final int MAX_ANSWER_ATTEMPTS = 2;
+	private static final Logger log = Log.getLogger(Log.U_SERVER, CredentialResetBase.class);
+	protected static final int MAX_ANSWER_ATTEMPTS = 2;
 	private static final int MAX_RESENDS = 3;
 	private static final long MAX_CODE_VALIDITY = 30*3600;
 	
@@ -47,28 +45,24 @@ public class CredentialResetImpl implements CredentialReset
 	private IdentityResolver identityResolver;
 	private CredentialHelper credentialHelper;
 	private LocalCredentialVerificator localCredentialHandler;
-	private PasswordEngine passwordEngine = new PasswordEngine();
 	
-	private IdentityTaV requestedSubject;
-	private EntityWithCredential resolved;
-	private PasswordCredentialDBState credState;
-	
+	protected IdentityTaV requestedSubject;
+	protected EntityWithCredential resolved;
+
 	private String credentialId;
 	private ObjectNode completeCredentialConfiguration;
-	private CredentialResetSettings settings;
+	
 	private String codeSent;
 	private long codeValidityEnd;
-	private int answerAttempts = 0;
 	private int dynamicAnswerAttempts = 0;
 	private int codeSendingAttempts = 0;
 	
-	public CredentialResetImpl(NotificationProducer notificationProducer,
+	public CredentialResetBase(NotificationProducer notificationProducer,
 			IdentityResolver identityResolver,
 			LocalCredentialVerificator localVerificator,
 			CredentialHelper credentialHelper,
 			String credentialId, 
-			ObjectNode completeCredentialConfiguration,
-			CredentialResetSettings settings)
+			ObjectNode completeCredentialConfiguration)
 	{
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
@@ -76,7 +70,6 @@ public class CredentialResetImpl implements CredentialReset
 		this.credentialId = credentialId;
 		this.localCredentialHandler = localVerificator;
 		this.completeCredentialConfiguration = completeCredentialConfiguration;
-		this.settings = settings;
 	}
 
 	@Override
@@ -87,8 +80,6 @@ public class CredentialResetImpl implements CredentialReset
 		{
 			resolved = identityResolver.resolveIdentity(subject.getValue(), 
 					PasswordVerificator.IDENTITY_TYPES, credentialId);
-			String dbCredential = resolved.getCredentialValue();
-			credState = PasswordCredentialDBState.fromJson(dbCredential);
 		} catch(IllegalIdentityValueException e)
 		{
 			//OK - can happen, we can ignore
@@ -99,53 +90,41 @@ public class CredentialResetImpl implements CredentialReset
 		
 	}
 	
-	@Override
-	public CredentialResetSettings getSettings()
+	protected boolean checkSubject()
 	{
-		return settings;
+		return resolved != null && resolved.getCredentialValue() != null;
 	}
+	
+	public Long getEntityId()
+	{
+		return resolved.getEntityId();
+	}
+	
+	
+	@Override
+	public String getSettings()
+	{
+		return getCredentialSettings();
+	}
+
+	protected abstract String getCredentialSettings();
 
 	@Override
 	public String getSecurityQuestion()
 	{
-		if (credState == null)
-			return getFakeQuestion();
-		String q = credState.getSecurityQuestion();
-		if (q == null)
-			return getFakeQuestion();
-		return q;
-	}
-
-	private String getFakeQuestion()
-	{
-		List<String> questions = settings.getQuestions();
-		int hash = requestedSubject.getValue().hashCode();
-		int num = (hash < 0 ? -hash : hash) % questions.size();
-		return questions.get(num);
+		return null;
 	}
 	
 	@Override
 	public void verifyStaticData(String answer) throws WrongArgumentException,
 		IllegalIdentityValueException, TooManyAttempts
 	{
-		if (credState == null)
-			throw new IllegalIdentityValueException("Identity was not resolved.");
-		if (answerAttempts >= MAX_ANSWER_ATTEMPTS)
-			throw new TooManyAttempts();
-		answerAttempts++;
-		
-		PasswordInfo storedAnswer = credState.getAnswer();
-		String question = credState.getSecurityQuestion();
-		if (storedAnswer == null || question == null)
-			throw new IllegalIdentityValueException("Identity has no question set.");
-
-		if (!passwordEngine.verify(storedAnswer, answer))
-			throw new WrongArgumentException("The answer is incorrect");
+		//ok
 	}
-
+	
 	private void createCode(boolean onlyNumberCode)
 	{
-		int codeLen = settings.getCodeLength();
+		int codeLen = getCodeLength();
 		if (!onlyNumberCode)
 		{
 			codeSent = CodeGenerator.generateMixedCharCode(codeLen);
@@ -156,10 +135,12 @@ public class CredentialResetImpl implements CredentialReset
 		codeValidityEnd = System.currentTimeMillis() + MAX_CODE_VALIDITY;
 	}
 	
+	protected abstract int getCodeLength();
+
 	@Override
 	public void sendCode(String msgTemplate, boolean onlyNumberCode) throws EngineException
 	{
-		if (credState == null)
+		if (!checkSubject())
 			throw new IllegalIdentityValueException("Identity was not resolved.");
 		if (codeSendingAttempts >= MAX_RESENDS)
 			throw new TooManyAttempts();
@@ -168,16 +149,14 @@ public class CredentialResetImpl implements CredentialReset
 			createCode(onlyNumberCode);
 
 		Map<String, String> params = new HashMap<>();
-		params.put(PasswordResetTemplateDefBase.VAR_CODE, codeSent);
-		params.put(PasswordResetTemplateDefBase.VAR_USER, requestedSubject.getValue());
+		params.put(CredentialResetTemplateDefBase.VAR_CODE, codeSent);
+		params.put(CredentialResetTemplateDefBase.VAR_USER, requestedSubject.getValue());
 		Locale currentLocale = UnityMessageSource.getLocale(null);
 		String locale = currentLocale == null ? null : currentLocale.toString();
 		notificationProducer.sendNotification(new EntityParam(resolved.getEntityId()), 
 				msgTemplate, params, locale, requestedSubject.getValue(), true);
 	}
 	
-
-
 	@Override
 	public void verifyDynamicData(String answer) throws WrongArgumentException, TooManyAttempts
 	{
@@ -197,13 +176,13 @@ public class CredentialResetImpl implements CredentialReset
 	@Override
 	public String getCredentialConfiguration()
 	{
-		return JsonUtil.serialize(completeCredentialConfiguration);
+		return JsonUtil.toJsonString(completeCredentialConfiguration);
 	}
 	
 	@Override
 	public void updateCredential(String newCredential) throws EngineException
 	{
-		if (credState == null)
+		if (!checkSubject())
 			throw new IllegalStateException("Identity was not resolved.");
 
 		credentialHelper.setCredential(resolved.getEntityId(), credentialId, newCredential, 

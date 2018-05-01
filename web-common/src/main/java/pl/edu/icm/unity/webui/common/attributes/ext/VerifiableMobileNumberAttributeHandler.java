@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
 
@@ -44,12 +44,12 @@ import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
 public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 {	
 	private UnityMessageSource msg;
-	private IdentityFormatter formatter;
+	private ConfirmationInfoFormatter formatter;
 	private VerifiableMobileNumberAttributeSyntax syntax;
 	private MobileNumberConfirmationManager  mobileConfirmationMan;
 
 	public VerifiableMobileNumberAttributeHandler(UnityMessageSource msg,
-			IdentityFormatter formatter, AttributeValueSyntax<?> syntax,
+			ConfirmationInfoFormatter formatter, AttributeValueSyntax<?> syntax,
 			MobileNumberConfirmationManager mobileConfirmationMan)
 	{
 		this.msg = msg;
@@ -247,7 +247,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		
 		private void updateConfirmationStatusIconAndButtons()
 		{
-			editor.setConfirmationStatusIcon(formatter.getConfirmationStatusString(
+			editor.setConfirmationStatusIcon(formatter.getSimpleConfirmationStatusString(
 					confirmationInfo), confirmationInfo.isConfirmed());
 			editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
 			skipUpdate = true;
@@ -299,13 +299,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			implements WebAttributeHandlerFactory
 	{
 		private UnityMessageSource msg;
-		private IdentityFormatter formatter;
+		private ConfirmationInfoFormatter formatter;
 		private MessageTemplateManagement msgTemplateMan;
 		private MobileNumberConfirmationManager smsConfirmationMan;
 
 		@Autowired
 		public VerifiableMobileNumberAttributeHandlerFactory(UnityMessageSource msg,
-				IdentityFormatter formatter,
+				ConfirmationInfoFormatter formatter,
 				MessageTemplateManagement msgTemplateMan,
 				MobileNumberConfirmationManager smsConfirmationMan,
 				AttributeTypeSupport attributeTypeSupport)

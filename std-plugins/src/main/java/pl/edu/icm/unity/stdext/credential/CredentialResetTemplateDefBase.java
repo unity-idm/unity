@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
 
 /**
- * Defines common part of template used for sending password reset confirmation code.
+ * Defines common part of template used for sending credential reset confirmation code.
  * @author P. Piernik
  * 
  */
 @Component
-public class PasswordResetTemplateDefBase
+public class CredentialResetTemplateDefBase
 {
 	public static final String VAR_USER = "user";
 	public static final String VAR_CODE = "code";

@@ -2,6 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
+
 package pl.edu.icm.unity.webui.authn.extensions;
 
 import java.net.MalformedURLException;
@@ -27,7 +28,6 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -37,23 +37,24 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.stdext.credential.PasswordCredentialResetSettings;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
-import pl.edu.icm.unity.stdext.credential.PasswordVerificator;
+import pl.edu.icm.unity.stdext.credential.SMSCredentialRecoverySettings;
+import pl.edu.icm.unity.stdext.credential.SMSExchange;
+import pl.edu.icm.unity.stdext.credential.SMSVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialReset1Dialog;
+import pl.edu.icm.unity.webui.authn.credreset.sms.SMSCredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -61,47 +62,44 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 
 /**
- * Retrieves passwords using a Vaadin widget.
- * 
- * @author K. Benedyczak
+ * Retrieves sms code using a Vaadin widget.
+ * @author P.Piernik
+ *
  */
 @PrototypeComponent
-public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExchange> implements VaadinAuthentication
+public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> implements VaadinAuthentication
 {
-	public static final String NAME = "web-password";
-	public static final String DESC = "WebPasswordRetrievalFactory.desc";
+	public static final String NAME = "web-sms";
+	public static final String DESC = "WebSMSRetrievalFactory.desc";
 	
-	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
+	private Logger log = Log.getLogger(Log.U_SERVER_WEB, SMSRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
 	private String logoURL;
-	private String registrationFormForUnknown;
-	private boolean enableAssociation;
 	private CredentialEditorRegistry credEditorReg;
-
+	
 	@Autowired
-	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
-	{
+	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
+	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
 	}
-
+	
+	
 	@Override
 	public String getSerializedConfiguration()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		root.set("i18nName", I18nStringJsonUtil.toJson(name));
-		root.put("registrationFormForUnknown", registrationFormForUnknown);
-		root.put("enableAssociation", enableAssociation);
 		if (logoURL != null)
-			root.put("logoURL", logoURL);			
+			root.put("logoURL", logoURL);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(root);
 		} catch (JsonProcessingException e)
 		{
-			throw new InternalException("Can't serialize web-based password retrieval configuration to JSON", e);
+			throw new InternalException("Can't serialize web-based SMS retrieval configuration to JSON", e);
 		}
 	}
 
@@ -113,52 +111,45 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			JsonNode root = Constants.MAPPER.readTree(json);
 			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
 			if (name.isEmpty())
-				name = new I18nString("WebPasswordRetrieval.password", msg);
-			JsonNode formNode = root.get("registrationFormForUnknown");
-			if (formNode != null && !formNode.isNull())
-				registrationFormForUnknown = formNode.asText();
-			
+				name = new I18nString("WebSMSRetrieval.title", msg);
 			JsonNode logoNode = root.get("logoURL");
 			if (logoNode != null && !logoNode.isNull())
 				logoURL = logoNode.asText();
 			if (logoURL != null && !logoURL.isEmpty())
 				ImageUtils.getLogoResource(logoURL);
-			
-			JsonNode enableANode = root.get("enableAssociation");
-			if (enableANode != null && !enableANode.isNull())
-				enableAssociation = enableANode.asBoolean();
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
-					"based password retrieval can not be parsed or is invalid", e);
+					"based SMS retrieval can not be parsed", e);
 		}
 	}
-
+	
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance()
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
-				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificator.NAME)));
+				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME)));
 	}
 
-
-	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
+	
+	private class SMSRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;
 		private AuthenticationResultCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		private String presetAuthenticatedIdentity;
-		
 		private TextField usernameField;
-		private PasswordField passwordField;
+		private TextField answerField;
 		private int tabIndex;
-
-		public PasswordRetrievalComponent(CredentialEditor credEditor)
+		private SMSCode sentCode = null;
+		private Button sendCode;
+		
+		public SMSRetrievalComponent(CredentialEditor credEditor)
 		{
 			this.credEditor = credEditor;
 			initUI();
 		}
-
+	
 		private void initUI()
 		{
 			VerticalLayout ret = new VerticalLayout();
@@ -168,22 +159,33 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			usernameField.setId("AuthenticationUI.username");
 			ret.addComponent(usernameField);
 			
-			String label = name.getValue(msg);
-			passwordField = new PasswordField(label + ":");
-			passwordField.setId("WebPasswordRetrieval.password");
-			ret.addComponent(passwordField);
 			
-			PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(
+			sendCode = new Button(msg.getMessage("WebSMSRetrieval.sendCode"));
+			sendCode.setIcon(Images.mobile.getResource());
+			sendCode.addClickListener(e-> {
+				sendCode();	
+			});
+			
+			ret.addComponent(sendCode);
+			ret.setComponentAlignment(sendCode, Alignment.MIDDLE_CENTER);
+		
+			answerField = new TextField();
+			answerField.setCaption(msg.getMessage("WebSMSRetrieval.code"));
+			ret.addComponent(answerField);
+			answerField.setEnabled(false);
+			
+			SMSCredentialRecoverySettings settings = new SMSCredentialRecoverySettings(
 					JsonUtil.parse(credentialExchange
-							.getCredentialResetBackend()
+							.getSMSCredentialResetBackend()
 							.getSettings()));
+			
 			if (settings.isEnabled())
 			{
-				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
-				reset.setStyleName(Styles.vButtonLink.toString());
-				ret.addComponent(reset);
-				ret.setComponentAlignment(reset, Alignment.TOP_RIGHT);
-				reset.addClickListener(new ClickListener()
+				Button lostPhone = new Button(msg.getMessage("WebSMSRetrieval.lostPhone"));
+				lostPhone.setStyleName(Styles.vButtonLink.toString());
+				ret.addComponent(lostPhone);
+				ret.setComponentAlignment(lostPhone, Alignment.TOP_RIGHT);
+				lostPhone.addClickListener(new ClickListener()
 				{
 					@Override
 					public void buttonClick(ClickEvent event)
@@ -195,51 +197,51 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			setCompositionRoot(ret);
 		}
 
-		public void triggerAuthentication()
+		private void sendCode()
 		{
-			String username = presetAuthenticatedIdentity == null ? usernameField.getValue() : 
-				presetAuthenticatedIdentity;
-			String password = passwordField.getValue();
-			if (password.equals(""))
-			{
-				passwordField.setComponentError(new UserError(
-						msg.getMessage("WebPasswordRetrieval.noPassword")));
-			}
+			
+			String username = getUserName();
+			
 			if (username.equals(""))
 			{
 				usernameField.setComponentError(new UserError(
-						msg.getMessage("WebPasswordRetrieval.noUser")));
+						msg.getMessage("WebSMSRetrieval.noUser")));
+				return;
 			}			
-			callback.setAuthenticationResult(getAuthenticationResult(username, password));
-		}
-		
-
-		
-		private AuthenticationResult getAuthenticationResult(String username, String password)
-		{
-			if (username.equals("") && password.equals(""))
-			{
-				return new AuthenticationResult(Status.notApplicable, null);
-			}
-
-			
-			AuthenticationResult authenticationResult;
+			usernameField.setComponentError(null);
+			answerField.setComponentError(null);
 			try
 			{
-				authenticationResult = credentialExchange.checkPassword(
-						username, password, sandboxCallback);
-			} catch (AuthenticationException e)
+				sentCode = credentialExchange.sendCode(username);
+				answerField.setEnabled(true);
+				usernameField.setEnabled(false);
+				sendCode.setEnabled(false);
+			} catch (EngineException e)
 			{
-				log.debug("Authentication error during password checking", e);
-				authenticationResult = e.getResult();
-			} catch (Exception e)
-			{
-				log.error("Runtime error during password checking", e);
-				authenticationResult = new AuthenticationResult(Status.deny, null);
+				log.debug("Authentication error during sending sms code", e);
 			}
-			if (registrationFormForUnknown != null) 
-				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
-			authenticationResult.setEnableAssociation(enableAssociation);
+		}
+		
+		private String getUserName()
+		{
+			return  presetAuthenticatedIdentity == null ? usernameField.getValue() : 
+				presetAuthenticatedIdentity;
+		}
+				
+		public void triggerAuthentication()
+		{
+				
+			String username = getUserName();
+			if (username.equals(""))
+			{
+				setAuthenticationResult(new AuthenticationResult(Status.notApplicable, null));
+				return;
+			}	
+			setAuthenticationResult(credentialExchange.verifyCode(sentCode, answerField.getValue(), username, sandboxCallback));	
+		}
+		
+		private void setAuthenticationResult(AuthenticationResult authenticationResult)
+		{
 			if (authenticationResult.getStatus() == Status.success || 
 					authenticationResult.getStatus() == Status.unknownRemotePrincipal)
 			{
@@ -248,22 +250,27 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			{
 				setError();
 			}
-			return authenticationResult;
+			callback.setAuthenticationResult(authenticationResult);
 		}
 		
 		private void setError()
 		{
-			String msgErr = msg.getMessage("WebPasswordRetrieval.wrongPassword");
-			passwordField.setComponentError(new UserError(msgErr));
-			passwordField.setValue("");
+			String msgErr = msg.getMessage("WebSMSRetrieval.wrongCode");
 			usernameField.setComponentError(new UserError(msgErr));
 			usernameField.setValue("");
+			
+			answerField.setComponentError(new UserError(msgErr));
+			answerField.setValue("");
+			
+			answerField.setEnabled(false);
+			usernameField.setEnabled(true);
+			sendCode.setEnabled(true);		
 		}
 		
 		private void showResetDialog()
 		{
-			PasswordCredentialReset1Dialog dialog = new PasswordCredentialReset1Dialog(msg, 
-					credentialExchange.getCredentialResetBackend(), credEditor);
+			SMSCredentialReset1Dialog dialog = new SMSCredentialReset1Dialog(msg, 
+					credentialExchange.getSMSCredentialResetBackend(), credEditor);
 			dialog.show();
 		}
 
@@ -272,8 +279,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			if (presetAuthenticatedIdentity == null)
 				usernameField.focus();
-			else
-				passwordField.focus();
 		}
 		
 		@Override
@@ -302,25 +307,26 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			this.presetAuthenticatedIdentity = authenticatedIdentity;
 			usernameField.setVisible(false);
+			sendCode.setVisible(false);
+			sendCode();
 		}
 
 		public void clear()
 		{
-			passwordField.setValue("");
 			usernameField.setValue("");
-			passwordField.setComponentError(null);
-			usernameField.setComponentError(null);
+			usernameField.setComponentError(null);			
+			answerField.setValue("");
+			answerField.setComponentError(null);		
 		}
 	}
-	
-	private class PasswordRetrievalUI implements VaadinAuthenticationUI
+
+	private class SMSRetrievalUI implements VaadinAuthenticationUI
 	{
-		private PasswordRetrievalComponent theComponent;
+		private SMSRetrievalComponent theComponent;
 
-
-		public PasswordRetrievalUI(CredentialEditor credEditor)
+		public SMSRetrievalUI(CredentialEditor credEditor)
 		{
-			this.theComponent = new PasswordRetrievalComponent(credEditor);
+			this.theComponent = new SMSRetrievalComponent(credEditor);
 		}
 
 		@Override
@@ -360,7 +366,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			if (logoURL == null)
 				return null;
 			if ("".equals(logoURL))
-				return Images.password.getResource();
+				return Images.mobile.getResource();
 			else
 			{
 				try
@@ -404,7 +410,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Override
 		public String getId()
 		{
-			return "password";
+			return "sms";
 		}
 
 		@Override
@@ -426,24 +432,13 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 	}
 	
-	
 	@org.springframework.stereotype.Component
-	public static class Factory extends AbstractCredentialRetrievalFactory<PasswordRetrieval>
+	public static class Factory extends AbstractCredentialRetrievalFactory<SMSRetrieval>
 	{
 		@Autowired
-		public Factory(ObjectFactory<PasswordRetrieval> factory)
+		public Factory(ObjectFactory<SMSRetrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, PasswordExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, SMSExchange.class);
 		}
 	}
 }
-
-
-
-
-
-
-
-
-
-

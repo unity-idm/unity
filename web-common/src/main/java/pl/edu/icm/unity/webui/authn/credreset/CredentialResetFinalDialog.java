@@ -27,22 +27,25 @@ public class CredentialResetFinalDialog extends AbstractDialog
 	private CredentialReset backend;
 	
 	private CredentialEditor credEditor;
+	private int expectedState;
 	
 	public CredentialResetFinalDialog(UnityMessageSource msg, CredentialReset backend, 
-			CredentialEditor credEditor)
+			CredentialEditor credEditor, int expectedState)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("CredentialReset.updateCredential"),
 				msg.getMessage("cancel"));
 		this.msg = msg;
 		this.backend = backend;
 		this.credEditor = credEditor;
+		this.expectedState = expectedState;
 		setSizeMode(SizeMode.SMALL);
+		
 	}
 
 	@Override
 	protected Component getContents() throws Exception
 	{
-		if (CredentialResetStateVariable.get() != 5)
+		if (CredentialResetStateVariable.get() != expectedState)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
@@ -54,7 +57,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		ret.addComponent(new Label(msg.getMessage("CredentialReset.updateCredentialInfo")));
 		FormLayout internal = new FormLayout();
 		internal.addComponents(credEditor.getEditor(false, 
-				backend.getCredentialConfiguration(), true).getComponents());
+				backend.getCredentialConfiguration(), true, backend.getEntityId(), false).getComponents());
 		ret.addComponent(internal);
 		return ret;
 	}
@@ -69,8 +72,8 @@ public class CredentialResetFinalDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		if (CredentialResetStateVariable.get() != 5)
-			throw new IllegalStateException("Wrong application security state in password reset!" +
+		if (CredentialResetStateVariable.get() != expectedState)
+			throw new IllegalStateException("Wrong application security state in credential reset!" +
 					" This should never happen.");
 		String updatedValue;
 		try

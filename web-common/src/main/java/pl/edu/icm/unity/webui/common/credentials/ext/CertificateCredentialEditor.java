@@ -29,7 +29,7 @@ public class CertificateCredentialEditor implements CredentialEditor
 
 	@Override
 	public ComponentsContainer getEditor(boolean askAboutCurrent, 
-			String credentialConfiguration, boolean required)
+			String credentialConfiguration, boolean required, Long entityId, boolean adminMode)
 	{
 		Label label = new Label(msg.getMessage("CertificateCredentialEditor.info"));
 		return new ComponentsContainer(label);

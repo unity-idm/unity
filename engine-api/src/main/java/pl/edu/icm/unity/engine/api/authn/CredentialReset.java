@@ -22,7 +22,7 @@ public interface CredentialReset
 	/**
 	 * @return settings of credential reset
 	 */
-	CredentialResetSettings getSettings();
+	String getSettings();
 
 	/**
 	 * Sets the subject for which the operations are made.
@@ -74,4 +74,10 @@ public interface CredentialReset
 	 * @throws EngineException 
 	 */
 	void updateCredential(String newCredential) throws EngineException;
+	
+	/**
+	 * Get credential owner entity id 
+	 * @return
+	 */
+	public Long getEntityId();
 }

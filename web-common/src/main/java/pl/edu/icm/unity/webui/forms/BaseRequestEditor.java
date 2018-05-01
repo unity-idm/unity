@@ -682,7 +682,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		CredentialRegistrationParam param = form.getCredentialParams().get(index);
 		CredentialDefinition credDefinition = credentials.get(param.getCredentialName());
 		CredentialEditor editor = credentialEditorRegistry.getEditor(credDefinition.getTypeId());
-		ComponentsContainer editorUI = editor.getEditor(false, credDefinition.getConfiguration(), true);
+		ComponentsContainer editorUI = editor.getEditor(false, credDefinition.getConfiguration(), true, null, false);
 		if (param.getLabel() != null)
 			editorUI.setCaption(param.getLabel());
 		else

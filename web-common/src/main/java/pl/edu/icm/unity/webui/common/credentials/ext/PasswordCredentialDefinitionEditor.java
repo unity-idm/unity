@@ -46,7 +46,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private IntStepper maxAge;
 	private IntStepper historySize;
 	private IntStepper workFactor;
-	private CredentialResetSettingsEditor resetSettings;
+	private PasswordCredentialResetSettingsEditor resetSettings;
 	
 	public PasswordCredentialDefinitionEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
 	{
@@ -76,7 +76,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		Label allowLegacy = new Label();
 		allowLegacy.setCaption(msg.getMessage("PasswordDefinitionEditor.allowLegacy"));		
 		
-		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, msgTplMan,
+		PasswordCredentialResetSettingsEditor viewer = new PasswordCredentialResetSettingsEditor(msg, msgTplMan,
 				helper.getPasswordResetSettings());
 		
 		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, maxAge,
@@ -150,7 +150,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		else
 			helper.setScryptParams(new ScryptParams());
 		initUIState(helper);
-		resetSettings = new CredentialResetSettingsEditor(msg, msgTplMan, helper.getPasswordResetSettings());
+		resetSettings = new PasswordCredentialResetSettingsEditor(msg, msgTplMan, helper.getPasswordResetSettings());
 		resetSettings.addEditorToLayout(form);
 				
 		return form;

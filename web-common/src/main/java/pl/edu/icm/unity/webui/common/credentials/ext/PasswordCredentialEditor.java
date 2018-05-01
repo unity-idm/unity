@@ -15,11 +15,11 @@ import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.stdext.credential.PasswordCredential;
+import pl.edu.icm.unity.stdext.credential.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.PasswordExtraInfo;
 import pl.edu.icm.unity.stdext.credential.PasswordToken;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -49,7 +49,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 
 	@Override
 	public ComponentsContainer getEditor(boolean askAboutCurrent, 
-			String credentialConfiguration, boolean required)
+			String credentialConfiguration, boolean required, Long entityId, boolean adminMode)
 	{
 		this.required = required;
 		this.askAboutCurrent = askAboutCurrent;
@@ -76,7 +76,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 		}
 		ret.add(password1, password2);
 		
-		CredentialResetSettings resetSettings = helper.getPasswordResetSettings();
+		PasswordCredentialResetSettings resetSettings = helper.getPasswordResetSettings();
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 
 		if (requireQA)
 		{
@@ -152,7 +152,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 		ret.addComponent(new Label(msg.getMessage("PasswordCredentialEditor.lastModification", 
 				pei.getLastChange())));
 		
-		CredentialResetSettings resetS = helper.getPasswordResetSettings();
+		PasswordCredentialResetSettings resetS = helper.getPasswordResetSettings();
 		if (resetS.isEnabled() && !resetS.getQuestions().isEmpty())
 		{
 			String secQ = pei.getSecurityQuestion() == null ? 

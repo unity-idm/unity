@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.notifications.FacilityName;
  * 
  */
 @Component
-public class EmailPasswordResetTemplateDef extends PasswordResetTemplateDefBase implements MessageTemplateDefinition
+public class EmailPasswordResetTemplateDef extends CredentialResetTemplateDefBase implements MessageTemplateDefinition
 {
 	public static final String NAME = "EmailPasswordResetCode";
 	

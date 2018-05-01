@@ -23,7 +23,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.credential.EmailPasswordResetTemplateDef;
-import pl.edu.icm.unity.stdext.credential.PasswordResetTemplateDefBase;
+import pl.edu.icm.unity.stdext.credential.CredentialResetTemplateDefBase;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.types.I18nMessage;
@@ -77,8 +77,8 @@ public class TestNotifications extends DBIntegrationTestBase
 				MessageType.PLAIN, "ch1"));
 
 		Map<String, String> params = new HashMap<String, String>();
-		params.put(PasswordResetTemplateDefBase.VAR_CODE, "AAAA");
-		params.put(PasswordResetTemplateDefBase.VAR_USER, "some user");
+		params.put(CredentialResetTemplateDefBase.VAR_CODE, "AAAA");
+		params.put(CredentialResetTemplateDefBase.VAR_USER, "some user");
 		
 		try
 		{
