@@ -158,13 +158,6 @@ public class EntityManagementImpl implements EntityManagement
 			return identityHelper.addEntity(toAdd, credReqId, initialState, 
 					extractAttributes, attributes, true);
 		}); 
-		
-		//careful - must be after the main transaction is committed
-		tx.runInTransaction(() -> {
-			EntityParam added = new EntityParam(ret.getEntityId());
-			confirmationManager.sendVerificationsQuietNoTx(added, attributes, false);
-			confirmationManager.sendVerificationQuietNoTx(added, ret, false);
-		});
 		return ret;
 	}
 	
@@ -176,16 +169,30 @@ public class EntityManagementImpl implements EntityManagement
 		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, attributesP);
 	}
 	
+	private static class IdentityWithAuthzInfo
+	{
+		private Identity identity;
+		private boolean fullAuthz;
+
+		IdentityWithAuthzInfo(Identity identity, boolean fullAuthz)
+		{
+			this.identity = identity;
+			this.fullAuthz = fullAuthz;
+		}
+	}
+	
 	@Override
 	public Identity addIdentity(IdentityParam toAdd, EntityParam parentEntity, boolean extractAttributes)
 			throws EngineException
 	{
-		Identity ret = tx.runInTransactionRetThrowing(() -> {
+		IdentityWithAuthzInfo ret = tx.runInTransactionRetThrowing(() -> {
 			long entityId = idResolver.getEntityId(parentEntity);
 			IdentityType identityType = idTypeDAO.get(toAdd.getTypeId());
 			
 			boolean fullAuthz = authorizeIdentityChange(entityId, Sets.newHashSet(toAdd), 
 					identityType.isSelfModificable());
+			if (!fullAuthz)
+				toAdd.setConfirmationInfo(new ConfirmationInfo(false));
 			List<Identity> identities = idDAO.getByEntity(entityId);
 			if (!fullAuthz && getIdentityCountOfType(identities, identityType.getIdentityTypeProvider()) 
 					>= identityType.getMaxInstances())
@@ -195,13 +202,17 @@ public class EntityManagementImpl implements EntityManagement
 			idDAO.create(new StoredIdentity(toCreate));
 			if (extractAttributes && fullAuthz)
 				identityHelper.addExtractedAttributes(toCreate);
-			return toCreate;
+			return new IdentityWithAuthzInfo(toCreate, fullAuthz);
 		});
 		
-		tx.runInTransactionThrowing(() -> {
-			confirmationManager.sendVerificationNoTx(new EntityParam(ret.getEntityId()), ret, false);
-		});
-		return ret;
+		if (!ret.fullAuthz)
+		{
+			tx.runInTransactionThrowing(() -> {
+				confirmationManager.sendVerificationNoTx(new EntityParam(
+					ret.identity.getEntityId()), ret.identity, false);
+			});
+		}
+		return ret.identity;
 	}
 
 	private int getIdentityCountOfType(List<Identity> identities, String type)
@@ -293,39 +304,62 @@ public class EntityManagementImpl implements EntityManagement
 	public void setIdentities(EntityParam entity, Collection<String> updatedTypes,
 			Collection<? extends IdentityParam> newIdentities) throws EngineException
 	{
-		entity.validateInitialization();
-		ensureNoDynamicIdentityType(updatedTypes);
-		ensureIdentitiesAreOfSpecifiedTypes(updatedTypes, newIdentities);
-		
-		long entityId = idResolver.getEntityId(entity);
-		Map<String, IdentityType> identityTypes = idTypeDAO.getAllAsMap();
-		boolean selfModifiable = areAllTypesSelfModifiable(updatedTypes, identityTypes);
-		boolean fullAuthz = authorizeIdentityChange(entityId, newIdentities, selfModifiable);
-		List<Identity> identities = idDAO.getByEntity(entityId);
-		Map<String, Set<Identity>> currentIdentitiesByType = 
-				getCurrentIdentitiesByType(updatedTypes, identities);
-		Map<String, Set<IdentityParam>> requestedIdentitiesByType = 
-				getRequestedIdentitiesByType(updatedTypes, newIdentities);
-		for (String type: updatedTypes)
-			setIdentitiesOfType(identityTypes.get(type), entityId, currentIdentitiesByType.get(type), 
-					requestedIdentitiesByType.get(type), fullAuthz);			
+		List<IdentityWithAuthzInfo> ret = tx.runInTransactionRetThrowing(() -> {
+			entity.validateInitialization();
+			ensureNoDynamicIdentityType(updatedTypes);
+			ensureIdentitiesAreOfSpecifiedTypes(updatedTypes, newIdentities);
+
+			long entityId = idResolver.getEntityId(entity);
+			Map<String, IdentityType> identityTypes = idTypeDAO.getAllAsMap();
+			boolean selfModifiable = areAllTypesSelfModifiable(updatedTypes, identityTypes);
+			boolean fullAuthz = authorizeIdentityChange(entityId, newIdentities, selfModifiable);
+			List<Identity> identities = idDAO.getByEntity(entityId);
+			Map<String, Set<Identity>> currentIdentitiesByType = 
+					getCurrentIdentitiesByType(updatedTypes, identities);
+			Map<String, Set<IdentityParam>> requestedIdentitiesByType = 
+					getRequestedIdentitiesByType(updatedTypes, newIdentities);
+			List<IdentityWithAuthzInfo> created = new ArrayList<>();
+			for (String type: updatedTypes)
+			{
+				List<Identity> createdOfType = setIdentitiesOfType(
+						identityTypes.get(type), entityId, currentIdentitiesByType.get(type), 
+						requestedIdentitiesByType.get(type), fullAuthz);
+				createdOfType.stream()
+					.map(id -> new IdentityWithAuthzInfo(id, fullAuthz))
+					.forEach(arg -> created.add(arg));
+			}
+			return created;
+		});
+		for (IdentityWithAuthzInfo id: ret)
+			if (!id.fullAuthz)
+			{
+				tx.runInTransactionThrowing(() -> {
+					confirmationManager.sendVerificationNoTx(new EntityParam(
+							id.identity.getEntityId()), id.identity, false);
+				});
+			}
 	}
 
-	private void setIdentitiesOfType(IdentityType type, long entityId, 
+	private List<Identity> setIdentitiesOfType(IdentityType type, long entityId, 
 			Set<Identity> existing, Set<IdentityParam> requested, boolean fullAuthz) throws EngineException
 	{
 		Set<IdentityParam> toRemove = substractIdentitySets(type, existing, requested);
 		Set<IdentityParam> toAdd = substractIdentitySets(type, requested, existing);
 		verifyLimitsOfIdentities(type, existing, requested, toRemove, toAdd, fullAuthz);
-		
+		List<Identity> created = new ArrayList<>();
 		for (IdentityParam add: toAdd)
-			identityHelper.insertIdentity(add, entityId, false);
+		{
+			if (!fullAuthz)
+				add.setConfirmationInfo(new ConfirmationInfo(false));
+			created.add(identityHelper.insertIdentity(add, entityId, false));
+		}
 		for (IdentityParam remove: toRemove)
 		{
 			String comparableValue = idTypeHelper.upcastIdentityParam(remove, entityId).
 					getComparableValue();
 			idDAO.delete(StoredIdentity.toInDBIdentityValue(remove.getTypeId(), comparableValue));
 		}
+		return created;
 	}
 	
 	private void verifyLimitsOfIdentities(IdentityType type, Set<Identity> existing, Set<IdentityParam> requested, 

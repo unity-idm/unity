@@ -158,6 +158,13 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			
 		String serializedState = baseState.getSerializedConfiguration();
 		
+		if (configEntry.get().getMessageTemplate() == null)
+		{
+			log.debug("Not sending an email as there is no message template configured for {}", 
+					baseState.getValue());
+			return;
+		}
+		
 		if (!checkSendingLimit(baseState.getValue()))
 			return;
 			
