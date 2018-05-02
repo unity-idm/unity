@@ -23,26 +23,35 @@ public interface SMSExchange extends CredentialExchange
 	/**
 	 * Send code to the user
 	 * @param username
-	 * @param password
+	 * @param force forcing auth sms limit omitting
 	 * @param sandboxCallback typically null, if in sandbox mode provides callback.
 	 * @return
 	 */
-	
-	SMSCode sendCode(String username) throws EngineException;
+	SMSCode sendCode(String username, boolean force) throws EngineException;
 	
 	/**
-	 * Verifies the user provided code.
+	 *
+	 * Verifies the user provided sms code.
+	 * @param sentCode
+	 * @param codeFromUser
 	 * @param username
-	 * @param password
 	 * @param sandboxCallback typically null, if in sandbox mode provides callback.
 	 * @return
 	 */
 	AuthenticationResult verifyCode(SMSCode sentCode, String codeFromUser,
 			String username, SandboxAuthnResultCallback sandboxCallback);
 	
+	/**
+	 * Check if sms authn sending limit is exceeded
+	 * @param username
+	 * @return
+	 */
+	boolean isAuthSMSLimitExceeded(String username);	
 	
 	/**
 	 * @return credential reset backend
 	 */
 	SMSCredentialResetImpl getSMSCredentialResetBackend();
+
+	
 }

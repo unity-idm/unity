@@ -10,7 +10,7 @@ import pl.edu.icm.unity.webui.authn.credreset.CredentialResetFinalDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
- * 3th, last step of sms credential reset pipeline. In this dialog the user must provide the new credential.
+ * 3rd, last step of sms credential reset pipeline. In this dialog the user must provide the new credential.
  * 
  * @author P. Piernik
  */

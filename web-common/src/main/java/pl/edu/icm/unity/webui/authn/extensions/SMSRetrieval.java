@@ -28,6 +28,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -45,6 +46,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.SMSCredentialRecoverySettings;
 import pl.edu.icm.unity.stdext.credential.SMSExchange;
 import pl.edu.icm.unity.stdext.credential.SMSVerificator;
@@ -55,11 +57,13 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.sms.SMSCredentialReset1Dialog;
+import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
  * Retrieves sms code using a Vaadin widget.
@@ -69,10 +73,10 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 @PrototypeComponent
 public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> implements VaadinAuthentication
 {
+	private Logger log = Log.getLogger(Log.U_SERVER_WEB, SMSRetrieval.class);
 	public static final String NAME = "web-sms";
 	public static final String DESC = "WebSMSRetrievalFactory.desc";
 	
-	private Logger log = Log.getLogger(Log.U_SERVER_WEB, SMSRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
 	private String logoURL;
@@ -85,7 +89,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
 	}
-	
 	
 	@Override
 	public String getSerializedConfiguration()
@@ -137,54 +140,92 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		private CredentialEditor credEditor;
 		private AuthenticationResultCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
-		private String presetAuthenticatedIdentity;
 		private TextField usernameField;
+		private HtmlLabel usernameLabel;
 		private TextField answerField;
 		private int tabIndex;
 		private SMSCode sentCode = null;
-		private Button sendCode;
+		private Button sendCodeButton;
+		private Button resetButton;
+		private String username;
+		private CaptchaComponent capcha;
+		private VerticalLayout capchaComponent;
+		private Label capchaInfoLabel;
+		private VerticalLayout mainLayout;
 		
 		public SMSRetrievalComponent(CredentialEditor credEditor)
 		{
 			this.credEditor = credEditor;
 			initUI();
 		}
-	
+
 		private void initUI()
 		{
-			VerticalLayout ret = new VerticalLayout();
-			ret.setMargin(false);
-			
+			mainLayout = new VerticalLayout();
+			mainLayout.setMargin(false);
+
 			usernameField = new TextField(msg.getMessage("AuthenticationUI.username"));
 			usernameField.setId("AuthenticationUI.username");
-			ret.addComponent(usernameField);
-			
-			
-			sendCode = new Button(msg.getMessage("WebSMSRetrieval.sendCode"));
-			sendCode.setIcon(Images.mobile.getResource());
-			sendCode.addClickListener(e-> {
-				sendCode();	
+			mainLayout.addComponent(usernameField);
+			mainLayout.setComponentAlignment(usernameField, Alignment.MIDDLE_CENTER);
+
+			usernameLabel = new HtmlLabel(msg);
+			mainLayout.addComponent(usernameLabel);
+			mainLayout.setComponentAlignment(usernameLabel, Alignment.MIDDLE_CENTER);
+			usernameLabel.setVisible(false);
+
+			capcha = new CaptchaComponent(msg);
+			capchaInfoLabel = new Label();
+			capchaComponent = new VerticalLayout();
+			capchaComponent.setMargin(false);
+			capchaComponent.addComponent(capchaInfoLabel);
+			capchaComponent.setComponentAlignment(capchaInfoLabel,
+					Alignment.MIDDLE_CENTER);
+			Component rCapchaComponent = capcha.getAsComponent(Alignment.MIDDLE_CENTER);
+			capchaComponent.addComponent(rCapchaComponent);
+			capchaComponent.setComponentAlignment(rCapchaComponent,
+					Alignment.MIDDLE_CENTER);
+			mainLayout.addComponent(capchaComponent);
+			capchaComponent.setVisible(false);
+
+			sendCodeButton = new Button(msg.getMessage("WebSMSRetrieval.sendCode"));
+			sendCodeButton.setIcon(Images.mobile.getResource());
+			sendCodeButton.addClickListener(e -> {
+				if (username == null)
+					username = usernameField.getValue();
+				sendCode();
 			});
-			
-			ret.addComponent(sendCode);
-			ret.setComponentAlignment(sendCode, Alignment.MIDDLE_CENTER);
-		
+			mainLayout.addComponent(sendCodeButton);
+			mainLayout.setComponentAlignment(sendCodeButton, Alignment.MIDDLE_CENTER);
+
+			resetButton = new Button(msg.getMessage("WebSMSRetrieval.reset"));
+			resetButton.setIcon(Images.reject.getResource());
+			resetButton.addClickListener(e -> {
+				resetSentCode();
+			});
+			resetButton.setVisible(false);
+
+			mainLayout.addComponent(resetButton);
+			mainLayout.setComponentAlignment(resetButton, Alignment.MIDDLE_CENTER);
+
 			answerField = new TextField();
 			answerField.setCaption(msg.getMessage("WebSMSRetrieval.code"));
-			ret.addComponent(answerField);
 			answerField.setEnabled(false);
-			
+			mainLayout.addComponent(answerField);
+			mainLayout.setComponentAlignment(answerField, Alignment.MIDDLE_CENTER);
+
 			SMSCredentialRecoverySettings settings = new SMSCredentialRecoverySettings(
 					JsonUtil.parse(credentialExchange
 							.getSMSCredentialResetBackend()
 							.getSettings()));
-			
+
 			if (settings.isEnabled())
 			{
-				Button lostPhone = new Button(msg.getMessage("WebSMSRetrieval.lostPhone"));
+				Button lostPhone = new Button(
+						msg.getMessage("WebSMSRetrieval.lostPhone"));
 				lostPhone.setStyleName(Styles.vButtonLink.toString());
-				ret.addComponent(lostPhone);
-				ret.setComponentAlignment(lostPhone, Alignment.TOP_RIGHT);
+				mainLayout.addComponent(lostPhone);
+				mainLayout.setComponentAlignment(lostPhone, Alignment.TOP_RIGHT);
 				lostPhone.addClickListener(new ClickListener()
 				{
 					@Override
@@ -194,56 +235,95 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 					}
 				});
 			}
-			setCompositionRoot(ret);
+			setCompositionRoot(mainLayout);
+		}
+
+		private void resetSentCode()
+		{
+			sendCodeButton.setVisible(true);
+			resetButton.setVisible(false);
+			capchaComponent.setVisible(false);
+			usernameField.setEnabled(true);
+			usernameField.setVisible(true);
+			usernameLabel.setVisible(false);
+			answerField.setEnabled(false);
+			username = null;
+			sentCode = null;
 		}
 
 		private void sendCode()
 		{
+			boolean force = false;
 			
-			String username = getUserName();
-			
-			if (username.equals(""))
+			if (username == null || username.equals(""))
 			{
 				usernameField.setComponentError(new UserError(
 						msg.getMessage("WebSMSRetrieval.noUser")));
 				return;
-			}			
+			}
+
+			if (credentialExchange.isAuthSMSLimitExceeded(username)
+					&& !capchaComponent.isVisible())
+			{
+				capchaInfoLabel.setValue(msg.getMessage(
+						"WebSMSRetrieval.sentCodeLimit", username));
+				capchaComponent.setVisible(true);
+				sendCodeButton.setVisible(true);
+				log.debug("Too many authn sms code sent to the user, turn on capcha");
+				return;
+			}
+			
+			if (capchaComponent.isVisible())
+			{
+				try
+				{
+					capcha.verify();
+					force = true;
+				} catch (WrongArgumentException e)
+				{
+					return;
+				}
+			}
+
 			usernameField.setComponentError(null);
 			answerField.setComponentError(null);
+
 			try
 			{
-				sentCode = credentialExchange.sendCode(username);
+				sentCode = credentialExchange.sendCode(username, force);
 				answerField.setEnabled(true);
-				usernameField.setEnabled(false);
-				sendCode.setEnabled(false);
+				usernameField.setVisible(false);
+				usernameLabel.setHtmlValue("WebSMSRetrieval.usernameLabel",
+						username);
+				usernameLabel.setVisible(true);
+
+				capchaComponent.setVisible(false);
+				sendCodeButton.setVisible(false);
+				resetButton.setVisible(true);
 			} catch (EngineException e)
 			{
 				log.debug("Authentication error during sending sms code", e);
 			}
 		}
-		
-		private String getUserName()
-		{
-			return  presetAuthenticatedIdentity == null ? usernameField.getValue() : 
-				presetAuthenticatedIdentity;
-		}
-				
+
 		public void triggerAuthentication()
 		{
-				
-			String username = getUserName();
-			if (username.equals(""))
+
+			if (username == null || username.equals(""))
 			{
-				setAuthenticationResult(new AuthenticationResult(Status.notApplicable, null));
+				setAuthenticationResult(new AuthenticationResult(
+						Status.notApplicable, null));
 				return;
-			}	
-			setAuthenticationResult(credentialExchange.verifyCode(sentCode, answerField.getValue(), username, sandboxCallback));	
+			}
+			setAuthenticationResult(credentialExchange.verifyCode(sentCode,
+					answerField.getValue(), username, sandboxCallback));
 		}
-		
+
 		private void setAuthenticationResult(AuthenticationResult authenticationResult)
 		{
-			if (authenticationResult.getStatus() == Status.success || 
-					authenticationResult.getStatus() == Status.unknownRemotePrincipal)
+			if (authenticationResult.getStatus() == Status.success
+					|| authenticationResult
+							.getStatus() == Status.unknownRemotePrincipal)
 			{
 				clear();
 			} else
@@ -252,35 +332,35 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			}
 			callback.setAuthenticationResult(authenticationResult);
 		}
-		
+
 		private void setError()
 		{
+			resetSentCode();
 			String msgErr = msg.getMessage("WebSMSRetrieval.wrongCode");
 			usernameField.setComponentError(new UserError(msgErr));
 			usernameField.setValue("");
-			
+			username = null;
+
 			answerField.setComponentError(new UserError(msgErr));
 			answerField.setValue("");
-			
-			answerField.setEnabled(false);
-			usernameField.setEnabled(true);
-			sendCode.setEnabled(true);		
+			sentCode = null;
 		}
-		
+
 		private void showResetDialog()
 		{
-			SMSCredentialReset1Dialog dialog = new SMSCredentialReset1Dialog(msg, 
-					credentialExchange.getSMSCredentialResetBackend(), credEditor);
+			SMSCredentialReset1Dialog dialog = new SMSCredentialReset1Dialog(msg,
+					credentialExchange.getSMSCredentialResetBackend(),
+					credEditor);
 			dialog.show();
 		}
 
 		@Override
 		public void focus()
 		{
-			if (presetAuthenticatedIdentity == null)
+			if (username == null)
 				usernameField.focus();
 		}
-		
+
 		@Override
 		public int getTabIndex()
 		{
@@ -302,21 +382,26 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		{
 			this.sandboxCallback = sandboxCallback;
 		}
-		
+
 		public void setAuthenticatedIdentity(String authenticatedIdentity)
 		{
-			this.presetAuthenticatedIdentity = authenticatedIdentity;
-			usernameField.setVisible(false);
-			sendCode.setVisible(false);
+			this.username = authenticatedIdentity;
+			mainLayout.removeComponent(usernameField);
+			sendCodeButton.setVisible(false);
+			mainLayout.removeComponent(resetButton);
+			mainLayout.removeComponent(usernameLabel);
 			sendCode();
 		}
 
 		public void clear()
 		{
 			usernameField.setValue("");
-			usernameField.setComponentError(null);			
+			usernameField.setComponentError(null);
 			answerField.setValue("");
-			answerField.setComponentError(null);		
+			answerField.setComponentError(null);
+			usernameLabel.resetValue();
+			username = null;
+			sentCode = null;
 		}
 	}
 
@@ -346,7 +431,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		{
 			theComponent.triggerAuthentication();
 		}
-		
 
 		/**
 		 * {@inheritDoc}
@@ -383,7 +467,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		@Override
 		public void cancelAuthentication()
 		{
-			//do nothing
+			// do nothing
 		}
 
 		@Override
@@ -393,19 +477,20 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		}
 
 		@Override
-		public void refresh(VaadinRequest request) 
+		public void refresh(VaadinRequest request)
 		{
-			//nop
+			// nop
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback)
 		{
 			theComponent.setSandboxCallback(callback);
 		}
 
 		/**
-		 * Simple: there is only one authN option in this authenticator so we can return any constant id. 
+		 * Simple: there is only one authN option in this authenticator
+		 * so we can return any constant id.
 		 */
 		@Override
 		public String getId()
@@ -417,7 +502,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public void presetEntity(Entity authenticatedEntity)
 		{
 			List<Identity> ids = authenticatedEntity.getIdentities();
-			for (Identity id: ids)
+			for (Identity id : ids)
 				if (id.getTypeId().equals(UsernameIdentity.ID))
 				{
 					theComponent.setAuthenticatedIdentity(id.getValue());
@@ -431,7 +516,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			return Collections.emptySet();
 		}
 	}
-	
+
 	@org.springframework.stereotype.Component
 	public static class Factory extends AbstractCredentialRetrievalFactory<SMSRetrieval>
 	{

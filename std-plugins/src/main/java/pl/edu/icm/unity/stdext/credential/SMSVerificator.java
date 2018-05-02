@@ -56,23 +56,25 @@ import pl.edu.icm.unity.types.authn.LocalCredentialState;
 public class SMSVerificator extends AbstractLocalVerificator implements SMSExchange 
 { 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, SMSVerificator.class);
+	
+	private static final int AUTHN_SMS_LIMIT = 3;
 	public static final String NAME = "sms";
 	public static final String DESC = "Verifies sms";
 	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
 
 	private SMSCredential credential = new SMSCredential();
-
 	private NotificationProducer notificationProducer;
-
 	private CredentialHelper credentialHelper;
+	private AuthnSMSCounter smslimitCache;
 
 	@Autowired
 	public SMSVerificator(NotificationProducer notificationProducer,
-			CredentialHelper credentialHelper)
+			CredentialHelper credentialHelper, AuthnSMSCounter smslimitCache)
 	{
 		super(NAME, DESC, SMSExchange.ID, true);
 		this.notificationProducer = notificationProducer;
 		this.credentialHelper = credentialHelper;
+		this.smslimitCache = smslimitCache;
 	}
 
 	@Override
@@ -150,9 +152,24 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 
 	@Override
-	public SMSCode sendCode(String username) throws EngineException
+	public SMSCode sendCode(String username, boolean force) throws EngineException
 	{
 
+		if (isAuthSMSLimitExceeded(username))
+		{
+			if (force)
+			{
+				log.debug("Forcing sending authn sms code to the user " + username
+						+ ", but authn sms limit is exceeded");
+			} else
+			{
+				log.debug("Authn sms limit to the user " + username
+						+ " is exceeded, skipping send authn sms");
+				return null;
+			}
+		}
+
+		smslimitCache.incValue(username);
 		EntityWithCredential resolved = null;
 		try
 		{
@@ -235,6 +252,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		boolean isOutdated = isCurrentCredentialOutdated(credState);
 		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username,
 				isOutdated);
+		smslimitCache.reset(username);
 		return new AuthenticationResult(Status.success, ae);
 	}
 
@@ -256,5 +274,11 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		{
 			super(NAME, DESC, true, factory);
 		}
-	}	
+	}
+
+	@Override
+	public boolean isAuthSMSLimitExceeded(String username)
+	{
+		return smslimitCache.getValue(username) >= AUTHN_SMS_LIMIT;
+	}
 }

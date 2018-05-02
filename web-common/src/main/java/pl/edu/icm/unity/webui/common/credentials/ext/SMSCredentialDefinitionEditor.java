@@ -92,7 +92,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		ncodeLength.setCaption(msg.getMessage(
 				"SMSCredentialDefinitionEditor.newMobile.codeLength"));
 		form.addComponent(ncodeLength);	
-		msgTemplate.setValue(
+		nmsgTemplate.setValue(
 				config.isPresent() ? config.get().getMessageTemplate() : "");
 
 		nvalidityTime.setValue(config.isPresent()? String.valueOf(config.get().getValidityTime()) : "");
@@ -147,8 +147,9 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		
 		MobileNumberConfirmationConfiguration confirmationConfig = null;
 		if (helper != null && helper.getMobileNumberConfirmationConfiguration().isPresent())
-			confirmationConfig = helper.getMobileNumberConfirmationConfiguration()
+		{	confirmationConfig = helper.getMobileNumberConfirmationConfiguration()
 					.get();
+		}
 		confirmationConfigEditor = new MobileNumberConfirmationConfigurationEditor(
 				confirmationConfig, msg, msgTplMan, "SMSCredentialDefinitionEditor.newMobile.");
 		confirmationConfigEditor.addFieldToLayout(form);

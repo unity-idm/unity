@@ -125,9 +125,19 @@ public class CaptchaComponent
 	 */
 	public Component getAsComponent()
 	{
+		return getAsComponent(Alignment.MIDDLE_LEFT);
+	}
+	
+	/**
+	 * Create and return UI.
+	 * @return
+	 */
+	public Component getAsComponent(Alignment answerAligment)
+	{
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
 		ret.addComponents(createCapchaLine(), answer);
+		ret.setComponentAlignment(answer, answerAligment);
 		return ret;
 	}
 	

@@ -12,7 +12,7 @@ import pl.edu.icm.unity.webui.authn.credreset.CodeVerificationCredentialResetDia
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
- * Second step of sms credential reset pipeline. In this dialog the user must provide the reset code which was
+ * 2nd step of sms credential reset pipeline. In this dialog the user must provide the reset code which was
  * sent via e-mail. 
  * <p>
  * This dialog checks at startup if the username exists, channel exists and the username has address - 
