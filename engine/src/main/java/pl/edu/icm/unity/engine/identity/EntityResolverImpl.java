@@ -14,6 +14,7 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.UnknownIdentityException;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -60,6 +61,7 @@ public class EntityResolverImpl implements EntityResolver
 		}
 	}
 
+	@Transactional
 	@Override
 	public Identity getFullIdentity(IdentityTaV entity) throws IllegalIdentityValueException
 	{
