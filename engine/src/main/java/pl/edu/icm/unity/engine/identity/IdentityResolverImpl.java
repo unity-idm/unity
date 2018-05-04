@@ -62,9 +62,8 @@ public class IdentityResolverImpl implements IdentityResolver
 			String credentialName) throws EngineException
 	{
 		long entityId = getEntity(identity, identityTypes, null, null, true);
-		EntityState entityState = dbIdentities.getByKey(entityId).getEntityState();
-		if (entityState == EntityState.authenticationDisabled || entityState == EntityState.disabled)
-			throw new IllegalIdentityValueException("Authentication is disabled for this entity");
+		if (!isEntityEnabled(entityId))
+			throw new IllegalIdentityValueException("Authentication is disabled for this entity");		
 		EntityWithCredential ret = new EntityWithCredential();
 		if (credentialName != null)
 		{
@@ -103,8 +102,7 @@ public class IdentityResolverImpl implements IdentityResolver
 	public long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
 			throws IllegalIdentityValueException
 	{
-		long entityId = getEntity(identity, identityTypes, target, realm, false);
-		return entityId;
+		return getEntity(identity, identityTypes, target, realm, false);
 	}
 	
 	private long getEntity(String identity, String[] identityTypes, String target, String realm, 
@@ -141,4 +139,11 @@ public class IdentityResolverImpl implements IdentityResolver
 		return identity.isConfirmed();
 	}
 
+	@Override
+	public boolean isEntityEnabled(long entity)
+	{
+		EntityState entityState = dbIdentities.getByKey(entity).getEntityState();
+		return entityState != EntityState.authenticationDisabled && entityState != EntityState.disabled;
+	}
+	
 }
