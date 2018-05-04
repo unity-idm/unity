@@ -64,6 +64,8 @@ import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
@@ -612,9 +614,20 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 
 					aParam.getDescription() : null;
 			String aName = isEmpty(aParam.getLabel()) ? null : aParam.getLabel();
-			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
-					aType, null, aParam.isShowGroups(), aParam.getGroup(), 
-					aName, description, !aParam.isOptional(), false, layout);
+			
+			
+			ConfirmationMode confirmationMode = ConfirmationMode.OFF;
+			if (aParam.getConfirmationMode().equals(
+					pl.edu.icm.unity.types.registration.ConfirmationMode.ON_SUBMIT))
+				confirmationMode = ConfirmationMode.FORCE_CONFIRMED;
+
+			AttributeEditContext editContext = new AttributeEditContext(
+					confirmationMode, !aParam.isOptional(), aType, null,
+					aParam.getGroup());
+
+			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
+					attributeHandlerRegistry, editContext,
+					aParam.isShowGroups(), aName, description, layout);
 			
 			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 
 					&& rattr != null)

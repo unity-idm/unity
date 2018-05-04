@@ -20,6 +20,8 @@ import pl.edu.icm.unity.webadmin.attribute.AttributeMetaEditorPanel.TypeChangeCa
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
@@ -49,19 +51,23 @@ public class AttributeEditor extends CustomComponent
 		attrTypePanel = new AttributeMetaEditorPanel(attributeTypes, groupPath, msg);
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new CompactFormLayout();
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, initial, owner, 
-				false, AttributeEditor.this.groupPath, null, null, 
-				required, true, attrValuesContainer);
+		
+		AttributeEditContext editContext = new AttributeEditContext(
+				ConfirmationMode.ADMIN,
+				required, initial, owner, AttributeEditor.this.groupPath);		
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
+				false, null, null, attrValuesContainer);
 
 		attrTypePanel.setCallback(new TypeChangeCallback()
 		{
 			@Override
 			public void attributeTypeChanged(AttributeType newType)
 			{
+				
 				attrValuesContainer.removeAllComponents();
-				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newType, owner, 
-						false, AttributeEditor.this.groupPath, 
-						null, null, required, true, attrValuesContainer);
+				editContext.setAttributeType(newType);	
+				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
+						false, null, null, attrValuesContainer);
 			}
 		});
 		initCommon();
@@ -91,9 +97,12 @@ public class AttributeEditor extends CustomComponent
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, owner, 
-				false, AttributeEditor.this.groupPath, null, null, true, true, 
-				attrValuesContainer);
+		AttributeEditContext editContext = new AttributeEditContext(
+				ConfirmationMode.ADMIN,
+				true, attributeType, owner, AttributeEditor.this.groupPath);	
+		
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
+				false, null, null, attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
 		initCommon();
 	}
@@ -111,9 +120,11 @@ public class AttributeEditor extends CustomComponent
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, attributeType, owner, 
-				false, AttributeEditor.this.groupPath, null, null, true, true, 
-				attrValuesContainer);
+		AttributeEditContext editContext = new AttributeEditContext(ConfirmationMode.ADMIN,
+				true, attributeType, owner, AttributeEditor.this.groupPath);
+
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
+				false, null, null, attrValuesContainer);
 		typeFixed = true;
 		initCommon();
 	}

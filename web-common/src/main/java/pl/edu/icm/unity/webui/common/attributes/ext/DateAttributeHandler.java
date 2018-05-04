@@ -18,8 +18,8 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateAttributeSyntax;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -99,10 +99,9 @@ public class DateAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required, boolean adminMode,
-				String attrName, EntityParam owner, String group)
+		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = required;
+			this.required = context.isRequired();
 			date = new DateField();
 			date.setResolution(DateResolution.DAY);
 			date.setCaption(label);	

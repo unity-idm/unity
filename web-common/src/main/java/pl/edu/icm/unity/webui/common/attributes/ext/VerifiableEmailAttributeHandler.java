@@ -31,6 +31,8 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
@@ -159,33 +161,35 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required, boolean adminMode,
-				String attrName, EntityParam owner, String group)
+		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = required;
+			this.required = context.isRequired();
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
-			
-			Optional<EmailConfirmationConfiguration> confirmationConfig = 
-					emailConfirmationMan.getConfirmationConfigurationForAttribute(attrName);
-			
-			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
-					"VerifiableEmailAttributeHandler.resendConfirmation"),
+
+			Optional<EmailConfirmationConfiguration> confirmationConfig = emailConfirmationMan
+					.getConfirmationConfigurationForAttribute(
+							context.getAttributeType().getName());
+
+			editor = new TextFieldWithVerifyButton(
+					context.getConfirmationMode() == ConfirmationMode.ADMIN,
+					required,
+					msg.getMessage("VerifiableEmailAttributeHandler.resendConfirmation"),
 					Images.messageSend.getResource(),
 					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"));
 			if (label != null)
 				editor.setTextFieldId("EmailValueEditor." + label);
 
 			if (value != null)
+			{
 				editor.setValue(value.getValue());
-			
-			if (value == null)
+				editor.setAdminCheckBoxValue(value.isConfirmed());
+			} else
+			{
 				editor.removeConfirmationStatusIcon();
-
-			if (value != null)
-				editor.setAdminCheckBoxValue(value.isConfirmed());		
+			}		
 			
-			if (confirmationInfo.isConfirmed() || owner == null || value == null
+			if (confirmationInfo.isConfirmed() || context.getAttributeOwner() == null || value == null
 					|| !confirmationConfig.isPresent())
 				editor.removeVerifyButton();
 
@@ -195,8 +199,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 				{
 					ConfirmDialog confirm = new ConfirmDialog(msg, msg
 							.getMessage("VerifiableEmailAttributeHandler.confirmResendConfirmation"),
-							() -> { sendConfirmation(owner, group,
-									attrName,
+							() -> { sendConfirmation(context.getAttributeOwner(), context.getAttributeGroup(),
+									context.getAttributeType().getName(),
 									value.getValue());
 								confirmationInfo.setSentRequestAmount(confirmationInfo.getSentRequestAmount() + 1);
 								updateConfirmationStatusIcon();

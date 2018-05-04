@@ -20,6 +20,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -119,7 +120,9 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		AttributeType selected = attributeSel.getValue();
 		FormLayout ct = new CompactFormLayout();
 		ct.setMargin(true);
-		valuesComponent = getValuesPart(selected, null, groupSel.getValue(), selected.getName(), true, true, ct);
+		AttributeEditContext editContext = new AttributeEditContext(ConfirmationMode.ADMIN,
+				true, selected, null, groupSel.getValue());
+		valuesComponent = getValuesPart(editContext, selected.getName(), ct);
 		valuesPanel.setContent(ct);
 	}
 	

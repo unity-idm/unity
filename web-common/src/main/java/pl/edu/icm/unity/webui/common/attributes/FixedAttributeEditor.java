@@ -12,7 +12,6 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 
@@ -26,32 +25,24 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
  */
 public class FixedAttributeEditor extends AbstractAttributeEditor
 {
-	private AttributeType attributeType;
 	private String caption;
 	private String description;
-	private String group;
-	private EntityParam owner;
 	private boolean showGroup;
+	private AttributeEditContext editContext;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
-	private boolean required;
-	private boolean adminMode;
 	private AbstractOrderedLayout parent;
 
-	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributeType attributeType, EntityParam owner, boolean showGroup, String group, 
-			String caption, String description, boolean required, boolean adminMode, 
+	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry,
+			AttributeEditContext editContext, boolean showGroup, 
+			String caption, String description, 
 			AbstractOrderedLayout parent)
 	{
-		super(msg, registry);
-		this.attributeType = attributeType;
+		super(msg, registry);	
 		this.showGroup = showGroup;
-		this.group = group;
 		this.caption = caption;
 		this.description = description;
-		this.required = required;
-		this.adminMode = adminMode;
 		this.parent = parent;
-		this.owner = owner;
+		this.editContext = editContext;
 		initUI();
 	}
 	
@@ -65,12 +56,12 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	
 	public AttributeType getAttributeType()
 	{
-		return attributeType;
+		return editContext.getAttributeType();
 	}
 
 	public String getGroup()
 	{
-		return group;
+		return editContext.getAttributeGroup();
 	}
 
 	public Attribute getAttribute() throws FormValidationException
@@ -85,23 +76,26 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 				allNull = false;
 		}
 		
-		return allNull ? null : 
-			new Attribute(attributeType.getName(), attributeType.getValueSyntax(), group, aValues);
+		return allNull ? null
+				: new Attribute(editContext.getAttributeType().getName(),
+						editContext.getAttributeType().getValueSyntax(),
+						editContext.getAttributeGroup(), aValues);
 	}
 	
 	private void initUI()
 	{
 		if (caption == null)
 		{
-			caption = attributeType.getDisplayedName().getValue(msg);
+			caption = editContext.getAttributeType().getDisplayedName().getValue(msg);
+			String group = editContext.getAttributeGroup(); 
 			if (showGroup && !group.equals("/"))
 				caption = caption + " @" + group;
 			caption = caption + ":";
 		}
 		if (description == null)
-			description = attributeType.getDescription().getValue(msg);
+			description = editContext.getAttributeType().getDescription().getValue(msg);
 		
-		valuesComponent = getValuesPart(attributeType, owner, group, caption, required, adminMode, parent);
+		valuesComponent = getValuesPart(editContext, caption, parent);
 	}
 	
 	public void clear()
