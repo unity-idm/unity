@@ -168,7 +168,7 @@ public class BaseRequestValidator
 					(AttributeValueSyntax<? extends VerifiableElement>) syntax;
 				if (regParam.getConfirmationMode() == ConfirmationMode.CONFIRMED)
 					AttributesHelper.setConfirmed(attr, vsyntax);
-				else
+				else if (regParam.getConfirmationMode() == ConfirmationMode.DONT_CONFIRM)
 					AttributesHelper.setUnconfirmed(attr, vsyntax);
 			}
 		}
