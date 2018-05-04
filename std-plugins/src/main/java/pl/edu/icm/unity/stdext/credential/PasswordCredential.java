@@ -69,7 +69,7 @@ public class PasswordCredential
 			allowLegacy = allowLegacyNode.asBoolean();
 		
 		JsonNode scryptParamsNode = root.get("scryptParams");
-		if (scryptParamsNode != null)
+		if (scryptParamsNode != null && !scryptParamsNode.isNull())
 			scryptParams = Constants.MAPPER.convertValue(scryptParamsNode, 
 				ScryptParams.class);
 		else

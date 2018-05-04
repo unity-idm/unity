@@ -7,6 +7,7 @@ package pl.edu.icm.unity.stdext.credential;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -130,7 +131,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				throw new IllegalPreviousCredentialException("The current credential is incorrect");
 		}
 		if (verify)
-			verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), currentPasswords);
+			verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), 
+					currentPasswords, credential.getHistorySize());
 		
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion())
@@ -337,7 +339,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	}
 	
 	private void verifyNewPassword(String existingPassword, String password, 
-			Deque<PasswordInfo> currentCredentials) throws IllegalCredentialException
+			Deque<PasswordInfo> currentCredentials, int historyLookback) throws IllegalCredentialException
 	{
 		PasswordValidator validator = getPasswordValidator();
 		
@@ -345,8 +347,10 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		if (!result.isValid())
 			throw new IllegalCredentialException("Password is too weak", getWeakPasswordDetails(result));
 		
-		for (PasswordInfo pi: currentCredentials)
+		Iterator<PasswordInfo> iterator = currentCredentials.iterator();
+		for (int i=0; i<historyLookback && iterator.hasNext(); i++)
 		{
+			PasswordInfo pi = iterator.next();
 			if (passwordEngine.verify(pi, password))
 				throw new IllegalCredentialException("The same password was recently used");
 		}
