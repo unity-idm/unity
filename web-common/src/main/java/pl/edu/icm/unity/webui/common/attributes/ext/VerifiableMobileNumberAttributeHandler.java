@@ -218,7 +218,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				String value;
 				try
 				{
-					value = getCurrentValue();
+					value = getCurrentValue(false);
 				} catch (IllegalAttributeValueException e1)
 				{
 					return; 
@@ -267,10 +267,8 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			skipUpdate = false;
 		}
 
-		@Override
-		public String getCurrentValue() throws IllegalAttributeValueException
+		private String getCurrentValue(boolean forceConfirmation) throws IllegalAttributeValueException
 		{
-
 			if (!required && editor.getValue().isEmpty())
 				return null;
 			
@@ -279,7 +277,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				VerifiableMobileNumber mobile = new VerifiableMobileNumber(editor.getValue());
 				mobile.setConfirmationInfo(confirmationInfo);
 				syntax.validate(mobile);
-				if (forceConfirmed && !confirmationInfo.isConfirmed())
+				if (forceConfirmation && !confirmationInfo.isConfirmed())
 					throw new IllegalAttributeValueException("Value must be confirmed");
 				editor.setComponentError(null);				
 				return syntax.convertToString(mobile);
@@ -292,6 +290,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				editor.setComponentError(new UserError(e.getMessage()));
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}		
+		}
+		
+		@Override
+		public String getCurrentValue() throws IllegalAttributeValueException
+		{
+
+			return getCurrentValue(forceConfirmed);	
 		}
 
 		@Override

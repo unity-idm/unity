@@ -620,7 +620,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (aParam.getConfirmationMode().equals(
 					pl.edu.icm.unity.types.registration.ConfirmationMode.ON_SUBMIT))
 				confirmationMode = ConfirmationMode.FORCE_CONFIRMED;
-			if (aParam.getConfirmationMode().equals(
+			else if (aParam.getConfirmationMode().equals(
 					pl.edu.icm.unity.types.registration.ConfirmationMode.ON_ACCEPT))
 				confirmationMode = ConfirmationMode.USER;
 			
