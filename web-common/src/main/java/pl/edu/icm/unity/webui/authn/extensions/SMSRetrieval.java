@@ -243,9 +243,10 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			sendCodeButton.setVisible(true);
 			resetButton.setVisible(false);
 			capchaComponent.setVisible(false);
-			usernameField.setEnabled(true);
 			usernameField.setVisible(true);
 			usernameLabel.setVisible(false);
+			usernameLabel.resetValue();
+			answerField.setValue("");
 			answerField.setEnabled(false);
 			username = null;
 			sentCode = null;
@@ -261,18 +262,29 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 						msg.getMessage("WebSMSRetrieval.noUser")));
 				return;
 			}
-
+		
+			answerField.setComponentError(null);
+			usernameField.setComponentError(null);
+			usernameField.setVisible(false);
+		
+			usernameLabel.setVisible(true);
+			resetButton.setVisible(true);			
+			
+			
 			if (credentialExchange.isAuthSMSLimitExceeded(username)
 					&& !capchaComponent.isVisible())
 			{
 				capchaInfoLabel.setValue(msg.getMessage(
 						"WebSMSRetrieval.sentCodeLimit", username));
 				capchaComponent.setVisible(true);
+				capcha.resetFull();
+				usernameLabel.setHtmlValue("WebSMSRetrieval.usernameLabel",
+						username);
 				sendCodeButton.setVisible(true);
 				log.debug("Too many authn sms code sent to the user, turn on capcha");
 				return;
 			}
-			
+					
 			if (capchaComponent.isVisible())
 			{
 				try
@@ -284,26 +296,26 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 					return;
 				}
 			}
-
-			usernameField.setComponentError(null);
-			answerField.setComponentError(null);
-
+			
 			try
 			{
 				sentCode = credentialExchange.sendCode(username, force);
-				answerField.setEnabled(true);
-				usernameField.setVisible(false);
-				usernameLabel.setHtmlValue("WebSMSRetrieval.usernameLabel",
-						username);
-				usernameLabel.setVisible(true);
-
-				capchaComponent.setVisible(false);
-				sendCodeButton.setVisible(false);
-				resetButton.setVisible(true);
+				
 			} catch (EngineException e)
 			{
-				log.debug("Authentication error during sending sms code", e);
+				log.debug("Cannot send authn sms code", e);
+				usernameField.setComponentError(new UserError(
+						msg.getMessage("WebSMSRetrieval.cannotSendSMS", username)));
+				return;
 			}
+			
+			usernameLabel.setHtmlValue("WebSMSRetrieval.usernameLabelCodeSent",
+					username);
+			capcha.reset();
+			answerField.setEnabled(true);		
+			capchaComponent.setVisible(false);
+			sendCodeButton.setVisible(false);
+		
 		}
 
 		public void triggerAuthentication()
@@ -339,11 +351,9 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			String msgErr = msg.getMessage("WebSMSRetrieval.wrongCode");
 			usernameField.setComponentError(new UserError(msgErr));
 			usernameField.setValue("");
-			username = null;
-
 			answerField.setComponentError(new UserError(msgErr));
 			answerField.setValue("");
-			sentCode = null;
+
 		}
 
 		private void showResetDialog()
@@ -386,8 +396,8 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public void setAuthenticatedIdentity(String authenticatedIdentity)
 		{
 			this.username = authenticatedIdentity;
-			mainLayout.removeComponent(usernameField);
 			sendCodeButton.setVisible(false);
+			mainLayout.removeComponent(usernameField);
 			mainLayout.removeComponent(resetButton);
 			mainLayout.removeComponent(usernameLabel);
 			sendCode();
@@ -395,13 +405,13 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 		public void clear()
 		{
+			resetSentCode();
 			usernameField.setValue("");
 			usernameField.setComponentError(null);
 			answerField.setValue("");
 			answerField.setComponentError(null);
-			usernameLabel.resetValue();
-			username = null;
-			sentCode = null;
+						
+			
 		}
 	}
 

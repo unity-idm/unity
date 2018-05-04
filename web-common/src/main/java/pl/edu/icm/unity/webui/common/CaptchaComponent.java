@@ -102,12 +102,18 @@ public class CaptchaComponent
 		});
 	}
 	
-	private void reset()
+	public void reset()
 	{
 		initEngine();
 		SimpleImageSource src = new SimpleImageSource(engine.getImage());
 		challenge.setSource(src.getResource());
 		answer.setValue("");
+	}
+	
+	public void resetFull()
+	{
+		reset();
+		answer.setComponentError(null);
 	}
 	
 	private HorizontalLayout createCapchaLine()
