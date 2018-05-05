@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.exceptions.InternalException;
 
@@ -22,11 +23,12 @@ public class PasswordCredential
 	//200 years should be enough, Long MAX is too much as we would fail on maths
 	public static final long MAX_AGE_UNDEF = 200L*12L*30L*24L*3600000L; 
 	
-	private int minLength = 8;
-	private int historySize = 0;
-	private int minClassesNum = 3;
-	private boolean denySequences = true;
+	private int minLength = 1;
+	private int historySize = 1;
+	private int minClassesNum = 1;
+	private boolean denySequences = false;
 	private boolean allowLegacy = true;
+	private int minScore = 10;
 	private long maxAge = MAX_AGE_UNDEF; 
 	private ScryptParams scryptParams;
 	private CredentialResetSettings passwordResetSettings = new CredentialResetSettings();
@@ -41,6 +43,7 @@ public class PasswordCredential
 		root.put("denySequences", denySequences);
 		root.put("allowLegacy", allowLegacy);
 		root.putPOJO("scryptParams", scryptParams);
+		root.put("minScore", minScore);
 		
 		ObjectNode resetNode = root.putObject("resetSettings");
 		passwordResetSettings.serializeTo(resetNode);
@@ -79,6 +82,11 @@ public class PasswordCredential
 		JsonNode resetNode = root.get("resetSettings");
 		if (resetNode != null)
 			passwordResetSettings.deserializeFrom((ObjectNode) resetNode);
+		
+		if (JsonUtil.notNull(root, "minScore"))
+			minScore = root.get("minScore").asInt();
+		else
+			minScore = 0;
 	}
 	
 	public int getMinLength()
@@ -159,5 +167,15 @@ public class PasswordCredential
 	public void setPasswordResetSettings(CredentialResetSettings passwordResetSettings)
 	{
 		this.passwordResetSettings = passwordResetSettings;
+	}
+
+	public int getMinScore()
+	{
+		return minScore;
+	}
+
+	public void setMinScore(int minScore)
+	{
+		this.minScore = minScore;
 	}
 }

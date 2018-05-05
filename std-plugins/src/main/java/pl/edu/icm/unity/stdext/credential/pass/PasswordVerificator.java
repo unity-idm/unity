@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -17,9 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
+import com.nulabinc.zxcvbn.Strength;
+import com.nulabinc.zxcvbn.Zxcvbn;
 
 import edu.vt.middleware.password.AlphabeticalSequenceRule;
 import edu.vt.middleware.password.CharacterCharacteristicsRule;
+import edu.vt.middleware.password.CharacterRule;
 import edu.vt.middleware.password.DigitCharacterRule;
 import edu.vt.middleware.password.LengthRule;
 import edu.vt.middleware.password.LowercaseCharacterRule;
@@ -49,6 +52,7 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.CredentialRecentlyUsedException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -59,14 +63,11 @@ import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
-import pl.edu.icm.unity.types.I18nStringSource;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
- * Ordinary password credential verificator. Highly configurable: it is possible to set minimal length,
- * what character classes are required, minimum number of character classes, how many previous passwords 
- * should be stored and not repeated after change, how often the password must be changed.
+ * Ordinary password credential verificator. Supports all settings from {@link PasswordCredential}.  
  * <p>
  * Additionally configuration of the credential may allow for password reset feature. Then are stored
  * email verification settings, security question settings and confirmation code length.
@@ -341,50 +342,56 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private void verifyNewPassword(String existingPassword, String password, 
 			Deque<PasswordInfo> currentCredentials, int historyLookback) throws IllegalCredentialException
 	{
-		PasswordValidator validator = getPasswordValidator();
+		Zxcvbn zxcvbn = new Zxcvbn();
+		Strength strength = zxcvbn.measure(password);
+		if (strength.getGuessesLog10() < credential.getMinScore())
+			throw new IllegalCredentialException("Password has too low score");
 		
+		PasswordValidator validator = getPasswordValidator();
 		RuleResult result = validator.validate(new PasswordData(new Password(password)));
 		if (!result.isValid())
-			throw new IllegalCredentialException("Password is too weak", getWeakPasswordDetails(result));
+			throw new IllegalCredentialException("Password is too weak");
 		
 		Iterator<PasswordInfo> iterator = currentCredentials.iterator();
 		for (int i=0; i<historyLookback && iterator.hasNext(); i++)
 		{
 			PasswordInfo pi = iterator.next();
 			if (passwordEngine.verify(pi, password))
-				throw new IllegalCredentialException("The same password was recently used");
+				throw new CredentialRecentlyUsedException("The same password was recently used");
 		}
 	}
 
-	private List<I18nStringSource> getWeakPasswordDetails(RuleResult result)
-	{
-		return result.getDetails().stream()
-			.filter(rr -> !rr.getErrorCode().equals("INSUFFICIENT_CHARACTERS"))
-			.map(rr -> new I18nStringSource("PasswordVerificator." + rr.getErrorCode(), rr.getValues()))
-			.collect(Collectors.toList());
-	}
-	
 	private PasswordValidator getPasswordValidator()
 	{
 		List<Rule> ruleList = new ArrayList<Rule>();
 		ruleList.add(new LengthRule(credential.getMinLength(), 512));
 		CharacterCharacteristicsRule charRule = new CharacterCharacteristicsRule();
-		charRule.getRules().add(new DigitCharacterRule(1));
-		charRule.getRules().add(new NonAlphanumericCharacterRule(1));
-		charRule.getRules().add(new UppercaseCharacterRule(1));
-		charRule.getRules().add(new LowercaseCharacterRule(1));
+		charRule.setRules(getCharacteristicsRules());
 		charRule.setNumberOfCharacteristics(credential.getMinClassesNum());
 		ruleList.add(charRule);
 		if (credential.isDenySequences())
-		{
-			ruleList.add(new AlphabeticalSequenceRule());
-			ruleList.add(new NumericalSequenceRule(3, true));
-			ruleList.add(new QwertySequenceRule());
-			ruleList.add(new RepeatCharacterRegexRule(4));
-		}
+			ruleList.addAll(getSequencesRules());
 		return new PasswordValidator(ruleList);
 	}
 
+	public static List<CharacterRule> getCharacteristicsRules()
+	{
+		return Lists.newArrayList(
+				new DigitCharacterRule(1),
+				new NonAlphanumericCharacterRule(1),
+				new UppercaseCharacterRule(1),
+				new LowercaseCharacterRule(1));
+	}
+
+	public static List<Rule> getSequencesRules()
+	{
+		return Lists.newArrayList(
+				new AlphabeticalSequenceRule(),
+				new NumericalSequenceRule(3, true),
+				new QwertySequenceRule(),
+				new RepeatCharacterRegexRule(4));
+	}
+	
 	@Override
 	public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
 			throws IllegalCredentialException, InternalException

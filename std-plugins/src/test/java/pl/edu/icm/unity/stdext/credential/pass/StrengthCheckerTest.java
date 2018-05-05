@@ -23,18 +23,19 @@ public class StrengthCheckerTest
 	public void shouldReturnMaxScoreForGoodPassword() throws IOException
 	{
 		UnityMessageSource msg = new UnityMessageSource(mock(UnityServerConfiguration.class), true);
-		StrengthInfo result = StrengthChecker.measure("horsedonteathorseradishondisk", Locale.ENGLISH, msg);
+		StrengthInfo result = StrengthChecker.measure("horsedonteathorseradishondisk", 
+				10, Locale.ENGLISH, msg);
 		
-		assertThat(""+result.score, result.score, is(100));
+		assertThat(""+result.scoreNormalized, result.scoreNormalized, is(1.0));
 	}
 
 	@Test
 	public void shouldReturnLowScoreForBadPassword() throws IOException
 	{
 		UnityMessageSource msg = new UnityMessageSource(mock(UnityServerConfiguration.class), true);
-		StrengthInfo result = StrengthChecker.measure("soso", Locale.ENGLISH, msg);
+		StrengthInfo result = StrengthChecker.measure("soso", 10, Locale.ENGLISH, msg);
 		
-		assertThat(""+result.score, result.score < 15, is(true));
+		assertThat(""+result.scoreNormalized, result.scoreNormalized < 0.15, is(true));
 		
 	}
 	
@@ -42,7 +43,7 @@ public class StrengthCheckerTest
 	public void shouldReturnWarningInSelectedLocale() throws IOException
 	{
 		UnityMessageSource msg = new UnityMessageSource(mock(UnityServerConfiguration.class), true);
-		StrengthInfo result = StrengthChecker.measure("asdfghjkl;'", new Locale("pl"), msg);
+		StrengthInfo result = StrengthChecker.measure("asdfghjkl;'", 10, new Locale("pl"), msg);
 		
 		assertThat(result.toString(), result.warning, 
 				is("Ciągi znaków z klawiatury są łatwe do zgadnięcia"));

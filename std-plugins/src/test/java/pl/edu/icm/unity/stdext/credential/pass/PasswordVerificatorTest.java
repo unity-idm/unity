@@ -30,6 +30,40 @@ public class PasswordVerificatorTest
 	}
 
 	@Test
+	public void shouldDenyTooWeakPassword() throws Exception
+	{
+		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		PasswordCredential credCfg = getEmpty();
+		credCfg.setMinScore(10);
+		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
+		
+		try
+		{
+			PasswordToken pt = new PasswordToken("TooSimple");
+			verificator.prepareCredential(pt.toJson(), "", true);
+			fail("Set too weak password");
+		} catch (IllegalCredentialException e) {}
+	}
+
+	@Test
+	public void shouldAcceptStrongPassword() throws Exception
+	{
+		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		PasswordCredential credCfg = getEmpty();
+		credCfg.setMinScore(10);
+		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
+		
+		try
+		{
+			PasswordToken pt = new PasswordToken("horsesdontlikeraddish");
+			verificator.prepareCredential(pt.toJson(), "", true);
+		} catch (IllegalCredentialException e) 
+		{
+			fail("Didn't set good password");
+		}
+	}
+	
+	@Test
 	public void shouldDenyTooShortPassword() throws Exception
 	{
 		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
@@ -265,6 +299,7 @@ public class PasswordVerificatorTest
 	{
 		PasswordCredential credCfg = new PasswordCredential();
 		credCfg.setMinLength(1);
+		credCfg.setMinScore(0);
 		credCfg.setDenySequences(false);
 		credCfg.setHistorySize(0);
 		credCfg.setMaxAge(PasswordCredential.MAX_AGE_UNDEF);

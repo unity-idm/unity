@@ -2,27 +2,29 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.credentials.ext;
+package pl.edu.icm.unity.webui.common.credentials.pass;
 
 import java.util.List;
 
-import com.vaadin.server.UserError;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.CredentialRecentlyUsedException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExtraInfo;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -33,7 +35,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 {
 	private UnityMessageSource msg;
 	private PasswordField passwordCurrent;
-	private PasswordField password1;
+	private PasswordEditComponent password1;
 	private PasswordField password2;
 	private ComboBox<String> questionSelection;
 	private TextField answer;
@@ -64,7 +66,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 					"PasswordCredentialEditor.currentPassword"));
 			ret.add(passwordCurrent);
 		}
-		password1 = new PasswordField(msg.getMessage("PasswordCredentialEditor.password"));
+		password1 = new PasswordEditComponent(msg, helper);
 		password1.focus();
 		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
 		if (required)
@@ -74,7 +76,8 @@ public class PasswordCredentialEditor implements CredentialEditor
 			if (askAboutCurrent)
 				passwordCurrent.setRequiredIndicatorVisible(true);
 		}
-		ret.add(password1, password2);
+		ret.add(password1.getAsContainer().getComponents());
+		ret.add(password2);
 		
 		CredentialResetSettings resetSettings = helper.getPasswordResetSettings();
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 
@@ -95,25 +98,29 @@ public class PasswordCredentialEditor implements CredentialEditor
 	@Override
 	public String getValue() throws IllegalCredentialException
 	{
-		if (!required && password1.getValue().isEmpty() && password2.getValue().isEmpty())
+		if (!required && password1.getPassword().isEmpty() && password2.getValue().isEmpty())
 			return null;
 		
-		if (required && password1.getValue().isEmpty())
-		{
-			password1.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+		if (required && password1.getPassword().isEmpty())
 			throw new IllegalCredentialException(msg.getMessage("fieldRequired"));
-		} else
-			password1.setComponentError(null);
-		String p1 = password1.getValue();
+		
+		String p1 = password1.getPassword();
 		String p2 = password2.getValue();
 		if (!p1.equals(p2))
 		{
+			password1.clear();
+			password2.clear();
 			String err = msg.getMessage("PasswordCredentialEditor.passwordsDoNotMatch");
-			password2.setComponentError(new UserError(err));
 			throw new IllegalCredentialException(err);
-		} else
-			password2.setComponentError(null);
+		}
 
+		if (!password1.isValid())
+		{
+			password1.clear();
+			password2.clear();
+			throw new IllegalCredentialException(msg.getMessage("PasswordCredentialEditor.passwordTooWeak"));
+		}
+		
 		PasswordToken pToken = new PasswordToken(p1);
 		
 		if (requireQA)
@@ -122,7 +129,6 @@ public class PasswordCredentialEditor implements CredentialEditor
 			if (ans == null || ans.trim().length() < 3)
 			{
 				String err = msg.getMessage("PasswordCredentialEditor.answerRequired", 2);
-				answer.setComponentError(new UserError(err));
 				throw new IllegalCredentialException(err);
 			}
 			answer.setComponentError(null);
@@ -168,43 +174,39 @@ public class PasswordCredentialEditor implements CredentialEditor
 	{
 		if (askAboutCurrent && required && passwordCurrent.getValue().isEmpty())
 		{
-			passwordCurrent.setComponentError(new UserError(msg.getMessage("fieldRequired")));
 			throw new IllegalCredentialException(msg.getMessage("fieldRequired"));
 		} else
+		{
 			passwordCurrent.setComponentError(null);
+		}
 		return new PasswordToken(passwordCurrent.getValue()).toJson();
 	}
 
 	@Override
 	public void setCredentialError(EngineException error)
 	{
-		if (error == null)
-		{
-			password1.setComponentError(null);
-			password2.setComponentError(null);
-			return;
-		}
+		password1.clear();
+		password2.setValue("");
 		
-		String message = error.getMessage();
-		if (error instanceof IllegalCredentialException)
+		if (error instanceof IllegalPreviousCredentialException)
 		{
-			IllegalCredentialException ice = (IllegalCredentialException) error;
-			message = ice.formatDetails(msg);
-		}
-		
-		password1.setComponentError(message == null ? null : new UserError(message));
-		password2.setComponentError(message == null ? null : new UserError(message));
-		if (message != null)
+			NotificationPopup.showError(msg, 
+					msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
+					msg.getMessage("PasswordCredentialEditor.wrongOldPasswordError"));
+			passwordCurrent.setValue("");
+			passwordCurrent.focus();
+		} else if (error instanceof CredentialRecentlyUsedException)
 		{
-			password1.setValue("");
-			password2.setValue("");
+			NotificationPopup.showError(msg, 
+					msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
+					msg.getMessage("PasswordCredentialEditor.recentlyUsedError"));
+			password1.focus();
+		} else
+		{
+			NotificationPopup.showError(msg, 
+					msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
+					error);
+			password1.focus();
 		}
-	}
-
-	@Override
-	public void setPreviousCredentialError(String message)
-	{
-		if (passwordCurrent != null)
-			passwordCurrent.setComponentError(message == null ? null : new UserError(message));
 	}
 }

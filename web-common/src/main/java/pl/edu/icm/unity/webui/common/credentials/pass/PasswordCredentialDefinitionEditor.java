@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.credentials.ext;
+package pl.edu.icm.unity.webui.common.credentials.pass;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -11,6 +11,8 @@ import java.math.RoundingMode;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -24,9 +26,12 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
+import pl.edu.icm.unity.webui.common.credentials.CredentialResetSettingsEditor;
 
 /**
  * {@link CredentialDefinition} editor and viewer for the {@link PasswordVerificator}.
@@ -38,6 +43,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private static final int MAX_MONTHS = 48;
 	private UnityMessageSource msg;
 	private MessageTemplateManagement msgTplMan;
+	private IntStepper minScore;
 	private IntStepper minLength;
 	private IntStepper minClasses;
 	private CheckBox denySequences;
@@ -61,6 +67,8 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		PasswordCredential helper = new PasswordCredential();
 		helper.setSerializedConfiguration(JsonUtil.parse(credentialDefinitionConfiguration));
 
+		Label minScore = new Label();
+		minScore.setCaption(msg.getMessage("PasswordDefinitionEditor.minScore"));
 		Label minLength = new Label();
 		minLength.setCaption(msg.getMessage("PasswordDefinitionEditor.minLength"));
 		Label minClasses = new Label();
@@ -79,11 +87,12 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		CredentialResetSettingsEditor viewer = new CredentialResetSettingsEditor(msg, msgTplMan,
 				helper.getPasswordResetSettings());
 		
-		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, maxAge,
+		FormLayout form = new CompactFormLayout(minScore, minLength, minClasses, denySequences, historySize, maxAge,
 				workFactor, allowLegacy);
 		viewer.addViewerToLayout(form);
 		form.setMargin(true);
 		
+		minScore.setValue(String.valueOf(helper.getMinScore()));
 		minLength.setValue(String.valueOf(helper.getMinLength()));
 		minClasses.setValue(String.valueOf(helper.getMinClassesNum()));
 		denySequences.setValue(msg.getYesNo(helper.isDenySequences()));
@@ -107,6 +116,16 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	@Override
 	public Component getEditor(String credentialDefinitionConfiguration)
 	{
+		Button testMe = new Button(msg.getMessage("PasswordDefinitionEditor.testMe"));
+		testMe.addStyleName(Styles.vButtonLink.toString());
+		testMe.addClickListener(this::showTestDialog);
+		minScore = new IntStepper(msg.getMessage("PasswordDefinitionEditor.minScore"));
+		minScore.setDescription(msg.getMessage("PasswordDefinitionEditor.minScoreDesc"));
+		minScore.setMinValue(0);
+		minScore.setMaxValue(25);
+		minScore.setWidth(3, Unit.EM);
+		Label scoreNote = new Label(msg.getMessage("PasswordDefinitionEditor.minScoreNote"));
+		scoreNote.setWidth(100, Unit.PERCENTAGE);
 		minLength = new IntStepper(msg.getMessage("PasswordDefinitionEditor.minLength"));
 		minLength.setMinValue(1);
 		minLength.setMaxValue(30);
@@ -140,7 +159,8 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		allowLegacy.setDescription(msg.getMessage("PasswordDefinitionEditor.allowLegacyDesc"));
 		
 
-		FormLayout form = new CompactFormLayout(minLength, minClasses, denySequences, historySize, limitMaxAge,
+		FormLayout form = new CompactFormLayout(testMe, minScore, scoreNote, 
+				minLength, minClasses, denySequences, historySize, limitMaxAge,
 				maxAge, workFactor, allowLegacy);
 		form.setSpacing(true);
 		form.setMargin(true);
@@ -156,26 +176,37 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		return form;
 	}
 
-	@Override
-	public String getCredentialDefinition() throws IllegalCredentialException
+	private void showTestDialog(ClickEvent event)
 	{
-		PasswordCredential helper = new PasswordCredential();
-		helper.setDenySequences(denySequences.getValue());
-		helper.setHistorySize(historySize.getValue());
+		new TestPasswordDialog(msg, getCredential()).show();
+	}
+	
+	private PasswordCredential getCredential()
+	{
+		PasswordCredential cred = new PasswordCredential();
+		cred.setDenySequences(denySequences.getValue());
+		cred.setHistorySize(historySize.getValue());
 		if (limitMaxAge.getValue())
 		{
 			long maxAgeMs = maxAge.getValue();
 			maxAgeMs *= MS_IN_MONTH;
-			helper.setMaxAge(maxAgeMs);
+			cred.setMaxAge(maxAgeMs);
 		} else
-			helper.setMaxAge(PasswordCredential.MAX_AGE_UNDEF);
-		helper.setMinClassesNum(minClasses.getValue());
-		helper.setMinLength(minLength.getValue());
-		helper.setPasswordResetSettings(resetSettings.getValue());
+			cred.setMaxAge(PasswordCredential.MAX_AGE_UNDEF);
+		cred.setMinClassesNum(minClasses.getValue());
+		cred.setMinLength(minLength.getValue());
+		cred.setPasswordResetSettings(resetSettings.getValue());
 		ScryptParams scryptParams = new ScryptParams(workFactor.getValue());
-		helper.setScryptParams(scryptParams);
-		helper.setAllowLegacy(allowLegacy.getValue());
-		return JsonUtil.serialize(helper.getSerializedConfiguration());
+		cred.setScryptParams(scryptParams);
+		cred.setAllowLegacy(allowLegacy.getValue());
+		cred.setMinScore(minScore.getValue());
+		return cred;
+	}
+	
+	@Override
+	public String getCredentialDefinition() throws IllegalCredentialException
+	{
+		return JsonUtil.serialize(getCredential().getSerializedConfiguration());
 	}
 
 	private void initUIState(PasswordCredential helper)
@@ -201,5 +232,34 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		}
 		workFactor.setValue(helper.getScryptParams().getWorkFactor());
 		allowLegacy.setValue(helper.isAllowLegacy());
+		minScore.setValue(helper.getMinScore());
+	}
+	
+	private static class TestPasswordDialog extends AbstractDialog
+	{
+		private PasswordCredential config;
+
+		public TestPasswordDialog(UnityMessageSource msg, PasswordCredential config)
+		{
+			super(msg, msg.getMessage("PasswordDefinitionEditor.testMe"), 
+					msg.getMessage("close"));
+			this.config = config;
+			setSize(25, 50);
+		}
+
+		@Override
+		protected Component getContents() throws Exception
+		{
+			CompactFormLayout layout = new CompactFormLayout();
+			layout.addComponents(new PasswordEditComponent(msg, config)
+					.getAsContainer().getComponents());
+			return layout;
+		}
+
+		@Override
+		protected void onConfirm()
+		{
+			close();
+		}
 	}
 }

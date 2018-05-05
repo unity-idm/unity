@@ -374,6 +374,14 @@
 	.v-menubar-popup .v-menubar-menuitem .v-icon  {
 		color: #197de1;
 	}
+
+	.u-error-icon .v-icon  {
+		color: $v-error-indicator-color;
+	}
+
+	.v-caption-u-error-icon .v-icon  {
+		color: $v-error-indicator-color;
+	}
 	
 	.v-menubar-popup .v-menubar-menuitem-selected {
 		background-image: -webkit-linear-gradient(top, #8ebef0 2%, #a5cbf3 98%);

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.credentials.ext;
+package pl.edu.icm.unity.webui.common.credentials.cert;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -55,11 +55,6 @@ public class CertificateCredentialEditor implements CredentialEditor
 
 	@Override
 	public void setCredentialError(EngineException message)
-	{
-	}
-
-	@Override
-	public void setPreviousCredentialError(String message)
 	{
 	}
 }

@@ -2,53 +2,50 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.credentials.ext;
+package pl.edu.icm.unity.webui.common.credentials.cert;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
+import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorFactory;
 
 @Component
-public class PasswordCredentialEditorFactory implements CredentialEditorFactory
+public class CertificateCredentialEditorFactory implements CredentialEditorFactory
 {
 	private UnityMessageSource msg;
-	private MessageTemplateManagement msgTplMan;
 	
 	@Autowired
-	public PasswordCredentialEditorFactory(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
+	public CertificateCredentialEditorFactory(UnityMessageSource msg)
 	{
 		this.msg = msg;
-		this.msgTplMan = msgTplMan;
 	}
 
 	@Override
 	public String getSupportedCredentialType()
 	{
-		return PasswordVerificator.NAME;
+		return CertificateVerificator.NAME;
 	}
 
 	@Override
 	public CredentialEditor createCredentialEditor()
 	{
-		return new PasswordCredentialEditor(msg);
+		return new CertificateCredentialEditor(msg);
 	}
 
 	@Override
 	public CredentialDefinitionEditor creteCredentialDefinitionEditor()
 	{
-		return new PasswordCredentialDefinitionEditor(msg, msgTplMan);
+		return new CertificateCredentialDefinitionEditor(msg);
 	}
 
 	@Override
 	public CredentialDefinitionViewer creteCredentialDefinitionViewer()
 	{
-		return new PasswordCredentialDefinitionEditor(msg, msgTplMan);
+		return new CertificateCredentialDefinitionEditor(msg);
 	}
 }
