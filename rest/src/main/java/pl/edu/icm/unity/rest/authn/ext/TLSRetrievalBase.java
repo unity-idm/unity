@@ -18,7 +18,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
-import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 
 /**
  * Retrieves certificate from the TLS

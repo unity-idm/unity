@@ -13,6 +13,10 @@ import org.junit.Test;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
+import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 public class PasswordVerificatorTest

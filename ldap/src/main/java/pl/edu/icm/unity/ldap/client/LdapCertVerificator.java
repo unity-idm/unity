@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 
 /**
  * Produces pseudo verificators which search for and resolve attributes of an externally verified certificate 

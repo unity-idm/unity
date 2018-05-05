@@ -19,9 +19,9 @@ import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.stdext.credential.PasswordCredential;
-import pl.edu.icm.unity.stdext.credential.PasswordExtraInfo;
-import pl.edu.icm.unity.stdext.credential.PasswordToken;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordExtraInfo;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 

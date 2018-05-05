@@ -23,7 +23,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.authn.CXFAuthentication;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 
 /**
  * Base code for retrieving HTTP BASIC authn data from CXF.

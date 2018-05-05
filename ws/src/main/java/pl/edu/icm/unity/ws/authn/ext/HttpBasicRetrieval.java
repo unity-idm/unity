@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
-import pl.edu.icm.unity.stdext.credential.PasswordExchange;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
 /**
