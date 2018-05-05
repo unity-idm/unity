@@ -78,13 +78,15 @@ class EntitiesLoader
 				LOAD_IN_SYNC : members.size();
 		resolveEntitiesAndUpdateTableSync(members, toSyncLoad, selected,
 				group, includeTargeted, consumer);
-		if (members.size() > LOAD_IN_SYNC)
+		
+		int alreadyLoaded = toSyncLoad;
+		if (members.size() > alreadyLoaded)
 		{
 			ui.setPollInterval(UI_REFRESH);
 			AsyncLoader asyncLoader = new AsyncLoader();
 			loaderFuture = new FutureTask<>(() -> 
 					asyncLoader.resolveEntitiesAndUpdateTableAsync(members, group, 
-							includeTargeted, toSyncLoad, 
+							includeTargeted, alreadyLoaded, 
 							selected, consumer), null);
 			asyncLoader.controller = loaderFuture;
 			executor.getService().execute(loaderFuture);
