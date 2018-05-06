@@ -111,10 +111,11 @@ public class UserAttributesPanel
 		if (editable && at.isSelfModificable())
 		{
 			
-			AttributeEditContext editContext = new AttributeEditContext(
-					ConfirmationMode.USER,
-					false, at,  new EntityParam(entityId), group);	
-			
+			AttributeEditContext editContext = AttributeEditContext.builder()
+					.withConfirmationMode(ConfirmationMode.USER)
+					.withAttributeType(at)
+					.withAttributeGroup(group)
+					.withAttributeOwner(new EntityParam(entityId)).build();
 			
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
 				editContext, showGroup, null, null, parent);

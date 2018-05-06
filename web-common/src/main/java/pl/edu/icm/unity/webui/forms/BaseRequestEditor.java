@@ -624,9 +624,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					pl.edu.icm.unity.types.registration.ConfirmationMode.ON_ACCEPT))
 				confirmationMode = ConfirmationMode.USER;
 			
-			AttributeEditContext editContext = new AttributeEditContext(
-					confirmationMode, !aParam.isOptional(), aType, null,
-					aParam.getGroup());
+			AttributeEditContext editContext = AttributeEditContext.builder()
+					.withConfirmationMode(confirmationMode).withRequired(!aParam.isOptional())
+					.withAttributeType(aType).withAttributeGroup(aParam.getGroup())
+					.build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
 					attributeHandlerRegistry, editContext,

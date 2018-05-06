@@ -120,8 +120,10 @@ public class SelectableAttributeEditor extends AbstractAttributeEditor
 		AttributeType selected = attributeSel.getValue();
 		FormLayout ct = new CompactFormLayout();
 		ct.setMargin(true);
-		AttributeEditContext editContext = new AttributeEditContext(ConfirmationMode.ADMIN,
-				true, selected, null, groupSel.getValue());
+		AttributeEditContext editContext = AttributeEditContext.builder()
+				.withConfirmationMode(ConfirmationMode.ADMIN).required()
+				.withAttributeType(selected).withAttributeGroup(groupSel.getValue())
+				.build();
 		valuesComponent = getValuesPart(editContext, selected.getName(), ct);
 		valuesPanel.setContent(ct);
 	}

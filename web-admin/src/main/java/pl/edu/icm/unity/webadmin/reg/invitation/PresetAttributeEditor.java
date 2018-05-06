@@ -66,9 +66,12 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 		selectedParam = formParams.get(position);
 		AttributeType at = attrTypes.get(selectedParam.getAttributeType());
 		
-		AttributeEditContext editContext = new AttributeEditContext(
-				ConfirmationMode.ADMIN,
-				true, at,  null, selectedParam.getGroup());	
+		
+
+		AttributeEditContext editContext = AttributeEditContext.builder()
+				.withConfirmationMode(ConfirmationMode.ADMIN).required()
+				.withAttributeType(at).withAttributeGroup(selectedParam.getGroup())
+				.build();
 		
 		fixedAttributeEditor = new FixedAttributeEditor(msg, attrHandlersRegistry, 
 			editContext, true, selectedParam.getAttributeType(), null, wrapper);

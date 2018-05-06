@@ -52,9 +52,13 @@ public class AttributeEditor extends CustomComponent
 		AttributeType initial = attrTypePanel.getAttributeType();
 		attrValuesContainer = new CompactFormLayout();
 		
-		AttributeEditContext editContext = new AttributeEditContext(
-				ConfirmationMode.ADMIN,
-				required, initial, owner, AttributeEditor.this.groupPath);		
+		
+		AttributeEditContext editContext = AttributeEditContext.builder()
+				.withConfirmationMode(ConfirmationMode.ADMIN).withRequired(required)
+				.withAttributeType(initial)
+				.withAttributeGroup(AttributeEditor.this.groupPath)
+				.withAttributeOwner(owner).build();
+
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
 				false, null, null, attrValuesContainer);
 
@@ -65,8 +69,13 @@ public class AttributeEditor extends CustomComponent
 			{
 				
 				attrValuesContainer.removeAllComponents();
-				editContext.setAttributeType(newType);	
-				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
+				AttributeEditContext newEditContext = AttributeEditContext.builder()
+						.withConfirmationMode(ConfirmationMode.ADMIN).withRequired(required)
+						.withAttributeType(newType)
+						.withAttributeGroup(AttributeEditor.this.groupPath)
+						.withAttributeOwner(owner).build();
+
+				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext, 
 						false, null, null, attrValuesContainer);
 			}
 		});
@@ -97,9 +106,12 @@ public class AttributeEditor extends CustomComponent
 		this.groupPath = attribute.getGroupPath();
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
-		AttributeEditContext editContext = new AttributeEditContext(
-				ConfirmationMode.ADMIN,
-				true, attributeType, owner, AttributeEditor.this.groupPath);	
+		
+		AttributeEditContext editContext = AttributeEditContext.builder()
+				.withConfirmationMode(ConfirmationMode.ADMIN).required()
+				.withAttributeType(attributeType)
+				.withAttributeGroup(AttributeEditor.this.groupPath)
+				.withAttributeOwner(owner).build();
 		
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
 				false, null, null, attrValuesContainer);
@@ -120,8 +132,12 @@ public class AttributeEditor extends CustomComponent
 		this.groupPath = groupPath;
 		attrTypePanel = new AttributeMetaEditorPanel(attributeType, groupPath, msg);
 		attrValuesContainer = new CompactFormLayout();
-		AttributeEditContext editContext = new AttributeEditContext(ConfirmationMode.ADMIN,
-				true, attributeType, owner, AttributeEditor.this.groupPath);
+		
+		AttributeEditContext editContext = AttributeEditContext.builder()
+				.withConfirmationMode(ConfirmationMode.ADMIN).required()
+				.withAttributeType(attributeType)
+				.withAttributeGroup(AttributeEditor.this.groupPath)
+				.withAttributeOwner(owner).build();
 
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
 				false, null, null, attrValuesContainer);
