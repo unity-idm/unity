@@ -12,4 +12,4 @@
  * and updaters are called in order. 
  * @author K. Benedyczak
  */
-package pl.edu.icm.unity.store.export.update;
+package pl.edu.icm.unity.store.migration;

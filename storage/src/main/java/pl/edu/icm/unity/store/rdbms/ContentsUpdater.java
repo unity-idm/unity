@@ -6,10 +6,13 @@ package pl.edu.icm.unity.store.rdbms;
 
 import java.io.IOException;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.migration.from2_4.InDBUpdateFromSchema2_2;
 
 /**
  * Updates DB contents. Note that this class is not updating DB schema (it is done in {@link InitDB}).
@@ -25,10 +28,15 @@ public class ContentsUpdater
 	 */
 	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_3_0";
 	
+	@Autowired
+	private TransactionalRunner txManager;
+	@Autowired
+	private InDBUpdateFromSchema2_2 from2_4;
+	
 	public void update(long oldDbVersion) throws IOException, EngineException
 	{
 		assertMigrationsAreMatchingApp();
-		migrateFromVersion2_2_0();
+		migrateFromSchemaVersion2_2_0();
 	}
 	
 	private void assertMigrationsAreMatchingApp() throws IOException
@@ -41,9 +49,18 @@ public class ContentsUpdater
 		}
 	}
 	
-	private void migrateFromVersion2_2_0() throws IOException, EngineException
+	private void migrateFromSchemaVersion2_2_0() throws IOException, EngineException
 	{
-		throw new IllegalStateException("Not implemented!");
+		txManager.runInTransactionThrowing(() -> 
+		{
+			try
+			{
+				from2_4.update();
+			} catch (IOException e)
+			{
+				throw new EngineException("Migration failed", e);
+			}	
+		});
 	}
 }
 

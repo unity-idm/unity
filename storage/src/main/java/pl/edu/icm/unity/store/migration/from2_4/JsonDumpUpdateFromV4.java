@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.store.export.update;
+package pl.edu.icm.unity.store.migration.from2_4;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -35,15 +35,15 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
- * Update db from 2.4.1 to 2.5.0
+ * Update db from 2.0-2.4 (Json schema V3) to 2.5.0+ (V4)
  * @author P.Piernik
  *
  */
 @Component
-public class UpdateFrom2_0_0 implements Update
+public class JsonDumpUpdateFromV4 implements Update
 
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateFrom2_0_0.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV4.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -270,7 +270,8 @@ public class UpdateFrom2_0_0 implements Update
 		
 		String value = src.get("value").asText();
 		String updated = new VerifiableEmail(value).getComparableValue();
-		
+		log.info("Updating email cmp value to be lowercase {} -> {}", 
+				src.get("comparableValue"), updated);
 		src.put("comparableValue", updated);
 	}
 }
