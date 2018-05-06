@@ -20,15 +20,11 @@ import pl.edu.icm.unity.exceptions.InternalException;
 class SMSCredentialDBState
 {
 	private String value;
-	private boolean outdated;
-	private String outdatedReason;
 	private Date time;
 
-	public SMSCredentialDBState(String value, boolean outdated, String outdatedReason, long time)
+	public SMSCredentialDBState(String value, long time)
 	{
 		this.value = value;
-		this.outdated = outdated;
-		this.outdatedReason = outdatedReason;
 		this.setTime(new Date(time));
 	}
 
@@ -40,7 +36,7 @@ class SMSCredentialDBState
 	public static SMSCredentialDBState fromJson(String raw) throws InternalException
 	{
 		if (raw == null || raw.length() == 0)
-			return new SMSCredentialDBState(null, false, null, System.currentTimeMillis());
+			return new SMSCredentialDBState(null, System.currentTimeMillis());
 		try
 		{
 			return Constants.MAPPER.readValue(raw, SMSCredentialDBState.class);
@@ -54,7 +50,7 @@ class SMSCredentialDBState
 	public static String toJson(SMSCredential credential, String value, long time)
 	{
 
-		SMSCredentialDBState dbState = new SMSCredentialDBState(value, false, null, time);
+		SMSCredentialDBState dbState = new SMSCredentialDBState(value, time);
 		try
 		{
 			return Constants.MAPPER.writeValueAsString(dbState);
@@ -72,26 +68,6 @@ class SMSCredentialDBState
 	public void setValue(String value)
 	{
 		this.value = value;
-	}
-
-	public boolean isOutdated()
-	{
-		return outdated;
-	}
-
-	public void setOutdated(boolean outdated)
-	{
-		this.outdated = outdated;
-	}
-
-	public String getOutdatedReason()
-	{
-		return outdatedReason;
-	}
-
-	public void setOutdatedReason(String outdatedReason)
-	{
-		this.outdatedReason = outdatedReason;
 	}
 
 	public Date getTime()

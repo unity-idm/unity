@@ -14,9 +14,6 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
@@ -42,7 +39,6 @@ import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 /**
- * /**
  * Ordinary sms credential verificator.
  * <p>
  * Additionally configuration of the credential may allow for lost phone recovery feature. Then are stored
@@ -105,38 +101,13 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		SMSCredentialExtraInfo pei = new SMSCredentialExtraInfo(parsedCred.getTime(),
 				parsedCred.getValue());
 		String extraInfo = pei.toJson();
-
-		if (isCurrentCredentialOutdated(parsedCred))
-			return new CredentialPublicInformation(LocalCredentialState.outdated,
-					extraInfo);
 		return new CredentialPublicInformation(LocalCredentialState.correct, extraInfo);
-	}
-
-	private boolean isCurrentCredentialOutdated(SMSCredentialDBState credState)
-	{
-		if (credState.isOutdated())
-		{
-			log.debug("SMS credential is outdated: was previously set to outdated state");
-			return true;
-		}
-
-		return false;
 	}
 
 	@Override
 	public String invalidate(String currentCredential)
 	{
-		ObjectNode root;
-		try
-		{
-			root = (ObjectNode) Constants.MAPPER.readTree(currentCredential);
-			root.put("outdated", true);
-			return Constants.MAPPER.writeValueAsString(root);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize sms credential from JSON",
-					e);
-		}
+		throw new IllegalStateException("This credential doesn't support invalidation");
 	}
 
 	@Override
@@ -247,11 +218,8 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 			return new AuthenticationResult(Status.deny, null);
 		}
 
-		String dbCredential = resolved.getCredentialValue();
-		SMSCredentialDBState credState = SMSCredentialDBState.fromJson(dbCredential);
-		boolean isOutdated = isCurrentCredentialOutdated(credState);
 		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username,
-				isOutdated);
+				false);
 		smslimitCache.reset(username);
 		return new AuthenticationResult(Status.success, ae);
 	}
@@ -272,7 +240,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		@Autowired
 		public Factory(ObjectFactory<SMSVerificator> factory)
 		{
-			super(NAME, DESC, true, factory);
+			super(NAME, DESC, false, factory);
 		}
 	}
 

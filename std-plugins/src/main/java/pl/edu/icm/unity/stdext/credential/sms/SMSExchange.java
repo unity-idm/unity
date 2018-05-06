@@ -12,7 +12,11 @@ import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
- * Allows for exchanging a sms code.
+ * Allows for exchanging a sms code. Standard flow is simple - first we send
+ * code to the user and next we verify that the code typed by user is the same as
+ * sent code. Sms limit can be checked and when is exceeded then send code with force option can
+ * be used. 
+ * 
  * @author P.Piernik
  *
  */

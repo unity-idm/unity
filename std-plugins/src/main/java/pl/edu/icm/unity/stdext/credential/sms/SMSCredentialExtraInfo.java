@@ -5,12 +5,9 @@
 
 package pl.edu.icm.unity.stdext.credential.sms;
 
-import java.io.IOException;
 import java.util.Date;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -59,16 +56,12 @@ public class SMSCredentialExtraInfo
 
 	public static SMSCredentialExtraInfo fromJson(String json)
 	{
-		SMSCredentialExtraInfo ret = new SMSCredentialExtraInfo();
-		if (json == null || json.equals("")) // new credential
-			return ret;
+		if (json == null || json.length() == 0)
+			return new SMSCredentialExtraInfo();
 		try
 		{
-			JsonNode root = Constants.MAPPER.readTree(json);
-			ret.setLastChange(new Date(root.get("lastChange").asLong()));
-			ret.setMobile(root.get("mobile").asText());
-			return ret;
-		} catch (IOException e)
+			return Constants.MAPPER.readValue(json, SMSCredentialExtraInfo.class);
+		} catch (Exception e)
 		{
 			throw new InternalException(
 					"Can't deserialize extra credential information from JSON",
@@ -78,16 +71,13 @@ public class SMSCredentialExtraInfo
 
 	public String toJson()
 	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("lastChange", lastChange.getTime());
-		root.put("mobile", mobile);
 		try
 		{
-			return Constants.MAPPER.writeValueAsString(root);
+			return Constants.MAPPER.writeValueAsString(this);
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException(
 					"Can't serialize extra credential information to JSON", e);
 		}
-	}	
+	}
 }
