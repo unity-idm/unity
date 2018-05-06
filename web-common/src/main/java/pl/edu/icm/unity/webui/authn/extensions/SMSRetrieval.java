@@ -28,6 +28,7 @@ import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -147,6 +148,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		private SMSCode sentCode = null;
 		private Button sendCodeButton;
 		private Button resetButton;
+		private HorizontalLayout buttons;
 		private String username;
 		private CaptchaComponent capcha;
 		private VerticalLayout capchaComponent;
@@ -187,7 +189,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 					Alignment.MIDDLE_CENTER);
 			mainLayout.addComponent(capchaComponent);
 			capchaComponent.setVisible(false);
-
+		
+			HorizontalLayout buttons = new HorizontalLayout();
+			buttons.setMargin(false);
+			mainLayout.addComponent(buttons);
+			mainLayout.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
+			
 			sendCodeButton = new Button(msg.getMessage("WebSMSRetrieval.sendCode"));
 			sendCodeButton.setIcon(Images.mobile.getResource());
 			sendCodeButton.addClickListener(e -> {
@@ -195,8 +202,8 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 					username = usernameField.getValue();
 				sendCode();
 			});
-			mainLayout.addComponent(sendCodeButton);
-			mainLayout.setComponentAlignment(sendCodeButton, Alignment.MIDDLE_CENTER);
+			buttons.addComponent(sendCodeButton);
+			buttons.setComponentAlignment(sendCodeButton, Alignment.MIDDLE_CENTER);
 
 			resetButton = new Button(msg.getMessage("WebSMSRetrieval.reset"));
 			resetButton.setIcon(Images.reject.getResource());
@@ -205,8 +212,8 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			});
 			resetButton.setVisible(false);
 
-			mainLayout.addComponent(resetButton);
-			mainLayout.setComponentAlignment(resetButton, Alignment.MIDDLE_CENTER);
+			buttons.addComponent(resetButton);
+			buttons.setComponentAlignment(resetButton, Alignment.MIDDLE_CENTER);
 
 			answerField = new TextField();
 			answerField.setCaption(msg.getMessage("WebSMSRetrieval.code"));
@@ -398,7 +405,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			this.username = authenticatedIdentity;
 			sendCodeButton.setVisible(false);
 			mainLayout.removeComponent(usernameField);
-			mainLayout.removeComponent(resetButton);
+			buttons.removeComponent(resetButton);
 			mainLayout.removeComponent(usernameLabel);
 			sendCode();
 		}

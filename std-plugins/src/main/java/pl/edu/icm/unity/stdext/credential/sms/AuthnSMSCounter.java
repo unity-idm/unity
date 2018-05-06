@@ -17,7 +17,7 @@ import net.sf.ehcache.config.Searchable;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 
 /**
- * Authn sms limit counter. Used by {@link SMSVerificator} to check how many authn sms have been sent to the user
+ * Authn sms limit counter. Used by {@link SMSVerificator} to check how many authn sms have been sent to user
  * @author P.Piernik
  *
  */
