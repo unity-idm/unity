@@ -3,10 +3,14 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.authn.credreset;
+package pl.edu.icm.unity.webui.authn.credreset.password;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
+import pl.edu.icm.unity.webui.authn.credreset.CodeVerificationCredentialResetDialog;
+import pl.edu.icm.unity.webui.authn.credreset.CredentialResetStateVariable;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -19,32 +23,37 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  * @author P.Piernik
  *
  */
-public class EmailCodeCredentialReset4Dialog extends CodeVerificationCredentialResetDialog
+public class EmailCodePasswordCredentialReset4Dialog extends CodeVerificationCredentialResetDialog
 {
 
-	public EmailCodeCredentialReset4Dialog(UnityMessageSource msg, CredentialReset backend,
+	public EmailCodePasswordCredentialReset4Dialog(UnityMessageSource msg, CredentialReset backend,
 			CredentialEditor credEditor, String username)
 	{
 		super(msg, backend, credEditor, username,  3,
-				backend.getSettings().getEmailSecurityCodeMsgTemplate(),
+				new PasswordCredentialResetSettings(
+						JsonUtil.parse(backend.getSettings())).getEmailSecurityCodeMsgTemplate(),
 				msg.getMessage("CredentialReset.emailCode"),
-				msg.getMessage("CredentialReset.resendEmailDesc"), false);
+				msg.getMessage("CredentialReset.resendEmailDesc"),
+				msg.getMessage("CredentialReset.emailInfo"), false);
 
 	}
 
 	@Override
 	protected void nextStep()
 	{
-		if (backend.getSettings().isRequireMobileConfirmation())
+		PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(
+				JsonUtil.parse(backend.getSettings()));
+		
+		if (settings.isRequireMobileConfirmation())
 		{
-			MobileCodeCredentialReset5Dialog dialog4 = new MobileCodeCredentialReset5Dialog(
+			MobileCodePasswordCredentialReset5Dialog dialog4 = new MobileCodePasswordCredentialReset5Dialog(
 					msg, backend, credEditor, username);
 			dialog4.show();
 		}else
 		{
 			// nothing more required, jump to final step 6
 			CredentialResetStateVariable.inc();
-			CredentialResetFinalDialog dialogFinal = new CredentialResetFinalDialog(msg,
+			PasswordResetFinalDialog dialogFinal = new PasswordResetFinalDialog(msg,
 					backend, credEditor);
 			dialogFinal.show();
 		}

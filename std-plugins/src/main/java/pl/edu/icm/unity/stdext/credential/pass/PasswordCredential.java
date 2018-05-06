@@ -9,7 +9,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
 import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
@@ -31,7 +30,7 @@ public class PasswordCredential
 	private int minScore = 10;
 	private long maxAge = MAX_AGE_UNDEF; 
 	private ScryptParams scryptParams;
-	private CredentialResetSettings passwordResetSettings = new CredentialResetSettings();
+	private PasswordCredentialResetSettings passwordResetSettings = new PasswordCredentialResetSettings();
 	
 	public ObjectNode getSerializedConfiguration() throws InternalException
 	{
@@ -159,12 +158,12 @@ public class PasswordCredential
 		this.scryptParams = params;
 	}
 
-	public CredentialResetSettings getPasswordResetSettings()
+	public PasswordCredentialResetSettings getPasswordResetSettings()
 	{
 		return passwordResetSettings;
 	}
 
-	public void setPasswordResetSettings(CredentialResetSettings passwordResetSettings)
+	public void setPasswordResetSettings(PasswordCredentialResetSettings passwordResetSettings)
 	{
 		this.passwordResetSettings = passwordResetSettings;
 	}

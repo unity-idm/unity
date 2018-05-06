@@ -33,6 +33,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
@@ -43,6 +44,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
@@ -51,7 +53,7 @@ import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.credreset.CredentialReset1Dialog;
+import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -170,8 +172,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			passwordField = new PasswordField(label + ":");
 			passwordField.setId("WebPasswordRetrieval.password");
 			ret.addComponent(passwordField);
-
-			if (credentialExchange.getCredentialResetBackend().getSettings().isEnabled())
+			
+			PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(
+					JsonUtil.parse(credentialExchange
+							.getCredentialResetBackend()
+							.getSettings()));
+			if (settings.isEnabled())
 			{
 				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
 				reset.setStyleName(Styles.vButtonLink.toString());
@@ -256,7 +262,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		
 		private void showResetDialog()
 		{
-			CredentialReset1Dialog dialog = new CredentialReset1Dialog(msg, 
+			PasswordCredentialReset1Dialog dialog = new PasswordCredentialReset1Dialog(msg, 
 					credentialExchange.getCredentialResetBackend(), credEditor);
 			dialog.show();
 		}

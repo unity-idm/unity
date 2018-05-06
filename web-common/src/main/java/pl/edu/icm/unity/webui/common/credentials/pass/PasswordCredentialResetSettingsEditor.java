@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.credentials;
+package pl.edu.icm.unity.webui.common.credentials.pass;
 
 import org.vaadin.risto.stepper.IntStepper;
 
@@ -13,11 +13,11 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
-import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings;
-import pl.edu.icm.unity.engine.api.authn.CredentialResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.EmailPasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.pass.MobilePasswordResetTemplateDef;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElements;
@@ -26,13 +26,13 @@ import pl.edu.icm.unity.webui.common.TextFieldWithButton;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
 
 /**
- * Part of UI, insertable into FormLayout, useful for {@link CredentialResetSettings} editing or viewing.
+ * Part of UI, insertable into FormLayout, useful for {@link PasswordCredentialResetSettings} editing or viewing.
  * @author K. Benedyczak
  */
-public class CredentialResetSettingsEditor
+public class PasswordCredentialResetSettingsEditor
 {
 	private UnityMessageSource msg;
-	private CredentialResetSettings initial;
+	private PasswordCredentialResetSettings initial;
 	private CheckBox enable;
 	private IntStepper codeLength;
 	private CheckBox requireQuestionConfirmation;
@@ -43,13 +43,13 @@ public class CredentialResetSettingsEditor
 	private MessageTemplateManagement msgTplMan;
 	private ComboBox<ConfirmationMode> confirmationMode;
 	
-	public CredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
+	public PasswordCredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
 	{
-		this(msg, msgTplMan, new CredentialResetSettings());
+		this(msg, msgTplMan, new PasswordCredentialResetSettings());
 	}
 	
-	public CredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan,
-			CredentialResetSettings initial)
+	public PasswordCredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan,
+			PasswordCredentialResetSettings initial)
 	{
 		this.msg = msg;
 		this.initial = initial;
@@ -59,36 +59,36 @@ public class CredentialResetSettingsEditor
 	public void addViewerToLayout(FormLayout parent)
 	{
 		Label status = new Label(initial.isEnabled() ? msg.getMessage("yes") : msg.getMessage("no"));
-		status.setCaption(msg.getMessage("CredentialResetSettings.enableRo"));
+		status.setCaption(msg.getMessage("PasswordCredentialResetSettings.enableRo"));
 		parent.addComponent(status);
 		if (!initial.isEnabled())
 			return;
 		
 		Label codeLength = new Label(String.valueOf(initial.getCodeLength()));
-		codeLength.setCaption(msg.getMessage("CredentialResetSettings.codeLength"));
+		codeLength.setCaption(msg.getMessage("PasswordCredentialResetSettings.codeLength"));
 		Label confirmationMode = new Label(
-				msg.getMessage("CredentialResetSettings.confirmationMode"
+				msg.getMessage("PasswordCredentialResetSettings.confirmationMode"
 						+ initial.getConfirmationMode().toString()));
 		confirmationMode.setCaption(
-				msg.getMessage("CredentialResetSettings.confirmationMode"));
+				msg.getMessage("PasswordCredentialResetSettings.confirmationMode"));
 		
 		Label emailCodeTemplate = new Label(initial.getEmailSecurityCodeMsgTemplate());
-		emailCodeTemplate.setCaption(msg.getMessage("CredentialResetSettings.emailMessageTemplate"));
+		emailCodeTemplate.setCaption(msg.getMessage("PasswordCredentialResetSettings.emailMessageTemplate"));
 		
 		Label mobileCodeTemplate = new Label(initial.getMobileSecurityCodeMsgTemplate());
-		mobileCodeTemplate.setCaption(msg.getMessage("CredentialResetSettings.mobileMessageTemplate"));
+		mobileCodeTemplate.setCaption(msg.getMessage("PasswordCredentialResetSettings.mobileMessageTemplate"));
 		
 		Label requireQuestionConfirmation = new Label(initial.isRequireSecurityQuestion() ? 
 				msg.getMessage("yes") : msg.getMessage("no"));
 		requireQuestionConfirmation.setCaption(msg.getMessage(
-				"CredentialResetSettings.requireQuestionConfirmation"));
+				"PasswordCredentialResetSettings.requireQuestionConfirmation"));
 		parent.addComponents(codeLength, confirmationMode, emailCodeTemplate, mobileCodeTemplate, requireQuestionConfirmation);
 		
 		if (!initial.isRequireSecurityQuestion())
 			return;
 		
 		Label questions = new Label(String.valueOf(initial.getQuestions().get(0)));
-		questions.setCaption(msg.getMessage("CredentialResetSettings.questions"));
+		questions.setCaption(msg.getMessage("PasswordCredentialResetSettings.questions"));
 		parent.addComponent(questions);
 		for (int i=1; i<initial.getQuestions().size(); i++)
 			parent.addComponent(new Label(initial.getQuestions().get(i)));
@@ -104,34 +104,34 @@ public class CredentialResetSettingsEditor
 	
 	private void initUI()
 	{
-		enable = new CheckBox(msg.getMessage("CredentialResetSettings.enable"));
+		enable = new CheckBox(msg.getMessage("PasswordCredentialResetSettings.enable"));
 		enable.addValueChangeListener(event -> setEnabled(enable.getValue()));
 		
-		codeLength = new IntStepper(msg.getMessage("CredentialResetSettings.codeLength"));
+		codeLength = new IntStepper(msg.getMessage("PasswordCredentialResetSettings.codeLength"));
 		codeLength.setMinValue(2);
 		codeLength.setMaxValue(10);
 		codeLength.setWidth(3, Unit.EM);
 	
-		confirmationMode = new ComboBox<>(msg.getMessage("CredentialResetSettings.confirmationMode"));
+		confirmationMode = new ComboBox<>(msg.getMessage("PasswordCredentialResetSettings.confirmationMode"));
 		confirmationMode.setItems(ConfirmationMode.values());
 		confirmationMode.addSelectionListener(e->{	
 			emailCodeMessageTemplate.setEnabled(getEmailMessageTemplateState());
 			mobileCodeMessageTemplate.setEnabled(getMobileMessageTemplateState());
 		});
-		confirmationMode.setItemCaptionGenerator(i -> msg.getMessage("CredentialResetSettings.confirmationMode" + i.toString()));
+		confirmationMode.setItemCaptionGenerator(i -> msg.getMessage("PasswordCredentialResetSettings.confirmationMode" + i.toString()));
 		
 		confirmationMode.setEmptySelectionAllowed(false);
 		
 		
 		requireQuestionConfirmation = new CheckBox(
-				msg.getMessage("CredentialResetSettings.requireQuestionConfirmation"));
+				msg.getMessage("PasswordCredentialResetSettings.requireQuestionConfirmation"));
 		
 		emailCodeMessageTemplate = new CompatibleTemplatesComboBox(EmailPasswordResetTemplateDef.NAME, msgTplMan);
-		emailCodeMessageTemplate.setCaption(msg.getMessage("CredentialResetSettings.emailMessageTemplate"));
+		emailCodeMessageTemplate.setCaption(msg.getMessage("PasswordCredentialResetSettings.emailMessageTemplate"));
 		emailCodeMessageTemplate.setEmptySelectionAllowed(false);
 		
 		mobileCodeMessageTemplate = new CompatibleTemplatesComboBox(MobilePasswordResetTemplateDef.NAME, msgTplMan);
-		mobileCodeMessageTemplate.setCaption(msg.getMessage("CredentialResetSettings.mobileMessageTemplate"));
+		mobileCodeMessageTemplate.setCaption(msg.getMessage("PasswordCredentialResetSettings.mobileMessageTemplate"));
 		mobileCodeMessageTemplate.setEmptySelectionAllowed(false);
 		
 		confirmationMode.setValue(ConfirmationMode.NothingRequire);
@@ -145,15 +145,15 @@ public class CredentialResetSettingsEditor
 		
 		
 		questionAdder = new TextFieldWithButton(
-				msg.getMessage("CredentialResetSettings.defineNewQuestion"), 
-				Images.add.getResource(), msg.getMessage("CredentialResetSettings.addQuestion"),
+				msg.getMessage("PasswordCredentialResetSettings.defineNewQuestion"), 
+				Images.add.getResource(), msg.getMessage("PasswordCredentialResetSettings.addQuestion"),
 				new ButtonHandler()
 				{
 					@Override
 					public String validate(String value)
 					{
 						if (value == null || value.trim().equals(""))
-							return msg.getMessage("CredentialResetSettings.questionMustBeNonEmpty");
+							return msg.getMessage("PasswordCredentialResetSettings.questionMustBeNonEmpty");
 						return null;
 					}
 					
@@ -205,8 +205,8 @@ public class CredentialResetSettingsEditor
 		codeLength.setEnabled(how);
 		confirmationMode.setEnabled(how);
 		requireQuestionConfirmation.setEnabled(how);
-		emailCodeMessageTemplate.setEnabled(getEmailMessageTemplateState());
-		mobileCodeMessageTemplate.setEnabled(getMobileMessageTemplateState());
+		emailCodeMessageTemplate.setEnabled(how);
+		mobileCodeMessageTemplate.setEnabled(how);
 		
 		if (how)
 		{
@@ -221,7 +221,7 @@ public class CredentialResetSettingsEditor
 			
 	}
 	
-	private void setValue(CredentialResetSettings initial)
+	private void setValue(PasswordCredentialResetSettings initial)
 	{
 		enable.setValue(initial.isEnabled());
 		codeLength.setValue(initial.getCodeLength());
@@ -234,9 +234,9 @@ public class CredentialResetSettingsEditor
 		setEnabled(initial.isEnabled());
 	}
 	
-	public CredentialResetSettings getValue()
+	public PasswordCredentialResetSettings getValue()
 	{
-		CredentialResetSettings ret = new CredentialResetSettings();
+		PasswordCredentialResetSettings ret = new PasswordCredentialResetSettings();
 		ret.setEnabled(enable.getValue());
 		ret.setCodeLength((int)(double)codeLength.getValue());
 		ret.setRequireSecurityQuestion(requireQuestionConfirmation.getValue());

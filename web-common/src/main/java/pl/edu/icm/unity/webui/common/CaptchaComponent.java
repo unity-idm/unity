@@ -102,12 +102,18 @@ public class CaptchaComponent
 		});
 	}
 	
-	private void reset()
+	public void reset()
 	{
 		initEngine();
 		SimpleImageSource src = new SimpleImageSource(engine.getImage());
 		challenge.setSource(src.getResource());
 		answer.setValue("");
+	}
+	
+	public void resetFull()
+	{
+		reset();
+		answer.setComponentError(null);
 	}
 	
 	private HorizontalLayout createCapchaLine()
@@ -125,9 +131,19 @@ public class CaptchaComponent
 	 */
 	public Component getAsComponent()
 	{
+		return getAsComponent(Alignment.MIDDLE_LEFT);
+	}
+	
+	/**
+	 * Create and return UI.
+	 * @return
+	 */
+	public Component getAsComponent(Alignment answerAligment)
+	{
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
 		ret.addComponents(createCapchaLine(), answer);
+		ret.setComponentAlignment(answer, answerAligment);
 		return ret;
 	}
 	

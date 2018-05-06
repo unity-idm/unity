@@ -9,8 +9,6 @@ import com.vaadin.ui.AbstractOrderedLayout;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
@@ -38,12 +36,14 @@ public abstract class AbstractAttributeEditor
 		this.registry = registry;
 	}
 	
-	protected ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(AttributeType at, EntityParam owner, String group, String label, 
-			boolean required, boolean adminMode, AbstractOrderedLayout layout)
+	protected ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(
+			AttributeEditContext editContext, String label,
+			AbstractOrderedLayout layout)
 	{
-		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<LabelledValue>(msg, 
-				new AttributeValueEditorAndProvider(at, owner, group, label, required, adminMode), 
-				at.getMinElements(), at.getMaxElements(), false, layout);
+		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<LabelledValue>(
+				msg, new AttributeValueEditorAndProvider(editContext, label),
+				editContext.getAttributeType().getMinElements(),
+				editContext.getAttributeType().getMaxElements(), false, layout);
 		ret.setLonelyLabel(label);
 		return ret;
 	}
@@ -51,30 +51,24 @@ public abstract class AbstractAttributeEditor
 	
 	protected class AttributeValueEditorAndProvider implements EditorProvider<LabelledValue>, Editor<LabelledValue>
 	{
-		private AttributeType at;
-		private EntityParam owner;
-		private String group;
+		
 		private AttributeValueEditor editor;
 		private LabelledValue editedValue;
 		private String baseLabel;
-		private boolean required;
-		private boolean adminMode;
+		private AttributeEditContext editContext;
 		
-		public AttributeValueEditorAndProvider(AttributeType at, EntityParam owner, String group, String label, boolean required, 
-				boolean adminMode)
+		public AttributeValueEditorAndProvider(AttributeEditContext editContext, String label)
 		{
-			this.at = at;
+			
 			this.baseLabel = label;
-			this.required = required;
-			this.adminMode = adminMode;
-			this.owner = owner;
-			this.group = group;
+			this.editContext = editContext;
+	
 		}
 
 		@Override
 		public Editor<LabelledValue> getEditor()
 		{
-			return new AttributeValueEditorAndProvider(at, owner, group, baseLabel, required, adminMode);
+			return new AttributeValueEditorAndProvider(editContext, baseLabel);
 		}
 
 		@Override
@@ -83,12 +77,13 @@ public abstract class AbstractAttributeEditor
 			if (value == null)
 				value = new LabelledValue(null, establishLabel(position));
 
-			AttributeValueSyntax<?> syntax = registry.getaTypeSupport().getSyntax(at);
+			AttributeValueSyntax<?> syntax = registry.getaTypeSupport()
+					.getSyntax(editContext.getAttributeType());
 			WebAttributeHandler handler = registry.getHandler(syntax);
 			editor = handler.getEditorComponent(value.getValue(), value.getLabel());
 			editedValue = value;
-			ComponentsContainer ret = editor.getEditor(required, adminMode, at.getName(), owner, group);
-			String description = at.getDescription().getValue(msg);
+			ComponentsContainer ret = editor.getEditor(editContext);
+			String description = editContext.getAttributeType().getDescription().getValue(msg);
 			if (description != null && !description.equals(""))
 				ret.setDescription(HtmlConfigurableLabel.conditionallyEscape(description));
 			return ret;
@@ -116,13 +111,13 @@ public abstract class AbstractAttributeEditor
 		{
 			if (baseLabel == null)
 			{
-				if (at.getMaxElements() > 1)
+				if (editContext.getAttributeType().getMaxElements() > 1)
 					return "(" + (position+1) +")";
 				else
 					return "";
 			}
 			
-			if (at.getMaxElements() > 1)
+			if (editContext.getAttributeType().getMaxElements() > 1)
 			{
 				String base = (baseLabel.endsWith(":")) ? baseLabel.substring(0, baseLabel.length()-1) 
 						: baseLabel;

@@ -18,6 +18,7 @@ public enum Images
 	logo		(I.PB + "logo.png"),
 	loader		(I.PB + "loader.gif"),
 	password	(I.PB + "password.png"),
+	mobile_sms	(I.PB + "mobile-sms.png"),
 	certificate	(I.PB + "certificate.png"),
 	empty		(I.PB + "empty.png"),
 
@@ -48,6 +49,7 @@ public enum Images
 	copy		(VaadinIcons.COPY_O),
 	editUser	(VaadinIcons.POWER_OFF),
 	ok		(VaadinIcons.CHECK_CIRCLE_O),
+	ok_small	(VaadinIcons.CHEVRON_DOWN_SMALL),
 	save		(VaadinIcons.DISC),
 	export		(VaadinIcons.UPLOAD),
 	trashBin	(VaadinIcons.TRASH),
@@ -78,6 +80,7 @@ public enum Images
 	deFlag		(I.P + "16-flags/de.png"),
 	menu		(VaadinIcons.MENU),
 	remove		(VaadinIcons.CLOSE_CIRCLE_O),
+	close_small	(VaadinIcons.CLOSE_SMALL),
 	resize		(VaadinIcons.RESIZE_H),
 	mobile		(VaadinIcons.MOBILE_RETRO);
 	

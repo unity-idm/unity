@@ -8,6 +8,7 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
@@ -57,15 +58,18 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		
 		confirmationStatusIcon = new Label();
 		confirmationStatusIcon.setContentMode(ContentMode.HTML);
-		confirmationStatusIcon.setStyleName(Styles.largeIcon.toString());
 		
 		fieldLayout.addComponents(editor, confirmationStatusIcon,  verifyButton);
-	
+		fieldLayout.setComponentAlignment(confirmationStatusIcon, Alignment.MIDDLE_CENTER);
+		
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(fieldLayout);
-		if (adminMode)
+		if (adminMode) 
+		{
 			main.addComponent(adminConfirmCheckBox);
+		}
+			
 	}
 
 	@Override
@@ -89,10 +93,16 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	
 	public void setConfirmationStatusIcon(String value, boolean confirmed)
 	{
-		confirmationStatusIcon.setValue(confirmed ? Images.ok.getHtml() : Images.remove.getHtml()); 		
+		confirmationStatusIcon.setVisible(true);
+		confirmationStatusIcon.setValue(confirmed ? Images.ok.getHtml() : Images.warn.getHtml()); 		
 		confirmationStatusIcon.setDescription(value);
 	}
 
+	public void setConfirmationStatusIconVisiable(boolean visible)
+	{
+		confirmationStatusIcon.setVisible(visible);	
+	}
+	
 	public void removeConfirmationStatusIcon()
 	{
 		fieldLayout.removeComponent(confirmationStatusIcon); 		

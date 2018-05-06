@@ -41,6 +41,13 @@ public class CompatibleTemplatesComboBox extends ComboBox<String>
 		setItems(values);
 	}
 	
+	@Override
+	public void setValue(String value)
+	{
+		if (values.contains(value))
+			super.setValue(value);
+	}
+	
 	public void setDefaultValue()
 	{
 		if (values != null && !values.isEmpty())

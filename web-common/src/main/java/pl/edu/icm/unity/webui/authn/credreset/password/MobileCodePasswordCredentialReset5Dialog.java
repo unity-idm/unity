@@ -3,10 +3,13 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.authn.credreset;
+package pl.edu.icm.unity.webui.authn.credreset.password;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
+import pl.edu.icm.unity.webui.authn.credreset.CodeVerificationCredentialResetDialog;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 
 /**
@@ -19,23 +22,25 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  * @author P.Piernik
  *
  */
-public class MobileCodeCredentialReset5Dialog extends CodeVerificationCredentialResetDialog
+public class MobileCodePasswordCredentialReset5Dialog extends CodeVerificationCredentialResetDialog
 {
 
-	public MobileCodeCredentialReset5Dialog(UnityMessageSource msg, CredentialReset backend,
+	public MobileCodePasswordCredentialReset5Dialog(UnityMessageSource msg, CredentialReset backend,
 			CredentialEditor credEditor, String username)
 	{
 		super(msg, backend, credEditor, username,  4,
-				backend.getSettings().getMobileSecurityCodeMsgTemplate(),
+				new PasswordCredentialResetSettings(
+						JsonUtil.parse(backend.getSettings())).getMobileSecurityCodeMsgTemplate(),
 				msg.getMessage("CredentialReset.mobileCode"),
-				msg.getMessage("CredentialReset.resendMobileDesc"), true);
+				msg.getMessage("CredentialReset.resendMobileDesc"),
+				msg.getMessage("CredentialReset.mobileInfo"), true);
 
 	}
 
 	@Override
 	protected void nextStep()
 	{
-		CredentialResetFinalDialog dialogFinal = new CredentialResetFinalDialog(msg, backend, credEditor);
+		PasswordResetFinalDialog dialogFinal = new PasswordResetFinalDialog(msg, backend, credEditor);
 		dialogFinal.show();
 		
 	}

@@ -21,18 +21,19 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableMobileNumberAttributeSyntax;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.VerifiableMobileNumber;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
-import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
 
@@ -44,12 +45,12 @@ import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
 public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandler
 {	
 	private UnityMessageSource msg;
-	private IdentityFormatter formatter;
+	private ConfirmationInfoFormatter formatter;
 	private VerifiableMobileNumberAttributeSyntax syntax;
 	private MobileNumberConfirmationManager  mobileConfirmationMan;
 
 	public VerifiableMobileNumberAttributeHandler(UnityMessageSource msg,
-			IdentityFormatter formatter, AttributeValueSyntax<?> syntax,
+			ConfirmationInfoFormatter formatter, AttributeValueSyntax<?> syntax,
 			MobileNumberConfirmationManager mobileConfirmationMan)
 	{
 		this.msg = msg;
@@ -166,6 +167,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		private TextFieldWithVerifyButton editor;
 		private ConfirmationInfo confirmationInfo;
 		private boolean required;
+		private boolean forceConfirmed = false;
 		private boolean skipUpdate = false;
 		
 		
@@ -176,37 +178,47 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		}
 
 		@Override
-		public ComponentsContainer getEditor(boolean required, boolean adminMode,
-				String attrName, EntityParam owner, String group)
+		public ComponentsContainer getEditor(AttributeEditContext context)
 		{	
-			this.required = required;	
+			this.required = context.isRequired();
+			this.forceConfirmed = context
+					.getConfirmationMode() == ConfirmationMode.FORCE_CONFIRMED;
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
-			Optional<MobileNumberConfirmationConfiguration> confirmationConfig = mobileConfirmationMan.getConfirmationConfigurationForAttribute(
-					attrName);
-			
-			editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
-					"VerifiableMobileNumberAttributeHandler.verify"),
+			Optional<MobileNumberConfirmationConfiguration> confirmationConfig = mobileConfirmationMan
+					.getConfirmationConfigurationForAttribute(
+							context.getAttributeType().getName());
+
+			editor = new TextFieldWithVerifyButton(
+					context.getConfirmationMode() == ConfirmationMode.ADMIN,
+					required,
+					msg.getMessage("VerifiableMobileNumberAttributeHandler.verify"),
 					Images.mobile.getResource(),
 					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"));
 			if (label != null)
 				editor.setTextFieldId("MobileNumberValueEditor." + label);
 
-			if (value != null)
+			if (value != null) 
+			{
 				editor.setValue(value.getValue());
-
-			if (value != null)
 				editor.setAdminCheckBoxValue(value.isConfirmed());
+			}
 			
 			if (!confirmationConfig.isPresent())
 				editor.removeVerifyButton();
+			
+			if (context.getConfirmationMode() == ConfirmationMode.OFF)
+			{
+				editor.removeConfirmationStatusIcon();
+				editor.removeVerifyButton();
+			}
 			
 			editor.addVerifyButtonClickListener(e -> {
 				String value;
 				try
 				{
-					value = getCurrentValue();
+					value = getCurrentValue(false);
 				} catch (IllegalAttributeValueException e1)
 				{
 					return; 
@@ -247,7 +259,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		
 		private void updateConfirmationStatusIconAndButtons()
 		{
-			editor.setConfirmationStatusIcon(formatter.getConfirmationStatusString(
+			editor.setConfirmationStatusIcon(formatter.getSimpleConfirmationStatusString(
 					confirmationInfo), confirmationInfo.isConfirmed());
 			editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
 			skipUpdate = true;
@@ -255,10 +267,8 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			skipUpdate = false;
 		}
 
-		@Override
-		public String getCurrentValue() throws IllegalAttributeValueException
+		private String getCurrentValue(boolean forceConfirmation) throws IllegalAttributeValueException
 		{
-
 			if (!required && editor.getValue().isEmpty())
 				return null;
 			
@@ -267,7 +277,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				VerifiableMobileNumber mobile = new VerifiableMobileNumber(editor.getValue());
 				mobile.setConfirmationInfo(confirmationInfo);
 				syntax.validate(mobile);
-				editor.setComponentError(null);
+				if (forceConfirmation && !confirmationInfo.isConfirmed())
+					throw new IllegalAttributeValueException("Value must be confirmed");
+				editor.setComponentError(null);				
 				return syntax.convertToString(mobile);
 			} catch (IllegalAttributeValueException e)
 			{
@@ -278,6 +290,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 				editor.setComponentError(new UserError(e.getMessage()));
 				throw new IllegalAttributeValueException(e.getMessage(), e);
 			}		
+		}
+		
+		@Override
+		public String getCurrentValue() throws IllegalAttributeValueException
+		{
+
+			return getCurrentValue(forceConfirmed);	
 		}
 
 		@Override
@@ -299,13 +318,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			implements WebAttributeHandlerFactory
 	{
 		private UnityMessageSource msg;
-		private IdentityFormatter formatter;
+		private ConfirmationInfoFormatter formatter;
 		private MessageTemplateManagement msgTemplateMan;
 		private MobileNumberConfirmationManager smsConfirmationMan;
 
 		@Autowired
 		public VerifiableMobileNumberAttributeHandlerFactory(UnityMessageSource msg,
-				IdentityFormatter formatter,
+				ConfirmationInfoFormatter formatter,
 				MessageTemplateManagement msgTemplateMan,
 				MobileNumberConfirmationManager smsConfirmationMan,
 				AttributeTypeSupport attributeTypeSupport)

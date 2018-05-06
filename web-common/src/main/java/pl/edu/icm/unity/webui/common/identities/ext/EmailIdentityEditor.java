@@ -4,18 +4,28 @@
  */
 package pl.edu.icm.unity.webui.common.identities.ext;
 
-import com.vaadin.server.UserError;
-import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.TextField;
+import org.apache.logging.log4j.Logger;
 
+import com.vaadin.server.UserError;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
+import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.attributes.ext.TextFieldWithVerifyButton;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 /**
  * {@link EmailIdentity} editor
@@ -23,63 +33,139 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
  */
 public class EmailIdentityEditor implements IdentityEditor
 {
+	private Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailIdentityEditor.class);
 	private UnityMessageSource msg;
-	private TextField field;
-	private CheckBox confirmed;
 	private boolean required;
-	private boolean adminMode;
+	private ConfirmationInfo confirmationInfo;
+	private TextFieldWithVerifyButton editor;
+	private boolean skipUpdate = false;
+	private IdentityParam value;
+	private EmailConfirmationManager emailConfirmationMan;
+	private EntityResolver idResolver;
+	private ConfirmationInfoFormatter formatter;
 	
-	public EmailIdentityEditor(UnityMessageSource msg)
+	public EmailIdentityEditor(UnityMessageSource msg, EmailConfirmationManager emailConfirmationMan, EntityResolver idResolver, ConfirmationInfoFormatter formatter)
 	{
 		this.msg = msg;
+		this.emailConfirmationMan = emailConfirmationMan;
+		this.idResolver = idResolver;
+		this.formatter = formatter;	
 	}
 
 	@Override
 	public ComponentsContainer getEditor(boolean required, boolean adminMode)
 	{
-		field = new TextField(new EmailIdentity().getHumanFriendlyName(msg) + ":");
-		field.setRequiredIndicatorVisible(required);
 		this.required = required;
-		this.adminMode = adminMode;
-
-		ComponentsContainer ret = new ComponentsContainer(field);
+		confirmationInfo = new ConfirmationInfo();	
+		editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
+				"EmailIdentityEditor.resendConfirmation"),
+				Images.messageSend.getResource(),
+				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"));
 		
-		if (adminMode)
-		{
-			confirmed = new CheckBox(msg.getMessage(
-					"VerifiableEmailAttributeHandler.confirmedCheckbox"));
-			ret.add(confirmed);
-		}
+		ComponentsContainer ret = new ComponentsContainer(editor);
+			
+		editor.addVerifyButtonClickListener(e -> {
+
+			if (value != null)
+			{
+				ConfirmDialog confirm = new ConfirmDialog(msg, msg
+						.getMessage("EmailIdentityEditor.confirmResendConfirmation"),
+						() -> { sendConfirmation();
+							confirmationInfo.setSentRequestAmount(confirmationInfo.getSentRequestAmount() + 1);
+							updateConfirmationStatusIcon();
+						      });
+				confirm.show();
+			}
+
+		});
+
+		editor.addTextFieldValueChangeListener(e -> {
+
+			if (value != null && e.getValue().equals(value.getValue()))
+			{
+				confirmationInfo = value.getConfirmationInfo();
+			} else
+			{
+				confirmationInfo = new ConfirmationInfo();
+			}
+			updateConfirmationStatusIcon();
+		});
+
+		editor.addAdminConfirmCheckBoxValueChangeListener(e -> {
+			
+			if (!skipUpdate)
+			{
+				confirmationInfo = new ConfirmationInfo(e.getValue());
+				updateConfirmationStatusIcon();
+			}
+		});
+		
+		updateConfirmationStatusIcon();
+			
 		return ret;
 
+	}
+	
+	private void sendConfirmation()
+	{
+		try
+		{
+			emailConfirmationMan.sendVerificationNoTx(new EntityParam(value), idResolver.getFullIdentity(value), true);
+			
+		} catch (EngineException e1)
+		{
+			
+			log.debug("Cannot send cofirmation request", e1);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"EmailIdentityEditor.confirmationSendError"), e1);
+		
+		}
+	}
+
+	private void updateConfirmationStatusIcon()
+	{
+		if (value == null)
+		{
+			editor.setConfirmationStatusIconVisiable(false);;
+		} else
+		{
+			editor.setConfirmationStatusIcon(
+					formatter.getSimpleConfirmationStatusString(
+							confirmationInfo),
+					confirmationInfo.isConfirmed());
+		}
+		editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed()
+				&& !editor.getValue().isEmpty() && value != null
+				&& editor.getValue().equals(value.getValue()));
+		skipUpdate = true;
+		editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());
+		skipUpdate = false;
 	}
 
 	@Override
 	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
-		String emailVal = field.getValue().trim();
+		String emailVal = editor.getValue().trim();
 		if (emailVal.equals(""))
 		{
 			if (!required)
 				return null;
 			String err = msg.getMessage("EmailIdentityEditor.emailEmpty");
-			field.setComponentError(new UserError(err));
+			editor.setComponentError(new UserError(err));
 			throw new IllegalIdentityValueException(err);
 		}
-		field.setComponentError(null);
+		editor.setComponentError(null);
 		
 		try
 		{
 			new EmailIdentity().validate(emailVal);
 		} catch (IllegalArgumentException e)
 		{
-			field.setComponentError(new UserError(e.getMessage()));
+			editor.setComponentError(new UserError(e.getMessage()));
 			throw e;
 		}
 		
 		VerifiableEmail ve = new VerifiableEmail(emailVal);
-		if (adminMode)
-			ve.setConfirmationInfo(new ConfirmationInfo(confirmed.getValue()));
 		return EmailIdentity.toIdentityParam(ve, null, null);
 	}
 
@@ -87,14 +173,15 @@ public class EmailIdentityEditor implements IdentityEditor
 	public void setDefaultValue(IdentityParam value)
 	{
 		VerifiableEmail ve = EmailIdentity.fromIdentityParam(value);
-		field.setValue(ve.getValue());
-		if (adminMode)
-			confirmed.setValue(ve.isConfirmed());
+		this.value = value;
+		confirmationInfo = ve.getConfirmationInfo();
+		editor.setValue(ve.getValue());
+		updateConfirmationStatusIcon();
 	}
 
 	@Override
 	public void setLabel(String value)
 	{
-		field.setCaption(value);
+		editor.setCaption(value);
 	}
 }

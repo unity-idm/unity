@@ -28,6 +28,8 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
@@ -108,9 +110,14 @@ public class UserAttributesPanel
 		
 		if (editable && at.isSelfModificable())
 		{
+			
+			AttributeEditContext editContext = new AttributeEditContext(
+					ConfirmationMode.USER,
+					false, at,  new EntityParam(entityId), group);	
+			
+			
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg, attributeHandlerRegistry, 
-				at, new EntityParam(entityId), showGroup, group, 
-				null, null, false, false, parent);
+				editContext, showGroup, null, null, parent);
 			if (attribute != null)
 				editor.setAttributeValues(attribute.getValues());
 			attributeEditors.add(editor);

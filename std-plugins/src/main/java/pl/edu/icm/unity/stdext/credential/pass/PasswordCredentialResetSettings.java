@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.authn;
+package pl.edu.icm.unity.stdext.credential.pass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +16,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
  * Credential reset settings.
  * @author K. Benedyczak
  */
-public class CredentialResetSettings
+public class PasswordCredentialResetSettings
 {
 	
 	public enum ConfirmationMode {RequireEmail, RequireMobile, RequireEmailAndMobile, RequireEmailOrMobile, NothingRequire}
@@ -29,8 +29,13 @@ public class CredentialResetSettings
 	private String mobileSecurityCodeMsgTemplate;
 	private ConfirmationMode confirmationMode = ConfirmationMode.NothingRequire;
 	
-	public CredentialResetSettings()
+	public PasswordCredentialResetSettings()
 	{
+	}
+	
+	public PasswordCredentialResetSettings(ObjectNode node)
+	{
+		deserializeFrom(node);
 	}
 
 	public boolean isEnabled()
@@ -122,7 +127,7 @@ public class CredentialResetSettings
 	}
 	
 	public void deserializeFrom(ObjectNode node)
-	{
+	{		
 		this.enabled = node.get("enable").asBoolean();
 		if (!enabled)
 			return;

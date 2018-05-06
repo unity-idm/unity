@@ -251,7 +251,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	@Override
 	public CredentialReset getCredentialResetBackend()
 	{
-		return new CredentialResetImpl(notificationProducer, identityResolver, 
+		return new PasswordCredentialResetImpl(notificationProducer, identityResolver, 
 				this, credentialHelper,
 				credentialName, credential.getSerializedConfiguration(), 
 				credential.getPasswordResetSettings());
