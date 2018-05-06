@@ -33,8 +33,6 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 public class DB implements StoreLoaderInternal
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, DB.class);
-	public static final String DB_VERSION = "2_3_0";
-	
 	public static final String NAME = StorageCleanerImpl.BEAN_PFX + "rdbms";
 
 	private InitDB initDB;
@@ -63,10 +61,10 @@ public class DB implements StoreLoaderInternal
 				"Have you initialized it? Are connection details correctly " +
 				"entered in configuration? The error was:\n\n" + e, e);
 		}
-		if (!actualDbVersion.equals(DB.DB_VERSION))
+		if (!actualDbVersion.equals(AppDataSchemaVersion.DB_VERSION))
 			throw new InternalException("The database is initialized with " +
 				"wrong schema. It is of version: " + actualDbVersion + 
-				" while you are using now version:" + DB.DB_VERSION);
+				" while you are using now version:" + AppDataSchemaVersion.DB_VERSION);
 	}
 	
 	public String checkCurrentVersion(DBSessionManager sessionMan) throws Exception

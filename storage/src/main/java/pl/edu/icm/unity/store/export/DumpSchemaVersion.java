@@ -10,8 +10,8 @@ package pl.edu.icm.unity.store.export;
  */
 public enum DumpSchemaVersion
 {
-	V_INITIAL2(3, "2.0.0", "1.9.x"),
-	V_2_5(4, "2.5.0", "2.0.0");
+	V_INITIAL_2_0_0(3, "2.0.0", "1.9.x"),
+	V_SINCE_2_5_0(4, "2.5.0", "2.0.0");
 	
 	private String name;
 	private String previousName;

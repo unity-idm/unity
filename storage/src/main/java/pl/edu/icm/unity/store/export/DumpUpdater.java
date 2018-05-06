@@ -43,11 +43,11 @@ public class DumpUpdater
 					+ "which were created with Unity versions older then 1.9.x. "
 					+ "Update from 1.8.0 can work, but is not officially supported.");
 		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_INITIAL2.getVersionCode())
-			is = performUpdate(is, updateFrom1_9_x, DumpSchemaVersion.V_INITIAL2);
+		if (header.getVersionMajor() < DumpSchemaVersion.V_INITIAL_2_0_0.getVersionCode())
+			is = performUpdate(is, updateFrom1_9_x, DumpSchemaVersion.V_INITIAL_2_0_0);
 		
-		if (header.getVersionMajor() < DumpSchemaVersion.V_2_5.getVersionCode())
-			is = performUpdate(is, updateFrom2_4_x, DumpSchemaVersion.V_2_5);
+		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_5_0.getVersionCode())
+			is = performUpdate(is, updateFrom2_4_x, DumpSchemaVersion.V_SINCE_2_5_0);
 			
 		return is;
 	}

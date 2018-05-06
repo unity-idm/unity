@@ -38,7 +38,14 @@ public class InitDB
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InitDB.class);
 	private final String UPDATE_SCHEMA_PFX = "updateSchema-";
-	public static final String LAST_SUPPORTED_DB_VERSION = "2_3_0";
+	
+	/**
+	 * To which version we can migrate. In principle this should be always equal to 
+	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
+	 * when bumping it please make sure any required SQL schema updates were implemented.  
+	 */
+	private static final String SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_3_0";
+
 	
 	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
@@ -76,7 +83,7 @@ public class InitDB
 		{
 			session.close();
 			initDB();
-			dbVersionAtServerStarup = dbVersion2Long(DB.DB_VERSION);
+			dbVersionAtServerStarup = dbVersion2Long(AppDataSchemaVersion.DB_VERSION);
 			return;
 		}
 		
@@ -88,7 +95,8 @@ public class InitDB
 		}
 
 		dbVersionAtServerStarup = dbVersion2Long(dbVersion);
-		long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
+		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.DB_VERSION);
+		assertMigrationsAreMatchingApp();
 		if (dbVersionAtServerStarup > dbVersionOfSoftware)
 		{
 			throw new InternalException("The database schema version " + dbVersion + 
@@ -96,12 +104,22 @@ public class InitDB
 					+ "Please upgrade the server software.");
 		} else if (dbVersionAtServerStarup < dbVersionOfSoftware)
 		{
-			if (dbVersionAtServerStarup < dbVersion2Long(LAST_SUPPORTED_DB_VERSION))
+			if (dbVersionAtServerStarup < dbVersion2Long(AppDataSchemaVersion.OLDEST_SUPPORTED_DB_VERSION))
 				throw new InternalException("The database schema version " + dbVersion + 
 						" is older then the last supported version. "
 						+ "Please make sure you are updating Unity from the previous version"
 						+ " and check release notes.");
 			updateSchema(dbVersionAtServerStarup);
+		}
+	}
+	
+	private void assertMigrationsAreMatchingApp()
+	{
+		if (!SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION.equals(AppDataSchemaVersion.DB_VERSION))
+		{
+			throw new InternalException("The SQL migration code was not updated "
+					+ "to the latest version of data schema. "
+					+ "This should be fixed by developers.");
 		}
 	}
 	
@@ -202,26 +220,18 @@ public class InitDB
 		{
 			session.close();
 		}
-		log.info("Updated DB schema to the actual version " + DB.DB_VERSION);
+		log.info("Updated DB schema to the actual version " + AppDataSchemaVersion.DB_VERSION);
 	}
 
 	
 	public void updateContents() throws IOException, EngineException
 	{
-		SqlSession session = db.getSqlSession(true);
-		try
+		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.DB_VERSION);
+		if (dbVersionAtServerStarup < dbVersionOfSoftware)
 		{
-			long dbVersionOfSoftware = dbVersion2Long(DB.DB_VERSION);
-			if (dbVersionAtServerStarup < dbVersionOfSoftware)
-			{
-				log.info("Updating DB contents to the actual version");
-				contentsUpdater.update(dbVersionAtServerStarup, session);
-				session.commit();
-				log.info("Updated DB contents to the actual version " + DB.DB_VERSION);
-			}
-		} finally
-		{
-			session.close();
+			log.info("Updating DB contents to the actual version");
+			contentsUpdater.update(dbVersionAtServerStarup);
+			log.info("Updated DB contents to the actual version " + AppDataSchemaVersion.DB_VERSION);
 		}
 	}
 }

@@ -18,4 +18,5 @@ public interface ImportExport
 {
 	void load(InputStream is) throws IOException;
 	void store(OutputStream os) throws IOException;
+	void storeWithVersion(OutputStream os, int version) throws IOException;
 }

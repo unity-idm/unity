@@ -71,13 +71,19 @@ public class ImportExportImpl implements ImportExport
 	@Override
 	public void store(OutputStream os) throws IOException
 	{
+		storeWithVersion(os, VERSION);
+	}
+	
+	@Override
+	public void storeWithVersion(OutputStream os, int version) throws IOException
+	{
 		JsonFactory jsonF = new JsonFactory(objectMapper);
 		JsonGenerator jg = jsonF.createGenerator(os, JsonEncoding.UTF8);
 		jg.useDefaultPrettyPrinter();
 		
 		jg.writeStartObject();
 		
-		jg.writeNumberField("versionMajor", VERSION);
+		jg.writeNumberField("versionMajor", version);
 		jg.writeNumberField("versionMinor", 0);
 		jg.writeNumberField("timestamp", System.currentTimeMillis());
 
