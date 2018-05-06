@@ -166,10 +166,21 @@ public class BaseRequestValidator
 				@SuppressWarnings("unchecked")
 				AttributeValueSyntax<? extends VerifiableElement> vsyntax = 
 					(AttributeValueSyntax<? extends VerifiableElement>) syntax;
+				
+
 				if (regParam.getConfirmationMode() == ConfirmationMode.CONFIRMED)
 					AttributesHelper.setConfirmed(attr, vsyntax);
-				else if (regParam.getConfirmationMode() == ConfirmationMode.DONT_CONFIRM)
-					AttributesHelper.setUnconfirmed(attr, vsyntax);
+				
+				if (syntax.isEmailVerifiable())
+				{
+					if (regParam.getConfirmationMode() != ConfirmationMode.CONFIRMED)
+						AttributesHelper.setUnconfirmed(attr, vsyntax);
+				} else
+				{
+					if (regParam.getConfirmationMode() == ConfirmationMode.DONT_CONFIRM)
+						AttributesHelper.setUnconfirmed(attr, vsyntax);
+				}
+				
 			}
 		}
 	}

@@ -18,6 +18,7 @@ public enum Images
 	logo		(I.PB + "logo.png"),
 	loader		(I.PB + "loader.gif"),
 	password	(I.PB + "password.png"),
+	mobile_sms	(I.PB + "mobile-sms.png"),
 	certificate	(I.PB + "certificate.png"),
 	empty		(I.PB + "empty.png"),
 

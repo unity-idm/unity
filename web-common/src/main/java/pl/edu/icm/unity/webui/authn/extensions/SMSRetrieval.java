@@ -275,7 +275,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 					&& !capchaComponent.isVisible())
 			{
 				capchaInfoLabel.setValue(msg.getMessage(
-						"WebSMSRetrieval.sentCodeLimit", username));
+						"WebSMSRetrieval.sentCodeLimit"));
 				capchaComponent.setVisible(true);
 				capcha.resetFull();
 				usernameLabel.setHtmlValue("WebSMSRetrieval.usernameLabel",
@@ -460,7 +460,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			if (logoURL == null)
 				return null;
 			if ("".equals(logoURL))
-				return Images.mobile.getResource();
+				return Images.mobile_sms.getResource();
 			else
 			{
 				try
