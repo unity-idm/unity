@@ -24,10 +24,12 @@ public class SMSCredential
 {
 	public static final int DEFAULT_VALIDITY = 48*60;
 	public static final int DEFAULT_CODE_LENGTH = 6;
+	private static final int AUTHN_SMS_LIMIT = 3;
 	
 	private int validityTime = DEFAULT_VALIDITY;
 	private int codeLength = DEFAULT_CODE_LENGTH;
 	private String messageTemplate;	
+	private int authnSMSLimit = AUTHN_SMS_LIMIT;
 		
 	private MobileNumberConfirmationConfiguration mobileNumberConfirmationConfiguration;
 	private SMSCredentialRecoverySettings recoverySettings = new SMSCredentialRecoverySettings();
@@ -38,6 +40,7 @@ public class SMSCredential
 		root.put("validityTime", validityTime);
 		root.put("codeLength", codeLength);
 		root.put("messageTemplate", messageTemplate);
+		root.put("authnSMSLimit", authnSMSLimit);
 		ObjectNode recoverNode = root.putObject("recoverySettings");
 		recoverySettings.serializeTo(recoverNode);
 		
@@ -57,6 +60,9 @@ public class SMSCredential
 		validityTime = root.get("validityTime").asInt();
 		if (validityTime < 0 || validityTime > 60 * 24 * 365)
 			throw new InternalException("Validity time must be in range [0-525600]");
+		setAuthnSMSLimit(root.get("authnSMSLimit").asInt());
+		if (getAuthnSMSLimit() < 0 || getAuthnSMSLimit() > 10000)
+			throw new InternalException("AuthnSMSLimit must be in range [0-10000]");	
 		JsonNode msg = root.get("messageTemplate");
 		if (msg != null);
 			messageTemplate = msg.asText();
@@ -117,5 +123,15 @@ public class SMSCredential
 	public void setMessageTemplate(String messageTemplate)
 	{
 		this.messageTemplate = messageTemplate;
+	}
+
+	public int getAuthnSMSLimit()
+	{
+		return authnSMSLimit;
+	}
+
+	public void setAuthnSMSLimit(int authnSMSLimit)
+	{
+		this.authnSMSLimit = authnSMSLimit;
 	}
 }

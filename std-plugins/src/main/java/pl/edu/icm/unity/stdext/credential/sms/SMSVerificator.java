@@ -53,7 +53,6 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 { 	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, SMSVerificator.class);
 	
-	private static final int AUTHN_SMS_LIMIT = 3;
 	public static final String NAME = "sms";
 	public static final String DESC = "Verifies sms";
 	public static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
@@ -247,6 +246,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	@Override
 	public boolean isAuthSMSLimitExceeded(String username)
 	{
-		return smslimitCache.getValue(username) >= AUTHN_SMS_LIMIT;
+		
+		return smslimitCache.getValue(username) >= credential.getAuthnSMSLimit();
 	}
 }

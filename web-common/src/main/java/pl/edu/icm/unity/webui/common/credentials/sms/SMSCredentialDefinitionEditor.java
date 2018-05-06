@@ -42,6 +42,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 	
 	private IntStepper codeLength;
 	private IntStepper validityTime;
+	private IntStepper authSMSLimit;
 	private CompatibleTemplatesComboBox msgTemplate;
 	private SMSCredentialRecoverySettingsEditor recoverySettings;
 	private MobileNumberConfirmationConfigurationEditor confirmationConfigEditor;
@@ -71,7 +72,11 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		validityTime.setCaption(msg.getMessage("SMSCredentialDefinitionEditor.validityTime"));
 		validityTime.setValue(String.valueOf(helper.getValidityTime()));
 		
-		FormLayout form = new CompactFormLayout(msgTemplate, codeLength, validityTime, HtmlTag.br());	
+		Label smsLimit = new Label();
+		smsLimit.setCaption(msg.getMessage("SMSCredentialDefinitionEditor.smsLimit"));
+		smsLimit.setValue(String.valueOf(helper.getAuthnSMSLimit()));
+		
+		FormLayout form = new CompactFormLayout(msgTemplate, codeLength, validityTime, smsLimit, HtmlTag.br());	
 		
 		SMSCredentialRecoverySettingsEditor viewer = new SMSCredentialRecoverySettingsEditor(msg, msgTplMan,
 				helper.getRecoverySettings());
@@ -123,8 +128,13 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		validityTime.setMinValue(1);
 		validityTime.setMaxValue(525600);
 		validityTime.setWidth(4, Unit.EM);
+		
+		authSMSLimit = new IntStepper(msg.getMessage("SMSCredentialDefinitionEditor.smsLimit"));
+		authSMSLimit.setMinValue(1);
+		authSMSLimit.setMaxValue(10000);
+		authSMSLimit.setWidth(4, Unit.EM);
 				
-		FormLayout form = new CompactFormLayout(msgTemplate, codeLength, validityTime, HtmlTag.br());
+		FormLayout form = new CompactFormLayout(msgTemplate, codeLength, validityTime, authSMSLimit, HtmlTag.br());
 		form.setSpacing(true);
 		form.setMargin(true);
 
@@ -135,6 +145,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 
 		codeLength.setValue(helper.getCodeLength());
 		validityTime.setValue(helper.getValidityTime());
+		authSMSLimit.setValue(helper.getAuthnSMSLimit());
 		if (helper.getMessageTemplate() != null)
 		{	
 			msgTemplate.setValue(helper.getMessageTemplate());
@@ -165,6 +176,7 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 		helper.setValidityTime(validityTime.getValue());
 		helper.setRecoverySettings(recoverySettings.getValue());
 		helper.setMessageTemplate(msgTemplate.getValue());
+		helper.setAuthnSMSLimit(authSMSLimit.getValue());
 		MobileNumberConfirmationConfiguration config;
 		try
 		{

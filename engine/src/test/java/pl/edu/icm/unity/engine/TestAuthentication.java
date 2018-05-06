@@ -183,7 +183,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 	@Test
 	public void testCredentialsManagement() throws Exception
 	{
-		int automaticCredTypes = 2;
+		int automaticCredTypes = 3;
 		int automaticCreds = 1;
 		int automaticCredReqs = 1;
 		//check if credential types are returned
