@@ -36,6 +36,10 @@
 			<groupId>edu.vt.middleware</groupId>
 			<artifactId>vt-password</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.nulab-inc</groupId>
+			<artifactId>zxcvbn</artifactId>
+		</dependency>
 	</dependencies>
 	
 	<build>

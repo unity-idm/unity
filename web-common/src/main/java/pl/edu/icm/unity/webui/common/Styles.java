@@ -28,6 +28,7 @@ public enum Styles
 	imageHeightTiny("u-imageHeightTiny"),
 	imageWidthSmall("u-imageWidthSmall"),
 	imageHeightSmall("u-imageHeightSmall"),
+	iconError("u-error-icon"),
 	maxHeightMedium("u-imageMaxHeightMedium"),
 	maxHeightSmall("u-imageMaxHeightSmall"),
 	maxHeightTiny("u-imageMaxHeightTiny"),

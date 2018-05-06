@@ -120,6 +120,11 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 					identityResolver.resolveIdentity(mappedEntity.getIdentity().getValue(), 
 					new String[] {mappedEntity.getIdentity().getTypeId()}, 
 					null, null);
+			
+			if (!identityResolver.isEntityEnabled(resolved))
+				throw new AuthenticationException("The remotely authenticated principal "
+						+ "was mapped to a disabled account");
+			
 			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
 					remoteContext.getMappingResult().getAuthenticatedWith(), false);
 			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());

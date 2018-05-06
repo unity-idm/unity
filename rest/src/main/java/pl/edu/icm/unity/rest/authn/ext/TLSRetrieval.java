@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
-import pl.edu.icm.unity.stdext.credential.CertificateExchange;
+import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 
 /**
  * Retrieves certificate from the TLS

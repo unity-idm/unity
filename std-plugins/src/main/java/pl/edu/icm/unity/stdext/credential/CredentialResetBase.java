@@ -72,14 +72,13 @@ public abstract class CredentialResetBase implements CredentialReset
 		this.completeCredentialConfiguration = completeCredentialConfiguration;
 	}
 
-	@Override
-	public void setSubject(IdentityTaV subject)
+	public void setSubject(IdentityTaV subject, String[] idTypes)
 	{
 		this.requestedSubject = subject;
 		try
 		{
 			resolved = identityResolver.resolveIdentity(subject.getValue(), 
-					PasswordVerificator.IDENTITY_TYPES, credentialId);
+					idTypes, credentialId);
 		} catch(IllegalIdentityValueException e)
 		{
 			//OK - can happen, we can ignore

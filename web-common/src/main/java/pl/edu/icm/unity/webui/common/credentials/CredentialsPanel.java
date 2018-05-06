@@ -30,7 +30,6 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -267,6 +266,8 @@ public class CredentialsPanel extends VerticalLayout
 			secrets = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
+			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
+					e.getMessage());
 			return;
 		}
 		CredentialDefinition credDef = credential.getValue();
@@ -277,16 +278,8 @@ public class CredentialsPanel extends VerticalLayout
 				ecredMan.setEntityCredential(entityP, credDef.getName(), secrets, currentSecrets);
 			else
 				ecredMan.setEntityCredential(entityP, credDef.getName(), secrets);
-		} catch (IllegalPreviousCredentialException e)
-		{
-			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
-			credEditor.setCredentialError(null);
-			credEditor.setPreviousCredentialError(e.getMessage());
-			return;
 		}  catch (IllegalCredentialException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
-			credEditor.setPreviousCredentialError(null);
 			credEditor.setCredentialError(e);
 			return;
 		} catch (Exception e)
@@ -294,6 +287,8 @@ public class CredentialsPanel extends VerticalLayout
 			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
 			return;
 		}
+		
+		NotificationPopup.showSuccess(msg, msg.getMessage("CredentialChangeDialog.credentialUpdated"), "");
 		changed = true;
 		loadEntity(entityP);
 		updateStatus();

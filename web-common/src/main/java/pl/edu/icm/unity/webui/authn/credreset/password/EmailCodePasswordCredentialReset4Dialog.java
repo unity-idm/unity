@@ -8,7 +8,7 @@ package pl.edu.icm.unity.webui.authn.credreset.password;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.stdext.credential.PasswordCredentialResetSettings;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.webui.authn.credreset.CodeVerificationCredentialResetDialog;
 import pl.edu.icm.unity.webui.authn.credreset.CredentialResetStateVariable;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;

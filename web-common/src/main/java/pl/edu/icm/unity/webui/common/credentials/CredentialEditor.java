@@ -51,14 +51,4 @@ public interface CredentialEditor
 	 * @param error either an error or null to clear the previous error.
 	 */
 	public void setCredentialError(EngineException error);
-	
-	/**
-	 * Signals that the UI should render an error on the dialog with the previous credential.
-	 * Only called when previous credential UI is displayed.
-	 * Additionally the previously entered value should be reset.
-	 * @param message either an error message or null to clear the previous error.
-	 */
-	public void setPreviousCredentialError(String message);
-	
-	
 }

@@ -46,4 +46,7 @@ public interface IdentityResolver
 	 */
 	long resolveIdentity(String identity, String[] identityTypes, String target, String realm) 
 			throws EngineException;
+	
+	
+	boolean isEntityEnabled(long entity);
 }

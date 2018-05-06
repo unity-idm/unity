@@ -24,13 +24,13 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 public class TranslationTest
 {
 	public static final MessageBundleSpec[] SPECS = new MessageBundleSpec[]	{
-		new MessageBundleSpec("core", "/pl/edu/icm/unity/server/core/messages/messages", "pl"),
-		new MessageBundleSpec("std-extensions", "/pl/edu/icm/unity/stdext/messages/messages", "pl"),
-		new MessageBundleSpec("web-common", "/pl/edu/icm/unity/webui/messages/messages", "pl"),
-		new MessageBundleSpec("web-admin/home", "/pl/edu/icm/unity/webadmin/messages/home-messages", "pl"),
-		new MessageBundleSpec("saml", "/pl/edu/icm/unity/samlidp/messages/messages", "pl"),
-		new MessageBundleSpec("unicore", "/pl/edu/icm/unity/unicore/messages/messages", "pl"),
-		new MessageBundleSpec("oauth", "/pl/edu/icm/unity/oauth/messages/messages", "pl"),
+		new MessageBundleSpec("server-engine-api", "/messages/engine-api/messages", "pl", "de"),
+		new MessageBundleSpec("server-std-plugins", "/messages/stdext/messages", "pl", "de"),
+		new MessageBundleSpec("server-web-common", "/messages/webui/messages", "pl", "de"),
+		new MessageBundleSpec("server-web-admin/home", "/messages/webhome/messages", "pl", "de"),
+		new MessageBundleSpec("server-saml", "/messages/saml/messages", "pl", "de"),
+		new MessageBundleSpec("server-unicore", "/messages/unicore/messages", "pl", "de"),
+		new MessageBundleSpec("serveroauth", "/messages/oauth/messages", "pl", "de"),
 	}; 
 	
 	public static final Set<DuplicateException> EXCEPTIONS = Sets.newHashSet(

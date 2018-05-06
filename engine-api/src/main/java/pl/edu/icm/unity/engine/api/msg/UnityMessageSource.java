@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -56,10 +57,22 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 	@Autowired
 	public UnityMessageSource(UnityServerConfiguration config, Environment springEnv) throws IOException
 	{
-		super();
+		Set<String> activeProfiles = Sets.newHashSet(springEnv.getActiveProfiles());
+		failOnMissingMessage = activeProfiles.contains(PROFILE_FAIL_ON_MISSING); 
+		init(config);
+	}
+
+	public UnityMessageSource(UnityServerConfiguration config, boolean failOnMissing) throws IOException
+	{
+		failOnMissingMessage = failOnMissing; 
+		init(config);
+	}
+
+	private void init(UnityServerConfiguration config) throws IOException
+	{
 		this.config = config;
-		List<String> allBundles = new ArrayList<String>();
-		String fsLocation = getFSMessagesDirectory();
+		List<String> allBundles = new ArrayList<>();
+		Optional<String> fsLocation = getFSMessagesDirectory();
 		
 		ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
 		Resource[] bundles = resolver.getResources("classpath*:messages/*/messages.properties");
@@ -68,7 +81,8 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 		{
 			String classpath = bundle.getURL().toExternalForm();
 			classpath = classpath.substring(0, classpath.length() - suffixLen);
-			allBundles.add("file:" + fsLocation + getFSPathFromClasspath(classpath));
+			if (fsLocation.isPresent())
+				allBundles.add("file:" + fsLocation.get() + getFSPathFromClasspath(classpath));
 			allBundles.add(classpath);
 		}
 		String[] allBasenames = allBundles.toArray(new String[allBundles.size()]);
@@ -76,8 +90,6 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 		setFallbackToSystemLocale(false);
 		setDefaultEncoding("UTF-8");
 		setAlwaysUseMessageFormat(true);
-		Set<String> activeProfiles = Sets.newHashSet(springEnv.getActiveProfiles());
-		failOnMissingMessage = activeProfiles.contains(PROFILE_FAIL_ON_MISSING);
 		log.debug("Messages will be loaded from the following locations: " + Arrays.toString(allBasenames));
 	}
 	
@@ -88,10 +100,12 @@ public class UnityMessageSource extends ReloadableResourceBundleMessageSource im
 		return classpath.substring(oneButLastSlash + 1);
 	}
 
-	private String getFSMessagesDirectory()
+	private Optional<String> getFSMessagesDirectory()
 	{
 		String fsMessages = config.getValue(UnityServerConfiguration.MESSAGES_DIRECTORY);
-		return fsMessages.endsWith("/") ? fsMessages : fsMessages + "/";
+		if (fsMessages == null)
+			return Optional.empty();
+		return Optional.of(fsMessages.endsWith("/") ? fsMessages : fsMessages + "/");
 	}
 
 	@Override
