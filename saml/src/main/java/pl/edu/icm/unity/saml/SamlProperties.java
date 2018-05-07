@@ -84,8 +84,6 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 						"however it will be checked first for correctness."));
 
 
-		defaults.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).setDescription(
-				"How often the metadata should be reloaded."));
 		defaults.put(metasPrefix, new PropertyMD().setCategory(remoteMeta).setStructuredList(false).
 				setDescription(metasDesc));	
 		defaults.put(METADATA_URL, new PropertyMD().setCategory(remoteMeta).setMandatory().
@@ -94,6 +92,9 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 				+ "In case of HTTPS the server's certificate will be checked against the main "
 				+ "Unity server's truststore"
 				+ " only if " + METADATA_HTTPS_TRUSTSTORE + " is set."));
+		defaults.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).
+				setStructuredListEntry(metasPrefix).setDescription(
+				"How often the metadata should be reloaded."));
 		defaults.put(METADATA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).
 				setStructuredListEntry(metasPrefix).setDescription(
 				"If set then the given truststore will be used for HTTPS connection validation during "
