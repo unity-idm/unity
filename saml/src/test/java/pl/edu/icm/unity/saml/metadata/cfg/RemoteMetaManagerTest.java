@@ -20,7 +20,7 @@ import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SPMETA_PREFIX;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.apache.commons.io.FileUtils;
 import org.awaitility.Awaitility;
@@ -130,12 +130,12 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 	
 	private static class MockMetadataService implements RemoteMetadataService
 	{
-		private Consumer<EntitiesDescriptorDocument> consumer;
+		private BiConsumer<EntitiesDescriptorDocument, String> consumer;
 
 		@Override
 		public String registerConsumer(String url, long refreshIntervalMs,
 				String customTruststore,
-				Consumer<EntitiesDescriptorDocument> consumer)
+				BiConsumer<EntitiesDescriptorDocument, String> consumer)
 		{
 			this.consumer = consumer;
 			return "1";
@@ -143,7 +143,7 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 
 		void publishMetadata(EntitiesDescriptorDocument doc)
 		{
-			consumer.accept(doc);
+			consumer.accept(doc, "1");
 		}
 		
 		@Override

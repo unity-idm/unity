@@ -6,6 +6,8 @@ package pl.edu.icm.unity.saml.metadata.srv;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -126,22 +128,30 @@ class MetadataSourceHandler
 		return interval;
 	}
 	
-	private synchronized void refresh()
+	private void refresh()
+	{
+		if (isRefreshNeeded())
+			doRefresh();
+	}
+
+	private synchronized boolean isRefreshNeeded()
 	{
 		long sinceLastRefresh = lastRefresh == null ? 
 				Long.MAX_VALUE : lastRefresh.until(Instant.now(), ChronoUnit.MILLIS);
 		if (sinceLastRefresh >= refreshInterval)
 		{
 			lastRefresh = Instant.now();
-			doRefresh();
+			return true;
 		} else
 		{
 			log.trace("Metadata for {} is fresh, refresh needed in {}ms", source.url,
 					refreshInterval - sinceLastRefresh);
+			return false;
 		}
 	}
 
-	private synchronized void doRefresh()
+	
+	private void doRefresh()
 	{
 		log.debug("Refreshing metadata for {}", source.url);
 		EntitiesDescriptorDocument metadata;
@@ -181,8 +191,12 @@ class MetadataSourceHandler
 	
 	private void notifyConsumers(EntitiesDescriptorDocument metadata)
 	{
-		consumersById.values()
-			.forEach(consumer -> notifyConsumer(consumer, metadata));
+		Collection<MetadataConsumer> consumersCopy;
+		synchronized(this)
+		{
+			consumersCopy = new ArrayList<>(consumersById.values());
+		}
+		consumersCopy.forEach(consumer -> notifyConsumer(consumer, metadata));
 	}
 
 	private void notifyConsumer(MetadataConsumer consumer, EntitiesDescriptorDocument metadata)
@@ -190,7 +204,7 @@ class MetadataSourceHandler
 		try
 		{
 			log.debug("Pushing metadata {} to consumer {}", source.url, consumer.id);
-			consumer.consumer.accept(metadata);
+			consumer.consumer.accept(metadata, consumer.id);
 		} catch (Exception e)
 		{
 			log.error("Metadata consumer failed to accept new metadata", e);

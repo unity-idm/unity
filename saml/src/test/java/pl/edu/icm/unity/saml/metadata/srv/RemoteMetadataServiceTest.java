@@ -52,7 +52,7 @@ public class RemoteMetadataServiceTest
 		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		service.registerConsumer("url", 100, null, m -> gotEvent.set(true));
+		service.registerConsumer("url", 100, null, (m,id) -> gotEvent.set(true));
 		
 		Awaitility.await().atMost(Duration.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -63,10 +63,10 @@ public class RemoteMetadataServiceTest
 	{
 		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader);
 		
-		service.registerConsumer("url1", 100, null, m -> {});
+		service.registerConsumer("url1", 100, null, (m,id) -> {});
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		service.registerConsumer("url2", 100, null, m -> gotEvent.set(true));
+		service.registerConsumer("url2", 100, null, (m,id) -> gotEvent.set(true));
 		
 		Awaitility.await().atMost(Duration.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -82,10 +82,10 @@ public class RemoteMetadataServiceTest
 			return Optional.of(EntitiesDescriptorDocument.Factory.parse(xml));
 		});
 		
-		service.registerConsumer("url", 200, null, m -> {});
+		service.registerConsumer("url", 200, null, (m,id) -> {});
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
-		service.registerConsumer("url", 200, null, m -> gotEvent.set(true));
+		service.registerConsumer("url", 200, null, (m,id) -> gotEvent.set(true));
 		
 		Awaitility.await().atMost(Duration.ONE_SECOND).until(
 				() -> gotEvent.get());
@@ -98,7 +98,7 @@ public class RemoteMetadataServiceTest
 		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader);
 		
 		AtomicInteger gotEvent = new AtomicInteger(0);
-		String id = service.registerConsumer("url", 25, null, m -> gotEvent.incrementAndGet());
+		String id = service.registerConsumer("url", 25, null, (m,cid) -> gotEvent.incrementAndGet());
 		
 		Awaitility.await().atMost(Duration.ONE_SECOND).until(
 				() -> gotEvent.get()>0);

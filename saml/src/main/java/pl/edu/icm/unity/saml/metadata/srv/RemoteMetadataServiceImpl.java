@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.metadata.srv;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,7 +55,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	
 	@Override
 	public synchronized String registerConsumer(String url, long refreshIntervalMs,
-			String customTruststore, Consumer<EntitiesDescriptorDocument> consumer)
+			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer)
 	{
 		MetadataSourceHandler handler = metadataHandlersByURL.get(url);
 		if (handler == null)
@@ -68,7 +68,7 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 		checkTruststoresConsistency(handler, customTruststore);
 		String key = String.valueOf(nextConsumerId++);
 		handler.addConsumer(new MetadataConsumer(refreshIntervalMs, consumer, key));
-		consumers2URL.put(String.valueOf(key), url);
+		consumers2URL.put(key, url);
 		log.info("Registered consumer {} of metadata from {}", key, url);
 		return key;
 	}

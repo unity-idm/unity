@@ -95,12 +95,17 @@ public class RemoteMetaManager
 	{
 		log.trace("Unregistering all remote metadata consumers");
 		registeredConsumers.forEach(id -> metadataService.unregisterConsumer(id));
+		registeredConsumers.clear();
 	}
 	
-	private synchronized void assembleProperties(String key, Properties newProperties)
+	private synchronized void assembleProperties(String propertiesKey, Properties newProperties, String consumerId)
 	{
+		if (!registeredConsumers.contains(consumerId)) 
+			//not likely but can happen in case of race condition between 
+			//deregistration of a consumer happening at the same time as async refresh
+			return;
 		Properties virtualConfigProps = configuration.getSourceProperties();
-		configurationsFromMetadata.put(key, newProperties);
+		configurationsFromMetadata.put(propertiesKey, newProperties);
 		for (Properties properties: configurationsFromMetadata.values())
 			virtualConfigProps.putAll(properties);
 		this.virtualConfiguration.setProperties(virtualConfigProps);
@@ -145,11 +150,11 @@ public class RemoteMetaManager
 			this.propertiesKey = propertiesKey;
 		}
 		
-		private void updateMetadata(EntitiesDescriptorDocument metadata)
+		private void updateMetadata(EntitiesDescriptorDocument metadata, String consumerId)
 		{
 			Properties virtualConfigProps = configuration.getSourceProperties();
 			reloadSingle(metadata, propertiesKey, url, virtualConfigProps, configuration);
-			assembleProperties(propertiesKey, virtualConfigProps);
+			assembleProperties(propertiesKey, virtualConfigProps, consumerId);
 		}
 	}
 }
