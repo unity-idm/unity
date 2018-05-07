@@ -49,7 +49,7 @@ public class RemoteMetadataServiceTest
 	@Test
 	public void shouldCreateHandlerForFirstConsumer()
 	{
-		RemoteMetadataService service = new RemoteMetadataService(executorsService, downloader);
+		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader);
 		
 		AtomicBoolean gotEvent = new AtomicBoolean(false);
 		service.registerConsumer("url", 100, null, m -> gotEvent.set(true));
@@ -61,7 +61,7 @@ public class RemoteMetadataServiceTest
 	@Test
 	public void shouldCreateHandlerFor2ndConsumerOtherURL()
 	{
-		RemoteMetadataService service = new RemoteMetadataService(executorsService, downloader);
+		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader);
 		
 		service.registerConsumer("url1", 100, null, m -> {});
 		
@@ -75,7 +75,7 @@ public class RemoteMetadataServiceTest
 	@Test
 	public void shouldReuseHandlerFor2ndConsumerSameURL() throws Exception
 	{
-		RemoteMetadataService service = new RemoteMetadataService(executorsService,
+		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService,
 				downloader);
 		when(downloader.getCached("url")).thenAnswer((a) -> {
 			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"));
@@ -95,7 +95,7 @@ public class RemoteMetadataServiceTest
 	@Test
 	public void unregistredConsumerIsRemovedFromHandler() throws InterruptedException
 	{
-		RemoteMetadataService service = new RemoteMetadataService(executorsService, downloader);
+		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService, downloader);
 		
 		AtomicInteger gotEvent = new AtomicInteger(0);
 		String id = service.registerConsumer("url", 25, null, m -> gotEvent.incrementAndGet());

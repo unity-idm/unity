@@ -64,6 +64,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		this.loader = loader;
 	}
 
+	@Override
 	protected void updateInternal() throws EngineException
 	{
 		List<EndpointInstance> deployedEndpoints = endpointMan.getDeployedEndpoints();

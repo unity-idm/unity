@@ -69,6 +69,7 @@ public class RemoteMetaManager
 		if (reload)
 		{
 			unregisterAll();
+			virtualConfiguration = configuration.clone();
 			registerMetadataConsumers();
 		}
 	}
