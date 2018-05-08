@@ -82,7 +82,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-			boolean outdatedCredential, Date absoluteExpiration)
+				String outdatedCredentialId, Date absoluteExpiration)
 	{
 		try
 		{
@@ -108,7 +108,7 @@ public class SessionManagementImpl implements SessionManagement
 						+ "authenticated user", e);
 			}
 			
-			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredential,
+			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
 					absoluteExpiration);
 			if (log.isDebugEnabled())
 				log.debug("Created a new session " + ret.getId() + " for logged entity "
@@ -139,14 +139,14 @@ public class SessionManagementImpl implements SessionManagement
 	}
 	
 	private LoginSession createSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-			boolean outdatedCredential, Date absoluteExpiration)
+				String outdatedCredentialId, Date absoluteExpiration)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
 		LoginSession ls = new LoginSession(id, new Date(), absoluteExpiration,
 				realm.getMaxInactivity()*1000, loggedEntity, 
 				realm.getName());
-		ls.setUsedOutdatedCredential(outdatedCredential);
+		ls.setOutdatedCredentialId(outdatedCredentialId);
 		ls.setEntityLabel(entityLabel);
 		try
 		{

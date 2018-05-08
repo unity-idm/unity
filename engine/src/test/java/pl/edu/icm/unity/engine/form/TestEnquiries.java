@@ -211,7 +211,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
 				CRED_REQ_PASS, EntityState.valid, false);
 		
-		setupUserContext("tuser", false);
+		setupUserContext("tuser", null);
 		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(true, false, 
 				TriggeringMode.manualStandalone));
 		setupAdmin();
@@ -274,7 +274,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 			.build();
 		enquiryManagement.addEnquiry(form);
 
-		setupUserContext("tuser", false);
+		setupUserContext("tuser", null);
 		EnquiryResponse response = new EnquiryResponseBuilder()
 			.withFormId("enquiry1")
 			.build();
@@ -347,7 +347,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
 				CRED_REQ_PASS, EntityState.valid, false);
 		
-		setupUserContext("tuser", false);
+		setupUserContext("tuser", null);
 		
 		String id = enquiryManagement.submitEnquiryResponse(response, 
 					new RegistrationContext(true, false, 

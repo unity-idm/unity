@@ -355,7 +355,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
 		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
-		setupUserContext("user2", false);
+		setupUserContext("user2", null);
 		
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
 		assertFalse(eCredMan.isCurrentCredentialRequiredForChange(user, "credential1"));

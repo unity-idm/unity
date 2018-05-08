@@ -17,11 +17,11 @@ import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Label100;
-import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog;
-import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callback;
+import pl.edu.icm.unity.webui.common.credentials.SingleCredentialChangeDialog;
+import pl.edu.icm.unity.webui.common.credentials.SingleCredentialChangeDialog.Callback;
 
 /**
- * Simple dialog wrapping {@link CredentialsChangeDialog}. It is invoked for users logged with outdated
+ * Simple dialog wrapping {@link SingleCredentialChangeDialog}. It is invoked for users logged with outdated
  * credential. User is informed about invalidated credential and can choose to change it or logout. 
  * After changing the credential user can only logout.  
  * @author K. Benedyczak
@@ -30,11 +30,11 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsChangeDialog.Callbac
 public class OutdatedCredentialDialog extends AbstractDialog
 {
 	private WebAuthenticationProcessor authnProcessor;
-	private ObjectFactory<CredentialsChangeDialog> credChangeDialogFactory;
+	private ObjectFactory<SingleCredentialChangeDialog> credChangeDialogFactory;
 	
 	@Autowired
 	public OutdatedCredentialDialog(UnityMessageSource msg, 
-			ObjectFactory<CredentialsChangeDialog> credChangeDialogFactory)
+			ObjectFactory<SingleCredentialChangeDialog> credChangeDialogFactory)
 	{
 		super(msg, msg.getMessage("OutdatedCredentialDialog.caption"), 
 				msg.getMessage("OutdatedCredentialDialog.accept"), 
@@ -60,7 +60,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 	{
 		WrappedSession vss = VaadinSession.getCurrent().getSession();
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
-		CredentialsChangeDialog dialog = credChangeDialogFactory.getObject().init(ls.getEntityId(), 
+		SingleCredentialChangeDialog dialog = credChangeDialogFactory.getObject().init(ls.getEntityId(), 
 				true,
 				new Callback()
 				{
@@ -69,7 +69,7 @@ public class OutdatedCredentialDialog extends AbstractDialog
 					{
 						afterCredentialUpdate(changed);
 					}
-				});
+				}, ls.getOutdatedCredentialId());
 		dialog.show();
 	}
 

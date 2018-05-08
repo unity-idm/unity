@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.credentials;
 
-import com.vaadin.ui.Component;
-
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -28,7 +26,7 @@ public interface CredentialEditor
 	 * {@link LocalCredentialVerificator#checkCredentialState(String)}.
 	 * @return the viewer component, or null if there is nothing to show
 	 */
-	public Component getViewer(String credentialInfo);
+	public ComponentsContainer getViewer(String credentialInfo);
 	
 	
 	/**

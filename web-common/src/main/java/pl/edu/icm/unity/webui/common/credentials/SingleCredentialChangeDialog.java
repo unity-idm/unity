@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.credentials;
 
+import java.util.Collection;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Component;
@@ -15,47 +17,49 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 
 /**
- * Allows to change all entity credentials.
+ * Allows to change a single credential.
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class CredentialsChangeDialog extends AbstractDialog
+public class SingleCredentialChangeDialog extends AbstractDialog
 {
 	private CredentialManagement credMan;
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
-	private CredentialRequirementManagement credReqMan;
 	
 	private Callback callback;
 	private long entityId;
 	private boolean simpleMode;
-	private CredentialsPanel ui;
+	private String credentialId;
+	private SingleCredentialPanel ui;
 	
 	@Autowired
-	public CredentialsChangeDialog(UnityMessageSource msg, CredentialManagement credMan, 
+	public SingleCredentialChangeDialog(UnityMessageSource msg, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg)
 	{
-		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
+		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("update"));
+		this.credMan = credMan;
 		this.ecredMan = ecredMan;
 		this.entityMan = entityMan;
 		this.credEditorReg = credEditorReg;
-		this.credReqMan = credReqMan;
-		this.credMan = credMan;
 		setSize(50, 80);
 	}
 
-	public CredentialsChangeDialog init(long entityId, boolean simpleMode, Callback callback)
+	public SingleCredentialChangeDialog init(long entityId, boolean simpleMode, Callback callback, String credentialId)
 	{
 		this.entityId = entityId;
 		this.callback = callback;
 		this.simpleMode = simpleMode;
+		this.credentialId = credentialId;
 		return this;
 	}
 	
@@ -64,10 +68,17 @@ public class CredentialsChangeDialog extends AbstractDialog
 	{
 		try
 		{
-			ui = new CredentialsPanel( msg,  entityId,  credMan, 
-					 ecredMan,  entityMan,
-					 credReqMan,
-					 credEditorReg,  simpleMode);
+			Collection<CredentialDefinition> allCreds = credMan.getCredentialDefinitions();
+			CredentialDefinition credDef = null;
+			for (CredentialDefinition cd : allCreds)
+			{
+				if (cd.getName().equals(credentialId))
+					credDef  = cd;
+			}
+			if (credDef == null)
+				throw new InternalException(msg.getMessage("CredentialChangeDialog.cantGetCredDefs") + credentialId);
+	
+			ui = new SingleCredentialPanel(msg, entityId, ecredMan, entityMan, credEditorReg, credDef, simpleMode, false);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);
@@ -80,6 +91,8 @@ public class CredentialsChangeDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
+		if (!ui.updateCredential(false))
+			return;
 		callback.onClose(ui.isChanged());
 		close();
 	}

@@ -128,7 +128,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		
 		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+200));
 		idsMan.getEntity(ep1);
@@ -152,7 +152,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		
 		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()));
 		try
@@ -172,9 +172,9 @@ public class TestIdentities extends DBIntegrationTestBase
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		idsMan.scheduleRemovalByUser(ep1, new Date(System.currentTimeMillis()+500));
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		entitiesUpdater.updateEntities();
 		
 		Entity entity = idsMan.getEntity(ep1);
@@ -252,7 +252,7 @@ public class TestIdentities extends DBIntegrationTestBase
 
 		idsMan.addIdentity(emailId, entityParam, false);
 
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
 				Sets.newHashSet(emailId, emailId2));
@@ -329,7 +329,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		idsMan.addIdentity(emailId4, entityParam, false);
 		idsMan.addIdentity(emailId5, entityParam, false);
 
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 
 		//still above limit, but removing works
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
@@ -340,7 +340,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
 				new HashSet<IdentityParam>());
 
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 
 		//still under limit, but adding and changing works
 		idsMan.setIdentities(entityParam, Sets.newHashSet(EmailIdentity.ID), 
@@ -395,7 +395,7 @@ public class TestIdentities extends DBIntegrationTestBase
 			else
 				assertFalse(idTypeI.isSelfModificable());
 		
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);
@@ -439,7 +439,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		identityParam.setConfirmationInfo(new ConfirmationInfo(true));
 		idsMan.addIdentity(identityParam, ep1, false);
 		
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email1@custom.net"), ep1, false);
 		idsMan.addIdentity(new IdentityParam(EmailIdentity.ID, "email2@custom.net"), ep1, false);

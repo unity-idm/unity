@@ -55,33 +55,32 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	@Before
 	public void setupAdmin() throws Exception
 	{
-		setupUserContext("admin", false);
+		setupUserContext("admin", null);
 	}
-	
 	@After
 	public void clearAuthnCtx() throws EngineException
 	{
 		InvocationContext.setCurrent(null);
 	}	
 	
-	protected void setupUserContext(String user, boolean outdated) throws Exception
+	protected void setupUserContext(String user, String outdatedCred) throws Exception
 	{
-		setupUserContext(sessionMan, identityResolver, user, outdated);
+		setupUserContext(sessionMan, identityResolver, user, outdatedCred);
 	}
 
 	public static void setupUserContext(SessionManagement sessionMan, IdentityResolver identityResolver,
-			String user, boolean outdated) throws Exception
+			String user, String credentialId) throws Exception
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				MockPasswordVerificatorFactory.ID);
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
-				user, outdated, null);
+				user, credentialId, null);
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		//override for tests: it can happen that existing session is returned, therefore old state of cred is
 		// there.
-		ls.setUsedOutdatedCredential(outdated);
+		ls.setOutdatedCredentialId(credentialId);
 		InvocationContext.setCurrent(virtualAdmin);
 	}
 	

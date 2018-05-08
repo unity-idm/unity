@@ -93,7 +93,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		addRegularUsers();
 		addTokens();
 
-		setupUserContext("u1", false);
+		setupUserContext("u1", null);
 		Collection<Token> u1Tokens = securedTokensMan.getAllTokens("t");
 
 		assertThat(u1Tokens.size(), is(2));
@@ -106,7 +106,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		addTokens();
 		EntityParam ep1 = new EntityParam(new IdentityParam(UsernameIdentity.ID, "u1"));
 
-		setupUserContext("u2", false);
+		setupUserContext("u2", null);
 		catchException(securedTokensMan).getOwnedTokens("t", ep1);
 
 		assertThat(caughtException(), isA(AuthorizationException.class));
@@ -119,7 +119,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		addTokens();
 		EntityParam ep1 = new EntityParam(new IdentityParam(UsernameIdentity.ID, "u1"));
 
-		setupUserContext("u1", false);
+		setupUserContext("u1", null);
 		Collection<Token> u1Tokens = securedTokensMan.getOwnedTokens("t", ep1);
 
 		assertThat(u1Tokens.size(), is(2));
@@ -131,7 +131,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		addRegularUsers();
 		addTokens();
 
-		setupUserContext("u1", false);
+		setupUserContext("u1", null);
 		Collection<Token> u1Tokens = securedTokensMan.getAllTokens(null);
 
 		assertThat(u1Tokens.stream().filter(t -> t.getType().equals("t"))
@@ -148,7 +148,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		addTokens();
 		EntityParam ep1 = new EntityParam(new IdentityParam(UsernameIdentity.ID, "u1"));
 
-		setupUserContext("u2", false);
+		setupUserContext("u2", null);
 		catchException(securedTokensMan).getOwnedTokens(null, ep1);
 
 		assertThat(caughtException(), isA(AuthorizationException.class));
@@ -163,7 +163,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		Date exp = new Date(System.currentTimeMillis() + 500000);
 		tokensMan.addToken("t", "1234", ep1, c, new Date(), exp);
 
-		setupUserContext("u1", false);
+		setupUserContext("u1", null);
 		securedTokensMan.removeToken("t", "1234");
 
 		setupAdmin();
@@ -180,7 +180,7 @@ public class TestSecuredTokens extends DBIntegrationTestBase
 		Date exp = new Date(System.currentTimeMillis() + 500000);
 		tokensMan.addToken("t", "1234", ep1, c, new Date(), exp);
 
-		setupUserContext("u2", false);
+		setupUserContext("u2", null);
 
 		catchException(securedTokensMan).removeToken("t", "1234");
 		assertThat(caughtException(), isA(AuthorizationException.class));

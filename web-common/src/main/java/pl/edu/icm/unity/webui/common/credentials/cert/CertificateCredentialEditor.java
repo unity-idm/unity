@@ -4,10 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.credentials.cert;
 
-import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -20,19 +16,15 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  */
 public class CertificateCredentialEditor implements CredentialEditor
 {
-	private UnityMessageSource msg;
-
-	public CertificateCredentialEditor(UnityMessageSource msg)
-	{
-		this.msg = msg;
+	public CertificateCredentialEditor()
+	{	
 	}
 
 	@Override
 	public ComponentsContainer getEditor(boolean askAboutCurrent, 
 			String credentialConfiguration, boolean required, Long entityId, boolean adminMode)
 	{
-		Label label = new Label(msg.getMessage("CertificateCredentialEditor.info"));
-		return new ComponentsContainer(label);
+		return new ComponentsContainer();
 	}
 
 	@Override
@@ -42,9 +34,9 @@ public class CertificateCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public Component getViewer(String credentialConfiguration)
+	public ComponentsContainer getViewer(String credentialConfiguration)
 	{
-		return null;
+		return new ComponentsContainer();
 	}
 
 	@Override

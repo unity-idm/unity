@@ -53,7 +53,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		EntityParam entity = new EntityParam(added.getEntityId());
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/", AuthorizationManagerImpl.USER_ROLE));
-		setupUserContext("user1", false);
+		setupUserContext("user1", null);
 		try
 		{
 			//tests standard deny
@@ -70,14 +70,14 @@ public class TestAuthorization extends DBIntegrationTestBase
 		//tests self access
 		attrsMan.getAttributes(entity, "/", null);
 		
-		setupUserContext("admin", false);
+		setupUserContext("admin", null);
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addMemberFromParent("/A", entity);
 		attrsMan.removeAttribute(entity, "/", RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/A", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
-		setupUserContext("user1", false);
+		setupUserContext("user1", null);
 		try
 		{
 			//tests standard deny
@@ -108,10 +108,10 @@ public class TestAuthorization extends DBIntegrationTestBase
 		}
 		
 		//tests outdated credential
-		setupUserContext("admin", false);
+		setupUserContext("admin", null);
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
 				"/", AuthorizationManagerImpl.USER_ROLE));
-		setupUserContext("admin", true);
+		setupUserContext("admin", EngineInitialization.DEFAULT_CREDENTIAL);
 		try
 		{
 			attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,

@@ -34,7 +34,7 @@ public class CertificateCredentialEditorFactory implements CredentialEditorFacto
 	@Override
 	public CredentialEditor createCredentialEditor()
 	{
-		return new CertificateCredentialEditor(msg);
+		return new CertificateCredentialEditor();
 	}
 
 	@Override

@@ -14,11 +14,9 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
@@ -242,19 +240,17 @@ public class SMSCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public Component getViewer(String credentialInfo)
+	public ComponentsContainer getViewer(String credentialInfo)
 	{
+		ComponentsContainer ret = new ComponentsContainer();
+		
 		SMSCredentialExtraInfo pei = SMSCredentialExtraInfo.fromJson(credentialInfo);
 		if (pei.getLastChange() == null)
-			return null;
+			return ret;
 
-		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
-		ret.setMargin(true);
-
-		ret.addComponent(new Label(msg.getMessage("SMSCredentialEditor.lastModification",
+		ret.add(new Label(msg.getMessage("SMSCredentialEditor.lastModification",
 				pei.getLastChange())));
-		ret.addComponent(new Label(msg.getMessage("SMSCredentialEditor.mobileNumber",
+		ret.add(new Label(msg.getMessage("SMSCredentialEditor.mobileNumber",
 				pei.getMobile())));
 		return ret;
 	}
@@ -315,6 +311,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		{
 			editor.setComponentError(null);
 			currentMobileAttr.setComponentError(null);
+			editor.setValue("");
 			return;
 		}
 

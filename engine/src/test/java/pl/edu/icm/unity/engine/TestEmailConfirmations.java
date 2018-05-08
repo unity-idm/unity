@@ -151,7 +151,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		atT.setSelfModificable(true);
 		aTypeMan.addAttributeType(atT);
 
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 
 		VerifiableEmail e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(true));
 		VerifiableEmail e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
@@ -191,7 +191,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
 		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 
 		e1 = new VerifiableEmail("a@example.com", new ConfirmationInfo(false));
 		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(true));
@@ -234,7 +234,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		Assert.assertTrue(VerifiableEmail.fromJsonString(returned.getValues().get(0)).isConfirmed());
 		Assert.assertFalse(VerifiableEmail.fromJsonString(returned.getValues().get(1)).isConfirmed());
 
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		e1 = new VerifiableEmail("c@example.com", new ConfirmationInfo(false));
 		e2 = new VerifiableEmail("b@example.com", new ConfirmationInfo(false));
 		at1 = VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",

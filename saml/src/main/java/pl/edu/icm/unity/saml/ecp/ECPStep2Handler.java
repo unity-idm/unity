@@ -183,7 +183,7 @@ public class ECPStep2Handler
 			log.debug("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.isUsedOutdatedCredential(), null);
+				"", client.getOutdatedCredentialId(), null);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 		ls.setRemoteIdP(client.getRemoteIdP());

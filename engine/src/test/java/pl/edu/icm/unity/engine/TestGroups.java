@@ -57,7 +57,7 @@ public class TestGroups extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A", ep);
 		groupsMan.addMemberFromParent("/A/B", ep);
 		
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		
 		GroupContents rootC = groupsMan.getContents("/", GroupContents.EVERYTHING);
 		assertEquals(1, rootC.getSubGroups().size());

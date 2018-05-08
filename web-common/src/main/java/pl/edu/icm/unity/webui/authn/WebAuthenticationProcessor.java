@@ -152,7 +152,7 @@ public class WebAuthenticationProcessor
 	
 	private void finalizeLogin(AuthenticatedEntity logInfo) throws AuthenticationException
 	{
-		if (logInfo.isUsedOutdatedCredential())
+		if (logInfo.getOutdatedCredentialId() != null)
 		{
 			//simply reload - we ensure that session reinit after login won't outdate session
 			//authN handler anyway won't let us in to the target endpoint with outdated credential
@@ -188,7 +188,7 @@ public class WebAuthenticationProcessor
 		Date absoluteExpiration = (realm.getAllowForRememberMeDays() > 0 && rememberMe) ? 
 				new Date(System.currentTimeMillis()+getAbsoluteSessionTTL(realm)) : null;
 		final LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
-				label, authenticatedEntity.isUsedOutdatedCredential(), 
+				label, authenticatedEntity.getOutdatedCredentialId(), 
 				absoluteExpiration);
 		InvocationContext.getCurrent().setLoginSession(ls);
 		try

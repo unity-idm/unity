@@ -122,7 +122,7 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 			EntityWithCredential resolved = identityResolver.resolveIdentity(claims.getSubject(), 
 					IDENTITY_TYPES, null);
 			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), 
-					claims.getSubject(), false); 
+					claims.getSubject(), null); 
 			return new AuthenticationResult(Status.success, ae);
 		} catch (ParseException | JOSEException e)
 		{

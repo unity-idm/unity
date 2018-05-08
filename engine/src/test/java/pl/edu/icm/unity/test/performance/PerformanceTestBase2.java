@@ -118,7 +118,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	{
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
 		LoginSession ls = sessionMan.getCreateSession(entityId, getDefaultRealm(),
-				user, false, null);
+				user, null, null);
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);

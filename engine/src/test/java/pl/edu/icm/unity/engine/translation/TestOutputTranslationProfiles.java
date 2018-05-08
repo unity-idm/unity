@@ -230,7 +230,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 		TranslationProfile tp1Cfg = new TranslationProfile("p1", "", ProfileType.OUTPUT, rules);
 
 		Entity userE = getUser();
-		setupUserContext(DEF_USER, false);
+		setupUserContext(DEF_USER, null);
 		InvocationContext.getCurrent().getLoginSession().addAuthenticatedIdentities(Sets.newHashSet("user1"));
 		
 		TranslationInput input = new TranslationInput(

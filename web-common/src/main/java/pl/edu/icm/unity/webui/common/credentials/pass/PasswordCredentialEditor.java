@@ -7,11 +7,9 @@ package pl.edu.icm.unity.webui.common.credentials.pass;
 import java.util.List;
 
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -145,17 +143,14 @@ public class PasswordCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public Component getViewer(String credentialExtraInformation)
+	public ComponentsContainer getViewer(String credentialExtraInformation)
 	{
+		ComponentsContainer ret = new ComponentsContainer();
 		PasswordExtraInfo pei = PasswordExtraInfo.fromJson(credentialExtraInformation);
 		if (pei.getLastChange() == null)
-			return null;
-
-		VerticalLayout ret = new VerticalLayout();
-		ret.setSpacing(true);
-		ret.setMargin(true);
+			return ret;
 		
-		ret.addComponent(new Label(msg.getMessage("PasswordCredentialEditor.lastModification", 
+		ret.add(new Label(msg.getMessage("PasswordCredentialEditor.lastModification", 
 				pei.getLastChange())));
 		
 		PasswordCredentialResetSettings resetS = helper.getPasswordResetSettings();
@@ -164,7 +159,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 			String secQ = pei.getSecurityQuestion() == null ? 
 					msg.getMessage("PasswordCredentialEditor.notDefined")
 					: pei.getSecurityQuestion();
-			ret.addComponent(new Label(msg.getMessage("PasswordCredentialEditor.securityQuestion", secQ)));
+			ret.add(new Label(msg.getMessage("PasswordCredentialEditor.securityQuestion", secQ)));
 		}
 		return ret;
 	}
@@ -187,6 +182,8 @@ public class PasswordCredentialEditor implements CredentialEditor
 	{
 		password1.clear();
 		password2.setValue("");
+		if (error == null)
+			return;
 		
 		if (error instanceof IllegalPreviousCredentialException)
 		{

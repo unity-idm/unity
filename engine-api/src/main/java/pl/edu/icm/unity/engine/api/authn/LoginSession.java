@@ -42,7 +42,7 @@ public class LoginSession
 	private long maxInactivity;
 	private long entityId;
 	private String realm;
-	private boolean usedOutdatedCredential;
+	private String outdatedCredentialId;
 	private String entityLabel;
 	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
 	private String remoteIdP;
@@ -156,16 +156,6 @@ public class LoginSession
 		this.maxInactivity = maxInactivity;
 	}
 
-	public boolean isUsedOutdatedCredential()
-	{
-		return usedOutdatedCredential;
-	}
-
-	public void setUsedOutdatedCredential(boolean usedOutdatedCredential)
-	{
-		this.usedOutdatedCredential = usedOutdatedCredential;
-	}
-
 	public String getEntityLabel()
 	{
 		return entityLabel;
@@ -195,6 +185,21 @@ public class LoginSession
 	{
 		this.remoteIdP = remoteIdP;
 	}
+	
+	public String getOutdatedCredentialId()
+	{
+		return outdatedCredentialId;
+	}
+	
+	public boolean isUsedOutdatedCredential()
+	{
+		return outdatedCredentialId != null;
+	}
+
+	public void setOutdatedCredentialId(String outdatedCredentialId)
+	{
+		this.outdatedCredentialId = outdatedCredentialId;
+	}
 
 	public void deserialize(Token token)
 	{
@@ -211,7 +216,10 @@ public class LoginSession
 		long maxInactive = main.get("maxInactivity").asLong();
 		long lastUsed = main.get("lastUsed").asLong();
 		String entityLabel = main.get("entityLabel").asText();
-		boolean outdatedCred = main.get("usedOutdatedCredential").asBoolean();
+		String credentialId = null;
+		if (main.has("outdatedCredentialId")) {
+			credentialId = main.get("outdatedCredentialId").asText();
+		}
 		if (main.has("authenticatedIdentities"))
 		{
 			List<String> ai = new ArrayList<>(2);
@@ -232,7 +240,7 @@ public class LoginSession
 		setRealm(realm);
 		setLastUsed(new Date(lastUsed));
 		setEntityLabel(entityLabel);
-		setUsedOutdatedCredential(outdatedCred);
+		setOutdatedCredentialId(credentialId);
 		
 		Map<String, String> attrs = new HashMap<String, String>(); 
 		ObjectNode attrsJson = (ObjectNode) main.get("attributes");
@@ -251,7 +259,8 @@ public class LoginSession
 		main.put("realm", getRealm());
 		main.put("maxInactivity", getMaxInactivity());
 		main.put("lastUsed", getLastUsed().getTime());
-		main.put("usedOutdatedCredential", isUsedOutdatedCredential());
+		if (isUsedOutdatedCredential())
+			main.put("outdatedCredentialId", getOutdatedCredentialId());
 		main.put("entityLabel", getEntityLabel());
 		ArrayNode ai = main.withArray("authenticatedIdentities");
 		for (String id: authenticatedIdentities)
