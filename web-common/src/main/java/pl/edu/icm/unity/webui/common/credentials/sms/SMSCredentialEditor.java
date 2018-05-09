@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
 
@@ -117,20 +116,18 @@ public class SMSCredentialEditor implements CredentialEditor
 		});
 
 		ret.add(credentialSource);
-		FormLayout wrapper = new FormLayout();
-		ret.add(wrapper);
 
 		currentMobileAttr = new ComboBox<>();
-		currentMobileAttr.setCaption(msg.getMessage("SMSCredentialEditor.existingMobile"));
+		currentMobileAttr.setCaption(msg.getMessage("SMSCredentialEditor.newMobileNumber"));
 		currentMobileAttr.setEmptySelectionAllowed(false);
+		currentMobileAttr.setRequiredIndicatorVisible(true);
 
 		List<String> userMobiles = getUserMobiles(entityId);
 		if (!userMobiles.isEmpty())
 		{
 			currentMobileAttr.setItems(userMobiles);
 			currentMobileAttr.setValue(userMobiles.get(0));
-
-			wrapper.addComponent(currentMobileAttr);
+			ret.add(currentMobileAttr);
 		}
 
 		confirmationInfo = new ConfirmationInfo();
@@ -138,6 +135,7 @@ public class SMSCredentialEditor implements CredentialEditor
 				msg.getMessage("SMSCredentialEditor.verify"),
 				Images.mobile.getResource(),
 				msg.getMessage("SMSCredentialEditor.confirmedCheckbox"));
+		editor.setCaption(msg.getMessage("SMSCredentialEditor.newMobileNumber"));
 
 		editor.addVerifyButtonClickListener(e -> {
 
@@ -172,8 +170,7 @@ public class SMSCredentialEditor implements CredentialEditor
 			updateConfirmationStatusIconAndButtons();
 		});
 		updateConfirmationStatusIconAndButtons();
-		wrapper.addComponent(editor);
-
+		ret.add(editor);
 		credentialSource.setItemEnabledProvider(i -> {
 			if (i.equals(CredentialSource.Existing) && userMobiles.isEmpty())
 				return false;
@@ -243,7 +240,7 @@ public class SMSCredentialEditor implements CredentialEditor
 	public ComponentsContainer getViewer(String credentialInfo)
 	{
 		ComponentsContainer ret = new ComponentsContainer();
-		
+
 		SMSCredentialExtraInfo pei = SMSCredentialExtraInfo.fromJson(credentialInfo);
 		if (pei.getLastChange() == null)
 			return ret;

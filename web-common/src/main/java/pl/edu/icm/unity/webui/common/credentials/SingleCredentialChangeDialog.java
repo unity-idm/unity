@@ -42,11 +42,13 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 	private SingleCredentialPanel ui;
 	
 	@Autowired
-	public SingleCredentialChangeDialog(UnityMessageSource msg, CredentialManagement credMan, 
+	public SingleCredentialChangeDialog(UnityMessageSource msg, CredentialManagement credMan,
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg)
+			CredentialRequirementManagement credReqMan,
+			CredentialEditorRegistry credEditorReg)
 	{
-		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("update"));
+		super(msg, msg.getMessage("CredentialChangeDialog.caption"),
+				msg.getMessage("update"), msg.getMessage("cancel"));
 		this.credMan = credMan;
 		this.ecredMan = ecredMan;
 		this.entityMan = entityMan;
@@ -54,7 +56,8 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 		setSize(50, 80);
 	}
 
-	public SingleCredentialChangeDialog init(long entityId, boolean simpleMode, Callback callback, String credentialId)
+	public SingleCredentialChangeDialog init(long entityId, boolean simpleMode,
+			Callback callback, String credentialId)
 	{
 		this.entityId = entityId;
 		this.callback = callback;
@@ -62,29 +65,33 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 		this.credentialId = credentialId;
 		return this;
 	}
-	
+
 	@Override
 	protected Component getContents() throws Exception
 	{
 		try
 		{
-			Collection<CredentialDefinition> allCreds = credMan.getCredentialDefinitions();
+			Collection<CredentialDefinition> allCreds = credMan
+					.getCredentialDefinitions();
 			CredentialDefinition credDef = null;
 			for (CredentialDefinition cd : allCreds)
 			{
 				if (cd.getName().equals(credentialId))
-					credDef  = cd;
+					credDef = cd;
 			}
 			if (credDef == null)
-				throw new InternalException(msg.getMessage("CredentialChangeDialog.cantGetCredDefs") + credentialId);
-	
-			ui = new SingleCredentialPanel(msg, entityId, ecredMan, entityMan, credEditorReg, credDef, simpleMode, false);
+				throw new InternalException(msg.getMessage(
+						"CredentialChangeDialog.cantGetCredDefs")
+						+ credentialId);
+
+			ui = new SingleCredentialPanel(msg, entityId, ecredMan, entityMan,
+					credEditorReg, credDef, simpleMode, false);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);
 			throw e;
 		}
-		
+
 		return ui;
 	}
 
@@ -96,7 +103,13 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 		callback.onClose(ui.isChanged());
 		close();
 	}
-	
+
+	@Override
+	protected void onCancel()
+	{
+		close();
+	}
+
 	public interface Callback
 	{
 		public void onClose(boolean changed);

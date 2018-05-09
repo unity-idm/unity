@@ -60,20 +60,11 @@ public class SingleCredentialPanel extends VerticalLayout
 	private CredentialEditor credEditor;
 	private CredentialDefinition toEdit;
 	
-	/**
-	 * 
-	 * @param msg
-	 * @param entityId
-	 * @param authnMan
-	 * @param ecredMan
-	 * @param credEditorReg
-	 * @param simpleMode if true then admin-only action buttons (credential reset/outdate) are not shown.
-	 * @throws Exception
-	 */
-	public SingleCredentialPanel(UnityMessageSource msg, long entityId, 
+	
+	public SingleCredentialPanel(UnityMessageSource msg, long entityId,
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialEditorRegistry credEditorReg,CredentialDefinition toEdit, boolean simpleMode, boolean showButtons) 
-					throws Exception
+			CredentialEditorRegistry credEditorReg, CredentialDefinition toEdit,
+			boolean simpleMode, boolean showButtons) throws Exception
 	{
 		this.msg = msg;
 		this.ecredMan = ecredMan;
@@ -93,16 +84,15 @@ public class SingleCredentialPanel extends VerticalLayout
 		credentialName.setCaption(msg.getMessage("CredentialChangeDialog.credentialName"));
 		credentialStatus = new VerticalLayout();
 		credentialStatus.setMargin(false);
-		credentialStatus.setCaption(msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
+		credentialStatus.setCaption(
+				msg.getMessage("CredentialChangeDialog.credentialStateInfo"));
 
 		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
 		askAboutCurrent = isCurrentCredentialVerificationRequired(toEdit);
-		
-		ComponentsContainer credEditorComp = credEditor.getEditor(askAboutCurrent, 
-				toEdit.getConfiguration(), true, entityId, !simpleMode); 
-	
-		
-		
+
+		ComponentsContainer credEditorComp = credEditor.getEditor(askAboutCurrent,
+				toEdit.getConfiguration(), true, entityId, !simpleMode);
+
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
 		clear.setIcon(Images.undeploy.getResource());
 		clear.addClickListener(new ClickListener()
@@ -113,7 +103,7 @@ public class SingleCredentialPanel extends VerticalLayout
 				changeCredentialStatus(LocalCredentialState.notSet);
 			}
 		});
-		
+
 		invalidate = new Button(msg.getMessage("CredentialChangeDialog.invalidate"));
 		invalidate.setIcon(Images.warn.getResource());
 		invalidate.addClickListener(new ClickListener()
@@ -126,7 +116,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		});
 
 		update = new Button(msg.getMessage("CredentialChangeDialog.update"));
-		update.setIcon(Images.edit.getResource());
+		update.setIcon(Images.save.getResource());
 		update.addClickListener(new ClickListener()
 		{
 			@Override
@@ -135,11 +125,11 @@ public class SingleCredentialPanel extends VerticalLayout
 				updateCredential(true);
 			}
 		});
-		
+
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		buttonsBar.setSpacing(true);
 		buttonsBar.setMargin(false);
-		
+
 		if (showButtons)
 		{
 			if (!simpleMode)
@@ -149,7 +139,7 @@ public class SingleCredentialPanel extends VerticalLayout
 			}
 			buttonsBar.addComponent(update);
 		}
-		
+
 		FormLayout fl = new CompactFormLayout(credentialName, credentialStatus);
 		fl.setMargin(true);
 		addComponent(fl);
@@ -159,7 +149,7 @@ public class SingleCredentialPanel extends VerticalLayout
 			fl.addComponents(credEditorComp.getComponents());
 			addComponent(buttonsBar);
 		}
-			
+
 		setSpacing(true);
 		setMargin(false);
 		updateCredentialStatus();
@@ -168,8 +158,8 @@ public class SingleCredentialPanel extends VerticalLayout
 	public boolean isChanged()
 	{
 		return changed;
-	}	
-	
+	}
+
 	private String getStatusIcon(LocalCredentialState state)
 	{
 		if (state.equals(LocalCredentialState.correct))
@@ -179,10 +169,10 @@ public class SingleCredentialPanel extends VerticalLayout
 		else
 			return Images.warn.getHtml();
 	}
-	
+
 	private void updateCredentialStatus()
 	{
-		
+
 		String desc = toEdit.getDescription().getValue(msg);
 		if (desc != null && !desc.isEmpty())
 		{
@@ -191,18 +181,20 @@ public class SingleCredentialPanel extends VerticalLayout
 		{
 			credentialName.setValue(toEdit.getName());
 		}
-		
-		Map<String, CredentialPublicInformation> s = entity.getCredentialInfo().getCredentialsState();
+
+		Map<String, CredentialPublicInformation> s = entity.getCredentialInfo()
+				.getCredentialsState();
 		CredentialPublicInformation credPublicInfo = s.get(toEdit.getName());
-		
+
 		credentialStatus.removeAllComponents();
 		Label status = new Label(getStatusIcon(credPublicInfo.getState()) + " "
 				+ msg.getMessage("CredentialStatus."
 						+ credPublicInfo.getState().toString()));
 		status.setContentMode(ContentMode.HTML);
 		credentialStatus.addComponent(status);
-		ComponentsContainer viewer = credEditor.getViewer(credPublicInfo.getExtraInformation());
-		
+		ComponentsContainer viewer = credEditor
+				.getViewer(credPublicInfo.getExtraInformation());
+
 		if (viewer == null)
 		{
 			credentialStatus.setVisible(false);
@@ -225,22 +217,24 @@ public class SingleCredentialPanel extends VerticalLayout
 			invalidate.setEnabled(true);
 		}
 	}
-	
+
 	private boolean isCurrentCredentialVerificationRequired(CredentialDefinition chosen)
 	{
 		EntityParam entityP = new EntityParam(entity.getId());
 		try
 		{
-			return ecredMan.isCurrentCredentialRequiredForChange(entityP, chosen.getName());
+			return ecredMan.isCurrentCredentialRequiredForChange(entityP,
+					chosen.getName());
 		} catch (EngineException e)
 		{
 			log.debug("Got exception when asking about possibility to "
 					+ "change the credential without providing the existing one."
-					+ " Most probably the subsequent credential change will also fail.", e);
+					+ " Most probably the subsequent credential change will also fail.",
+					e);
 			return true;
 		}
 	}
-	
+
 	public boolean updateCredential(boolean showSuccess)
 	{
 		String secrets, currentSecrets = null;
@@ -251,7 +245,8 @@ public class SingleCredentialPanel extends VerticalLayout
 			secrets = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
+			NotificationPopup.showError(msg, msg
+					.getMessage("CredentialChangeDialog.credentialUpdateError"),
 					e.getMessage());
 			return false;
 		}
@@ -259,21 +254,25 @@ public class SingleCredentialPanel extends VerticalLayout
 		try
 		{
 			if (askAboutCurrent)
-				ecredMan.setEntityCredential(entityP, toEdit.getName(), secrets, currentSecrets);
+				ecredMan.setEntityCredential(entityP, toEdit.getName(), secrets,
+						currentSecrets);
 			else
 				ecredMan.setEntityCredential(entityP, toEdit.getName(), secrets);
-		}  catch (IllegalCredentialException e)
+		} catch (IllegalCredentialException e)
 		{
 			credEditor.setCredentialError(e);
 			return false;
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"CredentialChangeDialog.credentialUpdateError"), e);
 			return false;
 		}
 		credEditor.setCredentialError(null);
 		if (showSuccess)
-			NotificationPopup.showSuccess(msg, msg.getMessage("CredentialChangeDialog.credentialUpdated"), "");
+			NotificationPopup.showSuccess(msg,
+					msg.getMessage("CredentialChangeDialog.credentialUpdated"),
+					"");
 		changed = true;
 		loadEntity(entityP);
 		updateCredentialStatus();
@@ -288,13 +287,14 @@ public class SingleCredentialPanel extends VerticalLayout
 			ecredMan.setEntityCredentialStatus(entityP, toEdit.getName(), desiredState);
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.credentialUpdateError"), e);
+			NotificationPopup.showError(msg, msg.getMessage(
+					"CredentialChangeDialog.credentialUpdateError"), e);
 			return;
 		}
 		loadEntity(entityP);
 		updateCredentialStatus();
 	}
-	
+
 	private void loadEntity(EntityParam entityP)
 	{
 		try
@@ -302,7 +302,9 @@ public class SingleCredentialPanel extends VerticalLayout
 			entity = entityMan.getEntity(entityP);
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("CredentialChangeDialog.entityRefreshError"), e);
+			NotificationPopup.showError(msg,
+					msg.getMessage("CredentialChangeDialog.entityRefreshError"),
+					e);
 		}
 	}
 
