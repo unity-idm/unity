@@ -89,22 +89,28 @@ public class CredentialsPanel extends VerticalLayout
 					msg.getMessage("CredentialChangeDialog.noCredentials")));
 			return;
 		}
-		panels = new ArrayList<>();
-		int last = credentials.size();
-		int credSize = credentials.size();
+		panels = new ArrayList<>();	
 		for (CredentialDefinition credDef : credentials.values())
 		{
 			SingleCredentialPanel panel = new SingleCredentialPanel(msg, entityId,
 					ecredMan, entityMan, credEditorReg, credDef, simpleMode,
 					true);
-			
-			panels.add(panel);
+			if (!panel.isEmptyEditor())
+			{
+				panels.add(panel);
+			}
+		}
+		
+		int last = panels.size();
+		int credSize = panels.size();
+		for (SingleCredentialPanel panel: panels)
+		{
 			if (last > 0 && last < credSize)
 				addComponent(HtmlTag.horizontalLine());
 			addComponent(panel);
 			last--;
-			
 		}
+		
 		setSizeFull();
 	}
 		

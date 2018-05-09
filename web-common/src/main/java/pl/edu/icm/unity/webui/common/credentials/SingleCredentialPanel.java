@@ -58,6 +58,7 @@ public class SingleCredentialPanel extends VerticalLayout
 	private Button clear;
 	private Button invalidate;
 	private CredentialEditor credEditor;
+	private ComponentsContainer credEditorComp;
 	private CredentialDefinition toEdit;
 	
 	
@@ -90,7 +91,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
 		askAboutCurrent = isCurrentCredentialVerificationRequired(toEdit);
 
-		ComponentsContainer credEditorComp = credEditor.getEditor(askAboutCurrent,
+		credEditorComp = credEditor.getEditor(askAboutCurrent,
 				toEdit.getConfiguration(), true, entityId, !simpleMode);
 
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
@@ -143,7 +144,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		FormLayout fl = new CompactFormLayout(credentialName, credentialStatus);
 		fl.setMargin(true);
 		addComponent(fl);
-		if (credEditorComp.getComponents().length > 0)
+		if (!isEmptyEditor())
 		{
 			fl.addComponent(new Label());
 			fl.addComponents(credEditorComp.getComponents());
@@ -160,6 +161,11 @@ public class SingleCredentialPanel extends VerticalLayout
 		return changed;
 	}
 
+	public boolean isEmptyEditor()
+	{
+		return credEditorComp.getComponents().length == 0;
+	}
+	
 	private String getStatusIcon(LocalCredentialState state)
 	{
 		if (state.equals(LocalCredentialState.correct))
