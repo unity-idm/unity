@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
@@ -71,62 +70,18 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				CredentialHandler.CREDENTIAL_OBJECT_TYPE))
 		{
-			if (objContent.get("typeId").asText().equals("password"))
-				updateResetSettings(objContent);
-		}	
-		
-	}
-	
-	private void updateResetSettings(ObjectNode content)
-	{
-		ObjectNode configurationNode = null;
-		try
-		{
-			configurationNode = (ObjectNode) Constants.MAPPER
-					.readTree(content.get("configuration").asText());
-		} catch (IOException e)
-		{
-			log.warn("Can't update credential reset settings, skipping it", e);
-			return;
+			UpdateHelper.updateCredentialsDefinition(objContent);
 		}
 
-		if (configurationNode.get("resetSettings") != null)
-		{
-
-			ObjectNode reset = (ObjectNode) configurationNode.get("resetSettings");
-			if (reset.has("requireEmailConfirmation"))
-			{
-				boolean reqEmail = reset.get("requireEmailConfirmation").asBoolean();
-				reset.remove("requireEmailConfirmation");
-				if (reqEmail)
-				{
-					reset.put("confirmationMode", "RequireEmail");
-					if (reset.get("securityCodeMsgTemplate") != null)
-					{
-						reset.put("emailSecurityCodeMsgTemplate", reset
-							.get("securityCodeMsgTemplate").asText());
-						reset.remove("securityCodeMsgTemplate");
-					}
-				} else
-				{
-					reset.put("confirmationMode", "NothingRequire");
-				}
-				configurationNode.set("resetSettings", reset);
-				content.put("configuration", configurationNode.toString());
-			}
-		}
 	}
-	
+
 	private void updateNotificationChannels(ObjectNode contents)
 	{
 		for (ObjectNode objContent : getGenericContent(contents,
 				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID))
 		{
-			if (objContent.get("name").asText().equals("Default e-mail channel"))
-				objContent.put("name", "default_email");
-			if (objContent.get("name").asText().equals("Default SMS channel"))
-				objContent.put("name", "default_sms");
-		}	
+			UpdateHelper.updateNotificationChannel(objContent);
+		}
 	}
 
 	private void moveConfirmationConfiguration(ObjectNode contents)
@@ -136,10 +91,10 @@ public class JsonDumpUpdateFromV4 implements Update
 
 		for (ObjectNode objContent : getGenericContent(contents,
 				"confirmationConfiguration"))
-		{	
+		{
 			EmailConfirmationConfiguration emailConfig = new EmailConfirmationConfiguration();
 			emailConfig.setMessageTemplate(objContent.get("msgTemplate").asText());
-			if (objContent.get("validityTime") != null) 
+			if (objContent.get("validityTime") != null)
 				emailConfig.setValidityTime(objContent.get("validityTime").asInt());
 
 			if (objContent.get("typeToConfirm").asText().equals("attribute"))
@@ -157,6 +112,16 @@ public class JsonDumpUpdateFromV4 implements Update
 			}
 		}
 
+		updateAttributeTypes(attrsConfig, contents);
+		updateIdentityTypes(idsConfig, contents);
+
+		log.info("Removing all confirmationConfiguration objects");
+		contents.remove("confirmationConfiguration");
+	}
+
+	private void updateAttributeTypes(Map<String, EmailConfirmationConfiguration> attrsConfig,
+			ObjectNode contents)
+	{
 		ArrayNode attrTypes = (ArrayNode) contents.get("attributeTypes");
 		if (attrTypes != null)
 		{
@@ -170,10 +135,17 @@ public class JsonDumpUpdateFromV4 implements Update
 					{
 						ObjectNode nodeO = (ObjectNode) node;
 						nodeO.set("syntaxState", emailConfig.toJson());
+						log.info("Updating attribute type {}, setting confirmationConfiguration to {}",
+								name, emailConfig.toJson());
 					}
 
 			}
 		}
+	}
+
+	private void updateIdentityTypes(Map<String, EmailConfirmationConfiguration> idsConfig,
+			ObjectNode contents)
+	{
 		ArrayNode idTypes = (ArrayNode) contents.get("identityTypes");
 		if (idTypes != null)
 
@@ -181,7 +153,7 @@ public class JsonDumpUpdateFromV4 implements Update
 			for (JsonNode node : idTypes)
 			{
 				String name = node.get("name").asText();
-				EmailConfirmationConfiguration emailConfig = attrsConfig.get(name);
+				EmailConfirmationConfiguration emailConfig = idsConfig.get(name);
 				if (emailConfig != null)
 					if (node.get("identityTypeProvider").asText()
 							.equals("email"))
@@ -190,11 +162,12 @@ public class JsonDumpUpdateFromV4 implements Update
 						ObjectNode nodeO = (ObjectNode) node;
 						nodeO.set("emailConfirmationConfiguration",
 								emailConfig.toJson());
+						log.info("Updating identity type {}, setting confirmationConfiguration to {}",
+								name, emailConfig.toJson());
+
 					}
 			}
 		}
-		
-		contents.remove("confirmationConfiguration");
 	}
 
 	private Set<ObjectNode> getGenericContent(ObjectNode contents, String type)
@@ -216,8 +189,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				InvitationHandler.INVITATION_OBJECT_TYPE))
 		{
-			if (objContent.has("channelId"))
-				objContent.remove("channelId");
+			UpdateHelper.updateInvitationWithCode(objContent);
 		}
 	}
 
@@ -226,18 +198,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE))
 		{
-			if (objContent.get("consumer").asText().equals("Confirmation"))
-			{
-				objContent.put("consumer", "EmailConfirmation");
-			}
-			
-			if (objContent.get("consumer").asText().equals("PasswordResetCode"))
-			{
-				objContent.put("consumer", "EmailPasswordResetCode");
-			}
-			
-			if (!objContent.get("consumer").asText().equals("Generic"))
-				objContent.put("notificationChannel", "default_email");
+			UpdateHelper.updateMessageTemplates(objContent);
 		}
 	}
 
@@ -245,20 +206,16 @@ public class JsonDumpUpdateFromV4 implements Update
 	{
 		for (ObjectNode objContent : getGenericContent(contents, fromType))
 		{
-			ObjectNode notCfg = (ObjectNode) objContent
-					.get("NotificationsConfiguration");
-			if (notCfg.has("channel"))
-				notCfg.remove("channel");
+			UpdateHelper.dropChannelFromGenericForm(objContent, fromType);
 		}
 	}
 
-	
 	private void updateEmailIdentitiesCmpValueToLowercase(ObjectNode contents)
 	{
 		ArrayNode ids = (ArrayNode) contents.get("identities");
 		if (ids == null)
 			return;
-		for (JsonNode node: ids)
+		for (JsonNode node : ids)
 			updateEmailIdentityCmpValueToLowercase((ObjectNode) node);
 	}
 
@@ -267,10 +224,10 @@ public class JsonDumpUpdateFromV4 implements Update
 		String type = src.get("typeId").asText();
 		if (!"email".equals(type))
 			return;
-		
+
 		String value = src.get("value").asText();
 		String updated = new VerifiableEmail(value).getComparableValue();
-		log.info("Updating email cmp value to be lowercase {} -> {}", 
+		log.info("Updating email cmp value to be lowercase {} -> {}",
 				src.get("comparableValue"), updated);
 		src.put("comparableValue", updated);
 	}
