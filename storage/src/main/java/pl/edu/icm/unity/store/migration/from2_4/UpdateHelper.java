@@ -33,7 +33,7 @@ public class UpdateHelper
 		if (notCfg.has("channel"))
 		{
 			notCfg.remove("channel");
-			log.info("Removing notification channel from {} {}", objContent.get("Name").asText(),
+			log.info("Removing notification channel from {} {}", getName(objContent),
 					type == EnquiryFormHandler.ENQUIRY_FORM_OBJECT_TYPE
 							? "enquiry form"
 							: "registration form");		
@@ -59,7 +59,7 @@ public class UpdateHelper
 		if (newName != null)
 		{
 			log.info("Updating notification channel {}, changing name to {}",
-					objContent.get("name").asText(), newName);
+					getName(objContent), newName);
 			objContent.put("name", newName);
 			return Optional.of(objContent);
 		}
@@ -72,7 +72,7 @@ public class UpdateHelper
 		if (objContent.has("channelId")) 
 		{
 			objContent.remove("channelId");
-			log.info("Removing channelId from invitation {}", objContent.get("name").asText());
+			log.info("Removing channelId from invitation {}",  getName(objContent));
 		}
 		
 		return Optional.empty();
@@ -120,7 +120,7 @@ public class UpdateHelper
 	{
 		if (objContent.get("typeId").asText().equals("password"))
 		{
-			if (updateResetSettings(objContent, objContent.get("name").asText()))
+			if (updateResetSettings(objContent, getName(objContent)))
 				return Optional.of(objContent);
 		}
 		
@@ -180,5 +180,14 @@ public class UpdateHelper
 
 		return false;
 
+	}
+	private static final String getName(ObjectNode objContent)
+	{
+		if (objContent.has("name"))
+			return objContent.get("name").asText();
+		if (objContent.has("Name"))
+			return objContent.get("Name").asText();
+		
+		return objContent.toString();
 	}
 }
