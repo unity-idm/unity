@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeBean;
@@ -151,10 +152,12 @@ public class InDBUpdateFromSchema2_2
 				at.setName(attr.getName());
 				at.setValueSyntax(attr.getValueSyntaxId());
 				at.fromJsonBase(JsonUtil.parse(attr.getContents()));
-				at.setValueSyntaxConfiguration(emailConfig.toJson());
+				ObjectNode main = Constants.MAPPER.createObjectNode();
+				main.set("emailConfirmationConfiguration", emailConfig.toJson());
+				at.setValueSyntaxConfiguration(main);
 				attr.setContents(JsonUtil.serialize2Bytes(at.toJsonBase()));
 				log.info("Updating attribute type {}, setting confirmationConfiguration to {}",
-						attr.getName(), emailConfig.toJson());
+						at.toJsonBase(), emailConfig.toJson());
 				attributeTypesMapper.updateByKey(attr);
 			}
 		}
