@@ -122,6 +122,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		currentMobileAttr.setEmptySelectionAllowed(false);
 		currentMobileAttr.setRequiredIndicatorVisible(true);
 
+		
 		List<String> userMobiles = getUserMobiles(entityId);
 		if (!userMobiles.isEmpty())
 		{
@@ -184,7 +185,12 @@ public class SMSCredentialEditor implements CredentialEditor
 		{
 
 			credentialSource.setValue(CredentialSource.New);
+			if (entityId == null)
+			{
+				credentialSource.setVisible(false);
+			}
 		}
+		
 		return ret;
 	}
 
@@ -200,10 +206,13 @@ public class SMSCredentialEditor implements CredentialEditor
 		skipUpdate = false;
 	}
 
-	private List<String> getUserMobiles(long entityId)
+	private List<String> getUserMobiles(Long entityId)
 	{
 
 		List<String> ret = new ArrayList<>();
+		if (entityId == null)
+			return ret;
+		
 		AttributeExt attributeByMetadata = null;
 		try
 		{
