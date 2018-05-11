@@ -162,7 +162,10 @@ public class SMSCredentialDefinitionEditor implements CredentialDefinitionEditor
 					.get();
 		}
 		confirmationConfigEditor = new MobileNumberConfirmationConfigurationEditor(
-				confirmationConfig, msg, msgTplMan, "SMSCredentialDefinitionEditor.newMobile.");
+				confirmationConfig, msg, msgTplMan,
+				"SMSCredentialDefinitionEditor.newMobile.",
+				SMSCredential.DEFAULT_VALIDITY);
+
 		confirmationConfigEditor.addFieldToLayout(form);
 		
 		return form;

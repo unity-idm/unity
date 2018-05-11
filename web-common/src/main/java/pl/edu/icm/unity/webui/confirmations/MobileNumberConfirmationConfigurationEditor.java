@@ -36,15 +36,23 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 	private IntStepper validityTime;
 	private IntStepper codeLength;
 	private String msgPrefix;
-	
+	private int defaultValidity;
+
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
 			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix)
+	{
+		this(initial, msg, msgTemplateMan, msgPrefix, EmailConfirmationConfiguration.DEFAULT_VALIDITY);
+	}
+	
+	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
+			UnityMessageSource msg, MessageTemplateManagement msgTemplateMan, String msgPrefix, int defaultValidity)
 	{
 		this.initial = initial;
 		this.msg = msg;
 		this.msgTemplateMan = msgTemplateMan;
 		this.msgPrefix = msgPrefix;
-		initUI();
+		this.defaultValidity = defaultValidity;
+		initUI();	
 	}
 	
 	public MobileNumberConfirmationConfigurationEditor(MobileNumberConfirmationConfiguration initial,
@@ -100,7 +108,7 @@ public class MobileNumberConfirmationConfigurationEditor extends CompactFormLayo
 		{
 			MobileNumberConfirmationConfiguration init = new MobileNumberConfirmationConfiguration();
 			init.setMessageTemplate(msgTemplate.getValue());
-			init.setValidityTime(EmailConfirmationConfiguration.DEFAULT_VALIDITY);
+			init.setValidityTime(defaultValidity);
 			init.setCodeLength(MobileNumberConfirmationConfiguration.DEFAULT_CODE_LENGTH);
 			binder.setBean(init);
 		}

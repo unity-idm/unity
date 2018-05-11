@@ -71,6 +71,12 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		}
 			
 	}
+	
+	@Override
+	public void focus()
+	{
+		editor.focus();
+	}
 
 	@Override
 	public String getValue()

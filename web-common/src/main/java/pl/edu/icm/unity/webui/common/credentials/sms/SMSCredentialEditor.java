@@ -181,10 +181,13 @@ public class SMSCredentialEditor implements CredentialEditor
 		if (!userMobiles.isEmpty())
 		{
 			credentialSource.setValue(CredentialSource.Existing);
+			currentMobileAttr.focus();
 		} else
 		{
 
 			credentialSource.setValue(CredentialSource.New);
+			editor.focus();
+			
 			if (entityId == null)
 			{
 				credentialSource.setVisible(false);

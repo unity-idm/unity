@@ -58,21 +58,28 @@ public class PasswordCredentialEditor implements CredentialEditor
 		
 		ComponentsContainer ret = new ComponentsContainer();
 
+		password1 = new PasswordEditComponent(msg, helper);
+
 		if (askAboutCurrent)
 		{
-			passwordCurrent = new PasswordField(msg.getMessage(
-					"PasswordCredentialEditor.currentPassword"));
+			passwordCurrent = new PasswordField(
+					msg.getMessage("PasswordCredentialEditor.currentPassword"));
 			ret.add(passwordCurrent);
+			passwordCurrent.focus();
+		} else
+		{
+			password1.focus();
 		}
-		password1 = new PasswordEditComponent(msg, helper);
-		password1.focus();
+	
 		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
 		if (required)
 		{
 			password1.setRequiredIndicatorVisible(true);
 			password2.setRequiredIndicatorVisible(true);
-			if (askAboutCurrent)
+			if (askAboutCurrent) 
+			{
 				passwordCurrent.setRequiredIndicatorVisible(true);
+			}
 		}
 		ret.add(password1.getAsContainer().getComponents());
 		ret.add(password2);
@@ -169,7 +176,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 	{
 		if (askAboutCurrent && required && passwordCurrent.getValue().isEmpty())
 		{
-			throw new IllegalCredentialException(msg.getMessage("fieldRequired"));
+			throw new IllegalCredentialException(msg.getMessage("PasswordCredentialEditor.oldPasswordRequired"));
 		} else
 		{
 			passwordCurrent.setComponentError(null);

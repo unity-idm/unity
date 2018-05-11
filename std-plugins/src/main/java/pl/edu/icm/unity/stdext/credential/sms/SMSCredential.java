@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration
  */
 public class SMSCredential
 {
-	public static final int DEFAULT_VALIDITY = 48*60;
+	public static final int DEFAULT_VALIDITY = 15;
 	public static final int DEFAULT_CODE_LENGTH = 6;
 	private static final int AUTHN_SMS_LIMIT = 3;
 	
