@@ -8,13 +8,11 @@ public class MessageBundleSpec
 {
 	private String name;
 	private String baseLocation;
-	private String[] enabledLocales;
 	
-	public MessageBundleSpec(String name, String baseLocation, String... enabledLocales)
+	public MessageBundleSpec(String name, String baseLocation)
 	{
 		this.name = name;
 		this.baseLocation = baseLocation;
-		this.enabledLocales = enabledLocales;
 	}
 
 	public String getName()
@@ -25,10 +23,5 @@ public class MessageBundleSpec
 	public String getBaseLocation()
 	{
 		return baseLocation;
-	}
-
-	public String[] getEnabledLocales()
-	{
-		return enabledLocales;
 	}
 }
