@@ -1,0 +1,78 @@
+{
+	"ver": "2",
+	"name": "sys:intuit",
+	"description": "Translation profile for Intiut (Quickbooks etc) authentication",
+	"type": "INPUT",
+	"rules": [
+		{
+			"condition": {
+				"conditionValue": "true"
+			},
+			"action": {
+				"name": "mapIdentity",
+				"parameters": [
+					"identifier",
+					"attr['sub']",
+					"sys:all",
+					"CREATE_OR_MATCH"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "(attr contains 'givenName') && (attr contains 'familyName')"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"name",
+					"/",
+					"attr['givenName'] + ' ' + attr['familyName']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'givenName'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"firstname",
+					"/",
+					"attr['givenName']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'familyName'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"surname",
+					"/",
+					"attr['familyName']",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		},
+		{
+			"condition": {
+				"conditionValue": "attr contains 'email'"
+			},
+			"action": {
+				"name": "mapAttribute",
+				"parameters": [
+					"email",
+					"/",
+					"attr['email'] + ((attr contains 'emailVerified') ? (( attr['emailVerified'] == true) ? '[CONFIRMED]' : '[UNCONFIRMED]') : '[UNCONFIRMED]')",
+					"CREATE_OR_UPDATE"
+				]
+			}
+		}
+	]
+}
