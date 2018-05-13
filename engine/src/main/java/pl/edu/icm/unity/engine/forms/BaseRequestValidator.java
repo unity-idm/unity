@@ -20,6 +20,8 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -109,7 +111,14 @@ public class BaseRequestValidator
 			if (at == null)
 				throw new WrongArgumentException("Attribute of the form "
 						+ attr.getName() + " does not exist anymore");
-			attributesHelper.validate(attr, at);
+			try
+			{
+				attributesHelper.validate(attr, at);
+			} catch (IllegalAttributeValueException|IllegalAttributeTypeException e)
+			{
+				throw new IllegalAttributeValueException("Invalid value for the '"  
+						+ attr.getName() + "' attribute", e);
+			}
 		}
 	}
 

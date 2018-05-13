@@ -51,6 +51,8 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	private MainTabPanel tabPanel;
 	private HomeEndpointProperties config;
+	private VerticalLayout mainWrapper;
+	private VerticalLayout contents;
 	
 	@Autowired
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
@@ -79,11 +81,11 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		VerticalLayout contents = new VerticalLayout();
+		contents = new VerticalLayout();
 		contents.setMargin(false);
 		contents.setSpacing(false);
 
-		final VerticalLayout mainWrapper = new VerticalLayout();
+		mainWrapper = new VerticalLayout();
 		mainWrapper.setSizeFull();
 		mainWrapper.setSpacing(false);
 
@@ -95,7 +97,8 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 					@Override
 					public void showView(boolean admin)
 					{
-						switchView(mainWrapper, admin ? tabPanel : userAccount);
+						switchView(admin ? tabPanel : userAccount,
+								!admin);
 					}
 				});
 
@@ -113,7 +116,7 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 		
 		setContent(contents);
 	
-		switchView(mainWrapper, tabPanel);
+		switchView(tabPanel, false);
 	}
 
 	private void createMainTabPanel()
@@ -123,12 +126,21 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 		tabPanel.addStyleName(Styles.largeTabsheet.toString());
 	}
 	
-	private void switchView(VerticalLayout contents, com.vaadin.ui.Component component)
+	private void switchView(com.vaadin.ui.Component component, boolean setUndefinedHeight)
 	{
-		contents.removeAllComponents();
-		contents.addComponent(component);
-		contents.setComponentAlignment(component, Alignment.TOP_CENTER);
-		contents.setExpandRatio(component, 1.0f);		
+		mainWrapper.removeAllComponents();
+		mainWrapper.addComponent(component);
+		mainWrapper.setComponentAlignment(component, Alignment.TOP_CENTER);
+		mainWrapper.setExpandRatio(component, 1.0f);
+		if (setUndefinedHeight)
+		{
+			mainWrapper.setHeightUndefined();
+			contents.setHeightUndefined();
+		} else
+		{
+			mainWrapper.setHeight(100, Unit.PERCENTAGE);
+			contents.setHeight(100, Unit.PERCENTAGE);
+		}
 	}
 	
 	@Override
