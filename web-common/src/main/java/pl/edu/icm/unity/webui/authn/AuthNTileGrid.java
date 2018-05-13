@@ -72,21 +72,24 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 
 		providers = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(providers);
-		providersChoice = new Grid<AuthNTileGrid.AuthNTileProvider>(dataProvider);
+		providersChoice = new Grid<>(dataProvider);
 		providersChoice.setSelectionMode(SelectionMode.NONE);
 
-		providersChoice.addColumn(AuthNTileProvider::getImage, new ImageRenderer<>());
-		Column<AuthNTileProvider, NameWithTags> namColumn = providersChoice
+		Column<AuthNTileProvider, Resource> imageColumn = providersChoice.addColumn(
+				AuthNTileProvider::getImage, new ImageRenderer<>());
+		Column<AuthNTileProvider, NameWithTags> nameColumn = providersChoice
 				.addColumn(AuthNTileProvider::getNameWithTags);
-		providersChoice.sort(namColumn);
+		providersChoice.sort(nameColumn);
 
 		providersChoice.addStyleName(Styles.idpTile.toString());
 		providersChoice.setHeaderVisible(false);
 		providersChoice.setSizeFull();
 		providersChoice.setStyleGenerator(item -> "idpentry_" + item.getId());
-
-		providersChoice.addItemClickListener(event -> {
-
+		imageColumn.setWidth(120);
+		nameColumn.setExpandRatio(1);
+		
+		providersChoice.addItemClickListener(event -> 
+		{
 			String globalId = event.getItem().getId();
 			listener.selectionChanged(authenticatorById.get(globalId),
 					authNOptionsById.get(globalId), globalId);
