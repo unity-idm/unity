@@ -81,6 +81,7 @@ public class ListOfSelectableElements extends CustomComponent
 		VerticalLayout layout = new VerticalLayout(component);
 		layout.setMargin(false);
 		layout.setSpacing(false);
+		component.setWidth(100, Unit.PERCENTAGE);
 		return layout;
 	}
 	
