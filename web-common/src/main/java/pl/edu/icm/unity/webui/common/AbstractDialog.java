@@ -48,8 +48,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 
 	public enum SizeMode {LARGE, MEDIUM, SMALL}
 	
-	private Button confirm;
-	private Button cancel;
+	protected Button confirm;
+	protected Button cancel;
 	private Button enterButton;
 	private Button escapeButton;
 	protected Component contentsComponent;
@@ -131,7 +131,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	 * @return by default returns the first {@link AbstractField} which is found in the dialog contents
 	 * or null if none is found. Override to set the initial focus on other element.
 	 */
-	protected AbstractField<?> getFocussedComponent()
+	protected Focusable getFocussedComponent()
 	{
 		return getFocussedComponentRec(contentsComponent);
 	}
@@ -247,7 +247,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		}
 		UI.getCurrent().addWindow(this);
 		focus();
-		AbstractField<?> toFocus = getFocussedComponent();
+		Focusable toFocus = getFocussedComponent();
 		if (toFocus != null)
 			toFocus.focus();
 	}

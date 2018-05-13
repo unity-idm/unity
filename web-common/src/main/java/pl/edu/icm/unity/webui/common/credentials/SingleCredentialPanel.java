@@ -9,9 +9,11 @@ import java.util.Map;
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -93,7 +95,7 @@ public class SingleCredentialPanel extends VerticalLayout
 
 		credEditorComp = credEditor.getEditor(askAboutCurrent,
 				toEdit.getConfiguration(), true, entityId, !simpleMode);
-
+		
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
 		clear.setIcon(Images.undeploy.getResource());
 		clear.addClickListener(new ClickListener()
@@ -156,6 +158,14 @@ public class SingleCredentialPanel extends VerticalLayout
 		updateCredentialStatus();
 	}
 
+	public AbstractField<?> getFocussedComponent()
+	{
+		for (Component component: credEditorComp.getComponents())
+			if (component instanceof AbstractField<?>)
+				return (AbstractField<?>) component;
+		return null;
+	}
+	
 	public boolean isChanged()
 	{
 		return changed;

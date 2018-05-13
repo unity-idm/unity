@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -18,7 +19,6 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.credentials.SingleCredentialChangeDialog;
-import pl.edu.icm.unity.webui.common.credentials.SingleCredentialChangeDialog.Callback;
 
 /**
  * Simple dialog wrapping {@link SingleCredentialChangeDialog}. It is invoked for users logged with outdated
@@ -62,14 +62,9 @@ public class OutdatedCredentialDialog extends AbstractDialog
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		SingleCredentialChangeDialog dialog = credChangeDialogFactory.getObject().init(ls.getEntityId(), 
 				true,
-				new Callback()
-				{
-					@Override
-					public void onClose(boolean changed)
-					{
-						afterCredentialUpdate(changed);
-					}
-				}, ls.getOutdatedCredentialId());
+				changed -> afterCredentialUpdate(changed), 
+				ls.getOutdatedCredentialId());
+		close();
 		dialog.show();
 	}
 
@@ -94,6 +89,18 @@ public class OutdatedCredentialDialog extends AbstractDialog
 			{
 				OutdatedCredentialDialog.this.onCancel();
 				close();
+			}
+			
+			@Override
+			protected Button getDefaultOKButton()
+			{
+				return confirm;
+			}
+			
+			@Override
+			protected Focusable getFocussedComponent()
+			{
+				return confirm;
 			}
 			
 			@Override

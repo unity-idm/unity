@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -94,14 +95,20 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 
 		return ui;
 	}
-
+	
+	@Override
+	protected AbstractField<?> getFocussedComponent()
+	{
+		return ui.getFocussedComponent();
+	}
+	
 	@Override
 	protected void onConfirm()
 	{
 		if (!ui.updateCredential(false))
 			return;
-		callback.onClose(ui.isChanged());
 		close();
+		callback.onClose(ui.isChanged());
 	}
 
 	@Override
