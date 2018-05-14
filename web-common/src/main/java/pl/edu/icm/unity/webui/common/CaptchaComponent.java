@@ -22,6 +22,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
@@ -100,6 +101,11 @@ public class CaptchaComponent
 				reset();
 			}
 		});
+	}
+	
+	public Focusable getFocussTarget()
+	{
+		return answer;
 	}
 	
 	public void reset()

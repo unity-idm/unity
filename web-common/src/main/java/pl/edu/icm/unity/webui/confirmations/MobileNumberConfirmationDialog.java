@@ -45,7 +45,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 	private SMSCode code;
 	private String mobileToConfirm;
 	private ConfirmationInfo confirmationInfo;
-	private Component capchaComponent;
+	private Component captchaComponent;
 	private Component confirmCodeComponent;
 	private boolean capchaVerified = false;
 	private Label errorLabel;
@@ -64,11 +64,11 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 		this.mobileToConfirm = mobileToConfirm;
 		this.confirmationInfo = confirmatioInfo;
 		
-		this.capchaComponent = getCapchaComponent();
-		this.capchaComponent.setVisible(false);
+		this.captchaComponent = getCapchaComponent();
+		this.captchaComponent.setVisible(false);
 		this.confirmCodeComponent = getConfirmCodeComponent();
 		this.confirmCodeComponent.setVisible(false);
-		setSizeMode(SizeMode.MEDIUM);
+		setSize(50, 40);
 	}
 
 	
@@ -112,17 +112,23 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 	{	
 		if (isCapchaNeeded())
 		{
-			capchaComponent.setVisible(true);
-		}else 
+			captchaComponent.setVisible(true);
+		} else 
 		{
 			capchaVerified = true;
 			sendVerificationCode();
 			confirmCodeComponent.setVisible(true);
 		}
 		VerticalLayout main = new VerticalLayout();
-		main.addComponents(capchaComponent, confirmCodeComponent);
+		main.addComponents(captchaComponent, confirmCodeComponent);
 		main.setSizeFull();
 		return main;
+	}
+	
+	@Override
+	protected Focusable getFocussedComponent()
+	{
+		return captchaComponent.isVisible() ? captcha.getFocussTarget() : field;
 	}
 	
 	private void sendVerificationCode()
@@ -153,7 +159,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 				captcha.verify();
 				capchaVerified = true;
 				sendVerificationCode();
-				capchaComponent.setVisible(false);
+				captchaComponent.setVisible(false);
 				confirmCodeComponent.setVisible(true);
 				return;
 			} catch (WrongArgumentException e)
