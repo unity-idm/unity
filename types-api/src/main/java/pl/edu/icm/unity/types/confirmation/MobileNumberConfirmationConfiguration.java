@@ -20,7 +20,7 @@ import pl.edu.icm.unity.JsonUtil;
  */
 public class MobileNumberConfirmationConfiguration
 {	
-	public static final int DEFAULT_VALIDITY = 1;
+	public static final int DEFAULT_VALIDITY = 15;
 	public static final int DEFAULT_CODE_LENGTH = 6;
 	
 	private String messageTemplate;	
