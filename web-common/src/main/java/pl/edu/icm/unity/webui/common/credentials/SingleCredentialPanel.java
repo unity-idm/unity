@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.credentials;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
@@ -20,6 +21,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
+import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -47,6 +50,7 @@ public class SingleCredentialPanel extends VerticalLayout
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
+	private CredentialManagement credMan;
 	private UnityMessageSource msg;
 	private boolean changed = false;
 	private Entity entity;
@@ -65,12 +69,14 @@ public class SingleCredentialPanel extends VerticalLayout
 	
 	
 	public SingleCredentialPanel(UnityMessageSource msg, long entityId,
-			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialEditorRegistry credEditorReg, CredentialDefinition toEdit,
-			boolean simpleMode, boolean showButtons) throws Exception
+			EntityCredentialManagement ecredMan, CredentialManagement credMan,
+			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
+			CredentialDefinition toEdit, boolean simpleMode, boolean showButtons)
+			throws Exception
 	{
 		this.msg = msg;
 		this.ecredMan = ecredMan;
+		this.credMan = credMan;
 		this.entityId = entityId;
 		this.entityMan = entityMan;
 		this.credEditorReg = credEditorReg;
@@ -138,7 +144,10 @@ public class SingleCredentialPanel extends VerticalLayout
 			if (!simpleMode)
 			{
 				buttonsBar.addComponent(clear);
-				buttonsBar.addComponent(invalidate);
+				if (isSupportInvalidate(toEdit.getTypeId()))
+				{
+					buttonsBar.addComponent(invalidate);
+				}
 			}
 			buttonsBar.addComponent(update);
 		}
@@ -184,6 +193,25 @@ public class SingleCredentialPanel extends VerticalLayout
 			return Images.undeploy.getHtml();
 		else
 			return Images.warn.getHtml();
+	}
+	
+	private boolean isSupportInvalidate(String credType)
+	{
+		try
+		{
+			Collection<CredentialType> credentialTypes = credMan.getCredentialTypes();
+			for (CredentialType type : credentialTypes)
+			{
+				if (type.getName().equals(credType))
+				{
+					return type.isSupportingInvalidation();
+				}
+			}
+		} catch (EngineException e)
+		{
+			log.debug("Can not get credential type " + credType, e);
+		}
+		return false;
 	}
 
 	private void updateCredentialStatus()

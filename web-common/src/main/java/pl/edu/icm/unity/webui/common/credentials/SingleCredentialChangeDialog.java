@@ -85,7 +85,7 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 						"CredentialChangeDialog.cantGetCredDefs")
 						+ credentialId);
 
-			ui = new SingleCredentialPanel(msg, entityId, ecredMan, entityMan,
+			ui = new SingleCredentialPanel(msg, entityId, ecredMan, credMan, entityMan,
 					credEditorReg, credDef, simpleMode, false);
 		} catch (EngineException e)
 		{

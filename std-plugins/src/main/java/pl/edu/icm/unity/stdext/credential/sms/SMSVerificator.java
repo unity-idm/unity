@@ -153,7 +153,12 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 
 		String credentialValue = resolved.getCredentialValue();
 		if (credentialValue == null)
+		{
+			log.debug("The user {} does not have {} credential defined, skipping sending authentication code",
+					username, credentialName);
 			return null;
+		}
+			
 
 		SMSCredentialDBState credState = SMSCredentialDBState.fromJson(credentialValue);
 		String code = CodeGenerator.generateNumberCode(credential.getCodeLength());

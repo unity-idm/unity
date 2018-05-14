@@ -93,7 +93,7 @@ public class CredentialsPanel extends VerticalLayout
 		for (CredentialDefinition credDef : credentials.values())
 		{
 			SingleCredentialPanel panel = new SingleCredentialPanel(msg, entityId,
-					ecredMan, entityMan, credEditorReg, credDef, simpleMode,
+					ecredMan, credMan, entityMan, credEditorReg, credDef, simpleMode,
 					true);
 			if (!panel.isEmptyEditor())
 			{
