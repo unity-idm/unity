@@ -63,7 +63,8 @@ public class EmailIdentityEditor implements IdentityEditor
 				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"));
 		
 		ComponentsContainer ret = new ComponentsContainer(editor);
-			
+		editor.setCaption(new EmailIdentity().getHumanFriendlyName(msg) + ":");
+		
 		editor.addVerifyButtonClickListener(e -> {
 
 			if (value != null)
