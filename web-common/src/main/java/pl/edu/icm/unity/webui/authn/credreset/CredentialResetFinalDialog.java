@@ -80,6 +80,9 @@ public class CredentialResetFinalDialog extends AbstractDialog
 			updatedValue = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
+			NotificationPopup.showError(msg, msg
+					.getMessage("CredentialChangeDialog.credentialUpdateError"),
+					e.getMessage());
 			return;
 		}
 		
