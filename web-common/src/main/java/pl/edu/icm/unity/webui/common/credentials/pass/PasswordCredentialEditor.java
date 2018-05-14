@@ -107,7 +107,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 			return null;
 		
 		if (required && password1.getPassword().isEmpty())
-			throw new IllegalCredentialException(msg.getMessage("fieldRequired"));
+			throw new IllegalCredentialException(msg.getMessage("PasswordCredentialEditor.newPasswordRequired"));
 		
 		String p1 = password1.getPassword();
 		String p2 = password2.getValue();
