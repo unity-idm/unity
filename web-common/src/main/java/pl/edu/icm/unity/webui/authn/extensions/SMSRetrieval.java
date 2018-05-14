@@ -322,7 +322,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			answerField.setEnabled(true);		
 			capchaComponent.setVisible(false);
 			sendCodeButton.setVisible(false);
-		
+			answerField.focus();
 		}
 
 		public void triggerAuthentication()
