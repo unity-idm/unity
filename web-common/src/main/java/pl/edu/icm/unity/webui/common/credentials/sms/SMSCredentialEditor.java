@@ -121,7 +121,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		currentMobileAttr.setCaption(msg.getMessage("SMSCredentialEditor.newMobileNumber"));
 		currentMobileAttr.setEmptySelectionAllowed(false);
 		currentMobileAttr.setRequiredIndicatorVisible(true);
-
+		currentMobileAttr.setTextInputAllowed(false);
 		
 		List<String> userMobiles = getUserMobiles(entityId);
 		if (!userMobiles.isEmpty())
@@ -259,9 +259,31 @@ public class SMSCredentialEditor implements CredentialEditor
 
 		ret.add(new Label(msg.getMessage("SMSCredentialEditor.lastModification",
 				pei.getLastChange())));
-		ret.add(new Label(msg.getMessage("SMSCredentialEditor.mobileNumber",
-				pei.getMobile())));
+		ret.add(new Label(msg.getMessage("SMSCredentialEditor.selectedMobileNumber",
+				hideMobile(pei.getMobile()))));
 		return ret;
+	}
+	
+	private String hideMobile(String mobile)
+	{
+		StringBuilder builder = new StringBuilder();
+		if (mobile == null)
+			return builder.toString();
+
+		if (mobile.length() <= 5)
+		{
+			builder.append(mobile);
+
+		} else
+		{
+			builder.append(mobile.substring(0, 3));
+			for (int i = 3; i < mobile.length() - 2; i++)
+			{
+				builder.append("*");
+			}
+			builder.append(mobile.substring(mobile.length() - 2));
+		}
+		return builder.toString();
 	}
 
 	@Override

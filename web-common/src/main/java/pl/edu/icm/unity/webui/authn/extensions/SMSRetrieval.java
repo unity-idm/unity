@@ -190,7 +190,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			mainLayout.addComponent(capchaComponent);
 			capchaComponent.setVisible(false);
 		
-			HorizontalLayout buttons = new HorizontalLayout();
+			buttons = new HorizontalLayout();
 			buttons.setMargin(false);
 			mainLayout.addComponent(buttons);
 			mainLayout.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
