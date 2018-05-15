@@ -42,6 +42,11 @@ public class DumpUpdater
 			throw new IOException("Import of data can not be performed from dumps "
 					+ "which were created with Unity versions older then 1.9.x. "
 					+ "Update from 1.8.0 can work, but is not officially supported.");
+
+		if (header.getVersionMajor() > DumpSchemaVersion.V_SINCE_2_5_0.getVersionCode())
+				throw new IOException("Import of data can not be performed from dumps "
+						+ "which were created with Unity versions newer "
+						+ "then the current one.");
 		
 		if (header.getVersionMajor() < DumpSchemaVersion.V_INITIAL_2_0_0.getVersionCode())
 			is = performUpdate(is, updateFrom1_9_x, DumpSchemaVersion.V_INITIAL_2_0_0);
