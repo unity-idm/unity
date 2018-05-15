@@ -100,13 +100,41 @@ has changed.
 
 ==== From 2.4.0 to 2.5.0
  
-Configuration syntax change
+Version 2.5.0 changes significantly DB schema. The migration is automatic, however making a backup and 
+performing a trial migration on a DB copy first is highly recommended.
 
-. New email confirmation consumer name = +EmailConfirmation+
-. There is new message template config param +notificationChannel+. 
-All message templates (except Generic) from db after update will have set default_email channel.
-. Channel configuration is removed from other places in the system as registration forms or invitations.
+As upstream Vaadin version was updated, it is suggested to rebuild custom themes and widgetsets if are used.
+
+===== Overview
+
+Up to this version notification channel configuration (which was BTW quite dummy as only a single option was possible 
+--- the default email channel) was spread around various components. 
+From this version it is only configured as a property of a message template, 
+as typically message template is different depending on a channel (SMS or email). Migration sets the default_email 
+channel for all existing message templates in DB. 
+
+The formerly separate configuration of email attribute and identity confirmations was removed. Instead those settings
+can now be made in particular attribute type or identity type configuration. 
+
+As channel configuration is removed from other places in the system as registration forms or invitations.
 Note that this may also influence REST calls if such elements are created automatically.
-. Config key unityServer.core.confirmationRequestLimit now is unityServer.core.emailConfirmationRequestLimit
 
 
+===== Configuration syntax changes
+
+. Main +unityServer.conf+ key +unityServer.core.confirmationRequestLimit+ was renamed to 
++unityServer.core.emailConfirmationRequestLimit+
+. The message template consumer called so far +PasswordResetCode+ was renamed to +EmailPasswordResetCode+. 
+. The message template consumer called so far +Confirmation+ was renamed to +EmailConfirmation+. 
+. All message templates must have a notificationChannel property set. For existing templates channel can be safely set to
++default_email+ (for new one also +default_sms+ is an option). 
+
+The following example shows an updated configuration of a template used when sending password rest code message:  
+
+---
+emailPasswordResetCode.subject.en=Credential reset code
+emailPasswordResetCode.consumer=EmailPasswordResetCode
+emailPasswordResetCode.notificationChannel=default_email
+emailPasswordResetCode.type=HTML
+emailPasswordResetCode.bodyFile.en=path/to/template/file.html
+---
