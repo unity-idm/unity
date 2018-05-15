@@ -336,7 +336,7 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.5.1-SNAPSHOT</version>
+				<version>4.5.1</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
