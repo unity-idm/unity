@@ -108,16 +108,21 @@ As upstream Vaadin version was updated, it is suggested to rebuild custom themes
 ===== Overview
 
 Up to this version notification channel configuration (which was BTW quite dummy as only a single option was possible 
---- the default email channel) was spread around various components. 
-From this version it is only configured as a property of a message template, 
-as typically message template is different depending on a channel (SMS or email). Migration sets the default_email 
-channel for all existing message templates in DB. 
+-- the default email channel) was spread around various components. 
+From this version it is only configured as a property of a message template, as typically message template is 
+different depending on a channel (SMS or email). Migration sets the +default_email+ 
+channel for all existing message templates in DB. In effect channel configuration was removed from other 
+places in the system:
 
+. registration forms, enquiry forms
+. invitations
+. password credential reset settings (the +securityCodeMsgTemplate+ property is no longer supported)
+
+Note that this may also influence REST calls if such elements are created automatically.
+ 
 The formerly separate configuration of email attribute and identity confirmations was removed. Instead those settings
 can now be made in particular attribute type or identity type configuration. 
 
-As channel configuration is removed from other places in the system as registration forms or invitations.
-Note that this may also influence REST calls if such elements are created automatically.
 
 
 ===== Configuration syntax changes
@@ -126,15 +131,33 @@ Note that this may also influence REST calls if such elements are created automa
 +unityServer.core.emailConfirmationRequestLimit+
 . The message template consumer called so far +PasswordResetCode+ was renamed to +EmailPasswordResetCode+. 
 . The message template consumer called so far +Confirmation+ was renamed to +EmailConfirmation+. 
-. All message templates must have a notificationChannel property set. For existing templates channel can be safely set to
-+default_email+ (for new one also +default_sms+ is an option). 
+. All message templates must have a new +notificationChannel+ property set. For existing templates channel can be safely set to
++default_email+ (for new one also +default_sms+ is an option).
+. _unlikely to beused_ The 'hold on' feature of SAML and OAuth IdP endpoints was dropped. The endpoint's 
+configuration option ending with +.assumeForceOnSessionClash+ is not supported anymore and should 
+be removed from configurations. The current behaviour is as up to now with this setting set to true (what was the default).  
+. _unlikely to be used_ Password credential configuration was significantly changed due to enhancements in the password reset functionality and
+introduction of genearl security factor setting. If password credential is configured from a file it is suggested
+create a new configuration on the AdminUI and extract the credential config from JSON dump.    
 
 The following example shows an updated configuration of a template used when sending password rest code message:  
 
----
+----
 emailPasswordResetCode.subject.en=Credential reset code
 emailPasswordResetCode.consumer=EmailPasswordResetCode
 emailPasswordResetCode.notificationChannel=default_email
 emailPasswordResetCode.type=HTML
 emailPasswordResetCode.bodyFile.en=path/to/template/file.html
----
+----
+
+===== Other changes
+
+. Email identities are now comapred fully case insensitvie.
+. Registration form can now be created without any identity parameter. However to make it work at least one identity 
+still needs to be set then -- with form automation (e.g. automatically derived from an attribute).
+. Password history handling was fixed. Currently history of length 0 allows for updating password even to the same one 
+that is changed. Password history of length 1 forbids only the current password on update, etc.
+. For email attributes and identities modified by admin (typically in AdminUI) confirmation requests are never sent 
+automatically. Instead, if this is needed (unlikely), admin needs to manually trigger sending the confirmation request.   
+. For custom Groovy initialization script users only: package +pl.edu.icm.unity.stdext.credential+ was changed to
++pl.edu.icm.unity.stdext.credential.pass+, update the imports section.
