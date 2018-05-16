@@ -60,6 +60,7 @@ provides a self-contained Unity server.
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/*.xml"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/authenticators/*"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*.p12"
+%attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/*.pem"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/msgTemplates/*"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/pki/trusted-ca/*.pem"
 %attr(640, unity-idm, unity-idm) %config(noreplace) "/etc/unity-idm/i18n/*"
