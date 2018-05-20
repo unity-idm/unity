@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -133,7 +134,7 @@ public class SPSettingsEditor extends FormLayout
 			sp.setWidth(100, Unit.PERCENTAGE);
 			sp.setTextInputAllowed(true);
 			sp.setTextInputAllowed(true);
-			sp.setNewItemHandler((s) -> {});
+			sp.setNewItemProvider(s -> Optional.empty());
 			sp.setEmptySelectionAllowed(true);
 			sp.setItems(allSps);
 			addComponent(sp);

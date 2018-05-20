@@ -14,9 +14,12 @@ import java.net.URISyntaxException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
@@ -43,6 +46,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.validator.UnityAuthnRequestValidator;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 /**
  * Properties-based configuration of SAML IdP endpoint.
@@ -79,6 +83,7 @@ public class SamlIdpProperties extends SamlProperties
 	public static final String ALLOWED_SP_DN = "dn";
 	public static final String ALLOWED_SP_ENTITY = "entity";
 	public static final String ALLOWED_SP_RETURN_URL = "returnURL";
+	public static final String ALLOWED_SP_RETURN_URLS = "returnURLs.";
 	public static final String ALLOWED_SP_ENCRYPT = "encryptAssertion";
 	public static final String ALLOWED_SP_NAME = "name";
 	public static final String ALLOWED_SP_LOGO = "logoURI";
@@ -170,7 +175,12 @@ public class SamlIdpProperties extends SamlProperties
 		defaults.put(ALLOWED_SP_RETURN_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).
 				setDescription("Response consumer address of the SP. Mandatory when acceptance " +
 				"policy is +validRequester+, optional otherwise as SAML requesters may send this address" +
-				"with a request."));
+				"with a request. In case when more then one response consumer address is allowed, then this one denotes the default."));
+		defaults.put(ALLOWED_SP_RETURN_URLS, new PropertyMD().setList(false).setStructuredListEntry(ALLOWED_SP_PREFIX).setCategory(sp).
+				setDescription("List of response consumer addresses of the SP. Used only when acceptance " +
+				"policy is +validRequester+. The format for each entry is +[N]URL+ where N is the index of the endpoint " +
+				"(as used in SAML metadata spec) and URL is the endpoints address. Note that it makes perfect sense to "
+				+ "specify the default endpoint also in this list as this allows to assign it an index."));
 		defaults.put(SOAP_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
 				setCategory(sp).setDescription("SOAP Single Logout Endpoint of the SP."));
 		defaults.put(REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(ALLOWED_SP_PREFIX).
@@ -237,6 +247,7 @@ public class SamlIdpProperties extends SamlProperties
 	private SamlAttributeMapper attributesMapper;
 	private PKIManagement pkiManagement;
 	private IdentityTypeMapper idTypeMapper;
+	private Map<Integer, String> allowedRequestersByIndex;
 	
 	public SamlIdpProperties(Properties src, PKIManagement pkiManagement) throws ConfigurationException, IOException
 	{
@@ -306,33 +317,7 @@ public class SamlIdpProperties extends SamlProperties
 			
 			Set<String> allowedKeys = getStructuredListKeys(ALLOWED_SP_PREFIX);
 			for (String allowedKey: allowedKeys)
-			{
-				String returnAddress = getValue(allowedKey + ALLOWED_SP_RETURN_URL);
-				if (returnAddress == null)
-					throw new ConfigurationException("Invalid specification of allowed Service " +
-						"Provider " + allowedKey + ", return address is not set.");
-				
-				if (isSet(allowedKey + ALLOWED_SP_ENTITY) && isSet(allowedKey + ALLOWED_SP_DN))
-					throw new ConfigurationException("The allowed SP entry " + allowedKey + 
-							" has both the DN and SAML entity id defined. "
-							+ "Please use only one, which is actually used by "
-							+ "the SP to identify itself." );
-				
-				String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
-				if (name != null)
-					authnTrustChecker.addTrustedIssuer(name, returnAddress);	
-				else
-				{
-					name = getValue(allowedKey + ALLOWED_SP_DN);
-					if (name == null)
-						throw new ConfigurationException("Invalid specification of allowed Service " +
-							"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
-					authnTrustChecker.addTrustedDNIssuer(name, returnAddress);
-				}
-
-				
-				log.debug("SP authorized to submit authentication requests: " + name);
-			}
+				initValidRequester(authnTrustChecker, allowedKey);
 			this.sloTrustChecker = createStrictTrustChecker();
 		}
 		
@@ -358,6 +343,56 @@ public class SamlIdpProperties extends SamlProperties
 		groupChooser = new GroupChooser(this);
 		idTypeMapper = new IdentityTypeMapper(this);
 		attributesMapper = new DefaultSamlAttributesMapper();
+	}
+	
+	private void initValidRequester(EnumeratedTrustChecker authnTrustChecker, String allowedKey)
+	{
+		String returnAddress = getValue(allowedKey + ALLOWED_SP_RETURN_URL);
+		if (returnAddress == null)
+			throw new ConfigurationException("Invalid specification of allowed Service " +
+				"Provider " + allowedKey + ", return address is not set.");
+		
+		if (isSet(allowedKey + ALLOWED_SP_ENTITY) && isSet(allowedKey + ALLOWED_SP_DN))
+			throw new ConfigurationException("The allowed SP entry " + allowedKey + 
+					" has both the DN and SAML entity id defined. "
+					+ "Please use only one, which is actually used by "
+					+ "the SP to identify itself." );
+		
+		String name = getValue(allowedKey + ALLOWED_SP_ENTITY);
+		if (name != null)
+		{
+			List<String> allowedEndpoints = getListOfValues(allowedKey + ALLOWED_SP_RETURN_URLS);
+			allowedRequestersByIndex = initAllowedRequesters(allowedEndpoints);
+			authnTrustChecker.addTrustedIssuer(name, returnAddress);
+			for (String endpoint: allowedRequestersByIndex.values())
+				authnTrustChecker.addTrustedIssuer(name, endpoint);
+		} else
+		{
+			name = getValue(allowedKey + ALLOWED_SP_DN);
+			if (name == null)
+				throw new ConfigurationException("Invalid specification of allowed Service " +
+					"Provider " + allowedKey + ", neither Entity ID nor DN is set.");
+			authnTrustChecker.addTrustedDNIssuer(name, returnAddress);
+		}
+
+		log.debug("SP authorized to submit authentication requests: " + name);
+	}
+	
+	static Map<Integer, String> initAllowedRequesters(List<String> allowedEndpoints)
+	{
+		Map<Integer, String> allowedRequestersByIndex = new HashMap<>();
+		Pattern pattern = Pattern.compile("\\[([\\d]+)\\](.+)");
+		for (String endpoint: allowedEndpoints)
+		{
+			Matcher matcher = pattern.matcher(endpoint);
+			if (!matcher.matches())
+				throw new ConfigurationException("SAML allowed endpoint '" 
+						+ endpoint + "' has incorrect syntax. Should be [N]URL");
+			String indexStr = matcher.group(1);
+			String url = matcher.group(2);
+			allowedRequestersByIndex.put(Integer.parseInt(indexStr), url);
+		}
+		return allowedRequestersByIndex;
 	}
 	
 	private void initPki() throws EngineException
@@ -454,13 +489,19 @@ public class SamlIdpProperties extends SamlProperties
 		}
 	}
 
-	public String getReturnAddressForRequester(NameIDType requester)
+	public String getReturnAddressForRequester(AuthnRequestType req)
 	{
-		String spKey = getSPConfigKey(requester);
+		String requesterReturnUrl = req.getAssertionConsumerServiceURL();
+		if (requesterReturnUrl != null)
+			return requesterReturnUrl;
+		String spKey = getSPConfigKey(req.getIssuer());
 		if (spKey == null)
 			return null;
-
-		return getValue(spKey + ALLOWED_SP_RETURN_URL);
+		Integer requestedServiceIdx = req.isSetAssertionConsumerServiceIndex() ? 
+				req.getAssertionConsumerServiceIndex() : null;
+		return (requestedServiceIdx != null) ? 
+				allowedRequestersByIndex.get(requestedServiceIdx) 
+				: getValue(spKey + ALLOWED_SP_RETURN_URL);
 	}
 	
 	/**

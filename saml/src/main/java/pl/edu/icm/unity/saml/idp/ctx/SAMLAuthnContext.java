@@ -53,10 +53,6 @@ public class SAMLAuthnContext extends SAMLAssertionResponseContext<AuthnRequestD
 	
 	public String getResponseDestination()
 	{
-		String serviceUrl = getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
-		if (serviceUrl == null)
-			serviceUrl = getSamlConfiguration().getReturnAddressForRequester(
-					getRequest().getIssuer());
-		return serviceUrl;
+		return getSamlConfiguration().getReturnAddressForRequester(getRequest());
 	}
 }

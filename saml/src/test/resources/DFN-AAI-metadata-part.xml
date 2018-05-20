@@ -79,6 +79,8 @@ ZO4eKkKd2NI2Sm3qkNxfiLv6
       		ResponseLocation="https://shibboleth.metapress.com/Shibboleth.sso/SLO/Redirect-RESP"/>
       <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://shibboleth.metapress.com/Shibboleth.sso/SLO/SOAP"/>
       <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST" index="1"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https:POST7" isDefault="true" index="7"/>
+      <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https:POST8" index="8"/>
       <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST-SimpleSign" index="2"/>
       <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/Artifact" index="3"/>
       <AssertionConsumerService Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="https://shibboleth.metapress.com/Shibboleth.sso/SAML2/ECP" index="4"/>

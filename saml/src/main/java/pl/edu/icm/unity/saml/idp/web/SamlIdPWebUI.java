@@ -177,10 +177,8 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	protected void createInfoPart(SAMLAuthnContext samlCtx, VerticalLayout contents)
 	{
 		String samlRequester = samlCtx.getRequest().getIssuer().getStringValue();
-		String returnAddress = samlCtx.getRequest().getAssertionConsumerServiceURL();
-		if (returnAddress == null)
-			returnAddress = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
-					samlCtx.getRequest().getIssuer());
+		String returnAddress = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
+					samlCtx.getRequest());
 
 		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.info1"));
 		info1.addStyleName(Styles.vLabelH1.toString());

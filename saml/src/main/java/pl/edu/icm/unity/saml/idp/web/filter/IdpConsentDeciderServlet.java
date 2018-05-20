@@ -289,10 +289,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	
 	protected String getServiceUrl(SAMLAuthnContext samlCtx)
 	{
-		String serviceUrl = samlCtx.getRequestDocument().getAuthnRequest().getAssertionConsumerServiceURL();
-		if (serviceUrl == null)
-			serviceUrl = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
-					samlCtx.getRequest().getIssuer());
+		String serviceUrl = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
+					samlCtx.getRequest());
 		return serviceUrl;
 	}
 	

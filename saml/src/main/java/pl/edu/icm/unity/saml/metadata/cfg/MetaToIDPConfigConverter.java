@@ -5,11 +5,14 @@
 package pl.edu.icm.unity.saml.metadata.cfg;
 
 import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
@@ -24,6 +27,7 @@ import pl.edu.icm.unity.saml.idp.SamlIdpProperties.RequestAcceptancePolicy;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorType;
+import xmlbeans.org.oasis.saml2.metadata.IndexedEndpointType;
 import xmlbeans.org.oasis.saml2.metadata.KeyDescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.SPSSODescriptorType;
 import xmlbeans.org.oasis.saml2.metadata.extattribute.EntityAttributesType;
@@ -109,11 +113,13 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 				continue;
 			}
 			
-			EndpointType aserServ = selectEndpointByBinding(spDef.getAssertionConsumerServiceArray(), 
+			Map<Integer, String> endpointURLs = getEndpointURLs(spDef.getAssertionConsumerServiceArray(), 
 					SAMLConstants.BINDING_HTTP_POST);
-			if (aserServ == null)
+			String defaultEndpoint = getDefaultEndpoint(spDef.getAssertionConsumerServiceArray(), 
+					SAMLConstants.BINDING_HTTP_POST);
+			if (defaultEndpoint == null || endpointURLs.isEmpty())
 				continue;
-
+			
 			EndpointType redirectSLOEndpoint = selectEndpointByBinding(spDef.getSingleLogoutServiceArray(),
 					SAMLConstants.BINDING_HTTP_REDIRECT);
 			EndpointType postSLOEndpoint = selectEndpointByBinding(spDef.getSingleLogoutServiceArray(),
@@ -125,13 +131,15 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 			Map<String, String> names = getLocalizedNames(uiInfo, spDef, meta);
 			Map<String, LogoType> logos = getLocalizedLogos(uiInfo);
 				
-			addEntryToProperties(entityId, aserServ, soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,
+			addEntryToProperties(entityId, defaultEndpoint, endpointURLs, 
+					soapSLOEndpoint, postSLOEndpoint, redirectSLOEndpoint,
 					realConfig, configKey, properties, r, 
 					certs, names, logos);					
 		}		
 	}
-	
-	private void addEntryToProperties(String entityId, EndpointType serviceEndpoint,
+
+	private void addEntryToProperties(String entityId, String defaultServiceEndpoint,
+			Map<Integer, String> indexedServiceEndpoints,
 			EndpointType sloSoapEndpoint, EndpointType sloPostEndpoint, EndpointType sloRedirectEndpoint,
 			SamlIdpProperties realConfig, String metaConfigKey, Properties properties,
 			Random r, List<X509Certificate> certs, Map<String, String> names,
@@ -149,7 +157,23 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 					entityId);
 		if (noPerSpConfig || !properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URL))
 			properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URL, 
-					serviceEndpoint.getLocation());
+					defaultServiceEndpoint);
+		
+		if (noPerSpConfig)
+		{
+			int i=0;
+			for (Map.Entry<Integer, String> entry: indexedServiceEndpoints.entrySet())
+			{
+				while (properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URLS+i))
+					i++;
+				properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URLS + i, 
+						"[" + entry.getKey() + "]" + entry.getValue());
+				i++;
+			}
+		}
+		if (noPerSpConfig || properties.containsKey(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URLS))
+			properties.setProperty(configKey + SamlIdpProperties.ALLOWED_SP_RETURN_URL, 
+					defaultServiceEndpoint);
 		setSLOProperty(properties, configKey, noPerSpConfig, sloSoapEndpoint, 
 				SamlProperties.SOAP_LOGOUT_URL, null);
 		setSLOProperty(properties, configKey, noPerSpConfig, sloPostEndpoint, 
@@ -186,7 +210,7 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 		}
 					
 		log.debug("Added an accepted SP loaded from SAML metadata: " + entityId + " with " + 
-				serviceEndpoint.getLocation() + " return url");		
+				defaultServiceEndpoint + " default return url");		
 	}
 		
 	private String getExistingKey(String entityId, SamlIdpProperties realConfig)
@@ -211,5 +235,23 @@ public class MetaToIDPConfigConverter extends AbstractMetaToConfigConverter
 				return endpoint;
 		}
 		return null;
+	}
+	
+	private String getDefaultEndpoint(IndexedEndpointType[] assertionConsumerServiceArray, String binding)
+	{
+		Optional<IndexedEndpointType> explicitDefault = Arrays.stream(assertionConsumerServiceArray)
+				.filter(e -> binding.equals(e.getBinding()))
+				.filter(e -> e.getIsDefault())
+				.findFirst();
+		EndpointType endpoint = explicitDefault.isPresent() ? explicitDefault.get() 
+				: selectEndpointByBinding(assertionConsumerServiceArray, binding);
+		return endpoint == null ? null : endpoint.getLocation();
+	}
+
+	private Map<Integer, String> getEndpointURLs(IndexedEndpointType[] assertionConsumerServiceArray, String binding)
+	{
+		return Arrays.stream(assertionConsumerServiceArray)
+				.filter(e -> binding.equals(e.getBinding()))
+				.collect(Collectors.toMap(e -> e.getIndex(), e -> e.getLocation()));
 	}
 }

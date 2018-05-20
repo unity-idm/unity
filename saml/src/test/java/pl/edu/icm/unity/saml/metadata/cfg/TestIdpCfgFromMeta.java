@@ -34,6 +34,7 @@ import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.P;
 import static pl.edu.icm.unity.saml.idp.SamlIdpProperties.SPMETA_PREFIX;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.Set;
@@ -45,11 +46,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
+import eu.unicore.samly2.exceptions.SAMLValidationException;
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.idp.SamlIdpProperties;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
+import xmlbeans.org.oasis.saml2.assertion.NameIDType;
+import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
+import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
@@ -123,16 +129,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	@Test
 	public void testConfigureSLOFromSPsMetadata() throws Exception
 	{
-		Properties p = new Properties();
-		p.setProperty(P+CREDENTIAL, "MAIN");
-		p.setProperty(P+PUBLISH_METADATA, "false");
-		p.setProperty(P+ISSUER_URI, "me");
-		p.setProperty(P+GROUP, "group");
-		p.setProperty(P+DEFAULT_GROUP,"group");
-		
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/DFN-AAI-metadata-part.xml");
-		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "ignore");
-		SamlIdpProperties configuration = new SamlIdpProperties(p, pkiManagement);
+		SamlIdpProperties configuration = getDFNMetadataBasedConfig();
 		
 		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
 				pkiManagement, 
@@ -143,6 +140,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 			.atMost(Duration.TEN_SECONDS)
 			.untilAsserted(() -> assertSLOCfgLoaded(manager));
 	}
+
 	
 	private void assertSLOCfgLoaded(RemoteMetaManager manager)
 	{
@@ -166,6 +164,69 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 				fail("Hidden service is available");
 		}
 	}
+	
+	@Test
+	public void shouldConfigureMultipleTrustedAssertionConsumers() throws Exception
+	{
+		SamlIdpProperties configuration = getDFNMetadataBasedConfig();
+		
+		RemoteMetaManager manager = new RemoteMetaManager(configuration, 
+				pkiManagement, 
+				new MetaToIDPConfigConverter(pkiManagement, msg), 
+				metadataService, SamlIdpProperties.SPMETA_PREFIX);
+		
+		Awaitility.await()
+			.atMost(Duration.TEN_SECONDS)
+			.untilAsserted(() -> assertEndpointsCfgLoaded(manager));
+	}
+	
+	private void assertEndpointsCfgLoaded(RemoteMetaManager manager)
+	{
+		assertEndpointCfgLoaded(manager, 8, "https:POST8");
+		assertEndpointCfgLoaded(manager, 7, "https:POST7");
+		assertEndpointCfgLoaded(manager, 1, "https://shibboleth.metapress.com/Shibboleth.sso/SAML2/POST");
+
+		SamlIdpProperties idpCfg = (SamlIdpProperties) manager.getVirtualConfiguration();
+		AuthnRequestType reqDef = AuthnRequestType.Factory.newInstance();
+		reqDef.setIssuer(NameIDType.Factory.newInstance());
+		reqDef.getIssuer().setStringValue("http://shibboleth.metapress.com/shibboleth-sp");
+		assertThat(idpCfg.getReturnAddressForRequester(reqDef), is("https:POST7"));
+	}
+	
+	private void assertEndpointCfgLoaded(RemoteMetaManager manager, Integer index, String expected)
+	{
+		SamlIdpProperties idpCfg = (SamlIdpProperties) manager.getVirtualConfiguration();
+		AuthnRequestDocument reqDoc = AuthnRequestDocument.Factory.newInstance();
+		AuthnRequestType req = reqDoc.addNewAuthnRequest();
+		req.setAssertionConsumerServiceIndex(index);
+		req.setIssuer(NameIDType.Factory.newInstance());
+		req.getIssuer().setStringValue("http://shibboleth.metapress.com/shibboleth-sp");
+		assertThat(idpCfg.getReturnAddressForRequester(req), is(expected));
+		try
+		{
+			idpCfg.getAuthnTrustChecker().checkTrust(reqDoc, req);
+		} catch (SAMLValidationException e)
+		{
+			fail("Endpoint is not accepted: " + expected);
+		}
+	}
+	
+	private SamlIdpProperties getDFNMetadataBasedConfig() throws ConfigurationException, IOException
+	{
+		Properties p = new Properties();
+		p.setProperty(P+CREDENTIAL, "MAIN");
+		p.setProperty(P+PUBLISH_METADATA, "false");
+		p.setProperty(P+ISSUER_URI, "me");
+		p.setProperty(P+GROUP, "group");
+		p.setProperty(P+DEFAULT_GROUP,"group");
+		
+		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_URL, "file:src/test/resources/DFN-AAI-metadata-part.xml");
+		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "ignore");
+		return new SamlIdpProperties(p, pkiManagement);
+	}
+	
+	
+	
 	
 	private String getPrefixOf(String entity, SamlIdpProperties cfg)
 	{
