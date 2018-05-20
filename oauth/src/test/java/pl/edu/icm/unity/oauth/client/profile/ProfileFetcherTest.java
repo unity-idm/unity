@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client;
+package pl.edu.icm.unity.oauth.client.profile;
 
 import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;

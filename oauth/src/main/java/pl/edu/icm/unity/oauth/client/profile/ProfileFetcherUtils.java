@@ -32,15 +32,14 @@ public class ProfileFetcherUtils
 				convertToRawAttributes(jsonObject));
 	}
 
-	public static JSONObject convertToRawAttributes(JSONObject toConvert)
+	static JSONObject convertToRawAttributes(JSONObject toConvert)
 	{
 		JSONObject res = new JSONObject(toConvert);
 		resolveNestedJsonType(res);
 		return res;
 	}
 
-	public static void resolveNestedJsonType(JSONObject jsonObject)
-
+	private static void resolveNestedJsonType(JSONObject jsonObject)
 	{
 		for (Entry<String, Object> entry : jsonObject.entrySet())
 		{
@@ -61,7 +60,7 @@ public class ProfileFetcherUtils
 		}
 	}
 
-	public static void resolveNestedJsonType(JSONArray array)
+	private static void resolveNestedJsonType(JSONArray array)
 	{
 		
 		ArrayList<Object> copy = new ArrayList<>(array);
@@ -92,7 +91,7 @@ public class ProfileFetcherUtils
 		return ret;
 	}
 
-	public static Map<String, List<String>> convertToFlatAttributes(String prefix,
+	private static Map<String, List<String>> convertToFlatAttributes(String prefix,
 			JSONObject profile, Map<String, List<String>> ret)
 	{
 		for (Entry<String, Object> entry : profile.entrySet())
@@ -118,7 +117,7 @@ public class ProfileFetcherUtils
 		return ret;
 	}
 
-	public static Map<String, List<String>> convertToFlatAttributes(String prefix,
+	private static Map<String, List<String>> convertToFlatAttributes(String prefix,
 			JSONArray element, Map<String, List<String>> ret)
 	{
 		for (int i = 0; i < element.size(); i++)
