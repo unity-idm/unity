@@ -40,6 +40,7 @@ import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
  * Principal options are defined here: ids and corresponding default values.
@@ -118,6 +119,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String AUTHENTICATOR_CREDENTIAL = "localCredential";
 	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "verificatorConfigurationFile";
 	public static final String AUTHENTICATOR_RETRIEVAL_CONFIG = "retrievalConfigurationFile";
+	
+	public static final String AUTHENTICATION_FLOW = "authenticationFlow.";
+	public static final String AUTHENTICATION_FLOW_NAME = "authenticationFlowName";
+	public static final String AUTHENTICATION_FLOW_POLICY = "authenticationFlowPolicy";
+	public static final String AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS = "firstFactorAuthenticators";
+	public static final String AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS = "secondFactorAuthenticators";
 	
 	public static final String CREDENTIALS = "credentials.";
 	public static final String CREDENTIAL_NAME = "credentialName";
@@ -306,6 +313,18 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the retrieval"));
 
+		defaults.put(AUTHENTICATION_FLOW, new PropertyMD().setStructuredList(false).setCategory(initAuthnCat).
+				setDescription("List of initially enabled authentication flows"));
+		defaults.put(AUTHENTICATION_FLOW_NAME, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).setCategory(initAuthnCat).
+				setDescription("Authentication flow name"));
+		defaults.put(AUTHENTICATION_FLOW_POLICY, new PropertyMD(AuthenticationFlowDefinition.Policy.USER_OPTIN).setStructuredListEntry(AUTHENTICATION_FLOW).
+				setCategory(initAuthnCat).setDescription("Defines multi factor policy."));
+		defaults.put(AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).setMandatory().
+				setCategory(initAuthnCat).
+				setDescription("First factor authenticators"));
+		defaults.put(AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).
+				setCategory(initAuthnCat).setDescription("Second factor authenticators"));
+	
 		defaults.put(REALMS, new PropertyMD().setStructuredList(false).setCategory(initRealmCat).
 				setDescription("List of authentication realm definitions."));
 		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).setCategory(initRealmCat).

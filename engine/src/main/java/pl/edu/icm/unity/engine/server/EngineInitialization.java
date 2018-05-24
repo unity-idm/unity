@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,6 +41,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -88,9 +90,12 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
+import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
@@ -165,6 +170,8 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private AuthenticatorInstanceDB authenticatorDAO;
 	@Autowired
+	private AuthenticationFlowDB authenticationFlowDAO;
+	@Autowired
 	@Qualifier("insecure")
 	private AttributesManagement attrManagement;
 	@Autowired
@@ -213,6 +220,9 @@ public class EngineInitialization extends LifecycleBase
 	private CredentialRepository credRepo;
 	@Autowired
 	private EntityCredentialsHelper entityCredHelper;
+	@Autowired
+	@Qualifier("insecure")
+	private AuthenticationFlowManagement authnFlowManagement;
 	
 	private long endpointsLoadTime;
 	
@@ -344,12 +354,13 @@ public class EngineInitialization extends LifecycleBase
 		if (eraClean)
 			removeERA();
 		initializeAuthenticators();
+		initializeAuthenticationFlows();
 		initializeRealms();
 		initializeEndpoints();
 
 		eventsProcessor.fireEvent(new Event(EventCategory.POST_INIT, isColdStart.toString()));
 	}
-	
+
 	private boolean determineIfColdStart()
 	{
 		try
@@ -565,6 +576,12 @@ public class EngineInitialization extends LifecycleBase
 		tx.runInTransaction(() -> {
 			authenticatorDAO.deleteAll();	
 		});
+		log.info("Removing all persisted authentication flows");
+		tx.runInTransaction(() -> {
+			authenticationFlowDAO.deleteAll();	
+		});
+		
+		
 	}
 	
 	private void initializeRealms()
@@ -674,7 +691,66 @@ public class EngineInitialization extends LifecycleBase
 			endpointManager.deploy(type, name, address, endpointConfiguration);
 		}
 	}
+	
+	private void initializeAuthenticationFlows()
+	{
+		try
+		{
+			loadAuthenticationFlowsFromConfiguration();
+		} catch(Exception e)
+		{
+			log.fatal("Can't load authentication flows which are configured", e);
+			throw new InternalException("Can't load authentication flows which are configured", e);
+		}
+	}
+	
+	
+	private void loadAuthenticationFlowsFromConfiguration() throws EngineException
 
+	{
+		log.info("Loading all configured authentication flows");
+		Collection<AuthenticationFlowDefinition> authenticationFlows = authnFlowManagement
+				.getAuthenticationFlows();
+		Map<String, AuthenticationFlowDefinition> existing = new HashMap<>();
+		for (AuthenticationFlowDefinition af : authenticationFlows)
+			existing.put(af.getName(), af);
+
+		Set<String> authenticationFlowList = config.getStructuredListKeys(
+				UnityServerConfiguration.AUTHENTICATION_FLOW);
+		for (String authenticationFlowKey : authenticationFlowList)
+		{
+			String name = config.getValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_NAME);
+			Policy policy = config.getEnumValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_POLICY,
+					Policy.class);
+			String firstFactorSpec = config.getValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS);
+			String[] firstFactorAuthn = firstFactorSpec.split(",");
+			Set<String> firstFactorAuthnSet = new HashSet<>(
+					Arrays.asList(firstFactorAuthn));
+
+			String secondFactorSpec = config.getValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS);
+			String[] secondFactorAuthn = secondFactorSpec.split(",");
+			List<String> secondFactorAuthnList = Arrays.asList(secondFactorAuthn);
+
+			AuthenticationFlowDefinition authFlowdef = new AuthenticationFlowDefinition(
+					name, policy, firstFactorAuthnSet, secondFactorAuthnList);
+
+			if (!existing.containsKey(name))
+			{
+				authnFlowManagement.addAuthenticationFlowDefinition(authFlowdef);
+				log.info(" - " + name + " [" + policy.toString() + "]");
+			} else
+			{
+				authnFlowManagement.updateAuthenticationFlowDefinition(authFlowdef);
+				log.info(" - " + name + " [" + policy.toString() + "] (updated)");
+			}
+		}
+
+	}
+	
 	private void initializeAuthenticators()
 	{
 		try
