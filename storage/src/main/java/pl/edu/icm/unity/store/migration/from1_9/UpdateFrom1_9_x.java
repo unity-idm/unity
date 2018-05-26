@@ -184,20 +184,26 @@ public class UpdateFrom1_9_x implements Update
 		if (content.has("TranslationProfile"))
 		{
 			JsonNode tp = content.get("TranslationProfile");
-			ArrayNode rules = (ArrayNode) tp.get("rules");
-			for (JsonNode rule: rules)
-			{
-				JsonNode action = rule.get("action");
-				String name = action.get("name").asText();
-				if (name.equals("addAttribute"))
-				{
-					ArrayNode params = (ArrayNode) action.get("parameters");
-					params.remove(3);
-				}
-			}
+			updateTranslationProfile((ObjectNode) tp);
 		}
 	}
 
+	//remove 'visibility' action param
+	private void updateTranslationProfile(ObjectNode tp)
+	{
+		ArrayNode rules = (ArrayNode) tp.get("rules");
+		for (JsonNode rule: rules)
+		{
+			JsonNode action = rule.get("action");
+			String name = action.get("name").asText();
+			if (name.equals("addAttribute") || name.equals("mapAttribute"))
+			{
+				ArrayNode params = (ArrayNode) action.get("parameters");
+				params.remove(3);
+			}
+		}
+	}
+	
 	private void convertTranslationProfiles(Map<String, List<ObjectNode>> genericsByType, 
 			ObjectNode newGenerics, UpdateContext ctx) throws IOException
 	{
@@ -227,9 +233,12 @@ public class UpdateFrom1_9_x implements Update
 
 	private ObjectNode updateInputProfileContent(ObjectNode content)
 	{
-		if (!content.has("rules"))
+		if (!content.has("obj"))
 			return content;
-		ArrayNode rules = (ArrayNode) content.get("rules");
+		JsonNode internal = content.get("obj");
+		if (!internal.has("rules"))
+			return content;
+		ArrayNode rules = (ArrayNode) internal.get("rules");
 		for (JsonNode rule: rules)
 		{
 			JsonNode action = rule.get("action");
