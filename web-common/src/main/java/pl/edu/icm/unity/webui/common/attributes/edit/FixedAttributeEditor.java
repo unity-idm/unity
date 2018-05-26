@@ -6,6 +6,8 @@ package pl.edu.icm.unity.webui.common.attributes.edit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
@@ -68,22 +70,21 @@ public class FixedAttributeEditor
 		return editContext.getAttributeGroup();
 	}
 
-	public Attribute getAttribute() throws FormValidationException
+	public Optional<Attribute> getAttribute() throws FormValidationException
 	{
 		List<LabelledValue> values = valuesComponent.getElements();
-		List<String> aValues = new ArrayList<>(values.size());
-		boolean allNull = true;
-		for (LabelledValue v: values)
+		if (!editContext.isRequired())
 		{
-			aValues.add(v.getValue());
-			if (v.getValue() != null)
-				allNull = false;
+			values = values.stream().filter(lv -> !lv.getValue().isEmpty())
+					.collect(Collectors.toList()); 
+			if (values.isEmpty())
+				return Optional.empty();
 		}
-		
-		return allNull ? null
-				: new Attribute(editContext.getAttributeType().getName(),
-						editContext.getAttributeType().getValueSyntax(),
-						editContext.getAttributeGroup(), aValues);
+
+		List<String> aValues = values.stream().map(lv -> lv.getValue()).collect(Collectors.toList());
+		return Optional.of(new Attribute(editContext.getAttributeType().getName(),
+					editContext.getAttributeType().getValueSyntax(),
+					editContext.getAttributeGroup(), aValues));
 	}
 	
 	private void initUI()

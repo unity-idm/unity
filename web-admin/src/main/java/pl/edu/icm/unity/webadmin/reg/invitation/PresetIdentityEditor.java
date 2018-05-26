@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -41,11 +42,11 @@ public class PresetIdentityEditor extends PresetEditorBase<IdentityParam>
 	}
 
 	@Override
-	protected IdentityParam getValueInternal() throws FormValidationException
+	protected Optional<IdentityParam> getValueInternal() throws FormValidationException
 	{
 		try
 		{
-			return editor.getValue();
+			return Optional.ofNullable(editor.getValue());
 		} catch (IllegalIdentityValueException e)
 		{
 			throw new FormValidationException(msg.getMessage("PresetEditor.invalidEntry", 

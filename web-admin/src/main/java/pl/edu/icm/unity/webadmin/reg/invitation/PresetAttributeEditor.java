@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -47,7 +48,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 	}
 
 	@Override
-	protected Attribute getValueInternal() throws FormValidationException
+	protected Optional<Attribute> getValueInternal() throws FormValidationException
 	{
 		try
 		{

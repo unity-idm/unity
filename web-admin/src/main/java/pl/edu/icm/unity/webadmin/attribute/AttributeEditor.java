@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.attribute;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.CustomComponent;
@@ -156,14 +157,14 @@ public class AttributeEditor extends CustomComponent
 	
 	public Attribute getAttribute() throws FormValidationException
 	{
-		Attribute ret = valuesPanel.getAttribute();
-		if (ret == null)
+		Optional<Attribute> ret = valuesPanel.getAttribute();
+		if (!ret.isPresent())
 		{
 			AttributeType at = attrTypePanel.getAttributeType();
 			return new Attribute(at.getName(), at.getValueSyntax(), groupPath, 
 					new ArrayList<>());
 		}
-		return ret;
+		return ret.get();
 	}
 
 }

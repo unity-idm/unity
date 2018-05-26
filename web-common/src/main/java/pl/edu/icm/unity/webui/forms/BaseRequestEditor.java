@@ -331,7 +331,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					{
 						try
 						{
-							attr = ae.getAttribute();
+							attr = ae.getAttribute().orElse(null);
 						} catch (FormValidationException e)
 						{
 							status.hasFormException = true;

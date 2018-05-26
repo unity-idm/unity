@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
@@ -32,9 +33,9 @@ public class PresetMembershipEditor extends PresetEditorBase<Selection>
 	}
 
 	@Override
-	protected Selection getValueInternal() throws FormValidationException
+	protected Optional<Selection> getValueInternal() throws FormValidationException
 	{
-		return new Selection(cb.getValue());
+		return Optional.of(new Selection(cb.getValue()));
 	}
 	
 	@Override
