@@ -19,12 +19,13 @@ public class Log
 	public static final String U_SERVER_WEB = "unity.server.web";
 	public static final String U_SERVER_SAML = "unity.server.saml";
 	public static final String U_SERVER_OAUTH = "unity.server.oauth";
-	public static final String U_SERVER_LDAP = "unity.server.ldap";
+	public static final String U_SERVER_LDAP = "unity.server.ldap.client";
 	public static final String U_SERVER_WS = "unity.server.ws";
 	public static final String U_SERVER_REST = "unity.server.rest";
 	public static final String U_SERVER_PAM = "unity.server.pam";
 	public static final String U_SERVER_TRANSLATION = "unity.server.externaltranslation";
 	public static final String SECURITY = "unicore.security"; //legacy
+	public static final String U_SERVER_LDAP_ENDPOINT = "unity.server.ldap.endpoint";
 
 	public static Logger getLogger(String category, Class<?> clazz)
 	{

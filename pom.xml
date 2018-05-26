@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>pl.edu.icm.unity</groupId>
 	<artifactId>unity-server-parent</artifactId>
@@ -31,7 +33,7 @@
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
-	    <sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
+		<sonar.jacoco.reportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.reportPaths>
 		<sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
 		<sonar.language>java</sonar.language>
 		<sonar.sources>src/main/java</sonar.sources>
@@ -120,7 +122,7 @@
 	</distributionManagement>
 
 	<build>
-		<!-- Allows to deploy with dav:// with Maven 3. Note that newer versions
+		<!-- Allows to deploy with dav:// with Maven 3. Note that newer versions 
 			of this extension do not work with Maven 2.2 -->
 		<extensions>
 			<extension>
@@ -373,9 +375,9 @@
 				<version>42.2.2.jre7</version>
 			</dependency>
 			<dependency>
-    			<groupId>org.mariadb.jdbc</groupId>
-    			<artifactId>mariadb-java-client</artifactId>
-    			<version>2.2.3</version>
+				<groupId>org.mariadb.jdbc</groupId>
+				<artifactId>mariadb-java-client</artifactId>
+				<version>2.2.3</version>
 			</dependency>
 			<dependency>
 				<groupId>com.h2database</groupId>
@@ -519,11 +521,6 @@
 				<version>25.0-jre</version>
 			</dependency>
 			<dependency>
-				<groupId>org.apache.directory.server</groupId>
-				<artifactId>apacheds-protocol-ldap</artifactId>
-				<version>${apacheds.version}</version>
-			</dependency>
-			<dependency>
 				<groupId>commons-validator</groupId>
 				<artifactId>commons-validator</artifactId>
 				<version>1.6</version>
@@ -568,7 +565,7 @@
 				<artifactId>zxcvbn</artifactId>
 				<version>1.2.5</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-java</artifactId>
@@ -580,18 +577,44 @@
 				<artifactId>selenium-firefox-driver</artifactId>
 				<version>${selenium.version}</version>
 				<scope>test</scope>
-			</dependency>		
+			</dependency>
 			<dependency>
 				<groupId>org.seleniumhq.selenium</groupId>
 				<artifactId>selenium-chrome-driver</artifactId>
 				<version>${selenium.version}</version>
 				<scope>test</scope>
 			</dependency>
+
+			<dependency>
+				<groupId>org.apache.directory.server</groupId>
+				<artifactId>apacheds-protocol-ldap</artifactId>
+				<version>${apacheds.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.directory.api</groupId>
+				<artifactId>api-all</artifactId>
+				<version>1.0.1</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.directory.server</groupId>
+				<artifactId>apacheds-interceptors-hash</artifactId>
+				<version>${apacheds.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.directory.server</groupId>
+				<artifactId>apacheds-interceptor-kerberos</artifactId>
+				<version>${apacheds.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.directory.server</groupId>
+				<artifactId>apacheds-interceptors-logger</artifactId>
+				<version>${apacheds.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 
-	<!-- the base test dependencies are used for all modules, more advanced as spring are to be defined
-		directly -->
+	<!-- the base test dependencies are used for all modules, more advanced 
+		as spring are to be defined directly -->
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>
@@ -599,11 +622,11 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-  			<groupId>org.mockito</groupId>
-  			<artifactId>mockito-core</artifactId>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-core</artifactId>
 			<scope>test</scope>
-  		</dependency>
-  		<dependency>
+		</dependency>
+		<dependency>
 			<groupId>eu.codearte.catch-exception</groupId>
 			<artifactId>catch-exception</artifactId>
 			<scope>test</scope>
@@ -625,7 +648,7 @@
 									<goal>prepare-agent</goal>
 								</goals>
 								<configuration>
-					                <append>true</append>
+									<append>true</append>
 									<destFile>${sonar.jacoco.reportPaths}</destFile>
 								</configuration>
 							</execution>

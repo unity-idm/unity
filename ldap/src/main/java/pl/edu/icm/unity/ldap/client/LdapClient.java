@@ -15,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import javax.net.ssl.SSLContext;
 
@@ -99,34 +100,12 @@ public class LdapClient
 			LdapClientConfiguration configuration) throws LDAPException, LdapAuthenticationException, 
 			KeyManagementException, NoSuchAlgorithmException
 	{
-		LDAPConnection connection = createConnection(configuration);
+		LDAPConnectionWithUser connWithUser = createConnectionForUser(userOrig, configuration);
 		
-		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
+		//actual authentication
+		bindAsUser(connWithUser.connection, connWithUser.dn, password, configuration);
 		
-		String dn = establishUserDN(user, configuration, connection);
-		log.debug("Established user's DN is: " + dn);
-		
-		bindAsUser(connection, dn, password, configuration);
-		if (configuration.isBindOnly())
-		{
-			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
-			ret.addIdentity(new RemoteIdentity(dn, X500Identity.ID));
-			return ret;
-		}
-		
-		if (configuration.getBindAs() == BindAs.system)
-			bindAsSystem(connection, configuration);
-		
-		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
-		
-		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
-		findGroupsMembership(connection, entry, configuration, ret.getGroups());
-		
-		performAdditionalQueries(connection, configuration, user, ret);
-		ret.setRawAttributes(ret.getAttributes());
-		
-		connection.close();
-		return ret;
+		return retrieveUserInformation(configuration, connWithUser);
 	}
 
 	/**
@@ -151,36 +130,73 @@ public class LdapClient
 					+ "with a system credential");
 			throw new LdapAuthenticationException("Can't authenticate");
 		}
+
+		LDAPConnectionWithUser connWithUser = createConnectionForUser(userOrig, configuration);
+		return retrieveUserInformation(configuration, connWithUser);
+	}
+
+
+	public void bindAndExecute(String userOrig, String password,
+			LdapClientConfiguration configuration, Consumer<LDAPConnectionWithUser> function) 
+					throws KeyManagementException, NoSuchAlgorithmException, LDAPException, LdapAuthenticationException
+	{
+		LDAPConnectionWithUser connWithUser = createConnectionForUser(userOrig, configuration);
 		
-		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
+		bindAsUser(connWithUser.connection, connWithUser.dn, password, configuration);
 		
-		LDAPConnection connection = createConnection(configuration);
-		
-		String dn = establishUserDN(user, configuration, connection);
-		log.debug("Established user's DN is: " + dn);
-		
+		function.accept(connWithUser);
+	}
+
+	
+	private RemotelyAuthenticatedInput retrieveUserInformation(LdapClientConfiguration configuration,
+			LDAPConnectionWithUser connWithUser) throws LDAPException, LdapAuthenticationException
+	{
 		if (configuration.isBindOnly())
 		{
 			RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
-			ret.addIdentity(new RemoteIdentity(dn, X500Identity.ID));
+			ret.addIdentity(new RemoteIdentity(connWithUser.dn, X500Identity.ID));
 			return ret;
 		}
 		
 		if (configuration.getBindAs() == BindAs.system)
-			bindAsSystem(connection, configuration);
+			bindAsSystem(connWithUser.connection, configuration);
 		
-		SearchResultEntry entry = findBaseEntry(configuration, dn, connection);
+		SearchResultEntry entry = findBaseEntry(configuration, connWithUser.dn, connWithUser.connection);
 		
 		RemotelyAuthenticatedInput ret = assembleBaseResult(entry);
-		findGroupsMembership(connection, entry, configuration, ret.getGroups());
+		findGroupsMembership(connWithUser.connection, entry, configuration, ret.getGroups());
 		
-		performAdditionalQueries(connection, configuration, user, ret);
+		performAdditionalQueries(connWithUser.connection, configuration, connWithUser.user, ret);
 		ret.setRawAttributes(ret.getAttributes());
 		
-		connection.close();
+		connWithUser.connection.close();
 		return ret;
 	}
 	
+	private LDAPConnectionWithUser createConnectionForUser(String userOrig, LdapClientConfiguration configuration) 
+			throws KeyManagementException, NoSuchAlgorithmException, LDAPException, LdapAuthenticationException
+	{
+		LDAPConnection connection = createConnection(configuration);
+		String user = LdapUtils.extractUsername(userOrig, configuration.getUserExtractPattern());
+		String dn = establishUserDN(user, configuration, connection);
+		log.debug("Established user's DN is: " + dn);
+		return new LDAPConnectionWithUser(connection, user, dn);
+	}
+	
+	public static class LDAPConnectionWithUser
+	{
+		public final LDAPConnection connection;
+		public final String user;
+		public final String dn;
+
+		public LDAPConnectionWithUser(LDAPConnection connection, String user,
+				String dn)
+		{
+			this.connection = connection;
+			this.user = user;
+			this.dn = dn;
+		}
+	}
 	
 	/**
 	 * Returns DN of the user. Depending on configuration the user's DN can be simply formed from a 
