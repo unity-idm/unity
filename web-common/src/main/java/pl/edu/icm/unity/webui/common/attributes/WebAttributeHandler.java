@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.attributes;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 
 /**
  * Vaadin component implementing support for {@link AttributeValueSyntax} implementation.

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.attributes;
+package pl.edu.icm.unity.webui.common.attributes.edit;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +14,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Attribute editor allowing to edit a fixed attribute type. It can show the (also fixed) group 
@@ -23,8 +24,10 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
  * 
  * @author K. Benedyczak
  */
-public class FixedAttributeEditor extends AbstractAttributeEditor
+public class FixedAttributeEditor
 {
+	private UnityMessageSource msg;
+	private AttributeHandlerRegistry registry;
 	private String caption;
 	private String description;
 	private boolean showGroup;
@@ -37,7 +40,8 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 			String caption, String description, 
 			AbstractOrderedLayout parent)
 	{
-		super(msg, registry);	
+		this.msg = msg;
+		this.registry = registry;
 		this.showGroup = showGroup;
 		this.caption = caption;
 		this.description = description;
@@ -101,6 +105,18 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	public void clear()
 	{
 		valuesComponent.clearContents();
+	}
+	
+	private ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(
+			AttributeEditContext editContext, String label,
+			AbstractOrderedLayout layout)
+	{
+		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<>(
+				msg, new InternalAttributeValueEditor.Factory(msg, registry, label, editContext),
+				editContext.getAttributeType().getMinElements(),
+				editContext.getAttributeType().getMaxElements(), false, layout);
+		ret.setLonelyLabel(label);
+		return ret;
 	}
 	
 }
