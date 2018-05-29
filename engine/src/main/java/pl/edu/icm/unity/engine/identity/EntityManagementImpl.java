@@ -15,19 +15,24 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -81,6 +86,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 @InvocationEventProducer
 public class EntityManagementImpl implements EntityManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER,	EntityManagementImpl.class);
 	private IdentityTypeDAO idTypeDAO;
 	private IdentityTypeHelper idTypeHelper;
 	private IdentityDAO idDAO;
@@ -99,6 +105,8 @@ public class EntityManagementImpl implements EntityManagement
 	private EmailConfirmationManager confirmationManager;
 	private AttributeClassUtil acUtil;
 	private TransactionalRunner tx;
+	private UnityServerConfiguration cfg;
+	private NotificationProducer notificationProducer;
 	
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
@@ -110,7 +118,8 @@ public class EntityManagementImpl implements EntityManagement
 			EntityResolver idResolver, AuthorizationManager authz,
 			IdentityTypesRegistry idTypesRegistry,
 			EmailConfirmationManager confirmationManager, AttributeClassUtil acUtil,
-			TransactionalRunner tx)
+			TransactionalRunner tx,
+			UnityServerConfiguration cfg, NotificationProducer notificationProducer)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -130,6 +139,8 @@ public class EntityManagementImpl implements EntityManagement
 		this.confirmationManager = confirmationManager;
 		this.acUtil = acUtil;
 		this.tx = tx;
+		this.cfg = cfg;
+		this.notificationProducer = notificationProducer;
 	}
 
 	@Override
@@ -524,9 +535,10 @@ public class EntityManagementImpl implements EntityManagement
 		toRemove.validateInitialization();
 		long entityId = idResolver.getEntityId(toRemove);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+		sendNotification(entityId, cfg.getValue(UnityServerConfiguration.ACCOUNT_REMOVED_NOTIFICATION));
 		entityDAO.deleteByKey(entityId);
 	}
-
+	
 	@Override
 	@Transactional
 	public void setEntityStatus(EntityParam toChange, EntityState status)
@@ -540,8 +552,22 @@ public class EntityManagementImpl implements EntityManagement
 		long entityId = idResolver.getEntityId(toChange);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 		EntityInformation current = entityDAO.getByKey(entityId);
+		if (current.getEntityState() == status)
+			return;
+		
+		String notificationToSend = null;
+		if (current.getEntityState() == EntityState.valid 
+				&& (status == EntityState.authenticationDisabled 
+				|| status == EntityState.disabled))
+			notificationToSend = cfg.getValue(UnityServerConfiguration.ACCOUNT_DISABLED_NOTIFICATION);
+		if (status == EntityState.valid 
+				&& (current.getEntityState() == EntityState.authenticationDisabled 
+				|| current.getEntityState() == EntityState.disabled))
+			notificationToSend = cfg.getValue(UnityServerConfiguration.ACCOUNT_ACTIVATED_NOTIFICATION);
+		
 		current.setEntityState(status);
 		entityDAO.updateByKey(entityId, current);
+		sendNotification(entityId, notificationToSend);
 	}
 
 	@Transactional
@@ -903,5 +929,24 @@ public class EntityManagementImpl implements EntityManagement
 		Identity newId = idTypeImpl.createNewIdentity(realm, target, entityId);
 		idDAO.create(new StoredIdentity(newId));
 		return newId;
+	}
+	
+	private void sendNotification(long entityId, String templateId)
+	{
+		if (templateId == null)
+			return;
+		try
+		{
+			EntityParam recipient = new EntityParam(entityId);
+			String entityName = getEntityLabel(recipient);
+			Map<String, String> params = new HashMap<>();
+			params.put(UserNotificationTemplateDef.USER, entityName == null ? "" : entityName);
+			notificationProducer.sendNotification(recipient, templateId, 
+					params, cfg.getDefaultLocale().toString(), null, false);
+		} catch (Exception e)
+		{
+			log.warn("Unable to send notification using template " + templateId 
+					+ " to entity " + entityId, e);
+		}
 	}
 }
