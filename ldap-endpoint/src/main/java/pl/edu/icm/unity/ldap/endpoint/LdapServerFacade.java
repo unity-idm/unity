@@ -27,6 +27,9 @@ import org.apache.directory.server.core.partition.ldif.LdifPartition;
 import org.apache.directory.server.ldap.LdapServer;
 import org.apache.directory.server.ldap.handlers.extended.StartTlsHandler;
 import org.apache.directory.server.protocol.shared.transport.TcpTransport;
+import org.apache.logging.log4j.core.config.ConfigurationException;
+
+import eu.emi.security.authn.x509.X509Credential;
 
 import java.io.*;
 import java.util.List;
@@ -89,9 +92,9 @@ public class LdapServerFacade
 	 * @param interceptor
 	 *                - unity's LDAP interceptor
 	 */
-	public void init(boolean deleteWorkDir, BaseInterceptor interceptor) throws Exception
+	public void init(boolean deleteWorkDir, BaseInterceptor interceptor, X509Credential credential) throws Exception
 	{
-		impl = new LdapServer();
+		impl = new UnityLdapServer(credential);
 		impl.setServiceName(name);
 		impl.setTransports(new TcpTransport(host, port));
 
@@ -121,21 +124,16 @@ public class LdapServerFacade
 	/**
 	 * Enable TLS support
 	 */
-	public void initTLS(String keystoreFileName, String password, boolean forceTls)
+	public void initTLS(boolean forceTls)
 	{
-		// TLS support
 		try
 		{
-			impl.setKeystoreFile(LdapServerKeys.getKeystore(keystoreFileName, password)
-					.getAbsolutePath());
-			impl.setCertificatePassword(password);
 			StartTlsHandler handler = new StartTlsHandler();
 			impl.addExtendedOperationHandler(handler);
-			// force TLS on every connection
 			impl.setConfidentialityRequired(forceTls);
 		} catch (Exception e)
 		{
-			e.printStackTrace();
+			throw new ConfigurationException("Can not initialize TLS", e); 
 		}
 	}
 

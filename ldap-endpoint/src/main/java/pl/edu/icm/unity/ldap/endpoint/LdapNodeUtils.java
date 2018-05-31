@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
+import java.util.Optional;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -22,9 +24,7 @@ public class LdapNodeUtils
 {
 
 	/**
-	 * @param configuration
-	 * @param node
-	 * @return Whether the LDAP query a user search?
+	 * @return Whether the LDAP query is a user search?
 	 */
 	public static boolean isUserSearch(LdapServerProperties configuration, ExprNode node)
 	{
@@ -53,10 +53,7 @@ public class LdapNodeUtils
 	}
 
 	/**
-	 * @param dnf
-	 * @param configuration
-	 * @param node
-	 * @return Whether the LDAP query a groupofnames search?
+	 * @return Whether the LDAP query is a groupofnames search?
 	 */
 	public static String parseGroupOfNamesSearch(DnFactory dnf,
 			LdapServerProperties configuration, ExprNode node)
@@ -87,7 +84,7 @@ public class LdapNodeUtils
 					try
 					{
 						Dn dn = dnf.create(sns.getValue().toString());
-						user = getUserName(configuration, dn);
+						user = getUserName(configuration, dn).orElse(null);
 					} catch (LdapInvalidDnException e)
 					{
 						return null;
@@ -103,39 +100,29 @@ public class LdapNodeUtils
 		return null;
 	}
 
-	/**
-	 * 
-	 * @param configuration
-	 * @param dn
-	 * @return
-	 */
-	public static String getUserName(LdapServerProperties configuration, Dn dn)
+	public static String extractUserName(LdapServerProperties configuration, Dn dn)
 	{
-		String aliasesValue = configuration
-				.getValue(LdapServerProperties.USER_NAME_ALIASES);
-		if (aliasesValue == null)
-		{
-			// TODO: throw exception or log warning?
-			return null;
-		}
+		Optional<String> user = getUserName(configuration, dn);
+		if (!user.isPresent())
+			throw new IllegalArgumentException("DN " + dn + " is missing any of configured username attributes");
+		return user.get();
+	}
+	
+	public static Optional<String> getUserName(LdapServerProperties configuration, Dn dn)
+	{
+		String aliasesValue = configuration.getValue(LdapServerProperties.USER_NAME_ALIASES);
 		String[] aliases = aliasesValue.split(",");
 		for (String alias : aliases)
 		{
 			String part = getPart(dn, alias);
 			if (null != part)
 			{
-				return part;
+				return Optional.of(part);
 			}
 		}
-		return null;
+		return Optional.empty();
 	}
 
-	/**
-	 * 
-	 * @param configuration
-	 * @param node
-	 * @return
-	 */
 	public static String getUserName(LdapServerProperties configuration, ExprNode node)
 	{
 		String[] aliases = configuration.getValue(LdapServerProperties.USER_NAME_ALIASES)
@@ -144,16 +131,6 @@ public class LdapNodeUtils
 
 	}
 
-	//
-	// private
-	//
-
-	/**
-	 * 
-	 * @param node
-	 * @param attribute
-	 * @return
-	 */
 	private static String getUserName(ExprNode node, String attribute)
 	{
 

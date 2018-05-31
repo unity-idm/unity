@@ -24,11 +24,14 @@ public class LdapServerFacadeMockFactory
 
 	public static LdapServerFacade getNullMock() throws Exception
 	{
-		LdapServerProperties props = new LdapServerProperties(new Properties());
+		Properties cfg = new Properties();
+		cfg.setProperty("unity.ldapServer.userNameAliases", "uid");
+		cfg.setProperty("unity.ldapServer.credential", "MAIN");
+		LdapServerProperties props = new LdapServerProperties(cfg);
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(null, null, null, null,
 				null, props, null);
 		LdapServerFacade facade = create();
-		facade.init(true, ladi);
+		facade.init(true, ladi, null);
 		return facade;
 	}
 
@@ -38,7 +41,7 @@ public class LdapServerFacadeMockFactory
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(null, null, null, null,
 				null, props, null);
 		LdapServerFacade facade = create();
-		facade.init(true, ladi);
+		facade.init(true, ladi, null);
 		return facade;
 	}
 }

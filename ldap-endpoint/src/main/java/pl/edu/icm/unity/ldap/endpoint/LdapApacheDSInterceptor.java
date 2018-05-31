@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,7 +18,6 @@ import org.apache.directory.api.ldap.model.constants.AuthenticationLevel;
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.cursor.EmptyCursor;
 import org.apache.directory.api.ldap.model.cursor.ListCursor;
-import org.apache.directory.api.ldap.model.cursor.SingletonCursor;
 import org.apache.directory.api.ldap.model.entry.DefaultEntry;
 import org.apache.directory.api.ldap.model.entry.Entry;
 import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException;
@@ -164,11 +164,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 	@Override
 	public Entry lookup(LookupOperationContext lookupContext) throws LdapException
 	{
-		// lookup is performed for many reasons, in case the user that
-		// performs
-		// the lookup is identified as `ADMIN_SYSTEM_DN` let LDAP core
-		// handle the
-		// search
+		// lookup is performed for many reasons, in case the user that performs
+		// the lookup is identified as `ADMIN_SYSTEM_DN` let LDAP core handle the search
 		if (!lookupContext.getDn().isEmpty())
 		{
 			boolean isMainBindUser = lookupContext.getDn().toString()
@@ -188,8 +185,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 
 		Entry entry = new DefaultEntry(schemaManager, lookupContext.getDn());
 
-		String user = LdapNodeUtils.getUserName(configuration, lookupContext.getDn());
-		if (null != user)
+		Optional<String> user = LdapNodeUtils.getUserName(configuration, lookupContext.getDn());
+		if (user.isPresent())
 		{
 			if (lookupContext.isAllUserAttributes())
 			{
@@ -199,8 +196,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 				entry.put("objectClass", OBJECT_CLASS_AT, "top", "person",
 						"inetOrgPerson", "organizationalPerson");
 				// FIXME - what shall be returned?
-				// entry.put(
-				// "cn",
+				// entry.put( "cn",
 				// schemaManager.lookupAttributeTypeRegistry("cn"),
 				// "we do not want to expose this"
 				// );
@@ -457,7 +453,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 					group = "/" + group;
 				}
 
-				String user = LdapNodeUtils.getUserName(configuration, new Dn(
+				String user = LdapNodeUtils.extractUserName(configuration, new Dn(
 						schemaManager,
 						compareContext.getValue().toString()));
 
@@ -626,30 +622,5 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		}
 
 		return null;// emptyResult(searchContext);
-	}
-
-	/**
-	 * Get Unity user from LDAP search context.
-	 */
-	private EntryFilteringCursor getUnityUser(SearchOperationContext searchContext,
-			String username) throws LdapException
-	{
-		try
-		{
-			Entry userEntry = getUnityUserEntry(searchContext, username);
-			if (userEntry != null)
-			{
-				return new EntryFilteringCursorImpl(
-						new SingletonCursor<>(userEntry), searchContext,
-						lsf.getDs().getSchemaManager());
-			}
-
-		} catch (Exception e)
-		{
-
-			throw new LdapOtherException("Error establishing user information", e);
-		}
-
-		return emptyResult(searchContext);
 	}
 }

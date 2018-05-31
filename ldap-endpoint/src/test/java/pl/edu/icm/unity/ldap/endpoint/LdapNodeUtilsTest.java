@@ -4,7 +4,17 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static pl.edu.icm.unity.ldap.endpoint.LdapServerProperties.CREDENTIAL;
+import static pl.edu.icm.unity.ldap.endpoint.LdapServerProperties.PREFIX;
+import static pl.edu.icm.unity.ldap.endpoint.LdapServerProperties.USER_NAME_ALIASES;
+
+import java.util.Optional;
 import java.util.Properties;
+
 import org.apache.directory.api.ldap.model.constants.SchemaConstants;
 import org.apache.directory.api.ldap.model.entry.StringValue;
 import org.apache.directory.api.ldap.model.exception.LdapInvalidDnException;
@@ -13,13 +23,8 @@ import org.apache.directory.api.ldap.model.filter.ExprNode;
 import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.server.core.api.DnFactory;
-import static org.hamcrest.CoreMatchers.equalTo;
-
 import org.junit.Before;
 import org.junit.Test;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
-import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  *
@@ -27,20 +32,15 @@ import static org.hamcrest.MatcherAssert.assertThat;
  */
 public class LdapNodeUtilsTest
 {
-
 	private LdapServerProperties ldapServerProperties;
-
-	private MockedDnFactory dnFactoryMock;
 
 	@Before
 	public void initialize()
 	{
 		Properties properties = new Properties();
-		properties.put(LdapServerProperties.PREFIX + LdapServerProperties.USER_NAME_ALIASES,
-				"uid,cn,mail");
+		properties.put(PREFIX + USER_NAME_ALIASES, "uid,cn,mail");
+		properties.put(PREFIX + CREDENTIAL, "MAIN");
 		ldapServerProperties = new LdapServerProperties(properties);
-
-		dnFactoryMock = new MockedDnFactory();
 	}
 
 	@Test
@@ -93,24 +93,24 @@ public class LdapNodeUtilsTest
 	public void testGetUsernameFromDn() throws LdapInvalidDnException
 	{
 		Dn dn = new Dn("cn=example1@domain.tdl,ou=system,ou=users");
-		String username = LdapNodeUtils.getUserName(ldapServerProperties, dn);
+		String username = LdapNodeUtils.extractUserName(ldapServerProperties, dn);
 		assertThat(username, is(equalTo("example1@domain.tdl")));
 
 		dn = new Dn("mail=example1@domain.tdl");
-		username = LdapNodeUtils.getUserName(ldapServerProperties, dn);
+		username = LdapNodeUtils.extractUserName(ldapServerProperties, dn);
 		assertThat(username, is(equalTo("example1@domain.tdl")));
 
 		dn = new Dn("cn=example1@domain.tdl");
-		username = LdapNodeUtils.getUserName(ldapServerProperties, dn);
+		username = LdapNodeUtils.extractUserName(ldapServerProperties, dn);
 		assertThat(username, is(equalTo("example1@domain.tdl")));
 
 		dn = new Dn("somethingelse=example1@domain.tdl");
-		username = LdapNodeUtils.getUserName(ldapServerProperties, dn);
-		assertThat(username, is(nullValue()));
+		Optional<String> usernameOpt = LdapNodeUtils.getUserName(ldapServerProperties, dn);
+		assertThat(usernameOpt.isPresent(), is(false));
 
 		dn = new Dn("");
-		username = LdapNodeUtils.getUserName(ldapServerProperties, dn);
-		assertThat(username, is(nullValue()));
+		usernameOpt = LdapNodeUtils.getUserName(ldapServerProperties, dn);
+		assertThat(usernameOpt.isPresent(), is(false));
 	}
 
 	@Test

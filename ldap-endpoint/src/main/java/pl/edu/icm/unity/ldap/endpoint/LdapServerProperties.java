@@ -34,8 +34,7 @@ public class LdapServerProperties extends PropertiesHelper
 	public static final String LDAP_PORT = "ldapPort";
 	public static final String LDAPS_PORT = "ldapsPort";
 	public static final String TLS_SUPPORT = "tls";
-	public static final String CERT_PASSWORD = "certPassword";
-	public static final String KEYSTORE_FILENAME = "keystoreName";
+	public static final String CREDENTIAL = "credential";
 	public static final String GROUP_MEMBER = "groupMember";
 	public static final String GROUP_MEMBER_DN_REGEXP = "groupMemberDnRegexp";
 	public static final String GROUP_OF_NAMES_RETURN_FORMAT = "groupOfNamesReturnFormat";
@@ -59,10 +58,8 @@ public class LdapServerProperties extends PropertiesHelper
 
 		META.put(TLS_SUPPORT, new PropertyMD().setCategory(main)
 			.setDescription("LDAP tls support"));
-		META.put(CERT_PASSWORD, new PropertyMD().setCategory(main)
-			.setDescription("LDAP certificate password if self created"));
-		META.put(KEYSTORE_FILENAME, new PropertyMD().setCategory(main)
-			.setDescription("LDAP keystore filename relative to working directory"));
+		META.put(CREDENTIAL, new PropertyMD().setCategory(main).setMandatory()
+			.setDescription("Name of Unity credential that will be used as LDAP server's own identity"));
 
 		META.put(GROUP_MEMBER_DN_REGEXP, new PropertyMD().setCategory(main)
 			.setDescription("Regular expression that should match the DN of a member compare request." +
@@ -77,8 +74,8 @@ public class LdapServerProperties extends PropertiesHelper
 				"value."));
 		META.put(RETURNED_USER_ATTRIBUTES, new PropertyMD().setCategory(main)
 			.setDescription("Attributes that should be returned if return all user attributes flag is set"));
-		META.put(USER_NAME_ALIASES, new PropertyMD().setCategory(main)
-			.setDescription("Attributes that will be used to get username from Dn"));
+		META.put(USER_NAME_ALIASES, new PropertyMD().setCategory(main).setMandatory()
+			.setDescription("Comma separated list of attributes that are used to extract username from DN"));
                 
                 META.put(ATTRIBUTES_MAP_PFX, new PropertyMD().setStructuredList(true).setCategory(main)
 			.setDescription("Unity attribute to LDAP attribute mappings defined under this prefix"));

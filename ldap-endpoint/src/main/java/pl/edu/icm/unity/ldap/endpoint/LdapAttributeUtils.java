@@ -55,11 +55,14 @@ public class LdapAttributeUtils
 
 	/**
 	 * Add user attributes to LDAP answer
-	 *
-	 * Fixed mappings: - SchemaConstants.USER_PASSWORD_AT: never released -
-	 * SchemaConstants.CN_AT: release username - MEMBER_OF_AT - All other
-	 * attributes are dynamicall configured
-	 * 
+	 * <p>
+	 * Fixed mappings: 
+	 * <ul>
+	 * <li> SchemaConstants.USER_PASSWORD_AT: never released 
+	 * <li> SchemaConstants.CN_AT: release username 
+	 * <li> MEMBER_OF_AT 
+	 * <li> All other attributes are dynamically configured
+	 * <p>
 	 * TODO: this should be configurable KB: and part should clearly be in a
 	 * separated class with generic value type -> LDAP representation
 	 * handling.
@@ -76,7 +79,6 @@ public class LdapAttributeUtils
 			Collection<AttributeExt> attrs, Entry toEntry)
 			throws LdapException, EngineException
 	{
-
 		Attribute da = null;
 		switch (name)
 		{
@@ -126,33 +128,51 @@ public class LdapAttributeUtils
 			break;
 		}
 
-		/*
-		 * case SchemaConstants.MAIL_AT: da =
-		 * mapUnityIdentityToLdapAttribute(userEntity, "email",
-		 * SchemaConstants.MAIL_AT, SchemaConstants.MAIL_AT_OID);
-		 * //TODO: Also support mail attribute in addition to email
-		 * identity? break; case SchemaConstants.EMAIL_AT: da =
-		 * mapUnityIdentityToLdapAttribute(userEntity, "email",
-		 * SchemaConstants.EMAIL_AT, SchemaConstants.EMAIL_AT_OID);
-		 * //TODO: Also support email attribute in addition to email
-		 * identity? break; case SchemaConstants.DISPLAY_NAME_AT: da =
-		 * mapUnityAttributeToLdapAttribute(attrs, "fullName",
-		 * SchemaConstants.DISPLAY_NAME_AT,
-		 * SchemaConstants.DISPLAY_NAME_AT_OID); break;
-		 * 
-		 * default: for (AttributeExt<?> ae : attrs) { if
-		 * (ae.getName().equals(name)) { da = lsf.getAttribute(name,
-		 * null);
-		 * 
-		 * Object o = ae.getValues().get(0); if (o instanceof
-		 * BufferedImage) { try { ByteArrayOutputStream baos = new
-		 * ByteArrayOutputStream(); ImageIO.write((BufferedImage) o,
-		 * "jpg", baos); baos.flush(); byte[] imageInByte =
-		 * baos.toByteArray(); da.add(imageInByte); baos.close(); }
-		 * catch (IOException e) { throw new LdapOtherException(
-		 * "Can not serialize image to byte array", e); } } else {
-		 * da.add(o.toString()); } } } break; }
-		 */
+/*            
+	        case SchemaConstants.MAIL_AT:
+	            da = mapUnityIdentityToLdapAttribute(userEntity, "email", SchemaConstants.MAIL_AT, SchemaConstants.MAIL_AT_OID);
+	            //TODO: Also support mail attribute in addition to email identity?
+	            break;
+	        case SchemaConstants.EMAIL_AT:
+	            da = mapUnityIdentityToLdapAttribute(userEntity, "email", SchemaConstants.EMAIL_AT, SchemaConstants.EMAIL_AT_OID);
+	            //TODO: Also support email attribute in addition to email identity?
+	            break;    
+	        case SchemaConstants.DISPLAY_NAME_AT:
+	            da = mapUnityAttributeToLdapAttribute(attrs, "fullName", SchemaConstants.DISPLAY_NAME_AT, SchemaConstants.DISPLAY_NAME_AT_OID);
+	            break;
+	        
+	        default:
+	            for (AttributeExt<?> ae : attrs)
+	            {
+	                if (ae.getName().equals(name))
+	                {
+	                    da = lsf.getAttribute(name, null);
+
+	                    Object o = ae.getValues().get(0);
+	                    if (o instanceof BufferedImage)
+	                    {
+	                        try
+	                        {
+	                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	                            ImageIO.write((BufferedImage) o, "jpg",	baos);
+	                            baos.flush();
+	                            byte[] imageInByte = baos.toByteArray();
+	                            da.add(imageInByte);
+	                            baos.close();
+	                        } catch (IOException e)
+	                        {
+	                            throw new LdapOtherException(
+	                                    "Can not serialize image to byte array", e);
+	                        }
+	                    } else
+	                    {
+	                        da.add(o.toString());
+	                    }
+	                }
+	            }
+	            break;
+	        }
+	*/
 		if (null != da && da.get() != null)
 		{
 			toEntry.add(da);

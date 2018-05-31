@@ -11,10 +11,12 @@ import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 
+import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractEndpoint;
@@ -48,9 +50,12 @@ public class LdapEndpoint extends AbstractEndpoint
 
 	LdapServerFacade ldapServerFacade;
 
+	private PKIManagement pkiManagement;
+
 	public LdapEndpoint(NetworkServer server, SessionManagement sessionMan,
 			AttributesManagement attributesMan, EntityManagement identitiesMan,
-			UnityServerConfiguration mainConfig, UserMapper userMapper)
+			UnityServerConfiguration mainConfig, UserMapper userMapper,
+			PKIManagement pkiManagement)
 	{
 		this.httpServer = server;
 		this.sessionMan = sessionMan;
@@ -58,6 +63,7 @@ public class LdapEndpoint extends AbstractEndpoint
 		this.identitiesMan = identitiesMan;
 		this.mainConfig = mainConfig;
 		this.userMapper = userMapper;
+		this.pkiManagement = pkiManagement;
 	}
 
 	@Override
@@ -110,11 +116,17 @@ public class LdapEndpoint extends AbstractEndpoint
 
 		boolean tlsSupport = configuration
 				.getBooleanValue(LdapServerProperties.TLS_SUPPORT);
-		String keystoreBaseName = configuration
-				.getValue(LdapServerProperties.KEYSTORE_FILENAME);
-		String keystoreFileName = new File(workDirectory, keystoreBaseName).getPath();
-		String certPass = configuration.getValue(LdapServerProperties.CERT_PASSWORD);
-
+		String credentialName = configuration.getValue(LdapServerProperties.CREDENTIAL);
+		X509Credential credential;
+		try
+		{
+			credential = pkiManagement.getCredential(credentialName);
+		} catch (EngineException e1)
+		{
+			throw new ConfigurationException("Can not access " + credentialName + 
+					" configured as LDAP server credential", e1);
+		}
+		
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
 				this.description.getRealm(), attributesMan, identitiesMan,
 				configuration, userMapper);
@@ -124,16 +136,14 @@ public class LdapEndpoint extends AbstractEndpoint
 
 		try
 		{
-			ldapServerFacade.init(false, ladi);
+			ldapServerFacade.init(false, ladi, credential);
 			if (tlsSupport)
-			{
-				ldapServerFacade.initTLS(keystoreFileName, certPass, false);
-			}
+				ldapServerFacade.initTLS(false);
 			ldapServerFacade.start();
 
 		} catch (Exception e)
 		{
-			LOG.error("LDAP embedded server failed to start", e);
+			throw new ConfigurationException("LDAP ebedded server failed to start", e);
 		}
 	}
 
@@ -144,7 +154,7 @@ public class LdapEndpoint extends AbstractEndpoint
 			ldapServerFacade.stop();
 		} catch (Exception e)
 		{
-			LOG.error("LDAP embedded server was not shutdown correctly");
+			LOG.error("LDAP embedded server was not shutdown correctly", e);
 		}
 	}
 }

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.ldap.endpoint;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import org.apache.directory.server.core.api.interceptor.context.BindOperationContext;
 
@@ -42,8 +43,10 @@ public class LdapSimpleBindRetrieval extends AbstractCredentialRetrieval<Passwor
 	public AuthenticationResult authenticate(LdapServerProperties configuration, BindOperationContext bindContext) 
 			throws AuthenticationException
 	{
-		String username = LdapNodeUtils.getUserName(configuration, bindContext.getDn());
+		Optional<String> username = LdapNodeUtils.getUserName(configuration, bindContext.getDn());
+		if (!username.isPresent())
+			throw new AuthenticationException("Can not extract Unity username from the DN " + bindContext.getDn());
 		String password = new String(bindContext.getCredentials(), StandardCharsets.UTF_8);
-		return credentialExchange.checkPassword(username, password, null);
+		return credentialExchange.checkPassword(username.get(), password, null);
 	}
 }

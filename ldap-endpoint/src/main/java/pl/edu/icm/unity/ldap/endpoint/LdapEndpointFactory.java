@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
@@ -47,15 +48,19 @@ public class LdapEndpointFactory implements EndpointFactory
 
 	private UserMapper userMapper;
 
+	private PKIManagement pkiMan;
+
 	@Autowired
 	public LdapEndpointFactory(NetworkServer server, IdentityResolver identityResolver,
 			ObjectFactory<PasswordVerificator> pwf, SessionManagement sessionMan,
 			AttributesManagement attributesMan, EntityManagement identitiesMan,
-			UnityServerConfiguration mainConfig, UserMapper userMapper)
+			UnityServerConfiguration mainConfig, UserMapper userMapper,
+			PKIManagement pkiMan)
 	{
 		this.server = server;
 		this.mainConfig = mainConfig;
 		this.userMapper = userMapper;
+		this.pkiMan = pkiMan;
 
 		// now now, this is not very nice
 		this.credentialVerificator = pwf.getObject();
@@ -82,6 +87,6 @@ public class LdapEndpointFactory implements EndpointFactory
 	public EndpointInstance newInstance()
 	{
 		return new LdapEndpoint(server, sessionMan, attributesMan,
-				identitiesMan, mainConfig, userMapper);
+				identitiesMan, mainConfig, userMapper, pkiMan);
 	}
 }

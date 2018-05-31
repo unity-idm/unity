@@ -68,20 +68,22 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 	private String apass1 = "heslo";
 	private String email1 = "clarin@email.com";
 
-	public static final String ldapEndpointConfiguration = "unity.ldapServer.host="
-			+ ldapEndpointHostname + "\n" + "unity.ldapServer.ldapPort="
-			+ ldapEndpointPort + "\n" + "unity.ldapServer.ldapsPort=1636\n"
+	public static final String ldapEndpointConfiguration = ""
+			+ "unity.ldapServer.host=" + ldapEndpointHostname + "\n" 
+			+ "unity.ldapServer.ldapPort=" + ldapEndpointPort + "\n" 
+			+ "unity.ldapServer.ldapsPort=1636\n"
 			+ "unity.ldapServer.groupMember=member\n"
 			+ "unity.ldapServer.groupMemberDnRegexp=ou=groups\n"
 			+ "unity.ldapServer.returnedUserAttributes=cn,entryDN,jpegPhoto\n"
 			+ "unity.ldapServer.userNameAliases=cn,mail\n"
 			+ "unity.ldapServer.tls=true\n"
 			+ "unity.ldapServer.groupOfNamesReturnFormat=cn=%s,ou=happygroups\n"
-			+ "unity.ldapServer.certPassword=test.p4ss\n"
-			+ "unity.ldapServer.keystoreName=ldap.test.keystore\n";
+			+ "unity.ldapServer.credential=MAIN";
 
-	private static final String ldapClientConfiguration = "ldap.servers.1=%s\n"
-			+ "ldap.ports.1=%d\n" + "ldap.userDNTemplate=%s\n"
+	private static final String ldapClientConfiguration = ""
+			+ "ldap.servers.1=%s\n"
+			+ "ldap.ports.1=%d\n" 
+			+ "ldap.userDNTemplate=%s\n"
 			+ "ldap.trustAllServerCertificates=true\n"
 			+ "ldap.translationProfile=dummy\n";
 
@@ -222,9 +224,12 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 		// the goal here is to test
 		// - bind + get DN + limited search
 		//
-		String extended_conf = "" + "ldap.servers.1=%s\n" + "ldap.ports.1=%d\n"
+		String extended_conf = "" 
+				+ "ldap.servers.1=%s\n" 
+				+ "ldap.ports.1=%d\n"
 				+ "ldap.trustAllServerCertificates=true\n"
-				+ "ldap.translationProfile=dummy\n" + "ldap.userDNSearchKey=s1\n"
+				+ "ldap.translationProfile=dummy\n" 
+				+ "ldap.userDNSearchKey=s1\n"
 				+ "ldap.bindAs=system\n"
 				+ String.format("ldap.systemDN=cn=%s,ou=system\n", username1)
 				+ String.format("ldap.systemPassword=%s\n", apass1)
