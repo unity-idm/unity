@@ -32,25 +32,18 @@ public class LdapEndpoint extends AbstractEndpoint
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT,
 			LdapServerProperties.class);
 
-	public static final String SERVER_WORK_DIRECTORY = "/ldapServer";
+	private static final String SERVER_WORK_DIRECTORY = "/ldapServer";
+
+	private final SessionManagement sessionMan;
+	private final AttributesManagement attributesMan;
+	private final EntityManagement identitiesMan;
+	private final UnityServerConfiguration mainConfig;
+	private final NetworkServer httpServer;
+	private final UserMapper userMapper;
+	private final PKIManagement pkiManagement;
 
 	private LdapServerProperties configuration;
-
-	private SessionManagement sessionMan;
-
-	private AttributesManagement attributesMan;
-
-	private EntityManagement identitiesMan;
-
-	private UnityServerConfiguration mainConfig;
-
-	private NetworkServer httpServer;
-
-	private UserMapper userMapper;
-
-	LdapServerFacade ldapServerFacade;
-
-	private PKIManagement pkiManagement;
+	private LdapServerFacade ldapServerFacade;
 
 	public LdapEndpoint(NetworkServer server, SessionManagement sessionMan,
 			AttributesManagement attributesMan, EntityManagement identitiesMan,
@@ -127,12 +120,11 @@ public class LdapEndpoint extends AbstractEndpoint
 					" configured as LDAP server credential", e1);
 		}
 		
-		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
-				this.description.getRealm(), attributesMan, identitiesMan,
-				configuration, userMapper);
 		ldapServerFacade = new LdapServerFacade(host, port, "ldap server interface",
 				workDirectory);
-		ladi.setLdapServerFacade(ldapServerFacade);
+		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
+				this.description.getRealm(), attributesMan, identitiesMan,
+				configuration, userMapper, ldapServerFacade);
 
 		try
 		{
@@ -140,7 +132,6 @@ public class LdapEndpoint extends AbstractEndpoint
 			if (tlsSupport)
 				ldapServerFacade.initTLS(false);
 			ldapServerFacade.start();
-
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("LDAP ebedded server failed to start", e);

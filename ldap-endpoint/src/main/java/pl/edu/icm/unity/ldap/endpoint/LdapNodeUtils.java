@@ -53,6 +53,8 @@ public class LdapNodeUtils
 	}
 
 	/**
+	 * TODO what is this really doing? 
+	 * FIXME it is not returning boolean, doc is wrong
 	 * @return Whether the LDAP query is a groupofnames search?
 	 */
 	public static String parseGroupOfNamesSearch(DnFactory dnf,

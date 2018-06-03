@@ -22,29 +22,19 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 
-/**
- *
- * @author Willem Elbers <willem@clarin.eu>
- */
-public class LdapAttributeUtils
+class LdapAttributeUtils
 {
-
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT,
 			LdapAttributeUtils.class);
+	final static String MEMBER_OF_AT = "memberof";
+	final static String MEMBER_OF_AT_OID = "2.16.840.1.113894.1.1.424";
 
 	private final EntityManagement identitiesMan;
-
 	private final LdapServerFacade lsf;
-
 	private final LdapServerProperties props;
-
 	private final Set<String> keys;
 
-	public final static String MEMBER_OF_AT = "memberof";
-
-	public final static String MEMBER_OF_AT_OID = "2.16.840.1.113894.1.1.424";
-
-	public LdapAttributeUtils(LdapServerFacade lsf, EntityManagement identitiesMan,
+	LdapAttributeUtils(LdapServerFacade lsf, EntityManagement identitiesMan,
 			LdapServerProperties props)
 	{
 		this.lsf = lsf;
@@ -63,9 +53,8 @@ public class LdapAttributeUtils
 	 * <li> MEMBER_OF_AT 
 	 * <li> All other attributes are dynamically configured
 	 * <p>
-	 * TODO: this should be configurable KB: and part should clearly be in a
-	 * separated class with generic value type -> LDAP representation
-	 * handling.
+	 * TODO: Perfectly should have support for all Unity attribute syntaxes 
+	 * and attribute names should be mapped using configured settings. At minimum: all but image
 	 * 
 	 * @param name
 	 * @param userEntity
@@ -75,7 +64,7 @@ public class LdapAttributeUtils
 	 * @throws org.apache.directory.api.ldap.model.exception.LdapException
 	 * @throws pl.edu.icm.unity.exceptions.EngineException
 	 */
-	public void addAttribute(String name, Entity userEntity, String username,
+	void addAttribute(String name, Entity userEntity, String username,
 			Collection<AttributeExt> attrs, Entry toEntry)
 			throws LdapException, EngineException
 	{

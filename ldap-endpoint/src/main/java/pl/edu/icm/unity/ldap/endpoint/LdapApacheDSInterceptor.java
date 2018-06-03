@@ -4,13 +4,9 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,13 +20,10 @@ import org.apache.directory.api.ldap.model.exception.LdapAuthenticationException
 import org.apache.directory.api.ldap.model.exception.LdapException;
 import org.apache.directory.api.ldap.model.exception.LdapOtherException;
 import org.apache.directory.api.ldap.model.exception.LdapUnwillingToPerformException;
-import org.apache.directory.api.ldap.model.filter.AndNode;
 import org.apache.directory.api.ldap.model.filter.ExprNode;
-import org.apache.directory.api.ldap.model.filter.OrNode;
 import org.apache.directory.api.ldap.model.message.ResultCodeEnum;
 import org.apache.directory.api.ldap.model.name.Dn;
 import org.apache.directory.api.ldap.model.schema.AttributeType;
-import org.apache.directory.api.ldap.model.schema.AttributeTypeOptions;
 import org.apache.directory.server.constants.ServerDNConstants;
 import org.apache.directory.server.core.api.DirectoryService;
 import org.apache.directory.server.core.api.LdapPrincipal;
@@ -62,10 +55,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
@@ -85,70 +75,35 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  *
  * Notes: - SASL not supported
  */
-public class LdapApacheDSInterceptor extends BaseInterceptor
+class LdapApacheDSInterceptor extends BaseInterceptor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT,
 			LdapApacheDSInterceptor.class);
 
 	private final LdapServerAuthentication auth;
-
 	private final UserMapper userMapper;
-
-	private LdapServerFacade lsf;
-
+	private final LdapServerFacade lsf;
 	private final SessionManagement sessionMan;
-
 	private final AuthenticationRealm realm;
-
-	private final AttributesManagement attributesMan;
-
 	private final EntityManagement identitiesMan;
-
 	private final LdapServerProperties configuration;
+	private final LdapSearch ldapSearch;
 
-	private final LdapAttributeUtils attributeUtils;
-
-	/**
-	 * Creates a new instance of DefaultAuthorizationInterceptor.
-	 * 
-	 * @param auth
-	 * @param sessionMan
-	 * @param realm
-	 * @param attributesMan
-	 * @param identitiesMan
-	 * @param configuration
-	 * @param userMapper
-	 */
-	public LdapApacheDSInterceptor(LdapServerAuthentication auth, SessionManagement sessionMan,
+	LdapApacheDSInterceptor(LdapServerAuthentication auth, SessionManagement sessionMan,
 			AuthenticationRealm realm, AttributesManagement attributesMan,
 			EntityManagement identitiesMan, LdapServerProperties configuration,
-			UserMapper userMapper)
+			UserMapper userMapper, LdapServerFacade lsf)
 	{
-		super();
 		this.userMapper = userMapper;
-		this.lsf = null;
 		this.auth = auth;
 		this.sessionMan = sessionMan;
 		this.realm = realm;
-		this.attributesMan = attributesMan;
 		this.identitiesMan = identitiesMan;
 		this.configuration = configuration;
-		this.attributeUtils = new LdapAttributeUtils(lsf, identitiesMan, configuration);
-	}
-
-	public void setLdapServerFacade(LdapServerFacade lsf)
-	{
 		this.lsf = lsf;
-	}
-
-	/**
-	 * Indicate we do not support the operation or particular code flow.
-	 * 
-	 * @throws LdapException
-	 */
-	private void notSupported() throws LdapException
-	{
-		throw new LdapUnwillingToPerformException(ResultCodeEnum.UNWILLING_TO_PERFORM);
+		LdapAttributeUtils attributeUtils = new LdapAttributeUtils(lsf, identitiesMan, configuration);
+		this.ldapSearch = new LdapSearch(configuration, identitiesMan, realm, 
+				userMapper, dnFactory, schemaManager, attributesMan, attributeUtils);
 	}
 
 	@Override
@@ -157,10 +112,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		super.init(directoryService);
 	}
 
-	//
-	// supported operations
-	//
-
+	//FIXME what for is lookup? Do we need to support it?
 	@Override
 	public Entry lookup(LookupOperationContext lookupContext) throws LdapException
 	{
@@ -177,6 +129,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 			}
 		}
 
+		//FIXME what is that?
 		// Require ldap-user - cn should be enough
 		// Require ldap-group - groups
 		// Require ldap-dn - cn should be enough
@@ -184,7 +137,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		// Require ldap-filter - not supported
 
 		Entry entry = new DefaultEntry(schemaManager, lookupContext.getDn());
-
 		Optional<String> user = LdapNodeUtils.getUserName(configuration, lookupContext.getDn());
 		if (user.isPresent())
 		{
@@ -193,6 +145,7 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 				AttributeType OBJECT_CLASS_AT = schemaManager
 						.lookupAttributeTypeRegistry(
 								SchemaConstants.OBJECT_CLASS_AT);
+				//FIXME this must be configurable
 				entry.put("objectClass", OBJECT_CLASS_AT, "top", "person",
 						"inetOrgPerson", "organizationalPerson");
 				// FIXME - what shall be returned?
@@ -208,80 +161,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		return next(lookupContext);
 	}
 
-	protected void handleSearchNode(SearchOperationContext searchContext, ExprNode node,
-			List<Entry> entries) throws LdapException
-	{
-		// TODO: handle all node types
-		if (node instanceof OrNode)
-		{
-			for (ExprNode childNode : ((OrNode) node).getChildren())
-			{
-				handleSearchNode(searchContext, childNode, entries);
-			}
-		} else if (node instanceof AndNode)
-		{
-			log.warn("And operator not supported");
-		} else if (node.isLeaf())
-		{
-			handleLeafNode(searchContext, node, entries);
-		} else
-		{
-			log.warn("Operator not supported");
-		}
-	}
-
-	protected void handleLeafNode(SearchOperationContext searchContext, ExprNode node,
-			List<Entry> entries) throws LdapException
-	{
-		// admin bind will not return true (we look for cn)
-		boolean userSearch = LdapNodeUtils.isUserSearch(configuration, node);
-
-		// e.g., search by mail
-		if (userSearch)
-		{
-			String username = LdapNodeUtils.getUserName(configuration, node);
-			if (null == username)
-			{
-				return;
-			}
-			entries.add(getUnityUserEntry(searchContext, username));
-		} else
-		{
-			String username = LdapNodeUtils.parseGroupOfNamesSearch(dnFactory,
-					configuration, node);
-			if (null != username)
-			{
-				long userEntityId;
-				try
-				{
-					userEntityId = userMapper.resolveUser(username,
-							realm.getName());
-					Map<String, GroupMembership> grps = identitiesMan
-							.getGroups(new EntityParam(userEntityId));
-					String return_format = configuration.getValue(
-							LdapServerProperties.GROUP_OF_NAMES_RETURN_FORMAT);
-					if (null == return_format)
-					{
-						throw new LdapOtherException(
-								"Configuration error in GROUP_OF_NAMES_RETURN_FORMAT");
-					}
-
-					for (Map.Entry<String, GroupMembership> agroup : grps
-							.entrySet())
-					{
-						Entry e = new DefaultEntry(
-								lsf.getDs().getSchemaManager());
-						e.setDn(String.format(return_format,
-								agroup.getKey()));
-						entries.add(e);
-					}
-				} catch (EngineException e)
-				{
-					throw new LdapOtherException("Error when searching", e);
-				}
-			}
-		}
-	}
 
 	/**
 	 * Search operation is very limited in respect to complete LDAP.
@@ -302,9 +181,8 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		setUnityInvocationContext(session.getSession());
 		try
 		{
-			List<Entry> entries = new ArrayList<>();
 			ExprNode rootNode = searchContext.getFilter();
-			handleSearchNode(searchContext, rootNode, entries);
+			List<Entry> entries = ldapSearch.searchEntries(searchContext, rootNode);
 
 			if (entries.isEmpty())
 			{
@@ -471,10 +349,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		}
 	}
 
-	//
-	// not supported
-	//
-
 	@Override
 	public void rename(RenameOperationContext renameContext) throws LdapException
 	{
@@ -526,10 +400,6 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		notSupported();
 	}
 
-	//
-	// helpers
-	//
-
 	/**
 	 * @return Empty LDAP result.
 	 */
@@ -538,89 +408,15 @@ public class LdapApacheDSInterceptor extends BaseInterceptor
 		return new EntryFilteringCursorImpl(new EmptyCursor<>(), searchContext,
 				lsf.getDs().getSchemaManager());
 	}
+	
 
 	/**
-	 * Get Unity user from LDAP search context.
+	 * Indicate we do not support the operation or particular code flow.
+	 * 
+	 * @throws LdapException
 	 */
-	private Entry getUnityUserEntry(SearchOperationContext searchContext, String username)
-			throws LdapException
+	private void notSupported() throws LdapException
 	{
-		Entry entry = new DefaultEntry(lsf.getDs().getSchemaManager());
-		try
-		{
-			long userEntityId = userMapper.resolveUser(username, realm.getName());
-			Entity userEntity = identitiesMan.getEntity(new EntityParam(userEntityId));
-
-			// get attributes if any
-			Collection<AttributeExt> attrs = attributesMan
-					.getAttributes(new EntityParam(userEntityId), null, null);
-
-			Set<AttributeTypeOptions> attributes = new HashSet<AttributeTypeOptions>();
-			if (null != searchContext.getReturningAttributes())
-			{
-				attributes.addAll(searchContext.getReturningAttributes());
-			} else
-			{
-				String default_attributes = configuration.getValue(
-						LdapServerProperties.RETURNED_USER_ATTRIBUTES);
-				for (String at : default_attributes.split(","))
-				{
-					attributes.add(new AttributeTypeOptions(schemaManager
-							.lookupAttributeTypeRegistry(at.trim())));
-				}
-			}
-
-			// iterate through requested attributes and try to match
-			// them with
-			// identity attributes
-			String[] aliases = configuration
-					.getValue(LdapServerProperties.USER_NAME_ALIASES)
-					.split(",");
-			for (String alias : aliases)
-			{
-				for (AttributeTypeOptions ao : attributes)
-				{
-					String aName = ao.getAttributeType().getName();
-					if (aName.equals(alias))
-					{
-						String requestDn = String.format("%s=%s", alias,
-								username);
-						// FIXME: is this what we want
-						// in all cases?
-						if (null != searchContext.getDn())
-						{
-							requestDn += "," + searchContext.getDn()
-									.toString();
-						}
-						entry.setDn(requestDn);
-					} else
-					{
-						attributeUtils.addAttribute(aName, userEntity,
-								username, attrs, entry);
-
-					}
-				}
-			}
-
-			// the purpose of a search can be to get DN (from
-			// another attribute)
-			// - even if no attributes are in
-			// getReturningAttributes()
-			if (null == entry.getDn() || entry.getDn().isEmpty())
-			{
-				entry.setDn(searchContext.getDn());
-			}
-
-			return entry;
-		} catch (IllegalIdentityValueException ignored)
-		{
-			log.warn("Requested user not found: " + username, ignored);
-		} catch (Exception e)
-		{
-
-			throw new LdapOtherException("Error establishing user information", e);
-		}
-
-		return null;// emptyResult(searchContext);
+		throw new LdapUnwillingToPerformException(ResultCodeEnum.UNWILLING_TO_PERFORM);
 	}
 }
