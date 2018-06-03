@@ -19,7 +19,6 @@ import org.junit.Test;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
@@ -51,7 +50,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void deployedEndpointIsReturned() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -68,7 +67,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void updatedEndpointIsReturned() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -88,7 +87,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void removedEndpointIsNotReturned() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -103,7 +102,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void duplicatedEndpointIsNotDeployed() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -124,7 +123,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void endpointWithWrongConfigurationIsNotDeployed() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), 
+				"desc", new ArrayList<String>(), 
 				MockEndpoint.WRONG_CONFIG, REALM_NAME);
 		try
 		{
@@ -143,7 +142,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void endpointWithWrongPathIsNotDeployed() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), 
+				"desc", new ArrayList<String>(), 
 				"", REALM_NAME);
 		try
 		{
@@ -179,10 +178,10 @@ public class TestEndpoints extends DBIntegrationTestBase
 	{
 		//test initial loading from DB: create, remove from the server, load
 		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "", REALM_NAME);
+				"desc", new ArrayList<String>(), "", REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg2);
 		EndpointConfiguration cfg3 = new EndpointConfiguration(new I18nString("endpoint2"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "", REALM_NAME);
+				"desc", new ArrayList<String>(), "", REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint2", "/foo2", cfg3);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());

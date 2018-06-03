@@ -7,7 +7,7 @@ package pl.edu.icm.unity.engine.api.authn;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
  * Provides access to authenticators. Low level, rarely useful. Needed e.g. by sandbox UI.
@@ -17,14 +17,15 @@ public interface AuthenticatorSupportManagement
 {
 	/**
 	 * Resolves binding specific authenticator authN implementations for a given 
-	 * list of {@link AuthenticationOptionDescription}. 
+	 * list of {@link AuthenticationFlowDefinition}. 
 	 * @param authnList
 	 * @return
 	 * @throws EngineException 
 	 */
-	List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
+	List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows) 
 			throws EngineException;
 
+	
 	/**
 	 * Removes all authenticators from DB
 	 * @throws EngineException

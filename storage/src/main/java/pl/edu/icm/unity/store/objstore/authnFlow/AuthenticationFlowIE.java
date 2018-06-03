@@ -23,7 +23,7 @@ public class AuthenticationFlowIE extends GenericObjectIEBase<AuthenticationFlow
 	@Autowired
 	public AuthenticationFlowIE(AuthenticationFlowDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AuthenticationFlowDefinition.class, 117, AuthenticationFlowHandler.CREDENTIAL_OBJECT_TYPE);
+		super(dao, jsonMapper, AuthenticationFlowDefinition.class, 117, AuthenticationFlowHandler.AUTHENTICATION_FLOW_OBJECT_TYPE);
 	}
 }
 

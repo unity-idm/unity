@@ -13,6 +13,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.migration.from2_4.InDBUpdateFromSchema2_2;
+import pl.edu.icm.unity.store.migration.from2_5.InDBUpdateFromSchema2_3;
 
 /**
  * Updates DB contents. Note that this class is not updating DB schema (it is done in {@link InitDB}).
@@ -26,17 +27,24 @@ public class ContentsUpdater
 	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
 	 * when bumping it please make sure any required data migrations were implemented here.  
 	 */
-	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_3_0";
+	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_4_0";
 	
 	@Autowired
 	private TransactionalRunner txManager;
 	@Autowired
 	private InDBUpdateFromSchema2_2 from2_4;
+	@Autowired
+	private InDBUpdateFromSchema2_3 from2_5;
 	
 	public void update(long oldDbVersion) throws IOException, EngineException
 	{
 		assertMigrationsAreMatchingApp();
-		migrateFromSchemaVersion2_2_0();
+		
+		if (oldDbVersion < 20300)
+			migrateFromSchemaVersion2_2_0();
+		
+		if (oldDbVersion < 20400)
+			migrateFromSchemaVersion2_3_0();
 	}
 	
 	private void assertMigrationsAreMatchingApp() throws IOException
@@ -62,6 +70,21 @@ public class ContentsUpdater
 			}	
 		});
 	}
+	
+	private void migrateFromSchemaVersion2_3_0() throws IOException, EngineException
+	{
+		txManager.runInTransactionThrowing(() -> 
+		{
+			try
+			{
+				from2_5.update();
+			} catch (IOException e)
+			{
+				throw new EngineException("Migration failed", e);
+			}	
+		});
+	}
+
 }
 
 

@@ -6,7 +6,9 @@
 package pl.edu.icm.unity.engine.authn;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,13 +58,10 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 	public void addAuthenticationFlowDefinition(
 			AuthenticationFlowDefinition authFlowdef) throws EngineException
 	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		
-		checkIfAuthenticatorsExists(
-				authFlowdef.getFirstFactorAuthenticators(),
+		authz.checkAuthorization(AuthzCapability.maintenance);	
+		checkIfAuthenticatorsExists(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
-		checkIfAuthenticatorsExists(
-				authFlowdef.getSecondFactorAuthenticators(),
+		checkAuthenticatorsBinding(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
 		authnFlowDB.create(authFlowdef);	
 	}
@@ -87,13 +86,30 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 	public void updateAuthenticationFlowDefinition(AuthenticationFlowDefinition authFlowdef) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		checkIfAuthenticatorsExists(
-				authFlowdef.getFirstFactorAuthenticators(),
+		checkIfAuthenticatorsExists(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
-		checkIfAuthenticatorsExists(
-				authFlowdef.getSecondFactorAuthenticators(),
+		checkAuthenticatorsBinding(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
 		authnFlowDB.update(authFlowdef);	
+	}
+	
+	private void checkAuthenticatorsBinding(Collection<String> toCheck, String flowName)
+	{
+		Map<String, AuthenticatorInstance> all = authenticatorDB.getAllAsMap();
+		HashSet<String> bindings = new HashSet<>();
+		
+		
+		for (String authName : toCheck)
+		{
+			bindings.add(all.get(authName).getTypeDescription().getSupportedBinding());
+		}
+	
+		if (bindings.size() > 1)
+		{	throw new IllegalArgumentException(
+					"Can not add authentication flow " + flowName
+							+ ", authenticators have different bindings");
+		}
+	
 	}
 	
 	private void checkIfAuthenticatorsExists(Collection<String> toCheck, String flowName)

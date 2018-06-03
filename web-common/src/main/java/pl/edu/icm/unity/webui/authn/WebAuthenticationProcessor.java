@@ -35,12 +35,12 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -103,13 +103,13 @@ public class WebAuthenticationProcessor
 	 */
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
 			AuthenticationRealm realm,
-			AuthenticationOption authenticationOption, boolean rememberMe) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, boolean rememberMe) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		PartialAuthnState authnState;
 		try
 		{
-			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationOption);
+			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationFlow);
 		} catch (AuthenticationException e)
 		{
 			if (!(e instanceof UnknownRemoteUserException))
@@ -130,7 +130,7 @@ public class WebAuthenticationProcessor
 
 	public void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp, 
 			AuthenticationRealm realm,
-			AuthenticationOption authenticationOption, boolean rememberMe) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, boolean rememberMe) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		AuthenticatedEntity logInfo;

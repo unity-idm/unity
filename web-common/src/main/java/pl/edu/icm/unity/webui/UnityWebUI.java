@@ -7,7 +7,7 @@ package pl.edu.icm.unity.webui;
 import java.util.List;
 import java.util.Properties;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
@@ -20,7 +20,7 @@ import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 public interface UnityWebUI
 {
 	void configure(ResolvedEndpoint description, 
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticationFlows,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration);
 	

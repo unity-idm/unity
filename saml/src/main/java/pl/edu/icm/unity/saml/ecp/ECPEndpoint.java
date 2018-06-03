@@ -21,7 +21,7 @@ import eu.unicore.samly2.validators.ReplayAttackChecker;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -184,7 +184,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	}
 	
 	@Override
-	public void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
+	public void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 			throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();

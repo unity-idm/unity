@@ -6,7 +6,6 @@ package pl.edu.icm.unity.test.performance;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpHost;
@@ -16,9 +15,13 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.protocol.HttpContext;
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.rest.MockRESTEndpoint;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -43,11 +46,12 @@ public class TstPerfLogin extends PerformanceTestBase
 
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 10, 100, -1, 600);
 		realmsMan.addRealm(realm);
-
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
+		authFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+				AUTHENTICATION_FLOW_PASS, Policy.NEVER,
+				Sets.newHashSet(AUTHENTICATOR_REST_PASS)));
+		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
-				authnCfg, "", realm.getName());
+				Lists.newArrayList(AUTHENTICATION_FLOW_PASS), "", realm.getName());
 		endpointMan.deploy(MockRESTEndpoint.NAME, "endpoint1", "/mock", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());

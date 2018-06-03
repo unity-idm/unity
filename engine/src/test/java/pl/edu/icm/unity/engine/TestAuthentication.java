@@ -19,6 +19,9 @@ import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
@@ -30,7 +33,8 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
@@ -54,6 +58,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 	private AuthenticatorManagement authnMan;
 	
 	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
+	
+	@Autowired
 	private InternalEndpointManagement internalEndpointMan;
 	
 	@Test
@@ -73,9 +80,11 @@ public class TestAuthentication extends DBIntegrationTestBase
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		authnMan.createAuthenticator("auth1", authType.getId(), "6", "bbb", "credential1");
 		
-		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
-		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc", 
-				Collections.singletonList(authSet), "", realm.getName());
+		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth1")));
+
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
+				"desc", Collections.singletonList("flow1"), "", realm.getName());
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 
 		//set wrong password 
@@ -138,28 +147,32 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals("b", authInstanceR.getRetrievalConfiguration());
 		assertNull(authInstanceR.getVerificatorConfiguration());
 		
+		//create authentication flow
+		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth1")));
+		Collection<AuthenticationFlowDefinition> authFlows = authnFlowMan.getAuthenticationFlows();
+		assertEquals(1, authFlows.size());
+		
 		//create endpoint
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "", realm.getName());
+				"desc", new ArrayList<String>(), "", realm.getName());
 		endpointMan.deploy(type.getName(), "endpoint1", "/foo", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
-		//and assign the authenticator to it
-		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
+		//and assign the authentication flow to it
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
 				new EndpointConfiguration(new I18nString("ada"), 
-				"ada", Collections.singletonList(authSet), "", realm.getName()));
+				"ada", Collections.singletonList("flow1"), "", realm.getName()));
 
 		//check if is returned
-		List<AuthenticationOptionDescription> authSets = endpointMan.getEndpoints().get(0).
+		List<String> authSets = endpointMan.getEndpoints().get(0).
 				getEndpoint().getConfiguration().getAuthenticationOptions();
 		assertEquals(1, authSets.size());
-		assertEquals("auth1", authSets.get(0).getPrimaryAuthenticator());
 		
 		//remove a used authenticator
 		try
@@ -171,13 +184,21 @@ public class TestAuthentication extends DBIntegrationTestBase
 		//remove it from endpoint
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
 				new EndpointConfiguration(new I18nString("ada"), 
-				"ada", new ArrayList<AuthenticationOptionDescription>(), "",
+				"ada", new ArrayList<String>(), "",
 				realm.getName()));
+		
+		
+		authnFlowMan.removeAuthenticationFlowDefinition("flow1");
+		authFlows= authnFlowMan.getAuthenticationFlows();
+		assertEquals(0, authFlows.size());		
 		
 		//remove again
 		authnMan.removeAuthenticator(authInstance.getId());
 		auths = authnMan.getAuthenticators(null);
 		assertEquals(0, auths.size());		
+		
+		
+		
 	}
 	
 	@Test

@@ -36,6 +36,7 @@ import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.MembershipDAO;
+import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
@@ -61,6 +62,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"classpath*:META-INF/components.xml"})
@@ -92,6 +94,9 @@ public class TestImport
 	private GroupDAO groupDAO;
 	@Autowired
 	private MembershipDAO memberDAO;	
+	@Autowired
+	private EndpointDB endpointDAO;
+	
 	
 	@Before
 	public void cleanDB()
@@ -99,6 +104,8 @@ public class TestImport
 		dbCleaner.reset();
 	}
 
+	
+	
 	@Test
 	public void testImportFrom1_9_x()
 	{
@@ -229,6 +236,37 @@ public class TestImport
 		});
 	}
 	
+	@Test
+	public void testImportFrom2_5_0()
+	{
+		tx.runInTransaction(() -> {
+			try
+			{
+				ie.load(new BufferedInputStream(new FileInputStream(
+						"src/test/resources/updateData/from2.5.x/"
+								+ "testbed-from2.5.0.json")));
+				ie.store(new FileOutputStream("target/afterImport.json"));
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
+
+			checkEndpointConfiguration();
+			
+		});
+	}
+	
+	private void checkEndpointConfiguration()
+	{
+		assertThat(endpointDAO.getAll().size(), is(11));
+		Endpoint endpoint = endpointDAO.get("UNITY administration interface");
+		assertThat(endpoint.getName(), is("UNITY administration interface"));	
+		assertThat(endpoint.getConfiguration().getAuthenticationOptions().size(), is(4));	
+		assertThat(endpoint.getConfiguration().getAuthenticationOptions().get(0), is("pwdWeb"));
+		assertThat(endpoint.getConfiguration().getAuthenticationOptions().get(3), is("samlWeb"));
+	}
+
 	private void checkAttributeType()
 	{
 		assertThat(atDAO.getAll().size(), is(67));

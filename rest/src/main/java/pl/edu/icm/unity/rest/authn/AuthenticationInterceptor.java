@@ -24,13 +24,14 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
@@ -48,14 +49,14 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, AuthenticationInterceptor.class);
 	private UnityMessageSource msg;
 	private AuthenticationProcessor authenticationProcessor;
-	protected List<AuthenticationOption> authenticators;
+	protected List<AuthenticationFlow> authenticators;
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected Set<String> notProtectedPaths = new HashSet<String>();
 	
 	public AuthenticationInterceptor(UnityMessageSource msg, AuthenticationProcessor authenticationProcessor, 
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticators,
 			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths)
 	{
 		super(Phase.PRE_INVOKE);
@@ -91,16 +92,17 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		if (isToNotProtected(message))
 			return;
 		
-		for (AuthenticationOption authenticatorSet: authenticators)
+		for (AuthenticationFlow authenticatorFlow: authenticators)
 		{
 			try
 			{
-				client = processAuthnSet(authnCache, authenticatorSet);
+				client = processAuthnFlow(authnCache, authenticatorFlow);
 			} catch (AuthenticationException e)
 			{
 				if (log.isDebugEnabled())
-					log.debug("Authentication set failed to authenticate the client, " +
-							"will try another: " + e);
+					log.debug("Authentication set failed to authenticate the client using flow "
+							+ authenticatorFlow.getId() + ", "
+							+ "will try another: " + e);
 				if (firstError == null)
 					firstError = new AuthenticationException(msg.getMessage(e.getMessage()));
 				continue;
@@ -151,14 +153,33 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		ls.setRemoteIdP(client.getRemoteIdP());
 	}
 	
-	private AuthenticatedEntity processAuthnSet(Map<String, AuthenticationResult> authnCache,
-			AuthenticationOption authenticationOption) throws AuthenticationException
+	private AuthenticatedEntity processAuthnFlow(Map<String, AuthenticationResult> authnCache,
+			AuthenticationFlow authenticationFlow) throws AuthenticationException
 	{
-		AuthenticationResult result = processAuthenticator(authnCache, 
-					(CXFAuthentication) authenticationOption.getPrimaryAuthenticator());
+		PartialAuthnState state = null;
+		AuthenticationException firstError = null;
+		for (BindingAuthn authn : authenticationFlow.getFirstFactorAuthenticators())
+		{
+			try {
+			AuthenticationResult result = processAuthenticator(authnCache, 
+					(CXFAuthentication) authn);
+			state = authenticationProcessor.processPrimaryAuthnResult(result, 
+					authenticationFlow);
+			}catch (AuthenticationException e)
+			{
+				if (firstError == null)
+					firstError = new AuthenticationException(e.getMessage());
+				continue;
+			}
+			break;
+		}
 		
-		PartialAuthnState state = authenticationProcessor.processPrimaryAuthnResult(result, 
-				authenticationOption);
+		if (state == null)
+		{
+			throw firstError == null ? new AuthenticationException("Authentication failed") : firstError;
+		}
+		
+		
 		if (state.isSecondaryAuthenticationRequired())
 		{
 			AuthenticationResult result2 = processAuthenticator(authnCache, 

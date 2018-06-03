@@ -6,8 +6,6 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.text.Collator;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,7 +21,6 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.renderers.ImageRenderer;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Images;
@@ -37,9 +34,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class AuthNTileGrid extends CustomComponent implements AuthNTile
 {
-	private List<AuthenticationOption> authenticators;
 	private SelectionChangedListener listener;
-	private Map<String, AuthenticationOption> authNOptionsById;
 	private Map<String, VaadinAuthenticationUI> authenticatorById;
 	private Grid<AuthNTileProvider> providersChoice;
 	private String name;
@@ -49,10 +44,10 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 	private List<AuthNTileProvider> providers;
 	private ListDataProvider<AuthNTileProvider> dataProvider;
 	
-	public AuthNTileGrid(List<AuthenticationOption> authenticators, UnityMessageSource msg, 
+	public AuthNTileGrid(Map<String, VaadinAuthenticationUI> authenticatorById, UnityMessageSource msg, 
 			SelectionChangedListener listener, String name)
 	{
-		this.authenticators = authenticators;
+		this.authenticatorById = authenticatorById;
 		this.listener = listener;
 		this.name = name;
 		collator = Collator.getInstance(msg.getLocale());
@@ -91,8 +86,7 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		providersChoice.addItemClickListener(event -> 
 		{
 			String globalId = event.getItem().getId();
-			listener.selectionChanged(authenticatorById.get(globalId),
-					authNOptionsById.get(globalId), globalId);
+			listener.selectionChanged(globalId);
 
 		});
 
@@ -119,46 +113,32 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 	private void reloadContents(String filter)
 	{
 		providers.clear();
-		authNOptionsById = new HashMap<>();
-		authenticatorById = new HashMap<>();
 		firstOptionId = null;
 
-		for (final AuthenticationOption set : authenticators)
+		for (Map.Entry<String, VaadinAuthenticationUI> entry : authenticatorById.entrySet())
 		{
-			VaadinAuthentication firstAuthenticator = (VaadinAuthentication) set
-					.getPrimaryAuthenticator();
-
-			Collection<VaadinAuthenticationUI> uiInstances = firstAuthenticator
-					.createUIInstance();
-			for (final VaadinAuthenticationUI vaadinAuthenticationUI : uiInstances)
-			{
-				String name = vaadinAuthenticationUI.getLabel();
-				Resource logo = vaadinAuthenticationUI.getImage();
-				String id = vaadinAuthenticationUI.getId();
-				final String globalId = AuthenticationOptionKeyUtils
-						.encode(set.getId(), id);
-				if (firstOptionId == null)
-					firstOptionId = globalId;
-				authNOptionsById.put(globalId, set);
-				authenticatorById.put(globalId, vaadinAuthenticationUI);
-
-				NameWithTags nameWithTags = new NameWithTags(name,
-						vaadinAuthenticationUI.getTags(), collator);
-				AuthNTileProvider providerEntry = new AuthNTileProvider(globalId, nameWithTags,
-						logo == null ? Images.empty.getResource() : logo);
-				providers.add(providerEntry);
-
-			}
+			
+			VaadinAuthenticationUI vaadinAuthenticationUI = entry.getValue();
+			String globalId = entry.getKey();
+			
+			String name = vaadinAuthenticationUI.getLabel();
+			Resource logo = vaadinAuthenticationUI.getImage();
+		
+			if (firstOptionId == null)
+				firstOptionId = globalId;
+	
+			NameWithTags nameWithTags = new NameWithTags(name,
+					vaadinAuthenticationUI.getTags(), collator);
+			AuthNTileProvider providerEntry = new AuthNTileProvider(
+					globalId, nameWithTags,
+					logo == null ? Images.empty.getResource()
+							: logo);
+			providers.add(providerEntry);
+	
 		}
-
+			
 		dataProvider.refreshAll();
 		setVisible(size() != 0);
-	}
-	
-	@Override
-	public AuthenticationOption getAuthenticationOptionById(String id)
-	{
-		return authNOptionsById.get(id);
 	}
 
 	@Override

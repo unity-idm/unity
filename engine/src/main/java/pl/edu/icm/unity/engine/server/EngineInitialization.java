@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -96,7 +97,6 @@ import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -682,7 +682,7 @@ public class EngineInitialization extends LifecycleBase
 				displayedName.setDefaultValue(name);
 			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
-			List<AuthenticationOptionDescription> endpointAuthn = config.getEndpointAuth(endpointKey);
+			List<String> endpointAuthn = config.getEndpointAuth(endpointKey);
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
 			log.info(" - " + name + ": " + type + " " + description);
@@ -709,6 +709,8 @@ public class EngineInitialization extends LifecycleBase
 
 	{
 		log.info("Loading all configured authentication flows");
+		Collection<AuthenticatorInstance> authenticators = authnManagement.getAuthenticators(null);
+		Set<String> existinguthenticators = authenticators.stream().map(a -> a.getId()).collect(Collectors.toSet());		
 		Collection<AuthenticationFlowDefinition> authenticationFlows = authnFlowManagement
 				.getAuthenticationFlows();
 		Map<String, AuthenticationFlowDefinition> existing = new HashMap<>();
@@ -721,6 +723,13 @@ public class EngineInitialization extends LifecycleBase
 		{
 			String name = config.getValue(authenticationFlowKey
 					+ UnityServerConfiguration.AUTHENTICATION_FLOW_NAME);
+			
+			if (existinguthenticators.contains(name))
+				throw new InternalException(
+						"Can't add authentication flow which are defined in configuration. The authentication flow name: "
+								+ name
+								+ " is the same as one of authenticator name");
+
 			Policy policy = config.getEnumValue(authenticationFlowKey
 					+ UnityServerConfiguration.AUTHENTICATION_FLOW_POLICY,
 					Policy.class);
@@ -732,9 +741,16 @@ public class EngineInitialization extends LifecycleBase
 
 			String secondFactorSpec = config.getValue(authenticationFlowKey
 					+ UnityServerConfiguration.AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS);
-			String[] secondFactorAuthn = secondFactorSpec.split(",");
-			List<String> secondFactorAuthnList = Arrays.asList(secondFactorAuthn);
-
+			
+			
+			
+			List<String> secondFactorAuthnList = new ArrayList<>();
+			if (secondFactorSpec != null && !secondFactorSpec.isEmpty())
+			{
+				String[] secondFactorAuthn = secondFactorSpec.split(",");
+				secondFactorAuthnList = Arrays.asList(secondFactorAuthn);
+			}
+		
 			AuthenticationFlowDefinition authFlowdef = new AuthenticationFlowDefinition(
 					name, policy, firstFactorAuthnSet, secondFactorAuthnList);
 

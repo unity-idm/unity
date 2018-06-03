@@ -22,12 +22,12 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 @Component
 public class AuthenticationFlowHandler extends DefaultEntityHandler<AuthenticationFlowDefinition>
 {
-	public static final String CREDENTIAL_OBJECT_TYPE = "authenticatorsFlow";
+	public static final String AUTHENTICATION_FLOW_OBJECT_TYPE = "authenticationFlow";
 	
 	@Autowired
 	public AuthenticationFlowHandler(ObjectMapper jsonMapper)
 	{
-		super(jsonMapper, CREDENTIAL_OBJECT_TYPE, AuthenticationFlowDefinition.class);
+		super(jsonMapper, AUTHENTICATION_FLOW_OBJECT_TYPE, AuthenticationFlowDefinition.class);
 	}
 
 	@Override
@@ -39,7 +39,7 @@ public class AuthenticationFlowHandler extends DefaultEntityHandler<Authenticati
 			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
 		{
-			throw new InternalException("Can't serialize authenticators flow JSON", e);
+			throw new InternalException("Can't serialize authentication flow JSON", e);
 		}
 	}
 
@@ -51,7 +51,7 @@ public class AuthenticationFlowHandler extends DefaultEntityHandler<Authenticati
 			return jsonMapper.readValue(blob.getContents(), AuthenticationFlowDefinition.class);
 		} catch (Exception e)
 		{
-			throw new InternalException("Can't deserialize authenticators flow from JSON", e);
+			throw new InternalException("Can't deserialize authentication from JSON", e);
 		}
 	}
 }

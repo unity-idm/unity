@@ -22,7 +22,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
@@ -31,10 +31,11 @@ import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.TileMode;
 import pl.edu.icm.unity.webui.authn.AuthNTile;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
@@ -57,11 +58,12 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	private static final String DEBUG_ID = "sbox";
 	public static final String PROFILE_VALIDATION = "validate";
 
-	private List<AuthenticationOptionDescription> authnList;
+	private List<AuthenticationFlowDefinition> authnFlowList;
 	private boolean debug;
 	private boolean validationMode;
 	protected AuthenticatorSupportManagement authenticatorsManagement;
-
+	private List<AuthenticationFlow> authnFlows;
+	
 	public SandboxUIBase(UnityMessageSource msg,
 			LocaleChoiceComponent localeChoice,
 			WebAuthenticationProcessor authnProcessor,
@@ -85,22 +87,22 @@ public abstract class SandboxUIBase extends AuthenticationUI
 				endpointDescription.getEndpoint().getContextAddress());
 	}
 
-	protected abstract List<AuthenticationOptionDescription> getAllVaadinAuthenticators(
-			List<AuthenticationOption> endpointAuthenticators);
+	protected abstract List<AuthenticationFlowDefinition> getAllVaadinAuthenticationFlows(
+			List<AuthenticationFlow> endpointAuthenticators);
 	
 	@Override
-	public void configure(ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
-			EndpointRegistrationConfiguration regCfg, Properties endpointProperties) 
+	public void configure(ResolvedEndpoint description, List<AuthenticationFlow> authenticators,
+			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
-		
-		this.authnList      = getAllVaadinAuthenticators(authenticators);
-		this.authenticators = getAuthenticatorUIs(authnList);
-		
+
+		this.authnFlowList = getAllVaadinAuthenticationFlows(authenticators);
+		this.authnFlows = getAuthenticationFlow(authnFlowList);
+		loadAuthnFlows(authnFlows);
+				
 		this.registrationConfiguration = new EndpointRegistrationConfiguration(false);
 		this.endpointDescription = description;
-		//TODO - check if this was needed?
-		//this.endpointDescription.setAuthenticatorSets(authnList);
+		// TODO - check if this was needed?
+		// this.endpointDescription.setAuthenticatorSets(authnList);
 		config = prepareConfiguration(endpointProperties);
 	}
 	
@@ -126,12 +128,13 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	@Override
 	protected void appInit(VaadinRequest request) 
 	{
-		if (authenticators.size() == 0)
+		if (authnFlows.size() == 0)
 		{
 			noRemoteAuthnUI();
 			return;
 		}
 		
+		setDefaultTileMode(TileMode.table);
 		super.appInit(request);
 		
 		setSandboxCallbackForAuthenticators();
@@ -191,7 +194,7 @@ public abstract class SandboxUIBase extends AuthenticationUI
 	
 	private void setSandboxCallbackForAuthenticators() 
 	{
-		if (authenticators == null)
+		if (authnFlows == null)
 			return;
 		for (AuthNTile tile: selectorPanel.getTiles())
 		{
@@ -215,7 +218,7 @@ public abstract class SandboxUIBase extends AuthenticationUI
 		}
 	}
 	
-	private List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
+	private List<AuthenticationFlow> getAuthenticationFlow(List<AuthenticationFlowDefinition> authnList) 
 	{
 		try
 		{

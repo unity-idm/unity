@@ -22,9 +22,9 @@ import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
  * @author P.Piernik
  *
  */
-public class UpdateHelper
+public class UpdateHelperFrom2_0
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperFrom2_0.class);
 	
 	public static Optional<ObjectNode> dropChannelFromGenericForm(ObjectNode objContent, String type)
 	{

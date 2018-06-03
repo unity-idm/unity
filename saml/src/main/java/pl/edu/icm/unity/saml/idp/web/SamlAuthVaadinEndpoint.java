@@ -222,7 +222,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticators, 
+		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
@@ -235,7 +235,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		
 		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
-				AuthenticationUI.class.getSimpleName(), description, authenticators,
+				AuthenticationUI.class.getSimpleName(), description, authenticationFlows,
 				registrationConfiguration, properties, 
 				getBootstrapHandler4Authn(SAML_ENTRY_SERVLET_PATH));
 		
@@ -247,7 +247,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addServlet(authnServletHolder, VAADIN_RESOURCES);
 		
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration, properties, 
+				description, authenticationFlows, registrationConfiguration, properties, 
 				getBootstrapHandler(SAML_ENTRY_SERVLET_PATH));
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		

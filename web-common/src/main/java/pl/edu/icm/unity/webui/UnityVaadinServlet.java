@@ -32,7 +32,7 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.UI;
 import com.vaadin.util.CurrentInstance;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -50,7 +50,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
 	private transient ResolvedEndpoint description;
-	private transient List<AuthenticationOption> authenticators;
+	private transient List<AuthenticationFlow> authenticationFlows;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguration;
@@ -60,7 +60,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	
 	public UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties,
 			UnityBootstrapHandler bootstrapHandler)
@@ -71,7 +71,7 @@ public class UnityVaadinServlet extends VaadinServlet
 	
 	protected UnityVaadinServlet(ApplicationContext applicationContext, String uiBeanName,
 			ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties endpointProperties,
 			UnityBootstrapHandler bootstrapHandler,
@@ -81,7 +81,7 @@ public class UnityVaadinServlet extends VaadinServlet
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.description = description;
-		this.authenticators = authenticators;
+		this.authenticationFlows = authenticators;
 		this.registrationConfiguration = registrationConfiguration;
 		this.endpointProperties = endpointProperties;
 		this.bootstrapHandler = bootstrapHandler;
@@ -163,14 +163,14 @@ public class UnityVaadinServlet extends VaadinServlet
 			CurrentInstance.set(VaadinResponse.class, response);
 	}
 	
-	public synchronized void updateAuthenticators(List<AuthenticationOption> authenticators)
+	public synchronized void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 	{
-		this.authenticators = new ArrayList<>(authenticators);
+		this.authenticationFlows = new ArrayList<>(authenticators);
 	}
 	
-	protected synchronized List<AuthenticationOption> getAuthenticators()
+	protected synchronized List<AuthenticationFlow> getAuthenticationFlows()
 	{
-		return this.authenticators;
+		return this.authenticationFlows;
 	}
 	
 	public void setCancelHandler(CancelHandler cancelHandler)
@@ -197,7 +197,7 @@ public class UnityVaadinServlet extends VaadinServlet
 			public void sessionInit(SessionInitEvent event) throws ServiceException
 			{
 				VaadinUIProvider uiProv = new VaadinUIProvider(applicationContext, uiBeanName,
-						description, getAuthenticators(), registrationConfiguration,
+						description, getAuthenticationFlows(), registrationConfiguration,
 						endpointProperties, themeConfigKey);
 				uiProv.setCancelHandler(cancelHandler);
 				uiProv.setSandboxRouter(sandboxRouter);

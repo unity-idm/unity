@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -31,7 +31,6 @@ import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -120,7 +119,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			Endpoint endpoint = new Endpoint(endpointName, typeId, address, configuration);
 			endpointInstance = endpointInstanceLoader.createEndpointInstance(endpoint);
 
-			verifyAuthenticators(endpointInstance.getAuthenticationOptions(), 
+			verifyAuthenticators(endpointInstance.getAuthenticationFlows(), 
 					factory.getDescription().getSupportedBindings());
 			
 			endpointDB.create(endpoint);
@@ -159,10 +158,10 @@ public class EndpointManagementImpl implements EndpointManagement
 		}
 	}
 	
-	private void verifyAuthenticators(List<AuthenticationOption> authenticators,
+	private void verifyAuthenticators(List<AuthenticationFlow> authenticators,
 			Set<String> supported) throws WrongArgumentException
 	{
-		for (AuthenticationOption auths: authenticators)
+		for (AuthenticationFlow auths: authenticators)
 			auths.checkIfAuthenticatorsAreAmongSupported(supported);
 	}
 
@@ -240,7 +239,7 @@ public class EndpointManagementImpl implements EndpointManagement
 						configuration.getDescription() :
 						existing.getConfiguration().getDescription();
 
-				List<AuthenticationOptionDescription> newAuthn = 
+				List<String> newAuthn = 
 						(configuration.getAuthenticationOptions() != null) ?
 							configuration.getAuthenticationOptions() :
 							existing.getConfiguration().getAuthenticationOptions();

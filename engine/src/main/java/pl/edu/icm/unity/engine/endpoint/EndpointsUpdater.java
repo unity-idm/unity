@@ -20,10 +20,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.utils.ScheduledUpdaterBase;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 
@@ -48,13 +49,14 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
 	private AuthenticatorInstanceDB authnDB;
+	private AuthenticationFlowDB authnFlowDB;
 	private EndpointInstanceLoader loader;
 	private TransactionalRunner tx;
 	
 	@Autowired
 	public EndpointsUpdater(TransactionalRunner tx,
 			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
-			AuthenticatorInstanceDB authnDB, EndpointInstanceLoader loader)
+			AuthenticatorInstanceDB authnDB, AuthenticationFlowDB authnFlowDB, EndpointInstanceLoader loader)
 	{
 		super("endpoints");
 		this.tx = tx;
@@ -62,6 +64,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		this.endpointDB = endpointDB;
 		this.authnDB = authnDB;
 		this.loader = loader;
+		this.authnFlowDB = authnFlowDB;
 	}
 
 	@Override
@@ -78,7 +81,8 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		tx.runInTransactionThrowing(() -> {
 			long roundedUpdateTime = roundToS(System.currentTimeMillis());
 			Set<String> changedAuthenticators = getChangedAuthenticators(roundedUpdateTime);
-
+			Set<String> changedAuthenticationFlows = getChangedAuthenticationFlows(roundedUpdateTime);
+			
 			List<Map.Entry<Endpoint, Date>> endpoints = endpointDB.getAllWithUpdateTimestamps();
 			log.debug("There are " + endpoints.size() + " endpoints in DB.");
 			for (Map.Entry<Endpoint, Date> instanceWithDate: endpoints)
@@ -106,7 +110,10 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 						log.info("Endpoint " + name + " will be deployed");
 
 					endpointMan.deploy(instance);
-				} else if (hasChangedAuthenticator(changedAuthenticators, instance))
+				} else if (hasChangedAuthenticationFlow(changedAuthenticationFlows, instance))
+				{
+					updateEndpointAuthenticators(name, instance, endpointsDeployed);
+				}else if (hasChangedAuthenticator(changedAuthenticators, instance))
 				{
 					updateEndpointAuthenticators(name, instance, endpointsDeployed);
 				}
@@ -124,7 +131,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		EndpointInstance toUpdate = endpointsDeployed.get(name);
 		try
 		{
-			toUpdate.updateAuthenticationOptions(instance.getAuthenticationOptions());
+			toUpdate.updateAuthenticationFlows(instance.getAuthenticationFlows());
 		} catch (UnsupportedOperationException e)
 		{
 			log.info("Endpoint " + name + " doesn't support authenticators update so will be redeployed");
@@ -155,25 +162,85 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	}
 	
 	/**
+	 * @param sql
+	 * @return Set of those authentication flows that were updated after the last update of endpoints.
+	 * @throws EngineException 
+	 */
+	private Set<String> getChangedAuthenticationFlows(long roundedUpdateTime) throws EngineException
+	{
+		Set<String> changedAuthenticators = new HashSet<String>();
+		List<Map.Entry<String, Date>> authnNames = authnFlowDB.getAllNamesWithUpdateTimestamps();
+		for (Map.Entry<String, Date> authn: authnNames)
+		{
+			long authenticatorChangedAt = roundToS(authn.getValue().getTime());
+			log.trace("Authentication flow update timestampses: " + roundedUpdateTime + " " + 
+					getLastUpdate() + " " + authn.getKey() + ": " + authenticatorChangedAt);
+			if (authenticatorChangedAt >= getLastUpdate() && roundedUpdateTime != authenticatorChangedAt)
+				changedAuthenticators.add(authn.getKey());
+		}
+		log.trace("Changed authentication flows" + changedAuthenticators);
+		return changedAuthenticators;
+	}
+	
+	/**
 	 * @param changedAuthenticators
 	 * @param instance
 	 * @return true if endpoint has any of the authenticators in the parameter set
 	 */
-	private boolean hasChangedAuthenticator(Set<String> changedAuthenticators, EndpointInstance instance)
+	private boolean hasChangedAuthenticator(Set<String> changedAuthenticators,
+			EndpointInstance instance)
 	{
-		List<AuthenticationOptionDescription> auths = instance.getEndpointDescription().
-				getEndpoint().getConfiguration().getAuthenticationOptions();
-		for (String changed: changedAuthenticators)
+		List<String> authnOptions = instance.getEndpointDescription().getEndpoint()
+				.getConfiguration().getAuthenticationOptions();
+
+		
+		
+		Map<String, AuthenticationFlowDefinition> flows = authnFlowDB.getAllAsMap();
+		
+		
+		for (String authnOption : authnOptions)
 		{
-			for (AuthenticationOptionDescription as: auths)
+			AuthenticationFlowDefinition floDef = flows.get(authnOption);
+
+			if (floDef != null)
+				for (String changed : changedAuthenticators)
+				{
+
+					if (floDef.getFirstFactorAuthenticators().contains(changed)
+							|| floDef.getSecondFactorAuthenticators()
+									.contains(changed))
+						return true;
+				}
+			else
 			{
-				if (as.contains(changed))
-					return true;
+				for (String changed : changedAuthenticators)
+					if (authnOption.equals(changed))
+						return true;
 			}
 		}
 		return false;
 	}
 	
+	/**
+	 * @param changedAuthenticationFlow
+	 * @param instance
+	 * @return true if endpoint has any of the authentication flow in the parameter set
+	 */
+	private boolean hasChangedAuthenticationFlow(Set<String> changedAuthenticationFlow,
+			EndpointInstance instance)
+	{
+		List<String> authFlows = instance.getEndpointDescription().getEndpoint()
+				.getConfiguration().getAuthenticationOptions();
+
+		for (String authnFlowId : authFlows)
+		{
+			if (changedAuthenticationFlow.contains(authnFlowId))
+				return true;
+		}
+		return false;
+	}
+
+
 	private void undeployRemoved(Set<String> endpointsInDb, Collection<EndpointInstance> deployedEndpoints) 
 			throws EngineException
 	{

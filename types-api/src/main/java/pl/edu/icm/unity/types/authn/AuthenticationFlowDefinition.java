@@ -5,8 +5,12 @@
 
 package pl.edu.icm.unity.types.authn;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import pl.edu.icm.unity.types.NamedObject;
 
@@ -22,7 +26,7 @@ public class AuthenticationFlowDefinition implements NamedObject
 {
 	public enum Policy
 	{
-		REQUIRE, USER_OPTIN, NEVER, RISK_BASED
+		REQUIRE, USER_OPTIN, NEVER
 	}
 
 	private String name;
@@ -45,6 +49,21 @@ public class AuthenticationFlowDefinition implements NamedObject
 		this.policy = policy;
 	}
 
+	public AuthenticationFlowDefinition(String name, Policy policy,
+			Set<String> firstFactorAuthenticators)
+	{
+		this(name, policy, firstFactorAuthenticators, new ArrayList<>());
+	}
+	
+	@JsonIgnore
+	public Set<String> getAllAuthenticators()
+	{
+		Set<String> ret = new HashSet<>();
+		ret.addAll(firstFactorAuthenticators);
+		ret.addAll(secondFactorAuthenticators);
+		return ret;	
+	}
+	
 	public Set<String> getFirstFactorAuthenticators()
 	{
 		return firstFactorAuthenticators;
@@ -85,4 +104,45 @@ public class AuthenticationFlowDefinition implements NamedObject
 	{
 		return name;
 	}
+	
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AuthenticationFlowDefinition other = (AuthenticationFlowDefinition) obj;
+		
+		if (name == null)
+		{
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+		
+		if (policy == null)
+		{
+			if (other.policy != null)
+				return false;
+		} else if (!policy.equals(other.policy))
+			return false;
+		
+		if (secondFactorAuthenticators == null)
+		{
+			if (other.secondFactorAuthenticators != null)
+				return false;
+		} else if (!secondFactorAuthenticators.equals(other.secondFactorAuthenticators))
+			return false;
+		if (firstFactorAuthenticators == null)
+		{
+			if (other.firstFactorAuthenticators != null)
+				return false;
+		} else if (!firstFactorAuthenticators.equals(other.firstFactorAuthenticators))
+			return false;
+		return true;
+	}
+	
 }

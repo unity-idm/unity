@@ -24,7 +24,7 @@ import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 
 /**
@@ -49,7 +49,7 @@ public class ProxyAuthenticationFilter implements Filter
 	private String endpointPath;
 	private boolean triggerByDefault;
 	
-	public ProxyAuthenticationFilter(List<AuthenticationOption> authenticators, 
+	public ProxyAuthenticationFilter(List<AuthenticationFlow> authenticators, 
 			String endpointPath, boolean triggerByDefault)
 	{
 		this.endpointPath = endpointPath;
@@ -57,12 +57,18 @@ public class ProxyAuthenticationFilter implements Filter
 		updateAuthenticators(authenticators);
 	}
 
-	public void updateAuthenticators(List<AuthenticationOption> authenticators)
+	public void updateAuthenticators(List<AuthenticationFlow> authenticators)
 	{
 		Map<String, BindingAuthn> newMap = new HashMap<>();
-		for (AuthenticationOption ao: authenticators)
-			newMap.put(ao.getPrimaryAuthenticator().getAuthenticatorId(), 
-					ao.getPrimaryAuthenticator());
+		for (AuthenticationFlow ao : authenticators)
+		{
+
+			for (BindingAuthn authn : ao.getFirstFactorAuthenticators())
+			{
+				newMap.put(authn.getAuthenticatorId(), authn);
+			}
+
+		}
 		this.authenticators = newMap;
 	}
 	

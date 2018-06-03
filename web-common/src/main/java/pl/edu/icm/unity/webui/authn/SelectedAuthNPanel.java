@@ -28,9 +28,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -71,7 +71,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private AuthenticationListener authNListener;
 	
 	private VerticalLayout authenticatorsContainer;
-	private AuthenticationOption selectedAuthnOption;
+	private AuthenticationFlow selectedAuthnOption;
 	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
 	private HorizontalLayout authnProgressHL;
@@ -183,7 +183,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	/**
 	 * @param primaryUI
 	 */
-	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationOption authnOption, 
+	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationFlow authnOption, 
 			String id)
 	{
 		this.selectedAuthnOption = authnOption;
@@ -371,7 +371,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	}
 	
 	/**
-	 * Collects authN result from the first authenticator of the selected {@link AuthenticationOption} 
+	 * Collects authN result from the first authenticator of the selected {@link AuthenticationFlow} 
 	 * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 
 	 * and if needed proceeds to 2nd authenticator. 
 	 * 
