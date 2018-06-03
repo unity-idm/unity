@@ -3,16 +3,15 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.webui.common.attributes;
+package pl.edu.icm.unity.webui.common.attributes.edit;
 
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
- * Contain all necessary informations to build UI editor to attribute
+ * Contain complete information necessary to build attribute editor UI
  * 
  * @author P.Piernik
- *
  */
 public class AttributeEditContext
 {
@@ -27,10 +26,41 @@ public class AttributeEditContext
 	private EntityParam attributeOwner;
 	private String attributeGroup;
 
+	private AttributeEditContext()
+	{
+	}
+
 	public static Builder builder()
 	{
 		return new Builder();
 	}
+
+	public ConfirmationMode getConfirmationMode()
+	{
+		return confirmationMode;
+	}
+
+	public boolean isRequired()
+	{
+		return required;
+	}
+
+	public EntityParam getAttributeOwner()
+	{
+		return attributeOwner;
+
+	}
+
+	public String getAttributeGroup()
+	{
+		return attributeGroup;
+	}
+
+	public AttributeType getAttributeType()
+	{
+		return attributeType;
+	}
+	
 
 	public static class Builder
 	{
@@ -81,48 +111,5 @@ public class AttributeEditContext
 		{
 			return obj;
 		}
-	}
-
-	public AttributeEditContext()
-	{
-
-	}
-
-//	public AttributeEditContext(ConfirmationMode confirmationMode, boolean required,
-//			AttributeType attributeType, EntityParam attributeOwner,
-//			String attributeGroup)
-//	{
-//
-//		this.confirmationMode = confirmationMode;
-//		this.required = required;
-//		this.attributeType = attributeType;
-//		this.attributeOwner = attributeOwner;
-//		this.attributeGroup = attributeGroup;
-//	}
-
-	public ConfirmationMode getConfirmationMode()
-	{
-		return confirmationMode;
-	}
-
-	public boolean isRequired()
-	{
-		return required;
-	}
-
-	public EntityParam getAttributeOwner()
-	{
-		return attributeOwner;
-
-	}
-
-	public String getAttributeGroup()
-	{
-		return attributeGroup;
-	}
-
-	public AttributeType getAttributeType()
-	{
-		return attributeType;
 	}
 }

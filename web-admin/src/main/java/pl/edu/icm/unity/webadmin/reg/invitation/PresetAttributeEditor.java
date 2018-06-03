@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -16,10 +17,10 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
 /**
  * Editor of a prefilled invitation {@link Attribute}.
@@ -47,7 +48,7 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 	}
 
 	@Override
-	protected Attribute getValueInternal() throws FormValidationException
+	protected Optional<Attribute> getValueInternal() throws FormValidationException
 	{
 		try
 		{

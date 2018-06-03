@@ -116,7 +116,7 @@ public class EndpointManagementImpl implements EndpointManagement
 		EndpointInstance endpointInstance;
 		try
 		{
-			Endpoint endpoint = new Endpoint(endpointName, typeId, address, configuration);
+			Endpoint endpoint = new Endpoint(endpointName, typeId, address, configuration, 0);
 			endpointInstance = endpointInstanceLoader.createEndpointInstance(endpoint);
 
 			verifyAuthenticators(endpointInstance.getAuthenticationFlows(), 
@@ -260,14 +260,15 @@ public class EndpointManagementImpl implements EndpointManagement
 						newAuthn, 
 						jsonConf, 
 						realm.getName());
-						
+				
+				Endpoint current = endpointDB.get(id);
 				Endpoint updatedEndpoint = new Endpoint(id, 
 						endpointTypeId, 
 						existing.getContextAddress(), 
-						newConfiguration);
-
+						newConfiguration,
+						current.getRevision() + 1);
 				endpointDB.update(updatedEndpoint);
-				log.info("Endpoint " + id + " successfully updated");
+				log.info("Endpoint " + id + " successfully updated in DB");
 			} catch (Exception e)
 			{
 				throw new EngineException("Unable to reconfigure an endpoint: " + e.getMessage(), e);

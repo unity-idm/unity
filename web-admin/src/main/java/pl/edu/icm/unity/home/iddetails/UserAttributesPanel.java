@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,11 +29,11 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
-import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 
 /**
  * Shows (optionally in edit mode) all configured attributes.
@@ -177,9 +178,9 @@ public class UserAttributesPanel
 		{
 			try
 			{
-				Attribute a = ae.getAttribute();
-				if (a != null)
-					updateAttribute(a);
+				Optional<Attribute> a = ae.getAttribute();
+				if (a.isPresent())
+					updateAttribute(a.get());
 				else
 					removeAttribute(ae);
 			} catch (FormValidationException e)

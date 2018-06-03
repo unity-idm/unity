@@ -2,10 +2,11 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.attributes;
+package pl.edu.icm.unity.webui.common.attributes.edit;
 
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 
 /**
  * Attribute value editor, with possibility to retrieve the edited value.

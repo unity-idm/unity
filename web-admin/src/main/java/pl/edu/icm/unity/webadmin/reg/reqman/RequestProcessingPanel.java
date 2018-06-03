@@ -34,6 +34,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.UserRequestState;
+import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -218,6 +219,8 @@ public class RequestProcessingPanel extends CustomComponent
 				regMan.processRegistrationRequest(requestState.getRequestId(), 
 						requestReviewPanel.getUpdatedRequest(), action, null, null);
 				bus.fireEvent(new RegistrationRequestChangedEvent(requestState.getRequestId()));
+				if (action == RegistrationRequestAction.accept)
+					bus.fireEvent(new GroupChangedEvent("/"));
 			} else
 			{
 				enquiryMan.processEnquiryResponse(requestState.getRequestId(), 

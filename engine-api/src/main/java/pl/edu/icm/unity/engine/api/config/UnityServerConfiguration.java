@@ -147,6 +147,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String CONFIRMATION_DEFAULT_RETURN_URL = "defaultPostConfirmationReturnURL";
 	public static final String CONFIRMATION_AUTO_REDIRECT = "automaticRedirectAfterConfirmation";
 
+	public static final String ACCOUNT_REMOVED_NOTIFICATION = "accountRemovedNotification";
+	public static final String ACCOUNT_DISABLED_NOTIFICATION = "accountDisabledNotification";
+	public static final String ACCOUNT_ACTIVATED_NOTIFICATION = "accountActivatedNotification";
+	
 	public static final String MOBILE_CONFIRMATION_REQUEST_LIMIT = "mobileConfirmationRequestLimit";
 	
 	public static final String SCRIPTS = "script.";
@@ -382,6 +386,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "If true and a return URL is defined for the confirmation then the screen is not shown and redirect is immediate."));
 		defaults.put(MOBILE_CONFIRMATION_REQUEST_LIMIT, new PropertyMD("3").setCategory(mainCat).
 				setDescription("Defines number of confirmation request that can be send to particular mobile number in day"));
+
+		defaults.put(ACCOUNT_REMOVED_NOTIFICATION, new PropertyMD().setCategory(mainCat).
+				setDescription("Can be set to message template name. If set message of the selected template will be sent to user after her/his account removal."));
+		defaults.put(ACCOUNT_DISABLED_NOTIFICATION, new PropertyMD().setCategory(mainCat).
+				setDescription("Can be set to message template name. If set message of the selected template will be sent to user after her/his account status was changed to disabled (including authentication disabled)."));
+		defaults.put(ACCOUNT_ACTIVATED_NOTIFICATION, new PropertyMD().setCategory(mainCat).
+				setDescription("Can be set to message template name. If set message of the selected template will be sent to user after her/his account status is set to enabled, after being disabled."));
 		
 		defaults.put(MAIN_TRUSTSTORE, new PropertyMD().setMandatory().setCategory(mainCat).
 				setDescription("Name of the truststore to be used by the server."));

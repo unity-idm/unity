@@ -2,10 +2,12 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common.attributes;
+package pl.edu.icm.unity.webui.common.attributes.edit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import com.vaadin.ui.AbstractOrderedLayout;
 
@@ -14,6 +16,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
+import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 
 /**
  * Attribute editor allowing to edit a fixed attribute type. It can show the (also fixed) group 
@@ -23,8 +26,10 @@ import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
  * 
  * @author K. Benedyczak
  */
-public class FixedAttributeEditor extends AbstractAttributeEditor
+public class FixedAttributeEditor
 {
+	private UnityMessageSource msg;
+	private AttributeHandlerRegistry registry;
 	private String caption;
 	private String description;
 	private boolean showGroup;
@@ -37,7 +42,8 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 			String caption, String description, 
 			AbstractOrderedLayout parent)
 	{
-		super(msg, registry);	
+		this.msg = msg;
+		this.registry = registry;
 		this.showGroup = showGroup;
 		this.caption = caption;
 		this.description = description;
@@ -64,22 +70,21 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 		return editContext.getAttributeGroup();
 	}
 
-	public Attribute getAttribute() throws FormValidationException
+	public Optional<Attribute> getAttribute() throws FormValidationException
 	{
 		List<LabelledValue> values = valuesComponent.getElements();
-		List<String> aValues = new ArrayList<>(values.size());
-		boolean allNull = true;
-		for (LabelledValue v: values)
+		if (!editContext.isRequired())
 		{
-			aValues.add(v.getValue());
-			if (v.getValue() != null)
-				allNull = false;
+			values = values.stream().filter(lv -> !lv.getValue().isEmpty())
+					.collect(Collectors.toList()); 
+			if (values.isEmpty())
+				return Optional.empty();
 		}
-		
-		return allNull ? null
-				: new Attribute(editContext.getAttributeType().getName(),
-						editContext.getAttributeType().getValueSyntax(),
-						editContext.getAttributeGroup(), aValues);
+
+		List<String> aValues = values.stream().map(lv -> lv.getValue()).collect(Collectors.toList());
+		return Optional.of(new Attribute(editContext.getAttributeType().getName(),
+					editContext.getAttributeType().getValueSyntax(),
+					editContext.getAttributeGroup(), aValues));
 	}
 	
 	private void initUI()
@@ -101,6 +106,18 @@ public class FixedAttributeEditor extends AbstractAttributeEditor
 	public void clear()
 	{
 		valuesComponent.clearContents();
+	}
+	
+	private ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(
+			AttributeEditContext editContext, String label,
+			AbstractOrderedLayout layout)
+	{
+		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<>(
+				msg, new InternalAttributeValueEditor.Factory(msg, registry, label, editContext),
+				editContext.getAttributeType().getMinElements(),
+				editContext.getAttributeType().getMaxElements(), false, layout);
+		ret.setLonelyLabel(label);
+		return ret;
 	}
 	
 }

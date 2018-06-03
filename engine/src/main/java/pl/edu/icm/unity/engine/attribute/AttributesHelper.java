@@ -218,7 +218,7 @@ public class AttributesHelper
 			return null;
 		long entityId = idResolver.getEntityId(entity);
 		Collection<AttributeExt> ret = getAllAttributesInternal(entityId, false, 
-				group, at.getName(), false);
+				group, at.getName(), true);
 		return ret.size() == 1 ? ret.iterator().next() : null; 
 	}
 

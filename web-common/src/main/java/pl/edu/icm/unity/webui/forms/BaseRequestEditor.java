@@ -64,11 +64,11 @@ import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
-import pl.edu.icm.unity.webui.common.attributes.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
@@ -331,7 +331,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					{
 						try
 						{
-							attr = ae.getAttribute();
+							attr = ae.getAttribute().orElse(null);
 						} catch (FormValidationException e)
 						{
 							status.hasFormException = true;

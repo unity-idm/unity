@@ -54,7 +54,7 @@ public class InternalEndpointManagement
 		List<Endpoint> fromDb = endpointDB.getAll();
 		for (Endpoint endpoint: fromDb)
 		{
-			EndpointInstance instance = loader.createEndpointInstance(endpoint); 
+			EndpointInstance instance = loader.createEndpointInstance(endpoint);
 			deploy(instance);
 			log.debug(" - " + endpoint.getName() + ": " + endpoint.getTypeId() + 
 					" " + endpoint.getConfiguration().getDescription());
@@ -85,7 +85,7 @@ public class InternalEndpointManagement
 
 	public synchronized List<EndpointInstance> getDeployedEndpoints()
 	{
-		return new ArrayList<EndpointInstance>(deployedEndpoints.values());
+		return new ArrayList<>(deployedEndpoints.values());
 	}
 	
 	public synchronized void undeployAll() throws EngineException
