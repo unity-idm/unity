@@ -87,7 +87,7 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("displayedName"), 
 				"description", 
 				authn, "configuration", "realm");
-		return new Endpoint(id, "typeId", "addr", config);
+		return new Endpoint(id, "typeId", "addr", config, 1);
 	}
 
 	@Override
@@ -98,6 +98,6 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("displayedName2"), 
 				"description2", 
 				authn, "configuration2", "realm2");
-		return new Endpoint("changedName", "typeId2", "addr2", config);
+		return new Endpoint("changedName", "typeId2", "addr2", config, 2);
 	}
 }

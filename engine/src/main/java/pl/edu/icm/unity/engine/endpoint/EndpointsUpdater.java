@@ -35,10 +35,7 @@ import pl.edu.icm.unity.types.endpoint.Endpoint;
  * To ensure synchronization this class is used by two components: periodically (to refresh state changes 
  * by another Unity instance) and manually by endpoints management (to refresh the state after local changes 
  * without waiting for the periodic update).
- * <p>
- * Implementation note: this class uses bit complicated logic related to time when the update takes place.
- * This is related to the fact that some DB engines stores the update timestamp with a second precision.
- * This situation is properly handled without 'loosing' updates.
+ * 
  * @author K. Benedyczak
  */
 @Component
@@ -78,33 +75,23 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		tx.runInTransactionThrowing(() -> {
 			long roundedUpdateTime = roundToS(System.currentTimeMillis());
 			Set<String> changedAuthenticators = getChangedAuthenticators(roundedUpdateTime);
-
-			List<Map.Entry<Endpoint, Date>> endpoints = endpointDB.getAllWithUpdateTimestamps();
-			log.debug("There are " + endpoints.size() + " endpoints in DB.");
-			for (Map.Entry<Endpoint, Date> instanceWithDate: endpoints)
+			List<Endpoint> endpointsInDBMap = endpointDB.getAll();
+			log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
+			for (Endpoint endpointInDB: endpointsInDBMap)
 			{
-				Endpoint endpoint = instanceWithDate.getKey();
-				EndpointInstance instance = loader.createEndpointInstance(endpoint);
+				EndpointInstance instance = loader.createEndpointInstance(endpointInDB);
 				String name = instance.getEndpointDescription().getName();
 				endpointsInDb.add(name);
-				long endpointLastChange = roundToS(instanceWithDate.getValue().getTime());
-				log.trace("Update timestampses: " + roundedUpdateTime + " " + 
-						getLastUpdate() + " " + name + ": " + endpointLastChange);
-				if (endpointLastChange >= getLastUpdate())
-				{
-					if (endpointLastChange == roundedUpdateTime)
-					{
-						log.debug("Skipping update of a changed endpoint to the next round,"
-								+ "to prevent doubled update");
-						continue;
-					}
-					if (endpointsDeployed.containsKey(name))
-					{
-						log.info("Endpoint " + name + " will be re-deployed");
-						endpointMan.undeploy(instance.getEndpointDescription().getName());
-					} else
-						log.info("Endpoint " + name + " will be deployed");
+				EndpointInstance runtimeEndpointInstance = endpointsDeployed.get(name);
 
+				if (runtimeEndpointInstance == null)
+				{
+					log.info("Endpoint " + name + " will be deployed");
+					endpointMan.deploy(instance);
+				} else if (endpointInDB.getRevision() > runtimeEndpointInstance.getEndpointDescription().getEndpoint().getRevision())
+				{
+					log.info("Endpoint " + name + " will be re-deployed");
+					endpointMan.undeploy(name);
 					endpointMan.deploy(instance);
 				} else if (hasChangedAuthenticator(changedAuthenticators, instance))
 				{
@@ -140,7 +127,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	 */
 	private Set<String> getChangedAuthenticators(long roundedUpdateTime) throws EngineException
 	{
-		Set<String> changedAuthenticators = new HashSet<String>();
+		Set<String> changedAuthenticators = new HashSet<>();
 		List<Map.Entry<String, Date>> authnNames = authnDB.getAllNamesWithUpdateTimestamps();
 		for (Map.Entry<String, Date> authn: authnNames)
 		{
