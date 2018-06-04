@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
@@ -45,13 +46,15 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	
 	private AuthenticatorManagement authnMan;
 	private EntityCredentialManagement entityCredMan;
+	private AuthenticationFlowManagement authFlowMan;
 	
 	@Autowired
 	public AuthenticationProcessorImpl(@Qualifier("insecure") AuthenticatorManagement authnMan,
-			@Qualifier("insecure") EntityCredentialManagement entityCredMan)
+			@Qualifier("insecure") EntityCredentialManagement entityCredMan, AuthenticationFlowManagement authFlowMan)
 	{	
 		this.authnMan = authnMan;
 		this.entityCredMan = entityCredMan;
+		this.authFlowMan = authFlowMan;
 	}
 	
 	/**
@@ -89,20 +92,40 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 
 		} else if (flowPolicy.equals(Policy.USER_OPTIN))
 		{
-			
-			// FIXME check user optin
-			PartialAuthnState partialAuthnState = getSecondFactorAuthn(
-					authenticationFlow, result);
-			if (partialAuthnState != null)
-				return partialAuthnState;
+
+			PartialAuthnState partialAuthnState = null;
+			if (getUserOptInAttribute(result.getAuthenticatedEntity().getEntityId()))
+			{
+				partialAuthnState = getSecondFactorAuthn(authenticationFlow,
+						result);
+
+				if (partialAuthnState != null)
+					return partialAuthnState;
+
+				throw new AuthenticationException(
+						"AuthenticationProcessorImpl.secondFactorRequire");
+			}
 
 		}
-		//In Future: Risk base policy
+		// In Future: Risk base policy
 
 		return new PartialAuthnState(null, result);
 	}
 
 	
+	private boolean getUserOptInAttribute(long entityId)
+	{
+		try
+		{
+			return authFlowMan.getUserMFAOptIn(entityId);
+		} catch (EngineException e)
+		{
+			log.debug("Can not get user optin attribute for entity " + entityId);
+			//force second factor
+			return true;
+		}
+	}
+
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result)
 	{
 		for (BindingAuthn authn : authenticationFlow

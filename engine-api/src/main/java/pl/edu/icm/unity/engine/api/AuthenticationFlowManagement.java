@@ -46,4 +46,23 @@ public interface AuthenticationFlowManagement
 	 * @param authFlowdef
 	 */
 	void updateAuthenticationFlowDefinition(AuthenticationFlowDefinition authFlowdef) throws EngineException;
+	
+	/**
+	 * Get user multifactor optin attribute
+	 * @param entityId
+	 * @return
+	 * @throws EngineException
+	 */
+	boolean getUserMFAOptIn(long entityId) throws EngineException;
+	
+	/**
+	 * Set user multifactor optin attribute
+	 * @param entityId
+	 * @param value
+	 * @throws EngineException 
+	 */
+	void setUserMFAOptIn(long entityId, boolean value) throws EngineException;
+	
+	
+	
 }

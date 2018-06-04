@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Component;
 
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
@@ -31,6 +32,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
 	private CredentialRequirementManagement credReqMan;
+	private AuthenticationFlowManagement authnFlowMan;
 	
 	private Callback callback;
 	private long entityId;
@@ -40,7 +42,8 @@ public class CredentialsChangeDialog extends AbstractDialog
 	@Autowired
 	public CredentialsChangeDialog(UnityMessageSource msg, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
-			CredentialRequirementManagement credReqMan, CredentialEditorRegistry credEditorReg)
+			CredentialRequirementManagement credReqMan,AuthenticationFlowManagement authnFlowMan, 
+			CredentialEditorRegistry credEditorReg)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
 		this.ecredMan = ecredMan;
@@ -48,6 +51,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 		this.credEditorReg = credEditorReg;
 		this.credReqMan = credReqMan;
 		this.credMan = credMan;
+		this.authnFlowMan = authnFlowMan;
 		setSize(50, 80);
 	}
 
@@ -67,7 +71,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 			ui = new CredentialsPanel( msg,  entityId,  credMan, 
 					 ecredMan,  entityMan,
 					 credReqMan,
-					 credEditorReg,  simpleMode);
+					 credEditorReg, authnFlowMan, simpleMode);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);
