@@ -38,7 +38,7 @@ public interface VaadinAuthentication extends BindingAuthn
 	{
 		/**
 		 * @return UI component associated with this retrieval. If the returned component implements 
-		 * the {@link Focusable} interface it will be focused after showing. 
+		 * the {@link Focusable} interface it may be focused after showing. 
 		 * Important: this method must return the same instance of the {@link Component} for its lifetime. 
 		 * The instance creation must be performed when the {@link VaadinAuthentication#createUIInstance()}
 		 * is called.
@@ -50,32 +50,15 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * main authentication framework. 
 		 * @param callback
 		 */
-		void setAuthenticationResultCallback(AuthenticationResultCallback callback);
+		void setAuthenticationCallback(AuthenticationCallback callback);
 	
-		
-		
 		/**
+		 * TODO do we need separate ? 
 		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
 		 * authn is returned back to the sandbox servlet. 
 		 * @param callback
 		 */
-		void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback);
-		
-		/**
-		 * Should trigger the actual authentication (if was not triggered manually via the component).
-		 * If it is possible the implementation should invoke 
-		 * {@link AuthenticationResultCallback#setAuthenticationResult(AuthenticationResult)}
-		 * method inside of the implementation of this method. Some of the implementations may need to 
-		 * initiate a long-running process with browser redirections after this method is called. Those must
-		 * set the authentication result ASAP after it is available. 
-		 */
-		void triggerAuthentication();
-		
-		/**
-		 * If called the authenticator should cancel the ongoing authentication if any. It can be called only
-		 * after the {@link #triggerAuthentication()} was called and before the authenticator invoked callback.
-		 */
-		void cancelAuthentication();
+		void setSandboxAuthnCallback(SandboxAuthnResultCallback callback);
 		
 		/**
 		 * @return label for presentation in the user interface.
@@ -120,6 +103,15 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @param authenticatedEntity
 		 */
 		void presetEntity(Entity authenticatedEntity);
+		
+		/**
+		 * @return implementation may decide to disable this option if some runtime
+		 * conditions are rendering it unusable.
+		 */
+		default boolean isAvailable()
+		{
+			return true;
+		}
 	}
 
 	
@@ -127,14 +119,22 @@ public interface VaadinAuthentication extends BindingAuthn
 	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.
 	 * @author K. Benedyczak
 	 */
-	public interface AuthenticationResultCallback
+	public interface AuthenticationCallback
 	{
-		public void setAuthenticationResult(AuthenticationResult result);
+		/**
+		 * Should be called after authentication is started 
+		 */
+		void onStartedAuthentication();
+		
+		/**
+		 * Should be called after authentication result is obtained
+		 */
+		void onCompletedAuthentication(AuthenticationResult result);
 		
 		/**
 		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 
-		 * in the component, so waiting for its finish makes no sense.
+		 * in the component
 		 */
-		public void cancelAuthentication();
+		void onCancelledAuthentication();
 	}
 }

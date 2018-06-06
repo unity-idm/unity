@@ -25,6 +25,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -130,7 +131,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
 		private TLSAuthnComponent component = new TLSAuthnComponent();
-		private AuthenticationResultCallback callback;
+		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
 		@Override
@@ -140,17 +141,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		}
 
 		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
 		}
 
-		@Override
-		public void triggerAuthentication()
-		{
-			callback.setAuthenticationResult(getAuthenticationResult());
-		}
-		
 		private AuthenticationResult getAuthenticationResult()
 		{
 			X509Certificate[] clientCert = getTLSCertificate();
@@ -164,18 +159,12 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			return authenticationResult;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public String getLabel()
 		{
 			return name.getValue(msg);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public Resource getImage()
 		{
@@ -197,7 +186,6 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 
 		}
 
-		@SuppressWarnings("serial")
 		private class TLSAuthnComponent extends VerticalLayout
 		{
 			private Label info;
@@ -220,6 +208,9 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 					info.setValue(msg.getMessage("WebTLSRetrieval.certInfo", 
 							X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
 				}
+				Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+				authenticateButton.addClickListener(event -> triggerAuthentication());
+				addComponent(authenticateButton);
 			}
 
 			public void setError(boolean how)
@@ -229,12 +220,18 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			}
 		}
 
-		@Override
-		public void cancelAuthentication()
+		private void triggerAuthentication()
 		{
-			//nop
+			callback.onStartedAuthentication();
+			callback.onCompletedAuthentication(getAuthenticationResult());
 		}
-
+		
+		@Override
+		public boolean isAvailable()
+		{
+			return getTLSCertificate() != null;
+		}
+		
 		@Override
 		public void clear()
 		{
@@ -248,7 +245,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 		{
 			sandboxCallback = callback;
 		}

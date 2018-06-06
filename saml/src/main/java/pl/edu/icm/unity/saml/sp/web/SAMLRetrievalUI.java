@@ -19,6 +19,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -36,7 +37,7 @@ import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.IdPROComponent;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -55,7 +56,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
-	private AuthenticationResultCallback callback;
+	private AuthenticationCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 	
@@ -70,6 +71,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	
 	private Component main;
 
+	//TODO AUTHN handle progress/cancel
 	
 	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
 			SamlContextManagement samlContextManagement, String idpKey, 
@@ -114,6 +116,10 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		ret.setMargin(false);
 		ret.addComponents(idpComponent, messageLabel, errorDetailLabel);
 		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);
+		
+		Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+		authenticateButton.addClickListener(event -> startLogin());
+		ret.addComponent(authenticateButton);
 		this.main = ret;
 	}
 
@@ -139,7 +145,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		return rh.getTriggeringParam();
 	}
 	
-	private void breakLogin(boolean invokeCancel)
+	private void breakLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
@@ -149,8 +155,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 			samlContextManagement.removeAuthnContext(context.getRelayState());
 		}
-		if (invokeCancel)
-			this.callback.cancelAuthentication();
 	}
 	
 	private void showError(String message)
@@ -199,9 +203,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		{
 			NotificationPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
 			log.error("Can not create SAML request", e);
-			breakLogin(true);
+			breakLogin();
 			return;
-		}		
+		}
+		
+		callback.onStartedAuthentication();
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
 		
@@ -245,7 +251,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				authnResult.getStatus() == Status.unknownRemotePrincipal)
 		{
 			showError(null);
-			breakLogin(false);
+			breakLogin();
 		} else
 		{
 			if (savedException != null)
@@ -255,33 +261,18 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			if (reason != null)
 				showErrorDetail("WebSAMLRetrieval.authnFailedDetailInfo", reason);
 			showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
-			breakLogin(false);
+			breakLogin();
 		}
 
-		callback.setAuthenticationResult(authnResult);
+		callback.onCompletedAuthentication(authnResult);
 	}
 	
 	@Override
-	public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+	public void setAuthenticationCallback(AuthenticationCallback callback)
 	{
 		this.callback = callback;
 	}
 
-	@Override
-	public void triggerAuthentication()
-	{
-		startLogin();
-	}
-
-	@Override
-	public void cancelAuthentication()
-	{
-		breakLogin(false);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
@@ -300,18 +291,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getLabel()
 	{	
 		return getName();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Resource getImage()
 	{
@@ -335,7 +320,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 	{
 		sandboxCallback = callback;
 	}

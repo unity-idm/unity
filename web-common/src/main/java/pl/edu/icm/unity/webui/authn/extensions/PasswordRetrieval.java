@@ -145,7 +145,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;
-		private AuthenticationResultCallback callback;
+		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		private String presetAuthenticatedIdentity;
 		
@@ -192,10 +192,16 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 					}
 				});
 			}
+			
+			Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+			authenticateButton.addClickListener(event -> triggerAuthentication());
+			ret.addComponent(authenticateButton);
+			
+			
 			setCompositionRoot(ret);
 		}
 
-		public void triggerAuthentication()
+		private void triggerAuthentication()
 		{
 			String username = presetAuthenticatedIdentity == null ? usernameField.getValue() : 
 				presetAuthenticatedIdentity;
@@ -209,8 +215,9 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			{
 				usernameField.setComponentError(new UserError(
 						msg.getMessage("WebPasswordRetrieval.noUser")));
-			}			
-			callback.setAuthenticationResult(getAuthenticationResult(username, password));
+			}
+			callback.onStartedAuthentication();
+			callback.onCompletedAuthentication(getAuthenticationResult(username, password));
 		}
 		
 
@@ -288,7 +295,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			this.tabIndex = tabIndex;
 		}
 
-		public void setCallback(AuthenticationResultCallback callback)
+		public void setCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
 		}
@@ -324,7 +331,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			theComponent.setCallback(callback);
 		}
@@ -336,24 +343,11 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void triggerAuthentication()
-		{
-			theComponent.triggerAuthentication();
-		}
-		
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
 		public String getLabel()
 		{
 			return name.getValue(msg);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public Resource getImage()
 		{
@@ -375,12 +369,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void cancelAuthentication()
-		{
-			//do nothing
-		}
-
-		@Override
 		public void clear()
 		{
 			theComponent.clear();
@@ -393,7 +381,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 		{
 			theComponent.setSandboxCallback(callback);
 		}
@@ -437,13 +425,5 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 	}
 }
-
-
-
-
-
-
-
-
 
 

@@ -139,7 +139,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	private class SMSRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;
-		private AuthenticationResultCallback callback;
+		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		private TextField usernameField;
 		private HtmlLabel usernameLabel;
@@ -154,6 +154,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		private VerticalLayout capchaComponent;
 		private Label capchaInfoLabel;
 		private VerticalLayout mainLayout;
+		private Button authenticateButton;
 		
 		public SMSRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -208,6 +209,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			resetButton = new Button(msg.getMessage("WebSMSRetrieval.reset"));
 			resetButton.setIcon(Images.reject.getResource());
 			resetButton.addClickListener(e -> {
+				callback.onCancelledAuthentication();
 				resetSentCode();
 			});
 			resetButton.setVisible(false);
@@ -242,6 +244,10 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 					}
 				});
 			}
+			
+			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+			mainLayout.addComponent(authenticateButton);
+			authenticateButton.addClickListener(event -> triggerAuthentication());
 			setCompositionRoot(mainLayout);
 		}
 
@@ -323,11 +329,11 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			capchaComponent.setVisible(false);
 			sendCodeButton.setVisible(false);
 			answerField.focus();
+			callback.onStartedAuthentication();
 		}
 
-		public void triggerAuthentication()
+		private void triggerAuthentication()
 		{
-
 			if (username == null || username.equals(""))
 			{
 				setAuthenticationResult(new AuthenticationResult(
@@ -349,7 +355,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			{
 				setError();
 			}
-			callback.setAuthenticationResult(authenticationResult);
+			callback.onCompletedAuthentication(authenticationResult);
 		}
 
 		private void setError()
@@ -390,7 +396,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			this.tabIndex = tabIndex;
 		}
 
-		public void setCallback(AuthenticationResultCallback callback)
+		public void setCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
 		}
@@ -417,8 +423,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			usernameField.setComponentError(null);
 			answerField.setValue("");
 			answerField.setComponentError(null);
-						
-			
 		}
 	}
 
@@ -432,7 +436,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		}
 
 		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			theComponent.setCallback(callback);
 		}
@@ -444,23 +448,11 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		}
 
 		@Override
-		public void triggerAuthentication()
-		{
-			theComponent.triggerAuthentication();
-		}
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
 		public String getLabel()
 		{
 			return name.getValue(msg);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public Resource getImage()
 		{
@@ -482,12 +474,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		}
 
 		@Override
-		public void cancelAuthentication()
-		{
-			// do nothing
-		}
-
-		@Override
 		public void clear()
 		{
 			theComponent.clear();
@@ -500,7 +486,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback)
+		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
 		{
 			theComponent.setSandboxCallback(callback);
 		}

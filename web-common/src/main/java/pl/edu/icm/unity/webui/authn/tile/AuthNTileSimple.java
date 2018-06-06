@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn;
+package pl.edu.icm.unity.webui.authn.tile;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,6 +21,9 @@ import com.vaadin.ui.Panel;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.webui.authn.IdPComponent;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;

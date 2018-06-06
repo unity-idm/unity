@@ -28,11 +28,11 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.webui.authn.AuthNTile;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.OutdatedCredentialDialog;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.tile.AuthNTile;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 
@@ -46,17 +46,14 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
 @PreserveOnRefresh
-public class TranslationProfileSandboxUI extends SandboxUIBase 
+public class TranslationProfileSandboxUI //extends SandboxUIBase 
 {
 	private AuthenticatorsRegistry authnRegistry;
 	private AuthenticatorManagement authenticationManagement;
-
+/*
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg,
 			LocaleChoiceComponent localeChoice,
-			WebAuthenticationProcessor authnProcessor,
-			RegistrationFormsChooserComponent formsChooser,
-			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService,
 			AuthenticatorSupportManagement authenticatorsManagement,
 			AuthenticatorManagement authenticationManagement,
@@ -111,4 +108,5 @@ public class TranslationProfileSandboxUI extends SandboxUIBase
 		
 		return vaadinAuthenticators;
 	}
+	*/
 }

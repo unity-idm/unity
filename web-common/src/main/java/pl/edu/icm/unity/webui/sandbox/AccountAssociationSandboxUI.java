@@ -38,8 +38,9 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
 @PreserveOnRefresh
-public class AccountAssociationSandboxUI extends SandboxUIBase 
+public class AccountAssociationSandboxUI //extends SandboxUIBase 
 {
+	/*
 	@Autowired
 	public AccountAssociationSandboxUI(UnityMessageSource msg,
 			LocaleChoiceComponent localeChoice,
@@ -67,4 +68,5 @@ public class AccountAssociationSandboxUI extends SandboxUIBase
 						ao.getMandatory2ndAuthenticator().getAuthenticatorId()));
 		return vaadinAuthenticators;
 	}
+	*/
 }

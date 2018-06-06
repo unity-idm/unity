@@ -213,5 +213,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				ret = legacy.toScaleMode();
 		}
 		return ret;
-	}	
+	}
+	
+	public Properties getProperties()
+	{
+		return properties;
+	}
 }

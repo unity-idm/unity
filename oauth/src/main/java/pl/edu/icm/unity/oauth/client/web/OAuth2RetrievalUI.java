@@ -20,6 +20,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -40,7 +41,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.IdPROComponent;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -61,7 +62,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private final String configKey;
 	private final String idpKey;
 	
-	private AuthenticationResultCallback callback;
+	private AuthenticationCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
@@ -70,6 +71,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	
 	private Component main;
 
+	//TODO AUTHN handle progress/cancel
 	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
@@ -117,25 +119,17 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		ret.addComponents(messageLabel, errorDetailLabel);
 		ret.setComponentAlignment(messageLabel, Alignment.TOP_CENTER);
 		ret.setComponentAlignment(errorDetailLabel, Alignment.TOP_CENTER);
+		
+		Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+		authenticateButton.addClickListener(event -> startLogin());
+		ret.addComponent(authenticateButton);
 		main = ret;
 	}
 
 	@Override
-	public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+	public void setAuthenticationCallback(AuthenticationCallback callback)
 	{
 		this.callback = callback;
-	}
-
-	@Override
-	public void triggerAuthentication()
-	{
-		startLogin();
-	}
-
-	@Override
-	public void cancelAuthentication()
-	{
-		breakLogin(false);
 	}
 
 	@Override
@@ -212,7 +206,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		return rh.getTriggeringParam();
 	}
 	
-	private void breakLogin(boolean invokeCancel)
+	private void breakLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		OAuthContext context = (OAuthContext) session.getAttribute(
@@ -222,8 +216,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 			contextManagement.removeAuthnContext(context.getRelayState());
 		}
-		if (invokeCancel)
-			this.callback.cancelAuthentication();
 	}
 	
 	private void startLogin()
@@ -244,6 +236,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createRequest(configKey);
+			callback.onStartedAuthentication();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);
@@ -251,7 +244,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		{
 			NotificationPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
 			log.error("Can not create OAuth2 request", e);
-			breakLogin(true);
+			breakLogin();
 			return;
 		}
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
@@ -299,7 +292,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				authnResult.getStatus() == Status.unknownRemotePrincipal)
 		{
 			showError(null);
-			breakLogin(false);
+			breakLogin();
 		} else
 		{
 			if (savedException != null)
@@ -310,10 +303,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			if (reason != null)
 				showErrorDetail("OAuth2Retrieval.authnFailedDetailInfo", reason);
 			showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));
-			breakLogin(false);
+			breakLogin();
 		}
 
-		callback.setAuthenticationResult(authnResult);
+		callback.onCompletedAuthentication(authnResult);
 	}
 
 	/**
@@ -338,7 +331,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 	{
 		this.sandboxCallback = callback;
 	}
