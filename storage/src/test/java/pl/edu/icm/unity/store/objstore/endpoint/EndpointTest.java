@@ -16,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RealmDB;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
@@ -37,6 +39,9 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 
 	@Autowired
 	private AuthenticationFlowDB authnFlowDB;
+	
+	@Autowired
+	private AuthenticatorInstanceDB authnDB;
 	
 	@Override
 	protected NamedCRUDDAOWithTS<Endpoint> getDAO()
@@ -76,6 +81,23 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 			assertThat(caughtException(), isA(IllegalArgumentException.class));
 		});
 	}
+	
+	@Test
+	public void authenticatorRemovalIsBlockedByEndpoint()
+	{
+		tx.runInTransaction(() -> {
+			AuthenticatorInstance ret = new AuthenticatorInstance();
+			ret.setId("pa2");
+			ret.setVerificatorConfiguration("vCfg");
+			authnDB.create(ret);
+			
+			Endpoint obj = getObject("name1");
+			dao.create(obj);
+
+			catchException(authnDB).delete("pa2");
+			assertThat(caughtException(), isA(IllegalArgumentException.class));
+		});
+	}
 
 	@Override
 	protected Endpoint getObject(String id)
@@ -83,7 +105,7 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("displayedName"), 
 				"description", 
 
-				Lists.newArrayList("flow1"), "configuration", "realm");
+				Lists.newArrayList("flow1", "pa2"), "configuration", "realm");
 		return new Endpoint(id, "typeId", "addr", config, 1);
 	}
 
@@ -92,7 +114,7 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 	{
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("displayedName2"), 
 				"description2", 
-				Lists.newArrayList("flow2"), "configuration2", "realm2");
+				Lists.newArrayList("flow2", "pa2"), "configuration2", "realm2");
 		return new Endpoint("changedName", "typeId2", "addr2", config, 2);
 	}
 }

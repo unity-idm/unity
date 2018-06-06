@@ -30,13 +30,13 @@ public class EndpointConfiguration
 	private String realm;
 	
 	public EndpointConfiguration(I18nString displayedName, String description,
-			List<String> authn, String configuration,
+			List<String> authnOptions, String configuration,
 			String realm)
 	{
 		super();
 		this.displayedName = displayedName;
 		this.description = description;
-		this.authenticationOptions = authn;
+		this.authenticationOptions = authnOptions;
 		this.configuration = configuration;
 		this.realm = realm;
 	}

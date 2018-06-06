@@ -7,12 +7,15 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -27,6 +30,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
@@ -104,7 +108,35 @@ public class TestAuthentication extends DBIntegrationTestBase
 		Entity entity = idsMan.getEntity(entityP);
 		assertEquals(entityId, entity.getId().longValue());
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddAuthFlowWithWrongAuthenticator()
+			throws EngineException
+	{
+		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("wrong")));
+	}
 	
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddAuthFlowWithDiffrentBindingAuthenticator()
+			throws Exception
+	{
+		super.setupMockAuthn();
+		Collection<AuthenticatorTypeDescription> authenticatorTypes1 = authnMan.getAuthenticatorTypes("web");
+		Collection<AuthenticatorTypeDescription> authenticatorTypes2 = authnMan.getAuthenticatorTypes("web2");
+		
+		authnMan.createAuthenticator(
+				"auth0", authenticatorTypes1.iterator().next().getId(), "8", "aaa", "credential1");
+		
+		authnMan.createAuthenticator(
+				"auth1", authenticatorTypes2.iterator().next().getId(), "8", "bbb", "credential1");
+		
+		
+		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth0","auth1")));
+	}
+
 	@Test
 	public void testAuthnManagement() throws Exception
 	{
@@ -118,7 +150,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
 		assertEquals(1, authTypes.size());
 		authTypes = authnMan.getAuthenticatorTypes(null);
-		assertEquals(1, authTypes.size());
+		assertEquals(2, authTypes.size());
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		assertEquals(true, authType.isLocal());
 		assertEquals("mockretrieval", authType.getRetrievalMethod());
@@ -126,33 +158,47 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals("web", authType.getSupportedBinding());
 		
 		//create authenticator
-		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
+		AuthenticatorInstance authInstance0 = authnMan.createAuthenticator(
+				"auth0", authType.getId(), "8", "aaa", "credential1");
+		
+		AuthenticatorInstance authInstance1 = authnMan.createAuthenticator(
 				"auth1", authType.getId(), "8", "bbb", "credential1");
-
+		
 		//get authenticators
 		Collection<AuthenticatorInstance> auths = authnMan.getAuthenticators("web");
-		assertEquals(1, auths.size());
+		assertEquals(2, auths.size());
 		AuthenticatorInstance authInstanceR = auths.iterator().next();
-		assertEquals("auth1", authInstanceR.getId());
-		assertEquals("bbb", authInstanceR.getRetrievalConfiguration());
+		assertEquals("auth0", authInstanceR.getId());
+		assertEquals("aaa", authInstanceR.getRetrievalConfiguration());
 		assertNull(authInstanceR.getVerificatorConfiguration());
 		
 		//update authenticator
 		authnMan.updateAuthenticator("auth1", "9", "b", "credential1");
 
 		auths = authnMan.getAuthenticators("web");
-		assertEquals(1, auths.size());
-		authInstanceR = auths.iterator().next();
+		assertEquals(2, auths.size());
+		Iterator<AuthenticatorInstance> iterator = auths.iterator();
+		iterator.next();
+		authInstanceR = iterator.next();
 		assertEquals("auth1", authInstanceR.getId());
 		assertEquals("b", authInstanceR.getRetrievalConfiguration());
 		assertNull(authInstanceR.getVerificatorConfiguration());
 		
 		//create authentication flow
 		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
-				"flow1", Policy.NEVER, Sets.newHashSet("auth1")));
+				"flow1", Policy.NEVER, Sets.newHashSet("auth0")));
 		Collection<AuthenticationFlowDefinition> authFlows = authnFlowMan.getAuthenticationFlows();
-		assertEquals(1, authFlows.size());
+		assertThat(authFlows.size(), is(1));
+		assertThat(authFlows.iterator().next().getFirstFactorAuthenticators().iterator().next(), is("auth0"));
 		
+		//update authentication flow
+		authnFlowMan.updateAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth1")));
+		authFlows = authnFlowMan.getAuthenticationFlows();
+		assertThat(authFlows.size(), is(1));
+		assertThat(authFlows.iterator().next().getFirstFactorAuthenticators().iterator().next(), is("auth1"));
+		
+	
 		//create endpoint
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
@@ -170,16 +216,26 @@ public class TestAuthentication extends DBIntegrationTestBase
 				"ada", Collections.singletonList("flow1"), "", realm.getName()));
 
 		//check if is returned
-		List<String> authSets = endpointMan.getEndpoints().get(0).
+		List<String> endpointFlows = endpointMan.getEndpoints().get(0).
 				getEndpoint().getConfiguration().getAuthenticationOptions();
-		assertEquals(1, authSets.size());
+		assertThat(endpointFlows.size(), is(1));
 		
 		//remove a used authenticator
 		try
 		{
-			authnMan.removeAuthenticator(authInstance.getId());
+			authnMan.removeAuthenticator(authInstance1.getId());
 			fail("Was able to remove a used authenticator");
 		} catch (IllegalArgumentException e) {}
+		
+		
+		//remove a used authentication flow
+		try
+		{
+			authnFlowMan.removeAuthenticationFlowDefinition("flow1");
+			fail("Was able to remove a used authentication flow");
+		} catch (IllegalArgumentException e)
+		{
+		}
 		
 		//remove it from endpoint
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
@@ -187,18 +243,16 @@ public class TestAuthentication extends DBIntegrationTestBase
 				"ada", new ArrayList<String>(), "",
 				realm.getName()));
 		
-		
+		//remove flow
 		authnFlowMan.removeAuthenticationFlowDefinition("flow1");
 		authFlows= authnFlowMan.getAuthenticationFlows();
-		assertEquals(0, authFlows.size());		
+		assertThat(authFlows.size(), is(0));
 		
-		//remove again
-		authnMan.removeAuthenticator(authInstance.getId());
+		//remove authenticator
+		authnMan.removeAuthenticator(authInstance1.getId());
+		authnMan.removeAuthenticator(authInstance0.getId());
 		auths = authnMan.getAuthenticators(null);
-		assertEquals(0, auths.size());		
-		
-		
-		
+		assertThat(auths.size(), is(0));	
 	}
 	
 	@Test

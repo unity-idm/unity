@@ -24,6 +24,9 @@ import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
@@ -41,6 +44,7 @@ public class TestWSCore extends DBIntegrationTestBase
 	public static final String AUTHENTICATOR_WS_CERT = "AcertWS";
 	public static final String AUTHENTICATION_FLOW = "flow1";
 	public static final String AUTHENTICATION_FLOW_CERT_SECOND_FACTOR = "flow2";
+	public static final String AUTHENTICATION_FLOW_OPTIN = "flow3";
 	
 	@Autowired
 	private AuthenticatorManagement authnMan;
@@ -127,6 +131,58 @@ public class TestWSCore extends DBIntegrationTestBase
 //		//reset
 //		wsProxyOK.getAuthenticatedUser();
 	}
+	
+	@Test
+	public void shouldRespectUserOptinAttr() throws Exception
+	{
+		setupAuth();
+		createUsers();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 100, -1, 600);
+		realmsMan.addRealm(realm);
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", Lists.newArrayList(AUTHENTICATION_FLOW_OPTIN), "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		assertEquals(1, endpoints.size());
+
+		httpServer.start();
+		
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
+				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
+		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
+				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setSslEnabled(true);
+		clientCfg.setHttpUser(DEF_USER);
+		clientCfg.setHttpPassword(DEF_PASSWORD);
+		WSClientFactory factory = new WSClientFactory(clientCfg);
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+				MockWSEndpointFactory.SERVLET_PATH);
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
+		EntityWithCredential entity = identityResolver.resolveIdentity(DEF_USER, new String[] {UsernameIdentity.ID}, 
+				MockPasswordVerificatorFactory.ID);
+		authnFlowMan.setUserMFAOptIn(entity.getEntityId(), true);
+		
+		try
+		{
+			factory = new WSClientFactory(clientCfg);
+			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+					MockWSEndpointFactory.SERVLET_PATH);
+			wsProxy.getAuthenticatedUser();
+			fail("Managed to authenticate with sigle cred when USER_OPTIN flow policy is used, userOptin attr is set and second credential is not given");
+		} catch (SOAPFaultException e)
+		{
+			//ok
+		}
+		
+		authnFlowMan.setUserMFAOptIn(entity.getEntityId(), false);
+		
+		NameIDDocument ret = wsProxy.getAuthenticatedUser();
+		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());	
+	}
+	
 	
 	@Test
 	public void test() throws Exception
@@ -271,5 +327,9 @@ public class TestWSCore extends DBIntegrationTestBase
 				AUTHENTICATION_FLOW_CERT_SECOND_FACTOR, Policy.REQUIRE,
 				Sets.newHashSet(AUTHENTICATOR_WS_PASS), Lists.newArrayList(AUTHENTICATOR_WS_CERT)));
 
+		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+				AUTHENTICATION_FLOW_OPTIN, Policy.USER_OPTIN,
+				Sets.newHashSet(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT)));
+		
 	}
 }
