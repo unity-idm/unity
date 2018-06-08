@@ -28,10 +28,42 @@ public class ProfileFetcherUtils
 
 	public static AttributeFetchResult fetchFromJsonObject(JSONObject jsonObject)
 	{
-		return new AttributeFetchResult(convertToFlatAttributes(jsonObject),
+		return new AttributeFetchResult(convertToAttributes(jsonObject),
 				convertToRawAttributes(jsonObject));
 	}
 
+	public static Map<String, List<String>> convertToAttributes(JSONObject profile)
+	{
+		Map<String, List<String>> ret = new HashMap<>();
+		
+
+		for (Entry<String, Object> entry : profile.entrySet())
+		{
+			if (entry.getValue() == null)
+				continue;
+			Object value = JSONValue.parse(entry.getValue().toString());
+			if (value instanceof JSONObject)
+			{
+				ret.put(entry.getKey(), Arrays.asList(value.toString()));
+
+			} else if (value instanceof JSONArray)
+			{
+				ArrayList<String> vList = new ArrayList<>();
+				for (Object v : (JSONArray) value)
+				{
+					vList.add(v.toString());
+				}
+
+				ret.put(entry.getKey(), vList);
+			} else
+			{
+				ret.put(entry.getKey(), Arrays.asList(value.toString()));
+			}
+
+		}
+		return ret;
+	}
+	
 	static JSONObject convertToRawAttributes(JSONObject toConvert)
 	{
 		JSONObject res = new JSONObject(toConvert);

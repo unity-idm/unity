@@ -125,35 +125,35 @@
 				"parameters": [
 					"email",
 					"/",
-					"attr['emails.account']",
+					"attrObj.?emails.?account",
 					"CREATE_OR_UPDATE"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'phones.personal'"
+				"conditionValue": "(attrObj contains 'phones') && (attrObj['phones'] contains 'personal')"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"telephoneNumber",
 					"/",
-					"String.valueOf(attr['phones.personal']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
+					"String.valueOf(attrObj.phones.personal).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'phones.mobile'"
+				"conditionValue": "(attrObj contains 'phones') && (attrObj['phones'] contains 'mobile')"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"mobile",
 					"/",
-					"String.valueOf(attr['phones.mobile']).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
+					"String.valueOf(attrObj.phones.mobile).replace('(','').replace(')','').replace('.','').replace('-','').replace(' ','')",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -174,14 +174,14 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "attr contains 'addresses.personal'"
+				"conditionValue": "(attrObj contains 'addresses.personal') && (attrObj['addresses]'] contains 'personal')"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"address",
 					"/",
-					"attr['addresses.personal.street'] + ',' + attr['addresses.personal.street2'] + ',' + attr['addresses.personal.city'] + ',' + attr['addresses.personal.state'] + ',' + attr['addresses.personal.postal_code'] + ',' + attr['addresses.personal.region']",
+					"attrObj.addresses.personal.street + ',' + attrObj.addresses.personal.street2 + ',' + attrObj.addresses.personal.city + ',' + attrObj.addresses.personal.state + ',' + attrObj.addresses.personal.postal_code + ',' + attrObj.addresses.personal.region",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -196,7 +196,7 @@
 				"parameters": [
 					"street",
 					"/",
-					"attr['addrresses.personal.street']",
+					"attrObj.?addrresses.?personal.?street",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -210,7 +210,7 @@
 				"parameters": [
 					"postalCode",
 					"/",
-					"attr['addresses.personal.postal_code']",
+					"attrObj.?addresses.?personal.?postal_code",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -225,7 +225,7 @@
 				"parameters": [
 					"city",
 					"/",
-					"attr['addresses.personal.city']",
+					"attrObj.?addresses.?personal.?city",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -239,7 +239,7 @@
 				"parameters": [
 					"provinceName",
 					"/",
-					"attr['addresses.personal.state']",
+					"attrObj.?addresses.?personal.?state",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -253,7 +253,7 @@
 				"parameters": [
 					"country",
 					"/",
-					"attr['addresses.personal.region']",
+					"attrObj.?addresses.?personal.?region",
 					"CREATE_OR_UPDATE"
 				]
 			}

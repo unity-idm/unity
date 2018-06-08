@@ -226,14 +226,14 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
 		
-		Map<String, List<String>> flatAttributes = attrs.getFlatAttributes();
-		for (Entry<String, List<String>> a: flatAttributes.entrySet())
+		Map<String, List<String>> attributes = attrs.getAttributes();
+		for (Entry<String, List<String>> a: attributes.entrySet())
 		{
 			ret.addAttribute(new RemoteAttribute(a.getKey(), a.getValue().toArray()));
 		}
 		
-		if (flatAttributes.containsKey("sub"))
-			ret.addIdentity(new RemoteIdentity(flatAttributes.get("sub").get(0), IdentifierIdentity.ID));
+		if (attributes.containsKey("sub"))
+			ret.addIdentity(new RemoteIdentity(attributes.get("sub").get(0), IdentifierIdentity.ID));
 		if (tokenStatus.getSubject() != null)
 		{
 			ret.addIdentity(new RemoteIdentity(tokenStatus.getSubject(), IdentifierIdentity.ID));
@@ -241,12 +241,12 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		if (tokenStatus.getScope() != null)
 			ret.addAttribute(new RemoteAttribute("scope", 
 					tokenStatus.getScope().toStringList().toArray()));
-		if (flatAttributes.containsKey("sub") && tokenStatus.getSubject() != null && 
-				!tokenStatus.getSubject().equals(flatAttributes.get("sub").get(0)))
+		if (attributes.containsKey("sub") && tokenStatus.getSubject() != null && 
+				!tokenStatus.getSubject().equals(attributes.get("sub").get(0)))
 			log.warn("Received subject from the profile endpoint differs from the subject "
 					+ "established during access token verification. "
 					+ "Will use subject from verification: " + tokenStatus.getSubject() + 
-					" ignored: " + flatAttributes.get("sub").get(0));
+					" ignored: " + attributes.get("sub").get(0));
 			
 		ret.setRawAttributes(attrs.getRawAttributes());
 		return ret;

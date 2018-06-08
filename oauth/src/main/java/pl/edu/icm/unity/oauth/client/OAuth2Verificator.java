@@ -357,7 +357,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
 		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
-		Map<String, List<String>> ret = ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
+		Map<String, List<String>> ret = ProfileFetcherUtils.convertToAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
 		
 		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
 		String userInfoEndpoint = userInfoEndpointStr == null ? 
@@ -370,7 +370,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
 					ret);
 		}
-		fetchRet.getFlatAttributes().putAll(ret);
+		fetchRet.getAttributes().putAll(ret);
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
 		
@@ -461,7 +461,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
 					ret);
 		}
-		fetchRet.getFlatAttributes().putAll(ret);
+		fetchRet.getAttributes().putAll(ret);
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
 		return fetchRet;
@@ -532,7 +532,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, List<String>> attr: attributes.getFlatAttributes().entrySet())
+		for (Map.Entry<String, List<String>> attr: attributes.getAttributes().entrySet())
 		{
 			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
 			if (attr.getKey().equals("sub") && !attr.getValue().isEmpty())
