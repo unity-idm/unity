@@ -194,6 +194,26 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 
 	@Override
 	@Transactional
+	public void checkAuthZAttributeChangeAuthorization(boolean selfAccess, Attribute attribute) throws AuthorizationException
+	{
+		String callerMethod = getCallerMethodName(2);
+		LoginSession client = getVerifiedClient(AuthzCapability.attributeModify);
+		long entityId = client.getEntityId();
+		Set<AuthzRole> currentRoles = establishRoles(entityId, new Group(attribute.getGroupPath()));
+		Set<AuthzCapability> currentCapabilities = getRoleCapabilities(currentRoles, selfAccess);
+		Set<AuthzRole> requestedRoles = getRolesFromAttribute(attribute);
+		Set<AuthzCapability> requestedCapabilities = getRoleCapabilities(requestedRoles, selfAccess);
+		if (!currentCapabilities.containsAll(requestedCapabilities))
+			throw new AuthorizationException("Access is denied. It is not allowed to set roles " + 
+					"with higher privileges then those already possessed");
+		if (!currentCapabilities.contains(AuthzCapability.attributeModify))
+			throw new AuthorizationException("Access is denied. The operation " + 
+					callerMethod + " requires '" + AuthzCapability.attributeModify + "' capability");
+	}
+	
+
+	@Override
+	@Transactional
 	public Set<AuthzCapability> getCapabilities(boolean selfAccess, String group) throws AuthorizationException
 	{
 		LoginSession client = getVerifiedClient(new AuthzCapability[] {});
@@ -204,15 +224,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 			LoginSession client) throws AuthorizationException
 	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
-
-		Set<AuthzRole> roles;
-		try
-		{
-			roles = establishRoles(client.getEntityId(), group);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Can't establish caller's roles", e);
-		}
+		Set<AuthzRole> roles = establishRoles(client.getEntityId(), group);
 		return getRoleCapabilities(roles, selfAccess);
 	}
 	
@@ -259,8 +271,6 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return authnCtx.getLoginSession().getEntityId() == subject;
 	}
 	
-	
-	
 	private Set<AuthzCapability> getRoleCapabilities(Set<AuthzRole> roles, boolean selfAccess)
 	{
 		Set<AuthzCapability> ret = new HashSet<AuthzCapability>();
@@ -269,25 +279,34 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return ret;
 	}
 	
-	private Set<AuthzRole> establishRoles(long entityId, Group group) throws EngineException
+	private Set<AuthzRole> establishRoles(long entityId, Group group)
 	{
-		Map<String, Map<String, AttributeExt>> allAttributes = getAllAttributes(entityId);
-		Group current = group;
-		Set<AuthzRole> ret = new HashSet<AuthzRole>();
-		do
+		try
 		{
-			Map<String, AttributeExt> inCurrent = allAttributes.get(current.toString());
-			if (inCurrent != null)
-				addRolesFromAttribute(inCurrent, ret);
-			String parent = current.getParentPath();
-			current = parent == null ? null : new Group(parent);
-		} while (current != null);
-		return ret;
+			Map<String, Map<String, AttributeExt>> allAttributes = getAllAttributes(entityId);
+			Group current = group;
+			Set<AuthzRole> ret = new HashSet<AuthzRole>();
+			do
+			{
+				Map<String, AttributeExt> inCurrent = allAttributes.get(current.toString());
+				if (inCurrent != null)
+				{
+					Attribute role = inCurrent.get(RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
+					ret.addAll(getRolesFromAttribute(role));
+				}
+				String parent = current.getParentPath();
+				current = parent == null ? null : new Group(parent);
+			} while (current != null);
+			return ret;
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can't establish caller's roles", e);
+		}
 	}
 
-	private void addRolesFromAttribute(Map<String, AttributeExt> inCurrent, Set<AuthzRole> ret)
+	private Set<AuthzRole> getRolesFromAttribute(Attribute role)
 	{
-		Attribute role = inCurrent.get(RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
+		Set<AuthzRole> ret = new HashSet<>();
 		if (role != null)
 		{
 			List<?> roles = role.getValues();
@@ -300,6 +319,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 				ret.add(rr);
 			}
 		}
+		return ret;
 	}
 	
 	private Map<String, Map<String, AttributeExt>> getAllAttributes(long entityId) throws EngineException 
