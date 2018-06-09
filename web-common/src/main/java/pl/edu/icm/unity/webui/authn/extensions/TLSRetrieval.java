@@ -222,7 +222,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 
 		private void triggerAuthentication()
 		{
-			callback.onStartedAuthentication();
+			callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
 			callback.onCompletedAuthentication(getAuthenticationResult());
 		}
 		

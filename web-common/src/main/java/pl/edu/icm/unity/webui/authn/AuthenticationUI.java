@@ -8,8 +8,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
 
-import javax.servlet.http.Cookie;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +58,6 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
-	private static final String LAST_AUTHN_COOKIE = "lastAuthnUsed";
-	/**
-	 * Query param allowing for selecting IdP in request to the endpoint
-	 */
-	public static final String IDP_SELECT_PARAM = "uy_select_authn";
-
 	private LocaleChoiceComponent localeChoice;
 	private WebAuthenticationProcessor authnProcessor;
 	private RegistrationFormsChooserComponent formsChooser;
@@ -153,15 +145,6 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			return true;
 		}
 		return false;
-	}
-	
-	public static Cookie createLastIdpCookie(String endpointPath, String idpKey)
-	{
-		Cookie selectedIdp = new Cookie(LAST_AUTHN_COOKIE, idpKey);
-		selectedIdp.setMaxAge(3600*24*30);
-		selectedIdp.setPath(endpointPath);
-		selectedIdp.setHttpOnly(true);
-		return selectedIdp;
 	}
 	
 	private boolean isRegistrationEnabled()

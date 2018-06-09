@@ -18,6 +18,7 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
@@ -28,8 +29,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
-import pl.edu.icm.unity.webui.CookieHelper;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.TileMode;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.AuthenticationTopHeader;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
@@ -55,12 +57,6 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class TileAuthenticationScreen extends CustomComponent implements AuthenticationScreen
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TileAuthenticationScreen.class);
-	private static final String LAST_AUTHN_COOKIE = "lastAuthnUsed";
-	/**
-	 * Query param allowing for selecting IdP in request to the endpoint
-	 */
-	public static final String IDP_SELECT_PARAM = "uy_select_authn";
-
 	protected final UnityMessageSource msg;
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
@@ -79,6 +75,7 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 	private SelectedAuthNPanel authenticationPanel;
 	protected AuthNTiles selectorPanel;
 	private VerticalLayout topLevelLayout;
+	private CheckBox rememberMe;
 
 	public TileAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -148,18 +145,28 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 		authenticationPanel.setAuthenticationListener(new AuthenticationListener()
 		{
 			@Override
-			public void authenticationStateChanged(boolean started)
+			public void authenticationStarted(boolean showProgress)
 			{
 				if (tiles.size() > 1 || tiles.get(0).size() > 1)
-					selectorPanel.setEnabled(!started);
+					selectorPanel.setEnabled(false);
 			}
 
 			@Override
-			public void clearUI()
+			public void authenticationStopped()
 			{
-				setCompositionRoot(new VerticalLayout());
+				if (tiles.size() > 1 || tiles.get(0).size() > 1)
+					selectorPanel.setEnabled(true);
 			}
 		});
+		
+		AuthenticationRealm realm = endpointDescription.getRealm();
+		if (realm.getAllowForRememberMeDays() > 0)
+		{
+			rememberMe = new CheckBox(msg.getMessage("AuthenticationUI.rememberMe", 
+					realm.getAllowForRememberMeDays()));
+			main.addComponent(rememberMe);
+			main.setComponentAlignment(rememberMe, Alignment.TOP_CENTER);
+		}
 		
 		if (tiles.size() > 1 || tiles.get(0).size() > 1)
 		{
@@ -200,7 +207,7 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 		return new SelectedAuthNPanel(msg, authnProcessor, idsMan,  
 				execService, cancelHandler, endpointDescription.getRealm(),
 				endpointDescription.getEndpoint().getContextAddress(),
-				unknownUserDialogProvider);
+				unknownUserDialogProvider, this::isSetRememberMe);
 	}
 	
 	private List<AuthNTile> prepareTiles(List<AuthenticationOption> authenticators)
@@ -268,20 +275,9 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 		return ret;
 	}
 
-	private String getLastIdpFromRequestParam()
+	private boolean isSetRememberMe()
 	{
-		VaadinRequest req = VaadinService.getCurrentRequest();
-		if (req == null)
-			return null;
-		return req.getParameter(IDP_SELECT_PARAM);
-	}
-	
-	private String getLastIdpFromCookie()
-	{
-		VaadinRequest req = VaadinService.getCurrentRequest();
-		if (req == null)
-			return null;
-		return CookieHelper.getCookie(req.getCookies(), LAST_AUTHN_COOKIE);
+		return rememberMe != null && rememberMe.getValue();
 	}
 	
 	private Button buildRegistrationButton()
@@ -297,9 +293,7 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 	
 	private void switchAuthnOptionIfRequested(String defaultVal)
 	{
-		String lastIdp = getLastIdpFromRequestParam(); 
-		if (lastIdp == null)
-			lastIdp = getLastIdpFromCookie();
+		String lastIdp = PreferredAuthenticationHelper.getPreferredIdp();
 		String initialOption = null;
 		if (lastIdp != null)
 		{

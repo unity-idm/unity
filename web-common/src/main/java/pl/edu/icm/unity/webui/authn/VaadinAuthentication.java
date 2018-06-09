@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.server.Resource;
@@ -114,6 +115,12 @@ public interface VaadinAuthentication extends BindingAuthn
 		}
 	}
 
+	enum AuthenticationStyle 
+	{
+		IMMEDIATE,
+		WITH_EMBEDDED_CANCEL,
+		WITH_EXTERNAL_CANCEL
+	}
 	
 	/**
 	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.
@@ -122,14 +129,19 @@ public interface VaadinAuthentication extends BindingAuthn
 	public interface AuthenticationCallback
 	{
 		/**
-		 * Should be called after authentication is started 
+		 * Should be always called after authentication is started
 		 */
-		void onStartedAuthentication();
+		void onStartedAuthentication(AuthenticationStyle authenticationStyle);
 		
 		/**
 		 * Should be called after authentication result is obtained
 		 */
 		void onCompletedAuthentication(AuthenticationResult result);
+
+		/**
+		 * Should be called after authentication result is obtained and authentication has failed
+		 */
+		void onFailedAuthentication(AuthenticationResult result, String error, Optional<String> errorDetail);
 		
 		/**
 		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 

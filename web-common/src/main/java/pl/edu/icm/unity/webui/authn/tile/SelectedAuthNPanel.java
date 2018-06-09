@@ -5,7 +5,9 @@
 package pl.edu.icm.unity.webui.authn.tile;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.apache.logging.log4j.Logger;
 
@@ -15,7 +17,6 @@ import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -38,10 +39,11 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
-import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
@@ -60,10 +62,8 @@ public class SelectedAuthNPanel extends CustomComponent
 	private UnityMessageSource msg;
 	private WebAuthenticationProcessor authnProcessor;
 	private EntityManagement idsMan;
-	private AuthenticationHandler currentAuthnResultCallback;
-	//private Button authenticateButton;
+	private AuthenticationUIController currentAuthnResultCallback;
 	private Button resetMfaButton;
-	private CheckBox rememberMe;
 	private ExecutorsService execService;
 	private String clientIp;
 	private AuthenticationRealm realm;
@@ -74,15 +74,16 @@ public class SelectedAuthNPanel extends CustomComponent
 	private AuthenticationOption selectedAuthnOption;
 	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
-//	private HorizontalLayout authnProgressHL;
 	private String endpointPath;
+	private Supplier<Boolean> rememberMeProvider;
 	
 	
 	public SelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
 			EntityManagement idsMan, ExecutorsService execService,
 			CancelHandler cancelHandler, AuthenticationRealm realm,
 			String endpointPath, 
-			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider)
+			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
+			Supplier<Boolean> rememberMeProvider)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -91,47 +92,19 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.realm = realm;
 		this.endpointPath = endpointPath;
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
+		this.rememberMeProvider = rememberMeProvider;
 
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
 		main.addStyleName("u-selectedAuthn");
-		setSizeUndefined();
+		
+		main.setWidth(100, Unit.PERCENTAGE);
 		authenticatorsContainer = new VerticalLayout();		
 		authenticatorsContainer.setHeight(100, Unit.PERCENTAGE);
+		authenticatorsContainer.setWidth(100, Unit.PERCENTAGE);
 		authenticatorsContainer.setSpacing(false);
 		authenticatorsContainer.setMargin(false);
 
-		//TODO remove
-//		authnProgressHL = new HorizontalLayout();
-//		authnProgressHL.setMargin(false);
-//		
-//		ProgressBar progress = new ProgressBar();
-//		progress.setIndeterminate(true);
-//		progress.setCaption(msg.getMessage("AuthenticationUI.authnInProgress"));
-//		//cancellation of the ongoing (async) authentication
-//		Button cancelOngoingAuthnButton = new Button(msg.getMessage("cancel")); 
-//		cancelOngoingAuthnButton.addStyleName(Styles.vButtonSmall.toString());
-//		cancelOngoingAuthnButton.addClickListener(new Button.ClickListener()
-//		{
-//			@Override
-//			public void buttonClick(ClickEvent event)
-//			{
-//				setNotAuthenticating();
-//				currentAuthnResultCallback.authenticationCancelled(true);
-//			}
-//		});
-//		authnProgressHL.addComponents(progress, cancelOngoingAuthnButton);
-//		showAuthnProgress(false);
-		
-//		authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
-//		authenticateButton.setId("AuthenticationUI.authnenticateButton");
-//		authenticateButton.setVisible(false);
-		
-		rememberMe = new CheckBox(msg.getMessage("AuthenticationUI.rememberMe", 
-				realm.getAllowForRememberMeDays()));
-
-//		authenticateButton.addClickListener(this::handleLogin);
-//		authenticateButton.setClickShortcut(KeyCode.ENTER);
-		
 		resetMfaButton = new Button(msg.getMessage("AuthenticationUI.resetMfaButton"));
 		resetMfaButton.setDescription(msg.getMessage("AuthenticationUI.resetMfaButtonDesc"));
 		resetMfaButton.setVisible(false);
@@ -148,36 +121,17 @@ public class SelectedAuthNPanel extends CustomComponent
 		main.addComponent(authenticatorsContainer);
 		main.setComponentAlignment(authenticatorsContainer, Alignment.MIDDLE_CENTER);
 		
+		//TODO MFA
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setMargin(false);
 		buttons.addComponents(resetMfaButton);
-//TODO remove
-//		if (cancelHandler != null)
-//		{
-//			Button cancel = new Button(msg.getMessage("cancel")); //cancellation of the whole authN process
-//			cancel.addClickListener(new Button.ClickListener()
-//			{
-//				@Override
-//				public void buttonClick(ClickEvent event)
-//				{
-//					currentAuthnResultCallback.authenticationCancelled(true);
-//					cancelHandler.onCancel();
-//				}
-//			});
-//			buttons.addComponent(cancel);
-//		}
-//		
-//		main.addComponent(authnProgressHL);
-		if (realm.getAllowForRememberMeDays() > 0)
-			main.addComponent(rememberMe);
+		buttons.setVisible(false);
+		
 		main.addComponent(buttons);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 		setCompositionRoot(main);
 	}
 
-	/**
-	 * @param primaryUI
-	 */
 	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationOption authnOption, 
 			String id)
 	{
@@ -185,7 +139,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.primaryAuthnUI = primaryAuthnUI;
 		this.authnId = id;
 		primaryAuthnUI.clear();
-		AuthenticationHandler primaryAuthnResultCallback = createPrimaryAuthnResultCallback(primaryAuthnUI);
+		AuthenticationUIController primaryAuthnResultCallback = createPrimaryAuthnResultCallback(primaryAuthnUI);
 		authenticatorsContainer.removeAllComponents();
 		addRetrieval(primaryAuthnUI, primaryAuthnResultCallback);
 		resetMfaButton.setVisible(false);
@@ -203,18 +157,14 @@ public class SelectedAuthNPanel extends CustomComponent
 		//TODO
 	}
 	
-	
-//	protected void showAuthnProgress(boolean inProgress)
-//	{
-//		authnProgressHL.setVisible(inProgress);
-//	}
-	
-	protected void handleError(String error)
+	protected void handleError(String genericError, String authenticatorError)
 	{
 		setNotAuthenticating();
 		if (authenticatorsContainer.getComponentCount() > 0)
 			updateFocus(authenticatorsContainer.getComponent(0));
-		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), error);
+		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
+		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
+		showWaitScreenIfNeeded();
 	}
 	
 	/**
@@ -223,7 +173,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private void setNotAuthenticating()
 	{
 		if (authNListener != null)
-			authNListener.authenticationStateChanged(false);
+			authNListener.authenticationStopped();
 	}
 	
 	/**
@@ -255,7 +205,7 @@ public class SelectedAuthNPanel extends CustomComponent
 					+ "but in most cases it is not what you want.");
 		}
 		VaadinAuthenticationUI secondaryUI = secondaryAuthnUIs.iterator().next(); 
-		AuthenticationHandler secondaryAuthnResultCallback = 
+		AuthenticationUIController secondaryAuthnResultCallback = 
 				createSecondaryAuthnResultCallback(secondaryUI, partialState);
 		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
 		mfaInfo.addStyleName(Styles.error.toString());
@@ -282,7 +232,7 @@ public class SelectedAuthNPanel extends CustomComponent
 			((Focusable)retrievalComponent).focus();
 	}
 	
-	private void addRetrieval(VaadinAuthenticationUI authnUI, AuthenticationHandler handler)
+	private void addRetrieval(VaadinAuthenticationUI authnUI, AuthenticationUIController handler)
 	{
 		Component retrievalComponent = authnUI.getComponent();
 		authenticatorsContainer.addComponent(retrievalComponent);
@@ -295,7 +245,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	 * The method is separated as can be overridden in sandbox authn. 
 	 * @return primary authentication result callback.
 	 */
-	private AuthenticationHandler createPrimaryAuthnResultCallback(VaadinAuthenticationUI primaryAuthnUI)
+	private AuthenticationUIController createPrimaryAuthnResultCallback(VaadinAuthenticationUI primaryAuthnUI)
 	{
 		return new PrimaryAuthenticationResultCallbackImpl(primaryAuthnUI);
 	}
@@ -304,16 +254,22 @@ public class SelectedAuthNPanel extends CustomComponent
 	 * The method is separated as can be overridden in sandbox authn. 
 	 * @return secondary authentication result callback.
 	 */
-	private AuthenticationHandler createSecondaryAuthnResultCallback(VaadinAuthenticationUI secondaryUI,
+	private AuthenticationUIController createSecondaryAuthnResultCallback(VaadinAuthenticationUI secondaryUI,
 			PartialAuthnState partialState)
 	{
 		return new SecondaryAuthenticationResultCallbackImpl(secondaryUI, partialState);
 	}
 	
-	private void onAuthenticationStart()
+	private void onAuthenticationStart(AuthenticationStyle style)
 	{
-		//TODO should be before
 		clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
+		if (authNListener != null && style != AuthenticationStyle.IMMEDIATE)
+			authNListener.authenticationStarted(style == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+		setLastIdpCookie(authnId);
+	}
+
+	private void showWaitScreenIfNeeded()
+	{
 		UnsuccessfulAuthenticationCounter counter = WebAuthenticationProcessor.getLoginCounter();
 		if (counter.getRemainingBlockedTime(clientIp) > 0)
 		{
@@ -321,19 +277,14 @@ public class SelectedAuthNPanel extends CustomComponent
 			dialog.show();
 			return;
 		}
-
-		if (authNListener != null)
-			authNListener.authenticationStateChanged(true);
-
-		setLastIdpCookie(authnId);
 	}
-
+	
 	private void setLastIdpCookie(String idpKey)
 	{
 		if (endpointPath == null)
 			return;
 		VaadinResponse resp = VaadinService.getCurrentResponse();
-		resp.addCookie(AuthenticationUI.createLastIdpCookie(endpointPath, idpKey));
+		resp.addCookie(PreferredAuthenticationHelper.createLastIdpCookie(endpointPath, idpKey));
 	}
 	
 	/**
@@ -343,7 +294,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	 * 
 	 * @author K. Benedyczak
 	 */
-	protected class PrimaryAuthenticationResultCallbackImpl implements AuthenticationHandler
+	protected class PrimaryAuthenticationResultCallbackImpl implements AuthenticationUIController
 	{
 		protected VaadinAuthenticationUI authnUI;
 		protected boolean authnDone = false;
@@ -356,18 +307,29 @@ public class SelectedAuthNPanel extends CustomComponent
 		@Override
 		public void onCompletedAuthentication(AuthenticationResult result)
 		{
+			processAuthn(result, null);
+		}
+		
+
+		@Override
+		public void onFailedAuthentication(AuthenticationResult result, String error,
+				Optional<String> errorDetail)
+		{
+			processAuthn(result, error);
+		}
+		
+		private void processAuthn(AuthenticationResult result, String error)
+		{
 			log.trace("Received authentication result of the primary authenticator " + result);
 			authnDone = true;
 			try
 			{
 				PartialAuthnState partialState = authnProcessor.processPrimaryAuthnResult(
 						result, clientIp, realm, 
-						selectedAuthnOption, rememberMe.getValue());
+						selectedAuthnOption, rememberMeProvider.get());
 				if (partialState == null)
 				{
 					setNotAuthenticating();
-					if (authNListener != null)
-						authNListener.clearUI();
 				} else
 				{
 					switchToSecondaryAuthentication(partialState);
@@ -378,10 +340,10 @@ public class SelectedAuthNPanel extends CustomComponent
 			} catch (AuthenticationException e)
 			{
 				log.trace("Authentication failed ", e);
-				handleError(msg.getMessage(e.getMessage()));
+				handleError(msg.getMessage(e.getMessage()), error);
 			}
 		}
-		
+//TODO remove		
 //		@Override
 //		public void authenticationCancelled(boolean signalAuthenticators)
 //		{
@@ -393,23 +355,29 @@ public class SelectedAuthNPanel extends CustomComponent
 //				authnUI.clear();
 //			}
 //		}
+
+		@Override
+		public void onStartedAuthentication(AuthenticationStyle style)
+		{
+			onAuthenticationStart(style);
+		}
+
+		@Override
+		public void onCancelledAuthentication()
+		{
+			setNotAuthenticating();
+		}
 		
 		@Override
 		public void refresh(VaadinRequest request)
 		{
 			authnUI.refresh(request);
 		}
-
+		
 		@Override
-		public void onStartedAuthentication()
+		public void cancel()
 		{
-			onAuthenticationStart();
-		}
-
-		@Override
-		public void onCancelledAuthentication()
-		{
-			// TODO Auto-generated method stub
+			authnUI.clear();
 		}
 	}
 
@@ -438,14 +406,12 @@ public class SelectedAuthNPanel extends CustomComponent
 			try
 			{
 				authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
-						selectedAuthnOption, rememberMe.getValue());
+						selectedAuthnOption, rememberMeProvider.get());
 				setNotAuthenticating();
-				if (authNListener != null)
-					authNListener.clearUI();
 			} catch (AuthenticationException e)
 			{
 				log.trace("Secondary authentication failed ", e);
-				handleError(msg.getMessage(e.getMessage()));
+				handleError(msg.getMessage(e.getMessage()), null);
 				switchToPrimaryAuthentication();
 			}
 		}
@@ -462,7 +428,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		{
 			log.trace("Authentication successful, user unknown, "
 					+ "no registration form");
-			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"));
+			handleError(msg.getMessage("AuthenticationUI.unknownRemoteUser"), null);
 		}
 	}
 
@@ -479,6 +445,12 @@ public class SelectedAuthNPanel extends CustomComponent
 			currentAuthnResultCallback.refresh(request);
 	}
 	
+	public void cancel()
+	{
+		if (currentAuthnResultCallback != null)
+			currentAuthnResultCallback.cancel();
+	}
+	
 	/**
 	 * listener to be registered to the authentication button.
 	 * @param listener
@@ -488,19 +460,21 @@ public class SelectedAuthNPanel extends CustomComponent
 		this.authNListener = listener;
 	}
 	
+	/**
+	 * Used by upstream code holding this component to be informed about changes in this component. 
+	 */
 	public interface AuthenticationListener
 	{
-		void authenticationStateChanged(boolean started);
-		void clearUI();
+		void authenticationStarted(boolean showProgress);
+		void authenticationStopped();
 	}
 	
 	/**
-	 * Extends {@link AuthenticationCallback} with internal operations which are used to pass actions
-	 * to the selected {@link VaadinAuthenticationUI}
-	 * @author K. Benedyczak
+	 * Internal operations which are used to pass actions to the selected {@link VaadinAuthenticationUI}
 	 */
-	public interface AuthenticationHandler extends AuthenticationCallback
+	public interface AuthenticationUIController extends AuthenticationCallback
 	{
+		void cancel();
 		void refresh(VaadinRequest request);
 	}
 }

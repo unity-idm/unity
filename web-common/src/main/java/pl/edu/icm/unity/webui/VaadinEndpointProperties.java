@@ -74,6 +74,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
+	
 	public static final String AUTHN_TILES_PFX = "authenticationTiles.";
 	public static final String AUTHN_TILE_CONTENTS = "tileContents";
 	public static final String AUTHN_TILE_PER_LINE = "tileAuthnsPerLine";
@@ -84,8 +85,26 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String DEFAULT_PER_LINE = "authnsPerLine";
 	private static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
 	public static final String DEFAULT_AUTHN_ICON_SCALE = "authnIconScale";
+			
+			
+	public static final String AUTHN_LOGO = "authnScreenLogo";
+	public static final String AUTHN_TITLE = "authnScreenTitle";
+	public static final String AUTHN_SHOW_SEARCH = "authnScreenShowSearch";
+	public static final String AUTHN_SHOW_CANCEL = "authnScreenShowCancel";
+	public static final String AUTHN_ADD_ALL = "authnScreenShowAllOptions";
+
+	public static final String AUTHN_OPTION_LABEL_PFX = "authnScreenOptionsLabel.";
+	public static final String AUTHN_OPTION_LABEL_TEXT = "text";
 	
-	
+	public static final String AUTHN_COLUMNS_PFX = "authnScreenColumn.";
+	public static final String AUTHN_COLUMN_TITLE = "columnTitle";
+	public static final String AUTHN_COLUMN_SEPARATOR = "columnSeparator";
+	public static final float DEFAULT_AUTHN_COLUMN_WIDTH = 14.5f;
+	public static final String AUTHN_COLUMN_WIDTH = "columnWidth";
+	public static final String AUTHN_COLUMN_CONTENTS = "columnContents";
+
+
+
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	
@@ -114,6 +133,58 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				+ " and this option supports automated login (as remote SAML or OAuth login), then this "
 				+ "option will be activated automatically, without presenting (or even loading) "
 				+ "the authentication screen."));
+		
+		META.put(AUTHN_LOGO, new PropertyMD("file:../common/img/other/logo.png").
+				setDescription("Sets URL of image that should be shown above all authentication options."));
+		META.put(AUTHN_TITLE, new PropertyMD().setCanHaveSubkeys()
+				.setDescription("Message (can be localized) which will be displayed above "
+						+ "all authentication options. If unset a default message from "
+						+ "message bundle will be used. Set to empty string to completely remove the title."));
+		META.put(AUTHN_SHOW_SEARCH, new PropertyMD("false").
+				setDescription("Whether to show a filter control, allowing to search for desred authentication option. "
+						+ "Useful if many authentication options are allowed."));
+		META.put(AUTHN_SHOW_CANCEL, new PropertyMD("true").
+				setDescription("Whether to show a cancel button. This setting is relevant only on "
+						+ "authentication screens which are not accessed directly "
+						+ "(e.g. on IdP authentication screen after redirection from SP)."));
+		META.put(AUTHN_ADD_ALL, new PropertyMD("true").
+				setDescription("If set to true then all authentication options configured for the "
+						+ "edpoint will be added on the screen. If any of options is not explicitly "
+						+ "enumerated, then it will be appended to the last column."));
+		META.put(AUTHN_OPTION_LABEL_PFX, new PropertyMD().setStructuredList(false)
+				.setDescription("Under this prefix it is possible to define text separators, "
+						+ "which can be referenced in column definitions. The separators "
+						+ "are defined separately so that it is possible to provide international "
+						+ "variants of the text, what would be difficult in inline in the column "
+						+ "contents specification"));
+		META.put(AUTHN_OPTION_LABEL_TEXT, new PropertyMD().setStructuredListEntry(AUTHN_OPTION_LABEL_PFX).setCanHaveSubkeys()
+				.setDescription("Separator's message (can be localized)."));
+		META.put(AUTHN_COLUMNS_PFX, new PropertyMD().setStructuredList(true)
+				.setDescription("Under this prefix are defined columns in which authenticators are organized."));
+		META.put(AUTHN_COLUMN_TITLE, new PropertyMD().setStructuredListEntry(AUTHN_COLUMNS_PFX).setCanHaveSubkeys()
+				.setDescription("Message (can be localized) which will be displayed at the top of the column."));
+		META.put(AUTHN_COLUMN_SEPARATOR, new PropertyMD().setStructuredListEntry(AUTHN_COLUMNS_PFX).setCanHaveSubkeys()
+				.setDescription("Message (can be localized) which will be displayed after the column, "
+						+ "i.e. will become separator between this and the next column. Not used for the last column."));
+		META.put(AUTHN_COLUMN_WIDTH, new PropertyMD(String.valueOf(DEFAULT_AUTHN_COLUMN_WIDTH))
+				.setFloat().setMin(1.0).setStructuredListEntry(AUTHN_COLUMNS_PFX)
+				.setDescription("Width of the column, specified in +em+ unit (see CSS spec for details)"));
+		META.put(AUTHN_COLUMN_CONTENTS, new PropertyMD().setMandatory().setStructuredListEntry(AUTHN_COLUMNS_PFX)
+				.setDescription("Contents of the column. Values are space separated prefixes of "
+						+ "authentication options. All options whose (primary) authenticator "
+						+ "name starts with the prefixes will be added to the column, "
+						+ "in the order of provided. There are special values which can be also used: "
+						+ "+_LAST_USED+ - dynamic option which is set to the one which was recently used on the clinet machine. "
+						+ "+_REGISTER+ - button allowing to sign up (makes sense if registration forms are configured) "
+						+ "+_SEPARATOR_KEY+ - text from the message with the given key is inserted as a separator. "
+						+ "If +_KEY+ suffix is skipped then empty separator is inserted. "
+						+ "Separator will be only added if there is non text element before it and after it."
+						+ "+_HEADER_KEY+ - text from the message with the given key is inserted as a in-line header. "
+						+ "If +_KEY+ suffix is skipped then empty header is inserted. "
+						+ "Header will be only added if there is a non-text element after it (what is the only difference to separator)."));
+		
+		
+		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
 		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).
@@ -122,6 +193,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "will be ignored." +
 						"If there are no forms defined with this property, then all public "
 						+ "forms are made available."));
+
 		META.put(DEFAULT_PER_LINE, new PropertyMD("3").setBounds(1, 10).
 				setDescription("Defines how many authenticators should be presented in a single "
 						+ "line of an authentication tile in simple mode."));

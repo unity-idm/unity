@@ -18,11 +18,17 @@ public class AuthenticationOptionKeyUtils
 	
 	public static String decodeAuthenticator(String globalKey)
 	{
+		int dotIndex = globalKey.indexOf(".");
+		if (dotIndex == -1)
+			return globalKey;
 		return globalKey.substring(0, globalKey.indexOf("."));
 	}
 
-	public static String decodeOption(String globalKey)
+	public static String decodeAuthenticatorOption(String globalKey)
 	{
+		int dotIndex = globalKey.indexOf(".");
+		if (dotIndex == -1 || dotIndex == globalKey.length()-1)
+			return null;
 		return globalKey.substring(globalKey.indexOf(".")+1, globalKey.length());
 	}
 }

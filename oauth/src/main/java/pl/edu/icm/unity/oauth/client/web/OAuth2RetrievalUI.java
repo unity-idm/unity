@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -15,15 +16,10 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -40,13 +36,13 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.authn.IdPROComponent;
+import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
@@ -66,9 +62,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
-	private Label messageLabel;
-	private HtmlSimplifiedLabel errorDetailLabel;
-	
 	private Component main;
 
 	//TODO AUTHN handle progress/cancel
@@ -96,8 +89,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		redirectParam = installRequestHandler();
 
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		VerticalLayout ret = new VerticalLayout();
-		ret.setMargin(false);
 
 		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.SELECTED_ICON_SCALE, 
 				ScaleMode.class); 
@@ -105,25 +96,19 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
-		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
-		
-		ret.addComponent(idpComponent);
-		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);
-		
-		messageLabel = new Label();
-		messageLabel.addStyleName(Styles.error.toString());
-		errorDetailLabel = new HtmlSimplifiedLabel();
-		errorDetailLabel.addStyleName(Styles.emphasized.toString());
-		errorDetailLabel.setVisible(false);
-		errorDetailLabel.setWidth(50, Unit.EM);
-		ret.addComponents(messageLabel, errorDetailLabel);
-		ret.setComponentAlignment(messageLabel, Alignment.TOP_CENTER);
-		ret.setComponentAlignment(errorDetailLabel, Alignment.TOP_CENTER);
-		
-		Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
-		authenticateButton.addClickListener(event -> startLogin());
-		ret.addComponent(authenticateButton);
-		main = ret;
+		Resource logo;
+		try
+		{
+			logo = logoUrl == null ? Images.empty.getResource() : ImageUtils.getLogoResource(logoUrl);
+		} catch (MalformedURLException e)
+		{
+			log.warn("Can't load logo from " + logoUrl, e);
+			logo = null;
+		}
+		String signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
+		IdPAuthNComponent idpComponent = new IdPAuthNComponent(idpKey, logo, signInLabel);
+		idpComponent.addClickListener(event -> startLogin());
+		main = idpComponent;
 	}
 
 	@Override
@@ -163,30 +148,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void clear()
 	{
-		//nop
-	}
-	
-	private void showError(String message)
-	{
-		if (message == null)
-		{
-			messageLabel.setValue("");
-			showErrorDetail(null);
-			return;
-		}
-		messageLabel.setValue(message);
-	}
-
-	private void showErrorDetail(String msgKey, Object... args)
-	{
-		if (msgKey == null)
-		{
-			errorDetailLabel.setVisible(false);
-			errorDetailLabel.setValue("");
-			return;
-		}
-		errorDetailLabel.setVisible(true);
-		errorDetailLabel.setValue(msg.getMessage(msgKey, args));
+		breakLogin();
 	}
 	
 	private String installRequestHandler()
@@ -236,7 +198,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createRequest(configKey);
-			callback.onStartedAuthentication();
+			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);
@@ -253,13 +215,11 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	
 	/**
 	 * Called when a OAuth authorization code response is received.
-	 * @param authnContext
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
 		log.debug("RetrievalUI received OAuth response");
 		AuthenticationResult authnResult;
-		showError(null);
 		
 		String reason = null;
 		AuthenticationException savedException = null;
@@ -291,8 +251,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		if (authnResult.getStatus() == Status.success || 
 				authnResult.getStatus() == Status.unknownRemotePrincipal)
 		{
-			showError(null);
 			breakLogin();
+			callback.onCompletedAuthentication(authnResult);
 		} else
 		{
 			if (savedException != null)
@@ -300,18 +260,14 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 						savedException);
 			else
 				log.debug("OAuth2 authorization code verification or processing failed");
-			if (reason != null)
-				showErrorDetail("OAuth2Retrieval.authnFailedDetailInfo", reason);
-			showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));
+			Optional<String> errorDetail = reason == null ? Optional.empty() : 
+				Optional.of(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
+			String error = msg.getMessage("OAuth2Retrieval.authnFailedError");
 			breakLogin();
+			callback.onFailedAuthentication(authnResult, error, errorDetail);
 		}
-
-		callback.onCompletedAuthentication(authnResult);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void refresh(VaadinRequest request) 
 	{

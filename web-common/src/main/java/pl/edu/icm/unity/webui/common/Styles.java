@@ -74,6 +74,9 @@ public enum Styles
 	uDenseTreeGrid("u-denseTreeGrid"),
 	largeIcon("u-largeIcon"),
 	veryLargeIcon("u-veryLargeIcon"),
+	signInButton("u-signInButton"),
+	signUpButton("u-signUpButton"),
+	externalSignInButton("u-externalSignInButton"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

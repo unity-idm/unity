@@ -19,7 +19,7 @@ import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
-import pl.edu.icm.unity.webui.authn.AuthenticationUI;
+import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
 /**
@@ -50,7 +50,7 @@ class SAMLProxyAuthnHandler
 
 	private String getIdpConfigKey(HttpServletRequest httpRequest)
 	{
-		String requestedIdP = httpRequest.getParameter(AuthenticationUI.IDP_SELECT_PARAM);
+		String requestedIdP = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
 		SAMLSPProperties clientProperties = credentialExchange.getSamlValidatorSettings();
 		Set<String> keys = clientProperties.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
 		
@@ -58,14 +58,14 @@ class SAMLProxyAuthnHandler
 		{
 			if (keys.size() > 1)
 				throw new IllegalStateException("SAML authentication option was not requested with " 
-					+ AuthenticationUI.IDP_SELECT_PARAM
+					+ PreferredAuthenticationHelper.IDP_SELECT_PARAM
 					+ " and there are multiple options installed: "
 					+ "can not perform automatic authentication.");
 			return keys.iterator().next();
 		}
 		
 		String authnOption = SAMLSPProperties.IDP_PREFIX + 
-				AuthenticationOptionKeyUtils.decodeOption(requestedIdP) + ".";
+				AuthenticationOptionKeyUtils.decodeAuthenticatorOption(requestedIdP) + ".";
 		if (!keys.contains(authnOption))
 			throw new IllegalStateException("Client requested authN option " + authnOption 
 					+", which is not available in "
