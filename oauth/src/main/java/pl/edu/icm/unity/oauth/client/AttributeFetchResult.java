@@ -17,30 +17,30 @@ import java.util.Map;
 public class AttributeFetchResult
 {
 
-	private Map<String, List<String>> flatAttributes;
+	private Map<String, List<String>> attributes;
 	private Map<String, Object> rawAttributes;
 	
-	public AttributeFetchResult(Map<String, List<String>> flatAttributes,
+	public AttributeFetchResult(Map<String, List<String>> attributes,
 			Map<String, Object> rawAttributes)
 	{
-		this.setFlatAttributes(flatAttributes);
+		this.setAttributes(attributes);
 		this.setRawAttributes(rawAttributes);
 	}
 	
 	public AttributeFetchResult()
 	{
-		flatAttributes = new HashMap<>();
+		attributes = new HashMap<>();
 		rawAttributes = new HashMap<>();
 	}
 
-	public Map<String, List<String>> getFlatAttributes()
+	public Map<String, List<String>> getAttributes()
 	{
-		return flatAttributes;
+		return attributes;
 	}
 
-	public void setFlatAttributes(Map<String, List<String>> flatAttributes)
+	public void setAttributes(Map<String, List<String>> flatAttributes)
 	{
-		this.flatAttributes = flatAttributes;
+		this.attributes = flatAttributes;
 	}
 
 	public Map<String, Object> getRawAttributes()

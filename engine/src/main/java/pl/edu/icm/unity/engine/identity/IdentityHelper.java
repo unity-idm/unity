@@ -18,6 +18,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
 import pl.edu.icm.unity.engine.group.GroupHelper;
@@ -207,6 +208,11 @@ public class IdentityHelper
 		long entityId = from.getEntityId();
 		for (Attribute extracted: extractedList)
 		{
+			if (RoleAttributeTypeProvider.AUTHORIZATION_ROLE.equals(extracted.getName()))
+			{
+				log.warn("This should never happen: skipping role attribute addition extracted from identity");
+				continue;
+			}
 			extracted.setGroupPath("/");
 			try
 			{

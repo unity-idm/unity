@@ -4,10 +4,14 @@
  */
 package pl.edu.icm.unity.engine.attribute;
 
+import static com.googlecode.catchexception.CatchException.catchException;
+import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.Collection;
@@ -18,12 +22,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -33,6 +42,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class TestAttributes extends DBIntegrationTestBase
 {
@@ -147,6 +157,59 @@ public class TestAttributes extends DBIntegrationTestBase
 		} catch (IllegalGroupValueException e) {}
 	}
 
+	@Test
+	public void shouldNotSetSystemManagerRoleHoldingContentsManager() throws Exception
+	{
+		Attribute managerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+				"/", AuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
+		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
+		insecureAttrsMan.setAttribute(adminEntity, managerRoleAt);
+		
+		setupUserContext("admin", null);
+		
+		Attribute systemManagerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+				"/", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
+		
+		
+		catchException(attrsMan).setAttribute(adminEntity, systemManagerRoleAt);
+		
+		assertThat(caughtException(), isA(AuthorizationException.class));
+	}
+
+	@Test
+	public void shouldSetInspectorRoleHoldingContentsManager() throws Exception
+	{
+		Attribute managerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+				"/", AuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
+		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
+		insecureAttrsMan.setAttribute(adminEntity, managerRoleAt);
+		
+		setupUserContext("admin", null);
+		
+		Attribute inspectorRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+				"/", AuthorizationManagerImpl.PRIVILEGED_INSPECTOR_ROLE);
+		
+		
+		attrsMan.setAttribute(adminEntity, inspectorRoleAt);
+	}
+
+	@Test
+	public void shouldSetUserRoleHoldingSystemManagerROle() throws Exception
+	{
+		Attribute managerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+				"/", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
+		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
+		insecureAttrsMan.setAttribute(adminEntity, managerRoleAt);
+		
+		setupUserContext("admin", null);
+		
+		Attribute inspectorRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
+				"/", AuthorizationManagerImpl.USER_ROLE);
+		
+		
+		attrsMan.setAttribute(adminEntity, inspectorRoleAt);
+	}
+	
 	@Test
 	public void afterRemovalFromGroupAttributesAreRemoved() throws Exception
 	{

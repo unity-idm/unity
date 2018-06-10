@@ -27,7 +27,7 @@
 				"parameters": [
 					"country",
 					"/",
-					"attr['address.country']",
+					"attrObj.?address.?country",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -41,7 +41,7 @@
 				"parameters": [
 					"street",
 					"/",
-					"attr['address.street']",
+					"attrObj.?address.?street",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -55,7 +55,7 @@
 				"parameters": [
 					"postalCode",
 					"/",
-					"attr['address.zip']",
+					"attrObj.?address.?zip",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -69,7 +69,7 @@
 				"parameters": [
 					"provinceName",
 					"/",
-					"attr['address.region']",
+					"attrObj.?address.?region",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -83,7 +83,7 @@
 				"parameters": [
 					"city",
 					"/",
-					"attr['address.city']",
+					"attrObj.?address.?city",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -97,21 +97,21 @@
 				"parameters": [
 					"countryCode",
 					"/",
-					"attr['address.country_code']",
+					"attrObj.?address.?country_code",
 					"CREATE_OR_UPDATE"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "(attr contains 'address.street') && (attr contains 'address.city') && (attr contains 'address.region') && (attr contains 'address.country')"
+				"conditionValue": "(attrObj contains 'address') && (attrObj['address'] contains 'street') && (attrObj['address'] contains 'city') && (attrObj['address'] contains 'zip') && (attrObj['address'] contains 'region') && (attrObj['address'] contains 'country')"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"address",
 					"/",
-					"attr['address.street'] + ', ' + attr['address.city'] + ', ' + attr['address.zip'] + ', ' + attr['address.region'] + ', ' + attr['address.country']",
+					"attrObj.?address.?street + ', ' + attrObj.?address.?city + ', ' + attrObj.?address.?zip + ', ' + attrObj.?address.?region + ', ' + attrObj.?address.?country",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -139,7 +139,7 @@
 				"parameters": [
 					"currency",
 					"/",
-					"attr['currency.user_currency']",
+					"attrObj.?currency.?user_currency",
 					"CREATE_OR_UPDATE"
 				]
 			}
