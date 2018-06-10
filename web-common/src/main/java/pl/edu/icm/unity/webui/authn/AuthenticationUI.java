@@ -439,7 +439,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	}
 	
 	
-	public AuthenticationFlow getAuthenticationOptionById(String lastIdp)
+	private AuthenticationFlow getAuthenticationOptionById(String lastIdp)
 	{
 
 		AuthenticationFlow ret = authnFlowById.get(lastIdp);
@@ -449,7 +449,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		return null;
 	}
 
-	public VaadinAuthenticationUI getAuthenticatorById(String lastIdp)
+	private VaadinAuthenticationUI getAuthenticatorById(String lastIdp)
 	{
 
 		VaadinAuthenticationUI ret = authenticatorById.get(lastIdp);

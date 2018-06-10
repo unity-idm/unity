@@ -46,7 +46,7 @@ public class TstPerfLogin extends PerformanceTestBase
 
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 10, 100, -1, 600);
 		realmsMan.addRealm(realm);
-		authFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW_PASS, Policy.NEVER,
 				Sets.newHashSet(AUTHENTICATOR_REST_PASS)));
 		

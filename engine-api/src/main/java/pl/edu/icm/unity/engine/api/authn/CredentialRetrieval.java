@@ -23,6 +23,6 @@ public interface CredentialRetrieval extends BindingAuthn, StringConfigurable
 	 * @param e
 	 * @param id
 	 */
-	public void setCredentialExchange(CredentialExchange e, String id);
+	public void setCredentialExchange(CredentialExchange e, String id, long revision);
 	public String getBindingName();
 }

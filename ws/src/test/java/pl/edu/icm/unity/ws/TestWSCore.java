@@ -319,15 +319,15 @@ public class TestWSCore extends DBIntegrationTestBase
 		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password with cxf-httpbasic", 
 				null, "", "credential1");
 		
-		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW, Policy.NEVER,
 				Sets.newHashSet(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT)));
 		
-		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW_CERT_SECOND_FACTOR, Policy.REQUIRE,
 				Sets.newHashSet(AUTHENTICATOR_WS_PASS), Lists.newArrayList(AUTHENTICATOR_WS_CERT)));
 
-		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW_OPTIN, Policy.USER_OPTIN,
 				Sets.newHashSet(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT)));
 		

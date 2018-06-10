@@ -32,15 +32,17 @@ public class AuthenticationFlow
 	private List<BindingAuthn> secondFactorAuthenticators;
 	private Policy policy;
 	private String name;
+	private long revision;
 
 	public AuthenticationFlow(String name, Policy policy,
 			Set<BindingAuthn> firstFactorAuthenticators,
-			List<BindingAuthn> secondFactorAuthenticators)
+			List<BindingAuthn> secondFactorAuthenticators, long revision)
 	{
 		this.name = name;
 		this.policy = policy;
 		this.firstFactorAuthenticators = firstFactorAuthenticators;
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
+		this.revision = revision;
 	}
 
 	public String getId()
@@ -82,6 +84,11 @@ public class AuthenticationFlow
 		return ret;	
 	}
 	
+	public long getRevision()
+	{
+		return revision;
+	}
+	
 	/**
 	 * @throws WrongArgumentException 
 	 * 
@@ -105,5 +112,7 @@ public class AuthenticationFlow
 						+ supportedBindings);
 		}
 	}
+
 	
+
 }

@@ -60,7 +60,7 @@ public class TestRESTCore extends TestRESTBase
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		authFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				"flow1", Policy.NEVER,
 				Sets.newHashSet(AUTHENTICATOR_REST_PASS)));
 		

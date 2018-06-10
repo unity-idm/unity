@@ -553,24 +553,18 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		return pkiConf;
 	}
 	
-//	public List<String> getEndpointAuthFlows(String endpointKey)
-//	{
-//		return getListOfValues(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATION_FLOW);
-//	}
-	
 	public List<String> getEndpointAuth(String endpointKey)
 	{
 		String spec = getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
-		String[] authenticatorSets = spec.split(";");		
+		String[] authenticationOptions = spec.split(";");		
 		List<String> endpointAuthn = new ArrayList<>();
-		for (String authenticatorSet : authenticatorSets)
+		for (String authenticationOption : authenticationOptions)
 		{
-			String[] authenticators = authenticatorSet.split(",");
-			if (authenticators.length != 1)
+			if (authenticationOption.contains(","))
 				throw new ConfigurationException("Invalid configuration of "
 						+ "authenticators of the endpoint with id " + endpointKey +
 						". Only single authentication flow or authenticator name is allowed.");
-			endpointAuthn.add(authenticators[0]);
+			endpointAuthn.add(authenticationOption);
 		}
 		return endpointAuthn;
 	}

@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -45,6 +46,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	private AuthenticatorsRegistry authReg;
 	private LocalCredentialsRegistry localCredReg;
 	private AuthenticatorInstanceDB authenticatorDB;
+	private AuthenticationFlowDB authenticationFlowDB;
 	private CredentialRepository credentialRepository;
 	private IdentityResolver identityResolver;
 	private EndpointsUpdater endpointsUpdater;
@@ -55,6 +57,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	@Autowired
 	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, TransactionalRunner tx,
 			AuthenticatorInstanceDB authenticatorDB,
+			AuthenticationFlowDB authenticationFlowDB,
 			CredentialRepository credentialRepository,
 			IdentityResolver identityResolver, 
 			EndpointsUpdater endpointsUpdater, AuthenticatorLoader authenticatorLoader,
@@ -65,6 +68,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		this.tx = tx;
 		this.localCredReg = localCredReg;
 		this.authenticatorDB = authenticatorDB;
+		this.authenticationFlowDB = authenticationFlowDB;
 		this.credentialRepository = credentialRepository;
 		this.identityResolver = identityResolver;
 		this.endpointsUpdater = endpointsUpdater;
@@ -90,6 +94,13 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 			String jsonRetrievalConfig, String credentialName) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+		
+		if (authenticationFlowDB.getAllAsMap().get(id) != null)
+		{
+			throw new IllegalArgumentException(
+					"Can not add authenticator " + id
+							+ ", authentication flow with the same name exists");
+		}
 		AuthenticatorImpl authenticator;
 		if (credentialName != null)
 		{
@@ -97,14 +108,14 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 			CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
 			String credentialConfiguration = credential.getCredentialDefinition().getConfiguration();
 			authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
-					jsonRetrievalConfig, credentialName, credentialConfiguration);
+					jsonRetrievalConfig, credentialName, credentialConfiguration, 0);
 
 			verifyIfLocalCredentialMatchesVerificator(authenticator, credential, 
 					credentialName);
 		} else
 		{
 			authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
-					jsonRetrievalConfig, jsonVerificatorConfig);
+					jsonRetrievalConfig, jsonVerificatorConfig, 0);
 		}
 		authenticatorDB.create(authenticator.getAuthenticatorInstance());
 		return authenticator.getAuthenticatorInstance();
@@ -152,6 +163,8 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 			}
 			
 			current.updateConfiguration(jsonRetrievalConfig, verificatorConfigCopy, localCredential);
+			AuthenticatorInstance currentInstance = authenticatorDB.get(id);
+			current.setRevision(currentInstance.getRevision() + 1);		
 			authenticatorDB.update(current.getAuthenticatorInstance());
 		});
 		endpointsUpdater.updateManual();

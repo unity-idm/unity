@@ -103,7 +103,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				"flow1", Policy.NEVER,
 				Sets.newHashSet("Apass", "Acert")));
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 

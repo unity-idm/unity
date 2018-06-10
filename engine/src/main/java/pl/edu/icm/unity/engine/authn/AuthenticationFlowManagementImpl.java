@@ -64,19 +64,28 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 
 	
 	@Override
-	public void addAuthenticationFlowDefinition(
+	public void addAuthenticationFlow(
 			AuthenticationFlowDefinition authFlowdef) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);	
+		
+		if (authenticatorDB.getAllAsMap().get(authFlowdef.getName()) != null)
+		{
+			throw new IllegalArgumentException(
+					"Can not add authentication flow " + authFlowdef.getName()
+							+ ", authenticator with the same name exists");
+		}
+		
 		assertIfAuthenticatorsExists(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
 		assertAuthenticatorsHaveTheSameBinding(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
+		authFlowdef.setRevision(0);
 		authnFlowDB.create(authFlowdef);	
 	}
 
 	@Override
-	public void removeAuthenticationFlowDefinition(String toRemove) throws EngineException
+	public void removeAuthenticationFlow(String toRemove) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		authnFlowDB.delete(toRemove);
@@ -92,13 +101,16 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 
 
 	@Override
-	public void updateAuthenticationFlowDefinition(AuthenticationFlowDefinition authFlowdef) throws EngineException
+	public void updateAuthenticationFlow(AuthenticationFlowDefinition authFlowdef) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIfAuthenticatorsExists(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
 		assertAuthenticatorsHaveTheSameBinding(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
+		
+		AuthenticationFlowDefinition current = authnFlowDB.get(authFlowdef.getName());
+		authFlowdef.setRevision(current.getRevision() + 1);	
 		authnFlowDB.update(authFlowdef);	
 	}
 	
@@ -143,11 +155,7 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 	public boolean getUserMFAOptIn(long entityId) throws EngineException
 	{
 		Optional<Boolean> userOptin = getUserOptinInternal(entityId);
-		if (userOptin.isPresent())
-		{
-			return userOptin.get();
-		}
-		return false;
+		return userOptin.orElse(false);
 	}
 
 	private Optional<Boolean> getUserOptinInternal(long entityId) throws EngineException

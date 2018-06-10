@@ -95,7 +95,7 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 		firstFactor.add(AUTHENTICATOR_REST_PASS);
 		authnMan.createAuthenticator(AUTHENTICATOR_REST_PASS, "password with rest-httpbasic", 
 				null, "", "credential1");
-		authFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(AUTHENTICATION_FLOW_PASS, Policy.NEVER, firstFactor));
+		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(AUTHENTICATION_FLOW_PASS, Policy.NEVER, firstFactor));
 	}	
 	
 	

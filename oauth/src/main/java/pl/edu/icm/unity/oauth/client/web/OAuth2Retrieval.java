@@ -69,9 +69,9 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	}
 	
 	@Override
-	public void setCredentialExchange(CredentialExchange e, String id)
+	public void setCredentialExchange(CredentialExchange e, String id, long revision)
 	{
-		super.setCredentialExchange(e, id);
+		super.setCredentialExchange(e, id, revision);
 		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e);
 	}
 	

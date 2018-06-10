@@ -756,11 +756,11 @@ public class EngineInitialization extends LifecycleBase
 
 			if (!existing.containsKey(name))
 			{
-				authnFlowManagement.addAuthenticationFlowDefinition(authFlowdef);
+				authnFlowManagement.addAuthenticationFlow(authFlowdef);
 				log.info(" - " + name + " [" + policy.toString() + "]");
 			} else
 			{
-				authnFlowManagement.updateAuthenticationFlowDefinition(authFlowdef);
+				authnFlowManagement.updateAuthenticationFlow(authFlowdef);
 				log.info(" - " + name + " [" + policy.toString() + "] (updated)");
 			}
 		}

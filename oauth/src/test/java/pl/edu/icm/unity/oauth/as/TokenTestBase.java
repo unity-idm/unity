@@ -151,7 +151,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 10, 100,
 					-1, 600);
 			realmsMan.addRealm(realm);
-			authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 					"flow1", Policy.NEVER,
 					Sets.newHashSet("Apass")));
 			

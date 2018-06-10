@@ -56,7 +56,7 @@ public class TestJWTAuthentication extends TestRESTBase
 		
 		authnMan.createAuthenticator("Ajwt", "jwt with rest-jwt", JWT_CONFIG, null, null);
 		
-		authFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				"flow1", Policy.NEVER,
 				Sets.newHashSet(AUTHENTICATOR_REST_PASS,"Ajwt")));
 		

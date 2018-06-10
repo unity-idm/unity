@@ -15,6 +15,7 @@ public abstract class AbstractCredentialRetrieval<T extends CredentialExchange> 
 {
 	protected T credentialExchange;
 	private String authenticatorId;
+	private long authenticatorRevision;
 	protected final String bindingName;
 	
 	public AbstractCredentialRetrieval(String bindingName)
@@ -29,16 +30,23 @@ public abstract class AbstractCredentialRetrieval<T extends CredentialExchange> 
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public void setCredentialExchange(CredentialExchange e, String id)
+	public void setCredentialExchange(CredentialExchange e, String id, long authenticatorRevision)
 	{
 		this.credentialExchange = (T)e;
 		this.authenticatorId = id;
+		this.authenticatorRevision = authenticatorRevision;
 	}
 	
 	@Override
 	public String getAuthenticatorId()
 	{
 		return authenticatorId;
+	}
+
+	@Override
+	public long getAuthenticatorRevision()
+	{
+		return authenticatorRevision;
 	}
 	
 	@Override

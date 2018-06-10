@@ -33,12 +33,14 @@ public class AuthenticationFlowDefinition implements NamedObject
 	private Set<String> firstFactorAuthenticators;
 	private List<String> secondFactorAuthenticators;
 	private Policy policy;
+	private long revision = 0;
+	
 
 	public AuthenticationFlowDefinition()
 	{
 		super();
 	}
-
+	
 	public AuthenticationFlowDefinition(String name, Policy policy,
 			Set<String> firstFactorAuthenticators,
 			List<String> secondFactorAuthenticators)
@@ -48,7 +50,7 @@ public class AuthenticationFlowDefinition implements NamedObject
 		this.secondFactorAuthenticators = secondFactorAuthenticators;
 		this.policy = policy;
 	}
-
+	
 	public AuthenticationFlowDefinition(String name, Policy policy,
 			Set<String> firstFactorAuthenticators)
 	{
@@ -105,6 +107,32 @@ public class AuthenticationFlowDefinition implements NamedObject
 		return name;
 	}
 	
+	public long getRevision()
+	{
+		return revision;
+	}
+
+	public void setRevision(long revision)
+	{
+		this.revision = revision;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((policy == null) ? 0 : policy.hashCode());
+		result = prime * result + ((firstFactorAuthenticators == null) ? 0
+				: firstFactorAuthenticators.hashCode());
+		result = prime * result + ((secondFactorAuthenticators == null) ? 0
+				: secondFactorAuthenticators.hashCode());
+		result = prime * result + (int) (revision ^ (revision >>> 32));
+		return result;
+	}
+	
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -142,7 +170,8 @@ public class AuthenticationFlowDefinition implements NamedObject
 				return false;
 		} else if (!firstFactorAuthenticators.equals(other.firstFactorAuthenticators))
 			return false;
+		if (revision != other.revision)
+			return false;
 		return true;
 	}
-	
 }

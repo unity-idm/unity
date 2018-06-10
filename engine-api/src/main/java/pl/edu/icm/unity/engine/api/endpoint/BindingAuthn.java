@@ -36,6 +36,12 @@ public interface BindingAuthn
 	String getAuthenticatorId();
 	
 	/**
+	 * 
+	 * @return revision of the configured authenticator instance.
+	 */
+	long getAuthenticatorRevision();
+	
+	/**
 	 * Called when endpoint using this implementation is destroyed.
 	 */
 	void destroy();

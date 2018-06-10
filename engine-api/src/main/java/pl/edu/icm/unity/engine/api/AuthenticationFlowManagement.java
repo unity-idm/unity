@@ -24,7 +24,7 @@ public interface AuthenticationFlowManagement
 	 * @param authenticatorsFlowDefinition
 	 * @throws AuthorizationException
 	 */
-	void addAuthenticationFlowDefinition(AuthenticationFlowDefinition authenticatorsFlowDefinition) throws EngineException;
+	void addAuthenticationFlow(AuthenticationFlowDefinition authenticatorsFlowDefinition) throws EngineException;
 	
 	/**
 	 * Removes an existing authentication flow. The authentication flow must not be used by any of the endpoints,
@@ -32,7 +32,7 @@ public interface AuthenticationFlowManagement
 	 * @param toRemove authentication flow id
 	 * @throws AuthorizationException
 	 */
-	void removeAuthenticationFlowDefinition(String toRemove) throws EngineException;
+	void removeAuthenticationFlow(String toRemove) throws EngineException;
 	
 	/**
 	 * 
@@ -45,7 +45,7 @@ public interface AuthenticationFlowManagement
 	 * Update existing authentication flow
 	 * @param authFlowdef
 	 */
-	void updateAuthenticationFlowDefinition(AuthenticationFlowDefinition authFlowdef) throws EngineException;
+	void updateAuthenticationFlow(AuthenticationFlowDefinition authFlowdef) throws EngineException;
 	
 	/**
 	 * Get user multifactor optin attribute

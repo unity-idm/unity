@@ -159,7 +159,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
 			
-			authnFlowMan.addAuthenticationFlowDefinition(new AuthenticationFlowDefinition(
+			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 					"flow1", Policy.NEVER,
 					Sets.newHashSet("Apass")));
 			
@@ -168,7 +168,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 							"desc", Lists.newArrayList("flow1"),
 							OAUTH_ENDP_CFG, REALM_NAME));
 
-			authnFlowMan.addAuthenticationFlowDefinition(
+			authnFlowMan.addAuthenticationFlow(
 					new AuthenticationFlowDefinition("flow2", Policy.NEVER,
 							Sets.newHashSet("a-rp")));
 
@@ -177,7 +177,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 							"desc", Lists.newArrayList("flow2"),
 							JWT_ENDP_CFG, REALM_NAME));
 
-			authnFlowMan.addAuthenticationFlowDefinition(
+			authnFlowMan.addAuthenticationFlow(
 					new AuthenticationFlowDefinition("flow3", Policy.NEVER,
 							Sets.newHashSet("a-rp-int")));
 
@@ -187,7 +187,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 							"desc", Lists.newArrayList("flow3"),
 							JWT_ENDP_CFG, REALM_NAME));
 
-			authnFlowMan.addAuthenticationFlowDefinition(
+			authnFlowMan.addAuthenticationFlow(
 					new AuthenticationFlowDefinition("flow4", Policy.NEVER,
 							Sets.newHashSet("a-rp-mitre")));
 			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT-mitre",

@@ -147,7 +147,7 @@ public class AuthenticatorLoader
 			ret.add(new AuthenticationFlow(authenticationFlowDefinition.getName(),
 					authenticationFlowDefinition.getPolicy(),
 					Sets.newHashSet(firstFactorAuthImpl),
-					secondFactorFactorAuthImpl));
+					secondFactorFactorAuthImpl, authenticationFlowDefinition.getRevision()));
 		}
 		return ret;
 	}
