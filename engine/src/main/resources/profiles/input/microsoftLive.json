@@ -132,7 +132,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "(attrObj contains 'phones') && (attrObj['phones'] contains 'personal')"
+				"conditionValue": "(attrObj contains 'phones') && (attrObj['phones'] contains 'personal') && (attrObj.?phones.?personal != null)"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -146,7 +146,7 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "(attrObj contains 'phones') && (attrObj['phones'] contains 'mobile')"
+				"conditionValue": "(attrObj contains 'phones') && (attrObj['phones'] contains 'mobile') && (attrObj.?phones.?mobile != null)"
 			},
 			"action": {
 				"name": "mapAttribute",
@@ -174,14 +174,14 @@
 		},
 		{
 			"condition": {
-				"conditionValue": "(attrObj contains 'addresses.personal') && (attrObj['addresses]'] contains 'personal')"
+				"conditionValue": "(attrObj contains 'addresses') && (attrObj['addresses]'] contains 'personal')"
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"address",
 					"/",
-					"attrObj.addresses.personal.street + ',' + attrObj.addresses.personal.street2 + ',' + attrObj.addresses.personal.city + ',' + attrObj.addresses.personal.state + ',' + attrObj.addresses.personal.postal_code + ',' + attrObj.addresses.personal.region",
+					"attrObj.?addresses.?personal.?street + ',' + attrObj.?addresses.?personal.?street2 + ',' + attrObj.?addresses.?personal.?city + ',' + attrObj.?addresses.?personal.?state + ',' + attrObj.?addresses.?personal.?postal_code + ',' + attrObj.?addresses.?personal.?region",
 					"CREATE_OR_UPDATE"
 				]
 			}

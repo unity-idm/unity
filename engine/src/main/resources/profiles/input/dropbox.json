@@ -27,7 +27,7 @@
 				"parameters": [
 					"name",
 					"/",
-					"attr['name.display_name']",
+					"attrObj.?name.?display_name",
 					"CREATE_OR_UPDATE"
 				]
 			}
