@@ -60,6 +60,11 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		table,
 		simple
 	}
+
+	public enum ScreenType {
+		tile,
+		column
+	}
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.web.";
@@ -74,6 +79,8 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
+
+	public static final String AUTHN_SCREEN_MODE = "screenType";	
 	
 	public static final String AUTHN_TILES_PFX = "authenticationTiles.";
 	public static final String AUTHN_TILE_CONTENTS = "tileContents";
@@ -133,6 +140,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				+ " and this option supports automated login (as remote SAML or OAuth login), then this "
 				+ "option will be activated automatically, without presenting (or even loading) "
 				+ "the authentication screen."));
+
+		META.put(AUTHN_SCREEN_MODE, new PropertyMD(ScreenType.column).
+				setDescription("Controls which layout of authentication screen to use. Note that the legacy "
+						+ "+tile+ layout is deprecated and will its support is going to be dropped in future."));
 		
 		META.put(AUTHN_LOGO, new PropertyMD("file:../common/img/other/logo.png").
 				setDescription("Sets URL of image that should be shown above all authentication options."));

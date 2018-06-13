@@ -38,8 +38,11 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScreenType;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
+import pl.edu.icm.unity.webui.authn.tile.TileAuthenticationScreen;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChooserDialog;
@@ -110,21 +113,28 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-//		ui = new TileAuthenticationUI(msg, config, endpointDescription, 
-//				this::showOutdatedCredentialDialog, 
-//				this::showRegistrationDialog, 
-//				cancelHandler, idsMan, execService, 
-//				isRegistrationEnabled(), 
-//				unknownUserDialogProvider, 
-//				authnProcessor, localeChoice,
-//				authenticators);
-		ui = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
-				this::showOutdatedCredentialDialog, 
-				this::showRegistrationDialog, 
-				cancelHandler, idsMan, execService, 
-				isRegistrationEnabled(), 
-				unknownUserDialogProvider, 
-				authnProcessor, localeChoice, authenticators);
+		ScreenType screenType = config.getEnumValue(VaadinEndpointProperties.AUTHN_SCREEN_MODE, ScreenType.class);
+		
+		if (screenType == ScreenType.tile)
+		{
+			ui = new TileAuthenticationScreen(msg, config, endpointDescription, 
+					this::showOutdatedCredentialDialog, 
+					this::showRegistrationDialog, 
+					cancelHandler, idsMan, execService, 
+					isRegistrationEnabled(), 
+					unknownUserDialogProvider, 
+					authnProcessor, localeChoice,
+					authenticators);
+		} else
+		{
+			ui = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
+					this::showOutdatedCredentialDialog, 
+					this::showRegistrationDialog, 
+					cancelHandler, idsMan, execService, 
+					isRegistrationEnabled(), 
+					unknownUserDialogProvider, 
+					authnProcessor, localeChoice, authenticators);
+		}
 		setContent(ui);
 		setSizeFull();
 	}
