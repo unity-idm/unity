@@ -109,12 +109,17 @@ public class AuthnOptionsColumns extends CustomComponent
 			float width = (float)(double)config.getDoubleValue(columnKey+AUTHN_COLUMN_WIDTH);
 			String title = config.getLocalizedValue(columnKey+AUTHN_COLUMN_TITLE, msg.getLocale());
 			
+			boolean addRemaining = !columnKeys.hasNext() && showAll;
+			String spec = config.getValue(columnKey + AUTHN_COLUMN_CONTENTS);
+			List<ComponentWithId> columnAuthnComponents = getColumnAuthnComponents(spec, addRemaining);
+			
+			if (columnAuthnComponents.isEmpty())
+				continue;
+			
 			AuthnOptionsColumn columnComponent = new AuthnOptionsColumn(title, width);
 			columnsLayout.addComponent(columnComponent);
 			columns.add(columnComponent);
-			boolean addRemaining = !columnKeys.hasNext() && showAll;
-			String spec = config.getValue(columnKey + AUTHN_COLUMN_CONTENTS);
-			columnComponent.addOptions(getColumnAuthnComponents(spec, addRemaining));
+			columnComponent.addOptions(columnAuthnComponents);
 			
 			if (!focussed)
 				focussed = columnComponent.focusFirst();

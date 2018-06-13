@@ -193,7 +193,9 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			{
 				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
 				reset.setStyleName(Styles.vButtonLink.toString());
-				ret.addComponent(new AuthNGridTextWrapper(reset, Alignment.TOP_RIGHT));
+				AuthNGridTextWrapper resetWrapper = new AuthNGridTextWrapper(reset, Alignment.TOP_RIGHT);
+				resetWrapper.addStyleName("u-authn-forgotPassword");
+				ret.addComponent(resetWrapper);
 				reset.addClickListener(event -> showResetDialog());
 			}
 			
