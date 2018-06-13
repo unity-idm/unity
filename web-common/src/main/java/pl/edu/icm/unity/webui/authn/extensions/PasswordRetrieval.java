@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
@@ -180,7 +181,10 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			ret.addComponent(authenticateButton);
-			
+
+			passwordField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
+			passwordField.addBlurListener(e -> authenticateButton.removeClickShortcut());
+
 			PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(
 					JsonUtil.parse(credentialExchange
 							.getCredentialResetBackend()

@@ -2,9 +2,8 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn.tile;
+package pl.edu.icm.unity.webui.authn.column;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -15,17 +14,11 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
@@ -34,52 +27,44 @@ import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
- * The actual login component. Shows only the selected authenticator. 
+ * The login component of the 1st factor authentication. Wraps a single Vaadin retrieval UI and connects 
+ * it to the authentication screen.  
  * 
  * @author K. Benedyczak
  */
-public class SelectedAuthNPanel extends CustomComponent
+class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SelectedAuthNPanel.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, PrimaryAuthNPanel.class);
 	private UnityMessageSource msg;
 	private WebAuthenticationProcessor authnProcessor;
-	private EntityManagement idsMan;
 	private AuthenticationUIController currentAuthnResultCallback;
-	private Button resetMfaButton;
 	private ExecutorsService execService;
 	private String clientIp;
 	private AuthenticationRealm realm;
 	private AuthenticationListener authNListener;
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider; 
 	
-	private VerticalLayout authenticatorsContainer;
+	private VerticalLayout authenticatorContainer;
 	private AuthenticationOption selectedAuthnOption;
-	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
 	private String endpointPath;
 	private Supplier<Boolean> rememberMeProvider;
 	
 	
-	public SelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
-			EntityManagement idsMan, ExecutorsService execService,
+	PrimaryAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
+			ExecutorsService execService,
 			CancelHandler cancelHandler, AuthenticationRealm realm,
 			String endpointPath, 
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
@@ -87,7 +72,6 @@ public class SelectedAuthNPanel extends CustomComponent
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
-		this.idsMan = idsMan;
 		this.execService = execService;
 		this.realm = realm;
 		this.endpointPath = endpointPath;
@@ -96,39 +80,18 @@ public class SelectedAuthNPanel extends CustomComponent
 
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		main.addStyleName("u-selectedAuthn");
+		main.addStyleName("u-authn-component");
 		
 		main.setWidth(100, Unit.PERCENTAGE);
-		authenticatorsContainer = new VerticalLayout();		
-		authenticatorsContainer.setHeight(100, Unit.PERCENTAGE);
-		authenticatorsContainer.setWidth(100, Unit.PERCENTAGE);
-		authenticatorsContainer.setSpacing(false);
-		authenticatorsContainer.setMargin(false);
+		authenticatorContainer = new VerticalLayout();		
+		authenticatorContainer.setHeight(100, Unit.PERCENTAGE);
+		authenticatorContainer.setWidth(100, Unit.PERCENTAGE);
+		authenticatorContainer.setSpacing(false);
+		authenticatorContainer.setMargin(false);
 
-		resetMfaButton = new Button(msg.getMessage("AuthenticationUI.resetMfaButton"));
-		resetMfaButton.setDescription(msg.getMessage("AuthenticationUI.resetMfaButtonDesc"));
-		resetMfaButton.setVisible(false);
-		resetMfaButton.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				setNotAuthenticating();
-				switchToPrimaryAuthentication();
-			}
-		});
+		main.addComponent(authenticatorContainer);
+		main.setComponentAlignment(authenticatorContainer, Alignment.MIDDLE_CENTER);
 		
-		main.addComponent(authenticatorsContainer);
-		main.setComponentAlignment(authenticatorsContainer, Alignment.MIDDLE_CENTER);
-		
-		//TODO MFA
-		HorizontalLayout buttons = new HorizontalLayout();
-		buttons.setMargin(false);
-		buttons.addComponents(resetMfaButton);
-		buttons.setVisible(false);
-		
-		main.addComponent(buttons);
-		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);
 		setCompositionRoot(main);
 	}
 
@@ -136,32 +99,18 @@ public class SelectedAuthNPanel extends CustomComponent
 			String id)
 	{
 		this.selectedAuthnOption = authnOption;
-		this.primaryAuthnUI = primaryAuthnUI;
 		this.authnId = id;
 		primaryAuthnUI.clear();
 		AuthenticationUIController primaryAuthnResultCallback = createPrimaryAuthnResultCallback(primaryAuthnUI);
-		authenticatorsContainer.removeAllComponents();
+		authenticatorContainer.removeAllComponents();
 		addRetrieval(primaryAuthnUI, primaryAuthnResultCallback);
-		resetMfaButton.setVisible(false);
-	}
-	
-	public void removeEnterKeyBinding()
-	{
-		//authenticateButton.removeClickShortcut();
-		//TODO
-	}
-	
-	public void restoreEnterKeyBinding()
-	{
-		//authenticateButton.setClickShortcut(KeyCode.ENTER);
-		//TODO
 	}
 	
 	protected void handleError(String genericError, String authenticatorError)
 	{
 		setNotAuthenticating();
-		if (authenticatorsContainer.getComponentCount() > 0)
-			updateFocus(authenticatorsContainer.getComponent(0));
+		if (authenticatorContainer.getComponentCount() > 0)
+			updateFocus(authenticatorContainer.getComponent(0));
 		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
 		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
 		showWaitScreenIfNeeded();
@@ -181,67 +130,26 @@ public class SelectedAuthNPanel extends CustomComponent
 			authNListener.authenticationStopped();
 	}
 	
-	/**
-	 * Resets the authentication UI to the initial state
-	 */
-	private void switchToPrimaryAuthentication()
-	{
-		primaryAuthnUI.getComponent().setEnabled(true);
-		setAuthenticator(primaryAuthnUI, selectedAuthnOption, authnId);
-	}
-
-	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
-		primaryAuthnUI.getComponent().setEnabled(false);
-		resetMfaButton.setVisible(true);
-		
-		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) 
-				partialState.getSecondaryAuthenticator();
-		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance();
-		if (secondaryAuthnUIs.size() > 1)
-		{
-			log.warn("Configuration error: the authenticator configured as the second "
-					+ "factor " + secondaryAuthn.getAuthenticatorId() + 
-					" provides multiple authentication possibilities. "
-					+ "This is unsupported currently, "
-					+ "use this authenticator as the first factor only. "
-					+ "The first possibility will be used, "
-					+ "but in most cases it is not what you want.");
-		}
-		VaadinAuthenticationUI secondaryUI = secondaryAuthnUIs.iterator().next(); 
-		AuthenticationUIController secondaryAuthnResultCallback = 
-				createSecondaryAuthnResultCallback(secondaryUI, partialState);
-		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
-		mfaInfo.addStyleName(Styles.error.toString());
-		authenticatorsContainer.addComponents(HtmlTag.br(), mfaInfo);
-		addRetrieval(secondaryUI, secondaryAuthnResultCallback);
-		try
-		{
-			secondaryUI.presetEntity(resolveEntity(partialState.getPrimaryResult()));
-		} catch (EngineException e)
-		{
-			log.error("Can't resolve the first authenticated entity", e);
-		}
+		if (authNListener != null)
+			authNListener.switchTo2ndFactor(partialState);
 	}
 	
-	private Entity resolveEntity(AuthenticationResult unresolved) throws EngineException
-	{
-		AuthenticatedEntity ae = unresolved.getAuthenticatedEntity();
-		return idsMan.getEntity(new EntityParam(ae.getEntityId()));
-	}
-	
-	private void updateFocus(Component retrievalComponent)
+	private boolean updateFocus(Component retrievalComponent)
 	{
 		if (retrievalComponent instanceof Focusable)
+		{
 			((Focusable)retrievalComponent).focus();
+			return true;
+		}
+		return false;
 	}
 	
 	private void addRetrieval(VaadinAuthenticationUI authnUI, AuthenticationUIController handler)
 	{
 		Component retrievalComponent = authnUI.getComponent();
-		authenticatorsContainer.addComponent(retrievalComponent);
-		updateFocus(retrievalComponent);
+		authenticatorContainer.addComponent(retrievalComponent);
 		authnUI.setAuthenticationCallback(handler);
 		currentAuthnResultCallback = handler;
 	}
@@ -255,16 +163,6 @@ public class SelectedAuthNPanel extends CustomComponent
 		return new PrimaryAuthenticationResultCallbackImpl(primaryAuthnUI);
 	}
 
-	/**
-	 * The method is separated as can be overridden in sandbox authn. 
-	 * @return secondary authentication result callback.
-	 */
-	private AuthenticationUIController createSecondaryAuthnResultCallback(VaadinAuthenticationUI secondaryUI,
-			PartialAuthnState partialState)
-	{
-		return new SecondaryAuthenticationResultCallbackImpl(secondaryUI, partialState);
-	}
-	
 	private void onAuthenticationStart(AuthenticationStyle style)
 	{
 		clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
@@ -372,41 +270,11 @@ public class SelectedAuthNPanel extends CustomComponent
 		{
 			authnUI.clear();
 		}
-	}
-
-	/**
-	 * Collects authN results from the 2nd authenticator. Afterwards, the final authentication result 
-	 * processing is launched.
-	 * 
-	 * @author K. Benedyczak
-	 */
-	protected class SecondaryAuthenticationResultCallbackImpl extends PrimaryAuthenticationResultCallbackImpl
-	{
-		private PartialAuthnState partialState;
-		
-		public SecondaryAuthenticationResultCallbackImpl(VaadinAuthenticationUI authnUI,
-				PartialAuthnState partialState)
-		{
-			super(authnUI);
-			this.partialState = partialState;
-		}
 
 		@Override
-		public void onCompletedAuthentication(AuthenticationResult result)
+		public void clear()
 		{
-			log.trace("Received authentication result of the 2nd authenticator" + result);
-			authnDone = true;
-			try
-			{
-				authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
-						selectedAuthnOption, rememberMeProvider.get());
-				setNotAuthenticating();
-			} catch (AuthenticationException e)
-			{
-				log.trace("Secondary authentication failed ", e);
-				handleError(msg.getMessage(e.getMessage()), null);
-				switchToPrimaryAuthentication();
-			}
+			authnUI.clear();
 		}
 	}
 
@@ -444,6 +312,20 @@ public class SelectedAuthNPanel extends CustomComponent
 			currentAuthnResultCallback.cancel();
 	}
 	
+	public void clear()
+	{
+		if (currentAuthnResultCallback != null)
+			currentAuthnResultCallback.clear();
+	}
+
+	@Override
+	public boolean focusIfPossible()
+	{
+		if (authenticatorContainer.getComponentCount() == 0)
+			return false;
+		return updateFocus(authenticatorContainer.getComponent(0));
+	}
+	
 	/**
 	 * listener to be registered to the authentication button.
 	 * @param listener
@@ -460,6 +342,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	{
 		void authenticationStarted(boolean showProgress);
 		void authenticationStopped();
+		void switchTo2ndFactor(PartialAuthnState partialState);
 	}
 	
 	/**
@@ -468,6 +351,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	public interface AuthenticationUIController extends AuthenticationCallback
 	{
 		void cancel();
+		void clear();
 		void refresh(VaadinRequest request);
 	}
 }

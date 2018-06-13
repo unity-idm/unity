@@ -4,26 +4,16 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_ADD_ALL;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_CONTENTS;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_TITLE;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_CANCEL;
-import static pl.edu.icm.unity.webui.VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.apache.logging.log4j.Logger;
+
+import com.google.common.collect.Lists;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinService;
@@ -38,25 +28,24 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
 import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
-import pl.edu.icm.unity.webui.authn.tile.SelectedAuthNPanel;
-import pl.edu.icm.unity.webui.authn.tile.SelectedAuthNPanel.AuthenticationListener;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -67,11 +56,8 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class ColumnInstantAuthenticationScreen extends CustomComponent implements AuthenticationScreen
 {
-	private static final String SPECIAL_ENTRY_LAST_USED = "_LAST_USED";
-	private static final String SPECIAL_ENTRY_REGISTER = "_REGISTER";
-	private static final String SPECIAL_ENTRY_SEPARATOR = "_SEPARATOR";
-	private static final String SPECIAL_ENTRY_HEADER = "_HEADER";
-	protected final UnityMessageSource msg;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ColumnInstantAuthenticationScreen.class);
+	private final UnityMessageSource msg;
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final Supplier<Boolean> outdatedCredentialDialogLauncher;
@@ -86,9 +72,11 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final LocaleChoiceComponent localeChoice;
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
-	private SelectedAuthNPanel authNPanelInProgress;
+	private PrimaryAuthNPanel authNPanelInProgress;
 	private CheckBox rememberMe;
 	private RemoteAuthenticationProgress authNProgress;
+	private AuthnOptionsColumns authNColumns;
+	private VerticalLayout secondFactorHolder;
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -191,9 +179,17 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		
 		//TODO search support
 		
-		Component authNColumns = getAuthnColumnsComponent();
+		authNColumns = new AuthnOptionsColumns(config, msg, 
+				authnOptionsHandler, enableRegistration, this::buildBaseAuthenticationOptionWidget, 
+				registrationDialogLauncher);
 		authenticationMainLayout.addComponent(authNColumns);
 		authenticationMainLayout.setComponentAlignment(authNColumns, Alignment.TOP_CENTER);
+		
+		secondFactorHolder = new VerticalLayout();
+		secondFactorHolder.setMargin(false);
+		authenticationMainLayout.addComponent(secondFactorHolder);
+		authenticationMainLayout.setComponentAlignment(secondFactorHolder, Alignment.TOP_CENTER);
+		secondFactorHolder.setVisible(false);
 		
 		AuthenticationRealm realm = endpointDescription.getRealm();
 		if (realm.getAllowForRememberMeDays() > 0)
@@ -262,202 +258,40 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		return null;
 	}
 	
-	private Component getAuthnColumnsComponent()
-	{
-		HorizontalLayout columnsLayout = new HorizontalLayout();
-		columnsLayout.setMargin(false);
-		Iterator<String> columnKeys = config.getStructuredListKeys(AUTHN_COLUMNS_PFX).iterator();
-		if (!columnKeys.hasNext())
-		{
-			//default layout
-			AuthnOptionsColumn columnComponent = new AuthnOptionsColumn(null, DEFAULT_AUTHN_COLUMN_WIDTH);
-			columnsLayout.addComponent(columnComponent);
-			columnComponent.addOptions(getColumnAuthnComponents("", true));
-			return columnsLayout;
-		}
-		boolean showAll = config.getBooleanValue(AUTHN_ADD_ALL);
-		while (columnKeys.hasNext())
-		{
-			String columnKey = columnKeys.next();
-			float width = (float)(double)config.getDoubleValue(columnKey+AUTHN_COLUMN_WIDTH);
-			String title = config.getLocalizedValue(columnKey+AUTHN_COLUMN_TITLE, msg.getLocale());
-			
-			AuthnOptionsColumn columnComponent = new AuthnOptionsColumn(title, width);
-			columnsLayout.addComponent(columnComponent);
-			boolean addRemaining = !columnKeys.hasNext() && showAll;
-			String spec = config.getValue(columnKey + AUTHN_COLUMN_CONTENTS);
-			columnComponent.addOptions(getColumnAuthnComponents(spec, addRemaining));
-			
-			if (columnKeys.hasNext())
-			{
-				Component separator = getColumnsSeparator(columnKey);
-				columnsLayout.addComponent(separator);
-				columnsLayout.setComponentAlignment(separator, Alignment.MIDDLE_CENTER);
-			}
-		}
-		
-		return columnsLayout;
-	}
-
-	private Component getColumnsSeparator(String columnKey)
-	{
-		String separator = config.getLocalizedValue(columnKey+AUTHN_COLUMN_SEPARATOR, msg.getLocale());
-		if (separator == null || separator.isEmpty())
-			separator = "";
-		Label separatorLabel = new Label(separator);
-		separatorLabel.setStyleName("u-authn-columnsSeparator");
-		return separatorLabel;
-	}
-	
-	private boolean entryIsText(String entry)
-	{
-		return entry != null && (entry.startsWith(SPECIAL_ENTRY_SEPARATOR) 
-				|| entry.startsWith(SPECIAL_ENTRY_HEADER));
-	}
-	
-	private List<Component> getColumnAuthnComponents(String columnContents, boolean addRemaining)
-	{
-		String[] specSplit = columnContents.split("[ ]+");
-		List<Component> ret = new ArrayList<>();
-		Deque<String> lastAdded = new ArrayDeque<>();
-		for (String specEntry: specSplit)
-		{
-			if (entryIsText(lastAdded.peek()) && entryIsText(specEntry))
-			{
-				ret.remove(ret.size()-1);
-				lastAdded.pop();
-			}
-			
-			if (specEntry.startsWith(SPECIAL_ENTRY_SEPARATOR))
-			{
-				if (ret.size() > 0)
-				{
-					ret.add(getOptionsSeparator(specEntry));
-					lastAdded.push(specEntry);
-				}
-			} else if (specEntry.startsWith(SPECIAL_ENTRY_HEADER))
-			{
-				ret.add(getOptionHeader(specEntry));
-				lastAdded.push(specEntry);
-			} else if (specEntry.equals(SPECIAL_ENTRY_REGISTER))
-			{
-				Button registrationButton = buildRegistrationButton();
-				if (registrationButton != null)
-				{
-					ret.add(registrationButton);
-					lastAdded.push(specEntry);
-				}
-			} else if (specEntry.equals(SPECIAL_ENTRY_LAST_USED))
-			{
-				String preferredIdp = PreferredAuthenticationHelper.getPreferredIdp();
-				if (preferredIdp != null)
-				{
-					AuthenticationOption authNOption = authnOptionsHandler.getMatchingOption(preferredIdp);
-					VaadinAuthenticationUI vaadinAuthenticationUI = authnOptionsHandler.getFirstMatchingRetrieval(preferredIdp);
-					if (vaadinAuthenticationUI != null)
-					{
-						SelectedAuthNPanel authNPanel = buildAuthenticationOptionWidget(authNOption, 
-								vaadinAuthenticationUI);
-						ret.add(authNPanel);
-						lastAdded.push(specEntry);
-					}
-				}
-			} else
-			{
-				AuthenticationOption authNOption = authnOptionsHandler.getMatchingOption(specEntry);
-				List<VaadinAuthenticationUI> matchingRetrievals = authnOptionsHandler.getMatchingRetrievals(specEntry);
-				for (VaadinAuthenticationUI vaadinAuthenticationUI : matchingRetrievals)
-				{
-					SelectedAuthNPanel authNPanel = buildAuthenticationOptionWidget(authNOption, 
-							vaadinAuthenticationUI);
-					ret.add(authNPanel);
-					lastAdded.push(specEntry);
-				}
-			}
-		}
-		
-		if (addRemaining)
-		{
-			Map<AuthenticationOption, List<VaadinAuthenticationUI>> remainingRetrievals = authnOptionsHandler.getRemainingRetrievals();
-			for (Map.Entry<AuthenticationOption, List<VaadinAuthenticationUI>> option: remainingRetrievals.entrySet())
-			{
-				for (VaadinAuthenticationUI ui: option.getValue())
-				{
-					SelectedAuthNPanel authNPanel = buildAuthenticationOptionWidget(option.getKey(), ui);
-					ret.add(authNPanel);
-					lastAdded.push(AuthenticationOptionKeyUtils.encode(option.getKey().getId(), ui.getId()));
-				}
-			}
-		}
-		
-		//Do not leave separator as a trailing entry
-		while (entryIsText(lastAdded.peek()))
-		{
-			ret.remove(ret.size()-1);
-			lastAdded.pop();
-		}
-		
-		return ret;
-	}
-	
-	private Component getOptionsSeparator(String specEntry)
-	{
-		String key = specEntry.substring(SPECIAL_ENTRY_SEPARATOR.length());
-		
-		String message = key.isEmpty() ? "" : resolveSeparatorMessage(key.substring(1));
-		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Label(message), Alignment.MIDDLE_CENTER);
-		ret.setStyleName("u-authn-entriesSeparator");
-		return ret;
-	}
-
-	private Component getOptionHeader(String specEntry)
-	{
-		String key = specEntry.substring(SPECIAL_ENTRY_HEADER.length());
-		
-		String message = key.isEmpty() ? "" : resolveSeparatorMessage(key.substring(1));
-		AuthNGridTextWrapper ret = new AuthNGridTextWrapper(new Label(message), Alignment.MIDDLE_CENTER);
-		ret.setStyleName("u-authn-entryHeader");
-		return ret;
-	}
-
-	private String resolveSeparatorMessage(String key)
-	{
-		String value = config.getLocalizedValue(AUTHN_OPTION_LABEL_PFX + key + "." 
-				+ AUTHN_OPTION_LABEL_TEXT, msg.getLocale());
-		return value == null ? "" : value;
-	}
-	
-	private SelectedAuthNPanel buildAuthenticationOptionWidget(AuthenticationOption authNOption, 
+	private PrimaryAuthNPanel buildBaseAuthenticationOptionWidget(AuthenticationOption authNOption, 
 			VaadinAuthenticationUI vaadinAuthenticationUI)
 	{
-		SelectedAuthNPanel authNPanel = new SelectedAuthNPanel(msg, authnProcessor, 
-				idsMan, execService, cancelHandler, 
+		PrimaryAuthNPanel authNPanel = new PrimaryAuthNPanel(msg, authnProcessor, 
+				execService, cancelHandler, 
 				endpointDescription.getRealm(),
 				endpointDescription.getEndpoint().getContextAddress(), 
 				unknownUserDialogProvider,
 				this::isSetRememberMe);
-		authNPanel.setAuthenticationListener(new AuthenticationListenerImpl(authNPanel));
+		authNPanel.setAuthenticationListener(new PrimaryAuthenticationListenerImpl(authNPanel));
 		String optionId = AuthenticationOptionKeyUtils.encode(authNOption.getId(), vaadinAuthenticationUI.getId()); 
 		authNPanel.setAuthenticator(vaadinAuthenticationUI, authNOption, optionId);
 		return authNPanel;
 	}
+
+	private SecondFactorAuthNPanel build2ndFactorAuthenticationOptionWidget(
+			VaadinAuthenticationUI vaadinAuthenticationUI, PartialAuthnState partialAuthnState)
+	{
+		SecondFactorAuthNPanel authNPanel = new SecondFactorAuthNPanel(msg, authnProcessor, idsMan,
+				execService, cancelHandler, 
+				endpointDescription.getRealm(),
+				unknownUserDialogProvider,
+				this::isSetRememberMe);
+		authNPanel.setAuthenticationListener(new SecondaryAuthenticationListenerImpl());
+		authNPanel.setAuthenticator(vaadinAuthenticationUI, partialAuthnState);
+		return authNPanel;
+	}
+
 	
 	private boolean isSetRememberMe()
 	{
 		return rememberMe != null && rememberMe.getValue();
 	}
 
-	private Button buildRegistrationButton()
-	{
-		if (!enableRegistration)
-			return null;
-		Button register = new Button(msg.getMessage("RegistrationFormChooserDialog.register"));
-		register.addStyleName("u-signUpButton");
-		register.addClickListener(event -> registrationDialogLauncher.run());
-		register.setId("AuthenticationUI.registerButton");
-		return register;
-	}
-	
 	private void refreshAuthenticationState(VaadinRequest request) 
 	{
 		if (authNPanelInProgress != null)
@@ -468,14 +302,63 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		if (authNPanelInProgress != null)
 			authNPanelInProgress.cancel();
-		authNProgress.setInternalVisibility(false);		
+		onStoppedAuthentication();
 	}
 
-	private class AuthenticationListenerImpl implements AuthenticationListener
+	private void onStoppedAuthentication()
 	{
-		private final SelectedAuthNPanel authNPanel;
+		authNColumns.enableAll();
+		authNProgress.setInternalVisibility(false);
+		authNPanelInProgress = null;
+	}
+	
+	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
+	{
+		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
+		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance();
+		if (secondaryAuthnUIs.size() > 1)
+		{
+			log.warn("Configuration error: the authenticator configured as the second "
+					+ "factor " + secondaryAuthn.getAuthenticatorId() + 
+					" provides multiple authentication possibilities. "
+					+ "This is unsupported currently, "
+					+ "use this authenticator as the first factor only. "
+					+ "The first possibility will be used, "
+					+ "but in most cases it is not what you want.");
+		}
+		VaadinAuthenticationUI secondaryUI = secondaryAuthnUIs.iterator().next();
 		
-		AuthenticationListenerImpl(SelectedAuthNPanel authNPanel)
+		authNColumns.setVisible(false);
+		
+		SecondFactorAuthNPanel authNPanel = build2ndFactorAuthenticationOptionWidget(secondaryUI, partialState);
+		AuthnOptionsColumn wrapping2ndFColumn = new AuthnOptionsColumn(null, 
+				VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH);
+		wrapping2ndFColumn.addOptions(Lists.newArrayList(new AuthnOptionsColumn.ComponentWithId("", authNPanel)));
+		secondFactorHolder.removeAllComponents();
+		Label mfaInfo = new Label(msg.getMessage("AuthenticationUI.mfaRequired"));
+		mfaInfo.addStyleName(Styles.error.toString());
+		wrapping2ndFColumn.focusFirst();
+		secondFactorHolder.addComponent(mfaInfo);
+		secondFactorHolder.setComponentAlignment(mfaInfo, Alignment.TOP_CENTER);
+		secondFactorHolder.addComponent(wrapping2ndFColumn);
+		wrapping2ndFColumn.setWidthUndefined();
+		secondFactorHolder.setComponentAlignment(wrapping2ndFColumn, Alignment.TOP_CENTER);
+		secondFactorHolder.setVisible(true);
+	}
+	
+	private void switchBackToPrimaryAuthentication()
+	{
+		authNColumns.setVisible(true);
+		authNColumns.enableAll();
+		secondFactorHolder.removeAllComponents();
+		secondFactorHolder.setVisible(false);
+	}
+	
+	private class PrimaryAuthenticationListenerImpl implements PrimaryAuthNPanel.AuthenticationListener
+	{
+		private final PrimaryAuthNPanel authNPanel;
+		
+		PrimaryAuthenticationListenerImpl(PrimaryAuthNPanel authNPanel)
 		{
 			this.authNPanel = authNPanel;
 		}
@@ -485,15 +368,28 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		{
 			authNPanelInProgress = authNPanel;
 			authNProgress.setInternalVisibility(showProgress);
-			//TODO block other options
+			authNColumns.disableAllExcept(authNPanel.getAuthenticationOptionId());
 		}
 
 		@Override
 		public void authenticationStopped()
 		{
-			// TODO unblock options
-			authNProgress.setInternalVisibility(false);
-			authNPanelInProgress = null;
+			onStoppedAuthentication();
+		}
+
+		@Override
+		public void switchTo2ndFactor(PartialAuthnState partialState)
+		{
+			switchToSecondaryAuthentication(partialState);
+		}
+	}
+	
+	private class SecondaryAuthenticationListenerImpl implements SecondFactorAuthNPanel.AuthenticationListener
+	{
+		@Override
+		public void switchBackToFirstFactor()
+		{
+			switchBackToPrimaryAuthentication();
 		}
 	}
 }

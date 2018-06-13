@@ -41,6 +41,33 @@ public class AuthenticationOptionsHandlerTest
 	}
 	
 	@Test
+	public void shouldReturnOptionFromMFAByAuthenticator()
+	{
+		AuthenticationOption opt1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
+		AuthenticationOption opt2 = getMockAuthnOption("authn3", "o3");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(opt1, opt2));
+		
+		List<VaadinAuthenticationUI> result = handler.getMatchingRetrievals("authn1");
+		
+		assertThat(result.size(), is(2));
+		assertThat(result.get(0).getId(), is("o1"));
+		assertThat(result.get(1).getId(), is("o2"));
+	}
+
+	@Test
+	public void shouldReturnOptionFromMFAByEntry()
+	{
+		AuthenticationOption opt1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
+		AuthenticationOption opt2 = getMockAuthnOption("authn3", "o3");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(opt1, opt2));
+		
+		List<VaadinAuthenticationUI> result = handler.getMatchingRetrievals("authn1.o2");
+		
+		assertThat(result.size(), is(1));
+		assertThat(result.get(0).getId(), is("o2"));
+	}
+	
+	@Test
 	public void shouldBlacklistOptionsGivenByAuthenticator()
 	{
 		AuthenticationOption opt1 = getMockAuthnOption("authn", "o1", "o2");
@@ -66,7 +93,20 @@ public class AuthenticationOptionsHandlerTest
 		assertThat(result.get(0).getId(), is("o2"));
 	}
 	
+	private AuthenticationOption getMock2FAuthnOption(String authenticator, 
+			String authenticator2, String secondFAEntry, String... entries)
+	{
+		VaadinAuthentication vauthenticator1 = getMockVaadinAuthentication(authenticator, entries);
+		VaadinAuthentication vauthenticator2 = getMockVaadinAuthentication(authenticator2, secondFAEntry);
+		return new AuthenticationOption(vauthenticator1, vauthenticator2);
+	}
+	
 	private AuthenticationOption getMockAuthnOption(String authenticator, String... entries)
+	{
+		return new AuthenticationOption(getMockVaadinAuthentication(authenticator, entries), null);
+	}
+	
+	private VaadinAuthentication getMockVaadinAuthentication(String authenticator, String... entries)
 	{
 		VaadinAuthentication vauthenticator = mock(VaadinAuthentication.class);
 		when(vauthenticator.getAuthenticatorId()).thenReturn(authenticator);
@@ -79,6 +119,7 @@ public class AuthenticationOptionsHandlerTest
 			uis.add(ui);
 		}
 		when(vauthenticator.createUIInstance()).thenReturn(uis);
-		return new AuthenticationOption(vauthenticator, null);
+		return vauthenticator;
 	}
+
 }

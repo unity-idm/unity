@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
@@ -194,14 +195,20 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			sendCodeButton.addClickListener(e -> {
 				if (username == null)
 					username = usernameField.getValue();
+				sendCodeButton.removeClickShortcut();
 				sendCode();
 			});
+			usernameField.addFocusListener(e -> sendCodeButton.setClickShortcut(KeyCode.ENTER));
+			usernameField.addBlurListener(e -> sendCodeButton.removeClickShortcut());
+			
 			mainLayout.addComponent(sendCodeButton);
 
 			resetButton = new Button(msg.getMessage("WebSMSRetrieval.reset"));
 			resetButton.setIcon(Images.reject.getResource());
 			resetButton.setWidth(100, Unit.PERCENTAGE);
 			resetButton.addClickListener(e -> {
+				sendCodeButton.removeClickShortcut();
+				authenticateButton.removeClickShortcut();
 				callback.onCancelledAuthentication();
 				resetSentCode();
 			});
@@ -218,9 +225,16 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 			authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			mainLayout.addComponent(authenticateButton);
-			authenticateButton.addClickListener(event -> triggerAuthentication());
+			authenticateButton.addClickListener(event -> {
+				sendCodeButton.removeClickShortcut();
+				authenticateButton.removeClickShortcut();
+				triggerAuthentication();
+			});
 			authenticateButton.addStyleName(Styles.signInButton.toString());
 			authenticateButton.setEnabled(false);
+
+			answerField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
+			answerField.addBlurListener(e -> authenticateButton.removeClickShortcut());
 
 			SMSCredentialRecoverySettings settings = new SMSCredentialRecoverySettings(
 					JsonUtil.parse(credentialExchange

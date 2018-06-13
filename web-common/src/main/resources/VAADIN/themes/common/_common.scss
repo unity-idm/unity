@@ -448,7 +448,7 @@
 		width: 100%;
 	}
 
-	.u-selectedAuthn {
+	.u-authn-component {
 	}
 
 	.u-authn-columnsSeparator {
@@ -482,7 +482,7 @@
 	}
 
 	.u-externalSignInButton {
-		background: cornflowerblue;
+		background: #53A0C6;
 		text-decoration: none;
 		color: white;
 		font-weight: bold;
@@ -492,7 +492,7 @@
 	}
 
 	.u-externalSignInButton:hover {
-		background: cornflowerblue;
+		background: #3486AE;
 		color: white;
 	}
 

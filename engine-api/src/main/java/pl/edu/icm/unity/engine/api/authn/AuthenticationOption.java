@@ -35,9 +35,7 @@ public class AuthenticationOption
 
 	public String getId()
 	{
-		String primaryId = primaryAuthenticator.getAuthenticatorId();
-		return mandatory2ndAuthenticator == null ?  primaryId : primaryId + "_" + 
-				mandatory2ndAuthenticator.getAuthenticatorId();
+		return primaryAuthenticator.getAuthenticatorId();
 	}
 	
 	public BindingAuthn getPrimaryAuthenticator()

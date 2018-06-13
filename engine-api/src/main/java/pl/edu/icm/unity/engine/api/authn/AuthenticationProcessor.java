@@ -45,9 +45,10 @@ public class AuthenticationProcessor
 		//in future RBA or advanced (e.g. user driven MFA) will be activated here.
 		
 		if (authenticationOption.getMandatory2ndAuthenticator() != null)
-			return new PartialAuthnStateImpl(authenticationOption.getMandatory2ndAuthenticator(), result);
+			return new PartialAuthnStateImpl(authenticationOption.getMandatory2ndAuthenticator(), result,
+					authenticationOption);
 		else
-			return new PartialAuthnStateImpl(null, result);
+			return new PartialAuthnStateImpl(null, result, authenticationOption);
 	}
 
 	/**
@@ -127,18 +128,21 @@ public class AuthenticationProcessor
 		boolean isSecondaryAuthenticationRequired();
 		BindingAuthn getSecondaryAuthenticator();
 		AuthenticationResult getPrimaryResult();
+		AuthenticationOption getAuthenticationOption();
 	}
 	
 	private class PartialAuthnStateImpl implements PartialAuthnState
 	{
 		private BindingAuthn secondaryAuthenticator;
 		private AuthenticationResult primaryResult;
+		private AuthenticationOption option;
 
 		public PartialAuthnStateImpl(BindingAuthn secondaryAuthenticator,
-				AuthenticationResult result)
+				AuthenticationResult result, AuthenticationOption option)
 		{
 			this.secondaryAuthenticator = secondaryAuthenticator;
 			this.primaryResult = result;
+			this.option = option;
 		}
 
 		@Override
@@ -157,6 +161,12 @@ public class AuthenticationProcessor
 		public AuthenticationResult getPrimaryResult()
 		{
 			return primaryResult;
+		}
+
+		@Override
+		public AuthenticationOption getAuthenticationOption()
+		{
+			return option;
 		}
 	}
 }

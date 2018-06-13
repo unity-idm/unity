@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -23,6 +25,7 @@ class AuthnOptionsColumn extends CustomComponent
 	private final float width;
 	
 	private VerticalLayout authNOptions;
+	private List<ComponentWithId> components = new ArrayList<>();
 	
 	public AuthnOptionsColumn(String title, float width)
 	{
@@ -31,13 +34,50 @@ class AuthnOptionsColumn extends CustomComponent
 		init();
 	}
 
-	void addOptions(Collection<Component> components)
+	void addOptions(Collection<ComponentWithId> components)
 	{
-		for (Component component: components)
+		for (ComponentWithId component: components)
 		{
-			authNOptions.addComponent(component);
-			authNOptions.setComponentAlignment(component, Alignment.TOP_CENTER);
+			authNOptions.addComponent(component.component);
+			authNOptions.setComponentAlignment(component.component, Alignment.TOP_CENTER);
 		}
+		this.components.addAll(components);
+	}
+	
+	void disableAllExcept(String exception)
+	{
+		for (ComponentWithId componentWithId: components)
+		{
+			if (!componentWithId.id.equals(exception))
+			{
+				componentWithId.component.setEnabled(false);
+				if (componentWithId.component instanceof PrimaryAuthNPanel)
+				{
+					PrimaryAuthNPanel authNPanel = (PrimaryAuthNPanel) componentWithId.component;
+					authNPanel.cancel();
+				}
+			}
+		}
+	}
+	
+	void enableAll()
+	{
+		for (ComponentWithId componentWithId: components)
+			componentWithId.component.setEnabled(true);
+	}
+	
+	boolean focusFirst()
+	{
+		for (ComponentWithId componentWithId: components)
+		{
+			if (componentWithId.component instanceof AuthnPanel)
+			{
+				AuthnPanel authNPanel = (AuthnPanel) componentWithId.component;
+				if (authNPanel.focusIfPossible())
+					return true;
+			}
+		}
+		return false;
 	}
 	
 	private void init()
@@ -56,5 +96,17 @@ class AuthnOptionsColumn extends CustomComponent
 		authNOptions = new VerticalLayout();
 		authNOptions.setMargin(false);
 		column.addComponent(authNOptions);
+	}
+	
+	static class ComponentWithId
+	{
+		final String id;
+		final Component component;
+
+		ComponentWithId(String id, Component component)
+		{
+			this.id = id;
+			this.component = component;
+		}
 	}
 }
