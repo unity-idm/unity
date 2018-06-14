@@ -54,7 +54,7 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 		this.ecredMan = ecredMan;
 		this.entityMan = entityMan;
 		this.credEditorReg = credEditorReg;
-		setSize(50, 80);
+		setSizeEm(45, 36);
 	}
 
 	public SingleCredentialChangeDialog init(long entityId, boolean simpleMode,
@@ -105,16 +105,18 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
-		if (!ui.updateCredential(false))
+		boolean changed = ui.updateCredential(false);
+		if (!changed)
 			return;
 		close();
-		callback.onClose(ui.isChanged());
+		callback.onClose(true);
 	}
 
 	@Override
 	protected void onCancel()
 	{
 		close();
+		callback.onClose(false);
 	}
 
 	public interface Callback

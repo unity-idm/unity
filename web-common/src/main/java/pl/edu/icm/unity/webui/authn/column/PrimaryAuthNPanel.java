@@ -13,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
@@ -78,21 +77,13 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 		this.rememberMeProvider = rememberMeProvider;
 
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
-		main.addStyleName("u-authn-component");
-		
-		main.setWidth(100, Unit.PERCENTAGE);
 		authenticatorContainer = new VerticalLayout();		
 		authenticatorContainer.setHeight(100, Unit.PERCENTAGE);
 		authenticatorContainer.setWidth(100, Unit.PERCENTAGE);
 		authenticatorContainer.setSpacing(false);
 		authenticatorContainer.setMargin(false);
-
-		main.addComponent(authenticatorContainer);
-		main.setComponentAlignment(authenticatorContainer, Alignment.MIDDLE_CENTER);
-		
-		setCompositionRoot(main);
+		authenticatorContainer.addStyleName("u-authn-component");
+		setCompositionRoot(authenticatorContainer);
 	}
 
 	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationOption authnOption, 

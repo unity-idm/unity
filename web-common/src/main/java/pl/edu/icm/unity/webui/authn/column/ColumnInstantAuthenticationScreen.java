@@ -70,6 +70,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider;
 	private final WebAuthenticationProcessor authnProcessor;	
 	private final LocaleChoiceComponent localeChoice;
+	private final List<AuthenticationOption> authenticators;
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private PrimaryAuthNPanel authNPanelInProgress;
@@ -101,18 +102,23 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
-		this.authnOptionsHandler = new AuthenticationOptionsHandler(authenticators);
+		this.authenticators = authenticators;
+		
 		init();
 	}
 
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
+		log.info("Refresh called");
 		refreshAuthenticationState(request);
+		authNColumns.focusFirst();
 	}
 	
 	protected void init()
 	{
+		this.authnOptionsHandler = new AuthenticationOptionsHandler(authenticators);
+		
 		VerticalLayout topLevelLayout = new VerticalLayout();
 		topLevelLayout.setMargin(new MarginInfo(false, true, false, true));
 		topLevelLayout.setHeightUndefined();
@@ -350,6 +356,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		authNColumns.setVisible(true);
 		authNColumns.enableAll();
+		authNColumns.focusFirst();
 		secondFactorHolder.removeAllComponents();
 		secondFactorHolder.setVisible(false);
 	}

@@ -20,7 +20,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -149,8 +148,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		if (ls != null && ls.isUsedOutdatedCredential())
 		{
-			setContent(new VerticalLayout());
-			outdatedCredentialDialogFactory.getObject().init(authnProcessor).show();
+			outdatedCredentialDialogFactory.getObject().show(authnProcessor);
 			return true;
 		}
 		return false;

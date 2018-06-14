@@ -28,6 +28,7 @@ public class NotificationPopup
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NotificationPopup.class);
 	
+	
 	public static void showSuccess(UnityMessageSource msg, String caption, String description)
 	{
 		showGeneric(caption, description, Type.HUMANIZED_MESSAGE, Images.info.getResource(), 
@@ -52,6 +53,12 @@ public class NotificationPopup
 		showError(msg, msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 	}
 
+	public static Notification getNoticeNotification(String caption, String description)
+	{
+		return createGeneric(caption, description, Type.WARNING_MESSAGE, Images.warn.getResource(),
+				ValoTheme.NOTIFICATION_CLOSABLE);
+	}
+	
 	public static void showError(UnityMessageSource msg, String message, Exception e)
 	{
 		String description = getHumanMessage(e);
@@ -97,8 +104,7 @@ public class NotificationPopup
 		return sb.toString();
 	}
 	
-	
-	private static void showGeneric(String caption, String description, Type type, 
+	private static Notification createGeneric(String caption, String description, Type type, 
 			Resource icon, String... styles)
 	{
 		Notification notification = new Notification(caption, description, type);
@@ -109,6 +115,12 @@ public class NotificationPopup
 		notification.setStyleName(sb.toString());
 		notification.setIcon(icon);
 		notification.setDelayMsec(-1);
-		notification.show(Page.getCurrent());
+		return notification;
+	}
+	
+	private static void showGeneric(String caption, String description, Type type, 
+			Resource icon, String... styles)
+	{
+		createGeneric(caption, description, type, icon, styles).show(Page.getCurrent());
 	}
 }

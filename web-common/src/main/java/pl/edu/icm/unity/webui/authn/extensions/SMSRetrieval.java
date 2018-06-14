@@ -259,11 +259,13 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			resetButton.setVisible(false);
 			capchaComponent.setVisible(false);
 			usernameField.setVisible(true);
+			usernameField.setValue("");
 			usernameLabel.setVisible(false);
 			usernameLabel.resetValue();
 			answerField.setValue("");
 			answerField.setEnabled(false);
 			authenticateButton.setEnabled(false);
+			usernameField.focus();
 			username = null;
 			sentCode = null;
 		}

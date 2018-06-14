@@ -80,21 +80,13 @@ class SecondFactorAuthNPanel extends CustomComponent implements AuthnPanel
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 		this.rememberMeProvider = rememberMeProvider;
 
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
-		main.addStyleName("u-authn-component");
-		
-		main.setWidth(100, Unit.PERCENTAGE);
 		authenticatorContainer = new VerticalLayout();		
 		authenticatorContainer.setHeight(100, Unit.PERCENTAGE);
 		authenticatorContainer.setWidth(100, Unit.PERCENTAGE);
 		authenticatorContainer.setSpacing(true);
 		authenticatorContainer.setMargin(false);
-
-		main.addComponent(authenticatorContainer);
-		main.setComponentAlignment(authenticatorContainer, Alignment.MIDDLE_CENTER);
-		
-		setCompositionRoot(main);
+		authenticatorContainer.addStyleName("u-authn-component");
+		setCompositionRoot(authenticatorContainer);
 	}
 
 	public void setAuthenticator(VaadinAuthenticationUI secondaryUI, PartialAuthnState partialState)

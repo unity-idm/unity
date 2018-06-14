@@ -79,6 +79,7 @@ public class AuthnOptionsColumns extends CustomComponent
 		this.columns = new ArrayList<>();
 		setCompositionRoot(getAuthnColumnsComponent());
 		setWidthUndefined();
+		focusFirst();
 	}
 
 	void disableAllExcept(String exception)
@@ -93,6 +94,16 @@ public class AuthnOptionsColumns extends CustomComponent
 			column.enableAll();
 	}
 	
+
+	void focusFirst()
+	{
+		for (AuthnOptionsColumn column: columns)
+		{
+			if (column.focusFirst())
+				break;
+		}
+	}
+	
 	private Component getAuthnColumnsComponent()
 	{
 		Component authNColumns = getFullAuthnColumnsComponent();
@@ -104,7 +115,6 @@ public class AuthnOptionsColumns extends CustomComponent
 			Component lastSelectionComponent = createLastSelectionLayout();
 			if (lastSelectionComponent != null)
 			{
-				columns.clear();
 				return lastSelectionComponent;
 			}
 		}
@@ -130,6 +140,8 @@ public class AuthnOptionsColumns extends CustomComponent
 		HorizontalLayout columnsLayout = new HorizontalLayout();
 		columnsLayout.setMargin(false);
 		AuthnOptionsColumn columnComponent = new AuthnOptionsColumn(null, DEFAULT_AUTHN_COLUMN_WIDTH);
+		columns.clear();
+		columns.add(columnComponent);
 		columnsLayout.addComponent(columnComponent);
 		columnComponent.addOptions(getColumnAuthnComponents("", true));
 		return columnsLayout;
@@ -144,6 +156,8 @@ public class AuthnOptionsColumns extends CustomComponent
 		if (authnComponents.isEmpty())
 			return null;
 		AuthnOptionsColumn columnComponent = new AuthnOptionsColumn(null, DEFAULT_AUTHN_COLUMN_WIDTH);
+		columns.clear();
+		columns.add(columnComponent);
 		columnsLayout.addComponent(columnComponent);
 		columnComponent.addOptions(authnComponents);
 		return columnsLayout;
@@ -303,6 +317,7 @@ public class AuthnOptionsColumns extends CustomComponent
 	private void showAllOptions()
 	{
 		setCompositionRoot(getFullAuthnColumnsComponent());
+		focusFirst();
 	}
 
 	private ComponentWithId getOptionsSeparator(String specEntry)
