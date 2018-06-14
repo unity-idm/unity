@@ -66,6 +66,15 @@ class AuthnOptionsColumn extends CustomComponent
 			componentWithId.component.setEnabled(true);
 	}
 	
+	int countAuthenticationOptions()
+	{
+		int ret = 0;
+		for (ComponentWithId componentWithId: components)
+			if (componentWithId.component instanceof PrimaryAuthNPanel)
+				ret++;
+		return ret;
+	}
+	
 	boolean focusFirst()
 	{
 		for (ComponentWithId componentWithId: components)

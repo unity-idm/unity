@@ -232,7 +232,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				realm.getAllowForRememberMeDays()));
 		rememberMe.addStyleName("u-authn-rememberMe");
 		bottomWrapper.addComponent(rememberMe);
-		bottomWrapper.setComponentAlignment(rememberMe, Alignment.TOP_RIGHT);
+		bottomWrapper.setComponentAlignment(rememberMe, Alignment.TOP_CENTER);
 		return bottomWrapper;
 	}
 	

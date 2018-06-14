@@ -93,11 +93,13 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	private static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
 	public static final String DEFAULT_AUTHN_ICON_SCALE = "authnIconScale";
 			
-			
+	
 	public static final String AUTHN_LOGO = "authnScreenLogo";
 	public static final String AUTHN_TITLE = "authnScreenTitle";
 	public static final String AUTHN_SHOW_SEARCH = "authnScreenShowSearch";
 	public static final String AUTHN_SHOW_CANCEL = "authnScreenShowCancel";
+	public static final String AUTHN_SHOW_LAST_OPTION_ONLY = "authnShowLastOptionOnly";
+	public static final String AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT = "authnLastOptionOnlyLayout";
 	public static final String AUTHN_ADD_ALL = "authnScreenShowAllOptions";
 
 	public static final String AUTHN_OPTION_LABEL_PFX = "authnScreenOptionsLabel.";
@@ -143,7 +145,9 @@ public class VaadinEndpointProperties extends PropertiesHelper
 
 		META.put(AUTHN_SCREEN_MODE, new PropertyMD(ScreenType.column).
 				setDescription("Controls which layout of authentication screen to use. Note that the legacy "
-						+ "+tile+ layout is deprecated and will its support is going to be dropped in future."));
+						+ "+tile+ layout is deprecated and will its support is going to be dropped in future."
+						+ "Currently the default value is +tile+ if there are no columns defined, "
+						+ "but there is at least one tile defined. Otherwise the default is +column+."));
 		
 		META.put(AUTHN_LOGO, new PropertyMD("file:../common/img/other/logo.png").
 				setDescription("Sets URL of image that should be shown above all authentication options."));
@@ -158,6 +162,16 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				setDescription("Whether to show a cancel button. This setting is relevant only on "
 						+ "authentication screens which are not accessed directly "
 						+ "(e.g. on IdP authentication screen after redirection from SP)."));
+		META.put(AUTHN_SHOW_LAST_OPTION_ONLY, new PropertyMD("true").
+				setDescription("Used for returning users (who authenticated at least once before). "
+						+ "If set to true only the previously used authentication option "
+						+ "will be shown to the user (it will be still possible to reveal other ones by clicking special button)."
+						+ " If set to false then this feature is turned off and users always see all available options."));
+		META.put(AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT, new PropertyMD("_LAST_USED _SEPARATOR _EXPAND").
+				setDescription("Advanced setting, typically should not be changed. Same syntax as column's contents. "
+						+ "Defines layout which is used when a single last used authN is presented "
+						+ "(i.e. relevant only when " + AUTHN_SHOW_LAST_OPTION_ONLY + " is enabled). "
+						+ "May be used to change spacing or add label."));
 		META.put(AUTHN_ADD_ALL, new PropertyMD("true").
 				setDescription("If set to true then all authentication options configured for the "
 						+ "edpoint will be added on the screen. If any of options is not explicitly "
@@ -259,6 +273,16 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		defaultScaleMode = getScaleModeInternal(DEFAULT_AUTHN_ICON_SCALE, DEFAULT_AUTHN_ICON_SIZE);
 	}
 
+	public ScreenType getScreenType()
+	{
+		if (isSet(AUTHN_SCREEN_MODE))
+			return getEnumValue(AUTHN_SCREEN_MODE, ScreenType.class);
+		if (getStructuredListKeys(AUTHN_COLUMNS_PFX).isEmpty() && 
+				!getStructuredListKeys(AUTHN_TILES_PFX).isEmpty())
+			return ScreenType.tile;
+		return ScreenType.column;
+	}
+	
 	/**
 	 * Returns either a theme configured with the key given as argument or the default theme if the
 	 * specific one is not defined. Can return null if neither is available.

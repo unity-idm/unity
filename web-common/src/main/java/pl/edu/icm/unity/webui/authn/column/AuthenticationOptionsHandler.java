@@ -34,6 +34,12 @@ class AuthenticationOptionsHandler
 		for (AuthenticationOption ao: availableAuthentionOptions)
 			authentionOptionsByName.put(ao.getId(), ao);
 	}
+	
+	void clear()
+	{
+		consumedAuthenticators.clear();
+		consumedAuthenticatorEntries.clear();
+	}
 
 	AuthenticationOption getMatchingOption(String spec)
 	{

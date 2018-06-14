@@ -38,7 +38,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScreenType;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
@@ -113,7 +112,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-		ScreenType screenType = config.getEnumValue(VaadinEndpointProperties.AUTHN_SCREEN_MODE, ScreenType.class);
+		ScreenType screenType = config.getScreenType();
 		
 		if (screenType == ScreenType.tile)
 		{
