@@ -5,10 +5,7 @@
 package pl.edu.icm.unity.engine.authn;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +14,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
-import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -25,6 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
@@ -48,18 +45,16 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER, AuthenticationProcessorImpl.class);
 	
-	private AuthenticatorManagement authnMan;
 	private AuthenticationFlowManagement authFlowMan;
 	private LocalCredentialsRegistry localCred;
 	private CredentialRepository credRepo;
 	
-	
 	@Autowired
-	public AuthenticationProcessorImpl(@Qualifier("insecure") AuthenticatorManagement authnMan,
-			@Qualifier("insecure") EntityCredentialManagement entityCredMan, AuthenticationFlowManagement authFlowMan, 
+	public AuthenticationProcessorImpl(
+			@Qualifier("insecure") EntityCredentialManagement entityCredMan,
+			AuthenticationFlowManagement authFlowMan,
 			LocalCredentialsRegistry localCred, CredentialRepository credRepo)
-	{	
-		this.authnMan = authnMan;
+	{
 		this.authFlowMan = authFlowMan;
 		this.localCred = localCred;
 		this.credRepo = credRepo;
@@ -136,23 +131,25 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result)
 	{
-		for (BindingAuthn authn : authenticationFlow
+		for (Authenticator authn : authenticationFlow
 				.getSecondFactorAuthenticators())
 
 		{
-			AuthenticatorInstance authenticator = getAuthenticator(authn);
+			
+			BindingAuthn bindingAuthn = authn.getRetrieval();
+			AuthenticatorInstance authenticator = authn.getAuthenticatorInstance();
 			if (authenticator != null)
 			{
 				if (!authenticator.getTypeDescription().isLocal())
 				{
 					log.debug("Using remote second factor authenticator " + authenticator.getId());
-					return new PartialAuthnState(authn, result);
+					return new PartialAuthnState(bindingAuthn, result);
 
 				} else if (checkIfUserHasCredential(authenticator,
 						result.getAuthenticatedEntity()))
 				{
 					log.debug("Using local second factor authenticator " + authenticator.getId());
-					return  new PartialAuthnState(authn, result);
+					return  new PartialAuthnState(bindingAuthn, result);
 
 				}
 			}
@@ -189,24 +186,6 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 
 	}
 		
-	private AuthenticatorInstance getAuthenticator(BindingAuthn id)
-	{
-
-		Collection<AuthenticatorInstance> authenticators = null;
-		try
-		{
-			authenticators = authnMan.getAuthenticators(null);
-		} catch (EngineException e)
-		{
-			log.debug("Can not get authenticators", e);
-			return null;
-		}
-		Map<String, AuthenticatorInstance> existing = new HashMap<>();
-		for (AuthenticatorInstance ai : authenticators)
-			existing.put(ai.getId(), ai);
-		return existing.get(id.getAuthenticatorId());
-	}
-
 	/**
 	 * Should be used if the second step authentication is required to process second authenticator results
 	 * and retrieve a final {@link AuthenticatedEntity}.

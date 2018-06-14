@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
@@ -101,7 +102,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 					"Can not add authenticator " + id
 							+ ", authentication flow with the same name exists");
 		}
-		AuthenticatorImpl authenticator;
+		Authenticator authenticator;
 		if (credentialName != null)
 		{
 			CredentialDefinition credentialDef = credentialRepository.get(credentialName);
@@ -178,7 +179,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		authenticatorDB.delete(id);
 	}
 	
-	private void verifyIfLocalCredentialMatchesVerificator(AuthenticatorImpl authenticator,
+	private void verifyIfLocalCredentialMatchesVerificator(Authenticator authenticator,
 			CredentialHolder credential, String requestedLocalCredential) throws IllegalCredentialException
 	{
 		String verificationMethod = authenticator.getAuthenticatorInstance().

@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 
 /**
@@ -63,9 +64,9 @@ public class ProxyAuthenticationFilter implements Filter
 		for (AuthenticationFlow ao : authenticators)
 		{
 
-			for (BindingAuthn authn : ao.getFirstFactorAuthenticators())
+			for (Authenticator authn : ao.getFirstFactorAuthenticators())
 			{
-				newMap.put(authn.getAuthenticatorId(), authn);
+				newMap.put(authn.getRetrieval().getAuthenticatorId(), authn.getRetrieval());
 			}
 
 		}

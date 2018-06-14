@@ -17,9 +17,9 @@ public class MockPasswordRetrieval extends AbstractCredentialRetrieval<MockExcha
 	}
 
 	@Override
-	public void setCredentialExchange(CredentialExchange e, String id, long revision)
+	public void setCredentialExchange(CredentialExchange e, String id)
 	{
-		super.setCredentialExchange(e, id, revision);
+		super.setCredentialExchange(e, id);
 		if (!(e instanceof MockExchange))
 			throw new InternalException("Got unsupported exchange: " + 
 					e.getClass() + " while only MockExchange is supported");

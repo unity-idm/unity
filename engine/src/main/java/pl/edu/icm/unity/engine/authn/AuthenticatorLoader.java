@@ -15,18 +15,18 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
-import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 
 /**
  * Loading and initialization of {@link AuthenticatorImpl}.
@@ -56,17 +56,17 @@ public class AuthenticatorLoader
 		this.credRepository = credRepository;
 		this.authenticationFlowDB = authenticationFlowDB;
 	}
-
-	public List<BindingAuthn> getAuthenticatorsRetrievals(Collection<String> ids) 
+	
+	public List<Authenticator> getAuthenticators(Collection<String> ids)
 	{
-		List<BindingAuthn> authneticators = new ArrayList<>(); 
+		List<Authenticator> authneticators = new ArrayList<>();
 		for (String id : ids)
 		{
 			AuthenticatorImpl ret = getAuthenticator(id);
-			authneticators.add(ret.getRetrieval());
+			authneticators.add(ret);
 		}
 		
-		return authneticators;
+		return authneticators; 
 	}
 	
 	public AuthenticatorImpl getAuthenticator(String id) 
@@ -137,13 +137,14 @@ public class AuthenticatorLoader
 
 		for (AuthenticationFlowDefinition authenticationFlowDefinition : authnFlows)
 		{
-
-			List<BindingAuthn> firstFactorAuthImpl = getAuthenticatorsRetrievals(
+			
+			List<Authenticator> firstFactorAuthImpl = getAuthenticators(
 					authenticationFlowDefinition
 							.getFirstFactorAuthenticators());
-			List<BindingAuthn> secondFactorFactorAuthImpl = getAuthenticatorsRetrievals(
+			List<Authenticator> secondFactorFactorAuthImpl = getAuthenticators(
 					authenticationFlowDefinition
 							.getSecondFactorAuthenticators());
+			
 			ret.add(new AuthenticationFlow(authenticationFlowDefinition.getName(),
 					authenticationFlowDefinition.getPolicy(),
 					Sets.newHashSet(firstFactorAuthImpl),

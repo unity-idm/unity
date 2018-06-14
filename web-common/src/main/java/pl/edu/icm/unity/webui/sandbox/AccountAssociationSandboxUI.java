@@ -65,15 +65,15 @@ public class AccountAssociationSandboxUI extends SandboxUIBase
 		{
 
 			flow.getFirstFactorAuthenticators().stream()
-					.map(b -> b.getAuthenticatorId())
+					.map(b -> b.getRetrieval().getAuthenticatorId())
 					.collect(Collectors.toSet());
 			AuthenticationFlowDefinition def = new AuthenticationFlowDefinition(
 					flow.getId(), flow.getPolicy(),
 					flow.getFirstFactorAuthenticators().stream()
-							.map(b -> b.getAuthenticatorId())
+							.map(b -> b.getRetrieval().getAuthenticatorId())
 							.collect(Collectors.toSet()),
 					flow.getSecondFactorAuthenticators().stream()
-							.map(b -> b.getAuthenticatorId())
+							.map(b -> b.getRetrieval().getAuthenticatorId())
 							.collect(Collectors.toList()));
 
 			vaadinAuthenticationFlows.add(def);

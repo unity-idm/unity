@@ -27,11 +27,11 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
-import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.rest.authn.ext.TLSRetrieval;
@@ -158,14 +158,15 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	{
 		PartialAuthnState state = null;
 		AuthenticationException firstError = null;
-		for (BindingAuthn authn : authenticationFlow.getFirstFactorAuthenticators())
+		for (Authenticator authn : authenticationFlow.getFirstFactorAuthenticators())
 		{
-			try {
-			AuthenticationResult result = processAuthenticator(authnCache, 
-					(CXFAuthentication) authn);
-			state = authenticationProcessor.processPrimaryAuthnResult(result, 
-					authenticationFlow);
-			}catch (AuthenticationException e)
+			try
+			{
+				AuthenticationResult result = processAuthenticator(authnCache,
+						(CXFAuthentication) authn.getRetrieval());
+				state = authenticationProcessor.processPrimaryAuthnResult(result,
+						authenticationFlow);
+			} catch (AuthenticationException e)
 			{
 				if (firstError == null)
 					firstError = new AuthenticationException(e.getMessage());
@@ -173,18 +174,20 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 			}
 			break;
 		}
-		
+
 		if (state == null)
 		{
-			throw firstError == null ? new AuthenticationException("Authentication failed") : firstError;
+			throw firstError == null
+					? new AuthenticationException("Authentication failed")
+					: firstError;
 		}
-		
-		
+
 		if (state.isSecondaryAuthenticationRequired())
 		{
-			AuthenticationResult result2 = processAuthenticator(authnCache, 
-					(CXFAuthentication) state.getSecondaryAuthenticator()); 
-			return authenticationProcessor.finalizeAfterSecondaryAuthentication(state, result2);
+			AuthenticationResult result2 = processAuthenticator(authnCache,
+					(CXFAuthentication) state.getSecondaryAuthenticator());
+			return authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
+					result2);
 		} else
 		{
 			return authenticationProcessor.finalizeAfterPrimaryAuthentication(state);

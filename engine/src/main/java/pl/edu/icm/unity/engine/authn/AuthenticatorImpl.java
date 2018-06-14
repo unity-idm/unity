@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
@@ -16,15 +17,6 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
- * Internal representation of an authenticator, which is a composition of {@link CredentialRetrieval} and
- * {@link CredentialVerificator}, configured.
- * <p>
- * Authenticator can be local or remote, depending on the associated verificator type (local or remote).
- * <p>
- * Local authenticator is special as it has an associated local credential. Its verificator uses the associated 
- * credential's configuration internally, but it is not advertised to the outside world, via the
- * {@link AuthenticatorInstance} interface.
- * <p>
  * Instantiation can be done in two scenarios, each in two variants:
  * <ul>
  * <li>either a constructor is called with a state loaded previously from persisted storage and provided in    
@@ -33,9 +25,10 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
  * <li> Otherwise a full constructor is called to initialize the object completely. In case of a local authenticator
  * a local credential name and its configuration must be provided.
  * </ul>
- * @author K. Benedyczak
+ * @author P.Piernik
+ *
  */
-public class AuthenticatorImpl
+public class AuthenticatorImpl implements Authenticator
 {
 	private CredentialRetrieval retrieval;
 	private CredentialVerificator verificator;
@@ -132,7 +125,7 @@ public class AuthenticatorImpl
 		verificator.setIdentityResolver(identitiesResolver);
 		verificator.setInstanceName(instanceDescription.getId());
 		retrieval = retrievalFact.newInstance();
-		retrieval.setCredentialExchange(verificator, instanceDescription.getId(), instanceDescription.getRevision());
+		retrieval.setCredentialExchange(verificator, instanceDescription.getId());
 		updateConfiguration(rConfiguration, vConfiguration, localCredential);
 		instanceDescription.setTypeDescription(authDesc);
 	}
@@ -166,6 +159,12 @@ public class AuthenticatorImpl
 	{
 		instanceDescription.setRevision(revision);
 	}
+	
+	public long getRevision()
+	{
+		return instanceDescription.getRevision();
+	}
+	
 	
 	public AuthenticatorInstance getAuthenticatorInstance()
 	{

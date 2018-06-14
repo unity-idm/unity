@@ -94,9 +94,9 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	}
 
 	@Override
-	public void setCredentialExchange(CredentialExchange e, String id, long revision)
+	public void setCredentialExchange(CredentialExchange e, String id)
 	{
-		super.setCredentialExchange(e, id, revision);
+		super.setCredentialExchange(e, id);
 		proxyAuthnHandler = new SAMLProxyAuthnHandler((SAMLExchange) e, 
 				samlContextManagement);
 	}

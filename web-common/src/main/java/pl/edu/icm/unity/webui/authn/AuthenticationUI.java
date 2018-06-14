@@ -38,9 +38,9 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -256,9 +256,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		
 		for (final AuthenticationFlow authnFlow : authnFlows)
 		{
-			for (BindingAuthn firstFactorA : authnFlow.getFirstFactorAuthenticators())
+			for (Authenticator firstFactorA : authnFlow.getFirstFactorAuthenticators())
 			{
-				VaadinAuthentication firstAuthenticator = (VaadinAuthentication) firstFactorA;
+				VaadinAuthentication firstAuthenticator = (VaadinAuthentication) firstFactorA.getRetrieval();
 
 				Collection<VaadinAuthenticationUI> uiInstances = firstAuthenticator
 						.createUIInstance();
@@ -266,7 +266,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				{	
 					String id = vaadinAuthenticationUI.getId();
 					final String globalId = AuthenticationOptionKeyUtils
-							.encode(authnFlow.getId(), firstFactorA.getAuthenticatorId(), id);
+							.encode(authnFlow.getId(), firstAuthenticator.getAuthenticatorId(), id);
 					authnFlowById.put(globalId, authnFlow);
 					authenticatorById.put(globalId, vaadinAuthenticationUI);
 				}
