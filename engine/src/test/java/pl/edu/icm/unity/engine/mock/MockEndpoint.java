@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
@@ -63,9 +64,9 @@ public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointI
 	
 	public Long authenticate() throws EngineException
 	{
-		MockBinding authenticator = (MockBinding) authenticationFlows.get(0)
-				.getFirstFactorAuthenticators().iterator().next();
-		return authenticator.authenticate();
+		Authenticator authenticator =  authenticationFlows.get(0)
+				.getFirstFactorAuthenticators().iterator().next();	
+		return ((MockBinding)authenticator.getRetrieval()).authenticate();
 	}
 
 	@Override
