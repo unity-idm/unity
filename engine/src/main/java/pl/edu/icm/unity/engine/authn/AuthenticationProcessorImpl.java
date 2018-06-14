@@ -26,12 +26,16 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
+import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
@@ -45,16 +49,20 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER, AuthenticationProcessorImpl.class);
 	
 	private AuthenticatorManagement authnMan;
-	private EntityCredentialManagement entityCredMan;
 	private AuthenticationFlowManagement authFlowMan;
+	private LocalCredentialsRegistry localCred;
+	private CredentialRepository credRepo;
+	
 	
 	@Autowired
 	public AuthenticationProcessorImpl(@Qualifier("insecure") AuthenticatorManagement authnMan,
-			@Qualifier("insecure") EntityCredentialManagement entityCredMan, AuthenticationFlowManagement authFlowMan)
+			@Qualifier("insecure") EntityCredentialManagement entityCredMan, AuthenticationFlowManagement authFlowMan, 
+			LocalCredentialsRegistry localCred, CredentialRepository credRepo)
 	{	
 		this.authnMan = authnMan;
-		this.entityCredMan = entityCredMan;
 		this.authFlowMan = authFlowMan;
+		this.localCred = localCred;
+		this.credRepo = credRepo;
 	}
 	
 	/**
@@ -154,16 +162,26 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 	
 	
+	private boolean checkIfUserHasLocalCredential(AuthenticatedEntity entity,
+			String credentialId) throws IllegalCredentialException, EngineException
+	{
+
+		CredentialDefinition credentialDefinition = credRepo.get(credentialId);
+		return localCred.createLocalCredentialVerificator(credentialDefinition)
+				.isCredentialSet(new EntityParam(entity.getEntityId()), credentialId);
+	}
+	
+	
 	private boolean checkIfUserHasCredential(AuthenticatorInstance authn, AuthenticatedEntity entity)
 	{
 		
 		log.debug("Check if user have defined " + authn.getLocalCredentialName() + " credential");
 		try
 		{
-			return entityCredMan.isCredentialSet(new EntityParam(entity.getEntityId()),
+			return checkIfUserHasLocalCredential(entity,
 					authn.getLocalCredentialName());
 			
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			log.debug("Can not check entity local credential state", e);
 			return false;

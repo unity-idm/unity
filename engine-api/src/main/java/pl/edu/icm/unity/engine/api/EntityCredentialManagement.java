@@ -72,15 +72,15 @@ public interface EntityCredentialManagement
 			throws EngineException;
 	
 	
-	/**
-	 * 
-	 * @param entity
-	 * @param credentialId
-	 * @return
-	 * @throws EngineException
-	 */
-	boolean isCredentialSet(EntityParam entity, String credentialId)
-			throws EngineException;
+//	/**
+//	 * 
+//	 * @param entity
+//	 * @param credentialId
+//	 * @return
+//	 * @throws EngineException
+//	 */
+//	boolean isCredentialSet(EntityParam entity, String credentialId)
+//			throws EngineException;
 	
 }
 

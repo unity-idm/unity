@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.identity;
 
 import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
-import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -29,20 +27,15 @@ import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
-import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * Implementation of credential and credential requirement operations on
@@ -60,21 +53,19 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private EntityCredentialsHelper credHelper;
-	private CredentialRepository credRepo;
-	private IdentityDAO idDAO;
+	
 
 	@Autowired
 	public EntityCredentialsManagementImpl(EntityResolver idResolver, AttributeDAO attributeDAO,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
-			EntityCredentialsHelper credHelper, CredentialRepository credRepo, IdentityDAO idDAO)
+			EntityCredentialsHelper credHelper)
 	{
 		this.idResolver = idResolver;
 		this.attributeDAO = attributeDAO;
 		this.authz = authz;
 		this.attributesHelper = attributesHelper;
 		this.credHelper = credHelper;
-		this.credRepo = credRepo;
-		this.idDAO = idDAO;
+		
 	}
 
 	@Override
@@ -245,36 +236,5 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	{
 		credHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential,
 				currentRawCredential);
-	}
-
-	private boolean checkX500Id(EntityParam entity) throws EngineException
-	{
-
-		List<Identity> ids = idDAO.getByEntity(entity.getEntityId());
-
-		for (Identity id : ids)
-		{
-			if (id.getTypeId().equals(X500Identity.ID))
-				return true;
-		}
-
-		return false;
-	}
-
-	@Override
-	@Transactional
-	public boolean isCredentialSet(EntityParam entity, String credentialId)
-			throws EngineException
-	{	
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		
-		CredentialDefinition credDefinition = credRepo.get(credentialId);
-		if (credDefinition != null
-				&& credDefinition.getTypeId().equals(CertificateVerificator.NAME))
-			return checkX500Id(entity);
-
-		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
-		List<AttributeExt> entityAttributes = attributeDAO.getEntityAttributes(entity.getEntityId(), credentialAttributeName, "/");
-		return !entityAttributes.isEmpty();
 	}
 }

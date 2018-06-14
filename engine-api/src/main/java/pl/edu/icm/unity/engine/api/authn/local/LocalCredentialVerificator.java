@@ -5,11 +5,13 @@
 package pl.edu.icm.unity.engine.api.authn.local;
 
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Verificator of local credentials. Such verificators must have 
@@ -91,4 +93,14 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @return the invalidated credential value, to be stored in database.
 	 */
 	String invalidate(String currentCredential);
+	
+	
+	/**
+	 * Check if credential is set 
+	 * @param entity
+	 * @param credentialId
+	 * @return
+	 * @throws EngineException 
+	 */
+	boolean isCredentialSet(EntityParam entity, String credentialId) throws EngineException;
 }
