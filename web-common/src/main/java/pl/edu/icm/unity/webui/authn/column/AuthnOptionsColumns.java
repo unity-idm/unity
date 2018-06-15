@@ -17,6 +17,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_OPTION_LABEL
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY_LAYOUT;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_SEARCH;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH;
 
 import java.util.ArrayDeque;
@@ -33,6 +34,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -81,7 +83,7 @@ public class AuthnOptionsColumns extends CustomComponent
 		this.registrationDialogLauncher = registrationDialogLauncher;
 		
 		this.columns = new ArrayList<>();
-		setCompositionRoot(getAuthnColumnsComponent());
+		setRootComponent(getAuthnColumnsComponent());
 		setWidthUndefined();
 		focusFirst();
 	}
@@ -108,6 +110,32 @@ public class AuthnOptionsColumns extends CustomComponent
 		}
 	}
 	
+	void filter(String filter)
+	{
+		for (AuthnOptionsColumn column: columns)
+			column.filter(filter);
+	}
+
+	private void setRootComponent(Component component)
+	{
+		if (config.getBooleanValue(AUTHN_SHOW_SEARCH) && hasGridWidget())
+		{
+			VerticalLayout vWrapper = new VerticalLayout();
+			vWrapper.setWidthUndefined();
+			vWrapper.setMargin(false);
+			SearchComponent search = new SearchComponent(msg, this::filter);
+			vWrapper.addComponent(search);
+			vWrapper.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
+			
+			vWrapper.addComponent(component);
+			setCompositionRoot(vWrapper);
+		} else
+		{
+			setCompositionRoot(component);
+		}
+	}
+
+
 	private Component getAuthnColumnsComponent()
 	{
 		Component authNColumns = getFullAuthnColumnsComponent();
@@ -174,6 +202,17 @@ public class AuthnOptionsColumns extends CustomComponent
 		{
 			count += column.countAuthenticationOptions();
 			if (count > 1)
+				return true;
+		}
+		return false;
+	}
+	
+	
+	private boolean hasGridWidget()
+	{
+		for (AuthnOptionsColumn column: columns)
+		{
+			if (column.hasGridWidget())
 				return true;
 		}
 		return false;
@@ -327,7 +366,7 @@ public class AuthnOptionsColumns extends CustomComponent
 
 	private void showAllOptions()
 	{
-		setCompositionRoot(getFullAuthnColumnsComponent());
+		setRootComponent(getFullAuthnColumnsComponent());
 		focusFirst();
 	}
 

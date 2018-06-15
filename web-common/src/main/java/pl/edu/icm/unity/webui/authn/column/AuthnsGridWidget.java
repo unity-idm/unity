@@ -81,6 +81,7 @@ class AuthnsGridWidget extends CustomComponent
 		buttonColumn.setExpandRatio(6);
 		
 		providersChoice.setWidth(100, Unit.PERCENTAGE);
+		imageColumn.setWidth(74);
 		
 		reloadContents();
 		setCompositionRoot(providersChoice);
@@ -133,7 +134,7 @@ class AuthnsGridWidget extends CustomComponent
 		return authenticatorById.size();
 	}
 	
-	private void filter(String filter)
+	void filter(String filter)
 	{
 		dataProvider.clearFilters();
 		dataProvider.addFilter(v -> v.getNameWithTags().contains(filter));

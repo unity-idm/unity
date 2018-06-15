@@ -183,11 +183,10 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			authenticationMainLayout.setComponentAlignment(title, Alignment.TOP_CENTER);
 		}
 		
-		//TODO search support
-		
 		authNColumns = new AuthnOptionsColumns(config, msg, 
 				authnOptionsHandler, enableRegistration, new AuthnPanelFactoryImpl(), 
 				registrationDialogLauncher);
+		
 		authenticationMainLayout.addComponent(authNColumns);
 		authenticationMainLayout.setComponentAlignment(authNColumns, Alignment.TOP_CENTER);
 		

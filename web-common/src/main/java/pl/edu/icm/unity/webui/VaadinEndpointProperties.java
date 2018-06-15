@@ -161,7 +161,8 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "message bundle will be used. Set to empty string to completely remove the title."));
 		META.put(AUTHN_SHOW_SEARCH, new PropertyMD("false").
 				setDescription("Whether to show a filter control, allowing to search for desred authentication option. "
-						+ "Useful if many authentication options are allowed."));
+						+ "Useful if many authentication options are allowed. Note that "
+						+ "search will be only visible if at least one grid widget with authenticators is on the screen."));
 		META.put(AUTHN_SHOW_CANCEL, new PropertyMD("true").
 				setDescription("Whether to show a cancel button. This setting is relevant only on "
 						+ "authentication screens which are not accessed directly "

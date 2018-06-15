@@ -59,6 +59,18 @@ class AuthnOptionsColumn extends CustomComponent
 			}
 		}
 	}
+
+	void filter(String filter)
+	{
+		for (ComponentWithId componentWithId: components)
+		{
+			if (componentWithId.component instanceof AuthnsGridWidget)
+			{
+				AuthnsGridWidget grid = (AuthnsGridWidget) componentWithId.component;
+				grid.filter(filter);
+			}
+		}
+	}
 	
 	void enableAll()
 	{
@@ -74,7 +86,15 @@ class AuthnOptionsColumn extends CustomComponent
 				ret++;
 		return ret;
 	}
-	
+
+	boolean hasGridWidget()
+	{
+		for (ComponentWithId componentWithId: components)
+			if (componentWithId.component instanceof AuthnsGridWidget)
+				return true;
+		return false;
+	}
+
 	boolean focusFirst()
 	{
 		for (ComponentWithId componentWithId: components)
