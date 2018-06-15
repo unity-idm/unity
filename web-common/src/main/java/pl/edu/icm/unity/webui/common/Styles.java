@@ -77,6 +77,7 @@ public enum Styles
 	signInButton("u-signInButton"),
 	signUpButton("u-signUpButton"),
 	externalSignInButton("u-externalSignInButton"),
+	externalGridSignInButton("u-externalGridSignInButton"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

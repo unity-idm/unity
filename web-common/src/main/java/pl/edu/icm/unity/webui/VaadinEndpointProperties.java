@@ -104,7 +104,11 @@ public class VaadinEndpointProperties extends PropertiesHelper
 
 	public static final String AUTHN_OPTION_LABEL_PFX = "authnScreenOptionsLabel.";
 	public static final String AUTHN_OPTION_LABEL_TEXT = "text";
-	
+
+	public static final String AUTHN_GRIDS_PFX = "authnGrid.";
+	public static final String AUTHN_GRID_CONTENTS = "gridContents";
+	public static final String AUTHN_GRID_ROWS = "gridRows";
+
 	public static final String AUTHN_COLUMNS_PFX = "authnScreenColumn.";
 	public static final String AUTHN_COLUMN_TITLE = "columnTitle";
 	public static final String AUTHN_COLUMN_SEPARATOR = "columnSeparator";
@@ -176,6 +180,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				setDescription("If set to true then all authentication options configured for the "
 						+ "edpoint will be added on the screen. If any of options is not explicitly "
 						+ "enumerated, then it will be appended to the last column."));
+		
 		META.put(AUTHN_OPTION_LABEL_PFX, new PropertyMD().setStructuredList(false)
 				.setDescription("Under this prefix it is possible to define text separators, "
 						+ "which can be referenced in column definitions. The separators "
@@ -184,6 +189,20 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "contents specification"));
 		META.put(AUTHN_OPTION_LABEL_TEXT, new PropertyMD().setStructuredListEntry(AUTHN_OPTION_LABEL_PFX).setCanHaveSubkeys()
 				.setDescription("Separator's message (can be localized)."));
+
+		META.put(AUTHN_GRIDS_PFX, new PropertyMD().setStructuredList(false)
+				.setDescription("Definitions of grid widgets for presenting mass lists of authentication "
+						+ "options are configured under this prefix."
+						+ " Can be referenced in column definitions by name."));
+		META.put(AUTHN_GRID_CONTENTS, new PropertyMD().setStructuredListEntry(AUTHN_GRIDS_PFX).setMandatory()
+				.setDescription("Contents of the grid. Similar syntax as column contents, "
+						+ "but no special entry is allowed. Note that only some authenticators "
+						+ "(basically those that offer one click login) are compatible with the grid - "
+						+ "others (like password) are skipped."));
+		META.put(AUTHN_GRID_ROWS, new PropertyMD("10").setStructuredListEntry(AUTHN_GRIDS_PFX).setMin(2)
+				.setDescription("Number of rows to be shown in the grid."));
+
+		
 		META.put(AUTHN_COLUMNS_PFX, new PropertyMD().setStructuredList(true)
 				.setDescription("Under this prefix are defined columns in which authenticators are organized."));
 		META.put(AUTHN_COLUMN_TITLE, new PropertyMD().setStructuredListEntry(AUTHN_COLUMNS_PFX).setCanHaveSubkeys()
@@ -195,10 +214,11 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				.setFloat().setMin(1.0).setStructuredListEntry(AUTHN_COLUMNS_PFX)
 				.setDescription("Width of the column, specified in +em+ unit (see CSS spec for details)"));
 		META.put(AUTHN_COLUMN_CONTENTS, new PropertyMD().setMandatory().setStructuredListEntry(AUTHN_COLUMNS_PFX)
-				.setDescription("Contents of the column. Values are space separated prefixes of "
-						+ "authentication options. All options whose (primary) authenticator "
-						+ "name starts with the prefixes will be added to the column, "
-						+ "in the order of provided. There are special values which can be also used: "
+				.setDescription("Contents of the column. Values are space separated names of authenticators or "
+						+ "authentication options (e.g. oauthWeb or oauthWeb.google). "
+						+ "All options whose (primary) authenticator "
+						+ "name matches will be added to the column, "
+						+ "in the order of provided. Additionally there are special values which can be also used: "
 						+ "+_LAST_USED+ - dynamic option which is set to the one which was recently used on the clinet machine. "
 						+ "+_REGISTER+ - button allowing to sign up (makes sense if registration forms are configured) "
 						+ "+_SEPARATOR_KEY+ - text from the message with the given key is inserted as a separator. "
@@ -206,9 +226,9 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "Separator will be only added if there is non text element before it and after it."
 						+ "+_HEADER_KEY+ - text from the message with the given key is inserted as a in-line header. "
 						+ "If +_KEY+ suffix is skipped then empty header is inserted. "
-						+ "Header will be only added if there is a non-text element after it (what is the only difference to separator)."));
-		
-		
+						+ "Header will be only added if there is a non-text element after it"
+						+ " (what is the only difference to separator). "
+						+ "+_GRID_ID+ - inserts grid widget into the column. Grid must be defined with the provided id."));
 		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));

@@ -94,6 +94,12 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	}
 
 	@Override
+	public boolean supportsGrid()
+	{
+		return true;
+	}
+	
+	@Override
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
 		super.setCredentialExchange(e, id);

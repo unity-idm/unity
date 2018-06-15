@@ -35,6 +35,7 @@ import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
+import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -86,6 +87,15 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public Component getComponent()
 	{
 		return main;
+	}
+	
+	@Override
+	public Component getGridCompatibleComponent()
+	{
+		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(idpKey, getName());
+		idpComponent.addClickListener(event -> startLogin());
+		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		return idpComponent;
 	}
 	
 	private void initUI()

@@ -107,4 +107,10 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	{
 		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse);
 	}
+
+	@Override
+	public boolean supportsGrid()
+	{
+		return true;
+	}
 }

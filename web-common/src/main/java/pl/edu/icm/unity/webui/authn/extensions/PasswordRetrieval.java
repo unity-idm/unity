@@ -142,6 +142,11 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificator.NAME)));
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return false;
+	}
 
 	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
 	{

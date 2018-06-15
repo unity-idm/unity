@@ -481,6 +481,24 @@
 		height: 100%;
 	}
 
+	.u-authnGrid .v-grid-cell {
+		padding: 0px 0px 0px 0px;
+	}
+
+	.u-authnGrid .v-grid-row > td {
+		border-left: none;
+		border-bottom: none;
+	}
+
+	.u-authnGrid .v-grid-row > td:first-child {
+		text-align: center;
+	}
+
+	.u-authnGrid td > img {
+		max-height: $v-unit-size - round($v-unit-size/18);
+		max-width: 90%;
+	}
+
 	.u-externalSignInButton {
 		background: #53A0C6;
 		text-decoration: none;
@@ -494,6 +512,14 @@
 	.u-externalSignInButton:hover {
 		background: #3486AE;
 		color: white;
+	}
+
+	.u-externalGridSignInButton {
+		@extend .u-externalSignInButton
+	}
+
+	.u-externalGridSignInButton:hover {
+		@extend .u-externalSignInButton:hover
 	}
 
 	.u-externalSignInButton .v-button-wrap img {

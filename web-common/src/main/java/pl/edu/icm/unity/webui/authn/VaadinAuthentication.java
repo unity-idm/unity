@@ -35,6 +35,13 @@ public interface VaadinAuthentication extends BindingAuthn
 	 */
 	Collection<VaadinAuthenticationUI> createUIInstance();
 	
+	/**
+	 * @return true only if {@link VaadinAuthenticationUI#getGridCompatibleComponent()} 
+	 * is allowed for this implementation.
+	 */
+	boolean supportsGrid();
+	
+	
 	public interface VaadinAuthenticationUI
 	{
 		/**
@@ -45,6 +52,15 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * is called.
 		 */
 		Component getComponent();
+
+		/**
+		 * @return simplified UI widget that is suitable for inclusion in a gird. If this implementation is
+		 * not supporting such variant should throw an exception.  
+		 */
+		default Component getGridCompatibleComponent()
+		{
+			throw new UnsupportedOperationException("This authenticator is not grid compatible");
+		}
 		
 		/**
 		 * Sets a callback object which is used to communicate the authentication result back to the 

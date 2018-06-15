@@ -60,6 +60,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 	private String authnId;
 	private String endpointPath;
 	private Supplier<Boolean> rememberMeProvider;
+	private boolean gridCompatible;
 	
 	
 	PrimaryAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
@@ -67,7 +68,8 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 			CancelHandler cancelHandler, AuthenticationRealm realm,
 			String endpointPath, 
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
-			Supplier<Boolean> rememberMeProvider)
+			Supplier<Boolean> rememberMeProvider,
+			boolean gridCompatible)
 	{
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
@@ -76,6 +78,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 		this.endpointPath = endpointPath;
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 		this.rememberMeProvider = rememberMeProvider;
+		this.gridCompatible = gridCompatible;
 
 		authenticatorContainer = new VerticalLayout();		
 		authenticatorContainer.setHeight(100, Unit.PERCENTAGE);
@@ -139,7 +142,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 	
 	private void addRetrieval(VaadinAuthenticationUI authnUI, AuthenticationUIController handler)
 	{
-		Component retrievalComponent = authnUI.getComponent();
+		Component retrievalComponent = gridCompatible ? authnUI.getGridCompatibleComponent() : authnUI.getComponent();
 		authenticatorContainer.addComponent(retrievalComponent);
 		authnUI.setAuthenticationCallback(handler);
 		currentAuthnResultCallback = handler;

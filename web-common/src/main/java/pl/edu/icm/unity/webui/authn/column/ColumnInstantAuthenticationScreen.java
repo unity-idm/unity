@@ -186,7 +186,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		//TODO search support
 		
 		authNColumns = new AuthnOptionsColumns(config, msg, 
-				authnOptionsHandler, enableRegistration, this::buildBaseAuthenticationOptionWidget, 
+				authnOptionsHandler, enableRegistration, new AuthnPanelFactoryImpl(), 
 				registrationDialogLauncher);
 		authenticationMainLayout.addComponent(authNColumns);
 		authenticationMainLayout.setComponentAlignment(authNColumns, Alignment.TOP_CENTER);
@@ -265,14 +265,15 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	}
 	
 	private PrimaryAuthNPanel buildBaseAuthenticationOptionWidget(AuthenticationOption authNOption, 
-			VaadinAuthenticationUI vaadinAuthenticationUI)
+			VaadinAuthenticationUI vaadinAuthenticationUI, boolean gridCompatible)
 	{
 		PrimaryAuthNPanel authNPanel = new PrimaryAuthNPanel(msg, authnProcessor, 
 				execService, cancelHandler, 
 				endpointDescription.getRealm(),
 				endpointDescription.getEndpoint().getContextAddress(), 
 				unknownUserDialogProvider,
-				this::isSetRememberMe);
+				this::isSetRememberMe,
+				gridCompatible);
 		authNPanel.setAuthenticationListener(new PrimaryAuthenticationListenerImpl(authNPanel));
 		String optionId = AuthenticationOptionKeyUtils.encode(authNOption.getId(), vaadinAuthenticationUI.getId()); 
 		authNPanel.setAuthenticator(vaadinAuthenticationUI, authNOption, optionId);
@@ -359,6 +360,22 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		authNColumns.focusFirst();
 		secondFactorHolder.removeAllComponents();
 		secondFactorHolder.setVisible(false);
+	}
+	
+	private class AuthnPanelFactoryImpl implements AuthNPanelFactory
+	{
+		@Override
+		public PrimaryAuthNPanel createRegularAuthnPanel(AuthenticationOption option, VaadinAuthenticationUI ui)
+		{
+			return buildBaseAuthenticationOptionWidget(option, ui, false);
+		}
+
+		@Override
+		public PrimaryAuthNPanel createGridCompatibleAuthnPanel(AuthenticationOption option,
+				VaadinAuthenticationUI ui)
+		{
+			return buildBaseAuthenticationOptionWidget(option, ui, true);
+		}
 	}
 	
 	private class PrimaryAuthenticationListenerImpl implements PrimaryAuthNPanel.AuthenticationListener

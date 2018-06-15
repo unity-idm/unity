@@ -118,6 +118,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI());
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return false; //TODO this component can support grid
+	}
 	
 	public static X509Certificate[] getTLSCertificate()
 	{

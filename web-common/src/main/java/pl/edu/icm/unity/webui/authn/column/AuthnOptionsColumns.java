@@ -10,6 +10,9 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_CONTE
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_SEPARATOR;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_TITLE;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_GRIDS_PFX;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_GRID_CONTENTS;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_GRID_ROWS;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_OPTION_LABEL_PFX;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_OPTION_LABEL_TEXT;
 import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_SHOW_LAST_OPTION_ONLY;
@@ -20,9 +23,9 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -53,20 +56,21 @@ public class AuthnOptionsColumns extends CustomComponent
 	private static final String SPECIAL_ENTRY_REGISTER = "_REGISTER";
 	private static final String SPECIAL_ENTRY_SEPARATOR = "_SEPARATOR";
 	private static final String SPECIAL_ENTRY_HEADER = "_HEADER";
+	private static final String SPECIAL_ENTRY_GRID = "_GRID_";
 	private static final String SPECIAL_ENTRY_EXPAND = "_EXPAND"; //note that this one is not documented, for internal use
 	
 	private final VaadinEndpointProperties config;
 	private final UnityMessageSource msg;
 	private final AuthenticationOptionsHandler authnOptionsHandler;
 	private final boolean enableRegistration;
-	private final BiFunction<AuthenticationOption, VaadinAuthenticationUI, PrimaryAuthNPanel> authNPanelFactory;
+	private final AuthNPanelFactory authNPanelFactory;
 	private final Runnable registrationDialogLauncher;
 	
 	private List<AuthnOptionsColumn> columns;
 	
 	AuthnOptionsColumns(VaadinEndpointProperties config, UnityMessageSource msg,
 			AuthenticationOptionsHandler authnOptionsHandler, boolean enableRegistration,
-			BiFunction<AuthenticationOption, VaadinAuthenticationUI, PrimaryAuthNPanel> authNPanelFactory,
+			AuthNPanelFactory authNPanelFactory,
 			Runnable registrationDialogLauncher)
 	{
 		this.config = config;
@@ -255,7 +259,7 @@ public class AuthnOptionsColumns extends CustomComponent
 					VaadinAuthenticationUI vaadinAuthenticationUI = authnOptionsHandler.getFirstMatchingRetrieval(preferredIdp);
 					if (vaadinAuthenticationUI != null)
 					{
-						PrimaryAuthNPanel authNPanel = authNPanelFactory.apply(authNOption, 
+						PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authNOption, 
 								vaadinAuthenticationUI);
 						ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 						lastAdded.push(specEntry);
@@ -268,20 +272,27 @@ public class AuthnOptionsColumns extends CustomComponent
 					ret.add(getExpandAllOptionsButton());
 					lastAdded.push(specEntry);
 				}
+			} else if (specEntry.startsWith(SPECIAL_ENTRY_GRID))
+			{
+				ComponentWithId grid = getGrid(specEntry);
+				if (grid != null)
+				{
+					ret.add(grid);
+					lastAdded.push(specEntry);
+				}
 			} else
 			{
 				AuthenticationOption authNOption = authnOptionsHandler.getMatchingOption(specEntry);
 				List<VaadinAuthenticationUI> matchingRetrievals = authnOptionsHandler.getMatchingRetrievals(specEntry);
 				for (VaadinAuthenticationUI vaadinAuthenticationUI : matchingRetrievals)
 				{
-					PrimaryAuthNPanel authNPanel = authNPanelFactory.apply(authNOption, 
+					PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authNOption, 
 							vaadinAuthenticationUI);
 					ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 					lastAdded.push(specEntry);
 				}
 			}
 		}
-		
 		if (addRemaining)
 		{
 			Map<AuthenticationOption, List<VaadinAuthenticationUI>> remainingRetrievals = authnOptionsHandler.getRemainingRetrievals();
@@ -289,7 +300,7 @@ public class AuthnOptionsColumns extends CustomComponent
 			{
 				for (VaadinAuthenticationUI ui: option.getValue())
 				{
-					PrimaryAuthNPanel authNPanel = authNPanelFactory.apply(option.getKey(), ui);
+					PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(option.getKey(), ui);
 					ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 					lastAdded.push(AuthenticationOptionKeyUtils.encode(option.getKey().getId(), ui.getId()));
 				}
@@ -345,6 +356,34 @@ public class AuthnOptionsColumns extends CustomComponent
 		String value = config.getLocalizedValue(AUTHN_OPTION_LABEL_PFX + key + "." 
 				+ AUTHN_OPTION_LABEL_TEXT, msg.getLocale());
 		return value == null ? "" : value;
+	}
+
+	private ComponentWithId getGrid(String specEntry)
+	{
+		String key = specEntry.substring(SPECIAL_ENTRY_GRID.length());
+		if (key.length() == 0)
+			return null;
+		String contents = config.getValue(AUTHN_GRIDS_PFX + key + "." + AUTHN_GRID_CONTENTS);
+		if (contents == null)
+			return null;
+		int height = config.getIntValue(AUTHN_GRIDS_PFX + key + "." + AUTHN_GRID_ROWS);
+		
+		Map<AuthenticationOption, List<VaadinAuthenticationUI>> options = getGridContents(contents);
+		AuthnsGridWidget grid = new AuthnsGridWidget(options, msg, authNPanelFactory, height);
+		return new ComponentWithId(specEntry, grid);
+	}
+	
+	private Map<AuthenticationOption, List<VaadinAuthenticationUI>> getGridContents(String contents)
+	{
+		Map<AuthenticationOption, List<VaadinAuthenticationUI>> options = new LinkedHashMap<>();
+		String[] specSplit = contents.split("[ ]+");
+		for (String specEntry: specSplit)
+		{
+			AuthenticationOption authNOption = authnOptionsHandler.getMatchingOption(specEntry);
+			List<VaadinAuthenticationUI> matchingRetrievals = authnOptionsHandler.getMatchingRetrievals(specEntry);
+			options.put(authNOption, matchingRetrievals);
+		}
+		return options;
 	}
 
 	private Component getColumnsSeparator(String columnKey)

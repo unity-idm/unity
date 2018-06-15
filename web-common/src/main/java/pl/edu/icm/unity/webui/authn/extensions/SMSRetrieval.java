@@ -135,6 +135,11 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME)));
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return false;
+	}
 	
 	private class SMSRetrievalComponent extends CustomComponent implements Focusable
 	{

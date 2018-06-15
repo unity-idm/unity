@@ -19,6 +19,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
+import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -82,6 +84,18 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public Component getComponent()
 	{
 		return main;
+	}
+	
+	@Override
+	public Component getGridCompatibleComponent()
+	{
+		OAuthClientProperties clientProperties = credentialExchange.getSettings();
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
+		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
+		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(idpKey, name);
+		idpComponent.addClickListener(event -> startLogin());
+		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		return idpComponent;
 	}
 	
 	private void initUI()
