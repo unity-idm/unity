@@ -24,9 +24,7 @@ import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -36,13 +34,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
 import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumn.ComponentWithId;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -294,12 +291,10 @@ public class AuthnOptionsColumns extends CustomComponent
 				String preferredIdp = PreferredAuthenticationHelper.getPreferredIdp();
 				if (preferredIdp != null)
 				{
-					AuthenticationOption authNOption = authnOptionsHandler.getMatchingOption(preferredIdp);
-					VaadinAuthenticationUI vaadinAuthenticationUI = authnOptionsHandler.getFirstMatchingRetrieval(preferredIdp);
-					if (vaadinAuthenticationUI != null)
+					AuthNOption authnOption = authnOptionsHandler.getFirstMatchingOption(preferredIdp);
+					if (authnOption != null)
 					{
-						PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authNOption, 
-								vaadinAuthenticationUI);
+						PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
 						ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 						lastAdded.push(specEntry);
 					}
@@ -321,12 +316,10 @@ public class AuthnOptionsColumns extends CustomComponent
 				}
 			} else
 			{
-				AuthenticationOption authNOption = authnOptionsHandler.getMatchingOption(specEntry);
-				List<VaadinAuthenticationUI> matchingRetrievals = authnOptionsHandler.getMatchingRetrievals(specEntry);
-				for (VaadinAuthenticationUI vaadinAuthenticationUI : matchingRetrievals)
+				List<AuthNOption> matchingOptions = authnOptionsHandler.getMatchingAuthnOptions(specEntry);
+				for (AuthNOption authnOption : matchingOptions)
 				{
-					PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authNOption, 
-							vaadinAuthenticationUI);
+					PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
 					ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 					lastAdded.push(specEntry);
 				}
@@ -334,15 +327,13 @@ public class AuthnOptionsColumns extends CustomComponent
 		}
 		if (addRemaining)
 		{
-			Map<AuthenticationOption, List<VaadinAuthenticationUI>> remainingRetrievals = authnOptionsHandler.getRemainingRetrievals();
-			for (Map.Entry<AuthenticationOption, List<VaadinAuthenticationUI>> option: remainingRetrievals.entrySet())
+			List<AuthNOption> remainingRetrievals = authnOptionsHandler.getRemainingAuthnOptions();
+			for (AuthNOption entry: remainingRetrievals)
 			{
-				for (VaadinAuthenticationUI ui: option.getValue())
-				{
-					PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(option.getKey(), ui);
-					ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
-					lastAdded.push(AuthenticationOptionKeyUtils.encode(option.getKey().getId(), ui.getId()));
-				}
+				PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(entry);
+				ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
+				lastAdded.push(AuthenticationOptionKeyUtils.encode(entry.authenticator.getAuthenticatorId(), 
+						entry.authenticatorUI.getId()));
 			}
 		}
 		
@@ -407,21 +398,17 @@ public class AuthnOptionsColumns extends CustomComponent
 			return null;
 		int height = config.getIntValue(AUTHN_GRIDS_PFX + key + "." + AUTHN_GRID_ROWS);
 		
-		Map<AuthenticationOption, List<VaadinAuthenticationUI>> options = getGridContents(contents);
+		List<AuthNOption> options = getGridContents(contents);
 		AuthnsGridWidget grid = new AuthnsGridWidget(options, msg, authNPanelFactory, height);
 		return new ComponentWithId(specEntry, grid);
 	}
 	
-	private Map<AuthenticationOption, List<VaadinAuthenticationUI>> getGridContents(String contents)
+	private List<AuthNOption> getGridContents(String contents)
 	{
-		Map<AuthenticationOption, List<VaadinAuthenticationUI>> options = new LinkedHashMap<>();
+		List<AuthNOption> options = new ArrayList<>();
 		String[] specSplit = contents.split("[ ]+");
 		for (String specEntry: specSplit)
-		{
-			AuthenticationOption authNOption = authnOptionsHandler.getMatchingOption(specEntry);
-			List<VaadinAuthenticationUI> matchingRetrievals = authnOptionsHandler.getMatchingRetrievals(specEntry);
-			options.put(authNOption, matchingRetrievals);
-		}
+			options.addAll(authnOptionsHandler.getMatchingAuthnOptions(specEntry));
 		return options;
 	}
 

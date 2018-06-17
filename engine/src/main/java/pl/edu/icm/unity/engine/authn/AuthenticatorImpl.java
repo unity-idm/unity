@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.authn;
 
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
@@ -16,15 +17,6 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
- * Internal representation of an authenticator, which is a composition of {@link CredentialRetrieval} and
- * {@link CredentialVerificator}, configured.
- * <p>
- * Authenticator can be local or remote, depending on the associated verificator type (local or remote).
- * <p>
- * Local authenticator is special as it has an associated local credential. Its verificator uses the associated 
- * credential's configuration internally, but it is not advertised to the outside world, via the
- * {@link AuthenticatorInstance} interface.
- * <p>
  * Instantiation can be done in two scenarios, each in two variants:
  * <ul>
  * <li>either a constructor is called with a state loaded previously from persisted storage and provided in    
@@ -33,9 +25,10 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
  * <li> Otherwise a full constructor is called to initialize the object completely. In case of a local authenticator
  * a local credential name and its configuration must be provided.
  * </ul>
- * @author K. Benedyczak
+ * @author P.Piernik
+ *
  */
-public class AuthenticatorImpl
+public class AuthenticatorImpl implements Authenticator
 {
 	private CredentialRetrieval retrieval;
 	private CredentialVerificator verificator;
@@ -52,9 +45,9 @@ public class AuthenticatorImpl
 	 */
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, 
 			String name, String typeId, String rConfiguration, String localCredentialName, 
-			String localCredentialconfiguration) throws WrongArgumentException
+			String localCredentialconfiguration, int revision) throws WrongArgumentException
 	{
-		this(identitiesResolver, reg, name);
+		this(identitiesResolver, reg, name, revision);
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
 			throw new WrongArgumentException("The authenticator type " + typeId + " is not known");
@@ -69,10 +62,10 @@ public class AuthenticatorImpl
 	 * @throws WrongArgumentException 
 	 */
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, 
-			String name, String typeId, String rConfiguration, String vConfiguration)
+			String name, String typeId, String rConfiguration, String vConfiguration, long revision)
 					throws WrongArgumentException
 	{
-		this(identitiesResolver, reg, name);
+		this(identitiesResolver, reg, name, revision);
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
 			throw new WrongArgumentException("The authenticator type '" + typeId + "' is invalid. "
@@ -90,7 +83,7 @@ public class AuthenticatorImpl
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name,
 			AuthenticatorInstance deserialized)
 	{
-		this(identitiesResolver, reg, name);
+		this(identitiesResolver, reg, name, deserialized.getRevision());
 		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalConfiguration(),
 				deserialized.getVerificatorConfiguration(), null);
 	}
@@ -106,17 +99,19 @@ public class AuthenticatorImpl
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name,
 			AuthenticatorInstance deserialized, String localCredentialConfiguration)
 	{
-		this(identitiesResolver, reg, name);
+		this(identitiesResolver, reg, name, deserialized.getRevision());
 		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalConfiguration(),
 				localCredentialConfiguration, deserialized.getLocalCredentialName());
 	}
 	
-	private AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name)
+	private AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name, long revision)
 	{
 		this.authRegistry = reg;
 		this.instanceDescription = new AuthenticatorInstance();
+		instanceDescription.setRevision(revision);
 		this.instanceDescription.setId(name);
 		this.identitiesResolver = identitiesResolver;
+		
 	}	
 	
 	private void createCoworkers(AuthenticatorTypeDescription authDesc, String rConfiguration, 
@@ -158,6 +153,16 @@ public class AuthenticatorImpl
 			((LocalCredentialVerificator)verificator).setCredentialName(localCredential);
 			instanceDescription.setLocalCredentialName(localCredential);
 		}
+	}
+	
+	public void setRevision(long revision)
+	{
+		instanceDescription.setRevision(revision);
+	}
+	
+	public long getRevision()
+	{
+		return instanceDescription.getRevision();
 	}
 	
 	

@@ -32,7 +32,7 @@ import com.vaadin.server.VaadinServlet;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -136,7 +136,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
-		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticators, 
+		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
@@ -151,7 +151,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		UnityBootstrapHandler handler4Authn = getBootstrapHandler4Authn(uiServletPath);
 		authenticationServlet = new AuthenticationVaadinServlet(applicationContext, 
-				description, authenticators, 
+				description, authenticationFlows, 
 				registrationConfiguration, properties, handler4Authn);
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
@@ -159,7 +159,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		UnityBootstrapHandler handler4Main = getBootstrapHandler(uiServletPath);
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration, properties,
+				description, authenticationFlows, registrationConfiguration, properties,
 				handler4Main);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		context.addServlet(new ServletHolder(new ForwadSerlvet()), "/");
@@ -288,7 +288,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	{
 		UnityBootstrapHandler bootstrapHanlder = getBootstrapHandler(path);
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
-				uiBeanName, description, authenticators, null, properties, bootstrapHanlder);
+				uiBeanName, description, authenticationFlows, null, properties, bootstrapHanlder);
 		sandboxServlet.setSandboxRouter(sandboxRouter);
 		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);
 		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");
@@ -302,13 +302,13 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	}
 	
 	@Override
-	public final synchronized void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
+	public final synchronized void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 	{
 		setAuthenticators(authenticators);
 		if (authenticationServlet != null)
 		{
-			authenticationServlet.updateAuthenticators(authenticators);
-			theServlet.updateAuthenticators(authenticators);
+			authenticationServlet.updateAuthenticationFlows(authenticators);
+			theServlet.updateAuthenticationFlows(authenticators);
 			proxyAuthnFilter.updateAuthenticators(authenticators);
 		}
 	}

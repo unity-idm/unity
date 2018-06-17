@@ -55,7 +55,7 @@ class OAuthProxyAuthnHandler
 		}
 		
 		String authnOption = OAuthClientProperties.PROVIDERS + 
-				AuthenticationOptionKeyUtils.decodeAuthenticatorOption(requestedIdP) + ".";
+				AuthenticationOptionKeyUtils.decodeOption(requestedIdP) + ".";
 		if (!keys.contains(authnOption))
 			throw new IllegalStateException("Client requested authN option " + authnOption 
 					+", which is not available in "

@@ -16,9 +16,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
@@ -33,7 +31,7 @@ public class AuthNTiles extends CustomComponent
 	private UnityMessageSource msg;
 	private List<AuthNTile> tiles;
 	private SelectedAuthNPanel selectedAuthNPanel;
-
+	
 	public AuthNTiles(UnityMessageSource msg, List<AuthNTile> tiles, 
 			SelectedAuthNPanel selectedAuthNPanel)
 	{
@@ -111,27 +109,4 @@ public class AuthNTiles extends CustomComponent
 	{
 		return tiles;
 	}
-	
-	public AuthenticationOption getAuthenticationOptionById(String lastIdp)
-	{
-		for (AuthNTile tile: tiles)
-		{
-			AuthenticationOption ret = tile.getAuthenticationOptionById(lastIdp);
-			if (ret != null)
-				return ret;
-		}
-		return null;
-	}
-
-	public VaadinAuthenticationUI getAuthenticatorById(String lastIdp)
-	{
-		for (AuthNTile tile: tiles)
-		{
-			VaadinAuthenticationUI ret = tile.getAuthenticatorById(lastIdp);
-			if (ret != null)
-				return ret;
-		}
-		return null;
-	}
-	
 }

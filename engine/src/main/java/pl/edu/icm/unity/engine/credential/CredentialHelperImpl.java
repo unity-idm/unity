@@ -19,6 +19,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Default implementation of the credential helper. Immutable.
@@ -67,5 +68,15 @@ public class CredentialHelperImpl implements CredentialHelper
 		Attribute newCredentialA = StringAttribute.of(credentialAttributeName, 
 				"/", Collections.singletonList(value));
 		attributeHelper.addSystemAttribute(entityId, newCredentialA, true);
+	}
+	
+	@Override
+	@Transactional
+	public boolean isCredentialSet(EntityParam entity, String credentialId)
+			throws EngineException
+	{	
+		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
+		List<AttributeExt> entityAttributes = attributeDAO.getEntityAttributes(entity.getEntityId(), credentialAttributeName, "/");
+		return !entityAttributes.isEmpty();
 	}
 }

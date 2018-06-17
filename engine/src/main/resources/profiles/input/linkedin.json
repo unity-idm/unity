@@ -83,7 +83,7 @@
 				"parameters": [
 					"locality",
 					"/",
-					"attr['location.name']",
+					"attrObj.?location.?name",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -97,7 +97,7 @@
 				"parameters": [
 					"countryCode",
 					"/",
-					"attr['location.country.code']",
+					"attrObj.?location.?country.?code",
 					"CREATE_OR_UPDATE"
 				]
 			}

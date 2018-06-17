@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -124,6 +125,12 @@ public class AttributesManagementImpl implements AttributesManagement
 	private boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute attribute) 
 			throws AuthorizationException
 	{
+		if (RoleAttributeTypeProvider.AUTHORIZATION_ROLE.equals(attribute.getName()))
+		{
+			authz.checkAuthZAttributeChangeAuthorization(authz.isSelf(entityId), attribute);
+			return true;
+		}
+		
 		Set<AuthzCapability> nonSelfCapabilities = authz.getCapabilities(false, 
 				attribute.getGroupPath());
 		boolean fullAuthz = nonSelfCapabilities.contains(AuthzCapability.attributeModify);
@@ -134,6 +141,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		return fullAuthz;
 	}
 	
+
 	
 	@Override
 	@Transactional

@@ -23,7 +23,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -292,16 +291,16 @@ public class EndpointComponent extends DeployableComponentViewBase
 		addFieldToContent(msg.getMessage("Endpoints.contextAddress"),
 				endpoint.getEndpoint().getContextAddress());
 
-		addFieldToContent(msg.getMessage("Endpoints.authenticatorsSet"), "");
+		addFieldToContent(msg.getMessage("Endpoints.authenticationOptions"), "");
 		FormLayout au = new CompactFormLayout();
 		au.setSpacing(false);
 		au.setMargin(false);
 		i = 0;
-		for (AuthenticationOptionDescription s : endpoint.getEndpoint().
+		for (String s : endpoint.getEndpoint().
 				getConfiguration().getAuthenticationOptions())
 		{
 			i++;
-			addField(au, String.valueOf(i), s.toString());
+			addField(au, String.valueOf(i), s);
 		}
 		content.addComponent(au);
 	}
@@ -329,7 +328,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		
 		String description = config.getValue(endpointKey
 				+ UnityServerConfiguration.ENDPOINT_DESCRIPTION);
-		List<AuthenticationOptionDescription> authn = config.getEndpointAuth(endpointKey);
+		List<String> authn = config.getEndpointAuth(endpointKey);
 		ret.type = config.getValue(endpointKey
 						+ UnityServerConfiguration.ENDPOINT_TYPE);
 		ret.address = config.getValue(endpointKey

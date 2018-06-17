@@ -27,7 +27,7 @@
 				"parameters": [
 					"name",
 					"/",
-					"attr['name.display_name']",
+					"attrObj.?name.?display_name",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -55,7 +55,7 @@
 				"parameters": [
 					"firstname",
 					"/",
-					"attr['name.given_name']",
+					"attrObj.?name.?given_name",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -69,7 +69,7 @@
 				"parameters": [
 					"surname",
 					"/",
-					"attr['name.surname']",
+					"attrObj.?name.?surname",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -111,7 +111,7 @@
 				"parameters": [
 					"quota",
 					"/",
-					"attr['quota_info.quota']",
+					"attrObj.?quota_info.?quota",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -125,7 +125,7 @@
 				"parameters": [
 					"teamname",
 					"/",
-					"attr['team.name']",
+					"attrObj.?team.?name",
 					"CREATE_OR_UPDATE"
 				]
 			}

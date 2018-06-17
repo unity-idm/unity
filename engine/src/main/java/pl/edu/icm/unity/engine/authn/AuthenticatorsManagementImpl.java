@@ -9,12 +9,12 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
  * Implementation of {@link AuthenticatorsManagement}
@@ -38,10 +38,10 @@ public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagem
 
 	@Override
 	@Transactional
-	public List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
+	public List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows)
 			throws EngineException
 	{
-		return authnLoader.getAuthenticators(authnList);
+		return authnLoader.getAuthenticationFlows(authnFlows);
 	}
 	
 	@Override

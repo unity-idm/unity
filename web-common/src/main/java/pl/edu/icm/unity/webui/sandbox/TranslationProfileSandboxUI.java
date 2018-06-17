@@ -13,12 +13,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
+import com.google.common.collect.Sets;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
@@ -26,7 +27,8 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.OutdatedCredentialDialog;
@@ -80,10 +82,10 @@ public class TranslationProfileSandboxUI //extends SandboxUIBase
 	}
 
 	@Override
-	protected List<AuthenticationOptionDescription> getAllVaadinAuthenticators(
-			List<AuthenticationOption> endpointAuthenticators) 
+	protected List<AuthenticationFlowDefinition> getAllVaadinAuthenticationFlows(
+			List<AuthenticationFlow> endpointAuthenticators) 
 	{
-		ArrayList<AuthenticationOptionDescription> vaadinAuthenticators = new ArrayList<>();
+		ArrayList<AuthenticationFlowDefinition> vaadinAuthenticators = new ArrayList<>();
 		
 		try 
 		{
@@ -95,9 +97,11 @@ public class TranslationProfileSandboxUI //extends SandboxUIBase
 						instance.getTypeDescription().getVerificationMethod());
 				if (!(factory instanceof LocalCredentialVerificatorFactory)) 
 				{
-					AuthenticationOptionDescription authnSet = new AuthenticationOptionDescription(
-							instance.getId(), null);
-					vaadinAuthenticators.add(authnSet);
+					AuthenticationFlowDefinition authnFlow = new AuthenticationFlowDefinition(
+							
+							instance.getId(), Policy.NEVER, Sets.newHashSet(instance.getId()));
+
+					vaadinAuthenticators.add(authnFlow);
 				}
 			}
 		} catch (EngineException e) 

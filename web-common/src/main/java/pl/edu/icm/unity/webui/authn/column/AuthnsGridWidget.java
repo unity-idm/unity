@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.vaadin.data.provider.DataProvider;
@@ -22,10 +21,11 @@ import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.renderers.ImageRenderer;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -34,9 +34,9 @@ import pl.edu.icm.unity.webui.common.Images;
 class AuthnsGridWidget extends CustomComponent
 {
 	private final AuthNPanelFactory authNPanelFactory;
-	private final Map<AuthenticationOption, List<VaadinAuthenticationUI>> options;
+	private final List<AuthNOption> options;
 
-	private Map<String, AuthenticationOption> authNOptionsById;
+	private Map<String, AuthenticationFlow> authNOptionsById;
 	private Map<String, VaadinAuthenticationUI> authenticatorById;
 	private Grid<AuthenticationOptionGridEntry> providersChoice;
 	private String firstOptionId;
@@ -45,7 +45,7 @@ class AuthnsGridWidget extends CustomComponent
 	private ListDataProvider<AuthenticationOptionGridEntry> dataProvider;
 	private final int height;
 	
-	AuthnsGridWidget(Map<AuthenticationOption, List<VaadinAuthenticationUI>> options, UnityMessageSource msg,
+	AuthnsGridWidget(List<AuthNOption> options, UnityMessageSource msg,
 			AuthNPanelFactory authNPanelFactory, int height)
 	{
 		this.options = options;
@@ -101,29 +101,25 @@ class AuthnsGridWidget extends CustomComponent
 		authenticatorById = new HashMap<>();
 		firstOptionId = null;
 
-		for (Entry<AuthenticationOption, List<VaadinAuthenticationUI>> optionE: options.entrySet())
+		for (AuthNOption entry: options)
 		{
-			AuthenticationOption option = optionE.getKey();
-			for (final VaadinAuthenticationUI vaadinAuthenticationUI : optionE.getValue())
-			{
-				String name = vaadinAuthenticationUI.getLabel();
-				Resource logo = vaadinAuthenticationUI.getImage();
-				String id = vaadinAuthenticationUI.getId();
-				final String globalId = AuthenticationOptionKeyUtils
-						.encode(option.getId(), id);
-				if (firstOptionId == null)
-					firstOptionId = globalId;
-				authNOptionsById.put(globalId, option);
-				authenticatorById.put(globalId, vaadinAuthenticationUI);
+			String name = entry.authenticatorUI.getLabel();
+			Resource logo = entry.authenticatorUI.getImage();
+			String id = entry.authenticatorUI.getId();
+			final String globalId = AuthenticationOptionKeyUtils.encode(
+					entry.authenticator.getAuthenticatorId(), id);
+			if (firstOptionId == null)
+				firstOptionId = globalId;
+			authNOptionsById.put(globalId, entry.flow);
+			authenticatorById.put(globalId, entry.authenticatorUI);
 
-				NameWithTags nameWithTags = new NameWithTags(name,
-						vaadinAuthenticationUI.getTags(), collator);
-				Resource logoImage = logo == null ? Images.empty.getResource() : logo;
-				PrimaryAuthNPanel authnPanel = authNPanelFactory.createGridCompatibleAuthnPanel(option, vaadinAuthenticationUI);
-				AuthenticationOptionGridEntry providerEntry = new AuthenticationOptionGridEntry(globalId, nameWithTags,
-						logoImage, authnPanel);
-				providers.add(providerEntry);
-			}
+			NameWithTags nameWithTags = new NameWithTags(name,
+					entry.authenticatorUI.getTags(), collator);
+			Resource logoImage = logo == null ? Images.empty.getResource() : logo;
+			PrimaryAuthNPanel authnPanel = authNPanelFactory.createGridCompatibleAuthnPanel(entry);
+			AuthenticationOptionGridEntry providerEntry = new AuthenticationOptionGridEntry(globalId, nameWithTags,
+					logoImage, authnPanel);
+			providers.add(providerEntry);
 		}
 		dataProvider.refreshAll();
 		setVisible(size() != 0);

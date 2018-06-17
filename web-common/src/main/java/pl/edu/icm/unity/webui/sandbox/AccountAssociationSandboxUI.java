@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.sandbox;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,12 @@ import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.OutdatedCredentialDialog;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -57,16 +58,28 @@ public class AccountAssociationSandboxUI //extends SandboxUIBase
 	}
 
 	@Override
-	protected List<AuthenticationOptionDescription> getAllVaadinAuthenticators(
-			List<AuthenticationOption> endpointAuthenticators)
+	protected List<AuthenticationFlowDefinition> getAllVaadinAuthenticationFlows(
+			List<AuthenticationFlow> endpointAuthenticationFlows)
 	{
-		ArrayList<AuthenticationOptionDescription> vaadinAuthenticators = new ArrayList<>();
-		for (AuthenticationOption ao: endpointAuthenticators)
-			vaadinAuthenticators.add(new AuthenticationOptionDescription(
-					ao.getPrimaryAuthenticator().getAuthenticatorId(), 
-					ao.getMandatory2ndAuthenticator() == null ? null :
-						ao.getMandatory2ndAuthenticator().getAuthenticatorId()));
-		return vaadinAuthenticators;
+		ArrayList<AuthenticationFlowDefinition> vaadinAuthenticationFlows = new ArrayList<>();
+		for (AuthenticationFlow flow : endpointAuthenticationFlows)
+		{
+
+			flow.getFirstFactorAuthenticators().stream()
+					.map(b -> b.getRetrieval().getAuthenticatorId())
+					.collect(Collectors.toSet());
+			AuthenticationFlowDefinition def = new AuthenticationFlowDefinition(
+					flow.getId(), flow.getPolicy(),
+					flow.getFirstFactorAuthenticators().stream()
+							.map(b -> b.getRetrieval().getAuthenticatorId())
+							.collect(Collectors.toSet()),
+					flow.getSecondFactorAuthenticators().stream()
+							.map(b -> b.getRetrieval().getAuthenticatorId())
+							.collect(Collectors.toList()));
+
+			vaadinAuthenticationFlows.add(def);
+		}
+		return vaadinAuthenticationFlows;
 	}
 	*/
 }

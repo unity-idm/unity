@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
@@ -21,16 +21,16 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 public abstract class AbstractEndpoint implements EndpointInstance
 {
 	protected ResolvedEndpoint description;
-	protected List<AuthenticationOption> authenticators;
+	protected List<AuthenticationFlow> authenticationFlows;
 	protected Properties properties;
 	
 	@Override
 	public synchronized void initialize(ResolvedEndpoint description, 
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticators,
 			String serializedConfiguration)
 	{
 		this.description = description;
-		this.authenticators = authenticators;
+		this.authenticationFlows = authenticators;
 		setSerializedConfiguration(serializedConfiguration);
 	}
 
@@ -59,18 +59,18 @@ public abstract class AbstractEndpoint implements EndpointInstance
 	@Override
 	public void destroy() throws EngineException
 	{
-		for (AuthenticationOption ao: authenticators)
+		for (AuthenticationFlow ao: authenticationFlows)
 			ao.destroy();
 	}
 	
 	@Override
-	public synchronized List<AuthenticationOption> getAuthenticationOptions()
+	public synchronized List<AuthenticationFlow> getAuthenticationFlows()
 	{
-		return authenticators;
+		return authenticationFlows;
 	}
 
-	protected synchronized void setAuthenticators(List<AuthenticationOption> authenticators)
+	protected synchronized void setAuthenticators(List<AuthenticationFlow> authenticationFlows)
 	{
-		this.authenticators = new ArrayList<>(authenticators);
+		this.authenticationFlows = new ArrayList<>(authenticationFlows);
 	}
 }

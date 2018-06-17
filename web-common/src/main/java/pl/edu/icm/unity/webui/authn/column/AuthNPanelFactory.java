@@ -4,8 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 
 /**
  * Helper interface for producing AuthNPanel components. Thanks to it we can have simple creation of authn 
@@ -15,7 +14,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  */
 public interface AuthNPanelFactory
 {
-	PrimaryAuthNPanel createRegularAuthnPanel(AuthenticationOption option, VaadinAuthenticationUI ui);
-	PrimaryAuthNPanel createGridCompatibleAuthnPanel(AuthenticationOption option, VaadinAuthenticationUI ui);
+	PrimaryAuthNPanel createRegularAuthnPanel(AuthNOption authnOption);
+	PrimaryAuthNPanel createGridCompatibleAuthnPanel(AuthNOption authnOption);
 	
 }

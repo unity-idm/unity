@@ -8,7 +8,6 @@ import java.util.Map;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
 import pl.edu.icm.unity.webui.authn.IdPComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
@@ -22,8 +21,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 public interface AuthNTile
 {
 	void setCaption(String caption);
-	
-	AuthenticationOption getAuthenticationOptionById(String id);
 	
 	VaadinAuthenticationUI getAuthenticatorById(String id);
 	
@@ -39,7 +36,6 @@ public interface AuthNTile
 	
 	public interface SelectionChangedListener
 	{
-		void selectionChanged(VaadinAuthenticationUI selectedAuthnUI, 
-				AuthenticationOption selectedOption, String optionKey);
+		void selectionChanged(String optionKey);
 	}
 }

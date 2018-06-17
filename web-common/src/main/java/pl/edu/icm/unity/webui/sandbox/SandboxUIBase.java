@@ -21,7 +21,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
@@ -55,12 +55,13 @@ public abstract class SandboxUIBase extends TileAuthenticationScreen
 	private static final String DEBUG_ID = "sbox";
 	public static final String PROFILE_VALIDATION = "validate";
 
-	private List<AuthenticationOptionDescription> authnList;
+	private List<AuthenticationFlowDefinition> authnFlowList;
 	private boolean debug;
 	private boolean validationMode;
 	protected AuthenticatorSupportManagement authenticatorsManagement;
 	private SandboxAuthnRouter sandboxRouter;
-
+	private List<AuthenticationFlow> authnFlows;
+	
 	public SandboxUIBase(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			CancelHandler cancelHandler,
@@ -69,10 +70,9 @@ public abstract class SandboxUIBase extends TileAuthenticationScreen
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
 			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
-			List<AuthenticationOption> authenticators,
-			
 			AuthenticatorSupportManagement authenticatorsManagement,
-			SandboxAuthnRouter sandboxRouter)
+			SandboxAuthnRouter sandboxRouter,
+			List<AuthenticationFlow> authenticators)
 	{
 		super(msg, config, endpointDescription, () -> false, 
 				() -> {}, cancelHandler, idsMan, 
@@ -81,14 +81,15 @@ public abstract class SandboxUIBase extends TileAuthenticationScreen
 				localeChoice, 
 				authenticators);
 		this.sandboxRouter = sandboxRouter;
-		this.authnList = getAllVaadinAuthenticators(authenticators);
-		this.authenticators = getAuthenticatorUIs(authnList);
+		this.authnFlowList = getAllVaadinAuthenticationFlows(authenticators);
+		this.authnFlows = getAuthenticationFlow(authnFlowList);
 		this.authenticatorsManagement = authenticatorsManagement;
+		loadAuthnFlows(authnFlows);
 		config = prepareConfiguration(config.getProperties());
 	}
 
-	protected abstract List<AuthenticationOptionDescription> getAllVaadinAuthenticators(
-			List<AuthenticationOption> endpointAuthenticators);
+	protected abstract List<AuthenticationFlowDefinition> getAllVaadinAuthenticationFlows(
+			List<AuthenticationFlow> endpointAuthenticators);
 	
 	/**
 	 * @return configuration of the sandbox based on the properties of the base endpoint
@@ -111,13 +112,11 @@ public abstract class SandboxUIBase extends TileAuthenticationScreen
 	@Override
 	protected void init() 
 	{
-		if (authenticators.isEmpty())
+		if (authnFlows.size() == 0)
 		{
 			noRemoteAuthnUI();
 			return;
 		}
-		
-		super.init();
 		
 		setSandboxCallbackForAuthenticators();
 		
@@ -175,7 +174,7 @@ public abstract class SandboxUIBase extends TileAuthenticationScreen
 	
 	private void setSandboxCallbackForAuthenticators() 
 	{
-		if (authenticators == null)
+		if (authnFlows == null)
 			return;
 		for (AuthNTile tile: selectorPanel.getTiles())
 		{
@@ -187,7 +186,19 @@ public abstract class SandboxUIBase extends TileAuthenticationScreen
 		}
 	}
 
-	private List<AuthenticationOption> getAuthenticatorUIs(List<AuthenticationOptionDescription> authnList) 
+	private void cancelAuthentication() 
+	{
+		for (AuthNTile tile: selectorPanel.getTiles())
+		{
+			Collection<VaadinAuthenticationUI> authnUIs = tile.getAuthenticators().values();
+			for (VaadinAuthenticationUI authUI : authnUIs)
+			{
+				authUI.clear();
+			}
+		}
+	}
+	
+	private List<AuthenticationFlow> getAuthenticationFlow(List<AuthenticationFlowDefinition> authnList) 
 	{
 		try
 		{

@@ -16,19 +16,19 @@ public class AuthenticationOptionKeyUtils
 		return authenticatorKey + "." + optionKey;
 	}
 	
+	public static String decodeOption(String globalKey)
+	{
+		int dotIndex = globalKey.indexOf(".");
+		if (dotIndex == -1 || dotIndex == globalKey.length()-1)
+			return null;
+		return globalKey.substring(globalKey.indexOf(".")+1, globalKey.length());
+	}
+	
 	public static String decodeAuthenticator(String globalKey)
 	{
 		int dotIndex = globalKey.indexOf(".");
 		if (dotIndex == -1)
 			return globalKey;
 		return globalKey.substring(0, globalKey.indexOf("."));
-	}
-
-	public static String decodeAuthenticatorOption(String globalKey)
-	{
-		int dotIndex = globalKey.indexOf(".");
-		if (dotIndex == -1 || dotIndex == globalKey.length()-1)
-			return null;
-		return globalKey.substring(globalKey.indexOf(".")+1, globalKey.length());
 	}
 }

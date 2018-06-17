@@ -86,7 +86,7 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 						+ credentialId);
 
 			ui = new SingleCredentialPanel(msg, entityId, ecredMan, credMan, entityMan,
-					credEditorReg, credDef, simpleMode, false);
+					credEditorReg, credDef, simpleMode, false, null);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);

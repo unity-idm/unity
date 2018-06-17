@@ -30,9 +30,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -45,6 +45,7 @@ import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -70,7 +71,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider;
 	private final WebAuthenticationProcessor authnProcessor;	
 	private final LocaleChoiceComponent localeChoice;
-	private final List<AuthenticationOption> authenticators;
+	private final List<AuthenticationFlow> flows;
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private PrimaryAuthNPanel authNPanelInProgress;
@@ -88,7 +89,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
 			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
-			List<AuthenticationOption> authenticators)
+			List<AuthenticationFlow> flows)
 	{
 		this.msg = msg;
 		this.config = config;
@@ -102,7 +103,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
-		this.authenticators = authenticators;
+		this.flows = flows;
 		
 		init();
 	}
@@ -117,7 +118,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	
 	protected void init()
 	{
-		this.authnOptionsHandler = new AuthenticationOptionsHandler(authenticators);
+		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows);
 		
 		VerticalLayout topLevelLayout = new VerticalLayout();
 		topLevelLayout.setMargin(new MarginInfo(false, true, false, true));
@@ -263,8 +264,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		return null;
 	}
 	
-	private PrimaryAuthNPanel buildBaseAuthenticationOptionWidget(AuthenticationOption authNOption, 
-			VaadinAuthenticationUI vaadinAuthenticationUI, boolean gridCompatible)
+	private PrimaryAuthNPanel buildBaseAuthenticationOptionWidget(AuthNOption authnOption, boolean gridCompatible)
 	{
 		PrimaryAuthNPanel authNPanel = new PrimaryAuthNPanel(msg, authnProcessor, 
 				execService, cancelHandler, 
@@ -274,8 +274,9 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				this::isSetRememberMe,
 				gridCompatible);
 		authNPanel.setAuthenticationListener(new PrimaryAuthenticationListenerImpl(authNPanel));
-		String optionId = AuthenticationOptionKeyUtils.encode(authNOption.getId(), vaadinAuthenticationUI.getId()); 
-		authNPanel.setAuthenticator(vaadinAuthenticationUI, authNOption, optionId);
+		String optionId = AuthenticationOptionKeyUtils.encode(authnOption.authenticator.getAuthenticatorId(), 
+				authnOption.authenticatorUI.getId()); 
+		authNPanel.setAuthenticator(authnOption.authenticatorUI, authnOption.flow, optionId);
 		return authNPanel;
 	}
 
@@ -364,16 +365,15 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private class AuthnPanelFactoryImpl implements AuthNPanelFactory
 	{
 		@Override
-		public PrimaryAuthNPanel createRegularAuthnPanel(AuthenticationOption option, VaadinAuthenticationUI ui)
+		public PrimaryAuthNPanel createRegularAuthnPanel(AuthNOption authnOption)
 		{
-			return buildBaseAuthenticationOptionWidget(option, ui, false);
+			return buildBaseAuthenticationOptionWidget(authnOption, false);
 		}
 
 		@Override
-		public PrimaryAuthNPanel createGridCompatibleAuthnPanel(AuthenticationOption option,
-				VaadinAuthenticationUI ui)
+		public PrimaryAuthNPanel createGridCompatibleAuthnPanel(AuthNOption authnOption)
 		{
-			return buildBaseAuthenticationOptionWidget(option, ui, true);
+			return buildBaseAuthenticationOptionWidget(authnOption, true);
 		}
 	}
 	

@@ -22,9 +22,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -63,7 +63,7 @@ class SecondFactorAuthNPanel extends CustomComponent implements AuthnPanel
 	private final Supplier<Boolean> rememberMeProvider;
 	
 	private VerticalLayout authenticatorContainer;
-	private AuthenticationOption selectedAuthnOption;
+	private AuthenticationFlow selectedFlow;
 	
 	
 	SecondFactorAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
@@ -91,7 +91,7 @@ class SecondFactorAuthNPanel extends CustomComponent implements AuthnPanel
 
 	public void setAuthenticator(VaadinAuthenticationUI secondaryUI, PartialAuthnState partialState)
 	{
-		this.selectedAuthnOption = partialState.getAuthenticationOption();
+		this.selectedFlow = partialState.getAuthenticationFlow();
 		secondaryUI.clear();
 		AuthenticationUIController authnResultCallback = createSecondaryAuthnResultCallback(secondaryUI, 
 				partialState);
@@ -214,7 +214,7 @@ class SecondFactorAuthNPanel extends CustomComponent implements AuthnPanel
 			try
 			{
 				authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
-						selectedAuthnOption, rememberMeProvider.get());
+						selectedFlow, rememberMeProvider.get());
 			} catch (AuthenticationException e)
 			{
 				log.trace("Secondary authentication failed ", e);

@@ -39,7 +39,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
  * Principal options are defined here: ids and corresponding default values.
@@ -118,6 +118,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String AUTHENTICATOR_CREDENTIAL = "localCredential";
 	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "verificatorConfigurationFile";
 	public static final String AUTHENTICATOR_RETRIEVAL_CONFIG = "retrievalConfigurationFile";
+	
+	public static final String AUTHENTICATION_FLOW = "authenticationFlow.";
+	public static final String AUTHENTICATION_FLOW_NAME = "authenticationFlowName";
+	public static final String AUTHENTICATION_FLOW_POLICY = "authenticationFlowPolicy";
+	public static final String AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS = "firstFactorAuthenticators";
+	public static final String AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS = "secondFactorAuthenticators";
 	
 	public static final String CREDENTIALS = "credentials.";
 	public static final String CREDENTIAL_NAME = "credentialName";
@@ -292,8 +298,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "e.g. in top bars of web UIs. Localized values can be given "
 						+ "with subkeys equal to locale name. If undefined then Unity "
 						+ "will use " + ENDPOINT_NAME));
-		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setMandatory().setCategory(initEndpointsCat).
-				setDescription("Endpoint authenticator names: each set is separated with ';' and particular authenticators in each set with ','."));
+		defaults.put(ENDPOINT_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
+				setDescription("Endpoint authenticator or authentication flow names separated with ';'."));	
 		defaults.put(ENDPOINT_REALM, new PropertyMD().setMandatory().setStructuredListEntry(ENDPOINTS).setCategory(initEndpointsCat).
 				setDescription("Authentication realm name, to which this endpoint belongs."));
 
@@ -310,6 +316,18 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the retrieval"));
 
+		defaults.put(AUTHENTICATION_FLOW, new PropertyMD().setStructuredList(false).setCategory(initAuthnCat).
+				setDescription("List of initially enabled authentication flows"));
+		defaults.put(AUTHENTICATION_FLOW_NAME, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).setCategory(initAuthnCat).
+				setDescription("Authentication flow name"));
+		defaults.put(AUTHENTICATION_FLOW_POLICY, new PropertyMD(AuthenticationFlowDefinition.Policy.USER_OPTIN).setStructuredListEntry(AUTHENTICATION_FLOW).
+				setCategory(initAuthnCat).setDescription("Defines multi factor policy."));
+		defaults.put(AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).setMandatory().
+				setCategory(initAuthnCat).
+				setDescription("First factor authenticators"));
+		defaults.put(AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).
+				setCategory(initAuthnCat).setDescription("Second factor authenticators"));
+	
 		defaults.put(REALMS, new PropertyMD().setStructuredList(false).setCategory(initRealmCat).
 				setDescription("List of authentication realm definitions."));
 		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).setCategory(initRealmCat).
@@ -535,23 +553,22 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		return pkiConf;
 	}
 	
-	public List<AuthenticationOptionDescription> getEndpointAuth(String endpointKey)
+	public List<String> getEndpointAuth(String endpointKey)
 	{
 		String spec = getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);
-		String[] authenticatorSets = spec.split(";");		
-		List<AuthenticationOptionDescription> endpointAuthn = new ArrayList<>();
-		for (String authenticatorSet : authenticatorSets)
+		String[] authenticationOptions = spec.split(";");		
+		List<String> endpointAuthn = new ArrayList<>();
+		for (String authenticationOption : authenticationOptions)
 		{
-			String[] authenticators = authenticatorSet.split(",");
-			if (authenticators.length > 2)
+			if (authenticationOption.contains(","))
 				throw new ConfigurationException("Invalid configuration of "
 						+ "authenticators of the endpoint with id " + endpointKey +
-						". In one authentication set maximum of 2 authenticators is allowed.");
-			String secondary = authenticators.length == 2 ? authenticators[1] : null;
-			endpointAuthn.add(new AuthenticationOptionDescription(authenticators[0], secondary));
+						". Only single authentication flow or authenticator name is allowed.");
+			endpointAuthn.add(authenticationOption);
 		}
 		return endpointAuthn;
 	}
+	
 	
 	/**
 	 * Returns either a theme configured with the key given as argument or the default theme if the

@@ -21,6 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -90,6 +91,7 @@ public class UserAccountComponent extends VerticalLayout
 	private IdentityTypeSupport idTypeSupport;
 	private EntityManagement insecureIdsMan;
 	private HomeUITabProvider tabProvider;
+	private AuthenticationFlowManagement authnFlowMan;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -103,7 +105,7 @@ public class UserAccountComponent extends VerticalLayout
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
 			IdentityTypeSupport idTypeSupport,
-			HomeUITabProvider tabProvider)
+			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -123,6 +125,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.idTypeSupport = idTypeSupport;
 		this.tabProvider = tabProvider;
+		this.authnFlowMan = authnFlowMan;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -220,7 +223,7 @@ public class UserAccountComponent extends VerticalLayout
 		try
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
-					credMan, ecredMan, idsMan, credReqMan, credEditorReg, true);
+					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, true);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key_o, credentialsPanel);

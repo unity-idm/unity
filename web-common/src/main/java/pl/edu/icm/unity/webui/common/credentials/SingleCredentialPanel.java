@@ -12,8 +12,6 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -37,6 +35,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel.Callback;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 /**
@@ -66,12 +65,14 @@ public class SingleCredentialPanel extends VerticalLayout
 	private CredentialEditor credEditor;
 	private ComponentsContainer credEditorComp;
 	private CredentialDefinition toEdit;
+	private LocalCredentialState credentialState;
+	private Callback callback;
 	
 	
 	public SingleCredentialPanel(UnityMessageSource msg, long entityId,
 			EntityCredentialManagement ecredMan, CredentialManagement credMan,
 			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
-			CredentialDefinition toEdit, boolean simpleMode, boolean showButtons)
+			CredentialDefinition toEdit, boolean simpleMode, boolean showButtons, Callback callback)
 			throws Exception
 	{
 		this.msg = msg;
@@ -83,6 +84,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		this.simpleMode = simpleMode;
 		this.showButtons = showButtons;
 		this.toEdit = toEdit;
+		this.callback = callback;
 		loadEntity(new EntityParam(entityId));
 		init();
 	}
@@ -104,35 +106,25 @@ public class SingleCredentialPanel extends VerticalLayout
 		
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
 		clear.setIcon(Images.undeploy.getResource());
-		clear.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				changeCredentialStatus(LocalCredentialState.notSet);
-			}
+		clear.addClickListener(e -> {
+			changeCredentialStatus(LocalCredentialState.notSet);
+			if (callback != null)
+				callback.refresh();
 		});
 
 		invalidate = new Button(msg.getMessage("CredentialChangeDialog.invalidate"));
 		invalidate.setIcon(Images.warn.getResource());
-		invalidate.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				changeCredentialStatus(LocalCredentialState.outdated);
-			}
+		invalidate.addClickListener(ne -> {
+			changeCredentialStatus(LocalCredentialState.outdated);
+				callback.refresh();
 		});
 
 		update = new Button(msg.getMessage("CredentialChangeDialog.update"));
 		update.setIcon(Images.save.getResource());
-		update.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				updateCredential(true);
-			}
+		update.addClickListener(e -> {
+			updateCredential(true);
+			if (callback != null)
+				callback.refresh();
 		});
 
 		HorizontalLayout buttonsBar = new HorizontalLayout();
@@ -185,14 +177,19 @@ public class SingleCredentialPanel extends VerticalLayout
 		return credEditorComp.getComponents().length == 0;
 	}
 	
-	private String getStatusIcon(LocalCredentialState state)
+	private String getStatusIcon()
 	{
-		if (state.equals(LocalCredentialState.correct))
+		if (credentialState.equals(LocalCredentialState.correct))
 			return Images.ok.getHtml();
-		else if (state.equals(LocalCredentialState.notSet))
+		else if (credentialState.equals(LocalCredentialState.notSet))
 			return Images.undeploy.getHtml();
 		else
 			return Images.warn.getHtml();
+	}
+	
+	public LocalCredentialState getCredentialState()
+	{
+		return credentialState;
 	}
 	
 	private boolean isSupportInvalidate(String credType)
@@ -229,9 +226,9 @@ public class SingleCredentialPanel extends VerticalLayout
 		Map<String, CredentialPublicInformation> s = entity.getCredentialInfo()
 				.getCredentialsState();
 		CredentialPublicInformation credPublicInfo = s.get(toEdit.getName());
-
+		credentialState = credPublicInfo.getState();	
 		credentialStatus.removeAllComponents();
-		Label status = new Label(getStatusIcon(credPublicInfo.getState()) + " "
+		Label status = new Label(getStatusIcon() + " "
 				+ msg.getMessage("CredentialStatus."
 						+ credPublicInfo.getState().toString()));
 		status.setContentMode(ContentMode.HTML);

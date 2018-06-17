@@ -19,9 +19,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -56,7 +56,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider; 
 	
 	private VerticalLayout authenticatorContainer;
-	private AuthenticationOption selectedAuthnOption;
+	private AuthenticationFlow selectedAuthnFlow;
 	private String authnId;
 	private String endpointPath;
 	private Supplier<Boolean> rememberMeProvider;
@@ -89,10 +89,9 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 		setCompositionRoot(authenticatorContainer);
 	}
 
-	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationOption authnOption, 
-			String id)
+	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationFlow authnFlow, String id)
 	{
-		this.selectedAuthnOption = authnOption;
+		this.selectedAuthnFlow = authnFlow;
 		this.authnId = id;
 		primaryAuthnUI.clear();
 		AuthenticationUIController primaryAuthnResultCallback = createPrimaryAuthnResultCallback(primaryAuthnUI);
@@ -185,7 +184,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 	}
 	
 	/**
-	 * Collects authN result from the first authenticator of the selected {@link AuthenticationOption} 
+	 * Collects authN result from the first authenticator of the selected flow
 	 * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 
 	 * and if needed proceeds to 2nd authenticator. 
 	 * 
@@ -223,7 +222,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 			{
 				PartialAuthnState partialState = authnProcessor.processPrimaryAuthnResult(
 						result, clientIp, realm, 
-						selectedAuthnOption, rememberMeProvider.get());
+						selectedAuthnFlow, rememberMeProvider.get());
 				if (partialState == null)
 				{
 					setNotAuthenticating();

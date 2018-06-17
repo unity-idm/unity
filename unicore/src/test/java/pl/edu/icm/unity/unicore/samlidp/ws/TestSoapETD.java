@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -19,6 +18,9 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
@@ -30,13 +32,15 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -67,6 +71,9 @@ public class TestSoapETD extends DBIntegrationTestBase
 	@Autowired
 	private AuthenticatorManagement authnMan;
 	
+	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
+	
 	@Before
 	public void setup()
 	{
@@ -77,10 +84,13 @@ public class TestSoapETD extends DBIntegrationTestBase
 			AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
 					10, 100, -1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-			authnCfg.add(new AuthenticationOptionDescription("Acert"));
+			
+			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+					"flow1", Policy.NEVER,
+					Sets.newHashSet("Acert")));
+	
 			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
-					authnCfg, SAML_ENDP_CFG, realm.getName());
+					 Lists.newArrayList("flow1"), SAML_ENDP_CFG, realm.getName());
 			endpointMan.deploy(SamlUnicoreSoapEndpoint.NAME, "endpoint1", "/saml", cfg);
 			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());

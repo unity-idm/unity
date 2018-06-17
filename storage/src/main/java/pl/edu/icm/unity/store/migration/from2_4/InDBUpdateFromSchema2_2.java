@@ -72,7 +72,7 @@ public class InDBUpdateFromSchema2_2
 		for (GenericObjectBean form : forms)
 		{
 			ObjectNode objContent = JsonUtil.parse(form.getContents());
-			if (UpdateHelper.dropChannelFromGenericForm(objContent, objType).isPresent())
+			if (UpdateHelperFrom2_0.dropChannelFromGenericForm(objContent, objType).isPresent())
 			{
 				form.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(form.getId(), form);
@@ -90,7 +90,7 @@ public class InDBUpdateFromSchema2_2
 			
 			ObjectNode objContent = JsonUtil.parse(channel.getContents());
 
-			if (UpdateHelper.updateNotificationChannel(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateNotificationChannel(objContent).isPresent())
 			{	
 				channel.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(channel.getId(), channel);
@@ -197,7 +197,7 @@ public class InDBUpdateFromSchema2_2
 		{
 			ObjectNode objContent = JsonUtil.parse(msg.getContents());
 
-			if (UpdateHelper.updateMessageTemplates(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateMessageTemplates(objContent).isPresent())
 			{
 				msg.setContents(JsonUtil.serialize2Bytes(objContent));
 				log.info("Updating message template {}", msg.getName());
@@ -217,7 +217,7 @@ public class InDBUpdateFromSchema2_2
 		{
 			ObjectNode objContent = JsonUtil.parse(cred.getContents());
 
-			if (UpdateHelper.updateCredentialsDefinition(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateCredentialsDefinition(objContent).isPresent())
 			{
 				cred.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(cred.getId(), cred);
@@ -234,7 +234,7 @@ public class InDBUpdateFromSchema2_2
 		for (GenericObjectBean inv : invs)
 		{
 			ObjectNode objContent = JsonUtil.parse(inv.getContents());
-			if (UpdateHelper.updateInvitationWithCode(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateInvitationWithCode(objContent).isPresent())
 			{
 				inv.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(inv.getId(), inv);

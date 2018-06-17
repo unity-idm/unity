@@ -24,9 +24,10 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 	public void testLoginWithDynamicAttributeOnConsentScreen()
 	{
 		driver.get(baseUrl + "/admin/admin");
-		waitForPageLoad(By.className("idpentry_oauthWeb.local"));	
-		driver.findElement(By.className("idpentry_oauthWeb.local")).click();
+		waitForPageLoad(By.className("idpentry_oauthWeb.oauthWeb.local"));	
+		driver.findElement(By.className("idpentry_oauthWeb.oauthWeb.local")).click();
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
+			
 		waitForElement(By.id("AuthenticationUI.username")).clear();
 		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
 		waitForElement(By.id("WebPasswordRetrieval.password")).clear();

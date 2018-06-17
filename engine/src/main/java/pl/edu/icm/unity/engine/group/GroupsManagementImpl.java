@@ -100,6 +100,8 @@ public class GroupsManagementImpl implements GroupsManagement
 		authz.checkAuthorization(toAdd.getParentPath(), AuthzCapability.groupModify);
 		groupHelper.validateGroupStatements(toAdd);
 		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB);
+		if (!dbGroups.exists(toAdd.getParentPath()))
+			throw new IllegalArgumentException("Parent group " + toAdd.getParentPath() + " does not exist");
 		dbGroups.create(toAdd);
 	}
 

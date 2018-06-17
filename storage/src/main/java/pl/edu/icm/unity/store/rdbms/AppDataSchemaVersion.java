@@ -14,10 +14,10 @@ public class AppDataSchemaVersion
 	/**
 	 * The current version implemented by this version software
 	 */
-	public static final String DB_VERSION = "2_3_0"; //DB version 2_3_0 corresponds to the 2.5.0 Unity release
+	public static final String DB_VERSION = "2_4_0"; //DB version 2_4_0 corresponds to the 2.6.0 Unity release
 	
 	/**
 	 * The oldest version of software which can be automatically updated to the current version 
 	 */
-	public static final String OLDEST_SUPPORTED_DB_VERSION = "2_2_0";	//DB version 2_2_0 corresponds to the 2.0.0 Unity release
+	public static final String OLDEST_SUPPORTED_DB_VERSION = "2_3_0";	//DB version 2_3_0 corresponds to the 2.5.0 Unity release
 }

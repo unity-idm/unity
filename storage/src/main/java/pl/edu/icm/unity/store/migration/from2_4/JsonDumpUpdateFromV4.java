@@ -70,7 +70,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				CredentialHandler.CREDENTIAL_OBJECT_TYPE))
 		{
-			UpdateHelper.updateCredentialsDefinition(objContent);
+			UpdateHelperFrom2_0.updateCredentialsDefinition(objContent);
 		}
 
 	}
@@ -80,7 +80,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				NotificationChannelHandler.NOTIFICATION_CHANNEL_ID))
 		{
-			UpdateHelper.updateNotificationChannel(objContent);
+			UpdateHelperFrom2_0.updateNotificationChannel(objContent);
 		}
 	}
 
@@ -189,7 +189,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				InvitationHandler.INVITATION_OBJECT_TYPE))
 		{
-			UpdateHelper.updateInvitationWithCode(objContent);
+			UpdateHelperFrom2_0.updateInvitationWithCode(objContent);
 		}
 	}
 
@@ -198,7 +198,7 @@ public class JsonDumpUpdateFromV4 implements Update
 		for (ObjectNode objContent : getGenericContent(contents,
 				MessageTemplateHandler.MESSAGE_TEMPLATE_OBJECT_TYPE))
 		{
-			UpdateHelper.updateMessageTemplates(objContent);
+			UpdateHelperFrom2_0.updateMessageTemplates(objContent);
 		}
 	}
 
@@ -206,7 +206,7 @@ public class JsonDumpUpdateFromV4 implements Update
 	{
 		for (ObjectNode objContent : getGenericContent(contents, fromType))
 		{
-			UpdateHelper.dropChannelFromGenericForm(objContent, fromType);
+			UpdateHelperFrom2_0.dropChannelFromGenericForm(objContent, fromType);
 		}
 	}
 

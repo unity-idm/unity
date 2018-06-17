@@ -27,9 +27,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -71,7 +71,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider; 
 	
 	private VerticalLayout authenticatorsContainer;
-	private AuthenticationOption selectedAuthnOption;
+	private AuthenticationFlow selectedAuthnOption;
 	private VaadinAuthenticationUI primaryAuthnUI;
 	private String authnId;
 	private String endpointPath;
@@ -132,8 +132,10 @@ public class SelectedAuthNPanel extends CustomComponent
 		setCompositionRoot(main);
 	}
 
-	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationOption authnOption, 
-			String id)
+	/**
+	 * @param primaryUI
+	 */
+	public void setAuthenticator(VaadinAuthenticationUI primaryAuthnUI, AuthenticationFlow authnOption, String id)
 	{
 		this.selectedAuthnOption = authnOption;
 		this.primaryAuthnUI = primaryAuthnUI;
@@ -175,7 +177,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	/**
 	 * Clears the UI so a new authentication can be started.
 	 */
-	private void setNotAuthenticating()
+	protected void setNotAuthenticating()
 	{
 		if (authNListener != null)
 			authNListener.authenticationStopped();
@@ -250,7 +252,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	 * The method is separated as can be overridden in sandbox authn. 
 	 * @return primary authentication result callback.
 	 */
-	private AuthenticationUIController createPrimaryAuthnResultCallback(VaadinAuthenticationUI primaryAuthnUI)
+	protected AuthenticationUIController createPrimaryAuthnResultCallback(VaadinAuthenticationUI primaryAuthnUI)
 	{
 		return new PrimaryAuthenticationResultCallbackImpl(primaryAuthnUI);
 	}
@@ -259,7 +261,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	 * The method is separated as can be overridden in sandbox authn. 
 	 * @return secondary authentication result callback.
 	 */
-	private AuthenticationUIController createSecondaryAuthnResultCallback(VaadinAuthenticationUI secondaryUI,
+	protected AuthenticationUIController createSecondaryAuthnResultCallback(VaadinAuthenticationUI secondaryUI,
 			PartialAuthnState partialState)
 	{
 		return new SecondaryAuthenticationResultCallbackImpl(secondaryUI, partialState);
@@ -293,7 +295,7 @@ public class SelectedAuthNPanel extends CustomComponent
 	}
 	
 	/**
-	 * Collects authN result from the first authenticator of the selected {@link AuthenticationOption} 
+	 * Collects authN result from the first authenticator of the selected {@link AuthenticationFlow} 
 	 * and process it: manages state of the rest of the UI (cancel button, notifications, registration) 
 	 * and if needed proceeds to 2nd authenticator. 
 	 * 
@@ -323,7 +325,7 @@ public class SelectedAuthNPanel extends CustomComponent
 			processAuthn(result, error);
 		}
 		
-		private void processAuthn(AuthenticationResult result, String error)
+		protected void processAuthn(AuthenticationResult result, String error)
 		{
 			log.trace("Received authentication result of the primary authenticator " + result);
 			authnDone = true;

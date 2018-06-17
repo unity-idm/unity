@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.engine.endpoint;
 
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -17,13 +16,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.utils.ScheduledUpdaterBase;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 
@@ -45,13 +48,14 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
 	private AuthenticatorInstanceDB authnDB;
+	private AuthenticationFlowDB authnFlowDB;
 	private EndpointInstanceLoader loader;
 	private TransactionalRunner tx;
 	
 	@Autowired
 	public EndpointsUpdater(TransactionalRunner tx,
 			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
-			AuthenticatorInstanceDB authnDB, EndpointInstanceLoader loader)
+			AuthenticatorInstanceDB authnDB, AuthenticationFlowDB authnFlowDB, EndpointInstanceLoader loader)
 	{
 		super("endpoints");
 		this.tx = tx;
@@ -59,6 +63,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		this.endpointDB = endpointDB;
 		this.authnDB = authnDB;
 		this.loader = loader;
+		this.authnFlowDB = authnFlowDB;
 	}
 
 	@Override
@@ -74,7 +79,6 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		
 		tx.runInTransactionThrowing(() -> {
 			long roundedUpdateTime = roundToS(System.currentTimeMillis());
-			Set<String> changedAuthenticators = getChangedAuthenticators(roundedUpdateTime);
 			List<Endpoint> endpointsInDBMap = endpointDB.getAll();
 			log.debug("There are " + endpointsInDBMap.size() + " endpoints in DB.");
 			for (Endpoint endpointInDB: endpointsInDBMap)
@@ -93,7 +97,10 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 					log.info("Endpoint " + name + " will be re-deployed");
 					endpointMan.undeploy(name);
 					endpointMan.deploy(instance);
-				} else if (hasChangedAuthenticator(changedAuthenticators, instance))
+				} else if (hasChangedAuthenticationFlow(runtimeEndpointInstance))
+				{
+					updateEndpointAuthenticators(name, instance, endpointsDeployed);
+				}else if (hasChangedAuthenticator(runtimeEndpointInstance))
 				{
 					updateEndpointAuthenticators(name, instance, endpointsDeployed);
 				}
@@ -111,7 +118,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		EndpointInstance toUpdate = endpointsDeployed.get(name);
 		try
 		{
-			toUpdate.updateAuthenticationOptions(instance.getAuthenticationOptions());
+			toUpdate.updateAuthenticationFlows(instance.getAuthenticationFlows());
 		} catch (UnsupportedOperationException e)
 		{
 			log.info("Endpoint " + name + " doesn't support authenticators update so will be redeployed");
@@ -120,47 +127,62 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 		}
 	}
 	
-	/**
-	 * @param sql
-	 * @return Set of those authenticators that were updated after the last update of endpoints.
-	 * @throws EngineException 
-	 */
-	private Set<String> getChangedAuthenticators(long roundedUpdateTime) throws EngineException
-	{
-		Set<String> changedAuthenticators = new HashSet<>();
-		List<Map.Entry<String, Date>> authnNames = authnDB.getAllNamesWithUpdateTimestamps();
-		for (Map.Entry<String, Date> authn: authnNames)
-		{
-			long authenticatorChangedAt = roundToS(authn.getValue().getTime());
-			log.trace("Authenticator update timestampses: " + roundedUpdateTime + " " + 
-					getLastUpdate() + " " + authn.getKey() + ": " + authenticatorChangedAt);
-			if (authenticatorChangedAt >= getLastUpdate() && roundedUpdateTime != authenticatorChangedAt)
-				changedAuthenticators.add(authn.getKey());
-		}
-		log.trace("Changed authenticators" + changedAuthenticators);
-		return changedAuthenticators;
-	}
-	
-	/**
-	 * @param changedAuthenticators
+	/** 
 	 * @param instance
-	 * @return true if endpoint has any of the authenticators in the parameter set
+	 * @return true if one of authenticator from instance is changed 
 	 */
-	private boolean hasChangedAuthenticator(Set<String> changedAuthenticators, EndpointInstance instance)
+	private boolean hasChangedAuthenticator(EndpointInstance instance)
 	{
-		List<AuthenticationOptionDescription> auths = instance.getEndpointDescription().
-				getEndpoint().getConfiguration().getAuthenticationOptions();
-		for (String changed: changedAuthenticators)
+		Map<String, Long> revisionMap = new HashMap<>();
+
+		for (AuthenticationFlow flow : instance.getAuthenticationFlows())
 		{
-			for (AuthenticationOptionDescription as: auths)
+			for (Authenticator authenticator : flow.getAllAuthenticators())
 			{
-				if (as.contains(changed))
-					return true;
+				revisionMap.put(authenticator.getRetrieval().getAuthenticatorId(),
+						authenticator.getRevision());
 			}
 		}
+
+		Map<String, AuthenticatorInstance> allAuth = authnDB.getAllAsMap();
+
+		for (String authn : revisionMap.keySet())
+		{
+			AuthenticatorInstance authInstance = allAuth.get(authn);
+			if (authInstance != null)
+			{
+				if (authInstance.getRevision() > revisionMap.get(authn))
+				{
+					return true;
+				}
+			}
+		}
+
 		return false;
+
 	}
 	
+	/**
+	 * @param instance
+	 * @return true if one of authentication flow from instance is changed 
+	 */
+	private boolean hasChangedAuthenticationFlow(EndpointInstance instance)
+	{
+		Map<String, AuthenticationFlowDefinition> all = authnFlowDB.getAllAsMap();
+		for (AuthenticationFlow flow : instance.getAuthenticationFlows())
+		{
+			AuthenticationFlowDefinition dbFlowDefinition = all.get(flow.getId());
+			
+			if (dbFlowDefinition != null)
+			{
+				if (dbFlowDefinition.getRevision() > flow.getRevision())
+					return true;
+			}
+		}	
+		return false;
+	}
+
+
 	private void undeployRemoved(Set<String> endpointsInDb, Collection<EndpointInstance> deployedEndpoints) 
 			throws EngineException
 	{

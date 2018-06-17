@@ -12,9 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
@@ -31,9 +29,13 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.TestPropertySource;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
@@ -58,8 +60,9 @@ public class TestRESTCore extends TestRESTBase
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
+		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER,
+				Sets.newHashSet(AUTHENTICATOR_REST_PASS)));
 		
 		Properties config = new Properties();
 		config.setProperty(RESTEndpointProperties.PREFIX+RESTEndpointProperties.ENABLED_CORS_ORIGINS + "1", 
@@ -72,7 +75,7 @@ public class TestRESTCore extends TestRESTBase
 		config.store(writer, "");
 		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
-				"desc", authnCfg, writer.toString(), realm.getName());
+				"desc", Lists.newArrayList("flow1"), writer.toString(), realm.getName());
 		endpointMan.deploy(MockRESTEndpoint.NAME, "endpoint1", "/mock", cfg);
 		httpServer.start();
 	}

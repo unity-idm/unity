@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
@@ -23,7 +24,7 @@ import com.vaadin.server.WrappedSession;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
@@ -68,9 +69,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private EntityManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
 	private ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory;
+	private List<AuthenticationFlow> authnFlows;
 	
 	private AuthenticationScreen ui;
-	private List<AuthenticationOption> authenticators;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
@@ -95,12 +96,12 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 
 	@Override
 	public void configure(ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authnFlows,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
 	{
-		super.configure(description, authenticators, registrationConfiguration, genericEndpointConfiguration);
-		this.authenticators = authenticators;
+		super.configure(description, authnFlows, registrationConfiguration, genericEndpointConfiguration);
+		this.authnFlows = new ArrayList<>(authnFlows);
 		this.registrationConfiguration = registrationConfiguration;
 	}
 	
@@ -112,7 +113,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
 		ScreenType screenType = config.getScreenType();
-		
+
 		if (screenType == ScreenType.tile)
 		{
 			ui = new TileAuthenticationScreen(msg, config, endpointDescription, 
@@ -122,7 +123,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 					isRegistrationEnabled(), 
 					unknownUserDialogProvider, 
 					authnProcessor, localeChoice,
-					authenticators);
+					authnFlows);
 		} else
 		{
 			ui = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
@@ -131,7 +132,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 					cancelHandler, idsMan, execService, 
 					isRegistrationEnabled(), 
 					unknownUserDialogProvider, 
-					authnProcessor, localeChoice, authenticators);
+					authnProcessor, localeChoice, authnFlows);
 		}
 		setContent(ui);
 		setSizeFull();
@@ -153,7 +154,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		}
 		return false;
 	}
-	
+		
 	private boolean isRegistrationEnabled()
 	{
 		if (!registrationConfiguration.isShowRegistrationOption())

@@ -65,7 +65,7 @@ class SAMLProxyAuthnHandler
 		}
 		
 		String authnOption = SAMLSPProperties.IDP_PREFIX + 
-				AuthenticationOptionKeyUtils.decodeAuthenticatorOption(requestedIdP) + ".";
+				AuthenticationOptionKeyUtils.decodeOption(requestedIdP) + ".";
 		if (!keys.contains(authnOption))
 			throw new IllegalStateException("Client requested authN option " + authnOption 
 					+", which is not available in "

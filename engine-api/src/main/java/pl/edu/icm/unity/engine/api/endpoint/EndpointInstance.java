@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonSerializable;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
@@ -37,15 +37,15 @@ public interface EndpointInstance
 	 * (as returned by {@link #getSerializedConfiguration()}.
 	 */
 	void initialize(ResolvedEndpoint endpointDescription, 
-			List<AuthenticationOption> authenticatonOptions,
+			List<AuthenticationFlow> authenticatonOptions,
 			String serializedConfiguration);
 
 	ResolvedEndpoint getEndpointDescription();
 	
 	/**
-	 * @return the current list of previously configured authenticators (with initialize).
+	 * @return the current list of previously configured authentication flows (with initialize).
 	 */
-	List<AuthenticationOption> getAuthenticationOptions();
+	List<AuthenticationFlow> getAuthenticationFlows();
 	
 	/**
 	 * @return serialized representation of the endpoint configuration/state
@@ -68,10 +68,10 @@ public interface EndpointInstance
 	/**
 	 * Runtime update of the authenticators being used by this endpoint.
 	 * @param handler
-	 * @param authenticationOptions
+	 * @param authenticationFlows
 	 * @throws UnsupportedOperationException if the operation is unsupported and the endpoint must be 
 	 * re-created instead.
 	 */
-	void updateAuthenticationOptions(List<AuthenticationOption> authenticationOptions)
+	void updateAuthenticationFlows(List<AuthenticationFlow> authenticationFlows)
 		throws UnsupportedOperationException;
 }

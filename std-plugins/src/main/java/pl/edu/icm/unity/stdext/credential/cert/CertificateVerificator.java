@@ -5,14 +5,17 @@
 package pl.edu.icm.unity.stdext.credential.cert;
 
 import java.security.cert.X509Certificate;
+import java.util.List;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
@@ -22,11 +25,15 @@ import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Identity;
 
 /**
  * Trivial verificator of certificates. It is assumed that the certificate was previously authenticated.
@@ -45,10 +52,13 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	public static final String NAME = "certificate";
 	public static final String DESC = "Verifies certificates";
 
+	private EntityManagement idMan;
 	
-	public CertificateVerificator()
+	@Autowired
+	public CertificateVerificator(@Qualifier("insecure") EntityManagement idMan)
 	{
 		super(NAME, DESC, CertificateExchange.ID, false);
+		this.idMan = idMan;
 	}
 
 	@Override
@@ -115,6 +125,30 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 		return prepareCredential(rawCredential, null, currentCredential, verify);
 	}
 	
+	private boolean checkX500Id(EntityParam entity) throws EngineException
+	{
+		Entity entityRes = idMan.getEntity(entity);
+		if (entityRes == null)
+			return false;	
+		List<Identity> ids = entityRes.getIdentities();
+
+		for (Identity id : ids)
+		{
+			if (id.getTypeId().equals(X500Identity.ID))
+				return true;
+		}
+
+		return false;
+	}
+	
+	
+	@Override
+	public boolean isCredentialSet(EntityParam entity, String credentialId)
+			throws EngineException
+	{
+		return checkX500Id(entity);
+	}
+	
 	@Component
 	public static class Factory extends AbstractLocalCredentialVerificatorFactory
 	{
@@ -124,6 +158,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 			super(NAME, DESC, false, factory);
 		}
 	}
+
 }
 
 

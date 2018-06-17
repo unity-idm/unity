@@ -105,6 +105,11 @@ performing a trial migration on a DB copy first is highly recommended.
 
 As upstream Vaadin version was updated, it is suggested to rebuild custom themes and widgetsets if are used.
 
+==== From 2.5.0 to 2.6.0
+ 
+Endpoint configuration argument syntax change. (List<AuthenticationOptionDescription>  -> List<String> with contains authenticator of authentication flow name)
+Name of idpentry authn option change. (idpentry_AuthenticatorName.Option -> idpentry_AuthnFlowName.AutheticatorName.Option)
+
 ===== Overview
 
 Up to this version notification channel configuration (which was BTW quite dummy as only a single option was possible 

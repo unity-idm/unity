@@ -5,8 +5,10 @@
 package pl.edu.icm.unity.webui.authn.tile;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -25,8 +27,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -34,11 +37,13 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties.TileMode;
+import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.AuthenticationTopHeader;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
@@ -58,7 +63,7 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TileAuthenticationScreen.class);
 	protected final UnityMessageSource msg;
-	private final VaadinEndpointProperties config;
+	protected final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final Supplier<Boolean> outdatedCredentialDialogLauncher;
 	private final Runnable registrationDialogLauncher;
@@ -69,13 +74,15 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider;
 	private final WebAuthenticationProcessor authnProcessor;	
 	private final LocaleChoiceComponent localeChoice;
-	protected List<AuthenticationOption> authenticators;
+	protected List<AuthenticationFlow> authenticationFlows;
 	
 	protected AuthenticationTopHeader headerUIComponent;
 	private SelectedAuthNPanel authenticationPanel;
 	protected AuthNTiles selectorPanel;
 	private VerticalLayout topLevelLayout;
 	private CheckBox rememberMe;
+	private Map<String, VaadinAuthenticationUI> authenticatorById;
+	private Map<String, AuthenticationFlow> authnFlowById;
 
 	public TileAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -86,7 +93,7 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
 			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
-			List<AuthenticationOption> authenticators)
+			List<AuthenticationFlow> authenticators)
 	{
 		this.msg = msg;
 		this.config = config;
@@ -100,7 +107,7 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 		this.unknownUserDialogProvider = unknownUserDialogProvider;
 		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
-		this.authenticators = authenticators;
+		this.authenticationFlows = new ArrayList<>(authenticators);
 		init();
 	}
 
@@ -112,11 +119,12 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 	
 	protected void init()
 	{
+		loadAuthnFlows(authenticationFlows);
 		authenticationPanel = createSelectedAuthNPanel();
 		authenticationPanel.addStyleName(Styles.minHeightAuthn.toString());
 
 		
-		List<AuthNTile> tiles = prepareTiles(authenticators);
+		List<AuthNTile> tiles = prepareTiles();
 		selectorPanel = new AuthNTiles(msg, tiles, authenticationPanel);
 
 		switchAuthnOptionIfRequested(tiles.get(0).getFirstOptionId());
@@ -210,70 +218,108 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 				unknownUserDialogProvider, this::isSetRememberMe);
 	}
 	
-	private List<AuthNTile> prepareTiles(List<AuthenticationOption> authenticators)
+	private List<AuthNTile> prepareTiles()
 	{
+		Map<String, VaadinAuthenticationUI> authenticatorWithoutTile = new LinkedHashMap<>(
+				authenticatorById);
 		List<AuthNTile> ret = new ArrayList<>();
-		List<AuthenticationOption> authNCopy = new ArrayList<>(authenticators);
-		Set<String> tileKeys = config.getStructuredListKeys(VaadinEndpointProperties.AUTHN_TILES_PFX);
+		Set<String> tileKeys = config
+				.getStructuredListKeys(VaadinEndpointProperties.AUTHN_TILES_PFX);
 		int defPerRow = config.getIntValue(VaadinEndpointProperties.DEFAULT_PER_LINE);
-		
+
 		SelectionChangedListener selectionChangedListener = new SelectionChangedListener()
 		{
 			@Override
-			public void selectionChanged(VaadinAuthenticationUI selectedAuthn,
-					AuthenticationOption selectedOption, String globalId)
+			public void selectionChanged(String globalId)
 			{
-				authenticationPanel.setAuthenticator(selectedAuthn, selectedOption, globalId);
+				authenticationPanel.setAuthenticator(
+						authenticatorById.get(globalId),
+						authnFlowById.get(globalId), globalId);
 				authenticationPanel.setVisible(true);
 			}
 		};
-		
-		for (String tileKey: tileKeys)
+
+		for (String tileKey : tileKeys)
 		{
-			
+
 			ScaleMode scaleMode = config.getScaleMode(tileKey);
-			
-			Integer perRow = config.getIntValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_PER_LINE);
+
+			Integer perRow = config.getIntValue(
+					tileKey + VaadinEndpointProperties.AUTHN_TILE_PER_LINE);
 			if (perRow == null)
 				perRow = defPerRow;
-			
-			TileMode tileMode = config.getEnumValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_TYPE,
+
+			TileMode tileMode = config.getEnumValue(
+					tileKey + VaadinEndpointProperties.AUTHN_TILE_TYPE,
 					TileMode.class);
-			String displayedName = config.getLocalizedValue(tileKey + 
-					VaadinEndpointProperties.AUTHN_TILE_DISPLAY_NAME, msg.getLocale());
-			
-			String spec = config.getValue(tileKey + VaadinEndpointProperties.AUTHN_TILE_CONTENTS);
+			String displayedName = config.getLocalizedValue(
+					tileKey + VaadinEndpointProperties.AUTHN_TILE_DISPLAY_NAME,
+					msg.getLocale());
+
+			String spec = config.getValue(
+					tileKey + VaadinEndpointProperties.AUTHN_TILE_CONTENTS);
 			String[] specSplit = spec.split("[ ]+");
-			List<AuthenticationOption> authNs = new ArrayList<>();
-			Iterator<AuthenticationOption> authNIt = authNCopy.iterator();
-			while (authNIt.hasNext())
+			LinkedHashMap<String, VaadinAuthenticationUI> authnById = new LinkedHashMap<>();
+
+			for (Map.Entry<String, VaadinAuthenticationUI> entry : authenticatorById
+					.entrySet())
 			{
-				AuthenticationOption ao = authNIt.next();
-				for (String matching: specSplit)
+				for (String matching : specSplit)
 				{
-					if (ao.getId().startsWith(matching))
+					if (entry.getKey().startsWith(matching))
 					{
-						authNs.add(ao);
-						authNIt.remove();
+						authnById.put(entry.getKey(), entry.getValue());
+						authenticatorWithoutTile.remove(entry.getKey());
 					}
 				}
 			}
-			AuthNTile tile = tileMode == TileMode.simple ? 
-				new AuthNTileSimple(authNs, scaleMode, perRow, selectionChangedListener, displayedName) : 
-				new AuthNTileGrid(authNs, msg, selectionChangedListener, displayedName);
-			log.debug("Adding tile with authenticators {}", tile.getAuthenticators().keySet());
+
+			AuthNTile tile = tileMode == TileMode.simple
+					? new AuthNTileSimple(authnById, scaleMode, perRow,
+							selectionChangedListener, displayedName)
+					: new AuthNTileGrid(authnById, msg,
+							selectionChangedListener, displayedName);
+			log.debug("Adding tile with authenticators {}",
+					tile.getAuthenticators().keySet());
 			ret.add(tile);
 		}
-		
-		if (!authNCopy.isEmpty())
-		{
-			AuthNTile defaultTile = new AuthNTileSimple(authNCopy, config.getDefaultScaleMode(), 
-					defPerRow, selectionChangedListener, null);
+
+		if (!authenticatorWithoutTile.isEmpty())
+		{		
+			AuthNTile defaultTile = new AuthNTileSimple(authenticatorWithoutTile, config.getDefaultScaleMode(), defPerRow,
+					selectionChangedListener, null);
+			log.debug("Adding default tile with authenticators {}", defaultTile.getAuthenticators());
 			ret.add(defaultTile);
 		}
-		
+
 		return ret;
+
 	}
+	
+	private void switchAuthnOptionIfRequested(String defaultVal)
+	{
+		String lastIdp = PreferredAuthenticationHelper.getPreferredIdp();
+		String initialOption = null;
+		if (lastIdp != null)
+		{
+			AuthenticationFlow lastAuthnOption = getAuthenticationOptionById(lastIdp);
+			if (lastAuthnOption != null)
+				initialOption = lastIdp;
+		}
+		log.debug("Requested/cookie idp={}, is available={}", lastIdp, initialOption!=null);
+		if (initialOption == null)
+			initialOption = defaultVal;
+
+		if (initialOption != null)
+		{
+			AuthenticationFlow initAuthnOption = getAuthenticationOptionById(initialOption);
+			authenticationPanel.setAuthenticator(getAuthenticatorById(initialOption), 
+					initAuthnOption, initialOption);
+			authenticationPanel.setVisible(true);
+		}
+	}
+
+
 
 	private boolean isSetRememberMe()
 	{
@@ -291,28 +337,51 @@ public class TileAuthenticationScreen extends CustomComponent implements Authent
 		return register;
 	}
 	
-	private void switchAuthnOptionIfRequested(String defaultVal)
+	private AuthenticationFlow getAuthenticationOptionById(String lastIdp)
 	{
-		String lastIdp = PreferredAuthenticationHelper.getPreferredIdp();
-		String initialOption = null;
-		if (lastIdp != null)
-		{
-			AuthenticationOption lastAuthnOption = selectorPanel.getAuthenticationOptionById(lastIdp);
-			if (lastAuthnOption != null)
-				initialOption = lastIdp;
-		}
-		log.debug("Requested/cookie idp={}, is available={}", lastIdp, initialOption!=null);
-		if (initialOption == null)
-			initialOption = defaultVal;
 
-		if (initialOption != null)
+		AuthenticationFlow ret = authnFlowById.get(lastIdp);
+		if (ret != null)
+			return ret;
+
+		return null;
+	}
+
+	private VaadinAuthenticationUI getAuthenticatorById(String lastIdp)
+	{
+
+		VaadinAuthenticationUI ret = authenticatorById.get(lastIdp);
+		if (ret != null)
+			return ret;
+
+		return null;
+	}
+	
+	protected void loadAuthnFlows(List<AuthenticationFlow> authnFlowsList) 
+	{
+		authnFlowById = new LinkedHashMap<>();
+		authenticatorById = new LinkedHashMap<>();
+		
+		for (final AuthenticationFlow authnFlow : authnFlowsList)
 		{
-			AuthenticationOption initAuthnOption = selectorPanel.getAuthenticationOptionById(initialOption);
-			authenticationPanel.setAuthenticator(selectorPanel.getAuthenticatorById(initialOption), 
-					initAuthnOption, initialOption);
-			authenticationPanel.setVisible(true);
+			for (Authenticator firstFactorA : authnFlow.getFirstFactorAuthenticators())
+			{
+				VaadinAuthentication firstAuthenticator = (VaadinAuthentication) firstFactorA.getRetrieval();
+
+				Collection<VaadinAuthenticationUI> uiInstances = firstAuthenticator
+						.createUIInstance();
+				for (VaadinAuthenticationUI vaadinAuthenticationUI : uiInstances)
+				{	
+					String id = vaadinAuthenticationUI.getId();
+					final String globalId = AuthenticationOptionKeyUtils
+							.encode(firstAuthenticator.getAuthenticatorId(), id);
+					authnFlowById.put(globalId, authnFlow);
+					authenticatorById.put(globalId, vaadinAuthenticationUI);
+				}
+			}
 		}
 	}
+
 	
 	private void refreshAuthenticationState(VaadinRequest request) 
 	{

@@ -17,7 +17,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -53,7 +53,7 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 
 	@Override
 	public void configure(ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		super.configure(description, authenticators, regCfg, endpointProperties);

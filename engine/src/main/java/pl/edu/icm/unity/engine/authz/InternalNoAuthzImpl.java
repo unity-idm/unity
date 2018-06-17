@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.types.basic.Attribute;
 
 
 /**
@@ -68,5 +69,11 @@ public class InternalNoAuthzImpl implements AuthorizationManager
 		Set<AuthzCapability> ret = new HashSet<AuthzCapability>();
 		Collections.addAll(ret, AuthzCapability.values());
 		return ret;
+	}
+
+	@Override
+	public void checkAuthZAttributeChangeAuthorization(boolean selfAccess, Attribute attribute)
+			throws AuthorizationException
+	{
 	}
 }

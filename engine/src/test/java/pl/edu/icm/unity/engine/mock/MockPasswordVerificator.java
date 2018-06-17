@@ -12,6 +12,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class MockPasswordVerificator extends AbstractLocalVerificator implements MockExchange
 {
@@ -93,6 +94,14 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 			InternalException
 	{
 		return prepareCredential(rawCredential, currentCredential, verify);
+	}
+
+	@Override
+	public boolean isCredentialSet(EntityParam entity, String credentialId)
+			throws EngineException
+	{
+		
+		return true;
 	}
 
 }

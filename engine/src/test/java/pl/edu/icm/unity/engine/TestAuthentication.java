@@ -7,30 +7,38 @@ package pl.edu.icm.unity.engine;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.hamcrest.CoreMatchers.is;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Sets;
+
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
@@ -54,6 +62,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 	private AuthenticatorManagement authnMan;
 	
 	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
+	
+	@Autowired
 	private InternalEndpointManagement internalEndpointMan;
 	
 	@Test
@@ -68,14 +79,16 @@ public class TestAuthentication extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=foo"), 
 				"crMock", EntityState.valid, false);
 
-		//create authenticator and an endpoint with it
+		//create authenticator, authentication flow and an endpoint with it
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		authnMan.createAuthenticator("auth1", authType.getId(), "6", "bbb", "credential1");
 		
-		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
-		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc", 
-				Collections.singletonList(authSet), "", realm.getName());
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth1")));
+
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
+				"desc", Collections.singletonList("flow1"), "", realm.getName());
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 
 		//set wrong password 
@@ -95,110 +108,207 @@ public class TestAuthentication extends DBIntegrationTestBase
 		Entity entity = idsMan.getEntity(entityP);
 		assertEquals(entityId, entity.getId().longValue());
 	}
-	
-	@Test
-	public void testAuthnManagement() throws Exception
-	{
-		//create credential definition
-		super.setupMockAuthn();
-		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 10, -1, 600);
-		realmsMan.addRealm(realm);
 
-		//get authn types
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddAuthFlowWithWrongAuthenticator()
+			throws EngineException
+	{
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("wrong")));
+	}
+	
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldThrowExceptionWhenAddAuthFlowWithDiffrentBindingAuthenticator()
+			throws Exception
+	{
+		super.setupMockAuthn();
+		Collection<AuthenticatorTypeDescription> authenticatorTypes1 = authnMan.getAuthenticatorTypes("web");
+		Collection<AuthenticatorTypeDescription> authenticatorTypes2 = authnMan.getAuthenticatorTypes("web2");
+		
+		authnMan.createAuthenticator(
+				"auth0", authenticatorTypes1.iterator().next().getId(), "8", "aaa", "credential1");
+		
+		authnMan.createAuthenticator(
+				"auth1", authenticatorTypes2.iterator().next().getId(), "8", "bbb", "credential1");
+		
+		
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth0","auth1")));
+	}
+
+	@Test
+	public void shouldReturnAllAuthnTypes() throws Exception
+	{
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
 		assertEquals(1, authTypes.size());
 		authTypes = authnMan.getAuthenticatorTypes(null);
-		assertEquals(1, authTypes.size());
+		assertEquals(2, authTypes.size());
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		assertEquals(true, authType.isLocal());
 		assertEquals("mockretrieval", authType.getRetrievalMethod());
 		assertEquals(MockPasswordVerificatorFactory.ID, authType.getVerificationMethod());
 		assertEquals("web", authType.getSupportedBinding());
-		
-		//create authenticator
-		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
-				"auth1", authType.getId(), "8", "bbb", "credential1");
 
-		//get authenticators
-		Collection<AuthenticatorInstance> auths = authnMan.getAuthenticators("web");
-		assertEquals(1, auths.size());
-		AuthenticatorInstance authInstanceR = auths.iterator().next();
-		assertEquals("auth1", authInstanceR.getId());
-		assertEquals("bbb", authInstanceR.getRetrievalConfiguration());
-		assertNull(authInstanceR.getVerificatorConfiguration());
+	}
+	
+	@Test
+	public void authenticatorCRUDTest() throws Exception
+	{	
+		super.setupMockAuthn();
+		Collection<AuthenticatorTypeDescription> authTypes = authnMan
+				.getAuthenticatorTypes("web");
+		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		
-		//update authenticator
+		authnMan.createAuthenticator("auth0",
+				authType.getId(), "8", "aaa", "credential1");
+
+		authnMan.createAuthenticator("auth1",
+				authType.getId(), "8", "bbb", "credential1");
+
+		Collection<AuthenticatorInstance> auths = authnMan.getAuthenticators("web");
+		assertEquals(2, auths.size());
+		AuthenticatorInstance authInstanceR = auths.iterator().next();
+		assertEquals("auth0", authInstanceR.getId());
+		assertEquals("aaa", authInstanceR.getRetrievalConfiguration());
+		assertNull(authInstanceR.getVerificatorConfiguration());
+
 		authnMan.updateAuthenticator("auth1", "9", "b", "credential1");
 
 		auths = authnMan.getAuthenticators("web");
-		assertEquals(1, auths.size());
-		authInstanceR = auths.iterator().next();
+		assertEquals(2, auths.size());
+		Iterator<AuthenticatorInstance> iterator = auths.iterator();
+		iterator.next();
+		authInstanceR = iterator.next();
 		assertEquals("auth1", authInstanceR.getId());
 		assertEquals("b", authInstanceR.getRetrievalConfiguration());
 		assertNull(authInstanceR.getVerificatorConfiguration());
+	}
+	
+	@Test
+	public void authenticationFlowCRUDTest() throws Exception
+	{
+		super.setupMockAuthn();
+		Collection<AuthenticatorTypeDescription> authTypes = authnMan
+				.getAuthenticatorTypes("web");
+		AuthenticatorTypeDescription authType = authTypes.iterator().next();
+		authnMan.createAuthenticator("auth0",
+				authType.getId(), "8", "aaa", "credential1");
+
+		authnMan.createAuthenticator("auth1",
+				authType.getId(), "8", "bbb", "credential1");
 		
-		//create endpoint
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth0")));
+		Collection<AuthenticationFlowDefinition> authFlows = authnFlowMan.getAuthenticationFlows();
+		assertThat(authFlows.size(), is(1));
+		assertThat(authFlows.iterator().next().getFirstFactorAuthenticators().iterator().next(), is("auth0"));
+		
+		authnFlowMan.updateAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth1")));
+		authFlows = authnFlowMan.getAuthenticationFlows();
+		assertThat(authFlows.size(), is(1));
+		assertThat(authFlows.iterator().next().getFirstFactorAuthenticators().iterator().next(), is("auth1"));
+	}
+	
+
+	@Test
+	public void shouldNotRemoveUsedAutheticatorOrFlow() throws Exception
+	{
+		super.setupMockAuthn();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 10, -1, 600);
+		realmsMan.addRealm(realm);
+		
+		Collection<AuthenticatorTypeDescription> authTypes = authnMan
+				.getAuthenticatorTypes("web");
+		AuthenticatorTypeDescription authType = authTypes.iterator().next();
+		
+		AuthenticatorInstance authInstance1 = authnMan.createAuthenticator(
+				"auth0", authType.getId(), "8", "bbb", "credential1");
+
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER, Sets.newHashSet("auth0")));
+		
+		
 		List<EndpointTypeDescription> endpointTypes = endpointMan.getEndpointTypes();
 		assertEquals(1, endpointTypes.size());
 		EndpointTypeDescription type = endpointTypes.get(0);
 		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "", realm.getName());
+				"desc", new ArrayList<String>(), "", realm.getName());
 		endpointMan.deploy(type.getName(), "endpoint1", "/foo", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
 
-		//and assign the authenticator to it
-		AuthenticationOptionDescription authSet = new AuthenticationOptionDescription("auth1");
 		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
 				new EndpointConfiguration(new I18nString("ada"), 
-				"ada", Collections.singletonList(authSet), "", realm.getName()));
+				"ada", Collections.singletonList("flow1"), "", realm.getName()));
 
-		//check if is returned
-		List<AuthenticationOptionDescription> authSets = endpointMan.getEndpoints().get(0).
+		List<String> endpointFlows = endpointMan.getEndpoints().get(0).
 				getEndpoint().getConfiguration().getAuthenticationOptions();
-		assertEquals(1, authSets.size());
-		assertEquals("auth1", authSets.get(0).getPrimaryAuthenticator());
+		assertThat(endpointFlows.size(), is(1));
 		
 		//remove a used authenticator
 		try
 		{
-			authnMan.removeAuthenticator(authInstance.getId());
+			authnMan.removeAuthenticator(authInstance1.getId());
 			fail("Was able to remove a used authenticator");
 		} catch (IllegalArgumentException e) {}
 		
-		//remove it from endpoint
-		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
-				new EndpointConfiguration(new I18nString("ada"), 
-				"ada", new ArrayList<AuthenticationOptionDescription>(), "",
-				realm.getName()));
 		
-		//remove again
-		authnMan.removeAuthenticator(authInstance.getId());
-		auths = authnMan.getAuthenticators(null);
-		assertEquals(0, auths.size());		
+		//remove a used authentication flow
+		try
+		{
+			authnFlowMan.removeAuthenticationFlow("flow1");
+			fail("Was able to remove a used authentication flow");
+		} catch (IllegalArgumentException e)
+		{
+		}
+		
+		
+		endpointMan.updateEndpoint(endpoints.get(0).getEndpoint().getName(), 
+		new EndpointConfiguration(new I18nString("ada"), 
+		"ada", new ArrayList<String>(), "",
+		realm.getName()));
+
+		authnFlowMan.removeAuthenticationFlow("flow1");
+		Collection<AuthenticationFlowDefinition> authFlows = authnFlowMan.getAuthenticationFlows();
+		assertThat(authFlows.size(), is(0));
+
+		authnMan.removeAuthenticator(authInstance1.getId());
+		Collection<AuthenticatorInstance> auths = authnMan.getAuthenticators(null);
+		assertThat(auths.size(), is(0));	
 	}
+		
 	
 	@Test
-	public void testCredentialsManagement() throws Exception
+	public void shouldReturnAllCredTypes() throws Exception
 	{
 		int automaticCredTypes = 3;
-		int automaticCreds = 1;
-		int automaticCredReqs = 1;
-		//check if credential types are returned
 		Collection<CredentialType> credTypes = credMan.getCredentialTypes();
 		assertEquals(credTypes.toString(), 1+automaticCredTypes, credTypes.size());
 		CredentialType credType = getDescObjectByName(credTypes, MockPasswordVerificatorFactory.ID);
-		assertEquals(MockPasswordVerificatorFactory.ID, credType.getName());
-		
-		//add credential definition
+		assertEquals(MockPasswordVerificatorFactory.ID, credType.getName());	
+	}
+	
+	private CredentialDefinition addDefaultCredentialDef() throws Exception
+	{
 		CredentialDefinition credDef = new CredentialDefinition(
 				MockPasswordVerificatorFactory.ID, "credential1", 
 				new I18nString("cred disp name"),
 				new I18nString("cred req desc"));
 		credDef.setConfiguration("8");
 		credMan.addCredentialDefinition(credDef);
+		return credDef;
+	}
+	
+	@Test
+	public void credentialCRUDTest() throws Exception
+	{
+		int automaticCreds = 1;
+		//add credential definition
+		CredentialDefinition credDef = addDefaultCredentialDef();
 		
 		//check if is correctly returned
 		Collection<CredentialDefinition> credDefs = credMan.getCredentialDefinitions();
@@ -228,26 +338,33 @@ public class TestAuthentication extends DBIntegrationTestBase
 
 		//add it again
 		credMan.addCredentialDefinition(credDef);
-
-		//add authenticator with it and try to remove
-		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldNotRemoveCredentialUsedByAuth() throws Exception
+	{
+		addDefaultCredentialDef();
+		
+		Collection<AuthenticatorTypeDescription> authTypes = authnMan
+				.getAuthenticatorTypes("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
-		AuthenticatorInstance authInstance = authnMan.createAuthenticator(
-				"auth1", authType.getId(), "6", "bbb", "credential1");
-		try
-		{
-			credMan.removeCredentialDefinition("credential1");
-			fail("Managed to remove credential used by authenticator");
-		} catch (IllegalArgumentException e) {}
-		authnMan.removeAuthenticator(authInstance.getId());
+		authnMan.createAuthenticator("auth1",
+				authType.getId(), "6", "bbb", "credential1");
 		
+		credMan.removeCredentialDefinition("credential1");	
+	}
+	
+	@Test
+	public void credRequirementCRUDTest() throws Exception
+	{
+		int automaticCredReqs = 1;
 		
-		//add credential requirements
+		CredentialDefinition credDef = addDefaultCredentialDef();
+
 		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
 				Collections.singleton(credDef.getName()));
 		credReqMan.addCredentialRequirement(cr);
 		
-		//check if are correctly returned
 		Collection<CredentialRequirements> credReqs = credReqMan.getCredentialRequirements();
 		assertEquals(1+automaticCredReqs, credReqs.size());
 		CredentialRequirements credReq1 = getDescObjectByName(credReqs, "crMock");
@@ -255,7 +372,6 @@ public class TestAuthentication extends DBIntegrationTestBase
 		assertEquals("mock cred req", credReq1.getDescription());
 		assertEquals(1, credReq1.getRequiredCredentials().size());
 		
-		//update credential requirements and check
 		credReq1.setDescription("changed");
 		credReqMan.updateCredentialRequirement(credReq1);
 		credReqs = credReqMan.getCredentialRequirements();
@@ -263,15 +379,26 @@ public class TestAuthentication extends DBIntegrationTestBase
 		credReq1 = getDescObjectByName(credReqs, "crMock");
 		assertEquals("crMock", credReq1.getName());
 		assertEquals("changed", credReq1.getDescription());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void shouldNotRemoveCredentialUsedInCredReq() throws Exception
+	{	
+		CredentialDefinition credDef = addDefaultCredentialDef();
+		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+				Collections.singleton(credDef.getName()));
+		credReqMan.addCredentialRequirement(cr);
+		credMan.removeCredentialDefinition("credential1");	
+	}
+	
+	@Test
+	public void shouldChangeEnitytCrdentialState() throws Exception
+	{
+		CredentialDefinition credDef = addDefaultCredentialDef();
+		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+				Collections.singleton(credDef.getName()));
+		credReqMan.addCredentialRequirement(cr);
 		
-		//try to remove credential - now with cred req
-		try
-		{
-			credMan.removeCredentialDefinition("credential1");
-			fail("Managed to remove credential used by cred req");
-		} catch (IllegalArgumentException e) {}
-		
-		//add identity with cred requirements with notSet state
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 
 				"crMock", EntityState.valid, false);
 		EntityParam entityP = new EntityParam(id);
@@ -286,26 +413,13 @@ public class TestAuthentication extends DBIntegrationTestBase
 				get("credential1").getState());
 
 		//update credential requirements and check if the entity has its authN status still fine
-		credReq1.setDescription("changed2");
-		credReqMan.updateCredentialRequirement(credReq1);
-		entity = idsMan.getEntity(entityP);
-		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
-				get("credential1").getState());
-
-		//update credential definition now with identity using it via credential requirements
-		credDefRet.setDescription(new I18nString("d3"));
-		credDefRet.setConfiguration("119");
-		credMan.updateCredentialDefinition(credDefRet, LocalCredentialState.correct);
+		cr.setDescription("changed2");
+		credReqMan.updateCredentialRequirement(cr);
 		entity = idsMan.getEntity(entityP);
 		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
 				get("credential1").getState());
 		
-		try
-		{
-			credReqMan.removeCredentialRequirement(credReq1.getName(), null);
-			fail("Managed to remove used requirements without replacement");
-		} catch (IllegalCredentialException e) {}
-
+		
 		CredentialDefinition credDef2 = new CredentialDefinition(
 				MockPasswordVerificatorFactory.ID, "credential2");
 		credDef2.setConfiguration("10");
@@ -331,11 +445,26 @@ public class TestAuthentication extends DBIntegrationTestBase
 				get("credential2").getState());
 		
 		credReqMan.removeCredentialRequirement("crMock2", "crMock");
-		credReqs = credReqMan.getCredentialRequirements();
-		assertEquals(1+automaticCredReqs, credReqs.size());
+		
 		entity = idsMan.getEntity(entityP);
 		assertEquals(LocalCredentialState.correct, entity.getCredentialInfo().getCredentialsState().
 				get("credential1").getState());
+		
+	}
+	
+	@Test(expected = IllegalCredentialException.class)
+	public void shouldNotRemoveCredReqWithoutReplacemant() throws Exception
+	{
+		CredentialDefinition credDef = addDefaultCredentialDef();
+		CredentialRequirements cr = new CredentialRequirements("crMock", "mock cred req", 
+				Collections.singleton(credDef.getName()));
+		credReqMan.addCredentialRequirement(cr);
+		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=test"), 
+				"crMock", EntityState.valid, false);
+		EntityParam entityP = new EntityParam(id);
+		
+		eCredMan.setEntityCredential(entityP, "credential1", "password");
+		credReqMan.removeCredentialRequirement(cr.getName(), null);	
 	}
 	
 	@Test

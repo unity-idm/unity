@@ -13,10 +13,13 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
@@ -27,6 +30,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -43,6 +47,7 @@ public class CredentialsPanel extends VerticalLayout
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
+	private AuthenticationFlowManagement flowMan;	
 	private UnityMessageSource msg;
 	private Entity entity;
 	private final long entityId;
@@ -50,6 +55,7 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private Map<String, CredentialDefinition> credentials;
 	private List<SingleCredentialPanel> panels;
+	private CheckBox userOptInCheckBox;
 	
 	
 	/**
@@ -65,7 +71,7 @@ public class CredentialsPanel extends VerticalLayout
 	public CredentialsPanel(UnityMessageSource msg, long entityId, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, boolean simpleMode) 
+			CredentialEditorRegistry credEditorReg, AuthenticationFlowManagement flowMan, boolean simpleMode) 
 					throws Exception
 	{
 		this.msg = msg;
@@ -76,12 +82,28 @@ public class CredentialsPanel extends VerticalLayout
 		this.credReqMan = credReqMan;
 		this.credEditorReg = credEditorReg;
 		this.simpleMode = simpleMode;
+		this.flowMan = flowMan;
 		init();
 	}
 	
 	
 	private void init() throws Exception
 	{
+		
+		userOptInCheckBox = new CheckBox(msg.getMessage("CredentialChangeDialog.userMFAOptin"));
+		userOptInCheckBox.setDescription(msg.getMessage("CredentialChangeDialog.userMFAOptinDesc"));
+		FormLayout wrapper = new FormLayout();
+		wrapper.setSpacing(false);
+		wrapper.addComponent(userOptInCheckBox);
+		addComponent(wrapper);
+		addComponent(HtmlTag.horizontalLine());
+		
+		userOptInCheckBox.addValueChangeListener(e -> {
+			setUserMFAOptin(e.getValue());
+		});
+		
+		userOptInCheckBox.setValue(getUserOptInAttribute());
+		
 		loadCredentials();
 		if (credentials.size() == 0)
 		{
@@ -90,11 +112,13 @@ public class CredentialsPanel extends VerticalLayout
 			return;
 		}
 		panels = new ArrayList<>();	
+		Callback callback = () -> updateUserOptInCheckbox();
+		
 		for (CredentialDefinition credDef : credentials.values())
 		{
 			SingleCredentialPanel panel = new SingleCredentialPanel(msg, entityId,
 					ecredMan, credMan, entityMan, credEditorReg, credDef, simpleMode,
-					true);
+					true, callback);
 			if (!panel.isEmptyEditor())
 			{
 				panels.add(panel);
@@ -110,10 +134,61 @@ public class CredentialsPanel extends VerticalLayout
 			addComponent(panel);
 			last--;
 		}
-		
+		updateUserOptInCheckbox();
 		setSizeFull();
 	}
+
+	private void updateUserOptInCheckbox()
+	{
+		int setCredentialSize = 0;
+
+		for (SingleCredentialPanel panel : panels)
+		{
+			if (!panel.getCredentialState().equals(LocalCredentialState.notSet))
+			{	
+				setCredentialSize++;
+			
+			}
+		}
+
+		if (setCredentialSize < 2)
+		{
+			userOptInCheckBox.setValue(false);
+			userOptInCheckBox.setEnabled(false);
 		
+		} else
+		{
+			userOptInCheckBox.setEnabled(true);
+		}
+	}
+
+	private void setUserMFAOptin(Boolean value)
+	{
+		try
+		{
+			flowMan.setUserMFAOptIn(entityId, value);
+		} catch (EngineException e)
+		{
+			log.debug("Can not set user MFA optin attribute", e);
+			throw new InternalException(msg.getMessage(
+					"CredentialChangeDialog.cantSetUserMFAOptin"), e);
+		}
+	}
+
+	private boolean getUserOptInAttribute()
+	{
+		try
+		{
+			return flowMan.getUserMFAOptIn(entityId);
+		} catch (EngineException e)
+		{
+			log.debug("Can not get user MFA optin attribute", e);
+			throw new InternalException(msg.getMessage(
+					"CredentialChangeDialog.cantGetUserMFAOptin"), e);
+		}
+	}
+	
+
 	public boolean isChanged()
 	{	
 		for (SingleCredentialPanel panel : panels)
@@ -177,4 +252,10 @@ public class CredentialsPanel extends VerticalLayout
 				credentials.put(credential.getName(), credential);
 		}
 	}
+	
+	public interface Callback 
+	{
+		public void refresh();
+	}
+	
 }

@@ -65,6 +65,7 @@ import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Ordinary password credential verificator. Supports all settings from {@link PasswordCredential}.  
@@ -397,6 +398,12 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			throws IllegalCredentialException, InternalException
 	{
 		return prepareCredential(rawCredential, null, currentCredential, verify);
+	}
+	
+	@Override
+	public boolean isCredentialSet(EntityParam entity, String credentialId) throws EngineException
+	{
+		return credentialHelper.isCredentialSet(entity, credentialId);
 	}
 	
 	@Component

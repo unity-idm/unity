@@ -17,10 +17,14 @@ import java.util.Set;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
@@ -45,7 +49,8 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -84,6 +89,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	private TranslationProfileManagement profilesMan;
 	@Autowired
 	private AuthenticatorManagement authnMan;
+	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
 	
 	
 	@Before
@@ -95,11 +102,12 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 				10, 100, -1, 600);
 		realmsMan.addRealm(realm);
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
-		authnCfg.add(new AuthenticationOptionDescription("Apass"));
-		authnCfg.add(new AuthenticationOptionDescription("Acert"));
+		
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER,
+				Sets.newHashSet("Apass", "Acert")));
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
-				authnCfg, SAML_ENDP_CFG, REALM_NAME);
+				Lists.newArrayList("flow1"), SAML_ENDP_CFG, REALM_NAME);
 		endpointMan.deploy(SamlSoapEndpoint.NAME, "endpointIDP", "/saml", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());

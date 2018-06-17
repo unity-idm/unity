@@ -11,104 +11,108 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 
 public class AuthenticationOptionsHandlerTest
 {
 	@Test
 	public void shouldReturnRemaining()
 	{
-		AuthenticationOption opt1 = getMockAuthnOption("authn", "o1", "o2");
-		AuthenticationOption opt2 = getMockAuthnOption("authn2", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(opt1, opt2));
-		handler.getMatchingRetrievals("authn.o2");
+		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
+		AuthenticationFlow flow2 = getMockAuthnOption("authn2", "o3");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2));
+		handler.getMatchingAuthnOptions("authn.o2");
 		
-		Map<AuthenticationOption, List<VaadinAuthenticationUI>> result = handler.getRemainingRetrievals();
+		List<AuthNOption> result = handler.getRemainingAuthnOptions();
 		
 		assertThat(result.size(), is(2));
-		assertThat(result.get(opt1).size(), is(1));
-		assertThat(result.get(opt1).get(0).getId(), is("o1"));
-		assertThat(result.get(opt2).size(), is(1));
-		assertThat(result.get(opt2).get(0).getId(), is("o3"));
+		assertThat(result.get(0).authenticatorUI.getId(), is("o1"));
+		assertThat(result.get(1).authenticatorUI.getId(), is("o3"));
 	}
 	
 	@Test
 	public void shouldReturnOptionFromMFAByAuthenticator()
 	{
-		AuthenticationOption opt1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
-		AuthenticationOption opt2 = getMockAuthnOption("authn3", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(opt1, opt2));
+		AuthenticationFlow flow1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
+		AuthenticationFlow flow2 = getMockAuthnOption("authn3", "o3");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2));
 		
-		List<VaadinAuthenticationUI> result = handler.getMatchingRetrievals("authn1");
+		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1");
 		
 		assertThat(result.size(), is(2));
-		assertThat(result.get(0).getId(), is("o1"));
-		assertThat(result.get(1).getId(), is("o2"));
+		assertThat(result.get(0).authenticatorUI.getId(), is("o1"));
+		assertThat(result.get(1).authenticatorUI.getId(), is("o2"));
 	}
 
 	@Test
 	public void shouldReturnOptionFromMFAByEntry()
 	{
-		AuthenticationOption opt1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
-		AuthenticationOption opt2 = getMockAuthnOption("authn3", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(opt1, opt2));
+		AuthenticationFlow flow1 = getMock2FAuthnOption("authn1", "authn2", "2ndFAo", "o1", "o2");
+		AuthenticationFlow flow2 = getMockAuthnOption("authn3", "o3");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2));
 		
-		List<VaadinAuthenticationUI> result = handler.getMatchingRetrievals("authn1.o2");
+		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn1.o2");
 		
 		assertThat(result.size(), is(1));
-		assertThat(result.get(0).getId(), is("o2"));
+		assertThat(result.get(0).authenticatorUI.getId(), is("o2"));
 	}
 	
 	@Test
 	public void shouldBlacklistOptionsGivenByAuthenticator()
 	{
-		AuthenticationOption opt1 = getMockAuthnOption("authn", "o1", "o2");
-		AuthenticationOption opt2 = getMockAuthnOption("authn2", "o3");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(opt1, opt2));
-		handler.getMatchingRetrievals("authn");
+		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
+		AuthenticationFlow flow2 = getMockAuthnOption("authn2", "o3");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1, flow2));
+		handler.getMatchingAuthnOptions("authn");
 		
-		List<VaadinAuthenticationUI> result = handler.getMatchingRetrievals("authn2");
+		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn2");
 		
 		assertThat(result.size(), is(1));
-		assertThat(result.get(0).getId(), is("o3"));
+		assertThat(result.get(0).authenticatorUI.getId(), is("o3"));
 	}
 
 	@Test
 	public void shouldIncludeSpecificOption()
 	{
-		AuthenticationOption opt1 = getMockAuthnOption("authn", "o1", "o2");
-		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(opt1));
+		AuthenticationFlow flow1 = getMockAuthnOption("authn", "o1", "o2");
+		AuthenticationOptionsHandler handler = new AuthenticationOptionsHandler(Lists.newArrayList(flow1));
 		
-		List<VaadinAuthenticationUI> result = handler.getMatchingRetrievals("authn.o2");
+		List<AuthNOption> result = handler.getMatchingAuthnOptions("authn.o2");
 		
 		assertThat(result.size(), is(1));
-		assertThat(result.get(0).getId(), is("o2"));
+		assertThat(result.get(0).authenticatorUI.getId(), is("o2"));
 	}
 	
-	private AuthenticationOption getMock2FAuthnOption(String authenticator, 
+	private AuthenticationFlow getMock2FAuthnOption(String authenticator, 
 			String authenticator2, String secondFAEntry, String... entries)
 	{
-		VaadinAuthentication vauthenticator1 = getMockVaadinAuthentication(authenticator, entries);
-		VaadinAuthentication vauthenticator2 = getMockVaadinAuthentication(authenticator2, secondFAEntry);
-		return new AuthenticationOption(vauthenticator1, vauthenticator2);
+		Authenticator vauthenticator1 = getMockVaadinAuthentication(authenticator, entries);
+		Authenticator vauthenticator2 = getMockVaadinAuthentication(authenticator2, secondFAEntry);
+		return new AuthenticationFlow("", Policy.REQUIRE, Sets.newHashSet(vauthenticator1), 
+				Lists.newArrayList(vauthenticator2), 1);
 	}
 	
-	private AuthenticationOption getMockAuthnOption(String authenticator, String... entries)
+	private AuthenticationFlow getMockAuthnOption(String authenticator, String... entries)
 	{
-		return new AuthenticationOption(getMockVaadinAuthentication(authenticator, entries), null);
+		return new AuthenticationFlow("", Policy.NEVER, Sets.newHashSet(
+				getMockVaadinAuthentication(authenticator, entries)), Lists.newArrayList(), 1);
 	}
 	
-	private VaadinAuthentication getMockVaadinAuthentication(String authenticator, String... entries)
+	private Authenticator getMockVaadinAuthentication(String authenticator, String... entries)
 	{
-		VaadinAuthentication vauthenticator = mock(VaadinAuthentication.class);
+		VaadinCredRet vauthenticator = mock(VaadinCredRet.class);
 		when(vauthenticator.getAuthenticatorId()).thenReturn(authenticator);
 		List<VaadinAuthenticationUI> uis = new ArrayList<>();
 		for (String entry: entries)
@@ -119,7 +123,13 @@ public class AuthenticationOptionsHandlerTest
 			uis.add(ui);
 		}
 		when(vauthenticator.createUIInstance()).thenReturn(uis);
-		return vauthenticator;
+		Authenticator ret = mock(Authenticator.class);
+		when(ret.getRetrieval()).thenReturn(vauthenticator);
+		return ret;
+	}
+	
+	private interface VaadinCredRet extends VaadinAuthentication, CredentialRetrieval
+	{
 	}
 
 }

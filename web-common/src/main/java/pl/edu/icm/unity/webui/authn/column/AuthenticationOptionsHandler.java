@@ -13,7 +13,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
@@ -25,87 +26,122 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  */
 class AuthenticationOptionsHandler
 {
-	private final Map<String, AuthenticationOption> authentionOptionsByName = new LinkedHashMap<>();
+	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
+
 	private Set<String> consumedAuthenticators = new HashSet<>();
+
 	private Set<String> consumedAuthenticatorEntries = new HashSet<>();
-	
-	AuthenticationOptionsHandler(List<AuthenticationOption> availableAuthentionOptions)
+
+	AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows)
 	{
-		for (AuthenticationOption ao: availableAuthentionOptions)
-			authentionOptionsByName.put(ao.getId(), ao);
+		for (AuthenticationFlow ao : availableAuthentionFlows)
+			for (Authenticator a: ao.getFirstFactorAuthenticators())
+				authenticatorsByName.put(a.getRetrieval().getAuthenticatorId(), 
+						new AuthenticatorWithFlow(ao, a));
 	}
-	
+
 	void clear()
 	{
 		consumedAuthenticators.clear();
 		consumedAuthenticatorEntries.clear();
 	}
 
-	AuthenticationOption getMatchingOption(String spec)
+	Authenticator getMatchingAuthenticator(String spec)
 	{
 		String authenticatorName = AuthenticationOptionKeyUtils.decodeAuthenticator(spec);
-		return authentionOptionsByName.get(authenticatorName);
+		return authenticatorsByName.get(authenticatorName).authenticator;
 	}
 
-	VaadinAuthenticationUI getFirstMatchingRetrieval(String spec)
+	AuthNOption getFirstMatchingOption(String spec)
 	{
-		List<VaadinAuthenticationUI> ret = getMatchingRetrievals(spec);
+		List<AuthNOption> ret = getMatchingAuthnOptions(spec);
 		return ret.isEmpty() ? null : ret.get(0);
 	}
 
-	
-	List<VaadinAuthenticationUI> getMatchingRetrievals(String spec)
+	List<AuthNOption> getMatchingAuthnOptions(String spec)
 	{
-		AuthenticationOption authNOption = getMatchingOption(spec);
-		if (authNOption == null)
+		String authenticatorName = AuthenticationOptionKeyUtils.decodeAuthenticator(spec);
+		AuthenticatorWithFlow authenticatorWF = authenticatorsByName.get(authenticatorName);
+		if (authenticatorWF == null)
 			return Collections.emptyList();
-		
-		String authenticatorOptionName = AuthenticationOptionKeyUtils.decodeAuthenticatorOption(spec);
-		if (authenticatorOptionName == null)
+
+		String authenticatonOptionName = AuthenticationOptionKeyUtils.decodeOption(spec);
+		if (authenticatonOptionName == null)
 		{
 			if (!consumedAuthenticators.add(AuthenticationOptionKeyUtils.decodeAuthenticator(spec)))
 				return Collections.emptyList();
 		}
-		VaadinAuthentication firstAuthenticator = (VaadinAuthentication) authNOption.getPrimaryAuthenticator();
-		Collection<VaadinAuthenticationUI> optionUIInstances = firstAuthenticator.createUIInstance();
-		List<VaadinAuthenticationUI> ret = new ArrayList<>();
+		
+		VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
+		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance();
+		List<AuthNOption> ret = new ArrayList<>();
 		for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 		{
 			if (!vaadinAuthenticationUI.isAvailable())
 				continue;
-			String currentKey = AuthenticationOptionKeyUtils.encode(authNOption.getId(), vaadinAuthenticationUI.getId());
+			String currentKey = AuthenticationOptionKeyUtils.encode(vaadinAuthenticator.getAuthenticatorId(),
+					vaadinAuthenticationUI.getId());
 			if (consumedAuthenticatorEntries.contains(currentKey))
 				continue;
-			if (authenticatorOptionName == null || authenticatorOptionName.equals(vaadinAuthenticationUI.getId()))
+			if (authenticatonOptionName == null
+					|| authenticatonOptionName.equals(vaadinAuthenticationUI.getId()))
 			{
-				ret.add(vaadinAuthenticationUI);
+				ret.add(new AuthNOption(authenticatorWF.flow, 
+						(VaadinAuthentication) authenticatorWF.authenticator.getRetrieval(), 
+						vaadinAuthenticationUI));
 				consumedAuthenticatorEntries.add(currentKey);
 			}
 		}
 		return ret;
 	}
-	
-	Map<AuthenticationOption, List<VaadinAuthenticationUI>> getRemainingRetrievals()
+
+	List<AuthNOption> getRemainingAuthnOptions()
 	{
-		Map<AuthenticationOption, List<VaadinAuthenticationUI>> ret = new LinkedHashMap<>();
-		for (AuthenticationOption authNOption: authentionOptionsByName.values())
+		List<AuthNOption> ret = new ArrayList<>();
+		for (AuthenticatorWithFlow authenticatorWF : authenticatorsByName.values())
 		{
-			if (consumedAuthenticators.contains(authNOption.getId()))
+			if (consumedAuthenticators.contains(authenticatorWF.authenticator.getRetrieval().getAuthenticatorId()))
 				continue;
-			List<VaadinAuthenticationUI> entries = new ArrayList<>();
-			ret.put(authNOption, entries);
-			
-			VaadinAuthentication firstAuthenticator = (VaadinAuthentication) authNOption.getPrimaryAuthenticator();
-			Collection<VaadinAuthenticationUI> optionUIInstances = firstAuthenticator.createUIInstance();
+
+			VaadinAuthentication retrieval = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
+			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance();
 			for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 			{
 				if (!vaadinAuthenticationUI.isAvailable())
 					continue;
-				String entryKey = AuthenticationOptionKeyUtils.encode(authNOption.getId(), vaadinAuthenticationUI.getId());
+				String entryKey = AuthenticationOptionKeyUtils.encode(retrieval.getAuthenticatorId(), 
+						vaadinAuthenticationUI.getId());
 				if (!consumedAuthenticatorEntries.contains(entryKey))
-					entries.add(vaadinAuthenticationUI);
+					ret.add(new AuthNOption(authenticatorWF.flow, retrieval, vaadinAuthenticationUI));
 			}
 		}
 		return ret;
+	}
+
+	private static class AuthenticatorWithFlow
+	{
+		final AuthenticationFlow flow;
+		final Authenticator authenticator;
+
+		public AuthenticatorWithFlow(AuthenticationFlow flow, Authenticator authenticator)
+		{
+			this.flow = flow;
+			this.authenticator = authenticator;
+		}
+	}
+	
+	public static class AuthNOption
+	{
+		public final AuthenticationFlow flow;
+		public final VaadinAuthentication authenticator;
+		public final VaadinAuthenticationUI authenticatorUI;
+
+		public AuthNOption(AuthenticationFlow flow, VaadinAuthentication authenticator,
+				VaadinAuthenticationUI authenticatorUI)
+		{
+			this.flow = flow;
+			this.authenticator = authenticator;
+			this.authenticatorUI = authenticatorUI;
+		}
 	}
 }

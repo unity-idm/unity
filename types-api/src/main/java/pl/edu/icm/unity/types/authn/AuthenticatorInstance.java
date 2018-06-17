@@ -21,6 +21,7 @@ public class AuthenticatorInstance implements NamedObject
 	private String retrievalConfiguration;
 	private String verificatorConfiguration;
 	private String localCredentialName;
+	private long revision = 0;
 	
 	/**
 	 * @return name of the local credential bound to this authenticator. In case of non local authenticators null is returned
@@ -44,34 +45,52 @@ public class AuthenticatorInstance implements NamedObject
 	{
 		return id;
 	}
+	
 	public void setId(String id)
 	{
 		this.id = id;
 	}
+	
 	public AuthenticatorTypeDescription getTypeDescription()
 	{
 		return typeDescription;
 	}
+	
 	public void setTypeDescription(AuthenticatorTypeDescription typeDescription)
 	{
 		this.typeDescription = typeDescription;
 	}
+	
 	public String getRetrievalConfiguration()
 	{
 		return retrievalConfiguration;
 	}
+	
 	public void setRetrievalConfiguration(String retrievalJsonConfiguration)
 	{
 		this.retrievalConfiguration = retrievalJsonConfiguration;
 	}
+	
 	public String getVerificatorConfiguration()
 	{
 		return verificatorConfiguration;
 	}
+	
 	public void setVerificatorConfiguration(String verificatorJsonConfiguration)
 	{
 		this.verificatorConfiguration = verificatorJsonConfiguration;
 	}
+	
+	public long getRevision()
+	{
+		return revision;
+	}
+	
+	public void setRevision(long revision)
+	{
+		this.revision = revision;
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -86,6 +105,7 @@ public class AuthenticatorInstance implements NamedObject
 				+ ((typeDescription == null) ? 0 : typeDescription.hashCode());
 		result = prime * result + ((verificatorConfiguration == null) ? 0
 				: verificatorConfiguration.hashCode());
+		result = prime * result + (int) (revision ^ (revision >>> 32));
 		return result;
 	}
 	@Override
@@ -128,6 +148,9 @@ public class AuthenticatorInstance implements NamedObject
 				return false;
 		} else if (!verificatorConfiguration.equals(other.verificatorConfiguration))
 			return false;
+		if (revision != other.revision)
+			return false;
+		
 		return true;
 	}
 }

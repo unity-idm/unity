@@ -28,10 +28,42 @@ public class ProfileFetcherUtils
 
 	public static AttributeFetchResult fetchFromJsonObject(JSONObject jsonObject)
 	{
-		return new AttributeFetchResult(convertToFlatAttributes(jsonObject),
+		return new AttributeFetchResult(convertToAttributes(jsonObject),
 				convertToRawAttributes(jsonObject));
 	}
 
+	public static Map<String, List<String>> convertToAttributes(JSONObject profile)
+	{
+		Map<String, List<String>> ret = new HashMap<>();
+		
+
+		for (Entry<String, Object> entry : profile.entrySet())
+		{
+			if (entry.getValue() == null)
+				continue;
+			Object value = JSONValue.parse(entry.getValue().toString());
+			if (value instanceof JSONObject)
+			{
+				ret.put(entry.getKey(), Arrays.asList(value.toString()));
+
+			} else if (value instanceof JSONArray)
+			{
+				ArrayList<String> vList = new ArrayList<>();
+				for (Object v : (JSONArray) value)
+				{
+					vList.add(v.toString());
+				}
+
+				ret.put(entry.getKey(), vList);
+			} else
+			{
+				ret.put(entry.getKey(), Arrays.asList(value.toString()));
+			}
+
+		}
+		return ret;
+	}
+	
 	static JSONObject convertToRawAttributes(JSONObject toConvert)
 	{
 		JSONObject res = new JSONObject(toConvert);
@@ -82,63 +114,5 @@ public class ProfileFetcherUtils
 				resolveNestedJsonType(jarray);
 			}
 		}
-	}
-
-	public static Map<String, List<String>> convertToFlatAttributes(JSONObject profile)
-	{
-		Map<String, List<String>> ret = new HashMap<>();
-		convertToFlatAttributes("", profile, ret);
-		return ret;
-	}
-
-	private static Map<String, List<String>> convertToFlatAttributes(String prefix,
-			JSONObject profile, Map<String, List<String>> ret)
-	{
-		for (Entry<String, Object> entry : profile.entrySet())
-		{
-			if (entry.getValue() == null)
-				continue;
-			Object value = JSONValue.parse(entry.getValue().toString());
-			if (value instanceof JSONObject)
-			{
-				convertToFlatAttributes(prefix + entry.getKey() + ".",
-						(JSONObject) value, ret);
-
-			} else if (value instanceof JSONArray)
-			{
-				convertToFlatAttributes(prefix + entry.getKey() + ".",
-						(JSONArray) value, ret);
-			} else
-			{
-				ret.put(prefix + entry.getKey(), Arrays.asList(value.toString()));
-			}
-
-		}
-		return ret;
-	}
-
-	private static Map<String, List<String>> convertToFlatAttributes(String prefix,
-			JSONArray element, Map<String, List<String>> ret)
-	{
-		for (int i = 0; i < element.size(); i++)
-		{
-			Object value = JSONValue.parse(element.get(i).toString());
-			if (value == null)
-				continue;
-
-			if (value instanceof JSONObject)
-			{
-				convertToFlatAttributes(prefix + i + ".", (JSONObject) value, ret);
-			} else if (value instanceof JSONArray)
-			{
-				convertToFlatAttributes(prefix + i + ".", (JSONArray) value, ret);
-			} else
-			{
-				ret.put(prefix + i, Arrays.asList(value.toString()));
-			}
-
-		}
-
-		return ret;
 	}
 }
