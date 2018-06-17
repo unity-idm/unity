@@ -165,7 +165,7 @@ public class SelectedAuthNPanel extends CustomComponent
 		if (authenticatorsContainer.getComponentCount() > 0)
 			updateFocus(authenticatorsContainer.getComponent(0));
 		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
-		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
+		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
 		showWaitScreenIfNeeded();
 	}
 	

@@ -165,7 +165,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}

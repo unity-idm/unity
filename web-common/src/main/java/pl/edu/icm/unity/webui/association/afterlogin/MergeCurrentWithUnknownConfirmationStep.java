@@ -101,7 +101,7 @@ public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmatio
 		{
 			translationEngine.mergeWithExisting(authnContext.getMappingResult(), 
 					new EntityParam(loginSession.getEntityId()));
-			NotificationPopup.showSuccess(msg, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"), 
+			NotificationPopup.showSuccess(msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"), 
 					msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful"));
 		} catch (EngineException e)
 		{

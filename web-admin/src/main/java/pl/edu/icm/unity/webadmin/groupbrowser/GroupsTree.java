@@ -394,7 +394,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			missingSize += notMember.size();
 		if (missingSize == 0)
 		{
-			NotificationPopup.showNotice(msg,
+			NotificationPopup.showNotice(
 					msg.getMessage("GroupsTree.alreadyMember", MessageUtils
 							.createConfirmFromStrings(msg, entities),
 							finalGroup),

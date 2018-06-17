@@ -92,7 +92,7 @@ public class MergeUnknownWithExistingConfirmationStep extends AbstractConfirmati
 		try
 		{
 			translationEngine.mergeWithExisting(unknownUser.getMappingResult(), existing);
-			NotificationPopup.showSuccess(msg, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"), 
+			NotificationPopup.showSuccess(msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"), 
 					msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful"));
 		} catch (EngineException e)
 		{

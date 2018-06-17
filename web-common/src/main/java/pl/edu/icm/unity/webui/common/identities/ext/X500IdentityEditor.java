@@ -103,7 +103,7 @@ public class X500IdentityEditor implements IdentityEditor
 		{
 			if (fos.isOverflow())
 			{
-				NotificationPopup.showError(msg, msg.getMessage("X500IdentityEditor.uploadFailed"),
+				NotificationPopup.showError(msg.getMessage("X500IdentityEditor.uploadFailed"),
 						msg.getMessage("X500IdentityEditor.certSizeTooBig"));
 				fos = null;
 				return;

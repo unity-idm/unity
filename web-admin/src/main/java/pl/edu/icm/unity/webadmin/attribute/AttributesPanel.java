@@ -390,7 +390,7 @@ public class AttributesPanel extends HorizontalSplitPanel
 
 		if (allowed.isEmpty())
 		{
-			NotificationPopup.showNotice(msg, msg.getMessage("notice"),
+			NotificationPopup.showNotice(msg.getMessage("notice"),
 					msg.getMessage("Attribute.noAvailableAttributes"));
 			return;
 		}

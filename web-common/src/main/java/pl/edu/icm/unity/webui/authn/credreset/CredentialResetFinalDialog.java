@@ -46,7 +46,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != expectedState)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
@@ -80,7 +80,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 			updatedValue = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
-			NotificationPopup.showError(msg, msg
+			NotificationPopup.showError(msg
 					.getMessage("CredentialChangeDialog.credentialUpdateError"),
 					e.getMessage());
 			return;
@@ -95,7 +95,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 			return;
 		}
 		
-		NotificationPopup.showSuccess(msg, msg.getMessage("notice"), msg.getMessage("CredentialReset.success"));
+		NotificationPopup.showSuccess(msg.getMessage("notice"), msg.getMessage("CredentialReset.success"));
 		close();
 		CredentialResetStateVariable.reset();
 	}

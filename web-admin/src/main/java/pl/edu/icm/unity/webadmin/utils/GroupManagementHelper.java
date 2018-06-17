@@ -193,10 +193,10 @@ public class GroupManagementHelper
 		if (notMember.isEmpty())
 			return;
 		if (added.isEmpty())
-			NotificationPopup.showNotice(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
+			NotificationPopup.showNotice(msg.getMessage("GroupsTree.addMembershipSummary"), 
 					msg.getMessage("GroupsTree.notAdded", notMember));
 		else
-			NotificationPopup.showSuccess(msg, msg.getMessage("GroupsTree.addMembershipSummary"), 
+			NotificationPopup.showSuccess(msg.getMessage("GroupsTree.addMembershipSummary"), 
 					msg.getMessage("GroupsTree.partiallyAdded", added, notMember));
 	}
 	

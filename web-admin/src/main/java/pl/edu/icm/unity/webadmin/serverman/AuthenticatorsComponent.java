@@ -202,7 +202,6 @@ public class AuthenticatorsComponent extends VerticalLayout
 				authComp.deploy();
 			}
 		}
-		NotificationPopup.showSuccess(msg, "", msg.getMessage(
-				"Authenticators.reloaded"));
+		NotificationPopup.showSuccess("", msg.getMessage("Authenticators.reloaded"));
 	}
 }

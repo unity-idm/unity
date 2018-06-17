@@ -54,7 +54,7 @@ public class SMSCredentialReset1Dialog extends AbstractDialog
 	{
 		if (CredentialResetStateVariable.get() != 0)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}

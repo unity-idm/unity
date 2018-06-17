@@ -201,7 +201,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
 			return;
 		}

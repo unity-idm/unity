@@ -88,7 +88,7 @@ public class AttributeStatementEditDialog extends AbstractDialog
 			ret = component.getStatementFromComponent();
 		} catch (FormValidationException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("AttributeStatementEditDialog.invalidFormSettings"), 
+			NotificationPopup.showError(msg.getMessage("AttributeStatementEditDialog.invalidFormSettings"), 
 					e.getMessage());
 			return;
 		}

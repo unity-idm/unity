@@ -194,14 +194,14 @@ public class PasswordCredentialEditor implements CredentialEditor
 		
 		if (error instanceof IllegalPreviousCredentialException)
 		{
-			NotificationPopup.showError(msg, 
+			NotificationPopup.showError(
 					msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
 					msg.getMessage("PasswordCredentialEditor.wrongOldPasswordError"));
 			passwordCurrent.setValue("");
 			passwordCurrent.focus();
 		} else if (error instanceof CredentialRecentlyUsedException)
 		{
-			NotificationPopup.showError(msg, 
+			NotificationPopup.showError(
 					msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
 					msg.getMessage("PasswordCredentialEditor.recentlyUsedError"));
 			password1.focus();

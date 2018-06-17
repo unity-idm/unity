@@ -151,13 +151,13 @@ public class ImportExportComponent extends VerticalLayout
 	{
 		if (uploader.isOverflow())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("ImportExport.uploadFileTooBig"));
 			return;
 		}
 		if (uploader.isUploading())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("ImportExport.uploadInProgress"));
 			return;
 		}
@@ -165,7 +165,7 @@ public class ImportExportComponent extends VerticalLayout
 		final File f = uploader.getFile();
 		if (f == null)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("ImportExport.uploadFileFirst"));
 			return;
 		}

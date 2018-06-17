@@ -157,7 +157,7 @@ public class UnknownUserDialog extends AbstractDialog
 		{
 			log.error("Can't show a registration form for the remotely authenticated user as configured. " +
 					"Probably the form name is wrong.", e);
-			NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+			NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 					msg.getMessage("AuthenticationUI.problemWithRegistration"));
 		}
 	}
@@ -166,7 +166,7 @@ public class UnknownUserDialog extends AbstractDialog
 	{
 		log.debug("Can't show a registration form for the remotely authenticated user - "
 				+ "user does not meet form requirements.", error);
-		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 				msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
 	}
 	

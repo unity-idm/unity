@@ -67,7 +67,7 @@ public class EnquiryFormFillDialog extends AbstractDialog
 		String info = (type == EnquiryType.REQUESTED_MANDATORY) ? 
 				msg.getMessage("EnquiryFormFillDialog.mandatoryEnquiryInfo") : 
 				msg.getMessage("EnquiryFormFillDialog.optionalEnquiryInfo");
-		NotificationPopup.showNotice(msg, msg.getMessage("EnquiryFormFillDialog.newEnquiryCaption"), info);
+		NotificationPopup.showNotice(msg.getMessage("EnquiryFormFillDialog.newEnquiryCaption"), info);
 			
 	}
 	

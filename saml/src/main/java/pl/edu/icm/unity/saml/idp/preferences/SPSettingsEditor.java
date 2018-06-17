@@ -244,7 +244,7 @@ public class SPSettingsEditor extends FormLayout
 				selection.setSelectedItem(available.get(0));
 			} else
 			{
-				NotificationPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
+				NotificationPopup.showNotice(msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
 				throw new FormValidationException();
 			}
 			return selection;

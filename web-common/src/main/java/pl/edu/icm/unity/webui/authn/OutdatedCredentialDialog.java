@@ -66,11 +66,11 @@ public class OutdatedCredentialDialog
 		authnProcessor.logout(true);
 		if (changed)
 		{
-			NotificationPopup.showSuccess(msg, msg.getMessage("OutdatedCredentialDialog.finalCaption"), 
+			NotificationPopup.showSuccess(msg.getMessage("OutdatedCredentialDialog.finalCaption"), 
 					msg.getMessage("OutdatedCredentialDialog.finalInfo"));
 		} else
 		{
-			NotificationPopup.showError(msg, msg.getMessage("OutdatedCredentialDialog.finalCaption"), 
+			NotificationPopup.showError(msg.getMessage("OutdatedCredentialDialog.finalCaption"), 
 					msg.getMessage("OutdatedCredentialDialog.finalInfoNotChanged"));
 		}
 	}

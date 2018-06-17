@@ -565,7 +565,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			preferences.savePreferences(preferencesMan);
 		} catch (EngineException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("Identities.cannotSavePrefernces"));
 			return;
 

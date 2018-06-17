@@ -105,7 +105,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 		if (authenticatorContainer.getComponentCount() > 0)
 			updateFocus(authenticatorContainer.getComponent(0));
 		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
-		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
+		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
 		showWaitScreenIfNeeded();
 	}
 	

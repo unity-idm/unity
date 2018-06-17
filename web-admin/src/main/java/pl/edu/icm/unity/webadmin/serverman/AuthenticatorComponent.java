@@ -152,7 +152,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		log.info("Add " + id + "authenticator");
 		if (!addAuthenticator(id))
 		{
-			NotificationPopup.showError(msg,
+			NotificationPopup.showError(
 					msg.getMessage("Authenticators.cannotDeploy", id),
 					msg.getMessage("Authenticators.cannotDeployRemovedConfig", id));
 			setVisible(false);
@@ -211,7 +211,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			setStatus(Status.deployed);
 			if (showSuccess)
 			{
-				NotificationPopup.showSuccess(msg, "", msg.getMessage(
+				NotificationPopup.showSuccess("", msg.getMessage(
 						"Authenticators.reloadSuccess", id));
 			}
 		}
@@ -250,7 +250,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot load authenticators", e);
-			NotificationPopup.showError(msg,msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("Authenticators.cannotLoadList"));
 			return false;
 		}

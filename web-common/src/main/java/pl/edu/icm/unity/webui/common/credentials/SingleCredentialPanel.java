@@ -286,7 +286,7 @@ public class SingleCredentialPanel extends VerticalLayout
 			secrets = credEditor.getValue();
 		} catch (IllegalCredentialException e)
 		{
-			NotificationPopup.showError(msg, msg
+			NotificationPopup.showError(msg
 					.getMessage("CredentialChangeDialog.credentialUpdateError"),
 					e.getMessage());
 			return false;
@@ -311,9 +311,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		}
 		credEditor.setCredentialError(null);
 		if (showSuccess)
-			NotificationPopup.showSuccess(msg,
-					msg.getMessage("CredentialChangeDialog.credentialUpdated"),
-					"");
+			NotificationPopup.showSuccess(msg.getMessage("CredentialChangeDialog.credentialUpdated"), "");
 		changed = true;
 		loadEntity(entityP);
 		updateCredentialStatus();

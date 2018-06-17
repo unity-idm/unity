@@ -140,18 +140,18 @@ public class PostFormFillingHandler
 		{
 			if (message != null)
 			{
-				NotificationPopup.showNotice(msg,
+				NotificationPopup.showNotice(
 						message.getSubject().getValue(msg),
 						message.getBody().getValue(msg));
 			} else if (autoAccepted)
 			{
-				NotificationPopup.showNotice(msg,
+				NotificationPopup.showNotice(
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept"));
 	
 			} else
 			{
-				NotificationPopup.showNotice(msg, msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
+				NotificationPopup.showNotice(msg.getMessage("RegistrationFormsChooserComponent.requestSubmitted"),
 						msg.getMessage("RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept"));
 			}
 		}
@@ -174,7 +174,7 @@ public class PostFormFillingHandler
 		} else
 		{
 			if (showCancelMessage)
-				NotificationPopup.showNotice(msg, msg.getMessage("notice"), 
+				NotificationPopup.showNotice(msg.getMessage("notice"), 
 					msg.getMessage("StandalonePublicFormView.cancel"));			
 		}
 	}
@@ -211,7 +211,7 @@ public class PostFormFillingHandler
 			Page.getCurrent().open(redirectUrl, null);
 		} else
 		{
-			NotificationPopup.showNotice(msg,
+			NotificationPopup.showNotice(
 					msg.getMessage("RegistrationFormsChooserComponent.requestProcessed"), 
 					msg.getMessage("RegistrationFormsChooserComponent.redirectInfo", redirectUrl));
 		}

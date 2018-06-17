@@ -214,7 +214,7 @@ public class MetadataEditor extends VerticalLayout
 				supported.removeAll(entries.keySet());
 				if (supported.isEmpty())
 				{
-					NotificationPopup.showNotice(msg, msg.getMessage("notice"), 
+					NotificationPopup.showNotice(msg.getMessage("notice"), 
 							msg.getMessage("MetadataEditor.noMoreMetadataAvailable"));
 					throw new FormValidationException();
 				}

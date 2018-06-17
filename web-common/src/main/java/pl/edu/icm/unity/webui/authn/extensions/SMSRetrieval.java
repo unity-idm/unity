@@ -281,7 +281,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			
 			if (username == null || username.equals(""))
 			{
-				NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 						msg.getMessage("WebSMSRetrieval.noUser"));
 				return;
 			}
@@ -325,7 +325,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			} catch (EngineException e)
 			{
 				log.debug("Cannot send authn sms code", e);
-				NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 						msg.getMessage("WebSMSRetrieval.cannotSendSMS", username));
 				return;
 			}
