@@ -102,5 +102,5 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @return
 	 * @throws EngineException 
 	 */
-	boolean isCredentialSet(EntityParam entity, String credentialId) throws EngineException;
+	boolean isCredentialSet(EntityParam entity) throws EngineException;
 }

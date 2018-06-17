@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +26,9 @@ public class PreferencesHandlerRegistry
 	private Map<String, PreferencesHandler> handlersByType = new HashMap<String, PreferencesHandler>();
 	
 	@Autowired
-	public PreferencesHandlerRegistry(List<PreferencesHandler> handlers)
+	public PreferencesHandlerRegistry(Optional<List<PreferencesHandler>> handlers)
 	{
-		for (PreferencesHandler handler: handlers)
+		for (PreferencesHandler handler: handlers.orElse(Collections.emptyList()))
 			handlersByType.put(handler.getPreferenceId(), handler);
 	}
 	

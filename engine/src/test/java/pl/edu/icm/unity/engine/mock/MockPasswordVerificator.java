@@ -97,7 +97,7 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	}
 
 	@Override
-	public boolean isCredentialSet(EntityParam entity, String credentialId)
+	public boolean isCredentialSet(EntityParam entity)
 			throws EngineException
 	{
 		

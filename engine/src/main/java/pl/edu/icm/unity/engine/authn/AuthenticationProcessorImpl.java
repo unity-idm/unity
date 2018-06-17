@@ -165,7 +165,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 
 		CredentialDefinition credentialDefinition = credRepo.get(credentialId);
 		return localCred.createLocalCredentialVerificator(credentialDefinition)
-				.isCredentialSet(new EntityParam(entity.getEntityId()), credentialId);
+				.isCredentialSet(new EntityParam(entity.getEntityId()));
 	}
 	
 	

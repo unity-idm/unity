@@ -36,7 +36,6 @@ public class PasswordCredentialReset1Dialog extends AbstractDialog
 	
 	private TextField username;
 	private CaptchaComponent captcha;
-	private PasswordCredentialResetSettings settings;
 	
 	public PasswordCredentialReset1Dialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor)
 	{
@@ -44,8 +43,7 @@ public class PasswordCredentialReset1Dialog extends AbstractDialog
 				msg.getMessage("cancel"));
 		this.msg = msg;
 		this.backend = backend;
-		this.credEditor = credEditor;
-		this.settings = new PasswordCredentialResetSettings(JsonUtil.parse(backend.getSettings()));
+		this.credEditor = credEditor;	
 	}
 
 	@Override
@@ -99,6 +97,9 @@ public class PasswordCredentialReset1Dialog extends AbstractDialog
 
 		close();
 		backend.setSubject(new IdentityTaV(UsernameIdentity.ID, user));
+		PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(JsonUtil.parse(backend.getSettings()));
+		
+		
 		CredentialResetStateVariable.inc(); //ok - username (maybe invalid but anyway) and captcha are provided.
 		//in future here we can also go to the 2nd dialog if other attributes are required.		
 		if (settings.isRequireSecurityQuestion())
