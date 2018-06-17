@@ -31,7 +31,6 @@ public class IdPAuthNComponent extends CustomComponent
 		providerB.setCaption(name);
 		if (logo != null)
 			providerB.setIcon(logo);
-		providerB.setData(id);
 		setCompositionRoot(providerB);
 	}
 	

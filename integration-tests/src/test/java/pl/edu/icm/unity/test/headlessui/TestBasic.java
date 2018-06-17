@@ -21,14 +21,14 @@ public class TestBasic extends SeleniumTestBase
 	public void loginTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
-		waitForPageLoad(By.id("AuthenticationUI.authnenticateButton"));
+		waitForPageLoad(By.className("u-passwordSignInButton"));
 		
 		Cookie sessionBefore = driver.manage().getCookieNamed("JSESSIONID");
-		driver.findElement(By.id("AuthenticationUI.username")).clear();
-		driver.findElement(By.id("AuthenticationUI.username")).sendKeys("a");
-		driver.findElement(By.id("WebPasswordRetrieval.password")).clear();
-		driver.findElement(By.id("WebPasswordRetrieval.password")).sendKeys("a");
-		driver.findElement(By.id("AuthenticationUI.authnenticateButton")).click();
+		driver.findElement(By.className("u-passwordUsernameField")).clear();
+		driver.findElement(By.className("u-passwordUsernameField")).sendKeys("a");
+		driver.findElement(By.className("u-passwordField")).clear();
+		driver.findElement(By.className("u-passwordField")).sendKeys("a");
+		driver.findElement(By.className("u-passwordSignInButton")).click();
 		
 		waitForPageLoad(By.id("MainHeader.logout"));
 		assertTrue(driver.findElement(By.id("MainHeader.loggedAs")).getText().contains("Default Administrator"));

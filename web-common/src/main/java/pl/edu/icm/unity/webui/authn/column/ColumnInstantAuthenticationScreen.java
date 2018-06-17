@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
+import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -79,6 +80,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private RemoteAuthenticationProgress authNProgress;
 	private AuthnOptionsColumns authNColumns;
 	private VerticalLayout secondFactorHolder;
+	private SandboxAuthnResultCallback sandboxCallback;
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -121,7 +123,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows);
 		
 		VerticalLayout topLevelLayout = new VerticalLayout();
-		topLevelLayout.setMargin(new MarginInfo(false, true, false, true));
+		topLevelLayout.setMargin(new MarginInfo(false, true, true, true));
 		topLevelLayout.setHeightUndefined();
 		setCompositionRoot(topLevelLayout);
 
@@ -147,6 +149,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		refreshAuthenticationState(VaadinService.getCurrentRequest());
 	}
 	
+		
 	private Component getLanguageChoiceComponent()
 	{
 		HorizontalLayout languageChoiceLayout = new HorizontalLayout();
@@ -277,6 +280,10 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		String optionId = AuthenticationOptionKeyUtils.encode(authnOption.authenticator.getAuthenticatorId(), 
 				authnOption.authenticatorUI.getId()); 
 		authNPanel.setAuthenticator(authnOption.authenticatorUI, authnOption.flow, optionId);
+		
+		if (sandboxCallback != null)
+			authnOption.authenticatorUI.setSandboxAuthnCallback(sandboxCallback);
+		
 		return authNPanel;
 	}
 
@@ -414,5 +421,12 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		{
 			switchBackToPrimaryAuthentication();
 		}
+	}
+	
+	
+	//for sandbox extensions
+	protected void setSandboxCallbackForAuthenticators(SandboxAuthnResultCallback callback) 
+	{
+		this.sandboxCallback = callback;
 	}
 }

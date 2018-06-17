@@ -22,12 +22,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -158,10 +156,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (clientCert == null)
 				return new AuthenticationResult(Status.notApplicable, null);
 
-			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(
+			return credentialExchange.checkCertificate(
 					clientCert, sandboxCallback);
-			component.setError(authenticationResult.getStatus() != Status.success);
-			return authenticationResult;
 		}
 
 		@Override
@@ -193,35 +189,21 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 
 		private class TLSAuthnComponent extends VerticalLayout
 		{
-			private Label info;
-
 			public TLSAuthnComponent()
 			{
 				setMargin(false);
-				setSpacing(false);
-				Label title = new Label(name.getValue(msg));
-				title.addStyleName(Styles.vLabelLarge.toString());
-				addComponent(title);
-				info = new Label();
-				addComponent(info);
+				setSpacing(true);
 				X509Certificate[] clientCert = getTLSCertificate();
-				if (clientCert == null)
-				{
-					info.setValue(msg.getMessage("WebTLSRetrieval.noCert"));
-				} else
-				{
-					info.setValue(msg.getMessage("WebTLSRetrieval.certInfo", 
-							X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
-				}
-				Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+				String info = clientCert == null ? "" : msg.getMessage("WebTLSRetrieval.certInfo", 
+						X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal()));
+				Button authenticateButton = new Button(msg.getMessage("WebTLSRetrieval.signInButton"));
 				authenticateButton.addClickListener(event -> triggerAuthentication());
+				authenticateButton.setIcon(getImage());
+				authenticateButton.addStyleName(Styles.signInButton.toString());
+				authenticateButton.addStyleName("u-x509SignInButton");
+				authenticateButton.setWidth(100, Unit.PERCENTAGE);
+				authenticateButton.setDescription(info);
 				addComponent(authenticateButton);
-			}
-
-			public void setError(boolean how)
-			{
-				info.setComponentError(how ? new UserError(
-						msg.getMessage("WebTLSRetrieval.unknownUser")) : null);
 			}
 		}
 

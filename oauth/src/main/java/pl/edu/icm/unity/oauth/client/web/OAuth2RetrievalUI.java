@@ -16,10 +16,10 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -35,7 +35,6 @@ import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
@@ -65,18 +64,18 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private String redirectParam;
 
 	private Component main;
+	private String authenticatorName;
 
-	//TODO AUTHN handle progress/cancel
-	
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
-			String idpKey, String configKey)
+			String idpKey, String configKey, String authenticatorName)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
 		this.configKey = configKey;
+		this.authenticatorName = authenticatorName;
 		initUI();
 	}
 
@@ -92,7 +91,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
-		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(idpKey, name);
+		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
 		idpComponent.addClickListener(event -> startLogin());
 		idpComponent.setWidth(100, Unit.PERCENTAGE);
 		return idpComponent;
@@ -104,8 +103,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 
-		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.SELECTED_ICON_SCALE, 
-				ScaleMode.class); 
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
@@ -120,11 +117,16 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			logo = null;
 		}
 		String signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
-		IdPAuthNComponent idpComponent = new IdPAuthNComponent(idpKey, logo, signInLabel);
+		IdPAuthNComponent idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
 		main = idpComponent;
 	}
 
+	private String getRetrievalClassName()
+	{
+		return authenticatorName + "." + idpKey;
+	}
+	
 	@Override
 	public void setAuthenticationCallback(AuthenticationCallback callback)
 	{

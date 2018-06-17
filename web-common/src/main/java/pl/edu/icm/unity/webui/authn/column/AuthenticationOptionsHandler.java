@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
+
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
@@ -26,6 +29,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  */
 class AuthenticationOptionsHandler
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationOptionsHandler.class);
 	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
 
 	private Set<String> consumedAuthenticators = new HashSet<>();
@@ -63,7 +67,11 @@ class AuthenticationOptionsHandler
 		String authenticatorName = AuthenticationOptionKeyUtils.decodeAuthenticator(spec);
 		AuthenticatorWithFlow authenticatorWF = authenticatorsByName.get(authenticatorName);
 		if (authenticatorWF == null)
+		{
+			log.warn("There is no authenticator '{}' configured for the endpoint for the '{}' "
+					+ "authentication contents entry", authenticatorName, spec);
 			return Collections.emptyList();
+		}
 
 		String authenticatonOptionName = AuthenticationOptionKeyUtils.decodeOption(spec);
 		if (authenticatonOptionName == null)

@@ -56,6 +56,7 @@ public class UnknownUserDialog extends AbstractDialog
 			InputTranslationEngine inputTranslationEngine, String sandboxURL)
 	{
 		super(msg, msg.getMessage("UnknownUserDialog.caption"), msg.getMessage("cancel"));
+		setSizeEm(50, 25);
 		this.authNResult = authNResult;
 		this.formLauncher = formLauncher;
 		this.sandboxAuthnNotifier = sandboxAuthnNotifier;

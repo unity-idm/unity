@@ -444,6 +444,12 @@
 		width: 100%;
 	}
 
+	.u-signInButton .v-button-wrap img {
+		padding: 4px 0px 0px 2px;
+		height: $v-unit-size - 8;
+		vertical-align: top;
+	}
+
 	.u-signUpButton {
 		width: 100%;
 	}

@@ -87,7 +87,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 				{
 					ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
 							samlContextManagement, idpKey, 
-							samlProperties, configKey));
+							configKey, getAuthenticatorId()));
 				}
 			}
 		return ret;

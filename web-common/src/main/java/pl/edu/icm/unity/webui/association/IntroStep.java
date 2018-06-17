@@ -37,6 +37,7 @@ public class IntroStep extends CustomComponent implements WizardStep
 		
 		introLabel = new HtmlLabel(msg);
 		introLabel.setHtmlValue(introTextKey);
+		introLabel.setWidth(100, Unit.PERCENTAGE);
 		mainLayout.addComponent(introLabel);
 		
 		return mainLayout;

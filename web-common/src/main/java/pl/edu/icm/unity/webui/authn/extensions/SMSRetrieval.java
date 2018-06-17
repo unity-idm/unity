@@ -174,6 +174,8 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			usernameField = new TextField();
 			usernameField.setWidth(100, Unit.PERCENTAGE);
 			usernameField.setPlaceholder(msg.getMessage("AuthenticationUI.username"));
+			usernameField.addStyleName("u-authnTextField");
+			usernameField.addStyleName("u-smsUsernameField");
 			mainLayout.addComponent(usernameField);
 
 			usernameLabel = new HtmlLabel(msg);
@@ -211,6 +213,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			resetButton = new Button(msg.getMessage("WebSMSRetrieval.reset"));
 			resetButton.setIcon(Images.reject.getResource());
 			resetButton.setWidth(100, Unit.PERCENTAGE);
+			resetButton.addStyleName("u-smsResetButton");
 			resetButton.addClickListener(e -> {
 				sendCodeButton.removeClickShortcut();
 				authenticateButton.removeClickShortcut();
@@ -225,6 +228,8 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			answerField.setWidth(100, Unit.PERCENTAGE);
 			answerField.setPlaceholder(msg.getMessage("WebSMSRetrieval.code"));
 			answerField.setEnabled(false);
+			answerField.addStyleName("u-authnTextField");
+			answerField.addStyleName("u-smsCodeField");
 			mainLayout.addComponent(answerField);
 			mainLayout.setComponentAlignment(answerField, Alignment.MIDDLE_CENTER);
 
@@ -236,6 +241,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				triggerAuthentication();
 			});
 			authenticateButton.addStyleName(Styles.signInButton.toString());
+			authenticateButton.addStyleName("u-smsSignInButton");
 			authenticateButton.setEnabled(false);
 
 			answerField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));

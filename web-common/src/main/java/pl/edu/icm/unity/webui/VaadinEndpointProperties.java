@@ -24,29 +24,8 @@ import pl.edu.icm.unity.base.utils.Log;
 public class VaadinEndpointProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, VaadinEndpointProperties.class);
-	private enum ScaleModeOld {
-		none(ScaleMode.none), 
-		height100(ScaleMode.heightSmall), 
-		width100(ScaleMode.widthSmall), 
-		height50(ScaleMode.heightTiny),
-		width50(ScaleMode.widthTiny), 
-		maxHeight50(ScaleMode.maxHeightTiny), 
-		maxHeight100(ScaleMode.maxHeightSmall), 
-		maxHeight200(ScaleMode.maxHeightMedium);
-		
-		private ScaleMode translated;
-		ScaleModeOld(ScaleMode translated)
-		{
-			this.translated = translated;
-		}
-		
-		public ScaleMode toScaleMode()
-		{
-			return translated;
-		}
-	}
 	
-	public enum ScaleMode {
+	enum ScaleMode {
 		none, 
 		heightSmall, 
 		widthSmall, 
@@ -55,16 +34,6 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		maxHeightTiny, 
 		maxHeightSmall, 
 		maxHeightMedium}
-	
-	public enum TileMode {
-		table,
-		simple
-	}
-
-	public enum ScreenType {
-		tile,
-		column
-	}
 	
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.endpoint.web.";
@@ -81,18 +50,6 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
 
 	public static final String AUTHN_SCREEN_MODE = "screenType";	
-	
-	public static final String AUTHN_TILES_PFX = "authenticationTiles.";
-	public static final String AUTHN_TILE_CONTENTS = "tileContents";
-	public static final String AUTHN_TILE_PER_LINE = "tileAuthnsPerLine";
-	private static final String AUTHN_TILE_ICON_SIZE = "tileIconSize";
-	public static final String AUTHN_TILE_ICON_SCALE = "tileIconScale";
-	public static final String AUTHN_TILE_TYPE = "tileMode";
-	public static final String AUTHN_TILE_DISPLAY_NAME = "tileName";
-	public static final String DEFAULT_PER_LINE = "authnsPerLine";
-	private static final String DEFAULT_AUTHN_ICON_SIZE = "authnIconSize";
-	public static final String DEFAULT_AUTHN_ICON_SCALE = "authnIconScale";
-			
 	
 	public static final String AUTHN_LOGO = "authnScreenLogo";
 	public static final String AUTHN_TITLE = "authnScreenTitle";
@@ -112,7 +69,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String AUTHN_COLUMNS_PFX = "authnScreenColumn.";
 	public static final String AUTHN_COLUMN_TITLE = "columnTitle";
 	public static final String AUTHN_COLUMN_SEPARATOR = "columnSeparator";
-	public static final float DEFAULT_AUTHN_COLUMN_WIDTH = 14.5f;
+	public static final float DEFAULT_AUTHN_COLUMN_WIDTH = 15f;
 	public static final String AUTHN_COLUMN_WIDTH = "columnWidth";
 	public static final String AUTHN_COLUMN_CONTENTS = "columnContents";
 
@@ -147,12 +104,6 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				+ "option will be activated automatically, without presenting (or even loading) "
 				+ "the authentication screen."));
 
-		META.put(AUTHN_SCREEN_MODE, new PropertyMD(ScreenType.column).
-				setDescription("Controls which layout of authentication screen to use. Note that the legacy "
-						+ "+tile+ layout is deprecated and will its support is going to be dropped in future."
-						+ "Currently the default value is +tile+ if there are no columns defined, "
-						+ "but there is at least one tile defined. Otherwise the default is +column+."));
-		
 		META.put(AUTHN_LOGO, new PropertyMD("file:../common/img/other/logo.png").
 				setDescription("Sets URL of image that should be shown above all authentication options."));
 		META.put(AUTHN_TITLE, new PropertyMD().setCanHaveSubkeys()
@@ -239,71 +190,14 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "will be ignored." +
 						"If there are no forms defined with this property, then all public "
 						+ "forms are made available."));
-
-		META.put(DEFAULT_PER_LINE, new PropertyMD("3").setBounds(1, 10).
-				setDescription("Defines how many authenticators should be presented in a single "
-						+ "line of an authentication tile in simple mode."));
-		META.put(DEFAULT_AUTHN_ICON_SIZE, new PropertyMD().setEnum(ScaleModeOld.height50).setDeprecated().
-				setDescription("Deprecated, please use " + DEFAULT_AUTHN_ICON_SCALE));
-		META.put(DEFAULT_AUTHN_ICON_SCALE, new PropertyMD(ScaleMode.maxHeightTiny).
-				setDescription("Defines how to scale authenticator icons in the simple mode. "
-						+ "Can be overriden per tile."));
-		META.put(AUTHN_TILES_PFX, new PropertyMD().setStructuredList(true).
-				setDescription("Under this prefix authentication tiles can be defined. "
-						+ "Authentication tile is a purely visual grouping of authentication options. "
-						+ "If this list is undefined all authentication options will be "
-						+ "put in a single default tile."));
-		META.put(AUTHN_TILE_CONTENTS, new PropertyMD().setMandatory().setStructuredListEntry(AUTHN_TILES_PFX).
-				setDescription("Specification of the authentication tile contents. "
-						+ "Value is a list of name prefixes separated by spaces. "
-						+ "Authentication option whose (primary) authenticator "
-						+ "name starts with one of the prefixes will be assigned to this tile. "
-						+ "The unassigned authentication options will be assigned to additional tile."));
-		META.put(AUTHN_TILE_TYPE, new PropertyMD(TileMode.simple).setStructuredListEntry(AUTHN_TILES_PFX).
-				setDescription("Defines how the tile should present authentication options assigned to it. "
-						+ "In the +simple+ mode all logos (or names if logo is undefined) "
-						+ "of authentication options are displayed,"
-						+ "and it is configurable how many per row and how to scale them. "
-						+ "The +table+ mode presents authentication options in rows one by one "
-						+ "with logo in the first column. The table is much better choice when "
-						+ "many authenticators are present as those are lazy loaded. In case "
-						+ "when there is more then ca 30 authentication options the "
-						+ "simple mode should not be used."));
-		META.put(AUTHN_TILE_PER_LINE, new PropertyMD().setInt().setBounds(1, 10).setStructuredListEntry(AUTHN_TILES_PFX).
-				setDescription("Defines how many authenticators should be presented in a single "
-						+ "line of a tile in the simple mode. Overrides the default setting."));
-		META.put(AUTHN_TILE_ICON_SIZE, new PropertyMD().setStructuredListEntry(AUTHN_TILES_PFX).
-				setEnum(ScaleModeOld.height50).setDeprecated().
-				setDescription("Deprecated, please use " + AUTHN_TILE_ICON_SCALE));
-		META.put(AUTHN_TILE_ICON_SCALE, new PropertyMD().setEnum(ScaleMode.maxHeightTiny).setStructuredListEntry(AUTHN_TILES_PFX).
-				setDescription("Defines how to scale authenticator icons in a tile in the simple mode. "
-						+ "Overrides the default setting."));
-		META.put(AUTHN_TILE_DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setStructuredListEntry(AUTHN_TILES_PFX).
-				setDescription("Defines the displayed name of the tile. "
-						+ "Can have language specific versions. "
-						+ "If undefined then tile has no name."));
-		
 	}
-	
-	private ScaleMode defaultScaleMode;
 	
 	public VaadinEndpointProperties(Properties properties)
 			throws ConfigurationException
 	{
 		super(PREFIX, properties, META, log);
-		defaultScaleMode = getScaleModeInternal(DEFAULT_AUTHN_ICON_SCALE, DEFAULT_AUTHN_ICON_SIZE);
 	}
 
-	public ScreenType getScreenType()
-	{
-		if (isSet(AUTHN_SCREEN_MODE))
-			return getEnumValue(AUTHN_SCREEN_MODE, ScreenType.class);
-		if (getStructuredListKeys(AUTHN_COLUMNS_PFX).isEmpty() && 
-				!getStructuredListKeys(AUTHN_TILES_PFX).isEmpty())
-			return ScreenType.tile;
-		return ScreenType.column;
-	}
-	
 	/**
 	 * Returns either a theme configured with the key given as argument or the default theme if the
 	 * specific one is not defined. Can return null if neither is available.
@@ -319,30 +213,6 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		return null;
 	}
 
-	public ScaleMode getScaleMode(String tileKey)
-	{
-		ScaleMode ret = getScaleModeInternal(tileKey + VaadinEndpointProperties.AUTHN_TILE_ICON_SCALE, 
-				tileKey + VaadinEndpointProperties.AUTHN_TILE_ICON_SIZE);
-		return ret == null ? defaultScaleMode : ret;
-	}
-
-	public ScaleMode getDefaultScaleMode()
-	{
-		return defaultScaleMode;
-	}
-
-	private ScaleMode getScaleModeInternal(String key, String legacyKey)
-	{
-		ScaleMode ret = getEnumValue(key, ScaleMode.class);
-		if (ret == null)
-		{
-			ScaleModeOld legacy = getEnumValue(legacyKey, ScaleModeOld.class);
-			if (legacy != null)
-				ret = legacy.toScaleMode();
-		}
-		return ret;
-	}
-	
 	public Properties getProperties()
 	{
 		return properties;

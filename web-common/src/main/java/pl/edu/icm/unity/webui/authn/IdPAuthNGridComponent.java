@@ -26,7 +26,6 @@ public class IdPAuthNGridComponent extends CustomComponent
 		providerB.addStyleName(Styles.externalGridSignInButton.toString());
 		providerB.addStyleName("u-idpAuthentication-" + id);
 		providerB.setCaption(name);
-		providerB.setData(id);
 		setCompositionRoot(providerB);
 	}
 	

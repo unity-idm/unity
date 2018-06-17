@@ -190,10 +190,9 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 	 * 
 	 * @author K. Benedyczak
 	 */
-	protected class PrimaryAuthenticationResultCallbackImpl implements AuthenticationUIController
+	private class PrimaryAuthenticationResultCallbackImpl implements AuthenticationUIController
 	{
 		protected VaadinAuthenticationUI authnUI;
-		protected boolean authnDone = false;
 		
 		public PrimaryAuthenticationResultCallbackImpl(VaadinAuthenticationUI authnUI)
 		{
@@ -217,7 +216,6 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 		private void processAuthn(AuthenticationResult result, String error)
 		{
 			log.trace("Received authentication result of the primary authenticator " + result);
-			authnDone = true;
 			try
 			{
 				PartialAuthnState partialState = authnProcessor.processPrimaryAuthnResult(
@@ -271,7 +269,7 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 		}
 	}
 
-	protected void handleUnknownUser(UnknownRemoteUserException e)
+	private void handleUnknownUser(UnknownRemoteUserException e)
 	{
 		if (e.getFormForUser() != null || e.getResult().isEnableAssociation())
 		{
@@ -286,26 +284,26 @@ class PrimaryAuthNPanel extends CustomComponent implements AuthnPanel
 		}
 	}
 
-	protected void showUnknownUserDialog(UnknownRemoteUserException ee)
+	private void showUnknownUserDialog(UnknownRemoteUserException ee)
 	{
 		setNotAuthenticating();
 		UnknownUserDialog dialog = unknownUserDialogProvider.apply(ee.getResult()); 
 		dialog.show();
 	}	
 	
-	public void refresh(VaadinRequest request)
+	void refresh(VaadinRequest request)
 	{
 		if (currentAuthnResultCallback != null)
 			currentAuthnResultCallback.refresh(request);
 	}
 	
-	public void cancel()
+	void cancel()
 	{
 		if (currentAuthnResultCallback != null)
 			currentAuthnResultCallback.cancel();
 	}
 	
-	public void clear()
+	void clear()
 	{
 		if (currentAuthnResultCallback != null)
 			currentAuthnResultCallback.clear();

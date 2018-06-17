@@ -24,15 +24,14 @@ public class TestOAuthAuthnViaLocalUnity extends SeleniumTestBase
 	public void testLoginWithDynamicAttributeOnConsentScreen()
 	{
 		driver.get(baseUrl + "/admin/admin");
-		waitForPageLoad(By.className("idpentry_oauthWeb.oauthWeb.local"));	
-		driver.findElement(By.className("idpentry_oauthWeb.oauthWeb.local")).click();
-		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
-			
-		waitForElement(By.id("AuthenticationUI.username")).clear();
-		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
-		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
-		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test12");
-		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
+		waitForPageLoad(By.className("u-idpAuthentication-oauthWeb.local")).click();	
+		
+		waitForPageLoadByURL("/oauth2-as/oauth2-authz-web-entry");
+		waitForElement(By.className("u-passwordUsernameField")).clear();
+		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
+		waitForElement(By.className("u-passwordField")).clear();
+		waitForElement(By.className("u-passwordField")).sendKeys("the!test12");
+		waitForElement(By.className("u-passwordSignInButton")).click();
 		
 		waitForElement(By.id("ExposedAttributes.showDetails")).click();
 		assertThat(waitForElement(By.xpath("//*[contains(text(), 'username')]")), notNullValue());	

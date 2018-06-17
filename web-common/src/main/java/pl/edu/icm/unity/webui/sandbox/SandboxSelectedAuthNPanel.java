@@ -17,15 +17,15 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
-import pl.edu.icm.unity.webui.authn.tile.SelectedAuthNPanel;
 
 /**
  * Extension of {@link AuthenticatorSetComponent}. Merely disables final authentication in the system after user's 
  * authentication (i.e. the process is stopped just before the very last step).
  * @author K. Benedyczak
  */
-public class SandboxSelectedAuthNPanel extends SelectedAuthNPanel
+public class SandboxSelectedAuthNPanel 
 {
+	/*
 	public SandboxSelectedAuthNPanel(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
 			EntityManagement idsMan, ExecutorsService execService,
 			CancelHandler cancelHandler, AuthenticationRealm realm,
@@ -64,4 +64,5 @@ public class SandboxSelectedAuthNPanel extends SelectedAuthNPanel
 			setNotAuthenticating();
 		}
 	}
+	*/
 }

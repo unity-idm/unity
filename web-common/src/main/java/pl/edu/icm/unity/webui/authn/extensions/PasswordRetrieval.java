@@ -173,17 +173,22 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			usernameField = new TextField();
 			usernameField.setWidth(100, Unit.PERCENTAGE);
 			usernameField.setPlaceholder(msg.getMessage("AuthenticationUI.username"));
+			usernameField.addStyleName("u-authnTextField");
+			usernameField.addStyleName("u-passwordUsernameField");
 			ret.addComponent(usernameField);
 			
 			String label = name.getValue(msg);
 			passwordField = new PasswordField();
 			passwordField.setWidth(100, Unit.PERCENTAGE);
 			passwordField.setPlaceholder(label);
+			passwordField.addStyleName("u-authnTextField");
+			passwordField.addStyleName("u-passwordField");
 			ret.addComponent(passwordField);
 			
 			
 			Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
 			authenticateButton.addStyleName(Styles.signInButton.toString());
+			authenticateButton.addStyleName("u-passwordSignInButton");
 			authenticateButton.addClickListener(event -> triggerAuthentication());
 			ret.addComponent(authenticateButton);
 

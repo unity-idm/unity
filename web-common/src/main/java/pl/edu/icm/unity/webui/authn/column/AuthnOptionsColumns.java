@@ -112,7 +112,7 @@ public class AuthnOptionsColumns extends CustomComponent
 		for (AuthnOptionsColumn column: columns)
 			column.filter(filter);
 	}
-
+	
 	private void setRootComponent(Component component)
 	{
 		if (config.getBooleanValue(AUTHN_SHOW_SEARCH) && hasGridWidget())
