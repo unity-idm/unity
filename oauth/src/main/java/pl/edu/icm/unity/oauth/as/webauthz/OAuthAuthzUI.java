@@ -49,7 +49,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.TopHeaderLight;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -80,7 +80,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	private OAuthIdPEngine idpEngine;
 	private AttributeHandlerRegistry handlersRegistry;
 	private PreferencesManagement preferencesMan;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	
 	private IdentitySelectorComponent idSelector;
 	private ExposedAttributesComponent attrsPresenter;
@@ -95,7 +95,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	public OAuthAuthzUI(UnityMessageSource msg, TokensManagement tokensMan,
 			AttributeHandlerRegistry handlersRegistry,
 			PreferencesManagement preferencesMan,
-			WebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
+			StandardWebAuthenticationProcessor authnProcessor, IdPEngine idpEngine,
 			EnquiresDialogLauncher enquiryDialogLauncher,
 			IdentityTypeSupport idTypeSupport, AttributeTypeSupport aTypeSupport,
 			SessionManagement sessionMan)

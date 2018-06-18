@@ -66,6 +66,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private Component main;
 	private String authenticatorName;
 
+	private IdPAuthNComponent idpComponent;
+
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
 			String idpKey, String configKey, String authenticatorName)
@@ -117,7 +119,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			logo = null;
 		}
 		String signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
-		IdPAuthNComponent idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
+		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
 		main = idpComponent;
 	}
@@ -194,6 +196,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 			contextManagement.removeAuthnContext(context.getRelayState());
 		}
+		idpComponent.setEnabled(true);
 	}
 	
 	private void startLogin()
@@ -214,6 +217,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		try
 		{
 			context = credentialExchange.createRequest(configKey);
+			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);

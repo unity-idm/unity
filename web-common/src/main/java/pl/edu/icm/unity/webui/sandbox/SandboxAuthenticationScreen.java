@@ -26,7 +26,6 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 
@@ -45,7 +44,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, 
-			WebAuthenticationProcessor authnProcessor,
+			SandboxAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
 			SandboxAuthnRouter sandboxRouter,
 			List<AuthenticationFlow> authenticators,
@@ -56,7 +55,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				() -> {}, cancelHandler, idsMan, 
 				execService, false, 
 				SandboxAuthenticationScreen::disabledUnknownUserProvider, 
-				new SandboxAuthenticationProcessor(), 
+				authnProcessor, 
 				localeChoice, 
 				authenticators);
 		this.sandboxRouter = sandboxRouter;

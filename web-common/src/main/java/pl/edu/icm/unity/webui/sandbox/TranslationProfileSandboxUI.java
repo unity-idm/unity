@@ -40,7 +40,6 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 
 /**
  * Vaadin UI of the sandbox application using all remote authenticators. Suitable for sandbox authn used in 
@@ -62,7 +61,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 
 	
 	private LocaleChoiceComponent localeChoice;
-	private WebAuthenticationProcessor authnProcessor;
+	private SandboxAuthenticationProcessor authnProcessor;
 	private ExecutorsService execService;
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
@@ -71,7 +70,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg, 
 			LocaleChoiceComponent localeChoice,
-			WebAuthenticationProcessor authnProcessor,
+			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
 			AuthenticatorsRegistry authnRegistry,

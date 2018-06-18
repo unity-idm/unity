@@ -26,7 +26,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -50,7 +50,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Autowired
 	private UnityMessageSource msg;
 	@Autowired
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	
 	@Override
 	public String getViewName(String viewAndParameters)

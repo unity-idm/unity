@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.common.credentials.SingleCredentialChangeDialog;
 @PrototypeComponent
 public class OutdatedCredentialDialog 
 {
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	private ObjectFactory<SingleCredentialChangeDialog> credChangeDialogFactory;
 	private UnityMessageSource msg;
 	
@@ -40,7 +40,7 @@ public class OutdatedCredentialDialog
 		this.credChangeDialogFactory = credChangeDialogFactory;
 	}
 
-	public void show(WebAuthenticationProcessor authnProcessor)
+	public void show(StandardWebAuthenticationProcessor authnProcessor)
 	{
 		this.authnProcessor = authnProcessor;
 		Notification notification = NotificationPopup.getNoticeNotification(

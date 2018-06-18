@@ -17,7 +17,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.webui.authn.AccessBlockedDialog;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 
 /**
@@ -66,7 +66,7 @@ class FirstFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUICo
 	
 	void showWaitScreenIfNeeded(String clientIp)
 	{
-		UnsuccessfulAuthenticationCounter counter = WebAuthenticationProcessor.getLoginCounter();
+		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
 		if (counter.getRemainingBlockedTime(clientIp) > 0)
 		{
 			AccessBlockedDialog dialog = new AccessBlockedDialog(msg, execService);

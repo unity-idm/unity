@@ -184,12 +184,6 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 
 	}
 		
-	/**
-	 * Should be used if the second step authentication is required to process second authenticator results
-	 * and retrieve a final {@link AuthenticatedEntity}.
-	 * @param state
-	 * @return
-	 */
 	@Override
 	public AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state)
 	{
@@ -200,13 +194,6 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 
 	
-	/**
-	 * Should be used if the second step authentication is required to process second authenticator results
-	 * and retrieve a final {@link AuthenticatedEntity}.
-	 * @param primaryResult
-	 * @return
-	 * @throws AuthenticationException 
-	 */
 	@Override
 	public AuthenticatedEntity finalizeAfterSecondaryAuthentication(PartialAuthnState state, 
 			AuthenticationResult result2) throws AuthenticationException

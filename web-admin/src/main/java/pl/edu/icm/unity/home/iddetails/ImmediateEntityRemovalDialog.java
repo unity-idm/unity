@@ -10,7 +10,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties.RemovalModes;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -26,13 +26,13 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 public class ImmediateEntityRemovalDialog extends ConfirmDialog
 {
 	private long entity;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	private EntityManagement identitiesMan;
 	private RemovalModes removalMode;
 	
 	public ImmediateEntityRemovalDialog(UnityMessageSource msg, long entityId, 
 			EntityManagement identitiesManagement, 
-			WebAuthenticationProcessor authnProcessor,
+			StandardWebAuthenticationProcessor authnProcessor,
 			RemovalModes removalMode)
 	{
 		super(msg, msg.getMessage("RemoveEntityDialog.caption"),

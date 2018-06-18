@@ -67,6 +67,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private Component main;
 	private String authenticatorName;
 
+	private IdPAuthNComponent idpComponent;
+
 	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
 			SamlContextManagement samlContextManagement, String idpKey, 
 			String configKey, String authenticatorName)
@@ -112,7 +114,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			logo = null;
 		}
 		String signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
-		IdPAuthNComponent idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
+		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
 		idpComponent.setWidth(100, Unit.PERCENTAGE);
 		this.tags = new HashSet<>(samlProperties.getListOfValues(configKey + SAMLSPProperties.IDP_NAME + "."));
@@ -157,6 +159,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 			samlContextManagement.removeAuthnContext(context.getRelayState());
 		}
+		idpComponent.setEnabled(true);
 	}
 	
 	private void startLogin()
@@ -186,9 +189,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			return;
 		}
 		
+		idpComponent.setEnabled(false);
 		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
+		
 		
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}

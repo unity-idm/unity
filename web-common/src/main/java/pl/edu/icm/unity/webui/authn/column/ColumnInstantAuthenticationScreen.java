@@ -280,7 +280,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		FirstFactorAuthNResultCallback controller = new FirstFactorAuthNResultCallback(
 				msg, authnProcessor, 
 				endpointDescription.getRealm(), authnOption.flow, 
-				this::isSetRememberMe, new PrimaryAuthenticationListenerImpl(optionId), 
+				this::isSetRememberMe, new PrimaryAuthenticationListenerImpl(optionId, authNPanel), 
 				optionId, endpointDescription.getEndpoint().getContextAddress(), 
 				authNPanel);
 		authnOption.authenticatorUI.setAuthenticationCallback(controller);
@@ -392,15 +392,18 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private class PrimaryAuthenticationListenerImpl implements FirstFactorAuthNResultCallback.AuthenticationListener
 	{
 		private final String optionId;
+		private final FirstFactorAuthNPanel authNPanel;
 		
-		PrimaryAuthenticationListenerImpl(String optionId)
+		PrimaryAuthenticationListenerImpl(String optionId, FirstFactorAuthNPanel authNPanel)
 		{
 			this.optionId = optionId;
+			this.authNPanel = authNPanel;
 		}
 
 		@Override
 		public void authenticationStarted(boolean showProgress)
 		{
+			authNPanelInProgress = authNPanel;
 			authNProgress.setInternalVisibility(showProgress);
 			authNColumns.disableAllExcept(optionId);
 		}

@@ -59,7 +59,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
 	private LocaleChoiceComponent localeChoice;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	private RegistrationFormsChooserComponent formsChooser;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
@@ -73,7 +73,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
-			WebAuthenticationProcessor authnProcessor,
+			StandardWebAuthenticationProcessor authnProcessor,
 			RegistrationFormsChooserComponent formsChooser,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,

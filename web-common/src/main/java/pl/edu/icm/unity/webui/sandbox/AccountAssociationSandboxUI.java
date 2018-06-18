@@ -27,7 +27,6 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 
 /**
  * Vaadin UI of the sandbox application. This UI is using the same authenticators as those configured for
@@ -42,7 +41,7 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWebUI
 {
 	private LocaleChoiceComponent localeChoice;
-	private WebAuthenticationProcessor authnProcessor;
+	private SandboxAuthenticationProcessor authnProcessor;
 	private ExecutorsService execService;
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
@@ -51,7 +50,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	@Autowired
 	public AccountAssociationSandboxUI(UnityMessageSource msg, 
 			LocaleChoiceComponent localeChoice,
-			WebAuthenticationProcessor authnProcessor,
+			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
 			AuthenticatorSupportManagement authenticatorSupport)

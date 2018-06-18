@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
@@ -47,7 +47,7 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	private SchemaManagementTab schemaManagement;
 	private ServerManagementTab serverManagement;
 	private UserAccountComponent userAccount;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	
 	private MainTabPanel tabPanel;
 	private HomeEndpointProperties config;
@@ -58,7 +58,7 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
 			SchemaManagementTab schemaManagement, RegistrationsManagementTab registrationsManagement,
 			UserAccountComponent userAccount, ServerManagementTab serverManagement,
-			WebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher)
+			StandardWebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.contentsManagement = contentsManagement;

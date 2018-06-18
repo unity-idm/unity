@@ -58,7 +58,7 @@ public class AuthenticationFilter implements Filter
 		this.authnServletPath = authnServletPath;
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
-		sessionCookie = WebAuthenticationProcessor.getSessionCookieName(realm.getName());
+		sessionCookie = StandardWebAuthenticationProcessor.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
 	}
