@@ -116,7 +116,7 @@ class AuthnsGridWidget extends CustomComponent
 			NameWithTags nameWithTags = new NameWithTags(name,
 					entry.authenticatorUI.getTags(), collator);
 			Resource logoImage = logo == null ? Images.empty.getResource() : logo;
-			PrimaryAuthNPanel authnPanel = authNPanelFactory.createGridCompatibleAuthnPanel(entry);
+			FirstFactorAuthNPanel authnPanel = authNPanelFactory.createGridCompatibleAuthnPanel(entry);
 			AuthenticationOptionGridEntry providerEntry = new AuthenticationOptionGridEntry(globalId, nameWithTags,
 					logoImage, authnPanel);
 			providers.add(providerEntry);

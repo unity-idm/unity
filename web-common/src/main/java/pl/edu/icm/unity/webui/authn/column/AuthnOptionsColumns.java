@@ -294,7 +294,7 @@ public class AuthnOptionsColumns extends CustomComponent
 					AuthNOption authnOption = authnOptionsHandler.getFirstMatchingOption(preferredIdp);
 					if (authnOption != null)
 					{
-						PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
+						FirstFactorAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
 						ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 						lastAdded.push(specEntry);
 					}
@@ -319,7 +319,7 @@ public class AuthnOptionsColumns extends CustomComponent
 				List<AuthNOption> matchingOptions = authnOptionsHandler.getMatchingAuthnOptions(specEntry);
 				for (AuthNOption authnOption : matchingOptions)
 				{
-					PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
+					FirstFactorAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(authnOption);
 					ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 					lastAdded.push(specEntry);
 				}
@@ -330,7 +330,7 @@ public class AuthnOptionsColumns extends CustomComponent
 			List<AuthNOption> remainingRetrievals = authnOptionsHandler.getRemainingAuthnOptions();
 			for (AuthNOption entry: remainingRetrievals)
 			{
-				PrimaryAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(entry);
+				FirstFactorAuthNPanel authNPanel = authNPanelFactory.createRegularAuthnPanel(entry);
 				ret.add(new ComponentWithId(authNPanel.getAuthenticationOptionId(), authNPanel));
 				lastAdded.push(AuthenticationOptionKeyUtils.encode(entry.authenticator.getAuthenticatorId(), 
 						entry.authenticatorUI.getId()));

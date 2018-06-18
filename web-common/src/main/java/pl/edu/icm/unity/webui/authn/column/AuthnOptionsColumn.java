@@ -51,9 +51,9 @@ class AuthnOptionsColumn extends CustomComponent
 			if (!componentWithId.id.equals(exception))
 			{
 				componentWithId.component.setEnabled(false);
-				if (componentWithId.component instanceof PrimaryAuthNPanel)
+				if (componentWithId.component instanceof FirstFactorAuthNPanel)
 				{
-					PrimaryAuthNPanel authNPanel = (PrimaryAuthNPanel) componentWithId.component;
+					FirstFactorAuthNPanel authNPanel = (FirstFactorAuthNPanel) componentWithId.component;
 					authNPanel.cancel();
 				}
 			}
@@ -82,7 +82,7 @@ class AuthnOptionsColumn extends CustomComponent
 	{
 		int ret = 0;
 		for (ComponentWithId componentWithId: components)
-			if (componentWithId.component instanceof PrimaryAuthNPanel)
+			if (componentWithId.component instanceof FirstFactorAuthNPanel)
 				ret++;
 		return ret;
 	}
@@ -99,9 +99,9 @@ class AuthnOptionsColumn extends CustomComponent
 	{
 		for (ComponentWithId componentWithId: components)
 		{
-			if (componentWithId.component instanceof AuthnPanel)
+			if (componentWithId.component instanceof AuthenticationUIController)
 			{
-				AuthnPanel authNPanel = (AuthnPanel) componentWithId.component;
+				AuthenticationUIController authNPanel = (AuthenticationUIController) componentWithId.component;
 				if (authNPanel.focusIfPossible())
 					return true;
 			}

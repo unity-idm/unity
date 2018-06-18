@@ -75,7 +75,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final List<AuthenticationFlow> flows;
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
-	private PrimaryAuthNPanel authNPanelInProgress;
+	private FirstFactorAuthNPanel authNPanelInProgress;
 	private CheckBox rememberMe;
 	private RemoteAuthenticationProgress authNProgress;
 	private AuthnOptionsColumns authNColumns;
@@ -267,36 +267,41 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		return null;
 	}
 	
-	private PrimaryAuthNPanel buildBaseAuthenticationOptionWidget(AuthNOption authnOption, boolean gridCompatible)
+	private FirstFactorAuthNPanel buildBaseAuthenticationOptionWidget(AuthNOption authnOption, boolean gridCompatible)
 	{
-		PrimaryAuthNPanel authNPanel = new PrimaryAuthNPanel(msg, authnProcessor, 
-				execService, cancelHandler, 
-				endpointDescription.getRealm(),
-				endpointDescription.getEndpoint().getContextAddress(), 
-				unknownUserDialogProvider,
-				this::isSetRememberMe,
-				gridCompatible);
-		authNPanel.setAuthenticationListener(new PrimaryAuthenticationListenerImpl(authNPanel));
 		String optionId = AuthenticationOptionKeyUtils.encode(authnOption.authenticator.getAuthenticatorId(), 
-				authnOption.authenticatorUI.getId()); 
-		authNPanel.setAuthenticator(authnOption.authenticatorUI, authnOption.flow, optionId);
-		
+				authnOption.authenticatorUI.getId());
 		if (sandboxCallback != null)
 			authnOption.authenticatorUI.setSandboxAuthnCallback(sandboxCallback);
+
+		FirstFactorAuthNPanel authNPanel = new FirstFactorAuthNPanel(msg, execService, 
+				cancelHandler, unknownUserDialogProvider, gridCompatible, 
+				authnOption.authenticatorUI, optionId);
+		FirstFactorAuthNResultCallback controller = new FirstFactorAuthNResultCallback(
+				msg, authnProcessor, 
+				endpointDescription.getRealm(), authnOption.flow, 
+				this::isSetRememberMe, new PrimaryAuthenticationListenerImpl(optionId), 
+				optionId, endpointDescription.getEndpoint().getContextAddress(), 
+				authNPanel);
+		authnOption.authenticatorUI.setAuthenticationCallback(controller);
 		
 		return authNPanel;
 	}
 
-	private SecondFactorAuthNPanel build2ndFactorAuthenticationOptionWidget(
-			VaadinAuthenticationUI vaadinAuthenticationUI, PartialAuthnState partialAuthnState)
+	private SecondFactorAuthNPanel build2ndFactorAuthenticationOptionWidget(VaadinAuthenticationUI secondaryUI, 
+			PartialAuthnState partialAuthnState)
 	{
-		SecondFactorAuthNPanel authNPanel = new SecondFactorAuthNPanel(msg, authnProcessor, idsMan,
-				execService, cancelHandler, 
-				endpointDescription.getRealm(),
-				unknownUserDialogProvider,
-				this::isSetRememberMe);
-		authNPanel.setAuthenticationListener(new SecondaryAuthenticationListenerImpl());
-		authNPanel.setAuthenticator(vaadinAuthenticationUI, partialAuthnState);
+		String optionId = AuthenticationOptionKeyUtils.encode(
+				partialAuthnState.getSecondaryAuthenticator().getAuthenticatorId(), 
+				secondaryUI.getId());
+		SecondaryAuthenticationListenerImpl listener = new SecondaryAuthenticationListenerImpl();
+		SecondFactorAuthNPanel authNPanel = new SecondFactorAuthNPanel(msg, idsMan, execService, 
+				secondaryUI, partialAuthnState, 
+				optionId, listener);
+		SecondFactorAuthNResultCallback controller = new SecondFactorAuthNResultCallback(msg, authnProcessor, 
+				endpointDescription.getRealm(), listener, this::isSetRememberMe, 
+				partialAuthnState, authNPanel);
+		secondaryUI.setAuthenticationCallback(controller);
 		return authNPanel;
 	}
 
@@ -372,33 +377,32 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private class AuthnPanelFactoryImpl implements AuthNPanelFactory
 	{
 		@Override
-		public PrimaryAuthNPanel createRegularAuthnPanel(AuthNOption authnOption)
+		public FirstFactorAuthNPanel createRegularAuthnPanel(AuthNOption authnOption)
 		{
 			return buildBaseAuthenticationOptionWidget(authnOption, false);
 		}
 
 		@Override
-		public PrimaryAuthNPanel createGridCompatibleAuthnPanel(AuthNOption authnOption)
+		public FirstFactorAuthNPanel createGridCompatibleAuthnPanel(AuthNOption authnOption)
 		{
 			return buildBaseAuthenticationOptionWidget(authnOption, true);
 		}
 	}
 	
-	private class PrimaryAuthenticationListenerImpl implements PrimaryAuthNPanel.AuthenticationListener
+	private class PrimaryAuthenticationListenerImpl implements FirstFactorAuthNResultCallback.AuthenticationListener
 	{
-		private final PrimaryAuthNPanel authNPanel;
+		private final String optionId;
 		
-		PrimaryAuthenticationListenerImpl(PrimaryAuthNPanel authNPanel)
+		PrimaryAuthenticationListenerImpl(String optionId)
 		{
-			this.authNPanel = authNPanel;
+			this.optionId = optionId;
 		}
 
 		@Override
 		public void authenticationStarted(boolean showProgress)
 		{
-			authNPanelInProgress = authNPanel;
 			authNProgress.setInternalVisibility(showProgress);
-			authNColumns.disableAllExcept(authNPanel.getAuthenticationOptionId());
+			authNColumns.disableAllExcept(optionId);
 		}
 
 		@Override
@@ -414,7 +418,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		}
 	}
 	
-	private class SecondaryAuthenticationListenerImpl implements SecondFactorAuthNPanel.AuthenticationListener
+	private class SecondaryAuthenticationListenerImpl implements SecondFactorAuthNResultCallback.AuthenticationListener
 	{
 		@Override
 		public void switchBackToFirstFactor()

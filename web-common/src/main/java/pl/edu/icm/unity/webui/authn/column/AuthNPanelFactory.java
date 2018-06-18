@@ -14,7 +14,7 @@ import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOpt
  */
 public interface AuthNPanelFactory
 {
-	PrimaryAuthNPanel createRegularAuthnPanel(AuthNOption authnOption);
-	PrimaryAuthNPanel createGridCompatibleAuthnPanel(AuthNOption authnOption);
+	FirstFactorAuthNPanel createRegularAuthnPanel(AuthNOption authnOption);
+	FirstFactorAuthNPanel createGridCompatibleAuthnPanel(AuthNOption authnOption);
 	
 }
