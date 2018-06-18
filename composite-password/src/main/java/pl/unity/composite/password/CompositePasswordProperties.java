@@ -18,41 +18,52 @@ import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.ldap.client.LdapProperties;
 
+/**
+ * Configuration of the composite-password verificator
+ * 
+ * @author P.Piernik
+ *
+ */
 public class CompositePasswordProperties extends PropertiesHelper
 {
-	public enum VerificatorTypes {password, pam, ldap};
-	
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, LdapProperties.class);
-	
+	public enum VerificatorTypes
+	{
+		password, pam, ldap
+	};
+
+	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG,
+			LdapProperties.class);
+
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "compositePassword.";
-	
+
 	@DocumentationReferenceMeta
-	public static final Map<String, PropertyMD> META=new HashMap<>();
-	
-	
+	public static final Map<String, PropertyMD> META = new HashMap<>();
 	public static final String VERIFICATORS = "verificators.";
 	public static final String VERIFICATOR_TYPE = "verificatorType";
 	public static final String VERIFICATOR_CONFIG = "verificatorConfig";
 	public static final String VERIFICATOR_CREDENTIAL = "verificatorCredential";
-	
-	static 
+
+	static
 	{
-		META.put(VERIFICATORS, new PropertyMD().setStructuredList(false).
-				setDescription("List of enabled verificators"));	
-		META.put(VERIFICATOR_TYPE, new PropertyMD(VerificatorTypes.password).setStructuredListEntry(VERIFICATORS).
-				setDescription("Verificator type"));
-		META.put(VERIFICATOR_CONFIG, new PropertyMD().setStructuredListEntry(VERIFICATORS).
-				setDescription("For remote  verificator the configuration file of the verificator"));
-		META.put(VERIFICATOR_CREDENTIAL, new PropertyMD().setStructuredListEntry(VERIFICATORS).
-				setDescription("For local verificator the name of the local credential associated with it"));
+		META.put(VERIFICATORS, new PropertyMD().setStructuredList(false)
+				.setDescription("List of enabled verificators"));
+		META.put(VERIFICATOR_TYPE,
+				new PropertyMD(VerificatorTypes.password)
+						.setStructuredListEntry(VERIFICATORS)
+						.setDescription("Verificator type"));
+		META.put(VERIFICATOR_CONFIG, new PropertyMD().setStructuredListEntry(VERIFICATORS)
+				.setDescription("The configuration file of the remote verificator"));
+		META.put(VERIFICATOR_CREDENTIAL, new PropertyMD()
+				.setStructuredListEntry(VERIFICATORS)
+				.setDescription("For local verificator the name of the local credential associated with it"));
 	}
-	
+
 	public CompositePasswordProperties(Properties properties)
 	{
 		super(PREFIX, properties, META, log);
 	}
-	
+
 	public Properties getProperties()
 	{
 		return properties;

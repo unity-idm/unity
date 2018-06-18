@@ -48,19 +48,16 @@ import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
-import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Composite password verificator is only a relay to other local or remote
  * password verificators. Supports all settings from
- * {@link CompositePasswordProperties} The behaviour of this verificator is as
- * follows: 
- * 1. check if authenticated user is a local user and has any of the
- * local credentials set. If yes verify using this credential (selecting the
- * first one available from the list). 
- * 2. otherwise try authenticating one by
+ * {@link CompositePasswordProperties}. It is configured with a list of local
+ * passwords and list of remote verificators. The behaviour of this verificator
+ * is as follows: 1. check if authenticated user is a local user and has any of
+ * the local credentials set. If yes verify using this credential (selecting the
+ * first one available from the list). 2. otherwise try authenticating one by
  * one with configured remote verificators.
  * 
  * @author P.Piernik
@@ -73,8 +70,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 			CompositePasswordVerificator.class);
 
 	public static final String NAME = "composite-password";
-	public static final String DESC = "Verifies all passwords types";
-	public static final String[] IDENTITY_TYPES = { UsernameIdentity.ID, EmailIdentity.ID };
+	public static final String DESC = "Verifies local or remote password";
 	
 	private Map<String, CredentialVerificatorFactory> credentialVerificatorFactories;
 	private CredentialHelper credentialHelper;
@@ -143,7 +139,6 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 	{
 		try
 		{
-
 			String rConfiguration = config == null ? null
 					: FileUtils.readFileToString(config,
 							StandardCharsets.UTF_8);
@@ -152,8 +147,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 		} catch (IOException e)
 		{
 			throw new InternalException(
-					"Invalid configuration of the composite-password verificator(?)",
-					e);
+					"Invalid configuration of the composite-password verificator(?)", e);
 		}
 	}
 
@@ -170,8 +164,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 		} catch (IOException e)
 		{
 			throw new InternalException(
-					"Invalid configuration of the composite-password verificator",
-					e);
+					"Invalid configuration of the composite-password verificator", e);
 		}
 		compositePasswordProperties = new CompositePasswordProperties(properties);
 
@@ -232,7 +225,6 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 						sandboxCallback);
 
 			}
-
 		}
 
 		for (CredentialVerificator remoteVerificator : remoteVerificators)

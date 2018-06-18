@@ -14,16 +14,20 @@ import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
- * Utility class with methods used by {@link CompositePasswordVerificator} and {@link CompositePasswordResetImpl}
+ * Utility class with methods used by {@link CompositePasswordVerificator} and
+ * {@link CompositePasswordResetImpl}
+ * 
  * @author P.Piernik
  *
  */
 public class CompositePasswordHelper
 {
+	
 	public static boolean checkCredential(LocalCredentialVerificator verificator, long entityId)
 	{
 		try
@@ -44,7 +48,7 @@ public class CompositePasswordHelper
 		try
 		{
 			return Optional.of(identityResolver.resolveIdentity(username,
-					CompositePasswordVerificator.IDENTITY_TYPES, null));
+					PasswordVerificator.IDENTITY_TYPES, null));
 		} catch (IllegalIdentityValueException e)
 		{
 

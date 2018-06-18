@@ -34,6 +34,11 @@ import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
 import pl.edu.icm.unity.ws.mock.MockWSSEI;
 import xmlbeans.org.oasis.saml2.assertion.NameIDDocument;
 
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
 public class CompositePasswordTest extends DBIntegrationTestBase
 {
 	@Autowired
@@ -60,7 +65,7 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldLoginWithFirstPossibleCredential() throws Exception
+	public void shouldAuthnWithFirstPossibleCredential() throws Exception
 	{
 		setupPasswordCred("pass1");
 		setupPasswordCred("pass2");

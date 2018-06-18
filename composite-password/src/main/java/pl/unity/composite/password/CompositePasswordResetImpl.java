@@ -31,8 +31,10 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
- * Composite password reset implementation of {@link CredentialReset}. This implementation is only wrapper for {@link PasswordCredentialResetImpl}.
- * Credential to reset is dynamically set only when username is known 
+ * Composite password reset implementation of {@link CredentialReset}. This
+ * implementation is only wrapper for {@link PasswordCredentialResetImpl}.
+ * Credential to reset is dynamically set only when username is known
+ * 
  * @author P.Piernik
  *
  */
