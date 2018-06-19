@@ -15,6 +15,11 @@ public class AuthenticationOptionKeyUtils
 	{
 		return authenticatorKey + "." + optionKey;
 	}
+
+	public static String encodeToCSS(String key)
+	{
+		return key.replace(".", "-");
+	}
 	
 	public static String decodeOption(String globalKey)
 	{

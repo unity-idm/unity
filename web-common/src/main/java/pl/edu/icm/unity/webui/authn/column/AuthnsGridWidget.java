@@ -75,7 +75,8 @@ class AuthnsGridWidget extends CustomComponent
 		providersChoice.addStyleName("u-authnGrid");
 		providersChoice.setHeaderVisible(false);
 		providersChoice.setSizeFull();
-		providersChoice.setStyleGenerator(item -> "idpentry_" + item.getId());
+		providersChoice.setStyleGenerator(item -> "idpentry_" + 
+					AuthenticationOptionKeyUtils.encodeToCSS(item.getId()));
 		providersChoice.setHeightByRows(height);
 		imageColumn.setExpandRatio(1);
 		buttonColumn.setExpandRatio(6);

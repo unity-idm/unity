@@ -163,39 +163,114 @@ automatically. Instead, if this is needed (unlikely), admin needs to manually tr
 +pl.edu.icm.unity.stdext.credential.pass+, update the imports section.
 
 ==== From 2.5.0 to 2.6.0
- 
-Endpoint configuration argument syntax change.
- (List<AuthenticationOptionDescription>  -> List<String> with contains authenticator of authentication flow name)
-Name of idpentry authn option change. (idpentry_AuthenticatorName.Option -> idpentry_AuthnFlowName.AutheticatorName.Option)
-
-unity.saml.requester.selectedProviderIconScale - removed with no counterpart - it has no use
-
-Deprecated since a long time and finally dropped:
-unity.saml.requester.iconScale
-unity.saml.requester.displayName
-unity.saml.requester.providersInRow
-
-unity.oauth2.client.selectedProviderIconScale - removed with no counterpart - it has no use
-
-Deprecated since a long time and finally dropped:
-
-unity.oauth2.client.iconScale
-unity.oauth2.client.displayName
-unity.oauth2.client.providersInRow
-
-Tile-based configuration removed
-
-Default style changed
 
 
+There were numerous changes in configuration of endpoints. All but configuration of authentication screen 
+(see the following section) should be simple to apply )or most likely require no work).
 
+Options removed from all endpoints:
+
+. +unity.endpoint.web.authenticationTiles.*+ - tiles based organization of the authentication screen was totally dropped.
+Insted use the new column based authentication configuration. 
+
+
+Removed options from SAML endpoints:
+
+. +unity.saml.requester.selectedProviderIconScale+ - removed with no counterpart - it has no use anymore
+. +unity.saml.requester.iconScale+ - deprecated since a long time and finally dropped
+. +unity.saml.requester.iconScale+ - deprecated since a long time and finally dropped
+. +unity.saml.requester.displayName+ - deprecated since a long time and finally dropped
+. +unity.saml.requester.providersInRow+ - deprecated since a long time and finally dropped
+
+Removed options from OAuth endpoints:
+
+. +unity.oauth2.client.selectedProviderIconScale+ - removed with no counterpart - it has no use anymore
+. +unity.oauth2.client.iconScale+ - deprecated since a long time and finally dropped
+. +unity.oauth2.client.displayName+ - deprecated since a long time and finally dropped
+. +unity.oauth2.client.providersInRow+ - deprecated since a long time and finally dropped
+
+===== Endpoint configuration change
+
+Those changes most likely won't affect your installation modified options were very rarely used.
+
+Endpoint authentication is now configured using either individul authenticators (as prevously) or authentication flows.
+Authentication flows take over the not supported anymore syntax "authenticator1,authenticator2" (and allow for 
+configuring multifactor authentication in a flexible way). Such option should be converted to use 
+a flow with mandatory 2nd factor policy. For example a former configuration:
+
+----
+...
+unityServer.core.endpoints.myE1.endpointAuthenticators=pwdWeb1,smsWeb1;certWeb
+...
+----
+
+should be converted to:
+
+----
+unityServer.core.authenticationFlow.passAndSMS.authenticationFlowName=passAndSMS
+unityServer.core.authenticationFlow.passAndSMS.authenticationFlowPolicy=REQUIRE
+unityServer.core.authenticationFlow.passAndSMS.firstFactorAuthenticators=pwdWeb1
+unityServer.core.authenticationFlow.passAndSMS.secondFactorAuthenticators=smsWeb1
+
+...
+unityServer.core.endpoints.myE1.endpointAuthenticators=passAndSMS;certWeb
+...
+----
+
+
+Additionally note that endpoint configuration is changed what may affect REST clients or Groovy scripts creating endpoints.
+Former +List<AuthenticationOptionDescription>+ -> +List<String>+ with contains authenticator of authentication flow name.
+
+
+===== Styling changes 
+
+The default style was significantly changed to track authentication screen changes.
+If using a custom style it needs to be revised. Hopefully styling the authentication screen should be much easier now.
+
+HTML classess assigned to authentication option widgets were slightly changed: 
+former +...AuthenticatorName.optionName+ was changed to +...AuthenticatorName-optionName+ to work around conflicts
+of the dot with CSS class nameing.
+
+===== Converting from tiles to columns
+
+The biggest breaking change introduced in 2.6.0 is new way of configuring appearance of the authentication screen.
+See <<endpoints-authn>> for details on how to configure the authentication screen the new way. 
+Previously the authN screen was organized around 'tiles' were user was only able to select authentication option,
+after its selection it was presented in the top part of the screen and was ready for actual authentication 
+(e.g. providing password). From 2.6.0 all authentication options are _instantly_ ready to be used. What is more those
+are formatted differently and organized in columns. The 'tile' concept was dropped. 
+
+Typically the old tile will be changed into a column. Tiles using the +simple+ mode are simply converted into a column.
+Tiles using the old tile mode +table+ (for showing scrollable list of many authentication options) is converted 
+also to a regular column, having a new +_GRID+ element. The following example shows how to convert a typical tile: 
+
+----
 unity.endpoint.web.authnIconScale=maxHeightSmall
-unity.endpoint.web.authenticationTiles.1.tileContents=pwd cert ldap sms
+unity.endpoint.web.authenticationTiles.1.tileContents=pwd cert
 unity.endpoint.web.authenticationTiles.1.tileMode=simple
 unity.endpoint.web.authenticationTiles.1.tileName.pl=Lokalne metody
 unity.endpoint.web.authenticationTiles.1.tileName.en=Local authentication
 unity.endpoint.web.authenticationTiles.1.tileIconSize=maxHeight50
+----
 
-unity.endpoint.web.authnScreenColumn.1.columnContents=pwd cert ldap sms
+to a column:
+
+----
 unity.endpoint.web.authnScreenColumn.1.columnTitle.pl=Lokalne metody
 unity.endpoint.web.authnScreenColumn.1.columnTitle.en=Local authentication
+unity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb certWeb
+----
+
+Note that in the tiles setup tile contents was using arbitrary prefixes of authenticators 
+(so you could use +pwd+ when authenticator was named +pwdWeb+). It is no longer supported, column's contents 
+is configured with either full names of authenticators or authenticator with its option 
+as +oauthWeb+ for all options of this authenticator or +oauthWeb.google+ for a specific one.
+
+Another common case is that when converting simple tile to a column separators may come handy:
+
+----
+unity.endpoint.web.authnScreenOptionsLabel.OR.text=OR
+
+unity.endpoint.web.authnScreenColumn.1.columnTitle=Local authentication
+unity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb _SEPARATOR_OR certWeb
+----

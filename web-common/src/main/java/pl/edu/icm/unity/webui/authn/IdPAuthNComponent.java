@@ -27,7 +27,7 @@ public class IdPAuthNComponent extends CustomComponent
 		providerB = new Button();
 		providerB.setStyleName(Styles.vButtonLink.toString());
 		providerB.addStyleName(Styles.externalSignInButton.toString());
-		providerB.addStyleName("u-idpAuthentication-" + id.replace(".", "-"));
+		providerB.addStyleName("u-idpAuthentication-" + AuthenticationOptionKeyUtils.encodeToCSS(id));
 		providerB.setCaption(name);
 		if (logo != null)
 			providerB.setIcon(logo);
