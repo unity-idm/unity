@@ -85,7 +85,7 @@ public class ProxyAuthenticationFilter implements Filter
 		URIBuilder uriBuilder = new URIBuilder();
 		for (Map.Entry<String, String[]> entry: parameterMap.entrySet())
 			if (!entry.getKey().equals(ProxyAuthenticationFilter.TRIGGERING_PARAM) &&
-					!entry.getKey().equals(AuthenticationUI.IDP_SELECT_PARAM))
+					!entry.getKey().equals(PreferredAuthenticationHelper.IDP_SELECT_PARAM))
 			{
 				for (String value: entry.getValue())
 					uriBuilder.addParameter(entry.getKey(), value);
@@ -118,12 +118,12 @@ public class ProxyAuthenticationFilter implements Filter
 	{
 		if (isAutomatedAuthenticationDesired(httpRequest))
 		{
-			String selectedAuthn = httpRequest.getParameter(AuthenticationUI.IDP_SELECT_PARAM);
+			String selectedAuthn = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
 			if (selectedAuthn == null && authenticators.size() > 1)
 			{
 				log.error("There are more multiple authenticators installed, "
 						+ "and automated login was requested without specifying (with " 
-						+ AuthenticationUI.IDP_SELECT_PARAM + ") which one should be used. "
+						+ PreferredAuthenticationHelper.IDP_SELECT_PARAM + ") which one should be used. "
 						+ "Automatic login is skipped.");
 				return false;
 			}
@@ -170,7 +170,7 @@ public class ProxyAuthenticationFilter implements Filter
 						authenticator.getAuthenticatorId());
 				if (selectedAuthn != null)
 				{
-					Cookie lastIdpCookie = AuthenticationUI.createLastIdpCookie(
+					Cookie lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
 							endpointPath, selectedAuthn);
 					httpResponse.addCookie(lastIdpCookie);
 				}

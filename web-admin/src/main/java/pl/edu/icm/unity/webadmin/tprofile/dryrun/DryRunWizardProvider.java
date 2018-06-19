@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.webadmin.tprofile.dryrun;
 
+import java.net.URISyntaxException;
+
+import org.apache.http.client.utils.URIBuilder;
 import org.vaadin.teemu.wizards.Wizard;
 
 import com.vaadin.ui.UI;
@@ -14,6 +17,7 @@ import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.sandbox.TranslationProfileSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
 
 /**
@@ -29,12 +33,26 @@ public class DryRunWizardProvider extends AbstractSandboxWizardProvider
 	public DryRunWizardProvider(UnityMessageSource msg, String sandboxURL, SandboxAuthnNotifier sandboxNotifier, 
 			TranslationProfileManagement tpMan, InputTranslationActionsRegistry taRegistry)
 	{
-		super(sandboxURL, sandboxNotifier);
+		super(getURLForDryRun(sandboxURL), sandboxNotifier);
 		this.msg = msg;
 		this.tpMan = tpMan;
 		this.taRegistry = taRegistry;
 	}
 
+	private static String getURLForDryRun(String baseSandboxURL)
+	{
+		URIBuilder builder;
+		try
+		{
+			builder = new URIBuilder(baseSandboxURL);
+		} catch (URISyntaxException e)
+		{
+			throw new IllegalArgumentException("Sandbox URL is invalid: " + baseSandboxURL, e);
+		}
+		builder.addParameter(TranslationProfileSandboxUI.PROFILE_VALIDATION, Boolean.TRUE.toString());
+		return builder.toString();
+	}
+	
 	@Override
 	public Wizard getWizardInstance()
 	{

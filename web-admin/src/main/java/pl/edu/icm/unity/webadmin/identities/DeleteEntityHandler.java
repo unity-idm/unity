@@ -69,7 +69,7 @@ class DeleteEntityHandler
 		long entityId = removed.getEntity().getId();
 		if (entityId == entity.getEntityId())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("Identities.notRemovingLoggedUser"));
 			return;
 		}

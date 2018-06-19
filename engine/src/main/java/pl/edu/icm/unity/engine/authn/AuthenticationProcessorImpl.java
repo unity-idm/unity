@@ -112,7 +112,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 		// In Future: Risk base policy
 
-		return new PartialAuthnState(null, result);
+		return new PartialAuthnState(null, result, authenticationFlow);
 	}
 
 	
@@ -131,9 +131,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result)
 	{
-		for (Authenticator authn : authenticationFlow
-				.getSecondFactorAuthenticators())
-
+		for (Authenticator authn : authenticationFlow.getSecondFactorAuthenticators())
 		{
 			
 			BindingAuthn bindingAuthn = authn.getRetrieval();
@@ -143,13 +141,13 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 				if (!authenticator.getTypeDescription().isLocal())
 				{
 					log.debug("Using remote second factor authenticator " + authenticator.getId());
-					return new PartialAuthnState(bindingAuthn, result);
+					return new PartialAuthnState(bindingAuthn, result, authenticationFlow);
 
 				} else if (checkIfUserHasCredential(authenticator,
 						result.getAuthenticatedEntity()))
 				{
 					log.debug("Using local second factor authenticator " + authenticator.getId());
-					return  new PartialAuthnState(bindingAuthn, result);
+					return  new PartialAuthnState(bindingAuthn, result, authenticationFlow);
 
 				}
 			}
@@ -186,12 +184,6 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 
 	}
 		
-	/**
-	 * Should be used if the second step authentication is required to process second authenticator results
-	 * and retrieve a final {@link AuthenticatedEntity}.
-	 * @param state
-	 * @return
-	 */
 	@Override
 	public AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state)
 	{
@@ -202,13 +194,6 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 
 	
-	/**
-	 * Should be used if the second step authentication is required to process second authenticator results
-	 * and retrieve a final {@link AuthenticatedEntity}.
-	 * @param primaryResult
-	 * @return
-	 * @throws AuthenticationException 
-	 */
 	@Override
 	public AuthenticatedEntity finalizeAfterSecondaryAuthentication(PartialAuthnState state, 
 			AuthenticationResult result2) throws AuthenticationException

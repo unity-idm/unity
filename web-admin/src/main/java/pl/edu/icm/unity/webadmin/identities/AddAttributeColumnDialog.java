@@ -54,7 +54,7 @@ public class AddAttributeColumnDialog extends AbstractDialog
 			attrTypes = attrsMan.getAttributeTypes();
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("AddAttributeColumnDialog.cantGetAttrTypes"));
 			throw new IllegalStateException();
 		}

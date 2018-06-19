@@ -20,11 +20,11 @@ public class TestAccountAssociation extends SeleniumTestBase
 	{
 		//login to home UI 
 		driver.get(baseUrl + "/home/home");
-		waitForPageLoad(By.id("AuthenticationUI.username")).clear();
-		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user2");
-		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
-		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test2");
-		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
+		waitForPageLoad(By.className("u-passwordUsernameField")).clear();
+		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user2");
+		waitForElement(By.className("u-passwordField")).clear();
+		waitForElement(By.className("u-passwordField")).sendKeys("the!test2");
+		waitForElement(By.className("u-passwordSignInButton")).click();
 		
 		//invoke association
 		waitForPageLoad(By.id("EntityDetailsWithActions.associateAccount")).click();
@@ -35,15 +35,9 @@ public class TestAccountAssociation extends SeleniumTestBase
 		driver.switchTo().window(popupH);
 
 		//login to Unity over loopback SAML in the sandbox
-		waitForElement(By.className("idpentry_samlWeb.samlWeb.5")).click();
-		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
+		waitForElement(By.className("u-idpAuthentication-samlWeb-5")).click();
 		
 		//we don't have to login as both are in the same realm so we are instantly SSO-logged-in
-//		waitForElement(By.id("AuthenticationUI.username")).clear();
-//		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
-//		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
-//		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test1");
-//		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
 		
 		//go back to the main window and complete wizard

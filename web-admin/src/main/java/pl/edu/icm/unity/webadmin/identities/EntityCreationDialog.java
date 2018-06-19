@@ -86,7 +86,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			allTypes = attrMan.getAttributeTypes();
 		} catch (EngineException e1)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetAttrTypes"));
 			throw e1;
 		}
@@ -103,13 +103,13 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			credReqs = credReqMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetcredReq"));
 			throw e;
 		}
 		if (credReqs.isEmpty())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalCredentialException(msg.getMessage("EntityCreation.credReqMissing"));
 		}

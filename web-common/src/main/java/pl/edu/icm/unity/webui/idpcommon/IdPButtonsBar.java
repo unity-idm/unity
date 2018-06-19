@@ -11,7 +11,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 
 /**
  * Bar with buttons: Accept, Decline, Login as another user. The login as another user action is 
@@ -23,10 +23,10 @@ public class IdPButtonsBar extends CustomComponent
 	public enum Action {ACCEPT, DENY, LOGIN_AS_ANOTHER};
 
 	private UnityMessageSource msg;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	private ActionListener listener;
 	
-	public IdPButtonsBar(UnityMessageSource msg, WebAuthenticationProcessor authnProcessor,
+	public IdPButtonsBar(UnityMessageSource msg, StandardWebAuthenticationProcessor authnProcessor,
 			ActionListener listener)
 	{
 		super();

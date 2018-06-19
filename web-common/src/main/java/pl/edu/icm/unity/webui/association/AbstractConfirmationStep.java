@@ -103,6 +103,7 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 		setSizeFull();
 		
 		introLabel = new HtmlLabel(msg);
+		introLabel.setWidth(100, Unit.PERCENTAGE);
 		mainLayout.addComponent(introLabel);
 		
 		errorComponent = new ErrorComponent();

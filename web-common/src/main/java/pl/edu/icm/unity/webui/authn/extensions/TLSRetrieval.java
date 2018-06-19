@@ -22,11 +22,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
@@ -117,6 +116,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI());
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return false; //TODO this component can support grid
+	}
 	
 	public static X509Certificate[] getTLSCertificate()
 	{
@@ -130,7 +134,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
 		private TLSAuthnComponent component = new TLSAuthnComponent();
-		private AuthenticationResultCallback callback;
+		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
 		@Override
@@ -140,17 +144,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		}
 
 		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
 		}
 
-		@Override
-		public void triggerAuthentication()
-		{
-			callback.setAuthenticationResult(getAuthenticationResult());
-		}
-		
 		private AuthenticationResult getAuthenticationResult()
 		{
 			X509Certificate[] clientCert = getTLSCertificate();
@@ -158,24 +156,16 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (clientCert == null)
 				return new AuthenticationResult(Status.notApplicable, null);
 
-			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(
+			return credentialExchange.checkCertificate(
 					clientCert, sandboxCallback);
-			component.setError(authenticationResult.getStatus() != Status.success);
-			return authenticationResult;
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public String getLabel()
 		{
 			return name.getValue(msg);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public Resource getImage()
 		{
@@ -197,44 +187,38 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 
 		}
 
-		@SuppressWarnings("serial")
 		private class TLSAuthnComponent extends VerticalLayout
 		{
-			private Label info;
-
 			public TLSAuthnComponent()
 			{
 				setMargin(false);
-				setSpacing(false);
-				Label title = new Label(name.getValue(msg));
-				title.addStyleName(Styles.vLabelLarge.toString());
-				addComponent(title);
-				info = new Label();
-				addComponent(info);
+				setSpacing(true);
 				X509Certificate[] clientCert = getTLSCertificate();
-				if (clientCert == null)
-				{
-					info.setValue(msg.getMessage("WebTLSRetrieval.noCert"));
-				} else
-				{
-					info.setValue(msg.getMessage("WebTLSRetrieval.certInfo", 
-							X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
-				}
-			}
-
-			public void setError(boolean how)
-			{
-				info.setComponentError(how ? new UserError(
-						msg.getMessage("WebTLSRetrieval.unknownUser")) : null);
+				String info = clientCert == null ? "" : msg.getMessage("WebTLSRetrieval.certInfo", 
+						X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal()));
+				Button authenticateButton = new Button(msg.getMessage("WebTLSRetrieval.signInButton"));
+				authenticateButton.addClickListener(event -> triggerAuthentication());
+				authenticateButton.setIcon(getImage());
+				authenticateButton.addStyleName(Styles.signInButton.toString());
+				authenticateButton.addStyleName("u-x509SignInButton");
+				authenticateButton.setWidth(100, Unit.PERCENTAGE);
+				authenticateButton.setDescription(info);
+				addComponent(authenticateButton);
 			}
 		}
 
-		@Override
-		public void cancelAuthentication()
+		private void triggerAuthentication()
 		{
-			//nop
+			callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
+			callback.onCompletedAuthentication(getAuthenticationResult());
 		}
-
+		
+		@Override
+		public boolean isAvailable()
+		{
+			return getTLSCertificate() != null;
+		}
+		
 		@Override
 		public void clear()
 		{
@@ -248,7 +232,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 		{
 			sandboxCallback = callback;
 		}

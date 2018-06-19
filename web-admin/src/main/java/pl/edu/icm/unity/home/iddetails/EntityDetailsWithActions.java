@@ -173,7 +173,7 @@ public class EntityDetailsWithActions extends CustomComponent
 		}
 		if (!ok)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("EntityDetailsWithActions.errorSaving"));
 			return;
 		}

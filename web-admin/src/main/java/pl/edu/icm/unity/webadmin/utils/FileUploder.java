@@ -105,20 +105,20 @@ public class FileUploder extends AbstractUploadReceiver
 	{
 		if (isOverflow())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("FileUploader.uploadFileTooBig"));
 			return null;
 		}
 		if (isUploading())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("FileUploader.uploadInProgress"));
 			return null;
 		}	
 		
 		if (target == null)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("FileUploader.uploadFileFirst"));
 			return null;
 		}

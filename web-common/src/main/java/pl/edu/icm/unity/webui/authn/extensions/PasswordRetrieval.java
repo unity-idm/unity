@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -17,13 +18,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
@@ -52,10 +51,12 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialReset1Dialog;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -141,11 +142,16 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificator.NAME)));
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return false;
+	}
 
 	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;
-		private AuthenticationResultCallback callback;
+		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		private String presetAuthenticatedIdentity;
 		
@@ -164,15 +170,31 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			VerticalLayout ret = new VerticalLayout();
 			ret.setMargin(false);
 			
-			usernameField = new TextField(msg.getMessage("AuthenticationUI.username"));
-			usernameField.setId("AuthenticationUI.username");
+			usernameField = new TextField();
+			usernameField.setWidth(100, Unit.PERCENTAGE);
+			usernameField.setPlaceholder(msg.getMessage("AuthenticationUI.username"));
+			usernameField.addStyleName("u-authnTextField");
+			usernameField.addStyleName("u-passwordUsernameField");
 			ret.addComponent(usernameField);
 			
 			String label = name.getValue(msg);
-			passwordField = new PasswordField(label + ":");
-			passwordField.setId("WebPasswordRetrieval.password");
+			passwordField = new PasswordField();
+			passwordField.setWidth(100, Unit.PERCENTAGE);
+			passwordField.setPlaceholder(label);
+			passwordField.addStyleName("u-authnTextField");
+			passwordField.addStyleName("u-passwordField");
 			ret.addComponent(passwordField);
 			
+			
+			Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+			authenticateButton.addStyleName(Styles.signInButton.toString());
+			authenticateButton.addStyleName("u-passwordSignInButton");
+			authenticateButton.addClickListener(event -> triggerAuthentication());
+			ret.addComponent(authenticateButton);
+
+			passwordField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
+			passwordField.addBlurListener(e -> authenticateButton.removeClickShortcut());
+
 			PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(
 					JsonUtil.parse(credentialExchange
 							.getCredentialResetBackend()
@@ -181,39 +203,44 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			{
 				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
 				reset.setStyleName(Styles.vButtonLink.toString());
-				ret.addComponent(reset);
-				ret.setComponentAlignment(reset, Alignment.TOP_RIGHT);
-				reset.addClickListener(new ClickListener()
-				{
-					@Override
-					public void buttonClick(ClickEvent event)
-					{
-						showResetDialog();
-					}
-				});
+				AuthNGridTextWrapper resetWrapper = new AuthNGridTextWrapper(reset, Alignment.TOP_RIGHT);
+				resetWrapper.addStyleName("u-authn-forgotPassword");
+				ret.addComponent(resetWrapper);
+				reset.addClickListener(event -> showResetDialog());
 			}
+			
 			setCompositionRoot(ret);
 		}
 
-		public void triggerAuthentication()
+		private void triggerAuthentication()
 		{
 			String username = presetAuthenticatedIdentity == null ? usernameField.getValue() : 
 				presetAuthenticatedIdentity;
 			String password = passwordField.getValue();
+
 			if (password.equals(""))
 			{
-				passwordField.setComponentError(new UserError(
-						msg.getMessage("WebPasswordRetrieval.noPassword")));
-			}
-			if (username.equals(""))
+				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+						msg.getMessage("WebPasswordRetrieval.noPassword"));
+			} else if (username.equals(""))
 			{
-				usernameField.setComponentError(new UserError(
-						msg.getMessage("WebPasswordRetrieval.noUser")));
-			}			
-			callback.setAuthenticationResult(getAuthenticationResult(username, password));
+				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+						msg.getMessage("WebPasswordRetrieval.noUser"));
+			} else 
+			{
+				callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
+				AuthenticationResult authenticationResult = getAuthenticationResult(username, password);
+				if (authenticationResult.getStatus() == Status.deny)
+				{
+					callback.onFailedAuthentication(authenticationResult, 
+							msg.getMessage("WebPasswordRetrieval.wrongPassword"), 
+							Optional.empty());
+				} else
+				{
+					callback.onCompletedAuthentication(authenticationResult);
+				}
+			}
 		}
-		
-
 		
 		private AuthenticationResult getAuthenticationResult(String username, String password)
 		{
@@ -253,10 +280,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		
 		private void setError()
 		{
-			String msgErr = msg.getMessage("WebPasswordRetrieval.wrongPassword");
-			passwordField.setComponentError(new UserError(msgErr));
 			passwordField.setValue("");
-			usernameField.setComponentError(new UserError(msgErr));
 			usernameField.setValue("");
 		}
 		
@@ -288,7 +312,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			this.tabIndex = tabIndex;
 		}
 
-		public void setCallback(AuthenticationResultCallback callback)
+		public void setCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
 		}
@@ -308,8 +332,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			passwordField.setValue("");
 			usernameField.setValue("");
-			passwordField.setComponentError(null);
-			usernameField.setComponentError(null);
 		}
 	}
 	
@@ -324,7 +346,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			theComponent.setCallback(callback);
 		}
@@ -336,24 +358,11 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void triggerAuthentication()
-		{
-			theComponent.triggerAuthentication();
-		}
-		
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
 		public String getLabel()
 		{
 			return name.getValue(msg);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public Resource getImage()
 		{
@@ -375,12 +384,6 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void cancelAuthentication()
-		{
-			//do nothing
-		}
-
-		@Override
 		public void clear()
 		{
 			theComponent.clear();
@@ -393,7 +396,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 		{
 			theComponent.setSandboxCallback(callback);
 		}
@@ -437,13 +440,5 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 	}
 }
-
-
-
-
-
-
-
-
 
 

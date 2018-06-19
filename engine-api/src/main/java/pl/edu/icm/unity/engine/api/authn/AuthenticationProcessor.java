@@ -16,27 +16,17 @@ import pl.edu.icm.unity.engine.api.session.SessionParticipant;
  */
 public interface AuthenticationProcessor
 {
-	
-	
 	/**
 	 * Starting point: the result of the primary authenticator is verified. If the authentication failed
 	 * then an exception is thrown. Otherwise it is checked whether, according to the 
 	 * {@link AuthenticationFlow} selected, second authentication should be performed, what is returned.
-	 * @param result
-	 * @param authenticationFlow
-	 * @return
-	 * @throws AuthenticationException
 	 */
 	PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
 			AuthenticationFlow authenticationFlow) throws AuthenticationException;
-
 	
 	
 	/**
-	 * Should be used if the second step authentication is required to process second authenticator results
-	 * and retrieve a final {@link AuthenticatedEntity}.
-	 * @param state
-	 * @return
+	 * Should be used if the second step authentication is not required: retrieve a final {@link AuthenticatedEntity}.
 	 */
 	AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state);
 	
@@ -49,7 +39,7 @@ public interface AuthenticationProcessor
 	 * @return
 	 * @throws AuthenticationException 
 	 */
-	public AuthenticatedEntity finalizeAfterSecondaryAuthentication(PartialAuthnState state, 
+	AuthenticatedEntity finalizeAfterSecondaryAuthentication(PartialAuthnState state, 
 			AuthenticationResult result2) throws AuthenticationException;
 	
 	/**

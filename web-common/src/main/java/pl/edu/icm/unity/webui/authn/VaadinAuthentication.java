@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.authn;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.server.Resource;
@@ -34,48 +35,47 @@ public interface VaadinAuthentication extends BindingAuthn
 	 */
 	Collection<VaadinAuthenticationUI> createUIInstance();
 	
+	/**
+	 * @return true only if {@link VaadinAuthenticationUI#getGridCompatibleComponent()} 
+	 * is allowed for this implementation.
+	 */
+	boolean supportsGrid();
+	
+	
 	public interface VaadinAuthenticationUI
 	{
 		/**
 		 * @return UI component associated with this retrieval. If the returned component implements 
-		 * the {@link Focusable} interface it will be focused after showing. 
+		 * the {@link Focusable} interface it may be focused after showing. 
 		 * Important: this method must return the same instance of the {@link Component} for its lifetime. 
 		 * The instance creation must be performed when the {@link VaadinAuthentication#createUIInstance()}
 		 * is called.
 		 */
 		Component getComponent();
+
+		/**
+		 * @return simplified UI widget that is suitable for inclusion in a gird. If this implementation is
+		 * not supporting such variant should throw an exception.  
+		 */
+		default Component getGridCompatibleComponent()
+		{
+			throw new UnsupportedOperationException("This authenticator is not grid compatible");
+		}
 		
 		/**
 		 * Sets a callback object which is used to communicate the authentication result back to the 
 		 * main authentication framework. 
 		 * @param callback
 		 */
-		void setAuthenticationResultCallback(AuthenticationResultCallback callback);
+		void setAuthenticationCallback(AuthenticationCallback callback);
 	
-		
-		
 		/**
+		 * TODO do we need separate ? 
 		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
 		 * authn is returned back to the sandbox servlet. 
 		 * @param callback
 		 */
-		void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback);
-		
-		/**
-		 * Should trigger the actual authentication (if was not triggered manually via the component).
-		 * If it is possible the implementation should invoke 
-		 * {@link AuthenticationResultCallback#setAuthenticationResult(AuthenticationResult)}
-		 * method inside of the implementation of this method. Some of the implementations may need to 
-		 * initiate a long-running process with browser redirections after this method is called. Those must
-		 * set the authentication result ASAP after it is available. 
-		 */
-		void triggerAuthentication();
-		
-		/**
-		 * If called the authenticator should cancel the ongoing authentication if any. It can be called only
-		 * after the {@link #triggerAuthentication()} was called and before the authenticator invoked callback.
-		 */
-		void cancelAuthentication();
+		void setSandboxAuthnCallback(SandboxAuthnResultCallback callback);
 		
 		/**
 		 * @return label for presentation in the user interface.
@@ -120,21 +120,49 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @param authenticatedEntity
 		 */
 		void presetEntity(Entity authenticatedEntity);
+		
+		/**
+		 * @return implementation may decide to disable this option if some runtime
+		 * conditions are rendering it unusable.
+		 */
+		default boolean isAvailable()
+		{
+			return true;
+		}
 	}
 
+	enum AuthenticationStyle 
+	{
+		IMMEDIATE,
+		WITH_EMBEDDED_CANCEL,
+		WITH_EXTERNAL_CANCEL
+	}
 	
 	/**
 	 * Retrieval must provide an authentication result via this callback ASAP, after it is triggered.
 	 * @author K. Benedyczak
 	 */
-	public interface AuthenticationResultCallback
+	public interface AuthenticationCallback
 	{
-		public void setAuthenticationResult(AuthenticationResult result);
+		/**
+		 * Should be always called after authentication is started
+		 */
+		void onStartedAuthentication(AuthenticationStyle authenticationStyle);
+		
+		/**
+		 * Should be called after authentication result is obtained
+		 */
+		void onCompletedAuthentication(AuthenticationResult result);
+
+		/**
+		 * Should be called after authentication result is obtained and authentication has failed
+		 */
+		void onFailedAuthentication(AuthenticationResult result, String error, Optional<String> errorDetail);
 		
 		/**
 		 * Should be called to signal the framework that authentication was cancelled/failed/stopped etc 
-		 * in the component, so waiting for its finish makes no sense.
+		 * in the component
 		 */
-		public void cancelAuthentication();
+		void onCancelledAuthentication();
 	}
 }

@@ -15,14 +15,16 @@ import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 
 public class PartialAuthnState
 {
-	private BindingAuthn secondaryAuthenticator;
-	private AuthenticationResult primaryResult;
+	private final BindingAuthn secondaryAuthenticator;
+	private final AuthenticationResult primaryResult;
+	private final AuthenticationFlow flow;
 
 	public PartialAuthnState(BindingAuthn secondaryAuthenticator,
-			AuthenticationResult result)
+			AuthenticationResult result, AuthenticationFlow flow)
 	{
 		this.secondaryAuthenticator = secondaryAuthenticator;
 		this.primaryResult = result;
+		this.flow = flow;
 	}
 
 	public boolean isSecondaryAuthenticationRequired()
@@ -38,5 +40,10 @@ public class PartialAuthnState
 	public AuthenticationResult getPrimaryResult()
 	{
 		return primaryResult;
+	}
+	
+	public AuthenticationFlow getAuthenticationFlow()
+	{
+		return flow;
 	}
 }

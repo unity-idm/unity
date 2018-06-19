@@ -13,7 +13,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -30,9 +30,9 @@ public class EnquiryWellKnownURLView extends CustomComponent implements View
 	private EnquiryResponseEditor editor;
 	private Callback callback;
 	private UnityMessageSource msg;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	
-	public EnquiryWellKnownURLView(EnquiryResponseEditor editor, WebAuthenticationProcessor authnProcessor,
+	public EnquiryWellKnownURLView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor,
 			UnityMessageSource msg,	Callback callback)
 	{
 		this.editor = editor;

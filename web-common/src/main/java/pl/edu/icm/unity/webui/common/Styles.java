@@ -24,14 +24,7 @@ public enum Styles
 	negativeTopMargin("u-negativeTopMargin"),
 	verticalPaddingSmall("u-verticalPaddingSmall"),
 	smallMargins("u-smallMargins"),
-	imageWidthTiny("u-imageWidthTiny"),
-	imageHeightTiny("u-imageHeightTiny"),
-	imageWidthSmall("u-imageWidthSmall"),
-	imageHeightSmall("u-imageHeightSmall"),
 	iconError("u-error-icon"),
-	maxHeightMedium("u-imageMaxHeightMedium"),
-	maxHeightSmall("u-imageMaxHeightSmall"),
-	maxHeightTiny("u-imageMaxHeightTiny"),
 	maxWidthColumn("u-maxWidthColumn"),
 	
 	bigTabs("u-bigTabs"),
@@ -74,6 +67,10 @@ public enum Styles
 	uDenseTreeGrid("u-denseTreeGrid"),
 	largeIcon("u-largeIcon"),
 	veryLargeIcon("u-veryLargeIcon"),
+	signInButton("u-signInButton"),
+	signUpButton("u-signUpButton"),
+	externalSignInButton("u-externalSignInButton"),
+	externalGridSignInButton("u-externalGridSignInButton"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

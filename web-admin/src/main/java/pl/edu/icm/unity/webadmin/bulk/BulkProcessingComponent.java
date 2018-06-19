@@ -183,9 +183,7 @@ public class BulkProcessingComponent extends CustomComponent
 		try
 		{
 			bulkManagement.applyRule(rule);
-			NotificationPopup.showSuccess(msg,
-					msg.getMessage("BulkProcessingComponent.actionInvoked"),
-					"");
+			NotificationPopup.showSuccess(msg.getMessage("BulkProcessingComponent.actionInvoked"), "");
 			refresh();
 		} catch (Exception e)
 		{

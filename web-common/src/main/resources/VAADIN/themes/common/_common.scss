@@ -439,4 +439,98 @@
 	.u-veryLargeIcon .v-icon {
 		font-size : 34px;
 	}
+
+	.u-signInButton {
+		width: 100%;
+	}
+
+	.u-signInButton .v-button-wrap img {
+		padding: 4px 0px 0px 2px;
+		height: $v-unit-size - 8;
+		vertical-align: top;
+	}
+
+	.u-signUpButton {
+		width: 100%;
+	}
+
+	.u-authn-component {
+	}
+
+	.u-authn-columnsSeparator {
+		min-width: $v-unit-size;		
+	}
+
+	.u-authn-logo {
+		height: $v-unit-size * 2;
+	}
+
+	.u-authn-title {
+		font-family: $font;
+		letter-spacing: -1px;
+		font-size: $v-font-size--huge;
+		line-height: 1.1;
+		font-weight: 300;
+		padding-top: round($v-unit-size / 3);
+		padding-bottom: $v-unit-size;
+	}
+	
+	.u-authnOptionTextElement {
+		height: $v-unit-size;
+	}
+
+	.u-verticalSpace1Unit {
+		height: $v-unit-size;
+	}
+
+	.u-authnOptionTextCenteredElement .v-slot {
+		height: 100%;
+	}
+
+	.u-authnGrid .v-grid-cell {
+		padding: 0px 0px 0px 0px;
+	}
+
+	.u-authnGrid .v-grid-row > td {
+		border-left: none;
+		border-bottom: none;
+	}
+
+	.u-authnGrid .v-grid-row > td:first-child {
+		text-align: center;
+	}
+
+	.u-authnGrid td > img {
+		max-height: $v-unit-size - round($v-unit-size/18);
+		max-width: 90%;
+	}
+
+	.u-externalSignInButton {
+		background: #53A0C6;
+		text-decoration: none;
+		color: white;
+		font-weight: bold;
+		width: 100%;
+		height: $v-unit-size;
+		text-align: left;
+	}
+
+	.u-externalSignInButton:hover {
+		background: #3486AE;
+		color: white;
+	}
+
+	.u-externalGridSignInButton {
+		@extend .u-externalSignInButton
+	}
+
+	.u-externalGridSignInButton:hover {
+		@extend .u-externalSignInButton:hover
+	}
+
+	.u-externalSignInButton .v-button-wrap img {
+		padding: 4px 0px 0px 2px;
+		height: $v-unit-size - 8;
+		vertical-align: top;
+	}
 }

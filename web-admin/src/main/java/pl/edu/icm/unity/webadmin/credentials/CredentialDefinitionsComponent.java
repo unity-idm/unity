@@ -140,7 +140,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, cd.getName()));
 			if (desiredCredState == LocalCredentialState.outdated)
-				NotificationPopup.showNotice(msg, msg.getMessage("notice"), 
+				NotificationPopup.showNotice(msg.getMessage("notice"), 
 						msg.getMessage("CredentialDefinitions.outdatedUpdateInfo"));
 			return true;
 		} catch (Exception e)

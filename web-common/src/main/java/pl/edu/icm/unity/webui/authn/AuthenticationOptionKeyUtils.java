@@ -11,23 +11,29 @@ package pl.edu.icm.unity.webui.authn;
  */
 public class AuthenticationOptionKeyUtils
 {
-	public static String encode(String authenticationFlowKey, String authenticatorKey, String optionKey)
+	public static String encode(String authenticatorKey, String optionKey)
 	{
-		return authenticationFlowKey + "." + authenticatorKey + "." + optionKey;
+		return authenticatorKey + "." + optionKey;
+	}
+
+	public static String encodeToCSS(String key)
+	{
+		return key.replace(".", "-");
 	}
 	
-	public static String decodeAuthenticationFlow(String globalKey)
-	{
-		return globalKey.substring(0, globalKey.indexOf("."));
-	}
-
-	public static String decodeAuthenticator(String globalKey)
-	{
-		return globalKey.substring(globalKey.indexOf(".") + 1, globalKey.indexOf(".", 1));
-	}
-
 	public static String decodeOption(String globalKey)
 	{
-		return globalKey.substring(globalKey.indexOf(".", 1) + 1, globalKey.length());
+		int dotIndex = globalKey.indexOf(".");
+		if (dotIndex == -1 || dotIndex == globalKey.length()-1)
+			return null;
+		return globalKey.substring(globalKey.indexOf(".")+1, globalKey.length());
+	}
+	
+	public static String decodeAuthenticator(String globalKey)
+	{
+		int dotIndex = globalKey.indexOf(".");
+		if (dotIndex == -1)
+			return globalKey;
+		return globalKey.substring(0, globalKey.indexOf("."));
 	}
 }

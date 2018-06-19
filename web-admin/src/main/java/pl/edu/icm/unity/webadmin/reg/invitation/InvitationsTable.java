@@ -260,7 +260,7 @@ public class InvitationsTable extends CustomComponent
 					getForms(), attributesManagement.getAttributeTypesAsMap());
 		} catch (WrongArgumentException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("InvitationsTable.noValidForms"), 
+			NotificationPopup.showError(msg.getMessage("InvitationsTable.noValidForms"), 
 					msg.getMessage("InvitationsTable.noValidFormsDesc"));
 			return;
 		} catch (EngineException e)

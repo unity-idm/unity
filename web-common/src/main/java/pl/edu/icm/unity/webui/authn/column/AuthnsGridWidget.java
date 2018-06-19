@@ -2,10 +2,11 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.authn;
+package pl.edu.icm.unity.webui.authn.column;
 
 import java.text.Collator;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,38 +19,38 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.renderers.ImageRenderer;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Component showing a group of {@link VaadinAuthenticationUI}s. All of them are presented in Vaadin {@link Grid}.
- *   
- * @author K. Benedyczak
  */
-public class AuthNTileGrid extends CustomComponent implements AuthNTile
+class AuthnsGridWidget extends CustomComponent
 {
-	private SelectionChangedListener listener;
+	private final AuthNPanelFactory authNPanelFactory;
+	private final List<AuthNOption> options;
+
+	private Map<String, AuthenticationFlow> authNOptionsById;
 	private Map<String, VaadinAuthenticationUI> authenticatorById;
-	private Grid<AuthNTileProvider> providersChoice;
-	private String name;
-	private Panel tilePanel;
+	private Grid<AuthenticationOptionGridEntry> providersChoice;
 	private String firstOptionId;
 	private Collator collator;
-	private List<AuthNTileProvider> providers;
-	private ListDataProvider<AuthNTileProvider> dataProvider;
+	private List<AuthenticationOptionGridEntry> providers;
+	private ListDataProvider<AuthenticationOptionGridEntry> dataProvider;
+	private final int height;
 	
-	public AuthNTileGrid(Map<String, VaadinAuthenticationUI> authenticatorById, UnityMessageSource msg, 
-			SelectionChangedListener listener, String name)
+	AuthnsGridWidget(List<AuthNOption> options, UnityMessageSource msg,
+			AuthNPanelFactory authNPanelFactory, int height)
 	{
-		this.authenticatorById = authenticatorById;
-		this.listener = listener;
-		this.name = name;
+		this.options = options;
+		this.authNPanelFactory = authNPanelFactory;
+		this.height = height;
 		collator = Collator.getInstance(msg.getLocale());
 		initUI(null);
 	}
@@ -60,125 +61,83 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 			filter = null;
 		if (filter != null)
 			filter = filter.toLowerCase();
-		tilePanel = new SafePanel();
-		tilePanel.setSizeUndefined();
-		if (name != null)
-			tilePanel.setCaption(name);
 
 		providers = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(providers);
 		providersChoice = new Grid<>(dataProvider);
 		providersChoice.setSelectionMode(SelectionMode.NONE);
 
-		Column<AuthNTileProvider, Resource> imageColumn = providersChoice.addColumn(
-				AuthNTileProvider::getImage, new ImageRenderer<>());
-		Column<AuthNTileProvider, NameWithTags> nameColumn = providersChoice
-				.addColumn(AuthNTileProvider::getNameWithTags);
-		providersChoice.sort(nameColumn);
+		Column<AuthenticationOptionGridEntry, Resource> imageColumn = providersChoice.addColumn(
+				AuthenticationOptionGridEntry::getImage, new ImageRenderer<>());
+		Column<AuthenticationOptionGridEntry, Component> buttonColumn = providersChoice
+				.addComponentColumn(AuthenticationOptionGridEntry::getComponent);
 
-		providersChoice.addStyleName(Styles.idpTile.toString());
+		providersChoice.addStyleName("u-authnGrid");
 		providersChoice.setHeaderVisible(false);
 		providersChoice.setSizeFull();
-		providersChoice.setStyleGenerator(item -> "idpentry_" + item.getId());
-		imageColumn.setWidth(120);
-		nameColumn.setExpandRatio(1);
+		providersChoice.setStyleGenerator(item -> "idpentry_" + 
+					AuthenticationOptionKeyUtils.encodeToCSS(item.getId()));
+		providersChoice.setHeightByRows(height);
+		imageColumn.setExpandRatio(1);
+		buttonColumn.setExpandRatio(6);
 		
-		providersChoice.addItemClickListener(event -> 
-		{
-			String globalId = event.getItem().getId();
-			listener.selectionChanged(globalId);
-
-		});
-
-		providersChoice.setWidth(600, Unit.PIXELS);
+		providersChoice.setWidth(100, Unit.PERCENTAGE);
+		imageColumn.setWidth(74);
 		
-		reloadContents(filter);
-		tilePanel.setContent(providersChoice);
-		setCompositionRoot(tilePanel);
-		setSizeUndefined();
+		reloadContents();
+		setCompositionRoot(providersChoice);
+		setWidth(100, Unit.PERCENTAGE);
 	}
 
-	@Override
-	public void setCaption(String caption)
-	{
-		tilePanel.setCaption(caption);
-	}
-	
 	/**
 	 * Shows all authN UIs of all enabled authN options. The options not matching the given filter are 
 	 * added too, but at the end and are hidden. This trick guarantees that the containing box 
 	 * stays with a fixed size, while the user only sees the matching options at the top.
 	 * @param filter
 	 */
-	private void reloadContents(String filter)
+	private void reloadContents()
 	{
 		providers.clear();
+		authNOptionsById = new HashMap<>();
+		authenticatorById = new HashMap<>();
 		firstOptionId = null;
 
-		for (Map.Entry<String, VaadinAuthenticationUI> entry : authenticatorById.entrySet())
+		for (AuthNOption entry: options)
 		{
-			
-			VaadinAuthenticationUI vaadinAuthenticationUI = entry.getValue();
-			String globalId = entry.getKey();
-			
-			String name = vaadinAuthenticationUI.getLabel();
-			Resource logo = vaadinAuthenticationUI.getImage();
-		
+			String name = entry.authenticatorUI.getLabel();
+			Resource logo = entry.authenticatorUI.getImage();
+			String id = entry.authenticatorUI.getId();
+			final String globalId = AuthenticationOptionKeyUtils.encode(
+					entry.authenticator.getAuthenticatorId(), id);
 			if (firstOptionId == null)
 				firstOptionId = globalId;
-	
+			authNOptionsById.put(globalId, entry.flow);
+			authenticatorById.put(globalId, entry.authenticatorUI);
+
 			NameWithTags nameWithTags = new NameWithTags(name,
-					vaadinAuthenticationUI.getTags(), collator);
-			AuthNTileProvider providerEntry = new AuthNTileProvider(
-					globalId, nameWithTags,
-					logo == null ? Images.empty.getResource()
-							: logo);
+					entry.authenticatorUI.getTags(), collator);
+			Resource logoImage = logo == null ? Images.empty.getResource() : logo;
+			FirstFactorAuthNPanel authnPanel = authNPanelFactory.createGridCompatibleAuthnPanel(entry);
+			AuthenticationOptionGridEntry providerEntry = new AuthenticationOptionGridEntry(globalId, nameWithTags,
+					logoImage, authnPanel);
 			providers.add(providerEntry);
-	
 		}
-			
 		dataProvider.refreshAll();
 		setVisible(size() != 0);
 	}
-
-	@Override
-	public VaadinAuthenticationUI getAuthenticatorById(String id)
-	{
-		return authenticatorById.get(id);
-	}
-
-	@Override
-	public int size()
+	
+	private int size()
 	{
 		return authenticatorById.size();
 	}
 	
-	@Override
-	public Map<String, VaadinAuthenticationUI> getAuthenticators()
-	{
-		return authenticatorById;
-	}
-
-	@Override
-	public String getFirstOptionId()
-	{
-		return firstOptionId;
-	}
-
-	@Override
-	public void filter(String filter)
+	void filter(String filter)
 	{
 		dataProvider.clearFilters();
 		dataProvider.addFilter(v -> v.getNameWithTags().contains(filter));
 	
 	}
 
-	@Override
-	public Component getComponent()
-	{
-		return this;
-	}
-	
 	public static class NameWithTags implements Comparable<Object>
 	{
 		private String name;
@@ -220,17 +179,19 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		}
 	}
 
-	private class AuthNTileProvider
+	private class AuthenticationOptionGridEntry
 	{
 		private String id;
 		private NameWithTags nameWithTags;
 		private Resource image;
+		private Component component;
 
-		public AuthNTileProvider(String id, NameWithTags nameWithTags, Resource image)
+		public AuthenticationOptionGridEntry(String id, NameWithTags nameWithTags, Resource image, Component component)
 		{
 			this.id = id;
 			this.nameWithTags = nameWithTags;
 			this.image = image;
+			this.component = component;
 		}
 
 		public String getId()
@@ -246,6 +207,11 @@ public class AuthNTileGrid extends CustomComponent implements AuthNTile
 		public Resource getImage()
 		{
 			return image;
+		}
+
+		public Component getComponent()
+		{
+			return component;
 		}
 	}
 }

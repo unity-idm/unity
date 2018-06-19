@@ -86,7 +86,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
 					key.length()-1);
 			ret.add(new OAuth2RetrievalUI(msg, credentialExchange, contextManagement, 
-					executorsService, idpKey, key));
+					executorsService, idpKey, key, getAuthenticatorId()));
 		}
 		return ret;
 	}
@@ -106,5 +106,11 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 			HttpServletResponse httpResponse) throws IOException
 	{
 		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse);
+	}
+
+	@Override
+	public boolean supportsGrid()
+	{
+		return true;
 	}
 }

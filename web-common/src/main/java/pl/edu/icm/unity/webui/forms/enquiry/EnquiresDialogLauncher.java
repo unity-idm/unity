@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 
 /**
  * Used to establish enquires to be filled and shows dialogs to fill them.
@@ -31,12 +31,12 @@ public class EnquiresDialogLauncher
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiresDialogLauncher.class);
 	private UnityMessageSource msg;
 	private EnquiryResponseEditorController enquiryController;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	
 	@Autowired
 	public EnquiresDialogLauncher(UnityMessageSource msg,
 			EnquiryResponseEditorController enquiryController,
-			WebAuthenticationProcessor authnProcessor)
+			StandardWebAuthenticationProcessor authnProcessor)
 	{
 		this.msg = msg;
 		this.enquiryController = enquiryController;

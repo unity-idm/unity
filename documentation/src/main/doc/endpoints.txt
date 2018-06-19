@@ -64,37 +64,80 @@ number of common settings. Those settings control:
  - how to arrange authentication options on the authentication screen
 
 The last point constitutes the majority of the configuration options. In principle the authentication options
-(provided by authenticators configured for the endpoint) can be arranged in one or more *authentication tiles*. 
-Authentication tile is a visual grouping of authentication options. Each tile can be configured differently.
-The following screenshot shows an authentication screen with two tiles:
+(provided by authenticators configured for the endpoint) can be arranged in one or more columns.
+By default all options are shown in a single column. This is fine with a single option, but when having more 
+some fine tuning is often desired.
+ 
+The following screenshot shows an authentication screen with a single column:
 
-image::./figures/authntiles.png[alt="Authentication tiles",align="center",scaledwidth="50%"]
+image::./figures/authn-1col.png[alt="Authentication screen with a single column",align="center",scaledwidth="50%"]
 
-
-The first tile is using the default +simple+ mode where icons (or names if icons are not defined) of authentication
-options are arranged in configurable number of columns. The second tile is using the +table+ mode. The table mode
-provides a more compact (and less flexible) presentation of authentication options but is perfect in cases when 
-the number of options is high. On the screenshot part of the EduGain federation is presented with ca 1000 IdPs.  
-
-More advanced customization of the authentication screen look can be performed with custom theming, see <<branding>>. 
-
-Configuration of the above example follows:
+Configuration of the above example is as follows (note that it is also localized to Polish language):
 
 ----
-unity.endpoint.web.authnsPerLine=2
-unity.endpoint.web.authnIconScale=maxHeightSmall
-unity.endpoint.web.authenticationTiles.1.tileContents=pwd cert ldap
-unity.endpoint.web.authenticationTiles.1.tileMode=simple
-unity.endpoint.web.authenticationTiles.1.tileName.pl=Lokalne metody
-unity.endpoint.web.authenticationTiles.1.tileName.en=Local authentication
-unity.endpoint.web.authenticationTiles.1.tileIconSize=maxHeight50
+unity.endpoint.web.authnScreenTitle=Login to your profile
+unity.endpoint.web.authnScreenTitle.pl=Zaloguj się do zarządzania kontem
+unity.endpoint.web.authnScreenShowAllOptions=false
 
-unity.endpoint.web.authenticationTiles.2.tileContents=saml oauth
-unity.endpoint.web.authenticationTiles.2.tileMode=table
-unity.endpoint.web.authenticationTiles.2.tileName.pl=Zdalne logowanie
-unity.endpoint.web.authenticationTiles.2.tileName.en=Remote methods
+unity.endpoint.web.authnScreenOptionsLabel.OR.text=OR
+unity.endpoint.web.authnScreenOptionsLabel.OR.text.pl=LUB
+
+unity.endpoint.web.authnScreenColumn.1.columnWidth=15
+unity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb1 _SEPARATOR_OR oauthWeb.google oauthWeb.fb oauthWeb.gh oauthWeb.ms
 ----
 
+When allowing access to a federation with many tens, or hundreds of authentication options, having all of them as 
+individual entries would clutter the screen and make it loading very slowly. Therefore a special grid component is
+provided, which can be used to group many entries in a column. 
+This is shown on the following example, using two columns.
+
+image::./figures/authn-2col.png[alt="Authentication screen with two columns",align="center",scaledwidth="50%"]
+
+Configuration of the example:
+
+----
+unity.endpoint.web.authnScreenTitle=Login to your profile
+unity.endpoint.web.authnScreenShowSearch=true
+unity.endpoint.web.authnScreenShowAllOptions=false
+
+unity.endpoint.web.authnScreenOptionsLabel.OR.text=OR
+unity.endpoint.web.authnScreenOptionsLabel.OR.text.pl=LUB
+
+unity.endpoint.web.authnGrid.G1.gridContents=samlWeb
+unity.endpoint.web.authnGrid.G1.gridRows=10
+
+unity.endpoint.web.authnScreenColumn.1.columnSeparator=OR
+unity.endpoint.web.authnScreenColumn.1.columnWidth=17
+unity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb1
+
+unity.endpoint.web.authnScreenColumn.2.columnSeparator=
+unity.endpoint.web.authnScreenColumn.2.columnWidth=34
+unity.endpoint.web.authnScreenColumn.2.columnContents=_GRID_G1
+----
+
+Number of columns to use is free to be changed, typically one or two are used. Contents of columns can 
+be flexibly arranged. Typically entries are individual authentication options. However there is a plenty of other options,
+here is the complete list:
+
+. +authenticatorID+ or +authenticatorID.ENTRY+ - base element: either id of authenticator (then all options from this
+authenticator are added) or authenticator with a single option. The latter is useful when using an SAML or OAuth 
+authenticators which often expose more then one option.
+. +_SEPARATOR+ or +_SEPARATOR_ID+ - allows for separating entries with an empty slot or a text element.
+. +_HEADER_ID+ - allows for setting a title for subsequent entry(ies).
+. +_LAST_USED+ - dynamic element, which show authentication option which was previously used by a returning user.
+. +_GRID_ID+ - element allowing for showing big amounts of authentication options, typically used in case of federation login.
+. +_REGISTER+ - inserts sign in button.
+
+A very useful feature (by default turned on, controlled with +unity.endpoint.web.authnShowLastOptionOnly+)  
+helps returning users by hiding all options but the one previously used. User still has an option to revel all
+available options.
+
+Note that all separators and headers are automatically hidden if their corresponding authentication options are 
+missing. Also empty columns are not shown. 
+
+More advanced customization of the authentication screen look can be performed with custom theme, see <<branding>>. 
+You will find that all elements on the authentication screen have their individual HTML classes, and so 
+it is possible to customize branding to a very high degree.   
 
 === Preselected & automated authentication
 

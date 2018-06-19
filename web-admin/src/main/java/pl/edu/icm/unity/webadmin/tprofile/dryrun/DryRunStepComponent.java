@@ -181,7 +181,7 @@ public class DryRunStepComponent extends CustomComponent
 		
 		// authnResultLabel
 		authnResultLabel = new Label();
-		authnResultLabel.setWidth("-1px");
+		authnResultLabel.setWidth(100, Unit.PERCENTAGE);
 		authnResultLabel.setHeightUndefined();
 		authnResultLabel.setValue("Label");
 		resultWrapper.addComponent(authnResultLabel);
@@ -222,13 +222,13 @@ public class DryRunStepComponent extends CustomComponent
 		
 		// logsLabel
 		logsLabel = new HtmlLabel(msg);
-		logsLabel.setWidth("-1px");
+		logsLabel.setWidth(100, Unit.PERCENTAGE);
 		logsLabel.setHeight("-1px");
 		resultWrapper.addComponent(logsLabel);
 		
 		// capturedLogs
 		capturedLogs = new Label();
-		capturedLogs.setWidth("-1px");
+		capturedLogs.setWidth(100, Unit.PERCENTAGE);
 		capturedLogs.setHeight("-1px");
 		capturedLogs.setValue("Label");
 		resultWrapper.addComponent(capturedLogs);

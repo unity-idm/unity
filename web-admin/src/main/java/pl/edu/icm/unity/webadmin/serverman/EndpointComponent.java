@@ -113,7 +113,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		log.info("Deploy " + id + " endpoint");
 		if (!deployEndpoint(id))
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Endpoints.cannotDeploy",
+			NotificationPopup.showError(msg.getMessage("Endpoints.cannotDeploy",
 					getEndpointName()), msg.getMessage(
 					"Endpoints.cannotDeployRemovedConfig", id));
 			setVisible(false);
@@ -179,8 +179,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 			setStatus(Status.deployed);
 			if (showSuccess)
 			{
-				NotificationPopup.showSuccess(msg, "", msg.getMessage(
-						"Endpoints.reloadSuccess", id));
+				NotificationPopup.showSuccess("", msg.getMessage("Endpoints.reloadSuccess", id));
 			}
 			
 		}
@@ -221,7 +220,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		} catch (Exception e)
 		{
 			log.error("Cannot load endpoints", e);
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("Endpoints.cannotLoadList"));
 			return false;
 		}

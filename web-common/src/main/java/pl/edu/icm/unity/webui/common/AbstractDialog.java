@@ -44,6 +44,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public abstract class AbstractDialog extends Window implements Button.ClickListener 
 {
+	//TODO remove percentage sizeing
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AbstractDialog.class);
 
 	public enum SizeMode {LARGE, MEDIUM, SMALL}
@@ -57,6 +58,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected boolean lightweightWrapperPanel = false;
 	private int width = 50;
 	private int height = 50;
+	private float widthEm;
+	private float heightEm;
 	
 	/**
 	 * With only one, confirm button, which usually should be labelled as 'close'. 
@@ -99,6 +102,12 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		this.width = widthPercentage;
 		this.height = heightPercentage;
+	}
+	
+	protected void setSizeEm(float widthEm, float heightEm)
+	{
+		this.widthEm = widthEm;
+		this.heightEm = heightEm;
 	}
 	
 	/**
@@ -211,8 +220,16 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		
 		vl.setExpandRatio(contentsPanel, 4.0f);
 		setContent(vl);
-		setWidth(width, Unit.PERCENTAGE);
-		setHeight(height, Unit.PERCENTAGE);
+		
+		if (widthEm == 0)
+		{
+			setWidth(width, Unit.PERCENTAGE);
+			setHeight(height, Unit.PERCENTAGE);
+		} else
+		{
+			setWidth(widthEm, Unit.EM);
+			setHeight(heightEm, Unit.EM);
+		}
 		enterButton = getDefaultOKButton();
 		if (enterButton != null)
 		{

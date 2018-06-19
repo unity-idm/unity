@@ -274,7 +274,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 				
 				if (fos.isOverflow())
 				{
-					NotificationPopup.showError(msg, 
+					NotificationPopup.showError(
 							msg.getMessage("JpegAttributeHandler.uploadFailed"),
 							msg.getMessage("JpegAttributeHandler.imageSizeTooBig"));
 					fos = null;
@@ -294,7 +294,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 							getResource());
 				} catch (Exception e)
 				{
-					NotificationPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadInvalid"),
+					NotificationPopup.showError(msg.getMessage("JpegAttributeHandler.uploadInvalid"),
 							"");
 					fos = null;
 				}

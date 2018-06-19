@@ -221,7 +221,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg,
+			NotificationPopup.showError(
 					msg.getMessage("ImportAttributeTypes.cannotParseFile"),
 					e.getCause() != null ? e.getCause().getMessage()
 							: e.toString());

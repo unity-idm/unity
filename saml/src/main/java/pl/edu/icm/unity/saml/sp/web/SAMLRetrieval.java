@@ -87,12 +87,18 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 				{
 					ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
 							samlContextManagement, idpKey, 
-							samlProperties, configKey));
+							configKey, getAuthenticatorId()));
 				}
 			}
 		return ret;
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return true;
+	}
+	
 	@Override
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{

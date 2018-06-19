@@ -74,7 +74,7 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 	{
 		if (CredentialResetStateVariable.get() != expectedState)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
@@ -84,7 +84,7 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 			backend.sendCode(messageTemplate, onlyNumberCode);
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.resetNotPossible"));
 			CredentialResetStateVariable.reset();
 			log.debug("Credential reset notification failed", e);
@@ -111,7 +111,7 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 				} catch (Exception e)
 				{
 					log.debug("Credential reset notification failed", e);
-					NotificationPopup.showError(msg, msg.getMessage("error"),
+					NotificationPopup.showError(msg.getMessage("error"),
 							msg.getMessage("CredentialReset.resetNotPossible"));
 					onCancel();
 				}
@@ -153,14 +153,14 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 			backend.verifyDynamicData(a);
 		} catch (TooManyAttempts e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.codeInvalidOrExpired"));
 			onCancel();
 			return;
 		} catch (Exception e)
 		{
 			answer.setValue("");
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("CredentialReset.codeInvalid"));
 			return;
 		}

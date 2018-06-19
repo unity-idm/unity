@@ -18,7 +18,7 @@ import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
-import pl.edu.icm.unity.webui.authn.AuthenticationUI;
+import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
 /**
@@ -40,7 +40,7 @@ class OAuthProxyAuthnHandler
 
 	private String getIdpConfigKey(HttpServletRequest httpRequest)
 	{
-		String requestedIdP = httpRequest.getParameter(AuthenticationUI.IDP_SELECT_PARAM);
+		String requestedIdP = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		Set<String> keys = clientProperties.getStructuredListKeys(OAuthClientProperties.PROVIDERS);
 		
@@ -48,7 +48,7 @@ class OAuthProxyAuthnHandler
 		{
 			if (keys.size() > 1)
 				throw new IllegalStateException("OAuth authentication option was not requested with " 
-					+ AuthenticationUI.IDP_SELECT_PARAM
+					+ PreferredAuthenticationHelper.IDP_SELECT_PARAM
 					+ " and there are multiple options installed: "
 					+ "can not perform automatic authentication.");
 			return keys.iterator().next();
