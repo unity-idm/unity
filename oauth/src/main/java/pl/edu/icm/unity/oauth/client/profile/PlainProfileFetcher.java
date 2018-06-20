@@ -65,12 +65,13 @@ public class PlainProfileFetcher implements UserProfileFetcher
 				providerConfig.getValidator(), checkingMode);
 		
 		
-		if (providerConfig
-				.getClientAuthModeForProfileAccess() == ClientAuthnMode.secretPost)
+		if (providerConfig.getClientAuthModeForProfileAccess() == ClientAuthnMode.secretPost)
 			queryParams.put("access_token", accessToken.getValue());
 		else
 			httpReq.setAuthorization(accessToken.toAuthorizationHeader());
 
+		httpReq.setAccept("application/json");
+		
 		if (!queryParams.isEmpty())
 		{
 			httpReq.setQuery(URLUtils.serializeParameters(queryParams));

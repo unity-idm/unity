@@ -28,7 +28,7 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 	
-	public enum Providers {custom, google, facebook, dropbox, github, microsoft, orcid, linkedin, unity, intuit};
+	public enum Providers {custom, google, facebook, dropbox, github, microsoft, microsoftAzureV2, orcid, linkedin, unity, intuit};
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.";
@@ -79,7 +79,10 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 			providers.put(key, new GitHubProviderProperties(properties, P+key, pkiManagement));
 			break;
 		case microsoft:
-			providers.put(key, new MicrosoftProviderProperties(properties, P+key, pkiManagement));
+			providers.put(key, new MicrosoftLiveProviderProperties(properties, P+key, pkiManagement));
+			break;
+		case microsoftAzureV2:
+			providers.put(key, new MicrosoftAzureV2ProviderProperties(properties, P+key, pkiManagement));
 			break;
 		case orcid:
 			providers.put(key, new OrcidProviderProperties(properties, P+key, pkiManagement));

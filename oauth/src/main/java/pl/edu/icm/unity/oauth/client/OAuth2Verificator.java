@@ -359,9 +359,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
 		Map<String, List<String>> ret = ProfileFetcherUtils.convertToAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
 		
-		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
-		String userInfoEndpoint = userInfoEndpointStr == null ? 
-				providerMeta.getUserInfoEndpointURI().toString() : userInfoEndpointStr;
+		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
+		if (userInfoEndpoint == null && providerMeta.getUserInfoEndpointURI() != null) 
+			userInfoEndpoint = providerMeta.getUserInfoEndpointURI().toString();
 
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
 		AttributeFetchResult fetchRet = new AttributeFetchResult();

@@ -14,10 +14,10 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  * Preset configuration for Microsoft OAuth provider.
  * @author K. Benedyczak
  */
-public class MicrosoftProviderProperties extends CustomProviderProperties
+public class MicrosoftLiveProviderProperties extends CustomProviderProperties
 {
 
-	public MicrosoftProviderProperties(Properties properties, String prefix, PKIManagement pkiManagement) 
+	public MicrosoftLiveProviderProperties(Properties properties, String prefix, PKIManagement pkiManagement) 
 			throws ConfigurationException
 	{
 		super(addDefaults(properties, prefix), prefix, pkiManagement);
@@ -25,7 +25,7 @@ public class MicrosoftProviderProperties extends CustomProviderProperties
 	
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
-		setIfUnset(properties, prefix + PROVIDER_NAME, "Microsoft");
+		setIfUnset(properties, prefix + PROVIDER_NAME, "Microsoft Live");
 		setIfUnset(properties, prefix + PROVIDER_LOCATION, "https://login.live.com/oauth20_authorize.srf");
 		setIfUnset(properties, prefix + CLIENT_AUTHN_MODE, ClientAuthnMode.secretPost.toString());
 		setIfUnset(properties, prefix + ACCESS_TOKEN_ENDPOINT, "https://login.live.com/oauth20_token.srf");
