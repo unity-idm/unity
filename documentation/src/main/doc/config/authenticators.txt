@@ -15,8 +15,8 @@ authentication settings (e.g. consumer-oriented endpoint may use SAML authentica
 admin-oriented endpoint may use SAML authentication in corporate federation).    
 
 Authenticators and endpoints as of now can be configured only in the configuration file. Endpoints 
-are covered in a separate section <<endpoints>>. This section covers also how to configure authentication screen,
-i.e. the visual composition of authenticators. This section is covering only functional definitions of
+are covered in a separate section <<endpoints>>. The <<endpoints>> section covers also how to configure authentication screen,
+i.e. the visual composition of authentication options. Here we cover only the functional definitions of
 authenticators, which can be used with many endpoints in various configurations. 
 
 Authenticator is a pair of two configured elements: _credential verificator_ and _credential retrieval_.
@@ -26,11 +26,12 @@ allow a user to enter it (in case of the web binding). The verificator is not bi
 is only responsible for validation of a presented credential. For example the passowrd verificator
 can be used with any retrieval which is collecting a password from a client.
 
-Authenticators are added to endpoints and manage endpoint's authentication. The endpoint must have at least 
-one authenticator associated (and can have more when alternative or multi-credential authentication 
-scenarios are implemented). 
+Authenticators are added either directly to endpoints or are tied together in authentication flows, what allows 
+for flexible control of multi-factor authentication. The endpoint must have at least 
+one authenticator or flow associated and can have more when alternative or multi-credential authentication 
+scenarios are implemented. 
 
-Example configuration:
+Example configuration of an authenticator:
 
 -----
 unityServer.core.authenticators.2.authenticatorName=pwdWeb

@@ -87,6 +87,8 @@ include::pki.txt[]
 
 include::authenticators.txt[]
 
+include::flows.txt[]
+
 include::http-server.txt[]
 
 include::notifications.txt[]
