@@ -15,6 +15,7 @@ import com.vaadin.server.ExternalResource;
 import com.vaadin.server.VaadinService;
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier.AuthnResultListener;
@@ -49,14 +50,15 @@ public abstract class AbstractSandboxWizardProvider
 	}
 
 	
-	protected void addSandboxListener(final HandlerCallback callback, Wizard wizard, final UI ui) 
+	protected void addSandboxListener(SandboxAuthnNotifier.AuthnResultListener callback, Wizard wizard, 
+			UI ui, boolean stopOnFinal) 
 	{
 		AuthnResultListener listener = new SandboxAuthnNotifier.AuthnResultListener() 
 		{
 			private UI parentUI = ui;
 			
 			@Override
-			public void handle(final SandboxAuthnEvent event) 
+			public void onPartialAuthnResult(final SandboxAuthnEvent event) 
 			{
 				
 				if (!callerId.equals(event.getCallerId()))
@@ -69,8 +71,24 @@ public abstract class AbstractSandboxWizardProvider
 					@Override
 					public void run()
 					{
-						callback.handle(event);
-						parentUI.setPollInterval(-1);
+						callback.onPartialAuthnResult(event);
+						if (!stopOnFinal)
+							parentUI.setPollInterval(-1);
+					}
+				});
+			}
+
+			@Override
+			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
+			{
+				parentUI.access(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						callback.onCompleteAuthnResult(authenticatedEntity);
+						if (stopOnFinal)
+							parentUI.setPollInterval(-1);
 					}
 				});
 			}
@@ -123,10 +141,5 @@ public abstract class AbstractSandboxWizardProvider
 			}
 		});
 	
-	}
-	
-	protected interface HandlerCallback
-	{
-		void handle(SandboxAuthnEvent event);
 	}
 }

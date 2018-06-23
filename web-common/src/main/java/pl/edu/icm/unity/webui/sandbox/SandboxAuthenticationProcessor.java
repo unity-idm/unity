@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.sandbox;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.ui.JavaScript;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
@@ -32,6 +33,13 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 {
 	@Autowired
 	private AuthenticationProcessor authnProcessor;
+
+	private SandboxAuthnRouter sandboxRouter;
+	
+	public void setSandboxRouter(SandboxAuthnRouter sandboxRouter)
+	{
+		this.sandboxRouter = sandboxRouter;
+	}
 
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
@@ -90,6 +98,8 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 			ui.getPage().reload();
 			return;
 		}
+		sandboxRouter.fireCompleteEvent(logInfo);
+		JavaScript.getCurrent().execute("window.close();");
 	}
 	
 	@Override

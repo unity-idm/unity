@@ -8,6 +8,7 @@ import org.vaadin.teemu.wizards.Wizard;
 
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditDialog.Callback;
@@ -16,6 +17,7 @@ import pl.edu.icm.unity.webui.association.IntroStep;
 import pl.edu.icm.unity.webui.association.SandboxStep;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier.AuthnResultListener;
 import pl.edu.icm.unity.webui.sandbox.wizard.AbstractSandboxWizardProvider;
 
 /**
@@ -56,18 +58,23 @@ public class ProfileWizardProvider extends AbstractSandboxWizardProvider
 		//and when the page is loaded with back button
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
 
-		addSandboxListener(new HandlerCallback()
+		addSandboxListener(new AuthnResultListener()
 		{
 			@Override
-			public void handle(SandboxAuthnEvent event)
+			public void onPartialAuthnResult(SandboxAuthnEvent event)
 			{
 				RemoteSandboxAuthnContext sandboxedCtx = ((RemoteSandboxAuthnContext) event.getCtx()); 
 				profileStep.handle(sandboxedCtx.getAuthnContext().getAuthnInput());
 				sandboxStep.enableNext();
 				wizard.next();
-				wizard.getBackButton().setEnabled(false);
+				wizard.getBackButton().setEnabled(false);				
 			}
-		}, wizard, UI.getCurrent());
+
+			@Override
+			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
+			{
+			}
+		}, wizard, UI.getCurrent(), false);
 		
 		return wizard;
 	}

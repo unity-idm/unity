@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
+
 /**
  * Extended by {@link SandboxAuthnRouter} - contains the code which is interested with results of sandbox authentication
  *  
@@ -16,6 +18,7 @@ public interface SandboxAuthnNotifier
 	
 	public interface AuthnResultListener 
 	{
-		void handle(SandboxAuthnEvent event);
+		void onPartialAuthnResult(SandboxAuthnEvent event);
+		void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity);
 	}	
 }
