@@ -134,7 +134,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		if (grantType == null)
 			return makeError(OAuth2Error.INVALID_REQUEST, "grant_type is required");
 
-		log.trace("Handle new token request with " + grantType + "grant");
+		log.trace("Handle new token request with " + grantType + " grant");
 		
 		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue()))
 		{

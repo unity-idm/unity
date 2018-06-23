@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -58,8 +59,11 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 		new ActionParameterDefinition(
 				"attributeDescription",
 				"TranslationAction.createAttribute.paramDesc.attributeDescription",
+				Type.TEXT, false),
+		new ActionParameterDefinition(
+				"type",
+				"TranslationAction.createAttribute.paramDesc.type",
 				Type.TEXT, false));
-		
 	}
 	
 	@Override
@@ -76,6 +80,7 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 		private String attrDisplayname;
 		private String attrDescription;
 		private boolean attrMandatory;
+		private String type;
 		
 		public CreateAttributeAction(String[] params, TranslationActionType desc) 
 		{
@@ -114,18 +119,45 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 			List<String> sValues = new ArrayList<>(values.size());
 			for (Object v : values)
 				sValues.add(v.toString());
+			
+			DynamicAttribute dynamicAttribute = createAttribute(sValues);
+			result.getAttributes().add(dynamicAttribute);
+			log.debug("Created a new attribute: " + dynamicAttribute);
+		}
 
+		private DynamicAttribute createAttribute(List<String> sValues)
+		{
+			switch (type)
+			{
+			case BooleanAttributeSyntax.ID:
+				return createBooleanAttribute(sValues);
+			case StringAttributeSyntax.ID:
+			default:
+				return createStringAttribute(sValues);
+			}
+		}
+
+		private DynamicAttribute createBooleanAttribute(List<String> sValues)
+		{
+			Attribute newAttr = new Attribute(attrNameString, BooleanAttributeSyntax.ID,
+					"/", sValues);
+			return new DynamicAttribute(newAttr,
+					new AttributeType(attrNameString, BooleanAttributeSyntax.ID),
+					attrDisplayname, attrDescription, attrMandatory);
+		}
+
+		private DynamicAttribute createStringAttribute(List<String> sValues)
+		{
 			Attribute newAttr = new Attribute(attrNameString, StringAttributeSyntax.ID,
 					"/", sValues);
-			DynamicAttribute dynamicAttribute = new DynamicAttribute(newAttr,
+			return new DynamicAttribute(newAttr,
 					new AttributeType(attrNameString,
 							StringAttributeSyntax.ID),
 					attrDisplayname, attrDescription, attrMandatory);
-			result.getAttributes().add(dynamicAttribute);
-			log.debug("Created a new attribute: " + dynamicAttribute);
-		
 		}
 
+		
+		
 		private void setParameters(String[] parameters)
 		{
 			attrNameString = parameters[0];
@@ -135,6 +167,10 @@ public class CreateAttributeActionFactory extends AbstractOutputTranslationActio
 				attrDisplayname = parameters[3];
 			if (parameters.length > 4) 
 				attrDescription = parameters[4];				
+			if (parameters.length > 5) 
+				type = parameters[5];
+			if (type == null)
+				type = StringAttributeSyntax.ID;
 		}
 	}
 }

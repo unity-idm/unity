@@ -372,7 +372,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		}
 		fetchRet.getAttributes().putAll(ret);
 		
-		log.debug("Received the following attributes from the OAuth provider: " + ret);
+		log.debug("Received the following attributes from the OAuth provider: " + fetchRet);
 		
 		return fetchRet;
 	}

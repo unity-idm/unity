@@ -51,5 +51,11 @@ public class AttributeFetchResult
 	public void setRawAttributes(Map<String, Object> rawAttributes)
 	{
 		this.rawAttributes = rawAttributes;
-	}	
+	}
+
+	@Override
+	public String toString()
+	{
+		return "AttributeFetchResult [attributes=" + attributes + ", rawAttributes=" + rawAttributes + "]";
+	}
 }

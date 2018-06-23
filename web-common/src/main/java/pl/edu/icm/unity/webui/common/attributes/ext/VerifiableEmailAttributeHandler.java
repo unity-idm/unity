@@ -95,8 +95,6 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 	private static class VerifiableEmailSyntaxEditor implements AttributeSyntaxEditor<VerifiableEmail>
 	{
-
-		
 		private VerifiableEmailAttributeSyntax initial;
 		private UnityMessageSource msg;
 		private MessageTemplateManagement msgTemplateMan;
@@ -114,7 +112,6 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public Component getEditor()
 		{
-
 			EmailConfirmationConfiguration confirmationConfig = null;
 			if (initial != null && initial.getEmailConfirmationConfiguration().isPresent())
 				confirmationConfig = initial.getEmailConfirmationConfiguration().get();
