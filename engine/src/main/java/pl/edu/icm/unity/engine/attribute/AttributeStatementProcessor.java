@@ -493,7 +493,7 @@ public class AttributeStatementProcessor
 					a.getName(), a.getValues());	
 			String v = values.isEmpty() ? "" : values.get(0);
 			attr.put(a.getName(), v);
-			attrs.put(a.getName(), a.getValues());
+			attrs.put(a.getName(), values);
 		}
 		target.put(oneValueKey.name(), attr);
 		target.put(fullKey.name(), attrs);
