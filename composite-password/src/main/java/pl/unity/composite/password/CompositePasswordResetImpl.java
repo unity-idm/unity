@@ -90,7 +90,7 @@ public class CompositePasswordResetImpl  implements CredentialReset
 			for (LocalCredentialVerificator localVerificator : localVerificators)
 			{
 
-				boolean isCredSet = CompositePasswordHelper.checkCredential(
+				boolean isCredSet = CompositePasswordHelper.checkIfUserHasCredential(
 						localVerificator,
 						resolveIdentity.get().getEntityId());
 				if (!isCredSet)

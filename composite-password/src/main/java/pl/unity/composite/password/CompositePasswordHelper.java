@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public class CompositePasswordHelper
 {
 	
-	public static boolean checkCredential(LocalCredentialVerificator verificator, long entityId)
+	public static boolean checkIfUserHasCredential(LocalCredentialVerificator verificator, long entityId)
 	{
 		try
 		{

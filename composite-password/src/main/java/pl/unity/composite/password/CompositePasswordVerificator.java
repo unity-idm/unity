@@ -212,7 +212,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 			for (LocalCredentialVerificator localVerificator : localVerificators)
 			{
 
-				boolean isCredSet = CompositePasswordHelper.checkCredential(
+				boolean isCredSet = CompositePasswordHelper.checkIfUserHasCredential(
 						localVerificator,
 						resolveIdentity.get().getEntityId());
 				if (!isCredSet)
@@ -234,7 +234,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 			PasswordExchange passExchange = (PasswordExchange) remoteVerificator;
 			AuthenticationResult result = passExchange.checkPassword(username, password,
 					sandboxCallback);
-			if (result.getStatus().equals(Status.deny))
+			if (!result.getStatus().equals(Status.success))
 				continue;
 
 			return result;
