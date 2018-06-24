@@ -64,6 +64,7 @@ public class LocalCredentialsRegistry
 			throw new IllegalCredentialException("The credential type " + def.getTypeId() + " is unknown");
 		LocalCredentialVerificator validator = fact.newInstance();
 		validator.setSerializedConfiguration(def.getConfiguration());
+		validator.setCredentialName(def.getName());
 		return validator;
 	}
 }
