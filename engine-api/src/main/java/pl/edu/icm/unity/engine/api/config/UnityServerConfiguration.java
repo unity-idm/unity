@@ -40,6 +40,7 @@ import pl.edu.icm.unity.engine.api.event.EventCategory;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 /**
  * Principal options are defined here: ids and corresponding default values.
@@ -110,7 +111,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String REALM_BLOCK_AFTER_UNSUCCESSFUL = "blockAfterUnsuccessfulLogins";
 	public static final String REALM_BLOCK_FOR = "blockFor";
 	public static final String REALM_MAX_INACTIVITY = "maxInactivity";
-	public static final String REALM_REMEMBER_ME = "enableRememberMeFor";
+	public static final String REALM_REMEMBER_ME_FOR = "enableRememberMeFor";
+	public static final String REALM_REMEMBER_ME_POLICY = "machineRememberPolicy";
 	
 	public static final String AUTHENTICATORS = "authenticators.";
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
@@ -328,31 +330,36 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).
 				setCategory(initAuthnCat).setDescription("Second factor authenticators"));
 	
-		defaults.put(REALMS, new PropertyMD().setStructuredList(false).setCategory(initRealmCat).
-				setDescription("List of authentication realm definitions."));
-		defaults.put(REALM_NAME, new PropertyMD().setMandatory().setStructuredListEntry(REALMS).setCategory(initRealmCat).
-				setDescription("Defines the realm's name. Must contain only alphanumeric letters, "
+		defaults.put(REALMS, new PropertyMD().setStructuredList(false)
+				.setCategory(initRealmCat)
+				.setDescription("List of authentication realm definitions."));
+		defaults.put(REALM_NAME, new PropertyMD().setMandatory()
+				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
+				.setDescription("Defines the realm's name. Must contain only alphanumeric letters, "
 						+ "and can not exceed 20 characters."));
-		defaults.put(REALM_DESCRIPTION, new PropertyMD().setStructuredListEntry(REALMS).setCategory(initRealmCat).
-				setDescription("Realm's description."));
-		defaults.put(REALM_BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
-				setDescription("Defines maximum number of unsuccessful logins before the access is temporarely blocked for a client."));
-		defaults.put(REALM_BLOCK_FOR, new PropertyMD("60").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
-				setDescription("Defines for how long (in seconds) the access should be blocked for the" +
-						"client reaching the limit of unsuccessful logins."));
-		defaults.put(REALM_MAX_INACTIVITY, new PropertyMD("1800").setPositive().setStructuredListEntry(REALMS).setCategory(initRealmCat).
-				setDescription("Defines after what time of inactivity the login session is terminated (in seconds). "
+		defaults.put(REALM_DESCRIPTION, new PropertyMD().setStructuredListEntry(REALMS)
+				.setCategory(initRealmCat).setDescription("Realm's description."));
+		defaults.put(REALM_BLOCK_AFTER_UNSUCCESSFUL, new PropertyMD("5").setPositive()
+				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
+				.setDescription("Defines maximum number of unsuccessful logins before the access is temporarely blocked for a client."));
+		defaults.put(REALM_BLOCK_FOR, new PropertyMD("60").setPositive()
+				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
+				.setDescription("Defines for how long (in seconds) the access should be blocked for the"
+						+ "client reaching the limit of unsuccessful logins."));
+		defaults.put(REALM_MAX_INACTIVITY, new PropertyMD("1800").setPositive()
+				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
+				.setDescription("Defines after what time of inactivity the login session is terminated (in seconds). "
 						+ "Note: the HTTP sessions (if applicable for endpoint) will be couple of seconds "
 						+ "shorter to allow for login session expiration warning."));
-		defaults.put(REALM_REMEMBER_ME, new PropertyMD("-1").setStructuredListEntry(REALMS).setCategory(initRealmCat).
-				setDescription("(web endpoints only) If set to positive number, the realm authentication will allow for "
-						+ "remeberinging the user's login even after session is lost due "
-						+ "to expiration or browser closing. The period of time to remember the login "
-						+ "will be equal to the number of days as given to this option. "
-						+ "IMPORTANT! This is an insecure option. Use it only for realms "
-						+ "containing only endpoints with low security requirements."));
+		defaults.put(REALM_REMEMBER_ME_POLICY, new PropertyMD(RememberMePolicy.disallow)
+				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
+				.setDescription("(web endpoints only) Defines how to remeberinging the user's login "
+						+ "even after session is lost due to expiration or browser closing"));
+		defaults.put(REALM_REMEMBER_ME_FOR, new PropertyMD("14").setPositive()
+				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
+				.setDescription("(web endpoints only) Defines the period of time (in days) to remember the login."
+						+ " It is used only when policy is not set to disallow"));
 
-		
 		defaults.put(CREDENTIALS, new PropertyMD().setStructuredList(false).setCategory(initCredCat).
 				setDescription("List of initially defined credentials"));
 		defaults.put(CREDENTIAL_NAME, new PropertyMD().setStructuredListEntry(CREDENTIALS).setMandatory().setCategory(initCredCat).

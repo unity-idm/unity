@@ -23,6 +23,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 /**
@@ -44,7 +45,7 @@ public class TstPerfLogin extends PerformanceTestBase
 		
 		addUsers(WARM_SIZE + USERS);
 
-		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 10, 100, -1, 600);
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 10, 100, RememberMePolicy.disallow ,1, 600);
 		realmsMan.addRealm(realm);
 		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW_PASS, Policy.NEVER,

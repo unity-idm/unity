@@ -23,6 +23,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
@@ -82,7 +83,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-				String outdatedCredentialId, Date absoluteExpiration)
+				String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo, String auhtnOptionId)
 	{
 		try
 		{
@@ -109,7 +110,7 @@ public class SessionManagementImpl implements SessionManagement
 			}
 			
 			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
-					absoluteExpiration);
+					absoluteExpiration, rememberMeInfo, auhtnOptionId);
 			if (log.isDebugEnabled())
 				log.debug("Created a new session " + ret.getId() + " for logged entity "
 					+ ret.getEntityId() + " in realm " + realm.getName());
@@ -139,13 +140,13 @@ public class SessionManagementImpl implements SessionManagement
 	}
 	
 	private LoginSession createSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-				String outdatedCredentialId, Date absoluteExpiration)
+				String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo, String auhtnOptionId)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
 		LoginSession ls = new LoginSession(id, new Date(), absoluteExpiration,
 				realm.getMaxInactivity()*1000, loggedEntity, 
-				realm.getName());
+				realm.getName(), rememberMeInfo, auhtnOptionId);
 		ls.setOutdatedCredentialId(outdatedCredentialId);
 		ls.setEntityLabel(entityLabel);
 		try

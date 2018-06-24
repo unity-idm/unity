@@ -26,6 +26,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -41,7 +42,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void addRealm() throws Exception
 	{
 		AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
-				10, 10, -1, 600);
+				10, 10, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 	}
 	

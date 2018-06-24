@@ -23,6 +23,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.endpoint.EndpointHandler;
+import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
 
 /**
  * Update db from 2.5 (Json schema V5) to 2.6.0+ (V5)
@@ -44,8 +45,18 @@ public class JsonDumpUpdateFromV5 implements Update
 		ObjectNode contents = (ObjectNode) root.get("contents");
 		updateEndpointConfiguration(contents);
 		addAuthenticationFlow(contents);
+		updateRealm(contents);
 		
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
+	}
+
+	private void updateRealm(ObjectNode contents)
+	{
+		for (ObjectNode objContent : getGenericContent(contents,
+				RealmHandler.REALM_OBJECT_TYPE))
+		{
+			UpdateHelperFrom2_5.updateRealm(objContent);
+		}
 	}
 
 	private void addAuthenticationFlow(ObjectNode contents)

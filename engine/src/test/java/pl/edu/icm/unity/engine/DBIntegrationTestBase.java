@@ -32,6 +32,7 @@ import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -75,7 +76,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				MockPasswordVerificatorFactory.ID);
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
-				user, credentialId, null);
+				user, credentialId, null, null, null);
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		//override for tests: it can happen that existing session is returned, therefore old state of cred is
@@ -87,7 +88,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	private static AuthenticationRealm getDefaultRealm()
 	{
 		return new AuthenticationRealm("DEFAULT_AUTHN_REALM", 
-				"For tests", 5, 10, -1, 30*60);
+				"For tests", 5, 10, RememberMePolicy.disallow , 1, 30*60);
 	}
 
 	protected Identity createUsernameUser(String username) throws Exception

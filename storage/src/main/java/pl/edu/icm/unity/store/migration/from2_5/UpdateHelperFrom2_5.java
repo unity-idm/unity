@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 /**
  * Database update helper. If object is update then non empty optional is return;
@@ -58,5 +59,35 @@ public class UpdateHelperFrom2_5
 		}
 
 		return Optional.empty();
+	}
+
+
+	public static void  updateRealm(ObjectNode objContent)
+	{
+
+		ObjectNode rememberMeFor = (ObjectNode) objContent.get("allowForRememberMeDays");
+
+		int rememberMeForDays = rememberMeFor.asInt();
+		if (rememberMeForDays > 0)
+		{
+			log.info("Settings " + objContent.get("name")
+					+ " realm configuration rememberMePolicy to "
+					+ RememberMePolicy.allowForWholeAuthn.toString());
+
+			objContent.put("rememberMePolicy",
+					RememberMePolicy.allowForWholeAuthn.toString());
+
+		} else
+		{
+			log.info("Settings " + objContent.get("name")
+					+ " realm configuration rememberMePolicy to "
+					+ RememberMePolicy.disallow.toString()
+					+ " and allowForRememberMeDays to 14");
+
+			objContent.remove("allowForRememberMeDays");
+			objContent.put("allowForRememberMeDays", "14");
+			objContent.put("rememberMePolicy", RememberMePolicy.disallow.toString());
+			
+		}
 	}
 }

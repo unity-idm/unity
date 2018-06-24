@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.authn;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.servlet.Filter;
@@ -16,7 +17,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -26,13 +26,15 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.shared.ApplicationConstants;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.webui.CookieHelper;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
+import pl.edu.icm.unity.webui.authn.RemeberMeHelper.RememberMeCookie;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -44,23 +46,24 @@ public class AuthenticationFilter implements Filter
 
 	private List<String> protectedServletPaths;
 	private String authnServletPath;
-	private final String sessionCookie;
 	private UnsuccessfulAuthenticationCounter dosGauard;
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
-	
+	private RemeberMeHelper rememberMeHelper;
+	private AuthenticationRealm realm;
 	
 	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
 			AuthenticationRealm realm,
-			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder)
+			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RemeberMeHelper rememberMeHelper)
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
-		sessionCookie = StandardWebAuthenticationProcessor.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
+		this.rememberMeHelper = rememberMeHelper;
+		this.realm = realm;
 	}
 
 	@Override
@@ -117,13 +120,7 @@ public class AuthenticationFilter implements Filter
 			}
 		}
 
-		loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookie);
 		
-		if (loginSessionId == null)
-		{
-			forwardtoAuthn(httpRequest, httpResponse);
-			return;
-		}
 		
 		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp); 
 		if (blockedTime > 0)
@@ -135,24 +132,44 @@ public class AuthenticationFilter implements Filter
 			return;
 		}
 		
-		LoginSession ls;
-		try
+		
+
+		Optional<LoginSession> loginSessionFromRememberMe = Optional.empty();
+		Optional<RememberMeCookie> rememberMeCookie = rememberMeHelper
+				.getRememberMeUnityCookie(httpRequest, realm.getName());
+		if (rememberMeCookie.isPresent() && realm.getRememberMePolicy()
+				.equals(RememberMePolicy.allowForWholeAuthn))
 		{
-			ls = sessionMan.getSession(loginSessionId);
-		} catch (IllegalArgumentException e)
+
+			try
+			{
+				loginSessionFromRememberMe = rememberMeHelper.getLoginSessionFromRememberMeToken(
+						rememberMeCookie.get(), realm);
+			} catch (AuthenticationException e)
+			{
+				dosGauard.unsuccessfulAttempt(clientIp);
+				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(), httpRequest,
+						httpResponse);
+			}
+			
+			if (!loginSessionFromRememberMe.isPresent())
+			{	
+				forwardtoAuthn(httpRequest, httpResponse);
+				return;
+			}
+
+		} else
 		{
-			log.trace("Got request with invalid login session id " + loginSessionId + " to " +
-					httpRequest.getRequestURI() );
-			dosGauard.unsuccessfulAttempt(clientIp);
-			clearSessionCookie(httpResponse);
 			forwardtoAuthn(httpRequest, httpResponse);
 			return;
 		}
+						
+		rememberMeHelper.updateRememberMeCookieAndUnityToken(rememberMeCookie.get(), realm, httpResponse);
 		dosGauard.successfulAttempt(clientIp);
 		if (httpSession == null)
 			httpSession = httpRequest.getSession(true);
 
-		sessionBinder.bindHttpSession(httpSession, ls);
+		sessionBinder.bindHttpSession(httpSession, loginSessionFromRememberMe.get());
 		
 		gotoProtectedResource(httpRequest, response, chain);
 	}
@@ -188,16 +205,6 @@ public class AuthenticationFilter implements Filter
 		if (log.isTraceEnabled())
 			log.trace("Request to not protected address: " + httpRequest.getRequestURI());
 		chain.doFilter(httpRequest, response);
-	}
-	
-	private void clearSessionCookie(HttpServletResponse response)
-	{
-		Cookie unitySessionCookie = new Cookie(sessionCookie, "");
-		unitySessionCookie.setPath("/");
-		unitySessionCookie.setSecure(true);
-		unitySessionCookie.setMaxAge(0);
-		unitySessionCookie.setHttpOnly(true);
-		response.addCookie(unitySessionCookie);
 	}
 	
 	@Override

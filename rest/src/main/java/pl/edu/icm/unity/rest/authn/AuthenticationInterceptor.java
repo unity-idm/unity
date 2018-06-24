@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -147,7 +148,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
 		
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), null);
+				"", client.getOutdatedCredentialId(), null, new RememberMeInfo(false, false), null);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 		ls.setRemoteIdP(client.getRemoteIdP());
@@ -165,7 +166,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 				AuthenticationResult result = processAuthenticator(authnCache,
 						(CXFAuthentication) authn.getRetrieval());
 				state = authenticationProcessor.processPrimaryAuthnResult(result,
-						authenticationFlow);
+						authenticationFlow, null);
 			} catch (AuthenticationException e)
 			{
 				if (firstError == null)
@@ -190,7 +191,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 					result2);
 		} else
 		{
-			return authenticationProcessor.finalizeAfterPrimaryAuthentication(state);
+			return authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
 		}
 	}
 

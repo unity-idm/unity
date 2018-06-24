@@ -35,6 +35,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
@@ -102,7 +103,7 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 	protected void deployEndpoint(String endpointTypeName, String name, String context) throws Exception
 	{
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 100, -1, 600);
+				10, 100, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 
 		List<String> authnCfg = new ArrayList<>();

@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Map;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -26,11 +27,12 @@ public interface SessionManagement
 	 * @param label used only when a new session is created
 	 * @param outdatedCredential used only if a new session is created
 	 * @param absoluteExpiration can be null or absolute expiration time (then session is not closed after 
+	 * @param rememberMeInfo information about remember me steps
 	 * inactive timeout).
 	 * @return
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
-			String label, String outdatedCredentialId, Date absoluteExpiration);
+			String label, String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo, String auhtnOptionId);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.

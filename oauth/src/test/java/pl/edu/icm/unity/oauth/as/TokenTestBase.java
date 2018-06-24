@@ -46,6 +46,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -149,7 +150,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 
 			createUser();
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 10, 100,
-					-1, 600);
+					RememberMePolicy.disallow , 1, 600);
 			realmsMan.addRealm(realm);
 			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 					"flow1", Policy.NEVER,

@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.session.LastAuthenticationAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -47,8 +48,8 @@ public class TestSessions extends DBIntegrationTestBase
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
-		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null);
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		
 		sessionMan.updateSessionAttributes(s.getId(), new AttributeUpdater()
 		{
@@ -74,8 +75,8 @@ public class TestSessions extends DBIntegrationTestBase
 		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
-		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null);
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		
 		sessionMan.removeSession(s.getId(), false);
 		
@@ -91,15 +92,15 @@ public class TestSessions extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 
-		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, -1, 100);
-		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, -1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null);
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
+		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, RememberMePolicy.disallow , 1, 100);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
 		
 		checkLastAuthnAttribute(s.getEntityId());
 		
 		LoginSession ret = sessionMan.getSession(s.getId());
-		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null);
-		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", null, null);
+		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
+		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", null, null, null, null);
 
 		testEquals(s, ret);
 		testEquals(s, s2);

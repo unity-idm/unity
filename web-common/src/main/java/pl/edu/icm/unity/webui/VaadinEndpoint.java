@@ -45,6 +45,7 @@ import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
+import pl.edu.icm.unity.webui.authn.RemeberMeHelper;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
@@ -126,13 +127,15 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
+		RemeberMeHelper remeberMeHelper = applicationContext.getBean(RemeberMeHelper.class);
+		
 		
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
 				new ArrayList<String>(Arrays.asList(uiServletPath)), 
-				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeHelper);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		

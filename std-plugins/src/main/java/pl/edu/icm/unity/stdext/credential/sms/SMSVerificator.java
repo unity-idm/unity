@@ -224,7 +224,7 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		}
 
 		AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username,
-				null);
+				credentialName, false);
 		smslimitCache.reset(username);
 		return new AuthenticationResult(Status.success, ae);
 	}

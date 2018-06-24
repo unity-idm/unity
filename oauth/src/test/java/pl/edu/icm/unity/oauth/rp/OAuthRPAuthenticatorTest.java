@@ -44,6 +44,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -156,7 +157,7 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 							new File("src/test/resources/tr-local.json")))));
 			
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
-					10, 100, -1, 600);
+					10, 100, RememberMePolicy.disallow , 1, 600);
 			realmsMan.addRealm(realm);
 			
 			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(

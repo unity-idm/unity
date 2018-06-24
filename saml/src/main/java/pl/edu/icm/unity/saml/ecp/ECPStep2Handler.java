@@ -30,6 +30,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -183,7 +184,7 @@ public class ECPStep2Handler
 			log.debug("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), null);
+				"", client.getOutdatedCredentialId(), null, new RememberMeInfo(false, false), null);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 		ls.setRemoteIdP(client.getRemoteIdP());

@@ -18,13 +18,15 @@ public class PartialAuthnState
 	private final BindingAuthn secondaryAuthenticator;
 	private final AuthenticationResult primaryResult;
 	private final AuthenticationFlow flow;
-
+	private final String authnOptionId;
+	
 	public PartialAuthnState(BindingAuthn secondaryAuthenticator,
-			AuthenticationResult result, AuthenticationFlow flow)
+			AuthenticationResult result, AuthenticationFlow flow, String authnOptionId)
 	{
 		this.secondaryAuthenticator = secondaryAuthenticator;
 		this.primaryResult = result;
 		this.flow = flow;
+		this.authnOptionId = authnOptionId;
 	}
 
 	public boolean isSecondaryAuthenticationRequired()
@@ -45,5 +47,10 @@ public class PartialAuthnState
 	public AuthenticationFlow getAuthenticationFlow()
 	{
 		return flow;
+	}
+
+	public String getAuthnOptionId()
+	{
+		return authnOptionId;
 	}
 }

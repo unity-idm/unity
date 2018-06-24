@@ -38,6 +38,7 @@ import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 public class AccessTokenResourceTest 
 {
@@ -221,9 +222,9 @@ public class AccessTokenResourceTest
 	
 	private void setupInvocationContext(long entityId)
 	{
-		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, -1, 1000);
+		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, RememberMePolicy.disallow ,1, 1000);
 		InvocationContext virtualAdmin = new InvocationContext(null, realm);
-		LoginSession loginSession = new LoginSession("sid", new Date(), 1000, entityId, "foo");
+		LoginSession loginSession = new LoginSession("sid", new Date(), 1000, entityId, "foo", null, null);
 		virtualAdmin.setLoginSession(loginSession);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);

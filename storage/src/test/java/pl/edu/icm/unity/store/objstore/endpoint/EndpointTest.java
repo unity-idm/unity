@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
@@ -54,7 +55,7 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 	{
 		tx.runInTransaction(() -> {
 			AuthenticationRealm realm = new AuthenticationRealm("realm", 
-					"description", 3, 222, 3, 555);
+					"description", 3, 222, RememberMePolicy.disallow , 1, 555);
 			realmDB.create(realm);
 			
 			Endpoint obj = getObject("name1");

@@ -19,6 +19,7 @@ public class AuthenticationRealm extends DescribedObjectImpl
 	private int blockAfterUnsuccessfulLogins;
 	private int blockFor;
 	private int allowForRememberMeDays;
+	private RememberMePolicy rememberMePolicy;
 	private int maxInactivity;
 
 	public AuthenticationRealm()
@@ -26,12 +27,13 @@ public class AuthenticationRealm extends DescribedObjectImpl
 	}
 
 	public AuthenticationRealm(String name, String description, int blockAfterUnsuccessfulLogins, int blockFor,
-			int allowForRememberMeDays, int maxInactivity)
+			RememberMePolicy rememberMePolicy, int allowForRememberMeDays, int maxInactivity)
 	{
 		super(name, description);
 		this.blockAfterUnsuccessfulLogins = blockAfterUnsuccessfulLogins;
 		this.blockFor = blockFor;
 		this.allowForRememberMeDays = allowForRememberMeDays;
+		this.rememberMePolicy = rememberMePolicy;
 		this.maxInactivity = maxInactivity;
 	}
 
@@ -74,9 +76,20 @@ public class AuthenticationRealm extends DescribedObjectImpl
 	{
 		this.maxInactivity = maxInactivity;
 	}
+	
+	public RememberMePolicy getRememberMePolicy()
+	{
+		return rememberMePolicy;
+	}
+
+	public void setRememberMePolicy(RememberMePolicy rememberMePolicy)
+	{
+		this.rememberMePolicy = rememberMePolicy;
+	}
 
 	private void fromJson(ObjectNode root)
 	{
+		rememberMePolicy = RememberMePolicy.valueOf(root.get("rememberMePolicy").asText());
 		allowForRememberMeDays = root.get("allowForRememberMeDays").asInt();
 		blockAfterUnsuccessfulLogins = root.get("blockAfterUnsuccessfulLogins").asInt();
 		blockFor = root.get("blockFor").asInt();
@@ -88,6 +101,7 @@ public class AuthenticationRealm extends DescribedObjectImpl
 	public ObjectNode toJson()
 	{
 		ObjectNode root = super.toJson();
+		root.put("rememberMePolicy", getRememberMePolicy().toString());
 		root.put("allowForRememberMeDays", getAllowForRememberMeDays());
 		root.put("blockAfterUnsuccessfulLogins", getBlockAfterUnsuccessfulLogins());
 		root.put("blockFor", getBlockFor());
@@ -100,6 +114,7 @@ public class AuthenticationRealm extends DescribedObjectImpl
 	{
 		return "AuthenticationRealm [blockAfterUnsuccessfulLogins="
 				+ blockAfterUnsuccessfulLogins + ", blockFor=" + blockFor
+				+ ", rememberMePolicy=" + rememberMePolicy
 				+ ", allowForRememberMeDays=" + allowForRememberMeDays
 				+ ", maxInactivity=" + maxInactivity + "]";
 	}
@@ -109,6 +124,7 @@ public class AuthenticationRealm extends DescribedObjectImpl
 	{
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + rememberMePolicy.hashCode();
 		result = prime * result + allowForRememberMeDays;
 		result = prime * result + blockAfterUnsuccessfulLogins;
 		result = prime * result + blockFor;

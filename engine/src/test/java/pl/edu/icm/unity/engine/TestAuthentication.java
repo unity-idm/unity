@@ -46,6 +46,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -73,7 +74,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		//create credential requirement and an identity with it 
 		super.setupMockAuthn();
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 10, -1, 600);
+				10, 10, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
 		Identity id = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=foo"), 
@@ -217,7 +218,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 	{
 		super.setupMockAuthn();
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 10, -1, 600);
+				10, 10, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
 		Collection<AuthenticatorTypeDescription> authTypes = authnMan

@@ -42,6 +42,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -118,7 +119,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	{
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
 		LoginSession ls = sessionMan.getCreateSession(entityId, getDefaultRealm(),
-				user, null, null);
+				user, null, null, null, null);
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);
@@ -127,7 +128,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	private static AuthenticationRealm getDefaultRealm()
 	{
 		return new AuthenticationRealm("DEFAULT_AUTHN_REALM", 
-				"For tests", 5, 10, -1, 30*60);
+				"For tests", 5, 10, RememberMePolicy.disallow , 1, 30*60);
 	}
 	
 	/**

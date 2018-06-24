@@ -19,6 +19,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.exceptions.InternalException;
 
@@ -46,6 +47,8 @@ public class LoginSession
 	private String entityLabel;
 	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
 	private String remoteIdP;
+	private RememberMeInfo rememberMeInfo;
+	private String authnOptionId;
 	
 	private Map<String, String> sessionData = new HashMap<String, String>();
 
@@ -62,7 +65,7 @@ public class LoginSession
 	 * @param entityId
 	 * @param realm
 	 */
-	public LoginSession(String id, Date started, Date expires, long maxInactivity, long entityId, String realm)
+	public LoginSession(String id, Date started, Date expires, long maxInactivity, long entityId, String realm, RememberMeInfo rememberMeInfo,  String authnOptionId)
 	{
 		this.id = id;
 		this.started = started;
@@ -71,6 +74,8 @@ public class LoginSession
 		this.lastUsed = new Date();
 		this.expires = expires;
 		this.maxInactivity = maxInactivity;
+		this.rememberMeInfo = rememberMeInfo;
+		this.setAuthnOptionId(authnOptionId);
 	}
 
 	/**
@@ -81,9 +86,9 @@ public class LoginSession
 	 * @param entityId
 	 * @param realm
 	 */
-	public LoginSession(String id, Date started, long maxInactivity, long entityId, String realm)
+	public LoginSession(String id, Date started, long maxInactivity, long entityId, String realm, RememberMeInfo rememberMeInfo,  String authnOptionId)
 	{
-		this(id, started, null, maxInactivity, entityId, realm);
+		this(id, started, null, maxInactivity, entityId, realm, rememberMeInfo, authnOptionId);
 	}
 
 	
@@ -200,7 +205,27 @@ public class LoginSession
 	{
 		this.outdatedCredentialId = outdatedCredentialId;
 	}
+	
+	public RememberMeInfo getRememberMeInfo()
+	{
+		return rememberMeInfo;
+	}
 
+	public void setRememberMeInfo(RememberMeInfo rememberMeInfo)
+	{
+		this.rememberMeInfo = rememberMeInfo;
+	}
+
+	public String getAuthnOptionId()
+	{
+		return authnOptionId;
+	}
+
+	public void setAuthnOptionId(String authnOptionId)
+	{
+		this.authnOptionId = authnOptionId;
+	}
+	
 	public void deserialize(Token token)
 	{
 		ObjectNode main;
@@ -231,6 +256,31 @@ public class LoginSession
 
 		if (main.has("remoteIdP"))
 			setRemoteIdP(main.get("remoteIdP").asText());
+		
+		if (main.has("authnOptionId")) {
+			setAuthnOptionId(main.get("authnOptionId").asText());
+		}
+		
+		if (main.has("rememberMeInfo"))
+		{
+			
+			ObjectNode rememberMeInfo;
+			try
+			{
+				rememberMeInfo = Constants.MAPPER.readValue(
+						main.get("rememberMeInfo").asText(),
+						ObjectNode.class);
+			} catch (Exception e)
+			{
+				throw new InternalException("Can't perform JSON deserialization",
+						e);
+			}
+
+			setRememberMeInfo(new RememberMeInfo(
+					rememberMeInfo.get("firstFactorSkipped").asBoolean(),
+					rememberMeInfo.get("secondFactorSkipped").asBoolean()));
+
+		}
 		
 		setId(token.getValue());
 		setStarted(token.getCreated());
@@ -271,6 +321,12 @@ public class LoginSession
 		for (Map.Entry<String, String> a: getSessionData().entrySet())
 			attrsJson.put(a.getKey(), a.getValue());
 
+		if (authnOptionId != null)
+			main.put("authnOptionId", authnOptionId);
+		
+		if (rememberMeInfo != null)
+			main.put("rememberMeInfo", JsonUtil.toJsonString(rememberMeInfo));
+		
 		try
 		{
 			return Constants.MAPPER.writeValueAsBytes(main);
@@ -285,4 +341,19 @@ public class LoginSession
 	{
 		return id + "@" + realm + " of entity " + entityId;
 	}
+
+	
+
+	public static class RememberMeInfo
+	{
+		public final boolean firstFactorSkipped;
+		public final boolean secondFactorSkipped;
+		public RememberMeInfo(boolean firstFactorSkipped, boolean secondFactorSkipped)
+		{
+			
+			this.firstFactorSkipped = firstFactorSkipped;
+			this.secondFactorSkipped = secondFactorSkipped;
+		}
+	}
+	
 }

@@ -102,6 +102,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -599,13 +600,15 @@ public class EngineInitialization extends LifecycleBase
 				int blockAfter = config.getIntValue(realmKey+
 						UnityServerConfiguration.REALM_BLOCK_AFTER_UNSUCCESSFUL);
 				int blockFor = config.getIntValue(realmKey+UnityServerConfiguration.REALM_BLOCK_FOR);
-				int remeberMe = config.getIntValue(realmKey+
-						UnityServerConfiguration.REALM_REMEMBER_ME);
+				RememberMePolicy remeberMePolicy = config.getEnumValue(realmKey+
+						UnityServerConfiguration.REALM_REMEMBER_ME_POLICY, RememberMePolicy.class);
+				int remeberMeFor = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_REMEMBER_ME_FOR);
 				int maxInactive = config.getIntValue(realmKey+
 						UnityServerConfiguration.REALM_MAX_INACTIVITY);
 				
 				AuthenticationRealm realm = new AuthenticationRealm(name, description, blockAfter, 
-						blockFor, remeberMe, maxInactive);
+						blockFor, remeberMePolicy, remeberMeFor, maxInactive);
 				
 				if (realms.stream().filter(r -> r.getName().equals(name)).findAny().isPresent())
 					realmManagement.updateRealm(realm);
@@ -615,7 +618,8 @@ public class EngineInitialization extends LifecycleBase
 				description = description == null ? "" : description;
 				log.info(" - " + name + ": " + description + " [blockAfter " + 
 						blockAfter + ", blockFor " + blockFor + 
-						", rememberMe " + remeberMe + ", maxInactive " + maxInactive);
+						", rememberMePolicy " + remeberMePolicy.toString() + 
+						", rememberMeFor " + remeberMeFor + ", maxInactive " + maxInactive);
 			}
 		} catch (EngineException e)
 		{

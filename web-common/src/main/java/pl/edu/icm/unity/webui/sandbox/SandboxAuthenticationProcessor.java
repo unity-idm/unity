@@ -36,13 +36,13 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
 			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
 		PartialAuthnState authnState;
 		try
 		{
-			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationFlow);
+			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationFlow, null);
 		} catch (AuthenticationException e)
 		{
 			if (!(e instanceof UnknownRemoteUserException))
@@ -53,7 +53,7 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 		if (authnState.isSecondaryAuthenticationRequired())
 			return authnState;
 		
-		AuthenticatedEntity logInfo = authnProcessor.finalizeAfterPrimaryAuthentication(authnState);
+		AuthenticatedEntity logInfo = authnProcessor.finalizeAfterPrimaryAuthentication(authnState, false);
 
 		finalizeLogin(logInfo);
 		return null;

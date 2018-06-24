@@ -6,13 +6,11 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
@@ -27,6 +25,7 @@ import com.vaadin.server.SynchronizedRequestHandler;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinResponse;
 import com.vaadin.server.VaadinService;
+import com.vaadin.server.VaadinServletRequest;
 import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedHttpSession;
@@ -41,6 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
@@ -55,7 +55,9 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.authn.RemeberMeHelper.RememberMeCookie;
 
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
@@ -68,7 +70,6 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 public class StandardWebAuthenticationProcessor implements WebAuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandardWebAuthenticationProcessor.class);
-	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
 	private static final String LOGOUT_REDIRECT_TRIGGERING = StandardWebAuthenticationProcessor.class.getName() + 
 			".invokeLogout";
 	private static final String LOGOUT_REDIRECT_RET_URI = StandardWebAuthenticationProcessor.class.getName() + 
@@ -90,17 +91,20 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	private EntityManagement entityMan;
 	@Autowired
 	private ExecutorsService executorsService;
+	@Autowired
+	private RemeberMeHelper rememberMeHelper;
+	
 	
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
 			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		PartialAuthnState authnState;
 		try
 		{
-			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationFlow);
+			authnState = authnProcessor.processPrimaryAuthnResult(result, authenticationFlow, authnOptionId);
 		} catch (AuthenticationException e)
 		{
 			if (!(e instanceof UnknownRemoteUserException))
@@ -108,17 +112,72 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 			throw e;
 		}
 
+		Optional<RememberMeCookie> rememberMeCookie = rememberMeHelper
+				.getRememberMeUnityCookie(VaadinServletRequest.getCurrent(),
+						realm.getName());
+		boolean skipSecondFactor = false;
 		if (authnState.isSecondaryAuthenticationRequired())
-			return authnState;
-		
-		AuthenticatedEntity logInfo = authnProcessor.finalizeAfterPrimaryAuthentication(authnState);
-		
-		logged(logInfo, realm, rememberMe, AuthenticationProcessor.extractParticipants(result));
+		{
+			skipSecondFactor = isSecondFactorIsRemembered(rememberMeCookie, realm,
+					clientIp);
+			if (!skipSecondFactor)
+				return authnState;
+		}
+
+		AuthenticatedEntity logInfo = authnProcessor
+				.finalizeAfterPrimaryAuthentication(authnState, skipSecondFactor);
+		if (skipSecondFactor)
+		{
+			rememberMeHelper.updateRememberMeCookieAndUnityToken(rememberMeCookie.get(),
+					realm, VaadinServletResponse.getCurrent());
+		}
+
+		logged(logInfo, realm, rememberMe && !skipSecondFactor,
+				AuthenticationProcessor.extractParticipants(result),
+				skipSecondFactor, authnOptionId);
 
 		finalizeLogin(logInfo);
 		return null;
 	}
 
+	private boolean isSecondFactorIsRemembered(Optional<RememberMeCookie> rememberMeCookie, AuthenticationRealm realm, String clientIp)
+	{
+		if (rememberMeCookie.isPresent())
+		{
+			Optional<RemeberMeToken> rememberMeToken;
+			try
+			{
+				rememberMeToken = rememberMeHelper
+						.getAndCheckRememberMeUnityToken(rememberMeCookie.get(),
+								realm);
+			} catch (AuthenticationException e)
+			{
+				UnsuccessfulAuthenticationCounter counter = getLoginCounter();
+				counter.unsuccessfulAttempt(clientIp);
+				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(),
+						VaadinServletRequest.getCurrent(),
+						VaadinServletResponse.getCurrent());
+				return false;
+			}
+					
+			if (rememberMeToken.isPresent())
+			{
+				if (!rememberMeToken.get().getRememberMePolicy()
+						.equals(RememberMePolicy.disallow))
+				{
+					return true;
+				}
+			} else
+			{
+				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(),
+						VaadinServletRequest.getCurrent(),
+						VaadinServletResponse.getCurrent());
+			}
+
+		}
+		return false;
+	}
+	
 	@Override
 	public void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp, 
 			AuthenticationRealm realm,
@@ -137,7 +196,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		}
 
 		logged(logInfo, realm, rememberMe, 
-				AuthenticationProcessor.extractParticipants(state.getPrimaryResult(), result2));
+				AuthenticationProcessor.extractParticipants(state.getPrimaryResult(), result2), false, state.getAuthnOptionId());
 
 		finalizeLogin(logInfo);
 	}
@@ -172,16 +231,16 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		return null;
 	}
 	
-	private void logged(AuthenticatedEntity authenticatedEntity, final AuthenticationRealm realm, 
-			final boolean rememberMe, List<SessionParticipant> participants) throws AuthenticationException
+	private void logged(AuthenticatedEntity authenticatedEntity,
+			final AuthenticationRealm realm, final boolean rememberMe,
+			List<SessionParticipant> participants, boolean skippedSecondFactor,
+			String auhtnOptionId) throws AuthenticationException
 	{
 		long entityId = authenticatedEntity.getEntityId();
 		String label = getLabel(entityId);
-		Date absoluteExpiration = (realm.getAllowForRememberMeDays() > 0 && rememberMe) ? 
-				new Date(System.currentTimeMillis()+getAbsoluteSessionTTL(realm)) : null;
 		final LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
 				label, authenticatedEntity.getOutdatedCredentialId(), 
-				absoluteExpiration);
+				null, new RememberMeInfo(false, skippedSecondFactor), auhtnOptionId);
 		InvocationContext.getCurrent().setLoginSession(ls);
 		try
 		{
@@ -208,40 +267,13 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 		sessionBinder.bindHttpSession(httpSession, ls);
 		
-		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
-		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse, rememberMe, realm);
-
+		if (rememberMe)
+			rememberMeHelper.setRememberMeCookie(realm, entityId, ls.getStarted(), auhtnOptionId);
+		
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
 		if (ls.isUsedOutdatedCredential())
 			log.debug("User {} logged with outdated credential", ls.getEntityId());
-	}
-	
-	public static String getSessionCookieName(String realmName)
-	{
-		return UNITY_SESSION_COOKIE_PFX+realmName;
-	}
-	
-	private static int getAbsoluteSessionTTL(AuthenticationRealm realm)
-	{
-		return 3600*24*realm.getAllowForRememberMeDays();
-	}
-	
-
-	
-	
-	private static void setupSessionCookie(String cookieName, String sessionId, 
-			HttpServletResponse servletResponse, boolean rememberMe, AuthenticationRealm realm)
-	{
-		Cookie unitySessionCookie = new Cookie(cookieName, sessionId);
-		unitySessionCookie.setPath("/");
-		unitySessionCookie.setSecure(true);
-		unitySessionCookie.setHttpOnly(true);
-		if (rememberMe && realm.getAllowForRememberMeDays() > 0)
-		{
-			unitySessionCookie.setMaxAge(getAbsoluteSessionTTL(realm));
-		}
-		servletResponse.addCookie(unitySessionCookie);
 	}
 	
 	private static void gotoOrigin(ScheduledExecutorService executor) throws AuthenticationException
@@ -314,6 +346,11 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 			vSession.setAttribute(LOGOUT_REDIRECT_TRIGGERING, new Boolean(soft));
 			vSession.setAttribute(LOGOUT_REDIRECT_RET_URI, Page.getCurrent().getLocation().toASCIIString());
 		}
+		
+		rememberMeHelper.clearRememberMeCookieAndUnityToken(session.getRealm(),
+				VaadinServletRequest.getCurrent(),
+				VaadinServletResponse.getCurrent());
+
 	}
 	
 	public static UnsuccessfulAuthenticationCounter getLoginCounter()

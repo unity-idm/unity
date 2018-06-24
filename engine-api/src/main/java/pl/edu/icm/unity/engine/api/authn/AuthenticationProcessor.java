@@ -22,13 +22,13 @@ public interface AuthenticationProcessor
 	 * {@link AuthenticationFlow} selected, second authentication should be performed, what is returned.
 	 */
 	PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
-			AuthenticationFlow authenticationFlow) throws AuthenticationException;
+			AuthenticationFlow authenticationFlow, String authnOptionId) throws AuthenticationException;
 	
 	
 	/**
 	 * Should be used if the second step authentication is not required: retrieve a final {@link AuthenticatedEntity}.
 	 */
-	AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state);
+	AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state, boolean skipSecondFactor);
 	
 
 	

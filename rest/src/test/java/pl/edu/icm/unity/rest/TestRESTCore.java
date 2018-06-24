@@ -37,6 +37,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
 /**
@@ -57,7 +58,7 @@ public class TestRESTCore extends TestRESTBase
 		setupPasswordAuthn();
 		createUsernameUserWithRole("Regular User");
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 100, -1, 600);
+				10, 100, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
 		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(

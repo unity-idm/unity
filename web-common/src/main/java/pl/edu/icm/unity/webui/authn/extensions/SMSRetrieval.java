@@ -344,7 +344,8 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			capchaComponent.setVisible(false);
 			sendCodeButton.setVisible(false);
 			answerField.focus();
-			callback.onStartedAuthentication(AuthenticationStyle.WITH_EMBEDDED_CANCEL);
+			if (callback != null)
+				callback.onStartedAuthentication(AuthenticationStyle.WITH_EMBEDDED_CANCEL);
 		}
 
 		private void triggerAuthentication()

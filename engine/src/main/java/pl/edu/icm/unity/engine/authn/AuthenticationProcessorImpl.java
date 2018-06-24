@@ -66,12 +66,13 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	 * {@link AuthenticationFlow} selected, second authentication should be performed, what is returned.
 	 * @param result
 	 * @param authenticationFlow
+	 * @param authnOptionId
 	 * @return
 	 * @throws AuthenticationException
 	 */
 	@Override
 	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, 
-			AuthenticationFlow authenticationFlow) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, String authnOptionId) throws AuthenticationException
 	{
 		if (result.getStatus() != Status.success)
 		{
@@ -86,7 +87,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		if (flowPolicy.equals(Policy.REQUIRE))
 		{
 			PartialAuthnState partialAuthnState = getSecondFactorAuthn(
-					authenticationFlow, result);
+					authenticationFlow, result, authnOptionId);
 			if (partialAuthnState != null)
 				return partialAuthnState;
 
@@ -100,7 +101,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 			if (getUserOptInAttribute(result.getAuthenticatedEntity().getEntityId()))
 			{
 				partialAuthnState = getSecondFactorAuthn(authenticationFlow,
-						result);
+						result, authnOptionId);
 
 				if (partialAuthnState != null)
 					return partialAuthnState;
@@ -112,7 +113,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 		// In Future: Risk base policy
 
-		return new PartialAuthnState(null, result, authenticationFlow);
+		return new PartialAuthnState(null, result, authenticationFlow, authnOptionId);
 	}
 
 	
@@ -129,7 +130,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 	}
 
-	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result)
+	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result, String authnOptionId)
 	{
 		for (Authenticator authn : authenticationFlow.getSecondFactorAuthenticators())
 		{
@@ -141,13 +142,13 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 				if (!authenticator.getTypeDescription().isLocal())
 				{
 					log.debug("Using remote second factor authenticator " + authenticator.getId());
-					return new PartialAuthnState(bindingAuthn, result, authenticationFlow);
+					return new PartialAuthnState(bindingAuthn, result, authenticationFlow, authnOptionId);
 
 				} else if (checkIfUserHasCredential(authenticator,
 						result.getAuthenticatedEntity()))
 				{
 					log.debug("Using local second factor authenticator " + authenticator.getId());
-					return  new PartialAuthnState(bindingAuthn, result, authenticationFlow);
+					return  new PartialAuthnState(bindingAuthn, result, authenticationFlow, authnOptionId);
 
 				}
 			}
@@ -185,9 +186,9 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 		
 	@Override
-	public AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state)
+	public AuthenticatedEntity finalizeAfterPrimaryAuthentication(PartialAuthnState state, boolean skipSecondFactor)
 	{
-		if (state.isSecondaryAuthenticationRequired())
+		if (state.isSecondaryAuthenticationRequired() && !skipSecondFactor)
 			throw new IllegalStateException("BUG: code tried to finalize authentication "
 					+ "requiring MFA after first authentication");
 		return state.getPrimaryResult().getAuthenticatedEntity();

@@ -240,7 +240,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				return new AuthenticationResult(Status.deny, null);
 			}
 			boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
-			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated ? resolved.getCredentialName() : null);
+			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, resolved.getCredentialName(), isOutdated);
 			return new AuthenticationResult(Status.success, ae);
 		} catch (Exception e)
 		{

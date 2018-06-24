@@ -88,7 +88,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		{
 			PartialAuthnState partialState = authnProcessor.processPrimaryAuthnResult(
 					result, clientIp, realm, 
-					selectedAuthnFlow, rememberMeProvider.get());
+					selectedAuthnFlow, rememberMeProvider.get(), authnId);
 			if (partialState == null)
 			{
 				setNotAuthenticating();

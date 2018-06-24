@@ -26,7 +26,7 @@ public interface WebAuthenticationProcessor
 	 * @throws AuthenticationException
 	 */
 	PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp,
-			AuthenticationRealm realm, AuthenticationFlow authenticationFlow, boolean rememberMe)
+			AuthenticationRealm realm, AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId)
 			throws AuthenticationException;
 
 	void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp,
