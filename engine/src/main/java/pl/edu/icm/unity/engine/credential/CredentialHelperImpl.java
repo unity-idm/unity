@@ -6,6 +6,9 @@ package pl.edu.icm.unity.engine.credential;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,6 +20,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -30,12 +34,15 @@ public class CredentialHelperImpl implements CredentialHelper
 {
 	private AttributeDAO attributeDAO;
 	private AttributesHelper attributeHelper;
+	private CredentialRepository credentialRepo;
 	
 	@Autowired
-	public CredentialHelperImpl(AttributeDAO attributeDAO, AttributesHelper attributeHelper)
+	public CredentialHelperImpl(AttributeDAO attributeDAO, AttributesHelper attributeHelper,
+			CredentialRepository credentialRepo)
 	{
 		this.attributeDAO = attributeDAO;
 		this.attributeHelper = attributeHelper;
+		this.credentialRepo = credentialRepo;
 	}
 
 	@Override
@@ -78,5 +85,13 @@ public class CredentialHelperImpl implements CredentialHelper
 		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
 		List<AttributeExt> entityAttributes = attributeDAO.getEntityAttributes(entity.getEntityId(), credentialAttributeName, "/");
 		return !entityAttributes.isEmpty();
+	}
+	
+	@Override
+	@Transactional
+	public Map<String, CredentialDefinition> getCredentialDefinitions() throws EngineException
+	{
+		return credentialRepo.getCredentialDefinitions().stream().collect(Collectors
+				.toMap(CredentialDefinition::getName, Function.identity()));
 	}
 }

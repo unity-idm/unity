@@ -82,7 +82,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private static final Logger log = Log.getLogger(Log.U_SERVER, PasswordVerificator.class);
 	public static final String NAME = "password";
 	public static final String DESC = "Verifies passwords";
-	static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
+	public static final String[] IDENTITY_TYPES = {UsernameIdentity.ID, EmailIdentity.ID};
 
 	private NotificationProducer notificationProducer;
 	private CredentialHelper credentialHelper;
@@ -401,9 +401,9 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	}
 	
 	@Override
-	public boolean isCredentialSet(EntityParam entity, String credentialId) throws EngineException
+	public boolean isCredentialSet(EntityParam entity) throws EngineException
 	{
-		return credentialHelper.isCredentialSet(entity, credentialId);
+		return credentialHelper.isCredentialSet(entity, credentialName);
 	}
 	
 	@Component

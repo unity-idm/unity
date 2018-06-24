@@ -71,6 +71,11 @@
 			<artifactId>unity-server-rest-admin</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-composite-password</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		
 		
 		<!-- Resource dependencies - used for packaging of module contents which should go to assembly/distro.
