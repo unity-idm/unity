@@ -25,6 +25,7 @@ public enum Images
 	info		(VaadinIcons.INFO),
 	key_o		(VaadinIcons.KEY_O),
 	settings	(VaadinIcons.COG_O),
+	handshake	(VaadinIcons.HANDSHAKE),
 	usertoken	(VaadinIcons.TAGS),
 	exit		(VaadinIcons.SIGN_OUT),
 	toAdmin		(VaadinIcons.TOOLS),

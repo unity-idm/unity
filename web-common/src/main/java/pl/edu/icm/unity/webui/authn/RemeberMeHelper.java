@@ -32,9 +32,10 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.CookieHelper;
 import pl.edu.icm.unity.webui.authn.RemeberMeToken.LoginMachineDetails;
 
@@ -148,7 +149,7 @@ public class RemeberMeHelper
 					rememberMeCookie.rememberMeSeriesToken);
 		} catch (IllegalArgumentException e)
 		{
-			log.debug("Can not get rememberMe token", e);
+			log.debug("Can not get rememberMeToken, token was removed or expired", e);
 		}
 		if (tokenById != null)
 		{
@@ -207,15 +208,16 @@ public class RemeberMeHelper
 
 		try
 		{
-			tokenMan.addToken(REMEMBER_ME_TOKEN_TYPE, rememberMeSeriesToken.toString(),
+			tokenMan.addToken(REMEMBER_ME_TOKEN_TYPE, rememberMeSeriesToken.toString(), new EntityParam(entityId),
 					serializedToken, unityRememberMeToken.getLoginTime(),
 					expiration);
-		} catch (IllegalTypeException e)
+		} catch (EngineException e)
 		{
 			log.debug("Can not add remember me token, skip setting rememberMeCookie",
 					e);
 			return;
-		}
+		} 
+		
 		HttpServletResponse response = (HttpServletResponse) VaadinServletResponse
 				.getCurrent();
 		response.addCookie(unityRememberMeCookie);
@@ -288,7 +290,7 @@ public class RemeberMeHelper
 			} catch (Exception e)
 			{
 				// ok maybe token is not set or expired
-				log.debug("Can not remove rememberMeToken", e);
+				log.debug("Can not remove rememberMeToken, token was removed or expired");
 			}
 
 		}

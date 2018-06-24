@@ -147,13 +147,13 @@ public class AuthenticationFilter implements Filter
 						rememberMeCookie.get(), realm);
 			} catch (AuthenticationException e)
 			{
-				dosGauard.unsuccessfulAttempt(clientIp);
-				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(), httpRequest,
-						httpResponse);
+				dosGauard.unsuccessfulAttempt(clientIp);	
 			}
 			
 			if (!loginSessionFromRememberMe.isPresent())
 			{	
+				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(), httpRequest,
+						httpResponse);
 				forwardtoAuthn(httpRequest, httpResponse);
 				return;
 			}

@@ -25,6 +25,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -80,7 +81,7 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 						+ "compositePassword.verificators.2.verificatorCredential=pass2",
 				"", null);
 
-		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 5, 1, -1, 600);
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 5, 1, RememberMePolicy.disallow ,1, 600);
 		realmsMan.addRealm(realm);
 
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
