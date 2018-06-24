@@ -31,7 +31,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 
 	public enum Components {credentialTab, preferencesTab, userDetailsTab, 
 		accountRemoval, attributesManagement, userInfo, identitiesManagement,
-		accountLinking, rememberMeTokens};
+		accountLinking};
 
 	public enum RemovalModes {remove, disable, blockAuthentication};
 	

@@ -13,8 +13,10 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -25,6 +27,7 @@ import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -33,6 +36,8 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
@@ -57,6 +62,8 @@ public class CredentialsPanel extends VerticalLayout
 	private List<SingleCredentialPanel> panels;
 	private CheckBox userOptInCheckBox;
 	
+	private TrustedDevicesComponent trustedDevicesComponent;
+	
 	
 	/**
 	 * 
@@ -71,7 +78,8 @@ public class CredentialsPanel extends VerticalLayout
 	public CredentialsPanel(UnityMessageSource msg, long entityId, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, AuthenticationFlowManagement flowMan, boolean simpleMode) 
+			CredentialEditorRegistry credEditorReg, AuthenticationFlowManagement flowMan,TokensManagement tokenMan,
+			boolean simpleMode) 
 					throws Exception
 	{
 		this.msg = msg;
@@ -83,12 +91,49 @@ public class CredentialsPanel extends VerticalLayout
 		this.credEditorReg = credEditorReg;
 		this.simpleMode = simpleMode;
 		this.flowMan = flowMan;
+		this.trustedDevicesComponent = new  TrustedDevicesComponent(tokenMan, msg, entityId);
+		trustedDevicesComponent.setVisible(false);
 		init();
 	}
 	
 	
 	private void init() throws Exception
 	{
+	
+		VerticalLayout trustedDevicesWrapper = new VerticalLayout();
+		trustedDevicesWrapper.setMargin(true);
+		trustedDevicesWrapper.setSpacing(false);
+		
+		Button removeTrustedMachines = new Button(msg.getMessage("CredentialChangeDialog.removeTrustedDevices"));
+		removeTrustedMachines.addClickListener(e -> trustedDevicesComponent.removeAll());
+		removeTrustedMachines.setIcon(Images.remove.getResource());
+		
+		Button showHideTrustedMachines = new Button();
+		showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.showTrustedDevices"));
+		showHideTrustedMachines.addClickListener(e -> {
+			if (trustedDevicesComponent.isVisible())
+			{
+				trustedDevicesComponent.setVisible(false);
+				showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.showTrustedDevices"));
+				showHideTrustedMachines.setIcon(Images.downArrow.getResource());
+			}else
+			{
+				trustedDevicesComponent.setVisible(true);
+				showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.hideTrustedDevices"));
+				showHideTrustedMachines.setIcon(Images.upArrow.getResource());
+			}
+		});
+		showHideTrustedMachines.setIcon(Images.downArrow.getResource());
+		showHideTrustedMachines.setStyleName(Styles.vButtonLink.toString());
+		showHideTrustedMachines.addStyleName(Styles.vButtonBorderless.toString());
+		
+		HorizontalLayout trustedDeviceToolbar = new HorizontalLayout();
+		trustedDeviceToolbar.addComponents(removeTrustedMachines, showHideTrustedMachines);
+		trustedDevicesWrapper.addComponents(trustedDeviceToolbar, trustedDevicesComponent);
+		addComponent(trustedDevicesWrapper);
+		
+		
+		addComponent(HtmlTag.horizontalLine());
 		
 		userOptInCheckBox = new CheckBox(msg.getMessage("CredentialChangeDialog.userMFAOptin"));
 		userOptInCheckBox.setDescription(msg.getMessage("CredentialChangeDialog.userMFAOptinDesc"));
@@ -97,6 +142,7 @@ public class CredentialsPanel extends VerticalLayout
 		wrapper.addComponent(userOptInCheckBox);
 		addComponent(wrapper);
 		addComponent(HtmlTag.horizontalLine());
+		
 		
 		userOptInCheckBox.addValueChangeListener(e -> {
 			setUserMFAOptin(e.getValue());

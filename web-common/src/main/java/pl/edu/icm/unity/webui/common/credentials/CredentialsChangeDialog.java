@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -33,6 +34,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private CredentialEditorRegistry credEditorReg;
 	private CredentialRequirementManagement credReqMan;
 	private AuthenticationFlowManagement authnFlowMan;
+	private TokensManagement tokenMan;
 	
 	private Callback callback;
 	private long entityId;
@@ -43,7 +45,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	public CredentialsChangeDialog(UnityMessageSource msg, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,AuthenticationFlowManagement authnFlowMan, 
-			CredentialEditorRegistry credEditorReg)
+			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
 		this.ecredMan = ecredMan;
@@ -52,6 +54,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 		this.credReqMan = credReqMan;
 		this.credMan = credMan;
 		this.authnFlowMan = authnFlowMan;
+		this.tokenMan = tokenMan;
 		setSizeEm(45, 55);
 	}
 
@@ -71,7 +74,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 			ui = new CredentialsPanel( msg,  entityId,  credMan, 
 					 ecredMan,  entityMan,
 					 credReqMan,
-					 credEditorReg, authnFlowMan, simpleMode);
+					 credEditorReg, authnFlowMan, tokenMan, simpleMode);
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage("error"), e);

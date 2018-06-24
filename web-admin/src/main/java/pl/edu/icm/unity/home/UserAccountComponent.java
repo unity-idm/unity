@@ -33,7 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -43,7 +43,6 @@ import pl.edu.icm.unity.home.iddetails.EntityRemovalButton;
 import pl.edu.icm.unity.home.iddetails.UserAttributesPanel;
 import pl.edu.icm.unity.home.iddetails.UserDetailsPanel;
 import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
-import pl.edu.icm.unity.home.rememberMe.RememberMeTokenComponent;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -94,7 +93,7 @@ public class UserAccountComponent extends VerticalLayout
 	private EntityManagement insecureIdsMan;
 	private HomeUITabProvider tabProvider;
 	private AuthenticationFlowManagement authnFlowMan;
-	private SecuredTokensManagement secTokenMan;
+	private TokensManagement tokenMan;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -108,8 +107,8 @@ public class UserAccountComponent extends VerticalLayout
 			AttributesManagement attributesMan, IdentityEditorRegistry identityEditorRegistry,
 			InputTranslationEngine inputTranslationEngine,
 			IdentityTypeSupport idTypeSupport,
-			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan, 
-			SecuredTokensManagement secTokenMan)
+			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan,
+			TokensManagement tokenMan)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -130,7 +129,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.idTypeSupport = idTypeSupport;
 		this.tabProvider = tabProvider;
 		this.authnFlowMan = authnFlowMan;
-		this.secTokenMan = secTokenMan;
+		this.tokenMan = tokenMan;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -160,9 +159,6 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
 		
-		if (!disabled.contains(HomeEndpointProperties.Components.rememberMeTokens.toString()))
-			addRememberMeTokens(tabPanel);
-		
 		if (!disabled.contains(tabProvider.getId().toString()))
 			addExtraTab(tabPanel);
 		
@@ -172,14 +168,6 @@ public class UserAccountComponent extends VerticalLayout
 		
 	}
 	
-	private void addRememberMeTokens(BigTabPanel tabPanel)
-	{
-		RememberMeTokenComponent rememberMeTokenComponent = new RememberMeTokenComponent(secTokenMan, msg);
-		tabPanel.addTab("UserHomeUI.rememberMeTokenLabel", "UserHomeUI.rememberMeTokenDesc", 
-				Images.handshake, rememberMeTokenComponent);
-		
-	}
-
 	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser, HomeEndpointProperties config, 
 			Set<String> disabled)
 	{
@@ -239,7 +227,7 @@ public class UserAccountComponent extends VerticalLayout
 		try
 		{
 			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
-					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, true);
+					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, tokenMan, true);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 
 					Images.key_o, credentialsPanel);

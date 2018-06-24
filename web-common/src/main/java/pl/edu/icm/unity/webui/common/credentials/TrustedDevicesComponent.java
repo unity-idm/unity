@@ -3,91 +3,64 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.home.rememberMe;
+package pl.edu.icm.unity.webui.common.credentials;
 
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
 
 import com.vaadin.data.ValueProvider;
-import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.Button;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
+import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.RemeberMeHelper;
 import pl.edu.icm.unity.webui.authn.RemeberMeToken;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.SmallGrid;
+import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Ui for rememberMe tokens management
  * @author P.Piernik
  *
  */
-public class RememberMeTokenComponent extends VerticalLayout 
+public class TrustedDevicesComponent extends VerticalLayout 
 {
-	private SecuredTokensManagement tokenMan;
-
+	private TokensManagement tokenMan;
 	private UnityMessageSource msg;
-
 	private Grid<TableTokensBean> tokensTable;
+	private long entityId;
 
-	public RememberMeTokenComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg)
+	public TrustedDevicesComponent(TokensManagement tokenMan, UnityMessageSource msg, long entityId)
 	{
 		this.tokenMan = tokenMan;
 		this.msg = msg;
+		this.entityId = entityId;
 		initUI();
 	}
 
 	private void initUI()
 	{
-		setCaption(msg.getMessage("RememberMeTokenHomeUI.tokensLabel"));
+		
 		setMargin(false);
 		setSpacing(false);
 		tokensTable = new SmallGrid<>();
 		tokensTable.setSizeFull();
 		tokensTable.setSelectionMode(SelectionMode.MULTI);
-
-		HorizontalLayout buttons = new HorizontalLayout();
-		Button removeButton = new Button(msg.getMessage("RememberMeTokenHomeUI.remove"));
-		removeButton.setIcon(Images.delete.getResource());
-		removeButton.setEnabled(false);
-
-		Button refreshButton = new Button(msg.getMessage("RememberMeTokenHomeUI.refresh"));
-		refreshButton.setIcon(Images.refresh.getResource());
-
-		buttons.addComponents(refreshButton, removeButton);
-		buttons.setMargin(new MarginInfo(false, false, true, false));
-
-		refreshButton.addClickListener(event -> refresh());
-
-		removeButton.addClickListener(event -> {
-			Collection<TableTokensBean> items = tokensTable.getSelectedItems();
-			new ConfirmDialog(msg,
-					msg.getMessage("RememberMeTokenHomeUI.confirmRemove"),
-					() -> {
-						for (TableTokensBean item : items)
-							removeToken(item.getValue());
-					}).show();
-		});
-
-		tokensTable.addSelectionListener(event -> {
-			Collection<TableTokensBean> items = event.getAllSelectedItems();
-			removeButton.setEnabled(items.size() > 0);
-		});
-
+		tokensTable.setCaption(msg.getMessage("TrustedDevicesComponent.caption"));
+		
 		addColumn("ip", TableTokensBean::getIp, false);
 		addColumn("browser", TableTokensBean::getBrowser, false);
 		addColumn("os", TableTokensBean::getOS, false);
@@ -104,8 +77,16 @@ public class RememberMeTokenComponent extends VerticalLayout
 		contextMenu.addActionHandler(deleteAction);
 		GridSelectionSupport.installClickListener(tokensTable);
 
-		addComponent(buttons);
-		addComponent(tokensTable);
+		Toolbar<TableTokensBean> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		tokensTable.addSelectionListener(toolbar.getSelectionListener());
+		toolbar.addActionHandlers(contextMenu.getActionHandlers());
+		
+		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(tokensTable, toolbar);
+		tableWithToolbar.setWidth(100, Unit.PERCENTAGE);
+		
+		
+		
+		addComponent(tableWithToolbar);
 		refresh();
 	}
 
@@ -131,7 +112,7 @@ public class RememberMeTokenComponent extends VerticalLayout
 
 	private void deleteHandler(Collection<TableTokensBean> items)
 	{
-		new ConfirmDialog(msg, msg.getMessage("RememberMeTokenHomeUI.confirmRemove"),
+		new ConfirmDialog(msg, msg.getMessage("TrustedDevicesComponent.confirmRemove"),
 				() -> {
 					for (TableTokensBean item : items)
 						removeToken(item.getValue());
@@ -139,23 +120,56 @@ public class RememberMeTokenComponent extends VerticalLayout
 
 	}
 
-	protected void refresh()
+	public void removeAll()
+	{
+		List<Token> tokens = null;
+		try
+		{
+			tokens = tokenMan.getOwnedTokens(RemeberMeHelper.REMEMBER_ME_TOKEN_TYPE,
+					new EntityParam(entityId));
+		}
+
+		catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("TrustedDevicesComponent.errorGetTokens"),
+					e);
+			return;
+		}
+
+		try
+		{
+			for (Token token : tokens)
+			{
+				tokenMan.removeToken(token.getType(), token.getValue());
+			}
+			refresh();
+
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("TrustedDevicesComponent.errorRemove"), e);
+			return;
+		}
+	}
+
+	private void refresh()
 	{
 		try
 		{
 			List<Token> tokens = tokenMan
-					.getOwnedTokens(RemeberMeHelper.REMEMBER_ME_TOKEN_TYPE);
+					.getOwnedTokens(RemeberMeHelper.REMEMBER_ME_TOKEN_TYPE, new EntityParam(entityId));
 			tokensTable.setItems(tokens.stream().map(t -> new TableTokensBean(t, msg)));
 			tokensTable.deselectAll();
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg,
-					msg.getMessage("RememberMeTokenHomeUI.errorGetTokens"), e);
+					msg.getMessage("TrustedDevicesComponent.errorGetTokens"), e);
 		}
 
 	}
 
-	protected boolean removeToken(String value)
+	private boolean removeToken(String value)
 	{
 		try
 		{
@@ -165,7 +179,7 @@ public class RememberMeTokenComponent extends VerticalLayout
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg,
-					msg.getMessage("RememberMeTokenHomeUI.errorRemove"), e);
+					msg.getMessage("TrustedDevicesComponent.errorRemove"), e);
 			return false;
 		}
 	}
@@ -173,9 +187,7 @@ public class RememberMeTokenComponent extends VerticalLayout
 	public static class TableTokensBean
 	{
 		private Token token;
-
 		private RemeberMeToken rememberMeToken;
-
 		private UnityMessageSource msg;
 
 		public TableTokensBean(Token token, UnityMessageSource msg)
