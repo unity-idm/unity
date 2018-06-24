@@ -47,7 +47,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 {
 	public static final String CRED_REQ_PASS = "cr-pass";
 	public static final String DEF_USER = "mockuser1";
-	public static final String DEF_PASSWORD = "mockpassword1";
+	public static final String DEF_PASSWORD = "mock~!)(@*#&$^%:?,'.\\|";
 	
 	@Autowired
 	private SessionManagement sessionMan;

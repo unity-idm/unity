@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.rest.jwt.authn;
 
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.message.Message;
@@ -51,7 +53,7 @@ public abstract class JWTRetrievalBase extends AbstractCredentialRetrieval<JWTEx
 	}
 
 	@Override
-	public AuthenticationResult getAuthenticationResult()
+	public AuthenticationResult getAuthenticationResult(Properties endpointFeatures)
 	{
 		String token = getToken();
 		if (token == null)

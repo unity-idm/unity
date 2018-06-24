@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,16 +55,19 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected Set<String> notProtectedPaths = new HashSet<String>();
+	private Properties endpointProperties;
 	
 	public AuthenticationInterceptor(UnityMessageSource msg, AuthenticationProcessor authenticationProcessor, 
 			List<AuthenticationFlow> authenticators,
-			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths)
+			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths,
+			Properties endpointProperties)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
 		this.authenticationProcessor = authenticationProcessor;
 		this.realm = realm;
 		this.authenticators = authenticators;
+		this.endpointProperties = endpointProperties;
 		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 		this.sessionMan = sessionManagement;
@@ -202,7 +206,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		if (result == null)
 		{
 			log.trace("Processing authenticator " + authId);
-			result = myAuth.getAuthenticationResult();
+			result = myAuth.getAuthenticationResult(endpointProperties);
 			authnCache.put(authId, result);
 			log.trace("Authenticator " + authId + " returned " + result);
 		} else

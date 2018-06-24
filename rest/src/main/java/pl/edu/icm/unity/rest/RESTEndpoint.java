@@ -188,21 +188,20 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	{
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authenticationProcessor, 
-				authenticationFlows, realm, sessionMan, notProtectedPaths));
+				authenticationFlows, realm, sessionMan, notProtectedPaths,
+				getEndpointDescription().getType().getFeatures()));
 		installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 
 	public static void installAuthnInterceptors(List<AuthenticationFlow> authenticatorFlows,
 			List<Interceptor<? extends Message>> interceptors)
 	{
-		Set<String> added = new HashSet<String>();
+		Set<String> added = new HashSet<>();
 		for (AuthenticationFlow authenticatorFlow: authenticatorFlows)
 		{
 			for (Authenticator authenticator : authenticatorFlow.getAllAuthenticators())
 			{	
-				
 				installAuthnInterceptor(authenticator.getRetrieval(), interceptors, added);
-			
 			}
 		}
 	}

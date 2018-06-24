@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.rest.authn.ext;
 
 import java.security.cert.X509Certificate;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -49,7 +50,7 @@ public abstract class TLSRetrievalBase extends AbstractCredentialRetrieval<Certi
 	}
 
 	@Override
-	public AuthenticationResult getAuthenticationResult()
+	public AuthenticationResult getAuthenticationResult(Properties endpointFeatures)
 	{
 		X509Certificate[] certificates = getTLSCertificates();
 		if (certificates == null)

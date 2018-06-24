@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.oauth.rp.retrieval;
 
+import java.util.Properties;
+
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.cxf.message.Message;
@@ -55,7 +57,7 @@ public abstract class BearerRetrievalBase extends AbstractCredentialRetrieval<Ac
 	}
 
 	@Override
-	public AuthenticationResult getAuthenticationResult()
+	public AuthenticationResult getAuthenticationResult(Properties endpointFeatures)
 	{
 		BearerAccessToken authnToken = getTokenCredential(log);
 		if (authnToken == null)
