@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 
 /**
  * Main sandbox authentication router interface. It's divided into 
@@ -14,5 +15,6 @@ package pl.edu.icm.unity.webui.sandbox;
  */
 public interface SandboxAuthnRouter extends SandboxAuthnNotifier
 {
-	void fireEvent(SandboxAuthnEvent event);
+	void firePartialEvent(SandboxAuthnEvent event);
+	void fireCompleteEvent(AuthenticatedEntity entity);
 }

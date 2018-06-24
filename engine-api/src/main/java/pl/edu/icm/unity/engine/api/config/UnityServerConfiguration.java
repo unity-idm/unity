@@ -326,9 +326,9 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setCategory(initAuthnCat).setDescription("Defines multi factor policy."));
 		defaults.put(AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).setMandatory().
 				setCategory(initAuthnCat).
-				setDescription("First factor authenticators"));
+				setDescription("First factor authenticators, separated with a single comma (no spaces)."));
 		defaults.put(AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).
-				setCategory(initAuthnCat).setDescription("Second factor authenticators"));
+				setCategory(initAuthnCat).setDescription("Second factor authenticators, separated with a single comma (no spaces)."));
 	
 		defaults.put(REALMS, new PropertyMD().setStructuredList(false)
 				.setCategory(initRealmCat)

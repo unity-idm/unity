@@ -18,20 +18,22 @@ endpoint.
 Authentication of an endpoint is controlled using two main elements:
 
 * Authentication realm - controls settings which may be shared by multiple endpoints with similar security
-requirements. Endpoints in the same realm share login sessions and all their settings. See <<realms>>.
-* Assigned authenticators - each authenticator defines a unique authentication option as authentication
-with locally stored password or remote authentication with a help of a configured remote OAuth AS. 
-See <<cfg-authenticators>>.   
+requirements. Those settings include in the first place session configuration. 
+Endpoints in the same realm share login sessions and all their settings, therefore Single-Sign-On (SSO)
+is configured by assigning endpoints to the same realm. See <<realms>>.
+* Authentication flows - flow defines an authentication process. It is used to configure what 1st factor authentication
+should be used, what is the policy to trigger two factor authentication (2FA/MFA) and what are the 2nd factor 
+authentication options. For simplicity an endpoint may have also an individual authentication options directly assigned.
+This is a shortcut for configuring an authentication flow with only the 1st factor enabled. See <<authn-flows>>.
 
-Each endpoint can have many alternative authentication options. Options are provided by 
-all enabled authenticators. Each authenticator can provide a single option (as the password authenticator)
-or many of them (as the remote SAML authenticator allowing to use all federation IdPs).
+That said access to an endpoint may be protected by alternative authentication options: e.g. remote OAuth login or
+a local password with additional 2nd factor using SMS code. Those individual authentication options are provided by 
+components which are called authenticators. See <<cfg-authenticators>>. Authenticator can provide a single 
+authentication option (as the password authenticator) or many of them (as the remote SAML authenticator allowing
+to use all federation IdPs).
 
 Authentication screen can be configured to organize the authentication options in a desired way. This
 is especially important if there is many of them. See <<endpoints-authn>> for details.
-
-Unity can be configured to support MFA, however this feature is simplistic as of now. It will be enhanced
-in upcoming versions, the only currently available option is discussed in <<endpoints>>. 
 
 === Local authentication 
 

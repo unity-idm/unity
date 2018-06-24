@@ -11,6 +11,7 @@ import java.util.Map;
 import com.nimbusds.jose.util.Base64;
 
 import net.minidev.json.JSONArray;
+import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttributeSyntax;
 import pl.edu.icm.unity.stdext.attr.IntegerAttributeSyntax;
@@ -35,7 +36,8 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 		ValueToJsonConverter[] converters = new ValueToJsonConverter[] {
 				new SimpleValueConverter(),
 				new EmailValueConverter(),
-				new JpegValueConverter()
+				new JpegValueConverter(),
+				new BooleanValueConverter()
 		};
 
 		for (ValueToJsonConverter conv: converters)
@@ -140,6 +142,25 @@ public class DefaultOAuthAttributeMapper implements OAuthAttributeMapper
 			return new String[] {VerifiableEmailAttributeSyntax.ID};
 		}
 	}
+
+	private static class BooleanValueConverter implements ValueToJsonConverter
+	{
+		private static final BooleanAttributeSyntax syntax = 
+				new BooleanAttributeSyntax();
+		
+		@Override
+		public Boolean convertValueToJson(String value)
+		{
+			return syntax.convertFromString(value);
+		}
+
+		@Override
+		public String[] getSupportedSyntaxes()
+		{
+			return new String[] {BooleanAttributeSyntax.ID};
+		}
+	}
+
 	
 	private interface ValueToJsonConverter
 	{

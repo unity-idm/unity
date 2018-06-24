@@ -143,7 +143,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	
 	
 	@Override
-	public boolean isCredentialSet(EntityParam entity, String credentialId)
+	public boolean isCredentialSet(EntityParam entity)
 			throws EngineException
 	{
 		return checkX500Id(entity);

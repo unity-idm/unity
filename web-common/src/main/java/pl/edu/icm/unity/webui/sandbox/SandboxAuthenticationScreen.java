@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import com.vaadin.ui.JavaScript;
-
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -37,7 +35,7 @@ import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 {
 	private SandboxAuthnRouter sandboxRouter;
-	
+
 	public SandboxAuthenticationScreen(UnityMessageSource msg, 
 			VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -46,9 +44,9 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			ExecutorsService execService, 
 			SandboxAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
-			SandboxAuthnRouter sandboxRouter,
 			List<AuthenticationFlow> authenticators,
-			String title)
+			String title,
+			SandboxAuthnRouter sandboxRouter)
 	{
 		super(msg, prepareConfiguration(config.getProperties(), title), 
 				endpointDescription, () -> false, 
@@ -84,7 +82,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 	@Override
 	protected void init() 
 	{
-		setSandboxCallbackForAuthenticators(new SandboxAuthnResultCallbackImpl());
+		setSandboxCallbackForAuthenticators(new StandardSandboxAuthnResultCallback());
 		super.init();
 	}
 	
@@ -93,13 +91,12 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 		throw new IllegalStateException("Showing unknown user dialog on sandbox screen - should never happen");
 	}
 	
-	private class SandboxAuthnResultCallbackImpl implements SandboxAuthnResultCallback
+	private class StandardSandboxAuthnResultCallback implements SandboxAuthnResultCallback
 	{
 		@Override
 		public void sandboxedAuthenticationDone(SandboxAuthnContext ctx)
 		{
-			sandboxRouter.fireEvent(new SandboxAuthnEvent(ctx));
-			JavaScript.getCurrent().execute("window.close();");
+			sandboxRouter.firePartialEvent(new SandboxAuthnEvent(ctx));
 		}
 	}
 }

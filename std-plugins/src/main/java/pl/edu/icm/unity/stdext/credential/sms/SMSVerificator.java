@@ -248,9 +248,9 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 	
 	@Override
-	public boolean isCredentialSet(EntityParam entity, String credentialId) throws EngineException
+	public boolean isCredentialSet(EntityParam entity) throws EngineException
 	{
-		return credentialHelper.isCredentialSet(entity, credentialId);
+		return credentialHelper.isCredentialSet(entity, credentialName);
 	}
 	
 	@Component

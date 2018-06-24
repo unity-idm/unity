@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 
 /**
  * Vaadin UI of the sandbox application. This UI is using the same authenticators as those configured for
- * the wrapping endpoint. Suitable for account association.
+ * the wrapping endpoint. Suitable for account association of not existing account with an existing one.
  *  
  * @author K. Benedyczak
  */
@@ -76,6 +76,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	protected void appInit(final VaadinRequest request)
 	{
 		String title = msg.getMessage("SandboxUI.authenticateToAssociateAccounts");
+		this.authnProcessor.setSandboxRouter(sandboxRouter);
 		ui = new SandboxAuthenticationScreen(msg, 
 				config, 
 				endpointDescription, 
@@ -84,9 +85,9 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 				execService, 
 				authnProcessor, 
 				localeChoice, 
-				sandboxRouter,
 				authnFlows,
-				title);
+				title,
+				sandboxRouter);
 		setContent(ui);
 		setSizeFull();
 	}

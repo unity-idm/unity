@@ -17,7 +17,7 @@ unityServer.core.endpoints.1.endpointType=WebAdminUI
 unityServer.core.endpoints.1.endpointName=UNITY administration interface
 unityServer.core.endpoints.1.contextPath=/admin
 unityServer.core.endpoints.1.endpointConfigurationFile=conf/webadmin.json
-unityServer.core.endpoints.1.endpointAuthenticators=oauthWeb;simplePwdWeb,certWeb
+unityServer.core.endpoints.1.endpointAuthenticators=oauthWeb;passwordWithSMS
 ----
 
 The endpoint instance configuration must specify the endpoint type (in the example it is +WebAdminUI+), one 
@@ -31,13 +31,15 @@ above context path +/admin+ all URLs of the endpoint instance will start with th
 Endpoint configuration file is used to specify endpoint type-specific configuration, including the 
 binding specific settings.
 
-The final configuration element of all endpoints is the configuration of authenticators. Endpoint
-can have many _alternative_ authenticators enabled. Names of those authenticators must be separated with semicolon. 
-Additionally an endpoint may require simultaneous authentication using two authenticators 
-(MFA - multi-factor authentication). In such case the two required authenticators must be enumerated with 
-a comma as a separator. In the above example the endpoint allows for choosing between 
-two authentication methods: one will use a single authenticator +oauthWeb+ and another alternative 
-will require simultaneous authentication using +certWeb+ and +simplePwdWeb+.
+The final configuration element of all endpoints is the configuration of authentication flows. Endpoint
+can have many _alternative_ authentication flows enabled. Names of those must be separated with semicolon. 
+As a shortcut endpoint may have individual atuhenticators assigned instead of flows (or mixed with them). 
+Assigning an authenticator will create an ad-hoc flow with a single factor authentication, with the authentication 
+options of the authenticator.
+
+In the above example the endpoint allows for choosing between two authentication methods: one will use a single 
+authenticator +oauthWeb+ and another alternative will require authentication using authentication flow 
++passwordWithSMS+, which most likely is defined to use 2FA.
 
 === Common options for endpoints
  

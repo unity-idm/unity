@@ -102,7 +102,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	{
 		VaadinRequest vaadinRequest = VaadinService.getCurrentRequest();
 		boolean validationMode = vaadinRequest.getParameter(PROFILE_VALIDATION) != null;
-		
+		this.authnProcessor.setSandboxRouter(sandboxRouter);
 		ui = new SandboxAuthenticationScreen(msg, 
 				config, 
 				endpointDescription, 
@@ -111,9 +111,9 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 				execService, 
 				authnProcessor, 
 				localeChoice, 
-				sandboxRouter,
 				authnFlows,
-				getTitle(validationMode));
+				getTitle(validationMode),
+				sandboxRouter);
 		setContent(ui);
 		setSizeFull();
 	}
