@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.endpoint;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import pl.edu.icm.unity.types.DescribedObjectImpl;
@@ -18,9 +19,11 @@ public class EndpointTypeDescription extends DescribedObjectImpl
 {
 	private Set<String> supportedBindings;
 	private Map<String,String> paths;
+	private Properties features;
 	
 	public EndpointTypeDescription()
 	{
+		features = new Properties();
 	}
 
 	public EndpointTypeDescription(String name, String description, Set<String> supportedBindings, 
@@ -29,8 +32,18 @@ public class EndpointTypeDescription extends DescribedObjectImpl
 		super(name, description);
 		setSupportedBindings(supportedBindings);
 		setPaths(paths);
+		features = new Properties();
 	}
 
+	public EndpointTypeDescription(String name, String description, Set<String> supportedBindings, 
+			Map<String,String> paths, Properties features)
+	{
+		super(name, description);
+		setSupportedBindings(supportedBindings);
+		setPaths(paths);
+		this.features = features;
+	}
+	
 	public void setSupportedBindings(Set<String> supportedBindings)
 	{
 		this.supportedBindings = Collections.unmodifiableSet(supportedBindings);
@@ -53,5 +66,14 @@ public class EndpointTypeDescription extends DescribedObjectImpl
 	{
 		return paths;
 	}
-	
+
+	public Properties getFeatures()
+	{
+		return features;
+	}
+
+	public void setFeatures(Properties features)
+	{
+		this.features = features;
+	}
 }

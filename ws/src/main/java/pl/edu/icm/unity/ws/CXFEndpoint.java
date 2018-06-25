@@ -86,7 +86,7 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authnProcessor, authenticationFlows, realm, sessionMan, 
-				new HashSet<String>()));
+				new HashSet<String>(), getEndpointDescription().getType().getFeatures()));
 		RESTEndpoint.installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 	
