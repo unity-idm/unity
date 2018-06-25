@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.authn.RememberMePolicy;
  * @author P.Piernik
  *
  */
-public class RemeberMeToken
+public class RememberMeToken
 {
 	private long entity;
 	private LoginMachineDetails machineDetails;
@@ -29,12 +29,12 @@ public class RemeberMeToken
 	private byte[] rememberMeTokenHash;
 	private RememberMePolicy rememberMePolicy;
 
-	public RemeberMeToken()
+	public RememberMeToken()
 	{
 		
 	}
 	
-	public RemeberMeToken(long entity, LoginMachineDetails machineDetails, Date loginTime,
+	public RememberMeToken(long entity, LoginMachineDetails machineDetails, Date loginTime,
 			String authnOptionId, byte[] rememberMeTokenHash,
 			RememberMePolicy rememberMePolicy)
 	{
@@ -46,11 +46,11 @@ public class RemeberMeToken
 		this.rememberMePolicy = rememberMePolicy;
 	}
 	
-	public static RemeberMeToken getInstanceFromJson(byte[] json) 
+	public static RememberMeToken getInstanceFromJson(byte[] json) 
 	{
 		try
 		{
-			return Constants.MAPPER.readValue(json, RemeberMeToken.class);
+			return Constants.MAPPER.readValue(json, RememberMeToken.class);
 		} catch (IOException e)
 		{
 			throw new IllegalArgumentException("Can not parse token's JSON", e);
@@ -171,7 +171,5 @@ public class RemeberMeToken
 		{
 			this.browser = browser;
 		}
-
 	}
-
 }

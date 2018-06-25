@@ -94,6 +94,7 @@ public class SessionManagementImpl implements SessionManagement
 				if (ret != null)
 				{
 					ret.setLastUsed(new Date());
+					ret.setRememberMeInfo(rememberMeInfo);
 					byte[] contents = ret.getTokenContents();
 					tokensManagement.updateToken(SESSION_TOKEN_TYPE, ret.getId(), null, 
 							contents);

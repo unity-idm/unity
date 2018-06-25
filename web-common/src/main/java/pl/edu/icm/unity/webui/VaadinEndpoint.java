@@ -45,7 +45,7 @@ import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.RemeberMeHelper;
+import pl.edu.icm.unity.webui.authn.RememberMeHelper;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
@@ -127,7 +127,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
-		RemeberMeHelper remeberMeHelper = applicationContext.getBean(RemeberMeHelper.class);
+		RememberMeHelper remeberMeHelper = applicationContext.getBean(RememberMeHelper.class);
 		
 		
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(

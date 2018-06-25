@@ -37,17 +37,17 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.CookieHelper;
-import pl.edu.icm.unity.webui.authn.RemeberMeToken.LoginMachineDetails;
+import pl.edu.icm.unity.webui.authn.RememberMeToken.LoginMachineDetails;
 
 /**
- * Internal management of remember me cookie and token.  
+ * Internal management of remember me cookies and tokens.  
  * @author P.Piernik
  *
  */
 @Component
-public class RemeberMeHelper
+public class RememberMeHelper
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RemeberMeHelper.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RememberMeHelper.class);
 	
 	public static final String REMEMBER_ME_COOKIE_PFX = "REMEMBERME_";
 	public static final String REMEMBER_ME_TOKEN_TYPE = "rememberMe";
@@ -56,7 +56,7 @@ public class RemeberMeHelper
 	private SessionManagement sessionMan;
 	
 	@Autowired
-	public RemeberMeHelper(TokensManagement tokenMan, SessionManagement sessionMan)
+	public RememberMeHelper(TokensManagement tokenMan, SessionManagement sessionMan)
 	{
 		this.tokenMan = tokenMan;
 		this.sessionMan = sessionMan;
@@ -66,7 +66,7 @@ public class RemeberMeHelper
 			String realmName)
 	{
 		String cookie = CookieHelper.getCookie(httpRequest,
-				RemeberMeHelper.getRememberMeCookieName(realmName));
+				RememberMeHelper.getRememberMeCookieName(realmName));
 		if (cookie == null || cookie.isEmpty())
 			return Optional.empty();
 
@@ -74,7 +74,7 @@ public class RemeberMeHelper
 	}
 
 	public Optional<RememberMeCookie> getRememberMeUnityCookie(HttpServletRequest httpRequest,
-			String realmName)
+			String realmName) throws AuthenticationException
 	{
 		RememberMeCookie rememberMeCookie = null;
 		Optional<String> rawRememberMeCookie = getRawRememberMeCookie(httpRequest,
@@ -86,17 +86,22 @@ public class RemeberMeHelper
 			{
 				rememberMeCookie = new RememberMeCookie(cookieSplit[0],
 						cookieSplit[1]);
+			} else
+			{
+				String message = "Remember me cookie it does not contain two remember me tokens, probably we have attack";
+				log.debug(message);
+				throw new AuthenticationException(message);
 			}
 		}
 		return Optional.ofNullable(rememberMeCookie);
 
 	}
 
-	public Optional<RemeberMeToken> getAndCheckRememberMeUnityToken(
+	public Optional<RememberMeToken> getAndCheckRememberMeUnityToken(
 			RememberMeCookie rememberMeCookie, AuthenticationRealm realm)
 			throws AuthenticationException
 	{
-		Optional<RemeberMeToken> unityRememberMeToken = getRememberMeUnityToken(
+		Optional<RememberMeToken> unityRememberMeToken = getRememberMeUnityToken(
 				rememberMeCookie);
 
 		if (!unityRememberMeToken.isPresent())
@@ -105,7 +110,7 @@ public class RemeberMeHelper
 		if (!Arrays.equals(unityRememberMeToken.get().getRememberMeTokenHash(),
 				hash(rememberMeCookie.rememberMeToken)))
 		{
-			String message = "Someone change rememberMeCookie contents, probably we have attack";
+			String message = "Someone change remember me cookie contents, probably we have attack";
 			log.debug(message);
 			throw new AuthenticationException(message);
 
@@ -127,7 +132,7 @@ public class RemeberMeHelper
 			throws AuthenticationException
 	{
 
-		Optional<RemeberMeToken> unityRememberMeToken = getAndCheckRememberMeUnityToken(
+		Optional<RememberMeToken> unityRememberMeToken = getAndCheckRememberMeUnityToken(
 				rememberMeCookie, realm);
 
 		if (!unityRememberMeToken.isPresent())
@@ -139,7 +144,7 @@ public class RemeberMeHelper
 				unityRememberMeToken.get().getAuthnOptionId()));
 	}
 
-	public Optional<RemeberMeToken> getRememberMeUnityToken(RememberMeCookie rememberMeCookie)
+	public Optional<RememberMeToken> getRememberMeUnityToken(RememberMeCookie rememberMeCookie)
 	{
 
 		Token tokenById = null;
@@ -156,7 +161,7 @@ public class RemeberMeHelper
 
 			try
 			{
-				return Optional.ofNullable(RemeberMeToken
+				return Optional.ofNullable(RememberMeToken
 						.getInstanceFromJson(tokenById.getContents()));
 			} catch (IllegalArgumentException e)
 			{
@@ -166,14 +171,14 @@ public class RemeberMeHelper
 		return Optional.empty();
 	}
 
-	public void setRememberMeCookie(AuthenticationRealm realm, long entityId, Date loginTime,
+	public void setRememberMeCookieAndUnityToken(AuthenticationRealm realm, long entityId, Date loginTime,
 			String auhtnOptionId)
 	{
 
 		if (realm.getRememberMePolicy().equals(RememberMePolicy.disallow))
 			return;
 
-		log.debug("Setup rememeberMe cookie");
+		log.debug("Set remember me cookie and token");
 
 		UUID rememberMeSeriesToken = UUID.randomUUID();
 		UUID rememberMeToken = UUID.randomUUID();
@@ -189,7 +194,7 @@ public class RemeberMeHelper
 		unityRememberMeCookie.setHttpOnly(true);
 		unityRememberMeCookie.setMaxAge(getAbsoluteRememberMeCookieTTL(realm));
 
-		RemeberMeToken unityRememberMeToken = createRememberMeUnityToken(entityId, realm,
+		RememberMeToken unityRememberMeToken = createRememberMeUnityToken(entityId, realm,
 				hash(rememberMeToken.toString()), loginTime, auhtnOptionId);
 
 		byte[] serializedToken = null;
@@ -198,7 +203,7 @@ public class RemeberMeHelper
 			serializedToken = unityRememberMeToken.getSerialized();
 		} catch (JsonProcessingException e)
 		{
-			log.debug("Can not set remember me token, skip setting rememberMeCookie",
+			log.debug("Can not serialize remember me token, skip setting remember me cookie",
 					e);
 			return;
 		}
@@ -213,7 +218,7 @@ public class RemeberMeHelper
 					expiration);
 		} catch (EngineException e)
 		{
-			log.debug("Can not add remember me token, skip setting rememberMeCookie",
+			log.debug("Can not add remember me token, skip setting remember me cookie",
 					e);
 			return;
 		} 
@@ -224,7 +229,7 @@ public class RemeberMeHelper
 
 	}
 
-	private RemeberMeToken createRememberMeUnityToken(long entityId, AuthenticationRealm realm,
+	private RememberMeToken createRememberMeUnityToken(long entityId, AuthenticationRealm realm,
 			byte[] rememberMeTokenHash, Date loginTime, String auhtnOptionId)
 	{
 		WebBrowser webBrowser = Page.getCurrent().getWebBrowser();
@@ -249,7 +254,7 @@ public class RemeberMeHelper
 		LoginMachineDetails machineDetails = new LoginMachineDetails(
 				webBrowser.getAddress(), osName, browser);
 
-		return new RemeberMeToken(entityId, machineDetails, loginTime, auhtnOptionId,
+		return new RememberMeToken(entityId, machineDetails, loginTime, auhtnOptionId,
 				rememberMeTokenHash, realm.getRememberMePolicy());
 
 	}
@@ -277,10 +282,18 @@ public class RemeberMeHelper
 	public void clearRememberMeCookieAndUnityToken(String realmName, HttpServletRequest request,
 			HttpServletResponse httpResponse)
 	{
-		log.debug("Clear rememberMe cookie and token");
+		log.debug("Clear remember me cookie and token");
 
-		Optional<RememberMeCookie> rememberMeCookie = getRememberMeUnityCookie(request,
-				realmName);
+		Optional<RememberMeCookie> rememberMeCookie;
+		try
+		{
+			rememberMeCookie = getRememberMeUnityCookie(request, realmName);
+		} catch (AuthenticationException e)
+		{
+			log.debug("Can not remove remember me token and cookie, the cookie content is incorrect",
+					e);
+			return;
+		}
 		if (rememberMeCookie.isPresent())
 		{
 			try
@@ -290,7 +303,7 @@ public class RemeberMeHelper
 			} catch (Exception e)
 			{
 				// ok maybe token is not set or expired
-				log.debug("Can not remove rememberMeToken, token was removed or expired");
+				log.debug("Can not remove remember me token. The token was removed or expired");
 			}
 
 		}
@@ -306,8 +319,8 @@ public class RemeberMeHelper
 	public void updateRememberMeCookieAndUnityToken(RememberMeCookie rememberMeCookie,
 			AuthenticationRealm realm, HttpServletResponse httpResponse)
 	{
-		log.debug("Update rememeberMe cookie and token");
-		Optional<RemeberMeToken> unityRememberMeToken = getRememberMeUnityToken(
+		log.debug("Update remember me cookie and token");
+		Optional<RememberMeToken> unityRememberMeToken = getRememberMeUnityToken(
 				rememberMeCookie);
 
 		String rememberMeCookieName = getRememberMeCookieName(realm.getName());
@@ -332,7 +345,7 @@ public class RemeberMeHelper
 				serializedToken = unityRememberMeToken.get().getSerialized();
 			} catch (JsonProcessingException e)
 			{
-				log.debug("Can not set remember me token, skip setting rememberMeCookie",
+				log.debug("Can not set remember me token, skip setting remember me cookie",
 						e);
 				return;
 			}

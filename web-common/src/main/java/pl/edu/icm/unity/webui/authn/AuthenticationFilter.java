@@ -17,6 +17,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -34,7 +35,8 @@ import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
-import pl.edu.icm.unity.webui.authn.RemeberMeHelper.RememberMeCookie;
+import pl.edu.icm.unity.webui.CookieHelper;
+import pl.edu.icm.unity.webui.authn.RememberMeHelper.RememberMeCookie;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -46,20 +48,22 @@ public class AuthenticationFilter implements Filter
 
 	private List<String> protectedServletPaths;
 	private String authnServletPath;
+	private final String sessionCookie;
 	private UnsuccessfulAuthenticationCounter dosGauard;
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
-	private RemeberMeHelper rememberMeHelper;
+	private RememberMeHelper rememberMeHelper;
 	private AuthenticationRealm realm;
 	
 	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
 			AuthenticationRealm realm,
-			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RemeberMeHelper rememberMeHelper)
+			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeHelper rememberMeHelper)
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
 		dosGauard = new UnsuccessfulAuthenticationCounter(realm.getBlockAfterUnsuccessfulLogins(), 
 				realm.getBlockFor()*1000);
+		sessionCookie = StandardWebAuthenticationProcessor.getSessionCookieName(realm.getName());
 		this.sessionMan = sessionMan;
 		this.sessionBinder = sessionBinder;
 		this.rememberMeHelper = rememberMeHelper;
@@ -119,8 +123,6 @@ public class AuthenticationFilter implements Filter
 				}
 			}
 		}
-
-		
 		
 		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp); 
 		if (blockedTime > 0)
@@ -132,30 +134,60 @@ public class AuthenticationFilter implements Filter
 			return;
 		}
 		
+		loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookie);
+		if (loginSessionId == null)
+		{
+			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
+			return;
+		}
+		
+		LoginSession ls;
+		try
+		{
+			ls = sessionMan.getSession(loginSessionId);
+		} catch (IllegalArgumentException e)
+		{
+			log.trace("Got request with invalid login session id " + loginSessionId + " to " +
+					httpRequest.getRequestURI() );
+			dosGauard.unsuccessfulAttempt(clientIp);
+			clearSessionCookie(httpResponse);
+			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
+			return;
+		}
+		dosGauard.successfulAttempt(clientIp);
+		if (httpSession == null)
+			httpSession = httpRequest.getSession(true);
+
+		sessionBinder.bindHttpSession(httpSession, ls);
+		
+		gotoProtectedResource(httpRequest, response, chain);
 		
 
+
+	}
+
+	private void handleRememberMe(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain, String clientIp) throws IOException, ServletException
+	{	
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		Optional<LoginSession> loginSessionFromRememberMe = Optional.empty();
-		Optional<RememberMeCookie> rememberMeCookie = rememberMeHelper
-				.getRememberMeUnityCookie(httpRequest, realm.getName());
-		if (rememberMeCookie.isPresent() && realm.getRememberMePolicy()
-				.equals(RememberMePolicy.allowForWholeAuthn))
+		Optional<RememberMeCookie> rememberMeCookie = Optional.empty();
+		if (realm.getRememberMePolicy().equals(RememberMePolicy.allowForWholeAuthn))
 		{
 
 			try
 			{
-				loginSessionFromRememberMe = rememberMeHelper.getLoginSessionFromRememberMeToken(
-						rememberMeCookie.get(), realm);
+				rememberMeCookie = rememberMeHelper.getRememberMeUnityCookie(
+						httpRequest, realm.getName());
+				if (rememberMeCookie.isPresent())
+				{
+					loginSessionFromRememberMe = rememberMeHelper
+							.getLoginSessionFromRememberMeToken(
+									rememberMeCookie.get(),
+									realm);
+				}
 			} catch (AuthenticationException e)
 			{
-				dosGauard.unsuccessfulAttempt(clientIp);	
-			}
-			
-			if (!loginSessionFromRememberMe.isPresent())
-			{	
-				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(), httpRequest,
-						httpResponse);
-				forwardtoAuthn(httpRequest, httpResponse);
-				return;
+				dosGauard.unsuccessfulAttempt(clientIp);
 			}
 
 		} else
@@ -163,17 +195,25 @@ public class AuthenticationFilter implements Filter
 			forwardtoAuthn(httpRequest, httpResponse);
 			return;
 		}
-						
-		rememberMeHelper.updateRememberMeCookieAndUnityToken(rememberMeCookie.get(), realm, httpResponse);
-		dosGauard.successfulAttempt(clientIp);
-		if (httpSession == null)
-			httpSession = httpRequest.getSession(true);
-
-		sessionBinder.bindHttpSession(httpSession, loginSessionFromRememberMe.get());
 		
+		if (!loginSessionFromRememberMe.isPresent() )
+		{	
+			if (rememberMeCookie.isPresent())
+				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(), httpRequest,
+					httpResponse);
+			forwardtoAuthn(httpRequest, httpResponse);
+			return;
+		}
+		
+		log.debug("Whole authn is remembered by entity "
+				+ loginSessionFromRememberMe.get().getEntityId() + ", skipping it");
+		rememberMeHelper.updateRememberMeCookieAndUnityToken(rememberMeCookie.get(), realm,
+				httpResponse);
+		dosGauard.successfulAttempt(clientIp);
+		sessionBinder.bindHttpSession(httpRequest.getSession(true), loginSessionFromRememberMe.get());	
 		gotoProtectedResource(httpRequest, response, chain);
 	}
-
+	
 	private void forwardtoAuthn(HttpServletRequest httpRequest, HttpServletResponse response) throws IOException, ServletException
 	{
 		String forwardURI = authnServletPath;
@@ -205,6 +245,16 @@ public class AuthenticationFilter implements Filter
 		if (log.isTraceEnabled())
 			log.trace("Request to not protected address: " + httpRequest.getRequestURI());
 		chain.doFilter(httpRequest, response);
+	}
+	
+	private void clearSessionCookie(HttpServletResponse response)
+	{
+		Cookie unitySessionCookie = new Cookie(sessionCookie, "");
+		unitySessionCookie.setPath("/");
+		unitySessionCookie.setSecure(true);
+		unitySessionCookie.setMaxAge(0);
+		unitySessionCookie.setHttpOnly(true);
+		response.addCookie(unitySessionCookie);
 	}
 	
 	@Override

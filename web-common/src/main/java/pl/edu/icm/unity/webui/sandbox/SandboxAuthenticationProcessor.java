@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.JavaScript;
@@ -42,7 +44,7 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 	}
 
 	@Override
-	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
+	public Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
 			AuthenticationRealm realm,
 			AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId) throws AuthenticationException
 	{
@@ -59,12 +61,12 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 		}
 
 		if (authnState.isSecondaryAuthenticationRequired())
-			return authnState;
+			return Optional.ofNullable(authnState);
 		
 		AuthenticatedEntity logInfo = authnProcessor.finalizeAfterPrimaryAuthentication(authnState, false);
 
 		finalizeLogin(logInfo);
-		return null;
+		return Optional.empty();
 	}
 
 	@Override

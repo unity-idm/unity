@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -25,7 +27,7 @@ public interface WebAuthenticationProcessor
 	 * @return
 	 * @throws AuthenticationException
 	 */
-	PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp,
+	Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result, String clientIp,
 			AuthenticationRealm realm, AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId)
 			throws AuthenticationException;
 

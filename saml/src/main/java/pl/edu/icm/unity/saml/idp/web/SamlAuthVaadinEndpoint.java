@@ -66,7 +66,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.RemeberMeHelper;
+import pl.edu.icm.unity.webui.authn.RememberMeHelper;
 import pl.edu.icm.unity.ws.CXFUtils;
 import pl.edu.icm.unity.ws.XmlBeansNsHackOutHandler;
 import xmlbeans.org.oasis.saml2.metadata.EndpointType;
@@ -212,7 +212,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);		
-		RemeberMeHelper remeberMeHelper = applicationContext.getBean(RemeberMeHelper.class);
+		RememberMeHelper remeberMeHelper = applicationContext.getBean(RememberMeHelper.class);
 		
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH, 

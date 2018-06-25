@@ -86,15 +86,15 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		log.trace("Received authentication result of the primary authenticator " + result);
 		try
 		{
-			PartialAuthnState partialState = authnProcessor.processPrimaryAuthnResult(
+			Optional<PartialAuthnState> partialState = authnProcessor.processPrimaryAuthnResult(
 					result, clientIp, realm, 
 					selectedAuthnFlow, rememberMeProvider.get(), authnId);
-			if (partialState == null)
+			if (!partialState.isPresent())
 			{
 				setNotAuthenticating();
 			} else
 			{
-				switchToSecondaryAuthentication(partialState);
+				switchToSecondaryAuthentication(partialState.get());
 			}
 		} catch (UnknownRemoteUserException e)
 		{

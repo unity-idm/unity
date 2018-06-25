@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.logging.log4j.Logger;
@@ -57,7 +59,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.RemeberMeHelper.RememberMeCookie;
+import pl.edu.icm.unity.webui.authn.RememberMeHelper.RememberMeCookie;
 
 /**
  * Handles results of authentication and if it is all right, redirects to the source application.
@@ -70,6 +72,7 @@ import pl.edu.icm.unity.webui.authn.RemeberMeHelper.RememberMeCookie;
 public class StandardWebAuthenticationProcessor implements WebAuthenticationProcessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandardWebAuthenticationProcessor.class);
+	public static final String UNITY_SESSION_COOKIE_PFX = "USESSIONID_";
 	private static final String LOGOUT_REDIRECT_TRIGGERING = StandardWebAuthenticationProcessor.class.getName() + 
 			".invokeLogout";
 	private static final String LOGOUT_REDIRECT_RET_URI = StandardWebAuthenticationProcessor.class.getName() + 
@@ -92,11 +95,11 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	@Autowired
 	private ExecutorsService executorsService;
 	@Autowired
-	private RemeberMeHelper rememberMeHelper;
+	private RememberMeHelper rememberMeHelper;
 	
 	
 	@Override
-	public PartialAuthnState processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
+	public Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result, String clientIp, 
 			AuthenticationRealm realm,
 			AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId) throws AuthenticationException
 	{
@@ -112,39 +115,49 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 			throw e;
 		}
 
-		Optional<RememberMeCookie> rememberMeCookie = rememberMeHelper
-				.getRememberMeUnityCookie(VaadinServletRequest.getCurrent(),
-						realm.getName());
+		Optional<RememberMeCookie> rememberMeCookie = Optional.empty();
 		boolean skipSecondFactor = false;
 		if (authnState.isSecondaryAuthenticationRequired())
 		{
-			skipSecondFactor = isSecondFactorIsRemembered(rememberMeCookie, realm,
-					clientIp);
-			if (!skipSecondFactor)
-				return authnState;
+			try
+			{
+				rememberMeCookie = rememberMeHelper.getRememberMeUnityCookie(
+						VaadinServletRequest.getCurrent(), realm.getName());
+			
+				skipSecondFactor = isSecondFactorIsRemembered(rememberMeCookie, realm,
+						clientIp);
+				if (!skipSecondFactor)
+					return Optional.ofNullable(authnState);
+				
+			} catch (AuthenticationException e)
+			{
+				log.debug("Can not check remember me cookie on second factor authn", e);
+			}	
 		}
 
 		AuthenticatedEntity logInfo = authnProcessor
 				.finalizeAfterPrimaryAuthentication(authnState, skipSecondFactor);
+		
 		if (skipSecondFactor)
 		{
+			log.debug("Second factor authn is remembered by entity " + logInfo.getEntityId() + ", skipping it");	
 			rememberMeHelper.updateRememberMeCookieAndUnityToken(rememberMeCookie.get(),
 					realm, VaadinServletResponse.getCurrent());
 		}
-
+		
 		logged(logInfo, realm, rememberMe && !skipSecondFactor,
 				AuthenticationProcessor.extractParticipants(result),
 				skipSecondFactor, authnOptionId);
 
 		finalizeLogin(logInfo);
-		return null;
+		return Optional.empty();
 	}
 
 	private boolean isSecondFactorIsRemembered(Optional<RememberMeCookie> rememberMeCookie, AuthenticationRealm realm, String clientIp)
 	{
 		if (rememberMeCookie.isPresent())
 		{
-			Optional<RemeberMeToken> rememberMeToken;
+			Optional<RememberMeToken> rememberMeToken;
 			try
 			{
 				rememberMeToken = rememberMeHelper
@@ -268,12 +281,31 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		sessionBinder.bindHttpSession(httpSession, ls);
 		
 		if (rememberMe)
-			rememberMeHelper.setRememberMeCookie(realm, entityId, ls.getStarted(), auhtnOptionId);
-		
+		{
+			rememberMeHelper.setRememberMeCookieAndUnityToken(realm, entityId, ls.getStarted(), auhtnOptionId);
+		}
+		VaadinServletResponse servletResponse = (VaadinServletResponse) VaadinService.getCurrentResponse();
+		setupSessionCookie(getSessionCookieName(realm.getName()), ls.getId(), servletResponse);
 		ls.addAuthenticatedIdentities(authenticatedEntity.getAuthenticatedWith());
 		ls.setRemoteIdP(authenticatedEntity.getRemoteIdP());
 		if (ls.isUsedOutdatedCredential())
 			log.debug("User {} logged with outdated credential", ls.getEntityId());
+	}
+	
+	public static String getSessionCookieName(String realmName)
+	{
+		return UNITY_SESSION_COOKIE_PFX+realmName;
+	}
+	
+	private static void setupSessionCookie(String cookieName, String sessionId, 
+			HttpServletResponse servletResponse)
+	{
+		Cookie unitySessionCookie = new Cookie(cookieName, sessionId);
+		unitySessionCookie.setPath("/");
+		unitySessionCookie.setSecure(true);
+		unitySessionCookie.setHttpOnly(true);
+		unitySessionCookie.setMaxAge(-1);
+		servletResponse.addCookie(unitySessionCookie);
 	}
 	
 	private static void gotoOrigin(ScheduledExecutorService executor) throws AuthenticationException
@@ -346,10 +378,14 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 			vSession.setAttribute(LOGOUT_REDIRECT_TRIGGERING, new Boolean(soft));
 			vSession.setAttribute(LOGOUT_REDIRECT_RET_URI, Page.getCurrent().getLocation().toASCIIString());
 		}
-		
-		rememberMeHelper.clearRememberMeCookieAndUnityToken(session.getRealm(),
-				VaadinServletRequest.getCurrent(),
-				VaadinServletResponse.getCurrent());
+		//clear remember me cookie and token only when we have info about skipped authn is session
+		if (session.getRememberMeInfo() != null
+				&& session.getRememberMeInfo().firstFactorSkipped && session.getRememberMeInfo().firstFactorSkipped)
+		{
+			rememberMeHelper.clearRememberMeCookieAndUnityToken(session.getRealm(),
+					VaadinServletRequest.getCurrent(),
+					VaadinServletResponse.getCurrent());
+		}
 
 	}
 	

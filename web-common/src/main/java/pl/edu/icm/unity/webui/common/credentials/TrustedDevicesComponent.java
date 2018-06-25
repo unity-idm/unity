@@ -20,8 +20,8 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.RemeberMeHelper;
-import pl.edu.icm.unity.webui.authn.RemeberMeToken;
+import pl.edu.icm.unity.webui.authn.RememberMeHelper;
+import pl.edu.icm.unity.webui.authn.RememberMeToken;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
@@ -125,7 +125,7 @@ public class TrustedDevicesComponent extends VerticalLayout
 		List<Token> tokens = null;
 		try
 		{
-			tokens = tokenMan.getOwnedTokens(RemeberMeHelper.REMEMBER_ME_TOKEN_TYPE,
+			tokens = tokenMan.getOwnedTokens(RememberMeHelper.REMEMBER_ME_TOKEN_TYPE,
 					new EntityParam(entityId));
 		}
 
@@ -158,7 +158,7 @@ public class TrustedDevicesComponent extends VerticalLayout
 		try
 		{
 			List<Token> tokens = tokenMan
-					.getOwnedTokens(RemeberMeHelper.REMEMBER_ME_TOKEN_TYPE, new EntityParam(entityId));
+					.getOwnedTokens(RememberMeHelper.REMEMBER_ME_TOKEN_TYPE, new EntityParam(entityId));
 			tokensTable.setItems(tokens.stream().map(t -> new TableTokensBean(t, msg)));
 			tokensTable.deselectAll();
 		} catch (Exception e)
@@ -173,7 +173,7 @@ public class TrustedDevicesComponent extends VerticalLayout
 	{
 		try
 		{
-			tokenMan.removeToken(RemeberMeHelper.REMEMBER_ME_TOKEN_TYPE, value);
+			tokenMan.removeToken(RememberMeHelper.REMEMBER_ME_TOKEN_TYPE, value);
 			refresh();
 			return true;
 		} catch (Exception e)
@@ -187,14 +187,14 @@ public class TrustedDevicesComponent extends VerticalLayout
 	public static class TableTokensBean
 	{
 		private Token token;
-		private RemeberMeToken rememberMeToken;
+		private RememberMeToken rememberMeToken;
 		private UnityMessageSource msg;
 
 		public TableTokensBean(Token token, UnityMessageSource msg)
 		{
 			this.token = token;
 			this.msg = msg;
-			this.rememberMeToken = RemeberMeToken
+			this.rememberMeToken = RememberMeToken
 					.getInstanceFromJson(token.getContents());
 		}
 
@@ -247,7 +247,7 @@ public class TrustedDevicesComponent extends VerticalLayout
 			return token;
 		}
 
-		RemeberMeToken getOAuthToken()
+		RememberMeToken getOAuthToken()
 		{
 			return rememberMeToken;
 		}
