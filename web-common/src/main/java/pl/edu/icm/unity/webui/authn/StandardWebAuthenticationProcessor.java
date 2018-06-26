@@ -253,7 +253,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		String label = getLabel(entityId);
 		final LoginSession ls = sessionMan.getCreateSession(entityId, realm, 
 				label, authenticatedEntity.getOutdatedCredentialId(), 
-				null, new RememberMeInfo(false, skippedSecondFactor), auhtnOptionId, false);
+				null, new RememberMeInfo(false, skippedSecondFactor), auhtnOptionId, skippedSecondFactor);
 		InvocationContext.getCurrent().setLoginSession(ls);
 		try
 		{
