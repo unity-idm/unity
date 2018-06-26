@@ -49,7 +49,7 @@ public class TestSessions extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null, false);
 		
 		sessionMan.updateSessionAttributes(s.getId(), new AttributeUpdater()
 		{
@@ -76,7 +76,7 @@ public class TestSessions extends DBIntegrationTestBase
 		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
 				EntityState.valid, false);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null, false);
 		
 		sessionMan.removeSession(s.getId(), false);
 		
@@ -94,13 +94,13 @@ public class TestSessions extends DBIntegrationTestBase
 
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
 		AuthenticationRealm realm2 = new AuthenticationRealm("test2", "", 3, 33, RememberMePolicy.disallow , 1, 100);
-		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null, false);
 		
 		checkLastAuthnAttribute(s.getEntityId());
 		
 		LoginSession ret = sessionMan.getSession(s.getId());
-		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null);
-		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", null, null, null, null);
+		LoginSession s2 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null, false);
+		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm2, "u1", null, null, null, null, false);
 
 		testEquals(s, ret);
 		testEquals(s, s2);

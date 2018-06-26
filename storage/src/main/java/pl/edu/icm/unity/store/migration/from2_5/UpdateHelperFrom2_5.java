@@ -65,7 +65,7 @@ public class UpdateHelperFrom2_5
 	public static void  updateRealm(ObjectNode objContent)
 	{
 
-		ObjectNode rememberMeFor = (ObjectNode) objContent.get("allowForRememberMeDays");
+		JsonNode rememberMeFor = (JsonNode) objContent.get("allowForRememberMeDays");
 
 		int rememberMeForDays = rememberMeFor.asInt();
 		if (rememberMeForDays > 0)

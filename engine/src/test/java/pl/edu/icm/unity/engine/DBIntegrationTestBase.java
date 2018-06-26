@@ -76,7 +76,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 				MockPasswordVerificatorFactory.ID);
 		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
-				user, credentialId, null, null, null);
+				user, credentialId, null, null, null, false);
 		virtualAdmin.setLoginSession(ls);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		//override for tests: it can happen that existing session is returned, therefore old state of cred is
