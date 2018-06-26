@@ -166,8 +166,9 @@ public class AuthenticationFilter implements Filter
 
 	}
 
-	private void handleRememberMe(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain, String clientIp) throws IOException, ServletException
-	{	
+	private void handleRememberMe(HttpServletRequest httpRequest, ServletResponse response,
+			FilterChain chain, String clientIp) throws IOException, ServletException
+	{
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		Optional<LoginSession> loginSessionFromRememberMe = Optional.empty();
 		Optional<RememberMeCookie> rememberMeCookie = Optional.empty();
@@ -195,22 +196,23 @@ public class AuthenticationFilter implements Filter
 			forwardtoAuthn(httpRequest, httpResponse);
 			return;
 		}
-		
-		if (!loginSessionFromRememberMe.isPresent() )
-		{	
+
+		if (!loginSessionFromRememberMe.isPresent())
+		{
 			if (rememberMeCookie.isPresent())
-				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(), httpRequest,
-					httpResponse);
+				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(),
+						httpRequest, httpResponse);
 			forwardtoAuthn(httpRequest, httpResponse);
 			return;
 		}
-		
+
 		log.debug("Whole authn is remembered by entity "
 				+ loginSessionFromRememberMe.get().getEntityId() + ", skipping it");
 		rememberMeHelper.updateRememberMeCookieAndUnityToken(rememberMeCookie.get(), realm,
 				httpResponse);
 		dosGauard.successfulAttempt(clientIp);
-		sessionBinder.bindHttpSession(httpRequest.getSession(true), loginSessionFromRememberMe.get());	
+		sessionBinder.bindHttpSession(httpRequest.getSession(true),
+				loginSessionFromRememberMe.get());
 		gotoProtectedResource(httpRequest, response, chain);
 	}
 	

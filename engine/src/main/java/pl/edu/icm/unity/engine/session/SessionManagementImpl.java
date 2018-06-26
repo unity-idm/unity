@@ -83,32 +83,46 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-				String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo, String auhtnOptionId)
+				String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
+				String auhtnOptionId, boolean forceCreate)
 	{
 		try
 		{
-			try
+			
+			if (!forceCreate)
 			{
-				LoginSession ret = getOwnedSessionInternal(new EntityParam(loggedEntity), 
-						realm.getName());
-				if (ret != null)
+				try
 				{
-					ret.setLastUsed(new Date());
-					ret.setRememberMeInfo(rememberMeInfo);
-					byte[] contents = ret.getTokenContents();
-					tokensManagement.updateToken(SESSION_TOKEN_TYPE, ret.getId(), null, 
-							contents);
-					
-					if (log.isDebugEnabled())
-						log.debug("Using existing session " + ret.getId() + " for logged entity "
-							+ ret.getEntityId() + " in realm " + realm.getName());
-					return ret;
+					LoginSession ret = getOwnedSessionInternal(
+							new EntityParam(loggedEntity),
+							realm.getName());
+					if (ret != null)
+					{
+						ret.setLastUsed(new Date());
+						ret.setRememberMeInfo(rememberMeInfo);
+						ret.setOutdatedCredentialId(outdatedCredentialId);
+						byte[] contents = ret.getTokenContents();
+						tokensManagement.updateToken(SESSION_TOKEN_TYPE,
+								ret.getId(), null, contents);
+
+						if (log.isDebugEnabled())
+							log.debug("Using existing session "
+									+ ret.getId()
+									+ " for logged entity "
+									+ ret.getEntityId()
+									+ " in realm "
+									+ realm.getName());
+						return ret;
+					}
+				} catch (EngineException e)
+				{
+					throw new InternalException(
+							"Can't retrieve current sessions of the "
+									+ "authenticated user",
+							e);
 				}
-			} catch (EngineException e)
-			{
-				throw new InternalException("Can't retrieve current sessions of the "
-						+ "authenticated user", e);
 			}
+			
 			
 			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
 					absoluteExpiration, rememberMeInfo, auhtnOptionId);
@@ -116,6 +130,7 @@ public class SessionManagementImpl implements SessionManagement
 				log.debug("Created a new session " + ret.getId() + " for logged entity "
 					+ ret.getEntityId() + " in realm " + realm.getName());
 			return ret;
+			
 		} finally
 		{
 			clearScheduledRemovalStatus(loggedEntity);

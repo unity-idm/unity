@@ -32,7 +32,8 @@ public interface SessionManagement
 	 * @return
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
-			String label, String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo, String auhtnOptionId);
+			String label, String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
+			String auhtnOptionId, boolean forceCreate);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.

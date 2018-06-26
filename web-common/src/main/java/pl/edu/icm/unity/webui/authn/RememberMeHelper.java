@@ -141,7 +141,7 @@ public class RememberMeHelper
 		return Optional.of(sessionMan.getCreateSession(
 				unityRememberMeToken.get().getEntity(), realm, "", null, null,
 				new RememberMeInfo(true, true),
-				unityRememberMeToken.get().getAuthnOptionId()));
+				unityRememberMeToken.get().getAuthnOptionId(), true));
 	}
 
 	public Optional<RememberMeToken> getRememberMeUnityToken(RememberMeCookie rememberMeCookie)
