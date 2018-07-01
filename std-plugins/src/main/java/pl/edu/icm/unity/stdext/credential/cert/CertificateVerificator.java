@@ -96,7 +96,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 			EntityWithCredential resolved = identityResolver.resolveIdentity(identity, 
 				IDENTITY_TYPES, credentialName);
 			AuthenticatedEntity entity = new AuthenticatedEntity(resolved.getEntityId(), 
-					X500NameUtils.getReadableForm(identity), credentialName, false);
+					X500NameUtils.getReadableForm(identity), null);
 			AuthenticationResult ret = new AuthenticationResult(Status.success, entity);
 			if (sandboxCallback != null)
 				sandboxCallback.sandboxedAuthenticationDone(new LocalSandboxAuthnContext(ret));

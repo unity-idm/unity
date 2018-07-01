@@ -113,7 +113,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 		// In Future: Risk base policy
 
-		return new PartialAuthnState(null, result, authenticationFlow, authnOptionId);
+		return new PartialAuthnState(authnOptionId, null, result, authenticationFlow);
 	}
 
 	
@@ -130,7 +130,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 	}
 
-	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result, String authnOptionId)
+	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result, String firstFactorauthnOptionId)
 	{
 		for (Authenticator authn : authenticationFlow.getSecondFactorAuthenticators())
 		{
@@ -142,13 +142,13 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 				if (!authenticator.getTypeDescription().isLocal())
 				{
 					log.debug("Using remote second factor authenticator " + authenticator.getId());
-					return new PartialAuthnState(bindingAuthn, result, authenticationFlow, authnOptionId);
+					return new PartialAuthnState(firstFactorauthnOptionId, bindingAuthn, result, authenticationFlow);
 
 				} else if (checkIfUserHasCredential(authenticator,
 						result.getAuthenticatedEntity()))
 				{
 					log.debug("Using local second factor authenticator " + authenticator.getId());
-					return  new PartialAuthnState(bindingAuthn, result, authenticationFlow, authnOptionId);
+					return new PartialAuthnState(firstFactorauthnOptionId, bindingAuthn, result, authenticationFlow);
 
 				}
 			}

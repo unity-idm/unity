@@ -76,7 +76,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 		try
 		{
 			authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
-					partialState.getAuthenticationFlow(), rememberMeProvider.get());
+					partialState.getAuthenticationFlow(), rememberMeProvider.get(), authNPanel.getAuthenticationOptionId());
 		} catch (AuthenticationException e)
 		{
 			log.trace("Secondary authentication failed ", e);

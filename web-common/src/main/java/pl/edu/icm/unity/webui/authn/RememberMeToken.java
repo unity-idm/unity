@@ -25,7 +25,8 @@ public class RememberMeToken
 	private long entity;
 	private LoginMachineDetails machineDetails;
 	private Date loginTime;
-	private String  authnOptionId;
+	private String  firstFactorAuthnOptionId;
+	private String  secondFactorAuthnOptionId;
 	private byte[] rememberMeTokenHash;
 	private RememberMePolicy rememberMePolicy;
 
@@ -35,13 +36,14 @@ public class RememberMeToken
 	}
 	
 	public RememberMeToken(long entity, LoginMachineDetails machineDetails, Date loginTime,
-			String authnOptionId, byte[] rememberMeTokenHash,
+			String firstFactorAuthnOptionId, String secondFactorAuthnOptionId, byte[] rememberMeTokenHash,
 			RememberMePolicy rememberMePolicy)
 	{
 		this.entity = entity;
 		this.machineDetails = machineDetails;
 		this.loginTime = loginTime;
-		this.authnOptionId = authnOptionId;
+		this.firstFactorAuthnOptionId = firstFactorAuthnOptionId;
+		this.secondFactorAuthnOptionId = secondFactorAuthnOptionId;
 		this.rememberMeTokenHash = rememberMeTokenHash;
 		this.rememberMePolicy = rememberMePolicy;
 	}
@@ -94,16 +96,6 @@ public class RememberMeToken
 		this.loginTime = loginTime;
 	}
 
-	public String getAuthnOptionId()
-	{
-		return authnOptionId;
-	}
-
-	public void setAuthnOptionIds(String authnOptionId)
-	{
-		this.authnOptionId = authnOptionId;
-	}
-
 	public byte[] getRememberMeTokenHash()
 	{
 		return rememberMeTokenHash;
@@ -122,6 +114,26 @@ public class RememberMeToken
 	public void setRememberMePolicy(RememberMePolicy rememberMePolicy)
 	{
 		this.rememberMePolicy = rememberMePolicy;
+	}
+
+	public String getFirstFactorAuthnOptionId()
+	{
+		return firstFactorAuthnOptionId;
+	}
+
+	public void setFirstFactorAuthnOptionId(String firstFactorAuthnOptionId)
+	{
+		this.firstFactorAuthnOptionId = firstFactorAuthnOptionId;
+	}
+
+	public String getSecondFactorAuthnOptionId()
+	{
+		return secondFactorAuthnOptionId;
+	}
+
+	public void setSecondFactorAuthnOptionId(String secondFactorAuthnOptionId)
+	{
+		this.secondFactorAuthnOptionId = secondFactorAuthnOptionId;
 	}
 
 	public static class LoginMachineDetails

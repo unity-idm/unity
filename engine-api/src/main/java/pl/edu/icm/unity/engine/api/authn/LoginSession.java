@@ -48,7 +48,8 @@ public class LoginSession
 	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
 	private String remoteIdP;
 	private RememberMeInfo rememberMeInfo;
-	private String authnOptionId;
+	private String firstFactorOptionId;
+	private String secondFactorOptionId;
 	
 	private Map<String, String> sessionData = new HashMap<String, String>();
 
@@ -65,7 +66,9 @@ public class LoginSession
 	 * @param entityId
 	 * @param realm
 	 */
-	public LoginSession(String id, Date started, Date expires, long maxInactivity, long entityId, String realm, RememberMeInfo rememberMeInfo,  String authnOptionId)
+	public LoginSession(String id, Date started, Date expires, long maxInactivity,
+			long entityId, String realm, RememberMeInfo rememberMeInfo,
+			String firstFactorOptionId, String secondFactorOptionId)
 	{
 		this.id = id;
 		this.started = started;
@@ -75,7 +78,8 @@ public class LoginSession
 		this.expires = expires;
 		this.maxInactivity = maxInactivity;
 		this.rememberMeInfo = rememberMeInfo;
-		this.setAuthnOptionId(authnOptionId);
+		this.firstFactorOptionId = firstFactorOptionId;
+		this.secondFactorOptionId = secondFactorOptionId;
 	}
 
 	/**
@@ -86,9 +90,11 @@ public class LoginSession
 	 * @param entityId
 	 * @param realm
 	 */
-	public LoginSession(String id, Date started, long maxInactivity, long entityId, String realm, RememberMeInfo rememberMeInfo,  String authnOptionId)
+	public LoginSession(String id, Date started, long maxInactivity, long entityId,
+			String realm, RememberMeInfo rememberMeInfo, String firstFactorOptionId,
+			String secondFactorOptionId)
 	{
-		this(id, started, null, maxInactivity, entityId, realm, rememberMeInfo, authnOptionId);
+		this(id, started, null, maxInactivity, entityId, realm, rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
 	}
 
 	
@@ -216,15 +222,26 @@ public class LoginSession
 		this.rememberMeInfo = rememberMeInfo;
 	}
 
-	public String getAuthnOptionId()
+	public String getFirstFactorOptionId()
 	{
-		return authnOptionId;
+		return firstFactorOptionId;
 	}
 
-	public void setAuthnOptionId(String authnOptionId)
+	public void setFirstFactorOptionId(String firstFactorOptionId)
 	{
-		this.authnOptionId = authnOptionId;
+		this.firstFactorOptionId = firstFactorOptionId;
 	}
+	
+	public String getSecondFactorOptionId()
+	{
+		return secondFactorOptionId;
+	}
+
+	public void setSecondFactorOptionId(String secondFactorOptionId)
+	{
+		this.secondFactorOptionId = secondFactorOptionId;
+	}
+
 	
 	public void deserialize(Token token)
 	{
@@ -257,8 +274,12 @@ public class LoginSession
 		if (main.has("remoteIdP"))
 			setRemoteIdP(main.get("remoteIdP").asText());
 		
-		if (main.has("authnOptionId")) {
-			setAuthnOptionId(main.get("authnOptionId").asText());
+		if (main.has("firstFactorOptionId")) {
+			setFirstFactorOptionId(main.get("firstFactorOptionId").asText());
+		}
+		
+		if (main.has("secondFactorOptionId")) {
+			setSecondFactorOptionId(main.get("secondFactorOptionId").asText());
 		}
 		
 		if (main.has("rememberMeInfo"))
@@ -321,8 +342,11 @@ public class LoginSession
 		for (Map.Entry<String, String> a: getSessionData().entrySet())
 			attrsJson.put(a.getKey(), a.getValue());
 
-		if (authnOptionId != null)
-			main.put("authnOptionId", authnOptionId);
+		if (firstFactorOptionId != null)
+			main.put("firstFactorOptionId", firstFactorOptionId);
+		
+		if (secondFactorOptionId != null)
+			main.put("secondFactorOptionId", secondFactorOptionId);
 		
 		if (rememberMeInfo != null)
 			main.put("rememberMeInfo", JsonUtil.toJsonString(rememberMeInfo));
@@ -341,8 +365,6 @@ public class LoginSession
 	{
 		return id + "@" + realm + " of entity " + entityId;
 	}
-
-	
 
 	public static class RememberMeInfo
 	{

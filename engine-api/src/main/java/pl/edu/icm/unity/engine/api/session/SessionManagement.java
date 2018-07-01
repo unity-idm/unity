@@ -33,7 +33,23 @@ public interface SessionManagement
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
 			String label, String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
-			String auhtnOptionId, boolean forceCreate);
+			String firstFactorOptionId, String secondFactorOptionId);
+	
+	
+	/**
+	 * Creates new session
+	 * @param loggedEntity
+	 * @param realm
+	 * @param label used only when a new session is created
+	 * @param outdatedCredential used only if a new session is created
+	 * @param absoluteExpiration can be null or absolute expiration time (then session is not closed after 
+	 * @param rememberMeInfo information about remember me steps
+	 * inactive timeout).
+	 * @return
+	 */
+	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm, 
+			String label, String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
+			String firstFactorOptionId, String secondFactorOptionId);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.

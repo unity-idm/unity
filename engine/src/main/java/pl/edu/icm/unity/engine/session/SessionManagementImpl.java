@@ -84,53 +84,44 @@ public class SessionManagementImpl implements SessionManagement
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
 				String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
-				String auhtnOptionId, boolean forceCreate)
+				String firstFactorOptionId, String secondFactorOptionId)
 	{
 		try
 		{
-			
-			if (!forceCreate)
-			{
-				try
-				{
-					LoginSession ret = getOwnedSessionInternal(
-							new EntityParam(loggedEntity),
-							realm.getName());
-					if (ret != null)
-					{
-						ret.setLastUsed(new Date());
-						ret.setRememberMeInfo(rememberMeInfo);
-						ret.setOutdatedCredentialId(outdatedCredentialId);
-						byte[] contents = ret.getTokenContents();
-						tokensManagement.updateToken(SESSION_TOKEN_TYPE,
-								ret.getId(), null, contents);
 
-						if (log.isDebugEnabled())
-							log.debug("Using existing session "
-									+ ret.getId()
-									+ " for logged entity "
-									+ ret.getEntityId()
-									+ " in realm "
-									+ realm.getName());
-						return ret;
-					}
-				} catch (EngineException e)
+			try
+			{
+				LoginSession ret = getOwnedSessionInternal(
+						new EntityParam(loggedEntity), realm.getName());
+				if (ret != null)
 				{
-					throw new InternalException(
-							"Can't retrieve current sessions of the "
-									+ "authenticated user",
-							e);
+					ret.setLastUsed(new Date());
+					ret.setRememberMeInfo(rememberMeInfo);
+					ret.setOutdatedCredentialId(outdatedCredentialId);
+					ret.setFirstFactorOptionId(firstFactorOptionId);
+					ret.setSecondFactorOptionId(secondFactorOptionId);
+					byte[] contents = ret.getTokenContents();
+					tokensManagement.updateToken(SESSION_TOKEN_TYPE,
+							ret.getId(), null, contents);
+
+					if (log.isDebugEnabled())
+						log.debug("Using existing session " + ret.getId()
+								+ " for logged entity "
+								+ ret.getEntityId() + " in realm "
+								+ realm.getName());
+					return ret;
 				}
+			} catch (EngineException e)
+			{
+				throw new InternalException(
+						"Can't retrieve current sessions of the "
+								+ "authenticated user",
+						e);
 			}
-			
-			
-			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
-					absoluteExpiration, rememberMeInfo, auhtnOptionId);
-			if (log.isDebugEnabled())
-				log.debug("Created a new session " + ret.getId() + " for logged entity "
-					+ ret.getEntityId() + " in realm " + realm.getName());
-			return ret;
-			
+
+			return createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
+					absoluteExpiration, rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
+
 		} finally
 		{
 			clearScheduledRemovalStatus(loggedEntity);
@@ -155,14 +146,18 @@ public class SessionManagementImpl implements SessionManagement
 		entityDAO.updateByKey(entityId, info);
 	}
 	
-	private LoginSession createSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-				String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo, String auhtnOptionId)
+	@Override
+	@Transactional
+	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
+			String entityLabel, String outdatedCredentialId, Date absoluteExpiration,
+			RememberMeInfo rememberMeInfo, String firstFactorOptionId,
+			String secondFactorOptionId)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
 		LoginSession ls = new LoginSession(id, new Date(), absoluteExpiration,
 				realm.getMaxInactivity()*1000, loggedEntity, 
-				realm.getName(), rememberMeInfo, auhtnOptionId);
+				realm.getName(), rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
 		ls.setOutdatedCredentialId(outdatedCredentialId);
 		ls.setEntityLabel(entityLabel);
 		try
@@ -174,6 +169,9 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can't create a new session", e);
 		}
+		if (log.isDebugEnabled())
+			log.debug("Created a new session " + ls.getId() + " for logged entity "
+				+ ls.getEntityId() + " in realm " + realm.getName());
 		return ls;
 	}
 

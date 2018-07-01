@@ -28,7 +28,7 @@ public class TestTransientIdentity
 		InvocationContext ctx = new InvocationContext(null, null);
 		InvocationContext.setCurrent(ctx);
 		LoginSession ls = new LoginSession("1", new Date(), new Date(System.currentTimeMillis()+1000), 
-				50, 1, "r1", null, null);
+				50, 1, "r1", null, null, null);
 		ctx.setLoginSession(ls);
 		
 		Identity generated = tested.createNewIdentity("r1", "t1", 123l);
@@ -49,7 +49,7 @@ public class TestTransientIdentity
 		InvocationContext ctx = new InvocationContext(null, null);
 		InvocationContext.setCurrent(ctx);
 		LoginSession ls = new LoginSession("SESS_ID", new Date(), new Date(System.currentTimeMillis()+1000), 
-				50, 1, "r1", null, null);
+				50, 1, "r1", null, null, null);
 		ctx.setLoginSession(ls);
 		
 		Identity generated = tested.createNewIdentity("r1", "t1", 123l);

@@ -28,11 +28,11 @@ public interface WebAuthenticationProcessor
 	 * @throws AuthenticationException
 	 */
 	Optional<PartialAuthnState> processPrimaryAuthnResult(AuthenticationResult result, String clientIp,
-			AuthenticationRealm realm, AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId)
+			AuthenticationRealm realm, AuthenticationFlow authenticationFlow, boolean rememberMe, String firstFactorAuthnOptionId)
 			throws AuthenticationException;
 
 	void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp,
-			AuthenticationRealm realm, AuthenticationFlow authenticationFlow, boolean rememberMe)
+			AuthenticationRealm realm, AuthenticationFlow authenticationFlow, boolean rememberMe, String secondFactorAuthnOptionId)
 			throws AuthenticationException;
 
 	void logout();

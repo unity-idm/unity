@@ -351,10 +351,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				.setDescription("Defines after what time of inactivity the login session is terminated (in seconds). "
 						+ "Note: the HTTP sessions (if applicable for endpoint) will be couple of seconds "
 						+ "shorter to allow for login session expiration warning."));
-		defaults.put(REALM_REMEMBER_ME_POLICY, new PropertyMD(RememberMePolicy.disallow)
-				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
-				.setDescription("(web endpoints only) Defines how to remeberinging the user's login "
-						+ "even after session is lost due to expiration or browser closing"));
+		defaults.put(REALM_REMEMBER_ME_POLICY,
+				new PropertyMD(RememberMePolicy.allowFor2ndFactor)
+						.setStructuredListEntry(REALMS)
+						.setCategory(initRealmCat)
+						.setDescription("(web endpoints only) Defines a policy on whether and how to expose a 'remember me on this device' authentication option."));
 		defaults.put(REALM_REMEMBER_ME_FOR, new PropertyMD("14").setPositive()
 				.setStructuredListEntry(REALMS).setCategory(initRealmCat)
 				.setDescription("(web endpoints only) Defines the period of time (in days) to remember the login."

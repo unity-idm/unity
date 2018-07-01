@@ -17,7 +17,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -27,16 +26,14 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.shared.ApplicationConstants;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.webui.CookieHelper;
-import pl.edu.icm.unity.webui.authn.RememberMeHelper.RememberMeCookie;
+import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
  * Servlet filter forwarding unauthenticated requests to the protected authentication servlet.
@@ -52,12 +49,12 @@ public class AuthenticationFilter implements Filter
 	private UnsuccessfulAuthenticationCounter dosGauard;
 	private SessionManagement sessionMan;
 	private LoginToHttpSessionBinder sessionBinder;
-	private RememberMeHelper rememberMeHelper;
+	private RememberMeProcessor rememberMeHelper;
 	private AuthenticationRealm realm;
 	
 	public AuthenticationFilter(List<String> protectedServletPaths, String authnServletPath, 
 			AuthenticationRealm realm,
-			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeHelper rememberMeHelper)
+			SessionManagement sessionMan, LoginToHttpSessionBinder sessionBinder, RememberMeProcessor rememberMeHelper)
 	{
 		this.protectedServletPaths = new ArrayList<>(protectedServletPaths);
 		this.authnServletPath = authnServletPath;
@@ -69,61 +66,88 @@ public class AuthenticationFilter implements Filter
 		this.rememberMeHelper = rememberMeHelper;
 		this.realm = realm;
 	}
-
-	@Override
+	
+	
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException
 	{
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
+		String clientIp = request.getRemoteAddr();
+	
+		try 
+		{
+			handleNotProtectedResource(httpRequest, httpResponse, chain);
+			handleBindedSession(httpRequest, httpResponse, chain, clientIp);
+			handleBlockedIP(httpResponse, clientIp);
+			handleSessionFromCookie(httpRequest, httpResponse, chain, clientIp);
+			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
 		
-		String servletPath = httpRequest.getServletPath();
+		} catch (EopException e)
+		{
+			return;
+	
+		} 
 		
+		//it should not happen, for safety only  
+		forwardtoAuthn(httpRequest, httpResponse);
+	}
+
+	private void handleNotProtectedResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain) throws IOException, ServletException, EopException
+	{
+		String servletPath = httpRequest.getServletPath();	
 		if (!HiddenResourcesFilter.hasPathPrefix(servletPath, protectedServletPaths))
 		{
 			gotoNotProtectedResource(httpRequest, response, chain);
-			return;
+			throw new EopException();
 		}
-		
+	}
+	
+	private void handleBindedSession(HttpServletRequest httpRequest, ServletResponse response,
+			FilterChain chain, String clientIp) throws IOException, ServletException, EopException
+	{
+		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		HttpSession httpSession = httpRequest.getSession(false);
-		String loginSessionId;
 		
-		String clientIp = request.getRemoteAddr();
+		if (httpSession == null)
+			return;
+
+		LoginSession loginSession = (LoginSession) httpSession
+				.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
+		if (loginSession == null)
+			return;
 		
-		if (httpSession != null)
+		dosGauard.successfulAttempt(clientIp);
+		if (!loginSession.isUsedOutdatedCredential())
 		{
-			LoginSession loginSession = (LoginSession) httpSession.getAttribute(
-					LoginToHttpSessionBinder.USER_SESSION_KEY);
-			if (loginSession != null)
+			String loginSessionId = loginSession.getId();
+			try
 			{
-				dosGauard.successfulAttempt(clientIp);
-				if (!loginSession.isUsedOutdatedCredential())
+				if (!HiddenResourcesFilter.hasPathPrefix(httpRequest.getPathInfo(),
+						ApplicationConstants.HEARTBEAT_PATH + '/'))
 				{
-					loginSessionId = loginSession.getId();
-					try
-					{
-						if (!HiddenResourcesFilter.hasPathPrefix(httpRequest.getPathInfo(), 
-								ApplicationConstants.HEARTBEAT_PATH + '/'))
-						{
-							log.trace("Update session activity for " + loginSessionId);
-							sessionMan.updateSessionActivity(loginSessionId);
-						}
-						gotoProtectedResource(httpRequest, response, chain);
-						return;
-					} catch (IllegalArgumentException e)
-					{
-						log.debug("Can't update session activity ts for " + loginSessionId + 
-							" - expired(?), HTTP session " + httpSession.getId(), e);
-					}
-				} else
-				{
-					log.trace("Outdated credential used - redirect to authN");
-					forwardtoAuthn(httpRequest, httpResponse);
-					return;
+					log.trace("Update session activity for " + loginSessionId);
+					sessionMan.updateSessionActivity(loginSessionId);
 				}
+				gotoProtectedResource(httpRequest, response, chain);
+				throw new EopException();
+			} catch (IllegalArgumentException e)
+			{
+				log.debug("Can't update session activity ts for " + loginSessionId
+						+ " - expired(?), HTTP session "
+						+ httpSession.getId(), e);
+				return;
 			}
+		} else
+		{
+			log.trace("Outdated credential used - redirect to authN");
+			forwardtoAuthn(httpRequest, httpResponse);
+			throw new EopException();
 		}
-		
+	}
+	
+	private void handleBlockedIP(HttpServletResponse httpResponse, String clientIp) throws IOException, EopException
+	{
 		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp); 
 		if (blockedTime > 0)
 		{
@@ -131,89 +155,56 @@ public class AuthenticationFilter implements Filter
 			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access is blocked for " + 
 					TimeUnit.MILLISECONDS.toSeconds(blockedTime) + 
 					"s more, due to sending too many invalid session cookies.");
-			return;
+			throw new EopException();
 		}
-		
-		loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookie);
+	}
+	
+	private void handleSessionFromCookie(HttpServletRequest httpRequest,
+			HttpServletResponse httpResponse, FilterChain chain, String clientIp)
+			throws IOException, ServletException, EopException
+	{
+		String loginSessionId = CookieHelper.getCookie(httpRequest, sessionCookie);
 		if (loginSessionId == null)
 		{
-			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
 			return;
 		}
-		
-		LoginSession ls;
+
 		try
 		{
-			ls = sessionMan.getSession(loginSessionId);
+			LoginSession ls = sessionMan.getSession(loginSessionId);
+			bindSessionAndGotoProtectedResource(httpRequest, httpResponse, chain, ls,
+					clientIp);
+			throw new EopException();
+
 		} catch (IllegalArgumentException e)
 		{
-			log.trace("Got request with invalid login session id " + loginSessionId + " to " +
-					httpRequest.getRequestURI() );
+			log.trace("Got request with invalid login session id " + loginSessionId
+					+ " to " + httpRequest.getRequestURI());
 			dosGauard.unsuccessfulAttempt(clientIp);
 			clearSessionCookie(httpResponse);
-			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
 			return;
 		}
-		dosGauard.successfulAttempt(clientIp);
-		if (httpSession == null)
-			httpSession = httpRequest.getSession(true);
-
-		sessionBinder.bindHttpSession(httpSession, ls);
-		
-		gotoProtectedResource(httpRequest, response, chain);
-		
-
-
 	}
-
+	
 	private void handleRememberMe(HttpServletRequest httpRequest, ServletResponse response,
-			FilterChain chain, String clientIp) throws IOException, ServletException
+			FilterChain chain, String clientIp)
+			throws IOException, ServletException, EopException
 	{
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		Optional<LoginSession> loginSessionFromRememberMe = Optional.empty();
-		Optional<RememberMeCookie> rememberMeCookie = Optional.empty();
-		if (realm.getRememberMePolicy().equals(RememberMePolicy.allowForWholeAuthn))
-		{
-
-			try
-			{
-				rememberMeCookie = rememberMeHelper.getRememberMeUnityCookie(
-						httpRequest, realm.getName());
-				if (rememberMeCookie.isPresent())
-				{
-					loginSessionFromRememberMe = rememberMeHelper
-							.getLoginSessionFromRememberMeToken(
-									rememberMeCookie.get(),
-									realm);
-				}
-			} catch (AuthenticationException e)
-			{
-				dosGauard.unsuccessfulAttempt(clientIp);
-			}
-
-		} else
-		{
-			forwardtoAuthn(httpRequest, httpResponse);
-			return;
-		}
-
+		Optional<LoginSession> loginSessionFromRememberMe = rememberMeHelper
+				.processRememberedFirstFactor(httpRequest, httpResponse, clientIp,
+						realm, dosGauard);
 		if (!loginSessionFromRememberMe.isPresent())
 		{
-			if (rememberMeCookie.isPresent())
-				rememberMeHelper.clearRememberMeCookieAndUnityToken(realm.getName(),
-						httpRequest, httpResponse);
 			forwardtoAuthn(httpRequest, httpResponse);
-			return;
+			throw new EopException();
 		}
 
 		log.debug("Whole authn is remembered by entity "
 				+ loginSessionFromRememberMe.get().getEntityId() + ", skipping it");
-		rememberMeHelper.updateRememberMeCookieAndUnityToken(rememberMeCookie.get(), realm,
-				httpResponse);
-		dosGauard.successfulAttempt(clientIp);
-		sessionBinder.bindHttpSession(httpRequest.getSession(true),
-				loginSessionFromRememberMe.get());
-		gotoProtectedResource(httpRequest, response, chain);
+		bindSessionAndGotoProtectedResource(httpRequest, httpResponse, chain,
+				loginSessionFromRememberMe.get(), clientIp);
+		throw new EopException();
 	}
 	
 	private void forwardtoAuthn(HttpServletRequest httpRequest, HttpServletResponse response) throws IOException, ServletException
@@ -232,6 +223,15 @@ public class AuthenticationFilter implements Filter
 		dispatcher.forward(httpRequest, response);
 	}
 
+	private void bindSessionAndGotoProtectedResource(HttpServletRequest httpRequest,
+			ServletResponse response, FilterChain chain, LoginSession loginSession,
+			String clientIp) throws IOException, ServletException
+	{
+		dosGauard.successfulAttempt(clientIp);
+		sessionBinder.bindHttpSession(httpRequest.getSession(true), loginSession);
+		gotoProtectedResource(httpRequest, response, chain);
+	}
+	
 	private void gotoProtectedResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain)
 			throws IOException, ServletException
 	{
@@ -251,12 +251,7 @@ public class AuthenticationFilter implements Filter
 	
 	private void clearSessionCookie(HttpServletResponse response)
 	{
-		Cookie unitySessionCookie = new Cookie(sessionCookie, "");
-		unitySessionCookie.setPath("/");
-		unitySessionCookie.setSecure(true);
-		unitySessionCookie.setMaxAge(0);
-		unitySessionCookie.setHttpOnly(true);
-		response.addCookie(unitySessionCookie);
+		response.addCookie(CookieHelper.setupHttpCookie(sessionCookie, "", 0));
 	}
 	
 	@Override

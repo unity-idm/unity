@@ -37,4 +37,14 @@ public class CookieHelper
 				return cookie.getValue();
 		return null;
 	}
+	
+	public static Cookie setupHttpCookie(String cookieName, String cookieValue, int maxAge)
+	{
+		Cookie httpCookie = new Cookie(cookieName, cookieValue);
+		httpCookie.setPath("/");
+		httpCookie.setSecure(true);
+		httpCookie.setHttpOnly(true);
+		httpCookie.setMaxAge(maxAge);
+		return httpCookie;
+	}
 }

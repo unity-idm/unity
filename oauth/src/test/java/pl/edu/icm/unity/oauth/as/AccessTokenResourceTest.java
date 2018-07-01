@@ -224,7 +224,7 @@ public class AccessTokenResourceTest
 	{
 		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, RememberMePolicy.disallow ,1, 1000);
 		InvocationContext virtualAdmin = new InvocationContext(null, realm);
-		LoginSession loginSession = new LoginSession("sid", new Date(), 1000, entityId, "foo", null, null);
+		LoginSession loginSession = new LoginSession("sid", new Date(), 1000, entityId, "foo", null, null, null);
 		virtualAdmin.setLoginSession(loginSession);
 		virtualAdmin.setLocale(Locale.ENGLISH);
 		InvocationContext.setCurrent(virtualAdmin);

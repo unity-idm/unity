@@ -51,7 +51,7 @@ import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationUI;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
-import pl.edu.icm.unity.webui.authn.RememberMeHelper;
+import pl.edu.icm.unity.webui.authn.RememberMeProcessor;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 
 /**
@@ -126,7 +126,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
 		UnityServerConfiguration config = applicationContext.getBean(UnityServerConfiguration.class);
-		RememberMeHelper remeberMeHelper = applicationContext.getBean(RememberMeHelper.class);
+		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
 		
 		ServletHolder routingServletHolder = createServletHolder(
 				new RoutingServlet(OAUTH_CONSENT_DECIDER_SERVLET_PATH), true);
@@ -148,7 +148,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		authnFilter = new AuthenticationFilter(
 				Collections.singletonList(OAUTH_ROUTING_SERVLET_PATH), 
-				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeHelper);
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		

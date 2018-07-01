@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -53,6 +54,7 @@ public class CredentialsPanel extends VerticalLayout
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
 	private AuthenticationFlowManagement flowMan;	
+	private TokensManagement tokenMan;
 	private UnityMessageSource msg;
 	private Entity entity;
 	private final long entityId;
@@ -61,9 +63,7 @@ public class CredentialsPanel extends VerticalLayout
 	private Map<String, CredentialDefinition> credentials;
 	private List<SingleCredentialPanel> panels;
 	private CheckBox userOptInCheckBox;
-	
-	private TrustedDevicesComponent trustedDevicesComponent;
-	
+
 	
 	/**
 	 * 
@@ -91,48 +91,14 @@ public class CredentialsPanel extends VerticalLayout
 		this.credEditorReg = credEditorReg;
 		this.simpleMode = simpleMode;
 		this.flowMan = flowMan;
-		this.trustedDevicesComponent = new  TrustedDevicesComponent(tokenMan, msg, entityId);
-		trustedDevicesComponent.setVisible(false);
+		this.tokenMan = tokenMan;
 		init();
 	}
 	
 	
 	private void init() throws Exception
 	{
-	
-		VerticalLayout trustedDevicesWrapper = new VerticalLayout();
-		trustedDevicesWrapper.setMargin(true);
-		trustedDevicesWrapper.setSpacing(false);
-		
-		Button removeTrustedMachines = new Button(msg.getMessage("CredentialChangeDialog.removeTrustedDevices"));
-		removeTrustedMachines.addClickListener(e -> trustedDevicesComponent.removeAll());
-		removeTrustedMachines.setIcon(Images.remove.getResource());
-		
-		Button showHideTrustedMachines = new Button();
-		showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.showTrustedDevices"));
-		showHideTrustedMachines.addClickListener(e -> {
-			if (trustedDevicesComponent.isVisible())
-			{
-				trustedDevicesComponent.setVisible(false);
-				showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.showTrustedDevices"));
-				showHideTrustedMachines.setIcon(Images.downArrow.getResource());
-			}else
-			{
-				trustedDevicesComponent.setVisible(true);
-				showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.hideTrustedDevices"));
-				showHideTrustedMachines.setIcon(Images.upArrow.getResource());
-			}
-		});
-		showHideTrustedMachines.setIcon(Images.downArrow.getResource());
-		showHideTrustedMachines.setStyleName(Styles.vButtonLink.toString());
-		showHideTrustedMachines.addStyleName(Styles.vButtonBorderless.toString());
-		
-		HorizontalLayout trustedDeviceToolbar = new HorizontalLayout();
-		trustedDeviceToolbar.addComponents(removeTrustedMachines, showHideTrustedMachines);
-		trustedDevicesWrapper.addComponents(trustedDeviceToolbar, trustedDevicesComponent);
-		addComponent(trustedDevicesWrapper);
-		
-		
+		addComponent(getTrustedDevicesComponent());
 		addComponent(HtmlTag.horizontalLine());
 		
 		userOptInCheckBox = new CheckBox(msg.getMessage("CredentialChangeDialog.userMFAOptin"));
@@ -184,6 +150,44 @@ public class CredentialsPanel extends VerticalLayout
 		setSizeFull();
 	}
 
+	
+	private Component getTrustedDevicesComponent()
+	{	
+		TrustedDevicesComponent trustedDevicesComponent = new  TrustedDevicesComponent(tokenMan, msg, entityId);
+		trustedDevicesComponent.setVisible(false);		
+		VerticalLayout trustedDevicesWrapper = new VerticalLayout();
+		trustedDevicesWrapper.setMargin(true);
+		trustedDevicesWrapper.setSpacing(false);
+		
+		Button removeTrustedMachines = new Button(msg.getMessage("CredentialChangeDialog.removeTrustedDevices"));
+		removeTrustedMachines.addClickListener(e -> trustedDevicesComponent.removeAll());
+		removeTrustedMachines.setIcon(Images.remove.getResource());
+		
+		Button showHideTrustedMachines = new Button();
+		showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.showTrustedDevices"));
+		showHideTrustedMachines.addClickListener(e -> {
+			if (trustedDevicesComponent.isVisible())
+			{
+				trustedDevicesComponent.setVisible(false);
+				showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.showTrustedDevices"));
+				showHideTrustedMachines.setIcon(Images.downArrow.getResource());
+			}else
+			{
+				trustedDevicesComponent.setVisible(true);
+				showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.hideTrustedDevices"));
+				showHideTrustedMachines.setIcon(Images.upArrow.getResource());
+			}
+		});
+		showHideTrustedMachines.setIcon(Images.downArrow.getResource());
+		showHideTrustedMachines.setStyleName(Styles.vButtonLink.toString());
+		showHideTrustedMachines.addStyleName(Styles.vButtonBorderless.toString());
+		
+		HorizontalLayout trustedDeviceToolbar = new HorizontalLayout();
+		trustedDeviceToolbar.addComponents(removeTrustedMachines, showHideTrustedMachines);
+		trustedDevicesWrapper.addComponents(trustedDeviceToolbar, trustedDevicesComponent);
+		return trustedDevicesWrapper;
+	}
+	
 	private void updateUserOptInCheckbox()
 	{
 		int setCredentialSize = 0;

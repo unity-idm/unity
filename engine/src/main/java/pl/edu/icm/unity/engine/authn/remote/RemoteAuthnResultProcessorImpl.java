@@ -126,7 +126,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 						+ "was mapped to a disabled account");
 			
 			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(resolved, 
-					remoteContext.getMappingResult().getAuthenticatedWith(), null, false);
+					remoteContext.getMappingResult().getAuthenticatedWith(), null);
 			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
 			return new AuthenticationResult(Status.success, remoteContext, authenticatedEntity);
 		} catch (IllegalIdentityValueException ie)

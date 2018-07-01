@@ -77,14 +77,12 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	
 	private AuthenticationOptionsHandler authnOptionsHandler;
 	private FirstFactorAuthNPanel authNPanelInProgress;
-	private Component rememberMeComponent;
 	private CheckBox rememberMe;
 	private RemoteAuthenticationProgress authNProgress;
 	private AuthnOptionsColumns authNColumns;
 	private VerticalLayout secondFactorHolder;
+	private Component rememberMeComponent;
 	private SandboxAuthnResultCallback sandboxCallback;
-	
-
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -191,9 +189,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			authenticationMainLayout.setComponentAlignment(title, Alignment.TOP_CENTER);
 		}
 		
-		AuthenticationRealm realm = endpointDescription.getRealm();	
-		rememberMeComponent = getRememberMeComponent(realm);		
-		
 		authNColumns = new AuthnOptionsColumns(config, msg, 
 				authnOptionsHandler, enableRegistration, new AuthnPanelFactoryImpl(), 
 				registrationDialogLauncher);
@@ -207,8 +202,10 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		authenticationMainLayout.setComponentAlignment(secondFactorHolder, Alignment.TOP_CENTER);
 		secondFactorHolder.setVisible(false);
 		
-		
-		
+		AuthenticationRealm realm = endpointDescription.getRealm();
+		rememberMeComponent = getRememberMeComponent(realm);
+		rememberMeComponent.setVisible(
+				getRememberMePolicy().equals(RememberMePolicy.allowForWholeAuthn));
 		authenticationMainLayout.addComponent(rememberMeComponent);
 		
 		if (cancelHandler != null && config.getBooleanValue(AUTHN_SHOW_CANCEL))
@@ -288,14 +285,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				optionId, endpointDescription.getEndpoint().getContextAddress(), 
 				authNPanel);
 		authnOption.authenticatorUI.setAuthenticationCallback(controller);
-		AuthenticationRealm realm = endpointDescription.getRealm();
-		if (realm.getRememberMePolicy().equals(RememberMePolicy.allowForWholeAuthn))
-		{
-			rememberMeComponent.setVisible(true);
-		} else
-		{
-			rememberMeComponent.setVisible(false);
-		}
 		
 		return authNPanel;
 	}
@@ -314,17 +303,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				endpointDescription.getRealm(), listener, this::isSetRememberMe, 
 				partialAuthnState, authNPanel);
 		secondaryUI.setAuthenticationCallback(controller);
-		AuthenticationRealm realm = endpointDescription.getRealm();
-		if (realm.getRememberMePolicy().equals(RememberMePolicy.allowFor2ndFactor))
-		{
-			rememberMeComponent.setVisible(true);
-		} else
-		{
-			rememberMeComponent.setVisible(false);
-		}
-		
-		
-		
 		return authNPanel;
 	}
 
@@ -386,6 +364,16 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		wrapping2ndFColumn.setWidthUndefined();
 		secondFactorHolder.setComponentAlignment(wrapping2ndFColumn, Alignment.TOP_CENTER);
 		secondFactorHolder.setVisible(true);
+		rememberMeComponent.setVisible(
+				getRememberMePolicy().equals(RememberMePolicy.allowFor2ndFactor));
+		
+		
+	}
+	
+	private RememberMePolicy getRememberMePolicy()
+	{
+		AuthenticationRealm realm = endpointDescription.getRealm();
+		return realm.getRememberMePolicy();
 	}
 	
 	private void switchBackToPrimaryAuthentication()
@@ -395,6 +383,9 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		authNColumns.focusFirst();
 		secondFactorHolder.removeAllComponents();
 		secondFactorHolder.setVisible(false);
+		rememberMeComponent.setVisible(
+				getRememberMePolicy().equals(RememberMePolicy.allowForWholeAuthn));
+		
 	}
 	
 	private class AuthnPanelFactoryImpl implements AuthNPanelFactory

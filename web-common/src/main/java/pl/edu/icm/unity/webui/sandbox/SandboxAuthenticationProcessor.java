@@ -72,7 +72,7 @@ class SandboxAuthenticationProcessor implements WebAuthenticationProcessor
 	@Override
 	public void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp, 
 			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe) throws AuthenticationException
+			AuthenticationFlow authenticationFlow, boolean rememberMe, String authnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = StandardWebAuthenticationProcessor.getLoginCounter();
 		AuthenticatedEntity logInfo;

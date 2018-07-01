@@ -18,25 +18,22 @@ import java.util.Set;
 public class AuthenticatedEntity
 {
 	private Long entityId;
-	private String credentialId;
-	private boolean isOutdatedCredential;
+	private String outdatedCredentialId;
 	private List<String> authenticatedWith;
 	private String remoteIdP;
 
-	public AuthenticatedEntity(Long entityId, String info, String credentialId, boolean isOutdatedCredential)
+	public AuthenticatedEntity(Long entityId, String info, String outdatedCredentialId)
 	{
-		this(entityId, new HashSet<>(), credentialId, isOutdatedCredential);
+		this(entityId, new HashSet<>(), outdatedCredentialId);
 		authenticatedWith.add(info);
-		
 	}
 
-	public AuthenticatedEntity(Long entityId, Set<String> info, String credentialId, boolean isOutdatedCredential)
+	public AuthenticatedEntity(Long entityId, Set<String> info, String outdatedCredentialId)
 	{
 		this.entityId = entityId;
 		this.authenticatedWith = new ArrayList<String>(4);
 		authenticatedWith.addAll(info);
-		this.credentialId = credentialId;
-		this.isOutdatedCredential = isOutdatedCredential;
+		this.setOutdatedCredentialId(outdatedCredentialId);
 	}
 	
 	/**
@@ -71,20 +68,14 @@ public class AuthenticatedEntity
 	{
 		this.authenticatedWith = authenticatedWith;
 	}
-	
-	public String getCredentialId()
-	{
-		return credentialId;
-	}
 
-	public void setCredentialId(String credentialId)
-	{
-		this.credentialId = credentialId;
-	}
-
-	
 	public String getOutdatedCredentialId()
 	{
-		return isOutdatedCredential ? credentialId : null;
-	}	
+		return outdatedCredentialId;
+	}
+
+	public void setOutdatedCredentialId(String outdatedCredentialId)
+	{
+		this.outdatedCredentialId = outdatedCredentialId;
+	}
 }
