@@ -93,22 +93,25 @@ public class AuthenticationFilter implements Filter
 		forwardtoAuthn(httpRequest, httpResponse);
 	}
 
-	private void handleNotProtectedResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain) throws IOException, ServletException, EopException
+	private void handleNotProtectedResource(HttpServletRequest httpRequest,
+			ServletResponse response, FilterChain chain)
+			throws IOException, ServletException, EopException
 	{
-		String servletPath = httpRequest.getServletPath();	
+		String servletPath = httpRequest.getServletPath();
 		if (!HiddenResourcesFilter.hasPathPrefix(servletPath, protectedServletPaths))
 		{
 			gotoNotProtectedResource(httpRequest, response, chain);
 			throw new EopException();
 		}
 	}
-	
+
 	private void handleBindedSession(HttpServletRequest httpRequest, ServletResponse response,
-			FilterChain chain, String clientIp) throws IOException, ServletException, EopException
+			FilterChain chain, String clientIp)
+			throws IOException, ServletException, EopException
 	{
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		HttpSession httpSession = httpRequest.getSession(false);
-		
+
 		if (httpSession == null)
 			return;
 
@@ -116,7 +119,7 @@ public class AuthenticationFilter implements Filter
 				.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		if (loginSession == null)
 			return;
-		
+
 		dosGauard.successfulAttempt(clientIp);
 		if (!loginSession.isUsedOutdatedCredential())
 		{
@@ -145,20 +148,24 @@ public class AuthenticationFilter implements Filter
 			throw new EopException();
 		}
 	}
-	
-	private void handleBlockedIP(HttpServletResponse httpResponse, String clientIp) throws IOException, EopException
+
+	private void handleBlockedIP(HttpServletResponse httpResponse, String clientIp)
+			throws IOException, EopException
 	{
-		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp); 
+		long blockedTime = dosGauard.getRemainingBlockedTime(clientIp);
 		if (blockedTime > 0)
 		{
-			log.debug("Blocked potential DoS/brute force authN attack from " + clientIp);
-			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN, "Access is blocked for " + 
-					TimeUnit.MILLISECONDS.toSeconds(blockedTime) + 
-					"s more, due to sending too many invalid session cookies.");
+			log.debug("Blocked potential DoS/brute force authN attack from "
+					+ clientIp);
+			httpResponse.sendError(HttpServletResponse.SC_FORBIDDEN,
+					"Access is blocked for "
+							+ TimeUnit.MILLISECONDS
+									.toSeconds(blockedTime)
+							+ "s more, due to sending too many invalid session cookies.");
 			throw new EopException();
 		}
 	}
-	
+
 	private void handleSessionFromCookie(HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse, FilterChain chain, String clientIp)
 			throws IOException, ServletException, EopException
@@ -185,7 +192,7 @@ public class AuthenticationFilter implements Filter
 			return;
 		}
 	}
-	
+
 	private void handleRememberMe(HttpServletRequest httpRequest, ServletResponse response,
 			FilterChain chain, String clientIp)
 			throws IOException, ServletException, EopException
@@ -206,18 +213,20 @@ public class AuthenticationFilter implements Filter
 				loginSessionFromRememberMe.get(), clientIp);
 		throw new EopException();
 	}
-	
-	private void forwardtoAuthn(HttpServletRequest httpRequest, HttpServletResponse response) throws IOException, ServletException
+
+	private void forwardtoAuthn(HttpServletRequest httpRequest, HttpServletResponse response)
+			throws IOException, ServletException
 	{
 		String forwardURI = authnServletPath;
-		if (httpRequest.getPathInfo() != null) 
+		if (httpRequest.getPathInfo() != null)
 		{
 			forwardURI += httpRequest.getPathInfo();
 		}
-		if (log.isTraceEnabled()) 
+		if (log.isTraceEnabled())
 		{
-			log.trace("Request to protected address, forward: " + 
-					httpRequest.getRequestURI() + " -> " + httpRequest.getContextPath() + forwardURI);
+			log.trace("Request to protected address, forward: "
+					+ httpRequest.getRequestURI() + " -> "
+					+ httpRequest.getContextPath() + forwardURI);
 		}
 		RequestDispatcher dispatcher = httpRequest.getRequestDispatcher(forwardURI);
 		dispatcher.forward(httpRequest, response);
@@ -231,29 +240,31 @@ public class AuthenticationFilter implements Filter
 		sessionBinder.bindHttpSession(httpRequest.getSession(true), loginSession);
 		gotoProtectedResource(httpRequest, response, chain);
 	}
-	
-	private void gotoProtectedResource(HttpServletRequest httpRequest, ServletResponse response, FilterChain chain)
+
+	private void gotoProtectedResource(HttpServletRequest httpRequest, ServletResponse response,
+			FilterChain chain) throws IOException, ServletException
+	{
+		if (log.isTraceEnabled())
+			log.trace("Request to protected address, user is authenticated: "
+					+ httpRequest.getRequestURI());
+		chain.doFilter(httpRequest, response);
+	}
+
+	private void gotoNotProtectedResource(HttpServletRequest httpRequest,
+			ServletResponse response, FilterChain chain)
 			throws IOException, ServletException
 	{
 		if (log.isTraceEnabled())
-			log.trace("Request to protected address, user is authenticated: " + 
-					httpRequest.getRequestURI());
+			log.trace("Request to not protected address: "
+					+ httpRequest.getRequestURI());
 		chain.doFilter(httpRequest, response);
 	}
-	
-	private void gotoNotProtectedResource(HttpServletRequest httpRequest,
-			ServletResponse response, FilterChain chain) throws IOException, ServletException 
-	{
-		if (log.isTraceEnabled())
-			log.trace("Request to not protected address: " + httpRequest.getRequestURI());
-		chain.doFilter(httpRequest, response);
-	}
-	
+
 	private void clearSessionCookie(HttpServletResponse response)
 	{
 		response.addCookie(CookieHelper.setupHttpCookie(sessionCookie, "", 0));
 	}
-	
+
 	@Override
 	public void destroy()
 	{
@@ -263,7 +274,7 @@ public class AuthenticationFilter implements Filter
 	public void init(FilterConfig filterConfig) throws ServletException
 	{
 	}
-	
+
 	public void addProtectedPath(String path)
 	{
 		protectedServletPaths.add(path);

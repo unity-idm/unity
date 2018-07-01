@@ -160,59 +160,64 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 	
 	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
-			final AuthenticationRealm realm, String firstFactorAuhtnOptionId, String secondFactorAuhtnOptionId)
+			final AuthenticationRealm realm, String firstFactorAuhtnOptionId,
+			String secondFactorAuhtnOptionId)
 	{
-		
+
 		long entityId = authenticatedEntity.getEntityId();
 		String label = getLabel(entityId);
 		return sessionMan.getCreateSession(entityId, realm, label,
 				authenticatedEntity.getOutdatedCredentialId(), null,
-				new RememberMeInfo(false, false),
-				firstFactorAuhtnOptionId, secondFactorAuhtnOptionId);	
+				new RememberMeInfo(false, false), firstFactorAuhtnOptionId,
+				secondFactorAuhtnOptionId);
 	}
-	
+
 	@Override
-	public void processSecondaryAuthnResult(PartialAuthnState state, AuthenticationResult result2, String clientIp, 
-			AuthenticationRealm realm,
-			AuthenticationFlow authenticationFlow, boolean rememberMe, String secondFactorAuthnOptionId) throws AuthenticationException
+	public void processSecondaryAuthnResult(PartialAuthnState state,
+			AuthenticationResult result2, String clientIp, AuthenticationRealm realm,
+			AuthenticationFlow authenticationFlow, boolean rememberMe,
+			String secondFactorAuthnOptionId) throws AuthenticationException
 	{
 		UnsuccessfulAuthenticationCounter counter = getLoginCounter();
 		AuthenticatedEntity logInfo;
 		try
 		{
-			logInfo = authnProcessor.finalizeAfterSecondaryAuthentication(state, result2);
+			logInfo = authnProcessor.finalizeAfterSecondaryAuthentication(state,
+					result2);
 		} catch (AuthenticationException e)
 		{
 			if (!(e instanceof UnknownRemoteUserException))
 				counter.unsuccessfulAttempt(clientIp);
 			throw e;
 		}
-			
-		LoginSession loginSession = getLoginSessionForEntity(
-				logInfo,
-				realm, state.getFirstFactorOptionId(), secondFactorAuthnOptionId);
 
-		logged(logInfo, loginSession, realm, rememberMe, 
-				AuthenticationProcessor.extractParticipants(state.getPrimaryResult(), result2));
+		LoginSession loginSession = getLoginSessionForEntity(logInfo, realm,
+				state.getFirstFactorOptionId(), secondFactorAuthnOptionId);
+
+		logged(logInfo, loginSession, realm, rememberMe, AuthenticationProcessor
+				.extractParticipants(state.getPrimaryResult(), result2));
 
 		finalizeLogin(logInfo);
 	}
-	
+
 	private void finalizeLogin(AuthenticatedEntity logInfo) throws AuthenticationException
 	{
 		if (logInfo.getOutdatedCredentialId() != null)
 		{
-			//simply reload - we ensure that session reinit after login won't outdate session
-			//authN handler anyway won't let us in to the target endpoint with outdated credential
-			//and we will get outdated credential dialog from the AuthnUI
+			// simply reload - we ensure that session reinit after
+			// login won't outdate session
+			// authN handler anyway won't let us in to the target
+			// endpoint with outdated credential
+			// and we will get outdated credential dialog from the
+			// AuthnUI
 			UI ui = UI.getCurrent();
 			ui.getPage().reload();
 			return;
 		}
-		
+
 		gotoOrigin(executorsService.getService());
 	}
-	
+
 	private String getLabel(long entityId)
 	{
 		try
@@ -220,14 +225,15 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 			return entityMan.getEntityLabel(new EntityParam(entityId));
 		} catch (AuthorizationException e)
 		{
-			log.debug("Not setting entity's label as the client is not authorized to read the attribute", e);
+			log.debug("Not setting entity's label as the client is not authorized to read the attribute",
+					e);
 		} catch (EngineException e)
 		{
 			log.error("Can not get the attribute designated with EntityName", e);
 		}
 		return null;
 	}
-	
+
 	private void logged(AuthenticatedEntity authenticatedEntity, LoginSession ls, 
 			final AuthenticationRealm realm, final boolean rememberMe,
 			List<SessionParticipant> participants) throws AuthenticationException
