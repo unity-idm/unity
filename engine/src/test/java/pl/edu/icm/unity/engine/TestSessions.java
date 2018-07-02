@@ -52,11 +52,8 @@ public class TestSessions extends DBIntegrationTestBase
 				EntityState.valid, false);
 		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
 		LoginSession s1 = sessionMan.createSession(id.getEntityId(), realm, "u1", null, null, null, null, null);
-		LoginSession s2 = sessionMan.createSession(id.getEntityId(), realm, "u1", null, null, null, null, null);
-		LoginSession s3 = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null, null);
-		
-		assertNotEquals(s1.getId(), s2.getId());
-		assertEquals(s1.getId(), s3.getId());
+		LoginSession s2 = sessionMan.createSession(id.getEntityId(), realm, "u1", null, null, null, null, null);	
+		assertNotEquals(s1.getId(), s2.getId());	
 	}
 	
 	
