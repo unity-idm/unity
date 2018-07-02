@@ -78,7 +78,7 @@ public class AuthenticationFilter implements Filter
 		try 
 		{
 			handleNotProtectedResource(httpRequest, httpResponse, chain);
-			handleBindedSession(httpRequest, httpResponse, chain, clientIp);
+			handleBoundSession(httpRequest, httpResponse, chain, clientIp);
 			handleBlockedIP(httpResponse, clientIp);
 			handleSessionFromCookie(httpRequest, httpResponse, chain, clientIp);
 			handleRememberMe(httpRequest, httpResponse, chain, clientIp);
@@ -105,7 +105,7 @@ public class AuthenticationFilter implements Filter
 		}
 	}
 
-	private void handleBindedSession(HttpServletRequest httpRequest, ServletResponse response,
+	private void handleBoundSession(HttpServletRequest httpRequest, ServletResponse response,
 			FilterChain chain, String clientIp)
 			throws IOException, ServletException, EopException
 	{
@@ -199,7 +199,7 @@ public class AuthenticationFilter implements Filter
 	{
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
 		Optional<LoginSession> loginSessionFromRememberMe = rememberMeHelper
-				.processRememberedFirstFactor(httpRequest, httpResponse, clientIp,
+				.processRememberedWholeAuthn(httpRequest, httpResponse, clientIp,
 						realm, dosGauard);
 		if (!loginSessionFromRememberMe.isPresent())
 		{

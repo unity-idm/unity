@@ -120,6 +120,8 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		{
 			Optional<LoginSession> loginSessionFromRememberMe = rememberMeProcessor
 					.processRememberedSecondFactor(
+							VaadinServletRequest.getCurrent(),
+							VaadinServletResponse.getCurrent(),
 							result.getAuthenticatedEntity()
 									.getEntityId(),
 							clientIp, realm, getLoginCounter());
@@ -151,7 +153,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		AuthenticatedEntity authnEntity = authnProcessor.finalizeAfterPrimaryAuthentication(
 				authnState, loginSession.getRememberMeInfo().secondFactorSkipped);
 
-		logged(authnEntity, loginSession, realm, rememberMe,
+		logged(authnEntity, loginSession, realm, clientIp, rememberMe,
 				AuthenticationProcessor.extractParticipants(result));
 
 		finalizeLogin(authnEntity);
@@ -194,7 +196,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		LoginSession loginSession = getLoginSessionForEntity(logInfo, realm,
 				state.getFirstFactorOptionId(), secondFactorAuthnOptionId);
 
-		logged(logInfo, loginSession, realm, rememberMe, AuthenticationProcessor
+		logged(logInfo, loginSession, realm, clientIp, rememberMe, AuthenticationProcessor
 				.extractParticipants(state.getPrimaryResult(), result2));
 
 		finalizeLogin(logInfo);
@@ -235,7 +237,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	}
 
 	private void logged(AuthenticatedEntity authenticatedEntity, LoginSession ls, 
-			final AuthenticationRealm realm, final boolean rememberMe,
+			final AuthenticationRealm realm, String clientIp, final boolean rememberMe,
 			List<SessionParticipant> participants) throws AuthenticationException
 	{	
 		InvocationContext.getCurrent().setLoginSession(ls);
@@ -264,9 +266,11 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 		sessionBinder.bindHttpSession(httpSession, ls);
 
+		HttpServletResponse response = VaadinServletResponse.getCurrent();
+		
 		if (rememberMe)
 		{
-			rememberMeProcessor.addRememberMeCookieAndUnityToken(realm, ls.getEntityId(),
+			rememberMeProcessor.addRememberMeCookieAndUnityToken(response, realm, clientIp, ls.getEntityId(),
 					ls.getStarted(), ls.getFirstFactorOptionId(),
 					ls.getSecondFactorOptionId());
 		}

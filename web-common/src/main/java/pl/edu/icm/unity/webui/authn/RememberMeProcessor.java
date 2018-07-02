@@ -25,8 +25,6 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.vaadin.server.Page;
-import com.vaadin.server.VaadinServletRequest;
-import com.vaadin.server.VaadinServletResponse;
 import com.vaadin.server.WebBrowser;
 
 import pl.edu.icm.unity.base.token.Token;
@@ -67,7 +65,7 @@ public class RememberMeProcessor
 		this.sessionMan = sessionMan;
 	}
 
-	public Optional<LoginSession> processRememberedFirstFactor(HttpServletRequest httpRequest,
+	public Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest,
 			ServletResponse response, String clientIp, AuthenticationRealm realm,
 			UnsuccessfulAuthenticationCounter dosGauard)
 			throws IOException, ServletException
@@ -77,19 +75,21 @@ public class RememberMeProcessor
 				RememberMePolicy.allowForWholeAuthn);
 	}
 
-	public Optional<LoginSession> processRememberedSecondFactor(long entityId, String clientIp,
+	public Optional<LoginSession> processRememberedSecondFactor(HttpServletRequest httpRequest,
+			ServletResponse response, long entityId, String clientIp,
 			AuthenticationRealm realm, UnsuccessfulAuthenticationCounter dosGauard)
 	{
-		Optional<LoginSession> loginSession = processRememberedFactor(
-				VaadinServletRequest.getCurrent(),
-				VaadinServletResponse.getCurrent(), clientIp, realm, dosGauard,
-				RememberMePolicy.allowFor2ndFactor);
+		Optional<LoginSession> loginSession = processRememberedFactor(httpRequest, response,
+				clientIp, realm, dosGauard, RememberMePolicy.allowFor2ndFactor);
 
 		if (loginSession.isPresent())
 		{
 			if (loginSession.get().getEntityId() != entityId)
 			{
-				log.debug("Remember me cookie used in second factor authn is owned by another user, probably we have attack");
+				log.warn("Remember me cookie used in second factor authn by entity "
+						+ entityId + " is owned by entity "
+						+ loginSession.get().getEntityId()
+						+ ", may signal malicious action");
 				dosGauard.unsuccessfulAttempt(clientIp);
 				return Optional.empty();
 
@@ -121,7 +121,7 @@ public class RememberMeProcessor
 				}
 			} catch (AuthenticationException e)
 			{
-				log.debug("Remember me cookie is invalid", e);
+				log.warn("Remember me cookie is invalid", e);
 				dosGauard.unsuccessfulAttempt(clientIp);
 			}
 
@@ -147,8 +147,8 @@ public class RememberMeProcessor
 		return loginSessionFromRememberMe;
 	}
 
-	public void addRememberMeCookieAndUnityToken(AuthenticationRealm realm, long entityId,
-			Date loginTime, String firstFactorOptionId, String secondFactorOptionId)
+	public void addRememberMeCookieAndUnityToken(HttpServletResponse response, AuthenticationRealm realm, String clientIp,
+			long entityId, Date loginTime, String firstFactorOptionId, String secondFactorOptionId)
 	{
 		if (realm.getRememberMePolicy().equals(RememberMePolicy.disallow))
 			return;
@@ -157,7 +157,7 @@ public class RememberMeProcessor
 		UUID rememberMeToken = UUID.randomUUID();
 
 		RememberMeToken unityRememberMeToken = createRememberMeUnityToken(entityId, realm,
-				hash(rememberMeToken.toString()), loginTime, firstFactorOptionId,
+				hash(rememberMeToken.toString()), loginTime, clientIp, firstFactorOptionId,
 				secondFactorOptionId);
 
 		byte[] serializedToken = null;
@@ -190,8 +190,6 @@ public class RememberMeProcessor
 				+ rememberMeToken.toString();
 		Cookie unityRememberMeCookie = getRememberMeRawCookie(realm.getName(), rememberMeCookieValue,
 				getAbsoluteRememberMeCookieTTL(realm));		
-		HttpServletResponse response = (HttpServletResponse) VaadinServletResponse
-				.getCurrent();
 		log.debug("Add remember me cookie and token");
 		response.addCookie(unityRememberMeCookie);
 	}
@@ -282,7 +280,7 @@ public class RememberMeProcessor
 			} else
 			{
 				throw new AuthenticationException(
-						"Remember me cookie it does not contain two remember me tokens, probably we have attack");
+						"Remember me cookie does not contain two remember me tokens, may signal malicious action");
 			}
 		}
 		return Optional.ofNullable(rememberMeCookie);
@@ -302,9 +300,7 @@ public class RememberMeProcessor
 		if (!Arrays.equals(unityRememberMeToken.get().getRememberMeTokenHash(),
 				hash(rememberMeCookie.rememberMeToken)))
 		{
-			String message = "Someone change remember me cookie contents, probably we have attack";
-			log.debug(message);
-			throw new AuthenticationException(message);
+			throw new AuthenticationException("Someone change remember me cookie contents, may signal malicious action");
 
 		}
 
@@ -375,30 +371,36 @@ public class RememberMeProcessor
 	}
 
 	private RememberMeToken createRememberMeUnityToken(long entityId, AuthenticationRealm realm,
-			byte[] rememberMeTokenHash, Date loginTime, String firstFactorOptionId,
+			byte[] rememberMeTokenHash, Date loginTime, String clientIp, String firstFactorOptionId,
 			String secondFactorOptionId)
 	{
-		WebBrowser webBrowser = Page.getCurrent().getWebBrowser();
+		
+		WebBrowser webBrowser = Page.getCurrent() != null ? Page.getCurrent().getWebBrowser() : null;
+		
+		
 		String osName = "unknown";
-		if (webBrowser.isLinux())
-			osName = "Linux";
-		else if (webBrowser.isWindows())
-			osName = "Windows";
-		else if (webBrowser.isMacOSX())
-			osName = "Mac OS X";
-
 		String browser = "unknown";
-		if (webBrowser.isFirefox())
-			browser = "Firefox";
-		else if (webBrowser.isChrome())
-			browser = "Chrome";
-		else if (webBrowser.isIE())
-			browser = "IE";
-		else if (webBrowser.isEdge())
-			browser = "Edge";
+		if (webBrowser != null)
+		{
+			if (webBrowser.isLinux())
+				osName = "Linux";
+			else if (webBrowser.isWindows())
+				osName = "Windows";
+			else if (webBrowser.isMacOSX())
+				osName = "Mac OS X";
 
+			if (webBrowser.isFirefox())
+				browser = "Firefox";
+			else if (webBrowser.isChrome())
+				browser = "Chrome";
+			else if (webBrowser.isIE())
+				browser = "IE";
+			else if (webBrowser.isEdge())
+				browser = "Edge";
+		}
+		
 		LoginMachineDetails machineDetails = new LoginMachineDetails(
-				webBrowser.getAddress(), osName, browser);
+				clientIp, osName, browser);
 
 		return new RememberMeToken(entityId, machineDetails, loginTime, firstFactorOptionId,
 				secondFactorOptionId, rememberMeTokenHash,
