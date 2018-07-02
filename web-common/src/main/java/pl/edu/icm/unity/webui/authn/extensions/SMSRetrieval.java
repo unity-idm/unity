@@ -219,6 +219,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				authenticateButton.removeClickShortcut();
 				callback.onCancelledAuthentication();
 				resetSentCode();
+				usernameField.focus();
 			});
 			resetButton.setVisible(false);
 
@@ -276,7 +277,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			answerField.setValue("");
 			answerField.setEnabled(false);
 			authenticateButton.setEnabled(false);
-			usernameField.focus();
 			username = null;
 			sentCode = null;
 		}
@@ -370,6 +370,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			} else
 			{
 				setError();
+				usernameField.focus();
 				String msgErr = msg.getMessage("WebSMSRetrieval.wrongCode");
 				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
 			}
@@ -429,7 +430,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			sendCode();
 		}
 
-		public void clear()
+		private void clear()
 		{
 			resetSentCode();
 			usernameField.setValue("");
