@@ -234,7 +234,8 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 			PasswordExchange passExchange = (PasswordExchange) remoteVerificator;
 			AuthenticationResult result = passExchange.checkPassword(username, password,
 					sandboxCallback);
-			if (!result.getStatus().equals(Status.success))
+			if (result.getStatus().equals(Status.deny)
+					|| result.getStatus().equals(Status.notApplicable))
 				continue;
 
 			return result;
