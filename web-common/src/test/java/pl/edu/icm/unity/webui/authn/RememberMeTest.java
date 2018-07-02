@@ -64,7 +64,7 @@ public class RememberMeTest extends DBIntegrationTestBase
 				.getInstanceFromJson(tokenById.getContents());
 		assertThat(rememberMeUnityToken.getRememberMePolicy(),
 				is(RememberMePolicy.allowForWholeAuthn));
-		assertThat(rememberMeUnityToken.getEntity(), is(1));
+		assertThat(rememberMeUnityToken.getEntity(), is(1L));
 		assertThat(rememberMeUnityToken.getFirstFactorAuthnOptionId(), is("firstFactor"));
 		assertThat(rememberMeUnityToken.getSecondFactorAuthnOptionId(), is("secondFactor"));
 		assertThat(rememberMeUnityToken.getMachineDetails().getIp(), is("0.0.0.0"));
