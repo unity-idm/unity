@@ -5,8 +5,6 @@
 package pl.edu.icm.unity.webui.idpcommon;
 
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
@@ -29,7 +27,6 @@ public class IdPButtonsBar extends CustomComponent
 	public IdPButtonsBar(UnityMessageSource msg, StandardWebAuthenticationProcessor authnProcessor,
 			ActionListener listener)
 	{
-		super();
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		this.listener = listener;
@@ -43,33 +40,18 @@ public class IdPButtonsBar extends CustomComponent
 		
 		Button confirmB = new Button(msg.getMessage("IdPButtonsBar.confirm"));
 		confirmB.setId("IdpButtonsBar.confirmButton");
-		confirmB.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				listener.buttonClicked(Action.ACCEPT);
-			}
-		});
+		confirmB.addClickListener(event -> listener.buttonClicked(Action.ACCEPT));
+		
 		Button declineB = new Button(msg.getMessage("IdPButtonsBar.decline"));
-		declineB.addClickListener(new ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				listener.buttonClicked(Action.DENY);
-			}
-		});
+		declineB.addClickListener(event -> listener.buttonClicked(Action.DENY));
+		
 		Button reloginB = new Button(msg.getMessage("IdPButtonsBar.logAsAnother"));
-		reloginB.addClickListener(new ClickListener()
+		reloginB.addClickListener(event -> 
 		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				listener.buttonClicked(Action.LOGIN_AS_ANOTHER);
-				authnProcessor.logout(true);
-			}
+			listener.buttonClicked(Action.LOGIN_AS_ANOTHER);
+			authnProcessor.logout(true);
 		});
+		
 		buttons.addComponents(confirmB, declineB, reloginB);
 		buttons.setSizeUndefined();
 		setCompositionRoot(buttons);

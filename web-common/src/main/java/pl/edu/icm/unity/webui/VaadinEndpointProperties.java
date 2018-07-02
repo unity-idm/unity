@@ -74,7 +74,6 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String AUTHN_COLUMN_CONTENTS = "columnContents";
 
 
-
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	

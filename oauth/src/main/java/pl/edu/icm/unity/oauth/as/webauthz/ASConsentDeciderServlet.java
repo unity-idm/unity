@@ -25,6 +25,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.idp.CommonIdPProperties;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -123,7 +124,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 			return;
 
 		}
-		if (isConsentRequired(preferences, oauthCtx))
+		if (isInteractiveUIRequired(preferences, oauthCtx))
 		{
 			log.trace("Consent is required for OAuth request, forwarding to consent UI");
 			RoutingServlet.forwardTo(oauthUiServletPath, req, resp);
@@ -140,7 +141,19 @@ public class ASConsentDeciderServlet extends HttpServlet
 		return preferences.getSPSettings(oauthCtx.getRequest().getClientID().getValue());
 	}
 	
-	protected boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
+	private boolean isInteractiveUIRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
+	{
+		return isConsentRequired(preferences, oauthCtx) || isActiveValueSelectionRequired(oauthCtx);
+	}
+
+	
+	private boolean isActiveValueSelectionRequired(OAuthAuthzContext oauthCtx)
+	{
+		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(oauthCtx.getConfig(), 
+				oauthCtx.getClientUsername());
+	}
+	
+	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
 		if (preferences.isDoNotAsk())
 			return false;

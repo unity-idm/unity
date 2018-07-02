@@ -256,11 +256,13 @@ public class AuthnOptionsColumns extends CustomComponent
 	
 	private List<ComponentWithId> getColumnAuthnComponents(String columnContents, boolean addRemaining)
 	{
-		String[] specSplit = columnContents.split("[ ]+");
+		String[] specSplit = columnContents.trim().split("[ ]+");
 		List<ComponentWithId> ret = new ArrayList<>();
 		Deque<String> lastAdded = new ArrayDeque<>();
 		for (String specEntry: specSplit)
 		{
+			if (specEntry.isEmpty())
+				continue;
 			if (entryIsText(lastAdded.peek()) && entryIsText(specEntry))
 			{
 				ret.remove(ret.size()-1);

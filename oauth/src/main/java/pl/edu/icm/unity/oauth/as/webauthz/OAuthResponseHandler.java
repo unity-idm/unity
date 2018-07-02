@@ -36,11 +36,16 @@ public class OAuthResponseHandler
 
 	public void returnOauthResponse(AuthorizationResponse oauthResponse, boolean destroySession) throws EopException
 	{
+		returnOauthResponseNotThrowing(oauthResponse, destroySession);
+		throw new EopException();
+	}
+	
+	public void returnOauthResponseNotThrowing(AuthorizationResponse oauthResponse, boolean destroySession)
+	{
 		VaadinSession session = VaadinSession.getCurrent(); 
 		session.addRequestHandler(new SendResponseRequestHandler(destroySession));
 		session.setAttribute(AuthorizationResponse.class, oauthResponse);
 		Page.getCurrent().reload();
-		throw new EopException();
 	}
 	
 	public class SendResponseRequestHandler extends SynchronizedRequestHandler

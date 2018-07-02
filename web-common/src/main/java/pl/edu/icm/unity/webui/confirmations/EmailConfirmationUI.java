@@ -34,7 +34,6 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.TopHeaderLight;
 
 /**
  * Shows confirmation status
@@ -80,8 +79,6 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 		mainWrapper.setSpacing(false);
 		mainWrapper.setMargin(false);
 		mainWrapper.setSizeFull();
-		mainWrapper.addComponent(new TopHeaderLight(msg.getMessage("ConfirmationUI.title"),
-				msg));
 		HorizontalLayout infoWrapper = new HorizontalLayout();
 		infoWrapper.setSpacing(false);
 		infoWrapper.setMargin(false);

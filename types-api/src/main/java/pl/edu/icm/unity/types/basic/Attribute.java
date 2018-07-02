@@ -221,6 +221,12 @@ public class Attribute implements NamedObject
 	}
 
 	@Override
+	public Attribute clone()
+	{
+		return new Attribute(toJson());
+	}
+	
+	@Override
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();

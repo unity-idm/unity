@@ -167,6 +167,25 @@ either must be configured with a single authenticator, with a single authenticat
 query parameter must be additionally used to select the desired authentication option. 
 
 
+=== Web IdP endpoints
+
+Unity offers couple of web endpoints which are used when remote service authenticates web user against Unity. 
+The most significant examples are OAuth2 Authorization Server endpoint and SAML endpoint.
+
+All IdP web endpoints have rather simple UI and share some of the common features. User can be presented 
+with two screens. 
+
+On the first one (rather rarely used feature) user can select active value for an attribute or attributes. Typical 
+use case is to allow user to select active role for the session. Configuration of the active value selection screen
+can be different per client (e.g. using the screen only for selected clients, or even presenting different attribute
+for value selection depending on a client). Of course the screen can be completely disabled what is the default behavior. 
+
+The 2nd screen in order (more often used) is a consent screen. User is presented with information who is requesting 
+the authentication and what data will be shared with the requesting service. Details of the consent screen vary between
+IdP endpoints, e.g. OAuth endpoint shows requested scopes, while SAML endpoint doesn't. Users can save the consent 
+decision and then consent is skipped for them. It is also possible to turn off the consent screen completely.   
+
+
 include::endpoint-admin.txt[]
 
 include::endpoint-home.txt[]

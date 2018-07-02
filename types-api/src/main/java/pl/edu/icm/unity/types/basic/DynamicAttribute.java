@@ -109,6 +109,12 @@ public class DynamicAttribute
 	}
 
 	@Override
+	public DynamicAttribute clone()
+	{
+		return new DynamicAttribute(attribute.clone(), attributeType, displayedName, description, mandatory);
+	}
+	
+	@Override
 	public String toString()
 	{
 		StringBuilder sb = new StringBuilder();

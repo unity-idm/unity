@@ -161,9 +161,9 @@ public class IdpConsentDeciderServlet extends HttpServlet
 			return;
 
 		}
-		if (isConsentRequired(preferences, samlCtx))
+		if (isInteractiveUIRequired(preferences, samlCtx))
 		{
-			log.trace("Consent is required for SAML request, forwarding to consent UI");
+			log.trace("Interactive step is required for SAML request, forwarding to UI");
 			RoutingServlet.forwardTo(samlUiServletPath, req, resp);
 		} else
 		{
@@ -177,8 +177,24 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		SamlPreferences preferences = SamlPreferences.getPreferences(preferencesMan);
 		return preferences.getSPSettings(samlCtx.getRequest().getIssuer());
 	}
+
+
+	private boolean isInteractiveUIRequired(SPSettings preferences, SAMLAuthnContext samlCtx)
+	{
+		return isConsentRequired(preferences, samlCtx) || isActiveValueSelectionRequired(samlCtx);
+	}
+
 	
-	protected boolean isConsentRequired(SPSettings preferences, SAMLAuthnContext samlCtx)
+	private boolean isActiveValueSelectionRequired(SAMLAuthnContext samlCtx)
+	{
+		AuthnResponseProcessor samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 
+				Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+		SamlIdpProperties config = samlCtx.getSamlConfiguration();
+		return CommonIdPProperties.isActiveValueSelectionConfiguredForClient(config, 
+						samlProcessor.getRequestIssuer());
+	}
+	
+	private boolean isConsentRequired(SPSettings preferences, SAMLAuthnContext samlCtx)
 	{
 		if (preferences.isDoNotAsk())
 			return false;
