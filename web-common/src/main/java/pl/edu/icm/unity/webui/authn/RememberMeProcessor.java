@@ -5,14 +5,12 @@
 
 package pl.edu.icm.unity.webui.authn;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.servlet.ServletException;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -68,7 +66,6 @@ public class RememberMeProcessor
 	public Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest,
 			ServletResponse response, String clientIp, AuthenticationRealm realm,
 			UnsuccessfulAuthenticationCounter dosGauard)
-			throws IOException, ServletException
 	{
 
 		return processRememberedFactor(httpRequest, response, clientIp, realm, dosGauard,
