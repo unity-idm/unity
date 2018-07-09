@@ -408,7 +408,7 @@ public class AttributeStatementProcessor
 		
 		String attributeName = statement.getDynamicAttributeType();
 		AttributeType attributeType = atDAO.get(attributeName);
-		AttributeValueSyntax<?> valueSyntax = atHelper.getUnconfiguredSyntax(attributeType.getValueSyntax());
+		AttributeValueSyntax<?> valueSyntax = atHelper.getSyntax(attributeType);
 		
 		List<String> typedValues;
 		try
