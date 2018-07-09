@@ -7,6 +7,7 @@ package pl.edu.icm.unity.test.performance;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -117,7 +118,7 @@ public abstract class PerformanceTestBase2 extends SecuredDBIntegrationTestBase
 	
 	private void setupUserContext(String user, long entityId) throws Exception
 	{
-		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
+		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), Collections.emptyList());
 		LoginSession ls = sessionMan.getCreateSession(entityId, getDefaultRealm(),
 				user, null, null, null, null, null);
 		virtualAdmin.setLoginSession(ls);

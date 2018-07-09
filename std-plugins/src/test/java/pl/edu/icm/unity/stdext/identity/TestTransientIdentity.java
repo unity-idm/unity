@@ -9,6 +9,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import java.util.Collections;
 import java.util.Date;
 
 import org.junit.Test;
@@ -25,7 +26,7 @@ public class TestTransientIdentity
 	public void allFieldsAreSet() throws IllegalTypeException, IllegalIdentityValueException
 	{
 		TransientIdentity tested = new TransientIdentity();
-		InvocationContext ctx = new InvocationContext(null, null);
+		InvocationContext ctx = new InvocationContext(null, null, Collections.emptyList());
 		InvocationContext.setCurrent(ctx);
 		LoginSession ls = new LoginSession("1", new Date(), new Date(System.currentTimeMillis()+1000), 
 				50, 1, "r1", null, null, null);
@@ -46,7 +47,7 @@ public class TestTransientIdentity
 	{
 		TransientIdentity tested = new TransientIdentity();
 		
-		InvocationContext ctx = new InvocationContext(null, null);
+		InvocationContext ctx = new InvocationContext(null, null, Collections.emptyList());
 		InvocationContext.setCurrent(ctx);
 		LoginSession ls = new LoginSession("SESS_ID", new Date(), new Date(System.currentTimeMillis()+1000), 
 				50, 1, "r1", null, null, null);

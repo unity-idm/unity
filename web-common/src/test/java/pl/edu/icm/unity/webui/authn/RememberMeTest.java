@@ -129,8 +129,8 @@ public class RememberMeTest extends DBIntegrationTestBase
 						new UnsuccessfulAuthenticationCounter(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
-		assertThat(loginSession.get().getFirstFactorOptionId(), is("firstFactor"));
-		assertThat(loginSession.get().getSecondFactorOptionId(), is("secondFactor"));
+		assertThat(loginSession.get().getLogin1stFactorOptionId(), is("firstFactor"));
+		assertThat(loginSession.get().getLogin2ndFactorOptionId(), is("secondFactor"));
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped, is(true));
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped, is(true));
 	}
@@ -153,8 +153,8 @@ public class RememberMeTest extends DBIntegrationTestBase
 						new UnsuccessfulAuthenticationCounter(10, 10));
 		
 		assertThat(loginSession.isPresent(), is(true));
-		assertThat(loginSession.get().getFirstFactorOptionId(), is("firstFactor"));
-		assertThat(loginSession.get().getSecondFactorOptionId(), is("secondFactor"));
+		assertThat(loginSession.get().getLogin1stFactorOptionId(), is("firstFactor"));
+		assertThat(loginSession.get().getLogin2ndFactorOptionId(), is("secondFactor"));
 		assertThat(loginSession.get().getRememberMeInfo().firstFactorSkipped, is(false));
 		assertThat(loginSession.get().getRememberMeInfo().secondFactorSkipped, is(true));
 	}

@@ -75,7 +75,7 @@ public class FixedAttributeEditor
 		List<LabelledValue> values = valuesComponent.getElements();
 		if (!editContext.isRequired())
 		{
-			values = values.stream().filter(lv -> !lv.getValue().isEmpty())
+			values = values.stream().filter(lv -> lv.getValue() != null && !lv.getValue().isEmpty())
 					.collect(Collectors.toList()); 
 			if (values.isEmpty())
 				return Optional.empty();

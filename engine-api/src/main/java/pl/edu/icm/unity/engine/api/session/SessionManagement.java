@@ -65,6 +65,13 @@ public interface SessionManagement
 	void updateSessionActivity(String id);
 
 	/**
+	 * Records additional re-authentication fact to the session
+	 * @param id
+	 * @param optionId
+	 */
+	void recordAdditionalAuthentication(String id, String optionId);
+	
+	/**
 	 * Removes a given session. Missing session is silently ignored.
 	 * @param id
 	 * @param soft  if true then only the login data is removed from the HTTP session. Otherwise the whole

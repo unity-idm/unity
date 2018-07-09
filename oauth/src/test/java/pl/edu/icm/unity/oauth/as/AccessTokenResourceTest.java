@@ -11,6 +11,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.Locale;
 
@@ -223,7 +224,7 @@ public class AccessTokenResourceTest
 	private void setupInvocationContext(long entityId)
 	{
 		AuthenticationRealm realm = new AuthenticationRealm("foo", "", 5, 10, RememberMePolicy.disallow ,1, 1000);
-		InvocationContext virtualAdmin = new InvocationContext(null, realm);
+		InvocationContext virtualAdmin = new InvocationContext(null, realm, Collections.emptyList());
 		LoginSession loginSession = new LoginSession("sid", new Date(), 1000, entityId, "foo", null, null, null);
 		virtualAdmin.setLoginSession(loginSession);
 		virtualAdmin.setLocale(Locale.ENGLISH);

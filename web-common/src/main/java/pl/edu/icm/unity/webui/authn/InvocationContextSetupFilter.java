@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.authn;
 
 import java.io.IOException;
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Locale;
 
 import javax.servlet.Filter;
@@ -20,6 +21,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -44,6 +46,7 @@ public class InvocationContextSetupFilter implements Filter
 	private UnityServerConfiguration config;
 	private AuthenticationRealm realm;
 	private String baseAddress;
+	private List<AuthenticationFlow> authenticationFlows;
 	
 	/**
 	 * 
@@ -52,11 +55,12 @@ public class InvocationContextSetupFilter implements Filter
 	 * @param baseAddress public address of the server with scheme and port, with empty path.
 	 */
 	public InvocationContextSetupFilter(UnityServerConfiguration config, 
-			AuthenticationRealm realm, String baseAddress)
+			AuthenticationRealm realm, String baseAddress, List<AuthenticationFlow> authenticationFlows)
 	{
 		this.realm = realm;
 		this.config = config;
 		this.baseAddress = baseAddress;
+		this.authenticationFlows = authenticationFlows;
 	}
 
 	@Override
@@ -93,7 +97,7 @@ public class InvocationContextSetupFilter implements Filter
 				"javax.servlet.request.X509Certificate");
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
-		InvocationContext context = new InvocationContext(tlsId, realm);
+		InvocationContext context = new InvocationContext(tlsId, realm, authenticationFlows);
 		InvocationContext.setCurrent(context);
 		if (baseAddress != null)
 			context.setCurrentURLUsed(baseAddress);

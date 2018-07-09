@@ -113,4 +113,10 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	{
 		return true;
 	}
+
+	@Override
+	public boolean requiresRedirect()
+	{
+		return true;
+	}
 }

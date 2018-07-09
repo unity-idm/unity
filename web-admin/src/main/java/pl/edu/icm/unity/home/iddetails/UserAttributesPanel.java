@@ -22,18 +22,17 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 
 /**
  * Shows (optionally in edit mode) all configured attributes.
@@ -201,7 +200,7 @@ public class UserAttributesPanel
 		{
 			attributesMan.removeAttribute(new EntityParam(entityId), 
 					ae.getGroup(), ae.getAttributeType().getName());
-		} catch (IllegalAttributeValueException e)
+		} catch (IllegalArgumentException e)
 		{
 			//OK - attribute already doesn't exist
 		}

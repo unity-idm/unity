@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
+import pl.edu.icm.unity.engine.session.RepeatedAuthenticationService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -53,18 +54,21 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private EntityCredentialsHelper credHelper;
+	private RepeatedAuthenticationService repeatedAuthnService;
 	
 
 	@Autowired
 	public EntityCredentialsManagementImpl(EntityResolver idResolver, AttributeDAO attributeDAO,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
-			EntityCredentialsHelper credHelper)
+			EntityCredentialsHelper credHelper,
+			RepeatedAuthenticationService repeatedAuthnService)
 	{
 		this.idResolver = idResolver;
 		this.attributeDAO = attributeDAO;
 		this.authz = authz;
 		this.attributesHelper = attributesHelper;
 		this.credHelper = credHelper;
+		this.repeatedAuthnService = repeatedAuthnService;
 		
 	}
 
@@ -106,6 +110,9 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 		long entityId = idResolver.getEntityId(entity);
 		boolean requireCurrent = authorizeCredentialChange(entityId, credentialId);
 
+		if (requireCurrent)
+			repeatedAuthnService.checkAdditionalAuthenticationRequirements(credentialId);
+		
 		if (requireCurrent && currentRawCredential == null)
 		{
 			throw new IllegalPreviousCredentialException(
@@ -121,7 +128,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	}
 
 	/**
-	 * Performs authorization of attribute change. The method also returns
+	 * Performs authorization of credential change. The method also returns
 	 * whether a current credential is required to change the previous one,
 	 * what is needed if the current credential is set and the caller
 	 * doesn't have the credentialModify capability set globally.

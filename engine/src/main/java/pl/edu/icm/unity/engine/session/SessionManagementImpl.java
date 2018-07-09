@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -95,11 +97,12 @@ public class SessionManagementImpl implements SessionManagement
 						new EntityParam(loggedEntity), realm.getName());
 				if (ret != null)
 				{
-					ret.setLastUsed(new Date());
+					Date now = new Date();
+					ret.setLastUsed(now);
 					ret.setRememberMeInfo(rememberMeInfo);
 					ret.setOutdatedCredentialId(outdatedCredentialId);
-					ret.setFirstFactorOptionId(firstFactorOptionId);
-					ret.setSecondFactorOptionId(secondFactorOptionId);
+					ret.setLogin1stFactor(new AuthNInfo(firstFactorOptionId, now));
+					ret.setLogin2ndFactor(new AuthNInfo(secondFactorOptionId, now));
 					byte[] contents = ret.getTokenContents();
 					tokensManagement.updateToken(SESSION_TOKEN_TYPE,
 							ret.getId(), null, contents);
@@ -155,9 +158,11 @@ public class SessionManagementImpl implements SessionManagement
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
-		LoginSession ls = new LoginSession(id, new Date(), absoluteExpiration,
+		Date now = new Date();
+		LoginSession ls = new LoginSession(id, now, absoluteExpiration,
 				realm.getMaxInactivity()*1000, loggedEntity, 
-				realm.getName(), rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
+				realm.getName(), rememberMeInfo, new AuthNInfo(firstFactorOptionId, now), 
+				new AuthNInfo(secondFactorOptionId, now));
 		ls.setOutdatedCredentialId(outdatedCredentialId);
 		ls.setEntityLabel(entityLabel);
 		try
@@ -169,9 +174,8 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can't create a new session", e);
 		}
-		if (log.isDebugEnabled())
-			log.debug("Created a new session " + ls.getId() + " for logged entity "
-				+ ls.getEntityId() + " in realm " + realm.getName());
+		log.debug("Created a new session {} for logged entity {} in realm {}", 
+				ls.getId(), ls.getEntityId(), realm.getName());
 		return ls;
 	}
 
@@ -179,15 +183,17 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	public void updateSessionAttributes(String id, AttributeUpdater updater) 
 	{
-		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
-		LoginSession session = token2session(token);
-		
-		updater.updateAttributes(session.getSessionData());
-
-		byte[] contents = session.getTokenContents();
-		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+		updateSession(id, session -> updater.updateAttributes(session.getSessionData()));
 	}
 
+	@Transactional
+	@Override
+	public void recordAdditionalAuthentication(String id, String optionId)
+	{
+		updateSession(id, session -> session.setAdditionalAuthn(new AuthNInfo(optionId, new Date())));
+		log.debug("Recorded additional authentication with {} for session {}", optionId, id);	
+	}
+	
 	@Override
 	public void removeSession(String id, boolean soft)
 	{
@@ -246,11 +252,8 @@ public class SessionManagementImpl implements SessionManagement
 				return;
 		}
 		
-		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
-		LoginSession session = token2session(token);
-		session.setLastUsed(new Date());
-		byte[] contents = session.getTokenContents();
-		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+		updateSession(id, session -> session.setLastUsed(new Date()));
+
 		log.trace("Updated in db session activity timestamp for " + id);
 		recentUsageUpdates.put(id, System.currentTimeMillis());
 	}
@@ -270,6 +273,17 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can not add session participant to the existing session?", e);
 		}
+	}
+	
+	private void updateSession(String id, Consumer<LoginSession> updater) 
+	{
+		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
+		LoginSession session = token2session(token);
+		
+		updater.accept(session);
+
+		byte[] contents = session.getTokenContents();
+		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
 	}
 	
 	private LoginSession token2session(Token token)

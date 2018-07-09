@@ -74,7 +74,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				MockPasswordVerificatorFactory.ID);
-		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
+		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), Collections.emptyList());
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
 				user, credentialId, null, null, null, null);
 		virtualAdmin.setLoginSession(ls);

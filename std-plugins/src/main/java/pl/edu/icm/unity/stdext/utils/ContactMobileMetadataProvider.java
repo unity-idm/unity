@@ -54,4 +54,10 @@ public class ContactMobileMetadataProvider implements AttributeMetadataProvider
 	{
 		return true;
 	}
+
+	@Override
+	public boolean isSecuritySensitive()
+	{
+		return true;
+	}
 }

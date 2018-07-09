@@ -5,16 +5,15 @@
 package pl.edu.icm.unity.engine.authn;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
-import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -25,7 +24,6 @@ import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
-import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -51,7 +49,6 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	
 	@Autowired
 	public AuthenticationProcessorImpl(
-			@Qualifier("insecure") EntityCredentialManagement entityCredMan,
 			AuthenticationFlowManagement authFlowMan,
 			LocalCredentialsRegistry localCred, CredentialRepository credRepo)
 	{
@@ -130,52 +127,59 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 	}
 
-	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, AuthenticationResult result, String firstFactorauthnOptionId)
+	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, 
+			AuthenticationResult result, String firstFactorauthnOptionId)
 	{
-		for (Authenticator authn : authenticationFlow.getSecondFactorAuthenticators())
+		Authenticator secondFactorAuthenticator = getValidAuthenticatorForEntity(
+				authenticationFlow.getSecondFactorAuthenticators(), 
+				result.getAuthenticatedEntity().getEntityId());
+		if (secondFactorAuthenticator == null)
+			return null;
+		return new PartialAuthnState(firstFactorauthnOptionId, secondFactorAuthenticator.getRetrieval(), 
+				result, authenticationFlow);
+	}
+	
+	@Override
+	public Authenticator getValidAuthenticatorForEntity(Collection<Authenticator> pool, long entityId)
+	{
+		for (Authenticator authn : pool)
 		{
-			
-			BindingAuthn bindingAuthn = authn.getRetrieval();
 			AuthenticatorInstance authenticator = authn.getAuthenticatorInstance();
 			if (authenticator != null)
 			{
 				if (!authenticator.getTypeDescription().isLocal())
 				{
 					log.debug("Using remote second factor authenticator " + authenticator.getId());
-					return new PartialAuthnState(firstFactorauthnOptionId, bindingAuthn, result, authenticationFlow);
+					return authn;
 
-				} else if (checkIfUserHasCredential(authenticator,
-						result.getAuthenticatedEntity()))
+				} else if (checkIfUserHasCredential(authenticator, entityId))
 				{
 					log.debug("Using local second factor authenticator " + authenticator.getId());
-					return new PartialAuthnState(firstFactorauthnOptionId, bindingAuthn, result, authenticationFlow);
-
+					return authn;
 				}
 			}
 		}
-	
 		return null;
 	}
 	
 	
-	private boolean checkIfUserHasLocalCredential(AuthenticatedEntity entity,
+	private boolean checkIfUserHasLocalCredential(long entityId,
 			String credentialId) throws IllegalCredentialException, EngineException
 	{
 
 		CredentialDefinition credentialDefinition = credRepo.get(credentialId);
 		return localCred.createLocalCredentialVerificator(credentialDefinition)
-				.isCredentialSet(new EntityParam(entity.getEntityId()));
+				.isCredentialSet(new EntityParam(entityId));
 	}
 	
-	
-	private boolean checkIfUserHasCredential(AuthenticatorInstance authn, AuthenticatedEntity entity)
+	@Override
+	public boolean checkIfUserHasCredential(AuthenticatorInstance authn, long entityId)
 	{
 		
-		log.debug("Check if user have defined " + authn.getLocalCredentialName() + " credential");
+		log.debug("Check if user has defined " + authn.getLocalCredentialName() + " credential");
 		try
 		{
-			return checkIfUserHasLocalCredential(entity,
-					authn.getLocalCredentialName());
+			return checkIfUserHasLocalCredential(entityId, authn.getLocalCredentialName());
 			
 		} catch (Exception e)
 		{

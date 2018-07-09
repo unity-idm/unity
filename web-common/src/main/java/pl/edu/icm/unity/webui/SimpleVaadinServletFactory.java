@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui;
 
+import java.util.Collections;
 import java.util.Properties;
 
 import javax.servlet.Filter;
@@ -70,7 +71,7 @@ public class SimpleVaadinServletFactory
 	
 	public Filter getServiceFilter()
 	{
-		return new InvocationContextSetupFilter(config, null, null);
+		return new InvocationContextSetupFilter(config, null, null, Collections.emptyList());
 	}
 
 	private UnityBootstrapHandler getBootstrapHandlerGeneric(String uiPath)

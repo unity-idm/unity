@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.session;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
@@ -21,6 +21,7 @@ import java.util.Map;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionManagement.AttributeUpdater;
@@ -84,7 +85,21 @@ public class TestSessions extends DBIntegrationTestBase
 		testEquals(s, ret);
 	}
 
-	
+	@Test
+	public void additionalAuthenticationStateIsReturned() throws Exception
+	{
+		IdentityParam toAdd = new IdentityParam(UsernameIdentity.ID, "u1");
+		Identity id = idsMan.addEntity(toAdd, EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT, 
+				EntityState.valid, false);
+		AuthenticationRealm realm = new AuthenticationRealm("test", "", 3, 33, RememberMePolicy.disallow , 1, 100);
+		LoginSession s = sessionMan.getCreateSession(id.getEntityId(), realm, "u1", null, null, null, null, null);
+		
+		sessionMan.recordAdditionalAuthentication(s.getId(), "authnOption");
+				
+		LoginSession ret = sessionMan.getSession(s.getId());
+		assertThat(ret.getAdditionalAuthn().optionId, is("authnOption"));
+	}
+
 	@Test
 	public void removedSessionIsNotReturned() throws Exception
 	{

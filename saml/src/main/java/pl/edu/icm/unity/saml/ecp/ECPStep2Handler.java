@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.ecp;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -161,7 +162,7 @@ public class ECPStep2Handler
 		AuthenticatedEntity ae = authenticationResult.getAuthenticatedEntity();
 		Long entityId = ae.getEntityId();
 		
-		InvocationContext iCtx = new InvocationContext(null, realm);
+		InvocationContext iCtx = new InvocationContext(null, realm, Collections.emptyList());
 		authnSuccess(ae, iCtx);
 		InvocationContext.setCurrent(iCtx);
 		

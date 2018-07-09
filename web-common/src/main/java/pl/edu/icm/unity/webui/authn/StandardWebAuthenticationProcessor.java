@@ -271,8 +271,8 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		if (rememberMe)
 		{
 			rememberMeProcessor.addRememberMeCookieAndUnityToken(response, realm, clientIp, ls.getEntityId(),
-					ls.getStarted(), ls.getFirstFactorOptionId(),
-					ls.getSecondFactorOptionId());
+					ls.getStarted(), ls.getLogin1stFactorOptionId(),
+					ls.getLogin2ndFactorOptionId());
 		}
 
 		addSessionCookie(getSessionCookieName(realm.getName()), ls.getId(),
@@ -287,9 +287,9 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		{
 			log.trace("Logged with session: " + ls.toString()
 					+ ", first factor authn option: "
-					+ ls.getFirstFactorOptionId()
+					+ ls.getLogin1stFactorOptionId()
 					+ ", second factor authn option: "
-					+ ls.getSecondFactorOptionId() + ", first factor skipped: "
+					+ ls.getLogin2ndFactorOptionId() + ", first factor skipped: "
 					+ ls.getRememberMeInfo().firstFactorSkipped
 					+ ", second factor skipped: "
 					+ ls.getRememberMeInfo().secondFactorSkipped);

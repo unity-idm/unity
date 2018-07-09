@@ -13,12 +13,15 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
+import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
+import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
+import pl.edu.icm.unity.engine.session.RepeatedAuthenticationService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -50,13 +53,17 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AttributesHelper attributesHelper;
 	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner txRunner;
+	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
+	private RepeatedAuthenticationService repeatedAuthnService;
 
 	@Autowired
 	public AttributesManagementImpl(AttributeClassUtil acUtil,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO dbAttributes,
 			EntityResolver idResolver, AuthorizationManager authz,
 			AttributesHelper attributesHelper, EmailConfirmationManager confirmationManager,
-			TransactionalRunner txRunner)
+			TransactionalRunner txRunner,
+			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
+			RepeatedAuthenticationService repeatedAuthnService)
 	{
 		this.acUtil = acUtil;
 		this.attributeTypeDAO = attributeTypeDAO;
@@ -66,6 +73,8 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.attributesHelper = attributesHelper;
 		this.confirmationManager = confirmationManager;
 		this.txRunner = txRunner;
+		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
+		this.repeatedAuthnService = repeatedAuthnService;
 	}
 
 	
@@ -108,18 +117,37 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		entity.validateInitialization(); 
 		txRunner.runInTransactionThrowing(() -> {
-			boolean fullAuthz;
 			//Important - attributes can be also set as a result of addMember and addEntity.
 			//  when changing this method, verify if those needs an update too.
 			long entityId = idResolver.getEntityId(entity);
 			AttributeType at = attributeTypeDAO.get(attribute.getName());
-			fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
+			boolean fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
+			if (!fullAuthz)
+				checkReauthn(at);
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName());
 
 			attributesHelper.addAttribute(entityId, attribute, at, allowUpdate, fullAuthz);
 		});
 		if (sendConfirmations)
 			confirmationManager.sendVerificationQuietNoTx(entity, attribute, false);
+	}
+
+	private void checkReauthn(AttributeType at)
+	{
+		if (isSensitiveAttributeChange(at))
+			repeatedAuthnService.checkAdditionalAuthenticationRequirements();
+	}
+	
+	private boolean isSensitiveAttributeChange(AttributeType at)
+	{
+		Set<String> metadataSet = at.getMetadata().keySet();
+		for (String meta: metadataSet)
+		{
+			AttributeMetadataProvider metaInfo = atMetaProvidersRegistry.getByName(meta);
+			if (metaInfo.isSecuritySensitive())
+				return true;
+		}
+		return false;
 	}
 	
 	private boolean checkSetAttributeAuthz(long entityId, AttributeType at, Attribute attribute) 
@@ -131,9 +159,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			return true;
 		}
 		
-		Set<AuthzCapability> nonSelfCapabilities = authz.getCapabilities(false, 
-				attribute.getGroupPath());
-		boolean fullAuthz = nonSelfCapabilities.contains(AuthzCapability.attributeModify);
+		boolean fullAuthz = hasFullAuthzToChangeAttr(attribute.getGroupPath());
 
 		//even if we have fullAuthz we need to check authZ (e.g. to get outdated credential error)
 		authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId), 
@@ -141,7 +167,11 @@ public class AttributesManagementImpl implements AttributesManagement
 		return fullAuthz;
 	}
 	
-
+	private boolean hasFullAuthzToChangeAttr(String groupPath) throws AuthorizationException
+	{
+		Set<AuthzCapability> nonSelfCapabilities = authz.getCapabilities(false, groupPath);
+		return nonSelfCapabilities.contains(AuthzCapability.attributeModify);
+	}
 	
 	@Override
 	@Transactional
@@ -161,6 +191,9 @@ public class AttributesManagementImpl implements AttributesManagement
 					" can not be manually modified");
 		authz.checkAuthorization(at.isSelfModificable() && authz.isSelf(entityId),
 				groupPath, AuthzCapability.attributeModify);
+		boolean fullAuthz = hasFullAuthzToChangeAttr(groupPath);
+		if (!fullAuthz)
+			checkReauthn(at);
 		
 		checkIfMandatory(entityId, groupPath, attributeTypeId);
 		

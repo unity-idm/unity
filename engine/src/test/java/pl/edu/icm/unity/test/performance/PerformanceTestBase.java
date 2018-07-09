@@ -129,7 +129,7 @@ public abstract class PerformanceTestBase extends SecuredDBIntegrationTestBase
 	
 	private void setupUserContext(String user, long entityId) throws Exception
 	{
-		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm());
+		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), Collections.emptyList());
 		LoginSession ls = sessionMan.getCreateSession(entityId, getDefaultRealm(),
 				user, null, null, null, null, null);
 		virtualAdmin.setLoginSession(ls);

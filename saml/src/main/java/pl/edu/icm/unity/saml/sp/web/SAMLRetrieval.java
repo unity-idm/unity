@@ -129,6 +129,12 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 			super(NAME, DESC, VaadinAuthentication.NAME, factory, SAMLExchange.class);
 		}
 	}
+
+	@Override
+	public boolean requiresRedirect()
+	{
+		return true;
+	}
 }
 
 

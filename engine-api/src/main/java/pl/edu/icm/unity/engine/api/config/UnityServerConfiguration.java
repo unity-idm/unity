@@ -126,6 +126,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String AUTHENTICATION_FLOW_POLICY = "authenticationFlowPolicy";
 	public static final String AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS = "firstFactorAuthenticators";
 	public static final String AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS = "secondFactorAuthenticators";
+
+	public static final String RE_AUTHENTICATION_POLICY = "reAuthenticationPolicy";
+	public static final String RE_AUTHENTICATION_GRACE_TIME = "reAuthenticationGraceTime";
+	public static final String RE_AUTHENTICATION_BLOCK_ON_NONE = "reAuthenticationBlockOnNoOption";
 	
 	public static final String CREDENTIALS = "credentials.";
 	public static final String CREDENTIAL_NAME = "credentialName";
@@ -174,7 +178,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		DocumentationCategory initCredReqCat = new DocumentationCategory("Content initializers: credential requirements", "3");
 		DocumentationCategory initAuthnCat = new DocumentationCategory("Content initializers: authenticators", "4");
 		DocumentationCategory initRealmCat = new DocumentationCategory("Content initializers: authentication realms", "5");
-		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "6");
+		DocumentationCategory reauthnCat = new DocumentationCategory("Repeated and step up authentication", "6");
+		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "7");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
 		
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
@@ -329,7 +334,26 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("First factor authenticators, separated with a single comma (no spaces)."));
 		defaults.put(AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS, new PropertyMD().setStructuredListEntry(AUTHENTICATION_FLOW).
 				setCategory(initAuthnCat).setDescription("Second factor authenticators, separated with a single comma (no spaces)."));
-	
+
+		defaults.put(RE_AUTHENTICATION_POLICY, new PropertyMD("SESSION_2F CURRENT SESSION_1F ENDPOINT_2F").setCategory(reauthnCat)
+				.setDescription("Comma separated list configuring repeated or step up authentication which is"
+						+ "protecting sensitive operations like changing credentials. Entries are either "
+						+ "authenticators do not requiring redirection (as SAML or OAuth) or special entries: "
+						+ "+ENDPOINT_2F+ credentials from the endpoint's 2nd factor configuration. " + 
+						"+SESSION_1F+ +SESSION_2F+ - credential used for the user's session, either 1st or 2nd factor. "
+						+ "In case of remembered logins, this falls back to the credential "
+						+ "which was originally used to authenticate the user. " + 
+						"+CURRENT+ - available only when the sensitive operation is changing an existing credential. "
+						+ "Request authenticating with the credential being changed, this credential must be enabled on the endpoint."));
+		defaults.put(RE_AUTHENTICATION_GRACE_TIME, new PropertyMD("600").setMin(2).setCategory(reauthnCat)
+				.setDescription("Time in seconds in which user don't have to re-authenticate again. "
+						+ "It is suggested not to set this value to less then 10 seconds"));
+		defaults.put(RE_AUTHENTICATION_BLOCK_ON_NONE, new PropertyMD("true").setCategory(reauthnCat)
+				.setDescription("Whether to block a sensitive operation when additional authentication is needed "
+						+ "but policy returns no authentication option."));
+
+		
+		
 		defaults.put(REALMS, new PropertyMD().setStructuredList(false)
 				.setCategory(initRealmCat)
 				.setDescription("List of authentication realm definitions."));

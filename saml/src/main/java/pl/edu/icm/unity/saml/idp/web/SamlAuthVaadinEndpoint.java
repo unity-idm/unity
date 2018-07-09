@@ -231,7 +231,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
 		contextSetupFilter = new InvocationContextSetupFilter(config, description.getRealm(),
-				null);
+				null, getAuthenticationFlows());
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		

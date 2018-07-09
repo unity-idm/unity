@@ -146,7 +146,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
 		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
-				getServletUrl(uiServletPath));
+				getServletUrl(uiServletPath), getAuthenticationFlows());
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
