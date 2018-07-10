@@ -50,6 +50,7 @@ import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -94,6 +95,7 @@ public class UserAccountComponent extends VerticalLayout
 	private HomeUITabProvider tabProvider;
 	private AuthenticationFlowManagement authnFlowMan;
 	private TokensManagement tokenMan;
+	private AdditionalAuthnHandler additionalAuthnHandler;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -108,7 +110,8 @@ public class UserAccountComponent extends VerticalLayout
 			InputTranslationEngine inputTranslationEngine,
 			IdentityTypeSupport idTypeSupport,
 			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan,
-			TokensManagement tokenMan)
+			TokensManagement tokenMan,
+			AdditionalAuthnHandler additionalAuthnHandler)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -130,6 +133,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.tabProvider = tabProvider;
 		this.authnFlowMan = authnFlowMan;
 		this.tokenMan = tokenMan;
+		this.additionalAuthnHandler = additionalAuthnHandler;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -226,7 +230,8 @@ public class UserAccountComponent extends VerticalLayout
 	{
 		try
 		{
-			CredentialsPanel credentialsPanel = new CredentialsPanel(msg, theUser.getEntityId(), 
+			CredentialsPanel credentialsPanel = new CredentialsPanel(additionalAuthnHandler, 
+					msg, theUser.getEntityId(), 
 					credMan, ecredMan, idsMan, credReqMan, credEditorReg, authnFlowMan, tokenMan, true);
 			if (!credentialsPanel.isCredentialRequirementEmpty())
 				tabPanel.addTab("UserHomeUI.credentialsLabel", "UserHomeUI.credentialsDesc", 

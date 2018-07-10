@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.engine.session.RepeatedAuthenticationService;
+import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -54,14 +54,14 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 	private AuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private EntityCredentialsHelper credHelper;
-	private RepeatedAuthenticationService repeatedAuthnService;
+	private AdditionalAuthenticationService repeatedAuthnService;
 	
 
 	@Autowired
 	public EntityCredentialsManagementImpl(EntityResolver idResolver, AttributeDAO attributeDAO,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityCredentialsHelper credHelper,
-			RepeatedAuthenticationService repeatedAuthnService)
+			AdditionalAuthenticationService repeatedAuthnService)
 	{
 		this.idResolver = idResolver;
 		this.attributeDAO = attributeDAO;

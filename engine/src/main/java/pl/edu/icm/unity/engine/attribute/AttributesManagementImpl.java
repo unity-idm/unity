@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
-import pl.edu.icm.unity.engine.session.RepeatedAuthenticationService;
+import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -54,7 +54,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner txRunner;
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
-	private RepeatedAuthenticationService repeatedAuthnService;
+	private AdditionalAuthenticationService repeatedAuthnService;
 
 	@Autowired
 	public AttributesManagementImpl(AttributeClassUtil acUtil,
@@ -63,7 +63,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			AttributesHelper attributesHelper, EmailConfirmationManager confirmationManager,
 			TransactionalRunner txRunner,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
-			RepeatedAuthenticationService repeatedAuthnService)
+			AdditionalAuthenticationService repeatedAuthnService)
 	{
 		this.acUtil = acUtil;
 		this.attributeTypeDAO = attributeTypeDAO;

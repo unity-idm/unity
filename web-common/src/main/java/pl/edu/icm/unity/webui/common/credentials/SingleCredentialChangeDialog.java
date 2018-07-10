@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -35,6 +36,7 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
+	private final AdditionalAuthnHandler additionalAuthnHandler;
 	
 	private Callback callback;
 	private long entityId;
@@ -43,13 +45,15 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 	private SingleCredentialPanel ui;
 	
 	@Autowired
-	public SingleCredentialChangeDialog(UnityMessageSource msg, CredentialManagement credMan,
+	public SingleCredentialChangeDialog(AdditionalAuthnHandler additionalAuthnHandler,
+			UnityMessageSource msg, CredentialManagement credMan,
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistry credEditorReg)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"),
 				msg.getMessage("update"), msg.getMessage("cancel"));
+		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.credMan = credMan;
 		this.ecredMan = ecredMan;
 		this.entityMan = entityMan;
@@ -85,7 +89,7 @@ public class SingleCredentialChangeDialog extends AbstractDialog
 						"CredentialChangeDialog.cantGetCredDefs")
 						+ credentialId);
 
-			ui = new SingleCredentialPanel(msg, entityId, ecredMan, credMan, entityMan,
+			ui = new SingleCredentialPanel(additionalAuthnHandler, msg, entityId, ecredMan, credMan, entityMan,
 					credEditorReg, credDef, simpleMode, false, null);
 		} catch (EngineException e)
 		{

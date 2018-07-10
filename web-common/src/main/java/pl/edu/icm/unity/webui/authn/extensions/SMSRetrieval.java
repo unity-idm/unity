@@ -159,6 +159,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		private Label capchaInfoLabel;
 		private VerticalLayout mainLayout;
 		private Button authenticateButton;
+		private Button lostPhone;
 		
 		public SMSRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -255,7 +256,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 			if (settings.isEnabled())
 			{
-				Button lostPhone = new Button(
+				lostPhone = new Button(
 						msg.getMessage("WebSMSRetrieval.lostPhone"));
 				lostPhone.setStyleName(Styles.vButtonLink.toString());
 				mainLayout.addComponent(new AuthNGridTextWrapper(lostPhone, Alignment.TOP_RIGHT));
@@ -436,6 +437,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			usernameField.setValue("");
 			answerField.setValue("");
 		}
+
+		public void disableLostPhone()
+		{
+			if (lostPhone != null)
+				lostPhone.setVisible(false);
+		}
 	}
 
 	private class SMSRetrievalUI implements VaadinAuthenticationUI
@@ -529,6 +536,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		public Set<String> getTags()
 		{
 			return Collections.emptySet();
+		}
+
+		@Override
+		public void disableCredentialReset()
+		{
+			theComponent.disableLostPhone();
 		}
 	}
 

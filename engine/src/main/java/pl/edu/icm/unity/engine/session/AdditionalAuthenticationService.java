@@ -28,16 +28,16 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
  * @author K. Benedyczak
  */
 @Component
-public class RepeatedAuthenticationService
+public class AdditionalAuthenticationService
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG, RepeatedAuthenticationService.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AdditionalAuthenticationService.class);
 	private final AuthenticationProcessor authnProcessor;
 	private final String policyStr;
 	private final boolean failOnNoMatch;
 	private final long graceTimeMS;
 	
 	@Autowired
-	public RepeatedAuthenticationService(UnityServerConfiguration config, AuthenticationProcessor authnProcessor)
+	public AdditionalAuthenticationService(UnityServerConfiguration config, AuthenticationProcessor authnProcessor)
 	{
 		this(authnProcessor, 
 				config.getValue(UnityServerConfiguration.RE_AUTHENTICATION_POLICY), 
@@ -45,7 +45,7 @@ public class RepeatedAuthenticationService
 				config.getIntValue(UnityServerConfiguration.RE_AUTHENTICATION_GRACE_TIME) * 1000);
 	}
 
-	RepeatedAuthenticationService(AuthenticationProcessor authnProcessor,
+	AdditionalAuthenticationService(AuthenticationProcessor authnProcessor,
 			String policy, boolean failOnNoMatch, long graceTimeMS)
 	{
 		this.policyStr = policy;
@@ -93,13 +93,10 @@ public class RepeatedAuthenticationService
 			default:
 				option = findOnEndpoint(policyElement);
 			}
+			log.debug("Trying {} additional authN option from policy, result: {}", policyElement, option);
 			
 			if (option != null)
-			{
-				log.debug("Using re-authentication option {} from policy entry {}", 
-						option, policyElement);
 				return option;
-			}
 		}
 		
 		if (failOnNoMatch)
@@ -142,18 +139,18 @@ public class RepeatedAuthenticationService
 	private String getSession1stF()
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-		AuthNInfo loginFactor = loginSession.getLogin1stFactor();
-		if (loginFactor != null && isValidForReauthentication(loginFactor.optionId))
-			return loginFactor.optionId;
+		String loginFactor = loginSession.getLogin1stFactorOptionId();
+		if (loginFactor != null && isValidForReauthentication(loginFactor))
+			return loginFactor;
 		return null;
 	}
 
 	private String getSession2ndF()
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-		AuthNInfo loginFactor = loginSession.getLogin2ndFactor();
-		if (loginFactor != null && isValidForReauthentication(loginFactor.optionId))
-			return loginFactor.optionId;
+		String loginFactor = loginSession.getLogin2ndFactorOptionId();
+		if (loginFactor != null && isValidForReauthentication(loginFactor))
+			return loginFactor;
 		return null;
 	}
 
@@ -220,7 +217,7 @@ public class RepeatedAuthenticationService
 	
 	private boolean checkAuthnInfoInGracePeriod(AuthNInfo authnInfo, String expectedAuthnOption, long graceTime)
 	{
-		if (authnInfo == null || !authnInfo.optionId.equals(expectedAuthnOption))
+		if (authnInfo == null || authnInfo.optionId == null || !authnInfo.optionId.equals(expectedAuthnOption))
 			return false;
 		return System.currentTimeMillis() < graceTime + authnInfo.time.getTime();
 	}

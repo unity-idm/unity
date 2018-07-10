@@ -158,6 +158,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		private TextField usernameField;
 		private PasswordField passwordField;
 		private int tabIndex;
+		private Button reset;
 
 		public PasswordRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -201,7 +202,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 							.getSettings()));
 			if (settings.isEnabled())
 			{
-				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
+				reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
 				reset.setStyleName(Styles.vButtonLink.toString());
 				AuthNGridTextWrapper resetWrapper = new AuthNGridTextWrapper(reset, Alignment.TOP_RIGHT);
 				resetWrapper.addStyleName("u-authn-forgotPassword");
@@ -333,6 +334,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			passwordField.setValue("");
 			usernameField.setValue("");
 		}
+
+		public void disablePasswordReset()
+		{
+			if (reset!= null)
+				reset.setVisible(false);
+		}
 	}
 	
 	private class PasswordRetrievalUI implements VaadinAuthenticationUI
@@ -426,6 +433,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public Set<String> getTags()
 		{
 			return Collections.emptySet();
+		}
+
+		@Override
+		public void disableCredentialReset()
+		{
+			theComponent.disablePasswordReset();
 		}
 	}
 	

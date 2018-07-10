@@ -121,6 +121,10 @@ public interface VaadinAuthentication extends BindingAuthn
 		 */
 		void presetEntity(Entity authenticatedEntity);
 		
+		default void disableCredentialReset()
+		{
+		}
+		
 		/**
 		 * @return implementation may decide to disable this option if some runtime
 		 * conditions are rendering it unusable.

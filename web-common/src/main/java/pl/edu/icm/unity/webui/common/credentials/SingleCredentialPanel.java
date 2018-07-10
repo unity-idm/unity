@@ -23,6 +23,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
@@ -31,6 +32,8 @@ import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
@@ -67,14 +70,16 @@ public class SingleCredentialPanel extends VerticalLayout
 	private CredentialDefinition toEdit;
 	private LocalCredentialState credentialState;
 	private Callback callback;
+	private final AdditionalAuthnHandler additionalAuthnHandler;
 	
 	
-	public SingleCredentialPanel(UnityMessageSource msg, long entityId,
+	public SingleCredentialPanel(AdditionalAuthnHandler additionalAuthnHandler, UnityMessageSource msg, long entityId,
 			EntityCredentialManagement ecredMan, CredentialManagement credMan,
 			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
 			CredentialDefinition toEdit, boolean simpleMode, boolean showButtons, Callback callback)
 			throws Exception
 	{
+		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.msg = msg;
 		this.ecredMan = ecredMan;
 		this.credMan = credMan;
@@ -303,6 +308,13 @@ public class SingleCredentialPanel extends VerticalLayout
 		{
 			credEditor.setCredentialError(e);
 			return false;
+		} catch (AdditionalAuthenticationRequiredException additionalAuthn)
+		{
+			additionalAuthnHandler.handleAdditionalAuthenticationException(additionalAuthn, 
+					msg.getMessage("CredentialChangeDialog.additionalAuthnRequired"), 
+					msg.getMessage("CredentialChangeDialog.additionalAuthnRequiredInfo"),
+					this::onAdditionalAuthnForUpdateCredential);
+			return false;
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage(
@@ -316,6 +328,23 @@ public class SingleCredentialPanel extends VerticalLayout
 		loadEntity(entityP);
 		updateCredentialStatus();
 		return true;
+	}
+	
+	private void onAdditionalAuthnForUpdateCredential(AuthnResult result)
+	{
+		if (result == AuthnResult.SUCCESS)
+		{
+			updateCredential(true);
+			if (callback != null)
+				callback.refresh();
+		} else if (result == AuthnResult.ERROR)
+		{
+			NotificationPopup.showError(msg.getMessage("CredentialChangeDialog.credentialUpdateError"), 
+					msg.getMessage("CredentialChangeDialog.additionalAuthnFailed"));
+		} else 
+		{
+			credEditor.setCredentialError(null);
+		}
 	}
 
 	private void changeCredentialStatus(LocalCredentialState desiredState)
@@ -333,7 +362,7 @@ public class SingleCredentialPanel extends VerticalLayout
 		loadEntity(entityP);
 		updateCredentialStatus();
 	}
-
+	
 	private void loadEntity(EntityParam entityP)
 	{
 		try

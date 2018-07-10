@@ -32,13 +32,13 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
-import pl.edu.icm.unity.engine.session.RepeatedAuthenticationService.AdditionalAuthenticationMisconfiguredException;
-import pl.edu.icm.unity.engine.session.RepeatedAuthenticationService.AdditionalAuthenticationRequiredException;
+import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService.AdditionalAuthenticationMisconfiguredException;
+import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 
 @RunWith(MockitoJUnitRunner.class)
-public class RepeatedAuthenticationServiceTest
+public class AdditionalAuthenticationServiceTest
 {
 	@Mock
 	private AuthenticationProcessor authnProcessor;
@@ -52,7 +52,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"CURRENT", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements("cred-1"));
@@ -69,7 +69,7 @@ public class RepeatedAuthenticationServiceTest
 				Sets.newHashSet(auth1), Collections.emptyList(), 1);
 		setupContext(flow);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"remote-authn", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements("cred-1"));
@@ -86,7 +86,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"CURRENT", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements("cred-1"));
@@ -104,7 +104,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow);
 		when(authnProcessor.getValidAuthenticatorForEntity(any(), eq(1L))).thenReturn(auth2);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"ENDPOINT_2F", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -122,7 +122,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow);
 		when(authnProcessor.getValidAuthenticatorForEntity(any(), eq(1L))).thenReturn(null);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"ENDPOINT_2F", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -140,7 +140,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"SESSION_1F", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -158,7 +158,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow, "authn-1", "authn-2");
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"SESSION_2F", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -175,7 +175,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"authn-1", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -194,7 +194,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"SESSION_1F", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -212,7 +212,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow, "authn-1", "authn-2");
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"SESSION_2F", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -229,7 +229,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(false);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"authn-1", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -245,7 +245,7 @@ public class RepeatedAuthenticationServiceTest
 				Sets.newHashSet(auth1), Lists.newArrayList(), 1);
 		setupContext(flow, "authn-1", null);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"", false, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());
@@ -263,7 +263,7 @@ public class RepeatedAuthenticationServiceTest
 		setupContext(flow, "authn-1", null);
 		when(authnProcessor.checkIfUserHasCredential(any(), eq(1L))).thenReturn(true);
 		
-		RepeatedAuthenticationService service = new RepeatedAuthenticationService(authnProcessor,
+		AdditionalAuthenticationService service = new AdditionalAuthenticationService(authnProcessor,
 				"CURRENT  SESSION_1F", true, 1);
 		
 		Throwable exception = catchThrowable(() -> service.checkAdditionalAuthenticationRequirements());

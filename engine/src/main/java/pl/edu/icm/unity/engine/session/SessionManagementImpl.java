@@ -281,9 +281,23 @@ public class SessionManagementImpl implements SessionManagement
 		LoginSession session = token2session(token);
 		
 		updater.accept(session);
-
+		updateCurrentSessionIfMatching(session);
+		
 		byte[] contents = session.getTokenContents();
 		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+	}
+	
+	private void updateCurrentSessionIfMatching(LoginSession changed)
+	{
+		if (!InvocationContext.hasCurrent())
+			return;
+		LoginSession current = InvocationContext.getCurrent().getLoginSession();
+		if (current == null)
+			return;
+		if (!changed.getId().equals(current.getId()))
+			return;
+		
+		InvocationContext.getCurrent().setLoginSession(changed);
 	}
 	
 	private LoginSession token2session(Token token)

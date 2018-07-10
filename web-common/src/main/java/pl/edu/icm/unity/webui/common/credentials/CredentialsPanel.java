@@ -37,6 +37,7 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -57,6 +58,7 @@ public class CredentialsPanel extends VerticalLayout
 	private TokensManagement tokenMan;
 	private UnityMessageSource msg;
 	private Entity entity;
+	private final AdditionalAuthnHandler additionalAuthnHandler;
 	private final long entityId;
 	private final boolean simpleMode;
 	
@@ -75,13 +77,14 @@ public class CredentialsPanel extends VerticalLayout
 	 * @param simpleMode if true then admin-only action buttons (credential reset/outdate) are not shown.
 	 * @throws Exception
 	 */
-	public CredentialsPanel(UnityMessageSource msg, long entityId, CredentialManagement credMan, 
+	public CredentialsPanel(AdditionalAuthnHandler additionalAuthnHandler, UnityMessageSource msg, long entityId, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
 			CredentialEditorRegistry credEditorReg, AuthenticationFlowManagement flowMan,TokensManagement tokenMan,
 			boolean simpleMode) 
 					throws Exception
 	{
+		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.msg = msg;
 		this.credMan = credMan;
 		this.ecredMan = ecredMan;
@@ -128,7 +131,7 @@ public class CredentialsPanel extends VerticalLayout
 		
 		for (CredentialDefinition credDef : credentials.values())
 		{
-			SingleCredentialPanel panel = new SingleCredentialPanel(msg, entityId,
+			SingleCredentialPanel panel = new SingleCredentialPanel(additionalAuthnHandler, msg, entityId,
 					ecredMan, credMan, entityMan, credEditorReg, credDef, simpleMode,
 					true, callback);
 			if (!panel.isEmptyEditor())

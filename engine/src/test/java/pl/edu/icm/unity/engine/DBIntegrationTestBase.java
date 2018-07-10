@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -66,15 +68,15 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	
 	protected void setupUserContext(String user, String outdatedCred) throws Exception
 	{
-		setupUserContext(sessionMan, identityResolver, user, outdatedCred);
+		setupUserContext(sessionMan, identityResolver, user, outdatedCred, Collections.emptyList());
 	}
 
 	public static void setupUserContext(SessionManagement sessionMan, IdentityResolver identityResolver,
-			String user, String credentialId) throws Exception
+			String user, String credentialId, List<AuthenticationFlow> endpointFlows) throws Exception
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
 				MockPasswordVerificatorFactory.ID);
-		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), Collections.emptyList());
+		InvocationContext virtualAdmin = new InvocationContext(null, getDefaultRealm(), endpointFlows);
 		LoginSession ls = sessionMan.getCreateSession(entity.getEntityId(), getDefaultRealm(),
 				user, credentialId, null, null, null, null);
 		virtualAdmin.setLoginSession(ls);

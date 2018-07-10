@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -40,14 +41,16 @@ public class CredentialsChangeDialog extends AbstractDialog
 	private long entityId;
 	private boolean simpleMode;
 	private CredentialsPanel ui;
+	private AdditionalAuthnHandler additionalAuthnHandler;
 	
 	@Autowired
-	public CredentialsChangeDialog(UnityMessageSource msg, CredentialManagement credMan, 
+	public CredentialsChangeDialog(AdditionalAuthnHandler additionalAuthnHandler, UnityMessageSource msg, CredentialManagement credMan, 
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,AuthenticationFlowManagement authnFlowMan, 
 			CredentialEditorRegistry credEditorReg, TokensManagement tokenMan)
 	{
 		super(msg, msg.getMessage("CredentialChangeDialog.caption"), msg.getMessage("close"));
+		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.ecredMan = ecredMan;
 		this.entityMan = entityMan;
 		this.credEditorReg = credEditorReg;
@@ -71,7 +74,7 @@ public class CredentialsChangeDialog extends AbstractDialog
 	{
 		try
 		{
-			ui = new CredentialsPanel( msg,  entityId,  credMan, 
+			ui = new CredentialsPanel(additionalAuthnHandler, msg,  entityId,  credMan, 
 					 ecredMan,  entityMan,
 					 credReqMan,
 					 credEditorReg, authnFlowMan, tokenMan, simpleMode);

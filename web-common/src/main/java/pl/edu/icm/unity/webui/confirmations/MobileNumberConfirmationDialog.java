@@ -68,7 +68,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 		this.captchaComponent.setVisible(false);
 		this.confirmCodeComponent = getConfirmCodeComponent();
 		this.confirmCodeComponent.setVisible(false);
-		setSize(50, 40);
+		setSizeEm(36, 20);
 	}
 
 	
