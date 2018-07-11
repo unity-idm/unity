@@ -21,7 +21,7 @@ public class CertificateCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean askAboutCurrent, 
+	public ComponentsContainer getEditor(
 			String credentialConfiguration, boolean required, Long entityId, boolean adminMode)
 	{
 		return new ComponentsContainer();
@@ -37,12 +37,6 @@ public class CertificateCredentialEditor implements CredentialEditor
 	public ComponentsContainer getViewer(String credentialConfiguration)
 	{
 		return new ComponentsContainer();
-	}
-
-	@Override
-	public String getCurrentValue() throws IllegalCredentialException
-	{
-		return "";
 	}
 
 	@Override

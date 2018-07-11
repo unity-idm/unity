@@ -27,7 +27,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -73,8 +72,7 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 	}
 
 	@Override
-	public String prepareCredential(String rawCredential, String previousCredential, 
-			String currentCredential, boolean verify)
+	public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
 			throws IllegalCredentialException
 	{
 		return "";
@@ -118,13 +116,6 @@ public class CertificateVerificator extends AbstractLocalVerificator implements 
 		throw new IllegalStateException("This credential doesn't support invalidation");
 	}
 
-	@Override
-	public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
-			throws IllegalCredentialException, InternalException
-	{
-		return prepareCredential(rawCredential, null, currentCredential, verify);
-	}
-	
 	private boolean checkX500Id(EntityParam entity) throws EngineException
 	{
 		Entity entityRes = idMan.getEntity(entity);

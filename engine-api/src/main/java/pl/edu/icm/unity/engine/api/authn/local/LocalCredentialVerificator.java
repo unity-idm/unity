@@ -48,9 +48,6 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * Output also. For instance the input can be a password, output a hashed and salted version
 	 * 
 	 * @param rawCredential the new credential value
-	 * @param previousCredential the existing credential value. It is only used to recheck 
-	 * the credential before the sensitive credential check operation. In some cases it can be 
-	 * not needed, then is ignored.
 	 * @param currentCredential the existing credential, encoded in the database specific way. May be empty or 
 	 * null, when there is no existing credential recorded in DB.
 	 * @param verifyNew we can set new credential without its verification
@@ -58,23 +55,10 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @throws IllegalCredentialException if the new credential is not valid
 	 * @throws InternalException 
 	 */
-	String prepareCredential(String rawCredential, String previousCredential, 
+	String prepareCredential(String rawCredential,  
 			String currentCredential, boolean verifyNew) 
 			throws IllegalCredentialException, InternalException;
 
-	/**
-	 * As {@link #prepareCredential(String, String, String)} but called whenever verification 
-	 * of the existing password is not required.
-	 * @param rawCredential
-	 * @param currentCredential
-	 * @param verifyNew we can set new credential without its verification
-	 * @return
-	 * @throws IllegalCredentialException
-	 * @throws InternalException
-	 */
-	String prepareCredential(String rawCredential, String currentCredential, boolean verifyNew) 
-			throws IllegalCredentialException, InternalException;
-	
 	/**
 	 * @param currentCredential current credential as recorded in database
 	 * @return the current state of the credential, wrt the configuration of the verificator

@@ -7,17 +7,19 @@ package pl.edu.icm.unity.webui.authn.additional;
 import java.util.List;
 import java.util.function.Consumer;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -32,6 +34,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 @Component
 public class AdditionalAuthnHandler
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdditionalAuthnHandler.class);
 	private final UnityMessageSource msg;
 	private final ExecutorsService execService;
 	private final SessionManagement sessionMan;
@@ -61,6 +64,11 @@ public class AdditionalAuthnHandler
 		VaadinAuthenticationUI authenticationUI = authn.createUIInstance().iterator().next();
 		Entity entity = getCurrentEntity();
 		authenticationUI.presetEntity(entity);
+
+		log.debug("Triggering additional authentication for {} using authenticator {}",
+				entity.getId(),
+				exception.authenticationOption);
+
 		AuthNPanel authnPanel = new AuthNPanel(msg, execService, authenticationUI);
 		AdditionalAuthnDialog dialog = new AdditionalAuthnDialog(msg, header, info, authnPanel,
 				() -> onDialogClose(resultCallback));
@@ -84,12 +92,15 @@ public class AdditionalAuthnHandler
 	
 	private void processResult(AdditionalAuthnDialog dialog, AuthnResult result, Consumer<AuthnResult> resultCallback)
 	{
+		dialog.diableCancelListener();
 		dialog.close();
+		log.debug("Additional authentication completed, result: {}", result);
 		resultCallback.accept(result);
 	}
 	
 	private void onDialogClose(Consumer<AuthnResult> resultCallback)
 	{
+		log.debug("Additional authentication was cancelled");
 		resultCallback.accept(AuthnResult.CANCEL);
 	}
 	

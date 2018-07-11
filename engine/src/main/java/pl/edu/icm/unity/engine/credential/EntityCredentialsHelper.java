@@ -122,9 +122,9 @@ public class EntityCredentialsHelper
 	 * @throws EngineException
 	 */
 	public void setEntityCredentialInternal(long entityId, String credentialId, 
-			String rawCredential, String currentRawCredential)  throws EngineException
+			String rawCredential)  throws EngineException
 	{
-		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, currentRawCredential, true);
+		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, true);
 		setPreviouslyPreparedEntityCredentialInternal(entityId, cred, credentialId);
 	}
 	
@@ -137,9 +137,9 @@ public class EntityCredentialsHelper
 	 * @throws EngineException
 	 */
 	public void setEntityCredentialInternalWithoutVerify(long entityId, String credentialId, 
-			String rawCredential, String currentRawCredential)  throws EngineException
+			String rawCredential)  throws EngineException
 	{
-		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, currentRawCredential, false);
+		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, false);
 		setPreviouslyPreparedEntityCredentialInternal(entityId, cred, credentialId);
 	}
 	
@@ -154,7 +154,7 @@ public class EntityCredentialsHelper
 	 * @throws EngineException
 	 */
 	private String prepareEntityCredentialInternal(long entityId, String credentialId, 
-			String rawCredential, String currentRawCredential, boolean verify) throws EngineException
+			String rawCredential, boolean verify) throws EngineException
 	{
 		Map<String, AttributeExt> attributes = attributesHelper.getAllAttributesAsMapOneGroup(entityId, "/");
 		
@@ -171,11 +171,8 @@ public class EntityCredentialsHelper
 		String currentCredential = currentCredentialA != null ? 
 				(String)currentCredentialA.getValues().get(0) : null;
 				
-		return currentRawCredential == null ? handler.prepareCredential(rawCredential, currentCredential, verify) :
-				handler.prepareCredential(rawCredential, currentRawCredential, currentCredential, verify);
+		return handler.prepareCredential(rawCredential, currentCredential, verify);
 	}
-	
-
 }
 
 

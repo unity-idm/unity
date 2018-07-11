@@ -34,10 +34,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
-import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumn.ComponentWithId;

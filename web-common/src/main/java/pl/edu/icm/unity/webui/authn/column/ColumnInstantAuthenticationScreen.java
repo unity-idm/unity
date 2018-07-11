@@ -31,6 +31,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
@@ -40,7 +41,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
@@ -122,7 +122,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	
 	protected void init()
 	{
-		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows);
+		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows, endpointDescription.getName());
 		
 		VerticalLayout topLevelLayout = new VerticalLayout();
 		topLevelLayout.setMargin(new MarginInfo(false, true, true, true));

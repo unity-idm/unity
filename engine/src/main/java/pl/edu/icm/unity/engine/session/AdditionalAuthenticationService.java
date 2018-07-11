@@ -14,12 +14,15 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 
 /**
@@ -63,10 +66,11 @@ public class AdditionalAuthenticationService
 	{
 		String additionalAuthnOption = getOptionToReAuthenticate(Optional.ofNullable(modifiedCredential));
 		boolean additionalAuthnRequired = additionalAuthnOption != null &&
-				isAddionalAuthnRequiredForOption(additionalAuthnOption);
+				isAdditionalAuthnRequiredForOption(additionalAuthnOption);
 		if (!additionalAuthnRequired)
 			return;
-
+		
+		log.debug("Additional authn is required with option {}", additionalAuthnOption);
 		throw new AdditionalAuthenticationRequiredException(additionalAuthnOption);
 	}
 
@@ -100,7 +104,10 @@ public class AdditionalAuthenticationService
 		}
 		
 		if (failOnNoMatch)
+		{
+			log.debug("Additional authn is required but no option was found, blocking operation");
 			throw new AdditionalAuthenticationMisconfiguredException();
+		}
 		return null;
 	}
 
@@ -139,21 +146,26 @@ public class AdditionalAuthenticationService
 	private String getSession1stF()
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-		String loginFactor = loginSession.getLogin1stFactorOptionId();
-		if (loginFactor != null && isValidForReauthentication(loginFactor))
-			return loginFactor;
-		return null;
+		return getFromSessionFactor(loginSession.getLogin1stFactorOptionId());
 	}
 
 	private String getSession2ndF()
 	{
 		LoginSession loginSession = InvocationContext.getCurrent().getLoginSession();
-		String loginFactor = loginSession.getLogin2ndFactorOptionId();
-		if (loginFactor != null && isValidForReauthentication(loginFactor))
-			return loginFactor;
-		return null;
+		return getFromSessionFactor(loginSession.getLogin2ndFactorOptionId());
 	}
 
+	private String getFromSessionFactor(String loginFactor)
+	{
+		if (loginFactor != null)
+		{
+			String authenticator = AuthenticationOptionKeyUtils.decodeAuthenticator(loginFactor);
+			if(isValidForReauthentication(authenticator))
+				return authenticator;
+		}
+		return null;
+	}
+	
 
 	private String getEndpoint2ndF()
 	{
@@ -202,7 +214,7 @@ public class AdditionalAuthenticationService
 		return authnProcessor.checkIfUserHasCredential(authn, entityId);
 	}
 
-	private boolean isAddionalAuthnRequiredForOption(String additionalAuthnOption)
+	private boolean isAdditionalAuthnRequiredForOption(String additionalAuthnOption)
 	{
 		LoginSession session = InvocationContext.getCurrent().getLoginSession();
 		
@@ -220,36 +232,5 @@ public class AdditionalAuthenticationService
 		if (authnInfo == null || authnInfo.optionId == null || !authnInfo.optionId.equals(expectedAuthnOption))
 			return false;
 		return System.currentTimeMillis() < graceTime + authnInfo.time.getTime();
-	}
-
-	/**
-	 * Signals that additional authentication is required prior to invoking the operation
-	 * 
-	 * @author K. Benedyczak
-	 */
-	public static class AdditionalAuthenticationRequiredException extends RuntimeException
-	{
-		public final String authenticationOption;
-
-		public AdditionalAuthenticationRequiredException(String authenticationOption)
-		{
-			this.authenticationOption = authenticationOption;
-		}
-		
-		@Override
-		public String getMessage()
-		{
-			return "Additional authentication with " + authenticationOption + " is required";
-		}
-	}
-
-	/**
-	 * Signals that additional authentication is required prior to invoking the operation but it is not 
-	 * configured properly so the operation can't succeed.
-	 * 
-	 * @author K. Benedyczak
-	 */
-	public static class AdditionalAuthenticationMisconfiguredException extends RuntimeException
-	{
 	}
 }

@@ -268,33 +268,6 @@ public class PasswordVerificatorTest
 		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c8).getState());
 	}
 	
-	@Test
-	public void shouldCheckCurrentPasswordVerification() throws Exception
-	{
-		//we can pass nulls as we don't test the credential reset here.
-		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
-		verificator.setSerializedConfiguration("{" +
-				"\"minLength\": 5," +
-				"\"historySize\": 3," +
-				"\"minClassesNum\": 2," +
-				"\"denySequences\": true," +
-				"\"maxAge\": 100," +
-				"\"max\": 100" +
-				"}");
-		String	 serialized = verificator.getSerializedConfiguration();
-		verificator.setSerializedConfiguration(serialized);
-		
-		PasswordToken pt = new PasswordToken("1asdz");
-		String c1 = verificator.prepareCredential(pt.toJson(), null, "", true);
-		PasswordToken pt2 = new PasswordToken("2asdz");
-		verificator.prepareCredential(pt2.toJson(), pt.toJson(), c1, true);
-		try
-		{
-			verificator.prepareCredential(pt2.toJson(), pt2.toJson(), c1, true);
-			fail("Set password with invalid previous password");
-		} catch (IllegalCredentialException e) {}
-	}
-	
 	private PasswordCredential getEmpty()
 	{
 		PasswordCredential credCfg = new PasswordCredential();

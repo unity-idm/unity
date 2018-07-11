@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.authn.additional;
 
+import com.vaadin.shared.Registration;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -20,6 +21,7 @@ class AdditionalAuthnDialog extends Window
 {
 	private AuthNPanel authnPanel;
 	private Runnable cancelHandler;
+	private Registration addCloseListener;
 
 	AdditionalAuthnDialog(UnityMessageSource msg, String caption, String info, AuthNPanel authnPanel, 
 			Runnable cancelHandler)
@@ -61,20 +63,18 @@ class AdditionalAuthnDialog extends Window
 		
 		setWidth(32, Unit.EM);
 		setHeight(20, Unit.EM);
+		
+		addCloseListener = addCloseListener(event -> cancelHandler.run());
 	}
-
 	
 	void show()
 	{
 		UI.getCurrent().addWindow(this);
 		authnPanel.focusIfPossible();
 	}
-	
-	@Override
-	public void close()
+
+	public void diableCancelListener()
 	{
-		if (getParent() != null)
-			((UI) getParent()).removeWindow(this);
-		cancelHandler.run();
+		addCloseListener.remove();
 	}
 }

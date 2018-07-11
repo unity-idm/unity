@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @Component
 public class AuthenticationProcessorImpl implements AuthenticationProcessor
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER, AuthenticationProcessorImpl.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticationProcessorImpl.class);
 	
 	private AuthenticationFlowManagement authFlowMan;
 	private LocalCredentialsRegistry localCred;
@@ -176,11 +176,12 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	public boolean checkIfUserHasCredential(AuthenticatorInstance authn, long entityId)
 	{
 		
-		log.debug("Check if user has defined " + authn.getLocalCredentialName() + " credential");
 		try
 		{
-			return checkIfUserHasLocalCredential(entityId, authn.getLocalCredentialName());
-			
+			boolean ret = checkIfUserHasLocalCredential(entityId, authn.getLocalCredentialName());
+			log.debug("Check if user {} has defined credential {}: {}", 
+					entityId, authn.getLocalCredentialName(), ret);
+			return ret;
 		} catch (Exception e)
 		{
 			log.debug("Can not check entity local credential state", e);

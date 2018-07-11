@@ -4,14 +4,11 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.hamcrest.CoreMatchers.is;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,7 +31,6 @@ import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
@@ -477,12 +473,12 @@ public class TestAuthentication extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER)); 
-		assertFalse(eCredMan.isCurrentCredentialRequiredForChange(user, "credential1"));
+
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 	}
 	
 	@Test
-	public void shouldAllowOwnerToChangePasswordProvidingPreviousOne() throws Exception
+	public void shouldAllowOwnerToChangePassword() throws Exception
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
@@ -492,8 +488,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 		
-		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson(),
-				new PasswordToken("qw!Erty").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
 	}
 
 	@Test
@@ -505,44 +500,6 @@ public class TestAuthentication extends DBIntegrationTestBase
 		setupUserContext("user2", null);
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
 
-		assertFalse(eCredMan.isCurrentCredentialRequiredForChange(user, "credential1"));
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 	}
-
-	
-	@Test
-	public void shouldForbidToChangePasswordWithoutPreviousOneForRegularUser() throws Exception
-	{
-		setupPasswordAuthn();
-		setupPasswordAndCertAuthn();
-		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
-		setupUserContext("user2", null);
-		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
-		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
-		
-		Throwable exception = catchThrowable(() -> eCredMan.setEntityCredential(user, "credential1", 
-				new PasswordToken("qw!Erty2").toJson()));
-		
-		assertThat(exception).describedAs("Managed to change the password without old one")
-			.isNotNull().isInstanceOf(IllegalPreviousCredentialException.class);
-	}
-	
-	@Test
-	public void shouldForbidToChangePasswordWithWrongPreviousOneForRegularUser() throws Exception
-	{
-		setupPasswordAuthn();
-		setupPasswordAndCertAuthn();
-		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
-		setupUserContext("user2", null);
-		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
-		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
-		
-		Throwable exception = catchThrowable(() -> eCredMan.setEntityCredential(user, "credential1", 
-				new PasswordToken("qw!Erty2").toJson(),
-				new PasswordToken("INVALID").toJson()));
-
-		assertThat(exception).describedAs("Managed to change the password with invalid old one")
-			.isNotNull().isInstanceOf(IllegalPreviousCredentialException.class);
-	}
-
 }

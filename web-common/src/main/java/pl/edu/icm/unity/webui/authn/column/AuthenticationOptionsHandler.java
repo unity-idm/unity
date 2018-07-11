@@ -17,8 +17,8 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
-import pl.edu.icm.unity.webui.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
@@ -31,13 +31,15 @@ class AuthenticationOptionsHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationOptionsHandler.class);
 	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
+	private final String endpoint;
 
 	private Set<String> consumedAuthenticators = new HashSet<>();
 
 	private Set<String> consumedAuthenticatorEntries = new HashSet<>();
 
-	AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows)
+	AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint)
 	{
+		this.endpoint = endpoint;
 		for (AuthenticationFlow ao : availableAuthentionFlows)
 			for (Authenticator a: ao.getFirstFactorAuthenticators())
 				authenticatorsByName.put(a.getRetrieval().getAuthenticatorId(), 
@@ -68,8 +70,8 @@ class AuthenticationOptionsHandler
 		AuthenticatorWithFlow authenticatorWF = authenticatorsByName.get(authenticatorName);
 		if (authenticatorWF == null)
 		{
-			log.warn("There is no authenticator '{}' configured for the endpoint for the '{}' "
-					+ "authentication contents entry", authenticatorName, spec);
+			log.warn("There is no authenticator '{}' configured for the endpoint {} for the '{}' "
+					+ "authentication contents entry", authenticatorName, endpoint, spec);
 			return Collections.emptyList();
 		}
 

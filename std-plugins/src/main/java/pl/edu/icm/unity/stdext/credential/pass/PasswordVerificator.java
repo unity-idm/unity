@@ -58,7 +58,6 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -115,7 +114,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 * The rawCredential must be in JSON format, see {@link PasswordToken} for details.
 	 */
 	@Override
-	public String prepareCredential(String rawCredential, String previousCredential, 
+	public String prepareCredential(String rawCredential,
 			String currentCredential, boolean verify)
 			throws IllegalCredentialException, InternalException
 	{
@@ -124,14 +123,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		
 		PasswordToken pToken = PasswordToken.loadFromJson(rawCredential);
 		
-		//verify that existing password was correctly provided 
-		if (previousCredential!= null && !currentPasswords.isEmpty())
-		{
-			PasswordToken checkedToken = PasswordToken.loadFromJson(previousCredential);
-			PasswordInfo current = currentPasswords.getFirst();
-			if (!passwordEngine.verify(current, checkedToken.getPassword()))
-				throw new IllegalPreviousCredentialException("The current credential is incorrect");
-		}
 		if (verify)
 			verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), 
 					currentPasswords, credential.getHistorySize());
@@ -391,13 +382,6 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				new NumericalSequenceRule(3, true),
 				new QwertySequenceRule(),
 				new RepeatCharacterRegexRule(4));
-	}
-	
-	@Override
-	public String prepareCredential(String rawCredential, String currentCredential, boolean verify)
-			throws IllegalCredentialException, InternalException
-	{
-		return prepareCredential(rawCredential, null, currentCredential, verify);
 	}
 	
 	@Override

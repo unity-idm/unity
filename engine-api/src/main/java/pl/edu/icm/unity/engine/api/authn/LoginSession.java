@@ -288,7 +288,7 @@ public class LoginSession
 		if (main.has("login1stFactor")) 
 			login1stFactor = Constants.MAPPER.convertValue(main.get("login1stFactor"), AuthNInfo.class);
 		
-		if (main.has("secondFactorOptionId"))
+		if (main.has("login2ndFactor"))
 			login2ndFactor = Constants.MAPPER.convertValue(main.get("login2ndFactor"), AuthNInfo.class);
 
 		if (main.has("additionalAuthn"))

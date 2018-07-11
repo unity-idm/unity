@@ -74,19 +74,12 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 
 	@Override
-	public String prepareCredential(String rawCredential, String previousCredential,
+	public String prepareCredential(String rawCredential, 
 			String currentCredential, boolean verifyNew)
 			throws IllegalCredentialException, InternalException
 	{
 		return SMSCredentialDBState.toJson(credential, rawCredential,
 				System.currentTimeMillis());
-	}
-
-	@Override
-	public String prepareCredential(String rawCredential, String currentCredential,
-			boolean verifyNew) throws IllegalCredentialException, InternalException
-	{
-		return prepareCredential(rawCredential, null, currentCredential, verifyNew);
 	}
 
 	@Override

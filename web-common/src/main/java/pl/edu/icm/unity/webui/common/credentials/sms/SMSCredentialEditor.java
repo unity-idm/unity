@@ -84,8 +84,7 @@ public class SMSCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean askAboutCurrent,
-			String credentialConfiguration, boolean required, Long entityId,
+	public ComponentsContainer getEditor(String credentialConfiguration, boolean required, Long entityId,
 			boolean adminMode)
 	{
 
@@ -288,12 +287,6 @@ public class SMSCredentialEditor implements CredentialEditor
 
 	@Override
 	public String getValue() throws IllegalCredentialException
-	{
-		return getCurrentValue();
-	}
-
-	@Override
-	public String getCurrentValue() throws IllegalCredentialException
 	{
 		String mobile;
 		if (credentialSource.getValue().equals(CredentialSource.Existing))

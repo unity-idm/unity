@@ -55,8 +55,8 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		ret.setSpacing(false);
 		ret.addComponent(new Label(msg.getMessage("CredentialReset.updateCredentialInfo")));
 		FormLayout internal = new FormLayout();
-		internal.addComponents(credEditor.getEditor(false, 
-				backend.getCredentialConfiguration(), true, backend.getEntityId(), false).getComponents());
+		internal.addComponents(credEditor.getEditor(backend.getCredentialConfiguration(), 
+				true, backend.getEntityId(), false).getComponents());
 		ret.addComponent(internal);
 		return ret;
 	}

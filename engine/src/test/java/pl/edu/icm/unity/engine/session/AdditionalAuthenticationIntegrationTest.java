@@ -23,9 +23,9 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
-import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
@@ -55,8 +55,7 @@ public class AdditionalAuthenticationIntegrationTest extends DBIntegrationTestBa
 		sessionMan.recordAdditionalAuthentication(InvocationContext.getCurrent().getLoginSession().getId(), 
 				"authenticator1");
 		
-		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson(),
-				new PasswordToken("qw!Erty").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
 	}
 	
 	@Test
@@ -71,7 +70,7 @@ public class AdditionalAuthenticationIntegrationTest extends DBIntegrationTestBa
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 
 		Throwable exception = catchThrowable(() -> eCredMan.setEntityCredential(user, "credential1", 
-				new PasswordToken("qw!Erty2").toJson(), new PasswordToken("qw!Erty").toJson()));
+				new PasswordToken("qw!Erty2").toJson()));
 		
 		assertThat(exception).isInstanceOf(AdditionalAuthenticationRequiredException.class);
 	}

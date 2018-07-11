@@ -351,6 +351,8 @@ public class RESTAdmin
 		attributesMan.setAttributeSuppressingConfirmation(entityParam, attributeParam);
 	}
 	
+	//TODO - those two endpoints are duplicating functionality. Should be unified into a single one.
+	//remaining after old method of providing used credential
 	@Path("/entity/{entityId}/credential-adm/{credential}")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -389,9 +391,7 @@ public class RESTAdmin
 			if (mainA.size() < 1)
 				throw new  JSONParsingException("Request body JSON array must have at least one element");
 			String newSecrets = mainA.get(0).asText();
-			String oldSecrets = mainA.size() > 1 ? mainA.get(1).asText() : null;
-			entityCredMan.setEntityCredential(getEP(entityId, idType), credential, 
-					newSecrets, oldSecrets);
+			entityCredMan.setEntityCredential(getEP(entityId, idType), credential, newSecrets);
 		} else
 		{
 			throw new JSONParsingException("Request body must be a JSON array");

@@ -25,7 +25,6 @@ import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.IllegalPreviousCredentialException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
@@ -84,59 +83,26 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 
 	@Override
 	@Transactional
-	public boolean isCurrentCredentialRequiredForChange(EntityParam entity, String credentialId)
-			throws EngineException
-	{
-		long entityId = idResolver.getEntityId(entity);
-		return authorizeCredentialChange(entityId, credentialId);
-	}
-
-	@Transactional
-	@Override
 	public void setEntityCredential(EntityParam entity, String credentialId,
 			String rawCredential) throws EngineException
-	{
-		setEntityCredential(entity, credentialId, rawCredential, null);
-	}
-
-	@Override
-	@Transactional
-	public void setEntityCredential(EntityParam entity, String credentialId,
-			String rawCredential, String currentRawCredential) throws EngineException
 	{
 		if (rawCredential == null)
 			throw new IllegalCredentialException("The credential can not be null");
 		entity.validateInitialization();
 		long entityId = idResolver.getEntityId(entity);
-		boolean requireCurrent = authorizeCredentialChange(entityId, credentialId);
+		boolean requireAdditionalAuthn = authorizeCredentialChange(entityId, credentialId);
 
-		if (requireCurrent)
+		if (requireAdditionalAuthn)
 			repeatedAuthnService.checkAdditionalAuthenticationRequirements(credentialId);
 		
-		if (requireCurrent && currentRawCredential == null)
-		{
-			throw new IllegalPreviousCredentialException(
-					"The current credential must be provided");
-		}
-
-		// we don't check it
-		if (!requireCurrent)
-			currentRawCredential = null;
-
-		setEntityCredentialInternal(entityId, credentialId, rawCredential,
-				currentRawCredential);
+		credHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential);
 	}
 
 	/**
 	 * Performs authorization of credential change. The method also returns
-	 * whether a current credential is required to change the previous one,
+	 * whether additional authentication is required,
 	 * what is needed if the current credential is set and the caller
 	 * doesn't have the credentialModify capability set globally.
-	 * 
-	 * @param entityId
-	 * @param credentialId
-	 * @return
-	 * @throws EngineException
 	 */
 	private boolean authorizeCredentialChange(long entityId, String credentialId)
 			throws EngineException
@@ -151,11 +117,9 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 					AuthzCapability.credentialModify);
 		}
 
-		// possible OPTIMIZATION: can get the status of selected
-		// credential only
+		// possible OPTIMIZATION: can get the status of selected credential only
 		CredentialInfo credsInfo = credHelper.getCredentialInfo(entityId);
-		CredentialPublicInformation credInfo = credsInfo.getCredentialsState()
-				.get(credentialId);
+		CredentialPublicInformation credInfo = credsInfo.getCredentialsState().get(credentialId);
 		if (credInfo == null)
 			throw new IllegalCredentialException("The credential " + credentialId
 					+ " is not allowed for the entity");
@@ -226,22 +190,5 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 			StoredAttribute updatedA = new StoredAttribute(added, entityId);
 			attributeDAO.updateAttribute(updatedA);
 		}
-	}
-
-	/**
-	 * Sets entity's credential. This is internal method which doesn't
-	 * perform any authorization nor argument initialization checking.
-	 * 
-	 * @param entityId
-	 * @param credentialId
-	 * @param rawCredential
-	 * @param sqlMap
-	 * @throws EngineException
-	 */
-	private void setEntityCredentialInternal(long entityId, String credentialId,
-			String rawCredential, String currentRawCredential) throws EngineException
-	{
-		credHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential,
-				currentRawCredential);
 	}
 }

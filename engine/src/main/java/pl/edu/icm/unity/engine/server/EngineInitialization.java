@@ -503,7 +503,7 @@ public class EngineInitialization extends LifecycleBase
 					entityCredHelper.setEntityCredentialInternalWithoutVerify(
 									adminEntity.getEntityId(),
 									credDef.getName(),
-									ptoken.toJson(), null);					
+									ptoken.toJson());					
 				});
 				
 				if (config.getBooleanValue(UnityServerConfiguration.INITIAL_ADMIN_USER_OUTDATED))

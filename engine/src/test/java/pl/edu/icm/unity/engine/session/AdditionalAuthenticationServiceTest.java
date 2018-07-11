@@ -32,8 +32,8 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
-import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService.AdditionalAuthenticationMisconfiguredException;
-import pl.edu.icm.unity.engine.session.AdditionalAuthenticationService.AdditionalAuthenticationRequiredException;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 
@@ -295,8 +295,8 @@ public class AdditionalAuthenticationServiceTest
 		InvocationContext invocationContext = new InvocationContext(null, null, Lists.newArrayList(flow));
 		LoginSession loginSession = new LoginSession("id", new Date(200), 10, 1, "realm", 
 				new RememberMeInfo(false, false), 
-				new AuthNInfo(firstAuthn, new Date(200)), 
-				secondAuthn != null ? new AuthNInfo(secondAuthn, new Date(200)) : null);
+				new AuthNInfo(firstAuthn + ".password", new Date(200)), 
+				secondAuthn != null ? new AuthNInfo(secondAuthn + ".sms", new Date(200)) : null);
 		invocationContext.setLoginSession(loginSession);
 		InvocationContext.setCurrent(invocationContext);
 	}
