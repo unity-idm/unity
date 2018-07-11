@@ -181,9 +181,10 @@ public class EntityDetailsWithActions extends CustomComponent
 		try
 		{
 			identitiesPanel.saveChanges();
-			attrsPanel.saveChanges();
 			identitiesPanel.refresh();
-			attrsPanel.refresh();
+			if (attrsPanel.saveChanges())
+				attrsPanel.refresh();
+			
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, 

@@ -7,10 +7,12 @@ package pl.edu.icm.unity.engine.attribute;
 import java.util.Collection;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
@@ -45,6 +47,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 @InvocationEventProducer
 public class AttributesManagementImpl implements AttributesManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AttributesManagementImpl.class);
 	private AttributeClassUtil acUtil;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeDAO dbAttributes;
@@ -54,7 +57,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner txRunner;
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
-	private AdditionalAuthenticationService repeatedAuthnService;
+	private AdditionalAuthenticationService additionalAuthnService;
 
 	@Autowired
 	public AttributesManagementImpl(AttributeClassUtil acUtil,
@@ -74,7 +77,7 @@ public class AttributesManagementImpl implements AttributesManagement
 		this.confirmationManager = confirmationManager;
 		this.txRunner = txRunner;
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
-		this.repeatedAuthnService = repeatedAuthnService;
+		this.additionalAuthnService = repeatedAuthnService;
 	}
 
 	
@@ -123,7 +126,7 @@ public class AttributesManagementImpl implements AttributesManagement
 			AttributeType at = attributeTypeDAO.get(attribute.getName());
 			boolean fullAuthz = checkSetAttributeAuthz(entityId, at, attribute);
 			if (!fullAuthz)
-				checkReauthn(at);
+				checkAdditionalAuthn(at);
 			checkIfAllowed(entityId, attribute.getGroupPath(), attribute.getName());
 
 			attributesHelper.addAttribute(entityId, attribute, at, allowUpdate, fullAuthz);
@@ -132,10 +135,13 @@ public class AttributesManagementImpl implements AttributesManagement
 			confirmationManager.sendVerificationQuietNoTx(entity, attribute, false);
 	}
 
-	private void checkReauthn(AttributeType at)
+	private void checkAdditionalAuthn(AttributeType at)
 	{
 		if (isSensitiveAttributeChange(at))
-			repeatedAuthnService.checkAdditionalAuthenticationRequirements();
+		{
+			log.debug("Additional authentication triggered for sensitive >{}< attribute change", at.getName());
+			additionalAuthnService.checkAdditionalAuthenticationRequirements();
+		}
 	}
 	
 	private boolean isSensitiveAttributeChange(AttributeType at)
@@ -193,7 +199,7 @@ public class AttributesManagementImpl implements AttributesManagement
 				groupPath, AuthzCapability.attributeModify);
 		boolean fullAuthz = hasFullAuthzToChangeAttr(groupPath);
 		if (!fullAuthz)
-			checkReauthn(at);
+			checkAdditionalAuthn(at);
 		
 		checkIfMandatory(entityId, groupPath, attributeTypeId);
 		

@@ -181,7 +181,8 @@ public class UserAccountComponent extends VerticalLayout
 			Button removalButton = getRemovalButton(theUser, config);
 			final UserIdentitiesPanel idsPanel = new UserIdentitiesPanel(msg, 
 					identityEditorRegistry, idsMan, theUser.getEntityId(), idTypeSupport);
-			final UserAttributesPanel attrsPanel = new UserAttributesPanel(msg, attributeHandlerRegistry, 
+			final UserAttributesPanel attrsPanel = new UserAttributesPanel(additionalAuthnHandler, 
+					msg, attributeHandlerRegistry, 
 					attributesMan, idsMan, atSupport, config, theUser.getEntityId());
 			ConnectIdWizardProvider connectIdProvider = new ConnectIdWizardProvider(msg, 
 					sandboxURL, sandboxNotifier, inputTranslationEngine, new WizardFinishedCallback()

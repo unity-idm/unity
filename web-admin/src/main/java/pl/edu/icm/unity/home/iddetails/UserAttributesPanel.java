@@ -21,13 +21,18 @@ import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
+import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
+import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -54,14 +59,18 @@ public class UserAttributesPanel
 	private List<AttributeViewer> viewers;
 	private EntityManagement idsMan;
 	private AttributeSupport atMan;
+	private final AdditionalAuthnHandler additionalAuthnHandler;
 	
-	public UserAttributesPanel(UnityMessageSource msg,
+	public UserAttributesPanel(
+			AdditionalAuthnHandler additionalAuthnHandler,
+			UnityMessageSource msg,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributesManagement attributesMan, EntityManagement idsMan,
 			AttributeSupport atMan,
 			HomeEndpointProperties config,
 			long entityId) throws EngineException
 	{
+		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.msg = msg;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
 		this.attributesMan = attributesMan;
@@ -171,21 +180,58 @@ public class UserAttributesPanel
 			ae.getAttribute();
 	}
 	
-	public void saveChanges() throws Exception
+	public boolean saveChanges() throws Exception
 	{
+		boolean changed = false;
 		for (FixedAttributeEditor ae: attributeEditors)
 		{
 			try
 			{
+				if (!ae.isChanged())
+					continue;
 				Optional<Attribute> a = ae.getAttribute();
 				if (a.isPresent())
 					updateAttribute(a.get());
 				else
 					removeAttribute(ae);
+				changed = true;
 			} catch (FormValidationException e)
 			{
 				continue;
+			} catch (AdditionalAuthenticationRequiredException additionalAuthn)
+			{
+				additionalAuthnHandler.handleAdditionalAuthenticationException(additionalAuthn, 
+						msg.getMessage("UserAttributesPanel.additionalAuthnRequired"), 
+						msg.getMessage("UserAttributesPanel.additionalAuthnRequiredInfo"),
+						this::onAdditionalAuthnForAttributesSave);
+				return false;
+			} catch (AdditionalAuthenticationMisconfiguredException misconfigured)
+			{
+				NotificationPopup.showError(msg.getMessage("UserAttributesPanel.attributeUpdateError"), 
+						msg.getMessage("AdditionalAuthenticationMisconfiguredError"));
+				return changed;
 			}
+		}
+		return changed;
+	}
+	
+	private void onAdditionalAuthnForAttributesSave(AuthnResult result)
+	{
+		try
+		{
+			if (result == AuthnResult.SUCCESS)
+			{
+				saveChanges();
+				refresh();
+			} else if (result == AuthnResult.ERROR)
+			{
+				NotificationPopup.showError(msg.getMessage("UserAttributesPanel.attributeUpdateError"), 
+						msg.getMessage("UserAttributesPanel.additionalAuthnFailed"));
+				refresh();
+			}
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("UserAttributesPanel.attributeUpdateError"), e);
 		}
 	}
 	

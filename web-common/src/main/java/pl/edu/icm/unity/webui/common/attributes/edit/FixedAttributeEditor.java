@@ -36,6 +36,7 @@ public class FixedAttributeEditor
 	private AttributeEditContext editContext;
 	private ListOfEmbeddedElementsStub<LabelledValue> valuesComponent;
 	private AbstractOrderedLayout parent;
+	private List<String> originalValues;
 
 	public FixedAttributeEditor(UnityMessageSource msg, AttributeHandlerRegistry registry,
 			AttributeEditContext editContext, boolean showGroup, 
@@ -54,6 +55,7 @@ public class FixedAttributeEditor
 	
 	public void setAttributeValues(List<String> values)
 	{
+		this.originalValues = new ArrayList<>(values);
 		List<LabelledValue> labelledValues = new ArrayList<>(values.size());
 		for (String value: values)
 			labelledValues.add(new LabelledValue(value, caption));
@@ -70,6 +72,16 @@ public class FixedAttributeEditor
 		return editContext.getAttributeGroup();
 	}
 
+	public boolean isChanged() throws FormValidationException
+	{
+		Optional<Attribute> current = getAttribute();
+		if (originalValues == null)
+			return current.isPresent();
+		if (!current.isPresent())
+			return !originalValues.isEmpty();
+		return !originalValues.equals(current.get().getValues());
+	}
+	
 	public Optional<Attribute> getAttribute() throws FormValidationException
 	{
 		List<LabelledValue> values = valuesComponent.getElements();
