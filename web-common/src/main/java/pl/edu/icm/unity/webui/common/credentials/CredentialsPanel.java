@@ -101,9 +101,6 @@ public class CredentialsPanel extends VerticalLayout
 	
 	private void init() throws Exception
 	{
-		addComponent(getTrustedDevicesComponent());
-		addComponent(HtmlTag.horizontalLine());
-		
 		userOptInCheckBox = new CheckBox(msg.getMessage("CredentialChangeDialog.userMFAOptin"));
 		userOptInCheckBox.setDescription(msg.getMessage("CredentialChangeDialog.userMFAOptinDesc"));
 		FormLayout wrapper = new FormLayout();
@@ -150,21 +147,24 @@ public class CredentialsPanel extends VerticalLayout
 			last--;
 		}
 		updateUserOptInCheckbox();
+		
+		addComponent(HtmlTag.horizontalLine());
+		addComponent(getTrustedDevicesComponent());
+
 		setSizeFull();
 	}
 
 	
 	private Component getTrustedDevicesComponent()
 	{	
-		TrustedDevicesComponent trustedDevicesComponent = new  TrustedDevicesComponent(tokenMan, msg, entityId);
+		TrustedDevicesComponent trustedDevicesComponent = new TrustedDevicesComponent(tokenMan, msg, entityId);
 		trustedDevicesComponent.setVisible(false);		
 		VerticalLayout trustedDevicesWrapper = new VerticalLayout();
-		trustedDevicesWrapper.setMargin(true);
-		trustedDevicesWrapper.setSpacing(false);
+		trustedDevicesWrapper.setMargin(false);
+		trustedDevicesWrapper.setSpacing(true);
 		
 		Button removeTrustedMachines = new Button(msg.getMessage("CredentialChangeDialog.removeTrustedDevices"));
 		removeTrustedMachines.addClickListener(e -> trustedDevicesComponent.removeAll());
-		removeTrustedMachines.setIcon(Images.remove.getResource());
 		
 		Button showHideTrustedMachines = new Button();
 		showHideTrustedMachines.setDescription(msg.getMessage("CredentialChangeDialog.showTrustedDevices"));
@@ -184,10 +184,13 @@ public class CredentialsPanel extends VerticalLayout
 		showHideTrustedMachines.setIcon(Images.downArrow.getResource());
 		showHideTrustedMachines.setStyleName(Styles.vButtonLink.toString());
 		showHideTrustedMachines.addStyleName(Styles.vButtonBorderless.toString());
+		Label showInfo = new Label(msg.getMessage("TrustedDevicesComponent.caption"));
+		HorizontalLayout showHide = new HorizontalLayout();
+		showHide.setMargin(false);
+		showHide.addComponents(showInfo, showHideTrustedMachines);
 		
-		HorizontalLayout trustedDeviceToolbar = new HorizontalLayout();
-		trustedDeviceToolbar.addComponents(removeTrustedMachines, showHideTrustedMachines);
-		trustedDevicesWrapper.addComponents(trustedDeviceToolbar, trustedDevicesComponent);
+		
+		trustedDevicesWrapper.addComponents(removeTrustedMachines, showHide, trustedDevicesComponent);
 		return trustedDevicesWrapper;
 	}
 	

@@ -49,7 +49,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
  */
 public class SingleCredentialPanel extends VerticalLayout
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, CredentialsPanel.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleCredentialPanel.class);
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;

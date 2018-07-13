@@ -58,9 +58,9 @@ public class TrustedDevicesComponent extends CustomComponent
 		main.setMargin(false);
 		main.setSpacing(false);
 		tokensTable = new SmallGrid<>();
-		tokensTable.setSizeFull();
+		tokensTable.setWidth(100, Unit.PERCENTAGE);
 		tokensTable.setSelectionMode(SelectionMode.MULTI);
-		tokensTable.setCaption(msg.getMessage("TrustedDevicesComponent.caption"));
+		
 		
 		addColumn("ip", TableTokensBean::getIp, false);
 		addColumn("browser", TableTokensBean::getBrowser, false);
@@ -84,8 +84,7 @@ public class TrustedDevicesComponent extends CustomComponent
 		
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(tokensTable, toolbar);
 		tableWithToolbar.setWidth(100, Unit.PERCENTAGE);
-		
-		
+		tableWithToolbar.setHeight(15, Unit.EM);
 		
 		main.addComponent(tableWithToolbar);
 		refresh();
