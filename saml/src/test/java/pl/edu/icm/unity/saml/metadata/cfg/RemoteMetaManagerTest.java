@@ -133,12 +133,11 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 		private BiConsumer<EntitiesDescriptorDocument, String> consumer;
 
 		@Override
-		public String registerConsumer(String url, long refreshIntervalMs,
+		public void registerConsumer(String key, long refreshIntervalMs,
 				String customTruststore,
 				BiConsumer<EntitiesDescriptorDocument, String> consumer)
 		{
 			this.consumer = consumer;
-			return "1";
 		}
 
 		void publishMetadata(EntitiesDescriptorDocument doc)
@@ -149,6 +148,17 @@ public class RemoteMetaManagerTest extends DBIntegrationTestBase
 		@Override
 		public void unregisterConsumer(String id)
 		{
+		}
+
+		@Override
+		public void reset()
+		{
+		}
+
+		@Override
+		public String preregisterConsumer(String url)
+		{
+			return "1";
 		}
 	}
 	

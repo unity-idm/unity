@@ -40,6 +40,7 @@ import java.util.Properties;
 
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -62,6 +63,12 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 	
 	@Autowired
 	private UnityMessageSource msg;
+	
+	@Before
+	public void reset()
+	{
+		metadataService.reset();
+	}
 	
 	@Test
 	public void testConfigureSPFromMetadata() throws Exception

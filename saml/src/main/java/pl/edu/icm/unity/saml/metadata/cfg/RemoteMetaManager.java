@@ -84,10 +84,10 @@ public class RemoteMetaManager
 			long refreshInterval = configuration.getIntValue(key + SamlProperties.METADATA_REFRESH) * 1000L;
 			String customTruststore = configuration.getValue(key + SamlProperties.METADATA_HTTPS_TRUSTSTORE);
 			MetadataConsumer consumer = new MetadataConsumer(url, key);
-			String consumerId = metadataService.registerConsumer(url, 
-					refreshInterval, customTruststore, 
-					consumer::updateMetadata);
+			String consumerId = metadataService.preregisterConsumer(url);
 			registeredConsumers.add(consumerId);
+			metadataService.registerConsumer(consumerId, refreshInterval, customTruststore, 
+					consumer::updateMetadata);
 		}
 	}
 

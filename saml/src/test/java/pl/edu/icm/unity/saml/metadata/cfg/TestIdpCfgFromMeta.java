@@ -41,6 +41,7 @@ import java.util.Set;
 
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -67,7 +68,13 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	
 	@Autowired
 	private UnityMessageSource msg;
-	
+
+	@Before
+	public void reset()
+	{
+		metadataService.reset();
+	}
+
 	@Test
 	public void testConfigureIdpFromMetadata() throws Exception
 	{
@@ -141,7 +148,6 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 			.untilAsserted(() -> assertSLOCfgLoaded(manager));
 	}
 
-	
 	private void assertSLOCfgLoaded(RemoteMetaManager manager)
 	{
 		SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
