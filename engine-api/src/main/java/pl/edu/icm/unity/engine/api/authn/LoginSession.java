@@ -383,5 +383,11 @@ public class LoginSession
 			this.optionId = optionId;
 			this.time = time;
 		}
+
+		@Override
+		public String toString()
+		{
+			return "AuthNInfo [optionId=" + optionId + ", time=" + time.getTime() + "]";
+		}
 	}	
 }

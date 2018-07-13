@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.vaadin.shared.ui.MarginInfo;
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
@@ -17,13 +16,14 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
  * Component stub showing a list of elements with add and remove capabilities.
  * It is possible to configure minimum and maximum number of elements.
  * <p>
- * This class is not a full component. Instead it allows to add its contents to another container
+ * This class is not a full component. Instead it returns {@link ComponentsGroup} which can be added to a layout.
  * 
  *  
  * @author K. Benedyczak
@@ -37,18 +37,18 @@ public class ListOfEmbeddedElementsStub<T>
 	private boolean showLine;
 	private HorizontalLayout lonelyBar;
 	private List<Entry> components;
+	private ComponentsGroup group;
 	
-	private AbstractOrderedLayout parent;
 	
 	public ListOfEmbeddedElementsStub(UnityMessageSource msg, EditorProvider<T> editorProvider,
-			int min, int max, boolean showLine, AbstractOrderedLayout parent)
+			int min, int max, boolean showLine)
 	{
-		this.parent = parent;
 		this.msg = msg;
 		this.editorProvider = editorProvider;
 		this.min = min;
 		this.max = max;
 		this.showLine = showLine;
+		this.group = new ComponentsGroup();
 
 		components = new ArrayList<>();
 		Button lonelyAdd = new Button();
@@ -67,7 +67,7 @@ public class ListOfEmbeddedElementsStub<T>
 		lonelyBar = new HorizontalLayout(lonelyAdd);
 		lonelyBar.setSpacing(true);
 		lonelyBar.setMargin(new MarginInfo(true, false, true, false));
-		parent.addComponent(lonelyBar);
+		group.addComponent(lonelyBar);
 		for (int i=0; i<min; i++)
 			addEntry(null, null);
 	}
@@ -95,7 +95,7 @@ public class ListOfEmbeddedElementsStub<T>
 	public Entry addEntry(T value, Entry after)
 	{
 		lonelyBar.setVisible(false);
-		int parentOffset = parent.getComponentIndex(lonelyBar)+1;
+		int parentOffset = group.getComponentIndex(lonelyBar)+1;
 		Entry entry;
 		if (after == null)
 		{
@@ -103,7 +103,7 @@ public class ListOfEmbeddedElementsStub<T>
 			components.add(0, entry);
 			Component[] uiComponents = entry.getContents().getComponents(); 
 			for (int i=0; i<uiComponents.length; i++)
-				parent.addComponent(uiComponents[i], i+parentOffset);
+				group.addComponent(uiComponents[i], i+parentOffset);
 		} else
 		{
 			int i = components.indexOf(after);
@@ -115,7 +115,7 @@ public class ListOfEmbeddedElementsStub<T>
 			
 			Component[] uiComponents = entry.getContents().getComponents();
 			for (int j=0; j<uiComponents.length; j++)
-				parent.addComponent(uiComponents[j], start+j+parentOffset);
+				group.addComponent(uiComponents[j], start+j+parentOffset);
 		}
 		
 		for (int i=0; i<components.size(); i++)
@@ -128,7 +128,7 @@ public class ListOfEmbeddedElementsStub<T>
 		components.remove(e);
 		Component[] uiComponents = e.getContents().getComponents();
 		for (Component c: uiComponents)
-			parent.removeComponent(c);
+			group.removeComponent(c);
 		for (int i=0; i<components.size(); i++)
 			components.get(i).refresh(i);
 		if (components.size() == 0)
@@ -140,7 +140,7 @@ public class ListOfEmbeddedElementsStub<T>
 		for (Entry e: components)
 		{
 			for (Component c: e.getContents().getComponents())
-				parent.removeComponent(c);
+				group.removeComponent(c);
 		}
 		components.clear();
 		lonelyBar.setVisible(false);
@@ -154,6 +154,12 @@ public class ListOfEmbeddedElementsStub<T>
 		return ret;
 	}
 	
+	public ComponentsGroup getComponentsGroup()
+	{
+		return group;
+	}
+
+
 	public interface Editor<T>
 	{
 		/**

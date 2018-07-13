@@ -67,6 +67,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
@@ -603,12 +604,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				rattr != null)
 			return false;
 		
-		
+		CompositeLayoutAdapter layoutAdapter = new CompositeLayoutAdapter(layout);
+		layoutAdapter.setOffset(layout.getComponentCount());
 		if (readOnlyAttribute != null)
 		{
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, 
 					aType, readOnlyAttribute, false);
-			viewer.addToLayout(layout);
+			layoutAdapter.addContainer(viewer.getComponentsGroup());
 		} else
 		{
 			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 
@@ -631,7 +633,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
 					attributeHandlerRegistry, editContext,
-					aParam.isShowGroups(), aName, description, layout);
+					aParam.isShowGroups(), aName, description);
+			layoutAdapter.addContainer(editor.getComponentsGroup());
 			
 			if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 
 					&& rattr != null)

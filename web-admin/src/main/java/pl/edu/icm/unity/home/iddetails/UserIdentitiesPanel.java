@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -25,6 +24,9 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
+import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter.ComposableComponents;
+import pl.edu.icm.unity.webui.common.composite.GroupOfGroups;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.SingleTypeIdentityEditor;
 
@@ -40,11 +42,11 @@ public class UserIdentitiesPanel
 	protected EntityManagement idsManagement;
 	private long entityId;
 	private List<SingleTypeIdentityEditor> identityEditors;
-	private AbstractOrderedLayout parent;
 	private Map<IdentityType, List<Identity>> editableIdsByType;
 	private Map<IdentityType, List<Identity>> roIdsByType;
-	private List<Label> roLabels;
+	private List<ComponentsGroup> roLabels;
 	private IdentityTypeSupport idTypeSupport;
+	private GroupOfGroups componentsGroup;
 	
 	public UserIdentitiesPanel(UnityMessageSource msg, IdentityEditorRegistry identityEditorReg,
 			EntityManagement idsManagement, long entityId, IdentityTypeSupport idTypeSupport) 
@@ -58,8 +60,10 @@ public class UserIdentitiesPanel
 		
 		identityEditors = new ArrayList<>();
 		roLabels = new ArrayList<>();
+		componentsGroup = new GroupOfGroups();
 		
 		initIdentities();
+		initUI();
 	}
 
 	private void initIdentities() throws EngineException
@@ -88,10 +92,9 @@ public class UserIdentitiesPanel
 		}
 	}
 	
-	public void addIntoLayout(AbstractOrderedLayout layout) throws EngineException
+	public ComposableComponents getContents()
 	{
-		this.parent = layout;
-		initUI();
+		return componentsGroup;
 	}
 	
 	private void initUI() throws EngineException
@@ -115,8 +118,9 @@ public class UserIdentitiesPanel
 			String caption = typeDef.getHumanFriendlyName(msg);
 			caption += (i > 0) ? " (" + (i+1) + "):" : ":";
 			label.setCaption(caption);
-			roLabels.add(label);
-			parent.addComponent(label);
+			ComponentsGroup wrappedLabel = new ComponentsGroup(label);
+			roLabels.add(wrappedLabel);
+			componentsGroup.addComposableComponents(wrappedLabel);
 		}
 	}
 
@@ -124,14 +128,15 @@ public class UserIdentitiesPanel
 	{		
 		List<Identity> idList = editableIdsByType.get(idType);
 		SingleTypeIdentityEditor singleTypeIdentityEditor = new SingleTypeIdentityEditor(idType, 
-				idList, identityEditorReg, msg, idTypeSupport, parent);
+				idList, identityEditorReg, msg, idTypeSupport);
 		identityEditors.add(singleTypeIdentityEditor);
+		componentsGroup.addComposableComponents(singleTypeIdentityEditor.getComponentsGroup());
 	}
 	
 	private void clear()
 	{
-		for (Label l: roLabels)
-			parent.removeComponent(l);
+		for (ComponentsGroup l: roLabels)
+			l.removeAll();
 		for (SingleTypeIdentityEditor e: identityEditors)
 			e.removeAll();
 	}
@@ -140,8 +145,7 @@ public class UserIdentitiesPanel
 	{
 		clear();
 		initIdentities();
-		if (parent != null)
-			initUI();
+		initUI();
 	}
 	
 	public void validate() throws FormValidationException

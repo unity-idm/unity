@@ -9,6 +9,7 @@ import java.util.List;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
+import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 
 /**
  * Wrapper of the {@link ListOfEmbeddedElementsStub} as a standalone component.
@@ -29,7 +30,8 @@ public class ListOfEmbeddedElements<T> extends CompactFormLayout
 	public ListOfEmbeddedElements(String caption, UnityMessageSource msg, EditorProvider<T> editorProvider,
 			int min, int max, boolean showLine)
 	{
-		stub = new ListOfEmbeddedElementsStub<T>(msg, editorProvider, min, max, showLine, this);
+		stub = new ListOfEmbeddedElementsStub<T>(msg, editorProvider, min, max, showLine);
+		new CompositeLayoutAdapter(this, stub.getComponentsGroup());
 		if (caption != null)
 			setCaption(caption);
 	}

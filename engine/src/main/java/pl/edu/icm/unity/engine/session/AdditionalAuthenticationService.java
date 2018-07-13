@@ -229,7 +229,12 @@ public class AdditionalAuthenticationService
 	
 	private boolean checkAuthnInfoInGracePeriod(AuthNInfo authnInfo, String expectedAuthnOption, long graceTime)
 	{
-		if (authnInfo == null || authnInfo.optionId == null || !authnInfo.optionId.equals(expectedAuthnOption))
+		log.trace("Checking if {} contains {} in grace period {} at {}", authnInfo, 
+				expectedAuthnOption, graceTime, System.currentTimeMillis());
+		if (authnInfo == null || authnInfo.optionId == null)
+			return false;
+		String authenticator = AuthenticationOptionKeyUtils.decodeAuthenticator(authnInfo.optionId);
+		if (!authenticator.equals(expectedAuthnOption))
 			return false;
 		return System.currentTimeMillis() < graceTime + authnInfo.time.getTime();
 	}

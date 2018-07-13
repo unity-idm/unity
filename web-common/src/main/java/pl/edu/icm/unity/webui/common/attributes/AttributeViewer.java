@@ -4,20 +4,19 @@
  */
 package pl.edu.icm.unity.webui.common.attributes;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.AbstractField;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.AbstractField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
+import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
 /**
@@ -32,7 +31,7 @@ public class AttributeViewer
 	private AttributeType attributeType;
 	private Attribute attribute;
 	private boolean showGroup;
-	private List<Component> values;
+	private ComponentsGroup group;
 	
 	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry, 
 			AttributeType attributeType, Attribute attribute, boolean showGroup)
@@ -42,32 +41,31 @@ public class AttributeViewer
 		this.attributeType = attributeType;
 		this.attribute = attribute;
 		this.showGroup = showGroup;
+		
+		generate(attributeType.getDisplayedName().getValue(msg));
 	}
-
-	public void removeFromLayout(AbstractOrderedLayout parent)
+	
+	public ComponentsGroup getComponentsGroup()
 	{
-		for (Component c: values)
-			parent.removeComponent(c);
+		return group;
 	}
-
-	public void addToLayout(AbstractOrderedLayout parent)
+	
+	public void clear()
 	{
-		addToLayout(attributeType.getDisplayedName().getValue(msg), parent);
+		group.removeAll();
 	}
 	
 	public List<Component> getAsComponents(String caption, String description)
 	{
 		createContents(caption, description);
-		return values;
+		return group.getComponents();
 	}
 	
-	public void addToLayout(String caption, AbstractOrderedLayout parent)
+	private void generate(String caption)
 	{
 		I18nString description = attributeType.getDescription();
 		String descriptionraw = description != null ? description.getValue(msg) : null;
 		createContents(caption, descriptionraw);
-		for (Component c: values)
-			parent.addComponent(c);
 	}
 	
 	private void createContents(String caption, String descriptionRaw)
@@ -76,7 +74,7 @@ public class AttributeViewer
 			caption = caption + " @" + attribute.getGroupPath(); 
 
 		int i = 1;
-		values = new ArrayList<>();
+		group.removeAll();
 		for (String o: attribute.getValues())
 		{
 			Component valueRepresentation = getRepresentation(o);
@@ -95,7 +93,7 @@ public class AttributeViewer
 			}
 			
 			valueRepresentation.addStyleName("u-baseline");
-			values.add(valueRepresentation);
+			group.addComponent(valueRepresentation);
 			i++;
 		}
 	}
