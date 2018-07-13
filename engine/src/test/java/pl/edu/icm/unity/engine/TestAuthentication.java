@@ -9,10 +9,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -21,10 +24,16 @@ import java.util.Set;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
@@ -483,14 +492,31 @@ public class TestAuthentication extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
 		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
-		setupUserContext("user2", null);
+		Authenticator authenticator = getAuthenticator("authn", "credential1"); 
+		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, Sets.newHashSet(authenticator), 
+				Collections.emptyList(), 1);
+		setupUserContext(sessionMan, identityResolver, "user2", null, Lists.newArrayList(flow));
 		
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 		
+		InvocationContext.getCurrent().getLoginSession().setAdditionalAuthn(new AuthNInfo("authn", new Date()));
+		
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
 	}
 
+	private Authenticator getAuthenticator(String authenticator, String credential)
+	{
+		Authenticator auth1 = mock(Authenticator.class);
+		AuthenticatorInstance instance1 = mock(AuthenticatorInstance.class);
+		when(instance1.getLocalCredentialName()).thenReturn(credential);
+		when(instance1.getId()).thenReturn(authenticator);
+		when(auth1.getAuthenticatorInstance()).thenReturn(instance1);
+		CredentialRetrieval retrieval = mock(CredentialRetrieval.class);
+		when(auth1.getRetrieval()).thenReturn(retrieval);
+		return auth1;
+	}
+	
 	@Test
 	public void shouldAllowToSetInitialPasswordWithoutThePreviousOne() throws Exception
 	{

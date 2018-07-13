@@ -53,7 +53,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	public static final String DEF_PASSWORD = "mock~!)(@*#&$^%:?,'.\\|";
 	
 	@Autowired
-	private SessionManagement sessionMan;
+	protected SessionManagement sessionMan;
 	
 	@Before
 	public void setupAdmin() throws Exception
