@@ -41,7 +41,7 @@ public class AttributeViewer
 		this.attributeType = attributeType;
 		this.attribute = attribute;
 		this.showGroup = showGroup;
-		
+		this.group = new ComponentsGroup();
 		generate(attributeType.getDisplayedName().getValue(msg));
 	}
 	
