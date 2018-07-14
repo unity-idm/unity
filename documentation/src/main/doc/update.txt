@@ -164,17 +164,33 @@ automatically. Instead, if this is needed (unlikely), admin needs to manually tr
 
 ==== From 2.5.0 to 2.6.0
 
+Release 2.6.0 brings the following important changes:
 
-There were numerous changes in configuration of endpoints. All but configuration of authentication screen 
-(see the following section) should be simple to apply )or most likely require no work).
+* authentication tiles concept is fully replaced by a new column based authentication screen configuration,
+* introduction of _authentication flows_ which are the only way to configure two factor authentication,
+* refactoring of the _remember me_ functionality.
+
+===== Remember me configuration changes
+
+The +unityServer.core.realms.*.enableRememberMeFor+ option no longer controls whether remember-me feture is 
+enabled or not, only the remember time. Only positive values are accepted.
+
+To control the policy a new option was added: +unityServer.core.realms.*.machineRememberPolicy+, which provides
+more flexibility. Valid options are +disallow+, +allowFor2ndFactor+ (the default) and +allowForWholeAuthn+. 
+The +allowFor2ndFactor+ option is a new feature introduced in Unity 2.6.0.
+
+
+===== Changes in web endpoints configuration (Admin, Home, SAML IdP, OAuth AS)  
+
+There were numerous changes in configuration of endpoints. All but configuration of authentication screen changes 
+(see the last subsection) should be simple to apply or not affecting your deployment.
 
 Options removed from all endpoints:
 
 . +unity.endpoint.web.authenticationTiles.*+ - tiles based organization of the authentication screen was totally dropped.
 Insted use the new column based authentication configuration. 
 
-
-Removed options from SAML endpoints:
+Options removed from SAML endpoints:
 
 . +unity.saml.requester.selectedProviderIconScale+ - removed with no counterpart - it has no use anymore
 . +unity.saml.requester.iconScale+ - deprecated since a long time and finally dropped
@@ -182,20 +198,20 @@ Removed options from SAML endpoints:
 . +unity.saml.requester.displayName+ - deprecated since a long time and finally dropped
 . +unity.saml.requester.providersInRow+ - deprecated since a long time and finally dropped
 
-Removed options from OAuth endpoints:
+Options removed from OAuth endpoints:
 
 . +unity.oauth2.client.selectedProviderIconScale+ - removed with no counterpart - it has no use anymore
 . +unity.oauth2.client.iconScale+ - deprecated since a long time and finally dropped
 . +unity.oauth2.client.displayName+ - deprecated since a long time and finally dropped
 . +unity.oauth2.client.providersInRow+ - deprecated since a long time and finally dropped
 
-===== Endpoint configuration change
+===== Endpoint authentication configuration in unityServer.conf
 
 Those changes most likely won't affect your installation modified options were very rarely used.
 
 Endpoint authentication is now configured using either individul authenticators (as prevously) or authentication flows.
-Authentication flows take over the not supported anymore syntax "authenticator1,authenticator2" (and allow for 
-configuring multifactor authentication in a flexible way). Such option should be converted to use 
+Authentication flows take over the not supported anymore syntax "authenticator1,authenticator2" and allow for 
+configuring multifactor authentication in a more flexible way. Such option should be converted to use 
 a flow with mandatory 2nd factor policy. For example a former configuration:
 
 ----
@@ -219,7 +235,8 @@ unityServer.core.endpoints.myE1.endpointAuthenticators=passAndSMS;certWeb
 
 
 Additionally note that endpoint configuration is changed what may affect REST clients or Groovy scripts creating endpoints.
-Former +List<AuthenticationOptionDescription>+ -> +List<String>+ with contains authenticator of authentication flow name.
+Former +List<AuthenticationOptionDescription>+ was changed to simple +List<String>+ 
+with contains authenticator of authentication flow name.
 
 
 ===== Styling changes 
