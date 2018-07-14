@@ -9,6 +9,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
@@ -144,7 +145,7 @@ public class AuthenticatorImpl implements Authenticator
 		retrieval.setSerializedConfiguration(rConfiguration);
 		instanceDescription.setRetrievalConfiguration(rConfiguration);
 		verificator.setSerializedConfiguration(vConfiguration);
-		if (!(verificator instanceof LocalCredentialVerificator))
+		if (!(verificator.getType().equals(VerificatorType.Local)))
 		{
 			instanceDescription.setVerificatorConfiguration(vConfiguration);
 		} else 

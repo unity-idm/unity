@@ -543,6 +543,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return input;
 	}
 	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Remote;
+	}
 	
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory
@@ -558,7 +563,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			sharedEndpointManagement.deployInternalEndpointServlet(
 					ResponseConsumerServlet.PATH, servlet, false);
 		}
-	}
+	}	
 }
 
 

@@ -25,8 +25,9 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
-import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -144,7 +145,8 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 			{
 				CredentialVerificatorFactory factory = authnRegistry.getCredentialVerificatorFactory(
 						instance.getTypeDescription().getVerificationMethod());
-				if (!(factory instanceof LocalCredentialVerificatorFactory)) 
+				CredentialVerificator verificator = factory.newInstance();
+				if (verificator.getType().equals(VerificatorType.Remote)) 
 				{
 					AuthenticationFlowDefinition authnFlow = new AuthenticationFlowDefinition(
 							instance.getId(), Policy.NEVER, Sets.newHashSet(instance.getId()));

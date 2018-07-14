@@ -279,6 +279,12 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 		return new CompositePasswordResetImpl(credentialHelper, localVerificatorWithReset,
 				identityResolver, notificationProducer);
 	}
+	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Mixed;
+	}
 
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory

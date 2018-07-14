@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
@@ -73,7 +73,7 @@ public class AuthenticatorsRegistry
 				desc.setSupportedBinding(rf.getSupportedBinding());
 				desc.setVerificationMethod(vf.getName());
 				desc.setVerificationMethodDescription(vf.getDescription());
-				desc.setLocal(vf instanceof LocalCredentialVerificatorFactory);
+				desc.setLocal(verificator.getType().equals(VerificatorType.Local));
 				Set<AuthenticatorTypeDescription> existing = authenticatorsByBinding.get(
 						rf.getSupportedBinding());
 				if (existing == null)

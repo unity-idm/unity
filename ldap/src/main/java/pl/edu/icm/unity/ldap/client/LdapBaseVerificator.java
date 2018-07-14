@@ -165,4 +165,10 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 		}
 		return input;
 	}
+	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Remote;
+	}
 }

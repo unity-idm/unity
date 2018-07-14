@@ -130,6 +130,11 @@ public class JWTVerificator extends AbstractVerificator implements JWTExchange
 		}
 	}
 	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Remote;
+	}
 	
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory

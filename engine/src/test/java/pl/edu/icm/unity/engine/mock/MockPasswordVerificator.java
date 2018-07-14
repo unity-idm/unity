@@ -94,5 +94,11 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 		
 		return true;
 	}
+	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Local;
+	}
 
 }

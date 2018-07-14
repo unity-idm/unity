@@ -41,4 +41,10 @@ public abstract class AbstractLocalVerificator extends AbstractVerificator imple
 	{
 		this.supportingInvalidation = supportingInvalidation;
 	}
+	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Local;
+	}
 }
