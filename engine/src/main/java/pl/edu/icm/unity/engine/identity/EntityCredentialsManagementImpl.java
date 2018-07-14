@@ -124,7 +124,8 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 			throw new IllegalCredentialException("The credential " + credentialId
 					+ " is not allowed for the entity");
 
-		if (credInfo.getState() == LocalCredentialState.notSet)
+		if (credInfo.getState() == LocalCredentialState.notSet 
+				|| credInfo.getState() == LocalCredentialState.outdated)
 			return false;
 		return true;
 	}
