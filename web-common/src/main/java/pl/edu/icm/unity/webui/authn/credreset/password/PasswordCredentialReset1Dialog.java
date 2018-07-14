@@ -43,7 +43,8 @@ public class PasswordCredentialReset1Dialog extends AbstractDialog
 				msg.getMessage("cancel"));
 		this.msg = msg;
 		this.backend = backend;
-		this.credEditor = credEditor;	
+		this.credEditor = credEditor;
+		setSizeEm(40, 30);
 	}
 
 	@Override
@@ -57,7 +58,9 @@ public class PasswordCredentialReset1Dialog extends AbstractDialog
 		}
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
-		ret.addComponent(new Label(msg.getMessage("CredentialReset.info")));
+		Label info = new Label(msg.getMessage("CredentialReset.info"));
+		ret.addComponent(info);
+		info.setWidth(100, Unit.PERCENTAGE);
 		FormLayout form = new FormLayout();
 		username = new TextField(msg.getMessage("CredentialReset.username"));
 		captcha = new CaptchaComponent(msg);

@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
  * @author P.Piernik
  *
  */
-public class PasswordCredentialResetVerificationChoose3Dialog  extends AbstractDialog
+public class PasswordCredentialResetVerificationChoose3Dialog extends AbstractDialog
 {	
 	private enum VerificationMethod {Email, Mobile}
 	
@@ -40,7 +40,8 @@ public class PasswordCredentialResetVerificationChoose3Dialog  extends AbstractD
 		this.msg = msg;
 		this.backend = backend;
 		this.username = username;
-		this.credEditor = credEditor;		
+		this.credEditor = credEditor;
+		setSizeEm(40, 30);
 	}
 
 	@Override
@@ -55,7 +56,9 @@ public class PasswordCredentialResetVerificationChoose3Dialog  extends AbstractD
 		
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
-		ret.addComponent(new Label(msg.getMessage("CredentialReset.chooseVerificationMethod")));
+		Label label = new Label(msg.getMessage("CredentialReset.chooseVerificationMethod"));
+		ret.addComponent(label);
+		label.setWidth(100, Unit.PERCENTAGE);
 		FormLayout form = new FormLayout(choose);
 		ret.addComponent(form);
 		return ret;

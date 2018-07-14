@@ -38,7 +38,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		this.backend = backend;
 		this.credEditor = credEditor;
 		this.expectedState = expectedState;
-		setSize(40, 50);
+		setSizeEm(40, 50);
 	}
 
 	@Override

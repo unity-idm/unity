@@ -47,7 +47,8 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 	private boolean onlyNumberCode;
 	
 	public CodeVerificationCredentialResetDialog(UnityMessageSource msg, CredentialReset backend, CredentialEditor credEditor,
-			String username,int expectedState, String messageTemplate, String answerLabel, String resendDesc, String infoLabel, boolean onlyNumberCode)
+			String username,int expectedState, String messageTemplate, String answerLabel, 
+			String resendDesc, String infoLabel, boolean onlyNumberCode)
 	{
 		super(msg, msg.getMessage("CredentialReset.title"), msg.getMessage("continue"),
 				msg.getMessage("cancel"));
@@ -61,7 +62,7 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 		this.infoLabel = infoLabel;
 		this.resendDesc = resendDesc;
 		this.onlyNumberCode = onlyNumberCode;
-		
+		setSizeEm(40, 30);
 	}
 
 	public void setMessageTemplate(String messageTemplate)
@@ -93,6 +94,7 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 		
 		Label userLabel = new Label(msg.getMessage("CredentialReset.changingFor", username));
 		Label info = new Label(infoLabel);
+		info.setWidth(100, Unit.PERCENTAGE);
 		
 		answer = new TextField(answerLabel);
 		final Button resend = new Button(msg.getMessage("CredentialReset.resend"));

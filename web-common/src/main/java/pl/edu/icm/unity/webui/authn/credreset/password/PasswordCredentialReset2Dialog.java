@@ -56,6 +56,7 @@ public class PasswordCredentialReset2Dialog extends AbstractDialog
 		this.credEditor = credEditor;
 		this.settings = new PasswordCredentialResetSettings(
 				JsonUtil.parse(backend.getSettings()));
+		setSizeEm(40, 30);
 	}
 
 	@Override
