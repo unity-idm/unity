@@ -92,7 +92,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		InvocationContext ctx = new InvocationContext(tlsId, realm, authenticators); 
 		InvocationContext.setCurrent(ctx);
 		AuthenticationException firstError = null;
-		AuthenticatedEntity client = null;
+		EntityWithAuthenticators client = null;
 		
 		if (isToNotProtected(message))
 			return;
@@ -144,21 +144,22 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		return false;
 	}
 	
-	private void authnSuccess(AuthenticatedEntity client, String ip, InvocationContext ctx)
+	private void authnSuccess(EntityWithAuthenticators client, String ip, InvocationContext ctx)
 	{
 		if (log.isDebugEnabled())
 			log.debug("Client was successfully authenticated: [" + 
-					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
+					client.entity.getEntityId() + "] " + client.entity.getAuthenticatedWith().toString());
 		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
 		
-		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), null, new RememberMeInfo(false, false), null, null);
+		LoginSession ls = sessionMan.getCreateSession(client.entity.getEntityId(), realm, 
+				"", client.entity.getOutdatedCredentialId(), null, new RememberMeInfo(false, false), 
+				client.firstFactor, client.secondFactor);
 		ctx.setLoginSession(ls);
-		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
-		ls.setRemoteIdP(client.getRemoteIdP());
+		ls.addAuthenticatedIdentities(client.entity.getAuthenticatedWith());
+		ls.setRemoteIdP(client.entity.getRemoteIdP());
 	}
 	
-	private AuthenticatedEntity processAuthnFlow(Map<String, AuthenticationResult> authnCache,
+	private EntityWithAuthenticators processAuthnFlow(Map<String, AuthenticationResult> authnCache,
 			AuthenticationFlow authenticationFlow) throws AuthenticationException
 	{
 		PartialAuthnState state = null;
@@ -170,7 +171,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 				AuthenticationResult result = processAuthenticator(authnCache,
 						(CXFAuthentication) authn.getRetrieval());
 				state = authenticationProcessor.processPrimaryAuthnResult(result,
-						authenticationFlow, null);
+						authenticationFlow, authn.getRetrieval().getAuthenticatorId());
 			} catch (AuthenticationException e)
 			{
 				if (firstError == null)
@@ -189,13 +190,16 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 
 		if (state.isSecondaryAuthenticationRequired())
 		{
-			AuthenticationResult result2 = processAuthenticator(authnCache,
-					(CXFAuthentication) state.getSecondaryAuthenticator());
-			return authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
+			CXFAuthentication secondFactorAuthn = (CXFAuthentication) state.getSecondaryAuthenticator();
+			AuthenticationResult result2 = processAuthenticator(authnCache, secondFactorAuthn);
+			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
 					result2);
+			return new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), 
+					secondFactorAuthn.getAuthenticatorId());			
 		} else
 		{
-			return authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
+			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
+			return new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null);
 		}
 	}
 
@@ -222,5 +226,20 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		Message message = PhaseInterceptorChain.getCurrentMessage();
 		HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
 		return request.getRemoteAddr();
+	}
+	
+	private static class EntityWithAuthenticators
+	{
+		private final AuthenticatedEntity entity;
+		private final String firstFactor;
+		private final String secondFactor;
+
+		EntityWithAuthenticators(AuthenticatedEntity entity, String firstFactor,
+				String secondFactor)
+		{
+			this.entity = entity;
+			this.firstFactor = firstFactor;
+			this.secondFactor = secondFactor;
+		}
 	}
 }

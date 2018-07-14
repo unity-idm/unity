@@ -391,18 +391,20 @@ is carried in the JSON body. No content is returned. For the password credential
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
-Sets a new credential secret for the given entity. The caller is assumed to change his/her own credential and 
-must provide its current value (assuming the credential was already set).  
-Credential name is given as the path parameter, while the new and current secrets are carried in the JSON body. 
-No content is returned. The body must be a JSON array with one (only when the credential was not yet set) 
-or (typically) two elements. IMPORTANT: the values of the array must be JSON strings, not JSON objects.  
+Sets a new credential secret for the given entity. The caller is assumed to change his/her own credential.  
+Credential name is given as the path parameter, while the new secret is carried in the JSON body. 
+No content is returned. The body must be a JSON array with one element. 
+
+IMPORTANT: the value of the array must be JSON string, not JSON object.
+
+IMPORTANT: the additional authentication policy of the site must evaluate to the changed credential (typically 
+with the +CURRENT+ entry). Currently it is possible to change only the credential used for authenticating the client.   
 
 For the password credential the complete value could be (with a selected security question and its answer):  
 
 ----
 [ 
-  "{\"password\":\"newpass\",\"answer\":\"Some answer2\",\"question\":0}", 
-  "{\"password\":\"currentpass\",\"answer\":\"Some answer\",\"question\":1}" 
+  "{\"password\":\"newpass\",\"answer\":\"Some answer2\",\"question\":0}" 
 ]
 ----
 

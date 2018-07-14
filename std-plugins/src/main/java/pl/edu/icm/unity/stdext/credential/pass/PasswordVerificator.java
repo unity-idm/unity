@@ -124,7 +124,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		PasswordToken pToken = PasswordToken.loadFromJson(rawCredential);
 		
 		if (verify)
-			verifyNewPassword(pToken.getExistingPassword(), pToken.getPassword(), 
+			verifyNewPassword(pToken.getPassword(), 
 					currentPasswords, credential.getHistorySize());
 		
 		if (credential.getPasswordResetSettings().isEnabled() && 
@@ -331,13 +331,14 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return false;
 	}
 	
-	private void verifyNewPassword(String existingPassword, String password, 
-			Deque<PasswordInfo> currentCredentials, int historyLookback) throws IllegalCredentialException
+	private void verifyNewPassword(String password, Deque<PasswordInfo> currentCredentials, int historyLookback) 
+			throws IllegalCredentialException
 	{
 		Zxcvbn zxcvbn = new Zxcvbn();
 		Strength strength = zxcvbn.measure(password);
 		if (strength.getGuessesLog10() < credential.getMinScore())
-			throw new IllegalCredentialException("Password has too low score");
+			throw new IllegalCredentialException("Password has too low score " 
+					+ strength.getGuessesLog10() + "/" + credential.getMinScore());
 		
 		PasswordValidator validator = getPasswordValidator();
 		RuleResult result = validator.validate(new PasswordData(new Password(password)));
