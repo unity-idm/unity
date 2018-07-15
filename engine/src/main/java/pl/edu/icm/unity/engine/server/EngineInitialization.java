@@ -840,7 +840,7 @@ public class EngineInitialization extends LifecycleBase
 		Collection<CredentialDefinition> definitions = credMan.getCredentialDefinitions();
 		Map<String, CredentialDefinition> existing = new HashMap<>();
 		for (CredentialDefinition cd: definitions)
-			existing.put(cd.getName(), cd);
+			existing.put(cd.getName().toLowerCase(), cd);
 		
 		Set<String> credentialsList = config.getStructuredListKeys(UnityServerConfiguration.CREDENTIALS);
 		for (String credentialKey: credentialsList)
@@ -856,7 +856,7 @@ public class EngineInitialization extends LifecycleBase
 					new I18nString(description));
 			credentialDefinition.setConfiguration(jsonConfiguration);
 			
-			if (!existing.containsKey(name))
+			if (!existing.containsKey(name.toLowerCase()))
 			{
 				credMan.addCredentialDefinition(credentialDefinition);
 				log.info(" - " + name + " [" + typeId + "]");
