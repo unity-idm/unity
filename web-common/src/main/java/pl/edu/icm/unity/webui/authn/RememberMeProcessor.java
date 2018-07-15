@@ -27,12 +27,14 @@ import com.vaadin.server.WebBrowser;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
@@ -55,12 +57,14 @@ public class RememberMeProcessor
 
 	private TokensManagement tokenMan;
 	private SessionManagement sessionMan;
+	private EntityManagement entityMan;
 	
 	@Autowired
-	public RememberMeProcessor(TokensManagement tokenMan, SessionManagement sessionMan)
+	public RememberMeProcessor(TokensManagement tokenMan, SessionManagement sessionMan, EntityManagement entityMan)
 	{
 		this.tokenMan = tokenMan;
 		this.sessionMan = sessionMan;
+		this.entityMan = entityMan;
 	}
 
 	public Optional<LoginSession> processRememberedWholeAuthn(HttpServletRequest httpRequest,
@@ -163,8 +167,7 @@ public class RememberMeProcessor
 			serializedToken = unityRememberMeToken.getSerialized();
 		} catch (JsonProcessingException e)
 		{
-			log.debug("Can not serialize remember me token, skip setting remember me cookie",
-					e);
+			log.debug("Can not serialize remember me token, skip setting remember me cookie", e);
 			return;
 		}
 
@@ -178,8 +181,7 @@ public class RememberMeProcessor
 					unityRememberMeToken.getLoginTime(), expiration);
 		} catch (EngineException e)
 		{
-			log.debug("Can not add remember me token, skip setting remember me cookie",
-					e);
+			log.debug("Can not add remember me token, skip setting remember me cookie for " + entityId, e);
 			return;
 		}
 		
@@ -187,7 +189,7 @@ public class RememberMeProcessor
 				+ rememberMeToken.toString();
 		Cookie unityRememberMeCookie = getRememberMeRawCookie(realm.getName(), rememberMeCookieValue,
 				getAbsoluteRememberMeCookieTTL(realm));		
-		log.debug("Add remember me cookie and token");
+		log.debug("Adding remember me cookie and token for {}", entityId);
 		response.addCookie(unityRememberMeCookie);
 	}
 
@@ -226,12 +228,10 @@ public class RememberMeProcessor
 
 	}
 	
-	private void removeRememberMeCookie(String realmName,
-			HttpServletResponse httpResponse)
+	private void removeRememberMeCookie(String realmName, HttpServletResponse httpResponse)
 	{
 		
-		Cookie rememberMeCookie = getRememberMeRawCookie(realmName, "",
-				0);
+		Cookie rememberMeCookie = getRememberMeRawCookie(realmName, "", 0);
 		log.debug("Remove unity remember me cookie");
 		httpResponse.addCookie(rememberMeCookie);
 	}
@@ -325,15 +325,37 @@ public class RememberMeProcessor
 
 		String secondFactorAuthnOptionId = unityRememberMeToken.get()
 				.getSecondFactorAuthnOptionId();
-
-		return Optional.of(sessionMan.createSession(unityRememberMeToken.get().getEntity(),
-				realm, "", null, null,
+		long entityId = unityRememberMeToken.get().getEntity();
+		String label = getLabel(entityId);
+		
+		LoginSession session = sessionMan.createSession(entityId,
+				realm, 
+				label, 
+				null, 
+				null,
 				new RememberMeInfo(firstFactorSkipped,
 						secondFactorAuthnOptionId != null),
 				unityRememberMeToken.get().getFirstFactorAuthnOptionId(),
-				secondFactorAuthnOptionId));
+				secondFactorAuthnOptionId);
+		return Optional.of(session);
 	}
 
+	private String getLabel(long entityId)
+	{
+		try
+		{
+			return entityMan.getEntityLabel(new EntityParam(entityId));
+		} catch (AuthorizationException e)
+		{
+			log.debug("Not setting entity's label as the client is not authorized to read the attribute",
+					e);
+		} catch (EngineException e)
+		{
+			log.error("Can not get the attribute designated with EntityName", e);
+		}
+		return "";
+	}
+	
 	private Optional<RememberMeToken> getRememberMeUnityToken(RememberMeCookie rememberMeCookie)
 	{
 
