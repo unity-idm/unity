@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.unity.composite.password;
+package pl.edu.icm.unity.composite.password;
 
 import java.io.File;
 import java.io.IOException;
