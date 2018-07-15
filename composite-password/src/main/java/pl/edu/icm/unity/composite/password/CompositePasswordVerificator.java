@@ -177,8 +177,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 					+ CompositePasswordProperties.VERIFICATOR_TYPE);
 			CredentialVerificatorFactory credentialVerificatorFactory = credentialVerificatorFactories
 					.get(type);
-			CredentialVerificator verificator = credentialVerificatorFactory
-					.newInstance();
+			CredentialVerificator verificator = credentialVerificatorFactory.newInstance();
 			verificator.setIdentityResolver(identityResolver);
 			verificator.setInstanceName(NAME);
 
@@ -194,8 +193,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 				File configFile = compositePasswordProperties.getFileValue(
 						verificatorKey + CompositePasswordProperties.VERIFICATOR_CONFIG,
 						false);
-				remoteVerificators
-						.add(getRemoteVerificator(verificator, configFile));
+				remoteVerificators.add(getRemoteVerificator(verificator, configFile));
 			}
 		}
 
@@ -218,8 +216,8 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 				if (!isCredSet)
 					continue;
 
-				log.debug("Checking user password using verificator with local credential "
-						+ localVerificator);
+				log.debug("Checking >{}< password using verificator with local credential >{}<",
+						username, localVerificator.getCredentialName());
 				PasswordExchange passExchange = (PasswordExchange) localVerificator;
 				return passExchange.checkPassword(username, password,
 						sandboxCallback);
@@ -229,8 +227,8 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 
 		for (CredentialVerificator remoteVerificator : remoteVerificators)
 		{
-			log.debug("Checking user password using remote verificator "
-					+ remoteVerificator.getName());
+			log.debug("Checking >{}< password using remote verificator >{}<", username, 
+					remoteVerificator.getName());
 			PasswordExchange passExchange = (PasswordExchange) remoteVerificator;
 			AuthenticationResult result = passExchange.checkPassword(username, password,
 					sandboxCallback);
@@ -241,7 +239,7 @@ public class CompositePasswordVerificator extends AbstractVerificator implements
 			return result;
 		}
 
-		log.debug("Password provided by " + username + " is invalid");
+		log.debug("Password provided by {} is invalid", username);
 		return new AuthenticationResult(Status.deny, null);
 	}
 
