@@ -10,6 +10,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
 import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -26,7 +27,7 @@ public class CronExpressionField extends TextField
 	{
 		this.msg = msg;
 		setCaption(caption);
-		setDescription(msg.getMessage("CronExpressionField.cronExpressionDescription"));
+		setDescription(msg.getMessage("CronExpressionField.cronExpressionDescription"), ContentMode.HTML);
 	}
 
 	public void configureBinding(Binder<?> binder, String fieldName)

@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.common;
+package pl.edu.icm.unity.webui.common.mvel;
 
 import org.mvel2.MVEL;
 
@@ -12,52 +12,54 @@ import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.Setter;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.AbstractField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
- * Field allowing for editing an MVEL expression
+ * Configures fields that can be used to edit MVAL expression.
  * 
  * @author K. Benedyczak
  */
-public class MVELExpressionField extends TextField
+class MVELExpressionEditor
 {
 	private UnityMessageSource msg;
+	private AbstractField<String> field;
 
-	public MVELExpressionField(UnityMessageSource msg, String caption, String description)
+	public MVELExpressionEditor(AbstractField<String> field, UnityMessageSource msg, String caption, String description)
 	{
+		this.field = field;
 		this.msg = msg;
-		setCaption(caption);
-		setDescription(description);
+		field.setCaption(caption);
+		field.setDescription(description);
 	}
 
-	public void configureBinding(Binder<?> binder, String fieldName, boolean mandatory)
+	void configureBinding(Binder<?> binder, String fieldName, boolean mandatory)
 	{
 		if (mandatory)
 		{
-			binder.forField(this).withValidator(getValidator(msg, mandatory))
+			binder.forField(field).withValidator(getValidator(msg, mandatory))
 					.asRequired(msg.getMessage("fieldRequired")).bind(fieldName);
 					
 		} else
 		{
-			binder.forField(this).withValidator(getValidator(msg, mandatory)).bind(fieldName);
+			binder.forField(field).withValidator(getValidator(msg, mandatory)).bind(fieldName);
 		}
 
 	}
 
-	public <T> void configureBinding(Binder<String> binder,
+	<T> void configureBinding(Binder<String> binder,
 			ValueProvider<String, String> getter, Setter<String, String> setter,
 			boolean mandatory)
 	{
 		if (mandatory)
 		{
-			binder.forField(this).withValidator(getValidator(msg, mandatory))
+			binder.forField(field).withValidator(getValidator(msg, mandatory))
 					.asRequired(msg.getMessage("fieldRequired"))
 					.bind(getter, setter);
 		} else
 		{
-			binder.forField(this).withValidator(getValidator(msg, mandatory));
+			binder.forField(field).withValidator(getValidator(msg, mandatory));
 		}
 
 	}

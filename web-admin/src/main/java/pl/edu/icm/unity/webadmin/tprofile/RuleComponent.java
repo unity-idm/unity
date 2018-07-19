@@ -34,9 +34,9 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**

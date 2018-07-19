@@ -31,9 +31,9 @@ import pl.edu.icm.unity.webadmin.attribute.AttributeFieldWithEdit;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupComboBox;
-import pl.edu.icm.unity.webui.common.MVELExpressionField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSelectionComboBox;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
 /**
  * Editing of a single {@link AttributeStatement}.
