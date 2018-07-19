@@ -20,6 +20,12 @@ public class TranslationRule
 		this.action = action;
 	}
 
+	protected TranslationRule(TranslationRule orig)
+	{
+		this.condition = orig.condition; 
+		this.action = orig.action;
+	}
+
 	public TranslationRule()
 	{
 	}

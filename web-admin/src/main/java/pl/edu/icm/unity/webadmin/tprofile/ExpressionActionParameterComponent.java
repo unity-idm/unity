@@ -13,7 +13,7 @@ import com.vaadin.ui.dnd.DropTargetExtension;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.DragDropBean;
-import pl.edu.icm.unity.webui.common.MVELExpressionField;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
 /**
  * For editing MVEL expressions. Decorates the {@link MVELExpressionField} with

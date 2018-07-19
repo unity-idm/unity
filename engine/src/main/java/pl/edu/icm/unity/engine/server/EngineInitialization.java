@@ -258,7 +258,7 @@ public class EngineInitialization extends LifecycleBase
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval+interval/10, 
 				interval, TimeUnit.SECONDS);
 
-		executors.getService().scheduleWithFixedDelay(bulkOperationsUpdater, 2500, 
+		executors.getService().scheduleWithFixedDelay(bulkOperationsUpdater, interval+10, 
 				interval, TimeUnit.SECONDS);
 		
 		Runnable attributeStatementsUpdater = new Runnable()
