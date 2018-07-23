@@ -34,7 +34,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -65,17 +64,15 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private PKIManagement pkiMan;
 	private TokensManagement tokensMan;
 	private String translationProfile;
-	private CacheProvider cacheProvider;
 	private ResultsCache cache;
 	
 	@Autowired
 	public BearerTokenVerificator(PKIManagement pkiMan, TokensManagement tokensMan, 
-			CacheProvider cacheProvider, RemoteAuthnResultProcessor processor)
+			RemoteAuthnResultProcessor processor)
 	{
 		super(NAME, DESC, AccessTokenExchange.ID, processor);
 		this.pkiMan = pkiMan;
 		this.tokensMan = tokensMan;
-		this.cacheProvider = cacheProvider;
 	}
 
 	@Override
@@ -105,7 +102,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			int ttl = -1;
 			if (verificatorProperties.isSet(OAuthRPProperties.CACHE_TIME))
 				ttl = verificatorProperties.getIntValue(OAuthRPProperties.CACHE_TIME);
-			cache = new ResultsCache(cacheProvider.getManager(), ttl);
+			cache = new ResultsCache(ttl);
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth RP verificator", e);
