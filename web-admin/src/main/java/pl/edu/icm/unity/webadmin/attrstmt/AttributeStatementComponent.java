@@ -216,6 +216,8 @@ public class AttributeStatementComponent extends CustomComponent
 		} else
 		{
 			validateBinding("extraAttributesGroup");
+			//'/' is mapped to null what we don't want
+			ret.setExtraAttributesGroup(extraAttributesGroupCombo.getValue());
 		}
 
 		if (assignMode.getValue().equals(MODE_DYNAMIC))
