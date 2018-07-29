@@ -115,7 +115,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
-		log.info("Refresh called");
+		log.debug("Refresh called on authN screen");
 		refreshAuthenticationState(request);
 		authNColumns.focusFirst();
 	}
