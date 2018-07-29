@@ -104,7 +104,14 @@ public class EntityInformation
 	{
 		return "EntityInformation [id=" + id + ", entityState=" + entityState + "]";
 	}
-
+	
+	@Override
+	public EntityInformation clone()
+	{
+		ObjectNode json = toJson();
+		return new EntityInformation(json);
+	}
+	
 	private void fromJson(ObjectNode src)
 	{
 		fromJsonBase(src);

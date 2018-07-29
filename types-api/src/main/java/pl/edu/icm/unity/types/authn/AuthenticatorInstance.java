@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.types.authn;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.types.NamedObject;
 
@@ -33,6 +35,14 @@ public class AuthenticatorInstance implements NamedObject
 	public void setLocalCredentialName(String localCredentialName)
 	{
 		this.localCredentialName = localCredentialName;
+	}
+	
+	@Override
+	public AuthenticatorInstance clone()
+	{
+		ObjectMapper mapper = new ObjectMapper();
+		ObjectNode json = mapper.convertValue(this, ObjectNode.class);
+		return mapper.convertValue(json, AuthenticatorInstance.class);
 	}
 	
 	@JsonIgnore

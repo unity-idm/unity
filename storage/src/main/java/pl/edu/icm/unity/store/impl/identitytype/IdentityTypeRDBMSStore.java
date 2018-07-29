@@ -8,23 +8,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
-import pl.edu.icm.unity.store.rdbms.BaseBean;
-import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
+import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
+import pl.edu.icm.unity.store.rdbms.cache.HashMapNamedCache;
+import pl.edu.icm.unity.store.rdbms.cache.NamedCache;
+import pl.edu.icm.unity.store.rdbms.cache.NamedCachingCRUD;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
- * Implementation of {@link IdentityTypeDAO}.
+ * Caching implementation of {@link IdentityTypeDAO}.
  * 
  * @author K. Benedyczak
  */
 @Repository(IdentityTypeRDBMSStore.BEAN)
-public class IdentityTypeRDBMSStore extends GenericNamedRDBMSCRUD<IdentityType, BaseBean> implements IdentityTypeDAO
+public class IdentityTypeRDBMSStore extends NamedCachingCRUD<IdentityType, IdentityTypeDAO, NamedCache<IdentityType>> 
+		implements IdentityTypeDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 	
 	@Autowired
-	public IdentityTypeRDBMSStore(IdentityTypeJsonSerializer jsonSerializer)
+	public IdentityTypeRDBMSStore(IdentityTypeJsonSerializer jsonSerializer, CacheManager cacheManager)
 	{
-		super(IdentityTypesMapper.class, jsonSerializer, "identity type");
+		super(new IdentityTypeRDBMSStoreInt(jsonSerializer), 
+				new HashMapNamedCache<IdentityType>(it -> it.clone()));
+		cacheManager.registerCache(cache);
 	}
 }

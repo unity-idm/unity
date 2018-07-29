@@ -126,6 +126,13 @@ public class Identity extends IdentityParam implements NamedObject
 	}
 	
 	@Override
+	public Identity clone()
+	{
+		ObjectNode json = toJson();
+		return new Identity(json);
+	}
+	
+	@Override
 	@JsonValue
 	public ObjectNode toJson()
 	{

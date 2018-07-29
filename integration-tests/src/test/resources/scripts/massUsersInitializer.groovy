@@ -71,8 +71,10 @@ void createExampleUser(int suffix)
 	
 	entityManagement.addIdentity(toAddDn, entityP, true);
 
-	Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "Regular User");
-	attributesManagement.createAttribute(entityP, a);
+	//Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "Regular User");
+	//attributesManagement.createAttribute(entityP, a);
+
+	groupsManagement.addMemberFromParent("/A", entityP);
 
 	VerifiableEmail emailVal = new VerifiableEmail("some" + suffix + "@example.com", new ConfirmationInfo(true));
 	emailVal.getConfirmationInfo().setConfirmationDate(System.currentTimeMillis());

@@ -27,6 +27,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.groups.GroupBean;
 import pl.edu.icm.unity.store.impl.groups.GroupJsonSerializer;
 import pl.edu.icm.unity.store.impl.groups.GroupsMapper;
+import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
 
 /**
  * Initializes DB schema and inserts the initial data. It is checked if DB was already initialized.
@@ -50,13 +51,15 @@ public class InitDB
 	private long dbVersionAtServerStarup;
 	private DBSessionManager db;
 	private ContentsUpdater contentsUpdater;
+	private CacheManager cacheManager;
 
 	@Autowired
-	public InitDB(DBSessionManager db, ContentsUpdater contentsUpdater) 
+	public InitDB(DBSessionManager db, ContentsUpdater contentsUpdater, CacheManager cacheManager) 
 			throws FileNotFoundException, InternalException, IOException, EngineException
 	{
 		this.db = db;
 		this.contentsUpdater = contentsUpdater;
+		this.cacheManager = cacheManager;
 	}
 
 	/**
@@ -67,6 +70,7 @@ public class InitDB
 		log.info("Database will be totally wiped");
 		performUpdate(db, "cleardb-");
 		log.info("The whole contents removed");
+		cacheManager.flushAllCaches();
 		initDB();
 	}
 	
@@ -129,13 +133,14 @@ public class InitDB
 	 */
 	public void deleteEverything(SqlSession session)
 	{
-		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
+		Collection<String> ops = new TreeSet<>(db.getMyBatisConfiguration().getMappedStatementNames());
 		for (String name: ops)
 			if (name.startsWith("deletedb-"))
 				session.update(name);
 		for (String name: ops)
 			if (name.startsWith("resetIndex-"))
 				session.update(name);
+		cacheManager.flushAllCaches();
 		createRootGroup(session);
 	}
 
@@ -145,6 +150,7 @@ public class InitDB
 	 */
 	public void runPostImportCleanup(SqlSession session)
 	{
+		cacheManager.flushAllCaches();
 		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
 		for (String name: ops)
 			if (name.startsWith("postDBImport-"))

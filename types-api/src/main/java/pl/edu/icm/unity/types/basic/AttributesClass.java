@@ -63,6 +63,11 @@ public class AttributesClass extends DescribedObjectImpl
 		parentClasses = new HashSet<>();
 	}
 	
+	public AttributesClass clone()
+	{
+		return new AttributesClass(name, description, allowed, mandatory, allowArbitrary, parentClasses);
+	}
+	
 	public boolean isAllowedDirectly(String type)
 	{
 		return allowArbitrary || allowed.contains(type);
@@ -80,7 +85,7 @@ public class AttributesClass extends DescribedObjectImpl
 
 	public void setAllowed(Set<String> allowed)
 	{
-		this.allowed = new HashSet<String>(allowed);
+		this.allowed = new HashSet<>(allowed);
 	}
 
 	public Set<String> getMandatory()
@@ -90,7 +95,7 @@ public class AttributesClass extends DescribedObjectImpl
 
 	public void setMandatory(Set<String> mandatory)
 	{
-		this.mandatory = new HashSet<String>(mandatory);
+		this.mandatory = new HashSet<>(mandatory);
 		this.allowed.addAll(mandatory);
 	}
 

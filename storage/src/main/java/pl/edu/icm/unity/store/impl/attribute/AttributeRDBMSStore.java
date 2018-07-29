@@ -4,17 +4,17 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.impl.StorageLimits;
-import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
+import pl.edu.icm.unity.store.rdbms.cache.BasicCachingCRUD;
+import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -25,84 +25,69 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  * @author K. Benedyczak
  */
 @Repository(AttributeRDBMSStore.BEAN)
-public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, AttributeBean> 
+public class AttributeRDBMSStore extends BasicCachingCRUD<StoredAttribute, AttributeDAO, AttributeRDBMSCache> 
 					implements AttributeDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 
-	private GroupDAO groupDAO;
-	
 	@Autowired
-	public AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer, GroupDAO groupDAO)
+	public AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer, GroupDAO groupDAO, CacheManager cacheManager)
 	{
-		super(AttributesMapper.class, dbSerializer, NAME);
-		this.groupDAO = groupDAO;
+		super(new AttributeRDBMSNoCacheStore(dbSerializer, groupDAO), new AttributeRDBMSCache());
+		cacheManager.registerCache(cache);
 	}
 
 	@Override
 	public void updateAttribute(StoredAttribute a)
 	{
-		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
-		AttributeBean toUpdate = jsonSerializer.toDB(a);
-		StorageLimits.checkContentsLimit(toUpdate.getContents());
-		List<AttributeBean> old = getAttributesFiltering(a.getAttribute().getName(), a.getEntityId(), 
-				a.getAttribute().getGroupPath());
-		if (old.isEmpty())
-			throw new IllegalArgumentException(elementName + " [" + a.getAttribute().getName() + 
-					"] does not exist");
-		AttributeBean oldSingle = old.get(0);
-		preUpdateCheck(oldSingle, a);
-		toUpdate.setId(oldSingle.getId());
-		mapper.updateByKey(toUpdate);		
+		cache.flush();
+		wrapped.updateAttribute(a);
 	}
 
 	@Override
 	public void deleteAttribute(String attribute, long entityId, String group)
 	{
-		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
-		List<AttributeBean> existing = getAttributesFiltering(attribute, entityId, group);
-		if (existing.isEmpty())
-			throw new IllegalArgumentException(elementName + " [" + attribute + 
-					"] does not exist");
-		mapper.deleteByKey(existing.get(0).getId());
+		cache.flush();
+		wrapped.deleteAttribute(attribute, entityId, group);
 	}
 
 	@Override
 	public void deleteAttributesInGroup(long entityId, String group)
 	{
-		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
-		long groupId = groupDAO.getKeyForName(group);
-		AttributeBean param = new AttributeBean();
-		param.setEntityId(entityId);
-		param.setGroupId(groupId);
-		mapper.deleteAttributesInGroup(param);
+		cache.flush();
+		wrapped.deleteAttributesInGroup(entityId, group);
 	}
 
 	@Override
 	public List<StoredAttribute> getAttributes(String attribute, Long entityId, String group)
 	{
-		List<AttributeBean> existing = getAttributesFiltering(attribute, entityId, group);
-		return convertList(existing);
+		Optional<List<StoredAttribute>> cached = cache.getAttributesFiltering(attribute, entityId, group);
+		if (cached.isPresent())
+			return cached.get();
+		
+		getAll();
+		cached = cache.getAttributesFiltering(attribute, entityId, group);
+		if (cached.isPresent())
+			return cached.get();
+		return wrapped.getAttributes(attribute, entityId, group); 
 	}
 
 	@Override
 	public List<AttributeExt> getEntityAttributes(long entityId, String attribute, String group)
 	{
-		List<AttributeBean> existing = getAttributesFiltering(attribute, entityId, group);
-		List<AttributeExt> ret = new ArrayList<>(existing.size());
-		for (AttributeBean ab: existing)
-			ret.add(jsonSerializer.fromDB(ab).getAttribute());
-		return ret;
+		Optional<List<StoredAttribute>> cached = cache.getAttributesFiltering(attribute, entityId, group);
+		if (cached.isPresent())
+			return toAttributeExtList(cached.get());
+
+		getAll();
+		cached = cache.getAttributesFiltering(attribute, entityId, group);
+		if (cached.isPresent())
+			return toAttributeExtList(cached.get());
+		return wrapped.getEntityAttributes(entityId, attribute, group); 
 	}
 	
-	
-	private List<AttributeBean> getAttributesFiltering(String attribute, Long entityId, String group)
+	private List<AttributeExt> toAttributeExtList(List<StoredAttribute> src)
 	{
-		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
-		AttributeBean param = new AttributeBean();
-		param.setEntityId(entityId);
-		param.setName(attribute);
-		param.setGroup(group);
-		return mapper.getAttributes(param);
+		return src.stream().map(sa -> sa.getAttribute()).collect(Collectors.toList());
 	}
 }
