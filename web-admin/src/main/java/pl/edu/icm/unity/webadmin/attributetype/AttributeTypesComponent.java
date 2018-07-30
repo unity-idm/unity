@@ -238,7 +238,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	{
 		return SingleActionHandler.builder4Edit(msg, AttributeType.class)
 				.withHandler(this::showEditDialog)
-				.withDisabledPredicate(at -> at.isTypeImmutable())
+				.withDisabledPredicate(at -> (at.isTypeImmutable() && at.isInstanceImmutable()))
 				.build();
 	}
 
@@ -249,8 +249,8 @@ public class AttributeTypesComponent extends VerticalLayout
 		at = at.clone();
 		AttributeTypeEditor editor = at.isTypeImmutable() ? 
 				new ImmutableAttributeTypeEditor(msg, at) : 
-					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
-							attrMetaHandlerRegistry, atSupport);
+				new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
+						attrMetaHandlerRegistry, atSupport);
 				AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 						msg.getMessage("AttributeTypes.editAction"), 
 						newAttributeType -> updateType(newAttributeType), 
