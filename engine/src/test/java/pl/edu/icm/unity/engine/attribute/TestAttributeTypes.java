@@ -27,7 +27,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
+import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
@@ -396,7 +396,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 	{
 		Collection<AttributeType> ats = aTypeMan.getAttributeTypes();
 		AttributeType crAt = getAttributeTypeByName(ats, 
-				CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS);
+				RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		assertTrue((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0);
 		
 		crAt.setSelfModificable(true);
@@ -406,7 +406,7 @@ public class TestAttributeTypes extends DBIntegrationTestBase
 		aTypeMan.updateAttributeType(crAt);
 		
 		ats = aTypeMan.getAttributeTypes();
-		crAt = getAttributeTypeByName(ats, CredentialAttributeTypeProvider.CREDENTIAL_REQUIREMENTS);
+		crAt = getAttributeTypeByName(ats, RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		assertTrue((crAt.getFlags() | AttributeType.TYPE_IMMUTABLE_FLAG) != 0);
 		assertEquals(new I18nString("Foo"), crAt.getDisplayedName());
 		assertEquals(new I18nString("FooDesc"), crAt.getDescription());
