@@ -19,6 +19,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
+import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 
 /**
  * Non UI code which is invoked as a part of authentication pipeline for unauthenticated clients.
@@ -46,6 +48,13 @@ public class ProxyAuthenticationFilter implements Filter
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			ProxyAuthenticationFilter.class);
 	private static final String TRIGGERING_PARAM = "uy_auto_login";
+	
+	/**
+	 * Presence of this attribute in session signals that automated login was triggered for the session 
+	 * and should not be started again. This must be set and cleaned by {@link ProxyAuthenticationCapable} 
+	 * authenticators 
+	 */
+	public static final String AUTOMATED_LOGIN_FIRED = "automaticLoginWasTriggered";
 	
 	private Map<String, BindingAuthn> authenticators;
 	private String endpointPath;
@@ -148,12 +157,32 @@ public class ProxyAuthenticationFilter implements Filter
 	
 	private boolean isAutomatedAuthenticationDesired(HttpServletRequest httpRequest)
 	{
+		if (VaadinRequestMatcher.isVaadinRequest(httpRequest))
+		{
+			log.trace("Ignoring request to Vaadin internal address/Unity initiated {}", httpRequest.getRequestURI());
+			return false;
+		}
+		if (autoLoginWasAlreadyTriggered(httpRequest))
+		{
+			log.trace("Ignoring request as auto login was already triggered");
+			return false;
+		}
+		
+		
 		if (triggerByDefault)
 			return true;
 		String autoLogin = httpRequest.getParameter(TRIGGERING_PARAM);
 		if (autoLogin != null && Boolean.parseBoolean(autoLogin))
 			return true;
 		return false;
+	}
+
+	private boolean autoLoginWasAlreadyTriggered(HttpServletRequest httpRequest)
+	{
+		HttpSession session = httpRequest.getSession(false);
+		if (session == null)
+			return false;
+		return session.getAttribute(AUTOMATED_LOGIN_FIRED) != null;
 	}
 	
 	private boolean triggerProxyAuthenticator(BindingAuthn authenticatorParam,

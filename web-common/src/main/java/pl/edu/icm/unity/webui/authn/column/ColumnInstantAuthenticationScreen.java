@@ -44,6 +44,7 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
+import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
@@ -115,13 +116,14 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
-		log.info("Refresh called");
+		log.debug("Refresh called on authN screen");
 		refreshAuthenticationState(request);
 		authNColumns.focusFirst();
 	}
 	
 	protected void init()
 	{
+		log.debug("Authn screen init");
 		this.authnOptionsHandler = new AuthenticationOptionsHandler(flows, endpointDescription.getName());
 		
 		VerticalLayout topLevelLayout = new VerticalLayout();
@@ -315,7 +317,15 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private void refreshAuthenticationState(VaadinRequest request) 
 	{
 		if (authNPanelInProgress != null)
+		{
 			authNPanelInProgress.refresh(request);
+		} else
+		{
+			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
+			// when initial authN was started without loading UI (e.g. autoLogin feature)
+			String preferredIdp = PreferredAuthenticationHelper.getPreferredIdp();
+			authNColumns.refreshAuthenticatorWithId(preferredIdp, request);
+		}
 	}
 
 	private void triggerAuthNCancel() 

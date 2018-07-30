@@ -77,8 +77,6 @@ class SAMLProxyAuthnHandler
 	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
 			HttpServletResponse httpResponse) throws IOException
 	{
-		log.debug("Starting automatic proxy authentication with remote SAML IdP "
-				+ "configured under {}", idpConfigKey);
 		HttpSession session = httpRequest.getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
@@ -90,11 +88,14 @@ class SAMLProxyAuthnHandler
 		}
 		
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
+		log.debug("Starting automatic proxy authentication with remote SAML IdP "
+				+ "configured under {}, current relative URI is {}", idpConfigKey, currentRelativeURI);	
 
 		try
 		{
 			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI);
 			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)
 		{

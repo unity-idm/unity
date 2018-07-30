@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
- * Update db from to 2.5.0 release version (DB schema version 2.3) from previous versions (schema 2.2)
+ * Update db to 2.5.0 release version (DB schema version 2.3) from previous versions (schema 2.2)
  * @author P.Piernik
  */
 @Component

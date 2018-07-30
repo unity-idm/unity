@@ -26,6 +26,7 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
 
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -85,6 +86,16 @@ public class AuthnOptionsColumns extends CustomComponent
 		focusFirst();
 	}
 
+	void refreshAuthenticatorWithId(String id, VaadinRequest request)
+	{
+		for (AuthnOptionsColumn column: columns)
+		{
+			FirstFactorAuthNPanel ffAuthnPanel = column.getAuthnOptionById(id);
+			if (ffAuthnPanel != null)
+				ffAuthnPanel.refresh(request);
+		}
+	}
+	
 	void disableAllExcept(String exception)
 	{
 		for (AuthnOptionsColumn column: columns)

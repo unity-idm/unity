@@ -24,6 +24,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.utils.FreemarkerAppHandler;
 import pl.edu.icm.unity.saml.idp.ctx.SAMLAuthnContext;
 import pl.edu.icm.unity.saml.idp.processor.AuthnResponseProcessor;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
 
@@ -69,8 +70,9 @@ public class SamlResponseHandler
 	
 	public void returnSamlResponse(ResponseDocument respDoc)
 	{
-		VaadinSession.getCurrent().setAttribute(ResponseDocument.class, respDoc);
-		VaadinSession.getCurrent().addRequestHandler(new SendResponseRequestHandler());
+		VaadinSession session = VaadinSession.getCurrent();
+		session.setAttribute(ResponseDocument.class, respDoc);
+		session.addRequestHandler(new SendResponseRequestHandler());
 		Page.getCurrent().reload();		
 	}
 	
@@ -114,8 +116,12 @@ public class SamlResponseHandler
 			}
 
 			SAMLContextSupport.cleanContext();
+			
 			if (error!= null && error.isDestroySession())
 				session.getSession().invalidate();
+			else
+				session.getSession().setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, null);
+			
 			response.setContentType("application/xhtml+xml; charset=utf-8");
 			PrintWriter writer = response.getWriter();
 			freemarkerHandler.printGenericPage(writer, "samlFinish.ftl", data);

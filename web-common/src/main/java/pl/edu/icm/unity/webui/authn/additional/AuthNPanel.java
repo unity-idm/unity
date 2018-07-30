@@ -69,11 +69,6 @@ class AuthNPanel extends CustomComponent
 			updateFocus(authenticatorContainer.getComponent(0));
 	}
 
-	void clear()
-	{
-		authnUI.clear();
-	}
-
 	private void updateFocus(Component retrievalComponent)
 	{
 		if (retrievalComponent instanceof Focusable)
