@@ -58,7 +58,6 @@ class FirstFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUICo
 
 	private void setAuthenticator()
 	{
-		authnUI.clear();
 		authenticatorContainer.removeAllComponents();
 		Component retrievalComponent = gridCompatible ? authnUI.getGridCompatibleComponent() : authnUI.getComponent();
 		authenticatorContainer.addComponent(retrievalComponent);

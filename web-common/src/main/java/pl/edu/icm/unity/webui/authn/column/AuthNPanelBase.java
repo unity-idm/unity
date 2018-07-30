@@ -50,12 +50,6 @@ abstract class AuthNPanelBase extends CustomComponent implements AuthenticationU
 	}
 
 	@Override
-	public void clear()
-	{
-		authnUI.clear();
-	}
-
-	@Override
 	public String getAuthenticationOptionId()
 	{
 		return optionId;

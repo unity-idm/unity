@@ -14,7 +14,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 interface AuthenticationUIController
 {
 	void cancel();
-	void clear();
 	void refresh(VaadinRequest request);
 	boolean focusIfPossible();
 	String getAuthenticationOptionId();
