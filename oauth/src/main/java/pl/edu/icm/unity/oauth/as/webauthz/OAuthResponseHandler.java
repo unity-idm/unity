@@ -18,6 +18,7 @@ import com.vaadin.server.VaadinSession;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
+import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
 
 /**
@@ -65,6 +66,7 @@ public class OAuthResponseHandler
 			AuthorizationResponse oauthResponse = session.getAttribute(AuthorizationResponse.class);
 			if (oauthResponse != null)
 			{
+				session.getSession().setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, null);
 				try
 				{
 					String redirectURL = oauthResponse.toURI().toString();

@@ -89,6 +89,7 @@ class OAuthProxyAuthnHandler
 			context = credentialExchange.createRequest(idpConfigKey);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
+			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 		} catch (Exception e)
 		{
 			throw new IllegalStateException("Can not create OAuth2 authN request", e);

@@ -95,6 +95,7 @@ class SAMLProxyAuthnHandler
 		{
 			context = credentialExchange.createSAMLRequest(idpConfigKey, currentRelativeURI);
 			session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
+			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
 			samlContextManagement.addAuthnContext(context);
 		} catch (Exception e)
 		{
