@@ -39,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
 import org.awaitility.Awaitility;
 import org.awaitility.Duration;
 import org.junit.Before;
@@ -49,6 +50,7 @@ import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import eu.unicore.samly2.exceptions.SAMLValidationException;
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -60,6 +62,8 @@ import xmlbeans.org.oasis.saml2.protocol.AuthnRequestType;
 
 public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, TestIdpCfgFromMeta.class);
+	
 	@Autowired
 	private RemoteMetadataService metadataService;
 	
@@ -108,29 +112,36 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 					metadataService, SamlIdpProperties.SPMETA_PREFIX);
 		
 		Awaitility.await()
-			.atMost(Duration.TEN_SECONDS)
+			.atMost(Duration.ONE_MINUTE)
 			.untilAsserted(() -> assertRemoteMetadataLoaded(manager));
 	}
 	
 	private void assertRemoteMetadataLoaded(RemoteMetaManager manager) throws Exception
 	{
-		SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
-		String pfx = getPrefixOf("https://support.hes-so.ch/shibboleth", ret);
-		assertEquals("URL", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
-		assertEquals("Name", ret.getValue(pfx + ALLOWED_SP_NAME));
-		assertEquals("MAIN", ret.getValue(pfx + ALLOWED_SP_CERTIFICATE));
-		assertEquals("http://example.com", ret.getValue(pfx + ALLOWED_SP_LOGO));
-		assertEquals("true", ret.getValue(pfx + ALLOWED_SP_ENCRYPT));
+		try
+		{
+			SamlIdpProperties ret = (SamlIdpProperties) manager.getVirtualConfiguration();
+			String pfx = getPrefixOf("https://support.hes-so.ch/shibboleth", ret);
+			assertEquals("URL", ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
+			assertEquals("Name", ret.getValue(pfx + ALLOWED_SP_NAME));
+			assertEquals("MAIN", ret.getValue(pfx + ALLOWED_SP_CERTIFICATE));
+			assertEquals("http://example.com", ret.getValue(pfx + ALLOWED_SP_LOGO));
+			assertEquals("true", ret.getValue(pfx + ALLOWED_SP_ENCRYPT));
 
 		
-		pfx = getPrefixOf("https://attribute-viewer.aai.switch.ch/interfederation-test/shibboleth", ret);
-		assertEquals("https://aai-viewer.switch.ch/interfederation-test/Shibboleth.sso/SAML2/POST", 
+			pfx = getPrefixOf("https://attribute-viewer.aai.switch.ch/interfederation-test/shibboleth", ret);
+			assertEquals("https://aai-viewer.switch.ch/interfederation-test/Shibboleth.sso/SAML2/POST", 
 				ret.getValue(pfx + ALLOWED_SP_RETURN_URL));
-		String certName = ret.getValue(pfx + ALLOWED_SP_CERTIFICATES + "1");
-		assertNotNull(pkiManagement.getCertificate(certName));
+			String certName = ret.getValue(pfx + ALLOWED_SP_CERTIFICATES + "1");
+			assertNotNull(pkiManagement.getCertificate(certName));
 	
-		assertEquals(LOGO, ret.getValue(pfx + ALLOWED_SP_LOGO));
-		assertEquals("AAI Viewer Interfederation Test", ret.getValue(pfx + ALLOWED_SP_NAME+".en"));
+			assertEquals(LOGO, ret.getValue(pfx + ALLOWED_SP_LOGO));
+			assertEquals("AAI Viewer Interfederation Test", ret.getValue(pfx + ALLOWED_SP_NAME+".en"));
+		} catch (Throwable e)
+		{
+			log.info("Condition not met, {}", e);
+			throw e;
+		}
 	}
 
 	@Test
