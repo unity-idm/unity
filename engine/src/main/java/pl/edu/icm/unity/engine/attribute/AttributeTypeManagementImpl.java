@@ -107,6 +107,11 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			throw new IllegalAttributeTypeException("Custom attribute types must not have any flags set");
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		AttributeType atExisting = attributeTypeDAO.get(at.getName());
+		if (((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0) &&
+				((atExisting.getFlags() & AttributeType.INSTANCES_IMMUTABLE_FLAG) != 0))
+			throw new IllegalAttributeTypeException("Attribute type which has immutable type "
+					+ "and values can not be modified in any way.");
+		
 		if ((atExisting.getFlags() & AttributeType.TYPE_IMMUTABLE_FLAG) != 0)
 		{
 			updateImmutableAttributeType(at, atExisting);
