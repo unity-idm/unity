@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
+import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 
 /**
  * Non UI code which is invoked as a part of authentication pipeline for unauthenticated clients.
@@ -148,6 +149,11 @@ public class ProxyAuthenticationFilter implements Filter
 	
 	private boolean isAutomatedAuthenticationDesired(HttpServletRequest httpRequest)
 	{
+		if (VaadinRequestMatcher.isVaadinRequest(httpRequest))
+		{
+			log.trace("Ignoring request to Vaadin internal address {}", httpRequest.getRequestURI());
+			return false;
+		}
 		if (triggerByDefault)
 			return true;
 		String autoLogin = httpRequest.getParameter(TRIGGERING_PARAM);

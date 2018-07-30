@@ -108,6 +108,16 @@ class AuthnOptionsColumn extends CustomComponent
 		}
 		return false;
 	}
+
+	FirstFactorAuthNPanel getAuthnOptionById(String id)
+	{
+		for (ComponentWithId componentWithId: components)
+			if ((componentWithId.component instanceof FirstFactorAuthNPanel) 
+					&& componentWithId.id.equals(id))
+				return (FirstFactorAuthNPanel) componentWithId.component;
+		return null;
+	}
+
 	
 	private void init()
 	{

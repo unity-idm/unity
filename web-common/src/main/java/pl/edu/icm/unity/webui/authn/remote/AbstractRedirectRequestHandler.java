@@ -33,7 +33,7 @@ public abstract class AbstractRedirectRequestHandler implements RequestHandler
 	
 	public AbstractRedirectRequestHandler(String contextKey)
 	{
-		this.uniqueId = UUID.randomUUID().toString();;
+		this.uniqueId = UUID.randomUUID().toString();
 		this.contextKey = contextKey;
 	}
 
