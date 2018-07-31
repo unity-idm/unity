@@ -9,7 +9,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
-import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
+import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
+import pl.edu.icm.unity.store.rdbms.cache.HashMapNamedCache;
+import pl.edu.icm.unity.store.rdbms.cache.NamedCachingCRUDWithTS;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 
 /**
@@ -17,12 +19,12 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
  * @author K. Benedyczak
  */
 @Component
-public class AttributeClassDBImpl extends GenericObjectsDAOImpl<AttributesClass> implements AttributeClassDB 
+public class AttributeClassDBImpl extends NamedCachingCRUDWithTS<AttributesClass, AttributeClassDBNoChaceImpl> implements AttributeClassDB 
 {
 	@Autowired
-	public AttributeClassDBImpl(AttributeClassHandler handler,
-			ObjectStoreDAO dbGeneric)
+	public AttributeClassDBImpl(AttributeClassHandler handler, ObjectStoreDAO dbGeneric, CacheManager cacheManager)
 	{
-		super(handler, dbGeneric, AttributesClass.class, "attributes class");
+		super(new AttributeClassDBNoChaceImpl(handler, dbGeneric), new HashMapNamedCache<>(ac -> ac.clone()));
+		cacheManager.registerCache(cache);
 	}
 }

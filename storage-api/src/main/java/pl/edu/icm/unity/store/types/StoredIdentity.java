@@ -76,6 +76,12 @@ public class StoredIdentity implements NamedObject
 	}
 
 	@Override
+	public StoredIdentity clone()
+	{
+		return new StoredIdentity(identity.clone());
+	}
+	
+	@Override
 	public int hashCode()
 	{
 		final int prime = 31;

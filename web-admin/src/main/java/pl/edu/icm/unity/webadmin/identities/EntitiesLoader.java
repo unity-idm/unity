@@ -15,11 +15,13 @@ import java.util.Set;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.base.Stopwatch;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -48,9 +50,9 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 class EntitiesLoader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EntitiesLoader.class);
-	private static final int LOAD_IN_SYNC = 40;
+	private static final int LOAD_IN_SYNC = 100;
 	private static final int CHUNK = 100;
-	private static final int UI_REFRESH = 400;
+	private static final int UI_REFRESH = 250;
 	
 	private final EntityManagement identitiesMan;
 	private final GroupsManagement groupsMan;
@@ -115,6 +117,7 @@ class EntitiesLoader
 			Set<IdentityEntry> selected, String group, boolean includeTargeted,
 			EntitiesConsumer consumer) throws EngineException
 	{
+		Stopwatch watch = Stopwatch.createStarted();
 		for (int i=0; i<amount; i++)
 		{
 			long entity = entities.get(i);
@@ -130,6 +133,9 @@ class EntitiesLoader
 						+ "won't be in the identities table", e);
 			}
 		}
+		watch.stop();
+		log.debug("Resolved {} users in {}, {} users/s", amount, watch.toString(), 
+				(1000.0*amount/watch.elapsed(TimeUnit.MILLISECONDS)));
 	}
 
 
