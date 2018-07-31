@@ -16,6 +16,8 @@ import pl.edu.icm.unity.store.api.BasicCRUDDAO;
  */
 public interface BasicCache<T>
 {
+	void configure(int ttl, int max);
+	
 	void flush();
 	
 	Optional<T> getByKey(long id);

@@ -5,11 +5,11 @@
 package pl.edu.icm.unity.store.impl.identities;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
+
+import com.google.common.cache.Cache;
 
 import pl.edu.icm.unity.store.rdbms.cache.HashMapNamedCache;
 import pl.edu.icm.unity.store.types.StoredIdentity;
@@ -20,40 +20,56 @@ import pl.edu.icm.unity.store.types.StoredIdentity;
  */
 public class IdentitiesCache extends HashMapNamedCache<StoredIdentity>
 {
-	private Map<Long, List<StoredIdentity>> byEntity = new HashMap<>();
+	private Cache<Long, List<StoredIdentity>> byEntity;
 	
 	public IdentitiesCache(Function<StoredIdentity, StoredIdentity> cloner)
 	{
 		super(cloner);
 	}
+	
+	@Override
+	public synchronized void configure(int ttl, int max)
+	{
+		super.configure(ttl, max);
+		if (disabled)
+			return;
+		byEntity = getBuilder(ttl, max).build();
+	}
 
 	@Override
 	public synchronized void flush()
 	{
+		if (disabled)
+			return;
 		super.flush();
-		byEntity.clear();
+		byEntity.invalidateAll();
 	}
 	
-	synchronized Optional<List<StoredIdentity>> getByEntity(long entityId)
+	synchronized Optional<List<StoredIdentity>> getByEntity(long entityId, Runnable loader)
 	{
-		List<StoredIdentity> cached = byEntity.get(entityId);
+		if (disabled)
+			return Optional.empty();
+		List<StoredIdentity> cached = byEntity.getIfPresent(entityId);
+		if (cached == null)
+			loader.run();
+		cached = byEntity.getIfPresent(entityId);
 		if (cached == null)
 			return Optional.empty();
-		List<StoredIdentity> ret = new ArrayList<>(cached.size());
-		for (StoredIdentity c: cached)
-			ret.add(cloner.apply(c));
-		return Optional.of(ret);
+		
+		return Optional.of(cloneList(cached));
 	}
 	
 	@Override
 	public synchronized void storeAll(List<StoredIdentity> elements)
 	{
+		if (disabled)
+			return;
 		super.storeAll(elements);
 		
-		byEntity.clear();
+		byEntity.invalidateAll();
 		for (StoredIdentity element: elements)
 		{
-			List<StoredIdentity> list = byEntity.get(element.getEntityId());
+			List<StoredIdentity> list = byEntity.getIfPresent(element.getEntityId());
 			if (list == null)
 			{
 				list = new ArrayList<>();

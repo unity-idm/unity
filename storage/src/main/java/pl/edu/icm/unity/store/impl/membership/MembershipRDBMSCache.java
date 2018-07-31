@@ -6,12 +6,12 @@ package pl.edu.icm.unity.store.impl.membership;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import pl.edu.icm.unity.store.rdbms.cache.HashMapBasicCache;
+import com.google.common.cache.Cache;
+
+import pl.edu.icm.unity.store.rdbms.cache.GuavaBasicCache;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 /**
@@ -19,10 +19,11 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
  *  
  * @author K. Benedyczak
  */
-class MembershipRDBMSCache extends HashMapBasicCache<GroupMembership> 
+class MembershipRDBMSCache extends GuavaBasicCache<GroupMembership> 
 {
-	private Map<Long, List<GroupMembership>> allByEntity = new HashMap<>();
-	private Map<String, List<GroupMembership>> allByGroup = new HashMap<>();
+	private boolean cacheComplete;
+	private Cache<Long, List<GroupMembership>> allByEntity;
+	private Cache<String, List<GroupMembership>> allByGroup;
 	
 	MembershipRDBMSCache()
 	{
@@ -30,24 +31,39 @@ class MembershipRDBMSCache extends HashMapBasicCache<GroupMembership>
 	}
 	
 	@Override
+	public synchronized void configure(int ttl, int max)
+	{
+		super.configure(ttl, max);
+		if (disabled)
+			return;
+		allByEntity = getBuilder(ttl, max).build();
+		allByGroup = getBuilder(ttl, max).build();
+	}
+	
+	@Override
 	public synchronized void flush()
 	{
+		if (disabled)
+			return;
 		super.flush();
-		allByEntity.clear();
-		allByGroup.clear();
+		allByEntity.invalidateAll();
+		allByGroup.invalidateAll();
+		cacheComplete = false;
 	}
 	
 	@Override
 	public synchronized void storeAll(List<GroupMembership> elements)
 	{
+		if (disabled)
+			return;
 		super.storeAll(elements);
-		allByEntity.clear();
-		allByGroup.clear();
+		allByEntity.invalidateAll();
+		allByGroup.invalidateAll();
 		for (GroupMembership gm: elements)
 		{
 			GroupMembership gmCloned = cloner.apply(gm);
 			
-			List<GroupMembership> list = allByEntity.get(gmCloned.getEntityId());
+			List<GroupMembership> list = allByEntity.getIfPresent(gmCloned.getEntityId());
 			if (list == null)
 			{
 				list = new ArrayList<>();
@@ -55,7 +71,7 @@ class MembershipRDBMSCache extends HashMapBasicCache<GroupMembership>
 			}
 			list.add(gmCloned);
 
-			list = allByGroup.get(gmCloned.getGroup());
+			list = allByGroup.getIfPresent(gmCloned.getGroup());
 			if (list == null)
 			{
 				list = new ArrayList<>();
@@ -63,13 +79,16 @@ class MembershipRDBMSCache extends HashMapBasicCache<GroupMembership>
 			}
 			list.add(gmCloned);
 		}
+		cacheComplete = true;
 	}
 	
 	synchronized Optional<Boolean> isMember(long entityId, String group)
 	{
+		if (disabled)
+			return Optional.empty();
 		if (!cacheComplete)
 			return Optional.empty();
-		List<GroupMembership> list = allByEntity.get(entityId);
+		List<GroupMembership> list = allByEntity.getIfPresent(entityId);
 		if (list == null)
 			return Optional.of(false);
 		for (GroupMembership gm: list)
@@ -80,9 +99,11 @@ class MembershipRDBMSCache extends HashMapBasicCache<GroupMembership>
 
 	synchronized Optional<List<GroupMembership>> getEntityMembership(long entityId)
 	{
+		if (disabled)
+			return Optional.empty();
 		if (!cacheComplete)
 			return Optional.empty();
-		List<GroupMembership> list = allByEntity.get(entityId);
+		List<GroupMembership> list = allByEntity.getIfPresent(entityId);
 		if (list == null)
 			return Optional.of(Collections.emptyList());
 		return Optional.of(cloneList(list));
@@ -90,19 +111,13 @@ class MembershipRDBMSCache extends HashMapBasicCache<GroupMembership>
 
 	synchronized Optional<List<GroupMembership>> getMembers(String group)
 	{
+		if (disabled)
+			return Optional.empty();
 		if (!cacheComplete)
 			return Optional.empty();
-		List<GroupMembership> list = allByGroup.get(group);
+		List<GroupMembership> list = allByGroup.getIfPresent(group);
 		if (list == null)
 			return Optional.of(Collections.emptyList());
 		return Optional.of(cloneList(list));
-	}
-	
-	private List<GroupMembership> cloneList(List<GroupMembership> src)
-	{
-		List<GroupMembership> clone = new ArrayList<>(src.size());
-		for (GroupMembership gm: src)
-			clone.add(cloner.apply(gm));
-		return clone;
 	}
 }

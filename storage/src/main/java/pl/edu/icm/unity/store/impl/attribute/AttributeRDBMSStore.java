@@ -61,12 +61,8 @@ public class AttributeRDBMSStore extends BasicCachingCRUD<StoredAttribute, Attri
 	@Override
 	public List<StoredAttribute> getAttributes(String attribute, Long entityId, String group)
 	{
-		Optional<List<StoredAttribute>> cached = cache.getAttributesFiltering(attribute, entityId, group);
-		if (cached.isPresent())
-			return cached.get();
-		
-		getAll();
-		cached = cache.getAttributesFiltering(attribute, entityId, group);
+		Optional<List<StoredAttribute>> cached = cache.getAttributesFiltering(
+				attribute, entityId, group, this::getAll);
 		if (cached.isPresent())
 			return cached.get();
 		return wrapped.getAttributes(attribute, entityId, group); 
@@ -75,12 +71,8 @@ public class AttributeRDBMSStore extends BasicCachingCRUD<StoredAttribute, Attri
 	@Override
 	public List<AttributeExt> getEntityAttributes(long entityId, String attribute, String group)
 	{
-		Optional<List<StoredAttribute>> cached = cache.getAttributesFiltering(attribute, entityId, group);
-		if (cached.isPresent())
-			return toAttributeExtList(cached.get());
-
-		getAll();
-		cached = cache.getAttributesFiltering(attribute, entityId, group);
+		Optional<List<StoredAttribute>> cached = cache.getAttributesFiltering(attribute, entityId, group, 
+				this::getAll);
 		if (cached.isPresent())
 			return toAttributeExtList(cached.get());
 		return wrapped.getEntityAttributes(entityId, attribute, group); 

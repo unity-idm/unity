@@ -22,10 +22,10 @@
 		<Logger name="unity.server.config" level="INFO"/>
 
 		<!-- Persistence subsystem -->
-		<Logger name="unity.server.db" level="DEBUG"/>
+		<Logger name="unity.server.db" level="INFO"/>
 
 		<!-- Low level persistence -->
-		<Logger name="pl.edu.icm.unity.store" level="DEBUG"/>
+		<Logger name="pl.edu.icm.unity.store" level="INFO"/>
 
 		<!-- Web subsystem -->
 		<Logger name="unity.server.web" level="DEBUG"/>

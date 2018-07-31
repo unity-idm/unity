@@ -37,12 +37,10 @@ public class IdentityRDBMSStore extends NamedCachingCRUD<StoredIdentity, Identit
 	@Override
 	public List<StoredIdentity> getByEntityFull(long entityId)
 	{
-		Optional<List<StoredIdentity>> cached = cache.getByEntity(entityId);
+		Optional<List<StoredIdentity>> cached = cache.getByEntity(entityId, this::getAll);
 		if (cached.isPresent())
 			return cached.get();
-		List<StoredIdentity> elements = wrapped.getAll();
-		cache.storeAll(elements);
-		return cache.getByEntity(entityId).get();
+		return wrapped.getByEntityFull(entityId);
 	}
 	
 	@Override

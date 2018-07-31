@@ -50,9 +50,9 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 class EntitiesLoader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EntitiesLoader.class);
-	private static final int LOAD_IN_SYNC = 150;
+	private static final int LOAD_IN_SYNC = 100;
 	private static final int CHUNK = 100;
-	private static final int UI_REFRESH = 400;
+	private static final int UI_REFRESH = 250;
 	
 	private final EntityManagement identitiesMan;
 	private final GroupsManagement groupsMan;
@@ -134,7 +134,7 @@ class EntitiesLoader
 			}
 		}
 		watch.stop();
-		log.info("Resolved {} users in {}, {} users/s", amount, watch.toString(), 
+		log.debug("Resolved {} users in {}, {} users/s", amount, watch.toString(), 
 				(1000.0*amount/watch.elapsed(TimeUnit.MILLISECONDS)));
 	}
 

@@ -5,13 +5,13 @@
 package pl.edu.icm.unity.store.impl.attribute;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import pl.edu.icm.unity.store.rdbms.cache.HashMapBasicCache;
+import com.google.common.cache.Cache;
+
+import pl.edu.icm.unity.store.rdbms.cache.GuavaBasicCache;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 
 /**
@@ -19,9 +19,10 @@ import pl.edu.icm.unity.store.types.StoredAttribute;
  *  
  * @author K. Benedyczak
  */
-class AttributeRDBMSCache extends HashMapBasicCache<StoredAttribute> 
+class AttributeRDBMSCache extends GuavaBasicCache<StoredAttribute> 
 {
-	private Map<Long, List<StoredAttribute>> allByEntity = new HashMap<>();
+	private Cache<Long, List<StoredAttribute>> allByEntity;
+	private boolean cacheComplete;
 	
 	AttributeRDBMSCache()
 	{
@@ -29,20 +30,34 @@ class AttributeRDBMSCache extends HashMapBasicCache<StoredAttribute>
 	}
 	
 	@Override
+	public synchronized void configure(int ttl, int max)
+	{
+		super.configure(ttl, max);
+		if (disabled)
+			return;
+		allByEntity = getBuilder(ttl, max).build();
+	}
+	
+	@Override
 	public synchronized void flush()
 	{
+		if (disabled)
+			return;
 		super.flush();
-		allByEntity.clear();
+		allByEntity.invalidateAll();
+		cacheComplete = false;
 	}
 	
 	@Override
 	public synchronized void storeAll(List<StoredAttribute> elements)
 	{
+		if (disabled)
+			return;
 		super.storeAll(elements);
-		allByEntity.clear();
+		allByEntity.invalidateAll();
 		for (StoredAttribute sa: elements)
 		{
-			List<StoredAttribute> list = allByEntity.get(sa.getEntityId());
+			List<StoredAttribute> list = allByEntity.getIfPresent(sa.getEntityId());
 			if (list == null)
 			{
 				list = new ArrayList<>();
@@ -50,33 +65,35 @@ class AttributeRDBMSCache extends HashMapBasicCache<StoredAttribute>
 			}
 			list.add(cloner.apply(sa));
 		}
-			
+		cacheComplete = true;
 	}
 	
-	synchronized Optional<List<StoredAttribute>> getAttributesFiltering(String attribute, Long entityId, String group)
+	synchronized Optional<List<StoredAttribute>> getAttributesFiltering(String attribute, Long entityId, String group,
+			Runnable loader)
 	{
+		if (disabled)
+			return Optional.empty();
+		if (!cacheComplete)
+			loader.run();
 		if (!cacheComplete)
 			return Optional.empty();
-		
 		
 		List<StoredAttribute> ret;
 		if (entityId != null)
 		{
-			List<StoredAttribute> list = allByEntity.get(entityId);
+			List<StoredAttribute> list = allByEntity.getIfPresent(entityId);
 			ret = new ArrayList<>();
 			if (list != null)
 				ret.addAll(list);
 		} else
 		{
-			ret = new ArrayList<>(all);
+			ret = new ArrayList<>(all.getIfPresent(SINGLE_ENTRY_KEY));
 		}
 		if (attribute != null)
 			filterByAttribute(attribute, ret);
 		if (group != null)
 			filterByGroup(group, ret);
-		for (int i=0; i<ret.size(); i++)
-			ret.set(i, cloner.apply(ret.get(i)));
-		return Optional.of(ret);
+		return Optional.of(cloneList(ret));
 	}
 
 	private void filterByAttribute(String attribute, List<StoredAttribute> ret)

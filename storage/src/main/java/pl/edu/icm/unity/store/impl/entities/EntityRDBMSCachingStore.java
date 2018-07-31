@@ -11,7 +11,7 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.rdbms.cache.BasicCache;
 import pl.edu.icm.unity.store.rdbms.cache.BasicCachingCRUD;
 import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
-import pl.edu.icm.unity.store.rdbms.cache.HashMapBasicCache;
+import pl.edu.icm.unity.store.rdbms.cache.GuavaBasicCache;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 
 
@@ -28,7 +28,7 @@ public class EntityRDBMSCachingStore extends BasicCachingCRUD<EntityInformation,
 	@Autowired
 	public EntityRDBMSCachingStore(EntityJsonSerializer jsonSerializer, CacheManager cacheManager)
 	{
-		super(new EntityRDBMSStore(jsonSerializer, cacheManager), new HashMapBasicCache<>(ei -> ei.clone()));
+		super(new EntityRDBMSStore(jsonSerializer, cacheManager), new GuavaBasicCache<>(ei -> ei.clone()));
 		cacheManager.registerCache(cache);
 	}
 	

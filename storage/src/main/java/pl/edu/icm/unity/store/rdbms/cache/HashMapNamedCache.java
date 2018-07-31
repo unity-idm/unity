@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.store.rdbms.cache;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -13,6 +12,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 
+import com.google.common.cache.Cache;
+
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -20,84 +21,86 @@ import pl.edu.icm.unity.types.NamedObject;
  * 
  * @author K. Benedyczak
  */
-public class HashMapNamedCache<T extends NamedObject> implements NamedCache<T>
+public class HashMapNamedCache<T extends NamedObject> extends GuavaBasicCache<T> implements NamedCache<T>
 {
-	private boolean cacheComplete; 
-	private Map<String, T> byName = new HashMap<>();
-	private Map<Long, T> byKey = new HashMap<>();
-	protected final Function<T, T> cloner;
+	private Cache<String, T> byName;
+	private boolean cacheComplete;
 	
 	public HashMapNamedCache(Function<T, T> cloner)
 	{
-		this.cloner = new NullSafeCloner<>(cloner);
+		super(cloner);
 	}
 
 	@Override
+	public synchronized void configure(int ttl, int max)
+	{
+		super.configure(ttl, max);
+		if (disabled)
+			return;
+		byName = getBuilder(ttl, max).build();
+	}
+	
+	@Override
 	public synchronized void flush()
 	{
+		if (disabled) 
+			return;
+		super.flush();
 		cacheComplete = false;
-		byName.clear();
-		byKey.clear();
+		byName.invalidateAll();
 	}
 
 	@Override
 	public synchronized void storeById(long id, T element)
 	{
+		if (disabled) 
+			return;
+		super.storeById(id, element);
 		byName.put(element.getName(), cloner.apply(element));
-		byKey.put(id, element);
 	}
 
 	@Override
 	public synchronized void storeByName(String id, T element)
 	{
+		if (disabled) 
+			return;
 		byName.put(id, cloner.apply(element));
 	}
 
 	@Override
 	public synchronized void storeAll(List<T> elements)
 	{
-		cacheComplete = true;
-		byName.clear();
+		if (disabled) 
+			return;
+		super.storeAll(elements);
+		byName.invalidateAll();
 		for (T element: elements)
 			byName.put(element.getName(), cloner.apply(element));
+		cacheComplete = true;
 	}
 
 
-
-	@Override
-	public synchronized Optional<T> getByKey(long id)
-	{
-		return Optional.ofNullable(cloner.apply(byKey.get(id)));
-	}
-
-	@Override
-	public synchronized Optional<List<T>> getAll()
-	{
-		if (!cacheComplete)
-			return Optional.empty();
-		
-		List<T> ret = new ArrayList<T>(byName.size());
-		for (T val: byName.values())
-			ret.add(cloner.apply(val));
-		return Optional.of(ret);
-	}
 
 	@Override
 	public synchronized Optional<Boolean> exists(String id)
 	{
+		if (disabled) 
+			return Optional.empty();
 		if (!cacheComplete)
 			return Optional.empty();
-		return Optional.of(byName.containsKey(id));
+		return Optional.of(byName.asMap().containsKey(id));
 	}
 
 	@Override
 	public synchronized Optional<Map<String, T>> getAllAsMap()
 	{
+		if (disabled) 
+			return Optional.empty();
 		if (!cacheComplete)
 			return Optional.empty();
 		
 		Map<String, T> ret = new HashMap<>();
-		for (Map.Entry<String, T> entry: byName.entrySet())
+		for (Map.Entry<String, T> entry: byName.asMap().entrySet())
 			ret.put(entry.getKey(), cloner.apply(entry.getValue()));
 		return Optional.of(ret);
 	}
@@ -105,36 +108,26 @@ public class HashMapNamedCache<T extends NamedObject> implements NamedCache<T>
 	@Override
 	public synchronized Optional<T> get(String id)
 	{
-		return Optional.ofNullable(cloner.apply(byName.get(id)));
+		if (disabled) 
+			return Optional.empty();
+		return Optional.ofNullable(cloner.apply(byName.getIfPresent(id)));
 	}
 
 	@Override
 	public synchronized Optional<Long> getKeyForName(String id)
 	{
+		if (disabled) 
+			return Optional.empty();
 		return Optional.empty();
 	}
 
 	@Override
 	public synchronized Optional<Set<String>> getAllNames()
 	{
+		if (disabled) 
+			return Optional.empty();
 		if (!cacheComplete)
 			return Optional.empty();
-		return Optional.of(new HashSet<>(byName.keySet()));
-	}
-
-	private static class NullSafeCloner<T> implements Function<T, T>
-	{
-		private final Function<T, T> cloner;
-
-		public NullSafeCloner(Function<T, T> cloner)
-		{
-			this.cloner = cloner;
-		}
-
-		@Override
-		public T apply(T t)
-		{
-			return t == null ? null : cloner.apply(t);
-		}
+		return Optional.of(new HashSet<>(byName.asMap().keySet()));
 	}
 }
