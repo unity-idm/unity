@@ -72,7 +72,7 @@ public interface AttributesManagement
 
 	/**
 	 * Returns visible attributes of an entity. The two last arguments can be null, 
-	 * meaning that there is no restriction.
+	 * meaning that there is no restriction. The security sensitive attributes are not included.
 	 * @param entity
 	 * @param groupPath
 	 * @param attributeTypeId
