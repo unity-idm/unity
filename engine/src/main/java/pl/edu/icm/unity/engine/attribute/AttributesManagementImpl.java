@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.attribute;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -213,8 +214,17 @@ public class AttributesManagementImpl implements AttributesManagement
 	{
 		Collection<AttributeExt> ret = getAllAttributesInternal(entity, true, groupPath, attributeTypeId, 
 				new AuthzCapability[] {AuthzCapability.read}, false);
-		return ret;
+		
+		return filterSecuritySensitive(ret);
 	}
+
+	private Collection<AttributeExt> filterSecuritySensitive(Collection<AttributeExt> ret)
+	{
+		return ret.stream()
+				.filter(SensitiveAttributeMatcher::isNotSensitive)
+				.collect(Collectors.toList());
+	}
+
 
 	@Override
 	@Transactional

@@ -32,6 +32,7 @@ import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -44,7 +45,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
-public class TestAttributes extends DBIntegrationTestBase
+public class AttributesManagementImplTest extends DBIntegrationTestBase
 {
 	private EntityParam entity;
 	
@@ -306,7 +307,27 @@ public class TestAttributes extends DBIntegrationTestBase
 		assertEquals(0, gr2Ats.size());
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(DEF_ATTRS, allAts.size());
-	}	
+	}
+	
+	@Test
+	public void credentialsAreNotReturnedWithCallToGetAttributes() throws Exception
+	{
+		eCredMan.setEntityCredential(entity, "credential1", new PasswordToken("password").toJson());
+		
+		Collection<AttributeExt> rootAttrs = attrsMan.getAttributes(entity, "/", null);
+		
+		assertEquals(DEF_ATTRS, rootAttrs.size());
+	}
+	
+	@Test
+	public void credentialsAreReturnedWithCallToGetAllAttributes() throws Exception
+	{
+		eCredMan.setEntityCredential(entity, "credential1", new PasswordToken("password").toJson());
+		
+		Collection<AttributeExt> rootAttrs = attrsMan.getAllAttributes(entity, true, "/", null, false);
+		
+		assertEquals(DEF_ATTRS + 1, rootAttrs.size());
+	}
 }
 
 

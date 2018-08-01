@@ -75,6 +75,7 @@ import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -411,6 +412,27 @@ public class RESTAdmin
 		return mapper.writeValueAsString(contents);
 	}
 
+	@Path("/group-members/{groupPath}")
+	@GET
+	public String getGroupMembersResolved(@PathParam("groupPath") String group) 
+			throws EngineException, JsonProcessingException
+	{
+		log.debug("getGroupMembersResolved query for " + group);
+		if (!group.startsWith("/"))
+			group = "/" + group;
+		GroupContents contents = groupsMan.getContents(group, GroupContents.MEMBERS);
+		List<GroupMembership> members = contents.getMembers();
+		List<GroupMember> ret = new ArrayList<>(members.size());
+		for (GroupMembership membership: members)
+		{
+			EntityParam entityP = new EntityParam(membership.getEntityId());
+			Collection<AttributeExt> attributes = attributesMan.getAttributes(entityP, group, null);
+			Entity entity = identitiesMan.getEntity(entityP);
+			ret.add(new GroupMember(group, entity, attributes));
+		}
+		return mapper.writeValueAsString(ret);
+	}
+	
 	
 	@Path("/group/{groupPath}")
 	@DELETE
