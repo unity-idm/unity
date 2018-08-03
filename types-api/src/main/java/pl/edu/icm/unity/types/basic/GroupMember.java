@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.basic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * Entity as group member. Provides information on {@link Entity} and its all attributes in some group.
@@ -25,6 +26,11 @@ public class GroupMember
 		this.attributes = attributes;
 	}
 
+	//for Jackson
+	protected GroupMember()
+	{
+	}
+	
 	public String getGroup()
 	{
 		return group;
@@ -38,5 +44,27 @@ public class GroupMember
 	public Collection<AttributeExt> getAttributes()
 	{
 		return new ArrayList<>(attributes);
+	}
+
+	@Override
+	public boolean equals(final Object other)
+	{
+		if (!(other instanceof GroupMember))
+			return false;
+		GroupMember castOther = (GroupMember) other;
+		return Objects.equals(group, castOther.group) && Objects.equals(entity, castOther.entity)
+				&& Objects.equals(attributes, castOther.attributes);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(group, entity, attributes);
+	}
+
+	@Override
+	public String toString()
+	{
+		return "GroupMember [group=" + group + ", entity=" + entity + ", attributes=" + attributes + "]";
 	}
 }
