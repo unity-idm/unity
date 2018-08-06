@@ -49,7 +49,7 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 	{
 		String verificationEndpoint = config.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT);
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(verificationEndpoint));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.POST, new URL(verificationEndpoint));
 		
 		StringBuilder queryB = new StringBuilder();
 		queryB.append("client_id=").append(URLEncoder.encode(config.getValue(OAuthRPProperties.CLIENT_ID), 
