@@ -84,6 +84,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private VerticalLayout secondFactorHolder;
 	private Component rememberMeComponent;
 	private SandboxAuthnResultCallback sandboxCallback;
+	private Component languageChoice;
+	private Component cancelComponent;
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -131,7 +133,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		topLevelLayout.setHeightUndefined();
 		setCompositionRoot(topLevelLayout);
 
-		Component languageChoice = getLanguageChoiceComponent();
+		languageChoice = getLanguageChoiceComponent();
 		topLevelLayout.addComponent(languageChoice);
 		topLevelLayout.setComponentAlignment(languageChoice, Alignment.TOP_CENTER);
 		
@@ -212,7 +214,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		
 		if (cancelHandler != null && config.getBooleanValue(AUTHN_SHOW_CANCEL))
 		{
-			authenticationMainLayout.addComponent(getCancelComponent());
+			cancelComponent = getCancelComponent();
+			authenticationMainLayout.addComponent(cancelComponent);
 		}
 		
 		return authenticationMainLayout;
@@ -321,6 +324,9 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			authNPanelInProgress.refresh(request);
 		} else
 		{
+			authNColumns.enableAll();
+			enableSharedWidgets(true);
+			
 			//it is possible to arrive on authN screen upon initial UI loading with authN in progress:
 			// when initial authN was started without loading UI (e.g. autoLogin feature)
 			String preferredIdp = PreferredAuthenticationHelper.getPreferredIdp();
@@ -332,18 +338,21 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	{
 		if (authNPanelInProgress != null)
 			authNPanelInProgress.cancel();
-		onStoppedAuthentication();
+		onAbortedAuthentication();
 	}
 
-	private void onStoppedAuthentication()
+	private void onAbortedAuthentication()
 	{
 		authNColumns.enableAll();
+		enableSharedWidgets(true);
 		authNProgress.setInternalVisibility(false);
 		authNPanelInProgress = null;
 	}
 	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
 	{
+		enableSharedWidgets(true);
+		authNPanelInProgress = null;
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
 		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance();
 		if (secondaryAuthnUIs.size() > 1)
@@ -376,8 +385,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		secondFactorHolder.setVisible(true);
 		rememberMeComponent.setVisible(
 				getRememberMePolicy().equals(RememberMePolicy.allowFor2ndFactor));
-		
-		
 	}
 	
 	private RememberMePolicy getRememberMePolicy()
@@ -391,11 +398,26 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		authNColumns.setVisible(true);
 		authNColumns.enableAll();
 		authNColumns.focusFirst();
+		enableSharedWidgets(true);
 		secondFactorHolder.removeAllComponents();
 		secondFactorHolder.setVisible(false);
 		rememberMeComponent.setVisible(
 				getRememberMePolicy().equals(RememberMePolicy.allowForWholeAuthn));
 		
+	}
+	
+	private void enableSharedWidgets(boolean enable)
+	{
+		rememberMeComponent.setEnabled(enable);
+		if (cancelComponent != null)
+			cancelComponent.setEnabled(enable);
+		languageChoice.setEnabled(enable);
+	}
+	
+	private void onCompletedAuthentication()
+	{
+		authNPanelInProgress = null;
+		authNProgress.setInternalVisibility(false);
 	}
 	
 	private class AuthnPanelFactoryImpl implements AuthNPanelFactory
@@ -430,18 +452,25 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			authNPanelInProgress = authNPanel;
 			authNProgress.setInternalVisibility(showProgress);
 			authNColumns.disableAllExcept(optionId);
+			enableSharedWidgets(false);
 		}
 
 		@Override
-		public void authenticationStopped()
+		public void authenticationAborted()
 		{
-			onStoppedAuthentication();
+			onAbortedAuthentication();
 		}
 
 		@Override
 		public void switchTo2ndFactor(PartialAuthnState partialState)
 		{
 			switchToSecondaryAuthentication(partialState);
+		}
+
+		@Override
+		public void authenticationCompleted()
+		{
+			onCompletedAuthentication();
 		}
 	}
 	
@@ -451,6 +480,24 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		public void switchBackToFirstFactor()
 		{
 			switchBackToPrimaryAuthentication();
+		}
+
+		@Override
+		public void authenticationStarted(boolean showProgress)
+		{
+			enableSharedWidgets(false);
+		}
+
+		@Override
+		public void authenticationAborted()
+		{
+			onAbortedAuthentication();
+		}
+
+		@Override
+		public void authenticationCompleted()
+		{
+			onCompletedAuthentication();
 		}
 	}
 	

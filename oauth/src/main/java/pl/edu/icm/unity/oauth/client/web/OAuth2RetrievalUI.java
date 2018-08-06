@@ -167,6 +167,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	public void clear()
 	{
 		breakLogin();
+		idpComponent.setEnabled(true);
 	}
 	
 	private String installRequestHandler()
@@ -196,7 +197,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 			contextManagement.removeAuthnContext(context.getRelayState());
 		}
-		idpComponent.setEnabled(true);
 	}
 	
 	private void startLogin()
@@ -226,7 +226,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		{
 			NotificationPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
 			log.error("Can not create OAuth2 request", e);
-			breakLogin();
+			clear();
 			return;
 		}
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
@@ -268,10 +268,13 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				clientProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 		authnResult.setEnableAssociation(enableAssociation);
 		
-		if (authnResult.getStatus() == Status.success || 
-				authnResult.getStatus() == Status.unknownRemotePrincipal)
+		if (authnResult.getStatus() == Status.success)
 		{
 			breakLogin();
+			callback.onCompletedAuthentication(authnResult);
+		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal)
+		{
+			clear();
 			callback.onCompletedAuthentication(authnResult);
 		} else
 		{
@@ -283,7 +286,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			Optional<String> errorDetail = reason == null ? Optional.empty() : 
 				Optional.of(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
 			String error = msg.getMessage("OAuth2Retrieval.authnFailedError");
-			breakLogin();
+			clear();
 			callback.onFailedAuthentication(authnResult, error, errorDetail);
 		}
 	}

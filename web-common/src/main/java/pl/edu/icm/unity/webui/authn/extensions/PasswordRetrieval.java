@@ -238,6 +238,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 							Optional.empty());
 				} else
 				{
+					setEnabled(false);
 					callback.onCompletedAuthentication(authenticationResult);
 				}
 			}

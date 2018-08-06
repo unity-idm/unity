@@ -133,7 +133,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
-		private TLSAuthnComponent component = new TLSAuthnComponent();
+		private Component component = new TLSAuthnComponent();
 		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
@@ -156,8 +156,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (clientCert == null)
 				return new AuthenticationResult(Status.notApplicable, null);
 
-			return credentialExchange.checkCertificate(
-					clientCert, sandboxCallback);
+			return credentialExchange.checkCertificate(clientCert, sandboxCallback);
 		}
 
 		@Override
@@ -189,6 +188,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 
 		private class TLSAuthnComponent extends VerticalLayout
 		{
+			private Button authenticateButton;
+
 			public TLSAuthnComponent()
 			{
 				setMargin(false);
@@ -196,7 +197,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 				X509Certificate[] clientCert = getTLSCertificate();
 				String info = clientCert == null ? "" : msg.getMessage("WebTLSRetrieval.certInfo", 
 						X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal()));
-				Button authenticateButton = new Button(msg.getMessage("WebTLSRetrieval.signInButton"));
+				authenticateButton = new Button(msg.getMessage("WebTLSRetrieval.signInButton"));
 				authenticateButton.addClickListener(event -> triggerAuthentication());
 				authenticateButton.setIcon(getImage());
 				authenticateButton.addStyleName(Styles.signInButton.toString());
@@ -206,11 +207,15 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 				addComponent(authenticateButton);
 			}
 		}
-
+		
 		private void triggerAuthentication()
 		{
 			callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
-			callback.onCompletedAuthentication(getAuthenticationResult());
+			AuthenticationResult authenticationResult = getAuthenticationResult();
+			if (authenticationResult.getStatus() == Status.success)
+				component.setEnabled(false);
+			
+			callback.onCompletedAuthentication(authenticationResult);
 		}
 		
 		@Override
