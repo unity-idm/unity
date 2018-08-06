@@ -78,6 +78,7 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 			authnProcessor.processSecondaryAuthnResult(partialState, result, clientIp, realm, 
 					partialState.getAuthenticationFlow(), rememberMeProvider.get(), 
 					authNPanel.getAuthenticationOptionId());
+			setAuthenticationCompleted();
 		} catch (AuthenticationException e)
 		{
 			log.trace("Secondary authentication failed ", e);
@@ -89,22 +90,20 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public void onStartedAuthentication(AuthenticationStyle style)
 	{
-		onAuthenticationStart(style);
+		clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
+		if (authNListener != null)
+			authNListener.authenticationStarted(style == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 	}
 
 	@Override
 	public void onCancelledAuthentication()
 	{
+		setAuthenticationAborted();
 	}
-	
-	private void onAuthenticationStart(AuthenticationStyle style)
-	{
-		clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
-	}
-	
 	
 	private void handleError(String genericError, String authenticatorError)
 	{
+		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
 		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
 		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
@@ -120,12 +119,26 @@ class SecondFactorAuthNResultCallback implements AuthenticationCallback
 			authNListener.switchBackToFirstFactor();
 	}
 	
+	private void setAuthenticationAborted()
+	{
+		if (authNListener != null)
+			authNListener.authenticationAborted();
+	}
+	
+	private void setAuthenticationCompleted()
+	{
+		if (authNListener != null)
+			authNListener.authenticationCompleted();
+	}
 
 	/**
 	 * Used by upstream code holding this component to be informed about changes in this component. 
 	 */
 	public interface AuthenticationListener
 	{
+		void authenticationStarted(boolean showProgress);
+		void authenticationAborted();
+		void authenticationCompleted();
 		void switchBackToFirstFactor();
 	}
 }

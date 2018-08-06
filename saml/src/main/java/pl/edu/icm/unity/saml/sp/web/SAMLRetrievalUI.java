@@ -148,7 +148,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		session.addRequestHandler(rh);
 		return rh.getTriggeringParam();
 	}
-	
+
 	private void breakLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
@@ -159,7 +159,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 			samlContextManagement.removeAuthnContext(context.getRelayState());
 		}
-		idpComponent.setEnabled(true);
 	}
 	
 	private void startLogin()
@@ -185,7 +184,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		{
 			NotificationPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
 			log.error("Can not create SAML request", e);
-			breakLogin();
+			clear();
 			return;
 		}
 		log.debug("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
@@ -230,10 +229,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		authnResult.setEnableAssociation(authnContext.isEnableAssociation());
 		
 		
-		if (authnResult.getStatus() == Status.success || 
-				authnResult.getStatus() == Status.unknownRemotePrincipal)
+		if (authnResult.getStatus() == Status.success)
 		{
 			breakLogin();
+			callback.onCompletedAuthentication(authnResult);
+		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal)
+		{
+			clear();
 			callback.onCompletedAuthentication(authnResult);
 		} else
 		{
@@ -241,7 +243,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				log.warn("SAML response verification or processing failed", savedException);
 			else
 				log.warn("SAML response verification or processing failed");
-			breakLogin();
+			clear();
 			Optional<String> errorDetail = reason == null ? Optional.empty() : 
 				Optional.of(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
 			String error = msg.getMessage("WebSAMLRetrieval.authnFailedError");
@@ -299,6 +301,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public void clear()
 	{
 		breakLogin();
+		idpComponent.setEnabled(true);
 	}
 
 	@Override

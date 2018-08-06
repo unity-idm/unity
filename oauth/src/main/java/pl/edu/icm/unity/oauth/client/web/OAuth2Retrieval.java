@@ -72,7 +72,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
 		super.setCredentialExchange(e, id);
-		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e);
+		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e, id);
 	}
 	
 	@Override
@@ -103,9 +103,9 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 
 	@Override
 	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws IOException
+			HttpServletResponse httpResponse, String endpointPath) throws IOException
 	{
-		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse);
+		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse, endpointPath);
 	}
 
 	@Override

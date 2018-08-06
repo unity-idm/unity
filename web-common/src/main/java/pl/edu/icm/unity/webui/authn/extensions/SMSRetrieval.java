@@ -363,8 +363,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 		private void setAuthenticationResult(AuthenticationResult authenticationResult)
 		{
-			if (authenticationResult.getStatus() == Status.success
-					|| authenticationResult.getStatus() == Status.unknownRemotePrincipal)
+			if (authenticationResult.getStatus() == Status.success)
+			{
+				clear();
+				setEnabled(false);
+				callback.onCompletedAuthentication(authenticationResult);
+			} else if (authenticationResult.getStatus() == Status.unknownRemotePrincipal)
 			{
 				clear();
 				callback.onCompletedAuthentication(authenticationResult);
@@ -376,7 +380,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				callback.onFailedAuthentication(authenticationResult, msgErr, Optional.empty());
 			}
 		}
-
+		
 		private void setError()
 		{
 			resetSentCode();
@@ -438,7 +442,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			answerField.setValue("");
 		}
 
-		public void disableLostPhone()
+		void hideLostPhone()
 		{
 			if (lostPhone != null)
 				lostPhone.setVisible(false);
@@ -541,7 +545,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		@Override
 		public void disableCredentialReset()
 		{
-			theComponent.disableLostPhone();
+			theComponent.hideLostPhone();
 		}
 	}
 

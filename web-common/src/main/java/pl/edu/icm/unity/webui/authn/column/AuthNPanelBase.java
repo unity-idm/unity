@@ -55,6 +55,12 @@ abstract class AuthNPanelBase extends CustomComponent implements AuthenticationU
 		return optionId;
 	}
 	
+	@Override
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+		authnUI.getComponent().setEnabled(enabled);
+	}
 	
 	private boolean updateFocus(Component retrievalComponent)
 	{

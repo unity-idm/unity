@@ -11,7 +11,6 @@ import java.util.Set;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Component.Focusable;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
@@ -45,8 +44,7 @@ public interface VaadinAuthentication extends BindingAuthn
 	public interface VaadinAuthenticationUI
 	{
 		/**
-		 * @return UI component associated with this retrieval. If the returned component implements 
-		 * the {@link Focusable} interface it may be focused after showing. 
+		 * @return UI component associated with this retrieval.
 		 * Important: this method must return the same instance of the {@link Component} for its lifetime. 
 		 * The instance creation must be performed when the {@link VaadinAuthentication#createUIInstance()}
 		 * is called.

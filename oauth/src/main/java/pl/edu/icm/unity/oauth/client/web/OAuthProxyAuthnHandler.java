@@ -7,6 +7,7 @@ package pl.edu.icm.unity.oauth.client.web;
 import java.io.IOException;
 import java.util.Set;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -31,11 +32,13 @@ class OAuthProxyAuthnHandler
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH,
 			OAuthProxyAuthnHandler.class);
 	
-	private OAuthExchange credentialExchange;
+	private final OAuthExchange credentialExchange;
+	private final String authenticatorId;
 	
-	OAuthProxyAuthnHandler(OAuthExchange credentialExchange)
+	OAuthProxyAuthnHandler(OAuthExchange credentialExchange, String authenticatorId)
 	{
 		this.credentialExchange = credentialExchange;
+		this.authenticatorId = authenticatorId;
 	}
 
 	private String getIdpConfigKey(HttpServletRequest httpRequest)
@@ -65,14 +68,14 @@ class OAuthProxyAuthnHandler
 	}
 
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws IOException
+			HttpServletResponse httpResponse, String endpointPath) throws IOException
 	{
 		String idpKey = getIdpConfigKey(httpRequest);
-		return startLogin(idpKey, httpRequest, httpResponse);
+		return startLogin(idpKey, httpRequest, httpResponse, endpointPath);
 	}
 	
 	private boolean startLogin(String idpConfigKey, HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws IOException
+			HttpServletResponse httpResponse, String endpointPath) throws IOException
 	{
 		HttpSession session = httpRequest.getSession();
 		OAuthContext context = (OAuthContext) session.getAttribute(
@@ -94,6 +97,7 @@ class OAuthProxyAuthnHandler
 		{
 			throw new IllegalStateException("Can not create OAuth2 authN request", e);
 		}
+		setLastIdpCookie(httpResponse, idpConfigKey, endpointPath);
 		handleRequestInternal(context, httpRequest, httpResponse);
 		return true;
 	}
@@ -113,5 +117,14 @@ class OAuthProxyAuthnHandler
 	{
 		response.setHeader("Cache-Control","no-cache,no-store");
 		response.setHeader("Pragma","no-cache");
+	}
+	
+	private void setLastIdpCookie(HttpServletResponse httpResponse, String idpConfigKey, String endpointPath)
+	{
+		String optionId = idpConfigKey.substring(OAuthClientProperties.PROVIDERS.length(), idpConfigKey.length()-1);
+		String selectedAuthn = AuthenticationOptionKeyUtils.encode(authenticatorId, optionId);
+		Cookie lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
+				endpointPath, selectedAuthn);
+		httpResponse.addCookie(lastIdpCookie);
 	}
 }

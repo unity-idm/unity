@@ -91,7 +91,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 					selectedAuthnFlow, rememberMeProvider.get(), authnId);
 			if (!partialState.isPresent())
 			{
-				setNotAuthenticating();
+				setAuthenticationCompleted();
 			} else
 			{
 				switchToSecondaryAuthentication(partialState.get());
@@ -109,22 +109,31 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	@Override
 	public void onStartedAuthentication(AuthenticationStyle style)
 	{
-		onAuthenticationStart(style);
+		clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
+		if (authNListener != null)
+			authNListener.authenticationStarted(style == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+		setLastIdpCookie(authnId);
 	}
 
 	@Override
 	public void onCancelledAuthentication()
 	{
-		setNotAuthenticating();
+		setAuthenticationAborted();
 	}
 	
 	/**
 	 * Clears the UI so a new authentication can be started.
 	 */
-	private void setNotAuthenticating()
+	private void setAuthenticationAborted()
 	{
 		if (authNListener != null)
-			authNListener.authenticationStopped();
+			authNListener.authenticationAborted();
+	}
+
+	private void setAuthenticationCompleted()
+	{
+		if (authNListener != null)
+			authNListener.authenticationCompleted();
 	}
 	
 	private void switchToSecondaryAuthentication(PartialAuthnState partialState)
@@ -136,19 +145,11 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	
 	private void handleError(String genericError, String authenticatorError)
 	{
-		setNotAuthenticating();
+		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
 		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
 		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
 		authNPanel.showWaitScreenIfNeeded(clientIp);
-	}
-	
-	private void onAuthenticationStart(AuthenticationStyle style)
-	{
-		clientIp = VaadinService.getCurrentRequest().getRemoteAddr();
-		if (authNListener != null && style != AuthenticationStyle.IMMEDIATE)
-			authNListener.authenticationStarted(style == AuthenticationStyle.WITH_EXTERNAL_CANCEL);
-		setLastIdpCookie(authnId);
 	}
 	
 	private void handleUnknownUser(UnknownRemoteUserException e)
@@ -157,7 +158,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		{
 			log.trace("Authentication successful, user unknown, "
 					+ "showing unknown user dialog");
-			setNotAuthenticating();
+			setAuthenticationAborted();
 			authNPanel.showUnknownUserDialog(e);
 		} else
 		{
@@ -181,7 +182,8 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 	interface AuthenticationListener
 	{
 		void authenticationStarted(boolean showProgress);
-		void authenticationStopped();
+		void authenticationAborted();
+		void authenticationCompleted();
 		void switchTo2ndFactor(PartialAuthnState partialState);
 	}
 }
