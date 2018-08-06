@@ -16,7 +16,6 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -198,14 +197,9 @@ public class ProxyAuthenticationFilter implements Filter
 			{
 				log.debug("Invoking automated proxy authentication handler of {}",
 						authenticator.getAuthenticatorId());
-				if (selectedAuthn != null)
-				{
-					Cookie lastIdpCookie = PreferredAuthenticationHelper.createLastIdpCookie(
-							endpointPath, selectedAuthn);
-					httpResponse.addCookie(lastIdpCookie);
-				}
+				
 				boolean result = authenticator.triggerAutomatedAuthentication(
-						httpRequest, httpResponse);
+						httpRequest, httpResponse, endpointPath);
 				if (result)
 				{
 					log.debug("Automated proxy authentication of {} handled the request",

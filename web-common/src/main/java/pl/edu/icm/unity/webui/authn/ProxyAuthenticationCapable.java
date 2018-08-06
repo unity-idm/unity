@@ -28,5 +28,5 @@ public interface ProxyAuthenticationCapable extends BindingAuthn
 	 * should be processed in regular way 
 	 */
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws IOException;
+			HttpServletResponse httpResponse, String endpointPath) throws IOException;
 }

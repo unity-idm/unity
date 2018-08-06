@@ -104,14 +104,14 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	{
 		super.setCredentialExchange(e, id);
 		proxyAuthnHandler = new SAMLProxyAuthnHandler((SAMLExchange) e, 
-				samlContextManagement);
+				samlContextManagement, id);
 	}
 	
 	@Override
 	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws IOException
+			HttpServletResponse httpResponse, String endpointPath) throws IOException
 	{
-		return proxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse);
+		return proxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse, endpointPath);
 	}
 
 	@Override
