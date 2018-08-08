@@ -97,7 +97,8 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 			{
 				String scopes = (String) entry.getValue();
 				for (String s: scopes.split(" "))
-					scope.add(s);
+					if (s != null && !"".equals(s))
+						scope.add(s);
 			} else if ("active".equals(entry.getKey()))
 			{
 				valid = Boolean.parseBoolean(entry.getValue().toString());
