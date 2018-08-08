@@ -9,9 +9,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
@@ -527,7 +529,16 @@ public class RESTAdmin
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		log.debug("addMember " + entityId + " to " + group);
-		groupsMan.addMemberFromParent(group, getEP(entityId, idType));
+		
+		EntityParam entityParam = getEP(entityId, idType);
+		
+		Set<String> existingGroups = identitiesMan.getGroups(entityParam).keySet();
+		Deque<String> notMember = Group.getMissingGroups(group, existingGroups);
+		while (!notMember.isEmpty())
+		{
+			String notMemberGroup = notMember.pollLast();
+			groupsMan.addMemberFromParent(notMemberGroup, entityParam);
+		}
 	}
 
 	
