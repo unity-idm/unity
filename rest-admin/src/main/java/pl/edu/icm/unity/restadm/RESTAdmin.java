@@ -9,10 +9,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Deque;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -23,7 +26,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.UriInfo;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +40,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 import net.minidev.json.JSONArray;
 import pl.edu.icm.unity.Constants;
@@ -64,6 +70,7 @@ import pl.edu.icm.unity.engine.api.utils.json.Token2JsonFormatter;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.rest.exception.JSONParsingException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -117,6 +124,7 @@ public class RESTAdmin
 	private EventPublisher eventPublisher;
 	private SecuredTokensManagement securedTokenMan;
 	private Token2JsonFormatter jsonFormatter;
+	private UserNotificationTriggerer userNotificationTriggerer;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -130,7 +138,8 @@ public class RESTAdmin
 			InvitationManagement invitationMan,
 			EventPublisher eventPublisher,
 			SecuredTokensManagement securedTokenMan,
-			Token2JsonFormatter jsonFormatter)
+			Token2JsonFormatter jsonFormatter,
+			UserNotificationTriggerer userNotificationTriggerer)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -147,6 +156,7 @@ public class RESTAdmin
 		this.eventPublisher = eventPublisher;
 		this.securedTokenMan = securedTokenMan;
 		this.jsonFormatter = jsonFormatter;
+		this.userNotificationTriggerer = userNotificationTriggerer;
 	}
 
 	
@@ -519,7 +529,16 @@ public class RESTAdmin
 		if (!group.startsWith("/"))
 			group = "/" + group;
 		log.debug("addMember " + entityId + " to " + group);
-		groupsMan.addMemberFromParent(group, getEP(entityId, idType));
+		
+		EntityParam entityParam = getEP(entityId, idType);
+		
+		Set<String> existingGroups = identitiesMan.getGroups(entityParam).keySet();
+		Deque<String> notMember = Group.getMissingGroups(group, existingGroups);
+		while (!notMember.isEmpty())
+		{
+			String notMemberGroup = notMember.pollLast();
+			groupsMan.addMemberFromParent(notMemberGroup, entityParam);
+		}
 	}
 
 	
@@ -583,6 +602,31 @@ public class RESTAdmin
 			throw new WrongArgumentException("Attribute is undefined");
 		
 		confirmationManager.sendVerificationsQuietNoTx(entityParam, attributes, true);
+	}
+	
+	@Path("/userNotification-trigger/entity/{identityValue}/template/{templateId}")
+	@POST
+	public void userNotificationTrigger(
+			@PathParam("identityValue") String identityValue, 
+			@PathParam("templateId") String templateId, 
+			@QueryParam("identityType") String identityType, 
+			@Context UriInfo uriInfo) throws EngineException, JsonProcessingException
+	{
+		String effectiveType = identityType == null ? EmailIdentity.ID : identityType; 
+		log.debug("Triggering UserNotification \'{}\' for identity {} type {}", 
+				templateId,  identityValue,  effectiveType);
+		Entity entity = identitiesMan.getEntity(new EntityParam(new IdentityTaV(effectiveType, identityValue)));
+		
+		Map<String, String> customTemplateParams = Maps.newHashMap();
+		uriInfo.getQueryParameters().forEach((key, value) -> 
+		{
+			if (!"identityType".equals(key))
+			{
+				String flatValue = value.stream().collect(Collectors.joining());
+				customTemplateParams.put(key, flatValue);
+			}
+		});
+		userNotificationTriggerer.sendNotification(entity, templateId, customTemplateParams);
 	}
 
 	@Path("/confirmation-trigger/identity/{type}/{value}")
