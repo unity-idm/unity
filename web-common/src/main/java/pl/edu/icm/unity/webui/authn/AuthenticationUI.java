@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
+import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
@@ -70,6 +71,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private List<AuthenticationFlow> authnFlows;
 	
 	private AuthenticationScreen ui;
+	private RegistrationInfoProvider registrationInfoProvider;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
@@ -78,7 +80,8 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			InputTranslationEngine inputTranslationEngine,
-			ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory)
+			ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory,
+			RegistrationInfoProvider registrationInfoProvider)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -89,6 +92,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.idsMan = idsMan;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
+		this.registrationInfoProvider = registrationInfoProvider;
 	}
 
 
@@ -116,7 +120,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
 				unknownUserDialogProvider, 
-				authnProcessor, localeChoice, authnFlows);
+				authnProcessor, localeChoice, authnFlows, registrationInfoProvider);
 		setContent(ui);
 		setSizeFull();
 	}

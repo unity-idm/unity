@@ -235,7 +235,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
-		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
+		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties.getRegistrationConfiguration();
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticationFlows,
 				registrationConfiguration, properties, 

@@ -41,6 +41,7 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider;
 
 /**
  * Vaadin UI of the sandbox application using all remote authenticators. Suitable for sandbox authn used in 
@@ -67,6 +68,8 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
+
+	private RegistrationInfoProvider registrationInfoProvider;
 	
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg, 
@@ -76,7 +79,8 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 			@Qualifier("insecure") EntityManagement idsMan,
 			AuthenticatorsRegistry authnRegistry,
 			AuthenticatorManagement authenticationManagement,
-			AuthenticatorSupportManagement authenticatorSupport)
+			AuthenticatorSupportManagement authenticatorSupport,
+			RegistrationInfoProvider registrationInfoProvider)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -86,6 +90,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		this.authnRegistry = authnRegistry;
 		this.authenticationManagement = authenticationManagement;
 		this.authenticatorSupport = authenticatorSupport;
+		this.registrationInfoProvider = registrationInfoProvider;
 	}
 	
 	@Override
@@ -114,7 +119,8 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 				localeChoice, 
 				authnFlows,
 				getTitle(validationMode),
-				sandboxRouter);
+				sandboxRouter,
+				registrationInfoProvider);
 		setContent(ui);
 		setSizeFull();
 	}

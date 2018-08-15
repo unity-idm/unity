@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
+import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 
 /**
@@ -46,7 +47,8 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			LocaleChoiceComponent localeChoice,
 			List<AuthenticationFlow> authenticators,
 			String title,
-			SandboxAuthnRouter sandboxRouter)
+			SandboxAuthnRouter sandboxRouter, 
+			RegistrationInfoProvider registrationInfoProvider)
 	{
 		super(msg, prepareConfiguration(config.getProperties(), title), 
 				endpointDescription, () -> false, 
@@ -55,7 +57,8 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				SandboxAuthenticationScreen::disabledUnknownUserProvider, 
 				authnProcessor, 
 				localeChoice, 
-				authenticators);
+				authenticators,
+				registrationInfoProvider);
 		this.sandboxRouter = sandboxRouter;
 	}
 
