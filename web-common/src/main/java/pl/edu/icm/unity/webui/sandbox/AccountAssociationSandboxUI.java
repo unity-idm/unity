@@ -47,7 +47,6 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
-	private RegistrationInfoProvider registrationInfoProvider;
 	
 	@Autowired
 	public AccountAssociationSandboxUI(UnityMessageSource msg, 
@@ -63,7 +62,6 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 		this.authnProcessor = authnProcessor;
 		this.execService = execService;
 		this.idsMan = idsMan;
-		this.registrationInfoProvider = registrationInfoProvider;
 	}
 	
 	@Override
@@ -91,8 +89,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 				localeChoice, 
 				authnFlows,
 				title,
-				sandboxRouter,
-				registrationInfoProvider);
+				sandboxRouter);
 		setContent(ui);
 		setSizeFull();
 	}

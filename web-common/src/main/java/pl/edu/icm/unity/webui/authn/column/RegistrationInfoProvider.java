@@ -6,72 +6,26 @@ package pl.edu.icm.unity.webui.authn.column;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.config.ConfigurableBeanFactory;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Lists;
-
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 /**
- * Provides information about configured and available registration forms that
- * are shown on the authN page.
+ * Provides information about registration forms that is used to build sign in 
+ * links at login page.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-@Component
-@Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class RegistrationInfoProvider
+public interface RegistrationInfoProvider
 {
-	private final RegistrationsManagement registrationsManagement;
-	private SharedEndpointManagement sharedEndpointMan;
-	private UnityMessageSource msg;
+	public List<RegistrationFormInfo> getRegistrationFormLinksInfo(Collection<String> configuredForms)
+			throws EngineException;
 
-	@Autowired
-	public RegistrationInfoProvider(@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-			SharedEndpointManagement sharedEndpointMan, UnityMessageSource msg)
-	{
-		this.registrationsManagement = registrationsManagement;
-		this.sharedEndpointMan = sharedEndpointMan;
-		this.msg = msg;
-	}
-
-	public List<RegistrationInfo> getRegistrationFormLinksInfo(Collection<String> configuredForms) throws EngineException
-	{
-		List<RegistrationInfo> infos = Lists.newArrayList();
-		Map<String, RegistrationForm> formsByName = registrationsManagement.getForms().stream()
-				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()));
-		for (String configuredForm : configuredForms)
-		{
-			RegistrationForm form = formsByName.get(configuredForm);
-			if (form != null)
-			{
-				String displayedName = form.getDisplayedName().getValue(msg);
-				String link = PublicRegistrationURLSupport.getPublicRegistrationLink(form.getName(), sharedEndpointMan);
-				infos.add(new RegistrationInfo(displayedName, link));
-			}
-		}
-		return infos;
-	}
-
-	static class RegistrationInfo
+	static class RegistrationFormInfo
 	{
 		public final String displayedName;
 		public final String link;
 
-		public RegistrationInfo(String displayedName, String link)
+		public RegistrationFormInfo(String displayedName, String link)
 		{
 			this.displayedName = displayedName;
 			this.link = link;

@@ -69,8 +69,6 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
 
-	private RegistrationInfoProvider registrationInfoProvider;
-	
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg, 
 			LocaleChoiceComponent localeChoice,
@@ -90,7 +88,6 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		this.authnRegistry = authnRegistry;
 		this.authenticationManagement = authenticationManagement;
 		this.authenticatorSupport = authenticatorSupport;
-		this.registrationInfoProvider = registrationInfoProvider;
 	}
 	
 	@Override
@@ -119,8 +116,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 				localeChoice, 
 				authnFlows,
 				getTitle(validationMode),
-				sandboxRouter,
-				registrationInfoProvider);
+				sandboxRouter);
 		setContent(ui);
 		setSizeFull();
 	}

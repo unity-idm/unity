@@ -20,7 +20,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
-import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider.RegistrationInfo;
+import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider.RegistrationFormInfo;
 
 /**
  * Top header component displayed in the AuthN screen.
@@ -58,7 +58,7 @@ class TopHeaderComponent extends CustomComponent
 		{
 			try
 			{
-				List<RegistrationInfo> infos = registrationInfoProvider
+				List<RegistrationFormInfo> infos = registrationInfoProvider
 						.getRegistrationFormLinksInfo(endpointRegistrationConfiguration.getEnabledForms());
 				Component registrationLinksComponent = getRegistrationLinksComponent(infos);
 				header.addComponent(registrationLinksComponent);
@@ -83,14 +83,14 @@ class TopHeaderComponent extends CustomComponent
 		return localeSelector;
 	}
 
-	private Component getRegistrationLinksComponent(List<RegistrationInfo> registrationInfos)
+	private Component getRegistrationLinksComponent(List<RegistrationFormInfo> registrationInfos)
 	{
 		VerticalLayout links = new VerticalLayout();
 		links.setMargin(true);
 		links.setSpacing(false);
 		links.setWidthUndefined();
 		
-		for (RegistrationInfo info  : registrationInfos)
+		for (RegistrationFormInfo info  : registrationInfos)
 		{
 			Link returnUrlLink =  new Link(info.displayedName, new ExternalResource(info.link));
 			links.addComponent(returnUrlLink);

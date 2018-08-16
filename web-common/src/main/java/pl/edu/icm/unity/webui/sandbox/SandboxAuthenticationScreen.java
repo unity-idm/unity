@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -25,7 +27,6 @@ import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
-import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 
 /**
@@ -47,8 +48,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			LocaleChoiceComponent localeChoice,
 			List<AuthenticationFlow> authenticators,
 			String title,
-			SandboxAuthnRouter sandboxRouter, 
-			RegistrationInfoProvider registrationInfoProvider)
+			SandboxAuthnRouter sandboxRouter)
 	{
 		super(msg, prepareConfiguration(config.getProperties(), title), 
 				endpointDescription, () -> false, 
@@ -58,7 +58,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				authnProcessor, 
 				localeChoice, 
 				authenticators,
-				registrationInfoProvider);
+				forms -> Lists.newArrayList());
 		this.sandboxRouter = sandboxRouter;
 	}
 
