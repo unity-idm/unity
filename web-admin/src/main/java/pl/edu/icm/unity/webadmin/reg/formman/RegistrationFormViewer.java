@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.FormLayout;
@@ -46,6 +48,8 @@ public class RegistrationFormViewer extends BaseFormViewer
 	private RegistrationTranslationProfileViewer translationProfile;
 	private SharedEndpointManagement sharedEndpointMan;
 	private RegistrationActionsRegistry registrationActionsRegistry;
+	private Label editAutoFilledForm;
+	private Label selectedFlows;
 	
 	@Autowired
 	public RegistrationFormViewer(UnityMessageSource msg, RegistrationActionsRegistry registrationActionsRegistry,
@@ -94,6 +98,17 @@ public class RegistrationFormViewer extends BaseFormViewer
 				ProfileType.REGISTRATION,
 				form.getTranslationProfile().getRules());
 		translationProfile.setInput(tProfile, registrationActionsRegistry);
+		
+		String label = "EditAfterAuthnSettings." + form.getAuthenticationFlows().isEditAfterAuthn().name();
+		editAutoFilledForm.setValue(msg.getMessage(label));
+		
+		if (form.getAuthenticationFlows().getSpecs().isEmpty())
+		{
+			selectedFlows.setValue(msg.getMessage("MessageTemplateViewer.notSet"));
+		} else
+		{
+			selectedFlows.setValue(form.getAuthenticationFlows().getSpecs().stream().collect(Collectors.joining(", ")));
+		}
 	}
 	
 	private void initUI()
@@ -101,6 +116,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
+		initAutoRegistrationTab();
 		initAssignedTab();
 		initLayoutTab();
 		addComponent(tabs);
@@ -121,6 +137,24 @@ public class RegistrationFormViewer extends BaseFormViewer
 		
 		main.addComponents(displayedName, formInformation, registrationCode, collectComments);
 		main.addComponent(getCollectedDataInformation());
+	}
+	
+	private void initAutoRegistrationTab()
+	{
+		FormLayout main = new CompactFormLayout();
+		VerticalLayout wrapper = new VerticalLayout(main);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(true);
+		
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.autoRegistrationTab"));
+		
+		editAutoFilledForm = new Label();
+		editAutoFilledForm.setCaption(msg.getMessage("RegistrationFormEditor.editAutoFilledForm"));
+
+		selectedFlows = new Label();
+		selectedFlows.setCaption(msg.getMessage("RegistrationFormViewer.selectedFlows"));
+		
+		main.addComponents(editAutoFilledForm, selectedFlows);
 	}
 	
 	private void initAssignedTab()

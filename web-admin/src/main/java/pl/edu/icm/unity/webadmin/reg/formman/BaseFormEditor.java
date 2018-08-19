@@ -78,7 +78,6 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 
-
 	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan)

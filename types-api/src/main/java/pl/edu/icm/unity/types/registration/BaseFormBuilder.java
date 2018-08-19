@@ -42,6 +42,13 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 
 		return (T) this;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public T withAuthenticationFlowsSpec(AuthenticationFlowsSpec spec)
+	{
+		instance.setAuthenticationFlows(spec);
+		return (T) this;
+	}
 
 	@SuppressWarnings("unchecked")
 	public T withAddedIdentityParam(IdentityRegistrationParam aValue)

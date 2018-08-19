@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
@@ -26,12 +27,15 @@ import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec;
+import pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec.EditAfterAuthnSettings;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
@@ -43,6 +47,7 @@ import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvide
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 
@@ -77,6 +82,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private RegistrationTranslationProfileEditor profileEditor;
 	private FormLayoutEditor layoutEditor;
 	private ActionParameterComponentProvider actionComponentFactory;
+	private AuthnFlowsTwinColSelect supportedAuthnFlowsForAutoRegistration;
+	private ComboBox<EditAfterAuthnSettings> editAutoFilledForm;
+	private AuthenticatorSupportManagement authenticatorSupport;
 	
 	@Autowired
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -85,7 +93,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 			AttributeTypeManagement attributeMan,
 			CredentialManagement credMan, RegistrationActionsRegistry actionsRegistry,
 			CredentialRequirementManagement credReqMan,
-			ActionParameterComponentProvider actionComponentFactory)
+			ActionParameterComponentProvider actionComponentFactory,
+			AuthenticatorSupportManagement authenticatorSupport)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, credMan);
@@ -95,6 +104,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
 		this.credReqMan = credReqMan;
+		this.authenticatorSupport = authenticatorSupport;
 		this.actionComponentFactory = actionComponentFactory;
 		this.actionComponentFactory.init();
 	}
@@ -115,6 +125,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
+		initAutoRegistrationTab();
 		initLayoutTab();
 		initAssignedTab();
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
@@ -125,7 +136,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
 	}
-	
+
 	public RegistrationForm getForm() throws FormValidationException
 	{
 		RegistrationFormBuilder builder = getFormBuilderBasic();
@@ -145,7 +156,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withCaptchaLength(captcha.getValue().intValue());
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
-		
+		builder.withAuthenticationFlowsSpec(AuthenticationFlowsSpec.builder()
+				.withEditAfterAuthnForm(editAutoFilledForm.getValue())
+				.withSpecs(supportedAuthnFlowsForAutoRegistration.getSelectedItems())
+				.build());
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);
@@ -172,6 +186,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		layoutEditor.setInitialForm(toEdit);
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
+		supportedAuthnFlowsForAutoRegistration.setValue(toEdit.getAuthenticationFlows().getSpecs());
+		editAutoFilledForm.setValue(toEdit.getAuthenticationFlows().isEditAfterAuthn());
 	}
 	
 	private void initMainTab() throws EngineException
@@ -222,6 +238,28 @@ public class RegistrationFormEditor extends BaseFormEditor
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
 		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
+	}
+	
+	private void initAutoRegistrationTab() throws EngineException
+	{
+		FormLayout main = new CompactFormLayout();
+		VerticalLayout wrapper = new VerticalLayout(main);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.autoRegistrationTab"));
+		
+		supportedAuthnFlowsForAutoRegistration = new AuthnFlowsTwinColSelect(authenticatorSupport,
+				msg.getMessage("RegistrationFormViewer.availableFlows"), 
+				msg.getMessage("RegistrationFormViewer.selectedFlows"),
+				msg.getMessage("RegistrationFormViewer.supportedFlows"));
+		
+		editAutoFilledForm = new EnumComboBox<>(
+				msg.getMessage("RegistrationFormEditor.editAutoFilledForm"), msg, 
+				"EditAfterAuthnSettings.", 
+				EditAfterAuthnSettings.class, EditAfterAuthnSettings.NEVER);
+		editAutoFilledForm.setWidth(280, Unit.PIXELS);
+		
+		main.addComponents(editAutoFilledForm, supportedAuthnFlowsForAutoRegistration);
 	}
 	
 	private void initLayoutTab()
