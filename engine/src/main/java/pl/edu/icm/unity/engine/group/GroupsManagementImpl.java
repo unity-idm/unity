@@ -115,6 +115,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		if (!recursive && !getSubGroups(path).isEmpty())
 			throw new IllegalGroupValueException("The group contains subgroups");
 		dbGroups.delete(path);
+		membershipDAO.flush();
 	}
 
 	@Override

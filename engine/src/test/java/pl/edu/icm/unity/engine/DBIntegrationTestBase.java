@@ -66,12 +66,12 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		InvocationContext.setCurrent(null);
 	}	
 	
-	protected void setupUserContext(String user, String outdatedCred) throws Exception
+	protected long setupUserContext(String user, String outdatedCred) throws Exception
 	{
-		setupUserContext(sessionMan, identityResolver, user, outdatedCred, Collections.emptyList());
+		return setupUserContext(sessionMan, identityResolver, user, outdatedCred, Collections.emptyList());
 	}
 
-	public static void setupUserContext(SessionManagement sessionMan, IdentityResolver identityResolver,
+	public static long setupUserContext(SessionManagement sessionMan, IdentityResolver identityResolver,
 			String user, String credentialId, List<AuthenticationFlow> endpointFlows) throws Exception
 	{
 		EntityWithCredential entity = identityResolver.resolveIdentity(user, new String[] {UsernameIdentity.ID}, 
@@ -85,6 +85,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		// there.
 		ls.setOutdatedCredentialId(credentialId);
 		InvocationContext.setCurrent(virtualAdmin);
+		return entity.getEntityId();
 	}
 	
 	private static AuthenticationRealm getDefaultRealm()
