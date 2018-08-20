@@ -100,4 +100,12 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 		cache.storeAll(all);
 		return all;
 	}
+
+	@Override
+	public void flush() 
+	{
+		cache.flush();
+	}
+	
+	
 }
