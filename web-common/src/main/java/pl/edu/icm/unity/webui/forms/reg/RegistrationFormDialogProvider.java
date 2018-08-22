@@ -33,4 +33,12 @@ public interface RegistrationFormDialogProvider
 			return null;
 		return currentRequest.getParameter(PublicRegistrationURLSupport.CODE_PARAM);
 	}
+	
+	public static String getFormFromURL()
+	{
+		VaadinRequest currentRequest = VaadinService.getCurrentRequest();
+		if (currentRequest == null)
+			return null;
+		return currentRequest.getParameter(PublicRegistrationURLSupport.FORM_PARAM);
+	}
 }

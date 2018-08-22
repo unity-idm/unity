@@ -68,6 +68,13 @@ public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagem
 	
 	@Override
 	@Transactional
+	public List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions) throws EngineException
+	{
+		return authnLoader.resolveAndGetAuthenticationFlows(authnOptions);
+	}
+	
+	@Override
+	@Transactional
 	public List<AuthenticationFlowDefinition> resolveAllRemoteAuthenticatorFlows(String bindingId)
 			throws EngineException
 	{

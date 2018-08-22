@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.wellknownurl;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewProvider;
+import com.vaadin.server.VaadinRequest;
 
 /**
  * Implementations provide {@link View}s for registration in {@link PublicNavigationUI}.
@@ -15,4 +16,5 @@ import com.vaadin.navigator.ViewProvider;
  */
 public interface PublicViewProvider extends ViewProvider
 {
+	public void refresh(VaadinRequest request); 
 }

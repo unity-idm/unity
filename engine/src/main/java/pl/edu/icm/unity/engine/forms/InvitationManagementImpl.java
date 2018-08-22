@@ -105,7 +105,7 @@ public class InvitationManagementImpl implements InvitationManagement
 				userLocale, msg.getDefaultLocaleCode()));
 		notifyParams.put(InvitationTemplateDef.CODE, invitation.getRegistrationCode());
 		notifyParams.put(InvitationTemplateDef.URL, 
-				PublicRegistrationURLSupport.getPublicRegistrationLink(invitation.getFormId(), code, 
+				PublicRegistrationURLSupport.getPublicRegistrationLink(form, code, 
 						sharedEndpointMan));
 		ZonedDateTime expiry = invitation.getExpiration().atZone(ZoneId.systemDefault());
 		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));

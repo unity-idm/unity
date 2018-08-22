@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.ENQUIRY_FRAGMENT_PREFIX;
+import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.ENQUIRY_VIEW;
 
 import java.util.Properties;
 
@@ -32,6 +32,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.TopHeader;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLView.Callback;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
 
@@ -55,16 +56,16 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Override
 	public String getViewName(String viewAndParameters)
 	{
-		if (!viewAndParameters.startsWith(ENQUIRY_FRAGMENT_PREFIX))
+		if (!ENQUIRY_VIEW.equals(viewAndParameters))
 			return null;
-		String formName = viewAndParameters.substring(ENQUIRY_FRAGMENT_PREFIX.length());
+		String formName = RegistrationFormDialogProvider.getFormFromURL();
 		return editorController.getForm(formName) == null ? null : viewAndParameters;
 	}
 
 	@Override
 	public View getView(String viewName)
 	{
-		String formName = viewName.substring(ENQUIRY_FRAGMENT_PREFIX.length());
+		String formName = RegistrationFormDialogProvider.getFormFromURL();
 		if (!editorController.isFormApplicable(formName))
 			return new NotApplicableView();
 		

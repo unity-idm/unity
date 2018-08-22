@@ -62,6 +62,11 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	BaseForm()
 	{
 	}
+	
+	public boolean isAutoRegistrationEnabled()
+	{
+		return !authenticationFlows.getSpecs().isEmpty();
+	}
 
 	protected final void validate()
 	{

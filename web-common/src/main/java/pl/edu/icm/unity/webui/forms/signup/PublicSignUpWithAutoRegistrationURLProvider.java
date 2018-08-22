@@ -2,9 +2,9 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms.reg;
+package pl.edu.icm.unity.webui.forms.signup;
 
-import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.REGISTRATION_VIEW;
+import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
 
 import java.util.List;
 
@@ -16,11 +16,13 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
 
 /**
@@ -28,17 +30,17 @@ import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
  * @author K. Benedyczak
  */
 @Component
-public class PublicRegistrationURLProvider implements PublicViewProvider
+public class PublicSignUpWithAutoRegistrationURLProvider implements PublicViewProvider
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			PublicRegistrationURLProvider.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB,
+			PublicSignUpWithAutoRegistrationURLProvider.class);
 	private RegistrationsManagement regMan;
-	private ObjectFactory<StandaloneRegistrationView> viewFactory;
+	private ObjectFactory<StandaloneSignupWithAutoRegistrationView> viewFactory;
 	
 	@Autowired
-	public PublicRegistrationURLProvider(
+	public PublicSignUpWithAutoRegistrationURLProvider(
 			@Qualifier("insecure") RegistrationsManagement regMan,
-			ObjectFactory<StandaloneRegistrationView> viewFactory)
+			ObjectFactory<StandaloneSignupWithAutoRegistrationView> viewFactory)
 	{
 		this.regMan = regMan;
 		this.viewFactory = viewFactory;
@@ -47,7 +49,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	@Override
 	public String getViewName(String viewAndParameters)
 	{
-		if (!REGISTRATION_VIEW.equals(viewAndParameters))
+		if (!SIGNUP_WITH_AUTO_REGISTRATION_VIEW.equals(viewAndParameters))
 			return null;
 		return getForm() == null ? null : viewAndParameters;
 	}
@@ -58,22 +60,28 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		RegistrationForm form = getForm();
 		if (form == null)
 			return null;
-		return viewFactory.getObject().init(form);
+		StandaloneSignupWithAutoRegistrationView view = viewFactory.getObject().init(form);
+		VaadinSession vaadinSession = VaadinSession.getCurrent();
+		if (vaadinSession != null)
+		{
+			vaadinSession.setAttribute(StandaloneSignupWithAutoRegistrationView.class, view);
+		}
+		return view;
 	}
 
 	
 	private RegistrationForm getForm()
 	{
-		String name = RegistrationFormDialogProvider.getFormFromURL();
+		String formName = RegistrationFormDialogProvider.getFormFromURL();
 		try
 		{
 			List<RegistrationForm> forms = regMan.getForms();
 			for (RegistrationForm regForm: forms)
-				if (regForm.isPubliclyAvailable() && regForm.getName().equals(name))
+				if (regForm.isPubliclyAvailable() && regForm.getName().equals(formName))
 					return regForm;
 		} catch (EngineException e)
 		{
-			log.error("Can't load registration forms", e);
+			LOG.error("Can't load registration forms", e);
 		}
 		return null;
 	}
@@ -81,6 +89,14 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	@Override
 	public void refresh(VaadinRequest request)
 	{
-		// nop
+		LOG.debug("auto sign up refreshed");
+		VaadinSession vaadinSession = VaadinSession.getCurrent();
+		if (vaadinSession != null)
+		{
+			StandaloneSignupWithAutoRegistrationView view = vaadinSession
+					.getAttribute(StandaloneSignupWithAutoRegistrationView.class);
+			if (view != null)
+				view.refresh(request);
+		}
 	}
 }

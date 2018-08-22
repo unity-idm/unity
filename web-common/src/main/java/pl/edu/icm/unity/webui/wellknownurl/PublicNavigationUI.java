@@ -12,6 +12,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
@@ -30,6 +31,14 @@ public class PublicNavigationUI extends GenericNavigationUI<PublicViewProvider>
 	public PublicNavigationUI(UnityMessageSource msg, Collection<PublicViewProvider> viewProviders)
 	{
 		super(msg, viewProviders);
+	}
+
+	@Override
+	protected void refresh(VaadinRequest request)
+	{
+		super.refresh(request);
+		if (this.viewProviders != null)
+			this.viewProviders.forEach(view -> view.refresh(request));
 	}
 }
 

@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 
 /**
  * Defines constants and helper methods used to create public form access URI. 
@@ -22,21 +23,32 @@ import pl.edu.icm.unity.engine.api.wellknown.SecuredWellKnownURLServlet;
  */
 public class PublicRegistrationURLSupport
 {
-	public static final String REGISTRATION_FRAGMENT_PREFIX = "registration-";
-	public static final String ENQUIRY_FRAGMENT_PREFIX = "enquiry-";
+	public static final String SIGNUP_WITH_AUTO_REGISTRATION_VIEW = "signup";
+	public static final String REGISTRATION_VIEW = "registration";
+	public static final String ENQUIRY_VIEW = "enquiry";
+	
 	public static final String CODE_PARAM = "regcode";
+	public static final String FORM_PARAM = "form";
 	
 	/**
 	 * @param formName
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of a registration form
 	 */
-	public static String getPublicRegistrationLink(String formName, SharedEndpointManagement sharedEndpointMan)
+	public static String getPublicRegistrationLink(RegistrationForm form, SharedEndpointManagement sharedEndpointMan)
 	{
+		String formName = form.getName();
+		if (!form.isAutoRegistrationEnabled())
+		{
+			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
+					"/" + REGISTRATION_VIEW + 
+					"&" + FORM_PARAM + "=" + urlEncodePath(formName);
+		}
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
-				"#!" + REGISTRATION_FRAGMENT_PREFIX + urlEncodePath(formName);
+				"/" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW + 
+				"&" + FORM_PARAM + "=" + urlEncodePath(formName);
 	}
-
+	
 	/**
 	 * @param formName
 	 * @param sharedEndpointMan
@@ -47,7 +59,8 @@ public class PublicRegistrationURLSupport
 		return sharedEndpointMan.getServerAddress() + 
 				SecuredWellKnownURLServlet.DEFAULT_CONTEXT + 
 				SecuredWellKnownURLServlet.SERVLET_PATH + 
-				"#!" + ENQUIRY_FRAGMENT_PREFIX + urlEncodePath(formName);
+				"/" + ENQUIRY_VIEW +
+				"&" + FORM_PARAM + "=" + urlEncodePath(formName);
 	}
 
 	/**
@@ -55,12 +68,21 @@ public class PublicRegistrationURLSupport
 	 * @param sharedEndpointMan
 	 * @return a link to a standalone UI of a registration form with included registration code
 	 */
-	public static String getPublicRegistrationLink(String formName, String code, 
+	public static String getPublicRegistrationLink(RegistrationForm form, String code, 
 			SharedEndpointManagement sharedEndpointMan)
 	{
+		String formName = form.getName();
+		if (!form.isAutoRegistrationEnabled())
+		{
+			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
+					"/" + REGISTRATION_VIEW +
+					"?" + CODE_PARAM + "=" + code +
+					"&" + FORM_PARAM + "=" + urlEncodePath(formName);
+		}
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
+				"/" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW +
 				"?" + CODE_PARAM + "=" + code +
-				"#!" + REGISTRATION_FRAGMENT_PREFIX + urlEncodePath(formName);
+				"&" + FORM_PARAM + "=" + urlEncodePath(formName);
 	}
 	
 	private static String urlEncodePath(String pathElement)

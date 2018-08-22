@@ -60,7 +60,7 @@ class RegistrationInfoProviderImpl implements RegistrationInfoProvider
 			if (form != null)
 			{
 				String displayedName = form.getDisplayedName().getValue(msg);
-				String link = PublicRegistrationURLSupport.getPublicRegistrationLink(form.getName(), sharedEndpointMan);
+				String link = PublicRegistrationURLSupport.getPublicRegistrationLink(form, sharedEndpointMan);
 				infos.add(new RegistrationFormInfo(displayedName, link));
 			}
 		}

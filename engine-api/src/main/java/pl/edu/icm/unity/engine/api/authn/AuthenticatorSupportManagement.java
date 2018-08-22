@@ -24,6 +24,8 @@ public interface AuthenticatorSupportManagement
 	List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows) throws EngineException;
 
 	List<AuthenticationFlowDefinition> resolveAllRemoteAuthenticatorFlows(String bindingId) throws EngineException;
+	
+	List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions) throws EngineException;
 
 	/**
 	 * Removes all authenticators from DB

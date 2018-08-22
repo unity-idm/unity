@@ -81,7 +81,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 		byInvitationOnly.setValue(msg.getYesNo(form.isByInvitationOnly()));
 		
 		publicLink.setValue(form.isPubliclyAvailable() ? 
-				PublicRegistrationURLSupport.getPublicRegistrationLink(form.getName(), sharedEndpointMan) : "-");
+				PublicRegistrationURLSupport.getPublicRegistrationLink(form, sharedEndpointMan) : "-");
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg != null)
@@ -102,12 +102,12 @@ public class RegistrationFormViewer extends BaseFormViewer
 		String label = "EditAfterAuthnSettings." + form.getAuthenticationFlows().isEditAfterAuthn().name();
 		editAutoFilledForm.setValue(msg.getMessage(label));
 		
-		if (form.getAuthenticationFlows().getSpecs().isEmpty())
-		{
-			selectedFlows.setValue(msg.getMessage("MessageTemplateViewer.notSet"));
-		} else
+		if (form.isAutoRegistrationEnabled())
 		{
 			selectedFlows.setValue(form.getAuthenticationFlows().getSpecs().stream().collect(Collectors.joining(", ")));
+		} else
+		{
+			selectedFlows.setValue(msg.getMessage("MessageTemplateViewer.notSet"));
 		}
 	}
 	

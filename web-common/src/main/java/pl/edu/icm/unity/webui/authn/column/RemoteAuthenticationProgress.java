@@ -20,20 +20,20 @@ import pl.edu.icm.unity.webui.common.Styles;
  * Small component showing that remote authentication is in progress and allowing to cancel it
  * @author K. Benedyczak
  */
-class RemoteAuthenticationProgress extends CustomComponent
+public class RemoteAuthenticationProgress extends CustomComponent
 {
 	private final UnityMessageSource msg;
 	private final Runnable cancelHandler;
 	private HorizontalLayout internalHL;
 	
-	RemoteAuthenticationProgress(UnityMessageSource msg, Runnable cancelHandler)
+	public RemoteAuthenticationProgress(UnityMessageSource msg, Runnable cancelHandler)
 	{
 		this.msg = msg;
 		this.cancelHandler = cancelHandler;
 		init();
 	}
 
-	void setInternalVisibility(boolean visible)
+	public void setInternalVisibility(boolean visible)
 	{
 		internalHL.setVisible(visible);
 	}
