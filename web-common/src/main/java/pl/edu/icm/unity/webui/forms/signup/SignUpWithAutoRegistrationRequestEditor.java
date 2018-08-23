@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.webui.forms.signup;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.vaadin.server.UserError;
@@ -31,9 +33,12 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
@@ -102,9 +107,13 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 		this.authenticatorSupport = authenticatorSupport;
 		this.signUpAuthNCtrl = signUpAuthNCtrl;
 		
+		setupInvitationByCode();
+		
+		checkRemotelyObtainedIdentitiesWithInvitation();
+		
 		initUI();
 	}
-	
+
 	@Override
 	public RegistrationRequest getRequest() throws FormValidationException
 	{
@@ -151,8 +160,6 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 	private void initUI() throws EngineException
 	{
 		FormLayout mainFormLayout = createMainFormLayout();
-		
-		setupInvitationByCode();
 		
 		createRemoteAuthnControls(mainFormLayout);
 		
@@ -235,6 +242,41 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorExpiredCode"));
 	}
 	
+	private void checkRemotelyObtainedIdentitiesWithInvitation()
+	{
+		if (RemotelyAuthenticatedContext.isLocalContext(remotelyAuthenticated)
+				|| invitation == null)
+			return;
+		
+		Collection<PrefilledEntry<IdentityParam>> formInvitationIdentities = invitation.getIdentities().values();
+		if (formInvitationIdentities != null)
+		{
+			for (PrefilledEntry<IdentityParam> invitationIdentity: formInvitationIdentities)
+			{	
+				String invitationIdentityValue = invitationIdentity.getEntry().getValue();
+				if (StringUtils.isEmpty(invitationIdentityValue))
+					continue;
+				
+				Collection<IdentityTaV> identities = remotelyAuthenticated.getIdentities();
+				for (IdentityTaV remoteIdentity: identities)
+				{
+					String remoteIdentityValue = remoteIdentity.getValue();
+					if (isTheSameType(remoteIdentity, invitationIdentity)
+							&& !invitationIdentityValue.equals(remoteIdentityValue))
+					{
+						throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorWrongIdentity"));
+					}
+				}
+			}
+		
+		}
+	}
+	
+	private boolean isTheSameType(IdentityTaV remoteIdentity, PrefilledEntry<IdentityParam> invitationIdentity)
+	{
+		return remoteIdentity.getTypeId().equals(invitationIdentity.getEntry().getTypeId());
+	}
+
 	private InvitationWithCode getInvitation(String code)
 	{
 		try

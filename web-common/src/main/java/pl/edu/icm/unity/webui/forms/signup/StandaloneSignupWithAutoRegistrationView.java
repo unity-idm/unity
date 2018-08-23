@@ -89,10 +89,10 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 	@Override
 	public void enter(ViewChangeEvent changeEvent)
 	{		
-		initUIFromScratch(RemotelyAuthenticatedContext.getLocalContext());
+		initUIFromScratch();
 	}
 	
-	private void initUIFromScratch(RemotelyAuthenticatedContext context)
+	private void initUIFromScratch()
 	{
 		initUIBase();
 		
@@ -105,14 +105,14 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 		
 		try
 		{
-			editor = editorCreator.create(form, context, signUpAuthNController);
+			editor = editorCreator.create(form, RemotelyAuthenticatedContext.getLocalContext(), signUpAuthNController);
 			initUIContent();
 		} catch (Exception e)
 		{
 			onEditorCreationError(e);
 		}
 	}
-
+	
 	private boolean isValidRegistrationRequest()
 	{
 		String registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
@@ -288,10 +288,27 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 		};
 	}
 
+	/**
+	 * Creates the UI from scratch, fills the form with the remotely obtained
+	 * context, and disables the authN option so the login buttons are not
+	 * displayed.
+	 */
 	private void showFormWithDisabledAutoSignUpFor(AuthenticationResult result)
 	{
-		form.getAuthenticationFlows().getSpecs().clear();
-		initUIFromScratch(result.getRemoteAuthnContext());
+		RegistrationForm formWithDisabledFlows = new RegistrationForm(form.toJson());
+		formWithDisabledFlows.getAuthenticationFlows().getSpecs().clear();
+		
+		initUIBase();
+		
+		try
+		{
+			editor = editorCreator.create(formWithDisabledFlows, result.getRemoteAuthnContext(), signUpAuthNController);
+			initUIContent();
+		} catch (Exception e)
+		{
+			initUIFromScratch();
+			NotificationPopup.showError(msg.getMessage("error"), e.getMessage());
+		}
 	}
 	
 	/**

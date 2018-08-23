@@ -87,7 +87,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected UnityMessageSource msg;
 	private BaseForm form;
-	private RemotelyAuthenticatedContext remotelyAuthenticated;
+	protected RemotelyAuthenticatedContext remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
