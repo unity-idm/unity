@@ -35,7 +35,7 @@ import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec;
-import pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec.EditAfterAuthnSettings;
+import pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec.AutomaticFormProcessingAfterAuthnSettings;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
@@ -83,7 +83,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private FormLayoutEditor layoutEditor;
 	private ActionParameterComponentProvider actionComponentFactory;
 	private AuthnFlowsTwinColSelect supportedAuthnFlowsForAutoRegistration;
-	private ComboBox<EditAfterAuthnSettings> editAutoFilledForm;
+	private ComboBox<AutomaticFormProcessingAfterAuthnSettings> automaticFormProcessing;
 	private AuthenticatorSupportManagement authenticatorSupport;
 	
 	@Autowired
@@ -157,7 +157,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
 		builder.withAuthenticationFlowsSpec(AuthenticationFlowsSpec.builder()
-				.withEditAfterAuthnForm(editAutoFilledForm.getValue())
+				.withEditAfterAuthnForm(automaticFormProcessing.getValue())
 				.withSpecs(supportedAuthnFlowsForAutoRegistration.getSelectedItems())
 				.build());
 		String code = registrationCode.getValue();
@@ -187,7 +187,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 		supportedAuthnFlowsForAutoRegistration.setValue(toEdit.getAuthenticationFlows().getSpecs());
-		editAutoFilledForm.setValue(toEdit.getAuthenticationFlows().isEditAfterAuthn());
+		automaticFormProcessing.setValue(toEdit.getAuthenticationFlows().getAutomaticProcessing());
 	}
 	
 	private void initMainTab() throws EngineException
@@ -253,13 +253,13 @@ public class RegistrationFormEditor extends BaseFormEditor
 				msg.getMessage("RegistrationFormViewer.selectedFlows"),
 				msg.getMessage("RegistrationFormViewer.supportedFlows"));
 		
-		editAutoFilledForm = new EnumComboBox<>(
-				msg.getMessage("RegistrationFormEditor.editAutoFilledForm"), msg, 
-				"EditAfterAuthnSettings.", 
-				EditAfterAuthnSettings.class, EditAfterAuthnSettings.NEVER);
-		editAutoFilledForm.setWidth(280, Unit.PIXELS);
+		automaticFormProcessing = new EnumComboBox<>(
+				msg.getMessage("RegistrationFormEditor.automaticFormProcessing"), msg, 
+				"AutomaticFormProcessingAfterAuthnSettings.", 
+				AutomaticFormProcessingAfterAuthnSettings.class, AutomaticFormProcessingAfterAuthnSettings.DISABLED);
+		automaticFormProcessing.setWidth(280, Unit.PIXELS);
 		
-		main.addComponents(editAutoFilledForm, supportedAuthnFlowsForAutoRegistration);
+		main.addComponents(automaticFormProcessing, supportedAuthnFlowsForAutoRegistration);
 	}
 	
 	private void initLayoutTab()

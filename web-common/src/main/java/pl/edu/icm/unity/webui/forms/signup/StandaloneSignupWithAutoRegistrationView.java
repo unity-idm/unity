@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.signup;
 
+import static pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec.AutomaticFormProcessingAfterAuthnSettings.SUBMIT_WHEN_ALL_PROVIDED;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -304,6 +306,19 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 		{
 			editor = editorCreator.create(formWithDisabledFlows, result.getRemoteAuthnContext(), signUpAuthNController);
 			initUIContent();
+			
+			if (form.getAuthenticationFlows().getAutomaticProcessing() == SUBMIT_WHEN_ALL_PROVIDED)
+			{
+				if (RegistrationFormUtils.areAllRequiredRetrieved(form, editor.getInvitation(), result.getRemoteAuthnContext()))
+				{
+					LOG.debug("Automatic subbmition of a form {}", form.getName());
+					onOK(editor);
+				} else
+				{
+					LOG.info("Automatic form {} sumittion rejected, not all required attributes/identieis "
+							+ "where retrieved from external IdP.", form.getName());
+				}
+			}
 		} catch (Exception e)
 		{
 			initUIFromScratch();

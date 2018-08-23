@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
+import pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec.AutomaticFormProcessingAfterAuthnSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -99,7 +100,8 @@ public class RegistrationFormViewer extends BaseFormViewer
 				form.getTranslationProfile().getRules());
 		translationProfile.setInput(tProfile, registrationActionsRegistry);
 		
-		String label = "EditAfterAuthnSettings." + form.getAuthenticationFlows().isEditAfterAuthn().name();
+		String label = AutomaticFormProcessingAfterAuthnSettings.class.getSimpleName() + "."
+				+ form.getAuthenticationFlows().getAutomaticProcessing().name();
 		editAutoFilledForm.setValue(msg.getMessage(label));
 		
 		if (form.isAutoRegistrationEnabled())
@@ -149,7 +151,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.autoRegistrationTab"));
 		
 		editAutoFilledForm = new Label();
-		editAutoFilledForm.setCaption(msg.getMessage("RegistrationFormEditor.editAutoFilledForm"));
+		editAutoFilledForm.setCaption(msg.getMessage("RegistrationFormEditor.automaticFormProcessing"));
 
 		selectedFlows = new Label();
 		selectedFlows.setCaption(msg.getMessage("RegistrationFormViewer.selectedFlows"));

@@ -268,7 +268,6 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 					}
 				}
 			}
-		
 		}
 	}
 	
@@ -291,6 +290,11 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 			log.warn("Error trying to check invitation with user provided code", e);
 			return null;
 		}
+	}
+	
+	InvitationWithCode getInvitation()
+	{
+		return invitation;
 	}
 	
 	public void refresh(VaadinRequest request)

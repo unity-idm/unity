@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.engine.forms.BaseRequestValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -100,39 +102,46 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 			throw new IllegalFormContentsException("The invitation has already expired");
 		
 		processInvitationElements(form.getIdentityParams(), request.getIdentities(), 
-				invitation.getIdentities(), "identity");
+				invitation.getIdentities(), "identity", Comparator.comparing(IdentityParam::getValue));
 		processInvitationElements(form.getAttributeParams(), request.getAttributes(), 
-				invitation.getAttributes(), "attribute");
+				invitation.getAttributes(), "attribute", null);
 		processInvitationElements(form.getGroupParams(), request.getGroupSelections(), 
-				invitation.getGroupSelections(), "group");
+				invitation.getGroupSelections(), "group", null);
 		return true;
 	}
 
 	private <T> void processInvitationElements(List<? extends RegistrationParam> paramDef,
-			List<T> requested, Map<Integer, PrefilledEntry<T>> fromInvitation, String elementName) 
+			List<T> requested, Map<Integer, PrefilledEntry<T>> fromInvitation, String elementName,
+			Comparator<T> entryComparator) 
 					throws IllegalFormContentsException
 	{
 		validateParamsCount(paramDef, requested, elementName);
-		for (Map.Entry<Integer, PrefilledEntry<T>> invitationEntry : fromInvitation.entrySet())
+		for (Map.Entry<Integer, PrefilledEntry<T>> invitationPrefilledEntry : fromInvitation.entrySet())
 		{
-			if (invitationEntry.getKey() >= requested.size())
+			if (invitationPrefilledEntry.getKey() >= requested.size())
 			{
 				log.warn("Invitation has " + elementName + 
-						" parameter beyond form limit, skipping it: " + invitationEntry.getKey());
+						" parameter beyond form limit, skipping it: " + invitationPrefilledEntry.getKey());
 				continue;
 			}
 			
-			if (invitationEntry.getValue().getMode() == PrefilledEntryMode.DEFAULT)
+			T invitationEntity = invitationPrefilledEntry.getValue().getEntry();
+			if (invitationPrefilledEntry.getValue().getMode() == PrefilledEntryMode.DEFAULT)
 			{
-				if (requested.get(invitationEntry.getKey()) == null)
-					requested.set(invitationEntry.getKey(), invitationEntry.getValue().getEntry());
+				if (requested.get(invitationPrefilledEntry.getKey()) == null)
+					requested.set(invitationPrefilledEntry.getKey(), invitationEntity);
 			} else
 			{
-				if (requested.get(invitationEntry.getKey()) != null)
+				T requestedEntity = requested.get(invitationPrefilledEntry.getKey());
+				if (requestedEntity != null 
+						&& entryComparator != null 
+						&& entryComparator.compare(invitationEntity, requestedEntity) != 0)
+				{
 					throw new IllegalFormContentsException("Registration request can not override " 
-							+ elementName +	" " + invitationEntry.getKey() + 
+							+ elementName +	" " + invitationPrefilledEntry.getKey() + 
 							" specified in invitation");
-				requested.set(invitationEntry.getKey(), invitationEntry.getValue().getEntry());
+				}
+				requested.set(invitationPrefilledEntry.getKey(), invitationEntity);
 			}
 		}
 	}

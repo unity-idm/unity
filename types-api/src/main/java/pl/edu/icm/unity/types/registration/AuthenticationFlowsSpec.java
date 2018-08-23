@@ -25,24 +25,23 @@ import pl.edu.icm.unity.exceptions.InternalException;
 public class AuthenticationFlowsSpec
 {
 	/**
-	 * Controls the flow of automatic form filling after successful authN.
+	 * Controls the flow of automatic form processing after successful authN.
 	 */
-	public enum EditAfterAuthnSettings
+	public enum AutomaticFormProcessingAfterAuthnSettings
 	{
 		/**
-		 * Whatever comes from the external system, is mapped to registration form.
-		 * User does not have a possibility to update retrieved values.
+		 * Form is handled in default way - user needs to fill it out and click OK
+		 * to submit the form.
 		 */
-		NEVER, 
+		DISABLED, 
 		/**
-		 * User is asked to confirm/edit the values that comes from external system.
+		 * When remote authn context contains all values from the form, the
+		 * registration is submitted automatically. Whenever there is one or more
+		 * registration form value which is empty (meaning no value matched from
+		 * retrieved context) the form is displayed and user needs to fill it out
+		 * and submit manually.
 		 */
-		ALWAYS,
-		/**
-		 * Whenever the value which is mapped to a registration form property is empty,
-		 * user is prompted to enter the missing value & confirm existing once.
-		 */
-		INTERACTIVE
+		SUBMIT_WHEN_ALL_PROVIDED
 	}
 	
 	private Set<String> specs;
@@ -50,19 +49,19 @@ public class AuthenticationFlowsSpec
 	 * @implNote: shall the registration form, filled out with attributes
 	 *            from authN result, be available for user to edit.
 	 */
-	private EditAfterAuthnSettings editAfterAuthn;
+	private AutomaticFormProcessingAfterAuthnSettings automaticProcessing;
 
 	
-	AuthenticationFlowsSpec(Set<String> specs, EditAfterAuthnSettings editAfterAuthn)
+	AuthenticationFlowsSpec(Set<String> specs, AutomaticFormProcessingAfterAuthnSettings editAfterAuthn)
 	{
 		this.specs = specs;
-		this.editAfterAuthn = editAfterAuthn;
+		this.automaticProcessing = editAfterAuthn;
 	}
 	
 	AuthenticationFlowsSpec()
 	{
 		specs = new HashSet<>();
-		editAfterAuthn = EditAfterAuthnSettings.NEVER;
+		automaticProcessing = AutomaticFormProcessingAfterAuthnSettings.DISABLED;
 	}
 	
 	@JsonCreator
@@ -75,7 +74,7 @@ public class AuthenticationFlowsSpec
 	{
 		try
 		{
-			this.editAfterAuthn = EditAfterAuthnSettings.valueOf(root.get("editAfterAuthn").asText());
+			this.automaticProcessing = AutomaticFormProcessingAfterAuthnSettings.valueOf(root.get("automaticProcessing").asText());
 			ArrayNode specsNode = (ArrayNode) root.get("specs");
 			specs = new HashSet<>(specsNode.size());
 			for (int i=0; i<specsNode.size(); i++)
@@ -92,7 +91,7 @@ public class AuthenticationFlowsSpec
 	public ObjectNode toJsonObject()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("editAfterAuthn", editAfterAuthn.name());
+		root.put("automaticProcessing", automaticProcessing.name());
 		ArrayNode jsonSpecs = root.putArray("specs");
 		specs.forEach(spec -> jsonSpecs.add(spec));
 		return root;
@@ -108,14 +107,14 @@ public class AuthenticationFlowsSpec
 		this.specs = specs;
 	}
 
-	public EditAfterAuthnSettings isEditAfterAuthn()
+	public AutomaticFormProcessingAfterAuthnSettings getAutomaticProcessing()
 	{
-		return editAfterAuthn;
+		return automaticProcessing;
 	}
 
-	public void setEditAfterAuthn(EditAfterAuthnSettings editAfterAuthn)
+	public void setAutomaticProcessing(AutomaticFormProcessingAfterAuthnSettings automaticProcessing)
 	{
-		this.editAfterAuthn = editAfterAuthn;
+		this.automaticProcessing = automaticProcessing;
 	}
 
 	@Override
@@ -123,7 +122,7 @@ public class AuthenticationFlowsSpec
 	{
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((editAfterAuthn == null) ? 0 : editAfterAuthn.hashCode());
+		result = prime * result + ((automaticProcessing == null) ? 0 : automaticProcessing.hashCode());
 		result = prime * result + ((specs == null) ? 0 : specs.hashCode());
 		return result;
 	}
@@ -138,7 +137,7 @@ public class AuthenticationFlowsSpec
 		if (getClass() != obj.getClass())
 			return false;
 		AuthenticationFlowsSpec other = (AuthenticationFlowsSpec) obj;
-		if (editAfterAuthn != other.editAfterAuthn)
+		if (automaticProcessing != other.automaticProcessing)
 			return false;
 		if (specs == null)
 		{
@@ -157,9 +156,9 @@ public class AuthenticationFlowsSpec
 	public static class AuthenticationFlowsSpecBuilder
 	{
 		private Set<String> specs = new HashSet<>();
-		private EditAfterAuthnSettings editAfterAuthn;
+		private AutomaticFormProcessingAfterAuthnSettings editAfterAuthn;
 		
-		public AuthenticationFlowsSpecBuilder withEditAfterAuthnForm(EditAfterAuthnSettings editAfterAuthn)
+		public AuthenticationFlowsSpecBuilder withEditAfterAuthnForm(AutomaticFormProcessingAfterAuthnSettings editAfterAuthn)
 		{
 			this.editAfterAuthn = editAfterAuthn;
 			return this;
