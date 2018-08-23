@@ -33,6 +33,7 @@ import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
@@ -172,10 +173,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		URI requestURI = Page.getCurrent().getLocation();
-		String servletPath = requestURI.getPath();
-		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
-		String currentRelativeURI = servletPath + query;
+		String currentRelativeURI = UrlHelper.getCurrentRelativeURI(); 
 		try
 		{
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI);
@@ -193,7 +191,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
 		
-		
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 

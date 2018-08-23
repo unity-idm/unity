@@ -41,12 +41,12 @@ public class PublicRegistrationURLSupport
 		if (!form.isAutoRegistrationEnabled())
 		{
 			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
-					"/" + REGISTRATION_VIEW + 
-					"&" + FORM_PARAM + "=" + urlEncodePath(formName);
+					"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
+					"#!" + REGISTRATION_VIEW;
 		}
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
-				"/" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW + 
-				"&" + FORM_PARAM + "=" + urlEncodePath(formName);
+				"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
+				"#!" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
 	}
 	
 	/**
@@ -59,8 +59,8 @@ public class PublicRegistrationURLSupport
 		return sharedEndpointMan.getServerAddress() + 
 				SecuredWellKnownURLServlet.DEFAULT_CONTEXT + 
 				SecuredWellKnownURLServlet.SERVLET_PATH + 
-				"/" + ENQUIRY_VIEW +
-				"&" + FORM_PARAM + "=" + urlEncodePath(formName);
+				"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
+				"#!" + ENQUIRY_VIEW;
 	}
 
 	/**
@@ -75,14 +75,14 @@ public class PublicRegistrationURLSupport
 		if (!form.isAutoRegistrationEnabled())
 		{
 			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
-					"/" + REGISTRATION_VIEW +
 					"?" + CODE_PARAM + "=" + code +
-					"&" + FORM_PARAM + "=" + urlEncodePath(formName);
+					"&" + FORM_PARAM + "=" + urlEncodePath(formName) + 
+					"#!" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
 		}
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
-				"/" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW +
 				"?" + CODE_PARAM + "=" + code +
-				"&" + FORM_PARAM + "=" + urlEncodePath(formName);
+				"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
+				"#!" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
 	}
 	
 	private static String urlEncodePath(String pathElement)

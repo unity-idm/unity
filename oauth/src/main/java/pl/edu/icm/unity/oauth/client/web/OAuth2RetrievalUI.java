@@ -35,6 +35,7 @@ import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
@@ -210,10 +211,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
 			return;
 		}
-		URI requestURI = Page.getCurrent().getLocation();
-		String servletPath = requestURI.getPath();
-		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
-		String currentRelativeURI = servletPath + query;
+		String currentRelativeURI = UrlHelper.getCurrentRelativeURI(); 
 		try
 		{
 			context = credentialExchange.createRequest(configKey);
@@ -229,6 +227,9 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			clear();
 			return;
 		}
+		
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 

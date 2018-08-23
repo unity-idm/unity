@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webui.wellknownurl;
 import java.util.Collection;
 
 import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.Navigator.SingleComponentContainerViewDisplay;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.navigator.ViewProvider;
@@ -38,8 +37,7 @@ abstract class GenericNavigationUI<T extends ViewProvider> extends UnityUIBase i
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		navigator = new Navigator(this, new PathBasedNavigationStateManager(this),
-				new SingleComponentContainerViewDisplay(this));
+		navigator = new Navigator(this, this);
 		for (T viewProvider : viewProviders)
 			navigator.addProvider(viewProvider);
 		navigator.setErrorView(new ErrorView());
