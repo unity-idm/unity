@@ -80,20 +80,23 @@ public class EmailIdentityEditor implements IdentityEditor
 
 		});
 
-		editor.addTextFieldValueChangeListener(e -> {
-
-			if (value != null && e.getValue().equals(value.getValue()))
+		editor.addTextFieldValueChangeListener(e -> 
+		{
+			if (value != null)
 			{
-				confirmationInfo = value.getConfirmationInfo();
-			} else
-			{
-				confirmationInfo = new ConfirmationInfo();
+				if (e.getValue().equals(value.getValue()))
+				{
+					confirmationInfo = value.getConfirmationInfo();
+				} else
+				{
+					confirmationInfo = new ConfirmationInfo();
+				}
+				updateConfirmationStatusIcon();
 			}
-			updateConfirmationStatusIcon();
 		});
 
-		editor.addAdminConfirmCheckBoxValueChangeListener(e -> {
-			
+		editor.addAdminConfirmCheckBoxValueChangeListener(e -> 
+		{
 			if (!skipUpdate)
 			{
 				confirmationInfo = new ConfirmationInfo(e.getValue());
@@ -166,7 +169,7 @@ public class EmailIdentityEditor implements IdentityEditor
 			throw e;
 		}
 		
-		VerifiableEmail ve = new VerifiableEmail(emailVal);
+		VerifiableEmail ve = new VerifiableEmail(emailVal, confirmationInfo);
 		return EmailIdentity.toIdentityParam(ve, null, null);
 	}
 
