@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,9 +92,22 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		this.identityHelper = identityHelper;
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
-	
 	}
 
+	public static class AcceptedRequestContext
+	{
+		public final TranslatedRegistrationRequest translatedRequest;
+		public final Long entityId;
+		public AcceptedRequestContext(TranslatedRegistrationRequest translatedRequest, Long entityId)
+		{
+			this.translatedRequest = translatedRequest;
+			this.entityId = entityId;
+		}
+		public Long getEntityId()
+		{
+			return entityId;
+		}
+	}
 	/**
 	 * Accepts a registration request applying all its settings. The method operates on a result 
 	 * of the form's translation profile, rather then on the original request. 
@@ -106,7 +120,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	 * @return
 	 * @throws EngineException
 	 */
-	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest,
+	public AcceptedRequestContext acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest,
 			AdminComment publicComment, AdminComment internalComment,
 			boolean rewriteConfirmationToken) throws EngineException
 	{
@@ -156,10 +170,10 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 				Phase.ON_ACCEPT);
 		if (rewriteConfirmationToken)
 			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
-
-		return initial.getEntityId();
+		
+		return new AcceptedRequestContext(translatedRequest, initial.getEntityId());
 	}
-	
+
 	public void dropRequest(String id) throws EngineException
 	{
 		requestDB.delete(id);
@@ -182,8 +196,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	 * @return entity id if automatic request acceptance was performed.
 	 * @throws EngineException 
 	 */
-	public Long autoProcess(RegistrationForm form, RegistrationRequestState requestFull, String logMessageTemplate)	
-			throws EngineException
+	public Optional<AcceptedRequestContext> autoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
+			String logMessageTemplate)	throws EngineException
 	{
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
 				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper, form);
@@ -199,11 +213,12 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
 		log.info(formattedMsg);
 		
+		AcceptedRequestContext ctx = null;
 		switch (autoProcessAction)
 		{
 		case accept:
 			requestFull.getAdminComments().add(systemComment);
-			return acceptRequest(form, requestFull, null, systemComment, false);
+			ctx = acceptRequest(form, requestFull, null, systemComment, false);
 		case drop:
 			dropRequest(requestFull.getRequestId());
 			break;
@@ -213,7 +228,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			break;
 		default:
 		}
-		return null;
+		return Optional.ofNullable(ctx);
 	}
 
 	@EventListener

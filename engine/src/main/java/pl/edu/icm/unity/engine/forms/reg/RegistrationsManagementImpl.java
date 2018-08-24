@@ -4,10 +4,14 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
+import static pl.edu.icm.unity.engine.forms.reg.AutoProcessInvitationUtil.isAutoProcessingOfInvitationFeasible;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -18,11 +22,15 @@ import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
+import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
+import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam.InvitationProcessingMode;
+import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
@@ -30,19 +38,24 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
+import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment.AcceptedRequestContext;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Implementation of registrations subsystem.
@@ -66,6 +79,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private TransactionalRunner tx;
 	private RegistrationRequestValidator registrationRequestValidator;
 	private BaseFormValidator baseValidator;
+	private InvitationManagement invitationManagement;
 
 	@Autowired
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
@@ -75,7 +89,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
 			RegistrationRequestValidator registrationRequestValidator,
-			BaseFormValidator baseValidator)
+			BaseFormValidator baseValidator,
+			InvitationManagement invitationManagement)
 	{
 		this.formsDB = formsDB;
 		this.requestDB = requestDB;
@@ -88,6 +103,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		this.tx = tx;
 		this.registrationRequestValidator = registrationRequestValidator;
 		this.baseValidator = baseValidator;
+		this.invitationManagement = invitationManagement;
 	}
 
 	@Override
@@ -143,7 +159,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		sendNotification(form, requestFull);
 		
-		Long entityId = tryAutoProcess(form, requestFull, context);
+		Optional<AcceptedRequestContext> ctx = tryAutoProcess(form, requestFull, context);
+		Long entityId = ctx.map(AcceptedRequestContext::getEntityId).orElse(null);
 		
 		tx.runInTransactionThrowing(() -> {
 			confirmationsSupport.sendAttributeConfirmationRequest(requestFull, entityId, form,
@@ -152,7 +169,56 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 					Phase.ON_SUBMIT);	
 		});
 		
+		if (ctx.isPresent())
+		{
+			autoProcessInvitations(ctx.get().translatedRequest, requestFull);
+		}
+		
 		return requestFull.getRequestId();
+	}
+	
+	private void autoProcessInvitations(TranslatedRegistrationRequest translatedRequest,
+			RegistrationRequestState currentRequest) throws EngineException
+	{
+		if (currentRequest.getRegistrationContext().triggeringMode == TriggeringMode.autoProcessInvitations)
+			return;
+
+		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
+		if (invitationProcessing == null)
+			return;
+		
+		List<String> contactAddresses = translatedRequest.getIdentities().stream()
+			.filter(id -> EmailIdentity.ID.equals(id.getTypeId()))
+			.map(IdentityParam::getValue)
+			.collect(Collectors.toList());
+		if (contactAddresses.isEmpty())
+			return;
+		
+		String formName = invitationProcessing.getFormName();
+		List<InvitationWithCode> invitationsToProcess = invitationManagement.getInvitations().stream()
+			.filter(invitation -> invitation.getFormId().equals(formName))
+			.filter(invitation -> contactAddresses.contains(invitation.getContactAddress()))
+			.collect(Collectors.toList());
+		for (InvitationWithCode invitation : invitationsToProcess)
+		{
+			autoProcessInvitation(invitation, currentRequest, invitationProcessing.getMode());
+		}
+	}
+
+	private void autoProcessInvitation(InvitationWithCode invitation, RegistrationRequestState currentRequest,
+			InvitationProcessingMode mode) throws EngineException
+	{
+		RegistrationForm formToSubmit = formsDB.get(invitation.getFormId());
+		
+		if (!isAutoProcessingOfInvitationFeasible(formToSubmit, currentRequest, invitation.getRegistrationCode()))
+			return;
+		
+		RegistrationContext currentContext = currentRequest.getRegistrationContext();
+		RegistrationContext newContext = new RegistrationContext(true, 
+				currentContext.isOnIdpEndpoint, TriggeringMode.autoProcessInvitations);
+		RegistrationRequest newRequest = AutoProcessInvitationUtil.merge(formToSubmit, currentRequest, invitation);
+		
+		submitRegistrationRequest(newRequest, newContext);
 	}
 
 	private RegistrationForm recordRequestAndReturnForm(RegistrationRequestState requestFull) 
@@ -184,7 +250,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 	
-	private Long tryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
+	private Optional<AcceptedRequestContext> tryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
 			RegistrationContext context) throws EngineException
 	{
 		if (!context.tryAutoAccept)
