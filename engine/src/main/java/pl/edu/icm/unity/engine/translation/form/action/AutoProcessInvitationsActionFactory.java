@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
-import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam.InvitationProcessingMode;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,10 +31,7 @@ public class AutoProcessInvitationsActionFactory extends AbstractRegistrationTra
 		super(NAME, new ActionParameterDefinition[] {
 				new ActionParameterDefinition("formWithInvitation", 
 						"RegTranslationAction.autoProcessInvitations.paramDesc.formWithInvitation", 
-						Type.REGISTRATION_FORM_WITH_INVITATION, true),
-				new ActionParameterDefinition("processingMode", 
-						"RegTranslationAction.autoProcessInvitations.paramDesc.processingMode", 
-						InvitationProcessingMode.class, true)
+						Type.REGISTRATION_FORM_WITH_INVITATION, true)
 		});
 	}
 
@@ -65,8 +61,7 @@ public class AutoProcessInvitationsActionFactory extends AbstractRegistrationTra
 		private void setParameters(String[] parameters)
 		{
 			String formName = parameters[0];
-			InvitationProcessingMode mode = InvitationProcessingMode.valueOf(parameters[1]);
-			this.invitationProcessing = new AutomaticInvitationProcessingParam(formName, mode);
+			this.invitationProcessing = new AutomaticInvitationProcessingParam(formName);
 		}
 	}
 }

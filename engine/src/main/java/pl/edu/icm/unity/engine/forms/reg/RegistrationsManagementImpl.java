@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
-import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam.InvitationProcessingMode;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -208,7 +207,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			try
 			{
-				autoProcessInvitation(invitation, currentRequest, invitationProcessing.getMode());
+				autoProcessInvitation(invitation, currentRequest);
 			} catch (Exception e)
 			{
 				LOG.error("Error invoking {} translation action", AutoProcessInvitationsActionFactory.NAME, e);
@@ -222,8 +221,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 
-	private void autoProcessInvitation(InvitationWithCode invitation, RegistrationRequestState currentRequest,
-			InvitationProcessingMode mode) throws EngineException
+	private void autoProcessInvitation(InvitationWithCode invitation, RegistrationRequestState currentRequest) throws EngineException
 	{
 		RegistrationForm formToSubmit = formsDB.get(invitation.getFormId());
 		

@@ -11,19 +11,11 @@ package pl.edu.icm.unity.engine.api.translation.form;
  */
 public class AutomaticInvitationProcessingParam
 {
-	public enum InvitationProcessingMode
-	{
-		APPLY_ALL_ATTRIBUTES, 
-		APPLY_USER_EDITABLE_ATTRIBUTES
-	}
-
 	private String formName;
-	private InvitationProcessingMode mode;
 
-	public AutomaticInvitationProcessingParam(String formName, InvitationProcessingMode mode)
+	public AutomaticInvitationProcessingParam(String formName)
 	{
 		this.formName = formName;
-		this.mode = mode;
 	}
 
 	public String getFormName()
@@ -36,13 +28,31 @@ public class AutomaticInvitationProcessingParam
 		this.formName = formName;
 	}
 
-	public InvitationProcessingMode getMode()
+	@Override
+	public int hashCode()
 	{
-		return mode;
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((formName == null) ? 0 : formName.hashCode());
+		return result;
 	}
 
-	public void setMode(InvitationProcessingMode mode)
+	@Override
+	public boolean equals(Object obj)
 	{
-		this.mode = mode;
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AutomaticInvitationProcessingParam other = (AutomaticInvitationProcessingParam) obj;
+		if (formName == null)
+		{
+			if (other.formName != null)
+				return false;
+		} else if (!formName.equals(other.formName))
+			return false;
+		return true;
 	}
 }
