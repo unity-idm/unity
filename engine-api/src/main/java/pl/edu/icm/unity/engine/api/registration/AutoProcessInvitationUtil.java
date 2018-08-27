@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.forms.reg;
+package pl.edu.icm.unity.engine.api.registration;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +18,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.Maps;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
@@ -37,7 +38,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-final class AutoProcessInvitationUtil
+public final class AutoProcessInvitationUtil
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER, AutoProcessInvitationUtil.class);
 
@@ -53,7 +54,7 @@ final class AutoProcessInvitationUtil
 	 * @see #isAutoProcessingOfInvitationFeasible(RegistrationForm,
 	 *      RegistrationRequestState, String)
 	 */
-	static RegistrationRequest merge(RegistrationForm formToSubmit, RegistrationRequestState currentRequest,
+	public static RegistrationRequest merge(RegistrationForm formToSubmit, RegistrationRequestState currentRequest,
 			InvitationWithCode invitation) throws EngineException
 	{
 		RegistrationRequest mergedRequest = new RegistrationRequest();
@@ -70,7 +71,9 @@ final class AutoProcessInvitationUtil
 		if (formToSubmit.getGroupParams() == null || formToSubmit.getGroupParams().isEmpty())
 			return;
 		
-		
+		/*
+		 * TODO: implement groups merging!
+		 */
 	}
 	
 	private static void mergeAttributes(RegistrationRequest mergedRequest, RegistrationForm formToSubmit,
@@ -80,13 +83,13 @@ final class AutoProcessInvitationUtil
 			return;
 		
 		List<Attribute> attributeList = new ArrayList<>();
-		Map<ConsolidatedAttrKey, ConsolidatedAttributes> consolidatedAttrs = getConsolidatedAttrs(
-				formToSubmit, currentRequest, invitation);
+		Map<ConsolidatedAttrKey, ConsolidatedAttributes> consolidatedAttrs = getConsolidatedAttributes(
+				formToSubmit, invitation, currentRequest);
 		for (AttributeRegistrationParam formAttrParam : formToSubmit.getAttributeParams())
 		{
 			ConsolidatedAttrKey key = new ConsolidatedAttrKey(formAttrParam);
 			ConsolidatedAttributes consolidated = consolidatedAttrs.get(key);
-			if (consolidated.current != null)
+			if (consolidated.context != null)
 			{
 				LOG.debug("Attribute {} already assigned to entity in current request, no need to do it second time. "
 						+ "Autoprocessing of invitation {} from registration {}", key, invitation.getRegistrationCode(),
@@ -122,9 +125,21 @@ final class AutoProcessInvitationUtil
 				registrationForm.getGroup(), attrFrom.getValues(), attrFrom.getRemoteIdp(), 
 				attrFrom.getTranslationProfile());
 	}
+	
+	public static Map<ConsolidatedAttrKey, ConsolidatedAttributes> getConsolidatedAttributes(RegistrationForm form,
+			InvitationWithCode invitation, RemotelyAuthenticatedContext ctx)
+	{
+		return getConsolidatedAttributes(form, invitation, ctx.getAttributes());
+	}
 
-	private static Map<ConsolidatedAttrKey, ConsolidatedAttributes> getConsolidatedAttrs(RegistrationForm formToSubmit, 
-			RegistrationRequestState currentRequest, InvitationWithCode invitation)
+	public static Map<ConsolidatedAttrKey, ConsolidatedAttributes> getConsolidatedAttributes(RegistrationForm formToSubmit, 
+			InvitationWithCode invitation, RegistrationRequestState currentRequest)
+	{
+		return getConsolidatedAttributes(formToSubmit, invitation, currentRequest.getRequest().getAttributes());
+	}
+	
+	private static Map<ConsolidatedAttrKey, ConsolidatedAttributes> getConsolidatedAttributes(RegistrationForm formToSubmit, 
+			InvitationWithCode invitation, Collection<Attribute> currentAttrs)
 	{
 		Map<ConsolidatedAttrKey, ConsolidatedAttributes> consolidated = Maps.newHashMap();
 		
@@ -154,7 +169,6 @@ final class AutoProcessInvitationUtil
 			});
 		}
 		
-		List<Attribute> currentAttrs = currentRequest.getRequest().getAttributes();
 		if (currentAttrs != null && !currentAttrs.isEmpty())
 		{
 			Map<ConsolidatedAttrKey, Attribute> currentAttrsMap = currentAttrs.stream()
@@ -163,7 +177,7 @@ final class AutoProcessInvitationUtil
 							Functions.identity()));
 			currentAttrsMap.forEach((key, value) -> {
 				ConsolidatedAttributes consolidatedAttrs = getOrCreate(consolidated, key, ConsolidatedAttributes::new);
-				consolidatedAttrs.current = value;
+				consolidatedAttrs.context = value;
 			});
 		}
 		return consolidated;
@@ -192,7 +206,7 @@ final class AutoProcessInvitationUtil
 	 * to submit and the one from original request are the same - this means
 	 * user already confirmed the desired agreements.
 	 */
-	static boolean isAutoProcessingOfInvitationFeasible(RegistrationForm formToSubmit,
+	public static boolean isAutoProcessingOfInvitationFeasible(RegistrationForm formToSubmit,
 			RegistrationRequestState currentRequest, String registrationCode)
 	{
 		if (!isAgreementsMatch(formToSubmit, currentRequest, registrationCode))
@@ -275,7 +289,7 @@ final class AutoProcessInvitationUtil
 	}
 
 	
-	static class ConsolidatedAttrKey
+	public static class ConsolidatedAttrKey
 	{
 		String group;
 		String attributeType;
@@ -336,11 +350,11 @@ final class AutoProcessInvitationUtil
 		}
 	}
 	
-	static class ConsolidatedAttributes
+	public static class ConsolidatedAttributes
 	{
 		public AttributeRegistrationParam form;
 		public PrefilledEntry<Attribute> invitation;
-		public Attribute current;
+		public Attribute context;
 	}
 	
 	private AutoProcessInvitationUtil()

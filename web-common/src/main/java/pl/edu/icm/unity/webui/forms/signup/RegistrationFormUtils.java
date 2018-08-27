@@ -4,10 +4,11 @@
  */
 package pl.edu.icm.unity.webui.forms.signup;
 
+import static pl.edu.icm.unity.engine.api.registration.AutoProcessInvitationUtil.getConsolidatedAttributes;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
@@ -17,10 +18,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.engine.api.registration.AutoProcessInvitationUtil.ConsolidatedAttrKey;
+import pl.edu.icm.unity.engine.api.registration.AutoProcessInvitationUtil.ConsolidatedAttributes;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
-import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -56,23 +57,23 @@ final class RegistrationFormUtils
 				return false;
 		}
 		
-		Map<String, ConsolidatedAttributeParam> consolidatedAttrParams = getConsolidatedAttributes(form, invitation, ctx);
-		for (String attributeName : consolidatedAttrParams.keySet())
+		Map<ConsolidatedAttrKey, ConsolidatedAttributes> consolidatedAttrParams = getConsolidatedAttributes(form, invitation, ctx);
+		for (ConsolidatedAttrKey key : consolidatedAttrParams.keySet())
 		{
-			ConsolidatedAttributeParam consolidated = consolidatedAttrParams.get(attributeName);
-			if (consolidated.formParam == null
-					|| consolidated.formParam.isOptional())
+			ConsolidatedAttributes consolidated = consolidatedAttrParams.get(key);
+			if (consolidated.form == null
+					|| consolidated.form.isOptional())
 				continue;
 			Set<String> attrValues = Sets.newHashSet();
-			if (consolidated.invitationParam != null)
+			if (consolidated.invitation != null)
 			{
-				List<String> values = consolidated.invitationParam.getEntry().getValues();
+				List<String> values = consolidated.invitation.getEntry().getValues();
 				if (values != null)
 					attrValues.addAll(values); 
 			}
-			if (attrValues.isEmpty() && consolidated.remoteParam != null)
+			if (attrValues.isEmpty() && consolidated.context != null)
 			{
-				List<String> values = consolidated.remoteParam.getValues();
+				List<String> values = consolidated.context.getValues();
 				if (values != null)
 					attrValues.addAll(values);
 			}
@@ -83,95 +84,64 @@ final class RegistrationFormUtils
 		return true;
 	}
 	
-	private static Map<String, ConsolidatedAttributeParam> getConsolidatedAttributes(RegistrationForm form,
-			InvitationWithCode invitation, RemotelyAuthenticatedContext ctx)
-	{
-		Map<String, ConsolidatedAttributeParam> consolidatedAttrParams = Maps.newHashMap();
-		Map<String, AttributeRegistrationParam> formAttributesMap = form.getAttributeParams().stream()
-				.collect(Collectors.toMap(
-						AttributeRegistrationParam::getAttributeType, 
-						Functions.identity()));
-		formAttributesMap.forEach((type, param) -> {
-				ConsolidatedAttributeParam consolidatedParam = getOrCreate(consolidatedAttrParams, type, ConsolidatedAttributeParam::new);
-				consolidatedParam.formParam = param;
-		});
-		Map<String, PrefilledEntry<Attribute>> invitationAttributesMap = invitation.getAttributes().values().stream()
-				.collect(Collectors.toMap(
-						entry -> entry.getEntry().getName(), 
-						Functions.identity()));
-		invitationAttributesMap.forEach((type, param) -> {
-				ConsolidatedAttributeParam consolidatedParam = getOrCreate(consolidatedAttrParams, type, ConsolidatedAttributeParam::new);
-				consolidatedParam.invitationParam = param;
-		});
-		Map<String, Attribute> remoteAttributesMap = ctx.getAttributes().stream()
-				.collect(Collectors.toMap(
-						attr -> attr.getName(), 
-						Functions.identity()));
-		remoteAttributesMap.forEach((type, param) -> {
-				ConsolidatedAttributeParam consolidatedParam = getOrCreate(consolidatedAttrParams, type, ConsolidatedAttributeParam::new);
-				consolidatedParam.remoteParam = param;
-		});
-		return consolidatedAttrParams;
-	}
-
 	private static Map<String, ConsolidatedIdentityParam> getConsolidatedIdentities(RegistrationForm form,
 			InvitationWithCode invitation, RemotelyAuthenticatedContext ctx)
 	{
 		Map<String, ConsolidatedIdentityParam> consolidatedIdentityParams = Maps.newHashMap();
-		Map<String, IdentityRegistrationParam> formIdentityMap = form.getIdentityParams().stream()
-				.collect(Collectors.toMap(
-						IdentityRegistrationParam::getIdentityType, 
-						Functions.identity()));
-		formIdentityMap.forEach((type, param) -> {
-				ConsolidatedIdentityParam consolidatedParam = getOrCreate(consolidatedIdentityParams, type, ConsolidatedIdentityParam::new);
+		if (form.getIdentityParams() != null && !form.getIdentityParams().isEmpty())
+		{
+			Map<String, IdentityRegistrationParam> formIdentityMap = form.getIdentityParams().stream()
+					.collect(Collectors.toMap(
+							IdentityRegistrationParam::getIdentityType, 
+							Functions.identity()));
+			formIdentityMap.forEach((type, param) -> {
+				ConsolidatedIdentityParam consolidatedParam = getOrCreate(consolidatedIdentityParams, type);
 				consolidatedParam.formParam = param;
-		});
+			});
+		}
 		
-		Map<String, PrefilledEntry<IdentityParam>> invitationIdentityMap = invitation.getIdentities().values().stream()
-				.collect(Collectors.toMap(
-						entry -> entry.getEntry().getTypeId(), 
-						Functions.identity()));
-		invitationIdentityMap.forEach((type, param) -> {
-			ConsolidatedIdentityParam consolidatedParam = getOrCreate(consolidatedIdentityParams, type, ConsolidatedIdentityParam::new);
-			consolidatedParam.invitationParam = param;
-		});
+		if (invitation.getIdentities() != null && !invitation.getIdentities().isEmpty())
+		{
+			Map<String, PrefilledEntry<IdentityParam>> invitationIdentityMap = invitation.getIdentities().values().stream()
+					.collect(Collectors.toMap(
+							entry -> entry.getEntry().getTypeId(), 
+							Functions.identity()));
+			invitationIdentityMap.forEach((type, param) -> {
+				ConsolidatedIdentityParam consolidatedParam = getOrCreate(consolidatedIdentityParams, type);
+				consolidatedParam.invitationParam = param;
+			});
+		}
 		
-		Map<String, IdentityTaV> remoteIdentityMap = ctx.getIdentities().stream()
-				.collect(Collectors.toMap(
-						IdentityTaV::getTypeId, 
-						Functions.identity()));
-		remoteIdentityMap.forEach((type, param) -> {
-			ConsolidatedIdentityParam consolidatedParam = getOrCreate(consolidatedIdentityParams, type, ConsolidatedIdentityParam::new);
-			consolidatedParam.remoteParam = param;
-		});
+		if (ctx.getIdentities() != null && !ctx.getIdentities().isEmpty())
+		{
+			Map<String, IdentityTaV> remoteIdentityMap = ctx.getIdentities().stream()
+					.collect(Collectors.toMap(
+							IdentityTaV::getTypeId, 
+							Functions.identity()));
+			remoteIdentityMap.forEach((type, param) -> {
+				ConsolidatedIdentityParam consolidatedParam = getOrCreate(consolidatedIdentityParams, type);
+				consolidatedParam.remoteParam = param;
+			});
+		}
 		return consolidatedIdentityParams;
 	}
 
-	private static <T> T getOrCreate(Map<String, T> consolidatedParams, String type, Supplier<T> ctor)
-	{
-		T consolidatedParam = consolidatedParams.get(type);
-		if (consolidatedParam == null)
-		{
-			consolidatedParam = ctor.get();
-			consolidatedParams.put(type, consolidatedParam);
-		}
-		return consolidatedParam;
-	}
-
-
-	static class ConsolidatedAttributeParam
-	{
-		public Attribute remoteParam;
-		public PrefilledEntry<Attribute> invitationParam;
-		public AttributeRegistrationParam formParam;
-		
-	}
-	
 	static class ConsolidatedIdentityParam
 	{
 		IdentityRegistrationParam formParam;
 		PrefilledEntry<IdentityParam> invitationParam;
 		IdentityTaV remoteParam;
+	}
+	
+	private static ConsolidatedIdentityParam getOrCreate(Map<String, ConsolidatedIdentityParam> consolidatedParams, String key)
+	{
+		ConsolidatedIdentityParam consolidatedParam = consolidatedParams.get(key);
+		if (consolidatedParam == null)
+		{
+			consolidatedParam = new ConsolidatedIdentityParam();
+			consolidatedParams.put(key, consolidatedParam);
+		}
+		return consolidatedParam;
 	}
 	
 	private  RegistrationFormUtils() {}

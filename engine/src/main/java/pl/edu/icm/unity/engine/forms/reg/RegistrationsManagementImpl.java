@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static pl.edu.icm.unity.engine.forms.reg.AutoProcessInvitationUtil.isAutoProcessingOfInvitationFeasible;
+import static pl.edu.icm.unity.engine.api.registration.AutoProcessInvitationUtil.isAutoProcessingOfInvitationFeasible;
 
 import java.util.Date;
 import java.util.List;
@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.registration.AutoProcessInvitationUtil;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
