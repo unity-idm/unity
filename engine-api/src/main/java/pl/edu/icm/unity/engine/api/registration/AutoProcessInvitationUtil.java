@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -25,10 +26,12 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 
@@ -55,27 +58,105 @@ public final class AutoProcessInvitationUtil
 	 *      RegistrationRequestState, String)
 	 */
 	public static RegistrationRequest merge(RegistrationForm formToSubmit, RegistrationRequestState currentRequest,
-			InvitationWithCode invitation) throws EngineException
+			InvitationWithCode invitation, RegistrationForm currentForm) throws EngineException
 	{
 		RegistrationRequest mergedRequest = new RegistrationRequest();
 		mergedRequest.setFormId(formToSubmit.getName());
 		mergedRequest.setRegistrationCode(invitation.getRegistrationCode());
 		mergeAttributes(mergedRequest, formToSubmit, currentRequest, invitation);
-		mergeGroups(mergedRequest, formToSubmit, currentRequest, invitation);
+		mergeGroups(mergedRequest, formToSubmit, invitation, currentRequest, currentForm);
 		return mergedRequest;
 	}
 	
 	private static void mergeGroups(RegistrationRequest mergedRequest, RegistrationForm formToSubmit,
-			RegistrationRequestState currentRequest, InvitationWithCode invitation)
+			InvitationWithCode invitation, RegistrationRequestState currentRequest, 
+			RegistrationForm currentForm) throws EngineException
 	{
 		if (formToSubmit.getGroupParams() == null || formToSubmit.getGroupParams().isEmpty())
 			return;
 		
-		/*
-		 * TODO: implement groups merging!
-		 */
+		if (formToSubmit == null || formToSubmit.getGroupParams().isEmpty())
+		{
+			LOG.debug("No group to be selected when autoaccepting the invitation {} from registration {}", 
+					invitation.getRegistrationCode(), currentRequest.getRequestId());
+			return;
+		}
+		
+		List<Selection> selectedGroups = Lists.newArrayList();
+		
+		Map<String, Selection> selectionsInCurrentByGrupPath = collectSelectedGroups(
+				currentRequest.getRequest().getGroupSelections(), currentForm.getGroupParams());
+		Map<String, Selection> selectionsInInvitationByGroupPath = collectSellectedGroups(
+				invitation, formToSubmit.getGroupParams());
+		for (GroupRegistrationParam groupToConfirm : formToSubmit.getGroupParams())
+		{
+			String groupPath = groupToConfirm.getGroupPath();
+			Selection selectionInCurrent = selectionsInCurrentByGrupPath.get(groupPath);
+			if (selectionInCurrent != null)
+			{
+				LOG.debug("Group {} already processed to entity in current request, no action requried. "
+						+ "Autoprocessing of invitation {} from registration {}", groupPath, 
+						invitation.getRegistrationCode(), currentRequest.getRequestId());
+				selectedGroups.add(new Selection(false));
+				continue;
+			}
+			
+			Selection selectedByInvitation = selectionsInInvitationByGroupPath.get(groupPath);
+			if (selectedByInvitation == null)
+			{
+				String error = String.format("It is not possible to auto process invitation %s based on "
+						+ "registration %s, unable to determine whether group %s should or should not "
+						+ "be selected.", 
+						invitation.getRegistrationCode(), currentRequest.getRequestId(), groupPath);
+				throw new EngineException(error);
+			}
+
+			LOG.debug("Applying group {} selection {} based on invitation configuration. "
+					+ "Autoprocessing of invitation {} from registration {}", groupPath, 
+					selectedByInvitation.isSelected(), invitation.getRegistrationCode(), 
+					currentRequest.getRequestId());
+			selectedGroups.add(new Selection(selectedByInvitation.isSelected(), 
+					selectedByInvitation.getExternalIdp(), selectedByInvitation.getTranslationProfile()));
+		}
+		
+		mergedRequest.setGroupSelections(selectedGroups);
 	}
 	
+
+	private static Map<String, Selection> collectSellectedGroups(InvitationWithCode invitation,
+			List<GroupRegistrationParam> groupParams)
+	{
+		if (invitation.getGroupSelections() == null || invitation.getGroupSelections().isEmpty())
+			return Maps.newHashMap();
+		
+		List<Selection> invitationGroupSelections = invitation.getGroupSelections().values().stream()
+			.map(PrefilledEntry::getEntry).collect(Collectors.toList());
+		return collectSelectedGroups(invitationGroupSelections, groupParams);
+	}
+
+	private static Map<String, Selection> collectSelectedGroups(List<Selection> currentGroupSelections, 
+			List<GroupRegistrationParam> currentRegistrationGroups)
+	{
+		if (currentGroupSelections == null || currentGroupSelections.isEmpty())
+			return Maps.newHashMap();
+		
+		if (currentRegistrationGroups.size() != currentGroupSelections.size())
+			throw new IllegalStateException("BUG: Number of group selections in registration request does not "
+					+ "match with the number of groups in  registration form");
+		
+		Map<String, Selection> groupsSelection = Maps.newHashMap();
+		for (int idx = 0; idx <= currentRegistrationGroups.size(); ++idx)
+		{
+			Selection selection = currentGroupSelections.get(idx);
+			if (selection.isSelected())
+			{
+				GroupRegistrationParam param = currentRegistrationGroups.get(idx);
+				groupsSelection.put(param.getGroupPath(), selection);
+			}
+		}
+		return groupsSelection;
+	}
+
 	private static void mergeAttributes(RegistrationRequest mergedRequest, RegistrationForm formToSubmit,
 			RegistrationRequestState currentRequest, InvitationWithCode invitation) throws EngineException
 	{
@@ -104,6 +185,11 @@ public final class AutoProcessInvitationUtil
 						formAttrParam.getGroup());
 				throw new EngineException(error);
 			}
+			
+			LOG.debug("Applying attribute values {} of {} type, based on invitation parameters. "
+					+ "Autoprocessing of invitation {} from registration {}",  
+					consolidated.invitation.getEntry().getValues(), formAttrParam.getAttributeType(), 
+					invitation.getRegistrationCode(), currentRequest.getRequestId());
 			Attribute newAttr = createAttribute(consolidated.form, consolidated.invitation.getEntry());
 			attributeList.add(newAttr);
 		}

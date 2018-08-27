@@ -176,14 +176,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		
 		if (ctx.isPresent())
 		{
-			autoProcessInvitations(ctx.get().translatedRequest, requestFull);
+			autoProcessInvitations(ctx.get().translatedRequest, requestFull, form);
 		}
 		
 		return requestFull.getRequestId();
 	}
 	
 	private void autoProcessInvitations(TranslatedRegistrationRequest translatedRequest,
-			RegistrationRequestState currentRequest) throws EngineException
+			RegistrationRequestState currentRequest, RegistrationForm currentForm) throws EngineException
 	{
 		if (currentRequest.getRegistrationContext().triggeringMode == TriggeringMode.autoProcessInvitations)
 			return;
@@ -208,7 +208,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		{
 			try
 			{
-				autoProcessInvitation(invitation, currentRequest);
+				autoProcessInvitation(invitation, currentRequest, currentForm);
 			} catch (Exception e)
 			{
 				LOG.error("Error invoking {} translation action", AutoProcessInvitationsActionFactory.NAME, e);
@@ -222,7 +222,8 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		}
 	}
 
-	private void autoProcessInvitation(InvitationWithCode invitation, RegistrationRequestState currentRequest) throws EngineException
+	private void autoProcessInvitation(InvitationWithCode invitation, RegistrationRequestState currentRequest, 
+			RegistrationForm currentForm) throws EngineException
 	{
 		RegistrationForm formToSubmit = formsDB.get(invitation.getFormId());
 		
@@ -232,7 +233,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		RegistrationContext currentContext = currentRequest.getRegistrationContext();
 		RegistrationContext newContext = new RegistrationContext(true, 
 				currentContext.isOnIdpEndpoint, TriggeringMode.autoProcessInvitations);
-		RegistrationRequest newRequest = AutoProcessInvitationUtil.merge(formToSubmit, currentRequest, invitation);
+		RegistrationRequest newRequest = AutoProcessInvitationUtil.merge(formToSubmit, currentRequest, invitation, currentForm);
 		
 		submitRegistrationRequest(newRequest, newContext);
 	}
