@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -39,6 +41,7 @@ import pl.edu.icm.unity.engine.forms.BaseFormValidator;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.engine.forms.reg.SharedRegistrationManagment.AcceptedRequestContext;
+import pl.edu.icm.unity.engine.translation.form.action.AutoProcessInvitationsActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
@@ -67,6 +70,8 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 @InvocationEventProducer
 public class RegistrationsManagementImpl implements RegistrationsManagement
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER, RegistrationsManagementImpl.class);
+	
 	private RegistrationFormDB formsDB;
 	private RegistrationRequestDB requestDB;
 	private CredentialReqRepository credentialReqRepository;
@@ -201,7 +206,19 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			.collect(Collectors.toList());
 		for (InvitationWithCode invitation : invitationsToProcess)
 		{
-			autoProcessInvitation(invitation, currentRequest, invitationProcessing.getMode());
+			try
+			{
+				autoProcessInvitation(invitation, currentRequest, invitationProcessing.getMode());
+			} catch (Exception e)
+			{
+				LOG.error("Error invoking {} translation action", AutoProcessInvitationsActionFactory.NAME, e);
+				AdminComment systemComment = new AdminComment(
+						String.format("Error invoking %s translation action for invitation %s: reason %s", 
+								AutoProcessInvitationsActionFactory.NAME, invitation.getRegistrationCode(), e.getMessage()), 
+						0, false);
+				currentRequest.getAdminComments().add(systemComment);
+				requestDB.update(currentRequest);
+			}
 		}
 	}
 
