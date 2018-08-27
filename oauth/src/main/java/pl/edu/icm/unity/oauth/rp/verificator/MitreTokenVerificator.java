@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 
 import org.apache.logging.log4j.Logger;
 
+import com.nimbusds.jose.util.Base64;
 import com.nimbusds.oauth2.sdk.Scope;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
@@ -49,7 +50,10 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 	{
 		String verificationEndpoint = config.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT);
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(verificationEndpoint));
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.POST, new URL(verificationEndpoint));
+
+		String auth = config.getValue(OAuthRPProperties.CLIENT_ID) + ":" + config.getValue(OAuthRPProperties.CLIENT_SECRET);
+		httpReqRaw.setAuthorization("Basic " + Base64.encode(auth));
 		
 		StringBuilder queryB = new StringBuilder();
 		queryB.append("client_id=").append(URLEncoder.encode(config.getValue(OAuthRPProperties.CLIENT_ID), 
@@ -97,7 +101,8 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 			{
 				String scopes = (String) entry.getValue();
 				for (String s: scopes.split(" "))
-					scope.add(s);
+					if (s != null && !"".equals(s))
+						scope.add(s);
 			} else if ("active".equals(entry.getKey()))
 			{
 				valid = Boolean.parseBoolean(entry.getValue().toString());
