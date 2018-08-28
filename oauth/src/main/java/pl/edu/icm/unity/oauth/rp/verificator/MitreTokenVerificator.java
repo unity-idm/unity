@@ -14,9 +14,12 @@ import java.util.Map.Entry;
 import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
+import com.nimbusds.oauth2.sdk.auth.Secret;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
+import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
@@ -24,6 +27,7 @@ import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 
 /**
@@ -49,14 +53,33 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 	{
 		String verificationEndpoint = config.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT);
 		
-		HTTPRequest httpReqRaw = new HTTPRequest(Method.GET, new URL(verificationEndpoint));
-		
+		HTTPRequest httpReqRaw = new HTTPRequest(Method.POST, new URL(verificationEndpoint));
 		StringBuilder queryB = new StringBuilder();
-		queryB.append("client_id=").append(URLEncoder.encode(config.getValue(OAuthRPProperties.CLIENT_ID), 
-				"UTF-8"));
-		queryB.append("&client_secret=").append(URLEncoder.encode(
-				config.getValue(OAuthRPProperties.CLIENT_SECRET), "UTF-8"));
-		queryB.append("&token=").append(URLEncoder.encode(token.getValue(), "UTF-8"));
+		queryB.append("token=").append(URLEncoder.encode(token.getValue(), "UTF-8"));
+		
+		
+		ClientAuthnMode clientAuthnMode = config.getEnumValue(OAuthRPProperties.CLIENT_AUTHN_MODE, 
+				ClientAuthnMode.class);
+		String clientId = config.getValue(OAuthRPProperties.CLIENT_ID);
+		String clientSecret = config.getValue(OAuthRPProperties.CLIENT_SECRET);
+		
+		switch (clientAuthnMode)
+		{
+		case secretBasic:
+			ClientSecretBasic secret = new ClientSecretBasic(new ClientID(clientId), new Secret(clientSecret));
+			httpReqRaw.setAuthorization(secret.toHTTPAuthorizationHeader());
+			break;
+		case secretPost:
+			queryB.append("&client_id=").append(URLEncoder.encode(config.getValue(OAuthRPProperties.CLIENT_ID), 
+					"UTF-8"));
+			queryB.append("&client_secret=").append(URLEncoder.encode(
+					config.getValue(OAuthRPProperties.CLIENT_SECRET), "UTF-8"));
+			break;
+		default:
+			throw new IllegalStateException("Unsupported client authentication mode for "
+					+ "Mitre token verificator: " + clientAuthnMode);
+		}
+		
 		httpReqRaw.setQuery(queryB.toString());
 		
 		ServerHostnameCheckingMode checkingMode = config.getEnumValue(
@@ -97,7 +120,10 @@ public class MitreTokenVerificator implements TokenVerificatorProtocol
 			{
 				String scopes = (String) entry.getValue();
 				for (String s: scopes.split(" "))
-					scope.add(s);
+				{
+					if (!"".equals(s))
+						scope.add(s);
+				}
 			} else if ("active".equals(entry.getKey()))
 			{
 				valid = Boolean.parseBoolean(entry.getValue().toString());
