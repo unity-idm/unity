@@ -181,7 +181,10 @@ public class CommonIdPProperties
 		List<DynamicAttribute> multiSelectable = getAttributeForSelection(cfg, attrsMap, key + ACTIVE_VALUE_MULTI_SELECTABLE);
 		if (singleSelectable.isEmpty() && multiSelectable.isEmpty())
 			return Optional.empty();
-		return Optional.of(new ActiveValueSelectionConfig(multiSelectable, singleSelectable));
+		List<DynamicAttribute> remaining = new ArrayList<>(attributes);
+		remaining.removeAll(singleSelectable);
+		remaining.removeAll(multiSelectable);
+		return Optional.of(new ActiveValueSelectionConfig(multiSelectable, singleSelectable, remaining));
 	}
 	
 	private static List<DynamicAttribute> getAttributeForSelection(PropertiesHelper cfg, 
@@ -198,12 +201,15 @@ public class CommonIdPProperties
 	{
 		public final List<DynamicAttribute> multiSelectableAttributes;
 		public final List<DynamicAttribute> singleSelectableAttributes;
+		public final List<DynamicAttribute> remainingAttributes;
 		
 		public ActiveValueSelectionConfig(List<DynamicAttribute> multiSelectableAttributes,
-				List<DynamicAttribute> singleSelectableAttributes)
+				List<DynamicAttribute> singleSelectableAttributes,
+				List<DynamicAttribute> remainingAttributes)
 		{
 			this.multiSelectableAttributes = multiSelectableAttributes;
 			this.singleSelectableAttributes = singleSelectableAttributes;
+			this.remainingAttributes = remainingAttributes;
 		}
 	}
 }

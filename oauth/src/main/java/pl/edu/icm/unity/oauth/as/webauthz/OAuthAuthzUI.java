@@ -119,7 +119,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 						allAttributes);
 		
 		if (activeValueSelectionConfig.isPresent())
-			showActiveValueSelectionScreen(allAttributes, activeValueSelectionConfig.get());
+			showActiveValueSelectionScreen(activeValueSelectionConfig.get());
 		else
 			gotoConsentStage(allAttributes);
 	}
@@ -141,12 +141,12 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 		setContent(consentScreen);
 	}
 
-	private void showActiveValueSelectionScreen(Set<DynamicAttribute> attributes,
-			ActiveValueSelectionConfig config)
+	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig config)
 	{
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, 
 				handlersRegistry, authnProcessor, 
 				config.singleSelectableAttributes, config.multiSelectableAttributes,
+				config.remainingAttributes,
 				this::onDecline,
 				this::gotoConsentStage);
 		setContent(valueSelectionScreen);
