@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.idpcommon.activesel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,15 +38,18 @@ public class ActiveValueSelectionScreen extends CustomComponent
 	private Map<DynamicAttribute, ValueSelector> selectors;
 	private Runnable declineHandler;
 	private Consumer<List<DynamicAttribute>> acceptHandler;
+	private List<DynamicAttribute> remainingAttributes;
 	
 	public ActiveValueSelectionScreen(UnityMessageSource msg, AttributeHandlerRegistry attrHandlerRegistry, 
 			StandardWebAuthenticationProcessor authnProcessor,
 			List<DynamicAttribute> singleSelectable,
 			List<DynamicAttribute> multiSelectable,
+			List<DynamicAttribute> remainingAttributes,
 			Runnable declineHandler,
 			Consumer<List<DynamicAttribute>> acceptHandler)
 	{
 		this.msg = msg;
+		this.remainingAttributes = remainingAttributes;
 		this.declineHandler = declineHandler;
 		this.acceptHandler = acceptHandler;
 		this.attrProcessor = new AttributeProcessor(attrHandlerRegistry);
@@ -104,10 +108,13 @@ public class ActiveValueSelectionScreen extends CustomComponent
 	
 	private List<DynamicAttribute> getFilteredAttributes()
 	{
-		return selectors.entrySet().stream()
+		List<DynamicAttribute> subjectToSelection = selectors.entrySet().stream()
 			.map(entry -> attrProcessor.getAttributeWithActiveValues(entry.getKey(), 
 					entry.getValue().getSelectedValueIndices()))
 			.filter(da -> !da.getAttribute().getValues().isEmpty())
 			.collect(Collectors.toList());
+		List<DynamicAttribute> ret = new ArrayList<>(remainingAttributes);
+		ret.addAll(subjectToSelection);
+		return ret;
 	}
 }

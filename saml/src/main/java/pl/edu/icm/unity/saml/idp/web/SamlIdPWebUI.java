@@ -154,7 +154,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 						samlProcessor.getRequestIssuer(), allAttributes);
 		
 		if (activeValueSelectionConfig.isPresent())
-			showActiveValueSelectionScreen(allAttributes, activeValueSelectionConfig.get());
+			showActiveValueSelectionScreen(activeValueSelectionConfig.get());
 		else
 			gotoConsentStage(allAttributes);
 	}
@@ -183,12 +183,12 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 		setContent(consentScreen);
 	}
 
-	private void showActiveValueSelectionScreen(Collection<DynamicAttribute> attributes,
-			ActiveValueSelectionConfig config)
+	private void showActiveValueSelectionScreen(ActiveValueSelectionConfig config)
 	{
 		ActiveValueSelectionScreen valueSelectionScreen = new ActiveValueSelectionScreen(msg, 
 				handlersRegistry, authnProcessor, 
 				config.singleSelectableAttributes, config.multiSelectableAttributes,
+				config.remainingAttributes,
 				this::onDecline,
 				this::gotoConsentStage);
 		setContent(valueSelectionScreen);
