@@ -80,6 +80,7 @@ public class IdentitiesComponent extends SafePanel
 			DeleteEntityHandler deleteEntityHandler,
 			DeleteIdentityHandler deleteIdentityHandler,
 			IdentityConfirmationResendHandler confirmationResendHandler,
+			IdentityConfirmHandler confirmHandler,
 			ChangeEntityStateHandler changeEntityStateHandler,
 			ChangeCredentialRequirementHandler credentialRequirementHandler,
 			EntityDetailsHandler entityDetailsHandler,
@@ -208,6 +209,9 @@ public class IdentitiesComponent extends SafePanel
 				.getAction();
 		identitiesTable.addActionHandler(confirmationResendAction);
 
+		SingleActionHandler<IdentityEntry> confirmAction = confirmHandler.getAction(this::refresh);
+		identitiesTable.addActionHandler(confirmAction);
+
 		toolbar.addActionHandler(entityDetailsAction);
 		toolbar.addActionHandler(entityCreationAction);
 		toolbar.addActionHandler(removeFromGroupAction);
@@ -223,6 +227,7 @@ public class IdentitiesComponent extends SafePanel
 		hamburgerMenu.addActionHandler(entityAttributeAction);
 		hamburgerMenu.addActionHandler(entityMergeAction);
 		hamburgerMenu.addActionHandler(confirmationResendAction);
+		hamburgerMenu.addActionHandler(confirmAction);
 
 		hamburgerMenu.addSeparator();
 

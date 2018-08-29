@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.identity;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
@@ -66,6 +68,41 @@ public class TestIdentities extends DBIntegrationTestBase
 	@Autowired
 	private EntitiesScheduledUpdater entitiesUpdater;
 	private EntityParam entityParam;
+
+	
+	@Test
+	public void shouldUpdateIdentityConfirmation() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "test@example.com");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+
+		//verify
+		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
+		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed(), is(false));
+		
+		Identity updated = id.clone();
+		updated.setConfirmationInfo(new ConfirmationInfo(true));
+		idsMan.updateIdentity(idParam, updated);
+		
+		retrieved = idsMan.getEntity(new EntityParam(idParam));
+		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed(), is(true));
+	}
+
+	@Test
+	public void shouldDisallowUpdatingIdentityComparableValue() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "test@example.com");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		
+		Identity updated = id.clone();
+		updated.setValue("other@example.com");
+		
+		Throwable error = catchThrowable(() -> idsMan.updateIdentity(idParam, updated));
+		
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
+	}
 	
 	@Test
 	public void scheduledDisableWork() throws Exception
