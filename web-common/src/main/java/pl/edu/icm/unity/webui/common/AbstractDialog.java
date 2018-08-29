@@ -126,7 +126,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 			setSize(50, 60);
 			break;
 		case SMALL:
-			setSize(35, 30);
+			setSizeEm(32, 16);
 			break;
 		default:
 			break;
