@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -27,7 +26,6 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -137,12 +135,10 @@ public class EntityCreationDialog extends IdentityCreationDialog
 			return;
 		}
 		
-		Map<String, AttributesClass> allACs;
 		Set<String> required;
 		try
 		{
-			allACs = groupHelper.getAllACsMap();
-			required = groupHelper.getRequiredAttributes(allACs, "/");
+			required = groupHelper.getRequiredAttributes("/");
 		} catch (EngineException e)
 		{
 			return;
@@ -150,7 +146,7 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		
 		if (required.isEmpty())
 		{
-			doCreate(toAdd, new ArrayList<Attribute>(0));
+			doCreate(toAdd, new ArrayList<>(0));
 		} else
 		{
 			RequiredAttributesDialog attrDialog = new RequiredAttributesDialog(
@@ -192,15 +188,11 @@ public class EntityCreationDialog extends IdentityCreationDialog
 		{
 			Deque<String> missing = Group.getMissingGroups(initialGroup, 
 					Collections.singleton("/"));
-			groupHelper.addToGroup(missing, created.getEntityId(), new GroupManagementHelper.Callback()
+			groupHelper.addToGroup(missing, created.getEntityId(), toGroup -> 
 			{
-				@Override
-				public void onAdded(String toGroup)
-				{
-					if (toGroup.equals(initialGroup))
-						bus.fireEvent(new GroupChangedEvent(toGroup));
-				}
-			} );
+				if (toGroup.equals(initialGroup))
+					bus.fireEvent(new GroupChangedEvent(toGroup));
+			});
 		}
 		callback.accept(created);
 		close();

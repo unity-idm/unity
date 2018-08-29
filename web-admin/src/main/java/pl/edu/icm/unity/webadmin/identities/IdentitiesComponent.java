@@ -74,6 +74,7 @@ public class IdentitiesComponent extends SafePanel
 	public IdentitiesComponent(UnityMessageSource msg, AttributeTypeManagement attrsMan,
 			EntityAttributeClassHandler entityAttributeClassHandler,
 			RemoveFromGroupHandler removeFromGroupHandler,
+			AddToGroupHandler addToGroupHandler,
 			EntityCreationHandler entityCreationDialogHandler,
 			IdentityCreationDialogHandler identityCreationDialogHanlder,
 			DeleteEntityHandler deleteEntityHandler,
@@ -164,6 +165,9 @@ public class IdentitiesComponent extends SafePanel
 				.getAction(identitiesTable::getGroup, added -> refresh());
 		identitiesTable.addActionHandler(entityCreationAction);
 
+		SingleActionHandler<IdentityEntry> addToGroupAction = addToGroupHandler.getAction();
+		identitiesTable.addActionHandler(addToGroupAction);
+
 		SingleActionHandler<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
 				.getAction(identitiesTable::getGroup, this::refresh);
 		identitiesTable.addActionHandler(removeFromGroupAction);
@@ -211,6 +215,7 @@ public class IdentitiesComponent extends SafePanel
 		toolbar.addHamburger(hamburgerMenu);
 		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(identityCreationAction);
+		hamburgerMenu.addActionHandler(addToGroupAction);
 		hamburgerMenu.addActionHandler(deleteIdentityAction);
 		hamburgerMenu.addActionHandler(changeEntityStateAction);
 		hamburgerMenu.addActionHandler(changeCredentialAction);
