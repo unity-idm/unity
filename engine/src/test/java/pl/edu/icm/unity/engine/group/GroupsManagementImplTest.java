@@ -28,7 +28,7 @@ public class GroupsManagementImplTest extends DBIntegrationTestBase
 	protected TransactionalRunner tx;
 	
 	@Test
-	public void membershipsShouldBeReflectedWhenDeletingAGroup() throws Exception 
+	public void membershipsShouldBeUpdatedAfterDeletingGroup() throws Exception 
 	{
 		// given
 		setupPasswordAuthn();

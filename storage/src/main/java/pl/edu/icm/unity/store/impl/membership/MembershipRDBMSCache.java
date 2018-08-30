@@ -41,11 +41,11 @@ class MembershipRDBMSCache extends GuavaBasicCache<GroupMembership>
 	}
 	
 	@Override
-	public synchronized void flush()
+	public synchronized void flushWithoutEvent()
 	{
 		if (disabled)
 			return;
-		super.flush();
+		super.flushWithoutEvent();
 		allByEntity.invalidateAll();
 		allByGroup.invalidateAll();
 		cacheComplete = false;

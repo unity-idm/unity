@@ -28,14 +28,14 @@ public class EntityRDBMSCachingStore extends BasicCachingCRUD<EntityInformation,
 	@Autowired
 	public EntityRDBMSCachingStore(EntityJsonSerializer jsonSerializer, CacheManager cacheManager)
 	{
-		super(new EntityRDBMSStore(jsonSerializer, cacheManager), new GuavaBasicCache<>(ei -> ei.clone()));
-		cacheManager.registerCache(cache);
+		super(new EntityRDBMSStore(jsonSerializer), new GuavaBasicCache<>(ei -> ei.clone()));
+		cacheManager.registerCacheWithFlushingPropagation(cache);
 	}
 	
 	@Override
 	public long create(EntityInformation obj)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		return wrapped.create(obj);
 	}
 }

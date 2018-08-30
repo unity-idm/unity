@@ -18,7 +18,9 @@ public interface BasicCache<T>
 {
 	void configure(int ttl, int max);
 	
-	void flush();
+	void flushWithEvent();
+
+	void flushWithoutEvent();
 	
 	Optional<T> getByKey(long id);
 
@@ -27,4 +29,6 @@ public interface BasicCache<T>
 	void storeById(long id, T element);
 	
 	void storeAll(List<T> elements);
+	
+	void setFlushListener(Runnable flushCallback);
 }

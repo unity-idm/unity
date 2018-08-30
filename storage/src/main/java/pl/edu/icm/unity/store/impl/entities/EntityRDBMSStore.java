@@ -7,7 +7,6 @@ package pl.edu.icm.unity.store.impl.entities;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
-import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 
 
@@ -18,10 +17,9 @@ import pl.edu.icm.unity.types.basic.EntityInformation;
 public class EntityRDBMSStore extends GenericRDBMSCRUD<EntityInformation, BaseBean> 
 					implements EntityDAO
 {
-	public EntityRDBMSStore(EntityJsonSerializer jsonSerializer, CacheManager cacheManager)
+	public EntityRDBMSStore(EntityJsonSerializer jsonSerializer)
 	{
 		super(EntitiesMapper.class, jsonSerializer, NAME);
-		addRemovalHandler((e, id) -> cacheManager.flushAllCaches());
 	}
 	
 	@Override

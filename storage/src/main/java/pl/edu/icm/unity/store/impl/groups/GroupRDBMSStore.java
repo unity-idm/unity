@@ -29,20 +29,20 @@ public class GroupRDBMSStore extends NamedCachingCRUD<Group, GroupDAOInternal, N
 	public GroupRDBMSStore(GroupJsonSerializer jsonSerializer, CacheManager cacheManager)
 	{
 		super(new GroupRDBMSStoreNoCache(jsonSerializer), new HashMapNamedCache<>(group -> group.clone()));
-		cacheManager.registerCache(cache);
+		cacheManager.registerCacheWithFlushingPropagation(cache);
 	}
 	
 	@Override
 	public long create(Group obj)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		return wrapped.create(obj);
 	}
 	
 	@Override
 	public void updateByKey(long key, Group obj)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.updateByKey(key, obj);
 	}
 
