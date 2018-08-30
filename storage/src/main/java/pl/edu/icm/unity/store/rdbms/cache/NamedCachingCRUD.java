@@ -31,14 +31,14 @@ public class NamedCachingCRUD<T extends NamedObject, DAO extends NamedCRUDDAO<T>
 	@Override
 	public void delete(String id)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.delete(id);
 	}
 
 	@Override
 	public void updateByName(String current, T newValue)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.updateByName(current, newValue);
 	}
 

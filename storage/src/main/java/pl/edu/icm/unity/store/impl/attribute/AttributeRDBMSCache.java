@@ -39,11 +39,11 @@ class AttributeRDBMSCache extends GuavaBasicCache<StoredAttribute>
 	}
 	
 	@Override
-	public synchronized void flush()
+	public synchronized void flushWithoutEvent()
 	{
 		if (disabled)
 			return;
-		super.flush();
+		super.flushWithoutEvent();
 		allByEntity.invalidateAll();
 		cacheComplete = false;
 	}

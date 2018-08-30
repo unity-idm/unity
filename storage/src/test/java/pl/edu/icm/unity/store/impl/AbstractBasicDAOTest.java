@@ -48,10 +48,6 @@ public abstract class AbstractBasicDAOTest<T>
 	public void cleanDB()
 	{
 		dbCleaner.reset();
-//		tx.runInTransaction(() -> {
-//			dbCleaner.deleteEverything();
-//		});
-		
 	}
 
 	

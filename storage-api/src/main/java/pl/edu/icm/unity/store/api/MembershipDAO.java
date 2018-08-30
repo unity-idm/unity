@@ -40,6 +40,4 @@ public interface MembershipDAO
 			ret.add(gm.getGroup());
 		return ret;
 	}
-
-	default void flush() {}
 }

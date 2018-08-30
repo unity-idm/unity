@@ -25,6 +25,7 @@ public class GuavaBasicCache<T> implements BasicCache<T>
 	protected Cache<Long, T> byKey;
 	protected Cache<Integer, List<T>> all;
 	protected final Function<T, T> cloner;
+	private Runnable flushCallback;
 	
 	public GuavaBasicCache(Function<T, T> cloner)
 	{
@@ -55,14 +56,22 @@ public class GuavaBasicCache<T> implements BasicCache<T>
 	}
 	
 	@Override
-	public synchronized void flush()
+	public final synchronized void flushWithEvent()
+	{
+		flushWithoutEvent();
+		if (flushCallback != null)
+			flushCallback.run();
+	}
+
+	@Override
+	public void flushWithoutEvent()
 	{
 		if (disabled) 
 			return;
 		byKey.invalidateAll();
 		all.invalidateAll();
 	}
-
+	
 	@Override
 	public synchronized void storeById(long id, T element)
 	{
@@ -124,5 +133,11 @@ public class GuavaBasicCache<T> implements BasicCache<T>
 		{
 			return t == null ? null : cloner.apply(t);
 		}
+	}
+
+	@Override
+	public void setFlushListener(Runnable flushCallback)
+	{
+		this.flushCallback = flushCallback;
 	}
 }

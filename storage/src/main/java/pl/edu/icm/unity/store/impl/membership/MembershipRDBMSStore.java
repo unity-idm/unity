@@ -34,20 +34,20 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 	{
 		wrapped = new MembershipRDBMSStoreNoCache(jsonSerializer, groupDAO);
 		cache = new MembershipRDBMSCache();
-		cacheManager.registerCache(cache);
+		cacheManager.registerCacheWithFlushingPropagation(cache);
 	}
 
 	@Override
 	public void create(GroupMembership obj)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.create(obj);
 	}
 
 	@Override
 	public void deleteByKey(long entityId, String group)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.deleteByKey(entityId, group);
 	}
 
@@ -100,12 +100,4 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 		cache.storeAll(all);
 		return all;
 	}
-
-	@Override
-	public void flush() 
-	{
-		cache.flush();
-	}
-	
-	
 }

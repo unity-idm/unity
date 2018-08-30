@@ -40,21 +40,21 @@ public class AttributeRDBMSStore extends BasicCachingCRUD<StoredAttribute, Attri
 	@Override
 	public void updateAttribute(StoredAttribute a)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.updateAttribute(a);
 	}
 
 	@Override
 	public void deleteAttribute(String attribute, long entityId, String group)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.deleteAttribute(attribute, entityId, group);
 	}
 
 	@Override
 	public void deleteAttributesInGroup(long entityId, String group)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.deleteAttributesInGroup(entityId, group);
 	}
 
@@ -75,7 +75,7 @@ public class AttributeRDBMSStore extends BasicCachingCRUD<StoredAttribute, Attri
 				this::getAll);
 		if (cached.isPresent())
 			return toAttributeExtList(cached.get());
-		return wrapped.getEntityAttributes(entityId, attribute, group); 
+		return wrapped.getEntityAttributes(entityId, attribute, group);
 	}
 	
 	private List<AttributeExt> toAttributeExtList(List<StoredAttribute> src)

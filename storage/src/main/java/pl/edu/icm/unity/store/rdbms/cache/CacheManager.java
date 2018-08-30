@@ -40,10 +40,16 @@ public class CacheManager
 			cache.configure(storageConfig.getIntValue(RDBMSConfiguration.CACHE_TTL), 
 					storageConfig.getIntValue(RDBMSConfiguration.CACHE_MAX_ENTRIES));
 	}
+
+	public void registerCacheWithFlushingPropagation(BasicCache<?> cache)
+	{
+		registerCache(cache);
+		cache.setFlushListener(this::flushAllCaches);
+	}
 	
 	public void flushAllCaches()
 	{
 		for (BasicCache<?> cache: platformCaches)
-			cache.flush();
+			cache.flushWithoutEvent();
 	}
 }
