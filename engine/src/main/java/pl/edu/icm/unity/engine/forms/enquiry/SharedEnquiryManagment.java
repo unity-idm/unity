@@ -135,7 +135,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		attributesHelper.addAttributesList(rootAttributes, entityId, true);
 		
 		applyRequestedGroups(entityId, remainingAttributesByGroup, 
-				translatedRequest);
+				translatedRequest.getGroups());
 
 		applyRequestedAttributeClasses(translatedRequest, entityId);
 		

@@ -11,17 +11,29 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Functions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
+import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
+import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -37,6 +49,7 @@ import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -46,6 +59,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Implementation of the internal registration management. This is used
@@ -56,7 +70,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER,
 			SharedRegistrationManagment.class);
 
 	private RegistrationRequestDB requestDB;
@@ -67,6 +81,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private IdentityHelper identityHelper;
 	private AttributeTypeHelper atHelper;
 	private RegistrationConfirmationSupport confirmationsSupport;
+	private InvitationManagement invitationManagement;
+	private RegistrationFormDB formsDB;
 
 	@Autowired
 	public SharedRegistrationManagment(UnityMessageSource msg,
@@ -80,7 +96,9 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			IdentityHelper identityHelper,
 			AttributeTypeHelper atHelper,
-			RegistrationConfirmationSupport confirmationsSupport)
+			RegistrationConfirmationSupport confirmationsSupport,
+			InvitationManagement invitationManagement,
+			RegistrationFormDB formsDB)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
@@ -92,22 +110,10 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		this.identityHelper = identityHelper;
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
+		this.invitationManagement = invitationManagement;
+		this.formsDB = formsDB;
 	}
 
-	public static class AcceptedRequestContext
-	{
-		public final TranslatedRegistrationRequest translatedRequest;
-		public final Long entityId;
-		public AcceptedRequestContext(TranslatedRegistrationRequest translatedRequest, Long entityId)
-		{
-			this.translatedRequest = translatedRequest;
-			this.entityId = entityId;
-		}
-		public Long getEntityId()
-		{
-			return entityId;
-		}
-	}
 	/**
 	 * Accepts a registration request applying all its settings. The method operates on a result 
 	 * of the form's translation profile, rather then on the original request. 
@@ -120,7 +126,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	 * @return
 	 * @throws EngineException
 	 */
-	public AcceptedRequestContext acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest,
+	public Long acceptRequest(RegistrationForm form, RegistrationRequestState currentRequest,
 			AdminComment publicComment, AdminComment internalComment,
 			boolean rewriteConfirmationToken) throws EngineException
 	{
@@ -132,10 +138,16 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		
 		registrationRequestValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
 				translatedRequest);
-
+		
+		Map<String, GroupParam> groupParamByPath = translatedRequest.getGroups().stream()
+				.collect(Collectors.toMap(GroupParam::getGroup, Functions.identity()));
+		List<Attribute> requestedAttributes = Lists.newArrayList(translatedRequest.getAttributes());
+		
+		autoProcessInvitationsAndCollectData(currentRequest, translatedRequest, groupParamByPath, requestedAttributes);
+		
 		List<Attribute> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());
 		Map<String, List<Attribute>> remainingAttributesByGroup = new HashMap<>();
-		for (Attribute a : translatedRequest.getAttributes())
+		for (Attribute a : requestedAttributes)
 			addAttributeToGroupsMap(a, rootAttributes, remainingAttributesByGroup);
 
 		Collection<IdentityParam> identities = translatedRequest.getIdentities();
@@ -155,8 +167,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			identityHelper.insertIdentity(idParam, initial.getEntityId(), false);
 		}
 
-		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, 
-				translatedRequest);
+		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, groupParamByPath.values());
 		applyRequestedAttributeClasses(translatedRequest, initial.getEntityId());		
 		applyRequestedCredentials(currentRequest, initial.getEntityId());
 		
@@ -171,7 +182,93 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		if (rewriteConfirmationToken)
 			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
 		
-		return new AcceptedRequestContext(translatedRequest, initial.getEntityId());
+		return initial.getEntityId();
+	}
+
+	private void autoProcessInvitationsAndCollectData(RegistrationRequestState currentRequest,
+			TranslatedRegistrationRequest translatedRequest, Map<String, GroupParam> groupParamByPath,
+			List<Attribute> requestedAttributes) throws EngineException
+	{
+		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
+		if (invitationProcessing == null)
+			return;
+		
+		CollectedFromInvitationsContainer collectedFromInvitations = collectAttributesAndGroupsFromInvitations(
+				currentRequest, translatedRequest);
+		
+		Set<String> groupsAdded = Sets.newHashSet();
+		for (GroupParam group : collectedFromInvitations.groups)
+		{
+			if (!groupParamByPath.containsKey(group.getGroup()))
+			{
+				groupParamByPath.put(group.getGroup(), group);
+				groupsAdded.add(group.getGroup());
+			}
+		}
+		requestedAttributes.addAll(collectedFromInvitations.attributes);
+		
+		for (String code : collectedFromInvitations.registrationCodes)
+			invitationManagement.removeInvitation(code);
+		
+		String adminMsg = String.format("%s: %s", SharedRegistrationManagment.AUTO_PROCESS_INVITATIONS_COMMENT,
+				collectedFromInvitations.registrationCodes.stream().collect(Collectors.joining(",")));
+		AdminComment systemComment = new AdminComment(adminMsg, 0, false);
+		currentRequest.getAdminComments().add(systemComment);
+		
+		StringBuilder summaryOfProcessing = new StringBuilder("Summary: ");
+		summaryOfProcessing.append("added groups: ");
+		if (groupsAdded.isEmpty())
+			summaryOfProcessing.append(" -- none --.");
+		else
+			summaryOfProcessing.append(groupsAdded.stream().collect(Collectors.joining(",")));
+		summaryOfProcessing.append("; added attributes: ");
+		if (collectedFromInvitations.attributes.isEmpty())
+			summaryOfProcessing.append(" -- none --.");
+		else
+			summaryOfProcessing.append(collectedFromInvitations.attributes.stream()
+					.map(Attribute::toString).collect(Collectors.joining(",")));
+		LOG.info("{}. {}", adminMsg, summaryOfProcessing.toString());
+	}
+
+	private CollectedFromInvitationsContainer collectAttributesAndGroupsFromInvitations(RegistrationRequestState currentRequest, 
+			TranslatedRegistrationRequest translatedRequest) throws EngineException
+	{
+		NotificationFacility facility = facilitiesManagement.getNotificationFacilityForChannel(
+				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
+		String contactAddress = facility.getAddressForUserRequest(currentRequest);
+		if (contactAddress == null)
+			return null;
+		
+		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
+		List<InvitationWithCode> invitationsToProcess = invitationManagement.getInvitations().stream()
+			.filter(byGivenFormOrAllIfEmpty(invitationProcessing.getFormName()))
+			.filter(invitation -> contactAddress.equals(invitation.getContactAddress()))
+			.collect(Collectors.toList());
+		Map<String, RegistrationForm> registrationFormById = Maps.newHashMap();
+		
+		CollectedFromInvitationsContainer collected = new CollectedFromInvitationsContainer();
+		for (InvitationWithCode invitation : invitationsToProcess)
+		{
+			RegistrationForm invitationRegistrationForm = registrationFormById.get(invitation.getFormId());
+			if (invitationRegistrationForm == null)
+			{
+				invitationRegistrationForm = formsDB.get(invitation.getFormId());
+				registrationFormById.put(invitation.getFormId(), invitationRegistrationForm);
+			}
+			List<Attribute> prefilledAttrs = RegistrationUtil.getPrefilledAndHiddenAttributes(invitation);
+			collected.attributes.addAll(prefilledAttrs);
+			List<GroupParam> prefilledGroups = RegistrationUtil.getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm);
+			collected.groups.addAll(prefilledGroups);
+			collected.registrationCodes.add(invitation.getRegistrationCode());
+		}
+		return collected;
+	}
+	
+	static class CollectedFromInvitationsContainer
+	{
+		Set<Attribute> attributes = Sets.newHashSet();
+		Set<GroupParam> groups = Sets.newHashSet();
+		Set<String> registrationCodes = Sets.newHashSet();
 	}
 
 	public void dropRequest(String id) throws EngineException
@@ -196,7 +293,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	 * @return entity id if automatic request acceptance was performed.
 	 * @throws EngineException 
 	 */
-	public Optional<AcceptedRequestContext> autoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
+	public Long autoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
 			String logMessageTemplate)	throws EngineException
 	{
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
@@ -211,14 +308,13 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 				SharedRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
 
 		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
-		log.info(formattedMsg);
+		LOG.info(formattedMsg);
 		
-		AcceptedRequestContext ctx = null;
 		switch (autoProcessAction)
 		{
 		case accept:
 			requestFull.getAdminComments().add(systemComment);
-			ctx = acceptRequest(form, requestFull, null, systemComment, false);
+			return acceptRequest(form, requestFull, null, systemComment, false);
 		case drop:
 			dropRequest(requestFull.getRequestId());
 			break;
@@ -228,7 +324,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			break;
 		default:
 		}
-		return Optional.ofNullable(ctx);
+		return null;
 	}
 
 	@EventListener
@@ -239,7 +335,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			autoProcess(event.form, event.requestFull, event.logMessageTemplate);
 		} catch (EngineException e)
 		{
-			log.error("Auto processing of registration form in result of async event failed", e);
+			LOG.error("Auto processing of registration form in result of async event failed", e);
 		}
 	}
 	
@@ -279,5 +375,15 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		if (notificationFacility == null)
 			return null;
 		return notificationFacility.getAddressForUserRequest(currentRequest);
+	}
+	
+	private Predicate<? super InvitationWithCode> byGivenFormOrAllIfEmpty(String formName)
+	{
+		return invitation ->
+		{
+			if (Strings.isNullOrEmpty(formName))
+				return true;
+			return formName.equals(invitation.getFormId());
+		};
 	}
 }

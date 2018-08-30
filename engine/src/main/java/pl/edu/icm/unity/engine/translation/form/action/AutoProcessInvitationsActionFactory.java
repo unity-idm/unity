@@ -29,9 +29,9 @@ public class AutoProcessInvitationsActionFactory extends AbstractRegistrationTra
 	public AutoProcessInvitationsActionFactory()
 	{
 		super(NAME, new ActionParameterDefinition[] {
-				new ActionParameterDefinition("formWithInvitation", 
-						"RegTranslationAction.autoProcessInvitations.paramDesc.formWithInvitation", 
-						Type.REGISTRATION_FORM_WITH_INVITATION, true)
+				new ActionParameterDefinition("registrationForm", 
+						"RegTranslationAction.autoProcessInvitations.paramDesc.registrationForm", 
+						Type.REGISTRATION_FORM, false)
 		});
 	}
 

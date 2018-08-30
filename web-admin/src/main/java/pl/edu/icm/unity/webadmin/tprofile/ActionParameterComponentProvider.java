@@ -48,7 +48,7 @@ public class ActionParameterComponentProvider
 	private List<String> inputProfiles;
 	private List<String> outputProfiles;
 	private List<String> userMessageTemplates;
-	private List<String> registrationFormWithInvitation;
+	private List<String> registrationForm;
 
 	private AttributeTypeManagement attrsMan;
 	private IdentityTypeSupport idTypeSupport;
@@ -101,8 +101,7 @@ public class ActionParameterComponentProvider
 		userMessageTemplates = new ArrayList<>(msgTemplateMan.getCompatibleTemplates(
 				UserNotificationTemplateDef.NAME).keySet());
 		Collections.sort(userMessageTemplates);
-		registrationFormWithInvitation = registrationMan.getForms().stream()
-				.filter(RegistrationForm::isByInvitationOnly)
+		registrationForm = registrationMan.getForms().stream()
 				.map(RegistrationForm::getName)
 				.collect(Collectors.toList());
 	}
@@ -137,8 +136,8 @@ public class ActionParameterComponentProvider
 			return new BaseEnumActionParameterComponent(param, msg, outputProfiles);
 		case USER_MESSAGE_TEMPLATE:
 			return new BaseEnumActionParameterComponent(param, msg, userMessageTemplates);
-		case REGISTRATION_FORM_WITH_INVITATION:
-			return new BaseEnumActionParameterComponent(param, msg, registrationFormWithInvitation);
+		case REGISTRATION_FORM:
+			return new BaseEnumActionParameterComponent(param, msg, registrationForm);
 		default: 
 			return new DefaultActionParameterComponent(param, msg);
 		}

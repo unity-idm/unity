@@ -232,6 +232,12 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.tngtech.java</groupId>
+				<artifactId>junit-dataprovider</artifactId>
+				<version>1.12.0</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>eu.codearte.catch-exception</groupId>
 				<artifactId>catch-exception</artifactId>
 				<version>1.4.6</version>

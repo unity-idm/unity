@@ -11,18 +11,18 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.Selection;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.Selection;
 
 /**
  * Base data of invitation parameter. It is extracted as we have two ways to represent attributes:
@@ -41,6 +41,8 @@ public class InvitationParam
 	private Map<Integer, PrefilledEntry<Selection>> groupSelections = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 
+	private InvitationParam() {}
+	
 	public InvitationParam(String formId, Instant expiration, String contactAddress)
 	{
 		this(formId, expiration);
@@ -224,5 +226,48 @@ public class InvitationParam
 		} else if (!identities.equals(other.identities))
 			return false;
 		return true;
+	}
+	
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+	
+	public static class Builder
+	{
+		private InvitationParam instance = new InvitationParam();
+		
+		public Builder withForm(String formId)
+		{
+			instance.formId = formId;
+			return this;
+		}
+		public Builder withExpiration(Instant expiration)
+		{
+			instance.expiration = expiration;
+			return this;
+		}
+		public Builder withContactAddress(String contactAddress)
+		{
+			instance.contactAddress = contactAddress;
+			return this;
+		}
+		
+		public InvitationParam build()
+		{
+			return instance;
+		}
+		public Builder withAttribute(Attribute attribute, PrefilledEntryMode mode)
+		{
+			int idx = instance.attributes.size();
+			instance.attributes.put(idx, new PrefilledEntry<>(attribute, mode));
+			return this;
+		}
+		public Builder withGroup(boolean selection, PrefilledEntryMode mode)
+		{
+			int idx = instance.groupSelections.size();
+			instance.groupSelections.put(idx, new PrefilledEntry<>(new Selection(selection), mode));
+			return this;
+		}
 	}
 }
