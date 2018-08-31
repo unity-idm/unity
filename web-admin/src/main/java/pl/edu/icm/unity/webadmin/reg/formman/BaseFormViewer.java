@@ -82,16 +82,16 @@ public class BaseFormViewer extends VerticalLayout
 		attributeParams.clearContents();
 		groupParams.clearContents();
 		credentialParams.clearContents();
-		for (AgreementRegistrationParam ap: form.getAgreements())
-			agreements.addEntry(ap);
 		for (IdentityRegistrationParam ip: form.getIdentityParams())
 			identityParams.addEntry(ip);
+		for (CredentialRegistrationParam cp: form.getCredentialParams())
+			credentialParams.addEntry(cp);
 		for (AttributeRegistrationParam ap: form.getAttributeParams())
 			attributeParams.addEntry(ap);
 		for (GroupRegistrationParam gp: form.getGroupParams())
 			groupParams.addEntry(gp);
-		for (CredentialRegistrationParam cp: form.getCredentialParams())
-			credentialParams.addEntry(cp);
+		for (AgreementRegistrationParam ap: form.getAgreements())
+			agreements.addEntry(ap);
 		
 		agreementsP.setVisible(!form.getAgreements().isEmpty());
 		identityParamsP.setVisible(!form.getIdentityParams().isEmpty());
@@ -221,7 +221,7 @@ public class BaseFormViewer extends VerticalLayout
 		credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
 				credentialParams);
 		
-		wrapper.addComponents(agreementsP, identityParamsP, attributeParamsP, groupParamsP, credentialParamsP);
+		wrapper.addComponents(identityParamsP, credentialParamsP, attributeParamsP, groupParamsP, agreementsP);
 		return wrapper;
 	}
 	
