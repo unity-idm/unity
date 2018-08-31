@@ -30,7 +30,7 @@ public class AttributeTypeRDBMSStore extends NamedCachingCRUD<AttributeType, Att
 	public AttributeTypeRDBMSStore(AttributeTypeRDBMSSerializer jsonSerializer, CacheManager cacheMananger)
 	{
 		super(new AttributeTypeRDBMSStoreInt(jsonSerializer), new HashMapNamedCache<>(at -> at.clone()));
-		cacheMananger.registerCache(cache);
+		cacheMananger.registerCacheWithFlushingPropagation(cache);
 	}
 
 	@Override

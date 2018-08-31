@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -288,7 +289,7 @@ public class EntityManagementImpl implements EntityManagement
 		IdentityType identityType = idTypeDAO.get(toRemove.getTypeId());
 		List<Identity> identities = idDAO.getByEntity(entityId);
 		String type = identityType.getIdentityTypeProvider();
-		boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<IdentityParam>(), 
+		boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<>(), 
 				identityType.isSelfModificable());
 
 		if (identities.size() == 1)
@@ -309,6 +310,29 @@ public class EntityManagementImpl implements EntityManagement
 		idDAO.delete(StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue));
 	}
 
+	@Override
+	@Transactional
+	public void updateIdentity(IdentityTaV original, IdentityParam updated) throws EngineException
+	{
+		if (!Objects.equals(updated.getTypeId(), original.getTypeId()))
+			throw new IllegalArgumentException("Identity type can not be changed");
+		authz.checkAuthorization(AuthzCapability.identityModify);
+		
+		IdentityType identityType = idTypeDAO.get(original.getTypeId());
+		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identityType);
+		String cmpValue = typeDefinition.getComparableValue(original.getValue(), original.getRealm(), 
+				original.getTarget());
+		String updatedCmpValue = typeDefinition.getComparableValue(updated.getValue(), updated.getRealm(), 
+				updated.getTarget());
+		if (!Objects.equals(cmpValue, updatedCmpValue))
+			throw new IllegalArgumentException("Identity change can not effect in comparable "
+					+ "value change of existing identity");
+		
+		String inDBKey = StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue);
+		long entityId = idResolver.getEntityId(new EntityParam(original));
+		Identity updatedFull = idTypeHelper.upcastIdentityParam(updated, entityId);
+		idDAO.updateByName(inDBKey, new StoredIdentity(updatedFull));
+	}
 
 	@Override
 	@Transactional

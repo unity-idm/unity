@@ -30,6 +30,6 @@ public class IdentityTypeRDBMSStore extends NamedCachingCRUD<IdentityType, Ident
 	{
 		super(new IdentityTypeRDBMSStoreInt(jsonSerializer), 
 				new HashMapNamedCache<IdentityType>(it -> it.clone()));
-		cacheManager.registerCache(cache);
+		cacheManager.registerCacheWithFlushingPropagation(cache);
 	}
 }

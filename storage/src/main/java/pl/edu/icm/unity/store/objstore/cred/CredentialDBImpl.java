@@ -25,6 +25,6 @@ public class CredentialDBImpl extends NamedCachingCRUDWithTS<CredentialDefinitio
 	public CredentialDBImpl(CredentialHandler handler, ObjectStoreDAO dbGeneric, CacheManager cacheManager)
 	{
 		super(new CredentialDBNoCacheImpl(handler, dbGeneric), new HashMapNamedCache<>(c -> c.clone()));
-		cacheManager.registerCache(cache);
+		cacheManager.registerCacheWithFlushingPropagation(cache);
 	}
 }

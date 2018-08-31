@@ -196,7 +196,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	
 	private AttributeFetchResult getUserProfileInformation(BearerAccessToken accessToken) throws AuthenticationException
 	{
-		boolean openIdMode = verificatorProperties.getBooleanValue(OAuthRPProperties.OPENID_MODE);
+		boolean openIdMode = verificatorProperties.isSetOpenIdMode();
 		String profileEndpoint = verificatorProperties.getValue(OAuthRPProperties.PROFILE_ENDPOINT);
 		AttributeFetchResult ret = new AttributeFetchResult();
 		if (profileEndpoint == null)

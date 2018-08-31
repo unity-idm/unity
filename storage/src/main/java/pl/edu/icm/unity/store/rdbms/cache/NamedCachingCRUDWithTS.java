@@ -47,14 +47,14 @@ public class NamedCachingCRUDWithTS<T extends NamedObject, DAO extends NamedCRUD
 	@Override
 	public void updateTS(String id)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		wrapped.updateTS(id);
 	}
 
 	@Override
 	public long createWithTS(T newValue, Date updatTS)
 	{
-		cache.flush();
+		cache.flushWithEvent();
 		return wrapped.createWithTS(newValue, updatTS);
 	}
 

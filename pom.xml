@@ -67,7 +67,7 @@
 		<module>integration-tests</module>
 		<module>distribution</module>
 		<module>documentation</module>
-    		<module>composite-password</module>
+		<module>composite-password</module>
   </modules>
 
 	<developers>
