@@ -168,10 +168,10 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 	
 	private void createRemoteAuthnControls(FormLayout mainFormLayout) throws EngineException
 	{
-		if (!form.isAutoRegistrationEnabled())
+		if (!form.getExternalSignupSpec().isEnabled())
 			return;
 
-		Set<String> specs = form.getAuthenticationFlows().getSpecs();
+		Set<String> specs = form.getExternalSignupSpec().getSpecs();
 		List<AuthenticationFlow> flows = authenticatorSupport.resolveAndGetAuthenticationFlows(Lists.newArrayList(specs));
 		
 		AuthenticationOptionsHandler authnOptionsHandler = new AuthenticationOptionsHandler(flows, "registration");

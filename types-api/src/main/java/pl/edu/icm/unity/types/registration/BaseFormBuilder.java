@@ -44,9 +44,9 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 	}
 	
 	@SuppressWarnings("unchecked")
-	public T withAuthenticationFlowsSpec(AuthenticationFlowsSpec spec)
+	public T withExternalSignupSpec(ExternalSignupSpec spec)
 	{
-		instance.setAuthenticationFlows(spec);
+		instance.setExternalSignupSpec(spec);
 		return (T) this;
 	}
 

@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.signup;
 
-import static pl.edu.icm.unity.types.registration.AuthenticationFlowsSpec.AutomaticFormProcessingAfterAuthnSettings.SUBMIT_WHEN_ALL_PROVIDED;
-
 import java.util.Iterator;
 
 import org.apache.logging.log4j.Logger;
@@ -273,6 +271,7 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 			public void onUserExists(AuthenticationResult result)
 			{
 				enableSharedComponentsAndHideAuthnProgress();
+				// TODO: here probably a redirect 
 				LOG.info("SignUp authn completed, user exists.");
 			}
 			
@@ -302,7 +301,7 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 	private void showFormWithDisabledAutoSignUpFor(AuthenticationResult result)
 	{
 		RegistrationForm formWithDisabledFlows = new RegistrationForm(form.toJson());
-		formWithDisabledFlows.getAuthenticationFlows().getSpecs().clear();
+		formWithDisabledFlows.getExternalSignupSpec().getSpecs().clear();
 		
 		/*
 		 *  TODO: here more flexible mechanism of controlling the second registration form layout
@@ -323,18 +322,9 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 			editor = editorCreator.create(formWithDisabledFlows, result.getRemoteAuthnContext(), signUpAuthNController);
 			initUIContent();
 			
-			if (form.getAuthenticationFlows().getAutomaticProcessing() == SUBMIT_WHEN_ALL_PROVIDED)
-			{
-				if (RegistrationFormUtils.areAllRequiredRetrieved(form, editor.getInvitation(), result.getRemoteAuthnContext()))
-				{
-					LOG.debug("Automatic subbmition of a form {}", form.getName());
-					onOK(editor);
-				} else
-				{
-					LOG.info("Automatic form {} sumittion rejected, not all required attributes/identieis "
-							+ "where retrieved from external IdP.", form.getName());
-				}
-			}
+			// TODO: check if form allows for auto submit
+			onOK(editor);
+			
 		} catch (Exception e)
 		{
 			initUIFromScratch();

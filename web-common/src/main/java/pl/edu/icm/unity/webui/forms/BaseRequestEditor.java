@@ -190,9 +190,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 						found = true;
 						break;
 					}
-				if (!found && !idParam.isOptional() 
-						&& (idParam.getRetrievalSettings().isAutomaticOnly())
-						&& !form.isAutoRegistrationEnabled())
+				if (!found && !idParam.isOptional() && (idParam.getRetrievalSettings().isAutomaticOnly()))
 					throw new AuthenticationException("This registration form may be used only by " +
 							"users who were remotely authenticated first and who have " +
 							idParam.getIdentityType() + 
@@ -221,9 +219,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 								a.getName(), a);
 						break;
 					}
-				if (!found && !aParam.isOptional() 
-						&& (aParam.getRetrievalSettings().isAutomaticOnly())
-						&& !form.isAutoRegistrationEnabled())
+				if (!found && !aParam.isOptional() && (aParam.getRetrievalSettings().isAutomaticOnly()))
 					throw new AuthenticationException("This registration form may be used only by " +
 							"users who were remotely authenticated first and who have attribute '" +
 							aParam.getAttributeType() + "' in group '" + aParam.getGroup() 

@@ -44,7 +44,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private List<GroupRegistrationParam> groupParams = new ArrayList<>();
 	private List<CredentialRegistrationParam> credentialParams = new ArrayList<>();
 	private List<AgreementRegistrationParam> agreements = new ArrayList<>();
-	private AuthenticationFlowsSpec authenticationFlows = new AuthenticationFlowsSpec();
+	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
 	private boolean collectComments;
 	private I18nString displayedName = new I18nString();
 	private I18nString formInformation = new I18nString();
@@ -61,11 +61,6 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	
 	BaseForm()
 	{
-	}
-	
-	public boolean isAutoRegistrationEnabled()
-	{
-		return !authenticationFlows.getSpecs().isEmpty();
 	}
 
 	protected final void validate()
@@ -179,7 +174,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
 		if (layout != null)
 			root.set("FormLayout", jsonMapper.valueToTree(getLayout()));
-		root.set("AuthenticationFlowsSpec", getAuthenticationFlows().toJsonObject());
+		root.set("ExternalSignupSpec", getExternalSignupSpec().toJsonObject());
 		return root;
 	}
 
@@ -254,10 +249,10 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				setLayout(jsonMapper.treeToValue(n, FormLayout.class));
 			}
 			
-			n = root.get("AuthenticationFlowsSpec");
+			n = root.get("ExternalSignupSpec");
 			if (n != null)
 			{
-				setAuthenticationFlows(new AuthenticationFlowsSpec((ObjectNode) n));
+				setExternalSignupSpec(new ExternalSignupSpec((ObjectNode) n));
 			}
 		} catch (Exception e)
 		{
@@ -427,14 +422,14 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		return translationProfile;
 	}
 	
-	public AuthenticationFlowsSpec getAuthenticationFlows()
+	public ExternalSignupSpec getExternalSignupSpec()
 	{
-		return authenticationFlows;
+		return externalSignupSpec;
 	}
 
-	public void setAuthenticationFlows(AuthenticationFlowsSpec authenticationFlows)
+	public void setExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
 	{
-		this.authenticationFlows = authenticationFlows;
+		this.externalSignupSpec = externalSignupSpec;
 	}
 
 	void setTranslationProfile(TranslationProfile translationProfile)
@@ -514,7 +509,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		int result = super.hashCode();
 		result = prime * result + ((agreements == null) ? 0 : agreements.hashCode());
 		result = prime * result + ((attributeParams == null) ? 0 : attributeParams.hashCode());
-		result = prime * result + ((authenticationFlows == null) ? 0 : authenticationFlows.hashCode());
+		result = prime * result + ((externalSignupSpec == null) ? 0 : externalSignupSpec.hashCode());
 		result = prime * result + (collectComments ? 1231 : 1237);
 		result = prime * result + ((credentialParams == null) ? 0 : credentialParams.hashCode());
 		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
@@ -548,11 +543,11 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				return false;
 		} else if (!attributeParams.equals(other.attributeParams))
 			return false;
-		if (authenticationFlows == null)
+		if (externalSignupSpec == null)
 		{
-			if (other.authenticationFlows != null)
+			if (other.externalSignupSpec != null)
 				return false;
-		} else if (!authenticationFlows.equals(other.authenticationFlows))
+		} else if (!externalSignupSpec.equals(other.externalSignupSpec))
 			return false;
 		if (collectComments != other.collectComments)
 			return false;
