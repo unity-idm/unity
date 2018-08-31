@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -21,18 +19,12 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Functions;
-import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
-import pl.edu.icm.unity.engine.api.translation.form.AutomaticInvitationProcessingParam;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
@@ -49,7 +41,6 @@ import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -59,7 +50,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
  * Implementation of the internal registration management. This is used
@@ -81,8 +71,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private IdentityHelper identityHelper;
 	private AttributeTypeHelper atHelper;
 	private RegistrationConfirmationSupport confirmationsSupport;
-	private InvitationManagement invitationManagement;
-	private RegistrationFormDB formsDB;
+	private AutomaticInvitationProcessingSupport autoInvitationProcessingSupport;
 
 	@Autowired
 	public SharedRegistrationManagment(UnityMessageSource msg,
@@ -97,8 +86,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			IdentityHelper identityHelper,
 			AttributeTypeHelper atHelper,
 			RegistrationConfirmationSupport confirmationsSupport,
-			InvitationManagement invitationManagement,
-			RegistrationFormDB formsDB)
+			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
@@ -110,8 +98,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		this.identityHelper = identityHelper;
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
-		this.invitationManagement = invitationManagement;
-		this.formsDB = formsDB;
+		this.autoInvitationProcessingSupport = autoInvitationProcessingSupport;
 	}
 
 	/**
@@ -143,7 +130,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 				.collect(Collectors.toMap(GroupParam::getGroup, Functions.identity()));
 		List<Attribute> requestedAttributes = Lists.newArrayList(translatedRequest.getAttributes());
 		
-		autoProcessInvitationsAndCollectData(currentRequest, translatedRequest, groupParamByPath, requestedAttributes);
+		autoInvitationProcessingSupport.autoProcessInvitationsAndCollectData(
+				currentRequest, translatedRequest, groupParamByPath, requestedAttributes);
 		
 		List<Attribute> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());
 		Map<String, List<Attribute>> remainingAttributesByGroup = new HashMap<>();
@@ -183,92 +171,6 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
 		
 		return initial.getEntityId();
-	}
-
-	private void autoProcessInvitationsAndCollectData(RegistrationRequestState currentRequest,
-			TranslatedRegistrationRequest translatedRequest, Map<String, GroupParam> groupParamByPath,
-			List<Attribute> requestedAttributes) throws EngineException
-	{
-		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
-		if (invitationProcessing == null)
-			return;
-		
-		CollectedFromInvitationsContainer collectedFromInvitations = collectAttributesAndGroupsFromInvitations(
-				currentRequest, translatedRequest);
-		
-		Set<String> groupsAdded = Sets.newHashSet();
-		for (GroupParam group : collectedFromInvitations.groups)
-		{
-			if (!groupParamByPath.containsKey(group.getGroup()))
-			{
-				groupParamByPath.put(group.getGroup(), group);
-				groupsAdded.add(group.getGroup());
-			}
-		}
-		requestedAttributes.addAll(collectedFromInvitations.attributes);
-		
-		for (String code : collectedFromInvitations.registrationCodes)
-			invitationManagement.removeInvitation(code);
-		
-		String adminMsg = String.format("%s: %s", SharedRegistrationManagment.AUTO_PROCESS_INVITATIONS_COMMENT,
-				collectedFromInvitations.registrationCodes.stream().collect(Collectors.joining(",")));
-		AdminComment systemComment = new AdminComment(adminMsg, 0, false);
-		currentRequest.getAdminComments().add(systemComment);
-		
-		StringBuilder summaryOfProcessing = new StringBuilder("Summary: ");
-		summaryOfProcessing.append("added groups: ");
-		if (groupsAdded.isEmpty())
-			summaryOfProcessing.append(" -- none --.");
-		else
-			summaryOfProcessing.append(groupsAdded.stream().collect(Collectors.joining(",")));
-		summaryOfProcessing.append("; added attributes: ");
-		if (collectedFromInvitations.attributes.isEmpty())
-			summaryOfProcessing.append(" -- none --.");
-		else
-			summaryOfProcessing.append(collectedFromInvitations.attributes.stream()
-					.map(Attribute::toString).collect(Collectors.joining(",")));
-		LOG.info("{}. {}", adminMsg, summaryOfProcessing.toString());
-	}
-
-	private CollectedFromInvitationsContainer collectAttributesAndGroupsFromInvitations(RegistrationRequestState currentRequest, 
-			TranslatedRegistrationRequest translatedRequest) throws EngineException
-	{
-		NotificationFacility facility = facilitiesManagement.getNotificationFacilityForChannel(
-				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
-		String contactAddress = facility.getAddressForUserRequest(currentRequest);
-		if (contactAddress == null)
-			return null;
-		
-		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
-		List<InvitationWithCode> invitationsToProcess = invitationManagement.getInvitations().stream()
-			.filter(byGivenFormOrAllIfEmpty(invitationProcessing.getFormName()))
-			.filter(invitation -> contactAddress.equals(invitation.getContactAddress()))
-			.collect(Collectors.toList());
-		Map<String, RegistrationForm> registrationFormById = Maps.newHashMap();
-		
-		CollectedFromInvitationsContainer collected = new CollectedFromInvitationsContainer();
-		for (InvitationWithCode invitation : invitationsToProcess)
-		{
-			RegistrationForm invitationRegistrationForm = registrationFormById.get(invitation.getFormId());
-			if (invitationRegistrationForm == null)
-			{
-				invitationRegistrationForm = formsDB.get(invitation.getFormId());
-				registrationFormById.put(invitation.getFormId(), invitationRegistrationForm);
-			}
-			List<Attribute> prefilledAttrs = RegistrationUtil.getPrefilledAndHiddenAttributes(invitation);
-			collected.attributes.addAll(prefilledAttrs);
-			List<GroupParam> prefilledGroups = RegistrationUtil.getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm);
-			collected.groups.addAll(prefilledGroups);
-			collected.registrationCodes.add(invitation.getRegistrationCode());
-		}
-		return collected;
-	}
-	
-	static class CollectedFromInvitationsContainer
-	{
-		Set<Attribute> attributes = Sets.newHashSet();
-		Set<GroupParam> groups = Sets.newHashSet();
-		Set<String> registrationCodes = Sets.newHashSet();
 	}
 
 	public void dropRequest(String id) throws EngineException
@@ -375,15 +277,5 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		if (notificationFacility == null)
 			return null;
 		return notificationFacility.getAddressForUserRequest(currentRequest);
-	}
-	
-	private Predicate<? super InvitationWithCode> byGivenFormOrAllIfEmpty(String formName)
-	{
-		return invitation ->
-		{
-			if (Strings.isNullOrEmpty(formName))
-				return true;
-			return formName.equals(invitation.getFormId());
-		};
 	}
 }

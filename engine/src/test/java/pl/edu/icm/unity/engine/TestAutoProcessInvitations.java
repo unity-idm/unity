@@ -4,7 +4,10 @@
  */
 package pl.edu.icm.unity.engine;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.time.Instant;
@@ -57,7 +60,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 	@Rule
 	public final SpringMethodRule springMethodRule = new SpringMethodRule();
 	@DataProvider
-	public static Object[][] perfilledEntryModeProvider(){
+	public static Object[][] notAutoAppliedModesProvider(){
 		return new Object[][] {
 				{
 					PrefilledEntryMode.READ_ONLY,
@@ -114,7 +117,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 	}
 	
 	@Test
-	@UseDataProvider("perfilledEntryModeProvider")
+	@UseDataProvider("notAutoAppliedModesProvider")
 	public void shouldNotTakePrefilledAttributeWithMode(PrefilledEntryMode mode) throws EngineException
 	{
 		// given
@@ -181,26 +184,15 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		RegistrationRequest request = getRequest(TEST_1_FORM, code);
 		
 		// expect
-		try
-		{
-			invitationMan.getInvitation(codeOfAutoAcceptedInvitation);
-		} catch (Exception e)
-		{
-			throw new AssertionError(e);
-		}
+		Throwable error = catchThrowable(() -> invitationMan.getInvitation(codeOfAutoAcceptedInvitation));
+		assertThat(error, nullValue());
 		
 		// when
 		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT_TRY_AUTO_ACCEPT);
 		
 		// then
-		try
-		{
-			invitationMan.getInvitation(codeOfAutoAcceptedInvitation);
-			throw new AssertionError("Invitation should not exist in the system.");
-		} catch (Exception e)
-		{
-			// fall through
-		}
+		error = catchThrowable(() -> invitationMan.getInvitation(codeOfAutoAcceptedInvitation));
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
 	}
 	
 	@Test
