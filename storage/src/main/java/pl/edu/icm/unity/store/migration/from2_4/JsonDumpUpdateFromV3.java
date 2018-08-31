@@ -39,10 +39,10 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
  *
  */
 @Component
-public class JsonDumpUpdateFromV4 implements Update
+public class JsonDumpUpdateFromV3 implements Update
 
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV4.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV3.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 

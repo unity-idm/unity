@@ -37,6 +37,7 @@ public class EnquiryResponseValidator extends BaseRequestValidator
 		validateFinalAttributes(request.getAttributes());
 		validateFinalCredentials(response.getCredentials());
 		validateFinalIdentities(request.getIdentities());
+		validateFinalGroups(request.getGroups());
 	}
 
 	@Override

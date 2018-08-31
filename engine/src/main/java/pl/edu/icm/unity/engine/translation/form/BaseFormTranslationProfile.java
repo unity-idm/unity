@@ -6,8 +6,8 @@ package pl.edu.icm.unity.engine.translation.form;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.log4j.NDC;
+import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -36,9 +36,8 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -251,15 +250,14 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		request.getIdentities().stream().
 			filter(i -> i != null).
 			forEach(i -> initial.addIdentity(i));
-		for (int i = 0; i<request.getGroupSelections().size(); i++)
+		for (GroupSelection selection : request.getGroupSelections())
 		{
-			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
-			Selection selection = request.getGroupSelections().get(i);
-			if (selection != null && selection.isSelected())
-				initial.addMembership(new GroupParam(groupRegistrationParam.getGroupPath(), 
-					selection.getExternalIdp(), selection.getTranslationProfile()));			
+			if (selection == null)
+				continue;
+			for (String group: selection.getSelectedGroups())
+				initial.addMembership(new GroupParam(group, 
+					selection.getExternalIdp(), selection.getTranslationProfile()));
 		}
-		
 		return initial;
 	}
 	

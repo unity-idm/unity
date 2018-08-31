@@ -58,6 +58,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -374,8 +375,8 @@ public class TestFormProfileActions
 				new IdentityParam("username", "user", "idp", "prof")
 				));
 		when(request.getGroupSelections()).thenReturn(Lists.newArrayList(
-				new Selection(true),
-				new Selection(true, "idp", "prof")
+				new GroupSelection("/local"),
+				new GroupSelection("/remote", "idp", "prof")
 				));
 		when(request.getAgreements()).thenReturn(Lists.newArrayList(
 				new Selection(true)

@@ -27,6 +27,7 @@ import pl.edu.icm.unity.store.impl.identities.IdentityBean;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypesMapper;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
@@ -46,13 +47,14 @@ import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
  * @author P.Piernik
  */
 @Component
-public class InDBUpdateFromSchema2_2
+public class InDBUpdateFromSchema2_2 implements InDBSchemaUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema2_2.class);
 
 	@Autowired
 	private ObjectStoreDAO genericObjectsDAO;
 	
+	@Override
 	public void update() throws IOException
 	{
 		updateEmailIdentitiesCmpValueToLowercase();

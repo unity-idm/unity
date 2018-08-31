@@ -124,7 +124,7 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 	}
 
 	@SuppressWarnings("unchecked")
-	public GeneratorT withGroupSelections(List<Selection> aValue)
+	public GeneratorT withGroupSelections(List<GroupSelection> aValue)
 	{
 		instance.setGroupSelections(aValue);
 
@@ -132,21 +132,19 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 	}
 
 	@SuppressWarnings("unchecked")
-	public GeneratorT withAddedGroupSelection(Selection aValue)
+	public GeneratorT withAddedGroupSelection(GroupSelection aValue)
 	{
 		if (instance.getGroupSelections() == null)
-		{
-			instance.setGroupSelections(new ArrayList<Selection>());
-		}
+			instance.setGroupSelections(new ArrayList<>());
 
-		((ArrayList<Selection>) instance.getGroupSelections()).add(aValue);
+		instance.addGroupSelection(aValue);
 
 		return (GeneratorT) this;
 	}
 
 	public AddedGroupSelectionSelectionBuilder withAddedGroupSelection()
 	{
-		Selection obj = new Selection();
+		GroupSelection obj = new GroupSelection();
 
 		withAddedGroupSelection(obj);
 
@@ -229,14 +227,28 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 		}
 	}
 
-	public class AddedGroupSelectionSelectionBuilder extends
-			SelectionBuilderBase<AddedGroupSelectionSelectionBuilder>
+	public class AddedGroupSelectionSelectionBuilder
 	{
-		public AddedGroupSelectionSelectionBuilder(Selection aInstance)
+		private GroupSelection instance;
+
+		protected AddedGroupSelectionSelectionBuilder(GroupSelection aInstance)
 		{
-			super(aInstance);
+			instance = aInstance;
 		}
 
+		protected GroupSelection getInstance()
+		{
+			return instance;
+		}
+
+		public AddedGroupSelectionSelectionBuilder withGroup(String group)
+		{
+			List<String> groups = instance.getSelectedGroups();
+			groups.add(group);
+			instance.setSelectedGroups(groups);
+			return this;
+		}
+		
 		@SuppressWarnings("unchecked")
 		public GeneratorT endGroupSelection()
 		{

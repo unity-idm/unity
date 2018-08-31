@@ -63,6 +63,7 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 		validateFinalAttributes(request.getAttributes());
 		validateFinalCredentials(originalRequest.getCredentials());
 		validateFinalIdentities(request.getIdentities());
+		validateFinalGroups(request.getGroups());
 	}
 
 	/**

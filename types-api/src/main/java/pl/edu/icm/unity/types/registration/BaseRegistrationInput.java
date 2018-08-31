@@ -30,7 +30,7 @@ public class BaseRegistrationInput
 	private List<IdentityParam> identities = new ArrayList<>();
 	private List<Attribute> attributes = new ArrayList<>();
 	private List<CredentialParamValue> credentials = new ArrayList<>();
-	private List<Selection> groupSelections = new ArrayList<>();
+	private List<GroupSelection> groupSelections = new ArrayList<>();
 	private List<Selection> agreements = new ArrayList<>();
 	private String comments;
 	private String userLocale;
@@ -95,14 +95,19 @@ public class BaseRegistrationInput
 		this.credentials = credentials;
 	}
 
-	public List<Selection> getGroupSelections()
+	public List<GroupSelection> getGroupSelections()
 	{
 		return groupSelections;
 	}
 
-	public void setGroupSelections(List<Selection> groupSelections)
+	public void setGroupSelections(List<GroupSelection> groupSelections)
 	{
 		this.groupSelections = groupSelections;
+	}
+
+	public void addGroupSelection(GroupSelection groupSelection)
+	{
+		this.groupSelections.add(groupSelection);
 	}
 
 	public List<Selection> getAgreements()
@@ -200,8 +205,8 @@ public class BaseRegistrationInput
 		if (n != null)
 		{
 			String v = jsonMapper.writeValueAsString(n);
-			List<Selection> r = jsonMapper.readValue(v, 
-					new TypeReference<List<Selection>>(){});
+			List<GroupSelection> r = jsonMapper.readValue(v, 
+					new TypeReference<List<GroupSelection>>(){});
 			setGroupSelections(r);
 		}
 

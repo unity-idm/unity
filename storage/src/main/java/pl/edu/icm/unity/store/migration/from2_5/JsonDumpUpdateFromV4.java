@@ -31,10 +31,10 @@ import pl.edu.icm.unity.store.objstore.realm.RealmHandler;
  *
  */
 @Component
-public class JsonDumpUpdateFromV5 implements Update
+public class JsonDumpUpdateFromV4 implements Update
 
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV5.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV4.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 

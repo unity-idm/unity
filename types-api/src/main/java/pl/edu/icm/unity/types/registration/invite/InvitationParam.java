@@ -7,15 +7,10 @@ package pl.edu.icm.unity.types.registration.invite;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.Selection;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,6 +18,12 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 
 /**
  * Base data of invitation parameter. It is extracted as we have two ways to represent attributes:
@@ -38,7 +39,7 @@ public class InvitationParam
 	private String contactAddress;
 	
 	private Map<Integer, PrefilledEntry<IdentityParam>> identities = new HashMap<>();
-	private Map<Integer, PrefilledEntry<Selection>> groupSelections = new HashMap<>();
+	private Map<Integer, PrefilledEntry<GroupSelection>> groupSelections = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 
 	public InvitationParam(String formId, Instant expiration, String contactAddress)
@@ -79,7 +80,7 @@ public class InvitationParam
 		return identities;
 	}
 
-	public Map<Integer, PrefilledEntry<Selection>> getGroupSelections()
+	public Map<Integer, PrefilledEntry<GroupSelection>> getGroupSelections()
 	{
 		return groupSelections;
 	}
@@ -123,7 +124,7 @@ public class InvitationParam
 		fill((ObjectNode) n, getIdentities(), IdentityParam.class);
 
 		n = json.get("groupSelections");
-		fill((ObjectNode) n, getGroupSelections(), Selection.class);
+		fill((ObjectNode) n, getGroupSelections(), GroupSelection.class);
 
 		n = json.get("attributes");
 		fill((ObjectNode) n, getAttributes(), Attribute.class);
@@ -162,67 +163,21 @@ public class InvitationParam
 	}
 
 	@Override
-	public int hashCode()
+	public boolean equals(final Object other)
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result
-				+ ((contactAddress == null) ? 0 : contactAddress.hashCode());
-		result = prime * result + ((expiration == null) ? 0 : expiration.hashCode());
-		result = prime * result + ((formId == null) ? 0 : formId.hashCode());
-		result = prime * result
-				+ ((groupSelections == null) ? 0 : groupSelections.hashCode());
-		result = prime * result + ((identities == null) ? 0 : identities.hashCode());
-		return result;
+		if (!(other instanceof InvitationParam))
+			return false;
+		InvitationParam castOther = (InvitationParam) other;
+		return Objects.equals(formId, castOther.formId) && Objects.equals(expiration, castOther.expiration)
+				&& Objects.equals(contactAddress, castOther.contactAddress)
+				&& Objects.equals(identities, castOther.identities)
+				&& Objects.equals(groupSelections, castOther.groupSelections)
+				&& Objects.equals(attributes, castOther.attributes);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		InvitationParam other = (InvitationParam) obj;
-		if (attributes == null)
-		{
-			if (other.attributes != null)
-				return false;
-		} else if (!attributes.equals(other.attributes))
-			return false;
-		if (contactAddress == null)
-		{
-			if (other.contactAddress != null)
-				return false;
-		} else if (!contactAddress.equals(other.contactAddress))
-			return false;
-		if (expiration == null)
-		{
-			if (other.expiration != null)
-				return false;
-		} else if (!expiration.equals(other.expiration))
-			return false;
-		if (formId == null)
-		{
-			if (other.formId != null)
-				return false;
-		} else if (!formId.equals(other.formId))
-			return false;
-		if (groupSelections == null)
-		{
-			if (other.groupSelections != null)
-				return false;
-		} else if (!groupSelections.equals(other.groupSelections))
-			return false;
-		if (identities == null)
-		{
-			if (other.identities != null)
-				return false;
-		} else if (!identities.equals(other.identities))
-			return false;
-		return true;
+		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, attributes);
 	}
 }

@@ -119,6 +119,6 @@ CREATE TABLE UVOS_FLAG(
 	</update>
 
 	<insert id="initVersion">
-INSERT INTO UVOS_FLAG (VAL) VALUES ('2_4_0');
+INSERT INTO UVOS_FLAG (VAL) VALUES ('2_5_0');
 	</insert>
 </mapper>

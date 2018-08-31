@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine.api.translation.form;
 
 /**
  * Information about a group membership to be added for an entity being registered.
- * Can 
  * @author K. Benedyczak
  */
 public class GroupParam
