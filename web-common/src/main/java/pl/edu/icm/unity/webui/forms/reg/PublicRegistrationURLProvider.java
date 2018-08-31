@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.REGISTRATION_VIEW;
-
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -19,6 +17,7 @@ import com.vaadin.server.VaadinRequest;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
@@ -35,6 +34,13 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	private RegistrationsManagement regMan;
 	private ObjectFactory<StandaloneRegistrationView> viewFactory;
 	
+	/**
+	 * @implNote: due to changes in the enquiry links, below format was kept for
+	 *            backwards compatibility reasons.
+	 */
+	@Deprecated
+	private static final String REGISTRATION_FRAGMENT_PREFIX = "registration-";
+	
 	@Autowired
 	public PublicRegistrationURLProvider(
 			@Qualifier("insecure") RegistrationsManagement regMan,
@@ -47,24 +53,40 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	@Override
 	public String getViewName(String viewAndParameters)
 	{
-		if (!REGISTRATION_VIEW.equals(viewAndParameters))
+		String formName = getFormName(viewAndParameters);
+		if (formName == null)
 			return null;
-		return getForm() == null ? null : viewAndParameters;
+		
+		RegistrationForm form = getForm(formName);
+		if (form == null)
+			return null;
+		
+		return viewAndParameters;
 	}
 
 	@Override
 	public View getView(String viewName)
 	{
-		RegistrationForm form = getForm();
+		String formName = getFormName(viewName);
+		RegistrationForm form = getForm(formName);
 		if (form == null)
 			return null;
 		return viewFactory.getObject().init(form);
 	}
 
-	
-	private RegistrationForm getForm()
+	private String getFormName(String viewAndParameters)
 	{
-		String name = RegistrationFormDialogProvider.getFormFromURL();
+		if (PublicRegistrationURLSupport.REGISTRATION_VIEW.equals(viewAndParameters))
+			return RegistrationFormDialogProvider.getFormFromURL();
+		
+		if (viewAndParameters.startsWith(REGISTRATION_FRAGMENT_PREFIX))
+			return viewAndParameters.substring(REGISTRATION_FRAGMENT_PREFIX.length());
+		
+		return null;
+	}
+	
+	private RegistrationForm getForm(String name)
+	{
 		try
 		{
 			List<RegistrationForm> forms = regMan.getForms();

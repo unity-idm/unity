@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.ENQUIRY_VIEW;
-
 import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
@@ -21,6 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -53,19 +52,31 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Autowired
 	private StandardWebAuthenticationProcessor authnProcessor;
 	
+	/**
+	 * @implNote: due to changes in the enquiry links, below format was kept for
+	 *            backwards compatibility reasons.
+	 */
+	@Deprecated
+	private static final String ENQUIRY_FRAGMENT_PREFIX = "enquiry-";
+	
 	@Override
 	public String getViewName(String viewAndParameters)
 	{
-		if (!ENQUIRY_VIEW.equals(viewAndParameters))
+		String formName = getFormName(viewAndParameters);
+		if (formName == null)
 			return null;
-		String formName = RegistrationFormDialogProvider.getFormFromURL();
-		return editorController.getForm(formName) == null ? null : viewAndParameters;
+		
+		EnquiryForm enquiry = editorController.getForm(formName);
+		if (enquiry == null)
+			return null;
+		
+		return viewAndParameters;
 	}
-
+	
 	@Override
 	public View getView(String viewName)
 	{
-		String formName = RegistrationFormDialogProvider.getFormFromURL();
+		String formName = getFormName(viewName);
 		if (!editorController.isFormApplicable(formName))
 			return new NotApplicableView();
 		
@@ -115,6 +126,17 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 				editorController.cancelled(form, TriggeringMode.manualStandalone);
 			}
 		});
+	}
+	
+	private String getFormName(String viewAndParameters)
+	{
+		if (PublicRegistrationURLSupport.ENQUIRY_VIEW.equals(viewAndParameters))
+			return RegistrationFormDialogProvider.getFormFromURL();
+		
+		if (viewAndParameters.startsWith(ENQUIRY_FRAGMENT_PREFIX))
+			return viewAndParameters.substring(ENQUIRY_FRAGMENT_PREFIX.length());
+		
+		return null;
 	}
 
 	@Override

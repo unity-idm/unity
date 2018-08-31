@@ -23,7 +23,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
  */
 public class PublicRegistrationURLSupport
 {
-	public static final String SIGNUP_WITH_AUTO_REGISTRATION_VIEW = "signup";
 	public static final String REGISTRATION_VIEW = "registration";
 	public static final String ENQUIRY_VIEW = "enquiry";
 	
@@ -38,15 +37,9 @@ public class PublicRegistrationURLSupport
 	public static String getPublicRegistrationLink(RegistrationForm form, SharedEndpointManagement sharedEndpointMan)
 	{
 		String formName = form.getName();
-		if (!form.isAutoRegistrationEnabled())
-		{
 			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
 					"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
 					"#!" + REGISTRATION_VIEW;
-		}
-		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
-				"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
-				"#!" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
 	}
 	
 	/**
@@ -71,18 +64,10 @@ public class PublicRegistrationURLSupport
 	public static String getPublicRegistrationLink(RegistrationForm form, String code, 
 			SharedEndpointManagement sharedEndpointMan)
 	{
-		String formName = form.getName();
-		if (!form.isAutoRegistrationEnabled())
-		{
-			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
-					"?" + CODE_PARAM + "=" + code +
-					"&" + FORM_PARAM + "=" + urlEncodePath(formName) + 
-					"#!" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
-		}
 		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) +
 				"?" + CODE_PARAM + "=" + code +
-				"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
-				"#!" + SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
+				"&" + FORM_PARAM + "=" + urlEncodePath(form.getName()) +
+				"#!" + REGISTRATION_VIEW;
 	}
 	
 	private static String urlEncodePath(String pathElement)

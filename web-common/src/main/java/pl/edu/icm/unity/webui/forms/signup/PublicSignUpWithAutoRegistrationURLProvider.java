@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.signup;
 
-import static pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport.SIGNUP_WITH_AUTO_REGISTRATION_VIEW;
-
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -49,9 +47,7 @@ public class PublicSignUpWithAutoRegistrationURLProvider implements PublicViewPr
 	@Override
 	public String getViewName(String viewAndParameters)
 	{
-		if (!SIGNUP_WITH_AUTO_REGISTRATION_VIEW.equals(viewAndParameters))
-			return null;
-		return getForm() == null ? null : viewAndParameters;
+		throw new IllegalStateException("not implemented!");
 	}
 
 	@Override
