@@ -133,10 +133,11 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 			} else
 			{
 				T requestedEntity = requested.get(invitationPrefilledEntry.getKey());
-				if (requestedEntity != null 
-						&& entryComparator != null 
-						&& entryComparator.compare(invitationEntity, requestedEntity) != 0)
+				if (requestedEntity != null)
 				{
+					if (entryComparator != null && entryComparator.compare(invitationEntity, requestedEntity) == 0)
+						continue;
+					
 					throw new IllegalFormContentsException("Registration request can not override " 
 							+ elementName +	" " + invitationPrefilledEntry.getKey() + 
 							" specified in invitation");
