@@ -2,8 +2,9 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.group;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -11,12 +12,15 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
@@ -216,4 +220,35 @@ public class TestGroups extends DBIntegrationTestBase
 		assertThat(groupsMan.isPresent("/A"), is(true));
 		assertThat(groupsMan.isPresent("/B"), is(false));
 	}
+	
+	@Test
+	public void shouldReturnAllGroupsByWildcard() throws EngineException
+	{
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		Group ab = new Group("/A/B");
+		groupsMan.addGroup(ab);
+
+		List<Group> groups = groupsMan.getGroupsByWildcard("/**");
+		
+		assertThat(groups, hasItems(a, ab, new Group("/")));
+		assertThat(groups.size(), is(3));
+	}
+
+	@Test
+	public void shouldReturnFilteredGroupsByWildcard() throws EngineException
+	{
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		Group ab = new Group("/A/B");
+		groupsMan.addGroup(ab);
+		Group c = new Group("/C");
+		groupsMan.addGroup(c);
+
+		List<Group> groups = groupsMan.getGroupsByWildcard("/A/**");
+		
+		assertThat(groups, hasItems(a, ab));
+		assertThat(groups.size(), is(2));
+	}
+
 }

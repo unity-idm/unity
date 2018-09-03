@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -355,8 +356,9 @@ public class BaseFormEditor extends VerticalLayout
 	private class GroupEditorAndProvider extends ParameterEditor implements EditorProvider<GroupRegistrationParam>,
 			Editor<GroupRegistrationParam>
 	{
-		private GroupComboBox group;
-
+		private TextField group;
+		private CheckBox multiSelectable;
+		
 		@Override
 		public Editor<GroupRegistrationParam> getEditor()
 		{
@@ -368,12 +370,21 @@ public class BaseFormEditor extends VerticalLayout
 		@Override
 		public ComponentsContainer getEditorComponent(GroupRegistrationParam value, int index)
 		{
-			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramGroup"), groups);
-			group.setInput("/", false);
+			group = new TextField(msg.getMessage("RegistrationFormViewer.paramGroup"));
+			group.setDescription(msg.getMessage("RegistrationFormEditor.paramGroupDesc"));
+			multiSelectable = new CheckBox(msg.getMessage("RegistrationFormEditor.paramGroupMulti"));
+			main.add(group, multiSelectable);
+
 			if (value != null)
+			{
 				group.setValue(value.getGroupPath());
-			main.add(group);
-			initEditorComponent(value);
+				multiSelectable.setValue(value.isMultiSelect());
+			} else
+			{
+				group.setValue("/**");
+				multiSelectable.setValue(true);
+			}
+			initEditorComponent(value, Optional.of(msg.getMessage("RegistrationFormEditor.groupMembership")));
 			return main;
 		}
 
@@ -382,6 +393,8 @@ public class BaseFormEditor extends VerticalLayout
 		{
 			GroupRegistrationParam ret = new GroupRegistrationParam();
 			ret.setGroupPath(group.getValue());
+			ret.setMultiSelect(multiSelectable.getValue());
+			ret.setLabel(label.getValue());
 			fill(ret);
 			return ret;
 		}
@@ -454,7 +467,7 @@ public class BaseFormEditor extends VerticalLayout
 		protected EnumComboBox<ParameterRetrievalSettings> retrievalSettings;
 		protected ParameterRetrievalSettings fixedRetrievalSettings;
 
-		protected void initEditorComponent(RegistrationParam value)
+		protected void initEditorComponent(RegistrationParam value, Optional<String> defaultLabel)
 		{
 			label = new TextField(msg.getMessage("RegistrationFormViewer.paramLabel"));
 			description = new TextField(msg.getMessage("RegistrationFormViewer.paramDescription"));
@@ -464,9 +477,10 @@ public class BaseFormEditor extends VerticalLayout
 					ParameterRetrievalSettings.interactive);			
 			if (value != null)
 			{
-				if (value.getLabel() != null)
+				String labelStr = value.getLabel() != null ? value.getLabel() : defaultLabel.orElse(null);
+				if (labelStr != null)
 				{
-					label.setValue(value.getLabel());
+					label.setValue(labelStr);
 					main.add(label);
 				}
 				if (value.getDescription() != null)
@@ -475,6 +489,13 @@ public class BaseFormEditor extends VerticalLayout
 					main.add(description);
 				}
 				retrievalSettings.setValue(value.getRetrievalSettings());
+			} else
+			{
+				if (defaultLabel.isPresent())
+				{
+					label.setValue(defaultLabel.get());
+					main.add(label);
+				}
 			}
 
 			if (fixedRetrievalSettings != null)
@@ -507,7 +528,7 @@ public class BaseFormEditor extends VerticalLayout
 
 		protected void initEditorComponent(OptionalRegistrationParam value)
 		{
-			super.initEditorComponent(value);
+			super.initEditorComponent(value, Optional.empty());
 			optional = new CheckBox(msg.getMessage("RegistrationFormViewer.paramOptional"));
 			main.add(optional);
 			

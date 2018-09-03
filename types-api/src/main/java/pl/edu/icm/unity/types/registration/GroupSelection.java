@@ -28,9 +28,21 @@ public class GroupSelection
 		selectedGroups.add(group);
 	}
 	
+	public GroupSelection(List<String> groups)
+	{
+		selectedGroups.addAll(groups);
+	}
+	
 	public GroupSelection(String group, String externalIdp, String translationProfile)
 	{
 		selectedGroups.add(group);
+		this.externalIdp = externalIdp;
+		this.translationProfile = translationProfile;
+	}
+	
+	public GroupSelection(List<String> groups, String externalIdp, String translationProfile)
+	{
+		selectedGroups.addAll(groups);
 		this.externalIdp = externalIdp;
 		this.translationProfile = translationProfile;
 	}

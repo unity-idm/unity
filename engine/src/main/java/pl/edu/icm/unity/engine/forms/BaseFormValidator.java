@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
@@ -101,7 +102,9 @@ public class BaseFormValidator
 			Set<String> used = new HashSet<>();
 			for (GroupRegistrationParam group: form.getGroupParams())
 			{
-				groupDAO.get(group.getGroupPath());
+				if (!GroupPatternMatcher.isValidPattern(group.getGroupPath()))
+					throw new IllegalArgumentException(group.getGroupPath() +  
+							" is not a valid group wildcard: must start with '/'");
 				if (used.contains(group.getGroupPath()))
 					throw new IllegalArgumentException("Selectable group " + group.getGroupPath() + 
 							" was specified more then once.");

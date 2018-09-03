@@ -4,10 +4,17 @@
  */
 package pl.edu.icm.unity.engine.api.registration;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
+
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
+
+import pl.edu.icm.unity.types.basic.Group;
 
 public class TestGroupPatternMatcher
 {
@@ -47,5 +54,15 @@ public class TestGroupPatternMatcher
 	{
 		assertThat(GroupPatternMatcher.matches("/group/users", "/group/*/users"), is(false));
 		assertThat(GroupPatternMatcher.matches("/group", "/group/**"), is(true));
+	}
+	
+	@Test
+	public void shouldReturnFilteredByEnumeration()
+	{
+		List<Group> filtered = GroupPatternMatcher.filterMatching(Lists.newArrayList(new Group("/A"), new Group("/C"), new Group("/D")), 
+				Lists.newArrayList("/A", "/B"));
+		
+		assertThat(filtered, hasItems(new Group("/A")));
+		assertThat(filtered.size(), is(1));
 	}
 }

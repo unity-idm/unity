@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.util.AbstractMap;
+import java.util.List;
 import java.util.Map;
 
 import com.vaadin.ui.CustomComponent;
@@ -18,8 +19,8 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
@@ -50,7 +51,7 @@ public class InvitationViewer extends CustomComponent
 	private Label notificationsSent;
 	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
 	private VerticalLayout attributes;
-	private ListOfElements<Map.Entry<String, PrefilledEntry<Selection>>> groups;
+	private ListOfElements<Map.Entry<String, PrefilledEntry<GroupSelection>>> groups;
 
 	private SafePanel identitiesPanel;
 	private SafePanel attributesPanel;
@@ -107,11 +108,9 @@ public class InvitationViewer extends CustomComponent
 		attributesPanel = new SafePanel(msg.getMessage("InvitationViewer.attributes"), attributes);
 
 		groups = new ListOfElements<>(msg, entry -> {
-			String group = entry.getKey();
 			PrefilledEntryMode mode = entry.getValue().getMode();
-			boolean selected = entry.getValue().getEntry().isSelected();
-			String msgKey = selected ? "InvitationViewer.groupSelected" : "InvitationViewer.groupNotSelected";
-			return new Label("[" + mode.name() + "] " + msg.getMessage(msgKey, group));
+			List<String> selectedGroups = entry.getValue().getEntry().getSelectedGroups();
+			return new Label("[" + mode.name() + "] " + selectedGroups);
 		});
 		groups.setMargin(true);
 		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);

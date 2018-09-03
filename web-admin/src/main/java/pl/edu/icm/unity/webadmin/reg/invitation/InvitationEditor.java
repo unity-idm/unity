@@ -25,10 +25,11 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -58,20 +59,23 @@ public class InvitationEditor extends CustomComponent
 	
 	private TabSheet tabs;
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
-	private ListOfEmbeddedElements<PrefilledEntry<Selection>> presetGroups;
+	private ListOfEmbeddedElements<PrefilledEntry<GroupSelection>> presetGroups;
 	private ListOfEmbeddedElements<PrefilledEntry<Attribute>> presetAttributes;
+	private List<Group> allGroups;
 
 	
 	public InvitationEditor(UnityMessageSource msg, IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry, Map<String, MessageTemplate> msgTemplates, 
 			Collection<RegistrationForm> availableForms,
-			Map<String, AttributeType> attrTypes) throws WrongArgumentException
+			Map<String, AttributeType> attrTypes,
+			List<Group> allGroups) throws WrongArgumentException
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.attrTypes = attrTypes;
 		this.msgTemplates = msgTemplates;
+		this.allGroups = allGroups;
 		initUI(availableForms);
 	}
 
@@ -147,7 +151,7 @@ public class InvitationEditor extends CustomComponent
 		int groupParamsNum = form.getGroupParams() == null ? 0 : form.getGroupParams().size();
 		presetGroups = new ListOfEmbeddedElements<>(msg, () ->
 		{
-			return new PresetMembershipEditor(msg, form.getGroupParams());
+			return new PresetMembershipEditor(msg, allGroups, form.getGroupParams());
 		}, groupParamsNum, groupParamsNum, true);
 		presetGroups.setCaption(msg.getMessage("InvitationEditor.groups"));
 		if (groupParamsNum > 0)
