@@ -50,6 +50,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
  * 
  * @author K. Benedyczak
  */
+@Deprecated
 @PrototypeComponent
 class StandaloneSignupWithAutoRegistrationView extends CustomComponent implements View
 {

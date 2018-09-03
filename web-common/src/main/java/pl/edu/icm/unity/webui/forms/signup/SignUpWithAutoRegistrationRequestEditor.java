@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -61,6 +62,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
  * registration code is collected appropriately.
  * @author K. Benedyczak
  */
+@Deprecated
 class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SignUpWithAutoRegistrationRequestEditor.class);
@@ -171,8 +173,9 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 		if (!form.getExternalSignupSpec().isEnabled())
 			return;
 
-		Set<String> specs = form.getExternalSignupSpec().getSpecs();
-		List<AuthenticationFlow> flows = authenticatorSupport.resolveAndGetAuthenticationFlows(Lists.newArrayList(specs));
+		Set<AuthenticationOptionKey> specs = form.getExternalSignupSpec().getSpecs();
+//		List<AuthenticationFlow> flows = authenticatorSupport.resolveAndGetAuthenticationFlows(Lists.newArrayList(specs));
+		List<AuthenticationFlow> flows = Lists.newArrayList();
 		
 		AuthenticationOptionsHandler authnOptionsHandler = new AuthenticationOptionsHandler(flows, "registration");
 		
@@ -181,9 +184,9 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 		// TODO: width should be configurable
 		authenticationMainLayout.setWidth(VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH, Unit.EM);
 		
-		for (String spec : specs)
+		for (AuthenticationOptionKey spec : specs)
 		{
-			List<AuthNOption> options = authnOptionsHandler.getMatchingAuthnOptions(spec);
+			List<AuthNOption> options = authnOptionsHandler.getMatchingAuthnOptions(spec.toGlobalKey());
 			for (AuthNOption option : options)
 			{
 				option.authenticatorUI.setAuthenticationCallback(signUpAuthNCtrl.buildCallback(option));

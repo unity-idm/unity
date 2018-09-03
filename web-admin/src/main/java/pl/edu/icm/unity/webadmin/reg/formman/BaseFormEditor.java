@@ -198,8 +198,10 @@ public class BaseFormEditor extends VerticalLayout
 			identityEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		identityParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.identityParams"),
 				msg, identityEditorAndProvider, 0, 20, true);
+		identityParams.addStyleName(Styles.captionBold.toString());
 		credentialParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.credentialParams"),
 				msg, new CredentialEditorAndProvider(), 0, 20, true);
+		credentialParams.addStyleName(Styles.captionBold.toString());
 		
 		HorizontalLayout localSignUpLayout = new HorizontalLayout();
 		localSignUpLayout.setSizeFull();

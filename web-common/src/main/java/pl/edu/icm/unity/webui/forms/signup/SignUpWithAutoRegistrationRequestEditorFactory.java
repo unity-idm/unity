@@ -21,6 +21,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
+@Deprecated
 @PrototypeComponent
 public class SignUpWithAutoRegistrationRequestEditorFactory
 {

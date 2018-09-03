@@ -10,7 +10,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
@@ -27,7 +26,7 @@ import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
  * Provides access to public registration forms via well-known links
  * @author K. Benedyczak
  */
-@Component
+@Deprecated
 public class PublicSignUpWithAutoRegistrationURLProvider implements PublicViewProvider
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB,

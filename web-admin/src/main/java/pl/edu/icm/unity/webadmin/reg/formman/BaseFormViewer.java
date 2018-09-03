@@ -56,6 +56,8 @@ public class BaseFormViewer extends VerticalLayout
 	private Panel identityParamsP;
 
 	private Panel agreementsP;
+
+	private SafePanel localSignUpMethodsP;
 	
 	public BaseFormViewer(UnityMessageSource msg)
 	{
@@ -98,6 +100,7 @@ public class BaseFormViewer extends VerticalLayout
 		attributeParamsP.setVisible(!form.getAttributeParams().isEmpty());
 		groupParamsP.setVisible(!form.getGroupParams().isEmpty());
 		credentialParamsP.setVisible(!form.getCredentialParams().isEmpty());
+		localSignUpMethodsP.setVisible(identityParamsP.isVisible() || credentialParamsP.isVisible());
 		
 		setSpacing(false);
 		setMargin(false);
@@ -140,6 +143,45 @@ public class BaseFormViewer extends VerticalLayout
 		wrapper.setSpacing(true);
 		wrapper.setMargin(false);
 
+		identityParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<IdentityRegistrationParam>()
+		{
+			@Override
+			public Label toLabel(IdentityRegistrationParam value)
+			{
+				String content = msg.getMessage("RegistrationFormViewer.identityType", 
+						value.getIdentityType());
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", content, toHTMLLabel(value));
+				return ret;
+			}
+		});
+		identityParams.setMargin(true);
+		identityParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
+		identityParamsP.setWidth(100, Unit.PERCENTAGE);
+		
+		credentialParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<CredentialRegistrationParam>()
+		{
+			@Override
+			public Label toLabel(CredentialRegistrationParam value)
+			{
+				HtmlLabel ret = new HtmlLabel(msg);
+				ret.setHtmlValue("RegistrationFormViewer.twoLines", value.getCredentialName(), 
+						"[" + emptyNull(value.getLabel()) +  "] ["+
+								emptyNull(value.getDescription()) + "]");
+				return ret;
+			}
+		});
+		credentialParams.setMargin(true);
+		credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
+				credentialParams);
+		credentialParamsP.setWidth(100, Unit.PERCENTAGE);
+		
+		VerticalLayout localSignUpMethods = new VerticalLayout();
+		localSignUpMethods.setWidth(100, Unit.PERCENTAGE);
+		localSignUpMethods.addComponents(identityParamsP, credentialParamsP);
+		localSignUpMethodsP = new SafePanel(msg.getMessage("RegistrationFormEditor.localSignupMethods"), localSignUpMethods);
+		localSignUpMethodsP.setWidth(100, Unit.PERCENTAGE);
+		
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AgreementRegistrationParam>()
 		{
 			@Override
@@ -156,21 +198,6 @@ public class BaseFormViewer extends VerticalLayout
 		});
 		agreements.setMargin(true);
 		agreementsP = new SafePanel(msg.getMessage("RegistrationFormViewer.agreements"), agreements);
-
-		identityParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<IdentityRegistrationParam>()
-		{
-			@Override
-			public Label toLabel(IdentityRegistrationParam value)
-			{
-				String content = msg.getMessage("RegistrationFormViewer.identityType", 
-						value.getIdentityType());
-				HtmlLabel ret = new HtmlLabel(msg);
-				ret.setHtmlValue("RegistrationFormViewer.twoLines", content, toHTMLLabel(value));
-				return ret;
-			}
-		});
-		identityParams.setMargin(true);
-		identityParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.identityParams"), identityParams);
 		
 		attributeParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<AttributeRegistrationParam>()
 		{
@@ -205,23 +232,7 @@ public class BaseFormViewer extends VerticalLayout
 		groupParams.setMargin(true);
 		groupParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.groupParams"), groupParams);
 		
-		credentialParams = new ListOfElements<>(msg, new ListOfElements.LabelConverter<CredentialRegistrationParam>()
-		{
-			@Override
-			public Label toLabel(CredentialRegistrationParam value)
-			{
-				HtmlLabel ret = new HtmlLabel(msg);
-				ret.setHtmlValue("RegistrationFormViewer.twoLines", value.getCredentialName(), 
-						"[" + emptyNull(value.getLabel()) +  "] ["+
-								emptyNull(value.getDescription()) + "]");
-				return ret;
-			}
-		});
-		credentialParams.setMargin(true);
-		credentialParamsP = new SafePanel(msg.getMessage("RegistrationFormViewer.credentialParams"), 
-				credentialParams);
-		
-		wrapper.addComponents(identityParamsP, credentialParamsP, attributeParamsP, groupParamsP, agreementsP);
+		wrapper.addComponents(localSignUpMethodsP, attributeParamsP, groupParamsP, agreementsP);
 		return wrapper;
 	}
 	

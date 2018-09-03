@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.types.registration;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -13,7 +14,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
  * Configures the external sign up process during registration.
@@ -22,11 +25,13 @@ import pl.edu.icm.unity.exceptions.InternalException;
  */
 public class ExternalSignupSpec
 {
-	private Set<String> specs;
+	private Set<AuthenticationOptionKey> specs;
+	private String userExistsRedirectUrl;
 
-	ExternalSignupSpec(Set<String> specs)
+	ExternalSignupSpec(Set<AuthenticationOptionKey> specs, String userExistsRedirectUrl)
 	{
 		this.specs = specs;
+		this.userExistsRedirectUrl = userExistsRedirectUrl;
 	}
 
 	ExternalSignupSpec()
@@ -44,12 +49,17 @@ public class ExternalSignupSpec
 	{
 		try
 		{
-			ArrayNode specsNode = (ArrayNode) root.get("specs");
-			specs = new HashSet<>(specsNode.size());
-			for (int i = 0; i < specsNode.size(); i++)
+			if (JsonUtil.notNull(root, "specs"))
 			{
-				specs.add(specsNode.get(i).asText());
+				ArrayNode specsNode = (ArrayNode) root.get("specs");
+				specs = new HashSet<>(specsNode.size());
+				for (int i = 0; i < specsNode.size(); i++)
+				{
+					specs.add(new AuthenticationOptionKey((ObjectNode) specsNode.get(i)));
+				}
 			}
+			if (JsonUtil.notNull(root, "userExistsRedirectUrl"))
+				userExistsRedirectUrl = root.get("userExistsRedirectUrl").asText();
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize authentication flows spec from JSON", e);
@@ -61,71 +71,77 @@ public class ExternalSignupSpec
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
 		ArrayNode jsonSpecs = root.putArray("specs");
-		specs.forEach(spec -> jsonSpecs.add(spec));
+		specs.forEach(spec -> jsonSpecs.add(spec.toJsonObject()));
+		root.put("userExistsRedirectUrl", userExistsRedirectUrl);
 		return root;
 	}
-
-	public Set<String> getSpecs()
+	
+	public Set<AuthenticationOptionKey> getSpecs()
 	{
 		return specs;
 	}
 
-	public void setSpecs(Set<String> specs)
+	public void setSpecs(Set<AuthenticationOptionKey> specs)
 	{
 		this.specs = specs;
 	}
 	
+	public String getUserExistsRedirectUrl()
+	{
+		return userExistsRedirectUrl;
+	}
+
+	public void setUserExistsRedirectUrl(String userExistsRedirectUrl)
+	{
+		this.userExistsRedirectUrl = userExistsRedirectUrl;
+	}
+
 	public boolean isEnabled()
 	{
 		return !specs.isEmpty();
 	}
 
 	@Override
-	public int hashCode()
+	public boolean equals(final Object other)
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((specs == null) ? 0 : specs.hashCode());
-		return result;
+		if (!(other instanceof ExternalSignupSpec))
+			return false;
+		ExternalSignupSpec castOther = (ExternalSignupSpec) other;
+		return Objects.equals(specs, castOther.specs)
+				&& Objects.equals(userExistsRedirectUrl, castOther.userExistsRedirectUrl);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ExternalSignupSpec other = (ExternalSignupSpec) obj;
-		if (specs == null)
-		{
-			if (other.specs != null)
-				return false;
-		} else if (!specs.equals(other.specs))
-			return false;
-		return true;
+		return Objects.hash(specs, userExistsRedirectUrl);
 	}
 
-	public static AuthenticationFlowsSpecBuilder builder()
+	public static ExternalSignupSpecBuilder builder()
 	{
-		return new AuthenticationFlowsSpecBuilder();
+		return new ExternalSignupSpecBuilder();
 	}
 
-	public static class AuthenticationFlowsSpecBuilder
+	public static class ExternalSignupSpecBuilder
 	{
-		private Set<String> specs = new HashSet<>();
+		private Set<AuthenticationOptionKey> specs = new HashSet<>();
+		private String userExistsRedirectUrl;
 
-		public AuthenticationFlowsSpecBuilder withSpecs(Set<String> specs)
+		public ExternalSignupSpecBuilder withSpecs(Set<AuthenticationOptionKey> specs)
 		{
 			this.specs = new HashSet<>(specs);
+			return this;
+		}
+		
+		public ExternalSignupSpecBuilder withUserExistsRedirectUrl(String userExistsRedirectUrl)
+		{
+			this.userExistsRedirectUrl = userExistsRedirectUrl;
 			return this;
 		}
 
 		public ExternalSignupSpec build()
 		{
-			return new ExternalSignupSpec(specs);
+			return new ExternalSignupSpec(specs, userExistsRedirectUrl);
 		}
 	}
 }

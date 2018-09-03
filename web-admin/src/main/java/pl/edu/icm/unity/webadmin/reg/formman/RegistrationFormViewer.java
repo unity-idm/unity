@@ -4,8 +4,12 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
+
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
@@ -17,11 +21,14 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Read only UI displaying a {@link RegistrationForm}.
@@ -46,6 +53,9 @@ public class RegistrationFormViewer extends BaseFormViewer
 	private RegistrationTranslationProfileViewer translationProfile;
 	private SharedEndpointManagement sharedEndpointMan;
 	private RegistrationActionsRegistry registrationActionsRegistry;
+	private Label remoteAuthnSelections;
+	private Label userExistsRedirectUrl;
+	private SafePanel remoteSignupMethodsP;
 	
 	@Autowired
 	public RegistrationFormViewer(UnityMessageSource msg, RegistrationActionsRegistry registrationActionsRegistry,
@@ -94,8 +104,35 @@ public class RegistrationFormViewer extends BaseFormViewer
 				ProfileType.REGISTRATION,
 				form.getTranslationProfile().getRules());
 		translationProfile.setInput(tProfile, registrationActionsRegistry);
+		
+		setRemoteSignupMethods(form.getExternalSignupSpec());
 	}
 	
+	private void setRemoteSignupMethods(ExternalSignupSpec externalSignupSpec)
+	{
+		String redirectUrl = externalSignupSpec.getUserExistsRedirectUrl();
+		if (StringUtils.isEmpty(redirectUrl))
+		{
+			userExistsRedirectUrl.setValue(msg.getMessage("MessageTemplateViewer.notSet"));
+		} else
+		{
+			userExistsRedirectUrl.setValue(redirectUrl);
+		}
+		
+		if (externalSignupSpec.isEnabled())
+		{
+			String selected = externalSignupSpec.getSpecs().stream()
+					.map(AuthenticationOptionKey::toGlobalKey)
+					.collect(Collectors.joining(", "));
+			remoteAuthnSelections.setValue(selected);
+		} else
+		{
+			remoteAuthnSelections.setValue(msg.getMessage("MessageTemplateViewer.notSet"));
+		}
+		
+		remoteSignupMethodsP.setVisible(externalSignupSpec.isEnabled());
+	}
+
 	private void initUI()
 	{
 		tabs = new TabSheet();
@@ -120,9 +157,29 @@ public class RegistrationFormViewer extends BaseFormViewer
 		registrationCode.setCaption(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		
 		main.addComponents(displayedName, formInformation, registrationCode, collectComments);
+		main.addComponent(getRemoteSignupMethodsInformation());
 		main.addComponent(getCollectedDataInformation());
 	}
 	
+	private Component getRemoteSignupMethodsInformation()
+	{
+		remoteAuthnSelections = new Label();
+		remoteAuthnSelections.setCaption(msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"));
+		userExistsRedirectUrl = new Label();
+		userExistsRedirectUrl.setCaption(msg.getMessage("RegistrationFormViewer.userExistsRedirectUrl"));
+		
+		FormLayout main = new FormLayout();
+		main.addComponents(remoteAuthnSelections, userExistsRedirectUrl);
+		main.setMargin(false);
+		main.setSpacing(false);
+		
+		VerticalLayout wrapper = new VerticalLayout(main);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+		remoteSignupMethodsP = new SafePanel(msg.getMessage("RegistrationFormEditor.remoteSignupMethods"), wrapper);
+		return remoteSignupMethodsP;
+	}
+
 	private void initAssignedTab()
 	{
 		FormLayout main = new CompactFormLayout();
