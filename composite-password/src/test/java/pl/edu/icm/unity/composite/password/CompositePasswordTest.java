@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
@@ -91,12 +89,8 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 		httpServer.start();
 
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential(
-				"src/test/resources/demoKeystore.p12", "the!uvos".toCharArray(),
-				"the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator(
-				"src/test/resources/demoTruststore.jks", "unicore".toCharArray(),
-				"JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 		clientCfg.setSslAuthn(false);
 

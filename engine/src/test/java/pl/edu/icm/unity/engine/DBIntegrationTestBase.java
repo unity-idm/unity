@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine;
 
+import java.io.IOException;
+import java.security.KeyStoreException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -16,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
+import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
@@ -48,6 +52,9 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
  */
 public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 {
+	public static final String DEMO_KS_PASS = "the!unity";
+	public static final String DEMO_KS_ALIAS = "unity-test-server";
+	public static final String DEMO_SERVER_DN = "CN=Unity Test Server,O=Unity,L=Warsaw,C=EU";
 	public static final String CRED_REQ_PASS = "cr-pass";
 	public static final String DEF_USER = "mockuser1";
 	public static final String DEF_PASSWORD = "mock~!)(@*#&$^%:?,'.\\|";
@@ -65,6 +72,18 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	{
 		InvocationContext.setCurrent(null);
 	}	
+	
+	public static KeystoreCredential getDemoCredential() throws KeyStoreException, IOException
+	{
+		return new KeystoreCredential("src/test/resources/pki/demoKeystore.p12", 
+				DEMO_KS_PASS.toCharArray(), DEMO_KS_PASS.toCharArray(), DEMO_KS_ALIAS, "PKCS12");
+	}
+	
+	public static KeystoreCertChainValidator getDemoValidator() throws KeyStoreException, IOException
+	{
+		return new KeystoreCertChainValidator("src/test/resources/pki/demoTruststore.jks", 
+				DEMO_KS_PASS.toCharArray(), "JKS", -1);
+	}
 	
 	protected long setupUserContext(String user, String outdatedCred) throws Exception
 	{
@@ -138,7 +157,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	{
 		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, DEMO_SERVER_DN), 
 				new EntityParam(added2), false);
 		if (role != null)
 		{

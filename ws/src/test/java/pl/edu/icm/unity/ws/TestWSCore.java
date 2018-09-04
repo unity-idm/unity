@@ -17,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
@@ -69,10 +67,8 @@ public class TestWSCore extends DBIntegrationTestBase
 		httpServer.start();
 		
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 
 		clientCfg.setHttpUser(DEF_USER);
@@ -150,10 +146,8 @@ public class TestWSCore extends DBIntegrationTestBase
 		httpServer.start();
 		
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 		clientCfg.setHttpUser(DEF_USER);
 		clientCfg.setHttpPassword(DEF_PASSWORD);
@@ -205,10 +199,8 @@ public class TestWSCore extends DBIntegrationTestBase
 		
 		
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 
 		clientCfg.setHttpUser(DEF_USER);
@@ -240,7 +232,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
 
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
@@ -249,7 +241,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
 
 		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
@@ -274,7 +266,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU, user2]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEMO_SERVER_DN + ", user2]", ret.getNameID().getStringValue());
 
 		try
 		{
