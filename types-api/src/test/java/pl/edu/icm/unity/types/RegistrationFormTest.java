@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -14,11 +16,15 @@ import org.mockito.Mockito;
 
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
+import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -46,9 +52,44 @@ public class RegistrationFormTest
 	@Test
 	public void completeFormSerializationIsIdempotent()
 	{
+		RegistrationForm complete = getRegistrationForm();
+		MessageSource msg = Mockito.mock(MessageSource.class);
+		
+		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
+		layouts.setPrimaryLayout(complete.getDefaultPrimaryFormLayout(msg));
+		layouts.setSecondaryLayout(complete.getDefaultSecondaryFormLayout(msg));
+		complete.setFormLayouts(layouts);
+		
+		String jsonStr = JsonUtil.toJsonString(complete);
+		System.err.println(jsonStr);
+		RegistrationForm completeParsed = JsonUtil.parse(jsonStr, RegistrationForm.class);
+
+		assertThat(completeParsed, is(complete));
+	}
+	
+	@Test
+	public void shouldValidateLayoutWhenLocalSignupEmbeddedAsButton()
+	{
+		RegistrationForm complete = getRegistrationForm();
+		MessageSource msg = Mockito.mock(MessageSource.class);
+		
+		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
+		layouts.setLocalSignupEmbeddedAsButton(true);
+		complete.setFormLayouts(layouts);
+		layouts.setPrimaryLayout(complete.getDefaultPrimaryFormLayout(msg));
+		layouts.setSecondaryLayout(complete.getDefaultSecondaryFormLayout(msg));
+		
+		layouts.validate(complete);
+		
+		Throwable exception = catchThrowable(() -> layouts.validate(complete));
+		assertThat(exception).isNull();
+	}
+	
+	private RegistrationForm getRegistrationForm()
+	{
 		TranslationProfile profile = new TranslationProfile(
 				"regProf", "desc", ProfileType.REGISTRATION, new ArrayList<>());
-		RegistrationForm complete = new RegistrationFormBuilder()
+		return new RegistrationFormBuilder()
 			.withName("exForm")
 			.withDefaultCredentialRequirement("credReq")
 			.withAddedAgreement(new AgreementRegistrationParam(new I18nString("agreement"), false))
@@ -78,13 +119,15 @@ public class RegistrationFormTest
 			.endNotificationsConfiguration()
 			.withTranslationProfile(profile)
 			.withRegistrationCode("code")
+			.withExternalSignupSpec(ExternalSignupSpec.builder()
+					.withSpecs(AuthenticationOptionKey.valueOf("asdf.asdf"), AuthenticationOptionKey.valueOf("asdf1.asdf2"))
+					.withUserExistsRedirectUrl("http://asdf.asdf")
+					.build())
+			.withFormLayoutSettings(FormLayoutSettings.builder()
+					.withColumnWidth(200)
+					.withColumnWidthUnit("EM")
+					.withCompactInputs(true)
+					.build())
 			.build();
-		MessageSource msg = Mockito.mock(MessageSource.class);
-		complete.setLayout(complete.getDefaultFormLayout(msg));
-		
-		String jsonStr = JsonUtil.toJsonString(complete);
-		RegistrationForm completeParsed = JsonUtil.parse(jsonStr, RegistrationForm.class);
-
-		assertThat(completeParsed, is(complete));
 	}
 }

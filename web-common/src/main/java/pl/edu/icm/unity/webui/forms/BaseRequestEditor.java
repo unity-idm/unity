@@ -435,7 +435,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		return mainFormLayout;
 	}
 	
-	protected void createControls(AbstractOrderedLayout layout, InvitationWithCode invitation) 
+	protected void createControls(AbstractOrderedLayout layout, FormLayout formLayout, InvitationWithCode invitation) 
 			throws EngineException
 	{
 		identityParamEditors = new HashMap<>();
@@ -450,7 +450,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			credentials.put(credential.getName(), credential);
 		
 		FormElement previousInserted = null;
-		for (FormElement element : form.getEffectiveFormLayout(msg).getElements())
+		for (FormElement element : formLayout.getElements())
 		{
 			if (createControlFor(layout, element, previousInserted, invitation))
 				previousInserted = element;
@@ -462,34 +462,35 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		switch (element.getType())
 		{
-		case FormLayout.IDENTITY:
+		case IDENTITY:
 			return createIdentityControl(layout, (FormParameterElement) element, 
 					invitation != null ? invitation.getIdentities() : new HashMap<>());
 			
-		case FormLayout.ATTRIBUTE:
+		case ATTRIBUTE:
 			return createAttributeControl(layout, (FormParameterElement) element, 
 					invitation != null ? invitation.getAttributes() : new HashMap<>());
 			
-		case FormLayout.GROUP:
+		case GROUP:
 			return createGroupControl(layout, (FormParameterElement) element, 
 					invitation != null ? invitation.getGroupSelections() : new HashMap<>());
 			
-		case FormLayout.CAPTION:
+		case CAPTION:
 			return createLabelControl(layout, previousInserted, (FormCaptionElement) element);
 			
-		case FormLayout.SEPARATOR:
+		case SEPARATOR:
 			return createSeparatorControl(layout, (FormSeparatorElement) element);
 			
-		case FormLayout.AGREEMENT:
+		case AGREEMENT:
 			return createAgreementControl(layout, (FormParameterElement) element);
 			
-		case FormLayout.COMMENTS:
+		case COMMENTS:
 			return createCommentsControl(layout, (BasicFormElement) element);
 			
-		case FormLayout.CREDENTIAL:
+		case CREDENTIAL:
 			return createCredentialControl(layout, (FormParameterElement) element);
+		default:
+			log.error("Unsupported form element, skipping: " + element);
 		}
-		log.error("Unsupported form element, skipping: " + element);
 		return false;
 	}
 	

@@ -4,16 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.types.registration.layout.FormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -21,6 +13,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
 
 /**
  * Configuration of an enquiry form. Enquiry form is used to retrieve information
@@ -36,6 +34,7 @@ public class EnquiryForm extends BaseForm
 	private EnquiryType type;
 	private String[] targetGroups;
 	private EnquiryFormNotifications notificationsConfiguration = new EnquiryFormNotifications();
+	private FormLayout layout;
 	
 	@JsonCreator
 	public EnquiryForm(ObjectNode json)
@@ -43,7 +42,7 @@ public class EnquiryForm extends BaseForm
 		super(json);
 		fromJson(json);
 		if (getLayout() != null)
-			validateLayout();
+			FormLayoutUtils.validateLayout(getLayout(), this);
 	}
 	
 	public EnquiryForm()
@@ -57,6 +56,7 @@ public class EnquiryForm extends BaseForm
 		return "EnquiryForm [name=" + name + "]";
 	}
 
+	@Override
 	@JsonValue
 	public ObjectNode toJson()
 	{
@@ -67,6 +67,8 @@ public class EnquiryForm extends BaseForm
 		for (String targetGroup: targetGroups)
 			targetGroupsA.add(targetGroup);
 		root.set("NotificationsConfiguration", jsonMapper.valueToTree(getNotificationsConfiguration()));
+		if (layout != null)
+			root.set("FormLayout", getLayout().toJson());
 		return root;
 	}
 
@@ -89,6 +91,12 @@ public class EnquiryForm extends BaseForm
 				String v = jsonMapper.writeValueAsString(n);
 				EnquiryFormNotifications r = jsonMapper.readValue(v, EnquiryFormNotifications.class);
 				setNotificationsConfiguration(r);
+			}
+			
+			n = root.get("FormLayout");
+			if (n != null)
+			{
+				setLayout(new FormLayout((ObjectNode) root.get("FormLayout")));
 			}
 		} catch (Exception e)
 		{
@@ -127,24 +135,27 @@ public class EnquiryForm extends BaseForm
 	{
 		this.targetGroups = targetGroups;
 	}
+	
+	public FormLayout getLayout()
+	{
+		return layout;
+	}
 
-	@Override
+	public void setLayout(FormLayout layout)
+	{
+		this.layout = layout;
+	}
+
+	public FormLayout getEffectiveFormLayout(MessageSource msg)
+	{
+		if (layout == null)
+			return getDefaultFormLayout(msg);
+		return layout;
+	}
+	
 	public FormLayout getDefaultFormLayout(MessageSource msg)
 	{
-		List<FormElement> elements = new ArrayList<FormElement>();
-		elements.addAll(getDefaultParametersLayout(FormLayout.IDENTITY, getIdentityParams(), msg, 
-				"RegistrationRequest.identities", "RegistrationRequest.externalIdentities"));
-		elements.addAll(getDefaultBasicParamsLayout(FormLayout.CREDENTIAL, getCredentialParams(), msg, 
-				"RegistrationRequest.credentials", true));
-		elements.addAll(getDefaultParametersLayout(FormLayout.ATTRIBUTE, getAttributeParams(), msg, 
-				"RegistrationRequest.attributes", "RegistrationRequest.externalAttributes"));
-		elements.addAll(getDefaultParametersLayout(FormLayout.GROUP, getGroupParams(), msg, 
-				"RegistrationRequest.groups", "RegistrationRequest.externalGroups"));
-		if (isCollectComments())
-			elements.add(new BasicFormElement(FormLayout.COMMENTS));
-		elements.addAll(getDefaultBasicParamsLayout(FormLayout.AGREEMENT, getAgreements(), msg, 
-				"RegistrationRequest.agreements", true));
-		
+		List<FormElement> elements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
 		return new FormLayout(elements);
 	}
 	
@@ -156,41 +167,25 @@ public class EnquiryForm extends BaseForm
 		if (targetGroups == null)
 			throw new IllegalStateException("Enquiry target groups can not be null");
 	}
-	
+
 	@Override
-	public int hashCode()
+	public boolean equals(final Object other)
 	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime
-				* result
-				+ ((notificationsConfiguration == null) ? 0
-						: notificationsConfiguration.hashCode());
-		result = prime * result + Arrays.hashCode(targetGroups);
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
+		if (this == other)
+			return true;
+		if (!(other instanceof EnquiryForm))
+			return false;
+		if (!super.equals(other))
+			return false;
+		EnquiryForm castOther = (EnquiryForm) other;
+		return Objects.equals(type, castOther.type) && Objects.equals(targetGroups, castOther.targetGroups)
+				&& Objects.equals(notificationsConfiguration, castOther.notificationsConfiguration)
+				&& Objects.equals(layout, castOther.layout);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EnquiryForm other = (EnquiryForm) obj;
-		if (notificationsConfiguration == null)
-		{
-			if (other.notificationsConfiguration != null)
-				return false;
-		} else if (!notificationsConfiguration.equals(other.notificationsConfiguration))
-			return false;
-		if (!Arrays.equals(targetGroups, other.targetGroups))
-			return false;
-		if (type != other.type)
-			return false;
-		return true;
+		return Objects.hash(super.hashCode(), type, targetGroups, notificationsConfiguration, layout);
 	}
 }

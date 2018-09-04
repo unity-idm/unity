@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.signup;
 
-import java.util.Iterator;
-
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,8 +33,6 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.layout.FormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -308,13 +304,13 @@ class StandaloneSignupWithAutoRegistrationView extends CustomComponent implement
 		 *  TODO: here more flexible mechanism of controlling the second registration form layout
 		 *  is required.
 		 */
-		Iterator<FormElement> formLayoutIter = formWithDisabledFlows.getLayout().getElements().iterator();
-		while (formLayoutIter.hasNext())
-		{
-			FormElement element = formLayoutIter.next();
-			if (FormLayout.CREDENTIAL.equals(element.getType()))
-				formLayoutIter.remove();
-		}
+//		Iterator<FormElement> formLayoutIter = formWithDisabledFlows.getLayout().getElements().iterator();
+//		while (formLayoutIter.hasNext())
+//		{
+//			FormElement element = formLayoutIter.next();
+//			if (FormLayout.CREDENTIAL.equals(element.getType()))
+//				formLayoutIter.remove();
+//		}
 		
 		initUIBase();
 		

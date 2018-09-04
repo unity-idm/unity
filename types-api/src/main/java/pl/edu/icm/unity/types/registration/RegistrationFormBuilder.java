@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 /**
  * Builder of {@link RegistrationForm}
@@ -73,6 +74,20 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 	{
 		instance.setCaptchaLength(aValue);
 
+		return this;
+	}
+	
+	public RegistrationFormBuilder withExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
+	{
+		instance.setExternalSignupSpec(externalSignupSpec);
+		
+		return this;
+	}
+	
+	public RegistrationFormBuilder withFormLayoutSettings(FormLayoutSettings settings)
+	{
+		instance.setLayoutSettings(settings);
+		
 		return this;
 	}
 

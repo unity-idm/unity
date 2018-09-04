@@ -134,7 +134,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		
 		setupInvitationByCode();
 		
-		createControls(mainFormLayout, invitation);
+		createControls(mainFormLayout, form.getEffectivePrimaryFormLayout(msg), invitation);
 	}
 	
 	@Override
@@ -143,9 +143,9 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		switch (element.getType())
 		{
-		case RegistrationForm.CAPTCHA:
+		case CAPTCHA:
 			return createCaptchaControl(layout, (BasicFormElement) element);
-		case RegistrationForm.REG_CODE:
+		case REG_CODE:
 			return createRegistrationCodeControl(layout, (BasicFormElement) element);
 		default:
 			return super.createControlFor(layout, element, previousAdded, invitation);

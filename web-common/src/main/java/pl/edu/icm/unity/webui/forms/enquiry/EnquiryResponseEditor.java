@@ -26,6 +26,8 @@ import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
  */
 public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 {
+	private EnquiryForm enquiryForm;
+	
 	public EnquiryResponseEditor(UnityMessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
 			IdentityEditorRegistry identityEditorRegistry,
@@ -36,6 +38,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan);
+		this.enquiryForm = form;
 		initUI();
 	}
 	
@@ -57,7 +60,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	{
 		FormLayout mainFormLayout = createMainFormLayout();
 		
-		createControls(mainFormLayout, null);
+		createControls(mainFormLayout, enquiryForm.getEffectiveFormLayout(msg), null);
 	}
 }
 

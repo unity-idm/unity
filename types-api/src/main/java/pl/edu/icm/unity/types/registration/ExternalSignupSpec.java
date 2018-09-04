@@ -133,6 +133,14 @@ public class ExternalSignupSpec
 			return this;
 		}
 		
+		public ExternalSignupSpecBuilder withSpecs(AuthenticationOptionKey... specs)
+		{
+			this.specs = new HashSet<>();
+			for (AuthenticationOptionKey spec : specs)
+				this.specs.add(spec);
+			return this;
+		}
+		
 		public ExternalSignupSpecBuilder withUserExistsRedirectUrl(String userExistsRedirectUrl)
 		{
 			this.userExistsRedirectUrl = userExistsRedirectUrl;

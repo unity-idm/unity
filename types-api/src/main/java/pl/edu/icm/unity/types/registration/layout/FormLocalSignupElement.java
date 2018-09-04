@@ -16,23 +16,22 @@ import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
 
 /**
- * represents a fixed section caption
- * @author Krzysztof Benedyczak
+ * represents a fixed button with custom caption
  */
-public class FormCaptionElement extends FormElement
+public class FormLocalSignupElement extends FormElement
 {
 	private I18nString value;
 
-	public FormCaptionElement(I18nString value)
+	public FormLocalSignupElement(I18nString value)
 	{
-		super(FormLayoutType.CAPTION, false);
+		super(FormLayoutType.LOCAL_SIGNUP, true);
 		this.value = value;	
 	}
 	
 	@JsonCreator
-	private FormCaptionElement()
+	private FormLocalSignupElement()
 	{
-		super(FormLayoutType.CAPTION, false);
+		super(FormLayoutType.LOCAL_SIGNUP, true);
 	}
 	
 	public I18nString getValue()
@@ -43,13 +42,13 @@ public class FormCaptionElement extends FormElement
 	@Override
 	public String toString(MessageSource msg)
 	{
-		return "Caption '" + value.getValue(msg) + "'";
+		return "Local Signup button '" + value.getValue(msg) + "'";
 	}
 	
 	@Override
 	public String toString()
 	{
-		return "Caption '" + value + "'";
+		return "Local Signup button '" + value + "'";
 	}
 
 	@Override
@@ -57,11 +56,11 @@ public class FormCaptionElement extends FormElement
 	{
 		if (this == other)
 			return true;
-		if (!(other instanceof FormCaptionElement))
+		if (!(other instanceof FormLocalSignupElement))
 			return false;
 		if (!super.equals(other))
 			return false;
-		FormCaptionElement castOther = (FormCaptionElement) other;
+		FormLocalSignupElement castOther = (FormLocalSignupElement) other;
 		return Objects.equals(value, castOther.value);
 	}
 

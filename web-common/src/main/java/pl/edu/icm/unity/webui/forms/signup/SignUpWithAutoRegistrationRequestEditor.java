@@ -165,7 +165,7 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 		
 		createRemoteAuthnControls(mainFormLayout);
 		
-		createControls(mainFormLayout, invitation);
+		createControls(mainFormLayout, form.getEffectivePrimaryFormLayout(msg), invitation);
 	}
 	
 	private void createRemoteAuthnControls(FormLayout mainFormLayout) throws EngineException
@@ -205,9 +205,9 @@ class SignUpWithAutoRegistrationRequestEditor extends BaseRequestEditor<Registra
 	{
 		switch (element.getType())
 		{
-		case RegistrationForm.CAPTCHA:
+		case CAPTCHA:
 			return createCaptchaControl(layout, (BasicFormElement) element);
-		case RegistrationForm.REG_CODE:
+		case REG_CODE:
 			return createRegistrationCodeControl(layout, (BasicFormElement) element);
 		default:
 			return super.createControlFor(layout, element, previousAdded, invitation);
