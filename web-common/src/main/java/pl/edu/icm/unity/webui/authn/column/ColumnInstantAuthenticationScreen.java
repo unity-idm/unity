@@ -84,8 +84,9 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private VerticalLayout secondFactorHolder;
 	private Component rememberMeComponent;
 	private SandboxAuthnResultCallback sandboxCallback;
-	private Component languageChoice;
+	private Component topHeader;
 	private Component cancelComponent;
+	private RegistrationInfoProvider registrationInfoProvider;
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
@@ -96,7 +97,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
 			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
-			List<AuthenticationFlow> flows)
+			List<AuthenticationFlow> flows,
+			RegistrationInfoProvider registrationInfoProvider)
 	{
 		this.msg = msg;
 		this.config = config;
@@ -111,6 +113,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
 		this.flows = flows;
+		this.registrationInfoProvider = registrationInfoProvider;
 		
 		init();
 	}
@@ -132,10 +135,11 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		topLevelLayout.setMargin(new MarginInfo(false, true, true, true));
 		topLevelLayout.setHeightUndefined();
 		setCompositionRoot(topLevelLayout);
+		
+		topHeader = new TopHeaderComponent(localeChoice, enableRegistration, config, registrationInfoProvider);
 
-		languageChoice = getLanguageChoiceComponent();
-		topLevelLayout.addComponent(languageChoice);
-		topLevelLayout.setComponentAlignment(languageChoice, Alignment.TOP_CENTER);
+		topLevelLayout.addComponent(topHeader);
+		topLevelLayout.setComponentAlignment(topHeader, Alignment.MIDDLE_RIGHT);
 		
 		authNProgress = new RemoteAuthenticationProgress(msg, this::triggerAuthNCancel);
 		topLevelLayout.addComponent(authNProgress);
@@ -155,19 +159,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		refreshAuthenticationState(VaadinService.getCurrentRequest());
 	}
 	
-		
-	private Component getLanguageChoiceComponent()
-	{
-		HorizontalLayout languageChoiceLayout = new HorizontalLayout();
-		languageChoiceLayout.setMargin(true);
-		languageChoiceLayout.setSpacing(false);
-		languageChoiceLayout.setWidth(100, Unit.PERCENTAGE);
-		languageChoiceLayout.addComponent(localeChoice);
-		languageChoiceLayout.setComponentAlignment(localeChoice, Alignment.MIDDLE_RIGHT);
-		return languageChoiceLayout;
-	}
-	
-
 	/**
 	 * @return main authentication: logo, title, columns with authentication options
 	 */
@@ -411,7 +402,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		rememberMeComponent.setEnabled(enable);
 		if (cancelComponent != null)
 			cancelComponent.setEnabled(enable);
-		languageChoice.setEnabled(enable);
+		topHeader.setEnabled(enable);
 	}
 	
 	private void onCompletedAuthentication()

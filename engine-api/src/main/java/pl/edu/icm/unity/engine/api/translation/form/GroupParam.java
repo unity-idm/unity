@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.translation.form;
 
+import java.util.Objects;
+
 /**
  * Information about a group membership to be added for an entity being registered.
  * @author K. Benedyczak
@@ -31,5 +33,26 @@ public class GroupParam
 	public String getTranslationProfile()
 	{
 		return translationProfile;
+	}
+
+	@Override
+	public String toString()
+	{
+		return group;
+	}
+	
+	@Override
+	public boolean equals(final Object other)
+	{
+		if (!(other instanceof GroupParam))
+			return false;
+		GroupParam castOther = (GroupParam) other;
+		return Objects.equals(group, castOther.group) && Objects.equals(externalIdp, castOther.externalIdp)
+				&& Objects.equals(translationProfile, castOther.translationProfile);
+	}
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(group, externalIdp, translationProfile);
 	}
 }

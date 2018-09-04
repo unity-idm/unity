@@ -109,7 +109,16 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	private void updateItemsAvailableToSelect()
 	{
 		Set<T> selected = new HashSet<>(chipsRow.getChipsData());
-		List<T> available = allItems.stream().filter(i -> !selected.contains(i)).collect(Collectors.toList());
+		
+		//remove not available which were previously selected
+		selected.stream()
+			.filter(item -> !allItems.contains(item))
+			.forEach(item -> chipsRow.removeItem(item));
+		
+		List<T> available = allItems.stream()
+				.filter(i -> !selected.contains(i))
+				.collect(Collectors.toList());
+		
 		Collections.sort(available, this::compareItems);
 		combo.setItems(available);
 		if (selected.isEmpty())
@@ -133,7 +142,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 			if (multiSelectable)
 				combo.setVisible(!available.isEmpty());
 			else
-				combo.setVisible(selected.isEmpty());
+				combo.setVisible(selected.isEmpty() && !available.isEmpty());
 		}
 	}
 	

@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  * 
  * @author K. Benedyczak
  */
-class AuthenticationOptionsHandler
+public class AuthenticationOptionsHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationOptionsHandler.class);
 	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
@@ -37,7 +37,7 @@ class AuthenticationOptionsHandler
 
 	private Set<String> consumedAuthenticatorEntries = new HashSet<>();
 
-	AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint)
+	public AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint)
 	{
 		this.endpoint = endpoint;
 		for (AuthenticationFlow ao : availableAuthentionFlows)
@@ -64,7 +64,7 @@ class AuthenticationOptionsHandler
 		return ret.isEmpty() ? null : ret.get(0);
 	}
 
-	List<AuthNOption> getMatchingAuthnOptions(String spec)
+	public List<AuthNOption> getMatchingAuthnOptions(String spec)
 	{
 		String authenticatorName = AuthenticationOptionKeyUtils.decodeAuthenticator(spec);
 		AuthenticatorWithFlow authenticatorWF = authenticatorsByName.get(authenticatorName);

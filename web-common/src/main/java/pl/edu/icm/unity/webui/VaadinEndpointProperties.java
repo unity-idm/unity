@@ -48,6 +48,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
+	public static final String SHOW_REGISTRATION_FORMS_IN_HEADER = "showRegistrationFormsInHeader";
 
 	public static final String AUTHN_SCREEN_MODE = "screenType";	
 	
@@ -75,7 +76,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 
 
 	@DocumentationReferenceMeta
-	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
+	public final static Map<String, PropertyMD> META = new HashMap<>();
 	
 	static
 	{
@@ -183,6 +184,9 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
+		META.put(SHOW_REGISTRATION_FORMS_IN_HEADER, new PropertyMD("false").
+				setDescription("Displays the links with registration forms in the top right corner of page, if registration "
+						+ "is configured."));
 		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).
 				setDescription("Defines which registration forms should be enabled for the endpoint. " +
 						"Values are form names. If the form with given name doesn't exist it "
@@ -216,4 +220,13 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	{
 		return properties;
 	}
+	
+	public EndpointRegistrationConfiguration getRegistrationConfiguration()
+	{
+		return new EndpointRegistrationConfiguration(getListOfValues(
+				VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS),
+				getBooleanValue(VaadinEndpointProperties.ENABLE_REGISTRATION),
+				getBooleanValue(VaadinEndpointProperties.SHOW_REGISTRATION_FORMS_IN_HEADER));
+	}
+
 }

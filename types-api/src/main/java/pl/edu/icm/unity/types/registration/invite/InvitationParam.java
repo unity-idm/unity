@@ -6,6 +6,7 @@ package pl.edu.icm.unity.types.registration.invite;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -42,6 +43,8 @@ public class InvitationParam
 	private Map<Integer, PrefilledEntry<GroupSelection>> groupSelections = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 
+	private InvitationParam() {}
+	
 	public InvitationParam(String formId, Instant expiration, String contactAddress)
 	{
 		this(formId, expiration);
@@ -179,5 +182,54 @@ public class InvitationParam
 	public int hashCode()
 	{
 		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, attributes);
+	}
+	
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+	
+	public static class Builder
+	{
+		private InvitationParam instance = new InvitationParam();
+		
+		public Builder withForm(String formId)
+		{
+			instance.formId = formId;
+			return this;
+		}
+		public Builder withExpiration(Instant expiration)
+		{
+			instance.expiration = expiration;
+			return this;
+		}
+		public Builder withContactAddress(String contactAddress)
+		{
+			instance.contactAddress = contactAddress;
+			return this;
+		}
+		
+		public InvitationParam build()
+		{
+			return instance;
+		}
+		public Builder withAttribute(Attribute attribute, PrefilledEntryMode mode)
+		{
+			int idx = instance.attributes.size();
+			instance.attributes.put(idx, new PrefilledEntry<>(attribute, mode));
+			return this;
+		}
+		public Builder withGroup(String group, PrefilledEntryMode mode)
+		{
+			int idx = instance.groupSelections.size();
+			instance.groupSelections.put(idx, new PrefilledEntry<>(new GroupSelection(group), mode));
+			return this;
+		}
+		public Builder withGroups(List<String> groups, PrefilledEntryMode mode)
+		{
+			int idx = instance.groupSelections.size();
+			instance.groupSelections.put(idx, new PrefilledEntry<>(new GroupSelection(groups), mode));
+			return this;
+		}
 	}
 }

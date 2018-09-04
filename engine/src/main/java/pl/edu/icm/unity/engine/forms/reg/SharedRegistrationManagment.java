@@ -11,16 +11,21 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Functions;
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
+import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -55,7 +60,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 @Component
 public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER,
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER,
 			SharedRegistrationManagment.class);
 
 	private RegistrationRequestDB requestDB;
@@ -66,6 +71,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private IdentityHelper identityHelper;
 	private AttributeTypeHelper atHelper;
 	private RegistrationConfirmationSupport confirmationsSupport;
+	private AutomaticInvitationProcessingSupport autoInvitationProcessingSupport;
 
 	@Autowired
 	public SharedRegistrationManagment(UnityMessageSource msg,
@@ -79,7 +85,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			IdentityHelper identityHelper,
 			AttributeTypeHelper atHelper,
-			RegistrationConfirmationSupport confirmationsSupport)
+			RegistrationConfirmationSupport confirmationsSupport,
+			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
@@ -91,7 +98,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		this.identityHelper = identityHelper;
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
-	
+		this.autoInvitationProcessingSupport = autoInvitationProcessingSupport;
 	}
 
 	/**
@@ -118,10 +125,17 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		
 		registrationRequestValidator.validateTranslatedRequest(form, currentRequest.getRequest(), 
 				translatedRequest);
-
+		
+		Map<String, GroupParam> groupParamByPath = translatedRequest.getGroups().stream()
+				.collect(Collectors.toMap(GroupParam::getGroup, Functions.identity()));
+		List<Attribute> requestedAttributes = Lists.newArrayList(translatedRequest.getAttributes());
+		
+		autoInvitationProcessingSupport.autoProcessInvitationsAndCollectData(
+				currentRequest, translatedRequest, groupParamByPath, requestedAttributes);
+		
 		List<Attribute> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());
 		Map<String, List<Attribute>> remainingAttributesByGroup = new HashMap<>();
-		for (Attribute a : translatedRequest.getAttributes())
+		for (Attribute a : requestedAttributes)
 			addAttributeToGroupsMap(a, rootAttributes, remainingAttributesByGroup);
 
 		Collection<IdentityParam> identities = translatedRequest.getIdentities();
@@ -141,8 +155,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			identityHelper.insertIdentity(idParam, initial.getEntityId(), false);
 		}
 
-		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, 
-				translatedRequest);
+		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, groupParamByPath.values());
 		applyRequestedAttributeClasses(translatedRequest, initial.getEntityId());		
 		applyRequestedCredentials(currentRequest, initial.getEntityId());
 		
@@ -156,10 +169,10 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 				Phase.ON_ACCEPT);
 		if (rewriteConfirmationToken)
 			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, initial.getEntityId());
-
+		
 		return initial.getEntityId();
 	}
-	
+
 	public void dropRequest(String id) throws EngineException
 	{
 		requestDB.delete(id);
@@ -182,8 +195,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	 * @return entity id if automatic request acceptance was performed.
 	 * @throws EngineException 
 	 */
-	public Long autoProcess(RegistrationForm form, RegistrationRequestState requestFull, String logMessageTemplate)	
-			throws EngineException
+	public Long autoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
+			String logMessageTemplate)	throws EngineException
 	{
 		RegistrationTranslationProfile translationProfile = new RegistrationTranslationProfile(
 				form.getTranslationProfile(), registrationTranslationActionsRegistry, atHelper, form);
@@ -197,7 +210,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 				SharedRegistrationManagment.AUTO_PROCESS_COMMENT, 0, false);
 
 		String formattedMsg = MessageFormat.format(logMessageTemplate, autoProcessAction);
-		log.info(formattedMsg);
+		LOG.info(formattedMsg);
 		
 		switch (autoProcessAction)
 		{
@@ -224,7 +237,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			autoProcess(event.form, event.requestFull, event.logMessageTemplate);
 		} catch (EngineException e)
 		{
-			log.error("Auto processing of registration form in result of async event failed", e);
+			LOG.error("Auto processing of registration form in result of async event failed", e);
 		}
 	}
 	

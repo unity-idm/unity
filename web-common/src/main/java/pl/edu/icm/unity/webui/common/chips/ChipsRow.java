@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common.chips;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.vaadin.ui.Button.ClickListener;
@@ -59,6 +60,20 @@ public class ChipsRow<T> extends CustomComponent
 		this.readOnly = readOnly;
 		for (Chip<T> chip: chips)
 			chip.setReadOnly(readOnly);
+	}
+
+	public void removeItem(T item)
+	{
+		for (int i=0; i<chips.size(); i++)
+		{
+			Chip<T> chip = chips.get(i);
+			if (Objects.equals(chip.getValue(), item))
+			{
+				chips.remove(i);
+				wrapper.removeComponent(chip);
+				break;
+			}
+		}
 	}
 	
 	private void removeChip(Chip<T> chip)

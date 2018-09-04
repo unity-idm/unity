@@ -44,6 +44,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private List<GroupRegistrationParam> groupParams = new ArrayList<>();
 	private List<CredentialRegistrationParam> credentialParams = new ArrayList<>();
 	private List<AgreementRegistrationParam> agreements = new ArrayList<>();
+	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
 	private boolean collectComments;
 	private I18nString displayedName = new I18nString();
 	private I18nString formInformation = new I18nString();
@@ -154,6 +155,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 					+ "which are not defied in the form: " + definedElements);
 	}
 	
+	@Override
 	@JsonValue
 	public ObjectNode toJson()
 	{
@@ -172,6 +174,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
 		if (layout != null)
 			root.set("FormLayout", jsonMapper.valueToTree(getLayout()));
+		root.set("ExternalSignupSpec", getExternalSignupSpec().toJsonObject());
 		return root;
 	}
 
@@ -246,6 +249,11 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				setLayout(jsonMapper.treeToValue(n, FormLayout.class));
 			}
 			
+			n = root.get("ExternalSignupSpec");
+			if (n != null)
+			{
+				setExternalSignupSpec(new ExternalSignupSpec((ObjectNode) n));
+			}
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize a form from JSON", e);
@@ -266,7 +274,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 
 	private List<AgreementRegistrationParam> loadAgreements(ArrayNode root)
 	{
-		List<AgreementRegistrationParam> ret = new ArrayList<AgreementRegistrationParam>();
+		List<AgreementRegistrationParam> ret = new ArrayList<>();
 		
 		for (JsonNode nodeR: root)
 		{
@@ -413,6 +421,16 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	{
 		return translationProfile;
 	}
+	
+	public ExternalSignupSpec getExternalSignupSpec()
+	{
+		return externalSignupSpec;
+	}
+
+	public void setExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
+	{
+		this.externalSignupSpec = externalSignupSpec;
+	}
 
 	void setTranslationProfile(TranslationProfile translationProfile)
 	{
@@ -490,21 +508,16 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((agreements == null) ? 0 : agreements.hashCode());
-		result = prime * result
-				+ ((attributeParams == null) ? 0 : attributeParams.hashCode());
+		result = prime * result + ((attributeParams == null) ? 0 : attributeParams.hashCode());
+		result = prime * result + ((externalSignupSpec == null) ? 0 : externalSignupSpec.hashCode());
 		result = prime * result + (collectComments ? 1231 : 1237);
-		result = prime * result
-				+ ((credentialParams == null) ? 0 : credentialParams.hashCode());
+		result = prime * result + ((credentialParams == null) ? 0 : credentialParams.hashCode());
 		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
-		result = prime * result
-				+ ((formInformation == null) ? 0 : formInformation.hashCode());
-		result = prime * result + ((layout == null) ? 0 : layout.hashCode());
+		result = prime * result + ((formInformation == null) ? 0 : formInformation.hashCode());
 		result = prime * result + ((groupParams == null) ? 0 : groupParams.hashCode());
-		result = prime * result
-				+ ((identityParams == null) ? 0 : identityParams.hashCode());
-		result = prime
-				* result
-				+ ((translationProfile == null) ? 0 : translationProfile.hashCode());
+		result = prime * result + ((identityParams == null) ? 0 : identityParams.hashCode());
+		result = prime * result + ((layout == null) ? 0 : layout.hashCode());
+		result = prime * result + ((translationProfile == null) ? 0 : translationProfile.hashCode());
 		return result;
 	}
 
@@ -530,6 +543,12 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				return false;
 		} else if (!attributeParams.equals(other.attributeParams))
 			return false;
+		if (externalSignupSpec == null)
+		{
+			if (other.externalSignupSpec != null)
+				return false;
+		} else if (!externalSignupSpec.equals(other.externalSignupSpec))
+			return false;
 		if (collectComments != other.collectComments)
 			return false;
 		if (credentialParams == null)
@@ -550,12 +569,6 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				return false;
 		} else if (!formInformation.equals(other.formInformation))
 			return false;
-		if (layout == null)
-		{
-			if (other.layout != null)
-				return false;
-		} else if (!layout.equals(other.layout))
-			return false;
 		if (groupParams == null)
 		{
 			if (other.groupParams != null)
@@ -567,6 +580,12 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			if (other.identityParams != null)
 				return false;
 		} else if (!identityParams.equals(other.identityParams))
+			return false;
+		if (layout == null)
+		{
+			if (other.layout != null)
+				return false;
+		} else if (!layout.equals(other.layout))
 			return false;
 		if (translationProfile == null)
 		{

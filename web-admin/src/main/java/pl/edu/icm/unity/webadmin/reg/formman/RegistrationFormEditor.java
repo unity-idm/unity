@@ -125,7 +125,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
 	}
-	
+
 	public RegistrationForm getForm() throws FormValidationException
 	{
 		RegistrationFormBuilder builder = getFormBuilderBasic();
@@ -145,7 +145,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withCaptchaLength(captcha.getValue().intValue());
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
-		
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);

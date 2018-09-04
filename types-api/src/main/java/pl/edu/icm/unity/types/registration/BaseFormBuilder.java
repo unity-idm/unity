@@ -42,6 +42,13 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 
 		return (T) this;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public T withExternalSignupSpec(ExternalSignupSpec spec)
+	{
+		instance.setExternalSignupSpec(spec);
+		return (T) this;
+	}
 
 	@SuppressWarnings("unchecked")
 	public T withAddedIdentityParam(IdentityRegistrationParam aValue)

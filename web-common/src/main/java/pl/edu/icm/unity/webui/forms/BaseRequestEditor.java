@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -66,12 +67,12 @@ import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
-import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
+import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
@@ -89,7 +90,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected UnityMessageSource msg;
 	private BaseForm form;
-	private RemotelyAuthenticatedContext remotelyAuthenticated;
+	protected RemotelyAuthenticatedContext remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private CredentialEditorRegistry credentialEditorRegistry;
 	private AttributeHandlerRegistry attributeHandlerRegistry;
@@ -418,22 +419,27 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
 		main.setMargin(false);
-		main.setWidth(80, Unit.PERCENTAGE);
+		main.setWidth(100, Unit.PERCENTAGE);
 		setCompositionRoot(main);
 		
 		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Styles.vLabelH1.toString());
 		main.addComponent(formName);
+		main.setComponentAlignment(formName, Alignment.MIDDLE_CENTER);
 		
 		String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
 		if (info != null)
 		{
 			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
 			main.addComponent(formInformation);
+			main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 		}
 
 		com.vaadin.ui.FormLayout mainFormLayout = new com.vaadin.ui.FormLayout();
+		mainFormLayout.setWidthUndefined();
 		main.addComponent(mainFormLayout);
+		main.setComponentAlignment(mainFormLayout, Alignment.MIDDLE_CENTER);
+		
 		return mainFormLayout;
 	}
 	

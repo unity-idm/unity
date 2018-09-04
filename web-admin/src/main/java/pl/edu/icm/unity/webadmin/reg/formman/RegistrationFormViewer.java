@@ -77,7 +77,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 		byInvitationOnly.setValue(msg.getYesNo(form.isByInvitationOnly()));
 		
 		publicLink.setValue(form.isPubliclyAvailable() ? 
-				PublicRegistrationURLSupport.getPublicRegistrationLink(form.getName(), sharedEndpointMan) : "-");
+				PublicRegistrationURLSupport.getPublicRegistrationLink(form, sharedEndpointMan) : "-");
 		
 		RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 		if (notCfg != null)

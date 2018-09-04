@@ -76,7 +76,7 @@ public class GroupHelper
 						", as the entity is not a member of its parent group");
 		}
 		if (membershipDAO.isMember(entityId, path))
-			throw new IllegalGroupValueException("The entity is already a member of this group");
+			throw new IllegalGroupValueException("The entity is already a member of this group " + path);
 
 		GroupMembership param = new GroupMembership(path, entityId, creationTs, translationProfile, idp);
 		membershipDAO.create(param);

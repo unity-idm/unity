@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import pl.edu.icm.unity.Constants;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 
 /**
  * Describes registration context, i.e. circumstances and environment at the request submission.
@@ -41,7 +41,13 @@ public class RegistrationContext
 		 * Form was shown after a successful remote authentication 
 		 * which was not mapped to a local entity by an input transaltion profile. 
 		 */
-		afterRemoteLogin
+		afterRemoteLogin,
+		
+		/**
+		 * Registration as the result of automatic form processing
+		 * coming from registration translation profile action.
+		 */
+		autoProcessInvitations
 	}
 	
 	public final boolean tryAutoAccept;

@@ -163,7 +163,7 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
-		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
+		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties.getRegistrationConfiguration();
 		authenticationServlet = new UnityVaadinServlet(applicationContext, 
 				AuthenticationUI.class.getSimpleName(), description, authenticationFlows,
 				registrationConfiguration, properties, 
@@ -194,9 +194,9 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		private static EndpointTypeDescription initDescription()
 		{
-			Set<String> supportedAuthn = new HashSet<String>();
+			Set<String> supportedAuthn = new HashSet<>();
 			supportedAuthn.add(VaadinAuthentication.NAME);
-			Map<String, String> paths = new HashMap<String, String>();
+			Map<String, String> paths = new HashMap<>();
 			paths.put(OAUTH_CONSUMER_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint");
 			return new EndpointTypeDescription(NAME, 
 					"OAuth 2 Server - Authorization Grant endpoint", supportedAuthn, paths);

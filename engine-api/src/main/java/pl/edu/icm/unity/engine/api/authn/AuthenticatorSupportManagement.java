@@ -10,25 +10,25 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
- * Provides access to authenticators. Low level, rarely useful. Needed e.g. by sandbox UI.
+ * Provides access to authenticators. Low level, rarely useful. Needed e.g. by
+ * sandbox UI.
+ * 
  * @author K. Benedyczak
  */
 public interface AuthenticatorSupportManagement
 {
 	/**
-	 * Resolves binding specific authenticator authN implementations for a given 
-	 * list of {@link AuthenticationFlowDefinition}. 
-	 * @param authnList
-	 * @return
-	 * @throws EngineException 
+	 * Resolves binding specific authenticator authN implementations for a given
+	 * list of {@link AuthenticationFlowDefinition}.
 	 */
-	List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows) 
-			throws EngineException;
+	List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows) throws EngineException;
 
+	List<AuthenticationFlowDefinition> resolveAllRemoteAuthenticatorFlows(String bindingId) throws EngineException;
 	
+	List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions) throws EngineException;
+
 	/**
 	 * Removes all authenticators from DB
-	 * @throws EngineException
 	 */
 	void removeAllPersistedAuthenticators() throws EngineException;
 }

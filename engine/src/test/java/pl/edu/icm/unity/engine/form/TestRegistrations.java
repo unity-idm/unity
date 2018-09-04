@@ -44,7 +44,6 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -137,18 +136,6 @@ public class TestRegistrations extends RegistrationTestBase
 		checkUpdateOrAdd(testFormBuilder.build(), "cred req", IllegalArgumentException.class);
 	}
 	
-	@Test 
-	public void formWithMissingGroupCantBeAdded() throws Exception
-	{
-		RegistrationForm form = initAndCreateForm(false, null);
-		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
-
-		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
-		groupParam.setGroupPath("/missing");
-		testFormBuilder.withGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalArgumentException.class);
-	}
-
 	@Test 
 	public void formWithMissingIdentityCantBeAdded() throws Exception
 	{

@@ -134,7 +134,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
-				new ArrayList<String>(Arrays.asList(uiServletPath)), 
+				new ArrayList<>(Arrays.asList(uiServletPath)), 
 				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
@@ -150,7 +150,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
+		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties.getRegistrationConfiguration();
 		
 		UnityBootstrapHandler handler4Authn = getBootstrapHandler4Authn(uiServletPath);
 		authenticationServlet = new AuthenticationVaadinServlet(applicationContext, 
@@ -278,13 +278,6 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		holder.setInitParameter(Constants.PARAMETER_WIDGETSET, 
 				"pl.edu.icm.unity.webui.customWidgetset");
 		return holder;
-	}
-
-	protected EndpointRegistrationConfiguration getRegistrationConfiguration()
-	{
-		return new EndpointRegistrationConfiguration(genericEndpointProperties.getListOfValues(
-				VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS),
-				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.ENABLE_REGISTRATION));
 	}
 
 	private void addSandboxUI(String path, String uiBeanName, SandboxAuthnRouter sandboxRouter)
