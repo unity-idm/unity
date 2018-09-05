@@ -262,7 +262,8 @@ public class InvitationsTable extends CustomComponent
 			editor = new InvitationEditor(msg, identityEditorRegistry,
 					attrHandlersRegistry, msgTemplateManagement.listTemplates(),
 					getForms(), attributesManagement.getAttributeTypesAsMap(),
-					groupsManagement.getGroupsByWildcard("/**"));
+					groupsManagement.getGroupsByWildcard("/**"),
+					msgTemplateManagement);
 		} catch (WrongArgumentException e)
 		{
 			NotificationPopup.showError(msg.getMessage("InvitationsTable.noValidForms"), 

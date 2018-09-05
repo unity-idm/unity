@@ -42,6 +42,7 @@ public class InvitationParam
 	private Map<Integer, PrefilledEntry<IdentityParam>> identities = new HashMap<>();
 	private Map<Integer, PrefilledEntry<GroupSelection>> groupSelections = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
+	private Map<String, String> messageParams = new HashMap<>();
 
 	private InvitationParam() {}
 	
@@ -93,6 +94,11 @@ public class InvitationParam
 		return attributes;
 	}
 
+	public Map<String, String> getMessageParams()
+	{
+		return messageParams;
+	}
+
 	@JsonIgnore
 	public boolean isExpired()
 	{
@@ -112,6 +118,7 @@ public class InvitationParam
 		json.putPOJO("identities", getIdentities());
 		json.putPOJO("groupSelections", getGroupSelections());
 		json.putPOJO("attributes", getAttributes());
+		json.putPOJO("messageParams", getMessageParams());
 		return json;
 	}
 	
@@ -131,6 +138,21 @@ public class InvitationParam
 
 		n = json.get("attributes");
 		fill((ObjectNode) n, getAttributes(), Attribute.class);
+		
+		n = json.get("messageParams");
+		if (n != null)
+		{
+			n.fields().forEachRemaining(field ->
+			{
+				try
+				{
+					messageParams.put(field.getKey(), field.getValue().asText());
+				} catch (Exception e)
+				{
+					log.warn("Ignoring unparsable message parameter", e);
+				}
+			});
+		}
 	}
 
 	protected <T> void fill(ObjectNode root, Map<Integer, PrefilledEntry<T>> map, Class<T> clazz)
@@ -175,14 +197,17 @@ public class InvitationParam
 				&& Objects.equals(contactAddress, castOther.contactAddress)
 				&& Objects.equals(identities, castOther.identities)
 				&& Objects.equals(groupSelections, castOther.groupSelections)
-				&& Objects.equals(attributes, castOther.attributes);
+				&& Objects.equals(attributes, castOther.attributes)
+				&& Objects.equals(messageParams, castOther.messageParams);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, attributes);
+		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, attributes,
+				messageParams);
 	}
+	
 	
 	public static Builder builder()
 	{

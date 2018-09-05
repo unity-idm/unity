@@ -23,29 +23,35 @@ public interface MessageTemplateDefinition
 {
 	public static final Set<String> ALL_FACILITIES = Collections.unmodifiableSet(Sets
 			.newHashSet(FacilityName.EMAIL.toString(), FacilityName.SMS.toString()));
-
+	public static final String CUSTOM_VAR_PREFIX = "custom.";
+	
 	/**
 	 * @return message bundle key with the description of the template definition, with information on
 	 * the purpose of the messages created with this template.
 	 */
-	public String getDescriptionKey();
+	String getDescriptionKey();
 
 	/**
 	 * @return unique name of the message template definition
 	 */
-	public String getName();
+	String getName();
 
 	/**
 	 * @return map of variables supported by this template consumer. The map keys are variable names. The values
 	 * are the keys in the message bundle with descriptions.  
 	 */
-	public Map<String, MessageTemplateVariable> getVariables();
+	Map<String, MessageTemplateVariable> getVariables();
 	
 	
 	/**
 	 * @return set of supported facilities. Message from the template can be 
 	 * sent only by notification channels which are using this facilities.  
 	 */
-	public Set<String> getCompatibleFacilities();
+	Set<String> getCompatibleFacilities();
 	
+	
+	default boolean allowCustomVariables()
+	{
+		return false;
+	}
 }
