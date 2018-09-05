@@ -9,6 +9,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
@@ -173,7 +175,7 @@ public final class FormLayoutUtils
 						+ "which are not defied in the form: " + definedElements);
 		} else
 		{
-			validateLayout(layout, form);
+			validateLayout(layout, form, true, true);
 		}
 	}
 	
@@ -189,11 +191,27 @@ public final class FormLayoutUtils
 		}
 	}
 	
-	public static void validateLayout(FormLayout layout, BaseForm form)
+	public static void validateEnquiryLayout(EnquiryForm form)
 	{
+		FormLayout layout = form.getLayout();
+		validateEnquiryElements(layout);
 		validateLayout(layout, form, true, true);
 	}
 	
+	private static void validateEnquiryElements(FormLayout layout)
+	{
+		Set<FormLayoutType> enquiryElements = layout.getElements().stream()
+				.map(FormElement::getType)
+				.collect(Collectors.toSet());
+		Set<FormLayoutType> registrationOnly = Stream.of(FormLayoutType.values())
+				.filter(FormLayoutType::isRegistrationOnly)
+				.collect(Collectors.toSet());
+		enquiryElements.retainAll(registrationOnly);
+		if (!enquiryElements.isEmpty())
+			throw new IllegalStateException("Enquiry layout consists of forbidded elements: " 
+					+ enquiryElements.toString());
+	}
+
 	private static void validateLayout(FormLayout layout, BaseForm form, boolean withCredentials, boolean withRemoteSignup)
 	{
 		Set<String> definedElements = getDefinedElements(layout);
