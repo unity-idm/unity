@@ -74,6 +74,16 @@ public class AuthenticationOptionKey
 		return AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey);
 	}
 	
+	public String getAuthenticatorKey()
+	{
+		return authenticatorKey;
+	}
+
+	public String getOptionKey()
+	{
+		return optionKey;
+	}
+
 	@Override
 	public boolean equals(final Object other)
 	{

@@ -4,7 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -25,10 +26,10 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
  */
 public class ExternalSignupSpec
 {
-	private Set<AuthenticationOptionKey> specs;
+	private List<AuthenticationOptionKey> specs;
 	private String userExistsRedirectUrl;
 
-	ExternalSignupSpec(Set<AuthenticationOptionKey> specs, String userExistsRedirectUrl)
+	ExternalSignupSpec(List<AuthenticationOptionKey> specs, String userExistsRedirectUrl)
 	{
 		this.specs = specs;
 		this.userExistsRedirectUrl = userExistsRedirectUrl;
@@ -36,7 +37,7 @@ public class ExternalSignupSpec
 
 	ExternalSignupSpec()
 	{
-		specs = new HashSet<>();
+		specs = new ArrayList<>();
 	}
 
 	@JsonCreator
@@ -52,7 +53,7 @@ public class ExternalSignupSpec
 			if (JsonUtil.notNull(root, "specs"))
 			{
 				ArrayNode specsNode = (ArrayNode) root.get("specs");
-				specs = new HashSet<>(specsNode.size());
+				specs = new ArrayList<>(specsNode.size());
 				for (int i = 0; i < specsNode.size(); i++)
 				{
 					specs.add(new AuthenticationOptionKey((ObjectNode) specsNode.get(i)));
@@ -76,12 +77,12 @@ public class ExternalSignupSpec
 		return root;
 	}
 	
-	public Set<AuthenticationOptionKey> getSpecs()
+	public List<AuthenticationOptionKey> getSpecs()
 	{
 		return specs;
 	}
 
-	public void setSpecs(Set<AuthenticationOptionKey> specs)
+	public void setSpecs(List<AuthenticationOptionKey> specs)
 	{
 		this.specs = specs;
 	}
@@ -124,18 +125,18 @@ public class ExternalSignupSpec
 
 	public static class ExternalSignupSpecBuilder
 	{
-		private Set<AuthenticationOptionKey> specs = new HashSet<>();
+		private List<AuthenticationOptionKey> specs = new ArrayList<>();
 		private String userExistsRedirectUrl;
 
 		public ExternalSignupSpecBuilder withSpecs(Set<AuthenticationOptionKey> specs)
 		{
-			this.specs = new HashSet<>(specs);
+			this.specs = new ArrayList<>(specs);
 			return this;
 		}
 		
 		public ExternalSignupSpecBuilder withSpecs(AuthenticationOptionKey... specs)
 		{
-			this.specs = new HashSet<>();
+			this.specs = new ArrayList<>();
 			for (AuthenticationOptionKey spec : specs)
 				this.specs.add(spec);
 			return this;

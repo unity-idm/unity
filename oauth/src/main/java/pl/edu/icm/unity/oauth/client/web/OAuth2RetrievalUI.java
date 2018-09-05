@@ -41,6 +41,7 @@ import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
@@ -68,10 +69,11 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private String authenticatorName;
 
 	private IdPAuthNComponent idpComponent;
+	private Context context;
 
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
-			String idpKey, String configKey, String authenticatorName)
+			String idpKey, String configKey, String authenticatorName, Context context)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
@@ -79,6 +81,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		this.idpKey = idpKey;
 		this.configKey = configKey;
 		this.authenticatorName = authenticatorName;
+		this.context = context;
 		initUI();
 	}
 
@@ -119,7 +122,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			log.warn("Can't load logo from " + logoUrl, e);
 			logo = null;
 		}
-		String signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
+		
+		String signInLabel;
+		if (context == Context.LOGIN)
+			signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
+		else
+			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", name);
 		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
 		main = idpComponent;

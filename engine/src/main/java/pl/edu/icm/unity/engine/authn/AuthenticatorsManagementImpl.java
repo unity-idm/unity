@@ -89,4 +89,11 @@ public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagem
 
 		return flows;
 	}
+
+	@Override
+	@Transactional
+	public List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions)
+	{
+		return authnLoader.resolveAndGetAuthenticationFlows(authnOptions);
+	}
 }

@@ -43,12 +43,12 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	}
 	
 	@Override
-	public EnquiryResponse getRequest() throws FormValidationException
+	public EnquiryResponse getRequest(boolean withCredentials) throws FormValidationException
 	{
 		EnquiryResponse ret = new EnquiryResponse();
 		FormErrorStatus status = new FormErrorStatus();
 
-		super.fillRequest(ret, status);
+		super.fillRequest(ret, status, withCredentials);
 		
 		if (status.hasFormException)
 			throw new FormValidationException();

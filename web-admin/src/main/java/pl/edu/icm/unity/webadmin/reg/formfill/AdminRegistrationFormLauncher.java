@@ -12,7 +12,6 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -22,19 +21,18 @@ import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
+import pl.edu.icm.unity.webui.forms.reg.AbstraceRegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 
@@ -46,9 +44,8 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class AdminRegistrationFormLauncher implements RegistrationFormDialogProvider
+public class AdminRegistrationFormLauncher extends AbstraceRegistrationFormDialogProvider
 {
-	protected UnityMessageSource msg;
 	protected RegistrationsManagement registrationsManagement;
 	protected CredentialEditorRegistry credentialEditorRegistry;
 	protected AttributeHandlerRegistry attributeHandlerRegistry;
@@ -58,7 +55,6 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	
 	protected EventsBus bus;
 	private IdPLoginController idpLoginController;
-	private ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory;
 	
 	@Autowired
 	public AdminRegistrationFormLauncher(UnityMessageSource msg,
@@ -69,8 +65,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 			GroupsManagement groupsMan, IdPLoginController idpLoginController,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory)
 	{
-		super();
-		this.msg = msg;
+		super(msg, requestEditorCreatorFactory);
 		this.registrationsManagement = registrationsManagement;
 		this.credentialEditorRegistry = credentialEditorRegistry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
@@ -78,7 +73,6 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
-		this.requestEditorCreatorFactory = requestEditorCreatorFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -125,35 +119,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	}
 	
 	@Override
-	public void showRegistrationDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
-			AsyncErrorHandler errorHandler)
-	{
-			RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject().init(form, 
-					remoteContext);
-			editorCreator.invoke(new RequestEditorCreatedCallback()
-			{
-				@Override
-				public void onCreationError(Exception e)
-				{
-					errorHandler.onError(e);
-				}
-				
-				@Override
-				public void onCreated(RegistrationRequestEditor editor)
-				{
-					showDialog(form, editor, mode);
-				}
-
-				@Override
-				public void onCancel()
-				{
-					//nop
-				}
-			});
-	}
-	
-	private void showDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
+	protected AbstractDialog createDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		AdminFormFillDialog<RegistrationRequest> dialog = new AdminFormFillDialog<>(msg, 
 				msg.getMessage("AdminRegistrationFormLauncher.dialogCaption"), 
@@ -176,6 +142,6 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 							cancelled(false, context);
 					}
 				});
-		dialog.show();
+		return dialog;
 	}
 }

@@ -84,7 +84,7 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 	{
 		try
 		{
-			T request = editor.getRequest();
+			T request = editor.getRequest(true);
 			if (callback.newRequest(request, autoAccept))
 				close();
 		} catch (Exception e) 

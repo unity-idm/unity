@@ -151,7 +151,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		getCompositionRoot().setWidthUndefined();
 	}
 	
-	public abstract T getRequest() throws FormValidationException;
+	public abstract T getRequest(boolean withCredentials) throws FormValidationException;
 	
 	/**
 	 * Called if a form being edited was not accepted by the engine. 
@@ -231,12 +231,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
-	protected void fillRequest(BaseRegistrationInput ret, FormErrorStatus status) throws FormValidationException
+	protected void fillRequest(BaseRegistrationInput ret, FormErrorStatus status, boolean withCredentials) throws FormValidationException
 	{
 		ret.setFormId(form.getName());
 
 		setRequestIdentities(ret, status);
-		setRequestCredentials(ret, status);
+		if (withCredentials)
+			setRequestCredentials(ret, status);
 		setRequestAttributes(ret, status);
 		setRequestGroups(ret, status);
 		setRequestAgreements(ret, status);

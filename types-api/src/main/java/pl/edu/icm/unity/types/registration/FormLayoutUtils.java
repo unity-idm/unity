@@ -20,7 +20,6 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutType;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.types.registration.layout.FormRemoteSignupElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 
 /**
@@ -31,6 +30,16 @@ import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
  */
 public final class FormLayoutUtils
 {
+	public static boolean isLayoutWithLocalSignup(FormLayout layout)
+	{
+		for (FormElement element : layout.getElements())
+		{
+			if (element.getType() == FormLayoutType.LOCAL_SIGNUP)
+				return true;
+		}
+		return false;
+	}
+	
 	public static List<FormElement> getDefaultFormLayoutElementsWithoutCredentials(BaseForm form, MessageSource msg)
 	{
 		return getDefaultFormLayoutElements(form, msg, false);
@@ -321,8 +330,6 @@ public final class FormLayoutUtils
 			return null;
 		if (element instanceof FormParameterElement)
 			return getIdOfElement(element.getType(), ((FormParameterElement)element).getIndex());
-		if (element instanceof FormRemoteSignupElement)
-			return getIdOfElement(element.getType(), ((FormRemoteSignupElement)element).getIndex());
 		return element.getType().name();
 	}
 	

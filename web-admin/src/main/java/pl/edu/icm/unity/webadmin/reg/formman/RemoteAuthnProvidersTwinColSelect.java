@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.vaadin.ui.TwinColSelect;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -17,6 +18,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
 /**
@@ -38,6 +40,11 @@ public class RemoteAuthnProvidersTwinColSelect extends TwinColSelect<Authenticat
 		setWidth(100, Unit.PERCENTAGE);
 		init(authenticatorSupport);
 	}
+	
+	public void setValue(List<AuthenticationOptionKey> values)
+	{
+		setValue(Sets.newHashSet(values));
+	}
 
 	private void init(AuthenticatorSupportManagement authenticatorSupport) throws EngineException
 	{
@@ -52,7 +59,7 @@ public class RemoteAuthnProvidersTwinColSelect extends TwinColSelect<Authenticat
 			for (Authenticator authenticator : authenticatorFlow.getFirstFactorAuthenticators())
 			{
 				VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticator.getRetrieval();
-				Collection<VaadinAuthenticationUI> instances = vaadinAuthenticator.createUIInstance();
+				Collection<VaadinAuthenticationUI> instances = vaadinAuthenticator.createUIInstance(Context.REGISTRATION);
 				for (VaadinAuthenticationUI instance : instances)
 				{
 					String optionKey = instance.getId();

@@ -136,7 +136,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	}
 
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
 				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificator.NAME)));

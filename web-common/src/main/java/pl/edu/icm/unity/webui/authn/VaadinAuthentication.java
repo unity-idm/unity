@@ -28,11 +28,17 @@ public interface VaadinAuthentication extends BindingAuthn
 {
 	public static final String NAME = "web-vaadin7";
 	
+	public enum Context
+	{
+		LOGIN,
+		REGISTRATION
+	}
+	
 	/**
 	 * @return a new instance of the credential retrieval UIs. The collection is returned as one authenticator 
 	 * may provide many authN options (e.g. many remote IdPs). 
 	 */
-	Collection<VaadinAuthenticationUI> createUIInstance();
+	Collection<VaadinAuthenticationUI> createUIInstance(Context context);
 	
 	/**
 	 * @return true only if {@link VaadinAuthenticationUI#getGridCompatibleComponent()} 

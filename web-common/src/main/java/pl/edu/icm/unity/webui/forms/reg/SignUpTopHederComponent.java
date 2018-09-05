@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms.signup;
+package pl.edu.icm.unity.webui.forms.reg;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
@@ -18,7 +18,7 @@ import pl.edu.icm.unity.webui.authn.column.RemoteAuthenticationProgress;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-class SignUpTopHederComponent extends CustomComponent
+public class SignUpTopHederComponent extends CustomComponent
 {
 	private RemoteAuthenticationProgress authNProgress;
 

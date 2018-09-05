@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 
@@ -122,7 +123,7 @@ public class AuthenticationOptionsHandlerTest
 			when(ui.isAvailable()).thenReturn(true);
 			uis.add(ui);
 		}
-		when(vauthenticator.createUIInstance()).thenReturn(uis);
+		when(vauthenticator.createUIInstance(Context.LOGIN)).thenReturn(uis);
 		Authenticator ret = mock(Authenticator.class);
 		when(ret.getRetrieval()).thenReturn(vauthenticator);
 		return ret;

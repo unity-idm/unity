@@ -38,6 +38,7 @@ import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
 import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
@@ -67,12 +68,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	
 	private Component main;
 	private String authenticatorName;
+	private Context context;
 
 	private IdPAuthNComponent idpComponent;
 
 	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
 			SamlContextManagement samlContextManagement, String idpKey, 
-			String configKey, String authenticatorName)
+			String configKey, String authenticatorName, Context context)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
@@ -81,6 +83,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.configKey = configKey;
 		this.authenticatorName = authenticatorName;
 		this.samlProperties = credentialExchange.getSamlValidatorSettings();
+		this.context = context;
 		initUI();
 	}
 
@@ -114,7 +117,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			log.warn("Can't load logo from " + logoUrl, e);
 			logo = null;
 		}
-		String signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
+		String signInLabel;
+		if (context == Context.LOGIN)
+			signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
+		else
+			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", name);
 		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
 		idpComponent.setWidth(100, Unit.PERCENTAGE);

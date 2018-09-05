@@ -129,7 +129,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
 				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME)));

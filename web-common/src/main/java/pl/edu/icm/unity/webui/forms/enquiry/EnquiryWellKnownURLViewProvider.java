@@ -100,7 +100,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 				EnquiryResponse request;
 				try
 				{
-					request = editor.getRequest();
+					request = editor.getRequest(true);
 				} catch (Exception e)
 				{
 					NotificationPopup.showError(msg, 

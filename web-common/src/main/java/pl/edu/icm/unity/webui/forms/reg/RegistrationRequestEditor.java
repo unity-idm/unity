@@ -4,11 +4,20 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
-import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextField;
 
@@ -17,15 +26,26 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.types.registration.layout.FormLocalSignupElement;
+import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -52,6 +72,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private String regCodeProvided;
 	private InvitationWithCode invitation;
 	private InvitationManagement invitationMan;
+	private AuthenticatorSupportManagement authnSupport;
+	private SignUpAuthNController signUpAuthNController;
+	private Map<AuthenticationOptionKey, SignUpAuthNOption> signupOptions;
+	private Runnable onLocalSignupHandler;
+	private FormLayout effectiveLayout;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -64,6 +89,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 * @param credentialEditorRegistry
 	 * @param attributeHandlerRegistry
 	 * @param aTypeMan
+	 * @param signUpAuthNController 
 	 * @param authnMan
 	 * @throws EngineException
 	 */
@@ -74,24 +100,36 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, 
-			String registrationCode, InvitationManagement invitationMan) throws Exception
+			String registrationCode, InvitationManagement invitationMan, 
+			AuthenticatorSupportManagement authnSupport, 
+			SignUpAuthNController signUpAuthNController,
+			FormLayout layout,
+			Runnable onLocalSignupHandler) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitationMan = invitationMan;
-		
+		this.signUpAuthNController = signUpAuthNController;
+		this.authnSupport = authnSupport;
+		this.onLocalSignupHandler = onLocalSignupHandler;
+		this.effectiveLayout = layout;
 		initUI();
 	}
 	
 	@Override
-	public RegistrationRequest getRequest() throws FormValidationException
+	public RegistrationRequest getRequest(boolean withCredentials) throws FormValidationException
 	{
+		if (FormLayoutUtils.isLayoutWithLocalSignup(effectiveLayout))
+		{
+			throw new FormValidationException(msg.getMessage("RegistrationRequest.continueRegistration"));
+		}
+		
 		RegistrationRequest ret = new RegistrationRequest();
 		FormErrorStatus status = new FormErrorStatus();
 
-		super.fillRequest(ret, status);
+		super.fillRequest(ret, status, withCredentials);
 		
 		setRequestCode(ret, status);
 		if (captcha != null)
@@ -130,13 +168,47 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	private void initUI() throws EngineException
 	{
-		FormLayout mainFormLayout = createMainFormLayout();
+		com.vaadin.ui.FormLayout mainFormLayout = createMainFormLayout();
 		
 		setupInvitationByCode();
 		
-		createControls(mainFormLayout, form.getEffectivePrimaryFormLayout(msg), invitation);
+		resolveRemoteSignupOptions();
+		
+		createControls(mainFormLayout, effectiveLayout, invitation);
 	}
 	
+	private void resolveRemoteSignupOptions()
+	{
+		if (!form.getExternalSignupSpec().isEnabled())
+			return;
+		
+		signupOptions = Maps.newHashMap();
+		Set<String> authnOptions = form.getExternalSignupSpec().getSpecs().stream()
+			.map(AuthenticationOptionKey::getAuthenticatorKey)
+			.collect(Collectors.toSet());
+		List<AuthenticationFlow> flows = authnSupport.resolveAndGetAuthenticationFlows(Lists.newArrayList(authnOptions));
+		Set<AuthenticationOptionKey> formSignupSpec = form.getExternalSignupSpec().getSpecs().stream().collect(Collectors.toSet());
+		for (AuthenticationFlow flow : flows)
+		{
+			for (Authenticator authenticator : flow.getFirstFactorAuthenticators())
+			{
+				VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticator.getRetrieval();
+				String authenticatorKey = vaadinAuthenticator.getAuthenticatorId();
+				Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(Context.REGISTRATION);
+				for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
+				{
+					String optionKey = vaadinAuthenticationUI.getId();
+					AuthenticationOptionKey authnOption = new AuthenticationOptionKey(authenticatorKey, optionKey);
+					if (formSignupSpec.contains(authnOption))
+					{
+						SignUpAuthNOption signupAuthNOption = new SignUpAuthNOption(flow, vaadinAuthenticationUI);
+						signupOptions.put(authnOption, signupAuthNOption);
+					}
+				}
+			}
+		}
+	}
+
 	@Override
 	protected boolean createControlFor(AbstractOrderedLayout layout, FormElement element, 
 			FormElement previousAdded, InvitationWithCode invitation) throws EngineException
@@ -147,9 +219,38 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			return createCaptchaControl(layout, (BasicFormElement) element);
 		case REG_CODE:
 			return createRegistrationCodeControl(layout, (BasicFormElement) element);
+		case REMOTE_SIGNUP:
+			return createRemoteSignupButton(layout, (FormParameterElement) element);
+		case LOCAL_SIGNUP:
+			return createLocalSignupButton(layout, (FormLocalSignupElement) element);
 		default:
 			return super.createControlFor(layout, element, previousAdded, invitation);
 		}
+	}
+
+	private boolean createRemoteSignupButton(Layout layout, FormParameterElement element)
+	{
+		if (signUpAuthNController == null)
+			return false;
+		
+		int index = element.getIndex();
+		AuthenticationOptionKey spec =  form.getExternalSignupSpec().getSpecs().get(index);
+		SignUpAuthNOption option = signupOptions.get(spec);
+		option.authenticatorUI.setAuthenticationCallback(signUpAuthNController.buildCallback(option));
+		Component signupOptionComponent = option.authenticatorUI.getComponent();
+		signupOptionComponent.setWidth(form.getLayoutSettings().getColumnWidth(), 
+				Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit()));
+		layout.addComponent(signupOptionComponent);
+		return true;
+	}
+	
+	private boolean createLocalSignupButton(Layout layout, FormLocalSignupElement element)
+	{
+		Button localSignup = new Button(msg.getMessage("RegistrationRequest.localSignup"));
+		localSignup.addStyleName("u-signUpButton");
+		localSignup.addClickListener(event -> onLocalSignupHandler.run());
+		layout.addComponent(localSignup);
+		return true;
 	}
 	
 	private boolean createCaptchaControl(Layout layout, BasicFormElement element)

@@ -24,8 +24,8 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 
@@ -35,25 +35,20 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class InsecureRegistrationFormLauncher implements RegistrationFormDialogProvider
+public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDialogProvider
 {
-	@Autowired
-	protected UnityMessageSource msg;
-	
-	@Autowired 
-	@Qualifier("insecure")
-	protected RegistrationsManagement registrationsManagement;
-	
-	@Autowired
+	private RegistrationsManagement registrationsManagement;
 	private IdPLoginController idpLoginController;
+	private EventsBus bus;
 	
 	@Autowired
-	private ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory;
-	
-	protected EventsBus bus;
-	
-	public InsecureRegistrationFormLauncher()
+	public InsecureRegistrationFormLauncher(UnityMessageSource msg, IdPLoginController idpLoginController,
+			ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory, 
+			@Qualifier("insecure") RegistrationsManagement registrationsManagement)
 	{
+		super(msg, requestEditorCreatorFatory);
+		this.idpLoginController = idpLoginController;
+		this.registrationsManagement = registrationsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -99,37 +94,10 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 	}
 	
 	@Override
-	public void showRegistrationDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
-			AsyncErrorHandler errorHandler)
+	protected AbstractDialog createDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		RegistrationContext context = new RegistrationContext(true, 
 				idpLoginController.isLoginInProgress(), mode);
-		RequestEditorCreator editorCreator = requestEditorCreatorFatory.getObject().init(form, remoteContext);
-		editorCreator.invoke(new RequestEditorCreatedCallback()
-		{
-			@Override
-			public void onCreationError(Exception e)
-			{
-				errorHandler.onError(e);
-			}
-			
-			@Override
-			public void onCreated(RegistrationRequestEditor editor)
-			{
-				showDialog(form, context, editor);
-			}
-
-			@Override
-			public void onCancel()
-			{
-				//nop
-			}
-		});
-	}
-	
-	private void showDialog(RegistrationForm form, RegistrationContext context, RegistrationRequestEditor editor)
-	{
 		RegistrationFormFillDialog dialog = new RegistrationFormFillDialog(msg, 
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 				editor, new RegistrationFormFillDialog.Callback()
@@ -147,6 +115,6 @@ public class InsecureRegistrationFormLauncher implements RegistrationFormDialogP
 							cancelled(false, context);
 					}
 				});
-		dialog.show();
+		return dialog;
 	}
 }

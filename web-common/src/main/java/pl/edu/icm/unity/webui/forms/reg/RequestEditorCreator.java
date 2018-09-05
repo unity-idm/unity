@@ -11,10 +11,12 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -36,6 +38,11 @@ public class RequestEditorCreator
 	private AttributeTypeManagement aTypeMan;
 	private GroupsManagement groupsMan;
 	private CredentialManagement credMan;
+	private SignUpAuthNController signUpAuthNController;
+	private AuthenticatorSupportManagement authnSupport;
+	private Runnable onLocalSignupHandler;
+	private FormLayout effectiveLayout;
+	private String registrationCode;
 
 	@Autowired
 	public RequestEditorCreator(UnityMessageSource msg, 
@@ -45,7 +52,8 @@ public class RequestEditorCreator
 			@Qualifier("insecure") InvitationManagement invitationMan, 
 			@Qualifier("insecure") AttributeTypeManagement aTypeMan,
 			@Qualifier("insecure") GroupsManagement groupsMan, 
-			@Qualifier("insecure") CredentialManagement credMan)
+			@Qualifier("insecure") CredentialManagement credMan,
+			AuthenticatorSupportManagement authnSupport)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
@@ -55,19 +63,32 @@ public class RequestEditorCreator
 		this.aTypeMan = aTypeMan;
 		this.groupsMan = groupsMan;
 		this.credMan = credMan;
+		this.authnSupport = authnSupport;
 	}
 	
-	public RequestEditorCreator init(RegistrationForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated)
+
+	public RequestEditorCreator init(RegistrationForm form, SignUpAuthNController signUpAuthNController,
+			Runnable onLocalSignupHandler, FormLayout layout, RemotelyAuthenticatedContext context)
 	{
 		this.form = form;
-		this.remotelyAuthenticated = remotelyAuthenticated;
+		this.remotelyAuthenticated = context;
+		this.signUpAuthNController = signUpAuthNController;
+		this.onLocalSignupHandler = onLocalSignupHandler;
+		this.effectiveLayout = layout;
 		return this;
+	}
+	
+	public RequestEditorCreator init(RegistrationForm form, Runnable onLocalSignupHandler, 
+			FormLayout layout, RemotelyAuthenticatedContext context)
+	{
+		return init(form, null, onLocalSignupHandler, layout, context);
 	}
 	
 	public void invoke(RequestEditorCreatedCallback callback)
 	{
-		String registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
+		if (registrationCode == null)
+			registrationCode = RegistrationFormDialogProvider.getCodeFromURL();
+		
 		if (registrationCode == null && form.isByInvitationOnly())
 		{
 			askForCode(callback);
@@ -76,7 +97,7 @@ public class RequestEditorCreator
 			doCreateEditor(registrationCode, callback);
 		}
 	}
-	
+
 	private void askForCode(RequestEditorCreatedCallback callback)
 	{
 		GetRegistrationCodeDialog askForCodeDialog = new GetRegistrationCodeDialog(msg, 
@@ -85,6 +106,7 @@ public class RequestEditorCreator
 			@Override
 			public void onCodeGiven(String code)
 			{
+				registrationCode = code;
 				doCreateEditor(code, callback);
 			}
 			
@@ -105,7 +127,8 @@ public class RequestEditorCreator
 					remotelyAuthenticated, identityEditorRegistry, 
 					credentialEditorRegistry, attributeHandlerRegistry, 
 					aTypeMan, credMan, groupsMan, 
-					registrationCode, invitationMan);
+					registrationCode, invitationMan, authnSupport, signUpAuthNController,
+					effectiveLayout, onLocalSignupHandler);
 			callback.onCreated(editor);
 		} catch (Exception e)
 		{

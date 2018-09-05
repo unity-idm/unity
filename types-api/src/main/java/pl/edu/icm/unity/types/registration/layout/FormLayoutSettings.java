@@ -24,7 +24,7 @@ public class FormLayoutSettings
 	public static final FormLayoutSettings DEFAULT = new FormLayoutSettings(false, 21, "EM");
 
 	private boolean compactInputs;
-	private double columnWidth;
+	private float columnWidth;
 	private String columnWidthUnit;
 
 	@JsonCreator
@@ -33,7 +33,7 @@ public class FormLayoutSettings
 		fromJson(json);
 	}
 
-	public FormLayoutSettings(boolean compactInputs, double columnWidth, String columnWidthUnit)
+	public FormLayoutSettings(boolean compactInputs, float columnWidth, String columnWidthUnit)
 	{
 		this.compactInputs = compactInputs;
 		this.columnWidth = columnWidth;
@@ -50,12 +50,12 @@ public class FormLayoutSettings
 		this.compactInputs = compactInputs;
 	}
 
-	public double getColumnWidth()
+	public float getColumnWidth()
 	{
 		return columnWidth;
 	}
 
-	public void setColumnWidth(double columnWidth)
+	public void setColumnWidth(float columnWidth)
 	{
 		this.columnWidth = columnWidth;
 	}
@@ -78,7 +78,7 @@ public class FormLayoutSettings
 		}
 		if (JsonUtil.notNull(root, "columnWidth"))
 		{
-			setColumnWidth(root.get("columnWidth").asDouble());
+			setColumnWidth((float)root.get("columnWidth").asDouble());
 		}
 		if (JsonUtil.notNull(root, "columnWidthUnit"))
 		{
@@ -121,7 +121,7 @@ public class FormLayoutSettings
 	public static class Builder
 	{
 		private boolean compactInputs;
-		private double columnWidth;
+		private float columnWidth;
 		private String columnWidthUnit;
 		
 		public Builder withCompactInputs(boolean compactInputs)
@@ -129,7 +129,7 @@ public class FormLayoutSettings
 			this.compactInputs = compactInputs;
 			return this;
 		}
-		public Builder withColumnWidth(double columnWidth)
+		public Builder withColumnWidth(float columnWidth)
 		{
 			this.columnWidth = columnWidth;
 			return this;

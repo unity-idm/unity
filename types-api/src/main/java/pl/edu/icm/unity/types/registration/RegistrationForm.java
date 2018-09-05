@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.types.registration;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutType;
 import pl.edu.icm.unity.types.registration.layout.FormLocalSignupElement;
-import pl.edu.icm.unity.types.registration.layout.FormRemoteSignupElement;
+import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 
 /**
  * Configuration of a registration form. Registration form data contains:
@@ -164,6 +164,21 @@ public class RegistrationForm extends BaseForm
 			throw new IllegalStateException("Default credential requirement must be not-null "
 					+ "in RegistrationForm");
 	}
+	
+
+	public FormLayout getEffectiveSecondaryFormLayoutWithoutCredentials(MessageSource msg)
+	{
+		FormLayout layout = getEffectiveSecondaryFormLayout(msg);
+		FormLayout layoutWithoutCreds = new FormLayout(layout.toJson());
+		Iterator<FormElement> elementsIter = layoutWithoutCreds.getElements().iterator();
+		while (elementsIter.hasNext())
+		{
+			FormElement element = elementsIter.next();
+			if (element.getType() == FormLayoutType.CREDENTIAL)
+				elementsIter.remove();
+		}
+		return layoutWithoutCreds;
+	}
 
 	public FormLayout getEffectivePrimaryFormLayout(MessageSource msg)
 	{
@@ -191,7 +206,7 @@ public class RegistrationForm extends BaseForm
 		}
 		if (getFormLayouts().isLocalSignupEmbeddedAsButton())
 		{
-			elements.add(new FormLocalSignupElement(new I18nString("RegistrationRequest.localSignup", msg)));
+			elements.add(new FormLocalSignupElement());
 			
 		} else
 		{
@@ -205,7 +220,7 @@ public class RegistrationForm extends BaseForm
 	
 	private List<FormElement> getDefaultExternalSignupFormLayoutElements(MessageSource msg)
 	{
-		Set<AuthenticationOptionKey> remoteSignup = getExternalSignupSpec().getSpecs();
+		List<AuthenticationOptionKey> remoteSignup = getExternalSignupSpec().getSpecs();
 		List<FormElement> ret = new ArrayList<>();
 		if (!remoteSignup.isEmpty())
 		{
@@ -214,7 +229,7 @@ public class RegistrationForm extends BaseForm
 		
 		for (int i=0; i<remoteSignup.size(); i++)
 		{
-			ret.add(new FormRemoteSignupElement(new I18nString("RegistrationRequest.signupWith", msg), i));
+			ret.add(new FormParameterElement(FormLayoutType.REMOTE_SIGNUP, i));
 		}
 		return ret;
 	}
