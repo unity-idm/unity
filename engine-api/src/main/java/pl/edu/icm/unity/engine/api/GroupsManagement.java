@@ -98,6 +98,11 @@ public interface GroupsManagement
 	GroupContents getContents(String path, int filter) throws EngineException;
 	
 	/**
+	 * Retrieves list of all groups matching a given ant-style wildcard
+	 */
+	List<Group> getGroupsByWildcard(String pathWildcard);
+	
+	/**
 	 * @param root
 	 * @return all groups which are children of the root group (including grand children). The root group
 	 * is also in the returned set. 

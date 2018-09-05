@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -44,7 +45,6 @@ import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
@@ -104,7 +104,8 @@ public class TestInvitations  extends DBIntegrationTestBase
 	{
 		initAndCreateForm(true);
 		notMan.removeNotificationChannel(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
-		notMan.addNotificationChannel(new NotificationChannel(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, "", "", MockNotificationFacility.NAME));
+		notMan.addNotificationChannel(new NotificationChannel(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
+				"", "", MockNotificationFacility.NAME));
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100), 
 				"someAddr");
 		String code = invitationMan.addInvitation(invitation);
@@ -211,7 +212,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		initAndCreateForm(true);
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getGroupSelections().put(0, new PrefilledEntry<>(
-				new Selection(false), PrefilledEntryMode.READ_ONLY));
+				new GroupSelection("/A"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
@@ -268,7 +269,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		initAndCreateForm(true);
 		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getGroupSelections().put(0, new PrefilledEntry<>(
-				new Selection(true), PrefilledEntryMode.READ_ONLY));
+				new GroupSelection("/A"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequestWithIdentity(code);
 		
@@ -277,7 +278,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		RegistrationRequestState storedReq = registrationsMan.getRegistrationRequests().get(0);
 		assertThat(storedReq.getRequestId(), is(requestId));
 		assertThat(storedReq.getRequest().getGroupSelections().size(), is(1));
-		assertThat(storedReq.getRequest().getGroupSelections().get(0), is(new Selection(true)));
+		assertThat(storedReq.getRequest().getGroupSelections().get(0), is(new GroupSelection("/A")));
 	}
 
 	
@@ -332,7 +333,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 						VerifiableEmailAttribute.of(
 								InitializerCommon.EMAIL_ATTR, "/",
 								"foo@example.com"))
-				.withAddedGroupSelection().withSelected(false).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/A").endGroupSelection()
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "invitedUser"))
 				.build();
 	}

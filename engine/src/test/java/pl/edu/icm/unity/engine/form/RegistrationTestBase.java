@@ -128,7 +128,7 @@ public abstract class RegistrationTestBase extends DBIntegrationTestBase
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abc").toJson()).endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/B").endGroupSelection()
 				.withAddedIdentity(new IdentityParam(X500Identity.ID, "CN=registration test"))
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "test-user"))
 				.build();

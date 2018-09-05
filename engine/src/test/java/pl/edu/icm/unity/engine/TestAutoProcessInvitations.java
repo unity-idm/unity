@@ -11,6 +11,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.time.Instant;
+import java.util.Collections;
 
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -134,8 +135,8 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 				.withAttribute(
 						StringAttribute.of(InitializerCommon.CN_ATTR, "/A0/A1", "commonName"),
 						mode)
-				.withGroup(false, PrefilledEntryMode.DEFAULT)
-				.withGroup(true, mode)
+				.withGroups(Collections.emptyList(), PrefilledEntryMode.DEFAULT)
+				.withGroup("/A0/A1", mode)
 				.build();
 		invitationMan.addInvitation(invitation);
 		
@@ -151,8 +152,8 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 				.withAddedAttribute(
 						VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "email1@email.io"))
 				.withAddedAttribute(null)
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-				.withAddedGroupSelection().withSelected(false).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/A0").endGroupSelection()
+				.withAddedGroupSelection().endGroupSelection()
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "invitedUser"))
 				.build();
 		
@@ -234,8 +235,8 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 						VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "email1@email.io"))
 				.withAddedAttribute(
 						StringAttribute.of(InitializerCommon.CN_ATTR, "/A0/A1", "commonName1"))
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-				.withAddedGroupSelection().withSelected(false).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/A0").endGroupSelection()
+				.withAddedGroupSelection().endGroupSelection()
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "invitedUser"))
 				.build();
 		
@@ -262,8 +263,8 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 			.withAttribute(
 					StringAttribute.of(InitializerCommon.CN_ATTR, "/A0/A1", "commonName"),
 					PrefilledEntryMode.HIDDEN)
-			.withGroup(false, PrefilledEntryMode.DEFAULT)
-			.withGroup(true, PrefilledEntryMode.HIDDEN)
+			.withGroups(Collections.emptyList(), PrefilledEntryMode.DEFAULT)
+			.withGroup("/A0/A1", PrefilledEntryMode.HIDDEN)
 			.build();
 		return invitationMan.addInvitation(invitation);
 	}
@@ -284,8 +285,8 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 				.withAddedAttribute(
 						VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "email1@email.io"))
 				.withAddedAttribute(null)
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
-				.withAddedGroupSelection().withSelected(false).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/A0").endGroupSelection()
+				.withAddedGroupSelection().endGroupSelection()
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "invitedUser"))
 				.build();
 	}

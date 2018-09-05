@@ -411,7 +411,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/B").endGroupSelection()
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
 				.build();
 
@@ -526,7 +526,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/B").endGroupSelection()
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
 				.build();
 
@@ -671,7 +671,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedCredential()
 				.withCredentialId(EngineInitialization.DEFAULT_CREDENTIAL)
 				.withSecrets(new PasswordToken("abs").toJson()).endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/B").endGroupSelection()
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
 				.build();
 

@@ -16,6 +16,8 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
+import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
@@ -26,10 +28,12 @@ import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.confirmation.VerifiableElement;
@@ -39,6 +43,8 @@ import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
@@ -53,6 +59,8 @@ public class BaseRequestValidator
 	private CredentialRepository credentialRepository;
 	@Autowired
 	private AttributeTypeDAO dbAttributes;
+	@Autowired
+	private GroupDAO dbGroups;
 	@Autowired
 	private AttributesHelper attributesHelper;
 	@Autowired
@@ -71,17 +79,45 @@ public class BaseRequestValidator
 		validateRequestedAttributes(form, request);
 		validateRequestCredentials(form, request, doCredentialCheckAndUpdate);
 		validateRequestedIdentities(form, request);
+		validateRequestedGroups(form, request);
 
 		if (!form.isCollectComments() && request.getComments() != null)
 			throw new IllegalFormContentsException("This registration "
 					+ "form doesn't allow for passing comments.");
+	}
 
+	private void validateRequestedGroups(BaseForm form, BaseRegistrationInput request) 
+			throws IllegalFormContentsException
+	{
 		if (form.getGroupParams() == null)
 			return;
 		if (request.getGroupSelections().size() != form.getGroupParams().size())
 			throw new IllegalFormContentsException(
 					"Wrong amount of group selections, should be: "
 							+ form.getGroupParams().size());
+		for (int i = 0; i < form.getGroupParams().size(); i++)
+		{
+			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
+			GroupSelection groupSelection = request.getGroupSelections().get(i);
+			if (groupSelection == null)
+				continue;
+			validateRequestedGroup(groupRegistrationParam, groupSelection);
+		}
+	}
+	
+	private void validateRequestedGroup(GroupRegistrationParam groupRegistrationParam,
+			GroupSelection groupSelection) throws IllegalFormContentsException
+	{
+		if (!groupRegistrationParam.isMultiSelect() && groupSelection.getSelectedGroups().size() > 1)
+			throw new IllegalFormContentsException(
+					"Wrong amount of selected groups, must be at most one, but " 
+							+ groupSelection.getSelectedGroups().size() + 
+							" groups are selected");
+		for (String group: groupSelection.getSelectedGroups())
+			if (!GroupPatternMatcher.matches(group, groupRegistrationParam.getGroupPath()))
+				throw new IllegalFormContentsException(
+						"Requested group " + group + " is not matching allowed groups spec " 
+								+ groupRegistrationParam.getGroupPath());
 	}
 
 	private void validateRequestAgreements(BaseForm form, BaseRegistrationInput request)
@@ -137,6 +173,19 @@ public class BaseRequestValidator
 		if (!identitiesFound)
 			throw new WrongArgumentException("At least one identity must be defined in the "
 					+ "registration request.");
+	}
+
+	protected void validateFinalGroups(Collection<GroupParam> groups) 
+			throws EngineException
+	{
+		Map<String, Group> allAsMap = dbGroups.getAllAsMap();
+		for (GroupParam group: groups)
+		{
+			if (group == null)
+				throw new WrongArgumentException("Final group memberships contain null values");
+			if (!allAsMap.containsKey(group.getGroup()))
+				throw new WrongArgumentException("Group to add a user to " + group + " does not exist");
+		}
 	}
 	
 	protected void validateFinalCredentials(List<CredentialParamValue> credentials) 

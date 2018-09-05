@@ -53,14 +53,13 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseBuilder;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
@@ -147,19 +146,6 @@ public class TestEnquiries extends DBIntegrationTestBase
 		testFormBuilder.withCredentialParams(Collections.singletonList(credParam));
 		
 		checkUpdateOrAdd(testFormBuilder.build(), "cred", IllegalArgumentException.class);
-	}
-
-	
-	@Test 
-	public void formWithMissingGroupCantBeAdded() throws Exception
-	{
-		EnquiryForm form = initAndCreateEnquiry(null);
-		EnquiryFormBuilder testFormBuilder = getFormBuilder(null);
-
-		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
-		groupParam.setGroupPath("/missing");
-		testFormBuilder.withGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalArgumentException.class);
 	}
 
 	@Test 

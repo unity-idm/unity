@@ -5,22 +5,27 @@
 package pl.edu.icm.unity.store.export;
 
 /**
- * Enumerates schema versions with their metadata
+ * Enumerates information about data schema versions: JSON dump version revision, DB version revision 
+ * and corresponding public information about released version.
+ * 
  * @author K. Benedyczak
  */
 public enum DumpSchemaVersion
 {
-	V_INITIAL_2_0_0(3, "2.0.0", "1.9.x"),
-	V_SINCE_2_5_0(4, "2.5.0", "2.0.0"),
-	V_SINCE_2_6_0(5, "2.6.0", "2.5.0");
+	V_INITIAL_2_0_0(3, "2_2_0", "2.0.0", "1.9.x"),
+	V_SINCE_2_5_0(4, "2_3_0", "2.5.0", "2.0.0"),
+	V_SINCE_2_6_0(5, "2_4_0", "2.6.0", "2.5.0"),
+	V_SINCE_2_7_0(6, "2_5_0", "2.7.0", "2.6.0");
 	
 	private String name;
 	private String previousName;
-	private int versionCode; 
+	private int jsonDumpVersionCode;
+	private String dbVersion; 
 	
-	DumpSchemaVersion(int versionCode, String name, String previousName)
+	DumpSchemaVersion(int jsonDumpVersion, String dbVersion, String name, String previousName)
 	{
-		this.versionCode = versionCode;
+		this.jsonDumpVersionCode = jsonDumpVersion;
+		this.dbVersion = dbVersion;
 		this.name = name;
 		this.previousName = previousName;
 	}
@@ -35,8 +40,13 @@ public enum DumpSchemaVersion
 		return previousName;
 	}
 
-	public int getVersionCode()
+	public int getJsonDumpVersion()
 	{
-		return versionCode;
+		return jsonDumpVersionCode;
+	}
+
+	public String getDbVersion()
+	{
+		return dbVersion;
 	}
 }

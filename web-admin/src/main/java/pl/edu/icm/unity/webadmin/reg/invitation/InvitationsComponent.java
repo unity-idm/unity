@@ -17,6 +17,7 @@ import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -48,6 +49,8 @@ public class InvitationsComponent extends CustomComponent
 	private AttributeTypeManagement attributesManagement;
 
 	private InvitationManagement invitationManagement;
+
+	private GroupsManagement groupsManagement;
 	
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
@@ -56,7 +59,8 @@ public class InvitationsComponent extends CustomComponent
 			InvitationManagement invitationManagement,
 			AttributeHandlerRegistry attrHandlersRegistry,
 			IdentityEditorRegistry identityEditorRegistry,
-			MessageTemplateManagement msgTemplateManagement)
+			MessageTemplateManagement msgTemplateManagement,
+			GroupsManagement groupsManagement)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
@@ -65,6 +69,7 @@ public class InvitationsComponent extends CustomComponent
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.msgTemplateManagement = msgTemplateManagement;
+		this.groupsManagement = groupsManagement;
 		initUI();
 	}
 
@@ -74,7 +79,7 @@ public class InvitationsComponent extends CustomComponent
 		InvitationsTable invitationsTable = new InvitationsTable(msg,
 				registrationManagement, invitationManagement, attributesManagement,
 				identityEditorRegistry, attrHandlersRegistry,
-				msgTemplateManagement);
+				msgTemplateManagement, groupsManagement);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry,
 				msgTemplateManagement, registrationManagement);
 

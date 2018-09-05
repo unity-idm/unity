@@ -533,4 +533,37 @@
 		height: $v-unit-size - 8;
 		vertical-align: top;
 	}
+	
+	.u-chip {
+		margin-right: 6px;
+		margin-top: 3px;
+		margin-bottom: 3px;
+	}
+	
+	.u-chip .v-label {
+		background-color: #E0E0E0;
+		border-bottom-left-radius: 5px;
+		border-top-left-radius: 5px;
+		border-bottom-right-radius: 5px;
+		border-top-right-radius: 5px;
+		padding-left: 6px;
+		padding-right: 6px;
+		padding-top: 3px;
+		height: $v-unit-size - 6;
+	}
+	
+	.u-chip .v-button {
+		background-color: #E0E0E0;
+		margin-left: -6px;
+		border-bottom-right-radius: 5px;
+		border-top-right-radius: 5px;
+		padding-right: 6px;
+		padding-left: 6px;
+		padding-top: 4px;
+		height: $v-unit-size - 6;
+	}
+	
+	.u-chipsCombo {
+		margin-top: 3px;
+	}
 }

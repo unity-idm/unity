@@ -10,9 +10,8 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
@@ -48,12 +47,12 @@ class RegistrationUtil
 		
 		for (int idx = 0; idx < invitation.getGroupSelections().size(); ++idx)
 		{
-			PrefilledEntry<Selection> prefilled = invitation.getGroupSelections().get(idx);
+			PrefilledEntry<GroupSelection> prefilled = invitation.getGroupSelections().get(idx);
 			if (prefilled.getMode() ==  PrefilledEntryMode.HIDDEN
-					&& prefilled.getEntry().isSelected())
+					&& !prefilled.getEntry().getSelectedGroups().isEmpty())
 			{
-				GroupRegistrationParam group = invitationRegistrationForm.getGroupParams().get(idx);
-				prefilledGroups.add(new GroupParam(group.getGroupPath(), null, null));
+				for (String group: prefilled.getEntry().getSelectedGroups())
+					prefilledGroups.add(new GroupParam(group, null, null));
 			}
 		}
 		return prefilledGroups;

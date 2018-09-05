@@ -18,6 +18,7 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -56,6 +57,7 @@ public class InvitationsTable extends CustomComponent
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private AttributeTypeManagement attributesManagement;
 	private MessageTemplateManagement msgTemplateManagement;
+	private GroupsManagement groupsManagement;
 	
 	public InvitationsTable(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
@@ -63,7 +65,8 @@ public class InvitationsTable extends CustomComponent
 			AttributeTypeManagement attributesManagement,
 			IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry,
-			MessageTemplateManagement msgTemplateManagement)
+			MessageTemplateManagement msgTemplateManagement,
+			GroupsManagement groupsManagement)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
@@ -72,6 +75,7 @@ public class InvitationsTable extends CustomComponent
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.msgTemplateManagement = msgTemplateManagement;
+		this.groupsManagement = groupsManagement;
 		initUI();
 	}
 
@@ -257,7 +261,8 @@ public class InvitationsTable extends CustomComponent
 		{
 			editor = new InvitationEditor(msg, identityEditorRegistry,
 					attrHandlersRegistry, msgTemplateManagement.listTemplates(),
-					getForms(), attributesManagement.getAttributeTypesAsMap());
+					getForms(), attributesManagement.getAttributeTypesAsMap(),
+					groupsManagement.getGroupsByWildcard("/**"));
 		} catch (WrongArgumentException e)
 		{
 			NotificationPopup.showError(msg.getMessage("InvitationsTable.noValidForms"), 

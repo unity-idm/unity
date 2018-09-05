@@ -20,8 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
@@ -149,10 +147,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	protected DefaultClientConfiguration getClientCfg() throws KeyStoreException, IOException
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 		clientCfg.getHttpClientProperties().setSocketTimeout(3600000);
 		return clientCfg;
@@ -168,7 +164,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
 		EntityParam e2 = new EntityParam(added2);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, DBIntegrationTestBase.DEMO_SERVER_DN), 
 				e2, false);
 		eCredMan.setEntityCredential(new EntityParam(added2), "credential1", 
 				new PasswordToken("mockPassword2").toJson());

@@ -103,7 +103,7 @@ public class TestECP extends AbstractTestIdpBase
 		assertEquals(2, endpoints.size());
 		log.info("Deployed endpoints: {}", endpoints);
 		
-		List<InputTranslationRule> rules = new ArrayList<InputTranslationRule>();
+		List<InputTranslationRule> rules = new ArrayList<>();
 		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
 			
 		InputTranslationRule mapId = new InputTranslationRule(

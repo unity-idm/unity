@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.Objects;
+
 /**
  * Group registration option.
  * @author K. Benedyczak
@@ -11,6 +13,7 @@ package pl.edu.icm.unity.types.registration;
 public class GroupRegistrationParam extends RegistrationParam
 {
 	private String groupPath;
+	private boolean multiSelect = false;
 
 	public String getGroupPath()
 	{
@@ -22,31 +25,31 @@ public class GroupRegistrationParam extends RegistrationParam
 		this.groupPath = groupPath;
 	}
 
-	@Override
-	public int hashCode()
+	public boolean isMultiSelect()
 	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((groupPath == null) ? 0 : groupPath.hashCode());
-		return result;
+		return multiSelect;
+	}
+
+	public void setMultiSelect(boolean multiSelect)
+	{
+		this.multiSelect = multiSelect;
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public boolean equals(final Object other)
 	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
+		if (!(other instanceof GroupRegistrationParam))
 			return false;
-		if (getClass() != obj.getClass())
+		if (!super.equals(other))
 			return false;
-		GroupRegistrationParam other = (GroupRegistrationParam) obj;
-		if (groupPath == null)
-		{
-			if (other.groupPath != null)
-				return false;
-		} else if (!groupPath.equals(other.groupPath))
-			return false;
-		return true;
+		GroupRegistrationParam castOther = (GroupRegistrationParam) other;
+		return Objects.equals(groupPath, castOther.groupPath)
+				&& Objects.equals(multiSelect, castOther.multiSelect);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(super.hashCode(), groupPath, multiSelect);
 	}
 }

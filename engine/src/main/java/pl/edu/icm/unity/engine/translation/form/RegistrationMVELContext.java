@@ -20,6 +20,7 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -234,14 +235,12 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 		for (int i=0; i<request.getGroupSelections().size(); i++)
 		{
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
-			Selection selection = request.getGroupSelections().get(i);
-				
-			if (selection != null && selection.isSelected())
-			{
-				groups.add(groupRegistrationParam.getGroupPath());
-				if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())
-					rgroups.add(groupRegistrationParam.getGroupPath());
-			}
+			GroupSelection selection = request.getGroupSelections().get(i);
+			if (selection == null)
+				continue;
+			groups.addAll(selection.getSelectedGroups());
+			if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())
+				rgroups.addAll(selection.getSelectedGroups());
 		}
 		put(ContextKey.groups.name(), groups);
 		put(ContextKey.rgroups.name(), rgroups);

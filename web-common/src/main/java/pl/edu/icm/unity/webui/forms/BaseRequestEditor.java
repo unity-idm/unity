@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -40,7 +42,6 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -50,6 +51,7 @@ import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.Selection;
@@ -73,6 +75,7 @@ import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
@@ -100,7 +103,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private Map<Integer, IdentityEditor> identityParamEditors;
 	private List<CredentialEditor> credentialParamEditors;
 	private Map<Integer, FixedAttributeEditor> attributeEditor;
-	private Map<Integer, CheckBox> groupSelectors;
+	private Map<Integer, GroupsSelection> groupSelectors;
 	private List<CheckBox> agreementSelectors;
 	private TextArea comment;
 	private Map<String, AttributeType> atTypes;
@@ -362,21 +365,26 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		if (form.getGroupParams() != null)
 		{
-			List<Selection> g = new ArrayList<>();
+			List<GroupSelection> g = new ArrayList<>();
 			for (int i=0; i<form.getGroupParams().size(); i++)
 			{
 				GroupRegistrationParam gp = form.getGroupParams().get(i);
-				boolean hasRemoteGroup = remotelyAuthenticated.getGroups().contains(gp.getGroupPath());
+				List<Group> allMatchingGroups = groupsMan.getGroupsByWildcard(gp.getGroupPath());
+				List<Group> remotelySelected = GroupPatternMatcher.filterMatching(allMatchingGroups, 
+						remotelyAuthenticated.getGroups());
+				boolean hasRemoteGroup = !remotelySelected.isEmpty();
 				if (gp.getRetrievalSettings().isInteractivelyEntered(hasRemoteGroup))
 				{
-					CheckBox selector = groupSelectors.get(i);
+					GroupsSelection selector = groupSelectors.get(i);
 					if (selector == null)	//ok, group specified by invitation
 						g.add(null);
 					else
-						g.add(new Selection(selector.getValue()));
+						g.add(new GroupSelection(selector.getSelectedGroups()));
 				} else
 				{
-					g.add(new Selection(remotelyAuthenticated.getGroups().contains(gp.getGroupPath()),
+					List<String> remotelySelectedPaths = remotelySelected.stream()
+							.map(grp -> grp.toString()).collect(Collectors.toList());
+					g.add(new GroupSelection(remotelySelectedPaths,
 							remotelyAuthenticated.getRemoteIdPName(),
 							remotelyAuthenticated.getInputTranslationProfile()));
 				}
@@ -384,7 +392,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			ret.setGroupSelections(g);
 		}
 	}
-
+	
 	private void setRequestAgreements(BaseRegistrationInput ret, FormErrorStatus status)
 	{
 		if (form.getAgreements() != null)
@@ -655,12 +663,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}	
 	
 	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
-			Map<Integer, PrefilledEntry<Selection>> fromInvitation) throws EngineException
+			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation) throws EngineException
 	{
 		int index = element.getIndex();
 		GroupRegistrationParam groupParam = form.getGroupParams().get(index);
-		boolean hasRemoteGroup = remotelyAuthenticated.getGroups().contains(groupParam.getGroupPath());
-		PrefilledEntry<Selection> prefilledEntry = fromInvitation.get(index);
+		List<Group> allMatchingGroups = groupsMan.getGroupsByWildcard(groupParam.getGroupPath());
+		List<Group> remotelySelected = GroupPatternMatcher.filterMatching(allMatchingGroups, 
+				remotelyAuthenticated.getGroups());
+		boolean hasRemoteGroup = !remotelySelected.isEmpty();
+		PrefilledEntry<GroupSelection> prefilledEntry = fromInvitation.get(index);
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
 			return false;
@@ -668,40 +679,44 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			return false;
 		
 		boolean hasPrefilledROSelected = prefilledEntry != null && 
-				prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY 
-				&& prefilledEntry.getEntry().isSelected();
+				prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY;
 		boolean hasAutomaticRO = groupParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible() 
 				&& hasRemoteGroup; 
-		
-		if (hasPrefilledROSelected || hasAutomaticRO)
+
+		GroupsSelection selection = new GroupsSelection(msg, groupParam.isMultiSelect());
+		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
+
+		if (hasPrefilledROSelected)
 		{
-			Label label = new Label(groupParam.getGroupPath());
-			layout.addComponent(label);
+			selection.setReadOnly(true);
+			List<Group> prefilled = GroupPatternMatcher.filterMatching(allMatchingGroups, 
+					prefilledEntry.getEntry().getSelectedGroups());
+			selection.setSelectedItems(prefilled);
+			layout.addComponent(selection);
+		} else if (hasAutomaticRO)
+		{
+			selection.setReadOnly(true);
+			selection.setSelectedItems(remotelySelected);
+			layout.addComponent(selection);
 		} else
 		{
-			GroupContents contents = groupsMan.getContents(groupParam.getGroupPath(), GroupContents.METADATA);
-			Group grp = contents.getGroup();
-
-			CheckBox cb = new CheckBox();
-			cb.setCaption(isEmpty(groupParam.getLabel()) ? grp.getDisplayedName().getValue(msg) 
-					: groupParam.getLabel());
 			if (groupParam.getDescription() != null)
-				cb.setDescription(HtmlConfigurableLabel.conditionallyEscape(
+				selection.setDescription(HtmlConfigurableLabel.conditionallyEscape(
 						groupParam.getDescription()));
-			else if (!grp.getDescription().isEmpty())
-				cb.setDescription(HtmlConfigurableLabel.conditionallyEscape(
-						grp.getDescription().getValue(msg)));
+			selection.setItems(allMatchingGroups);
 			
 			if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 
 					&& hasRemoteGroup)
-				cb.setValue(hasRemoteGroup);
+				selection.setSelectedItems(remotelySelected);
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
-				cb.setValue(prefilledEntry.getEntry().isSelected());
-			groupSelectors.put(index, cb);
-			layout.addComponent(cb);
+				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allMatchingGroups, 
+						prefilledEntry.getEntry().getSelectedGroups()));
+			groupSelectors.put(index, selection);
+			layout.addComponent(selection);
 		}
 		return true;
 	}
+	
 	
 	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element) throws EngineException
 	{

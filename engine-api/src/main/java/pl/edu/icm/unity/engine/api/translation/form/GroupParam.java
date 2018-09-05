@@ -4,9 +4,10 @@
  */
 package pl.edu.icm.unity.engine.api.translation.form;
 
+import java.util.Objects;
+
 /**
  * Information about a group membership to be added for an entity being registered.
- * Can 
  * @author K. Benedyczak
  */
 public class GroupParam
@@ -35,43 +36,23 @@ public class GroupParam
 	}
 
 	@Override
-	public int hashCode()
+	public String toString()
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((externalIdp == null) ? 0 : externalIdp.hashCode());
-		result = prime * result + ((group == null) ? 0 : group.hashCode());
-		result = prime * result + ((translationProfile == null) ? 0 : translationProfile.hashCode());
-		return result;
+		return group;
+	}
+	
+	@Override
+	public boolean equals(final Object other)
+	{
+		if (!(other instanceof GroupParam))
+			return false;
+		GroupParam castOther = (GroupParam) other;
+		return Objects.equals(group, castOther.group) && Objects.equals(externalIdp, castOther.externalIdp)
+				&& Objects.equals(translationProfile, castOther.translationProfile);
 	}
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		GroupParam other = (GroupParam) obj;
-		if (externalIdp == null)
-		{
-			if (other.externalIdp != null)
-				return false;
-		} else if (!externalIdp.equals(other.externalIdp))
-			return false;
-		if (group == null)
-		{
-			if (other.group != null)
-				return false;
-		} else if (!group.equals(other.group))
-			return false;
-		if (translationProfile == null)
-		{
-			if (other.translationProfile != null)
-				return false;
-		} else if (!translationProfile.equals(other.translationProfile))
-			return false;
-		return true;
+		return Objects.hash(group, externalIdp, translationProfile);
 	}
 }

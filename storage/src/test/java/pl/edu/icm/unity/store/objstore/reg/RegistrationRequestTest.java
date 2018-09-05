@@ -78,7 +78,7 @@ public class RegistrationRequestTest extends AbstractNamedWithTSTest<Registratio
 				.withAddedCredential()
 				.withCredentialId("cred")
 				.withSecrets("sec").endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/some/group").endGroupSelection()
 				.withAddedIdentity("x500", "CN=registration test")
 				.endIdentity()
 				.build();
@@ -110,8 +110,8 @@ public class RegistrationRequestTest extends AbstractNamedWithTSTest<Registratio
 				.withAddedCredential()
 				.withCredentialId("cred2")
 				.withSecrets("sec2").endCredential()
-				.withAddedGroupSelection().withSelected(false).endGroupSelection()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().endGroupSelection()
+				.withAddedGroupSelection().withGroup("/other").withGroup("/another").endGroupSelection()
 				.withAddedIdentity("username", "ss")
 				.endIdentity()
 				.build();

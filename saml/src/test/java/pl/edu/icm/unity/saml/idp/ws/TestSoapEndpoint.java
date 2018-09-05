@@ -32,7 +32,6 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.saml.idp.AbstractTestIdpBase;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences;
 import pl.edu.icm.unity.saml.idp.preferences.SamlPreferences.SPSettings;
-import pl.edu.icm.unity.saml.idp.ws.SamlSoapEndpoint;
 import pl.edu.icm.unity.stdext.attr.FloatingPointAttribute;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -76,7 +75,72 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 	}
 	
 	@Test
-	public void testAuthn() throws Exception
+	public void shouldAuthenticateWithPasswordOnly() throws Exception
+	{
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
+				"/AuthenticationService";
+		
+		DefaultClientConfiguration clientCfg = getClientCfg();
+		clientCfg.setHttpUser("user1");
+		clientCfg.setHttpPassword("mockPassword1");
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
+		
+		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
+		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
+
+		AuthnResponseAssertions resp = client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
+				localIssuer, "http://somehost/consumer");
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
+	}
+
+	@Test
+	public void shouldNotAuthenticateWithoutCredential() throws Exception
+	{
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
+				"/AuthenticationService";
+		
+		DefaultClientConfiguration clientCfg = getClientCfg();
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(false);
+		
+		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
+		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
+
+		try
+		{
+			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
+			fail("authenticated without credential");
+		} catch (SAMLServerException e) {
+			//expected
+		}
+	}
+	
+	@Test
+	public void shouldNotAuthnWithIncorrectPasswordOnly() throws Exception
+	{
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
+				"/AuthenticationService";
+		
+		DefaultClientConfiguration clientCfg = getClientCfg();
+		clientCfg.setHttpUser("user1");
+		clientCfg.setHttpPassword("wrong");
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
+		
+		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
+		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
+		try
+		{
+			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
+			fail("authenticated with wrong password");
+		} catch (SAMLServerException e) {
+			//expected
+		}
+	}
+	
+	@Test
+	public void shouldNotAuthenticateWithWrongFormat() throws Exception
 	{
 		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
 				"/AuthenticationService";
@@ -96,55 +160,55 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		} catch (SAMLServerException e) {
 			//expected
 		}
-		
-		AuthnResponseAssertions resp = client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, 
-				localIssuer, "http://somehost/consumer");
-		
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
-		
-		clientCfg.setHttpPassword("wrong");
-		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		try
-		{
-			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
-			fail("authenticated with wrong password");
-		} catch (SAMLServerException e) {
-			//expected
-		}
+	}
+	
+	@Test
+	public void shouldAuthnWithPasswordWhenTlsAlsoSet() throws Exception
+	{
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
+				"/AuthenticationService";
+		DefaultClientConfiguration clientCfg = getClientCfg();
+		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
 
-		clientCfg.setHttpAuthn(false);
-		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		try
-		{
-			client.authenticate(SAMLConstants.NFORMAT_PERSISTENT, localIssuer, "http://somehost/consumer");
-			fail("authenticated without credential");
-		} catch (SAMLServerException e) {
-			//expected
-		}
-		
-		//only TLS
-		clientCfg.setSslAuthn(true);
-		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		resp = client.authenticate(SAMLConstants.NFORMAT_DN, localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_DN, 7);
-		
-		//both, both ok, the first configured, i.e. the password should be used.
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
+		clientCfg.setHttpUser("user1");
 		clientCfg.setHttpPassword("mockPassword1");
-		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		resp = client.authenticate(localIssuer, "http://somehost/consumer");
-		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
-		
-		//both but password wrong so TLS should be used.
-		clientCfg.setSslAuthn(true);
-		clientCfg.setHttpAuthn(true);
-		clientCfg.setHttpPassword("wrong");
-		client = new SAMLAuthnClient(authnWSUrl, clientCfg);
-		resp = client.authenticate(localIssuer, "http://somehost/consumer");
+		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
+		AuthnResponseAssertions resp = client.authenticate(localIssuer, "http://somehost/consumer");
 		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
 	}
+	
+	@Test
+	public void shouldAuthnWithTLSOnly() throws Exception
+	{
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
+				"/AuthenticationService";
+		
+		DefaultClientConfiguration clientCfg = getClientCfg();
+		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
+		clientCfg.setHttpAuthn(false);
+		clientCfg.setSslAuthn(true);
+		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
+		AuthnResponseAssertions resp = client.authenticate(SAMLConstants.NFORMAT_DN, localIssuer, "http://somehost/consumer");
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_DN, 7);
+	}
 
+	@Test
+	public void shouldAuthnWithTLSWhenPasswordIncorrect() throws Exception
+	{
+		String authnWSUrl = "https://localhost:52443/saml" + SamlSoapEndpoint.SERVLET_PATH +
+				"/AuthenticationService";
+		DefaultClientConfiguration clientCfg = getClientCfg();
+		NameID localIssuer = new NameID("unicore receiver", SAMLConstants.NFORMAT_ENTITY);
+		clientCfg.setSslAuthn(true);
+		clientCfg.setHttpAuthn(true);
+		clientCfg.setHttpUser("user1");
+		clientCfg.setHttpPassword("wrong");
+		SAMLAuthnClient client = new SAMLAuthnClient(authnWSUrl, clientCfg);
+		AuthnResponseAssertions resp = client.authenticate(localIssuer, "http://somehost/consumer");
+		checkAuthnResponse(resp, SAMLConstants.NFORMAT_PERSISTENT, 7);
+	}
 	
 	private void checkAuthnResponse(AuthnResponseAssertions resp, String expectedFormat,
 			int expectedAttrs) throws SAMLValidationException
@@ -171,8 +235,8 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		NameID localIssuer = null;
 		
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
-		AttributeAssertionParser a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
-				localIssuer);
+		AttributeAssertionParser a = client.getAssertion(new NameID(DEMO_SERVER_DN, 
+				SAMLConstants.NFORMAT_DN), localIssuer);
 		assertEquals(6, a.getAttributes().size()); //2 identities, 1 group, 3 plain attributes
 		ParsedAttribute a1 = a.getAttribute("stringA");
 		assertNotNull(a1);
@@ -192,7 +256,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		assertEquals(1, a4.getStringValues().size());
 		assertEquals("/", a4.getStringValues().get(0));
 		
-		a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN), 
+		a = client.getAssertion(new NameID(DEMO_SERVER_DN, SAMLConstants.NFORMAT_DN), 
 				localIssuer, new SAMLAttribute("floatA", null));
 		assertEquals(1, a.getAttributes().size());
 		a3 = a.getAttribute("floatA");
@@ -205,7 +269,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 
 		SAMLAttribute queried = new SAMLAttribute("floatA", null);
 		queried.addStringAttributeValue("124.1");
-		a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN), 
+		a = client.getAssertion(new NameID(DEMO_SERVER_DN, SAMLConstants.NFORMAT_DN), 
 				localIssuer, queried);
 		assertEquals(1, a.getAttributes().size());
 		a3 = a.getAttribute("floatA");
@@ -228,8 +292,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		clientCfg.setHttpAuthn(true);
 		NameID localIssuer = new NameID("http://example-reqester", SAMLConstants.NFORMAT_ENTITY);
 		
-		EntityParam entityParam = new EntityParam(new IdentityTaV(X500Identity.ID, 
-				"CN=Test UVOS,O=UNICORE,C=EU"));
+		EntityParam entityParam = new EntityParam(new IdentityTaV(X500Identity.ID, DEMO_SERVER_DN));
 		SamlPreferences preferences = new SamlPreferences();
 		SPSettings settings = new SPSettings();
 		Map<String, Attribute> hidden = new HashMap<>();
@@ -242,7 +305,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 				JsonUtil.serialize(preferences.getSerializedConfiguration()));
 		
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
-		AttributeAssertionParser a = client.getAssertion(new NameID("CN=Test UVOS,O=UNICORE,C=EU", SAMLConstants.NFORMAT_DN),
+		AttributeAssertionParser a = client.getAssertion(new NameID(DEMO_SERVER_DN, SAMLConstants.NFORMAT_DN),
 				localIssuer);
 		assertEquals(5, a.getAttributes().size()); //2 identities, 3 plain attributes
 		ParsedAttribute a1 = a.getAttribute("stringA");

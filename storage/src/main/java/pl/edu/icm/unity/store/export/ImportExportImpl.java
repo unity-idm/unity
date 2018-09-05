@@ -25,6 +25,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.api.ImportExport;
 
 /**
@@ -35,8 +36,6 @@ import pl.edu.icm.unity.store.api.ImportExport;
 public class ImportExportImpl implements ImportExport
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, ImportExportImpl.class);
-	public static final int VERSION = 5;
-
 	private ObjectMapper objectMapper;
 	private DumpUpdater updater;
 	private List<AbstractIEBase<?>> implementations;
@@ -71,7 +70,7 @@ public class ImportExportImpl implements ImportExport
 	@Override
 	public void store(OutputStream os) throws IOException
 	{
-		storeWithVersion(os, VERSION);
+		storeWithVersion(os, AppDataSchemaVersion.CURRENT.getJsonDumpVersion());
 	}
 	
 	@Override

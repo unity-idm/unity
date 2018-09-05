@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -303,6 +304,15 @@ public class GroupsManagementImpl implements GroupsManagement
 	{
 		authz.checkAuthorization(group, AuthzCapability.read);
 		return dbGroups.exists(group);
+	}
+
+	@Transactional
+	@Override
+	public List<Group> getGroupsByWildcard(String pathWildcard)
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.read);
+		List<Group> all = dbGroups.getAll();
+		return GroupPatternMatcher.filterMatching(all, pathWildcard);
 	}
 	
 	private Set<String> getSubGroupsInclusive(String root)
