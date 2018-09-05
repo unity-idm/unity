@@ -4,13 +4,14 @@
  */
 package pl.edu.icm.unity.engine.group;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.util.List;
 import java.util.Set;
@@ -78,33 +79,65 @@ public class TestGroups extends DBIntegrationTestBase
 		GroupContents abC = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
 		assertNotNull(abC.getGroup());
 		assertEquals(new I18nString("d-n"), abC.getGroup().getDescription());
-
-		try
-		{
-			groupsMan.getContents("/A/C", GroupContents.EVERYTHING);
-			fail("Should get authZ error for group where is not a member");
-		} catch (AuthorizationException e)
-		{
-			//OK
-		}
 	}
 
 	@Test
-	public void testCreate() throws Exception
+	public void shouldFailToGetContentsOfGroupWhereIsNotAMember() throws Exception
+	{
+		setupPasswordAuthn();
+		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		Group ac = new Group("/A/C");
+		groupsMan.addGroup(ac);
+		
+		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER));
+		groupsMan.addMemberFromParent("/A", ep);
+		
+		setupUserContext(DEF_USER, null);
+		
+		Throwable error = catchThrowable(() -> groupsMan.getContents("/A/C", GroupContents.EVERYTHING));
+		
+		assertThat(error).isNotNull().isInstanceOf(AuthorizationException.class);
+	}
+	
+	@Test
+	public void shouldNotAddTooLongGroup() throws Exception
 	{
 		StringBuilder sb = new StringBuilder("/");
 		for (int i=0; i<201; i++)
 			sb.append("a");
 		Group tooBig = new Group(sb.toString());
-		try
-		{
-			groupsMan.addGroup(tooBig);
-			fail("Managed to add a too big group");
-		} catch (IllegalArgumentException e)
-		{
-			//OK
-		}
 		
+		Throwable error = catchThrowable(() -> groupsMan.addGroup(tooBig));
+		
+		assertThat(error).isNotNull().isInstanceOf(IllegalArgumentException.class);
+	}
+	
+	@Test
+	public void shouldNotRemoveRootGroup() throws Exception
+	{
+		Throwable error = catchThrowable(() -> groupsMan.removeGroup("/", true));
+		
+		assertThat(error).isNotNull().isInstanceOf(IllegalGroupValueException.class);
+	}
+
+	@Test
+	public void shouldNotNonEmptyGroupWithoutRecursiveFlag() throws Exception
+	{
+		Group a = new Group("/A");
+		groupsMan.addGroup(a);
+		Group ab = new Group("/A/B");
+		groupsMan.addGroup(ab);
+		
+		Throwable error = catchThrowable(() -> groupsMan.removeGroup("/A", false));
+		
+		assertThat(error).isNotNull().isInstanceOf(IllegalGroupValueException.class);
+	}
+	
+	@Test
+	public void testCreate() throws Exception
+	{
 		AttributeType atFoo = new AttributeType("foo", StringAttributeSyntax.ID);
 		aTypeMan.addAttributeType(atFoo);
 		
@@ -157,23 +190,6 @@ public class TestGroups extends DBIntegrationTestBase
 		GroupContents contentAC = groupsMan.getContents("/A/C", GroupContents.EVERYTHING);
 		assertEquals(0, contentAC.getSubGroups().size());
 		assertEquals(new I18nString("goo"), contentAC.getGroup().getDescription());
-		
-		try
-		{
-			groupsMan.removeGroup("/A", false);
-			fail("Removed non empty group, with recursive == false");
-		} catch (IllegalGroupValueException e)
-		{
-			//OK
-		}
-		try
-		{
-			groupsMan.removeGroup("/", true);
-			fail("Removed root group");
-		} catch (IllegalGroupValueException e)
-		{
-			//OK
-		}
 		
 		groupsMan.removeGroup("/A/B/D", false);
 		contentAB = groupsMan.getContents("/A/B", GroupContents.EVERYTHING);
