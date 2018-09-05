@@ -80,7 +80,8 @@ public class BaseFormValidator
 					throw new IllegalArgumentException("Collected attribute " + key + 
 							" was specified more then once.");
 				used.add(key);
-				groupDAO.get(attr.getGroup());
+				if (!attr.isUsingDynamicGroup())
+					groupDAO.get(attr.getGroup());
 			}
 		}
 

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.forms.reg;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,11 @@ import pl.edu.icm.unity.engine.forms.BaseRequestValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -33,6 +38,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
  * <p>
  * What is more this component implements invitations handling, i.e. the overall validation and 
  * updating the request with mandatory invitation information (what must be done prior to base validation).
+ * Also attributes configured to use contextual groups are updated with final group here.
  * 
  * @author K. Benedyczak
  */
@@ -50,6 +56,7 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 		boolean byInvitation = processInvitationAndValidateCode(form, request);
 		
 		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate);
+		applyContextGroupsToAttributes(form, request);
 
 		if (byInvitation)
 		{
@@ -68,6 +75,39 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 		validateFinalGroups(request.getGroups());
 	}
 
+	private void applyContextGroupsToAttributes(RegistrationForm form, RegistrationRequest request) throws IllegalFormContentsException
+	{
+		Map<String, Integer> wildcardToGroupParamIndex = new HashMap<>();
+		int j=0;
+		for (GroupRegistrationParam groupParam: form.getGroupParams())
+			wildcardToGroupParamIndex.put(groupParam.getGroupPath(), j++);
+		
+		for (int i = 0; i < request.getAttributes().size(); i++)
+		{
+			Attribute attr = request.getAttributes().get(i);
+			if (attr == null)
+				continue;
+			AttributeRegistrationParam regParam = form.getAttributeParams().get(i);
+			if (regParam.isUsingDynamicGroup())
+			{
+				String wildcard = regParam.getDynamicGroup();
+				Integer index = wildcardToGroupParamIndex.get(wildcard);
+				if (index == null)
+					throw new IllegalStateException("Form is inconsistent: "
+							+ "no group param for dynamic attribute using group wildcard " 
+							+ wildcard);
+				GroupSelection resolvedGroup = request.getGroupSelections().get(index);
+				if (resolvedGroup == null)
+					throw new IllegalFormContentsException("Group must be selected for parameter " 
+							+ form.getGroupParams().get(index).getLabel());
+				if (resolvedGroup.getSelectedGroups().size() != 1)
+					throw new IllegalFormContentsException("Single group must be selected for parameter " 
+							+ form.getGroupParams().get(index).getLabel());
+				attr.setGroupPath(resolvedGroup.getSelectedGroups().get(0));
+			}
+		}
+	}
+	
 	/**
 	 * Code is validated, wrt to invitation or form fixed code. What is more the request attributes
 	 * groups and identities are set to those from invitation when necessary and errors are reported

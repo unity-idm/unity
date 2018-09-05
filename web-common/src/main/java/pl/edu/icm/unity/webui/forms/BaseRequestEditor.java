@@ -215,10 +215,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				boolean found = false;
 				for (Attribute a: attrs)
 					if (a.getName().equals(aParam.getAttributeType()) && 
-							a.getGroupPath().equals(aParam.getGroup()))
+							GroupPatternMatcher.matches(a.getGroupPath(), aParam.getGroup()))
 					{
 						found = true;
-						remoteAttributes.put(a.getGroupPath()+"//"+
+						remoteAttributes.put(aParam.getGroup()+"//"+
 								a.getName(), a);
 						break;
 					}
@@ -642,7 +642,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			
 			AttributeEditContext editContext = AttributeEditContext.builder()
 					.withConfirmationMode(confirmationMode).withRequired(!aParam.isOptional())
-					.withAttributeType(aType).withAttributeGroup(aParam.getGroup())
+					.withAttributeType(aType)
+					.withAttributeGroup(aParam.isUsingDynamicGroup() ? "/" : aParam.getGroup())
 					.build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
