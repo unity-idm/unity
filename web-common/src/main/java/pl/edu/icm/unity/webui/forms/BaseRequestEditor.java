@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms;
 
+import static pl.edu.icm.unity.webui.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -626,7 +628,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		boolean hasAutomaticRO = groupParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible() 
 				&& hasRemoteGroup; 
 
-		GroupsSelection selection = new GroupsSelection(msg, groupParam.isMultiSelect());
+		GroupsSelection selection = GroupsSelection.getGroupsSelection(msg, groupParam.isMultiSelect(), 
+				isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
 
 		if (hasPrefilledROSelected)
@@ -634,11 +637,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			selection.setReadOnly(true);
 			List<Group> prefilled = GroupPatternMatcher.filterMatching(allMatchingGroups, 
 					prefilledEntry.getEntry().getSelectedGroups());
+			selection.setItems(prefilled);
 			selection.setSelectedItems(prefilled);
 			layout.addComponent(selection);
 		} else if (hasAutomaticRO)
 		{
 			selection.setReadOnly(true);
+			selection.setItems(remotelySelected);
 			selection.setSelectedItems(remotelySelected);
 			layout.addComponent(selection);
 		} else
