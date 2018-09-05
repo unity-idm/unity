@@ -27,7 +27,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
@@ -35,7 +34,6 @@ import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
-import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvider;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -123,7 +121,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withTranslationProfile(profileEditor.getProfile());
 		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
-		builder.withLayout(layoutEditor.getLayout());
+		// TODO: once layout editor is implemented fix this line
+//		builder.withLayout(layoutEditor.getLayout());
 		return builder.build();
 	}
 	
@@ -197,13 +196,14 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	private void initLayoutTab()
 	{
-		VerticalLayout wrapper = new VerticalLayout();
-		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
-		wrapper.setMargin(true);
-		wrapper.setSpacing(false);
-		wrapper.addComponent(layoutEditor);
-		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
-		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+		// TODO: once layout editor is implemented fix
+//		VerticalLayout wrapper = new VerticalLayout();
+//		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
+//		wrapper.setMargin(true);
+//		wrapper.setSpacing(false);
+//		wrapper.addComponent(layoutEditor);
+//		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
+//		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
 	}
 	
 	private void initAssignedTab() throws EngineException
@@ -222,21 +222,5 @@ public class EnquiryFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
-	}
-	
-	private class FormProviderImpl implements FormProvider
-	{
-		@Override
-		public BaseForm getForm()
-		{
-			try
-			{
-				return getFormBuilderBasic().build();
-			} catch (Exception e)
-			{
-				log.debug("Ignoring layout update, form is invalid", e);
-				return null;
-			}
-		}
 	}
 }

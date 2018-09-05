@@ -24,6 +24,7 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutType;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -38,6 +39,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  * 
  * @author K. Benedyczak
  */
+@Deprecated
 public class FormLayoutEditor extends CustomComponent
 {
 	protected UnityMessageSource msg;
@@ -78,9 +80,9 @@ public class FormLayoutEditor extends CustomComponent
 			layoutControls.setVisible(enabled);
 			if (enabled)
 			{
-				BaseForm form = getForm();
-				if (form != null)
-					setLayout(form.getDefaultFormLayout(msg));
+				FormLayout layout = getFormLayout();
+				if (layout != null)
+					setLayout(layout);
 			}
 		});
 		main.addComponent(enableCustom);
@@ -117,15 +119,15 @@ public class FormLayoutEditor extends CustomComponent
 		Label label = new Label(msg.getMessage("FormLayoutEditor.addCaption"));
 		addElementLayout.addComponent(label);
 		addElementLayout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
-		ComboBox<String> elementSelector = new ComboBox<>();
-		elementSelector.setItems(FormLayout.SEPARATOR, FormLayout.CAPTION);
-		elementSelector.setSelectedItem(FormLayout.CAPTION);
+		ComboBox<FormLayoutType> elementSelector = new ComboBox<>();
+		elementSelector.setItems(FormLayoutType.SEPARATOR, FormLayoutType.CAPTION);
+		elementSelector.setSelectedItem(FormLayoutType.CAPTION);
 		elementSelector.setEmptySelectionAllowed(false);
 		
 		Button add = new Button();
 		add.setIcon(Images.add.getResource());
 		add.addClickListener(event -> {
-			FormElement added = createExtraElementOfType(elementSelector.getValue().toString());
+			FormElement added = createExtraElementOfType(elementSelector.getValue());
 			addComponentFor(added, 0);
 			refreshComponents();
 		});
@@ -135,28 +137,28 @@ public class FormLayoutEditor extends CustomComponent
 	
 	public void setInitialForm(BaseForm form)
 	{
-		if (form != null)
-		{
-			boolean customLayout = form.getLayout() != null;
-			layoutControls.setVisible(customLayout);
-			enableCustom.setValue(customLayout);
-			if (customLayout)
-				setLayout(form.getLayout());
-		}
+//		if (form != null)
+//		{
+//			boolean customLayout = form.getLayout() != null;
+//			layoutControls.setVisible(customLayout);
+//			enableCustom.setValue(customLayout);
+//			if (customLayout)
+//				setLayout(form.getLayout());
+//		}
 	}
 
 	public void updateFromForm()
 	{
-		if (!enableCustom.getValue())
-			return;
-
-		BaseForm form = getForm();
-		if (form != null)
-		{
-			form.setLayout(getCurrentLayout());
-			form.updateLayout();
-			setLayout(form.getLayout());
-		}
+//		if (!enableCustom.getValue())
+//			return;
+//
+//		BaseForm form = getLayout();
+//		if (form != null)
+//		{
+//			form.setLayout(getCurrentLayout());
+//			form.updateLayout();
+//			setLayout(form.getLayout());
+//		}
 	}
 	
 	private void setLayout(FormLayout formLayout)
@@ -180,13 +182,13 @@ public class FormLayoutEditor extends CustomComponent
 		entriesLayout.addComponent(component, index);
 	}
 
-	protected FormElement createExtraElementOfType(String type)
+	protected FormElement createExtraElementOfType(FormLayoutType type)
 	{
 		switch (type)
 		{
-		case FormLayout.CAPTION:
+		case CAPTION:
 			return new FormCaptionElement(new I18nString());
-		case FormLayout.SEPARATOR:
+		case SEPARATOR:
 			return new FormSeparatorElement();
 		default: 
 			throw new IllegalStateException("Unsupported extra layout element type " + type);
@@ -197,13 +199,13 @@ public class FormLayoutEditor extends CustomComponent
 	{
 		switch (formElement.getType())
 		{
-		case FormLayout.CAPTION:
+		case CAPTION:
 			return new CaptionElementEditor(msg, (FormCaptionElement) formElement);
-		case FormLayout.AGREEMENT:
-		case FormLayout.ATTRIBUTE:
-		case FormLayout.CREDENTIAL:
-		case FormLayout.GROUP:
-		case FormLayout.IDENTITY:
+		case AGREEMENT:
+		case ATTRIBUTE:
+		case CREDENTIAL:
+		case GROUP:
+		case IDENTITY:
 			return new FormParameterElementEditor((FormParameterElement) formElement);
 			
 		default: 
@@ -232,14 +234,14 @@ public class FormLayoutEditor extends CustomComponent
 			entries.get(i).setPosition(i, entries.size());
 	}
 	
-	private BaseForm getForm()
+	private FormLayout getFormLayout()
 	{
-		BaseForm form = formProvider.getForm();
-		if (form == null)
+		FormLayout layout = formProvider.getForm();
+		if (layout == null)
 			setCompositionRoot(errorInfo);
 		else
 			setCompositionRoot(main);
-		return form;
+		return layout;
 	}
 	
 	private class CallbackImpl implements EntryComponent.Callback
@@ -271,6 +273,6 @@ public class FormLayoutEditor extends CustomComponent
 	 */
 	public interface FormProvider
 	{
-		BaseForm getForm();
+		FormLayout getForm();
 	}
 }

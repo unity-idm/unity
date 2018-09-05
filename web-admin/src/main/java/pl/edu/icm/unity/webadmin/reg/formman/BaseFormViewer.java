@@ -19,7 +19,6 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
-import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
@@ -109,12 +108,13 @@ public class BaseFormViewer extends VerticalLayout
 	
 	protected void setLayout(BaseForm form)
 	{
-		StringBuilder info = new StringBuilder();
-		if (form.getLayout() == null)
-			info.append(msg.getMessage("RegistrationFormViewer.defaultLayout")).append("\n\n");
-		for (FormElement formElement : form.getEffectiveFormLayout(msg).getElements())
-			info.append(formElement.toString(msg)).append("\n");
-		layout.setValue(info.toString());
+		// TODO: once layout editor is implemented fix
+//		StringBuilder info = new StringBuilder();
+//		if (form.getLayout() == null)
+//			info.append(msg.getMessage("RegistrationFormViewer.defaultLayout")).append("\n\n");
+//		for (FormElement formElement : form.getEffectiveFormLayout(msg).getElements())
+//			info.append(formElement.toString(msg)).append("\n");
+//		layout.setValue(info.toString());
 	}
 	
 	protected void setupCommonFormInformationComponents()
