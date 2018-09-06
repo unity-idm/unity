@@ -6,8 +6,10 @@ package pl.edu.icm.unity.oauth.as.preferences;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
+import com.google.common.collect.Lists;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
@@ -100,7 +102,13 @@ public class OAuthSPSettingsEditor extends FormLayout
 			client.setDescription(msg.getMessage("OAuthPreferences.clientDesc"));
 			client.setWidth(100, Unit.PERCENTAGE);
 			client.setTextInputAllowed(true);
-			client.setNewItemHandler((s) -> {});
+			client.setNewItemProvider(s ->
+			{
+				List<String> items = Lists.newArrayList(s);
+				items.addAll(allSps);
+				client.setItems(items);
+				return Optional.of(s);
+			});
 			client.setEmptySelectionAllowed(true);
 			client.setItems(allSps);
 			addComponent(client);
