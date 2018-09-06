@@ -47,10 +47,22 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 	public void validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
 			boolean doCredentialCheckAndUpdate) throws EngineException
 	{
+		validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, false);
+	}
+	
+	public void validateSubmittedRequestExceptCredentials(RegistrationForm form, RegistrationRequest request,
+			boolean doCredentialCheckAndUpdate) throws EngineException
+	{
+		validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, true);
+	}
+	
+	private void validateSubmittedRequest(RegistrationForm form, RegistrationRequest request,
+			boolean doCredentialCheckAndUpdate, boolean skipCredentialsValidation) throws EngineException
+	{
 		boolean byInvitation = processInvitationAndValidateCode(form, request);
 		
-		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate);
-
+		super.validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, skipCredentialsValidation);
+		
 		if (byInvitation)
 		{
 			String code = request.getRegistrationCode();

@@ -89,10 +89,10 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	public void enter(ViewChangeEvent changeEvent)
 	{	
 		initUIFromScratch(form.getEffectivePrimaryFormLayout(msg),
-				RemotelyAuthenticatedContext.getLocalContext(), true);
+				RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone);
 	}
 	
-	private void initUIFromScratch(FormLayout layout, RemotelyAuthenticatedContext context, boolean withCredentials)
+	private void initUIFromScratch(FormLayout layout, RemotelyAuthenticatedContext context, TriggeringMode mode)
 	{
 		initUIBase();
 		
@@ -110,7 +110,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 			public void onCreated(RegistrationRequestEditor editor)
 			{
 				setEditor(editor);
-				editorCreated(editor, layout, withCredentials);
+				editorCreated(editor, layout, mode);
 			}
 
 			@Override
@@ -135,7 +135,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 		this.editor = editor;
 	}
 
-	private void editorCreated(RegistrationRequestEditor editor, FormLayout effectiveLayout, boolean withCredentials)
+	private void editorCreated(RegistrationRequestEditor editor, FormLayout effectiveLayout, TriggeringMode mode)
 	{
 		header = new SignUpTopHederComponent(cfg, msg, this::onUserAuthnCancel);
 		main.addComponent(header);
@@ -150,7 +150,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 			formBbuttons = new HorizontalLayout();
 			Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
 			okButton.addStyleName(Styles.vButtonPrimary.toString());
-			okButton.addClickListener(event -> onSubmit(editor, withCredentials));
+			okButton.addClickListener(event -> onSubmit(editor, mode));
 			
 			Button cancelButton = new Button(msg.getMessage("cancel"));
 			cancelButton.addClickListener(event -> onCancel());
@@ -182,7 +182,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	private void onLocalSignupClickHandler()
 	{
 		initUIFromScratch(form.getEffectiveSecondaryFormLayout(msg),
-				RemotelyAuthenticatedContext.getLocalContext(), true);
+				RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone);
 	}
 	
 	private void onCancel()
@@ -197,15 +197,15 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 				msg.getMessage("StandalonePublicFormView.requestCancelled"));
 	}
 	
-	private void onSubmit(RegistrationRequestEditor editor, boolean withCredentials)
+	private void onSubmit(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		RegistrationContext context = new RegistrationContext(true, 
 				idpLoginController.isLoginInProgress(), 
-				TriggeringMode.manualStandalone);
+				mode);
 		RegistrationRequest request;
 		try
 		{
-			request = editor.getRequest(withCredentials);
+			request = editor.getRequest(isWithCredentials(mode));
 		} catch (Exception e) 
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
@@ -234,6 +234,11 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 			showConfirm(Images.error,
 					msg.getMessage("StandalonePublicFormView.submissionFailed"));
 		}
+	}
+
+	private boolean isWithCredentials(TriggeringMode mode)
+	{
+		return mode != TriggeringMode.afterRemoteLoginFromRegistrationForm;
 	}
 
 	private void showConfirm(Images icon, String message)
@@ -287,7 +292,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	{
 		enableSharedComponentsAndHideAuthnProgress();
 		initUIFromScratch(form.getEffectiveSecondaryFormLayoutWithoutCredentials(msg),
-				result.getRemoteAuthnContext(), false);
+				result.getRemoteAuthnContext(), TriggeringMode.afterRemoteLoginFromRegistrationForm);
 	}
 
 	@Override

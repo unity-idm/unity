@@ -75,12 +75,19 @@ public class BaseRequestValidator
 	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request,
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException
 	{
+		validateSubmittedRequest(form, request, doCredentialCheckAndUpdate, false);
+	}
+	
+	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request,
+			boolean doCredentialCheckAndUpdate, boolean skipCredentialsValidation) throws IllegalFormContentsException
+	{
 		validateRequestAgreements(form, request);
 		validateRequestedAttributes(form, request);
-		validateRequestCredentials(form, request, doCredentialCheckAndUpdate);
+		if (!skipCredentialsValidation)
+			validateRequestCredentials(form, request, doCredentialCheckAndUpdate);
 		validateRequestedIdentities(form, request);
 		validateRequestedGroups(form, request);
-
+		
 		if (!form.isCollectComments() && request.getComments() != null)
 			throw new IllegalFormContentsException("This registration "
 					+ "form doesn't allow for passing comments.");

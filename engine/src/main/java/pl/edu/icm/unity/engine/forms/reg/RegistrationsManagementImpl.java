@@ -37,6 +37,7 @@ import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
+import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -161,10 +162,24 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		return tx.runInTransactionRetThrowing(() -> {
 			RegistrationRequest request = requestFull.getRequest();
 			RegistrationForm form = formsDB.get(request.getFormId());
-			registrationRequestValidator.validateSubmittedRequest(form, request, true);
+			if (isCredentialsValidationSkipped(requestFull.getRegistrationContext().triggeringMode))
+				registrationRequestValidator.validateSubmittedRequestExceptCredentials(form, request, true);
+			else
+				registrationRequestValidator.validateSubmittedRequest(form, request, true);
 			requestDB.create(requestFull);
 			return form;
 		});
+	}
+	
+	/**
+	 * When user enters the registration form after selecting an option of
+	 * remote authentication to fill out a form, the credentials are filtered
+	 * out by default and not available to the user. This behavior is fixed, 
+	 * meaning no configuration option to control this.
+	 */
+	private boolean isCredentialsValidationSkipped(TriggeringMode mode)
+	{
+		return mode == TriggeringMode.afterRemoteLoginFromRegistrationForm;
 	}
 
 	private void sendNotification(RegistrationForm form, RegistrationRequestState requestFull) 

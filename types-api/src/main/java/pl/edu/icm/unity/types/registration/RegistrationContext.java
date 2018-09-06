@@ -44,10 +44,10 @@ public class RegistrationContext
 		afterRemoteLogin,
 		
 		/**
-		 * Registration as the result of automatic form processing
-		 * coming from registration translation profile action.
+		 * The form was submitted as a result of secondary sign up step, where a
+		 * remote authentication was used to fill out registration form.
 		 */
-		autoProcessInvitations
+		afterRemoteLoginFromRegistrationForm
 	}
 	
 	public final boolean tryAutoAccept;

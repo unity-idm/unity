@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -29,10 +30,13 @@ import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -51,6 +55,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
+import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -538,6 +543,34 @@ public class TestRegistrations extends RegistrationTestBase
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		assertEquals(id1, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
+	}
+	
+	@Test
+	public void submittedRequestAfterRemoteAuthnFromRegistrationDoesNotValidateCredentials() throws EngineException
+	{
+		// given
+		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.afterRemoteLoginFromRegistrationForm);
+		initAndCreateForm(false, null);
+		Attribute emailA = new Attribute(InitializerCommon.EMAIL_ATTR, VerifiableEmailAttributeSyntax.ID, "/",
+				Lists.newArrayList(EmailUtils.convertFromString("foo@example.com").toJsonString()));
+		RegistrationRequest request = new RegistrationRequestBuilder()
+				.withFormId("f1")
+				.withComments("comments")
+				.withRegistrationCode("123")
+				.withAddedAgreement()
+				.withSelected(true)
+				.endAgreement()
+				.withAddedAttribute(emailA)
+				.withAddedGroupSelection().withGroup("/B").endGroupSelection()
+				.withAddedIdentity(new IdentityParam(X500Identity.ID, "CN=registration test"))
+				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "test-user"))
+				.build();
+		
+		// when
+		Throwable exception = Assertions.catchThrowable(() -> registrationsMan.submitRegistrationRequest(request, defContext));
+		
+		// then
+		Assertions.assertThat(exception).isNull();
 	}
 	
 }
