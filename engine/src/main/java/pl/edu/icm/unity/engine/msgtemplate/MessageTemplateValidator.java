@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.msgtemplate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -44,11 +45,26 @@ public class MessageTemplateValidator
 			validateText(consumer, bodyL, true);
 	}
 
-	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) 
-			throws IllegalVariablesException, MandatoryVariablesException
+	/**
+	 * @return all variables used in message template (union over all language variants)
+	 */
+	public static Set<String> extractVariables(I18nMessage message)
 	{
-		ArrayList<String> usedField = new ArrayList<String>();
-		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9]*\\}");
+		Set<String> vars = new HashSet<>();
+		I18nString subject = message.getSubject();
+		for (String subjectL: subject.getMap().values())
+			vars.addAll(extractVariables(subjectL));
+		
+		I18nString body = message.getBody();
+		for (String bodyL: body.getMap().values())
+			vars.addAll(extractVariables(bodyL));
+		return vars;
+	}
+
+	private static List<String> extractVariables(String text)
+	{
+		List<String> usedField = new ArrayList<>();
+		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9.]*\\}");
 
 		String b = (String) text;
 		Matcher matcher = pattern.matcher(b);
@@ -57,8 +73,16 @@ public class MessageTemplateValidator
 			usedField.add(b.substring(matcher.start() + 2, matcher.end() - 1));
 
 		}
-		Set<String> knownVariables = new HashSet<String>();
-		Set<String> mandatory = new HashSet<String>();
+		return usedField;
+	}
+	
+	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) 
+			throws IllegalVariablesException, MandatoryVariablesException
+	{
+		List<String> usedField = extractVariables(text);
+
+		Set<String> knownVariables = new HashSet<>();
+		Set<String> mandatory = new HashSet<>();
 		for (MessageTemplateVariable var : consumer.getVariables().values())
 		{
 			knownVariables.add(var.getName());
@@ -66,18 +90,30 @@ public class MessageTemplateValidator
 				mandatory.add(var.getName());
 		}
 		
-		Set<String> unknown = new HashSet<String>();
+		Set<String> unknown = new HashSet<>();
 		for (String f : usedField)
 		{
 			if (!knownVariables.contains(f))
 				unknown.add(f);
 		}
 		if (!unknown.isEmpty())
-			throw new IllegalVariablesException(unknown);
+		{
+			if (consumer.allowCustomVariables())
+			{
+				boolean hasNonCustomUnnown = unknown.stream()
+					.filter(var -> !var.startsWith(MessageTemplateDefinition.CUSTOM_VAR_PREFIX))
+					.findAny().isPresent();
+				if (hasNonCustomUnnown)
+					throw new IllegalVariablesException(unknown);
+			} else
+			{
+				throw new IllegalVariablesException(unknown);
+			}
+		}
 		
 		if (!checkMandatory)
 			return;
-		Set<String> uman = new HashSet<String>();
+		Set<String> uman = new HashSet<>();
 		for (String m : mandatory)
 		{
 			if (!usedField.contains(m))

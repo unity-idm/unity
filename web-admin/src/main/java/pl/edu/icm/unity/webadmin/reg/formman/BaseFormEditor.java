@@ -6,9 +6,11 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 import com.vaadin.ui.CheckBox;
@@ -44,7 +46,6 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
@@ -61,6 +62,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
  */
 public class BaseFormEditor extends VerticalLayout
 {
+	private static final int COMBO_WIDTH_EM = 18;
 	private UnityMessageSource msg;
 	private IdentityTypeSupport identityTypeSupport;
 	private Collection<IdentityType> identityTypes;
@@ -111,8 +113,9 @@ public class BaseFormEditor extends VerticalLayout
 			agreements.setEntries(agreementsP);
 		agreements.setEntries(toEdit.getAgreements());
 		identityParams.setEntries(toEdit.getIdentityParams());
-		attributeParams.setEntries(toEdit.getAttributeParams());
+		//order is important as attributes depend on groups for dynamic groups
 		groupParams.setEntries(toEdit.getGroupParams());
+		attributeParams.setEntries(toEdit.getAttributeParams());
 		credentialParams.setEntries(toEdit.getCredentialParams());
 	}
 	
@@ -173,23 +176,39 @@ public class BaseFormEditor extends VerticalLayout
 		
 		Component localSignupMethods = createLocalSignupMethodsTab(forceInteractiveRetrieval);
 		
-		AttributeEditorAndProvider attributeEditorAndProvider = new AttributeEditorAndProvider();
-		if (forceInteractiveRetrieval)
-			attributeEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
-		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
-				msg, attributeEditorAndProvider, 0, 20, true);
-		attributeParams.setSpacing(false);
-		attributeParams.setMargin(true);
-		
 		GroupEditorAndProvider groupEditorAndProvider = new GroupEditorAndProvider();
 		if (forceInteractiveRetrieval)
 			groupEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		groupParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.groupParams"),
 				msg, groupEditorAndProvider, 0, 20, true);
-		groupParams.setSpacing(false);
-		groupParams.setMargin(true);
+		groupParams.setValueChangeListener(this::onGroupChanges);
+		
+		AttributeEditorAndProvider attributeEditorAndProvider = new AttributeEditorAndProvider();
+		if (forceInteractiveRetrieval)
+			attributeEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
+		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
+				msg, attributeEditorAndProvider, 0, 20, true);
+				
 		tabOfLists.addComponents(localSignupMethods, attributeParams, groupParams, agreements);
 		return tabOfLists;
+	}
+	
+	private List<String> getDynamicGroups()
+	{
+		try
+		{
+			return groupParams.getElements().stream()
+					.filter(gp -> !gp.isMultiSelect())
+					.map(gp -> gp.getGroupPath()).collect(Collectors.toList());
+		} catch (FormValidationException e)
+		{
+			return Collections.emptyList();
+		}
+	}
+	
+	private void onGroupChanges()
+	{
+		attributeParams.refresh();
 	}
 	
 	private Component createLocalSignupMethodsTab(boolean forceInteractiveRetrieval)
@@ -270,6 +289,7 @@ public class BaseFormEditor extends VerticalLayout
 		public ComponentsContainer getEditorComponent(IdentityRegistrationParam value, int index)
 		{
 			identityType = new NotNullComboBox<>(msg.getMessage("RegistrationFormViewer.paramIdentity"));
+			identityType.setWidth(COMBO_WIDTH_EM, Unit.EM);
 			Set<String> items = Sets.newHashSet();
 			for (IdentityType it: identityTypes)
 			{
@@ -286,6 +306,7 @@ public class BaseFormEditor extends VerticalLayout
 					ConfirmationMode.class, 
 					ConfirmationMode.ON_SUBMIT);
 			confirmationMode.setDescription(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
+			confirmationMode.setWidth(COMBO_WIDTH_EM, Unit.EM);
 			main.add(identityType, confirmationMode);
 			if (value != null)
 			{
@@ -314,7 +335,7 @@ public class BaseFormEditor extends VerticalLayout
 			implements EditorProvider<AttributeRegistrationParam>, Editor<AttributeRegistrationParam>
 	{
 		private AttributeSelectionComboBox attributeType;
-		private GroupComboBox group;
+		private FormAttributeGroupComboBox group;
 		private CheckBox showGroups;
 		private EnumComboBox<ConfirmationMode> confirmationMode;
 
@@ -331,8 +352,11 @@ public class BaseFormEditor extends VerticalLayout
 		{
 			attributeType = new AttributeSelectionComboBox(
 					msg.getMessage("RegistrationFormViewer.paramAttribute"), attributeTypes);
-			group = new GroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), groups);
-			group.setInput("/", true);
+			attributeType.setWidth(COMBO_WIDTH_EM, Unit.EM);
+			group = new FormAttributeGroupComboBox(msg.getMessage("RegistrationFormViewer.paramAttributeGroup"), 
+					msg, groups, getDynamicGroups());
+			group.updateDynamicGroups(getDynamicGroups());
+			group.setWidth(COMBO_WIDTH_EM, Unit.EM);
 			showGroups = new CheckBox(msg.getMessage("RegistrationFormViewer.paramShowGroup"));
 			confirmationMode = new EnumComboBox<>(
 					msg.getMessage("RegistrationFormViewer.paramConfirmationMode"), 
@@ -341,7 +365,7 @@ public class BaseFormEditor extends VerticalLayout
 					ConfirmationMode.class, 
 					ConfirmationMode.ON_SUBMIT);
 			confirmationMode.setDescription(msg.getMessage("RegistrationFormEditor.confirmationModeDesc"));
-			
+			confirmationMode.setWidth(COMBO_WIDTH_EM, Unit.EM);
 			main.add(attributeType, group, showGroups, confirmationMode);
 			
 			if (value != null)
@@ -368,7 +392,10 @@ public class BaseFormEditor extends VerticalLayout
 		}
 
 		@Override
-		public void setEditedComponentPosition(int position) {}
+		public void setEditedComponentPosition(int position)
+		{
+			group.updateDynamicGroups(getDynamicGroups());
+		}
 	}
 
 	
@@ -391,7 +418,9 @@ public class BaseFormEditor extends VerticalLayout
 		{
 			group = new TextField(msg.getMessage("RegistrationFormViewer.paramGroup"));
 			group.setDescription(msg.getMessage("RegistrationFormEditor.paramGroupDesc"));
+			group.addValueChangeListener(nv -> onGroupChanges());
 			multiSelectable = new CheckBox(msg.getMessage("RegistrationFormEditor.paramGroupMulti"));
+			multiSelectable.addValueChangeListener(nv -> onGroupChanges());
 			main.add(group, multiSelectable);
 
 			if (value != null)
@@ -493,7 +522,8 @@ public class BaseFormEditor extends VerticalLayout
 			retrievalSettings = new EnumComboBox<>(
 					msg.getMessage("RegistrationFormViewer.paramSettings"), msg, 
 					"ParameterRetrievalSettings.", ParameterRetrievalSettings.class, 
-					ParameterRetrievalSettings.interactive);			
+					ParameterRetrievalSettings.interactive);
+			retrievalSettings.setWidth(COMBO_WIDTH_EM, Unit.EM);
 			if (value != null)
 			{
 				String labelStr = value.getLabel() != null ? value.getLabel() : defaultLabel.orElse(null);

@@ -41,6 +41,7 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 		this.getIdentities().putAll(base.getIdentities());
 		this.getGroupSelections().putAll(base.getGroupSelections());
 		this.getAttributes().putAll(base.getAttributes());
+		this.getMessageParams().putAll(base.getMessageParams());
 	}
 
 	@JsonCreator

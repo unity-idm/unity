@@ -48,4 +48,10 @@ public class UserNotificationTemplateDef implements MessageTemplateDefinition
 	{
 		return ALL_FACILITIES;
 	}
+	
+	@Override
+	public boolean allowCustomVariables()
+	{
+		return true;
+	}
 }

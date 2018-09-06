@@ -1,7 +1,8 @@
 RESTful Administration API
 ==========================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 2.6.0
+//Set to override automated version, which is the project version
+//:revnumber: 9.9.9-FIXED
 :numbered:
 :toc: left
 :linkcss:
@@ -844,3 +845,14 @@ The optional +owner+, +ownerType+ and +type+ query parameters can be used to fil
 Removes a requested token. No content is returned. If a caller has administrative privileges 
 then any token can be removed, otherwise it is allowed for removing owned tokens only.
 
+
+=== Send user notification
+
++@Path("/userNotification-trigger/entity/{identityValue}/template/{templateId}")+ +
++@POST+ +
++@QueryParam("identityType")+ +
+
+Triggers sending user notification of the given message template. Request may use additional, variable, query parameters
+which are used as template parameters. All such parameters should have the +custom.+ prefix (which is mandatory
+in message template for custom properties).
+ 

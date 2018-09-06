@@ -57,7 +57,7 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 	protected Component getEditorComponentsInternal(PrefilledEntry<GroupSelection> value,
 			int position)
 	{
-		selection = new GroupsSelection(msg);
+		selection = GroupsSelection.getGroupsSelection(msg, true, false);
 		setEditedComponentPosition(position);
 		return selection;
 	}

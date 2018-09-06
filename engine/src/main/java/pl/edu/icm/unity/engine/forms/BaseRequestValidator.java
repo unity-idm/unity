@@ -218,7 +218,7 @@ public class BaseRequestValidator
 						+ " in group " + attr.getGroupPath()
 						+ " is not allowed for this form",
 						i, Category.ATTRIBUTE);
-			if (!regParam.getGroup().equals(attr.getGroupPath()))
+			if (!regParam.isUsingDynamicGroup() && !regParam.getGroup().equals(attr.getGroupPath()))
 				throw new IllegalFormContentsException("Attribute " + attr.getName()
 						+ " in group " + attr.getGroupPath()
 						+ " is not allowed for this form",

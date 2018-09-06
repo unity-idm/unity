@@ -32,7 +32,7 @@ public class GroupChangeListener implements ReferenceRemovalHandler
 					throw new IllegalArgumentException("The group is used by a form " 
 						+ form.getName());
 			for (AttributeRegistrationParam attr: form.getAttributeParams())
-				if (attr.getGroup().startsWith(removedName))
+				if (!attr.isUsingDynamicGroup() && attr.getGroup().startsWith(removedName))
 					throw new IllegalArgumentException("The group is used by an attribute in a form " 
 						+ form.getName());
 			if (form.getNotificationsConfiguration() != null && 

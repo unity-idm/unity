@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms;
 
+import static pl.edu.icm.unity.webui.forms.FormParser.isGroupParamUsedAsMandatoryAttributeGroup;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -29,7 +31,6 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -141,7 +142,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.credMan = credMan;
 		this.groupsMan = groupsMan;
 		
-		checkRemotelyObtainedData();
+		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
+		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
+				form, remotelyAuthenticated);
 	}
 	
 	@Override
@@ -170,64 +173,6 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (e.getCause() != null && e.getCause() instanceof IllegalCredentialException)
 				error = (IllegalCredentialException) e.getCause();
 			credentialParamEditors.get(position).setCredentialError(error);
-		}
-	}
-	
-	private void checkRemotelyObtainedData() throws AuthenticationException
-	{
-		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
-		remoteIdentitiesByType = new HashMap<>();	
-		if (idParams != null)
-		{
-			for (IdentityRegistrationParam idParam: idParams)
-			{	
-				if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
-					continue;
-				
-				Collection<IdentityTaV> identities = remotelyAuthenticated.getIdentities();
-				boolean found = false;
-				for (IdentityTaV id: identities)
-					if (id.getTypeId().equals(idParam.getIdentityType()))
-					{
-						remoteIdentitiesByType.put(id.getTypeId(), id);
-						found = true;
-						break;
-					}
-				if (!found && !idParam.isOptional() && (idParam.getRetrievalSettings().isAutomaticOnly()))
-					throw new AuthenticationException("This registration form may be used only by " +
-							"users who were remotely authenticated first and who have " +
-							idParam.getIdentityType() + 
-							" identity provided by the remote authentication source.");
-
-			}
-		
-		}
-			
-		List<AttributeRegistrationParam> aParams = form.getAttributeParams();
-		remoteAttributes = new HashMap<>();
-		if (aParams != null)
-		{
-			for (AttributeRegistrationParam aParam: aParams)
-			{
-				if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
-					continue;
-				Collection<Attribute> attrs = remotelyAuthenticated.getAttributes();
-				boolean found = false;
-				for (Attribute a: attrs)
-					if (a.getName().equals(aParam.getAttributeType()) && 
-							a.getGroupPath().equals(aParam.getGroup()))
-					{
-						found = true;
-						remoteAttributes.put(a.getGroupPath()+"//"+
-								a.getName(), a);
-						break;
-					}
-				if (!found && !aParam.isOptional() && (aParam.getRetrievalSettings().isAutomaticOnly()))
-					throw new AuthenticationException("This registration form may be used only by " +
-							"users who were remotely authenticated first and who have attribute '" +
-							aParam.getAttributeType() + "' in group '" + aParam.getGroup() 
-							+ "' provided by the remote authentication source.");
-			}
 		}
 	}
 	
@@ -326,7 +271,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				AttributeRegistrationParam aparam = form.getAttributeParams().get(i);
 				
 				Attribute attr;
-				Attribute rattr = remoteAttributes.get(aparam.getGroup()+ "//" + aparam.getAttributeType());
+				Attribute rattr = remoteAttributes.get(RemoteDataRegistrationParser.getAttributeKey(aparam));
 				if (aparam.getRetrievalSettings().isInteractivelyEntered(rattr != null))
 				{
 					FixedAttributeEditor ae = attributeEditor.get(i);
@@ -607,7 +552,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		int index = element.getIndex();
 		AttributeRegistrationParam aParam = form.getAttributeParams().get(index);
-		Attribute rattr = remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
+		Attribute rattr = remoteAttributes.get(RemoteDataRegistrationParser.getAttributeKey(aParam));
 		PrefilledEntry<Attribute> prefilledEntry = fromInvitation.get(index);
 		Attribute readOnlyAttribute = getReadOnlyAttribute(index, form.getAttributeParams(), fromInvitation);
 		AttributeType aType = atTypes.get(aParam.getAttributeType());
@@ -644,7 +589,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			
 			AttributeEditContext editContext = AttributeEditContext.builder()
 					.withConfirmationMode(confirmationMode).withRequired(!aParam.isOptional())
-					.withAttributeType(aType).withAttributeGroup(aParam.getGroup())
+					.withAttributeType(aType)
+					.withAttributeGroup(aParam.isUsingDynamicGroup() ? "/" : aParam.getGroup())
 					.build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
@@ -684,7 +630,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		boolean hasAutomaticRO = groupParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible() 
 				&& hasRemoteGroup; 
 
-		GroupsSelection selection = new GroupsSelection(msg, groupParam.isMultiSelect());
+		GroupsSelection selection = GroupsSelection.getGroupsSelection(msg, groupParam.isMultiSelect(), 
+				isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
 
 		if (hasPrefilledROSelected)
@@ -692,11 +639,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			selection.setReadOnly(true);
 			List<Group> prefilled = GroupPatternMatcher.filterMatching(allMatchingGroups, 
 					prefilledEntry.getEntry().getSelectedGroups());
+			selection.setItems(prefilled);
 			selection.setSelectedItems(prefilled);
 			layout.addComponent(selection);
 		} else if (hasAutomaticRO)
 		{
 			selection.setReadOnly(true);
+			selection.setItems(remotelySelected);
 			selection.setSelectedItems(remotelySelected);
 			layout.addComponent(selection);
 		} else
@@ -750,7 +699,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			return prefilledEntry.getEntry();
 		if (!aParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
 			return null;
-		return remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
+		return remoteAttributes.get(RemoteDataRegistrationParser.getAttributeKey(aParam));
 	}
 	
 	public boolean isUserInteractionRequired()

@@ -5,7 +5,8 @@
 package pl.edu.icm.unity.webui.common.groups;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
@@ -15,20 +16,23 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
  * {@link ChipsWithDropdown} specialization for selecting multiple groups
  * @author K. Benedyczak
  */
-public class GroupsSelection extends ChipsWithDropdown<Group>
+public interface GroupsSelection extends Component
 {
-	public GroupsSelection(UnityMessageSource msg)
+	static GroupsSelection getGroupsSelection(UnityMessageSource msg, boolean multiSelectable, boolean mandatory)
 	{
-		this(msg, true);
+		return mandatory && !multiSelectable ? new MandatoryGroupSelection(msg) : 
+			new OptionalGroupsSelection(msg, multiSelectable);
 	}
 	
-	public GroupsSelection(UnityMessageSource msg, boolean multiSelectable)
-	{
-		super(group -> group.getDisplayedName().getValue(msg), multiSelectable);
-	}
+	List<String> getSelectedGroups();
+
+	void setSelectedItems(List<Group> items);
 	
-	public List<String> getSelectedGroups()
-	{
-		return getSelectedItems().stream().map(group -> group.toString()).collect(Collectors.toList());
-	}
+	void setReadOnly(boolean readOnly);
+
+	void setItems(List<Group> items);
+
+	void setDescription(String description);
+
+	void setMultiSelectable(boolean multiSelect);
 }

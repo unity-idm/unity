@@ -109,6 +109,7 @@ public class InvitationManagementImpl implements InvitationManagement
 						sharedEndpointMan));
 		ZonedDateTime expiry = invitation.getExpiration().atZone(ZoneId.systemDefault());
 		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+		notifyParams.putAll(invitation.getMessageParams());
 		
 		Instant sentTime = Instant.now();
 		notificationProducer.sendNotification(invitation.getContactAddress(),
