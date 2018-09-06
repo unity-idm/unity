@@ -24,7 +24,7 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutType;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -119,9 +119,9 @@ public class FormLayoutEditor extends CustomComponent
 		Label label = new Label(msg.getMessage("FormLayoutEditor.addCaption"));
 		addElementLayout.addComponent(label);
 		addElementLayout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
-		ComboBox<FormLayoutType> elementSelector = new ComboBox<>();
-		elementSelector.setItems(FormLayoutType.SEPARATOR, FormLayoutType.CAPTION);
-		elementSelector.setSelectedItem(FormLayoutType.CAPTION);
+		ComboBox<FormLayoutElement> elementSelector = new ComboBox<>();
+		elementSelector.setItems(FormLayoutElement.SEPARATOR, FormLayoutElement.CAPTION);
+		elementSelector.setSelectedItem(FormLayoutElement.CAPTION);
 		elementSelector.setEmptySelectionAllowed(false);
 		
 		Button add = new Button();
@@ -182,7 +182,7 @@ public class FormLayoutEditor extends CustomComponent
 		entriesLayout.addComponent(component, index);
 	}
 
-	protected FormElement createExtraElementOfType(FormLayoutType type)
+	protected FormElement createExtraElementOfType(FormLayoutElement type)
 	{
 		switch (type)
 		{

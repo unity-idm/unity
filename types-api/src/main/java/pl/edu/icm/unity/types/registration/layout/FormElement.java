@@ -25,17 +25,17 @@ import pl.edu.icm.unity.MessageSource;
 public abstract class FormElement
 {
 	private String clazz;
-	private FormLayoutType type;
+	private FormLayoutElement type;
 	private boolean formContentsRelated;
 
-	public FormElement(FormLayoutType type, boolean formContentsRelated)
+	public FormElement(FormLayoutElement type, boolean formContentsRelated)
 	{
 		this.type = type;
 		this.formContentsRelated = formContentsRelated;
 		this.clazz = getClass().getName();
 	}
 
-	public FormLayoutType getType()
+	public FormLayoutElement getType()
 	{
 		return type;
 	}

@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutType;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 
@@ -34,7 +34,7 @@ public final class FormLayoutUtils
 	{
 		for (FormElement element : layout.getElements())
 		{
-			if (element.getType() == FormLayoutType.LOCAL_SIGNUP)
+			if (element.getType() == FormLayoutElement.LOCAL_SIGNUP)
 				return true;
 		}
 		return false;
@@ -53,25 +53,25 @@ public final class FormLayoutUtils
 	private static List<FormElement> getDefaultFormLayoutElements(BaseForm form, MessageSource msg, boolean withCredentials)
 	{
 		List<FormElement> elements = new ArrayList<>();
-		elements.addAll(getDefaultParametersLayout(FormLayoutType.IDENTITY, form.getIdentityParams(), msg, 
+		elements.addAll(getDefaultParametersLayout(FormLayoutElement.IDENTITY, form.getIdentityParams(), msg, 
 				"RegistrationRequest.identities", "RegistrationRequest.externalIdentities"));
 		if (withCredentials)
 		{
-			elements.addAll(getDefaultBasicParamsLayout(FormLayoutType.CREDENTIAL, form.getCredentialParams(), msg, 
+			elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.CREDENTIAL, form.getCredentialParams(), msg, 
 					"RegistrationRequest.credentials", true));
 		}
-		elements.addAll(getDefaultParametersLayout(FormLayoutType.ATTRIBUTE, form.getAttributeParams(), msg, 
+		elements.addAll(getDefaultParametersLayout(FormLayoutElement.ATTRIBUTE, form.getAttributeParams(), msg, 
 				"RegistrationRequest.attributes", "RegistrationRequest.externalAttributes"));
-		elements.addAll(getDefaultParametersLayout(FormLayoutType.GROUP, form.getGroupParams(), msg, 
+		elements.addAll(getDefaultParametersLayout(FormLayoutElement.GROUP, form.getGroupParams(), msg, 
 				"RegistrationRequest.groups", "RegistrationRequest.externalGroups"));
 		if (form.isCollectComments())
-			elements.add(new BasicFormElement(FormLayoutType.COMMENTS));
-		elements.addAll(getDefaultBasicParamsLayout(FormLayoutType.AGREEMENT, form.getAgreements(), msg, 
+			elements.add(new BasicFormElement(FormLayoutElement.COMMENTS));
+		elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.AGREEMENT, form.getAgreements(), msg, 
 				"RegistrationRequest.agreements", true));
 		return elements;
 	}
 	
-	private static List<FormElement> getDefaultBasicParamsLayout(FormLayoutType type, List<?> params, 
+	private static List<FormElement> getDefaultBasicParamsLayout(FormLayoutElement type, List<?> params, 
 			MessageSource msg, String captionKey, boolean addSeparator)
 	{
 		List<FormElement> ret = new ArrayList<>();
@@ -86,7 +86,7 @@ public final class FormLayoutUtils
 		return ret;
 	}
 	
-	private static List<FormElement> getDefaultParametersLayout(FormLayoutType type, List<? extends RegistrationParam> params, 
+	private static List<FormElement> getDefaultParametersLayout(FormLayoutElement type, List<? extends RegistrationParam> params, 
 			MessageSource msg, String captionKey, String readOnlyCaptionKey)
 	{
 		List<FormElement> ret = new ArrayList<>();
@@ -132,42 +132,42 @@ public final class FormLayoutUtils
 	private static void updateFormParametersInLayout(FormLayout layout, BaseForm form, Set<String> definedElements)
 	{
 		for (int i = 0; i < form.getIdentityParams().size(); i++)
-			addParameterIfMissing(layout, FormLayoutType.IDENTITY, i, definedElements);
+			addParameterIfMissing(layout, FormLayoutElement.IDENTITY, i, definedElements);
 		for (int i = 0; i < form.getAttributeParams().size(); i++)
-			addParameterIfMissing(layout, FormLayoutType.ATTRIBUTE, i, definedElements);
+			addParameterIfMissing(layout, FormLayoutElement.ATTRIBUTE, i, definedElements);
 		for (int i = 0; i < form.getAgreements().size(); i++)
-			addParameterIfMissing(layout, FormLayoutType.AGREEMENT, i, definedElements);
+			addParameterIfMissing(layout, FormLayoutElement.AGREEMENT, i, definedElements);
 		for (int i = 0; i < form.getGroupParams().size(); i++)
-			addParameterIfMissing(layout, FormLayoutType.GROUP, i, definedElements);
+			addParameterIfMissing(layout, FormLayoutElement.GROUP, i, definedElements);
 		for (int i = 0; i < form.getCredentialParams().size(); i++)
-			addParameterIfMissing(layout, FormLayoutType.CREDENTIAL, i, definedElements);
+			addParameterIfMissing(layout, FormLayoutElement.CREDENTIAL, i, definedElements);
 		
-		removeParametersWithIndexLargerThen(layout, FormLayoutType.IDENTITY, form.getIdentityParams().size());
-		removeParametersWithIndexLargerThen(layout, FormLayoutType.ATTRIBUTE, form.getAttributeParams().size());
-		removeParametersWithIndexLargerThen(layout, FormLayoutType.AGREEMENT, form.getAgreements().size());
-		removeParametersWithIndexLargerThen(layout, FormLayoutType.GROUP, form.getGroupParams().size());
-		removeParametersWithIndexLargerThen(layout, FormLayoutType.CREDENTIAL, form.getCredentialParams().size());
+		removeParametersWithIndexLargerThen(layout, FormLayoutElement.IDENTITY, form.getIdentityParams().size());
+		removeParametersWithIndexLargerThen(layout, FormLayoutElement.ATTRIBUTE, form.getAttributeParams().size());
+		removeParametersWithIndexLargerThen(layout, FormLayoutElement.AGREEMENT, form.getAgreements().size());
+		removeParametersWithIndexLargerThen(layout, FormLayoutElement.GROUP, form.getGroupParams().size());
+		removeParametersWithIndexLargerThen(layout, FormLayoutElement.CREDENTIAL, form.getCredentialParams().size());
 	}
 	
 	private static void updateOtherElementsInLayout(FormLayout layout, BaseForm form, Set<String> definedElements)
 	{
 		if (form.isCollectComments())
-			addBasicElementIfMissing(layout, FormLayoutType.COMMENTS, definedElements);
+			addBasicElementIfMissing(layout, FormLayoutElement.COMMENTS, definedElements);
 		else
-			removeBasicElementIfPresent(layout, FormLayoutType.COMMENTS);
+			removeBasicElementIfPresent(layout, FormLayoutElement.COMMENTS);
 		
 		if (form instanceof RegistrationForm)
 		{
 			RegistrationForm registrationform = (RegistrationForm) form;
 			if (registrationform.getCaptchaLength() > 0)
-				addBasicElementIfMissing(layout, FormLayoutType.CAPTCHA, definedElements);
+				addBasicElementIfMissing(layout, FormLayoutElement.CAPTCHA, definedElements);
 			else
-				removeBasicElementIfPresent(layout, FormLayoutType.CAPTCHA);
+				removeBasicElementIfPresent(layout, FormLayoutElement.CAPTCHA);
 			
 			if (registrationform.getRegistrationCode() != null)
-				addBasicElementIfMissing(layout, FormLayoutType.REG_CODE, definedElements);
+				addBasicElementIfMissing(layout, FormLayoutElement.REG_CODE, definedElements);
 			else
-				removeBasicElementIfPresent(layout, FormLayoutType.REG_CODE);
+				removeBasicElementIfPresent(layout, FormLayoutElement.REG_CODE);
 		}
 	}
 	
@@ -177,7 +177,7 @@ public final class FormLayoutUtils
 		if (form.getFormLayouts().isLocalSignupEmbeddedAsButton())
 		{
 			Set<String> definedElements = getDefinedElements(layout);
-			checkLayoutElement(FormLayoutType.LOCAL_SIGNUP.name(), definedElements);
+			checkLayoutElement(FormLayoutElement.LOCAL_SIGNUP.name(), definedElements);
 			checkRemoteSignupElements(form, definedElements);
 			if (!definedElements.isEmpty())
 				throw new IllegalStateException("Form layout contains elements "
@@ -209,11 +209,11 @@ public final class FormLayoutUtils
 	
 	private static void validateEnquiryElements(FormLayout layout)
 	{
-		Set<FormLayoutType> enquiryElements = layout.getElements().stream()
+		Set<FormLayoutElement> enquiryElements = layout.getElements().stream()
 				.map(FormElement::getType)
 				.collect(Collectors.toSet());
-		Set<FormLayoutType> registrationOnly = Stream.of(FormLayoutType.values())
-				.filter(FormLayoutType::isRegistrationOnly)
+		Set<FormLayoutElement> registrationOnly = Stream.of(FormLayoutElement.values())
+				.filter(FormLayoutElement::isRegistrationOnly)
 				.collect(Collectors.toSet());
 		enquiryElements.retainAll(registrationOnly);
 		if (!enquiryElements.isEmpty())
@@ -236,32 +236,32 @@ public final class FormLayoutUtils
 			boolean withCredentials)
 	{
 		for (int i = 0; i < form.getIdentityParams().size(); i++)
-			checkLayoutElement(getIdOfElement(FormLayoutType.IDENTITY, i), definedElements);
+			checkLayoutElement(getIdOfElement(FormLayoutElement.IDENTITY, i), definedElements);
 		for (int i = 0; i < form.getAttributeParams().size(); i++)
-			checkLayoutElement(getIdOfElement(FormLayoutType.ATTRIBUTE, i), definedElements);
+			checkLayoutElement(getIdOfElement(FormLayoutElement.ATTRIBUTE, i), definedElements);
 		for (int i = 0; i < form.getAgreements().size(); i++)
-			checkLayoutElement(getIdOfElement(FormLayoutType.AGREEMENT, i), definedElements);
+			checkLayoutElement(getIdOfElement(FormLayoutElement.AGREEMENT, i), definedElements);
 		for (int i = 0; i < form.getGroupParams().size(); i++)
-			checkLayoutElement(getIdOfElement(FormLayoutType.GROUP, i), definedElements);
+			checkLayoutElement(getIdOfElement(FormLayoutElement.GROUP, i), definedElements);
 		if (withCredentials)
 		{
 			for (int i = 0; i < form.getCredentialParams().size(); i++)
-				checkLayoutElement(getIdOfElement(FormLayoutType.CREDENTIAL, i), definedElements);
+				checkLayoutElement(getIdOfElement(FormLayoutElement.CREDENTIAL, i), definedElements);
 		}
 	}
 	
 	private static void checkOtherElementsInLayout(BaseForm form, Set<String> definedElements, boolean withRemoteSignup)
 	{
 		if (form.isCollectComments())
-			checkLayoutElement(FormLayoutType.COMMENTS.name(), definedElements);
+			checkLayoutElement(FormLayoutElement.COMMENTS.name(), definedElements);
 		
 		if (form instanceof RegistrationForm)
 		{
 			RegistrationForm registrationform = (RegistrationForm) form;
 			if (registrationform.getCaptchaLength() > 0)
-				checkLayoutElement(FormLayoutType.CAPTCHA.name(), definedElements);
+				checkLayoutElement(FormLayoutElement.CAPTCHA.name(), definedElements);
 			if (registrationform.getRegistrationCode() != null)
-				checkLayoutElement(FormLayoutType.REG_CODE.name(), definedElements);
+				checkLayoutElement(FormLayoutElement.REG_CODE.name(), definedElements);
 			if (withRemoteSignup)
 			{
 				checkRemoteSignupElements(registrationform, definedElements);
@@ -272,10 +272,10 @@ public final class FormLayoutUtils
 	private static void checkRemoteSignupElements(RegistrationForm registrationform, Set<String> definedElements)
 	{
 		for (int i = 0; i < registrationform.getExternalSignupSpec().getSpecs().size(); i++)
-			checkLayoutElement(getIdOfElement(FormLayoutType.REMOTE_SIGNUP, i), definedElements);
+			checkLayoutElement(getIdOfElement(FormLayoutElement.REMOTE_SIGNUP, i), definedElements);
 	}
 	
-	private static void removeParametersWithIndexLargerThen(FormLayout layout, FormLayoutType type, int size)
+	private static void removeParametersWithIndexLargerThen(FormLayout layout, FormLayoutElement type, int size)
 	{
 		Iterator<FormElement> iterator = layout.getElements().iterator();
 		while (iterator.hasNext())
@@ -287,7 +287,7 @@ public final class FormLayoutUtils
 		}
 	}
 
-	private static void removeBasicElementIfPresent(FormLayout layout, FormLayoutType type)
+	private static void removeBasicElementIfPresent(FormLayout layout, FormLayoutElement type)
 	{
 		for (int i = 0; i < layout.getElements().size(); i++)
 		{
@@ -318,7 +318,7 @@ public final class FormLayoutUtils
 			throw new IllegalStateException("Form layout does not define position of " + key);
 	}
 
-	private static void addParameterIfMissing(FormLayout layout, FormLayoutType type, int index, Set<String> definedElements)
+	private static void addParameterIfMissing(FormLayout layout, FormLayoutElement type, int index, Set<String> definedElements)
 	{
 		if (!definedElements.contains(getIdOfElement(type, index)))
 			layout.getElements().add(new FormParameterElement(type, index));
@@ -333,12 +333,12 @@ public final class FormLayoutUtils
 		return element.getType().name();
 	}
 	
-	private static String getIdOfElement(FormLayoutType type, int idx)
+	private static String getIdOfElement(FormLayoutElement type, int idx)
 	{
 		return String.format("%s_%d", type.name(), idx);
 	}
 	
-	private static void addBasicElementIfMissing(FormLayout layout, FormLayoutType type, Set<String> definedElements)
+	private static void addBasicElementIfMissing(FormLayout layout, FormLayoutElement type, Set<String> definedElements)
 	{
 		if (!definedElements.contains(type.name()))
 			layout.getElements().add(new BasicFormElement(type));

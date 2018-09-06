@@ -6,12 +6,6 @@ package pl.edu.icm.unity.types.registration;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 
 /**
@@ -27,40 +21,6 @@ public class RegistrationFormLayouts
 	private boolean isLocalSignupEmbeddedAsButton;
 	
 	public RegistrationFormLayouts() {}
-	
-	@JsonCreator
-	public RegistrationFormLayouts(ObjectNode json)
-	{
-		fromJson(json);
-	}
-	
-	private void fromJson(ObjectNode root)
-	{
-		if (JsonUtil.notNull(root, "primaryLayout"))
-		{
-			setPrimaryLayout(new FormLayout((ObjectNode) root.get("primaryLayout")));
-		}
-		if (JsonUtil.notNull(root, "secondaryLayout"))
-		{
-			setSecondaryLayout(new FormLayout((ObjectNode) root.get("secondaryLayout")));
-		}
-		if (JsonUtil.notNull(root, "isLocalSignupEmbeddedAsButton"))
-		{
-			setLocalSignupEmbeddedAsButton(root.get("isLocalSignupEmbeddedAsButton").asBoolean());
-		}
-	}
-
-	@JsonValue
-	public ObjectNode toJson()
-	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		if (getPrimaryLayout() != null)
-			root.set("primaryLayout", getPrimaryLayout().toJson());
-		if (getSecondaryLayout() != null)
-			root.set("secondaryLayout", getSecondaryLayout().toJson());
-		root.put("isLocalSignupEmbeddedAsButton", isLocalSignupEmbeddedAsButton);
-		return root;
-	}
 	
 	public FormLayout getPrimaryLayout()
 	{

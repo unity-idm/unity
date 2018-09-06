@@ -24,7 +24,7 @@ public class FormParameterElement extends FormElement
 {
 	private int index;
 
-	public FormParameterElement(FormLayoutType type, int index)
+	public FormParameterElement(FormLayoutElement type, int index)
 	{
 		super(type, true);
 		this.index = index;

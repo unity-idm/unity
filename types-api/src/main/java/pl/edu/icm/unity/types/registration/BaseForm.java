@@ -93,7 +93,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.put("Name", getName());
 		root.set("DisplayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
-		root.set("FormLayoutSettings", getLayoutSettings().toJson());
+		root.set("FormLayoutSettings", jsonMapper.valueToTree(getLayoutSettings()));
 		return root;
 	}
 
@@ -165,7 +165,10 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			n = root.get("FormLayoutSettings");
 			if (n != null)
 			{
-				setLayoutSettings(new FormLayoutSettings((ObjectNode) n));
+				String v = jsonMapper.writeValueAsString(n);
+				FormLayoutSettings r = jsonMapper.readValue(v, 
+						new TypeReference<FormLayoutSettings>(){});
+				setLayoutSettings(r);
 			}
 		} catch (Exception e)
 		{

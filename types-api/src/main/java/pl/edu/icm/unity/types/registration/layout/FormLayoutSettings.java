@@ -6,12 +6,6 @@ package pl.edu.icm.unity.types.registration.layout;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.registration.BaseForm;
 
 /**
@@ -27,10 +21,8 @@ public class FormLayoutSettings
 	private float columnWidth;
 	private String columnWidthUnit;
 
-	@JsonCreator
-	public FormLayoutSettings(ObjectNode json)
+	protected FormLayoutSettings()
 	{
-		fromJson(json);
 	}
 
 	public FormLayoutSettings(boolean compactInputs, float columnWidth, String columnWidthUnit)
@@ -68,32 +60,6 @@ public class FormLayoutSettings
 	public void setColumnWidthUnit(String columnWidthUnit)
 	{
 		this.columnWidthUnit = columnWidthUnit;
-	}
-
-	private void fromJson(ObjectNode root)
-	{
-		if (JsonUtil.notNull(root, "compactInputs"))
-		{
-			setCompactInputs(root.get("compactInputs").asBoolean());
-		}
-		if (JsonUtil.notNull(root, "columnWidth"))
-		{
-			setColumnWidth((float)root.get("columnWidth").asDouble());
-		}
-		if (JsonUtil.notNull(root, "columnWidthUnit"))
-		{
-			setColumnWidthUnit(root.get("columnWidthUnit").asText());
-		}
-	}
-
-	@JsonValue
-	public ObjectNode toJson()
-	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("compactInputs", isCompactInputs());
-		root.put("columnWidth", getColumnWidth());
-		root.put("columnWidthUnit", getColumnWidthUnit());
-		return root;
 	}
 
 	@Override

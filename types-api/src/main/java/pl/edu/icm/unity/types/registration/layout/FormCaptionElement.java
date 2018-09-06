@@ -25,14 +25,14 @@ public class FormCaptionElement extends FormElement
 
 	public FormCaptionElement(I18nString value)
 	{
-		super(FormLayoutType.CAPTION, false);
+		super(FormLayoutElement.CAPTION, false);
 		this.value = value;	
 	}
 	
 	@JsonCreator
 	private FormCaptionElement()
 	{
-		super(FormLayoutType.CAPTION, false);
+		super(FormLayoutElement.CAPTION, false);
 	}
 	
 	public I18nString getValue()

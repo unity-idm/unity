@@ -13,7 +13,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutType;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 /**
  * Common boiler plate of registration form dialog provider which basically
  * handles the case where registration form contains the local sign up button
- * element {@link FormLayoutType#LOCAL_SIGNUP}
+ * element {@link FormLayoutElement#LOCAL_SIGNUP}
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */

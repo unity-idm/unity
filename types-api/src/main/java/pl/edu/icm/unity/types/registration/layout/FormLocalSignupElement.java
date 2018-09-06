@@ -20,7 +20,7 @@ public class FormLocalSignupElement extends FormElement
 	@JsonCreator
 	public FormLocalSignupElement()
 	{
-		super(FormLayoutType.LOCAL_SIGNUP, true);
+		super(FormLayoutElement.LOCAL_SIGNUP, true);
 	}
 	
 	@Override

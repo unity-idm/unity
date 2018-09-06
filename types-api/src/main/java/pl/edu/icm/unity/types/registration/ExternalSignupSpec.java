@@ -7,16 +7,9 @@ package pl.edu.icm.unity.types.registration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
@@ -26,7 +19,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
  */
 public class ExternalSignupSpec
 {
-	private List<AuthenticationOptionKey> specs;
+	private List<AuthenticationOptionKey> specs = new ArrayList<>();
 	private String userExistsRedirectUrl;
 
 	ExternalSignupSpec(List<AuthenticationOptionKey> specs, String userExistsRedirectUrl)
@@ -34,49 +27,9 @@ public class ExternalSignupSpec
 		this.specs = specs;
 		this.userExistsRedirectUrl = userExistsRedirectUrl;
 	}
-
-	ExternalSignupSpec()
-	{
-		specs = new ArrayList<>();
-	}
-
-	@JsonCreator
-	public ExternalSignupSpec(ObjectNode json)
-	{
-		fromJson(json);
-	}
-
-	private void fromJson(ObjectNode root)
-	{
-		try
-		{
-			if (JsonUtil.notNull(root, "specs"))
-			{
-				ArrayNode specsNode = (ArrayNode) root.get("specs");
-				specs = new ArrayList<>(specsNode.size());
-				for (int i = 0; i < specsNode.size(); i++)
-				{
-					specs.add(new AuthenticationOptionKey((ObjectNode) specsNode.get(i)));
-				}
-			}
-			if (JsonUtil.notNull(root, "userExistsRedirectUrl"))
-				userExistsRedirectUrl = root.get("userExistsRedirectUrl").asText();
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't deserialize authentication flows spec from JSON", e);
-		}
-	}
-
-	@JsonValue
-	public ObjectNode toJsonObject()
-	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		ArrayNode jsonSpecs = root.putArray("specs");
-		specs.forEach(spec -> jsonSpecs.add(spec.toJsonObject()));
-		root.put("userExistsRedirectUrl", userExistsRedirectUrl);
-		return root;
-	}
 	
+	ExternalSignupSpec() {} 
+
 	public List<AuthenticationOptionKey> getSpecs()
 	{
 		return specs;
@@ -97,6 +50,7 @@ public class ExternalSignupSpec
 		this.userExistsRedirectUrl = userExistsRedirectUrl;
 	}
 
+	@JsonIgnore
 	public boolean isEnabled()
 	{
 		return !specs.isEmpty();
@@ -128,7 +82,7 @@ public class ExternalSignupSpec
 		private List<AuthenticationOptionKey> specs = new ArrayList<>();
 		private String userExistsRedirectUrl;
 
-		public ExternalSignupSpecBuilder withSpecs(Set<AuthenticationOptionKey> specs)
+		public ExternalSignupSpecBuilder withSpecs(List<AuthenticationOptionKey> specs)
 		{
 			this.specs = new ArrayList<>(specs);
 			return this;

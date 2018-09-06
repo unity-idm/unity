@@ -9,7 +9,7 @@ package pl.edu.icm.unity.types.registration.layout;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public enum FormLayoutType
+public enum FormLayoutElement
 {
 	LOCAL_SIGNUP(true),
 	REMOTE_SIGNUP(true),
@@ -26,12 +26,12 @@ public enum FormLayoutType
 	
 	private boolean isRegistrationOnly;
 
-	FormLayoutType()
+	FormLayoutElement()
 	{
 		this.isRegistrationOnly = false;
 	}
 
-	FormLayoutType(boolean isRegistrationOnly)
+	FormLayoutElement(boolean isRegistrationOnly)
 	{
 		this.isRegistrationOnly = isRegistrationOnly;
 	}

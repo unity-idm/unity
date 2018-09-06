@@ -20,7 +20,7 @@ import pl.edu.icm.unity.MessageSource;
  */
 public class BasicFormElement extends FormElement
 {
-	public BasicFormElement(FormLayoutType type)
+	public BasicFormElement(FormLayoutElement type)
 	{
 		super(type, true);
 	}

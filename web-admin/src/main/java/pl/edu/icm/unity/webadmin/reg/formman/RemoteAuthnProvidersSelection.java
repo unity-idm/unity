@@ -8,8 +8,6 @@ import java.util.Collection;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-import com.vaadin.ui.TwinColSelect;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
@@ -20,32 +18,26 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 
 /**
- * Customization of the {@link TwinColSelect} for authentication flows
+ * Customization of the {@link ChipsWithDropdown} for authentication flows
  * selection.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class RemoteAuthnProvidersTwinColSelect extends TwinColSelect<AuthenticationOptionKey>
+public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<AuthenticationOptionKey>
 {
-	public RemoteAuthnProvidersTwinColSelect(AuthenticatorSupportManagement authenticatorSupport, String leftCaption,
+	public RemoteAuthnProvidersSelection(AuthenticatorSupportManagement authenticatorSupport, String leftCaption,
 			String rightCaption, String caption, String description) throws EngineException
 	{
+		super(AuthenticationOptionKey::toGlobalKey, true);
 		setCaption(caption);
-		setLeftColumnCaption(leftCaption);
-		setRightColumnCaption(rightCaption);
 		setDescription(description);
-		setRows(10);
 		setWidth(100, Unit.PERCENTAGE);
 		init(authenticatorSupport);
 	}
 	
-	public void setValue(List<AuthenticationOptionKey> values)
-	{
-		setValue(Sets.newHashSet(values));
-	}
-
 	private void init(AuthenticatorSupportManagement authenticatorSupport) throws EngineException
 	{
 		List<AuthenticationFlowDefinition> definitions = authenticatorSupport.resolveAllRemoteAuthenticatorFlows(
@@ -67,7 +59,6 @@ public class RemoteAuthnProvidersTwinColSelect extends TwinColSelect<Authenticat
 				}
 			}
 		}
-		setItemCaptionGenerator(AuthenticationOptionKey::toGlobalKey);
 		setItems(authnOptions);
 	}
 }

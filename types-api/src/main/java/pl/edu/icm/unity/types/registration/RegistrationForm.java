@@ -25,7 +25,7 @@ import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutType;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.types.registration.layout.FormLocalSignupElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 
@@ -174,7 +174,7 @@ public class RegistrationForm extends BaseForm
 		while (elementsIter.hasNext())
 		{
 			FormElement element = elementsIter.next();
-			if (element.getType() == FormLayoutType.CREDENTIAL)
+			if (element.getType() == FormLayoutElement.CREDENTIAL)
 				elementsIter.remove();
 		}
 		return layoutWithoutCreds;
@@ -229,7 +229,7 @@ public class RegistrationForm extends BaseForm
 		
 		for (int i=0; i<remoteSignup.size(); i++)
 		{
-			ret.add(new FormParameterElement(FormLayoutType.REMOTE_SIGNUP, i));
+			ret.add(new FormParameterElement(FormLayoutElement.REMOTE_SIGNUP, i));
 		}
 		return ret;
 	}
@@ -255,10 +255,10 @@ public class RegistrationForm extends BaseForm
 	private void addRegistrationFormSpecificElements(MessageSource msg, List<FormElement> elements)
 	{
 		if (registrationCode != null)
-			elements.add(0, new BasicFormElement(FormLayoutType.REG_CODE));
+			elements.add(0, new BasicFormElement(FormLayoutElement.REG_CODE));
 		
 		if (captchaLength > 0)
-			elements.add(new BasicFormElement(FormLayoutType.CAPTCHA));
+			elements.add(new BasicFormElement(FormLayoutElement.CAPTCHA));
 	}
 	
 	@Override
@@ -273,8 +273,8 @@ public class RegistrationForm extends BaseForm
 		root.put("RegistrationCode", getRegistrationCode());
 		root.put("CaptchaLength", getCaptchaLength());
 		root.put("ByInvitationOnly", isByInvitationOnly());
-		root.set("ExternalSignupSpec", getExternalSignupSpec().toJsonObject());
-		root.set("RegistrationFormLayouts", getFormLayouts().toJson());
+		root.set("ExternalSignupSpec", jsonMapper.valueToTree(getExternalSignupSpec()));
+		root.set("RegistrationFormLayouts", jsonMapper.valueToTree(getFormLayouts()));
 		return root;
 	}
 
@@ -316,13 +316,19 @@ public class RegistrationForm extends BaseForm
 			n = root.get("ExternalSignupSpec");
 			if (n != null)
 			{
-				setExternalSignupSpec(new ExternalSignupSpec((ObjectNode) n));
+				String str = jsonMapper.writeValueAsString(n);
+				ExternalSignupSpec externalSignupSpec = jsonMapper.readValue(
+						str, new TypeReference<ExternalSignupSpec>(){});
+				setExternalSignupSpec(externalSignupSpec);
 			}
 			
 			n = root.get("RegistrationFormLayouts");
 			if (n != null)
 			{
-				setFormLayouts(new RegistrationFormLayouts((ObjectNode) n));
+				String str = jsonMapper.writeValueAsString(n);
+				RegistrationFormLayouts layouts = jsonMapper.readValue(
+						str, new TypeReference<RegistrationFormLayouts>(){});
+				setFormLayouts(layouts);
 			}
 			
 		} catch (Exception e)

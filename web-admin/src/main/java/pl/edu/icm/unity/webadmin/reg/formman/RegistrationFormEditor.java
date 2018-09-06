@@ -73,7 +73,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private Slider captcha;
 	
 	private TextField registrationCode;
-	private RemoteAuthnProvidersTwinColSelect remoteAuthnSelections;
+	private RemoteAuthnProvidersSelection remoteAuthnSelections;
 	private TextField userExistsRedirectUrl;
 
 	private NotNullComboBox<String> credentialRequirementAssignment;
@@ -159,7 +159,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);
 		builder.withExternalSignupSpec(ExternalSignupSpec.builder()
-				.withSpecs(remoteAuthnSelections.getValue())
+				.withSpecs(remoteAuthnSelections.getSelectedItems())
 				.withUserExistsRedirectUrl(userExistsRedirectUrl.getValue())
 				.build());
 		return builder;
@@ -185,7 +185,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 //		layoutEditor.setInitialForm(toEdit);
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
-		remoteAuthnSelections.setValue(toEdit.getExternalSignupSpec().getSpecs());
+		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
 		if (toEdit.getExternalSignupSpec().getUserExistsRedirectUrl() != null)
 			userExistsRedirectUrl.setValue(toEdit.getExternalSignupSpec().getUserExistsRedirectUrl());
 	}
@@ -246,7 +246,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private Component createRemoteSignupMethodsTab() throws EngineException
 	{
-		remoteAuthnSelections = new RemoteAuthnProvidersTwinColSelect(authenticatorSupport, 
+		remoteAuthnSelections = new RemoteAuthnProvidersSelection(authenticatorSupport, 
 				msg.getMessage("RegistrationFormEditor.availableRemoteAuthnOptions"), 
 				msg.getMessage("RegistrationFormEditor.selectedRemoteAuthnOptions"), 
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"),
