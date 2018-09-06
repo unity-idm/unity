@@ -753,6 +753,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		return remoteAttributes.get(aParam.getGroup() + "//" + aParam.getAttributeType());
 	}
 	
+	public boolean isUserInteractionRequired()
+	{
+		return !identityParamEditors.isEmpty()
+				|| !attributeEditor.isEmpty()
+				|| !groupSelectors.isEmpty()
+				|| !agreementSelectors.isEmpty()
+				|| !credentialParamEditors.isEmpty()
+				|| form.isCollectComments();
+	}
 
 	protected boolean isEmpty(String str)
 	{

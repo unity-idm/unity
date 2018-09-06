@@ -58,7 +58,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	private IdPLoginController idpLoginController;
 	private VerticalLayout main;
 	private RequestEditorCreator editorCreator;
-	private RegistrationRequestEditor editor;
+	private RegistrationRequestEditor currentRegistrationFormEditor;
 	private SignUpAuthNController signUpAuthNController;
 	private SignUpTopHederComponent header;
 	private HorizontalLayout formBbuttons;
@@ -109,7 +109,6 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 			@Override
 			public void onCreated(RegistrationRequestEditor editor)
 			{
-				setEditor(editor);
 				editorCreated(editor, layout, mode);
 			}
 
@@ -124,19 +123,26 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	private void initUIBase()
 	{
 		main = new VerticalLayout();
-	
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
 	}
 	
-	public void setEditor(RegistrationRequestEditor editor)
-	{
-		this.editor = editor;
-	}
-
 	private void editorCreated(RegistrationRequestEditor editor, FormLayout effectiveLayout, TriggeringMode mode)
 	{
+		this.currentRegistrationFormEditor = editor;
+		if (isAutoSubbmitPossible(editor, mode))
+		{
+			onSubmit(editor, mode);
+		} else
+		{
+			showEditorContent(editor, effectiveLayout, mode);
+		}
+	}
+	
+	private void showEditorContent(RegistrationRequestEditor editor, FormLayout effectiveLayout, TriggeringMode mode)
+	{
+		
 		header = new SignUpTopHederComponent(cfg, msg, this::onUserAuthnCancel);
 		main.addComponent(header);
 		main.setComponentAlignment(header, Alignment.TOP_RIGHT);
@@ -160,10 +166,20 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 			main.setComponentAlignment(formBbuttons, Alignment.MIDDLE_CENTER);		
 		} else
 		{
+			/*
+			 * The editor does not contain any registration form, the local sign up
+			 * button instead.
+			 */
 			formBbuttons = null;
 		}
 	}
-	
+
+	private boolean isAutoSubbmitPossible(RegistrationRequestEditor editor, TriggeringMode mode)
+	{
+		return mode == TriggeringMode.afterRemoteLoginFromRegistrationForm
+				&& !editor.isUserInteractionRequired();
+	}
+
 	private void handleError(Exception e)
 	{
 		if (e instanceof IllegalArgumentException)
@@ -276,7 +292,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	
 	private void enableSharedWidgets(boolean isEnabled)
 	{
-		editor.setEnabled(isEnabled);
+		if (currentRegistrationFormEditor != null)
+			currentRegistrationFormEditor.setEnabled(isEnabled);
 		if (formBbuttons != null)
 			formBbuttons.setEnabled(isEnabled);
 	}
