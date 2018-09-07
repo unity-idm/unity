@@ -130,8 +130,9 @@ public class InvitationEditor extends CustomComponent
 		channel.setCaption(msg.getMessage("InvitationViewer.channelId"));
 		
 		forms = new NotNullComboBox<>(msg.getMessage("InvitationViewer.formId"));
-		forms.setEmptySelectionAllowed(false);
-		forms.addValueChangeListener(event -> {
+		forms.setItems(formsByName.keySet());
+		forms.addValueChangeListener(event -> 
+		{
 			RegistrationForm registrationForm = formsByName.get(forms.getValue());
 			setPerFormUI(registrationForm);
 			
@@ -141,9 +142,6 @@ public class InvitationEditor extends CustomComponent
 			else
 				channel.setValue("");
 		});
-		
-		forms.setItems(formsByName.keySet());
-		
 		top = new FormLayout();
 		top.addComponents(forms, channel, expiration, contactAddress, remoteIdentityExpectation);
 		
