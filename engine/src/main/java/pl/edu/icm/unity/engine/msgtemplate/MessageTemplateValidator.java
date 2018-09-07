@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
@@ -60,7 +61,16 @@ public class MessageTemplateValidator
 			vars.addAll(extractVariables(bodyL));
 		return vars;
 	}
-
+	/**
+	 * @return all non-built-in variables used in message template (union over all language variants)
+	 */
+	public static Set<String> extractCustomVariables(I18nMessage message)
+	{
+		return extractVariables(message).stream()
+				.filter(var -> var.startsWith(MessageTemplateDefinition.CUSTOM_VAR_PREFIX))
+				.collect(Collectors.toSet());
+	}
+	
 	private static List<String> extractVariables(String text)
 	{
 		List<String> usedField = new ArrayList<>();

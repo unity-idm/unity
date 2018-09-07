@@ -202,6 +202,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 					if (formSignupSpec.contains(authnOption))
 					{
 						SignUpAuthNOption signupAuthNOption = new SignUpAuthNOption(flow, vaadinAuthenticationUI);
+						setupExpectedIdentity(vaadinAuthenticationUI);
 						signupOptions.put(authnOption, signupAuthNOption);
 					}
 				}
@@ -209,6 +210,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		}
 	}
 
+	private void setupExpectedIdentity(VaadinAuthenticationUI vaadinAuthenticationUI)
+	{
+		if (invitation != null && invitation.getExpectedIdentity() != null)
+			vaadinAuthenticationUI.setExpectedIdentity(invitation.getExpectedIdentity());
+	}
+	
 	@Override
 	protected boolean createControlFor(AbstractOrderedLayout layout, FormElement element, 
 			FormElement previousAdded, InvitationWithCode invitation) throws EngineException

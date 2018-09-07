@@ -50,6 +50,7 @@ public class InvitationViewer extends CustomComponent
 	private Label lastSentTime;
 	private Label notificationsSent;
 	private Label messageParams;
+	private Label expectedIdentity;
 	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
 	private VerticalLayout attributes;
 	private ListOfElements<Map.Entry<String, PrefilledEntry<GroupSelection>>> groups;
@@ -101,6 +102,10 @@ public class InvitationViewer extends CustomComponent
 		messageParams.setWidth(100, Unit.PERCENTAGE);
 		messageParams.setCaption(msg.getMessage("InvitationViewer.messageParams"));
 		
+		expectedIdentity = new Label();
+		expectedIdentity.setWidth(100, Unit.PERCENTAGE);
+		expectedIdentity.setCaption(msg.getMessage("InvitationViewer.expectedIdentity"));
+		
 		identities = new ListOfElements<>(msg);
 		identities.setMargin(true);
 		identitiesPanel = new SafePanel(msg.getMessage("InvitationViewer.identities"), identities);
@@ -121,7 +126,7 @@ public class InvitationViewer extends CustomComponent
 		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);
 		
 		main.addComponents(formId, code, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
-				messageParams, identitiesPanel, attributesPanel, groupsPanel);
+				expectedIdentity, messageParams, identitiesPanel, attributesPanel, groupsPanel);
 		setInput(null, null);
 	}
 	
@@ -154,6 +159,10 @@ public class InvitationViewer extends CustomComponent
 		notificationsSent.setValue(String.valueOf(invitation.getNumberOfSends()));
 		lastSentTime.setValue(invitation.getLastSentTime() != null ? 
 				TimeUtil.formatMediumInstant(invitation.getLastSentTime()) : "-");
+		
+		expectedIdentity.setVisible(invitation.getExpectedIdentity() != null);
+		if (invitation.getExpectedIdentity() != null)
+			expectedIdentity.setValue(invitation.getExpectedIdentity().toString());
 		
 		messageParams.setVisible(!invitation.getMessageParams().isEmpty());
 		messageParams.setValue(invitation.getMessageParams().toString());

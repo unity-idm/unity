@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.client.web;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.Cookie;
@@ -89,7 +90,7 @@ class OAuthProxyAuthnHandler
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		try
 		{
-			context = credentialExchange.createRequest(idpConfigKey);
+			context = credentialExchange.createRequest(idpConfigKey, Optional.empty());
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");
