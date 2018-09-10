@@ -25,6 +25,14 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		instance.validateRegistration();
 		return instance;
 	}
+	
+
+	public RegistrationFormBuilder withLayouts(RegistrationFormLayouts formLayouts)
+	{
+		instance.setFormLayouts(formLayouts);
+		
+		return this;
+	}
 
 	public RegistrationFormBuilder withNotificationsConfiguration(RegistrationFormNotifications aValue)
 	{

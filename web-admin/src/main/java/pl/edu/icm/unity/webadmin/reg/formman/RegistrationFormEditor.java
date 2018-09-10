@@ -40,7 +40,6 @@ import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -79,7 +78,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private NotNullComboBox<String> credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
-	private FormLayoutEditor layoutEditor;
+	private RegistrationFormLayoutEditor layoutEditor;
 	private ActionParameterComponentProvider actionComponentFactory;
 	
 	@Autowired
@@ -138,8 +137,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withTranslationProfile(profileEditor.getProfile());
 		RegistrationFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
-		// TODO: once layout editor is implemented fix this line
-//		builder.withLayout(layoutEditor.getLayout());
+		builder.withLayouts(layoutEditor.getLayouts());
+		builder.withFormLayoutSettings(layoutEditor.getSettings());
 		return builder.build();
 	}
 	
@@ -159,6 +158,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 				.withSpecs(remoteAuthnSelections.getSelectedItems())
 				.withUserExistsRedirectUrl(userExistsRedirectUrl.getValue())
 				.build());
+		builder.withLayouts(layoutEditor.getLayouts());
+		builder.withFormLayoutSettings(layoutEditor.getSettings());
 		return builder;
 	}
 	
@@ -178,8 +179,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 				ProfileType.REGISTRATION,
 				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
-		// TODO: once layout editor is implemented fix this line
-//		layoutEditor.setInitialForm(toEdit);
+		layoutEditor.setSettings(toEdit.getLayoutSettings());
+		layoutEditor.setLayouts(toEdit.getFormLayouts());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
@@ -266,14 +267,25 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private void initLayoutTab()
 	{
-		// TODO: one layout editor is implemented fix this method
-//		VerticalLayout wrapper = new VerticalLayout();
-//		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
-//		wrapper.setMargin(true);
-//		wrapper.setSpacing(false);
-//		wrapper.addComponent(layoutEditor);
-//		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
-//		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+		VerticalLayout wrapper = new VerticalLayout();
+		layoutEditor = new RegistrationFormLayoutEditor(msg, this::formProvider);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+		wrapper.addComponent(layoutEditor);
+		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+	}
+	
+	private RegistrationForm formProvider()
+	{
+		try
+		{
+			return getFormBuilderBasic().build();
+		} catch (Exception e)
+		{
+			log.debug("Ignoring layout update, form is invalid", e);
+			return null;
+		}
 	}
 	
 	private void initAssignedTab() throws EngineException
