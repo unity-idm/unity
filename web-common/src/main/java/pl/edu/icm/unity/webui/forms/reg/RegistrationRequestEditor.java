@@ -256,12 +256,15 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return true;
 	}
 	
-	private boolean createLocalSignupButton(Layout layout, FormLocalSignupElement element)
+	private boolean createLocalSignupButton(AbstractOrderedLayout layout, FormLocalSignupElement element)
 	{
 		Button localSignup = new Button(msg.getMessage("RegistrationRequest.localSignup"));
 		localSignup.addStyleName("u-signUpButton");
 		localSignup.addClickListener(event -> onLocalSignupHandler.run());
+		localSignup.setWidth(form.getLayoutSettings().getColumnWidth(), 
+				Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit()));
 		layout.addComponent(localSignup);
+		layout.setComponentAlignment(localSignup, Alignment.MIDDLE_CENTER);
 		return true;
 	}
 	
