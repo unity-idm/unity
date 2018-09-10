@@ -15,9 +15,10 @@ import pl.edu.icm.unity.types.registration.BaseForm;
  */
 public class FormLayoutSettings
 {
-	public static final FormLayoutSettings DEFAULT = new FormLayoutSettings(false, 21, "EM");
+	public static final FormLayoutSettings DEFAULT = new FormLayoutSettings(false, 21, "EM", false);
 
 	private boolean compactInputs;
+	private boolean showCancel;
 	private float columnWidth;
 	private String columnWidthUnit;
 
@@ -25,11 +26,12 @@ public class FormLayoutSettings
 	{
 	}
 
-	public FormLayoutSettings(boolean compactInputs, float columnWidth, String columnWidthUnit)
+	public FormLayoutSettings(boolean compactInputs, float columnWidth, String columnWidthUnit, boolean showCancel)
 	{
 		this.compactInputs = compactInputs;
 		this.columnWidth = columnWidth;
 		this.columnWidthUnit = columnWidthUnit;
+		this.showCancel = showCancel;
 	}
 
 	public boolean isCompactInputs()
@@ -62,6 +64,11 @@ public class FormLayoutSettings
 		this.columnWidthUnit = columnWidthUnit;
 	}
 
+	public boolean isShowCancel()
+	{
+		return showCancel;
+	}
+
 	@Override
 	public boolean equals(final Object other)
 	{
@@ -69,6 +76,7 @@ public class FormLayoutSettings
 			return false;
 		FormLayoutSettings castOther = (FormLayoutSettings) other;
 		return Objects.equals(compactInputs, castOther.compactInputs)
+				&& Objects.equals(showCancel, castOther.showCancel)
 				&& Objects.equals(columnWidth, castOther.columnWidth)
 				&& Objects.equals(columnWidthUnit, castOther.columnWidthUnit);
 	}
@@ -76,7 +84,7 @@ public class FormLayoutSettings
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(compactInputs, columnWidth, columnWidthUnit);
+		return Objects.hash(compactInputs, showCancel, columnWidth, columnWidthUnit);
 	}
 	
 	public static Builder builder()
@@ -87,6 +95,7 @@ public class FormLayoutSettings
 	public static class Builder
 	{
 		private boolean compactInputs;
+		private boolean showCancel;
 		private float columnWidth;
 		private String columnWidthUnit;
 		
@@ -105,9 +114,14 @@ public class FormLayoutSettings
 			this.columnWidthUnit = unit;
 			return this;
 		}
+		public Builder withShowCancel(boolean showCancel)
+		{
+			this.showCancel = showCancel;
+			return this;
+		}
 		public FormLayoutSettings build()
 		{
-			return new FormLayoutSettings(compactInputs, columnWidth, columnWidthUnit);
+			return new FormLayoutSettings(compactInputs, columnWidth, columnWidthUnit, showCancel);
 		}
 		
 	}

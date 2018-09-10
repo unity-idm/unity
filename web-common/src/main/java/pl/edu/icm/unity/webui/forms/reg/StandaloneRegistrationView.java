@@ -61,7 +61,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	private RegistrationRequestEditor currentRegistrationFormEditor;
 	private SignUpAuthNController signUpAuthNController;
 	private SignUpTopHederComponent header;
-	private HorizontalLayout formBbuttons;
+	private HorizontalLayout formButtons;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -153,24 +153,28 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 		
 		if (!FormLayoutUtils.isLayoutWithLocalSignup(effectiveLayout))
 		{
-			formBbuttons = new HorizontalLayout();
+			formButtons = new HorizontalLayout();
 			Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
 			okButton.addStyleName(Styles.vButtonPrimary.toString());
 			okButton.addClickListener(event -> onSubmit(editor, mode));
+			formButtons.addComponent(okButton);
 			
-			Button cancelButton = new Button(msg.getMessage("cancel"));
-			cancelButton.addClickListener(event -> onCancel());
-			formBbuttons.addComponents(okButton, cancelButton);
-			formBbuttons.setMargin(false);
-			main.addComponent(formBbuttons);
-			main.setComponentAlignment(formBbuttons, Alignment.MIDDLE_CENTER);		
+			if (form.getLayoutSettings().isShowCancel())
+			{
+				Button cancelButton = new Button(msg.getMessage("cancel"));
+				cancelButton.addClickListener(event -> onCancel());
+				formButtons.addComponent(cancelButton);
+			}
+			formButtons.setMargin(false);
+			main.addComponent(formButtons);
+			main.setComponentAlignment(formButtons, Alignment.MIDDLE_CENTER);		
 		} else
 		{
 			/*
 			 * The editor does not contain any registration form, the local sign up
 			 * button instead.
 			 */
-			formBbuttons = null;
+			formButtons = null;
 		}
 	}
 
@@ -294,8 +298,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	{
 		if (currentRegistrationFormEditor != null)
 			currentRegistrationFormEditor.setEnabled(isEnabled);
-		if (formBbuttons != null)
-			formBbuttons.setEnabled(isEnabled);
+		if (formButtons != null)
+			formButtons.setEnabled(isEnabled);
 	}
 
 	private void authenticationStartedHandler(boolean showProgress)

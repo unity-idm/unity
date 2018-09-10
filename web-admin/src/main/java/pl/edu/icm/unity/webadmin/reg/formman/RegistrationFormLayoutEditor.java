@@ -24,9 +24,10 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private Supplier<RegistrationForm> formProvider;
-
+	//TODO use Binder!
 	private CheckBox localSignupEmbeddedAsButton;
 	private CheckBox compactInputs;
+	private CheckBox showCancel;
 
 	public RegistrationFormLayoutEditor(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
@@ -43,7 +44,8 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 		main.setMargin(false);
 		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
 		compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
-		main.addComponents(localSignupEmbeddedAsButton, compactInputs);
+		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
+		main.addComponents(localSignupEmbeddedAsButton, compactInputs, showCancel);
 		setCompositionRoot(main);
 	}
 
@@ -56,8 +58,12 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 
 	public FormLayoutSettings getSettings()
 	{
-		FormLayoutSettings settings = new FormLayoutSettings(compactInputs.getValue(),
-				FormLayoutSettings.DEFAULT.getColumnWidth(), FormLayoutSettings.DEFAULT.getColumnWidthUnit());
+		FormLayoutSettings settings = FormLayoutSettings.builder()
+				.withColumnWidth(FormLayoutSettings.DEFAULT.getColumnWidth())
+				.withColumnWidthUnit(FormLayoutSettings.DEFAULT.getColumnWidthUnit())
+				.withCompactInputs(compactInputs.getValue())
+				.withShowCancel(showCancel.getValue())
+				.build(); 
 		return settings;
 	}
 
@@ -69,6 +75,7 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 	public void setSettings(FormLayoutSettings settings)
 	{
 		compactInputs.setValue(settings.isCompactInputs());
+		showCancel.setValue(settings.isShowCancel());
 	}
 
 	public void updateFromForm()
