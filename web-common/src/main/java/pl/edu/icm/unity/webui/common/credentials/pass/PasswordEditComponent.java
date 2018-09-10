@@ -50,18 +50,24 @@ public class PasswordEditComponent
 		password = new PasswordField(msg.getMessage("PasswordCredentialEditor.password"));
 		password.setValueChangeMode(ValueChangeMode.LAZY);
 		password.addValueChangeListener(event -> onNewPassword(event.getValue()));
+		password.addStyleName("u-password-setup");
 		qualityMeter = new ProgressBar();
 		qualityMeter.setCaption(msg.getMessage("PasswordCredentialEditor.qualityMeter"));
 		qualityMeter.setWidth(210, Unit.PIXELS);
+		qualityMeter.addStyleName("u-password-quality");
 		mainInfo = new Label("", ContentMode.HTML);
 		mainInfo.setWidth(100, Unit.PERCENTAGE);
 		mainInfo.addStyleName(Styles.emphasized.toString());
+		mainInfo.addStyleName("u-password-hint");
 		VerticalLayout qualityMeterLayout = new VerticalLayout(qualityMeter, mainInfo);
 		qualityMeterLayout.setMargin(false);
 		qualityMeterLayout.setSpacing(false);
 		minLengthStatus = new Label("", ContentMode.HTML);
+		minLengthStatus.addStyleNames("u-password-stat", "u-password-minLen");
 		minClassesStatus = new Label("", ContentMode.HTML);
+		minClassesStatus.addStyleNames("u-password-stat", "u-password-minClass");
 		sequencesStatus = new Label("", ContentMode.HTML);
+		sequencesStatus.addStyleNames("u-password-stat", "u-password-seq");
 		
 		root.add(password, qualityMeterLayout);
 		if (config.getMinLength() > 1)

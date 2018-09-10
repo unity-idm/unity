@@ -59,6 +59,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 		password1.focus();
 	
 		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
+		password2.addStyleName("u-password-repeat");
 		if (required)
 		{
 			password1.setRequiredIndicatorVisible(true);

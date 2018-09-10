@@ -385,6 +385,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Styles.vLabelH1.toString());
+		formName.addStyleName("u-reg-title");
 		main.addComponent(formName);
 		main.setComponentAlignment(formName, Alignment.MIDDLE_CENTER);
 		
@@ -392,6 +393,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		if (info != null)
 		{
 			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
+			formInformation.addStyleName("u-reg-info");
 			main.addComponent(formInformation);
 			main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 		}
@@ -478,13 +480,16 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		Label label = new Label(element.getValue().getValue(msg));
 		label.addStyleName(Styles.formSection.toString());
+		label.addStyleName("u-reg-sectionHeader");
 		layout.addComponent(label);
 		return true;
 	}	
 
 	protected boolean createSeparatorControl(Layout layout, FormSeparatorElement element)
 	{
-		layout.addComponent(HtmlTag.horizontalLine());
+		Label horizontalLine = HtmlTag.horizontalLine();
+		horizontalLine.addStyleName("u-reg-separatorLine");
+		layout.addComponent(horizontalLine);
 		return true;
 	}	
 	
