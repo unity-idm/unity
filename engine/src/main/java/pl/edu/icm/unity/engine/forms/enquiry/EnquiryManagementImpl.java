@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
+import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -242,7 +243,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			AdminComment publicComment, AdminComment internalComment) 
 			throws EngineException
 	{
-		enquiryResponseValidator.validateSubmittedRequest(form, currentRequest.getRequest(), false);
+		enquiryResponseValidator.validateSubmittedRequest(form, currentRequest.getRequest(), 
+				new InvitationPrefillInfo(), false);
 		requestDB.update(currentRequest);
 		internalManagment.sendProcessingNotification(form, 
 				form.getNotificationsConfiguration().getUpdatedTemplate(),
@@ -253,7 +255,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId());
-			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), true);
+			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), 
+					new InvitationPrefillInfo(), true);
 			requestDB.create(responseFull);
 			addToAttribute(responseFull.getEntityId(), EnquiryAttributeTypesProvider.FILLED_ENQUIRES, 
 					form.getName());

@@ -326,6 +326,12 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 			return this;
 		}
 
+		public AttributeRegistrationParamBuilder withConfirmationMode(ConfirmationMode confirmationMode)
+		{
+			instance.setConfirmationMode(confirmationMode);
+			return this;
+		}
+		
 		public T endAttributeParam()
 		{
 			return parent;
@@ -380,6 +386,12 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 		{
 			instance.setRetrievalSettings(aValue);
 
+			return this;
+		}
+		
+		public IdentityRegistrationParamBuilder withConfirmationMode(ConfirmationMode confirmationMode)
+		{
+			instance.setConfirmationMode(confirmationMode);
 			return this;
 		}
 

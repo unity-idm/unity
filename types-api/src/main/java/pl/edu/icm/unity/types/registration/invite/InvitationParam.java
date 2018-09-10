@@ -274,5 +274,11 @@ public class InvitationParam
 			instance.groupSelections.put(idx, new PrefilledEntry<>(new GroupSelection(groups), mode));
 			return this;
 		}
+		public Builder withIdentity(IdentityParam identity, PrefilledEntryMode mode)
+		{
+			int idx = instance.identities.size();
+			instance.identities.put(idx, new PrefilledEntry<>(identity, mode));
+			return this;
+		}
 	}
 }
