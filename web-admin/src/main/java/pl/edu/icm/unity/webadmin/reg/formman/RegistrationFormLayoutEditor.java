@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -28,6 +29,7 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 	private CheckBox localSignupEmbeddedAsButton;
 	private CheckBox compactInputs;
 	private CheckBox showCancel;
+	private TextField logo;
 
 	public RegistrationFormLayoutEditor(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
@@ -45,7 +47,10 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
 		compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
 		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
-		main.addComponents(localSignupEmbeddedAsButton, compactInputs, showCancel);
+		logo = new TextField(msg.getMessage("FormLayoutEditor.logo"));
+		logo.setDescription(msg.getMessage("FormLayoutEditor.logoDesc"));
+		logo.setWidth(100, Unit.PERCENTAGE);
+		main.addComponents(localSignupEmbeddedAsButton, compactInputs, showCancel, logo);
 		setCompositionRoot(main);
 	}
 
@@ -63,6 +68,7 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 				.withColumnWidthUnit(FormLayoutSettings.DEFAULT.getColumnWidthUnit())
 				.withCompactInputs(compactInputs.getValue())
 				.withShowCancel(showCancel.getValue())
+				.withLogo(logo.getValue() != null && !logo.getValue().isEmpty() ? logo.getValue() : null)
 				.build(); 
 		return settings;
 	}
@@ -76,6 +82,8 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 	{
 		compactInputs.setValue(settings.isCompactInputs());
 		showCancel.setValue(settings.isShowCancel());
+		if (settings.getLogoURL() != null)
+			logo.setValue(settings.getLogoURL());
 	}
 
 	public void updateFromForm()

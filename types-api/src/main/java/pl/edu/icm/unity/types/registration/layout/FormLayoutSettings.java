@@ -15,23 +15,26 @@ import pl.edu.icm.unity.types.registration.BaseForm;
  */
 public class FormLayoutSettings
 {
-	public static final FormLayoutSettings DEFAULT = new FormLayoutSettings(false, 21, "EM", false);
+	public static final FormLayoutSettings DEFAULT = new FormLayoutSettings(false, 21, "EM", false, null);
 
 	private boolean compactInputs;
 	private boolean showCancel;
 	private float columnWidth;
 	private String columnWidthUnit;
+	private String logoURL;
 
 	protected FormLayoutSettings()
 	{
 	}
 
-	public FormLayoutSettings(boolean compactInputs, float columnWidth, String columnWidthUnit, boolean showCancel)
+	public FormLayoutSettings(boolean compactInputs, float columnWidth, String columnWidthUnit, boolean showCancel,
+			String logoURL)
 	{
 		this.compactInputs = compactInputs;
 		this.columnWidth = columnWidth;
 		this.columnWidthUnit = columnWidthUnit;
 		this.showCancel = showCancel;
+		this.logoURL = logoURL;
 	}
 
 	public boolean isCompactInputs()
@@ -68,6 +71,17 @@ public class FormLayoutSettings
 	{
 		return showCancel;
 	}
+	
+	public String getLogoURL()
+	{
+		return logoURL;
+	}
+
+	public static Builder builder()
+	{
+		return new Builder();
+	}
+	
 
 	@Override
 	public boolean equals(final Object other)
@@ -78,18 +92,14 @@ public class FormLayoutSettings
 		return Objects.equals(compactInputs, castOther.compactInputs)
 				&& Objects.equals(showCancel, castOther.showCancel)
 				&& Objects.equals(columnWidth, castOther.columnWidth)
-				&& Objects.equals(columnWidthUnit, castOther.columnWidthUnit);
+				&& Objects.equals(columnWidthUnit, castOther.columnWidthUnit)
+				&& Objects.equals(logoURL, castOther.logoURL);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(compactInputs, showCancel, columnWidth, columnWidthUnit);
-	}
-	
-	public static Builder builder()
-	{
-		return new Builder();
+		return Objects.hash(compactInputs, showCancel, columnWidth, columnWidthUnit, logoURL);
 	}
 	
 	public static class Builder
@@ -98,6 +108,7 @@ public class FormLayoutSettings
 		private boolean showCancel;
 		private float columnWidth;
 		private String columnWidthUnit;
+		private String logo;
 		
 		public Builder withCompactInputs(boolean compactInputs)
 		{
@@ -119,9 +130,14 @@ public class FormLayoutSettings
 			this.showCancel = showCancel;
 			return this;
 		}
+		public Builder withLogo(String logo)
+		{
+			this.logo = logo;
+			return this;
+		}
 		public FormLayoutSettings build()
 		{
-			return new FormLayoutSettings(compactInputs, columnWidth, columnWidthUnit, showCancel);
+			return new FormLayoutSettings(compactInputs, columnWidth, columnWidthUnit, showCancel, logo);
 		}
 		
 	}

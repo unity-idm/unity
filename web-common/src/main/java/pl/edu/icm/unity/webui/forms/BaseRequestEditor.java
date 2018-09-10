@@ -16,12 +16,14 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.html.HtmlEscapers;
+import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
@@ -67,6 +69,7 @@ import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
@@ -369,6 +372,16 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		main.setMargin(false);
 		main.setWidth(100, Unit.PERCENTAGE);
 		setCompositionRoot(main);
+		
+		String logoURL = form.getLayoutSettings().getLogoURL();
+		if (logoURL != null && !logoURL.isEmpty())
+		{
+			Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+			Image image = new Image(null, logoResource);
+			image.addStyleName("u-signup-logo");
+			main.addComponent(image);
+			main.setComponentAlignment(image, Alignment.TOP_CENTER);
+		}
 		
 		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Styles.vLabelH1.toString());
