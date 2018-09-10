@@ -236,7 +236,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
 		Component remoteSignUpMetnodsTab = createRemoteSignupMethodsTab();
-		tabOfLists.addTab(remoteSignUpMetnodsTab, 0);
+		tabOfLists.addTab(remoteSignUpMetnodsTab, 1);
 		tabOfLists.setSelectedTab(0);
 		
 		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);

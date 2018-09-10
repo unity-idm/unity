@@ -16,7 +16,6 @@ import com.google.common.collect.Sets;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -173,6 +172,12 @@ public class BaseFormEditor extends VerticalLayout
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
 		agreements.setSpacing(false);
 		agreements.setMargin(true);
+
+		IdentityEditorAndProvider identityEditorAndProvider = new IdentityEditorAndProvider();
+		if (forceInteractiveRetrieval)
+			identityEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
+		identityParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.identityParams"),
+				msg, identityEditorAndProvider, 0, 20, true);
 		
 		Component localSignupMethods = createLocalSignupMethodsTab(forceInteractiveRetrieval);
 		
@@ -189,7 +194,7 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
 				
-		tabOfLists.addComponents(localSignupMethods, attributeParams, groupParams, agreements);
+		tabOfLists.addComponents(identityParams, localSignupMethods, attributeParams, groupParams, agreements);
 		return tabOfLists;
 	}
 	
@@ -213,24 +218,10 @@ public class BaseFormEditor extends VerticalLayout
 	
 	private Component createLocalSignupMethodsTab(boolean forceInteractiveRetrieval)
 	{
-		IdentityEditorAndProvider identityEditorAndProvider = new IdentityEditorAndProvider();
-		if (forceInteractiveRetrieval)
-			identityEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
-		identityParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.identityParams"),
-				msg, identityEditorAndProvider, 0, 20, true);
-		identityParams.addStyleName(Styles.captionBold.toString());
 		credentialParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.credentialParams"),
 				msg, new CredentialEditorAndProvider(), 0, 20, true);
-		credentialParams.addStyleName(Styles.captionBold.toString());
-		
-		HorizontalLayout localSignUpLayout = new HorizontalLayout();
-		localSignUpLayout.setSizeFull();
-		localSignUpLayout.setSpacing(false);
-		localSignUpLayout.setMargin(true);
-		localSignUpLayout.setCaption(msg.getMessage("RegistrationFormEditor.localSignupMethods"));
-		localSignUpLayout.addComponent(identityParams);
-		localSignUpLayout.addComponent(credentialParams);
-		return localSignUpLayout;
+		credentialParams.setCaption(msg.getMessage("RegistrationFormEditor.localSignupMethods"));
+		return credentialParams;
 	}
 
 	private class AgreementEditorAndProvider implements EditorProvider<AgreementRegistrationParam>,
