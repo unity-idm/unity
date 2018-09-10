@@ -16,6 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Layout;
@@ -53,6 +54,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
+import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 
 /**
  * Generates a UI based on a given registration form. User can fill the form and a request is returned.
@@ -168,13 +170,15 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	private void initUI() throws EngineException
 	{
-		com.vaadin.ui.FormLayout mainFormLayout = createMainFormLayout();
+		RegistrationLayoutsContainer layoutContainer = createLayouts();
 		
 		setupInvitationByCode();
 		
 		resolveRemoteSignupOptions();
 		
-		createControls(mainFormLayout, effectiveLayout, invitation);
+		createControls(layoutContainer, effectiveLayout, invitation);
+		
+		finalizeLayoutInitialization(layoutContainer);
 	}
 	
 	private void resolveRemoteSignupOptions()
@@ -217,25 +221,25 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	}
 	
 	@Override
-	protected boolean createControlFor(AbstractOrderedLayout layout, FormElement element, 
+	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
 			FormElement previousAdded, InvitationWithCode invitation) throws EngineException
 	{
 		switch (element.getType())
 		{
 		case CAPTCHA:
-			return createCaptchaControl(layout, (BasicFormElement) element);
+			return createCaptchaControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
 		case REG_CODE:
-			return createRegistrationCodeControl(layout, (BasicFormElement) element);
+			return createRegistrationCodeControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
 		case REMOTE_SIGNUP:
-			return createRemoteSignupButton(layout, (FormParameterElement) element);
+			return createRemoteSignupButton(layoutContainer.mainLayout, (FormParameterElement) element);
 		case LOCAL_SIGNUP:
-			return createLocalSignupButton(layout, (FormLocalSignupElement) element);
+			return createLocalSignupButton(layoutContainer.mainLayout, (FormLocalSignupElement) element);
 		default:
-			return super.createControlFor(layout, element, previousAdded, invitation);
+			return super.createControlFor(layoutContainer, element, previousAdded, invitation);
 		}
 	}
 
-	private boolean createRemoteSignupButton(Layout layout, FormParameterElement element)
+	private boolean createRemoteSignupButton(AbstractOrderedLayout layout, FormParameterElement element)
 	{
 		if (signUpAuthNController == null)
 			return false;
@@ -248,6 +252,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		signupOptionComponent.setWidth(form.getLayoutSettings().getColumnWidth(), 
 				Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit()));
 		layout.addComponent(signupOptionComponent);
+		layout.setComponentAlignment(signupOptionComponent, Alignment.MIDDLE_CENTER);
 		return true;
 	}
 	

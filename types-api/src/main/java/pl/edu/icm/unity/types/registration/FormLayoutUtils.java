@@ -54,29 +54,24 @@ public final class FormLayoutUtils
 	{
 		List<FormElement> elements = new ArrayList<>();
 		elements.addAll(getDefaultParametersLayout(FormLayoutElement.IDENTITY, form.getIdentityParams(), msg, 
-				"RegistrationRequest.identities", "RegistrationRequest.externalIdentities"));
+				"RegistrationRequest.externalIdentities"));
 		if (withCredentials)
 		{
-			elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.CREDENTIAL, form.getCredentialParams(), msg, 
-					"RegistrationRequest.credentials", true));
+			elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.CREDENTIAL, form.getCredentialParams(), true));
 		}
 		elements.addAll(getDefaultParametersLayout(FormLayoutElement.ATTRIBUTE, form.getAttributeParams(), msg, 
-				"RegistrationRequest.attributes", "RegistrationRequest.externalAttributes"));
+				"RegistrationRequest.externalAttributes"));
 		elements.addAll(getDefaultParametersLayout(FormLayoutElement.GROUP, form.getGroupParams(), msg, 
-				"RegistrationRequest.groups", "RegistrationRequest.externalGroups"));
+				"RegistrationRequest.externalGroups"));
 		if (form.isCollectComments())
 			elements.add(new BasicFormElement(FormLayoutElement.COMMENTS));
-		elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.AGREEMENT, form.getAgreements(), msg, 
-				"RegistrationRequest.agreements", true));
+		elements.addAll(getDefaultBasicParamsLayout(FormLayoutElement.AGREEMENT, form.getAgreements(), true));
 		return elements;
 	}
 	
-	private static List<FormElement> getDefaultBasicParamsLayout(FormLayoutElement type, List<?> params, 
-			MessageSource msg, String captionKey, boolean addSeparator)
+	private static List<FormElement> getDefaultBasicParamsLayout(FormLayoutElement type, List<?> params, boolean addSeparator)
 	{
 		List<FormElement> ret = new ArrayList<>();
-		if (!params.isEmpty())
-			ret.add(new FormCaptionElement(new I18nString(captionKey, msg)));
 		for (int i=0; i<params.size(); i++)
 		{
 			if (addSeparator && i > 0)
@@ -86,8 +81,8 @@ public final class FormLayoutUtils
 		return ret;
 	}
 	
-	private static List<FormElement> getDefaultParametersLayout(FormLayoutElement type, List<? extends RegistrationParam> params, 
-			MessageSource msg, String captionKey, String readOnlyCaptionKey)
+	private static List<FormElement> getDefaultParametersLayout(FormLayoutElement type, 
+			List<? extends RegistrationParam> params, MessageSource msg, String readOnlyCaptionKey)
 	{
 		List<FormElement> ret = new ArrayList<>();
 		
@@ -98,9 +93,6 @@ public final class FormLayoutUtils
 				ret.add(new FormParameterElement(type, i));
 		}
 		
-		if (!ret.isEmpty())
-			ret.add(0, new FormCaptionElement(new I18nString(captionKey, msg)));
-
 		int interactiveSize = ret.size();
 		for (int i=0; i<params.size(); i++)
 		{

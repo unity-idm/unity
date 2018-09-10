@@ -145,6 +145,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
 				form, remotelyAuthenticated);
+		
+		
 	}
 	
 	@Override
@@ -360,7 +362,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	/**
 	 * Creates main layout, inserts title and form information
 	 */
-	protected com.vaadin.ui.FormLayout createMainFormLayout()
+	protected RegistrationLayoutsContainer createLayouts()
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
@@ -383,13 +385,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 
 		com.vaadin.ui.FormLayout mainFormLayout = new com.vaadin.ui.FormLayout();
 		mainFormLayout.setWidthUndefined();
-		main.addComponent(mainFormLayout);
-		main.setComponentAlignment(mainFormLayout, Alignment.MIDDLE_CENTER);
-		
-		return mainFormLayout;
+		return new RegistrationLayoutsContainer(main, mainFormLayout);
 	}
 	
-	protected void createControls(AbstractOrderedLayout layout, FormLayout formLayout, InvitationWithCode invitation) 
+	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 
 			throws EngineException
 	{
 		identityParamEditors = new HashMap<>();
@@ -406,42 +405,49 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		FormElement previousInserted = null;
 		for (FormElement element : formLayout.getElements())
 		{
-			if (createControlFor(layout, element, previousInserted, invitation))
+			if (createControlFor(layoutContainer, element, previousInserted, invitation))
 				previousInserted = element;
 		}
 	}
 	
-	protected boolean createControlFor(AbstractOrderedLayout layout, FormElement element, 
+	protected void finalizeLayoutInitialization(RegistrationLayoutsContainer layoutContainer)
+	{
+		layoutContainer.mainLayout.addComponent(layoutContainer.registrationFormLayout);
+		layoutContainer.mainLayout.setComponentAlignment(layoutContainer.registrationFormLayout,
+				Alignment.MIDDLE_CENTER);
+	}
+
+	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
 			FormElement previousInserted, InvitationWithCode invitation) throws EngineException
 	{
 		switch (element.getType())
 		{
 		case IDENTITY:
-			return createIdentityControl(layout, (FormParameterElement) element, 
+			return createIdentityControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
 					invitation != null ? invitation.getIdentities() : new HashMap<>());
 			
 		case ATTRIBUTE:
-			return createAttributeControl(layout, (FormParameterElement) element, 
+			return createAttributeControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
 					invitation != null ? invitation.getAttributes() : new HashMap<>());
 			
 		case GROUP:
-			return createGroupControl(layout, (FormParameterElement) element, 
+			return createGroupControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
 					invitation != null ? invitation.getGroupSelections() : new HashMap<>());
 			
 		case CAPTION:
-			return createLabelControl(layout, previousInserted, (FormCaptionElement) element);
+			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, (FormCaptionElement) element);
 			
 		case SEPARATOR:
-			return createSeparatorControl(layout, (FormSeparatorElement) element);
+			return createSeparatorControl(layoutContainer.registrationFormLayout, (FormSeparatorElement) element);
 			
 		case AGREEMENT:
-			return createAgreementControl(layout, (FormParameterElement) element);
+			return createAgreementControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
 			
 		case COMMENTS:
-			return createCommentsControl(layout, (BasicFormElement) element);
+			return createCommentsControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
 			
 		case CREDENTIAL:
-			return createCredentialControl(layout, (FormParameterElement) element);
+			return createCredentialControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
 		default:
 			log.error("Unsupported form element, skipping: " + element);
 		}

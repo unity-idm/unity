@@ -212,7 +212,8 @@ public class RegistrationForm extends BaseForm
 		{
 			List<FormElement> defaultElements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
 			addRegistrationFormSpecificElements(msg, defaultElements);
-			defaultElements.add(0, new FormCaptionElement(new I18nString("RegistrationRequest.or", msg)));
+			if (!defaultElements.isEmpty())
+				elements.add(new FormCaptionElement(new I18nString("RegistrationRequest.or", msg)));
 			elements.addAll(defaultElements);
 		}
 		return new FormLayout(elements);
@@ -222,11 +223,6 @@ public class RegistrationForm extends BaseForm
 	{
 		List<AuthenticationOptionKey> remoteSignup = getExternalSignupSpec().getSpecs();
 		List<FormElement> ret = new ArrayList<>();
-		if (!remoteSignup.isEmpty())
-		{
-			ret.add(new FormCaptionElement(new I18nString("RegistrationRequest.chooseOptionToSignup", msg)));
-		}
-		
 		for (int i=0; i<remoteSignup.size(); i++)
 		{
 			ret.add(new FormParameterElement(FormLayoutElement.REMOTE_SIGNUP, i));

@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import com.vaadin.ui.FormLayout;
-
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -19,6 +17,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
+import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 
 /**
  * Generates a UI based on a given {@link EnquiryForm}. 
@@ -58,9 +57,11 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	
 	private void initUI() throws EngineException
 	{
-		FormLayout mainFormLayout = createMainFormLayout();
+		RegistrationLayoutsContainer layoutContainer = createLayouts();
 		
-		createControls(mainFormLayout, enquiryForm.getEffectiveFormLayout(msg), null);
+		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), null);
+		
+		finalizeLayoutInitialization(layoutContainer);
 	}
 }
 
