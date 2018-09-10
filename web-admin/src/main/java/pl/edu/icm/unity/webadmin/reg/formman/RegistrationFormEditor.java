@@ -140,10 +140,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withNotificationsConfiguration(notCfg);
 		// TODO: once layout editor is implemented fix this line
 //		builder.withLayout(layoutEditor.getLayout());
-		
-		RegistrationForm form = builder.build();
-		form.getFormLayouts().setLocalSignupEmbeddedAsButton(true); // TODO: remove me, this is for testing purposes.
-		return form;
+		return builder.build();
 	}
 	
 	private RegistrationFormBuilder getFormBuilderBasic() throws FormValidationException
