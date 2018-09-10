@@ -37,6 +37,7 @@ public class ExpressionActionParameterComponent extends MVELExpressionField
 		binder.setBean(new StringValueBean());
 		addBlurListener(event -> markAsDirtyRecursive());
 		addDropHandler();
+		setWidth(100, Unit.PERCENTAGE);
 	}
 
 	private void addDropHandler()
