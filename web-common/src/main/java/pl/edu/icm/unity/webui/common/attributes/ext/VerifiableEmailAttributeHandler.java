@@ -173,7 +173,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 					context.isRequired(),
 					msg.getMessage("VerifiableEmailAttributeHandler.resendConfirmation"),
 					Images.messageSend.getResource(),
-					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"));
+					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"),
+					context.isShowLabelInline());
 			if (label != null)
 				editor.setTextFieldId("EmailValueEditor." + label);
 
@@ -293,10 +294,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			if (context.isShowLabelInline())
-				editor.setPlaceholder(label);
-			else
-				editor.setCaption(label);
+			editor.setLabel(label);
 		}
 	}
 

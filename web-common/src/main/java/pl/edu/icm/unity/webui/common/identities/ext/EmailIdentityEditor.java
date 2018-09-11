@@ -61,10 +61,11 @@ public class EmailIdentityEditor implements IdentityEditor
 		editor = new TextFieldWithVerifyButton(context.isAdminMode(), context.isRequired(), msg.getMessage(
 				"EmailIdentityEditor.resendConfirmation"),
 				Images.messageSend.getResource(),
-				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"));
+				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"),
+				context.isShowLabelInline());
 		
 		ComponentsContainer ret = new ComponentsContainer(editor);
-		setLabel(new EmailIdentity().getHumanFriendlyName(msg));
+		editor.setLabel(new EmailIdentity().getHumanFriendlyName(msg));
 		
 		editor.addVerifyButtonClickListener(e -> {
 
@@ -187,9 +188,6 @@ public class EmailIdentityEditor implements IdentityEditor
 	@Override
 	public void setLabel(String value)
 	{
-		if (context.isShowLabelInline())
-			editor.setPlaceholder(value);
-		else
-			editor.setCaption(value + ":");
+		editor.setLabel(value);
 	}
 }

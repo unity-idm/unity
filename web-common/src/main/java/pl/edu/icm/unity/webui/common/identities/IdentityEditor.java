@@ -29,11 +29,6 @@ public interface IdentityEditor
 	/**
 	 * @param value 
 	 */
-	//public void setDefaultValue(String value);
-
-	/**
-	 * @param value 
-	 */
 	public void setDefaultValue(IdentityParam value);
 	
 	/**

@@ -195,7 +195,8 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 					context.isRequired(),
 					msg.getMessage("VerifiableMobileNumberAttributeHandler.verify"),
 					Images.mobile.getResource(),
-					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"));
+					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"),
+					context.isShowLabelInline());
 			if (label != null)
 				editor.setTextFieldId("MobileNumberValueEditor." + label);
 
@@ -301,10 +302,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		@Override
 		public void setLabel(String label)
 		{
-			if (context.isShowLabelInline())
-				editor.setPlaceholder(label);
-			else
-				editor.setCaption(label);
+			editor.setLabel(label);
 		}
 	}
 

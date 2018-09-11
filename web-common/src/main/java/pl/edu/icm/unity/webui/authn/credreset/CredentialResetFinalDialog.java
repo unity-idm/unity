@@ -13,8 +13,10 @@ import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 /**
  * 6th, last step of credential reset pipeline. In this dialog the user must provide the new credential.
@@ -55,8 +57,13 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		ret.setSpacing(false);
 		ret.addComponent(new Label(msg.getMessage("CredentialReset.updateCredentialInfo")));
 		FormLayout internal = new FormLayout();
-		internal.addComponents(credEditor.getEditor(backend.getCredentialConfiguration(), 
-				true, backend.getEntityId(), false).getComponents());
+		
+		ComponentsContainer componentContainer = credEditor.getEditor(CredentialEditorContext.builder()
+				.withConfiguration(backend.getCredentialConfiguration())
+				.withRequired(true)
+				.withEntityId(backend.getEntityId())
+				.build());
+		internal.addComponents(componentContainer.getComponents());
 		ret.addComponent(internal);
 		return ret;
 	}

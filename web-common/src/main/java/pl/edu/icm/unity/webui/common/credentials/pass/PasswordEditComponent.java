@@ -9,7 +9,6 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
 
@@ -20,6 +19,7 @@ import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 /**
  * Password editor. This component contains a single masked text field, displays password strength
@@ -28,12 +28,12 @@ import pl.edu.icm.unity.webui.common.Styles;
  * 
  * @author K. Benedyczak
  */
-public class PasswordEditComponent
+class PasswordEditComponent
 {
 	private final UnityMessageSource msg;
 	private final PasswordCredential config;
 	
-	private PasswordField password;
+	private PasswordFieldWithContextLabel password;
 	private ProgressBar qualityMeter;
 	private Label mainInfo;
 	private Label minLengthStatus;
@@ -43,11 +43,17 @@ public class PasswordEditComponent
 	
 	public PasswordEditComponent(UnityMessageSource msg, PasswordCredential config)
 	{
+		this(msg, config, null);
+	}
+
+	public PasswordEditComponent(UnityMessageSource msg, PasswordCredential config, CredentialEditorContext context)
+	{
 		this.msg = msg;
 		this.config = config;
 		root = new ComponentsContainer();
 		
-		password = new PasswordField(msg.getMessage("PasswordCredentialEditor.password"));
+		password = new PasswordFieldWithContextLabel(context == null ? false : context.isShowLabelInline());
+		password.setLabel(msg.getMessage("PasswordCredentialEditor.password"));
 		password.setValueChangeMode(ValueChangeMode.LAZY);
 		password.addValueChangeListener(event -> onNewPassword(event.getValue()));
 		password.addStyleName("u-password-setup");

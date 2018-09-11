@@ -8,7 +8,6 @@ import java.util.List;
 
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.JsonUtil;
@@ -23,6 +22,7 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 /**
  * Allows to setup password for password credential.
@@ -32,12 +32,12 @@ public class PasswordCredentialEditor implements CredentialEditor
 {
 	private UnityMessageSource msg;
 	private PasswordEditComponent password1;
-	private PasswordField password2;
+	private PasswordFieldWithContextLabel password2;
 	private ComboBox<String> questionSelection;
 	private TextField answer;
 	private boolean requireQA;
 	private PasswordCredential helper;
-	private boolean required;
+	private CredentialEditorContext context;
 
 	public PasswordCredentialEditor(UnityMessageSource msg)
 	{
@@ -45,22 +45,21 @@ public class PasswordCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(String credentialConfiguration, boolean required, Long entityId, 
-			boolean adminMode)
+	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
-		this.required = required;
+		this.context = context;
 		helper = new PasswordCredential();
-		helper.setSerializedConfiguration(JsonUtil.parse(credentialConfiguration));
+		helper.setSerializedConfiguration(JsonUtil.parse(context.getCredentialConfiguration()));
 		
 		ComponentsContainer ret = new ComponentsContainer();
 
-		password1 = new PasswordEditComponent(msg, helper);
-
+		password1 = new PasswordEditComponent(msg, helper, context);
 		password1.focus();
 	
-		password2 = new PasswordField(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
+		password2 = new PasswordFieldWithContextLabel(context.isShowLabelInline());
+		password2.setLabel(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
 		password2.addStyleName("u-password-repeat");
-		if (required)
+		if (context.isRequired())
 		{
 			password1.setRequiredIndicatorVisible(true);
 			password2.setRequiredIndicatorVisible(true);
@@ -72,12 +71,12 @@ public class PasswordCredentialEditor implements CredentialEditor
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 
 		if (requireQA)
 		{
-			questionSelection = new ComboBox<String>(msg.getMessage("PasswordCredentialEditor.selectQuestion"));
+			questionSelection = new ComboBox<>(msg.getMessage("PasswordCredentialEditor.selectQuestion"));
 			questionSelection.setItems(resetSettings.getQuestions());
 			questionSelection.setValue(resetSettings.getQuestions().get(0));
 			questionSelection.setEmptySelectionAllowed(false);
 			answer = new TextField(msg.getMessage("PasswordCredentialEditor.answer"));
-			if (required)
+			if (context.isRequired())
 				answer.setRequiredIndicatorVisible(true);
 			ret.add(questionSelection, answer);
 		}
@@ -87,10 +86,10 @@ public class PasswordCredentialEditor implements CredentialEditor
 	@Override
 	public String getValue() throws IllegalCredentialException
 	{
-		if (!required && password1.getPassword().isEmpty() && password2.getValue().isEmpty())
+		if (!context.isRequired() && password1.getPassword().isEmpty() && password2.getValue().isEmpty())
 			return null;
 		
-		if (required && password1.getPassword().isEmpty())
+		if (context.isRequired() && password1.getPassword().isEmpty())
 			throw new IllegalCredentialException(msg.getMessage("PasswordCredentialEditor.newPasswordRequired"));
 		
 		String p1 = password1.getPassword();
@@ -121,7 +120,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 				throw new IllegalCredentialException(err);
 			}
 			answer.setComponentError(null);
-			String ques = (String) questionSelection.getValue();
+			String ques = questionSelection.getValue();
 			int qNum=0;
 			List<String> questions = helper.getPasswordResetSettings().getQuestions(); 
 			for (; qNum<questions.size(); qNum++)
