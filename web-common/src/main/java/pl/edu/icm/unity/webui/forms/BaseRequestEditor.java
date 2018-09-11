@@ -81,6 +81,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -550,8 +551,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		} else
 		{
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
+			if (idParam.getLabel() != null)
+				editor.setLabel(idParam.getLabel());
 			identityParamEditors.put(index, editor);
-			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional(), false);
+			ComponentsContainer editorUI = editor.getEditor(IdentityEditorContext.builder()
+					.withRequired(!idParam.isOptional())
+					.withLabelInLine(form.getLayoutSettings().isCompactInputs())
+					.build());
 			layout.addComponents(editorUI.getComponents());
 			
 			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rid != null)
@@ -563,8 +569,6 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
 				editor.setDefaultValue(prefilledEntry.getEntry());
 			
-			if (idParam.getLabel() != null)
-				editorUI.setCaption(idParam.getLabel());
 			if (idParam.getDescription() != null)
 				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(idParam.getDescription()));
 		}

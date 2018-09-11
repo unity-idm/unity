@@ -30,6 +30,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 
 /**
  * {@link X500Identity} editor
@@ -39,7 +40,7 @@ public class X500IdentityEditor implements IdentityEditor
 {
 	private UnityMessageSource msg;
 	private TextField field;
-	private boolean required;
+	private IdentityEditorContext context;
 	
 	public X500IdentityEditor(UnityMessageSource msg)
 	{
@@ -47,9 +48,9 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required, boolean adminMode)
+	public ComponentsContainer getEditor(IdentityEditorContext context)
 	{
-		this.required = required;
+		this.context = context;
 		field = new TextField();
 		field.setWidth(80, Unit.PERCENTAGE);
 		Upload upload = new Upload();
@@ -60,8 +61,8 @@ public class X500IdentityEditor implements IdentityEditor
 		
 		FormLayout wrapper = new CompactFormLayout(upload);
 		wrapper.setMargin(false);
-		field.setCaption(new X500Identity().getHumanFriendlyName(msg) + ":");
-		field.setRequiredIndicatorVisible(required);
+		setLabel(new X500Identity().getHumanFriendlyName(msg));
+		field.setRequiredIndicatorVisible(context.isRequired());
 		return new ComponentsContainer(field, wrapper);
 	}
 
@@ -71,7 +72,7 @@ public class X500IdentityEditor implements IdentityEditor
 		String dn = field.getValue();
 		if (dn.trim().equals(""))
 		{
-			if (!required)
+			if (!context.isRequired())
 				return null;
 			String err = msg.getMessage("X500IdentityEditor.dnEmpty");
 			field.setComponentError(new UserError(err));
@@ -93,12 +94,14 @@ public class X500IdentityEditor implements IdentityEditor
 	private class CertUploader implements Receiver, SucceededListener {
 		private LimitedOuputStream fos;
 		
+		@Override
 		public OutputStream receiveUpload(String filename, String mimeType) 
 		{
 			fos = new LimitedOuputStream(102400, new ByteArrayOutputStream(102400));
 			return fos;
 		}
 
+		@Override
 		public void uploadSucceeded(SucceededEvent event) 
 		{
 			if (fos.isOverflow())
@@ -133,6 +136,9 @@ public class X500IdentityEditor implements IdentityEditor
 	@Override
 	public void setLabel(String value)
 	{
-		field.setCaption(value);
+		if (context.isShowLabelInline())
+			field.setPlaceholder(value);
+		else
+			field.setCaption(value + ":");
 	}
 }
