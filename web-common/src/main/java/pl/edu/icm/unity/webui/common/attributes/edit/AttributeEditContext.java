@@ -19,12 +19,13 @@ public class AttributeEditContext
 	{
 		ADMIN, USER, OFF, FORCE_CONFIRMED,
 	}
-
+	
 	private ConfirmationMode confirmationMode = ConfirmationMode.USER;
 	private boolean required = false;
 	private AttributeType attributeType;
 	private EntityParam attributeOwner;
 	private String attributeGroup;
+	private boolean showLabelInline = false;
 
 	private AttributeEditContext()
 	{
@@ -61,6 +62,10 @@ public class AttributeEditContext
 		return attributeType;
 	}
 	
+	public boolean isShowLabelInline()
+	{
+		return showLabelInline;
+	}
 
 	public static class Builder
 	{
@@ -104,6 +109,12 @@ public class AttributeEditContext
 		public Builder withAttributeGroup(String group)
 		{
 			this.obj.attributeGroup = group;
+			return this;
+		}
+		
+		public Builder withLabelInline(boolean showLabelInline)
+		{
+			this.obj.showLabelInline = showLabelInline;
 			return this;
 		}
 

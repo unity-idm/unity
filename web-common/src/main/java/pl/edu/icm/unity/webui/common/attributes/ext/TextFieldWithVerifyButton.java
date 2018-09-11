@@ -162,5 +162,10 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		editor.setId(id);
 	}
+	
+	public void setPlaceholder(String label)
+	{
+		editor.setPlaceholder(label);
+	}
 
 }

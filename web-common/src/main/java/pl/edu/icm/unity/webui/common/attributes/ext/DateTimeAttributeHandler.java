@@ -90,9 +90,9 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 	private class DateTimeValueEditor implements AttributeValueEditor
 	{
 		protected String label;
-		private boolean required;
 		private DateTimeField datetime;
 		private LocalDateTime value;
+		private AttributeEditContext context;
 
 		public DateTimeValueEditor(String valueRaw, String label)
 		{
@@ -103,12 +103,12 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			this.context = context;
 			datetime = new DateTimeField();
 			datetime.setResolution(DateTimeResolution.SECOND);
-			datetime.setCaption(label);
+			setLabel(label);
 			datetime.setDateFormat("yyyy-MM-dd HH:mm:ss");
-			datetime.setRequiredIndicatorVisible(required);
+			datetime.setRequiredIndicatorVisible(context.isRequired());
 			if (value != null)
 				datetime.setValue(value);
 			ComponentsContainer ret = new ComponentsContainer(datetime);
@@ -119,7 +119,7 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 
-			if (!required && datetime.getValue() == null)
+			if (!context.isRequired() && datetime.getValue() == null)
 				return null;
 			
 			try
@@ -143,8 +143,10 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			datetime.setCaption(label);
-
+			if (context.isShowLabelInline())
+				datetime.setPlaceholder(label);
+			else
+				datetime.setCaption(label);
 		}
 
 	}

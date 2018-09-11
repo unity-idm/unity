@@ -615,6 +615,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withConfirmationMode(confirmationMode).withRequired(!aParam.isOptional())
 					.withAttributeType(aType)
 					.withAttributeGroup(aParam.isUsingDynamicGroup() ? "/" : aParam.getGroup())
+					.withLabelInline(form.getLayoutSettings().isCompactInputs())
 					.build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,

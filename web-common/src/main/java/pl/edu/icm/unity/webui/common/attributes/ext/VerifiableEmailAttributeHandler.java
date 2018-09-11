@@ -35,8 +35,8 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer;
@@ -146,10 +146,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	{
 		private VerifiableEmail value;
 		private String label;
-		private boolean required;
 		private ConfirmationInfo confirmationInfo;
 		private TextFieldWithVerifyButton editor;
 		private boolean skipUpdate = false;
+		private AttributeEditContext context;
 
 		public VerifiableEmailValueEditor(String valueRaw, String label)
 		{
@@ -160,7 +160,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			this.context = context;
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
@@ -170,7 +170,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 			editor = new TextFieldWithVerifyButton(
 					context.getConfirmationMode() == ConfirmationMode.ADMIN,
-					required,
+					context.isRequired(),
 					msg.getMessage("VerifiableEmailAttributeHandler.resendConfirmation"),
 					Images.messageSend.getResource(),
 					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"));
@@ -269,7 +269,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-			if (!required && editor.getValue().isEmpty())
+			if (!context.isRequired() && editor.getValue().isEmpty())
 				return null;
 
 			try
@@ -293,8 +293,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			editor.setCaption(label);
-
+			if (context.isShowLabelInline())
+				editor.setPlaceholder(label);
+			else
+				editor.setCaption(label);
 		}
 	}
 
