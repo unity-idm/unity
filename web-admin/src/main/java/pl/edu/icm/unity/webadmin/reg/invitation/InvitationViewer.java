@@ -8,14 +8,18 @@ import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -41,6 +45,7 @@ public class InvitationViewer extends CustomComponent
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private MessageTemplateManagement msgTemplateMan;
 	private RegistrationsManagement regMan;
+	private SharedEndpointManagement sharedEndpointMan;
 	
 	private Label formId;
 	private Label code;
@@ -51,6 +56,7 @@ public class InvitationViewer extends CustomComponent
 	private Label notificationsSent;
 	private Label messageParams;
 	private Label expectedIdentity;
+	private Link link;
 	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
 	private VerticalLayout attributes;
 	private ListOfElements<Map.Entry<String, PrefilledEntry<GroupSelection>>> groups;
@@ -63,12 +69,14 @@ public class InvitationViewer extends CustomComponent
 	
 	public InvitationViewer(UnityMessageSource msg,
 			AttributeHandlerRegistry attrHandlersRegistry,
-			MessageTemplateManagement msgTemplateMan, RegistrationsManagement regMan)
+			MessageTemplateManagement msgTemplateMan, RegistrationsManagement regMan,
+			SharedEndpointManagement sharedEndpointMan)
 	{
 		this.msg = msg;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.msgTemplateMan = msgTemplateMan;
 		this.regMan = regMan;
+		this.sharedEndpointMan = sharedEndpointMan;
 		initUI();
 	}
 
@@ -83,6 +91,9 @@ public class InvitationViewer extends CustomComponent
 		code = new Label();
 		code.setCaption(msg.getMessage("InvitationViewer.code"));
 
+		link = new Link();
+		link.setCaption(msg.getMessage("InvitationViewer.link"));
+		
 		expiration = new Label();
 		expiration.setCaption(msg.getMessage("InvitationViewer.expiration"));
 
@@ -125,7 +136,7 @@ public class InvitationViewer extends CustomComponent
 		groups.setMargin(true);
 		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);
 		
-		main.addComponents(formId, code, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
+		main.addComponents(formId, code, link, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
 				expectedIdentity, messageParams, identitiesPanel, attributesPanel, groupsPanel);
 		setInput(null, null);
 	}
@@ -159,6 +170,11 @@ public class InvitationViewer extends CustomComponent
 		notificationsSent.setValue(String.valueOf(invitation.getNumberOfSends()));
 		lastSentTime.setValue(invitation.getLastSentTime() != null ? 
 				TimeUtil.formatMediumInstant(invitation.getLastSentTime()) : "-");
+		
+		String linkURL = PublicRegistrationURLSupport.getPublicRegistrationLink(form, 
+				invitation.getRegistrationCode(), sharedEndpointMan);
+		link.setTargetName("_blank");
+		link.setResource(new ExternalResource(linkURL));
 		
 		expectedIdentity.setVisible(invitation.getExpectedIdentity() != null);
 		if (invitation.getExpectedIdentity() != null)

@@ -33,6 +33,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -133,7 +134,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan) throws Exception
+			GroupsManagement groupsMan) throws AuthenticationException
 	{
 		this.msg = msg;
 		this.form = form;
@@ -404,15 +405,14 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 
-			throws EngineException
 	{
 		identityParamEditors = new HashMap<>();
 		attributeEditor = new HashMap<>();
-		atTypes = aTypeMan.getAttributeTypesAsMap();
+		atTypes = getAttributeTypesMap();
 		agreementSelectors = new ArrayList<>();
 		groupSelectors = new HashMap<>();
 		credentialParamEditors = new ArrayList<>();
-		Collection<CredentialDefinition> allCreds = credMan.getCredentialDefinitions();
+		Collection<CredentialDefinition> allCreds = getCredentialDefinitions();
 		credentials = new HashMap<>();
 		for (CredentialDefinition credential: allCreds)
 			credentials.put(credential.getName(), credential);
@@ -425,6 +425,28 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
+	private Map<String, AttributeType> getAttributeTypesMap()
+	{
+		try
+		{
+			return aTypeMan.getAttributeTypesAsMap();
+		} catch (EngineException e)
+		{
+			throw new IllegalStateException("Can not read attribute types", e);
+		}
+	}
+	
+	private Collection<CredentialDefinition> getCredentialDefinitions()
+	{
+		try
+		{
+			return credMan.getCredentialDefinitions();
+		} catch (EngineException e)
+		{
+			throw new IllegalStateException("Can not read credential definitions", e);
+		}
+	}
+	
 	protected void finalizeLayoutInitialization(RegistrationLayoutsContainer layoutContainer)
 	{
 		layoutContainer.mainLayout.addComponent(layoutContainer.registrationFormLayout);
@@ -433,7 +455,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
-			FormElement previousInserted, InvitationWithCode invitation) throws EngineException
+			FormElement previousInserted, InvitationWithCode invitation)
 	{
 		switch (element.getType())
 		{
@@ -634,7 +656,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}	
 	
 	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
-			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation) throws EngineException
+			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation)
 	{
 		int index = element.getIndex();
 		GroupRegistrationParam groupParam = form.getGroupParams().get(index);
@@ -692,7 +714,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	
-	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element) throws EngineException
+	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element)
 	{
 		int index = element.getIndex();
 		CredentialRegistrationParam param = form.getCredentialParams().get(index);

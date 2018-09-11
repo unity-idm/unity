@@ -14,19 +14,24 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.Image;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
@@ -34,6 +39,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -49,9 +55,12 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
@@ -66,6 +75,8 @@ import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
  */
 public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 {
+	private static final short FIRST_STAGE = 0;
+	private static final short SECOND_STAGE = 1;
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestEditor.class);
 	private RegistrationForm form;
 	
@@ -79,21 +90,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private Map<AuthenticationOptionKey, SignUpAuthNOption> signupOptions;
 	private Runnable onLocalSignupHandler;
 	private FormLayout effectiveLayout;
+	private short stage;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
 	 * what is possible for registration form.
-	 *  
-	 * @param msg
-	 * @param form
-	 * @param remotelyAuthenticated
-	 * @param identityEditorRegistry
-	 * @param credentialEditorRegistry
-	 * @param attributeHandlerRegistry
-	 * @param aTypeMan
-	 * @param signUpAuthNController 
-	 * @param authnMan
-	 * @throws EngineException
 	 */
 	public RegistrationRequestEditor(UnityMessageSource msg, RegistrationForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
@@ -104,9 +105,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			GroupsManagement groupsMan, 
 			String registrationCode, InvitationManagement invitationMan, 
 			AuthenticatorSupportManagement authnSupport, 
-			SignUpAuthNController signUpAuthNController,
-			FormLayout layout,
-			Runnable onLocalSignupHandler) throws Exception
+			SignUpAuthNController signUpAuthNController) throws AuthenticationException
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
@@ -115,8 +114,21 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.invitationMan = invitationMan;
 		this.signUpAuthNController = signUpAuthNController;
 		this.authnSupport = authnSupport;
+	}
+	
+	public void showFirstStage(Runnable onLocalSignupHandler)
+	{
+		this.effectiveLayout = form.getEffectivePrimaryFormLayout(msg);
 		this.onLocalSignupHandler = onLocalSignupHandler;
-		this.effectiveLayout = layout;
+		this.stage = FIRST_STAGE;
+		initUI();
+	}
+	
+	public void showSecondStage(boolean withCredentials)
+	{
+		this.effectiveLayout = withCredentials ? form.getEffectiveSecondaryFormLayout(msg) 
+				: form.getEffectiveSecondaryFormLayoutWithoutCredentials(msg);
+		this.stage = SECOND_STAGE;
 		initUI();
 	}
 	
@@ -151,6 +163,15 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return ret;
 	}
 	
+	/**
+	 * @return true if the editor can be submitted without the subsequent stage
+	 */
+	public boolean isSubmissionPossible()
+	{
+		return (stage == FIRST_STAGE && FormLayoutUtils.isLayoutWithLocalSignup(effectiveLayout)) 
+				|| stage == SECOND_STAGE;
+	}
+	
 	private void setRequestCode(RegistrationRequest ret, FormErrorStatus status)
 	{
 		if (form.getRegistrationCode() != null && regCodeProvided == null)
@@ -168,7 +189,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			ret.setRegistrationCode(regCodeProvided);
 	}
 	
-	private void initUI() throws EngineException
+	private void initUI()
 	{
 		RegistrationLayoutsContainer layoutContainer = createLayouts();
 		
@@ -179,6 +200,48 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		createControls(layoutContainer, effectiveLayout, invitation);
 		
 		finalizeLayoutInitialization(layoutContainer);
+	}
+	
+	@Override
+	protected RegistrationLayoutsContainer createLayouts()
+	{
+		VerticalLayout main = new VerticalLayout();
+		main.setSpacing(true);
+		main.setMargin(false);
+		main.setWidth(100, Unit.PERCENTAGE);
+		setCompositionRoot(main);
+		
+		String logoURL = form.getLayoutSettings().getLogoURL();
+		if (logoURL != null && !logoURL.isEmpty())
+		{
+			Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+			Image image = new Image(null, logoResource);
+			image.addStyleName("u-signup-logo");
+			main.addComponent(image);
+			main.setComponentAlignment(image, Alignment.TOP_CENTER);
+		}
+		
+		I18nString title = stage == FIRST_STAGE ? form.getDisplayedName() : form.getTitle2ndStage();
+		Label formName = new Label(title.getValue(msg));
+		formName.addStyleName(Styles.vLabelH1.toString());
+		formName.addStyleName("u-reg-title");
+		main.addComponent(formName);
+		main.setComponentAlignment(formName, Alignment.MIDDLE_CENTER);
+		
+		if (stage == FIRST_STAGE)
+		{
+			String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
+			if (info != null)
+			{
+				HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
+				formInformation.addStyleName("u-reg-info");
+				main.addComponent(formInformation);
+				main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
+			}
+		}
+		com.vaadin.ui.FormLayout mainFormLayout = new com.vaadin.ui.FormLayout();
+		mainFormLayout.setWidthUndefined();
+		return new RegistrationLayoutsContainer(main, mainFormLayout);
 	}
 	
 	private void resolveRemoteSignupOptions()
@@ -222,7 +285,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	@Override
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
-			FormElement previousAdded, InvitationWithCode invitation) throws EngineException
+			FormElement previousAdded, InvitationWithCode invitation)
 	{
 		switch (element.getType())
 		{

@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
@@ -47,6 +48,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 	private Label byInvitationOnly;
 	private Label publicLink;
 	private RegistrationFormNotificationsViewer notViewer;
+	private I18nLabel title2ndStage;
 	private Label captcha;
 	private Label registrationCode;
 	private Label credentialRequirementAssignment;
@@ -79,7 +81,7 @@ public class RegistrationFormViewer extends BaseFormViewer
 			return;
 		}
 		tabs.setVisible(true);
-		
+		title2ndStage.setValue(form.getTitle2ndStage());
 		captcha.setValue(form.getCaptchaLength() > 0 ? 
 				msg.getMessage("RegistrationFormViewer.captchaLength", form.getCaptchaLength()) : 
 				msg.getMessage("no"));
@@ -153,10 +155,11 @@ public class RegistrationFormViewer extends BaseFormViewer
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 
 		setupCommonFormInformationComponents();
+		title2ndStage = new I18nLabel(msg, msg.getMessage("RegistrationFormViewer.title2ndStage"));
 		registrationCode = new Label();
 		registrationCode.setCaption(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		
-		main.addComponents(displayedName, formInformation, registrationCode, collectComments);
+		main.addComponents(displayedName, title2ndStage, formInformation, registrationCode, collectComments);
 		main.addComponent(getRemoteSignupMethodsInformation());
 		main.addComponent(getCollectedDataInformation());
 	}

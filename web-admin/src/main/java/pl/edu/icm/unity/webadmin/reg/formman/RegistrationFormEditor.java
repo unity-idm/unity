@@ -45,6 +45,7 @@ import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -71,6 +72,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private RegistrationFormNotificationsEditor notificationsEditor;
 	private Slider captcha;
 	
+	private I18nTextField title2ndStage;
 	private TextField registrationCode;
 	private RemoteAuthnProvidersSelection remoteAuthnSelections;
 	private TextField userExistsRedirectUrl;
@@ -160,6 +162,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 				.build());
 		builder.withLayouts(layoutEditor.getLayouts());
 		builder.withFormLayoutSettings(layoutEditor.getSettings());
+		builder.withTitle2ndStage(title2ndStage.getValue());
+		
 		return builder;
 	}
 	
@@ -173,6 +177,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		captcha.setValue(Double.valueOf(toEdit.getCaptchaLength()));
 		if (toEdit.getRegistrationCode() != null)
 			registrationCode.setValue(toEdit.getRegistrationCode());
+		if (toEdit.getTitle2ndStage() != null)
+			title2ndStage.setValue(toEdit.getTitle2ndStage());
 		credentialRequirementAssignment.setValue(toEdit.getDefaultCredentialRequirement());
 		TranslationProfile profile = new TranslationProfile(
 				toEdit.getTranslationProfile().getName(), "",
@@ -232,6 +238,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
 		
 		initCommonDisplayedFields();
+		title2ndStage = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.title2ndStage"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
@@ -239,7 +246,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabOfLists.addTab(remoteSignUpMetnodsTab, 1);
 		tabOfLists.setSelectedTab(0);
 		
-		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
+		main.addComponents(displayedName, title2ndStage, formInformation, registrationCode, 
+				collectComments, tabOfLists);
 	}
 	
 	private Component createRemoteSignupMethodsTab() throws EngineException

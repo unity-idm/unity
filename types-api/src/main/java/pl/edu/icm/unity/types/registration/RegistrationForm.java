@@ -20,6 +20,7 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
@@ -54,6 +55,7 @@ public class RegistrationForm extends BaseForm
 	private String registrationCode;
 	private boolean byInvitationOnly;
 	private String defaultCredentialRequirement;
+	private I18nString title2ndStage = new I18nString();
 	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
 	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
 
@@ -150,6 +152,16 @@ public class RegistrationForm extends BaseForm
 	public void setFormLayouts(RegistrationFormLayouts formLayouts)
 	{
 		this.formLayouts = formLayouts;
+	}
+
+	public I18nString getTitle2ndStage()
+	{
+		return title2ndStage;
+	}
+
+	public void setTitle2ndStage(I18nString title2ndStage)
+	{
+		this.title2ndStage = title2ndStage;
 	}
 
 	@Override
@@ -271,6 +283,7 @@ public class RegistrationForm extends BaseForm
 		root.put("ByInvitationOnly", isByInvitationOnly());
 		root.set("ExternalSignupSpec", jsonMapper.valueToTree(getExternalSignupSpec()));
 		root.set("RegistrationFormLayouts", jsonMapper.valueToTree(getFormLayouts()));
+		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
 		return root;
 	}
 
@@ -327,6 +340,9 @@ public class RegistrationForm extends BaseForm
 				setFormLayouts(layouts);
 			}
 			
+			n = root.get("Title2ndStage");
+			if (n != null && !n.isNull())
+				setTitle2ndStage(I18nStringJsonUtil.fromJson(root.get("Title2ndStage")));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize registration form from JSON", e);
@@ -336,19 +352,19 @@ public class RegistrationForm extends BaseForm
 	@Override
 	public boolean equals(final Object other)
 	{
-		if (this == other)
-			return true;
 		if (!(other instanceof RegistrationForm))
 			return false;
 		if (!super.equals(other))
 			return false;
 		RegistrationForm castOther = (RegistrationForm) other;
-		return Objects.equals(publiclyAvailable, castOther.publiclyAvailable)
+		return Objects.equals(name, castOther.name) && Objects.equals(description, castOther.description)
+				&& Objects.equals(publiclyAvailable, castOther.publiclyAvailable)
 				&& Objects.equals(notificationsConfiguration, castOther.notificationsConfiguration)
 				&& Objects.equals(captchaLength, castOther.captchaLength)
 				&& Objects.equals(registrationCode, castOther.registrationCode)
 				&& Objects.equals(byInvitationOnly, castOther.byInvitationOnly)
 				&& Objects.equals(defaultCredentialRequirement, castOther.defaultCredentialRequirement)
+				&& Objects.equals(title2ndStage, castOther.title2ndStage)
 				&& Objects.equals(externalSignupSpec, castOther.externalSignupSpec)
 				&& Objects.equals(formLayouts, castOther.formLayouts);
 	}
@@ -356,7 +372,8 @@ public class RegistrationForm extends BaseForm
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(super.hashCode(), publiclyAvailable, notificationsConfiguration, captchaLength,
-				registrationCode, byInvitationOnly, defaultCredentialRequirement, externalSignupSpec, formLayouts);
+		return Objects.hash(super.hashCode(), name, description, publiclyAvailable, notificationsConfiguration,
+				captchaLength, registrationCode, byInvitationOnly, defaultCredentialRequirement,
+				title2ndStage, externalSignupSpec, formLayouts);
 	}
 }

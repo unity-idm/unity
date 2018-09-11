@@ -29,12 +29,10 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmationComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -49,7 +47,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class StandaloneRegistrationView extends CustomComponent implements View, SignUpAuthNControllerListener
+public class StandaloneRegistrationView extends CustomComponent implements View
 {
 	private RegistrationForm form;
 	private RegistrationsManagement regMan;
@@ -76,7 +74,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 		this.cfg = cfg;
 		this.idpLoginController = idpLoginController;
 		this.editorCreator = editorCreator;
-		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, this);
+		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
 	}
 	
 	public StandaloneRegistrationView init(RegistrationForm form)
@@ -88,36 +86,24 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	@Override
 	public void enter(ViewChangeEvent changeEvent)
 	{	
-		initUIFromScratch(form.getEffectivePrimaryFormLayout(msg),
-				RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone);
+		showFirstStage(RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone);
 	}
 	
-	private void initUIFromScratch(FormLayout layout, RemotelyAuthenticatedContext context, TriggeringMode mode)
+	private void showFirstStage(RemotelyAuthenticatedContext context, TriggeringMode mode)
 	{
 		initUIBase();
 		
-		editorCreator.init(form, signUpAuthNController, this::onLocalSignupClickHandler, 
-				layout, context);
-		editorCreator.invoke(new RequestEditorCreatedCallback()
-		{
-			@Override
-			public void onCreationError(Exception e)
-			{
-				handleError(e);
-			}
-			
-			@Override
-			public void onCreated(RegistrationRequestEditor editor)
-			{
-				editorCreated(editor, layout, mode);
-			}
+		editorCreator.init(form, signUpAuthNController, context);
+		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
+	}
 
-			@Override
-			public void onCancel()
-			{
-				//nop
-			}
-		});
+	private void showSecondStage(RemotelyAuthenticatedContext context, TriggeringMode mode, 
+			boolean withCredentials)
+	{
+		initUIBase();
+		
+		editorCreator.init(form, signUpAuthNController, context);
+		editorCreator.createSecondStage(new EditorCreatedCallback(mode), withCredentials);
 	}
 
 	private void initUIBase()
@@ -128,19 +114,19 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 		setWidth(100, Unit.PERCENTAGE);
 	}
 	
-	private void editorCreated(RegistrationRequestEditor editor, FormLayout effectiveLayout, TriggeringMode mode)
+	private void editorCreated(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		this.currentRegistrationFormEditor = editor;
-		if (isAutoSubbmitPossible(editor, mode))
+		if (isAutoSubmitPossible(editor, mode))
 		{
 			onSubmit(editor, mode);
 		} else
 		{
-			showEditorContent(editor, effectiveLayout, mode);
+			showEditorContent(editor, mode);
 		}
 	}
 	
-	private void showEditorContent(RegistrationRequestEditor editor, FormLayout effectiveLayout, TriggeringMode mode)
+	private void showEditorContent(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		
 		header = new SignUpTopHederComponent(cfg, msg, this::onUserAuthnCancel);
@@ -151,7 +137,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 		editor.setWidth(100, Unit.PERCENTAGE);
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 		
-		if (!FormLayoutUtils.isLayoutWithLocalSignup(effectiveLayout))
+		if (editor.isSubmissionPossible())
 		{
 			formButtons = new HorizontalLayout();
 			Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
@@ -180,7 +166,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 		}
 	}
 
-	private boolean isAutoSubbmitPossible(RegistrationRequestEditor editor, TriggeringMode mode)
+	private boolean isAutoSubmitPossible(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		return mode == TriggeringMode.afterRemoteLoginFromRegistrationForm
 				&& !editor.isUserInteractionRequired();
@@ -203,8 +189,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 	
 	private void onLocalSignupClickHandler()
 	{
-		initUIFromScratch(form.getEffectiveSecondaryFormLayout(msg),
-				RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone);
+		showSecondStage(RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone,
+				true);
 	}
 	
 	private void onCancel()
@@ -304,47 +290,79 @@ public class StandaloneRegistrationView extends CustomComponent implements View,
 			formButtons.setEnabled(isEnabled);
 	}
 
-	private void authenticationStartedHandler(boolean showProgress)
+	private void switchTo2ndStagePostAuthn(AuthenticationResult result)
 	{
-		enableSharedWidgets(false);
-		header.setAuthNProgressVisibility(showProgress);
+		enableSharedComponentsAndHideAuthnProgress();
+		showSecondStage(result.getRemoteAuthnContext(), TriggeringMode.afterRemoteLoginFromRegistrationForm,
+				false);
 	}
 	
-	@Override
-	public void onUnknownUser(AuthenticationResult result)
+	
+	private class EditorCreatedCallback implements RequestEditorCreatedCallback
 	{
-		enableSharedComponentsAndHideAuthnProgress();
-		initUIFromScratch(form.getEffectiveSecondaryFormLayoutWithoutCredentials(msg),
-				result.getRemoteAuthnContext(), TriggeringMode.afterRemoteLoginFromRegistrationForm);
-	}
+		private final TriggeringMode mode;
+		
+		public EditorCreatedCallback(TriggeringMode mode)
+		{
+			this.mode = mode;
+		}
 
-	@Override
-	public void onUserExists(AuthenticationResult result)
-	{
-		enableSharedComponentsAndHideAuthnProgress();
-		String redirectUrl = form.getExternalSignupSpec().getUserExistsRedirectUrl();
-		if (!StringUtils.isEmpty(redirectUrl))
-			Page.getCurrent().open(redirectUrl, null);
-	}
+		@Override
+		public void onCreationError(Exception e)
+		{
+			handleError(e);
+		}
+		
+		@Override
+		public void onCreated(RegistrationRequestEditor editor)
+		{
+			editorCreated(editor, mode);
+		}
 
-	@Override
-	public void onAuthnError(AuthenticationException e, String authenticatorError)
-	{
-		enableSharedComponentsAndHideAuthnProgress();
-		String genericError = msg.getMessage(e.getMessage());
-		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
-		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
+		@Override
+		public void onCancel()
+		{
+			//nop
+		}
 	}
-
-	@Override
-	public void onAuthnCancelled()
+	
+	private class SignUpAuthListener implements SignUpAuthNControllerListener
 	{
-		enableSharedComponentsAndHideAuthnProgress();
-	}
+		@Override
+		public void onUnknownUser(AuthenticationResult result)
+		{
+			switchTo2ndStagePostAuthn(result);
+		}
 
-	@Override
-	public void onAuthnStarted(boolean showProgress)
-	{
-		authenticationStartedHandler(showProgress);
+		@Override
+		public void onUserExists(AuthenticationResult result)
+		{
+			enableSharedComponentsAndHideAuthnProgress();
+			String redirectUrl = form.getExternalSignupSpec().getUserExistsRedirectUrl();
+			if (!StringUtils.isEmpty(redirectUrl))
+				Page.getCurrent().open(redirectUrl, null);
+		}
+
+		@Override
+		public void onAuthnError(AuthenticationException e, String authenticatorError)
+		{
+			enableSharedComponentsAndHideAuthnProgress();
+			String genericError = msg.getMessage(e.getMessage());
+			String errorToShow = authenticatorError == null ? genericError : authenticatorError;
+			NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
+		}
+
+		@Override
+		public void onAuthnCancelled()
+		{
+			enableSharedComponentsAndHideAuthnProgress();
+		}
+
+		@Override
+		public void onAuthnStarted(boolean showProgress)
+		{
+			enableSharedWidgets(false);
+			header.setAuthNProgressVisibility(showProgress);
+		}
 	}
 }

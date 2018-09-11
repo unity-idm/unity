@@ -12,7 +12,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -44,46 +43,40 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 	public void showRegistrationDialog(RegistrationForm form, RemotelyAuthenticatedContext remoteContext,
 			TriggeringMode mode, AsyncErrorHandler errorHandler)
 	{
-		RequestEditorCreator requestEditorCreator = requestEditorCreatorFactory.getObject();
-		OnLocalSignupClickHandler localSignupHandler = new OnLocalSignupClickHandler();
-		EditorCreatedCallbackImpl editorCallback = showRegistrationDialog(form, remoteContext, 
-				mode, errorHandler, localSignupHandler, form.getEffectivePrimaryFormLayout(msg),
-				requestEditorCreator);
-		localSignupHandler.onClick(() -> 
-		{
-			editorCallback.getDialog().close();
-			showRegistrationDialog(form, remoteContext, mode, errorHandler, localSignupHandler, 
-					form.getEffectiveSecondaryFormLayout(msg), requestEditorCreator);
-		});
+		showFistStageDialog(form, remoteContext, mode, errorHandler);
 	}
-	
-	private EditorCreatedCallbackImpl showRegistrationDialog(final RegistrationForm form, 
+
+
+	private EditorCreatedCallbackImpl showFistStageDialog(final RegistrationForm form, 
 			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
-			AsyncErrorHandler errorHandler, Runnable onLocalSignupHandler, FormLayout layout,
-			RequestEditorCreator editorCreator)
+			AsyncErrorHandler errorHandler)
 	{
-		editorCreator.init(form, onLocalSignupHandler, layout, remoteContext);
+		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
+		editorCreator.init(form, remoteContext);
 		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
 				errorHandler, (editor) -> createDialog(form, editor, mode));
-		editorCreator.invoke(callback);
+		Runnable localSignupHandler = () -> 
+		{
+			callback.getDialog().close();
+			showSecondStageDialog(form, remoteContext, mode, errorHandler);
+		};
+		
+		editorCreator.createFirstStage(callback, localSignupHandler);
 		return callback;
 	}
 	
-	class OnLocalSignupClickHandler implements Runnable
+	private EditorCreatedCallbackImpl showSecondStageDialog(final RegistrationForm form, 
+			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
+			AsyncErrorHandler errorHandler)
 	{
-		private Runnable onClick;
-
-		@Override
-		public void run()
-		{
-			onClick.run();
-		}
-
-		public void onClick(Runnable onClick)
-		{
-			this.onClick = onClick;
-		}
+		RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject();
+		editorCreator.init(form, remoteContext);
+		EditorCreatedCallbackImpl callback = new EditorCreatedCallbackImpl(
+				errorHandler, (editor) -> createDialog(form, editor, mode));
+		editorCreator.createSecondStage(callback, true);
+		return callback;
 	}
+
 	
 	class EditorCreatedCallbackImpl implements RequestEditorCreatedCallback
 	{
