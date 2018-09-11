@@ -795,12 +795,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		public boolean hasFormException = false;
 	}
 	
-	protected Float formWidth()
+	public Float formWidth()
 	{
 		return form.getLayoutSettings().getColumnWidth();
 	}
 	
-	protected Unit formWidthUnit()
+	public Unit formWidthUnit()
 	{
 		return Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit());
 	}
