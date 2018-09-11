@@ -69,13 +69,15 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private CheckBox publiclyAvailable;
 	private CheckBox byInvitationOnly;
+	private RedirectConfigEditor successRedirect;
+	private RedirectConfigEditor userExistsRedirect;
 	private RegistrationFormNotificationsEditor notificationsEditor;
 	private Slider captcha;
 	
 	private I18nTextField title2ndStage;
+	private CheckBox showGotoSignin;
 	private TextField registrationCode;
 	private RemoteAuthnProvidersSelection remoteAuthnSelections;
-	private TextField userExistsRedirectUrl;
 
 	private NotNullComboBox<String> credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
@@ -156,14 +158,13 @@ public class RegistrationFormEditor extends BaseFormEditor
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);
-		builder.withExternalSignupSpec(ExternalSignupSpec.builder()
-				.withSpecs(remoteAuthnSelections.getSelectedItems())
-				.withUserExistsRedirectUrl(userExistsRedirectUrl.getValue())
-				.build());
+		builder.withExternalSignupSpec(new ExternalSignupSpec(remoteAuthnSelections.getSelectedItems()));
 		builder.withLayouts(layoutEditor.getLayouts());
 		builder.withFormLayoutSettings(layoutEditor.getSettings());
 		builder.withTitle2ndStage(title2ndStage.getValue());
-		
+		builder.withShowGotoSignIn(showGotoSignin.getValue());
+		builder.withSuccessRedirectConfig(successRedirect.getValue());
+		builder.withUserExistsRedirectConfig(userExistsRedirect.getValue());
 		return builder;
 	}
 	
@@ -187,11 +188,12 @@ public class RegistrationFormEditor extends BaseFormEditor
 		profileEditor.setValue(profile);
 		layoutEditor.setSettings(toEdit.getLayoutSettings());
 		layoutEditor.setLayouts(toEdit.getFormLayouts());
+		successRedirect.setValue(toEdit.getSuccessRedirect());
+		userExistsRedirect.setValue(toEdit.getUserExistsRedirect());
+		showGotoSignin.setValue(toEdit.isShowSignInLink());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
-		if (toEdit.getExternalSignupSpec().getUserExistsRedirectUrl() != null)
-			userExistsRedirectUrl.setValue(toEdit.getExternalSignupSpec().getUserExistsRedirectUrl());
 	}
 	
 	private void initMainTab() throws EngineException
@@ -217,6 +219,17 @@ public class RegistrationFormEditor extends BaseFormEditor
 
 		main.addComponents(name, description, publiclyAvailable, byInvitationOnly);
 
+		successRedirect = new RedirectConfigEditor(msg, 
+				msg.getMessage("RegistrationFormViewer.postSignupRedirectUrl"), 
+				msg.getMessage("RegistrationFormEditor.postSignupRedirectCaption"));
+		successRedirect.addToLayout(main);
+		
+		userExistsRedirect = new RedirectConfigEditor(msg, 
+				msg.getMessage("RegistrationFormViewer.userExistsRedirectUrl"), 
+				msg.getMessage("RegistrationFormEditor.userExistsRedirectCaption"));
+		userExistsRedirect.addToLayout(main);
+		
+
 		notificationsEditor = new RegistrationFormNotificationsEditor(msg, groupsMan, 
 				notificationsMan, msgTempMan);
 		notificationsEditor.addToLayout(main);
@@ -239,6 +252,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		
 		initCommonDisplayedFields();
 		title2ndStage = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.title2ndStage"));
+		showGotoSignin = new CheckBox(msg.getMessage("RegistrationFormViewer.showGotoSignin"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
@@ -246,7 +260,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabOfLists.addTab(remoteSignUpMetnodsTab, 1);
 		tabOfLists.setSelectedTab(0);
 		
-		main.addComponents(displayedName, title2ndStage, formInformation, registrationCode, 
+		main.addComponents(displayedName, title2ndStage, formInformation, showGotoSignin, registrationCode, 
 				collectComments, tabOfLists);
 	}
 	
@@ -258,12 +272,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"),
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions.description"));
 		
-		userExistsRedirectUrl = new TextField(msg.getMessage("RegistrationFormViewer.userExistsRedirectUrl"));
-		userExistsRedirectUrl.setWidth(100, Unit.PERCENTAGE);
-		
 		FormLayout main = new CompactFormLayout();
 		main.setWidth(60, Unit.PERCENTAGE);
-		main.addComponents(remoteAuthnSelections, userExistsRedirectUrl);
+		main.addComponents(remoteAuthnSelections);
 		
 		VerticalLayout remoteSignupLayout = new VerticalLayout(main);
 		remoteSignupLayout.setSizeFull();

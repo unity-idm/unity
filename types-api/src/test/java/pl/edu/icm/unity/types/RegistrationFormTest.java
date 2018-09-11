@@ -11,6 +11,7 @@ import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -119,10 +120,9 @@ public class RegistrationFormTest
 			.endNotificationsConfiguration()
 			.withTranslationProfile(profile)
 			.withRegistrationCode("code")
-			.withExternalSignupSpec(ExternalSignupSpec.builder()
-					.withSpecs(AuthenticationOptionKey.valueOf("asdf.asdf"), AuthenticationOptionKey.valueOf("asdf1.asdf2"))
-					.withUserExistsRedirectUrl("http://asdf.asdf")
-					.build())
+			.withExternalSignupSpec(new ExternalSignupSpec(Lists.newArrayList(
+					AuthenticationOptionKey.valueOf("asdf.asdf"), 
+					AuthenticationOptionKey.valueOf("asdf1.asdf2"))))
 			.withFormLayoutSettings(FormLayoutSettings.builder()
 					.withColumnWidth(200)
 					.withColumnWidthUnit("EM")

@@ -107,6 +107,24 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 
+	public RegistrationFormBuilder withSuccessRedirectConfig(RedirectConfig config)
+	{
+		instance.setSuccessRedirect(config);
+		return this;
+	}
+	
+	public RegistrationFormBuilder withUserExistsRedirectConfig(RedirectConfig config)
+	{
+		instance.setUserExistsRedirect(config);
+		return this;
+	}
+
+	public RegistrationFormBuilder withShowGotoSignIn(boolean show)
+	{
+		instance.setShowSignInLink(show);
+		return this;
+	}
+
 	public static class RegistrationFormNotificationsBuilder
 	{
 		private RegistrationFormNotifications instance;

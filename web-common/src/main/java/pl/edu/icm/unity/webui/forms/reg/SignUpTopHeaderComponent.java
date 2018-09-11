@@ -4,30 +4,32 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import org.apache.logging.log4j.util.Strings;
+
+import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.registration.RedirectConfig;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.column.RemoteAuthenticationProgress;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
- * Wraps the top locale and remote authN progress component into one.
+ * Wraps the top locale and remote authN progress component into one. Possibly also the go to sign in link.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class SignUpTopHederComponent extends CustomComponent
+public class SignUpTopHeaderComponent extends CustomComponent
 {
 	private RemoteAuthenticationProgress authNProgress;
 
-	public SignUpTopHederComponent(UnityServerConfiguration cfg, UnityMessageSource msg, Runnable cancelHandler)
-	{
-		initU(cfg, msg, cancelHandler);
-	}
-
-	private void initU(UnityServerConfiguration cfg, UnityMessageSource msg, Runnable cancelHandler)
+	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, UnityMessageSource msg, Runnable cancelHandler,
+			RedirectConfig signInRedirect)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
@@ -39,6 +41,17 @@ public class SignUpTopHederComponent extends CustomComponent
 		main.addComponent(localeChoice);
 		main.setComponentAlignment(localeChoice, Alignment.TOP_RIGHT);
 
+		if (signInRedirect != null && !Strings.isEmpty(signInRedirect.getRedirectURL()))
+		{
+			Button gotoSignIn = new Button(msg.getMessage("StandalonePublicFormView.gotoSignIn"));
+			gotoSignIn.setStyleName(Styles.vButtonLink.toString());
+			gotoSignIn.addStyleName("u-reg-gotoSignIn");
+			gotoSignIn.addClickListener(e -> 
+				Page.getCurrent().open(signInRedirect.getRedirectURL(), null));
+			main.addComponent(gotoSignIn);
+			main.setComponentAlignment(gotoSignIn, Alignment.TOP_RIGHT);
+		}
+		
 		authNProgress = new RemoteAuthenticationProgress(msg, cancelHandler);
 		authNProgress.setInternalVisibility(false);
 		main.addComponent(authNProgress);

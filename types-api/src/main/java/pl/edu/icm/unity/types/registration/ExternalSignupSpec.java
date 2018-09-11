@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
@@ -17,15 +18,14 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
  * 
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
+@JsonIgnoreProperties(ignoreUnknown = true) //TODO remove before release
 public class ExternalSignupSpec
 {
 	private List<AuthenticationOptionKey> specs = new ArrayList<>();
-	private String userExistsRedirectUrl;
 
-	ExternalSignupSpec(List<AuthenticationOptionKey> specs, String userExistsRedirectUrl)
+	public ExternalSignupSpec(List<AuthenticationOptionKey> specs)
 	{
 		this.specs = specs;
-		this.userExistsRedirectUrl = userExistsRedirectUrl;
 	}
 	
 	ExternalSignupSpec() {} 
@@ -40,16 +40,6 @@ public class ExternalSignupSpec
 		this.specs = specs;
 	}
 	
-	public String getUserExistsRedirectUrl()
-	{
-		return userExistsRedirectUrl;
-	}
-
-	public void setUserExistsRedirectUrl(String userExistsRedirectUrl)
-	{
-		this.userExistsRedirectUrl = userExistsRedirectUrl;
-	}
-
 	@JsonIgnore
 	public boolean isEnabled()
 	{
@@ -62,49 +52,12 @@ public class ExternalSignupSpec
 		if (!(other instanceof ExternalSignupSpec))
 			return false;
 		ExternalSignupSpec castOther = (ExternalSignupSpec) other;
-		return Objects.equals(specs, castOther.specs)
-				&& Objects.equals(userExistsRedirectUrl, castOther.userExistsRedirectUrl);
+		return Objects.equals(specs, castOther.specs);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(specs, userExistsRedirectUrl);
-	}
-
-	public static ExternalSignupSpecBuilder builder()
-	{
-		return new ExternalSignupSpecBuilder();
-	}
-
-	public static class ExternalSignupSpecBuilder
-	{
-		private List<AuthenticationOptionKey> specs = new ArrayList<>();
-		private String userExistsRedirectUrl;
-
-		public ExternalSignupSpecBuilder withSpecs(List<AuthenticationOptionKey> specs)
-		{
-			this.specs = new ArrayList<>(specs);
-			return this;
-		}
-		
-		public ExternalSignupSpecBuilder withSpecs(AuthenticationOptionKey... specs)
-		{
-			this.specs = new ArrayList<>();
-			for (AuthenticationOptionKey spec : specs)
-				this.specs.add(spec);
-			return this;
-		}
-		
-		public ExternalSignupSpecBuilder withUserExistsRedirectUrl(String userExistsRedirectUrl)
-		{
-			this.userExistsRedirectUrl = userExistsRedirectUrl;
-			return this;
-		}
-
-		public ExternalSignupSpec build()
-		{
-			return new ExternalSignupSpec(specs, userExistsRedirectUrl);
-		}
+		return Objects.hash(specs);
 	}
 }

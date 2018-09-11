@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -112,15 +111,6 @@ public class RegistrationFormViewer extends BaseFormViewer
 	
 	private void setRemoteSignupMethods(ExternalSignupSpec externalSignupSpec)
 	{
-		String redirectUrl = externalSignupSpec.getUserExistsRedirectUrl();
-		if (StringUtils.isEmpty(redirectUrl))
-		{
-			userExistsRedirectUrl.setValue(msg.getMessage("MessageTemplateViewer.notSet"));
-		} else
-		{
-			userExistsRedirectUrl.setValue(redirectUrl);
-		}
-		
 		if (externalSignupSpec.isEnabled())
 		{
 			String selected = externalSignupSpec.getSpecs().stream()
