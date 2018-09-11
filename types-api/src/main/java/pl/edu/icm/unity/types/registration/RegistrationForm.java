@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
-import pl.edu.icm.unity.types.registration.layout.FormLocalSignupElement;
+import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 
 /**
@@ -218,7 +218,7 @@ public class RegistrationForm extends BaseForm
 		}
 		if (getFormLayouts().isLocalSignupEmbeddedAsButton())
 		{
-			elements.add(new FormLocalSignupElement());
+			elements.add(new FormLocalSignupButtonElement());
 			
 		} else
 		{

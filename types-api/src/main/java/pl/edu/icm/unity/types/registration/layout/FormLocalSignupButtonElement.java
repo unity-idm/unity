@@ -15,10 +15,10 @@ import pl.edu.icm.unity.MessageSource;
 /**
  * represents a fixed button with custom caption
  */
-public class FormLocalSignupElement extends FormElement
+public class FormLocalSignupButtonElement extends FormElement
 {
 	@JsonCreator
-	public FormLocalSignupElement()
+	public FormLocalSignupButtonElement()
 	{
 		super(FormLayoutElement.LOCAL_SIGNUP, true);
 	}

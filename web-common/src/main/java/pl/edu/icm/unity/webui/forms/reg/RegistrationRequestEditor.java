@@ -48,7 +48,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormLocalSignupElement;
+import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
@@ -135,7 +135,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	@Override
 	public RegistrationRequest getRequest(boolean withCredentials) throws FormValidationException
 	{
-		if (FormLayoutUtils.isLayoutWithLocalSignup(effectiveLayout))
+		if (FormLayoutUtils.hasLocalSignupButton(effectiveLayout))
 		{
 			throw new FormValidationException(msg.getMessage("RegistrationRequest.continueRegistration"));
 		}
@@ -168,7 +168,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 */
 	public boolean isSubmissionPossible()
 	{
-		return (stage == FIRST_STAGE && FormLayoutUtils.isLayoutWithLocalSignup(effectiveLayout)) 
+		return (stage == FIRST_STAGE && !FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) 
 				|| stage == SECOND_STAGE;
 	}
 	
@@ -296,7 +296,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		case REMOTE_SIGNUP:
 			return createRemoteSignupButton(layoutContainer.mainLayout, (FormParameterElement) element);
 		case LOCAL_SIGNUP:
-			return createLocalSignupButton(layoutContainer.mainLayout, (FormLocalSignupElement) element);
+			return createLocalSignupButton(layoutContainer.mainLayout, (FormLocalSignupButtonElement) element);
 		default:
 			return super.createControlFor(layoutContainer, element, previousAdded, invitation);
 		}
@@ -318,7 +318,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return true;
 	}
 	
-	private boolean createLocalSignupButton(AbstractOrderedLayout layout, FormLocalSignupElement element)
+	private boolean createLocalSignupButton(AbstractOrderedLayout layout, FormLocalSignupButtonElement element)
 	{
 		Button localSignup = new Button(msg.getMessage("RegistrationRequest.localSignup"));
 		localSignup.addStyleName("u-localSignUpButton");

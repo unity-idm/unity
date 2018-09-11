@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
  */
 public final class FormLayoutUtils
 {
-	public static boolean isLayoutWithLocalSignup(FormLayout layout)
+	public static boolean hasLocalSignupButton(FormLayout layout)
 	{
 		for (FormElement element : layout.getElements())
 		{
