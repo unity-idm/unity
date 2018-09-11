@@ -136,18 +136,21 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		
 		if (editor.isSubmissionPossible())
 		{
-			formButtons = new HorizontalLayout();
 			Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
 			okButton.addStyleName(Styles.vButtonPrimary.toString());
 			okButton.addStyleName("u-reg-submit");
 			okButton.addClickListener(event -> onSubmit(editor, mode));
-			formButtons.addComponent(okButton);
+			okButton.setWidth(100f, Unit.PERCENTAGE);
 			
+			formButtons = new HorizontalLayout();
+			formButtons.setWidth(editor.formWidth(), editor.formWidthUnit());
+			formButtons.addComponent(okButton);
 			if (form.getLayoutSettings().isShowCancel())
 			{
 				Button cancelButton = new Button(msg.getMessage("cancel"));
 				cancelButton.addClickListener(event -> onCancel());
 				cancelButton.addStyleName("u-reg-cancel");
+				cancelButton.setWidth(100f, Unit.PERCENTAGE);
 				formButtons.addComponent(cancelButton);
 			}
 			formButtons.setMargin(false);
