@@ -402,18 +402,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 		}
 
-		AbstractOrderedLayout mainFormLayout;
-		if (form.getLayoutSettings().isCompactInputs())
-		{
-			mainFormLayout = new VerticalLayout();
-			mainFormLayout.setWidth(formWidth(), formWidthUnit());
-			mainFormLayout.setMargin(false);
-		} else
-		{
-			mainFormLayout = new com.vaadin.ui.FormLayout();
-			mainFormLayout.setWidthUndefined();
-		}
-		return new RegistrationLayoutsContainer(main, mainFormLayout);
+		return new RegistrationLayoutsContainer(main, formWidth(), formWidthUnit());
 	}
 	
 	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 

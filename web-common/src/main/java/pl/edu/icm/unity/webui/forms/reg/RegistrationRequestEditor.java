@@ -239,9 +239,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 			}
 		}
-		com.vaadin.ui.FormLayout mainFormLayout = new com.vaadin.ui.FormLayout();
-		mainFormLayout.setWidthUndefined();
-		return new RegistrationLayoutsContainer(main, mainFormLayout);
+		return new RegistrationLayoutsContainer(main, formWidth(), formWidthUnit());
 	}
 	
 	private void resolveRemoteSignupOptions()

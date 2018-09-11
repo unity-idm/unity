@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms;
 
-import com.vaadin.ui.AbstractOrderedLayout;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -18,11 +18,13 @@ import com.vaadin.ui.VerticalLayout;
 public class RegistrationLayoutsContainer
 {
 	public final VerticalLayout mainLayout;
-	public final AbstractOrderedLayout registrationFormLayout;
+	public final VerticalLayout registrationFormLayout;
 
-	public RegistrationLayoutsContainer(VerticalLayout rootLayout, AbstractOrderedLayout formLayout)
+	public RegistrationLayoutsContainer(VerticalLayout rootLayout, Float formLayoutWidth, Unit formLayoutWidthUnit)
 	{
 		this.mainLayout = rootLayout;
-		this.registrationFormLayout = formLayout;
+		this.registrationFormLayout = new VerticalLayout();
+		this.registrationFormLayout.setWidth(formLayoutWidth, formLayoutWidthUnit);
+		this.registrationFormLayout.setMargin(false);
 	}
 }
