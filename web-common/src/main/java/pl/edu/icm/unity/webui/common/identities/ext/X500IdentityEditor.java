@@ -52,7 +52,10 @@ public class X500IdentityEditor implements IdentityEditor
 	{
 		this.context = context;
 		field = new TextField();
-		field.setWidth(80, Unit.PERCENTAGE);
+		if (context.isCustomWidth())
+			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		else
+			field.setWidth(80, Unit.PERCENTAGE);
 		Upload upload = new Upload();
 		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
 		CertUploader uploader = new CertUploader(); 

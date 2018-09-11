@@ -38,6 +38,8 @@ public class UsernameIdentityEditor implements IdentityEditor
 		setLabel(new UsernameIdentity().getHumanFriendlyName(msg));
 		field.setRequiredIndicatorVisible(context.isRequired());
 		field.setId("UsernameIdentityEditor.username");
+		if (context.isCustomWidth())
+			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		return new ComponentsContainer(field);
 	}
 

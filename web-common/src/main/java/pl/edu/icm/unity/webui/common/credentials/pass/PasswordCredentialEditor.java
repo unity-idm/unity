@@ -59,6 +59,7 @@ public class PasswordCredentialEditor implements CredentialEditor
 		password2 = new PasswordFieldWithContextLabel(context.isShowLabelInline());
 		password2.setLabel(msg.getMessage("PasswordCredentialEditor.repeatPassword"));
 		password2.addStyleName("u-password-repeat");
+		
 		if (context.isRequired())
 		{
 			password1.setRequiredIndicatorVisible(true);
@@ -79,6 +80,16 @@ public class PasswordCredentialEditor implements CredentialEditor
 			if (context.isRequired())
 				answer.setRequiredIndicatorVisible(true);
 			ret.add(questionSelection, answer);
+		}
+		
+		if (context.isCustomWidth())
+		{
+			password1.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			password2.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			if (questionSelection != null)
+				questionSelection.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			if (answer != null)
+				answer.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		}
 		return ret;
 	}

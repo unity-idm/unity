@@ -255,6 +255,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			
 			updateConfirmationStatusIconAndButtons();
 			
+			if (context.isCustomWidth())
+				editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			
 			return new ComponentsContainer(editor);
 		}
 		

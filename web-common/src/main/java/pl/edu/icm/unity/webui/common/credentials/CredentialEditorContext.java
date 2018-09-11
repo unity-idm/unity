@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.credentials;
 
+import com.vaadin.server.Sizeable.Unit;
+
 /**
  * Contains complete information necessary to build credential editor UI.
  *
@@ -16,15 +18,19 @@ public class CredentialEditorContext
 	private final Long entityId;
 	private final boolean adminMode;
 	private final boolean showLabelInline;
+	private Float customWidth = null;
+	private Unit customWidthUnit = null;
 
-	public CredentialEditorContext(String credentialConfiguration, boolean required, Long entityId, boolean adminMode,
-			boolean showLabelInline)
+	CredentialEditorContext(String credentialConfiguration, boolean required, Long entityId, boolean adminMode,
+			boolean showLabelInline, Float customWidth, Unit customWidthUnit)
 	{
 		this.credentialConfiguration = credentialConfiguration;
 		this.required = required;
 		this.entityId = entityId;
 		this.adminMode = adminMode;
 		this.showLabelInline = showLabelInline;
+		this.customWidth = customWidth;
+		this.customWidthUnit = customWidthUnit;
 	}
 
 	public String getCredentialConfiguration()
@@ -51,6 +57,21 @@ public class CredentialEditorContext
 	{
 		return showLabelInline;
 	}
+	
+	public boolean isCustomWidth()
+	{
+		return customWidth != null && customWidthUnit != null;
+	}
+	
+	public Float getCustomWidth()
+	{
+		return customWidth;
+	}
+
+	public Unit getCustomWidthUnit()
+	{
+		return customWidthUnit;
+	}
 
 	public static Builder builder()
 	{
@@ -64,6 +85,8 @@ public class CredentialEditorContext
 		private Long entityId;
 		private boolean adminMode;
 		private boolean showLabelInline;
+		private Float customWidth = null;
+		private Unit customWidthUnit = null;
 
 		public Builder withConfiguration(String credentialConfiguration)
 		{
@@ -94,10 +117,23 @@ public class CredentialEditorContext
 			this.showLabelInline = showLabelInline;
 			return this;
 		}
+		
+		public Builder withCustomWidth(float width)
+		{
+			this.customWidth = width;
+			return this;
+		}
+		
+		public Builder withCustomWidthUnit(Unit unit)
+		{
+			this.customWidthUnit = unit;
+			return this;
+		}
 
 		public CredentialEditorContext build()
 		{
-			return new CredentialEditorContext(credentialConfiguration, required, entityId, adminMode, showLabelInline);
+			return new CredentialEditorContext(credentialConfiguration, required, entityId, 
+					adminMode, showLabelInline, customWidth, customWidthUnit);
 		}
 	}
 

@@ -96,6 +96,11 @@ class PasswordEditComponent
 		return password.getValue();
 	}
 	
+	public void setWidth(float width, Unit unit)
+	{
+		password.setWidth(width, unit);
+	}
+	
 	public void focus()
 	{
 		password.focus();

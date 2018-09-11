@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.identities;
 
+import com.vaadin.server.Sizeable.Unit;
+
 /**
  * Contains complete information necessary to build identity editor UI.
  *
@@ -14,12 +16,17 @@ public class IdentityEditorContext
 	private final boolean required;
 	private final boolean adminMode;
 	private final boolean showLabelInline;
+	private Float customWidth = null;
+	private Unit customWidthUnit = null;
 
-	public IdentityEditorContext(boolean required, boolean adminMode, boolean showLabelInline)
+	IdentityEditorContext(boolean required, boolean adminMode, boolean showLabelInline, Float customWidth,
+			Unit customWidthUnit)
 	{
 		this.required = required;
 		this.adminMode = adminMode;
 		this.showLabelInline = showLabelInline;
+		this.customWidth = customWidth;
+		this.customWidthUnit = customWidthUnit;
 	}
 
 	public boolean isRequired()
@@ -36,6 +43,21 @@ public class IdentityEditorContext
 	{
 		return showLabelInline;
 	}
+	
+	public boolean isCustomWidth()
+	{
+		return customWidth != null && customWidthUnit != null;
+	}
+
+	public Float getCustomWidth()
+	{
+		return customWidth;
+	}
+
+	public Unit getCustomWidthUnit()
+	{
+		return customWidthUnit;
+	}
 
 	public static Builder builder()
 	{
@@ -47,6 +69,8 @@ public class IdentityEditorContext
 		private boolean required = false;
 		private boolean adminMode = false;
 		private boolean showLabelInline = false;
+		private Float customWidth = null;
+		private Unit customWidthUnit = null;
 
 		public Builder withRequired(boolean required)
 		{
@@ -65,10 +89,23 @@ public class IdentityEditorContext
 			this.showLabelInline = showLabelInline;
 			return this;
 		}
+		
+		public Builder withCustomWidth(float width)
+		{
+			this.customWidth = width;
+			return this;
+		}
+		
+		public Builder withCustomWidthUnit(Unit unit)
+		{
+			this.customWidthUnit = unit;
+			return this;
+		}
 
 		public IdentityEditorContext build()
 		{
-			return new IdentityEditorContext(required, adminMode, showLabelInline);
+			return new IdentityEditorContext(required, adminMode, showLabelInline, 
+					customWidth, customWidthUnit);
 		}
 	}
 }

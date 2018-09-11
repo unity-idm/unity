@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.webui.common.attributes.edit;
 
+import com.vaadin.server.Sizeable.Unit;
+
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -26,6 +28,8 @@ public class AttributeEditContext
 	private EntityParam attributeOwner;
 	private String attributeGroup;
 	private boolean showLabelInline = false;
+	private Float customWidth = null;
+	private Unit customWidthUnit = null;
 
 	private AttributeEditContext()
 	{
@@ -65,6 +69,21 @@ public class AttributeEditContext
 	public boolean isShowLabelInline()
 	{
 		return showLabelInline;
+	}
+	
+	public boolean isCustomWidth()
+	{
+		return customWidth != null && customWidthUnit != null;
+	}
+
+	public Float getCustomWidth()
+	{
+		return customWidth;
+	}
+
+	public Unit getCustomWidthUnit()
+	{
+		return customWidthUnit;
 	}
 
 	public static class Builder
@@ -115,6 +134,18 @@ public class AttributeEditContext
 		public Builder withLabelInline(boolean showLabelInline)
 		{
 			this.obj.showLabelInline = showLabelInline;
+			return this;
+		}
+		
+		public Builder withCustomWidth(float customWidth)
+		{
+			this.obj.customWidth = customWidth;
+			return this;
+		}
+		
+		public Builder withCustomWidthUnit(Unit customWidthUnit)
+		{
+			this.obj.customWidthUnit = customWidthUnit;
 			return this;
 		}
 

@@ -98,6 +98,8 @@ public class EnumAttributeHandler implements WebAttributeHandler
 				field.setValue(value);
 			else if (required)
 				field.setValue(sortedAllowed.get(0));
+			if (context.isCustomWidth())
+				field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			return new ComponentsContainer(field);
 		}
 

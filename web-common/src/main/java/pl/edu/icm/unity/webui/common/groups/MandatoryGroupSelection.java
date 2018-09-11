@@ -32,7 +32,7 @@ public class MandatoryGroupSelection extends ComboBox<Group> implements GroupsSe
 	{
 		return Lists.newArrayList(getValue().toString());
 	}
-
+	
 	@Override
 	public void setSelectedItems(List<Group> items)
 	{

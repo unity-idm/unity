@@ -231,6 +231,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			
 			updateConfirmationStatusIcon();
 			
+			if (context.isCustomWidth())
+				editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			
 			return new ComponentsContainer(editor);
 
 		}

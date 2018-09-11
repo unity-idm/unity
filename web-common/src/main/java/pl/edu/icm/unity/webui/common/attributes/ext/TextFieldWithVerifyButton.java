@@ -44,7 +44,6 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 			String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
 		this.showLabelInline = showLabelInline;
-		setRequiredIndicatorVisible(required);
 		verifyButton = new Button();
 		verifyButton.setIcon(verifyButtonIcon);
 		verifyButton.setStyleName(Styles.vButtonLink.toString());
@@ -53,7 +52,11 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 		verifyButton.addStyleName(Styles.largeIcon.toString());
 		verifyButton.setDescription(verifyButtonDesc);
 		editor = new TextField();
-
+		if (showLabelInline)
+			editor.setRequiredIndicatorVisible(required);
+		else
+			setRequiredIndicatorVisible(required);
+		
 		adminConfirmCheckBox = new CheckBox(adminConfirmCheckBoxLabel);
 		fieldLayout = new HorizontalLayout();
 		fieldLayout.setMargin(false);
@@ -176,4 +179,10 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 			setCaption(normalizedLabel + ":");
 	}
 
+	@Override
+	public void setWidth(float width, Unit unit)
+	{
+		if (editor != null)
+			editor.setWidth(width, unit);
+	}
 }

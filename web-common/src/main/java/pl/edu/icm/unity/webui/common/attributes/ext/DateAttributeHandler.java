@@ -109,6 +109,8 @@ public class DateAttributeHandler implements WebAttributeHandler
 			setLabel(label);
 			if (value != null)
 				date.setValue(value);
+			if (context.isCustomWidth())
+				date.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			ComponentsContainer ret = new ComponentsContainer(date);
 			return ret;
 		}

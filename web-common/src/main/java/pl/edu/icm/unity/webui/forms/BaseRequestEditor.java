@@ -402,8 +402,17 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 		}
 
-		com.vaadin.ui.FormLayout mainFormLayout = new com.vaadin.ui.FormLayout();
-		mainFormLayout.setWidthUndefined();
+		AbstractOrderedLayout mainFormLayout;
+		if (form.getLayoutSettings().isCompactInputs())
+		{
+			mainFormLayout = new VerticalLayout();
+			mainFormLayout.setWidth(formWidth(), formWidthUnit());
+			mainFormLayout.setMargin(false);
+		} else
+		{
+			mainFormLayout = new com.vaadin.ui.FormLayout();
+			mainFormLayout.setWidthUndefined();
+		}
 		return new RegistrationLayoutsContainer(main, mainFormLayout);
 	}
 	
@@ -507,6 +516,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		label.addStyleName(Styles.formSection.toString());
 		label.addStyleName("u-reg-sectionHeader");
 		layout.addComponent(label);
+		layout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
 		return true;
 	}	
 
@@ -514,6 +524,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		Label horizontalLine = HtmlTag.horizontalLine();
 		horizontalLine.addStyleName("u-reg-separatorLine");
+		horizontalLine.setWidth(formWidth(), formWidthUnit());
 		layout.addComponent(horizontalLine);
 		return true;
 	}	
@@ -523,6 +534,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		AgreementRegistrationParam aParam = form.getAgreements().get(element.getIndex());
 
 		HtmlConfigurableLabel aText = new HtmlConfigurableLabel(aParam.getText().getValue(msg));
+		aText.setWidth(formWidth(), formWidthUnit());
 		CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
 		agreementSelectors.add(cb);
 		layout.addComponent(aText);
@@ -539,7 +551,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected boolean createCommentsControl(Layout layout, BasicFormElement element)
 	{
 		comment = new TextArea();
-		comment.setWidth(80, Unit.PERCENTAGE);
+		comment.setWidth(formWidth(), formWidthUnit());
 		String label = ComponentWithLabel.normalizeLabel(msg.getMessage("RegistrationRequest.comment"));
 		if (form.getLayoutSettings().isCompactInputs())
 			comment.setPlaceholder(label);
@@ -583,6 +595,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			ComponentsContainer editorUI = editor.getEditor(IdentityEditorContext.builder()
 					.withRequired(!idParam.isOptional())
 					.withLabelInLine(form.getLayoutSettings().isCompactInputs())
+					.withCustomWidth(formWidth())
+					.withCustomWidthUnit(formWidthUnit())
 					.build());
 			layout.addComponents(editorUI.getComponents());
 			
@@ -601,6 +615,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		return true;
 	}
+	
 	
 	protected boolean createAttributeControl(AbstractOrderedLayout layout, FormParameterElement element, 
 			Map<Integer, PrefilledEntry<Attribute>> fromInvitation)
@@ -647,6 +662,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withAttributeType(aType)
 					.withAttributeGroup(aParam.isUsingDynamicGroup() ? "/" : aParam.getGroup())
 					.withLabelInline(form.getLayoutSettings().isCompactInputs())
+					.withCustomWidth(formWidth())
+					.withCustomWidthUnit(formWidthUnit())
 					.build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
@@ -689,6 +706,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		GroupsSelection selection = GroupsSelection.getGroupsSelection(msg, groupParam.isMultiSelect(), 
 				isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
+		selection.setWidth(formWidth(), formWidthUnit());
 
 		if (hasPrefilledROSelected)
 		{
@@ -734,6 +752,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				.withConfiguration(credDefinition.getConfiguration())
 				.withRequired(true)
 				.withShowLabelInline(form.getLayoutSettings().isCompactInputs())
+				.withCustomWidth(formWidth())
+				.withCustomWidthUnit(formWidthUnit())
 				.build());
 		if (param.getLabel() != null)
 			editorUI.setLabel(param.getLabel());
@@ -784,6 +804,16 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 
 		public boolean hasFormException = false;
+	}
+	
+	protected Float formWidth()
+	{
+		return form.getLayoutSettings().getColumnWidth();
+	}
+	
+	protected Unit formWidthUnit()
+	{
+		return Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit());
 	}
 }
 

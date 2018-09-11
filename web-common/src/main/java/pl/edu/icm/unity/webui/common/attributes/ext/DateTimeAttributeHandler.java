@@ -111,6 +111,8 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 			datetime.setRequiredIndicatorVisible(context.isRequired());
 			if (value != null)
 				datetime.setValue(value);
+			if (context.isCustomWidth())
+				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			ComponentsContainer ret = new ComponentsContainer(datetime);
 			return ret;
 		}

@@ -105,6 +105,9 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			if (label != null)
 				field.setId("ValueEditor."+label);
 			
+			if (context.isCustomWidth())
+				field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			
 			return new ComponentsContainer(field);
 		}
 

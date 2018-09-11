@@ -106,6 +106,9 @@ public class EmailIdentityEditor implements IdentityEditor
 			}
 		});
 		
+		if (context.isCustomWidth())
+			editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		
 		updateConfirmationStatusIcon();
 			
 		return ret;
@@ -190,4 +193,6 @@ public class EmailIdentityEditor implements IdentityEditor
 	{
 		editor.setLabel(value);
 	}
+	
+	
 }

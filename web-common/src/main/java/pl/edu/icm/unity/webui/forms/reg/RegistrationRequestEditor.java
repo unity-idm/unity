@@ -312,8 +312,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		SignUpAuthNOption option = signupOptions.get(spec);
 		option.authenticatorUI.setAuthenticationCallback(signUpAuthNController.buildCallback(option));
 		Component signupOptionComponent = option.authenticatorUI.getComponent();
-		signupOptionComponent.setWidth(form.getLayoutSettings().getColumnWidth(), 
-				Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit()));
+		signupOptionComponent.setWidth(formWidth(), formWidthUnit()); 
 		layout.addComponent(signupOptionComponent);
 		layout.setComponentAlignment(signupOptionComponent, Alignment.MIDDLE_CENTER);
 		return true;
@@ -324,8 +323,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		Button localSignup = new Button(msg.getMessage("RegistrationRequest.localSignup"));
 		localSignup.addStyleName("u-localSignUpButton");
 		localSignup.addClickListener(event -> onLocalSignupHandler.run());
-		localSignup.setWidth(form.getLayoutSettings().getColumnWidth(), 
-				Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit()));
+		localSignup.setWidth(formWidth(), formWidthUnit());
 		layout.addComponent(localSignup);
 		layout.setComponentAlignment(localSignup, Alignment.MIDDLE_CENTER);
 		return true;

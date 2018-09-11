@@ -194,6 +194,9 @@ public class SMSCredentialEditor implements CredentialEditor
 			}
 		}
 		
+		if (context.isCustomWidth())
+			editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		
 		return ret;
 	}
 

@@ -124,6 +124,10 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 				datetime.setValue(value.toLocalDateTime());
 				zone.setSelectedItem(value.getZone().toString());
 			}
+
+			if (context.isCustomWidth())
+				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			
 			ComponentsContainer ret = new ComponentsContainer(datetime, zone);
 			return ret;
 		}

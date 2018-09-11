@@ -37,6 +37,8 @@ public class IdentifierIdentityEditor implements IdentityEditor
 		field = new TextField();
 		setLabel(new IdentifierIdentity().getHumanFriendlyName(msg));
 		field.setRequiredIndicatorVisible(context.isRequired());
+		if (context.isCustomWidth())
+			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		return new ComponentsContainer(field);
 	}
 
