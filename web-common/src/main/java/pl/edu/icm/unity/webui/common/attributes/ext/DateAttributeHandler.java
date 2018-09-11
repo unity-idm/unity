@@ -88,9 +88,9 @@ public class DateAttributeHandler implements WebAttributeHandler
 	private class DateValueEditor implements AttributeValueEditor
 	{
 		private String label;
-		private boolean required;
 		private DateField date;
 		private LocalDate value;
+		private AttributeEditContext context;
 
 		public DateValueEditor(String valueRaw, String label)
 		{
@@ -101,12 +101,12 @@ public class DateAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			this.context = context;
 			date = new DateField();
 			date.setResolution(DateResolution.DAY);
-			date.setCaption(label);	
 			date.setDateFormat("yyyy-MM-dd");
-			date.setRequiredIndicatorVisible(required);
+			date.setRequiredIndicatorVisible(context.isRequired());
+			setLabel(label);
 			if (value != null)
 				date.setValue(value);
 			ComponentsContainer ret = new ComponentsContainer(date);
@@ -117,7 +117,7 @@ public class DateAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 
-			if (!required && date.getValue() == null)
+			if (!context.isRequired() && date.getValue() == null)
 				return null;
 
 			try
@@ -141,8 +141,10 @@ public class DateAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			date.setCaption(label);
-
+			if (context.isShowLabelInline())
+				date.setPlaceholder(label);
+			else
+				date.setCaption(label);	
 		}
 
 	}

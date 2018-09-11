@@ -18,8 +18,7 @@ public interface CredentialEditor
 	/**
 	 * @return the editor component
 	 */
-	ComponentsContainer getEditor(String credentialConfiguration, boolean required, Long entityId, 
-			boolean adminMode);
+	ComponentsContainer getEditor(CredentialEditorContext context);
 	
 	/**
 	 * @param credentialInfo extra information about the credential as returned by the credential's verificator

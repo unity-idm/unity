@@ -116,12 +116,13 @@ public class FixedAttributeEditor
 			String group = editContext.getAttributeGroup(); 
 			if (showGroup && !group.equals("/"))
 				caption = caption + " @" + group;
-			caption = caption + ":";
+			if (!editContext.isShowLabelInline())
+				caption += ":";
 		}
 		if (description == null)
 			description = editContext.getAttributeType().getDescription().getValue(msg);
 		
-		valuesComponent = getValuesPart(editContext, caption);
+		valuesComponent = getValuesPart(caption);
 	}
 	
 	public void clear()
@@ -129,8 +130,7 @@ public class FixedAttributeEditor
 		valuesComponent.clearContents();
 	}
 	
-	private ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(
-			AttributeEditContext editContext, String label)
+	private ListOfEmbeddedElementsStub<LabelledValue> getValuesPart(String label)
 	{
 		ListOfEmbeddedElementsStub<LabelledValue> ret = new ListOfEmbeddedElementsStub<>(
 				msg, new InternalAttributeValueEditor.Factory(msg, registry, label, editContext),

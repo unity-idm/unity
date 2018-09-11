@@ -13,6 +13,7 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 
 /**
  * {@link IdentifierIdentity} editor
@@ -22,7 +23,7 @@ public class IdentifierIdentityEditor implements IdentityEditor
 {
 	private UnityMessageSource msg;
 	private TextField field;
-	private boolean required;
+	private IdentityEditorContext context;
 	
 	public IdentifierIdentityEditor(UnityMessageSource msg)
 	{
@@ -30,11 +31,12 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required, boolean adminMode)
+	public ComponentsContainer getEditor(IdentityEditorContext context)
 	{
-		field = new TextField(new IdentifierIdentity().getHumanFriendlyName(msg) + ":");
-		field.setRequiredIndicatorVisible(required);
-		this.required = required;
+		this.context = context;
+		field = new TextField();
+		setLabel(new IdentifierIdentity().getHumanFriendlyName(msg));
+		field.setRequiredIndicatorVisible(context.isRequired());
 		return new ComponentsContainer(field);
 	}
 
@@ -44,7 +46,7 @@ public class IdentifierIdentityEditor implements IdentityEditor
 		String username = field.getValue();
 		if (username.trim().equals(""))
 		{
-			if (!required)
+			if (!context.isRequired())
 				return null;
 			String err = msg.getMessage("IdentifierIdentityEditor.errorEmpty");
 			field.setComponentError(new UserError(err));
@@ -63,7 +65,10 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	@Override
 	public void setLabel(String value)
 	{
-		field.setCaption(value);
+		if (context.isShowLabelInline())
+			field.setPlaceholder(value);
+		else
+			field.setCaption(value + ":");
 	}
 
 }

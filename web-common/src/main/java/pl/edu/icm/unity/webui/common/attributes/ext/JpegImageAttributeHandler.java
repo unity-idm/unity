@@ -99,7 +99,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 		BufferedImage value = syntax.convertFromString(valueRaw);
 		int width = value.getWidth();
 		int height = value.getHeight();
-		Resource resValue = getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width,
+		Resource resValue = getValueAsImage(value, syntax, width,
 				height);
 		if (resValue != null)
 		{
@@ -346,7 +346,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getSyntaxViewer()
 	{
-		return new CompactFormLayout(getHints((JpegImageAttributeSyntax)syntax));
+		return new CompactFormLayout(getHints(syntax));
 	}
 
 	

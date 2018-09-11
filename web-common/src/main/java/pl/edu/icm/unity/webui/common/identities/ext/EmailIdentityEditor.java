@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.ext.TextFieldWithVerifyButton;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 /**
@@ -35,7 +36,6 @@ public class EmailIdentityEditor implements IdentityEditor
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailIdentityEditor.class);
 	private UnityMessageSource msg;
-	private boolean required;
 	private ConfirmationInfo confirmationInfo;
 	private TextFieldWithVerifyButton editor;
 	private boolean skipUpdate = false;
@@ -43,6 +43,7 @@ public class EmailIdentityEditor implements IdentityEditor
 	private EmailConfirmationManager emailConfirmationMan;
 	private EntityResolver idResolver;
 	private ConfirmationInfoFormatter formatter;
+	private IdentityEditorContext context;
 	
 	public EmailIdentityEditor(UnityMessageSource msg, EmailConfirmationManager emailConfirmationMan, EntityResolver idResolver, ConfirmationInfoFormatter formatter)
 	{
@@ -53,17 +54,18 @@ public class EmailIdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required, boolean adminMode)
+	public ComponentsContainer getEditor(IdentityEditorContext context)
 	{
-		this.required = required;
+		this.context = context;
 		confirmationInfo = new ConfirmationInfo();	
-		editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
+		editor = new TextFieldWithVerifyButton(context.isAdminMode(), context.isRequired(), msg.getMessage(
 				"EmailIdentityEditor.resendConfirmation"),
 				Images.messageSend.getResource(),
-				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"));
+				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"),
+				context.isShowLabelInline());
 		
 		ComponentsContainer ret = new ComponentsContainer(editor);
-		editor.setCaption(new EmailIdentity().getHumanFriendlyName(msg) + ":");
+		editor.setLabel(new EmailIdentity().getHumanFriendlyName(msg));
 		
 		editor.addVerifyButtonClickListener(e -> {
 
@@ -152,7 +154,7 @@ public class EmailIdentityEditor implements IdentityEditor
 		String emailVal = editor.getValue().trim();
 		if (emailVal.equals(""))
 		{
-			if (!required)
+			if (!context.isRequired())
 				return null;
 			String err = msg.getMessage("EmailIdentityEditor.emailEmpty");
 			editor.setComponentError(new UserError(err));
@@ -186,6 +188,6 @@ public class EmailIdentityEditor implements IdentityEditor
 	@Override
 	public void setLabel(String value)
 	{
-		editor.setCaption(value);
+		editor.setLabel(value);
 	}
 }

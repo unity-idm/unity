@@ -67,6 +67,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		private AttributeValueSyntax<?> syntax;
 		private AbstractTextField field;
 		private boolean required;
+		private AttributeEditContext context;
 		
 		public StringValueEditor(String value, String label, AttributeValueSyntax<?> syntax)
 		{
@@ -79,6 +80,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
 			this.required = context.isRequired();
+			this.context = context;
 			boolean large = false;
 			if (syntax instanceof StringAttributeSyntax)
 			{
@@ -93,8 +95,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 				field.setWidth(60, Unit.PERCENTAGE);
 			if (value != null)
 				field.setValue(value.toString());
-			field.setCaption(label);
 			field.setRequiredIndicatorVisible(this.required);
+			setLabel(label);
 			
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
@@ -133,7 +135,10 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			field.setCaption(label);
+			if (context.isShowLabelInline())
+				field.setPlaceholder(label);
+			else
+				field.setCaption(label);
 		}
 	}
 

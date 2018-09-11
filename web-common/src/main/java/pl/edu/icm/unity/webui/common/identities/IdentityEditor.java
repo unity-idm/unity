@@ -18,7 +18,7 @@ public interface IdentityEditor
 	/**
 	 * @return the editor component
 	 */
-	public ComponentsContainer getEditor(boolean required, boolean adminMode);
+	public ComponentsContainer getEditor(IdentityEditorContext context);
 	
 	/**
 	 * @return the current identity value
@@ -26,11 +26,6 @@ public interface IdentityEditor
 	 */
 	public IdentityParam getValue() throws IllegalIdentityValueException;
 	
-	/**
-	 * @param value 
-	 */
-	//public void setDefaultValue(String value);
-
 	/**
 	 * @param value 
 	 */

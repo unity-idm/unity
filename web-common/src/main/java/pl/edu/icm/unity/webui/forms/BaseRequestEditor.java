@@ -68,6 +68,7 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
+import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ImageUtils;
@@ -79,9 +80,11 @@ import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.Confir
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -537,7 +540,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		comment = new TextArea();
 		comment.setWidth(80, Unit.PERCENTAGE);
-		comment.setCaption(msg.getMessage("RegistrationRequest.comment"));
+		String label = ComponentWithLabel.normalizeLabel(msg.getMessage("RegistrationRequest.comment"));
+		if (form.getLayoutSettings().isCompactInputs())
+			comment.setPlaceholder(label);
+		else
+			comment.setCaption(label);
 		layout.addComponent(comment);
 		return true;
 	}
@@ -573,7 +580,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		{
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
 			identityParamEditors.put(index, editor);
-			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional(), false);
+			ComponentsContainer editorUI = editor.getEditor(IdentityEditorContext.builder()
+					.withRequired(!idParam.isOptional())
+					.withLabelInLine(form.getLayoutSettings().isCompactInputs())
+					.build());
 			layout.addComponents(editorUI.getComponents());
 			
 			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rid != null)
@@ -584,9 +594,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			}
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
 				editor.setDefaultValue(prefilledEntry.getEntry());
-			
 			if (idParam.getLabel() != null)
-				editorUI.setCaption(idParam.getLabel());
+				editorUI.setLabel(idParam.getLabel());
 			if (idParam.getDescription() != null)
 				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(idParam.getDescription()));
 		}
@@ -637,6 +646,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withConfirmationMode(confirmationMode).withRequired(!aParam.isOptional())
 					.withAttributeType(aType)
 					.withAttributeGroup(aParam.isUsingDynamicGroup() ? "/" : aParam.getGroup())
+					.withLabelInline(form.getLayoutSettings().isCompactInputs())
 					.build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
@@ -720,11 +730,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		CredentialRegistrationParam param = form.getCredentialParams().get(index);
 		CredentialDefinition credDefinition = credentials.get(param.getCredentialName());
 		CredentialEditor editor = credentialEditorRegistry.getEditor(credDefinition.getTypeId());
-		ComponentsContainer editorUI = editor.getEditor(credDefinition.getConfiguration(), true, null, false);
+		ComponentsContainer editorUI = editor.getEditor(CredentialEditorContext.builder()
+				.withConfiguration(credDefinition.getConfiguration())
+				.withRequired(true)
+				.withShowLabelInline(form.getLayoutSettings().isCompactInputs())
+				.build());
 		if (param.getLabel() != null)
-			editorUI.setCaption(param.getLabel());
+			editorUI.setLabel(param.getLabel());
 		else
-			editorUI.setCaption(credDefinition.getDisplayedName().getValue(msg) + ":");
+			editorUI.setLabel(credDefinition.getDisplayedName().getValue(msg));
 		if (param.getDescription() != null)
 			editorUI.setDescription(HtmlConfigurableLabel.conditionallyEscape(param.getDescription()));
 		else if (!credDefinition.getDescription().isEmpty())

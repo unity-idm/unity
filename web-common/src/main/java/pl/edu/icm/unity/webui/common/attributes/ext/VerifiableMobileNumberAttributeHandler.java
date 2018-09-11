@@ -31,8 +31,8 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
@@ -166,9 +166,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		private String label;
 		private TextFieldWithVerifyButton editor;
 		private ConfirmationInfo confirmationInfo;
-		private boolean required;
 		private boolean forceConfirmed = false;
 		private boolean skipUpdate = false;
+		private AttributeEditContext context;
 		
 		
 		public VerifiableMobileNumberValueEditor(String valueRaw, String label)
@@ -180,7 +180,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{	
-			this.required = context.isRequired();
+			this.context = context;
 			this.forceConfirmed = context
 					.getConfirmationMode() == ConfirmationMode.FORCE_CONFIRMED;
 			confirmationInfo = value == null ? new ConfirmationInfo()
@@ -192,10 +192,11 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 
 			editor = new TextFieldWithVerifyButton(
 					context.getConfirmationMode() == ConfirmationMode.ADMIN,
-					required,
+					context.isRequired(),
 					msg.getMessage("VerifiableMobileNumberAttributeHandler.verify"),
 					Images.mobile.getResource(),
-					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"));
+					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"),
+					context.isShowLabelInline());
 			if (label != null)
 				editor.setTextFieldId("MobileNumberValueEditor." + label);
 
@@ -269,7 +270,7 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 
 		private String getCurrentValue(boolean forceConfirmation) throws IllegalAttributeValueException
 		{
-			if (!required && editor.getValue().isEmpty())
+			if (!context.isRequired() && editor.getValue().isEmpty())
 				return null;
 			
 			try
@@ -295,15 +296,13 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-
 			return getCurrentValue(forceConfirmed);	
 		}
 
 		@Override
 		public void setLabel(String label)
 		{
-			editor.setCaption(label);
-
+			editor.setLabel(label);
 		}
 	}
 

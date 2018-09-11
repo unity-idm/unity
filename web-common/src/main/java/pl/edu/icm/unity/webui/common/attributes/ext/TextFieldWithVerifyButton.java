@@ -19,6 +19,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -28,7 +29,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P.Piernik
  *
  */
-public class TextFieldWithVerifyButton extends CustomField<String>
+public class TextFieldWithVerifyButton extends CustomField<String> implements ComponentWithLabel
 {
 	private CheckBox adminConfirmCheckBox;
 	private Button verifyButton;
@@ -36,11 +37,13 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	private HorizontalLayout fieldLayout;
 	private VerticalLayout main;
 	private Label confirmationStatusIcon;
+	private boolean showLabelInline;
 	
 	public TextFieldWithVerifyButton(boolean adminMode, boolean required,
 			String verifyButtonDesc, Resource verifyButtonIcon,
-			String adminConfirmCheckBoxLabel)
+			String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
+		this.showLabelInline = showLabelInline;
 		setRequiredIndicatorVisible(required);
 		verifyButton = new Button();
 		verifyButton.setIcon(verifyButtonIcon);
@@ -161,6 +164,16 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	public void setTextFieldId(String id)
 	{
 		editor.setId(id);
+	}
+	
+	@Override
+	public void setLabel(String label)
+	{
+		String normalizedLabel = ComponentWithLabel.normalizeLabel(label);
+		if (showLabelInline)
+			editor.setPlaceholder(normalizedLabel);
+		else
+			setCaption(normalizedLabel + ":");
 	}
 
 }

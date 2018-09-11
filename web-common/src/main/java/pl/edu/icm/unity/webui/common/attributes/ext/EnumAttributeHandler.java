@@ -73,6 +73,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 		private String label;
 		private ComboBox<String> field;
 		private boolean required;
+		private AttributeEditContext context;
 		
 		public EnumValueEditor(String value, String label)
 		{
@@ -84,7 +85,9 @@ public class EnumAttributeHandler implements WebAttributeHandler
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
 			this.required = context.isRequired();
-			field = new ComboBox<>(label);
+			this.context = context;
+			field = new ComboBox<>();
+			setLabel(label);
 			field.setRequiredIndicatorVisible(required);
 			field.setTextInputAllowed(true);
 			field.setEmptySelectionAllowed(!required);
@@ -120,7 +123,10 @@ public class EnumAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			field.setCaption(label);
+			if (context.isShowLabelInline())
+				field.setPlaceholder(label);
+			else
+				field.setCaption(label);
 		}
 	}
 
@@ -133,7 +139,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getSyntaxViewer()
 	{	
-		GenericElementsTable<String> allowedTable = new GenericElementsTable<String>(
+		GenericElementsTable<String> allowedTable = new GenericElementsTable<>(
 				msg.getMessage("EnumAttributeHandler.allowed"));
 		allowedTable.setHeight(12, Unit.EM);
 		allowedTable.setWidth(26, Unit.EM);
