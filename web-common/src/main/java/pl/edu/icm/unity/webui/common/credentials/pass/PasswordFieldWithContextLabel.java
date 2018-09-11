@@ -26,7 +26,7 @@ public class PasswordFieldWithContextLabel extends PasswordField implements Comp
 	@Override
 	public void setLabel(String label)
 	{
-		String normalizedLabel = normalizeLabel(label);
+		String normalizedLabel = ComponentWithLabel.normalizeLabel(label);
 		if (showLabelInline)
 			setPlaceholder(normalizedLabel);
 		else

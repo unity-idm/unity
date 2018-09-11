@@ -19,7 +19,7 @@ public interface ComponentWithLabel
 	 */
 	void setLabel(String label);
 	
-	default String normalizeLabel(String label)
+	static String normalizeLabel(String label)
 	{
 		if (StringUtils.isEmpty(label))
 			return label;

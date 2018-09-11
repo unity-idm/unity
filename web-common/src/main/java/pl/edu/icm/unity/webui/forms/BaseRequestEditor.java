@@ -67,6 +67,7 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
+import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ImageUtils;
@@ -517,7 +518,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		comment = new TextArea();
 		comment.setWidth(80, Unit.PERCENTAGE);
-		comment.setCaption(msg.getMessage("RegistrationRequest.comment"));
+		String label = ComponentWithLabel.normalizeLabel(msg.getMessage("RegistrationRequest.comment"));
+		if (form.getLayoutSettings().isCompactInputs())
+			comment.setPlaceholder(label);
+		else
+			comment.setCaption(label);
 		layout.addComponent(comment);
 		return true;
 	}

@@ -169,7 +169,7 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 	@Override
 	public void setLabel(String label)
 	{
-		String normalizedLabel = normalizeLabel(label);
+		String normalizedLabel = ComponentWithLabel.normalizeLabel(label);
 		if (showLabelInline)
 			editor.setPlaceholder(normalizedLabel);
 		else
