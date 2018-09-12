@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.Optional;
+
 import org.apache.logging.log4j.util.Strings;
 
 import com.vaadin.server.Page;
@@ -29,11 +31,11 @@ public class SignUpTopHeaderComponent extends CustomComponent
 	private RemoteAuthenticationProgress authNProgress;
 
 	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, UnityMessageSource msg, Runnable cancelHandler,
-			RedirectConfig signInRedirect)
+			Optional<RedirectConfig> signInRedirect)
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		main.setSpacing(false);
+		main.setSpacing(true);
 		main.setWidth(100, Unit.PERCENTAGE);
 
 		LocaleChoiceComponent localeChoice = new LocaleChoiceComponent(cfg, msg);
@@ -41,13 +43,13 @@ public class SignUpTopHeaderComponent extends CustomComponent
 		main.addComponent(localeChoice);
 		main.setComponentAlignment(localeChoice, Alignment.TOP_RIGHT);
 
-		if (signInRedirect != null && !Strings.isEmpty(signInRedirect.getRedirectURL()))
+		if (signInRedirect.isPresent() && !Strings.isEmpty(signInRedirect.get().getRedirectURL()))
 		{
 			Button gotoSignIn = new Button(msg.getMessage("StandalonePublicFormView.gotoSignIn"));
 			gotoSignIn.setStyleName(Styles.vButtonLink.toString());
 			gotoSignIn.addStyleName("u-reg-gotoSignIn");
 			gotoSignIn.addClickListener(e -> 
-				Page.getCurrent().open(signInRedirect.getRedirectURL(), null));
+				Page.getCurrent().open(signInRedirect.get().getRedirectURL(), null));
 			main.addComponent(gotoSignIn);
 			main.setComponentAlignment(gotoSignIn, Alignment.TOP_RIGHT);
 		}

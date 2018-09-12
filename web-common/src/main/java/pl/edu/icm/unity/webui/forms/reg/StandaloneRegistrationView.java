@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -35,7 +37,9 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
 import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor.Stage;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 /**
@@ -57,6 +61,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private SignUpAuthNController signUpAuthNController;
 	private SignUpTopHeaderComponent header;
 	private HorizontalLayout formButtons;
+	private PostFillingHandler postFillHandler;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -77,6 +82,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	public StandaloneRegistrationView init(RegistrationForm form)
 	{
 		this.form = form;
+		this.postFillHandler = new PostFillingHandler(idpLoginController, form, msg, regMan);
 		return this;
 	}
 	
@@ -125,8 +131,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	
 	private void showEditorContent(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		header = new SignUpTopHeaderComponent(cfg, msg, this::onUserAuthnCancel, 
-				form.isShowSignInLink() ? form.getUserExistsRedirect() : null);
+		header = new SignUpTopHeaderComponent(cfg, msg, this::onUserAuthnCancel, getGoToSignInURL(editor));
 		main.addComponent(header);
 		main.setComponentAlignment(header, Alignment.TOP_RIGHT);
 
@@ -166,6 +171,12 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		}
 	}
 
+	private Optional<RedirectConfig> getGoToSignInURL(RegistrationRequestEditor editor)
+	{
+		return form.isShowSignInLink() && editor.getStage() == Stage.FIRST ? 
+				Optional.of(form.getUserExistsRedirect()) : Optional.empty();
+	}
+	
 	private boolean isAutoSubmitPossible(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		return mode == TriggeringMode.afterRemoteLoginFromRegistrationForm
@@ -198,10 +209,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		RegistrationContext context = new RegistrationContext(false, 
 				idpLoginController.isLoginInProgress(), 
 				TriggeringMode.manualStandalone);
-		new PostFormFillingHandler(idpLoginController, form, msg, 
-				regMan.getFormAutomationSupport(form))
-			.cancelled(true, context);
-		showFinalError(msg.getMessage("StandalonePublicFormView.requestCancelled"), null);
+		Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler.cancelled(context);
+		if (finalScreenConfig.isPresent())
+			showFinalError(finalScreenConfig.get());
 	}
 	
 	private void onSubmit(RegistrationRequestEditor editor, TriggeringMode mode)
@@ -222,11 +232,10 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		try
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					regMan.getFormAutomationSupport(form))
-				.submittedRegistrationRequest(requestId, regMan, request, context);
-			showFinalSuccess(msg.getMessage("StandalonePublicFormView.requestSubmitted"),
-					form.getSuccessRedirect());
+			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
+					postFillHandler.submittedRegistrationRequest(requestId, request, context);
+			if (finalScreenConfig.isPresent())
+				showFinalSuccess(finalScreenConfig.get());
 		} catch (WrongArgumentException e)
 		{
 			if (e instanceof IllegalFormContentsException)
@@ -238,7 +247,11 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			new PostFormFillingHandler(idpLoginController, form, msg, 
 					regMan.getFormAutomationSupport(form))
 				.submissionError(e, context);
-			showFinalError(msg.getMessage("StandalonePublicFormView.submissionFailed"), null);
+			
+			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
+					postFillHandler.genericFatalError(e, context);
+			if (finalScreenConfig.isPresent())
+				showFinalError(finalScreenConfig.get());
 		}
 	}
 
@@ -247,28 +260,29 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		return mode != TriggeringMode.afterRemoteLoginFromRegistrationForm;
 	}
 
-	private void showFinalSuccess(String message, RedirectConfig redirectConfig)
+	private void showFinalSuccess(FinalRegistrationConfiguration config)
 	{
-		showFinalCommon(message, redirectConfig, false);
+		showFinalScreenOrRedirect(config, false);
 	}
 
-	private void showFinalError(String message, RedirectConfig redirectConfig)
+	private void showFinalError(FinalRegistrationConfiguration config)
 	{
-		showFinalCommon(message, redirectConfig, true);
+		showFinalScreenOrRedirect(config, true);
 	}
 	
-	private void showFinalCommon(String message, RedirectConfig redirectConfig, boolean isError)
+	private void showFinalScreenOrRedirect(FinalRegistrationConfiguration config, boolean isError)
 	{
-		RegistrationCompletedComponent finalScreen = new RegistrationCompletedComponent(msg, message, 
-				isError, form.getLayoutSettings().getLogoURL(), redirectConfig);
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);
-		wrapper.addComponent(finalScreen);
-		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 		wrapper.setSizeFull();
 		setSizeFull();
 		setCompositionRoot(wrapper);
+
+		RegistrationCompletedComponent finalScreen = new RegistrationCompletedComponent(config, 
+			isError, form.getLayoutSettings().getLogoURL());
+		wrapper.addComponent(finalScreen);
+		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
 	
 	public void refresh(VaadinRequest request)
@@ -347,8 +361,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		public void onUserExists(AuthenticationResult result)
 		{
 			enableSharedComponentsAndHideAuthnProgress();
-			showFinalError(msg.getMessage("StandalonePublicFormView.userExistsError"), 
-						form.getUserExistsRedirect());
+			Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler.userExistsError();
+			if (finalScreenConfig.isPresent())
+				showFinalError(finalScreenConfig.get());
 		}
 
 		@Override

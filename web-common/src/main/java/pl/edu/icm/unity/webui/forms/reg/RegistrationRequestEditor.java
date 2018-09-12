@@ -75,8 +75,8 @@ import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
  */
 public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationRequest>
 {
-	private static final short FIRST_STAGE = 0;
-	private static final short SECOND_STAGE = 1;
+	enum Stage {FIRST, SECOND}
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationRequestEditor.class);
 	private RegistrationForm form;
 	
@@ -90,7 +90,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private Map<AuthenticationOptionKey, SignUpAuthNOption> signupOptions;
 	private Runnable onLocalSignupHandler;
 	private FormLayout effectiveLayout;
-	private short stage;
+	private Stage stage;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -120,7 +120,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		this.effectiveLayout = form.getEffectivePrimaryFormLayout(msg);
 		this.onLocalSignupHandler = onLocalSignupHandler;
-		this.stage = FIRST_STAGE;
+		this.stage = Stage.FIRST;
 		initUI();
 	}
 	
@@ -128,7 +128,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{
 		this.effectiveLayout = withCredentials ? form.getEffectiveSecondaryFormLayout(msg) 
 				: form.getEffectiveSecondaryFormLayoutWithoutCredentials(msg);
-		this.stage = SECOND_STAGE;
+		this.stage = Stage.SECOND;
 		initUI();
 	}
 	
@@ -168,8 +168,13 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 */
 	public boolean isSubmissionPossible()
 	{
-		return (stage == FIRST_STAGE && !FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) 
-				|| stage == SECOND_STAGE;
+		return (stage == Stage.FIRST && !FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) 
+				|| stage == Stage.SECOND;
+	}
+
+	Stage getStage()
+	{
+		return stage;
 	}
 	
 	private void setRequestCode(RegistrationRequest ret, FormErrorStatus status)
@@ -221,14 +226,14 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			main.setComponentAlignment(image, Alignment.TOP_CENTER);
 		}
 		
-		I18nString title = stage == FIRST_STAGE ? form.getDisplayedName() : form.getTitle2ndStage();
+		I18nString title = stage == Stage.FIRST ? form.getDisplayedName() : form.getTitle2ndStage();
 		Label formName = new Label(title.getValue(msg));
 		formName.addStyleName(Styles.vLabelH1.toString());
 		formName.addStyleName("u-reg-title");
 		main.addComponent(formName);
 		main.setComponentAlignment(formName, Alignment.MIDDLE_CENTER);
 		
-		if (stage == FIRST_STAGE)
+		if (stage == Stage.FIRST)
 		{
 			String info = form.getFormInformation() == null ? null : form.getFormInformation().getValue(msg);
 			if (info != null)

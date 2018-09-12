@@ -32,7 +32,8 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * Performs UI-related actions after registration request/enquiry response submission or cancellation.
- *  
+ * TODO - after removing dialog-based registration this will need to be simplified.
+ * 
  * @author K. Benedyczak
  */
 public class PostFormFillingHandler
@@ -61,6 +62,9 @@ public class PostFormFillingHandler
 		this.doRedirect = doRedirect;
 	}
 
+	
+	
+	
 	/**
 	 * Invokes proper redirection or shows an information message depending on request status and form settings.
 	 * @param form

@@ -16,12 +16,14 @@ import pl.edu.icm.unity.types.I18nString;
 public class RedirectConfig
 {
 	private I18nString redirectCaption;
+	private boolean automatic;
 	private String redirectURL;
 
-	public RedirectConfig(I18nString redirectCaption, String redirectURL)
+	public RedirectConfig(I18nString redirectCaption, String redirectURL, boolean automatic)
 	{
 		this.redirectCaption = redirectCaption;
 		this.redirectURL = redirectURL;
+		this.automatic = automatic;
 	}
 
 	//for JSON
@@ -38,6 +40,11 @@ public class RedirectConfig
 		return redirectURL;
 	}
 
+	public boolean isAutomatic()
+	{
+		return automatic;
+	}
+
 	@Override
 	public boolean equals(final Object other)
 	{
@@ -45,12 +52,13 @@ public class RedirectConfig
 			return false;
 		RedirectConfig castOther = (RedirectConfig) other;
 		return Objects.equals(redirectCaption, castOther.redirectCaption)
+				&& Objects.equals(automatic, castOther.automatic)
 				&& Objects.equals(redirectURL, castOther.redirectURL);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(redirectCaption, redirectURL);
+		return Objects.hash(redirectCaption, automatic, redirectURL);
 	}
 }
