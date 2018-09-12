@@ -55,10 +55,12 @@ public class MessageTemplateValidator
 		I18nString subject = message.getSubject();
 		for (String subjectL: subject.getMap().values())
 			vars.addAll(extractVariables(subjectL));
+		vars.addAll(extractVariables(subject.getDefaultValue()));
 		
 		I18nString body = message.getBody();
 		for (String bodyL: body.getMap().values())
 			vars.addAll(extractVariables(bodyL));
+		vars.addAll(extractVariables(body.getDefaultValue()));
 		return vars;
 	}
 	/**
@@ -73,19 +75,25 @@ public class MessageTemplateValidator
 	
 	private static List<String> extractVariables(String text)
 	{
-		List<String> usedField = new ArrayList<>();
-		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9.]*\\}");
+		List<String> usedField = extractVariables(text, "\\$\\{[^\\}]*\\}", 1);
+		usedField.addAll(extractVariables(text, "\\{\\{[^\\}]*\\}\\}", 2));
+		return usedField;
+	}
 
+	private static List<String> extractVariables(String text, String patternStr, int suffixLen)
+	{
+		List<String> usedField = new ArrayList<>();
+		Pattern pattern = Pattern.compile(patternStr);
 		String b = (String) text;
 		Matcher matcher = pattern.matcher(b);
 		while (matcher.find())
 		{
-			usedField.add(b.substring(matcher.start() + 2, matcher.end() - 1));
+			usedField.add(b.substring(matcher.start() + 2, matcher.end() - suffixLen));
 
 		}
 		return usedField;
 	}
-	
+
 	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) 
 			throws IllegalVariablesException, MandatoryVariablesException
 	{

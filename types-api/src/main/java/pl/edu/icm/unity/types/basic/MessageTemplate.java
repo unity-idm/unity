@@ -182,6 +182,9 @@ public class MessageTemplate extends DescribedObjectImpl
 				continue;
 			ret.setSubject(ret.getSubject().replace("${" + paramE.getKey() + "}", paramE.getValue()));
 			ret.setBody(ret.getBody().replace("${" + paramE.getKey() + "}", paramE.getValue()));
+			//alt syntax
+			ret.setSubject(ret.getSubject().replace("{{" + paramE.getKey() + "}}", paramE.getValue()));
+			ret.setBody(ret.getBody().replace("{{" + paramE.getKey() + "}}", paramE.getValue()));
 		}
 		return ret;
 	}
