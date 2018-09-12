@@ -46,6 +46,7 @@ public class JsonDumpUpdateFromV5 implements Update
 		ObjectNode contents = (ObjectNode) root.get("contents");
 		updateRequests(contents);
 		updateInvitations(contents);
+		updateRegistrationForms(contents);
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
@@ -113,5 +114,13 @@ public class JsonDumpUpdateFromV5 implements Update
 			}
 		}
 		return ret;
+	}
+	
+	private void updateRegistrationForms(ObjectNode contents)
+	{
+		for (ObjectNode registrationForm: getGenericContent(contents, RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE))
+		{
+			UpdateHelperFrom2_6.updateRegistrationFormLayout(registrationForm);
+		}
 	}
 }
