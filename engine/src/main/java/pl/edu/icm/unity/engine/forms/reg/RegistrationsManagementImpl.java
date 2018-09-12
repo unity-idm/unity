@@ -219,6 +219,15 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		return requestDB.getAll();
 	}
 
+
+	@Override
+	@Transactional
+	public boolean hasForm(String id)
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.read);
+		return formsDB.exists(id);
+	}
+	
 	@Override
 	@Transactional
 	public void processRegistrationRequest(String id, RegistrationRequest finalRequest,

@@ -51,6 +51,11 @@ public interface RegistrationsManagement
 	 * @throws EngineException
 	 */
 	List<RegistrationForm> getForms() throws EngineException;
+
+	/**
+	 * @return true if form with given name exists
+	 */
+	boolean hasForm(String id);
 	
 	/**
 	 * Submits a new registration request. It gets a pending state unless automatically processed by the 
