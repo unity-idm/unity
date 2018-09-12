@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +23,6 @@ import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
@@ -56,8 +54,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 	@Autowired
 	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryManagement enquiryManagement,
 			SharedEndpointManagement sharedEndpointMan,
-			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory,
-			EnquiryFormViewer viewer)
+			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory)
 	{
 		this.msg = msg;
 		this.enquiriesManagement = enquiryManagement;
@@ -74,18 +71,6 @@ public class EnquiryFormsComponent extends VerticalLayout
 				form -> form.getName());
 		table.setSizeFull();
 		table.setMultiSelect(true);
-		viewer.setInput(null);
-		table.addSelectionListener(event -> 
-		{
-			Collection<EnquiryForm> items = event.getAllSelectedItems();
-			if (items.size() > 1 || items.isEmpty())
-			{
-				viewer.setInput(null);
-				return;
-			}
-			EnquiryForm item = items.iterator().next();	
-			viewer.setInput(item);
-		});
 		
 		table.addActionHandler(getRefreshAction());
 		table.addActionHandler(getAddAction());
@@ -101,9 +86,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
 		
-		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);
-
-		main = hl;
+		main = tableWithToolbar;
 		refresh();
 	}
 	
