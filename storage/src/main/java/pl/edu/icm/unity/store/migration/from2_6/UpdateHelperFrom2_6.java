@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 
@@ -88,5 +89,23 @@ class UpdateHelperFrom2_6
 			updateSelection((ObjectNode)next.getValue().get("entry"), Integer.parseInt(next.getKey()), form);
 		}
 		return Optional.of(invitation);
+	}
+	
+	static void updateRegistrationFormLayout(ObjectNode registrationForm)
+	{
+		log.info("Updating registration form from: \n{}", JsonUtil.toJsonString(registrationForm));
+		
+		ObjectNode formLayout = (ObjectNode) registrationForm.remove("FormLayout");
+		if (formLayout == null)
+		{
+			log.info("No migration required for registration form {}", registrationForm.get("Name"));
+			return;
+		}
+		
+		ObjectNode registrationFormLayouts = Constants.MAPPER.createObjectNode();
+		registrationForm.set("RegistrationFormLayouts", registrationFormLayouts);
+		registrationFormLayouts.set("primaryLayout", formLayout);
+		
+		log.info("Updated registration form to: \n{}", JsonUtil.toJsonString(registrationForm));
 	}
 }

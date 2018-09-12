@@ -1,0 +1,3763 @@
+{
+  "versionMajor" : 5,
+  "versionMinor" : 0,
+  "timestamp" : 1536759197281,
+  "contents" : {
+    "attributeTypes" : [ {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "country",
+        "Map" : {
+          "pl" : "Kraj",
+          "en" : "Country"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "country",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 1000
+      },
+      "displayedName" : {
+        "DefaultValue" : "sshPublicKey",
+        "Map" : {
+          "pl" : "Klucz publiczny SSH",
+          "en" : "SSH public key"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sshPublicKey",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 6
+      },
+      "displayedName" : {
+        "DefaultValue" : "postalCode",
+        "Map" : {
+          "pl" : "Kod pocztowy",
+          "en" : "Postal code"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "postalCode",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 256,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:allowedReturnURI",
+        "Map" : {
+          "de" : "OAuth-Client Rückgabe-URL",
+          "en" : "OAuth client return URL",
+          "pl" : "Powrotny adres klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Legt fest, welche Rückgabe-URIs freigeschalten sind, zu denen der Client zurückkehren darf, nachdem die Authentifizierung abgeschlossen wurde. Dies ist eine wichtige Sicherheitsmaßnahme für  Authorization Code und implizite Berechtigungen. Wenn nicht definiert ist keine URL freigeschalten und sowohl implizite als auch Authorization Code Berechtigungen sind für den Client effektiv deaktiviert.",
+          "en" : "OAuth Client specific attribute. Defines which return redirect URIs are allowed for the client. This is important security measure for the authorization code and implicit grants. If undefined then no URI is allowed and both implicit and authorization code grants will be effectively disabled for the client.",
+          "pl" : "Atrybut klienta OAauth. Definiuje dozwolone adresu przekierowań powrotnych. Jest to ważne ustawienie bezpieczeństwa dla grantów authorization code i implicit. Jeśli nie jest ustawiony nie będą one działać dla klienta. "
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:allowedReturnURI",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 16,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "urn:unicore:attrType:xlogin",
+        "Map" : {
+          "de" : "UNICORE-Login",
+          "en" : "UNICORE login",
+          "pl" : "Login UNICORE"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "UNIX-Kontoname (uid) im UNICORE-System",
+          "en" : "UNIX account name (uid) at UNICORE site",
+          "pl" : "Nazwa konta UNIX (uid) w infrastrukturze UNICORE"
+        }
+      },
+      "metadata" : { },
+      "name" : "urn:unicore:attrType:xlogin",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "blog",
+        "Map" : {
+          "pl" : "Blog",
+          "en" : "Blog"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "blog",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "post",
+        "Map" : {
+          "pl" : "Poczta",
+          "en" : "Post"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "post",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "affiliation",
+        "Map" : {
+          "pl" : "Afiliacja",
+          "en" : "Affiliation"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "affiliation",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "min" : 0.0,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "quota",
+        "Map" : {
+          "en" : "Quota"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "quota",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:sys:sms",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Berechtigungsnachweis von sys:sms",
+          "en" : "Credential of sys:sms"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:sys:sms",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "min" : 4.9E-324,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "height",
+        "Map" : {
+          "de" : "Größe",
+          "en" : "Height",
+          "pl" : "Wzrost"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Größe des Benutzers",
+          "en" : "Height provides information on users height",
+          "pl" : "Informacja o wzroście użytkownika w cm."
+        }
+      },
+      "metadata" : { },
+      "name" : "height",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:LastAuthentication",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Speichert Datum und Zeit der letzten erfolgreichen Authentifizierung. Format: ISO-Zeit in der UTC Zeitzone, auf Sekunden genau, z.B.: 2011-12-03T10:15:30",
+          "en" : "Stores date and time of the last successful authentication. The format is ISO time in UTC time zone with seconds precision, e.g.: 2011-12-03T10:15:30"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:LastAuthentication",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "avatarURL",
+        "Map" : {
+          "en" : "Avatar URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "avatarURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 20
+      },
+      "displayedName" : {
+        "DefaultValue" : "initials",
+        "Map" : {
+          "pl" : "Inicjały",
+          "en" : "Initials"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "initials",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "pictureURL",
+        "Map" : {
+          "pl" : "Adres zdjęcia",
+          "en" : "Picture URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "pictureURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "Locality",
+        "Map" : {
+          "pl" : "Localizacja",
+          "en" : "Locality"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "locality",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "min" : 4.9E-324,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "weight",
+        "Map" : {
+          "de" : "Gewicht",
+          "en" : "Weight",
+          "pl" : "Waga"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Gewicht des Benutzers",
+          "en" : "Weight provides information on users weight",
+          "pl" : "Informacja o wadze użytkownika w kg."
+        }
+      },
+      "metadata" : { },
+      "name" : "weight",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 1,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "allowed" : [ "implicit", "client", "openidHybrid", "authorizationCode" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:allowedGrantFlows",
+        "Map" : {
+          "de" : "OAuth-Client, gewährte Berechtigungen",
+          "en" : "OAuth client allowed grants",
+          "pl" : "Dozwolone granty OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Legt fest, welche Berechtigungen der Client hat. Wenn nicht definiert wird nur die Authorization Code Berechtigung gewährt.",
+          "en" : "OAuth Client specific attribute. Defines which grants are allowed for the client. If undefined then only the Authorization Code grant is allowed.",
+          "pl" : "Atrybut klienta OAauth. Definiuje dozwolone granty OAuth dla klienta. Jeśli jest niezdefiniowany tylko Authorization Code grant jest dozwolony."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:allowedGrantFlows",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "organizationUnit",
+        "Map" : {
+          "pl" : "Nazwa jednostki organizacyjnej",
+          "en" : "Organization unit name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organizationUnit",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : null,
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:certificate credential",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Berechtigungsnachweis von certificate credential",
+          "en" : "Credential of certificate credential"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:certificate credential",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:Preferences",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Benutzereinstellungen",
+          "en" : "Preferences of the user"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Preferences",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "New attribute",
+        "Map" : {
+          "en" : "Last Name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "lastname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "allowed" : [ "server", "admin", "banned", "user" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "urn:unicore:attrType:role",
+        "Map" : {
+          "de" : "UNICORE Rolle",
+          "en" : "UNICORE role",
+          "pl" : "Rola UNICORE"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Benutzer- oder Server-Rolle, die für die UNICORE-Autorisierung verwendet wird. Die <b>Benutzer</b>-Rolle erlaubt normalen Zugang, die <b>Admin</b>-Rolle vollen Zugang, die <b>Server</b>-Rolle erlaubt die Registrierung im UNICORE-Verzeichnis; für <b>blockierte</b> Benutzer ist der Zugang komplett gesperrt.",
+          "en" : "User or server role used for UNICORE authorization. The <b>user</b> role provides normal access, <b>admin</b> the full access, <b>server</b> allows for registering in UNICORE registry, <b>banned</b> users have access fully blocked.",
+          "pl" : "Rola użytkownika lub serwera używana do autoryzacji dostepu do UNICORE. Rola <b>user</b> daje normalny dostęp, <b>admin</b> pełen dostęp, <b>server</b> pozwala na rejestrację w rejestrze UNCORE, użytkownicy z rolą <b>banned</b> są całkowicie zablokowani."
+        }
+      },
+      "metadata" : { },
+      "name" : "urn:unicore:attrType:role",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "organizationRole",
+        "Map" : {
+          "pl" : "Rola w organizacji",
+          "en" : "Organization role"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organizationRole",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "name",
+        "Map" : {
+          "pl" : "Nazwa",
+          "en" : "Name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Nazwa",
+          "en" : "Name"
+        }
+      },
+      "metadata" : {
+        "entityDisplayedName" : ""
+      },
+      "name" : "name",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:FilledEnquires",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:FilledEnquires",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "provinceName",
+        "Map" : {
+          "pl" : "Nazwa prowincji",
+          "en" : "Province name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "provinceName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:userMFAOptIn",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:userMFAOptIn",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : { },
+      "displayedName" : {
+        "DefaultValue" : "birthday",
+        "Map" : {
+          "pl" : "Data urodzin",
+          "en" : "Birthday"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "birthday",
+      "syntaxId" : "date"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "profileURL",
+        "Map" : {
+          "pl" : "Adres profilu",
+          "en" : "Profile URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "profileURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "firstname",
+        "Map" : {
+          "pl" : "Imię",
+          "en" : "First Name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "firstname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "preferredLanguage",
+        "Map" : {
+          "pl" : "Preferowany język",
+          "en" : "Preferred language"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "preferredLanguage",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "(\\+)?(\\d){9,12}",
+        "minLength" : 9,
+        "maxLength" : 20
+      },
+      "displayedName" : {
+        "DefaultValue" : "telephoneNumber",
+        "Map" : {
+          "pl" : "Numer telefonu",
+          "en" : "Telephone number"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "telephoneNumber",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "gender",
+        "Map" : {
+          "pl" : "Płeć",
+          "en" : "Gender"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "gender",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "city",
+        "Map" : {
+          "pl" : "Miasto",
+          "en" : "City"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "city",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 50
+      },
+      "displayedName" : {
+        "DefaultValue" : "timezone",
+        "Map" : {
+          "pl" : "Strefa czasowa",
+          "en" : "Timezone"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "timezone",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "displayName",
+        "Map" : {
+          "pl" : "Wyświetlana nazwa",
+          "en" : "Display name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "displayName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 20000
+      },
+      "displayedName" : {
+        "DefaultValue" : "certificate",
+        "Map" : {
+          "pl" : "Certyfikat użytkownika",
+          "en" : "User certificate"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "certificate",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 400
+      },
+      "displayedName" : {
+        "DefaultValue" : "description",
+        "Map" : {
+          "pl" : "Opis",
+          "en" : "Description"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "description",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientName",
+        "Map" : {
+          "de" : "OAuth-Client-Name",
+          "en" : "OAuth client name",
+          "pl" : "Nazwa klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Menschenlesbarer Name des Clients.",
+          "en" : "OAuth Client specific attribute. Defines human readable name of the client.",
+          "pl" : "Atrybut klienta OAauth. Definiuje nazwę klienta wyświetlaną użytkownikom. "
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 50
+      },
+      "displayedName" : {
+        "DefaultValue" : "locale",
+        "Map" : {
+          "en" : "Locale"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "locale",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "title",
+        "Map" : {
+          "pl" : "Tytuł",
+          "en" : "Title"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "title",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "seeAlso",
+        "Map" : {
+          "pl" : "Inne",
+          "en" : "See also"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "seeAlso",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 8000
+      },
+      "displayedName" : {
+        "DefaultValue" : "pgpPublicKey",
+        "Map" : {
+          "pl" : "Klucz publiczny PGP",
+          "en" : "PGP public key"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "pgpPublicKey",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:sys:password",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Berechtigungsnachweis von sys:password",
+          "en" : "Credential of sys:password"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:sys:password",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "uid",
+        "Map" : {
+          "pl" : "Identyfikator uzytkownika",
+          "en" : "User id"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "uid",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:IgnoredEnquires",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:IgnoredEnquires",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:groupForClient",
+        "Map" : {
+          "de" : "OAuth-Benutzergruppe",
+          "en" : "OAuth users group",
+          "pl" : "Grupa użytkowników klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Definiert einen Gruppenpfad unter dem die Benutzer dieses Clients erreichbar sein sollten und wo ihre Eigenschaften aufgelöst werden. Diese Eigenschaft hat Vorrang vor der Standardgruppe, die im Endpunkt konfiguriert ist.",
+          "en" : "OAuth Client specific attribute. Defines a group path, where users of this client should be present and where their attributes are resolved. This attribute overrides the default group configured per endpoint.",
+          "pl" : "Atrybut klienta OAauth. Definiuje grupę do której muszą należeć wszyscy użytkownicy których do których ma dostęp klient. Z tej grupy będą również pobierane ich atrybuty dla klienta. Ten atrybut nadpisuje ogólnie ustawioną grupę w konfiguracji endpointu."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:groupForClient",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 2
+      },
+      "displayedName" : {
+        "DefaultValue" : "countryCode",
+        "Map" : {
+          "pl" : "Kod kraju",
+          "en" : "Country code"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "countryCode",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "street",
+        "Map" : {
+          "pl" : "Ulica",
+          "en" : "Street"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "street",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "surname",
+        "Map" : {
+          "pl" : "Nazwisko",
+          "en" : "Surname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "surname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : null,
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:customPassword",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Berechtigungsnachweis von customPassword",
+          "en" : "Credential of customPassword"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:customPassword",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "nickname",
+        "Map" : {
+          "en" : "Nickname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "nickname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "company",
+        "Map" : {
+          "pl" : "Firma",
+          "en" : "Company"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "company",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "currency",
+        "Map" : {
+          "pl" : "Waluta",
+          "en" : "Currency"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "currency",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "allowed" : [ "Privileged Inspector", "Anonymous User", "Inspector", "System Manager", "Contents Manager", "Regular User" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:AuthorizationRole",
+        "Map" : {
+          "de" : "Autorisierungsrolle",
+          "en" : "Authorization role",
+          "pl" : "Rola autoryzacyjna"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Definiert, welche Operationen für den Träger erlaubt sind. Das Attribut dieses Typs legt den Zugriff in Gruppe fest, in der es definiert ist, und in allen Untergruppen. In Untergruppen kann es überschrieben werden um mehr Zugriffsrechte einzuräumen. Rollen:\n <b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n",
+          "en" : "Defines what operations are allowed for the bearer. The attribute of this type defines the access in the group where it is defined and in all subgroups. In subgroup it can be redefined to grant more access. Roles:\n <b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n",
+          "pl" : "Definiuje jakie operacje są dozwolone dla posiadacza. Wpływa na dostęp do grupy w której atrybut jest przydzielony oraz wszystkich podgrupach, gdzie może być nadpisany. Dostępne role:\n<b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:AuthorizationRole",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 0,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "emailConfirmationConfiguration" : {
+          "messageTemplate" : "emailConfirmation",
+          "validityTime" : 2880
+        }
+      },
+      "displayedName" : {
+        "DefaultValue" : "email",
+        "Map" : {
+          "de" : "E-mail-Adresse",
+          "en" : "E-mail address",
+          "pl" : "Adres e-mail"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "E-mail-Adresse",
+          "en" : "E-mail address",
+          "pl" : "Adres e-mail"
+        }
+      },
+      "metadata" : {
+        "contactEmail" : ""
+      },
+      "name" : "email",
+      "syntaxId" : "verifiableEmail"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "website",
+        "Map" : {
+          "pl" : "Strona internetowa",
+          "en" : "Website"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "website",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "address",
+        "Map" : {
+          "pl" : "Adres",
+          "en" : "Address"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "address",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "mobileConfirmationConfiguration" : {
+          "messageTemplate" : "mobileNumberConfirmation",
+          "validityTime" : 15,
+          "codeLength" : 6
+        }
+      },
+      "displayedName" : {
+        "DefaultValue" : "mobile",
+        "Map" : {
+          "de" : "Mobiltelefonnummer",
+          "en" : "Mobile number",
+          "pl" : "Numer tel. komórkowego"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Mobiltelefonnummer",
+          "en" : "Mobile number",
+          "pl" : "Numer tel. komórkowego"
+        }
+      },
+      "metadata" : {
+        "contactMobile" : ""
+      },
+      "name" : "mobile",
+      "syntaxId" : "verifiableMobileNumber"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "maxWidth" : 400,
+        "maxHeight" : 200,
+        "maxSize" : 4000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientLogo",
+        "Map" : {
+          "de" : "OAuth-Client-Logo",
+          "en" : "OAuth client logo",
+          "pl" : "Logo klienta OAuth"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "OAuth-Client-spezifische Eigenschaft. Logo, das fuer den Client verwendet wird.",
+          "en" : "OAuth Client specific attribute. Defines a logo which is displayed for the client.",
+          "pl" : "Atrybut klienta OAauth. Definiuje logo klienta wyświetlane użytkownikom."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientLogo",
+      "syntaxId" : "jpegImage"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "maxWidth" : 100,
+        "maxHeight" : 100,
+        "maxSize" : 1000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "avatar",
+        "Map" : {
+          "en" : "Avatar"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Małe zdjęcie w formacie JPEG",
+          "en" : "Small picture in JPEG format"
+        }
+      },
+      "metadata" : { },
+      "name" : "avatar",
+      "syntaxId" : "jpegImage"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 9,
+        "maxLength" : 20
+      },
+      "displayedName" : {
+        "DefaultValue" : "facsimileTelephoneNumber",
+        "Map" : {
+          "pl" : "Faks",
+          "en" : "Facsimile telephone number"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "facsimileTelephoneNumber",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "userName",
+        "Map" : {
+          "pl" : "Nazwa użytkownika",
+          "en" : "Username"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "userName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 20,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:AttributeClasses",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Attributsklassen des Benutzers",
+          "en" : "Attribute classes of the user"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:AttributeClasses",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:CredentialRequirements",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Legt fest, welchen Berechtigungsnachweis der Besitzer erbringen muss",
+          "en" : "Defines which credential requirements are set for the owner"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:CredentialRequirements",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "maxWidth" : 1000,
+        "maxHeight" : 1000,
+        "maxSize" : 3000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "picture",
+        "Map" : {
+          "pl" : "Zdjęcie",
+          "en" : "Picture"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "picture",
+      "syntaxId" : "jpegImage"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "primaryAffiliation",
+        "Map" : {
+          "pl" : "Główna afiliacja",
+          "en" : "Primary affiliation"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "primaryAffiliation",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "organization",
+        "Map" : {
+          "pl" : "Organizacja",
+          "en" : "Organization"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organization",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "middleName",
+        "Map" : {
+          "pl" : "Drugie imię",
+          "en" : "Middle name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "middleName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "teamname",
+        "Map" : {
+          "pl" : "Nazwa zespołu",
+          "en" : "Teamname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "teamname",
+      "syntaxId" : "string"
+    } ],
+    "identityTypes" : [ {
+      "identityTypeProvider" : "identifier",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "identifier"
+    }, {
+      "identityTypeProvider" : "x500Name",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "x500Name"
+    }, {
+      "identityTypeProvider" : "transient",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "transient"
+    }, {
+      "identityTypeProvider" : "targetedPersistent",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "targetedPersistent"
+    }, {
+      "identityTypeProvider" : "persistent",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "persistent"
+    }, {
+      "identityTypeProvider" : "userName",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "userName"
+    }, {
+      "identityTypeProvider" : "email",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "emailConfirmationConfiguration" : {
+        "messageTemplate" : "emailConfirmation",
+        "validityTime" : 2880
+      },
+      "extractedAttributes" : [ ],
+      "name" : "email"
+    } ],
+    "entities" : [ {
+      "state" : "valid",
+      "entityId" : 1
+    }, {
+      "state" : "valid",
+      "entityId" : 2
+    }, {
+      "state" : "valid",
+      "entityId" : 3
+    } ],
+    "identities" : [ {
+      "value" : "a",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "a",
+      "creationTs" : 1534695345394,
+      "updateTs" : 1534695345394,
+      "typeId" : "userName",
+      "entityId" : 1
+    }, {
+      "value" : "demo-user",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "demo-user",
+      "creationTs" : 1534695347767,
+      "updateTs" : 1534695347767,
+      "typeId" : "userName",
+      "entityId" : 2
+    }, {
+      "value" : "CN=Demo user",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "cn=demo user",
+      "creationTs" : 1534695347789,
+      "updateTs" : 1534695347789,
+      "typeId" : "x500Name",
+      "entityId" : 2
+    }, {
+      "value" : "oauth-client",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "oauth-client",
+      "creationTs" : 1534695348864,
+      "updateTs" : 1534695348864,
+      "typeId" : "userName",
+      "entityId" : 3
+    }, {
+      "value" : "d8f09064-2dae-48d5-9c83-e30c0b47dc7e",
+      "realm" : "admin",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "d8f09064-2dae-48d5-9c83-e30c0b47dc7e",
+      "creationTs" : 1534695359377,
+      "updateTs" : 1534695359377,
+      "typeId" : "persistent",
+      "entityId" : 1
+    } ],
+    "groups" : [ {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/",
+        "Map" : { }
+      },
+      "attributeStatements" : [ {
+        "resolution" : "skip",
+        "condition" : "true",
+        "fixedAttribute" : {
+          "values" : [ "Regular User" ],
+          "name" : "sys:AuthorizationRole",
+          "groupPath" : "/",
+          "valueSyntax" : "enumeration"
+        }
+      }, {
+        "resolution" : "overwrite",
+        "condition" : "groups contains '/unicore/servers'",
+        "fixedAttribute" : {
+          "values" : [ "Inspector" ],
+          "name" : "sys:AuthorizationRole",
+          "groupPath" : "/",
+          "valueSyntax" : "enumeration"
+        }
+      } ],
+      "attributesClasses" : [ ],
+      "path" : "/"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/D"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/E",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/D/E"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/G",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/D/G"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/F",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/D/F"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/unicore",
+        "Map" : { }
+      },
+      "attributeStatements" : [ {
+        "resolution" : "skip",
+        "condition" : "groups contains '/unicore/users'",
+        "fixedAttribute" : {
+          "values" : [ "user" ],
+          "name" : "urn:unicore:attrType:role",
+          "groupPath" : "/unicore",
+          "valueSyntax" : "enumeration"
+        }
+      }, {
+        "resolution" : "skip",
+        "condition" : "groups contains '/unicore/servers'",
+        "fixedAttribute" : {
+          "values" : [ "server" ],
+          "name" : "urn:unicore:attrType:role",
+          "groupPath" : "/unicore",
+          "valueSyntax" : "enumeration"
+        }
+      } ],
+      "attributesClasses" : [ ],
+      "path" : "/unicore"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/unicore/servers",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/unicore/servers"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/unicore/users",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/unicore/users"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/oauth-clients",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/oauth-clients"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/perm",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "path" : "/D/perm"
+    } ],
+    "groupMembers" : [ {
+      "creationTs" : 1534695345403,
+      "group" : "/",
+      "entityId" : 1
+    }, {
+      "creationTs" : 1534695347769,
+      "group" : "/",
+      "entityId" : 2
+    }, {
+      "creationTs" : 1534695348865,
+      "group" : "/",
+      "entityId" : 3
+    }, {
+      "creationTs" : 1534695349308,
+      "group" : "/oauth-clients",
+      "entityId" : 3
+    } ],
+    "attributes" : [ {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1534695345417,
+      "updateTs" : 1534695345417,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"XWyCHlzlkZxLTDXM4vdNwOhhvu+VhyBtDrcJmSy1O/g2mVwE1bXqjSkPxXYOVcx66vbkBe6kB8dR4esRENLlLQ==\",\"salt\":\"dkplWOqaq65vVZcyVW4VOayFFev6P39mRrmfdxY8Kos=\",\"time\":1534695346201}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1534695346225,
+      "updateTs" : 1534695346225,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    }, {
+      "values" : [ "System Manager" ],
+      "creationTs" : 1534695346236,
+      "updateTs" : 1534695346236,
+      "direct" : true,
+      "name" : "sys:AuthorizationRole",
+      "groupPath" : "/",
+      "valueSyntax" : "enumeration",
+      "entityId" : 1
+    }, {
+      "values" : [ "Default Administrator" ],
+      "creationTs" : 1534695347292,
+      "updateTs" : 1534695347292,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1534695347770,
+      "updateTs" : 1534695347770,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2
+    }, {
+      "values" : [ "Regular User" ],
+      "creationTs" : 1534695347797,
+      "updateTs" : 1534695347797,
+      "direct" : true,
+      "name" : "sys:AuthorizationRole",
+      "groupPath" : "/",
+      "valueSyntax" : "enumeration",
+      "entityId" : 2
+    }, {
+      "values" : [ "{\"value\":\"some@example.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1534695347815,\"sentRequestAmount\":0},\"tags\":[]}" ],
+      "creationTs" : 1534695347839,
+      "updateTs" : 1534695347839,
+      "direct" : true,
+      "name" : "email",
+      "groupPath" : "/",
+      "valueSyntax" : "verifiableEmail",
+      "entityId" : 2
+    }, {
+      "values" : [ "Demo user" ],
+      "creationTs" : 1534695347841,
+      "updateTs" : 1534695347841,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"92jYZWp18e0upZS9Wtz17ddEiBnGCtikXN+BlrxeUPDOSS+/fF/Vgqb6YxCpZ4g4OifIMfNixjo7iKvqrI/Ncg==\",\"salt\":\"RHUQvUbfh7OpjA/lhEXBAB1CiFc0BYSi6NGCTyst3rs=\",\"time\":1534695348404}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1534695348404,
+      "updateTs" : 1534695348404,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1534695348866,
+      "updateTs" : 1534695348866,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"C1Q0LFn9HB+06K+VbU5Ovhaey1rSleuRjGOYHNqQ8Ko7A1YgIRyNvq8vDHIXbzCC0YIT9Ei/4CMbE8EJl3laMw==\",\"salt\":\"pEUHKvVs3T3lnFpwhaAffx7+GLlbuDob59x6ZhAJVgQ=\",\"time\":1534695349302}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1534695349302,
+      "updateTs" : 1534695349302,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3
+    }, {
+      "values" : [ "OAuth client" ],
+      "creationTs" : 1534695349307,
+      "updateTs" : 1534695349307,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3
+    }, {
+      "values" : [ "authorizationCode", "implicit", "openidHybrid" ],
+      "creationTs" : 1534695349317,
+      "updateTs" : 1534695349317,
+      "direct" : true,
+      "name" : "sys:oauth:allowedGrantFlows",
+      "groupPath" : "/oauth-clients",
+      "valueSyntax" : "enumeration",
+      "entityId" : 3
+    }, {
+      "values" : [ "https://localhost:2443/unitygw/oauth2ResponseConsumer" ],
+      "creationTs" : 1534695349320,
+      "updateTs" : 1534695349320,
+      "direct" : true,
+      "name" : "sys:oauth:allowedReturnURI",
+      "groupPath" : "/oauth-clients",
+      "valueSyntax" : "string",
+      "entityId" : 3
+    }, {
+      "values" : [ "2018-09-12T15:30:28" ],
+      "creationTs" : 1534695357875,
+      "updateTs" : 1536759028858,
+      "direct" : true,
+      "name" : "sys:LastAuthentication",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    } ],
+    "attributeClass" : [ {
+      "_updateTS" : 1534695348665,
+      "obj" : {
+        "name" : "Common attributes",
+        "description" : "General purpose attributes, should be enabled for everybody",
+        "allowed" : [ "sys:AuthorizationRole" ],
+        "mandatory" : [ ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ ]
+      }
+    }, {
+      "_updateTS" : 1534695348675,
+      "obj" : {
+        "name" : "Common identification attributes",
+        "description" : "Identification attributes, should be set for everybody to enable common system features",
+        "allowed" : [ "organization", "name", "picture", "email" ],
+        "mandatory" : [ "name", "email" ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ ]
+      }
+    }, {
+      "_updateTS" : 1534695348677,
+      "obj" : {
+        "name" : "UNICORE portal attributes",
+        "description" : "Attributes useful for the UNICORE portal",
+        "allowed" : [ "organization", "name", "picture", "email" ],
+        "mandatory" : [ "name", "email" ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ "Common attributes" ]
+      }
+    } ],
+    "authenticator" : [ {
+      "_updateTS" : 1536758777413,
+      "obj" : {
+        "id" : "pwdWeb1",
+        "typeDescription" : {
+          "id" : "password with web-password",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "password",
+          "verificationMethodDescription" : "Verifies passwords",
+          "retrievalMethod" : "web-password",
+          "retrievalMethodDescription" : "WebPasswordRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"Password\",\n\t\t\t\"pl\": \"Uwierzytelnianie hasłem\"\n\t\t}\n\t},\n\t\"logoURL\" : \"\"\n}\t",
+        "verificatorConfiguration" : null,
+        "localCredentialName" : "sys:password",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758777446,
+      "obj" : {
+        "id" : "pwdRest",
+        "typeDescription" : {
+          "id" : "password with rest-httpbasic",
+          "supportedBinding" : "jaxrs2",
+          "verificationMethod" : "password",
+          "verificationMethodDescription" : "Verifies passwords",
+          "retrievalMethod" : "rest-httpbasic",
+          "retrievalMethodDescription" : "CXFHttpBasicRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalConfiguration" : "",
+        "verificatorConfiguration" : null,
+        "localCredentialName" : "sys:password",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758777482,
+      "obj" : {
+        "id" : "ldapDNWeb",
+        "typeDescription" : {
+          "id" : "ldap-cert with web-certificate",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "ldap-cert",
+          "verificationMethodDescription" : "Resolves certificate subject's information using LDAPv3 protocol",
+          "retrievalMethod" : "web-certificate",
+          "retrievalMethodDescription" : "WebTLSRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"LDAP certificate\",\n\t\t\t\"pl\": \"Certyfikat przez LDAPa\"\n\t\t}\n\t},\n\t\"registrationFormForUnknown\": \"ldapRegistration\"\n}\t",
+        "verificatorConfiguration" : "ldap.servers.1=centos6-unity1\nldap.ports.1=389\n\n#ldap.userDNTemplate=cn={USERNAME},ou=users,dc=unity-example,dc=com\nldap.userDNSearchKey=s1\nldap.bindAs=system\n#ldap.authenticateOnly=true\nldap.systemDN=cn=user1,ou=users,dc=unity-example,dc=com\nldap.systemPassword=user1\nldap.groupsBaseName=dc=unity-example,dc=com\nldap.groups.1.objectClass=posixGroup\nldap.groups.1.memberAttribute=memberUid\nldap.groups.1.nameAttribute=cn\nldap.groups.1.matchByMemberAttribute=cn\n\nldap.translationProfile=ldapProfile\n\n#ldap.additionalSearch.s1.selectedAttributes=uid\nldap.additionalSearch.s1.filter=(description={USERNAME})\nldap.additionalSearch.s1.baseName=dc=unity-example,dc=com\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758777485,
+      "obj" : {
+        "id" : "pamWeb",
+        "typeDescription" : {
+          "id" : "pam with web-password",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "pam",
+          "verificationMethodDescription" : "Verifies passwords using local OS PAM facility",
+          "retrievalMethod" : "web-password",
+          "retrievalMethodDescription" : "WebPasswordRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"Linux password\",\n\t\t\t\"pl\": \"Hasło lokalnego Linuxa\"\n\t\t}\n\t},\n\t\"logoURL\" : \"\"\n}\t",
+        "verificatorConfiguration" : "pam.facility=unity\npam.translationProfile=pam",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758777507,
+      "obj" : {
+        "id" : "oauthWeb-single",
+        "typeDescription" : {
+          "id" : "oauth2 with web-oauth2",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "oauth2",
+          "verificationMethodDescription" : "Handles OAuth2 tokens obtained from remote OAuth providers. Queries about additional user information.",
+          "retrievalMethod" : "web-oauth2",
+          "retrievalMethodDescription" : "OAuth2RetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "",
+        "verificatorConfiguration" : "unity.oauth2.client.providers.local.type=unity\nunity.oauth2.client.providers.local.clientId=oauth-client\nunity.oauth2.client.providers.local.clientSecret=oauth-pass1\nunity.oauth2.client.providers.local.scopes=openid profile\nunity.oauth2.client.providers.local.openIdConnectDiscoveryEndpoint=https://localhost:2443/oauth2/.well-known/openid-configuration\nunity.oauth2.client.providers.local.httpClientTruststore=MAIN\nunity.oauth2.client.providers.local.httpClientHostnameChecking=WARN\n#unity.oauth2.client.providers.local.name=Local Unity authn\n#unity.oauth2.client.providers.local.authEndpoint=https://localhost:2443/oauth2-as/oauth2-authz\n#unity.oauth2.client.providers.local.accessTokenEndpoint=https://localhost:2443/oauth2/token\n#unity.oauth2.client.providers.local.profileEndpoint=https://localhost:2443/oauth2/userinfo\n#unity.oauth2.client.providers.local.scopes=profile openid email\n#unity.oauth2.client.providers.local.openIdConnect=true\n#unity.oauth2.client.providers.local.iconUrl=http://www.unity-idm.eu/site/images/unity-v1-transparent-accent.png\n#unity.oauth2.client.providers.local.iconUrl=file:../common/img/other/logo.png\n#unity.oauth2.client.providers.local.translationProfile=localOAuthProfile\n#unity.oauth2.client.providers.local.registrationFormForUnknown=fb-form\n#unity.oauth2.client.providers.local.enableAccountAssociation=false\n\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778475,
+      "obj" : {
+        "id" : "samlWeb-single",
+        "typeDescription" : {
+          "id" : "saml2 with web-saml2",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "saml2",
+          "verificationMethodDescription" : "Handles SAML assertions obtained from remote IdPs",
+          "retrievalMethod" : "web-saml2",
+          "retrievalMethodDescription" : "WebSAMLRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "",
+        "verificatorConfiguration" : "unity.saml.requester.requesterEntityId=http://unity/as/sp\nunity.saml.requester.metadataPath=metadata1\nunity.saml.requester.sloPath=slo1\nunity.saml.requester.sloRealm=admin\nunity.saml.requester.requesterCredential=MAIN\nunity.saml.requester.acceptedNameFormats.1=urn:oasis:names:tc:SAML:2.0:nameid-format:persistent\nunity.saml.requester.acceptedNameFormats.2=urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\nunity.saml.requester.acceptedNameFormats.3=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n\nunity.saml.requester.remoteIdp.5.name=Unity SAML POST&sign\nunity.saml.requester.remoteIdp.5.address=https://localhost:2443/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.5.binding=HTTP_POST\nunity.saml.requester.remoteIdp.5.redirectLogoutEndpoint=https://localhost:2443/saml-idp/SLO-WEB\n#unity.saml.requester.remoteIdp.5.postLogoutEndpoint=https://localhost:2443/saml-idp/SLO-WEB\nunity.saml.requester.remoteIdp.5.redirectLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\n#unity.saml.requester.remoteIdp.5.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.requester.remoteIdp.5.soapLogoutEndpoint=https://localhost:2443/saml-idp/SLO-SOAP/SingleLogoutService\nunity.saml.requester.remoteIdp.5.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.5.certificate=MAIN\nunity.saml.requester.remoteIdp.5.signRequest=true\nunity.saml.requester.remoteIdp.5.requestedNameFormat=unity:persistent\nunity.saml.requester.remoteIdp.5.translationProfile=localProfile-auto\nunity.saml.requester.remoteIdp.5.registrationFormForUnknown=Test\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778483,
+      "obj" : {
+        "id" : "smsWeb1",
+        "typeDescription" : {
+          "id" : "sms with web-sms",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "sms",
+          "verificationMethodDescription" : "Verifies sms",
+          "retrievalMethod" : "web-sms",
+          "retrievalMethodDescription" : "WebSMSRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"SMS\",\n\t\t\t\"pl\": \"Uwierzytelnianie sms\"\n\t\t}\n\t},\n\t\"logoURL\" : \"\"\n}\t",
+        "verificatorConfiguration" : null,
+        "localCredentialName" : "sys:sms",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778494,
+      "obj" : {
+        "id" : "pwdCompositeWeb",
+        "typeDescription" : {
+          "id" : "composite-password with web-password",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "composite-password",
+          "verificationMethodDescription" : "Verifies local or remote password",
+          "retrievalMethod" : "web-password",
+          "retrievalMethodDescription" : "WebPasswordRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"Composite password\",\n\t\t\t\"pl\": \"Hasło\"\n\t\t}\n\t},\n\t\"logoURL\" : \"\"\n}\t",
+        "verificatorConfiguration" : "compositePassword.verificators.1.verificatorType=password\ncompositePassword.verificators.1.verificatorCredential=sys:password\n\ncompositePassword.verificators.2.verificatorType=password\ncompositePassword.verificators.2.verificatorCredential=customPassword\n\ncompositePassword.verificators.3.verificatorType=pam\ncompositePassword.verificators.3.verificatorConfig=src/test/resources/pam.properties\n\ncompositePassword.verificators.4.verificatorType=ldap\ncompositePassword.verificators.4.verificatorConfig=src/test/resources/ldap.properties",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778496,
+      "obj" : {
+        "id" : "certWeb",
+        "typeDescription" : {
+          "id" : "certificate with web-certificate",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "certificate",
+          "verificationMethodDescription" : "Verifies certificates",
+          "retrievalMethod" : "web-certificate",
+          "retrievalMethodDescription" : "WebTLSRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"Certificate authentication\",\n\t\t\t\"pl\": \"Uwierzytelnianie certyfikatem\"\n\t\t}\n\t},\n\t\"logoURL\" : \"\"\n}\t",
+        "verificatorConfiguration" : null,
+        "localCredentialName" : "certificate credential",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778509,
+      "obj" : {
+        "id" : "certWS",
+        "typeDescription" : {
+          "id" : "certificate with cxf-certificate",
+          "supportedBinding" : "webservice-cxf2",
+          "verificationMethod" : "certificate",
+          "verificationMethodDescription" : "Verifies certificates",
+          "retrievalMethod" : "cxf-certificate",
+          "retrievalMethodDescription" : "CXFTLSRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalConfiguration" : "",
+        "verificatorConfiguration" : null,
+        "localCredentialName" : "certificate credential",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778518,
+      "obj" : {
+        "id" : "pwdWS",
+        "typeDescription" : {
+          "id" : "password with cxf-httpbasic",
+          "supportedBinding" : "webservice-cxf2",
+          "verificationMethod" : "password",
+          "verificationMethodDescription" : "Verifies passwords",
+          "retrievalMethod" : "cxf-httpbasic",
+          "retrievalMethodDescription" : "CXFHttpBasicRetrievalFactory.desc",
+          "local" : true
+        },
+        "retrievalConfiguration" : "",
+        "verificatorConfiguration" : null,
+        "localCredentialName" : "sys:password",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778520,
+      "obj" : {
+        "id" : "ldapWeb",
+        "typeDescription" : {
+          "id" : "ldap with web-password",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "ldap",
+          "verificationMethodDescription" : "Verifies password using LDAPv3 protocol",
+          "retrievalMethod" : "web-password",
+          "retrievalMethodDescription" : "WebPasswordRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "{\n\t\"i18nName\" : {\n\t\t\"Map\": {\n\t\t\t\"en\": \"LDAP password\",\n\t\t\t\"pl\": \"Uwierzytelnianie hasłem LDAP\"\n\t\t}\n\t},\n\t\"registrationFormForUnknown\": \"ldapRegistration\"\n}\t",
+        "verificatorConfiguration" : "ldap.servers.1=localhost\nldap.ports.1=389\n\nldap.userDNTemplate=cn={USERNAME},ou=People,dc=srv,dc=world\n#ldap.userDNSearchKey=s1\nldap.bindAs=system\n#ldap.authenticateOnly=true\nldap.systemDN=cn=Manager,dc=srv,dc=world\nldap.systemPassword=ldap-test\n#ldap.groupsBaseName=ou=People,dc=srv,dc=world\n#ldap.groups.1.objectClass=posixGroup\n#ldap.groups.1.memberAttribute=memberUid\n#ldap.groups.1.nameAttribute=cn\n#ldap.groups.1.matchByMemberAttribute=cn\n\nldap.translationProfile=ldapProfile\n\n#ldap.additionalSearch.s1.selectedAttributes=uid\n#ldap.additionalSearch.s1.filter=(sn={USERNAME})\n#ldap.additionalSearch.s1.baseName=dc=unity-example,dc=com\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778529,
+      "obj" : {
+        "id" : "samlWeb",
+        "typeDescription" : {
+          "id" : "saml2 with web-saml2",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "saml2",
+          "verificationMethodDescription" : "Handles SAML assertions obtained from remote IdPs",
+          "retrievalMethod" : "web-saml2",
+          "retrievalMethodDescription" : "WebSAMLRetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "",
+        "verificatorConfiguration" : "\n\nunity.saml.requester.requesterEntityId=http://unity/as/sp\nunity.saml.requester.metadataPath=metadata1\nunity.saml.requester.sloPath=slo1\nunity.saml.requester.sloRealm=admin\nunity.saml.requester.requesterCredential=MAIN\nunity.saml.requester.acceptedNameFormats.1=urn:oasis:names:tc:SAML:2.0:nameid-format:persistent\nunity.saml.requester.acceptedNameFormats.2=urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\nunity.saml.requester.acceptedNameFormats.3=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n\n#unity.saml.requester.requireSignedAssertion=true\n\n#unity.saml.requester.metadataSource.swiss.url=http://metadata.aai.switch.ch/metadata.switchaai.xml\n#unity.saml.requester.metadataSource.swiss.perMetadataTranslationProfile=samlProfile\n#unity.saml.requester.metadataSource.dfn.url=https://www.aai.dfn.de/fileadmin/metadata/DFN-AAI-metadata.xml\n#unity.saml.requester.metadataSource.dfn.perMetadataTranslationProfile=samlProfile\n#unity.saml.requester.metadataSource.edugain.url=http://mds.edugain.org/\n#unity.saml.requester.metadataSource.edugain.perMetadataTranslationProfile=samlProfile\n\n#unity.saml.requester.metadataSource.unity.url=http://localhost/unity-as-idp-meta.xml\n#unity.saml.requester.metadataSource.unity.refreshInterval=10\n#unity.saml.requester.metadataSource.unity.perMetadataTranslationProfile=localProfile\n\nunity.saml.requester.remoteIdp.5.name=Unity SAML POST&sign\nunity.saml.requester.remoteIdp.5.logoURI=file:../common/img/other/logo-hand.png\nunity.saml.requester.remoteIdp.5.address=https://localhost:2443/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.5.binding=HTTP_POST\nunity.saml.requester.remoteIdp.5.redirectLogoutEndpoint=https://localhost:2443/saml-idp/SLO-WEB\n#unity.saml.requester.remoteIdp.5.postLogoutEndpoint=https://localhost:2443/saml-idp/SLO-WEB\nunity.saml.requester.remoteIdp.5.redirectLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\n#unity.saml.requester.remoteIdp.5.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.requester.remoteIdp.5.soapLogoutEndpoint=https://localhost:2443/saml-idp/SLO-SOAP/SingleLogoutService\nunity.saml.requester.remoteIdp.5.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.5.certificate=MAIN\nunity.saml.requester.remoteIdp.5.signRequest=true\nunity.saml.requester.remoteIdp.5.requestedNameFormat=unity:persistent\nunity.saml.requester.remoteIdp.5.translationProfile=localProfile-auto\nunity.saml.requester.remoteIdp.5.registrationFormForUnknown=Test\n\nunity.saml.requester.remoteIdp.6.name=Unity SAML POST&NOsign\nunity.saml.requester.remoteIdp.6.logoURI=file:../common/img/other/logo-hand.png\nunity.saml.requester.remoteIdp.6.address=https://localhost:2443/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.6.binding=HTTP_POST\nunity.saml.requester.remoteIdp.6.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.6.certificate=MAIN\nunity.saml.requester.remoteIdp.6.signRequest=false\nunity.saml.requester.remoteIdp.6.requestedNameFormat=unity:persistent\nunity.saml.requester.remoteIdp.6.translationProfile=localProfile\nunity.saml.requester.remoteIdp.6.enableAccountAssociation=false\n\nunity.saml.requester.remoteIdp.7.name=Unity SAML HTTPRedirect\nunity.saml.requester.remoteIdp.7.logoURI=file:../common/img/other/logo-hand.png\nunity.saml.requester.remoteIdp.7.address=https://localhost:2443/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.7.binding=HTTP_REDIRECT\nunity.saml.requester.remoteIdp.7.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.7.certificate=MAIN\nunity.saml.requester.remoteIdp.7.signRequest=false\nunity.saml.requester.remoteIdp.7.requestedNameFormat=unity:persistent\nunity.saml.requester.remoteIdp.7.translationProfile=localProfile\nunity.saml.requester.remoteIdp.7.redirectLogoutEndpoint=https://localhost:2443/saml-idp/SLO-WEB\nunity.saml.requester.remoteIdp.7.redirectLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\n\nunity.saml.requester.remoteIdp.8.name=Unity UNICORE\nunity.saml.requester.remoteIdp.8.logoURI=file:../common/img/other/logo-hand.png\nunity.saml.requester.remoteIdp.8.address=https://localhost:2443/unicore-idp/saml2unicoreIdp-web\nunity.saml.requester.remoteIdp.8.binding=HTTP_POST\nunity.saml.requester.remoteIdp.8.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.8.certificate=MAIN\nunity.saml.requester.remoteIdp.8.signRequest=false\nunity.saml.requester.remoteIdp.8.requestedNameFormat=urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName\nunity.saml.requester.remoteIdp.8.translationProfile=localProfile\n\n\n#unity.saml.requester.remoteIdp.1.name=Simple SAMLPHP with HTTP Redirect\n#unity.saml.requester.remoteIdp.1.address=http://unity-2.icm.edu.pl:9090/simplesaml/saml2/idp/SSOService.php\n#unity.saml.requester.remoteIdp.1.binding=HTTP_REDIRECT\n#unity.saml.requester.remoteIdp.1.samlId=http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php\n#unity.saml.requester.remoteIdp.1.certificate=SIMPLESAMLPHP1\n#unity.saml.requester.remoteIdp.1.groupMembershipAttribute=urn:oid:1.3.6.1.4.1.5923.1.1.1.1\n#unity.saml.requester.remoteIdp.1.translationProfile=samlProfile\n#unity.saml.requester.remoteIdp.1.registrationFormForUnknown=Form1\n\n#unity.saml.requester.remoteIdp.2.name=Demo Shibboleth IdP\n#unity.saml.requester.remoteIdp.2.address=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/Redirect/SSO\n#unity.saml.requester.remoteIdp.2.binding=HTTP_REDIRECT\n#unity.saml.requester.remoteIdp.2.samlId=https://unity-2.grid.icm.edu.pl/idp/shibboleth\n#unity.saml.requester.remoteIdp.2.certificate=DEMO_SHIB_IDP\n#unity.saml.requester.remoteIdp.2.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n#unity.saml.requester.remoteIdp.2.translationProfile=samlProfile\n#unity.saml.requester.remoteIdp.2.redirectLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/Redirect/SLO\n#unity.saml.requester.remoteIdp.2.postLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/POST/SLO\n#unity.saml.requester.remoteIdp.2.soapLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9091/idp/profile/SAML2/SOAP/SLO\n\n#unity.saml.requester.remoteIdp.3.name=Shibboleth 2.4.0 with HTTP POST\n#unity.saml.requester.remoteIdp.3.address=http://centos6-unity1:7070/idp/profile/SAML2/POST/SSO\n#unity.saml.requester.remoteIdp.3.binding=HTTP_POST\n#unity.saml.requester.remoteIdp.3.samlId=https://centos6-unity1/idp/shibboleth\n#unity.saml.requester.remoteIdp.3.certificate=SHIB_IDP\n#unity.saml.requester.remoteIdp.3.translationProfile=samlProfile\n\n#unity.saml.requester.remoteIdp.4.name=Shibboleth 2.4.0 with HTTP POST and request signing\n#unity.saml.requester.remoteIdp.4.address=http://centos6-unity1:7070/idp/profile/SAML2/POST/SSO\n#unity.saml.requester.remoteIdp.4.binding=HTTP_POST\n#unity.saml.requester.remoteIdp.4.samlId=https://centos6-unity1/idp/shibboleth\n#unity.saml.requester.remoteIdp.4.certificate=SHIB_IDP\n#unity.saml.requester.remoteIdp.4.signRequest=true\n#unity.saml.requester.remoteIdp.4.translationProfile=samlProfile",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778539,
+      "obj" : {
+        "id" : "oauthWeb",
+        "typeDescription" : {
+          "id" : "oauth2 with web-oauth2",
+          "supportedBinding" : "web-vaadin7",
+          "verificationMethod" : "oauth2",
+          "verificationMethodDescription" : "Handles OAuth2 tokens obtained from remote OAuth providers. Queries about additional user information.",
+          "retrievalMethod" : "web-oauth2",
+          "retrievalMethodDescription" : "OAuth2RetrievalFactory.desc",
+          "local" : false
+        },
+        "retrievalConfiguration" : "",
+        "verificatorConfiguration" : "unity.oauth2.client.providers.qbo.type=intuit\nunity.oauth2.client.providers.qbo.clientId=Q08pyyx9XaduOoslcxpqxaCYgKkeo4dsIT23hZ7GBgvcZOwoQk\nunity.oauth2.client.providers.qbo.clientSecret=lbE7WzXniFpLvuwtvHSRZKuonfoMnVlZOVCCUll5\nunity.oauth2.client.providers.qbo.openIdConnectDiscoveryEndpoint=https://developer.api.intuit.com/.well-known/openid_sandbox_configuration\n\nunity.oauth2.client.providers.google.type=google\nunity.oauth2.client.providers.google.clientId=243303058152-d74cglaca5emp298i1vqafbqr8nsvja3.apps.googleusercontent.com\nunity.oauth2.client.providers.google.clientSecret=\n#unity.oauth2.client.providers.google.scopes=profile openid email\n#unity.oauth2.client.providers.google.translationProfile=googleProfile\n\n\nunity.oauth2.client.providers.fb.type=facebook\nunity.oauth2.client.providers.fb.clientId=103093003648479\nunity.oauth2.client.providers.fb.clientSecret=df0729e2ee13a0b26b8388074d0ac282\n#unity.oauth2.client.providers.fb.registrationFormForUnknown=fb-form\n#unity.oauth2.client.providers.fb.scopes=\n#unity.oauth2.client.providers.fb.translationProfile=facebookProfile\n\nunity.oauth2.client.providers.gh.type=github\nunity.oauth2.client.providers.gh.clientId=\nunity.oauth2.client.providers.gh.clientSecret=\n#unity.oauth2.client.providers.gh.scopes=\nunity.oauth2.client.providers.gh.translationProfile=githubProfile\n\nunity.oauth2.client.providers.linkedin.type=linkedin\nunity.oauth2.client.providers.linkedin.clientId=78l6q04ypj65lx\nunity.oauth2.client.providers.linkedin.clientSecret=RdHzacoRz97JJi4g\n#unity.oauth2.client.providers.gh.scopes=\nunity.oauth2.client.providers.linkedin.translationProfile=githubProfile\n\n\nunity.oauth2.client.providers.orcid.type=orcid\nunity.oauth2.client.providers.orcid.clientId=APP-VOPPJ2MJ9L7C7JVJ\nunity.oauth2.client.providers.orcid.clientSecret=f4e4847a-ea6f-488c-b54d-5b1fc27fe738\nunity.oauth2.client.providers.orcid.translationProfile=orcidProfile\nunity.oauth2.client.providers.orcid.registrationFormForUnknown=form\n\nunity.oauth2.client.providers.dropbox.type=dropbox\nunity.oauth2.client.providers.dropbox.clientId=\nunity.oauth2.client.providers.dropbox.clientSecret=\n\n#unity.oauth2.client.providers.ms.type=microsoft\n#unity.oauth2.client.providers.ms.clientId=\n#unity.oauth2.client.providers.ms.clientSecret=\n\nunity.oauth2.client.providers.ms-az.type=microsoftAzureV2\nunity.oauth2.client.providers.ms-az.clientId=2370ce70-d776-4fdc-8303-9cd9a1e638c4\nunity.oauth2.client.providers.ms-az.clientSecret=ncxjuLDI9357#gbZKVQ1}:]\n\nunity.oauth2.client.providers.local.type=unity\nunity.oauth2.client.providers.local.clientId=oauth-client\nunity.oauth2.client.providers.local.clientSecret=oauth-pass1\nunity.oauth2.client.providers.local.scopes=openid profile\nunity.oauth2.client.providers.local.openIdConnectDiscoveryEndpoint=https://localhost:2443/oauth2/.well-known/openid-configuration\nunity.oauth2.client.providers.local.httpClientTruststore=MAIN\nunity.oauth2.client.providers.local.httpClientHostnameChecking=WARN\n#unity.oauth2.client.providers.local.name=Local Unity authn\n#unity.oauth2.client.providers.local.authEndpoint=https://localhost:2443/oauth2-as/oauth2-authz\n#unity.oauth2.client.providers.local.accessTokenEndpoint=https://localhost:2443/oauth2/token\n#unity.oauth2.client.providers.local.profileEndpoint=https://localhost:2443/oauth2/userinfo\n#unity.oauth2.client.providers.local.scopes=profile openid email\n#unity.oauth2.client.providers.local.openIdConnect=true\n#unity.oauth2.client.providers.local.iconUrl=http://www.unity-idm.eu/site/images/unity-v1-transparent-accent.png\n#unity.oauth2.client.providers.local.iconUrl=file:../common/img/other/logo.png\nunity.oauth2.client.providers.local.translationProfile=localProfile-auto\n#unity.oauth2.client.providers.local.registrationFormForUnknown=fb-form\n#unity.oauth2.client.providers.local.enableAccountAssociation=false\n\n\n\n#unity.oauth2.client.providers.linkedin.type=custom\n#unity.oauth2.client.providers.linkedin.name=Linked in\n#unity.oauth2.client.providers.linkedin.clientAuthenticationMode=secretPost\n#unity.oauth2.client.providers.linkedin.authEndpoint=https://www.linkedin.com/uas/oauth2/authorization\n#unity.oauth2.client.providers.linkedin.accessTokenEndpoint=https://www.linkedin.com/uas/oauth2/accessToken\n#unity.oauth2.client.providers.linkedin.profileEndpoint=https://api.linkedin.com/v1/people/~?format=json\n#unity.oauth2.client.providers.linkedin.clientId=7871q1e4qqoz4q\n#unity.oauth2.client.providers.linkedin.clientSecret=\n#unity.oauth2.client.providers.linkedin.scopes=r_basicprofile\n#unity.oauth2.client.providers.linkedin.iconUrl=https://static.licdn.com/scds/common/u/images/logos/linkedin/logo_in_nav_44x36.png\n#unity.oauth2.client.providers.linkedin.translationProfile=localOAuthProfile\n\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    } ],
+    "credential" : [ {
+      "_updateTS" : 1534695346245,
+      "obj" : {
+        "typeId" : "password",
+        "name" : "customPassword",
+        "readOnly" : false,
+        "configuration" : "{\n\t\"minScore\": 7,\n\t\"minLength\": 1,\n\t\"historySize\": 1,\n\t\"minClassesNum\": 1,\n\t\"denySequences\": false,\n\t\"maxAge\": 30758400000,\n\t\"scryptParams\": {\n\t\t\"workFactor\":17,\n\t\t\"blockSize\":8,\n\t\t\"parallelization\":1,\n\t\t\"length\":64},\n\t\"resetSettings\": {\n\t\t\"enable\": true,\n\t\t\"codeLength\": 3,\n\t\t\"confirmationMode\": \"RequireMobile\",\n\t\t\"requireSecurityQuestion\": false,\n\t\t\"questions\": [],\n\t\t\"mobileSecurityCodeMsgTemplate\": \"MobilePasswordResetCode\"\n\t}\n}",
+        "displayedName" : {
+          "DefaultValue" : "customPassword",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Regular password",
+          "Map" : { }
+        }
+      }
+    }, {
+      "_updateTS" : 1534695346255,
+      "obj" : {
+        "typeId" : "certificate",
+        "name" : "certificate credential",
+        "readOnly" : false,
+        "configuration" : "",
+        "displayedName" : {
+          "DefaultValue" : "certificate credential",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Dummy credential allowing for certificate login",
+          "Map" : { }
+        }
+      }
+    } ],
+    "credentialRequirement" : [ ],
+    "messageTemplate" : [ {
+      "_updateTS" : 1534695346319,
+      "obj" : {
+        "name" : "registrationRequestRejected",
+        "description" : "",
+        "consumer" : "RegistrationRequestRejected",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request rejected",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was rejected.</p>\n                        <p>${publicComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346324,
+      "obj" : {
+        "name" : "enquiryFilled",
+        "description" : "",
+        "consumer" : "EnquiryFilled",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Enquiry response submitted",
+          "body" : "${include:master-header}\n                        <p>Dear Admin,</p>\n                        <p>A new enquiry response was submitted by ${user} to the enquiry form ${formName}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346325,
+      "obj" : {
+        "name" : "master-header",
+        "description" : "",
+        "consumer" : "Generic",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "<!doctype html>\n<html>\n  <head>\n    <meta name=\"viewport\" content=\"width=device-width\" />\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <style>\n      /* -------------------------------------\n          GLOBAL RESETS\n      ------------------------------------- */\n      img {\n        border: none;\n        -ms-interpolation-mode: bicubic;\n        max-width: 100%; }\n\n      body {\n        background-color: #f6f6f6;\n        font-family: sans-serif;\n        -webkit-font-smoothing: antialiased;\n        font-size: 14px;\n        line-height: 1.4;\n        margin: 0;\n        padding: 0;\n        -ms-text-size-adjust: 100%;\n        -webkit-text-size-adjust: 100%; }\n\n      table {\n        border-collapse: separate;\n        mso-table-lspace: 0pt;\n        mso-table-rspace: 0pt;\n        width: 100%; }\n        table td {\n          font-family: sans-serif;\n          font-size: 14px;\n          vertical-align: top; }\n\n      /* -------------------------------------\n          BODY & CONTAINER\n      ------------------------------------- */\n\n      .body {\n        background-color: #f6f6f6;\n        width: 100%; }\n\n      /* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */\n      .container {\n        display: block;\n        Margin: 0 auto !important;\n        /* makes it centered */\n        max-width: 580px;\n        padding: 10px;\n        width: 580px; }\n\n      /* This should also be a block element, so that it will fill 100% of the .container */\n      .content {\n        box-sizing: border-box;\n        display: block;\n        Margin: 0 auto;\n        max-width: 580px;\n        padding: 10px; }\n\n      /* -------------------------------------\n          HEADER, FOOTER, MAIN\n      ------------------------------------- */\n      .main {\n        background: #ffffff;\n        border-radius: 3px;\n        width: 100%; }\n\n      .wrapper {\n        box-sizing: border-box;\n        padding: 20px; }\n\n      .content-block {\n        padding-bottom: 10px;\n        padding-top: 10px;\n      }\n\n      .footer {\n        clear: both;\n        Margin-top: 10px;\n        text-align: center;\n        width: 100%; }\n        .footer td,\n        .footer p,\n        .footer span,\n        .footer a {\n          color: #999999;\n          font-size: 12px;\n          text-align: center; }\n\n      /* -------------------------------------\n          TYPOGRAPHY\n      ------------------------------------- */\n      h1,\n      h2,\n      h3,\n      h4 {\n        color: #000000;\n        font-family: sans-serif;\n        font-weight: 400;\n        line-height: 1.4;\n        margin: 0;\n        Margin-bottom: 30px; }\n\n      h1 {\n        font-size: 35px;\n        font-weight: 300;\n        text-align: center;\n        text-transform: capitalize; }\n\n      p,\n      ul,\n      ol {\n        font-family: sans-serif;\n        font-size: 14px;\n        font-weight: normal;\n        margin: 0;\n        Margin-bottom: 15px; }\n        p li,\n        ul li,\n        ol li {\n          list-style-position: inside;\n          margin-left: 5px; }\n\n      a {\n        color: #3498db;\n        text-decoration: underline; }\n\n      /* -------------------------------------\n          BUTTONS\n      ------------------------------------- */\n      .btn {\n        box-sizing: border-box;\n        width: 100%; }\n        .btn > tbody > tr > td {\n          padding-bottom: 15px; }\n        .btn table {\n          width: auto; }\n        .btn table td {\n          background-color: #ffffff;\n          border-radius: 5px;\n          text-align: center; }\n        .btn a {\n          background-color: #ffffff;\n          border: solid 1px #3498db;\n          border-radius: 5px;\n          box-sizing: border-box;\n          color: #3498db;\n          cursor: pointer;\n          display: inline-block;\n          font-size: 14px;\n          font-weight: bold;\n          margin: 0;\n          padding: 12px 25px;\n          text-decoration: none;\n          text-transform: capitalize; }\n\n      .btn-primary table td {\n        background-color: #3498db; }\n\n      .btn-primary a {\n        background-color: #3498db;\n        border-color: #3498db;\n        color: #ffffff; }\n\n      /* -------------------------------------\n          OTHER STYLES THAT MIGHT BE USEFUL\n      ------------------------------------- */\n      .last {\n        margin-bottom: 0; }\n\n      .first {\n        margin-top: 0; }\n\n      .align-center {\n        text-align: center; }\n\n      .align-right {\n        text-align: right; }\n\n      .align-left {\n        text-align: left; }\n\n      .clear {\n        clear: both; }\n\n      .mt0 {\n        margin-top: 0; }\n\n      .mb0 {\n        margin-bottom: 0; }\n\n      .powered-by a {\n        text-decoration: none; }\n\n      hr {\n        border: 0;\n        border-bottom: 1px solid #f6f6f6;\n        Margin: 20px 0; }\n\n      .logo {\n        padding: 10px 0 10px 0;\n        background-color: #5596c2;\n      }\n\n      /* -------------------------------------\n          RESPONSIVE AND MOBILE FRIENDLY STYLES\n      ------------------------------------- */\n      @media only screen and (max-width: 620px) {\n        table[class=body] h1 {\n          font-size: 28px !important;\n          margin-bottom: 10px !important; }\n        table[class=body] p,\n        table[class=body] ul,\n        table[class=body] ol,\n        table[class=body] td,\n        table[class=body] span,\n        table[class=body] a {\n          font-size: 16px !important; }\n        table[class=body] .wrapper,\n        table[class=body] .article {\n          padding: 10px !important; }\n        table[class=body] .content {\n          padding: 0 !important; }\n        table[class=body] .container {\n          padding: 0 !important;\n          width: 100% !important; }\n        table[class=body] .main {\n          border-left-width: 0 !important;\n          border-radius: 0 !important;\n          border-right-width: 0 !important; }\n        table[class=body] .btn table {\n          width: 100% !important; }\n        table[class=body] .btn a {\n          width: 100% !important; }\n        table[class=body] .img-responsive {\n          height: auto !important;\n          max-width: 100% !important;\n          width: auto !important; }}\n\n      /* -------------------------------------\n          PRESERVE THESE STYLES IN THE HEAD\n      ------------------------------------- */\n      @media all {\n        .ExternalClass {\n          width: 100%; }\n        .ExternalClass,\n        .ExternalClass p,\n        .ExternalClass span,\n        .ExternalClass font,\n        .ExternalClass td,\n        .ExternalClass div {\n          line-height: 100%; }\n        .apple-link a {\n          color: inherit !important;\n          font-family: inherit !important;\n          font-size: inherit !important;\n          font-weight: inherit !important;\n          line-height: inherit !important;\n          text-decoration: none !important; }\n        .btn-primary table td:hover {\n          background-color: #34495e !important; }\n        .btn-primary a:hover {\n          background-color: #34495e !important;\n          border-color: #34495e !important; } }\n\n    </style>\n  </head>\n\n  <body class=\"\">\n    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"body\">\n      <tr>\n        <td>&nbsp;</td>\n        <td class=\"container\">\n          <div class=\"content\">\n\n            <!-- START CENTERED WHITE CONTAINER -->\n            <table class=\"main\">\n              <td align=\"center\" class=\"logo\">\n               <img src=\"http://www.unity-idm.eu/wp-content/uploads/2016/07/unity_white-1.png\" alt=\"Unity\" style=\"display: block; max-height: 60px; height:40%\" />\n              </td>\n              <!-- START MAIN CONTENT AREA -->\n              <tr>\n                <td class=\"wrapper\">\n                  <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                    <tr>\n                      <td>\n"
+        } ],
+        "notificationChannel" : ""
+      }
+    }, {
+      "_updateTS" : 1534695346328,
+      "obj" : {
+        "name" : "mobileNumberConfirmation",
+        "description" : "",
+        "consumer" : "MobileNumberConfirmation",
+        "type" : "PLAIN",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "UNITY mobile number confirmation request. Verification Code: ${confirmationCode}"
+        } ],
+        "notificationChannel" : "default_sms"
+      }
+    }, {
+      "_updateTS" : 1534695346335,
+      "obj" : {
+        "name" : "accountRemoved",
+        "description" : "",
+        "consumer" : "UserNotification",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Account removed",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>Your account was removed from the service.</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346339,
+      "obj" : {
+        "name" : "registrationRequestUpdated",
+        "description" : "",
+        "consumer" : "RegistrationRequestUpdated",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request update",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was updated.</p>\n                        <p>${publicComment}</p>\n                        <p>${internalComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346344,
+      "obj" : {
+        "name" : "newEnquiry",
+        "description" : "",
+        "consumer" : "NewEnquiry",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "User enquiry",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>You are requested to fill an enquiry ${formName}.</p>\n                        <p>The enquiry is available after login into your regular account:</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${url}\" target=\"_blank\">Open enquiry</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346349,
+      "obj" : {
+        "name" : "invitationWithCode",
+        "description" : "",
+        "consumer" : "InvitationWithCode",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration invitation",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>You are invited to register with the ${formName}.</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${url}\" target=\"_blank\">Register</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n                        <p>If you don't want to register please ignore this message.</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346354,
+      "obj" : {
+        "name" : "emailPasswordResetCode",
+        "description" : "",
+        "consumer" : "EmailPasswordResetCode",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Credential reset code",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>Somebody, hopefully you, requested to reset your credential in the UNITY service.</p>\n                        <p>If you didn't requested the credential reset simply ignore this message.</p>\n                        <p>If you did, then use the following code in the credential reset window:</p>\n                        <p>${code}</p>\n ${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346358,
+      "obj" : {
+        "name" : "registrationRequestAccepted",
+        "description" : "",
+        "consumer" : "RegistrationRequestAccepted",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request accepted",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was accepted.</p>\n                        <p>${publicComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346360,
+      "obj" : {
+        "name" : "mobilePasswordResetCode",
+        "description" : "",
+        "consumer" : "MobilePasswordResetCode",
+        "type" : "PLAIN",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "Please use the code ${code} to reset your Unity password. If you did not request your password to be reset, ignore this message."
+        } ],
+        "notificationChannel" : "default_sms"
+      }
+    }, {
+      "_updateTS" : 1534695346366,
+      "obj" : {
+        "name" : "emailConfirmation",
+        "description" : "",
+        "consumer" : "EmailConfirmation",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "UNITY e-mail confirmation request",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>Your e-mail address was entered in the Unity service and must be validated.</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${confirmationLink}\" target=\"_blank\">Confirm Your e-mail</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n                        <p>If you didn't requested e-mail confirmation please ignore this message.</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346369,
+      "obj" : {
+        "name" : "smsAuthn",
+        "description" : "",
+        "consumer" : "SMSAuthn",
+        "type" : "PLAIN",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "Your UNITY authentication code: ${code}"
+        } ],
+        "notificationChannel" : "default_sms"
+      }
+    }, {
+      "_updateTS" : 1534695346373,
+      "obj" : {
+        "name" : "registrationRequestSubmitted",
+        "description" : "",
+        "consumer" : "RegistrationRequestSubmitted",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "New registration request",
+          "body" : "${include:master-header}\n                        <p>Dear Admin,</p>\n                        <p>A new registration request \"${requestId}\" was submitted to the registration form \"${formName}\".</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1534695346375,
+      "obj" : {
+        "name" : "master-footer",
+        "description" : "",
+        "consumer" : "Generic",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "                      </td>\n                    </tr>\n                  </table>\n                </td>\n              </tr>\n\n            <!-- END MAIN CONTENT AREA -->\n            </table>\n\n            <!-- START FOOTER -->\n            <div class=\"footer\">\n              <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                <tr>\n                  <td class=\"content-block powered-by\">\n                    Powered by <a href=\"http://www.unity-idm.eu/\">Unity IdM</a>.\n                  </td>\n                </tr>\n              </table>\n            </div>\n            <!-- END FOOTER -->\n\n          <!-- END CENTERED WHITE CONTAINER -->\n          </div>\n        </td>\n        <td>&nbsp;</td>\n      </tr>\n    </table>\n  </body>\n</html>\n"
+        } ],
+        "notificationChannel" : ""
+      }
+    } ],
+    "notificationChannel" : [ {
+      "_updateTS" : 1536758775593,
+      "obj" : {
+        "description" : "Default email channel",
+        "name" : "default_email",
+        "configuration" : "# User name which will be used for From: field of the email. It is also used  \n# as SMTP envelope return address if not overriden below.\nmail.from=XX\n\n# The SMTP server to connect to.\nmail.smtp.host=XX\n\n# If true, enables the use of the STARTTLS command (if supported by the server) \n# to switch the connection to a TLS-protected connection before issuing any login commands.\n# \n# IMPORTANT! SMTP server's certificate must be trusted to establish the connection.\n# The software will use the same truststore that is defined in main configuration of the server\n# so add SMTP server's CA certificate to it. Otherwise you can turn off the server's certificate verification\n# below, but you expose yourself for the MITM attacks. \n# Defaults to false.\nmail.smtp.starttls.enable=true\n\n# Relevant only if starttls is enabled. Turns off SMTP server certificate verification.\nmailx.smtp.trustAll=true\n\n# Email address to use for SMTP MAIL command. This sets the envelope return address. \n# Defaults to mail.from defined above.\n#mail.smtp.from=\n\n# If true, attempt to authenticate the user using the AUTH command. Defaults to false.\nmail.smtp.auth=true\n\n# User and password used when authentication is enabled above.\nmailx.smtp.auth.username=XX\nmailx.smtp.auth.password=XX\n\n# I/O timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.timeoutSocket=15000\n\n# Socket connection timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.connectiontimeout=15000\n\n# The SMTP server port to connect to. Defaults to 25.\nmail.smtp.port=587\n\n# Set this property to true if you want to see debug messages (are printed to the\n# stderr). Default is false.\n#mail.debug=true\n\n# For other (less frequently used) properties of email client configuration\n# take a look at  \n# https://javamail.java.net/nonav/docs/api/\n# and other documentation of javax-mail package.\n",
+        "facilityId" : "EMAIL"
+      }
+    }, {
+      "_updateTS" : 1536758775601,
+      "obj" : {
+        "description" : "Default SMS channel",
+        "name" : "default_sms",
+        "configuration" : "unity.sms.provider=clickatell\nunity.sms.clickatell.apiKey=\nunity.sms.clickatell.charset=ASCII",
+        "facilityId" : "SMS"
+      }
+    } ],
+    "authenticationRealm" : [ {
+      "_updateTS" : 1536758778570,
+      "obj" : {
+        "description" : null,
+        "name" : "main",
+        "rememberMePolicy" : "allowFor2ndFactor",
+        "allowForRememberMeDays" : 3,
+        "blockAfterUnsuccessfulLogins" : 5,
+        "blockFor" : 8,
+        "maxInactivity" : 600
+      }
+    }, {
+      "_updateTS" : 1536758778570,
+      "obj" : {
+        "description" : null,
+        "name" : "admin",
+        "rememberMePolicy" : "allowFor2ndFactor",
+        "allowForRememberMeDays" : 3,
+        "blockAfterUnsuccessfulLogins" : 5,
+        "blockFor" : 8,
+        "maxInactivity" : 600
+      }
+    }, {
+      "_updateTS" : 1536758778571,
+      "obj" : {
+        "description" : null,
+        "name" : "home",
+        "rememberMePolicy" : "allowForWholeAuthn",
+        "allowForRememberMeDays" : 6,
+        "blockAfterUnsuccessfulLogins" : 5,
+        "blockFor" : 8,
+        "maxInactivity" : 600
+      }
+    } ],
+    "inputTranslationProfile" : [ {
+      "_updateTS" : 1536758777344,
+      "obj" : {
+        "ver" : "2",
+        "name" : "facebookProfile",
+        "description" : "For translation of FB authn",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "attr['id']", "sys:all", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/A'" ]
+          }
+        } ]
+      }
+    }, {
+      "_updateTS" : 1536758777351,
+      "obj" : {
+        "ver" : "2",
+        "name" : "googleProfile",
+        "description" : "For translation of google authn",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "attr['sub']", "sys:all", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/A'" ]
+          }
+        } ]
+      }
+    }, {
+      "_updateTS" : 1536758777353,
+      "obj" : {
+        "ver" : "2",
+        "name" : "ldapProfile",
+        "description" : "Allows to translate local Open LDAP data into local representation. gr1->/A/B, identity is taken as-is, cn->cn, everything is synced automatically",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "id", "sys:all", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "groups contains 'gr1'"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/A/B'" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "name", "/A", "attr['cn']", "CREATE_OR_UPDATE" ]
+          }
+        } ]
+      }
+    }, {
+      "_updateTS" : 1536758777355,
+      "obj" : {
+        "ver" : "2",
+        "name" : "localProfile",
+        "description" : "Useful on loopback login (Unity->Unity)",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "id", "sys:all", "MATCH" ]
+          }
+        } ]
+      }
+    }, {
+      "_updateTS" : 1536758777357,
+      "obj" : {
+        "ver" : "2",
+        "name" : "localProfile-auto",
+        "description" : "auto creates remote id",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "id", "sys:all", "CREATE_OR_MATCH" ]
+          }
+        } ]
+      }
+    }, {
+      "_updateTS" : 1536758777359,
+      "obj" : {
+        "ver" : "2",
+        "name" : "localOAuthProfile",
+        "description" : "For translation of localOAuth authn (loopback)",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "attr contains 'sub'"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "attr['sub']", "sys:all", "MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "attr contains 'username'"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "userName", "attr['username']", "sys:all", "MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "name", "/", "attr['cn']", "CREATE_OR_UPDATE" ]
+          }
+        } ]
+      }
+    }, {
+      "_updateTS" : 1536758777361,
+      "obj" : {
+        "ver" : "2",
+        "name" : "orcidProfile",
+        "description" : "Orcid authN",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "identifier", "attr['orcid']", "sys:all", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "name", "/", "attr['name']", "CREATE_OR_UPDATE" ]
+          }
+        } ]
+      }
+    }, {
+      "_updateTS" : 1536758777362,
+      "obj" : {
+        "ver" : "2",
+        "name" : "samlProfile",
+        "description" : "Allows to translate remote SAML IdP data into local representation.",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "userName", "attr['urn:oid:2.5.4.3']", "sys:all", "MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "name", "/", "attr['urn:oid:2.5.4.4']", "CREATE_OR_UPDATE" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "groups contains 'student'"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/A/B'" ]
+          }
+        } ]
+      }
+    } ],
+    "outputTranslationProfile" : [ {
+      "_updateTS" : 1536758777364,
+      "obj" : {
+        "ver" : "2",
+        "name" : "tr-local-out",
+        "description" : "",
+        "type" : "OUTPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "filterAttribute",
+            "parameters" : [ "sys:.*" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "createAttribute",
+            "parameters" : [ "memberOf", "groups", "false", "MemberOf", "User groups" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "createAttribute",
+            "parameters" : [ "username", "idsByType['userName']", "false", "username", "username" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "createAttribute",
+            "parameters" : [ "picture", "'url'", "false", "picture", "picture" ]
+          }
+        } ]
+      }
+    } ],
+    "processingRule" : [ ],
+    "endpointDefinition" : [ {
+      "_updateTS" : 1536758778603,
+      "obj" : {
+        "name" : "/admin",
+        "typeId" : "WebAdminUI",
+        "contextAddress" : "/admin",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY administration interface",
+            "Map" : {
+              "pl" : "Interfejs administracyjny Unity"
+            }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=true\nunity.endpoint.web.productionMode=false\nunity.endpoint.web.mainTheme=unityThemeValo\nunity.endpoint.web.authnTheme=unityThemeValo\n\nunity.endpoint.web.authnShowLastOptionOnly=false\nunity.endpoint.web.authnScreenShowSearch=false\nunity.endpoint.web.authnScreenShowAllOptions=false\n\n#unity.endpoint.web.authnScreenOptionsLabel.LAST.text=Previously used option\n\n#unity.endpoint.web.authnScreenColumn.2.columnContents=_HEADER_LAST _LAST_USED _SEPARATOR oauthWeb\nunity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb1 _SEPARATOR certWeb _SEPARATOR pwdCompositeWeb _SEPARATOR smsWeb1 _SEPARATOR ldapWeb\nunity.endpoint.web.authnScreenColumn.1.columnTitle.pl=Lokalne metody\nunity.endpoint.web.authnScreenColumn.1.columnTitle.en=Local authentication\nunity.endpoint.web.authnScreenColumn.1.columnWidth=21\n\nunity.endpoint.web.authnScreenColumn.2.columnContents=samlWeb oauthWeb\nunity.endpoint.web.authnScreenColumn.2.columnTitle.pl=Zdalne logowanie\nunity.endpoint.web.authnScreenColumn.2.columnTitle.en=Remote methods\nunity.endpoint.web.authnScreenColumn.2.columnWidth=21\n\n",
+          "realm" : "admin",
+          "authenticationOptions" : [ "pwdWeb1", "pwdCompositeWeb", "certWebFlow1", "smsAndPass", "certWeb", "ldapWeb", "ldapDNWeb", "samlWeb", "oauthWeb" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778674,
+      "obj" : {
+        "name" : "Account service",
+        "typeId" : "WellKnownLinksHandler",
+        "contextAddress" : "/well-known",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "Account service",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.connectId.redirectUrl=http://localhost",
+          "realm" : "home",
+          "authenticationOptions" : [ "pwdWeb1", "certWebFlow2", "pwdWeb1", "certWeb", "samlWeb", "oauthWeb" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778712,
+      "obj" : {
+        "name" : "saml-idp",
+        "typeId" : "SAMLWebIdP",
+        "contextAddress" : "/saml-idp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : null,
+            "Map" : {
+              "pl" : "Uwierzytelnianie federacyjne Unity",
+              "en" : "UNITY SAML web authentication"
+            }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\nunity.endpoint.web.productionMode=false\n\n#unity.saml.activeValue.1.client=http://unity/as/sp\n#unity.saml.activeValue.1.singleValueAttributes.1=role\n#unity.saml.activeValue.1.singleValueAttributes.2=role2\n#unity.saml.activeValue.1.multiValueAttributes.1=organization\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# Controls when SAML assertions should be signed. Possible values are:\n# always - obvious (default)\n# ifResponseUnsigned - signs only when containing response won't be signed\nunity.saml.signAssertion=ifResponseUnsigned\n\nunity.saml.userCanEditConsent=true\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compliant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\n#unity.saml.skipConsent=true\n#unity.saml.assumeForceOnSessionClash=true\n#unity.endpoint.web.autoLogin=true\n\nunity.saml.translationProfile=tr-local-out\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=600\n\n#unity.saml.acceptedSPMetadataSource.1.url=http://localhost/unity-as-sp-meta.xml\n#unity.saml.acceptedSPMetadataSource.1.refreshInterval=90\n\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.1.entity=https://sp.example.org/shibboleth\nunity.saml.acceptedSP.1.certificate=SHIB_SP\nunity.saml.acceptedSP.1.returnURL=http://centos6-unity2/Shibboleth.sso/SAML2/POST\n\nunity.saml.acceptedSP.2.entity=http://centos6-unity2:8080/simplesaml/module.php/saml/sp/metadata.php/default-sp\nunity.saml.acceptedSP.2.returnURL=http://centos6-unity2:8080/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp\n\nunity.saml.acceptedSP.3.entity=http://unity/as/sp\nunity.saml.acceptedSP.3.returnURL=https://localhost:2443/unitygw/spSAMLResponseConsumer\nunity.saml.acceptedSP.3.certificate=MAIN\nunity.saml.acceptedSP.3.encryptAssertion=true\nunity.saml.acceptedSP.3.redirectLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\n#unity.saml.acceptedSP.3.postLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\nunity.saml.acceptedSP.3.redirectLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\n#unity.saml.acceptedSP.3.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.acceptedSP.3.soapLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/SOAP/slo1/SingleLogoutService\n\n#unity.saml.acceptedSP.3.redirectLogoutEndpoint=https://localhost:2443/unitygw/redirect\n#unity.saml.acceptedSP.3.postLogoutEndpoint=https://localhost:2443/unitygw/post\n#unity.saml.acceptedSP.3.soapLogoutEndpoint=https://localhost:2443/unitygw/soap\n\nunity.saml.acceptedSP.4.entity=https://unity-2.grid.icm.edu.pl:9081/shibboleth\nunity.saml.acceptedSP.4.certificate=SHIB_SP\nunity.saml.acceptedSP.4.returnURL=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SAML2/POST\nunity.saml.acceptedSP.4.redirectLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SLO/Redirect\nunity.saml.acceptedSP.4.postLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SLO/POST\nunity.saml.acceptedSP.4.soapLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SLO/SOAP\n\n\nunity.saml.defaultGroup=/\n\nunity.saml.credential=MAIN\nunity.saml.truststore=MAIN",
+          "realm" : "main",
+          "authenticationOptions" : [ "pwdWeb1", "certWeb" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778826,
+      "obj" : {
+        "name" : "UNITY UNICORE web authentication",
+        "typeId" : "SAMLUnicoreWebIdP",
+        "contextAddress" : "/unicore-idp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY UNICORE web authentication",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\nunity.endpoint.web.productionMode=false\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=600\n\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.1.dn=CN=Portal,O=UNICORE,C=EU\nunity.saml.acceptedSP.1.returnURL=https://localhost:9091/authn/performSAMLAuthn\nunity.saml.acceptedSP.1.certificate=UNICORE-PORTAL\nunity.saml.acceptedSP.1.postLogoutResponseEndpoint=https://localhost:9091/portal\nunity.saml.acceptedSP.1.postLogoutEndpoint=https://localhost:9091/portal\n\nunity.saml.acceptedSP.2.entity=http://unity/as/sp\nunity.saml.acceptedSP.2.returnURL=https://localhost:2443/unitygw/spSAMLResponseConsumer\n\nunity.saml.defaultGroup=/\n\nunity.saml.translationProfile=tr-local-out\n\nunity.saml.credential=MAIN\nunity.saml.truststore=MAIN\n\n#unity.saml.skipConsent=true\n",
+          "realm" : "main",
+          "authenticationOptions" : [ "pwdWeb1", "certWeb" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778918,
+      "obj" : {
+        "name" : "UNITY UNICORE SOAP SAML service",
+        "typeId" : "SAMLUnicoreSoapIdP",
+        "contextAddress" : "/unicore-soapidp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY UNICORE SOAP SAML service",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\nunity.endpoint.web.productionMode=false\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=600\n\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.1.dn=CN=Portal,O=UNICORE,C=EU\nunity.saml.acceptedSP.1.returnURL=https://localhost:9091/authn/performSAMLAuthn\nunity.saml.acceptedSP.1.certificate=UNICORE-PORTAL\nunity.saml.acceptedSP.1.postLogoutResponseEndpoint=https://localhost:9091/portal\nunity.saml.acceptedSP.1.postLogoutEndpoint=https://localhost:9091/portal\n\nunity.saml.acceptedSP.2.entity=http://unity/as/sp\nunity.saml.acceptedSP.2.returnURL=https://localhost:2443/unitygw/spSAMLResponseConsumer\n\nunity.saml.defaultGroup=/\n\nunity.saml.translationProfile=tr-local-out\n\nunity.saml.credential=MAIN\nunity.saml.truststore=MAIN\n\n#unity.saml.skipConsent=true\n",
+          "realm" : "main",
+          "authenticationOptions" : [ "pwdWS", "certWS" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758779007,
+      "obj" : {
+        "name" : "UNITY SOAP SAML service",
+        "typeId" : "SAMLSoapIdP",
+        "contextAddress" : "/soapidp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY SOAP SAML service",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\nunity.endpoint.web.productionMode=false\n\n#unity.saml.activeValue.1.client=http://unity/as/sp\n#unity.saml.activeValue.1.singleValueAttributes.1=role\n#unity.saml.activeValue.1.singleValueAttributes.2=role2\n#unity.saml.activeValue.1.multiValueAttributes.1=organization\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# Controls when SAML assertions should be signed. Possible values are:\n# always - obvious (default)\n# ifResponseUnsigned - signs only when containing response won't be signed\nunity.saml.signAssertion=ifResponseUnsigned\n\nunity.saml.userCanEditConsent=true\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compliant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\n#unity.saml.skipConsent=true\n#unity.saml.assumeForceOnSessionClash=true\n#unity.endpoint.web.autoLogin=true\n\nunity.saml.translationProfile=tr-local-out\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=600\n\n#unity.saml.acceptedSPMetadataSource.1.url=http://localhost/unity-as-sp-meta.xml\n#unity.saml.acceptedSPMetadataSource.1.refreshInterval=90\n\nunity.saml.spAcceptPolicy=validRequester\nunity.saml.acceptedSP.1.entity=https://sp.example.org/shibboleth\nunity.saml.acceptedSP.1.certificate=SHIB_SP\nunity.saml.acceptedSP.1.returnURL=http://centos6-unity2/Shibboleth.sso/SAML2/POST\n\nunity.saml.acceptedSP.2.entity=http://centos6-unity2:8080/simplesaml/module.php/saml/sp/metadata.php/default-sp\nunity.saml.acceptedSP.2.returnURL=http://centos6-unity2:8080/simplesaml/module.php/saml/sp/saml2-acs.php/default-sp\n\nunity.saml.acceptedSP.3.entity=http://unity/as/sp\nunity.saml.acceptedSP.3.returnURL=https://localhost:2443/unitygw/spSAMLResponseConsumer\nunity.saml.acceptedSP.3.certificate=MAIN\nunity.saml.acceptedSP.3.encryptAssertion=true\nunity.saml.acceptedSP.3.redirectLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\n#unity.saml.acceptedSP.3.postLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\nunity.saml.acceptedSP.3.redirectLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\n#unity.saml.acceptedSP.3.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.acceptedSP.3.soapLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/SOAP/slo1/SingleLogoutService\n\n#unity.saml.acceptedSP.3.redirectLogoutEndpoint=https://localhost:2443/unitygw/redirect\n#unity.saml.acceptedSP.3.postLogoutEndpoint=https://localhost:2443/unitygw/post\n#unity.saml.acceptedSP.3.soapLogoutEndpoint=https://localhost:2443/unitygw/soap\n\nunity.saml.acceptedSP.4.entity=https://unity-2.grid.icm.edu.pl:9081/shibboleth\nunity.saml.acceptedSP.4.certificate=SHIB_SP\nunity.saml.acceptedSP.4.returnURL=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SAML2/POST\nunity.saml.acceptedSP.4.redirectLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SLO/Redirect\nunity.saml.acceptedSP.4.postLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SLO/POST\nunity.saml.acceptedSP.4.soapLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9081/Shibboleth.sso/SLO/SOAP\n\n\nunity.saml.defaultGroup=/\n\nunity.saml.credential=MAIN\nunity.saml.truststore=MAIN",
+          "realm" : "main",
+          "authenticationOptions" : [ "pwdWS", "certWS" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758779162,
+      "obj" : {
+        "name" : "home",
+        "typeId" : "UserHomeUI",
+        "contextAddress" : "/home",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : null,
+            "Map" : {
+              "pl" : "Profil użytkownika",
+              "en" : "UNITY user's account"
+            }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=true\nunity.endpoint.web.productionMode=false\n#unity.endpoint.web.mainTheme=customTheme\n\nunity.endpoint.web.authnScreenOptionsLabel.OR.text=OR\nunity.endpoint.web.authnScreenOptionsLabel.OR.text.pl=LUB\n\nunity.endpoint.web.authnScreenOptionsLabel.LAST.text=Previously used option\n\nunity.endpoint.web.authnGrid.G1.gridContents=samlWeb\nunity.endpoint.web.authnGrid.G1.gridRows=6\n\n#unity.endpoint.web.authnScreenLogo=\nunity.endpoint.web.authnScreenTitle=Login to your profile\nunity.endpoint.web.authnScreenTitle.pl=Zaloguj się do zarządzania kontem\nunity.endpoint.web.authnScreenShowSearch=true\nunity.endpoint.web.authnScreenShowAllOptions=false\nunity.endpoint.web.authnShowLastOptionOnly=false\nunity.endpoint.web.authnScreenColumn.1.columnSeparator=OR\nunity.endpoint.web.authnScreenColumn.1.columnWidth=17\nunity.endpoint.web.authnScreenColumn.1.columnContents=pwdCompositeWeb _SEPARATOR_OR smsWeb1\n\nunity.endpoint.web.authnScreenColumn.2.columnSeparator=\nunity.endpoint.web.authnScreenColumn.2.columnWidth=22\nunity.endpoint.web.authnScreenColumn.2.columnContents=_GRID_G1 _SEPARATOR_OR oauthWeb\n\n\n\n#unity.userhome.selfRemovalMode=disable\n#unity.userhome.disableSelfRemovalScheduling=false\n\nunity.userhome.attributes.1.attribute=name\nunity.userhome.attributes.1.group=/\nunity.userhome.attributes.1.showGroup=true\nunity.userhome.attributes.1.editable=true\n\nunity.userhome.attributes.2.attribute=email\nunity.userhome.attributes.2.group=/\nunity.userhome.attributes.2.showGroup=true\nunity.userhome.attributes.2.editable=true\n\nunity.userhome.attributes.3.attribute=organization\nunity.userhome.attributes.3.group=/\nunity.userhome.attributes.3.showGroup=true\nunity.userhome.attributes.3.editable=true\n\nunity.userhome.attributes.4.attribute=picture\nunity.userhome.attributes.4.group=/\nunity.userhome.attributes.4.showGroup=false\nunity.userhome.attributes.4.editable=true\n\nunity.userhome.attributes.5.attribute=mobile\nunity.userhome.attributes.5.group=/\nunity.userhome.attributes.5.showGroup=true\nunity.userhome.attributes.5.editable=true\n\n#unity.userhome.disabledComponents.1=credential\n#unity.userhome.disabledComponents.2=userDetails\n#unity.userhome.disabledComponents.3=preferences\n#unity.userhome.disabledComponents.4=accountRemoval\n#unity.userhome.disabledComponents.5=userInfo\n#unity.userhome.disabledComponents.6=attributesManagement",
+          "realm" : "home",
+          "authenticationOptions" : [ "pwdCompositeWeb", "smsAndPass", "pamWeb", "samlWeb", "oauthWeb", "certWeb" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758779195,
+      "obj" : {
+        "name" : "RESTful administration API",
+        "typeId" : "RESTAdmin",
+        "contextAddress" : "/rest-admin",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "RESTful administration API",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "",
+          "realm" : "main",
+          "authenticationOptions" : [ "pwdRest" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758779380,
+      "obj" : {
+        "name" : "UNITY OAuth2 Authorization Server",
+        "typeId" : "OAuth2Authz",
+        "contextAddress" : "/oauth2-as",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Authorization Server",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.autoLogin=false\nunity.endpoint.web.enableRegistration=true\n\n#unity.oauth2.as.activeValue.1.client=oauth-client\n#unity.oauth2.as.activeValue.1.singleValueAttributes.1=role\n#unity.oauth2.as.activeValue.1.singleValueAttributes.2=role2\n#unity.oauth2.as.activeValue.1.multiValueAttributes.1=organization\n\nunity.oauth2.as.userImport.imp1.importer=imp1\nunity.oauth2.as.userImport.imp1.identityType=userName\nunity.oauth2.as.issuerUri=https://localhost:2443/oauth2\nunity.oauth2.as.signingCredential=MAIN\n#unity.oauth2.as.skipConsent=true\n#unity.oauth2.as.refreshTokenValidity=3600\n\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.usersGroup=/\nunity.oauth2.as.translationProfile=tr-local-out\n\nunity.oauth2.as.scopes.1.name=profile\nunity.oauth2.as.scopes.1.description=Provides access to foo info\nunity.oauth2.as.scopes.1.attributes.1=name\nunity.oauth2.as.scopes.1.attributes.2=organization\nunity.oauth2.as.scopes.1.attributes.3=email\nunity.oauth2.as.scopes.1.attributes.4=username\nunity.oauth2.as.scopes.1.attributes.5=picture\nunity.oauth2.as.scopes.1.attributes.6=email_verified\nunity.oauth2.as.scopes.1.attributes.7=role\nunity.oauth2.as.scopes.1.attributes.8=role2\n\nunity.oauth2.as.scopes.2.name=bar\nunity.oauth2.as.scopes.2.description=Provides access to bar info\nunity.oauth2.as.scopes.2.attributes.1=country\n\n",
+          "realm" : "main",
+          "authenticationOptions" : [ "pwdWeb1", "certWeb" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758779418,
+      "obj" : {
+        "name" : "UNITY OAuth2 Token endpoints",
+        "typeId" : "OAuth2Token",
+        "contextAddress" : "/oauth2",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Token endpoints",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.autoLogin=false\nunity.endpoint.web.enableRegistration=true\n\n#unity.oauth2.as.activeValue.1.client=oauth-client\n#unity.oauth2.as.activeValue.1.singleValueAttributes.1=role\n#unity.oauth2.as.activeValue.1.singleValueAttributes.2=role2\n#unity.oauth2.as.activeValue.1.multiValueAttributes.1=organization\n\nunity.oauth2.as.userImport.imp1.importer=imp1\nunity.oauth2.as.userImport.imp1.identityType=userName\nunity.oauth2.as.issuerUri=https://localhost:2443/oauth2\nunity.oauth2.as.signingCredential=MAIN\n#unity.oauth2.as.skipConsent=true\n#unity.oauth2.as.refreshTokenValidity=3600\n\nunity.oauth2.as.clientsGroup=/oauth-clients\nunity.oauth2.as.usersGroup=/\nunity.oauth2.as.translationProfile=tr-local-out\n\nunity.oauth2.as.scopes.1.name=profile\nunity.oauth2.as.scopes.1.description=Provides access to foo info\nunity.oauth2.as.scopes.1.attributes.1=name\nunity.oauth2.as.scopes.1.attributes.2=organization\nunity.oauth2.as.scopes.1.attributes.3=email\nunity.oauth2.as.scopes.1.attributes.4=username\nunity.oauth2.as.scopes.1.attributes.5=picture\nunity.oauth2.as.scopes.1.attributes.6=email_verified\nunity.oauth2.as.scopes.1.attributes.7=role\nunity.oauth2.as.scopes.1.attributes.8=role2\n\nunity.oauth2.as.scopes.2.name=bar\nunity.oauth2.as.scopes.2.description=Provides access to bar info\nunity.oauth2.as.scopes.2.attributes.1=country\n\n",
+          "realm" : "main",
+          "authenticationOptions" : [ "pwdRest" ]
+        },
+        "revision" : 0
+      }
+    } ],
+    "registrationForm" : [ {
+      "_updateTS" : 1534696432695,
+      "obj" : {
+        "Agreements" : [ {
+          "i18nText" : {
+            "DefaultValue" : "Do you agreet to ToU?",
+            "Map" : { }
+          },
+          "manatory" : false
+        } ],
+        "AttributeParams" : [ {
+          "label" : "Name",
+          "description" : "description",
+          "retrievalSettings" : "automaticAndInteractive",
+          "optional" : true,
+          "attributeType" : "name",
+          "group" : "/",
+          "showGroups" : true,
+          "useDescription" : false,
+          "confirmationMode" : "ON_SUBMIT"
+        } ],
+        "CollectComments" : false,
+        "CredentialParams" : [ ],
+        "Description" : "",
+        "i18nFormInformation" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "GroupParams" : [ ],
+        "IdentityParams" : [ {
+          "label" : "Username",
+          "description" : "description",
+          "retrievalSettings" : "automatic",
+          "optional" : true,
+          "identityType" : "userName",
+          "confirmationMode" : "ON_SUBMIT"
+        } ],
+        "Name" : "fb-form",
+        "DisplayedName" : {
+          "DefaultValue" : "fb-form",
+          "Map" : { }
+        },
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "regProfile",
+          "description" : "",
+          "type" : "REGISTRATION",
+          "mode" : "DEFAULT",
+          "rules" : [ {
+            "condition" : {
+              "conditionValue" : "true"
+            },
+            "action" : {
+              "name" : "autoProcess",
+              "parameters" : [ "accept" ]
+            }
+          } ]
+        },
+        "DefaultCredentialRequirement" : "sys:all",
+        "NotificationsConfiguration" : {
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "updatedTemplate" : null,
+          "adminsNotificationGroup" : null,
+          "sendUserNotificationCopyToAdmin" : false,
+          "invitationTemplate" : null,
+          "submittedTemplate" : null
+        },
+        "PubliclyAvailable" : false,
+        "RegistrationCode" : null,
+        "CaptchaLength" : 0,
+        "ByInvitationOnly" : false
+      }
+    }, {
+      "_updateTS" : 1536759131190,
+      "obj" : {
+        "Agreements" : [ {
+          "i18nText" : {
+            "DefaultValue" : null,
+            "Map" : {
+              "en" : "agreements"
+            }
+          },
+          "manatory" : false
+        } ],
+        "AttributeParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "attributeType" : "address",
+          "group" : "/",
+          "showGroups" : false,
+          "useDescription" : false,
+          "confirmationMode" : "ON_SUBMIT"
+        } ],
+        "CollectComments" : false,
+        "CredentialParams" : [ {
+          "credentialName" : "sys:password",
+          "label" : null,
+          "description" : null
+        }, {
+          "credentialName" : "sys:sms",
+          "label" : null,
+          "description" : null
+        } ],
+        "Description" : "",
+        "i18nFormInformation" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "GroupParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "groupPath" : "/D"
+        } ],
+        "IdentityParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "identityType" : "identifier",
+          "confirmationMode" : "ON_SUBMIT"
+        } ],
+        "Name" : "registration with layout",
+        "DisplayedName" : {
+          "DefaultValue" : "registration with layout",
+          "Map" : {
+            "en" : "Display name"
+          }
+        },
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "form profile",
+          "description" : "",
+          "type" : "REGISTRATION",
+          "mode" : "DEFAULT",
+          "rules" : [ ]
+        },
+        "FormLayout" : {
+          "elements" : [ {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormSeparatorElement",
+            "type" : "SEPARATOR",
+            "formContentsRelated" : false
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Identitäten",
+                "en" : "Identities",
+                "pl" : "Tożsamość"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "IDENTITY",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Berechtigungsnachweise",
+                "en" : "Credentials",
+                "pl" : "Dane uwierzytelniające"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "CREDENTIAL",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormSeparatorElement",
+            "type" : "SEPARATOR",
+            "formContentsRelated" : false
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "CREDENTIAL",
+            "formContentsRelated" : true,
+            "index" : 1
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Eigenschaften",
+                "en" : "Attributes",
+                "pl" : "Atrybuty"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "ATTRIBUTE",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Um Mitgliedschaft bitten",
+                "en" : "Apply for membership",
+                "pl" : "Wystąp o członkostwo"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "GROUP",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Vereinbarungen",
+                "en" : "Agreements",
+                "pl" : "Regulaminy"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "AGREEMENT",
+            "formContentsRelated" : true,
+            "index" : 0
+          } ]
+        },
+        "DefaultCredentialRequirement" : "sys:all",
+        "NotificationsConfiguration" : {
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "updatedTemplate" : null,
+          "adminsNotificationGroup" : "/",
+          "sendUserNotificationCopyToAdmin" : false,
+          "invitationTemplate" : "invitationWithCode",
+          "submittedTemplate" : null
+        },
+        "PubliclyAvailable" : true,
+        "RegistrationCode" : null,
+        "CaptchaLength" : 0,
+        "ByInvitationOnly" : true
+      }
+    } ],
+    "enquiryForm" : [ {
+      "_updateTS" : 1536759184646,
+      "obj" : {
+        "Agreements" : [ {
+          "i18nText" : {
+            "DefaultValue" : null,
+            "Map" : {
+              "en" : "agreement"
+            }
+          },
+          "manatory" : false
+        } ],
+        "AttributeParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "attributeType" : "address",
+          "group" : "/",
+          "showGroups" : false,
+          "useDescription" : false,
+          "confirmationMode" : "ON_SUBMIT"
+        } ],
+        "CollectComments" : false,
+        "CredentialParams" : [ {
+          "credentialName" : "sys:password",
+          "label" : null,
+          "description" : null
+        } ],
+        "Description" : "",
+        "i18nFormInformation" : {
+          "DefaultValue" : null,
+          "Map" : { }
+        },
+        "GroupParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "groupPath" : "/D"
+        } ],
+        "IdentityParams" : [ {
+          "label" : null,
+          "description" : null,
+          "retrievalSettings" : "interactive",
+          "optional" : false,
+          "identityType" : "identifier",
+          "confirmationMode" : "ON_SUBMIT"
+        } ],
+        "Name" : "New enquiry",
+        "DisplayedName" : {
+          "DefaultValue" : "New enquiry",
+          "Map" : { }
+        },
+        "TranslationProfile" : {
+          "ver" : "2",
+          "name" : "form profile",
+          "description" : "",
+          "type" : "REGISTRATION",
+          "mode" : "DEFAULT",
+          "rules" : [ ]
+        },
+        "FormLayout" : {
+          "elements" : [ {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormSeparatorElement",
+            "type" : "SEPARATOR",
+            "formContentsRelated" : false
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Identitäten",
+                "en" : "Identities",
+                "pl" : "Tożsamość"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "IDENTITY",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Berechtigungsnachweise",
+                "en" : "Credentials",
+                "pl" : "Dane uwierzytelniające"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "CREDENTIAL",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Eigenschaften",
+                "en" : "Attributes",
+                "pl" : "Atrybuty"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "ATTRIBUTE",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Um Mitgliedschaft bitten",
+                "en" : "Apply for membership",
+                "pl" : "Wystąp o członkostwo"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "GROUP",
+            "formContentsRelated" : true,
+            "index" : 0
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormCaptionElement",
+            "type" : "CAPTION",
+            "formContentsRelated" : false,
+            "value" : {
+              "DefaultValue" : null,
+              "Map" : {
+                "de" : "Vereinbarungen",
+                "en" : "Agreements",
+                "pl" : "Regulaminy"
+              }
+            }
+          }, {
+            "clazz" : "pl.edu.icm.unity.types.registration.layout.FormParameterElement",
+            "type" : "AGREEMENT",
+            "formContentsRelated" : true,
+            "index" : 0
+          } ]
+        },
+        "type" : "REQUESTED_OPTIONAL",
+        "targetGroups" : [ "/D" ],
+        "NotificationsConfiguration" : {
+          "rejectedTemplate" : null,
+          "acceptedTemplate" : null,
+          "updatedTemplate" : null,
+          "adminsNotificationGroup" : "/",
+          "sendUserNotificationCopyToAdmin" : false,
+          "enquiryToFillTemplate" : null,
+          "submittedTemplate" : null
+        }
+      }
+    } ],
+    "registrationRequest" : [ ],
+    "enquiryResponse" : [ ],
+    "invitationWithCode" : [ ],
+    "authenticationFlow" : [ {
+      "_updateTS" : 1536758778555,
+      "obj" : {
+        "name" : "certWebFlow1",
+        "firstFactorAuthenticators" : [ "certWeb" ],
+        "secondFactorAuthenticators" : [ "pwdWeb1" ],
+        "policy" : "REQUIRE",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778563,
+      "obj" : {
+        "name" : "certWebFlow2",
+        "firstFactorAuthenticators" : [ "pwdWeb1" ],
+        "secondFactorAuthenticators" : [ "certWeb" ],
+        "policy" : "REQUIRE",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1536758778567,
+      "obj" : {
+        "name" : "smsAndPass",
+        "firstFactorAuthenticators" : [ "smsWeb1" ],
+        "secondFactorAuthenticators" : [ "pwdWeb1" ],
+        "policy" : "REQUIRE",
+        "revision" : 0
+      }
+    } ]
+  }
+}
