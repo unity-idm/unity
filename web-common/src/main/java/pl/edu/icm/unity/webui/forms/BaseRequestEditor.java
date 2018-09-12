@@ -819,7 +819,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	
 	public Unit formWidthUnit()
 	{
-		return Unit.valueOf(form.getLayoutSettings().getColumnWidthUnit());
+		return Unit.getUnitFromSymbol(form.getLayoutSettings().getColumnWidthUnit());
 	}
 }
 
