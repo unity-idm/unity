@@ -11,7 +11,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
- * Contain complete information necessary to build attribute editor UI
+ * Contains complete information necessary to build attribute editor UI
  * 
  * @author P.Piernik
  */

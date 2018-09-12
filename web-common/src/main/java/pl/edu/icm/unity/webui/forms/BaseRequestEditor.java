@@ -72,12 +72,15 @@ import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
+import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
@@ -424,6 +427,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (createControlFor(layoutContainer, element, previousInserted, invitation))
 				previousInserted = element;
 		}
+		// we don't allow for empty sections
+		removePreviousIfSection(layoutContainer.registrationFormLayout, previousInserted);
 	}
 	
 	private Map<String, AttributeType> getAttributeTypesMap()
@@ -494,12 +499,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	
 	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, FormCaptionElement element)
 	{
-		//we don't allow for empty sections - the previously added caption is removed.
-		if (previousInserted != null && previousInserted instanceof FormCaptionElement)
-		{
-			Component lastComponent = layout.getComponent(layout.getComponentCount()-1);
-			layout.removeComponent(lastComponent);
-		}
+		// we don't allow for empty sections - the previously added caption is removed.
+		removePreviousIfSection(layout, previousInserted);
 		
 		Label label = new Label(element.getValue().getValue(msg));
 		label.addStyleName(Styles.formSection.toString());
@@ -508,6 +509,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		layout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
 		return true;
 	}	
+
+	private void removePreviousIfSection(AbstractOrderedLayout layout, FormElement previousInserted)
+	{
+		if (previousInserted != null && previousInserted instanceof FormCaptionElement)
+		{
+			Component lastComponent = layout.getComponent(layout.getComponentCount() - 1);
+			layout.removeComponent(lastComponent);
+		}
+	}
 
 	protected boolean createSeparatorControl(Layout layout, FormSeparatorElement element)
 	{
@@ -565,8 +575,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
 		{
-			Label label = new Label(prefilledEntry.getEntry().toString());
-			layout.addComponent(label);
+			ReadOnlyField readOnlyField = new ReadOnlyField(prefilledEntry.getEntry().getValue(), 
+					formWidth(), formWidthUnit());
+			layout.addComponent(readOnlyField);
 		} else if (!idParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 		{
 			if (!idParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
@@ -575,8 +586,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (id == null)
 				return false;
 			
-			Label label = new Label(id.toString());
-			layout.addComponent(label);
+			ReadOnlyField readOnlyField = new ReadOnlyField(id.getValue(), formWidth(), formWidthUnit());
+			layout.addComponent(readOnlyField);
 		} else
 		{
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
@@ -628,9 +639,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		layoutAdapter.setOffset(layout.getComponentCount());
 		if (readOnlyAttribute != null)
 		{
+			AttributeViewerContext context = AttributeViewerContext.builder()
+					.withCustomWidth(formWidth())
+					.withCustomWidthUnit(formWidthUnit())
+					.withShowCaption(!(form.getLayoutSettings().isCompactInputs()))
+					.build();
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, 
-					aType, readOnlyAttribute, false);
-			layoutAdapter.addContainer(viewer.getComponentsGroup());
+					aType, readOnlyAttribute, false, context);
+			ComponentsGroup componentsGroup = viewer.getComponentsGroup();
+			layoutAdapter.addContainer(componentsGroup);
 		} else
 		{
 			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 

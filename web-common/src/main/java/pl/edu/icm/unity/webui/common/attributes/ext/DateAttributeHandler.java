@@ -20,6 +20,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -76,13 +77,13 @@ public class DateAttributeHandler implements WebAttributeHandler
 	@Override
 	public String getValueAsString(String value)
 	{
-		return AttributeHandlerHelper.getValueAsString(value);
+		return value;
 	}
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(value);
+		return AttributeHandlerHelper.getRepresentation(value, syntax, context);
 	}
 	
 	private class DateValueEditor implements AttributeValueEditor

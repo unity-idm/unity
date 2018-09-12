@@ -35,6 +35,7 @@ import pl.edu.icm.unity.webui.common.GenericElementsTable;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -56,9 +57,12 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return new Label(value.toString(), ContentMode.PREFORMATTED);
+		Label label = new Label(value.toString(), ContentMode.PREFORMATTED);
+		if (context.isCustomWidth())
+			label.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		return label;
 	}
 	
 	@Override

@@ -94,7 +94,7 @@ public class SelectableAttributeWithValues extends CustomComponent
 		listOfValues.setWidth(100, Unit.PERCENTAGE);
 		for (String value: attribute.getValues())
 		{
-			Component representation = webHandler.getRepresentation(value);
+			Component representation = webHandler.getRepresentation(value, AttributeViewerContext.EMPTY);
 			representation.addStyleName(Styles.indent.toString());
 			listOfValues.addEntry(representation, false);
 		}

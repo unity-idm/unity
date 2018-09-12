@@ -33,6 +33,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
@@ -138,7 +139,7 @@ public class UserAttributesPanel
 				return;
 			
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, at, 
-					attribute, showGroup);
+					attribute, showGroup, AttributeViewerContext.EMPTY);
 			viewers.add(viewer);
 			componentsGroup.addComposableComponents(viewer.getComponentsGroup());
 		}
