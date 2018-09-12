@@ -17,6 +17,18 @@ import pl.edu.icm.unity.types.I18nString;
 public class MessageTemplateValidatorTest
 {
 	@Test
+	public void shouldFindWithoutDefaultVariant()
+	{
+		I18nString subject = new I18nString("en", "{{var}}");
+		I18nString body = new I18nString("en", "{{var2}}");
+		I18nMessage message = new I18nMessage(subject, body);
+		
+		Set<String> variables = MessageTemplateValidator.extractVariables(message);
+		
+		assertThat(variables.toString(), variables, hasItems("var", "var2"));
+	}
+	
+	@Test
 	public void shouldFindOldAndNewVariables()
 	{
 		I18nString subject = new I18nString("Subject{{sNewVar}}${sOldVar}end");

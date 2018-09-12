@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.msgtemplate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,6 +76,8 @@ public class MessageTemplateValidator
 	
 	private static List<String> extractVariables(String text)
 	{
+		if (text == null)
+			return Collections.emptyList();
 		List<String> usedField = extractVariables(text, "\\$\\{[^\\}]*\\}", 1);
 		usedField.addAll(extractVariables(text, "\\{\\{[^\\}]*\\}\\}", 2));
 		return usedField;
