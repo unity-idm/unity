@@ -424,6 +424,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (createControlFor(layoutContainer, element, previousInserted, invitation))
 				previousInserted = element;
 		}
+		// we don't allow for empty sections
+		removePreviousIfSection(layoutContainer.registrationFormLayout, previousInserted);
 	}
 	
 	private Map<String, AttributeType> getAttributeTypesMap()
@@ -494,12 +496,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	
 	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, FormCaptionElement element)
 	{
-		//we don't allow for empty sections - the previously added caption is removed.
-		if (previousInserted != null && previousInserted instanceof FormCaptionElement)
-		{
-			Component lastComponent = layout.getComponent(layout.getComponentCount()-1);
-			layout.removeComponent(lastComponent);
-		}
+		// we don't allow for empty sections - the previously added caption is removed.
+		removePreviousIfSection(layout, previousInserted);
 		
 		Label label = new Label(element.getValue().getValue(msg));
 		label.addStyleName(Styles.formSection.toString());
@@ -508,6 +506,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		layout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
 		return true;
 	}	
+
+	private void removePreviousIfSection(AbstractOrderedLayout layout, FormElement previousInserted)
+	{
+		if (previousInserted != null && previousInserted instanceof FormCaptionElement)
+		{
+			Component lastComponent = layout.getComponent(layout.getComponentCount() - 1);
+			layout.removeComponent(lastComponent);
+		}
+	}
 
 	protected boolean createSeparatorControl(Layout layout, FormSeparatorElement element)
 	{
