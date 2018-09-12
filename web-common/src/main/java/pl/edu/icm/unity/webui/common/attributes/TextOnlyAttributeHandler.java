@@ -23,6 +23,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+import pl.edu.icm.unity.webui.common.attributes.ext.AttributeHandlerHelper;
 
 /**
  * Base attribute handler for the web. Renders as label, edit in text field. Extensions has to implement
@@ -49,9 +50,9 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 	}
 	
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return new Label(value);
+		return AttributeHandlerHelper.getRepresentation(value, syntax, context);
 	}
 	
 	@Override

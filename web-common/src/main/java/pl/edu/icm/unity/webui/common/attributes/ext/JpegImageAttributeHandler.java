@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -94,9 +95,12 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public Component getRepresentation(String valueRaw)
+	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
 		BufferedImage value = syntax.convertFromString(valueRaw);
+		if (value == null)
+			return  getErrorImage();
+		
 		int width = value.getWidth();
 		int height = value.getHeight();
 		Resource resValue = getValueAsImage(value, syntax, width,

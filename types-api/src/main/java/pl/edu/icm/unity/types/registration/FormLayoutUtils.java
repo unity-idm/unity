@@ -20,7 +20,6 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 
 /**
  * Utility class to deal with most common operations like form validation or
@@ -74,8 +73,6 @@ public final class FormLayoutUtils
 		List<FormElement> ret = new ArrayList<>();
 		for (int i=0; i<params.size(); i++)
 		{
-			if (addSeparator && i > 0)
-				ret.add(new FormSeparatorElement());
 			ret.add(new FormParameterElement(type, i));
 		}
 		return ret;

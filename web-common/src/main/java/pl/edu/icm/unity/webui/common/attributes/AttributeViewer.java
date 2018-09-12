@@ -32,9 +32,11 @@ public class AttributeViewer
 	private Attribute attribute;
 	private boolean showGroup;
 	private ComponentsGroup group;
+	private AttributeViewerContext context;
 	
 	public AttributeViewer(UnityMessageSource msg, AttributeHandlerRegistry registry, 
-			AttributeType attributeType, Attribute attribute, boolean showGroup)
+			AttributeType attributeType, Attribute attribute, boolean showGroup, 
+			AttributeViewerContext context)
 	{
 		this.msg = msg;
 		this.registry = registry;
@@ -42,6 +44,7 @@ public class AttributeViewer
 		this.attribute = attribute;
 		this.showGroup = showGroup;
 		this.group = new ComponentsGroup();
+		this.context = context;
 		generate(attributeType.getDisplayedName().getValue(msg));
 	}
 	
@@ -78,9 +81,12 @@ public class AttributeViewer
 		for (String o: attribute.getValues())
 		{
 			Component valueRepresentation = getRepresentation(o);
-			String captionWithNum = (attribute.getValues().size() == 1) ? caption + ":" :
-				caption + " (" + i + "):";
-			valueRepresentation.setCaption(captionWithNum);
+			if (context.isShowCaption())
+			{
+				String captionWithNum = (attribute.getValues().size() == 1) ? caption + ":" :
+					caption + " (" + i + "):";
+				valueRepresentation.setCaption(captionWithNum);
+			}
 			if (descriptionRaw != null)
 			{
 				String descSafe = HtmlConfigurableLabel.conditionallyEscape(descriptionRaw);
@@ -106,6 +112,6 @@ public class AttributeViewer
 		else
 			handler = registry.getHandlerWithStringFallback(attributeType);
 		
-		return handler.getRepresentation(value);
+		return handler.getRepresentation(value, context);
 	}
 }
