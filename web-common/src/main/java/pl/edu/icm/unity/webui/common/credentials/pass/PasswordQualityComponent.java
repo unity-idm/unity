@@ -48,7 +48,7 @@ public class PasswordQualityComponent extends CustomComponent
 	{
 		qualityMeter = new ProgressBar();
 		qualityMeter.setCaption(msg.getMessage("PasswordCredentialEditor.qualityMeter"));
-		qualityMeter.setWidth(210, Unit.PIXELS);
+		qualityMeter.setWidth(10, Unit.EM);
 		qualityMeter.addStyleName("u-password-quality");
 		mainInfo = new Label("", ContentMode.HTML);
 		mainInfo.setWidth(100, Unit.PERCENTAGE);

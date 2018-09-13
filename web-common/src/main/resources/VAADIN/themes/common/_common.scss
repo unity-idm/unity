@@ -335,7 +335,7 @@
 	
 	.u-passwordQuality {
 		background-color: #F5F5F5;
-		width: 500px;
+		width: $v-font-size * 30;
 		-webkit-border-radius: 10px;
 		-webkit-border-top-left-radius: 0;
 		-moz-border-radius: 10px;
@@ -343,6 +343,8 @@
 		border-radius: 10px;
 		border-top-left-radius: 0;
 		padding: 5px;
+		overflow-y: visible;
+		max-height: $v-font-size * 6;
 	}
 	
 	.u-passwordQuality-nonCompactTopMargin
