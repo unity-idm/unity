@@ -31,6 +31,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 /**
  * {@link CredentialDefinition} editor and viewer for the {@link PasswordVerificator}.
@@ -243,15 +244,16 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 			super(msg, msg.getMessage("PasswordDefinitionEditor.testMe"), 
 					msg.getMessage("close"));
 			this.config = config;
-			setSize(25, 50);
+			setSize(45, 50);
 		}
 
 		@Override
 		protected Component getContents() throws Exception
 		{
 			CompactFormLayout layout = new CompactFormLayout();
-			layout.addComponents(new PasswordEditComponent(msg, config)
-					.getAsContainer().getComponents());
+			PasswordEditorComponent editor = new PasswordEditorComponent(msg, CredentialEditorContext.EMPTY, config);
+			editor.disablePasswordRepeat();
+			layout.addComponents(editor);
 			return layout;
 		}
 

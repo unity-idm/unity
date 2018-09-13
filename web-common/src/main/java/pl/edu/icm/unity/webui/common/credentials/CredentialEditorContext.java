@@ -13,6 +13,7 @@ import com.vaadin.server.Sizeable.Unit;
  */
 public class CredentialEditorContext
 {
+	public static final CredentialEditorContext EMPTY = new CredentialEditorContext(null, false, null, false, false, null, null);
 	private final String credentialConfiguration;
 	private final boolean required;
 	private final Long entityId;
