@@ -15,7 +15,7 @@ import pl.edu.icm.unity.types.registration.BaseForm;
  */
 public class FormLayoutSettings
 {
-	public static final FormLayoutSettings DEFAULT = new FormLayoutSettings(false, 21, "EM", false, null);
+	public static final FormLayoutSettings DEFAULT = new FormLayoutSettings(false, 21, "em", false, null);
 
 	private boolean compactInputs;
 	private boolean showCancel;
