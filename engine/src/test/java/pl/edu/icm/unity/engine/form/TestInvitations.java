@@ -16,6 +16,7 @@ import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
+import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestValidator;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -47,6 +48,8 @@ public class TestInvitations extends DBIntegrationTestBase
 	private InvitationDB invitationDB;
 	@Autowired
 	private TransactionalRunner txRunner;
+	@Autowired
+	private InvitationManagement invitationMan;
 	
 	@Test
 	public void shouldRespectIdentityConfirmationFromInvitationWhenVerifiedOnSubmit() throws EngineException
@@ -135,6 +138,25 @@ public class TestInvitations extends DBIntegrationTestBase
 		
 		String rawValue = request.getAttributes().get(0).getValues().get(0);
 		assertThat(VerifiableEmail.fromJsonString(rawValue).isConfirmed(), is(false));
+	}
+
+	@Test
+	public void shouldReturnUpdatedInvitation() throws EngineException
+	{
+		InvitationParam invitation = getAttributeInvitation();
+		registrationsMan.addForm(new RegistrationFormBuilder()
+				.withName("form")
+				.withPubliclyAvailable(true)
+				.withDefaultCredentialRequirement(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.build());
+		String code = invitationMan.addInvitation(invitation);
+		invitation.getMessageParams().put("added", "param");
+		
+		invitationMan.updateInvitation(code, invitation);
+		
+		InvitationWithCode returnedInvitation = invitationMan.getInvitation(code);
+		assertThat(returnedInvitation.getMessageParams().get("added"), is("param"));
 	}
 	
 	private RegistrationForm getIdentityForm(ConfirmationMode confirmationMode)

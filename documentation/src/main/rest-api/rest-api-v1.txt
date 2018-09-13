@@ -775,6 +775,18 @@ Syntax of prefilled parameters, can be seen in the result of retrieving an Admin
 via the REST GET methods.
 
 
+=== Update invitation
+
++@Path("invitation/{code}")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates an existing invitation - preserving its code, but changing metadata and prefilled information. 
+The registration form to which invitation was originally issued can not be modified as 
+well as the original contact address. 
+
+Body conforms to the same syntax as when creating a new invitation.
+
 === Identity bulk processing
 
 +@Path("bulkProcessing/instant")+ +
