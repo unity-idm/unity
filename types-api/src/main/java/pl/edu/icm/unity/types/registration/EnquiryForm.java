@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -178,7 +179,7 @@ public class EnquiryForm extends BaseForm
 		if (!super.equals(other))
 			return false;
 		EnquiryForm castOther = (EnquiryForm) other;
-		return Objects.equals(type, castOther.type) && Objects.equals(targetGroups, castOther.targetGroups)
+		return Objects.equals(type, castOther.type) && Arrays.equals(targetGroups, castOther.targetGroups)
 				&& Objects.equals(notificationsConfiguration, castOther.notificationsConfiguration)
 				&& Objects.equals(layout, castOther.layout);
 	}
