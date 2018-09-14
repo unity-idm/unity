@@ -344,7 +344,21 @@
 		border-top-left-radius: 0;
 		padding: 5px;
 		overflow-y: visible;
-		max-height: $v-font-size * 6;
+		max-height: $v-font-size * 5;
+	}
+	
+	.u-password-hint {
+		background-color: #F5F5F5;
+		width: $v-font-size * 30;
+		-webkit-border-radius: 10px;
+		-webkit-border-top-left-radius: 0;
+		-moz-border-radius: 10px;
+		-moz-border-radius-topleft: 0;
+		border-radius: 10px;
+		border-top-left-radius: 0;
+		margin-left: -5px;
+		padding-left: 5px;
+		padding-bottom: 5px;
 	}
 	
 	.u-passwordQuality-nonCompactTopMargin

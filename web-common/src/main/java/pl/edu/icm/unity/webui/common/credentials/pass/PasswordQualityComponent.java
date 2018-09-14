@@ -48,10 +48,10 @@ public class PasswordQualityComponent extends CustomComponent
 	{
 		qualityMeter = new ProgressBar();
 		qualityMeter.setCaption(msg.getMessage("PasswordCredentialEditor.qualityMeter"));
-		qualityMeter.setWidth(10, Unit.EM);
+		qualityMeter.setWidth(15, Unit.EM);
 		qualityMeter.addStyleName("u-password-quality");
 		mainInfo = new Label("", ContentMode.HTML);
-		mainInfo.setWidth(100, Unit.PERCENTAGE);
+		mainInfo.setWidth(16, Unit.EM);
 		mainInfo.addStyleName(Styles.emphasized.toString());
 		mainInfo.addStyleName("u-password-hint");
 		minLengthStatus = new Label("", ContentMode.HTML);
@@ -67,6 +67,7 @@ public class PasswordQualityComponent extends CustomComponent
 		root.setSpacing(false);
 		root.setMargin(false);
 		root.addComponent(qualityMeter);
+		root.setWidth(16, Unit.EM);
 		if (config.getMinLength() > 1)
 			root.addComponent(minLengthStatus);
 		if (config.getMinClassesNum() > 1)
