@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.engine.msgtemplate;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -18,9 +18,11 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 
-public class MessageTemplateTest
+public class MessageTemplateProcessorTest
 {
 	@Test
 	public void shouldRestoreWithPLAINmessageTypeWhenNotPresent()
@@ -62,7 +64,8 @@ public class MessageTemplateTest
 		genericTemplates.put(generic1.getName(), generic1);
 		
 		// when
-		Message message = msg.getMessage(null, null, Collections.emptyMap(), genericTemplates);
+		Message message = new MessageTemplateProcessor().getMessage(msg, null, null, 
+				Collections.emptyMap(), genericTemplates);
 		
 		// then
 		assertThat(message.getBody(), equalTo("PREFheaderBODYfooterPOST"));
@@ -91,7 +94,8 @@ public class MessageTemplateTest
 		genericTemplates.put(generic1.getName(), generic1);
 		
 		// when
-		Message message = msg.getMessage("pl", "pl", Collections.emptyMap(), genericTemplates);
+		Message message = new MessageTemplateProcessor().getMessage(msg, "pl", "pl", 
+				Collections.emptyMap(), genericTemplates);
 		
 		// then
 		assertThat(message.getBody(), equalTo("PREFheaderBODYfooterPOST"));
@@ -122,7 +126,8 @@ public class MessageTemplateTest
 		genericTemplates.put(generic1.getName(), generic1);
 		
 		// when
-		Message message = msg.getMessage("pl", "pl", Collections.emptyMap(), genericTemplates);
+		Message message = new MessageTemplateProcessor().getMessage(msg, "pl", "pl", 
+				Collections.emptyMap(), genericTemplates);
 		
 		// then
 		assertThat(message.getBody(), equalTo("PREFheaderBODYfooterPOST"));

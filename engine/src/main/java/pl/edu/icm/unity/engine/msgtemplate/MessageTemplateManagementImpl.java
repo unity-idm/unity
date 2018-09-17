@@ -42,7 +42,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	private MessageTemplateDB mtDB;
 	private MessageTemplateConsumersRegistry registry;
 	private InternalFacilitiesManagement facilityMan;
-	
+	private MessageTemplateProcessor messageTemplateProcessor = new MessageTemplateProcessor();
 	
 	@Autowired
 	public MessageTemplateManagementImpl(AuthorizationManager authz, MessageTemplateDB mtDB,
@@ -125,7 +125,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 		Map<String, MessageTemplate> genericTemplates = allAsMap.entrySet().stream()
 				.filter(e -> e.getValue().getConsumer().equals(GenericMessageTemplateDef.NAME))
 				.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-		return requested.preprocessMessage(genericTemplates);
+		return messageTemplateProcessor.preprocessMessage(requested, genericTemplates);
 	}
 	
 	@Transactional

@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -74,18 +72,25 @@ public class MessageTemplateValidator
 				.collect(Collectors.toSet());
 	}
 	
-	private static List<String> extractVariables(String text)
+	private static Set<String> extractVariables(String text)
 	{
 		if (text == null)
-			return Collections.emptyList();
-		List<String> usedField = extractVariables(text, "\\$\\{[^\\}]*\\}", 1);
+			return Collections.emptySet();
+		Set<String> usedField = extractVariables(text, "\\$\\{[^\\}]*\\}", 1);
 		usedField.addAll(extractVariables(text, "\\{\\{[^\\}]*\\}\\}", 2));
-		return usedField;
+		return filterDirectives(usedField);
 	}
 
-	private static List<String> extractVariables(String text, String patternStr, int suffixLen)
+	private static Set<String> filterDirectives(Set<String> statements)
 	{
-		List<String> usedField = new ArrayList<>();
+		return statements.stream()
+				.filter(v -> !v.startsWith(MessageTemplateDefinition.INCLUDE_PREFIX))
+				.collect(Collectors.toSet());
+	}
+	
+	private static Set<String> extractVariables(String text, String patternStr, int suffixLen)
+	{
+		Set<String> usedField = new HashSet<>();
 		Pattern pattern = Pattern.compile(patternStr);
 		String b = (String) text;
 		Matcher matcher = pattern.matcher(b);
@@ -100,7 +105,7 @@ public class MessageTemplateValidator
 	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) 
 			throws IllegalVariablesException, MandatoryVariablesException
 	{
-		List<String> usedField = extractVariables(text);
+		Set<String> usedField = extractVariables(text);
 
 		Set<String> knownVariables = new HashSet<>();
 		Set<String> mandatory = new HashSet<>();
