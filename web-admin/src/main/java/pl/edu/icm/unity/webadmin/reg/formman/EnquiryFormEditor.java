@@ -33,7 +33,6 @@ import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -51,6 +50,7 @@ import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 public class EnquiryFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryFormEditor.class);
+	
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
@@ -66,7 +66,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private RegistrationActionsRegistry actionsRegistry;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
-	private FormLayoutEditor layoutEditor;
+	private EnquiryFormLayoutEditorTab layoutEditor;
 	
 	@Autowired
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -121,8 +121,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withTranslationProfile(profileEditor.getProfile());
 		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
-		// TODO: once layout editor is implemented fix this line
-//		builder.withLayout(layoutEditor.getLayout());
+		builder.withLayout(layoutEditor.getLayout());
 		return builder.build();
 	}
 	
@@ -148,7 +147,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 				ProfileType.REGISTRATION,
 				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
-		layoutEditor.setInitialForm(toEdit);
+		layoutEditor.setLayout(toEdit.getLayout());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 	}
@@ -196,14 +195,13 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	private void initLayoutTab()
 	{
-		// TODO: once layout editor is implemented fix
-//		VerticalLayout wrapper = new VerticalLayout();
-//		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
-//		wrapper.setMargin(true);
-//		wrapper.setSpacing(false);
-//		wrapper.addComponent(layoutEditor);
-//		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
-//		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+		VerticalLayout wrapper = new VerticalLayout();
+		layoutEditor = new EnquiryFormLayoutEditorTab(msg, this::getEnquiryForm);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+		wrapper.addComponent(layoutEditor);
+		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
 	}
 	
 	private void initAssignedTab() throws EngineException
@@ -217,6 +215,18 @@ public class EnquiryFormEditor extends BaseFormEditor
 		profileEditor.setValue(new TranslationProfile("form profile", "", ProfileType.REGISTRATION,
 				new ArrayList<>()));
 		wrapper.addComponent(profileEditor);
+	}
+	
+	private EnquiryForm getEnquiryForm()
+	{
+		try
+		{
+			return getFormBuilderBasic().build();
+		} catch (Exception e)
+		{
+			log.debug("Ignoring layout update, form is invalid", e);
+			return null;
+		}
 	}
 
 	public boolean isIgnoreRequests()

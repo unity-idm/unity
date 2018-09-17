@@ -37,7 +37,9 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
@@ -82,8 +84,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private NotNullComboBox<String> credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
-	private RegistrationFormLayoutEditor layoutEditor;
+	private RegistrationFormLayoutMainComponent layoutEditor;
 	private ActionParameterComponentProvider actionComponentFactory;
+	private CheckBox showCancel;
+	private CheckBox localSignupEmbeddedAsButton;
 	
 	@Autowired
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -141,9 +145,19 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withTranslationProfile(profileEditor.getProfile());
 		RegistrationFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
-		builder.withLayouts(layoutEditor.getLayouts());
-		builder.withFormLayoutSettings(layoutEditor.getSettings());
-		return builder.build();
+		RegistrationFormLayouts layouts = layoutEditor.getLayouts();
+		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
+		builder.withLayouts(layouts);
+		
+		RegistrationForm form = builder.build();
+		try
+		{
+			form.validateLayouts();
+		} catch (Exception e)
+		{
+			throw new FormValidationException(e);
+		}
+		return form;
 	}
 	
 	private RegistrationFormBuilder getFormBuilderBasic() throws FormValidationException
@@ -159,12 +173,16 @@ public class RegistrationFormEditor extends BaseFormEditor
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);
 		builder.withExternalSignupSpec(new ExternalSignupSpec(remoteAuthnSelections.getSelectedItems()));
-		builder.withLayouts(layoutEditor.getLayouts());
-		builder.withFormLayoutSettings(layoutEditor.getSettings());
+		FormLayoutSettings settings = layoutEditor.getSettings();
+		settings.setShowCancel(showCancel.getValue());
+		builder.withFormLayoutSettings(settings);
 		builder.withTitle2ndStage(title2ndStage.getValue());
 		builder.withShowGotoSignIn(showGotoSignin.getValue());
 		builder.withSuccessRedirectConfig(successRedirect.getValue());
 		builder.withUserExistsRedirectConfig(userExistsRedirect.getValue());
+		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
+		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
+		builder.withLayouts(layouts);
 		return builder;
 	}
 	
@@ -187,13 +205,15 @@ public class RegistrationFormEditor extends BaseFormEditor
 				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
 		layoutEditor.setSettings(toEdit.getLayoutSettings());
-		layoutEditor.setLayouts(toEdit.getFormLayouts());
+		layoutEditor.setInitialLayouts(toEdit.getFormLayouts());
 		successRedirect.setValue(toEdit.getSuccessRedirect());
 		userExistsRedirect.setValue(toEdit.getUserExistsRedirect());
 		showGotoSignin.setValue(toEdit.isShowSignInLink());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
+		showCancel.setValue(toEdit.getLayoutSettings().isShowCancel());
+		localSignupEmbeddedAsButton.setValue(toEdit.getFormLayouts().isLocalSignupEmbeddedAsButton());
 	}
 	
 	private void initMainTab() throws EngineException
@@ -253,6 +273,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		title2ndStage = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.title2ndStage"));
 		showGotoSignin = new CheckBox(msg.getMessage("RegistrationFormViewer.showGotoSignin"));
+		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
+		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
@@ -260,8 +282,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabOfLists.addTab(remoteSignUpMetnodsTab, 1);
 		tabOfLists.setSelectedTab(0);
 		
-		main.addComponents(displayedName, title2ndStage, formInformation, showGotoSignin, registrationCode, 
-				collectComments, tabOfLists);
+		main.addComponents(displayedName, title2ndStage, formInformation, showGotoSignin, showCancel,
+				localSignupEmbeddedAsButton, registrationCode, collectComments, tabOfLists);
 	}
 	
 	private Component createRemoteSignupMethodsTab() throws EngineException
@@ -287,9 +309,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private void initLayoutTab()
 	{
 		VerticalLayout wrapper = new VerticalLayout();
-		layoutEditor = new RegistrationFormLayoutEditor(msg, this::formProvider);
-		wrapper.setMargin(true);
-		wrapper.setSpacing(false);
+		layoutEditor = new RegistrationFormLayoutMainComponent(msg, this::formProvider);
 		wrapper.addComponent(layoutEditor);
 		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));

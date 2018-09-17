@@ -68,11 +68,16 @@ public class RegistrationForm extends BaseForm
 		super(json);
 		fromJson(json);
 		validateRegistration();
-		getFormLayouts().validate(this);
+		validateLayouts();
 	}
 	
 	RegistrationForm()
 	{
+	}
+	
+	public void validateLayouts()
+	{
+		getFormLayouts().validate(this);
 	}
 	
 	@Override
@@ -279,6 +284,9 @@ public class RegistrationForm extends BaseForm
 
 	public FormLayout getDefaultSecondaryFormLayout(MessageSource msg)
 	{
+		if (!getFormLayouts().isLocalSignupEmbeddedAsButton() && !getExternalSignupSpec().isEnabled())
+			return null;
+		
 		List<FormElement> elements;
 		if (getFormLayouts().isLocalSignupEmbeddedAsButton())
 		{

@@ -19,6 +19,7 @@ import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
+import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 
 /**
@@ -108,7 +109,95 @@ public final class FormLayoutUtils
 	 * removes all elements in layout that are not present in form and adds all form elements missing in layout
 	 * at the end of it.
 	 */
-	public static void updateLayout(FormLayout layout, BaseForm form)
+	public static void updateRegistrationFormLayout(RegistrationFormLayouts layouts, RegistrationForm form)
+	{
+		updatePrimaryLayout(layouts, form);
+		updateSecondaryLayout(layouts, form);
+	}
+	
+	/**
+	 * Defined either when local or remote sign up method is configured.
+	 * In case local sign up the credentials should be available, otherwise removed.
+	 */
+	private static void updateSecondaryLayout(RegistrationFormLayouts layouts, RegistrationForm form)
+	{
+		boolean isLocalSignup = layouts.isLocalSignupEmbeddedAsButton();
+		boolean isExternalSignup = form.getExternalSignupSpec().isEnabled();
+		if (layouts.getSecondaryLayout() == null 
+				&& (isExternalSignup || isLocalSignup))
+		{
+			layouts.setSecondaryLayout(new FormLayout(new ArrayList<>()));
+		}
+		
+		if (layouts.getSecondaryLayout() != null)
+		{
+			FormLayout secondaryLayout = layouts.getSecondaryLayout();
+			if (isExternalSignup || isLocalSignup)
+			{
+				Set<String> definedElements = getDefinedElements(secondaryLayout);
+				updateFormParametersInLayout(secondaryLayout, form, definedElements);
+				updateOtherElementsInLayout(secondaryLayout, form, definedElements);
+			}
+			if (!isLocalSignup)
+				removeAllElements(secondaryLayout, FormLayoutElement.CREDENTIAL);
+			
+			if (!isExternalSignup && !isLocalSignup)
+				layouts.setSecondaryLayout(null);
+		}
+	}
+
+	/**
+	 * When local sign up, then only remote and local sign up elements along with captions.
+	 */
+	private static void updatePrimaryLayout(RegistrationFormLayouts layouts, RegistrationForm form)
+	{
+		if (layouts.getPrimaryLayout() != null)
+		{
+			FormLayout primaryLayout = layouts.getPrimaryLayout();
+			Set<String> definedElements = getDefinedElements(primaryLayout);
+			
+			if (layouts.isLocalSignupEmbeddedAsButton())
+			{
+				addLocalSignupButtonElementIfMissing(primaryLayout, definedElements);
+				for (FormLayoutElement type : FormLayoutElement.values())
+				{
+					if (type == FormLayoutElement.LOCAL_SIGNUP 
+							|| type == FormLayoutElement.REMOTE_SIGNUP
+							|| type == FormLayoutElement.CAPTION)
+						continue;
+					removeAllElements(primaryLayout, type);
+				}
+			}
+			else
+			{
+				removeBasicElementIfPresent(primaryLayout, FormLayoutElement.LOCAL_SIGNUP);
+				updateFormParametersInLayout(primaryLayout, form, definedElements);
+				updateOtherElementsInLayout(primaryLayout, form, definedElements);
+			}
+			
+			int externalSignUpSize = form.getExternalSignupSpec().getSpecs().size();
+			for (int i = 0; i < externalSignUpSize; i++)
+				addParameterIfMissing(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, i, definedElements);
+			removeParametersWithIndexLargerThen(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, externalSignUpSize);
+		}
+	}
+
+	private static void removeAllElements(FormLayout layout, FormLayoutElement type)
+	{
+		Iterator<FormElement> iterator = layout.getElements().iterator();
+		while(iterator.hasNext())
+		{
+			FormElement element = iterator.next();
+			if (element.getType() == type)
+				iterator.remove();
+		}
+	}
+
+	/**
+	 * removes all elements in layout that are not present in form and adds all form elements missing in layout
+	 * at the end of it.
+	 */
+	public static void updateEnquiryLayout(FormLayout layout, EnquiryForm form)
 	{
 		if (layout == null)
 			return;
@@ -331,6 +420,12 @@ public final class FormLayoutUtils
 	{
 		if (!definedElements.contains(type.name()))
 			layout.getElements().add(new BasicFormElement(type));
+	}
+	
+	private static void addLocalSignupButtonElementIfMissing(FormLayout layout, Set<String> definedElements)
+	{
+		if (!definedElements.contains(FormLayoutElement.LOCAL_SIGNUP.name()))
+			layout.getElements().add(new FormLocalSignupButtonElement());
 	}
 	
 	private FormLayoutUtils()

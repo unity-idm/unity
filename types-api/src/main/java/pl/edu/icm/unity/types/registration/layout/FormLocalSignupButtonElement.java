@@ -32,6 +32,6 @@ public class FormLocalSignupButtonElement extends FormElement
 	@Override
 	public String toString()
 	{
-		return "Local Signup button";
+		return "Parameter " + getType();
 	}
 }

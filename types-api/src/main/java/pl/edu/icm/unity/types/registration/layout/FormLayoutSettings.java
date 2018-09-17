@@ -72,6 +72,11 @@ public class FormLayoutSettings
 		return showCancel;
 	}
 	
+	public void setShowCancel(boolean showCancel)
+	{
+		this.showCancel = showCancel;
+	}
+
 	public String getLogoURL()
 	{
 		return logoURL;

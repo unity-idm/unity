@@ -13,25 +13,21 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 /**
- * Registration for layouts and settings editor.
+ * General registration layouts settings editor.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class RegistrationFormLayoutEditor extends CustomComponent
+public class RegistrationFormLayoutSettingsTab extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private Supplier<RegistrationForm> formProvider;
-	//TODO use Binder!
-	private CheckBox localSignupEmbeddedAsButton;
 	private CheckBox compactInputs;
-	private CheckBox showCancel;
 	private TextField logo;
 
-	public RegistrationFormLayoutEditor(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
+	public RegistrationFormLayoutSettingsTab(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
 		this.msg = msg;
 		this.formProvider = formProvider;
@@ -43,22 +39,13 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
-		main.setMargin(false);
-		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
+		main.setMargin(true);
 		compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
-		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
 		logo = new TextField(msg.getMessage("FormLayoutEditor.logo"));
 		logo.setDescription(msg.getMessage("FormLayoutEditor.logoDesc"));
 		logo.setWidth(100, Unit.PERCENTAGE);
-		main.addComponents(localSignupEmbeddedAsButton, compactInputs, showCancel, logo);
+		main.addComponents(compactInputs, logo);
 		setCompositionRoot(main);
-	}
-
-	public RegistrationFormLayouts getLayouts()
-	{
-		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
-		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
-		return layouts;
 	}
 
 	public FormLayoutSettings getSettings()
@@ -67,21 +54,14 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 				.withColumnWidth(FormLayoutSettings.DEFAULT.getColumnWidth())
 				.withColumnWidthUnit(FormLayoutSettings.DEFAULT.getColumnWidthUnit())
 				.withCompactInputs(compactInputs.getValue())
-				.withShowCancel(showCancel.getValue())
 				.withLogo(logo.getValue() != null && !logo.getValue().isEmpty() ? logo.getValue() : null)
 				.build(); 
 		return settings;
 	}
 
-	public void setLayouts(RegistrationFormLayouts layouts)
-	{
-		localSignupEmbeddedAsButton.setValue(layouts.isLocalSignupEmbeddedAsButton());
-	}
-
 	public void setSettings(FormLayoutSettings settings)
 	{
 		compactInputs.setValue(settings.isCompactInputs());
-		showCancel.setValue(settings.isShowCancel());
 		if (settings.getLogoURL() != null)
 			logo.setValue(settings.getLogoURL());
 	}
@@ -93,7 +73,6 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 			return;
 
 		setSettings(form.getLayoutSettings());
-		setLayouts(form.getFormLayouts());
 	}
 
 }
