@@ -313,6 +313,11 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		int index = element.getIndex();
 		AuthenticationOptionKey spec =  form.getExternalSignupSpec().getSpecs().get(index);
 		SignUpAuthNOption option = signupOptions.get(spec);
+		if (option == null)
+		{
+			log.debug("Ignoring not available remote sign up option {}", spec.toGlobalKey());
+			return false;
+		}
 		option.authenticatorUI.setAuthenticationCallback(signUpAuthNController.buildCallback(option));
 		Component signupOptionComponent = option.authenticatorUI.getComponent();
 		signupOptionComponent.setWidth(formWidth(), formWidthUnit()); 
