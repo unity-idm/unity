@@ -167,7 +167,8 @@ public class PostFillingHandler
 				message.getBody().getValue(msg), 
 				redirectCfg.getRedirectURL() == null ? 
 						null : () -> redirect(redirectCfg.getRedirectURL()), 
-				redirectCfg.getRedirectCaption().getValue(msg)));
+				redirectCfg.getRedirectCaption() == null ? 
+						null : redirectCfg.getRedirectCaption().getValue(msg)));
 	}
 
 	private RedirectConfig getPostSubmitRedirectConfig(RegistrationForm form, 
@@ -185,7 +186,7 @@ public class PostFillingHandler
 
 		if (redirectURL == null && form.getSuccessRedirect() != null)
 			redirectURL = form.getSuccessRedirect().getRedirectURL();
-		if (redirectURL == null)
+		if (Strings.isEmpty(redirectURL))
 			return new RedirectConfig(null, null, false);
 		
 		String finalRedirect = new RegistrationRedirectURLBuilder(redirectURL, form.getName(), requestId, 
@@ -193,10 +194,16 @@ public class PostFillingHandler
 		
 		boolean automatic = form.getSuccessRedirect() != null ? 
 				form.getSuccessRedirect().isAutomatic() : true;
+		I18nString defRedirectCaption = new I18nString("RegistrationFormsChooserComponent.defaultRedirectCaption", msg);
 		I18nString redirectCaption = form.getSuccessRedirect() != null ? 
-				form.getSuccessRedirect().getRedirectCaption() : 
+				getCaptionWithDefault(form.getSuccessRedirect().getRedirectCaption(), defRedirectCaption) : 
 				new I18nString(""); //not needed as if there is no config then we have automatic redirect
 		return new RedirectConfig(redirectCaption, finalRedirect, automatic);
+	}
+	
+	private I18nString getCaptionWithDefault(I18nString value, I18nString defaultValue)
+	{
+		return value.isEmpty() ? defaultValue : value;
 	}
 	
 	private I18nMessage getPostSubmitMessage(String requestId, BaseRegistrationInput request, 
@@ -206,7 +213,10 @@ public class PostFillingHandler
 		if (message != null)
 			return message;
 		
-		I18nString title = new I18nString("RegistrationFormsChooserComponent.requestSubmitted", msg);
+		I18nString title = new I18nString(autoAccepted ? 
+				"RegistrationFormsChooserComponent.requestAccepted" : 
+				"RegistrationFormsChooserComponent.requestSubmitted", msg);
+		
 		I18nString info = new I18nString(autoAccepted ? 
 				"RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept" : 
 				"RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept", 

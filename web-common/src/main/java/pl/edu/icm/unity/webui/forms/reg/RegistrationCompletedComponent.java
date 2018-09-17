@@ -46,6 +46,7 @@ class RegistrationCompletedComponent extends CustomComponent
 		headerWrapper.setMargin(false);
 		
 		Label infoL = new Label(config.mainInformation);
+		infoL.addStyleName(Styles.vLabelH1.toString());
 		infoL.addStyleName(!error ? "u-reg-final-info" : "u-reg-final-error");
 		main.addComponent(infoL);
 		main.setComponentAlignment(infoL, Alignment.MIDDLE_CENTER);
