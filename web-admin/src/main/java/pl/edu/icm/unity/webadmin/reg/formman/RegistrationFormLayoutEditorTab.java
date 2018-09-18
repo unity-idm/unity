@@ -35,6 +35,7 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 	private FormLayoutEditor secondaryLayoutEditor;
 	private CssLayout layouts;
 	private boolean isInitialValueSet = false;
+	private Panel secondaryLayoutPanel;
 
 	public RegistrationFormLayoutEditorTab(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
@@ -56,7 +57,7 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 		primaryLayoutPanel.setStyleName(Styles.bottomMargin.toString());
 		primaryLayoutPanel.setStyleName(Styles.rightMargin.toString());
 		primaryLayoutPanel.setSizeUndefined();
-		Panel secondaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.secondaryLayout"), secondaryLayoutEditor);
+		secondaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.secondaryLayout"), secondaryLayoutEditor);
 		secondaryLayoutPanel.setSizeUndefined();
 		layouts.addComponents(primaryLayoutPanel, secondaryLayoutPanel);
 		
@@ -70,7 +71,7 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 		main.setComponentAlignment(layouts, Alignment.TOP_CENTER);
 		setCompositionRoot(main);
 	}
-
+	
 	private void onEnableCustomLayout(boolean isCustomLayout)
 	{
 		layouts.setVisible(isCustomLayout);
@@ -101,8 +102,10 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 		return layouts;
 	}
 
-	public void setFormLayouts(RegistrationFormLayouts formLayouts)
+	public void setFormLayouts(RegistrationForm form, RegistrationFormLayouts formLayouts)
 	{
+		boolean isSecondLayoutNeeded = form.getExternalSignupSpec().isEnabled() || formLayouts.isLocalSignupEmbeddedAsButton();
+		secondaryLayoutPanel.setVisible(isSecondLayoutNeeded);
 		boolean isCustomLayoutEnabled = false;
 		if (formLayouts.getPrimaryLayout() == null && formLayouts.getSecondaryLayout() == null)
 		{
@@ -139,7 +142,7 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 		RegistrationFormLayouts layouts = getCurrentLayouts();
 		layouts.setLocalSignupEmbeddedAsButton(form.getFormLayouts().isLocalSignupEmbeddedAsButton());
 		FormLayoutUtils.updateRegistrationFormLayout(layouts, form);
-		setFormLayouts(layouts);
+		setFormLayouts(form, layouts);
 	}
 
 }

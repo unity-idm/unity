@@ -73,9 +73,9 @@ public class RegistrationFormLayoutMainComponent extends VerticalLayout
 		settingsTab.setSettings(layoutSettings);
 	}
 
-	public void setInitialLayouts(RegistrationFormLayouts formLayouts)
+	public void setInitialLayouts(RegistrationForm form)
 	{
-		editorTab.setFormLayouts(formLayouts);
+		editorTab.setFormLayouts(form, form.getFormLayouts());
 	}
 
 }
