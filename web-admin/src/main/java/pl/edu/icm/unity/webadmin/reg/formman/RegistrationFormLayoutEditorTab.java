@@ -104,24 +104,30 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 
 	public void setFormLayouts(RegistrationForm form, RegistrationFormLayouts formLayouts)
 	{
-		boolean isSecondLayoutNeeded = form.getExternalSignupSpec().isEnabled() || formLayouts.isLocalSignupEmbeddedAsButton();
-		secondaryLayoutPanel.setVisible(isSecondLayoutNeeded);
-		boolean isCustomLayoutEnabled = false;
-		if (formLayouts.getPrimaryLayout() == null && formLayouts.getSecondaryLayout() == null)
-		{
-			isCustomLayoutEnabled = false;
-			primaryLayoutEditor.setLayout(null);
-			secondaryLayoutEditor.setLayout(null);
-		} else
-		{
-			isCustomLayoutEnabled = true;
-			primaryLayoutEditor.setLayout(formLayouts.getPrimaryLayout());
-			secondaryLayoutEditor.setLayout(formLayouts.getSecondaryLayout());
-		}
+		boolean isCustomLayoutDisabled = formLayouts.getPrimaryLayout() == null 
+				&& formLayouts.getSecondaryLayout() == null;
 		if (!isInitialValueSet)
 		{
-			enableCustomLayout.setValue(isCustomLayoutEnabled);
+			enableCustomLayout.setValue(!isCustomLayoutDisabled);
+			onEnableCustomLayout(!isCustomLayoutDisabled);
 			isInitialValueSet = true;
+		}
+		
+		if (isCustomLayoutDisabled)
+		{
+			primaryLayoutEditor.setLayout(null);
+			secondaryLayoutEditor.setLayout(null);
+		}
+		
+		if (!enableCustomLayout.getValue())
+			return;
+
+		boolean isSecondLayoutNeeded = form.getExternalSignupSpec().isEnabled() || formLayouts.isLocalSignupEmbeddedAsButton();
+		secondaryLayoutPanel.setVisible(isSecondLayoutNeeded);
+		if (!isCustomLayoutDisabled)
+		{
+			primaryLayoutEditor.setLayout(formLayouts.getPrimaryLayout());
+			secondaryLayoutEditor.setLayout(formLayouts.getSecondaryLayout());
 		}
 	}
 	
