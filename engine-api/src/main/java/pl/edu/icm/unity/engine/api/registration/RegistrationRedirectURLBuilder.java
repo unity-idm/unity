@@ -13,7 +13,7 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuil
  */
 public class RegistrationRedirectURLBuilder extends EmailConfirmationRedirectURLBuilder
 {
-	public enum Status {submitted, submittedAccepted, submittedWithError, cancelled, elementConfirmed,
+	public enum Status {submitted, submittedAccepted, submittedWithError, userExists, cancelled, elementConfirmed,
 		elementConfirmationError}
 	
 	public static final String PARAM_FORM_ID = "form_id";

@@ -31,12 +31,14 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer;
@@ -146,10 +148,10 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 	{
 		private VerifiableEmail value;
 		private String label;
-		private boolean required;
 		private ConfirmationInfo confirmationInfo;
 		private TextFieldWithVerifyButton editor;
 		private boolean skipUpdate = false;
+		private AttributeEditContext context;
 
 		public VerifiableEmailValueEditor(String valueRaw, String label)
 		{
@@ -160,7 +162,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			this.context = context;
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
@@ -170,10 +172,11 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 
 			editor = new TextFieldWithVerifyButton(
 					context.getConfirmationMode() == ConfirmationMode.ADMIN,
-					required,
+					context.isRequired(),
 					msg.getMessage("VerifiableEmailAttributeHandler.resendConfirmation"),
 					Images.messageSend.getResource(),
-					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"));
+					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"),
+					context.isShowLabelInline());
 			if (label != null)
 				editor.setTextFieldId("EmailValueEditor." + label);
 
@@ -230,6 +233,9 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			
 			updateConfirmationStatusIcon();
 			
+			if (context.isCustomWidth())
+				editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			
 			return new ComponentsContainer(editor);
 
 		}
@@ -269,7 +275,7 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-			if (!required && editor.getValue().isEmpty())
+			if (!context.isRequired() && editor.getValue().isEmpty())
 				return null;
 
 			try
@@ -293,15 +299,17 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			editor.setCaption(label);
-
+			editor.setLabel(label);
 		}
 	}
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return new Label(getValueAsString(value));
+		Component component = new ReadOnlyField(getValueAsString(value));
+		if (context.isCustomWidth())
+			component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		return component;
 	}
 	
 	

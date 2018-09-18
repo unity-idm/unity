@@ -8,6 +8,8 @@
  **********************************************************************/
 package pl.edu.icm.unity.types.registration.layout;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import pl.edu.icm.unity.MessageSource;
@@ -22,7 +24,7 @@ public class FormParameterElement extends FormElement
 {
 	private int index;
 
-	public FormParameterElement(String type, int index)
+	public FormParameterElement(FormLayoutElement type, int index)
 	{
 		super(type, true);
 		this.index = index;
@@ -40,30 +42,6 @@ public class FormParameterElement extends FormElement
 	}
 
 	@Override
-	public int hashCode()
-	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + index;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FormParameterElement other = (FormParameterElement) obj;
-		if (index != other.index)
-			return false;
-		return true;
-	}
-
-	@Override
 	public String toString()
 	{
 		return "Parameter " + getType() + " [" + index + "]";
@@ -73,5 +51,24 @@ public class FormParameterElement extends FormElement
 	public String toString(MessageSource msg)
 	{
 		return toString();
+	}
+
+	@Override
+	public boolean equals(final Object other)
+	{
+		if (this == other)
+			return true;
+		if (!(other instanceof FormParameterElement))
+			return false;
+		if (!super.equals(other))
+			return false;
+		FormParameterElement castOther = (FormParameterElement) other;
+		return Objects.equals(index, castOther.index);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return Objects.hash(super.hashCode(), index);
 	}
 }

@@ -42,7 +42,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	{
 		this.renderer = renderer;
 		this.multiSelectable = multiSelectable;
-		chipsRow = new ChipsRow<T>();
+		chipsRow = new ChipsRow<>();
 		chipsRow.addChipRemovalListener(this::onChipRemoval);
 		chipsRow.setVisible(false);
 		combo = new ComboBox<>();
@@ -78,6 +78,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		
 	}
 	
+	@Override
 	public void setReadOnly(boolean readOnly)
 	{
 		this.readOnly = readOnly;
@@ -150,5 +151,13 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	{
 		updateItemsAvailableToSelect();
 		chipsRow.setVisible(!chipsRow.getChipsData().isEmpty());
+	}
+	
+	@Override
+	public void setWidth(float width, Unit unit)
+	{
+		super.setWidth(width, unit);
+		if (combo != null)
+			combo.setWidth(width, unit);
 	}
 }

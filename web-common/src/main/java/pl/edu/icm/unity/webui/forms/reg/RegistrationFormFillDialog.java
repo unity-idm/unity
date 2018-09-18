@@ -60,7 +60,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 	{
 		try
 		{
-			RegistrationRequest request = editor.getRequest();
+			RegistrationRequest request = editor.getRequest(true);
 			if (callback.newRequest(request))
 				close();
 		} catch (Exception e) 

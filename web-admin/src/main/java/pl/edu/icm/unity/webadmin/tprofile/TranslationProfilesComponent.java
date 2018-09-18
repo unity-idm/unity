@@ -98,7 +98,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			actionComponentFactory.init();
 			establishSandboxURL(endpointMan);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
 			error.setError(msg.getMessage(
@@ -169,7 +169,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		HorizontalLayout hl = new HorizontalLayout();
 		table = createTable();
 
-		profileType = new RadioButtonGroup<ProfileType>();
+		profileType = new RadioButtonGroup<>();
 		profileType.setItems(ProfileType.INPUT, ProfileType.OUTPUT);
 		Map<ProfileType, String> captions = new HashMap<>();
 		captions.put(ProfileType.INPUT,

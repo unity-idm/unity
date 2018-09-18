@@ -45,9 +45,13 @@ public class ComponentsContainer
 			((AbstractComponent)components.get(0)).setDescription(description);
 	}
 	
-	public void setCaption(String caption)
+	public void setLabel(String label)
 	{
-		components.get(0).setCaption(caption);
+		Component component = components.get(0);
+		if (component instanceof ComponentWithLabel)
+			((ComponentWithLabel) component).setLabel(label);
+		else
+			component.setCaption(label);
 	}
 	
 	public Component[] getComponents()

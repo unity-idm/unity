@@ -72,15 +72,24 @@ public class BaseRequestValidator
 	@Autowired
 	private LocalCredentialsRegistry authnRegistry;
 	
-	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request,
+	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
+			InvitationPrefillInfo prefillInfo,
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException
 	{
+		validateSubmittedRequest(form, request, prefillInfo, doCredentialCheckAndUpdate, false);
+	}
+	
+	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
+			InvitationPrefillInfo prefillInfo,
+			boolean doCredentialCheckAndUpdate, boolean skipCredentialsValidation) throws IllegalFormContentsException
+	{
 		validateRequestAgreements(form, request);
-		validateRequestedAttributes(form, request);
-		validateRequestCredentials(form, request, doCredentialCheckAndUpdate);
-		validateRequestedIdentities(form, request);
+		validateRequestedAttributes(form, request, prefillInfo);
+		if (!skipCredentialsValidation)
+			validateRequestCredentials(form, request, doCredentialCheckAndUpdate);
+		validateRequestedIdentities(form, request, prefillInfo);
 		validateRequestedGroups(form, request);
-
+		
 		if (!form.isCollectComments() && request.getComments() != null)
 			throw new IllegalFormContentsException("This registration "
 					+ "form doesn't allow for passing comments.");
@@ -195,7 +204,8 @@ public class BaseRequestValidator
 			credentialRepository.get(credentialParam.getCredentialId());
 	}
 	
-	private void validateRequestedAttributes(BaseForm form, BaseRegistrationInput request) 
+	private void validateRequestedAttributes(BaseForm form, BaseRegistrationInput request, 
+			InvitationPrefillInfo prefillInfo) 
 			throws IllegalFormContentsException
 	{
 		validateParamsBase(form.getAttributeParams(), request.getAttributes(), 
@@ -217,33 +227,44 @@ public class BaseRequestValidator
 						+ " is not allowed for this form",
 						i, Category.ATTRIBUTE);
 
-			AttributeValueSyntax<?> syntax = attributeTypesHelper
-					.getUnconfiguredSyntaxForAttributeName(attr.getName());
-			if (syntax.isUserVerifiable())
+			forceConfirmationStateOfAttribute(regParam, i, attr, prefillInfo);
+		}
+	}
+	
+	private void forceConfirmationStateOfAttribute(AttributeRegistrationParam regParam, int i, 
+			Attribute attr, InvitationPrefillInfo prefillInfo)
+	{
+		AttributeValueSyntax<?> syntax = attributeTypesHelper
+				.getUnconfiguredSyntaxForAttributeName(attr.getName());
+		if (syntax.isUserVerifiable())
+		{
+			@SuppressWarnings("unchecked")
+			AttributeValueSyntax<? extends VerifiableElement> vsyntax = 
+				(AttributeValueSyntax<? extends VerifiableElement>) syntax;
+			
+			if (regParam.getConfirmationMode() == ConfirmationMode.CONFIRMED)
+				AttributesHelper.setConfirmed(attr, vsyntax);
+			
+			if (prefillInfo.isAttributePrefilled(i) && 
+					(regParam.getConfirmationMode() == ConfirmationMode.ON_ACCEPT 
+					||regParam.getConfirmationMode() == ConfirmationMode.ON_SUBMIT))
+				return;
+			
+			if (syntax.isEmailVerifiable())
 			{
-				@SuppressWarnings("unchecked")
-				AttributeValueSyntax<? extends VerifiableElement> vsyntax = 
-					(AttributeValueSyntax<? extends VerifiableElement>) syntax;
-				
-
-				if (regParam.getConfirmationMode() == ConfirmationMode.CONFIRMED)
-					AttributesHelper.setConfirmed(attr, vsyntax);
-				
-				if (syntax.isEmailVerifiable())
-				{
-					if (regParam.getConfirmationMode() != ConfirmationMode.CONFIRMED)
-						AttributesHelper.setUnconfirmed(attr, vsyntax);
-				} else
-				{
-					if (regParam.getConfirmationMode() == ConfirmationMode.DONT_CONFIRM)
-						AttributesHelper.setUnconfirmed(attr, vsyntax);
-				}
-				
+				if (regParam.getConfirmationMode() != ConfirmationMode.CONFIRMED)
+					AttributesHelper.setUnconfirmed(attr, vsyntax);
+			} else
+			{
+				if (regParam.getConfirmationMode() == ConfirmationMode.DONT_CONFIRM)
+					AttributesHelper.setUnconfirmed(attr, vsyntax);
 			}
+			
 		}
 	}
 
-	private void validateRequestedIdentities(BaseForm form, BaseRegistrationInput request) 
+	private void validateRequestedIdentities(BaseForm form, BaseRegistrationInput request, 
+			InvitationPrefillInfo prefillInfo) 
 			throws IllegalFormContentsException
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
@@ -261,17 +282,27 @@ public class BaseRequestValidator
 				throw new IllegalFormContentsException("Identity nr " + i + " must be of " 
 						+ form.getIdentityParams().get(i).getIdentityType() + " type",
 						i, Category.IDENTITY);
-			
-			IdentityTypeDefinition idTypeDef = identityTypesRegistry.getByName(formParam.getIdentityType());
-			if (idTypeDef.isEmailVerifiable())
-			{
-				boolean initiallyConfirmed = 
-						formParam.getConfirmationMode() == ConfirmationMode.CONFIRMED;
-				idParam.setConfirmationInfo(new ConfirmationInfo(initiallyConfirmed));
-			}
+			forceConfirmationStateOfIdentity(formParam, i, idParam, prefillInfo);
 		}
 	}
+	
+	private void forceConfirmationStateOfIdentity(IdentityRegistrationParam formParam, int i, 
+			IdentityParam idParam, InvitationPrefillInfo prefillInfo)
+	{
+		IdentityTypeDefinition idTypeDef = identityTypesRegistry.getByName(formParam.getIdentityType());
+		if (idTypeDef.isEmailVerifiable())
+		{
+			if (prefillInfo.isIdentityPrefilled(i) && 
+					(formParam.getConfirmationMode() == ConfirmationMode.ON_ACCEPT 
+					||formParam.getConfirmationMode() == ConfirmationMode.ON_SUBMIT))
+				return;
 
+			boolean initiallyConfirmed = 
+					formParam.getConfirmationMode() == ConfirmationMode.CONFIRMED;
+			idParam.setConfirmationInfo(new ConfirmationInfo(initiallyConfirmed));
+		}
+	}
+	
 	protected void checkIdentityIsNotPresent(IdentityParam idParam) throws IllegalFormContentsException
 	{
 		try

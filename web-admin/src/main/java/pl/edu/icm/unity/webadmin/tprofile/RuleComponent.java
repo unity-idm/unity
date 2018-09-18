@@ -140,7 +140,7 @@ public class RuleComponent extends CustomComponent
 		condition = new MVELExpressionField(msg, msg.getMessage("TranslationProfileEditor.ruleCondition"), 
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		condition.setStyleName(Styles.vTiny.toString());
-		
+		condition.setWidth(100, Unit.PERCENTAGE);
 		Consumer<String> editorCallback = s -> info.setValue(s);
 		actionEditor = new ActionEditor(msg, tc, toEdit == null ? null : toEdit.getAction(),
 				actionComponentProvider, editorCallback);

@@ -41,7 +41,6 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema2_4.class);
-	
 	@Autowired
 	private ObjectStoreDAO genericObjectsDAO;
 	
@@ -120,7 +119,7 @@ public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
 	private void updateInvitations()
 	{
 		List<GenericObjectBean> forms = genericObjectsDAO.getObjectsOfType(
-				RegistrationRequestHandler.REGISTRATION_REQUEST_OBJECT_TYPE);
+				RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE);
 		Map<String, ObjectNode> formsMap = getFormsMap(forms);
 		List<GenericObjectBean> invitations = genericObjectsDAO.getObjectsOfType(
 				InvitationHandler.INVITATION_OBJECT_TYPE);
@@ -145,6 +144,7 @@ public class InDBUpdateFromSchema2_4 implements InDBSchemaUpdater
 		for (GenericObjectBean form: forms)
 		{
 			ObjectNode objContent = JsonUtil.parse(form.getContents());
+			log.info("Loaded form {}", objContent);
 			formsMap.put(objContent.get("Name").asText(), objContent);
 		}
 		return formsMap;

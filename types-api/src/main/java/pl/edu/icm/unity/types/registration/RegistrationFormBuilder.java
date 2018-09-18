@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 /**
  * Builder of {@link RegistrationForm}
@@ -23,6 +25,14 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		instance.validate();
 		instance.validateRegistration();
 		return instance;
+	}
+	
+
+	public RegistrationFormBuilder withLayouts(RegistrationFormLayouts formLayouts)
+	{
+		instance.setFormLayouts(formLayouts);
+		
+		return this;
 	}
 
 	public RegistrationFormBuilder withNotificationsConfiguration(RegistrationFormNotifications aValue)
@@ -73,6 +83,45 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 	{
 		instance.setCaptchaLength(aValue);
 
+		return this;
+	}
+	
+	public RegistrationFormBuilder withExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
+	{
+		instance.setExternalSignupSpec(externalSignupSpec);
+		
+		return this;
+	}
+	
+	public RegistrationFormBuilder withFormLayoutSettings(FormLayoutSettings settings)
+	{
+		instance.setLayoutSettings(settings);
+		
+		return this;
+	}
+	
+
+	public RegistrationFormBuilder withTitle2ndStage(I18nString aValue)
+	{
+		instance.setTitle2ndStage(aValue);
+		return this;
+	}
+
+	public RegistrationFormBuilder withSuccessRedirectConfig(RedirectConfig config)
+	{
+		instance.setSuccessRedirect(config);
+		return this;
+	}
+	
+	public RegistrationFormBuilder withUserExistsRedirectConfig(RedirectConfig config)
+	{
+		instance.setUserExistsRedirect(config);
+		return this;
+	}
+
+	public RegistrationFormBuilder withShowGotoSignIn(boolean show)
+	{
+		instance.setShowSignInLink(show);
 		return this;
 	}
 

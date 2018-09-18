@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -43,13 +42,6 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 		return (T) this;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public T withExternalSignupSpec(ExternalSignupSpec spec)
-	{
-		instance.setExternalSignupSpec(spec);
-		return (T) this;
-	}
-
 	@SuppressWarnings("unchecked")
 	public T withAddedIdentityParam(IdentityRegistrationParam aValue)
 	{
@@ -217,16 +209,6 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 
 		return (T) this;
 	}
-
-	@SuppressWarnings("unchecked")
-	public T withLayout(FormLayout layout)
-	{
-		instance.setLayout(layout);
-
-		return (T) this;
-	}
-
-	
 	
 	public class GroupRegistrationParamBuilder
 	{
@@ -344,6 +326,12 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 			return this;
 		}
 
+		public AttributeRegistrationParamBuilder withConfirmationMode(ConfirmationMode confirmationMode)
+		{
+			instance.setConfirmationMode(confirmationMode);
+			return this;
+		}
+		
 		public T endAttributeParam()
 		{
 			return parent;
@@ -398,6 +386,12 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 		{
 			instance.setRetrievalSettings(aValue);
 
+			return this;
+		}
+		
+		public IdentityRegistrationParamBuilder withConfirmationMode(ConfirmationMode confirmationMode)
+		{
+			instance.setConfirmationMode(confirmationMode);
 			return this;
 		}
 

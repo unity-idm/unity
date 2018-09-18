@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +22,6 @@ import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
@@ -51,8 +49,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 	
 	@Autowired
 	public RegistrationFormsComponent(UnityMessageSource msg, RegistrationsManagement registrationsManagement,
-			ObjectFactory<RegistrationFormEditor> editorFactory,
-			RegistrationFormViewer viewer)
+			ObjectFactory<RegistrationFormEditor> editorFactory)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -64,24 +61,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
 		
-		viewer.setInput(null);
 		table = new GenericElementsTable<>(
 				msg.getMessage("RegistrationFormsComponent.formsTable"), 
 				form -> form.getName());
 
 		table.setSizeFull();
 		table.setMultiSelect(true);
-		table.addSelectionListener(event ->
-		{
-			Collection<RegistrationForm> items = event.getAllSelectedItems();
-			if (items.size() > 1 || items.isEmpty())
-			{
-				viewer.setInput(null);
-				return;
-			}
-			RegistrationForm item = items.iterator().next();	
-			viewer.setInput(item);
-		});
 		
 		table.addActionHandler(getRefreshAction());
 		table.addActionHandler(getAddAction());
@@ -96,9 +81,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
 
-		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);
-		
-		main = hl;
+		main = tableWithToolbar;
 		refresh();
 	}
 	
@@ -223,11 +206,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private void showCopyEditDialog(Set<RegistrationForm> target, boolean isCopyMode, String caption)
 	{
 		RegistrationForm targetForm =  target.iterator().next();
+		RegistrationForm deepCopy = new RegistrationForm(targetForm.toJson());
 		RegistrationFormEditor editor;
 		try
 		{		
 			editor = editorFactory.getObject().init(isCopyMode);
-			editor.setForm(targetForm);
+			editor.setForm(deepCopy);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage(

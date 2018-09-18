@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -51,6 +52,8 @@ public class InvitationsComponent extends CustomComponent
 	private InvitationManagement invitationManagement;
 
 	private GroupsManagement groupsManagement;
+
+	private SharedEndpointManagement sharedEndpointManagement;
 	
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
@@ -60,7 +63,8 @@ public class InvitationsComponent extends CustomComponent
 			AttributeHandlerRegistry attrHandlersRegistry,
 			IdentityEditorRegistry identityEditorRegistry,
 			MessageTemplateManagement msgTemplateManagement,
-			GroupsManagement groupsManagement)
+			GroupsManagement groupsManagement,
+			SharedEndpointManagement sharedEndpointManagement)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
@@ -70,6 +74,7 @@ public class InvitationsComponent extends CustomComponent
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.msgTemplateManagement = msgTemplateManagement;
 		this.groupsManagement = groupsManagement;
+		this.sharedEndpointManagement = sharedEndpointManagement;
 		initUI();
 	}
 
@@ -81,7 +86,7 @@ public class InvitationsComponent extends CustomComponent
 				identityEditorRegistry, attrHandlersRegistry,
 				msgTemplateManagement, groupsManagement);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry,
-				msgTemplateManagement, registrationManagement);
+				msgTemplateManagement, registrationManagement, sharedEndpointManagement);
 
 		invitationsTable.addValueChangeListener(invitation -> 
 			viewer.setInput(invitation, getForm(invitation))

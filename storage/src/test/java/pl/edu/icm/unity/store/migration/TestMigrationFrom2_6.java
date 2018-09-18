@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.store.migration;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
@@ -25,12 +27,16 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
+import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
+import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.StoredAttribute;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
@@ -49,6 +55,12 @@ public class TestMigrationFrom2_6
 	
 	@Autowired
 	private RegistrationRequestDB regRequestDB;
+	
+	@Autowired
+	private RegistrationFormDB regFormDB;
+	
+	@Autowired
+	private EnquiryFormDB enquiryFormDB;
 	
 	@Autowired
 	private EnquiryResponseDB enquiryResponseDB;
@@ -87,6 +99,54 @@ public class TestMigrationFrom2_6
 		});
 	}
 	
+	@Test
+	public void testImportFrom2_6_2()
+	{
+		tx.runInTransaction(() -> {
+			try
+			{
+				ie.load(new BufferedInputStream(new FileInputStream(
+						"src/test/resources/updateData/from2.6.x/"
+						+ "local-from2.6.2-enquiryAndRegWithCustomLayouts.json")));
+				ie.store(new FileOutputStream("target/afterImport2.json"));
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
+
+			checkEnquiryFormLayout();
+			checkRegistratoinFormLayout();
+		});
+	}
+	
+	private void checkEnquiryFormLayout()
+	{
+		List<EnquiryForm> enquiries = enquiryFormDB.getAll();
+		assertThat(enquiries.size(), is(1));
+		
+		EnquiryForm enquiry = enquiries.get(0);
+		assertThat(enquiry.getLayout(), notNullValue());
+	}
+
+	private void checkRegistratoinFormLayout()
+	{
+		List<RegistrationForm> forms = regFormDB.getAll();
+		assertThat(forms.size(), is(2));
+		
+		RegistrationForm fbform = forms.get(0);
+		assertThat(fbform.getName(), is("fb-form"));
+		assertThat(fbform.getFormLayouts().getPrimaryLayout(), nullValue());
+		assertThat(fbform.getFormLayouts().getSecondaryLayout(), nullValue());
+		assertThat(fbform.getLayoutSettings(), notNullValue());
+		
+		RegistrationForm formWithCustomLayout = forms.get(1);
+		assertThat(formWithCustomLayout.getName(), is("registration with layout"));
+		assertThat(formWithCustomLayout.getFormLayouts().getPrimaryLayout(), notNullValue());
+		assertThat(formWithCustomLayout.getFormLayouts().getSecondaryLayout(), nullValue());
+		assertThat(fbform.getLayoutSettings(), notNullValue());
+	}
+
 	private void checkRequests()
 	{
 		List<RegistrationRequestState> all = regRequestDB.getAll();

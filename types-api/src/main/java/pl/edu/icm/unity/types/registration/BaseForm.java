@@ -6,7 +6,7 @@ package pl.edu.icm.unity.types.registration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -17,16 +17,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectROImpl;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
-import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
-import pl.edu.icm.unity.types.registration.layout.FormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
-import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
-import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -44,13 +39,12 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private List<GroupRegistrationParam> groupParams = new ArrayList<>();
 	private List<CredentialRegistrationParam> credentialParams = new ArrayList<>();
 	private List<AgreementRegistrationParam> agreements = new ArrayList<>();
-	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
 	private boolean collectComments;
 	private I18nString displayedName = new I18nString();
 	private I18nString formInformation = new I18nString();
 	private TranslationProfile translationProfile = 
-			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>()); 
-	private FormLayout layout;
+			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>());
+	private FormLayoutSettings layoutSettings = FormLayoutSettings.DEFAULT;
 	
 	@JsonCreator
 	BaseForm(ObjectNode json)
@@ -82,79 +76,6 @@ public abstract class BaseForm extends DescribedObjectROImpl
 					+ "in a form (but it contents can be empty)");
 	}
 	
-	/**
-	 * removes all elements in layout that are not present in form and adds all form elements missing in layout
-	 * at the end of it.
-	 */
-	public void updateLayout()
-	{
-		if (layout == null)
-			return;
-		Set<String> definedElements = layout.getDefinedElements();
-		updateFormParametersInLayout(definedElements);
-		updateOtherElementsInLayout(definedElements);
-	}
-
-	protected void updateFormParametersInLayout(Set<String> definedElements)
-	{
-		for (int i = 0; i < identityParams.size(); i++)
-			layout.addParameterIfMissing(FormLayout.IDENTITY, i, definedElements);
-		for (int i = 0; i < attributeParams.size(); i++)
-			layout.addParameterIfMissing(FormLayout.ATTRIBUTE, i, definedElements);
-		for (int i = 0; i < agreements.size(); i++)
-			layout.addParameterIfMissing(FormLayout.AGREEMENT, i, definedElements);
-		for (int i = 0; i < groupParams.size(); i++)
-			layout.addParameterIfMissing(FormLayout.GROUP, i, definedElements);
-		for (int i = 0; i < credentialParams.size(); i++)
-			layout.addParameterIfMissing(FormLayout.CREDENTIAL, i, definedElements);
-		
-		layout.removeParametersWithIndexLargerThen(FormLayout.IDENTITY, identityParams.size());
-		layout.removeParametersWithIndexLargerThen(FormLayout.ATTRIBUTE, attributeParams.size());
-		layout.removeParametersWithIndexLargerThen(FormLayout.AGREEMENT, agreements.size());
-		layout.removeParametersWithIndexLargerThen(FormLayout.GROUP, groupParams.size());
-		layout.removeParametersWithIndexLargerThen(FormLayout.CREDENTIAL, credentialParams.size());
-	}
-	
-	protected void updateOtherElementsInLayout(Set<String> definedElements)
-	{
-		if (isCollectComments())
-			layout.addBasicElementIfMissing(FormLayout.COMMENTS, definedElements);
-		else
-			layout.removeBasicElementIfPresent(FormLayout.COMMENTS);
-	}
-
-	
-	protected void checkOtherElementsInLayout(Set<String> definedElements)
-	{
-		if (isCollectComments())
-			layout.checkLayoutElement(FormLayout.COMMENTS, definedElements);
-	}
-
-	protected void checkFormParametersInLayout(Set<String> definedElements)
-	{
-		for (int i = 0; i < identityParams.size(); i++)
-			layout.checkLayoutElement(FormLayout.IDENTITY + "_" + i, definedElements);
-		for (int i = 0; i < attributeParams.size(); i++)
-			layout.checkLayoutElement(FormLayout.ATTRIBUTE + "_" + i, definedElements);
-		for (int i = 0; i < agreements.size(); i++)
-			layout.checkLayoutElement(FormLayout.AGREEMENT + "_" + i, definedElements);
-		for (int i = 0; i < groupParams.size(); i++)
-			layout.checkLayoutElement(FormLayout.GROUP + "_" + i, definedElements);
-		for (int i = 0; i < credentialParams.size(); i++)
-			layout.checkLayoutElement(FormLayout.CREDENTIAL + "_" + i, definedElements);
-	}
-	
-	protected void validateLayout()
-	{
-		Set<String> definedElements = layout.getDefinedElements();
-		
-		checkFormParametersInLayout(definedElements);
-		checkOtherElementsInLayout(definedElements);
-		if (!definedElements.isEmpty())
-			throw new IllegalStateException("Form layout contains elements "
-					+ "which are not defied in the form: " + definedElements);
-	}
-	
 	@Override
 	@JsonValue
 	public ObjectNode toJson()
@@ -172,9 +93,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.put("Name", getName());
 		root.set("DisplayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
-		if (layout != null)
-			root.set("FormLayout", jsonMapper.valueToTree(getLayout()));
-		root.set("ExternalSignupSpec", getExternalSignupSpec().toJsonObject());
+		root.set("FormLayoutSettings", jsonMapper.valueToTree(getLayoutSettings()));
 		return root;
 	}
 
@@ -242,17 +161,14 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			{
 				setTranslationProfile(new TranslationProfile((ObjectNode) n));
 			}
-
-			n = root.get("FormLayout");
-			if (n != null)
-			{
-				setLayout(jsonMapper.treeToValue(n, FormLayout.class));
-			}
 			
-			n = root.get("ExternalSignupSpec");
+			n = root.get("FormLayoutSettings");
 			if (n != null)
 			{
-				setExternalSignupSpec(new ExternalSignupSpec((ObjectNode) n));
+				String v = jsonMapper.writeValueAsString(n);
+				FormLayoutSettings r = jsonMapper.readValue(v, 
+						new TypeReference<FormLayoutSettings>(){});
+				setLayoutSettings(r);
 			}
 		} catch (Exception e)
 		{
@@ -422,14 +338,14 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		return translationProfile;
 	}
 	
-	public ExternalSignupSpec getExternalSignupSpec()
+	public FormLayoutSettings getLayoutSettings()
 	{
-		return externalSignupSpec;
+		return layoutSettings;
 	}
 
-	public void setExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
+	public void setLayoutSettings(FormLayoutSettings layoutSettings)
 	{
-		this.externalSignupSpec = externalSignupSpec;
+		this.layoutSettings = layoutSettings;
 	}
 
 	void setTranslationProfile(TranslationProfile translationProfile)
@@ -438,161 +354,35 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			throw new IllegalArgumentException("Only a registration profile can be used with registration form");
 		this.translationProfile = translationProfile;
 	}
-
-	public FormLayout getEffectiveFormLayout(MessageSource msg)
-	{
-		return layout == null ? getDefaultFormLayout(msg) : layout;
-	}
-	
-	public FormLayout getLayout()
-	{
-		return layout;
-	}
-	
-	public abstract FormLayout getDefaultFormLayout(MessageSource msg);
-	
-	public void setLayout(FormLayout layout)
-	{
-		this.layout = layout;
-	}
-
-	protected List<FormElement> getDefaultBasicParamsLayout(String type, List<?> params, 
-			MessageSource msg, String captionKey, boolean addSeparator)
-	{
-		List<FormElement> ret = new ArrayList<>();
-		if (!params.isEmpty())
-			ret.add(new FormCaptionElement(new I18nString(captionKey, msg)));
-		for (int i=0; i<params.size(); i++)
-		{
-			if (addSeparator && i > 0)
-				ret.add(new FormSeparatorElement());
-			ret.add(new FormParameterElement(type, i));
-		}
-		return ret;
-	}
-	
-	protected List<FormElement> getDefaultParametersLayout(String type, List<? extends RegistrationParam> params, 
-			MessageSource msg, String captionKey, String readOnlyCaptionKey)
-	{
-		List<FormElement> ret = new ArrayList<>();
-		
-		for (int i=0; i<params.size(); i++)
-		{
-			RegistrationParam param = params.get(i);
-			if (param.getRetrievalSettings().isInteractivelyEntered(false))
-				ret.add(new FormParameterElement(type, i));
-		}
-		
-		if (!ret.isEmpty())
-			ret.add(0, new FormCaptionElement(new I18nString(captionKey, msg)));
-
-		int interactiveSize = ret.size();
-		for (int i=0; i<params.size(); i++)
-		{
-			RegistrationParam param = params.get(i);
-			if (param.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
-				ret.add(new FormParameterElement(type, i));
-		}
-		
-		if (interactiveSize < ret.size())
-			ret.add(interactiveSize, new FormCaptionElement(new I18nString(readOnlyCaptionKey, msg)));
-		
-		return ret;
-	}
 	
 	public abstract BaseFormNotifications getNotificationsConfiguration();
+	
+	@Override
+	public boolean equals(final Object other)
+	{
+		if (this == other)
+			return true;
+		if (!(other instanceof BaseForm))
+			return false;
+		if (!super.equals(other))
+			return false;
+		BaseForm castOther = (BaseForm) other;
+		return Objects.equals(identityParams, castOther.identityParams)
+				&& Objects.equals(attributeParams, castOther.attributeParams)
+				&& Objects.equals(groupParams, castOther.groupParams)
+				&& Objects.equals(credentialParams, castOther.credentialParams)
+				&& Objects.equals(agreements, castOther.agreements)
+				&& Objects.equals(collectComments, castOther.collectComments)
+				&& Objects.equals(displayedName, castOther.displayedName)
+				&& Objects.equals(formInformation, castOther.formInformation)
+				&& Objects.equals(translationProfile, castOther.translationProfile)
+				&& Objects.equals(layoutSettings, castOther.layoutSettings);
+	}
 
 	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((agreements == null) ? 0 : agreements.hashCode());
-		result = prime * result + ((attributeParams == null) ? 0 : attributeParams.hashCode());
-		result = prime * result + ((externalSignupSpec == null) ? 0 : externalSignupSpec.hashCode());
-		result = prime * result + (collectComments ? 1231 : 1237);
-		result = prime * result + ((credentialParams == null) ? 0 : credentialParams.hashCode());
-		result = prime * result + ((displayedName == null) ? 0 : displayedName.hashCode());
-		result = prime * result + ((formInformation == null) ? 0 : formInformation.hashCode());
-		result = prime * result + ((groupParams == null) ? 0 : groupParams.hashCode());
-		result = prime * result + ((identityParams == null) ? 0 : identityParams.hashCode());
-		result = prime * result + ((layout == null) ? 0 : layout.hashCode());
-		result = prime * result + ((translationProfile == null) ? 0 : translationProfile.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj)
-	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		BaseForm other = (BaseForm) obj;
-		if (agreements == null)
-		{
-			if (other.agreements != null)
-				return false;
-		} else if (!agreements.equals(other.agreements))
-			return false;
-		if (attributeParams == null)
-		{
-			if (other.attributeParams != null)
-				return false;
-		} else if (!attributeParams.equals(other.attributeParams))
-			return false;
-		if (externalSignupSpec == null)
-		{
-			if (other.externalSignupSpec != null)
-				return false;
-		} else if (!externalSignupSpec.equals(other.externalSignupSpec))
-			return false;
-		if (collectComments != other.collectComments)
-			return false;
-		if (credentialParams == null)
-		{
-			if (other.credentialParams != null)
-				return false;
-		} else if (!credentialParams.equals(other.credentialParams))
-			return false;
-		if (displayedName == null)
-		{
-			if (other.displayedName != null)
-				return false;
-		} else if (!displayedName.equals(other.displayedName))
-			return false;
-		if (formInformation == null)
-		{
-			if (other.formInformation != null)
-				return false;
-		} else if (!formInformation.equals(other.formInformation))
-			return false;
-		if (groupParams == null)
-		{
-			if (other.groupParams != null)
-				return false;
-		} else if (!groupParams.equals(other.groupParams))
-			return false;
-		if (identityParams == null)
-		{
-			if (other.identityParams != null)
-				return false;
-		} else if (!identityParams.equals(other.identityParams))
-			return false;
-		if (layout == null)
-		{
-			if (other.layout != null)
-				return false;
-		} else if (!layout.equals(other.layout))
-			return false;
-		if (translationProfile == null)
-		{
-			if (other.translationProfile != null)
-				return false;
-		} else if (!translationProfile.equals(other.translationProfile))
-			return false;
-		return true;
+		return Objects.hash(super.hashCode(), identityParams, attributeParams, groupParams, credentialParams,
+				agreements, collectComments, displayedName, formInformation, translationProfile, layoutSettings);
 	}
 }

@@ -95,7 +95,7 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	{
 		try
 		{
-			EnquiryResponse request = editor.getRequest();
+			EnquiryResponse request = editor.getRequest(true);
 			if (callback.newRequest(request))
 				close();
 		} catch (FormValidationException e) 

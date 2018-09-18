@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import com.vaadin.ui.FormLayout;
-
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -19,6 +17,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
+import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 
 /**
  * Generates a UI based on a given {@link EnquiryForm}. 
@@ -26,6 +25,8 @@ import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
  */
 public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 {
+	private EnquiryForm enquiryForm;
+	
 	public EnquiryResponseEditor(UnityMessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
 			IdentityEditorRegistry identityEditorRegistry,
@@ -36,16 +37,17 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan);
+		this.enquiryForm = form;
 		initUI();
 	}
 	
 	@Override
-	public EnquiryResponse getRequest() throws FormValidationException
+	public EnquiryResponse getRequest(boolean withCredentials) throws FormValidationException
 	{
 		EnquiryResponse ret = new EnquiryResponse();
 		FormErrorStatus status = new FormErrorStatus();
 
-		super.fillRequest(ret, status);
+		super.fillRequest(ret, status, withCredentials);
 		
 		if (status.hasFormException)
 			throw new FormValidationException();
@@ -55,9 +57,9 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	
 	private void initUI() throws EngineException
 	{
-		FormLayout mainFormLayout = createMainFormLayout();
+		RegistrationLayoutsContainer layoutContainer = createLayouts();
 		
-		createControls(mainFormLayout, null);
+		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), null);
 	}
 }
 

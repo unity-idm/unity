@@ -40,6 +40,7 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.ext.TextFieldWithVerifyButton;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
 
@@ -64,12 +65,12 @@ public class SMSCredentialEditor implements CredentialEditor
 	private MobileNumberConfirmationManager  mobileConfirmationMan;
 	
 	private ComboBox<String> currentMobileAttr;	
-	private boolean required;
 	private SMSCredential helper;
 	private RadioButtonGroup<CredentialSource> credentialSource;
 	private TextFieldWithVerifyButton editor;
 	private ConfirmationInfo confirmationInfo;
 	private boolean skipUpdate = false;
+	private CredentialEditorContext context;
 	
 	public SMSCredentialEditor(UnityMessageSource msg, AttributeTypeSupport attrTypeSupport,
 			AttributeSupport attrSup,
@@ -84,17 +85,16 @@ public class SMSCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(String credentialConfiguration, boolean required, Long entityId,
-			boolean adminMode)
+	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
 
-		this.required = required;
+		this.context = context;
 		helper = new SMSCredential();
-		helper.setSerializedConfiguration(JsonUtil.parse(credentialConfiguration));
+		helper.setSerializedConfiguration(JsonUtil.parse(context.getCredentialConfiguration()));
 
 		ComponentsContainer ret = new ComponentsContainer();
 
-		credentialSource = new RadioButtonGroup<CredentialSource>();
+		credentialSource = new RadioButtonGroup<>();
 		credentialSource.setItems(CredentialSource.New, CredentialSource.Existing);
 		Map<CredentialSource, String> captions = new HashMap<>();
 		captions.put(CredentialSource.New, msg.getMessage("SMSCredentialEditor.newValue"));
@@ -122,7 +122,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		currentMobileAttr.setRequiredIndicatorVisible(true);
 		currentMobileAttr.setTextInputAllowed(false);
 		
-		List<String> userMobiles = getUserMobiles(entityId);
+		List<String> userMobiles = getUserMobiles(context.getEntityId());
 		if (!userMobiles.isEmpty())
 		{
 			currentMobileAttr.setItems(userMobiles);
@@ -131,11 +131,12 @@ public class SMSCredentialEditor implements CredentialEditor
 		}
 
 		confirmationInfo = new ConfirmationInfo();
-		editor = new TextFieldWithVerifyButton(adminMode, required,
+		editor = new TextFieldWithVerifyButton(context.isAdminMode(), context.isRequired(),
 				msg.getMessage("SMSCredentialEditor.verify"),
 				Images.mobile.getResource(),
-				msg.getMessage("SMSCredentialEditor.confirmedCheckbox"));
-		editor.setCaption(msg.getMessage("SMSCredentialEditor.newMobileNumber"));
+				msg.getMessage("SMSCredentialEditor.confirmedCheckbox"),
+				context.isShowLabelInline());
+		editor.setLabel(msg.getMessage("SMSCredentialEditor.newMobileNumber"));
 
 		editor.addVerifyButtonClickListener(e -> {
 
@@ -187,11 +188,14 @@ public class SMSCredentialEditor implements CredentialEditor
 			credentialSource.setValue(CredentialSource.New);
 			editor.focus();
 			
-			if (entityId == null)
+			if (context.getEntityId() == null)
 			{
 				credentialSource.setVisible(false);
 			}
 		}
+		
+		if (context.isCustomWidth())
+			editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		
 		return ret;
 	}
@@ -313,7 +317,7 @@ public class SMSCredentialEditor implements CredentialEditor
 			}
 		}
 
-		if (required && mobile != null && mobile.isEmpty())
+		if (context.isRequired() && mobile != null && mobile.isEmpty())
 		{
 			editor.setComponentError(new UserError(msg.getMessage("fieldRequired")));
 			currentMobileAttr.setComponentError(

@@ -8,6 +8,13 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
+import pl.edu.icm.unity.webui.common.ReadOnlyArea;
+import pl.edu.icm.unity.webui.common.ReadOnlyField;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
+import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
+
 /**
  * Helper for attributes handlers
  * 
@@ -16,15 +23,29 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class AttributeHandlerHelper
 {
-
-	public static String getValueAsString(String value)
+	public static Component getRepresentation(String value, AttributeValueSyntax<?> syntax, AttributeViewerContext context)
 	{
-		return value.toString();
+		Component component;
+		if (isLarge(syntax))
+			component = new ReadOnlyArea(value);
+		else
+			component = new ReadOnlyField(value);
+		
+		if (context.isCustomWidth())
+			component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+
+		return component;
 	}
-
-	public static Component getRepresentation(String value)
+	
+	public static boolean isLarge(AttributeValueSyntax<?> syntax)
 	{
-		return new Label(getValueAsString(value));
+		if (syntax instanceof StringAttributeSyntax)
+		{
+			StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
+			if (sas.getMaxLength() > TextOnlyAttributeHandler.LARGE_STRING)
+				return true;
+		}
+		return false;
 	}
 
 	public static VerticalLayout getEmptyEditor()

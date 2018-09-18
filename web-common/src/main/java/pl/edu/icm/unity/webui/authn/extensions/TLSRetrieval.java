@@ -111,7 +111,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	}
 
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI());
 	}

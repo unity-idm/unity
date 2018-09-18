@@ -48,7 +48,7 @@ public class SingleTypeIdentityEditor
 	private void initUI(Collection<Identity> initial)
 	{
 		int min = Math.min(initial.size(), idType.getMinInstances());
-		componentsList = new ListOfEmbeddedElementsStub<IdentityParam>(
+		componentsList = new ListOfEmbeddedElementsStub<>(
 				msg, new IdentityEditorProvider(), 
 				min, idType.getMaxInstances(), false);
 		componentsList.setEntries(initial);
@@ -92,7 +92,8 @@ public class SingleTypeIdentityEditor
 		public ComponentsContainer getEditorComponent(IdentityParam value, int position)
 		{
 			editor = idEdRegistry.getEditor(idType.getIdentityTypeProvider());
-			ComponentsContainer ret = editor.getEditor(true, false);
+			ComponentsContainer ret = editor.getEditor(IdentityEditorContext.builder()
+					.withRequired(true).build());
 			if (value != null)
 				editor.setDefaultValue(value);
 			return ret;

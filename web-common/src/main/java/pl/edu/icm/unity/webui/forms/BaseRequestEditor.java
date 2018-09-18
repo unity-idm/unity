@@ -9,6 +9,7 @@ import static pl.edu.icm.unity.webui.forms.FormParser.isGroupParamUsedAsMandator
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,12 +17,14 @@ import java.util.stream.Collectors;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.html.HtmlEscapers;
+import com.vaadin.server.Resource;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
@@ -31,6 +34,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -65,19 +69,26 @@ import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
+import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.FixedAttributeEditor;
+import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -130,7 +141,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan) throws Exception
+			GroupsManagement groupsMan) throws AuthenticationException
 	{
 		this.msg = msg;
 		this.form = form;
@@ -145,6 +156,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
 				form, remotelyAuthenticated);
+		
+		
 	}
 	
 	@Override
@@ -154,7 +167,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		getCompositionRoot().setWidthUndefined();
 	}
 	
-	public abstract T getRequest() throws FormValidationException;
+	public abstract T getRequest(boolean withCredentials) throws FormValidationException;
 	
 	/**
 	 * Called if a form being edited was not accepted by the engine. 
@@ -176,12 +189,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
-	protected void fillRequest(BaseRegistrationInput ret, FormErrorStatus status) throws FormValidationException
+	protected void fillRequest(BaseRegistrationInput ret, FormErrorStatus status, boolean withCredentials) throws FormValidationException
 	{
 		ret.setFormId(form.getName());
 
 		setRequestIdentities(ret, status);
-		setRequestCredentials(ret, status);
+		if (withCredentials)
+			setRequestCredentials(ret, status);
 		setRequestAttributes(ret, status);
 		setRequestGroups(ret, status);
 		setRequestAgreements(ret, status);
@@ -359,7 +373,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	/**
 	 * Creates main layout, inserts title and form information
 	 */
-	protected com.vaadin.ui.FormLayout createMainFormLayout()
+	protected RegistrationLayoutsContainer createLayouts()
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
@@ -367,8 +381,19 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		main.setWidth(100, Unit.PERCENTAGE);
 		setCompositionRoot(main);
 		
+		String logoURL = form.getLayoutSettings().getLogoURL();
+		if (logoURL != null && !logoURL.isEmpty())
+		{
+			Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+			Image image = new Image(null, logoResource);
+			image.addStyleName("u-signup-logo");
+			main.addComponent(image);
+			main.setComponentAlignment(image, Alignment.TOP_CENTER);
+		}
+		
 		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Styles.vLabelH1.toString());
+		formName.addStyleName("u-reg-title");
 		main.addComponent(formName);
 		main.setComponentAlignment(formName, Alignment.MIDDLE_CENTER);
 		
@@ -376,94 +401,140 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		if (info != null)
 		{
 			HtmlConfigurableLabel formInformation = new HtmlConfigurableLabel(info);
+			formInformation.addStyleName("u-reg-info");
 			main.addComponent(formInformation);
 			main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 		}
-
-		com.vaadin.ui.FormLayout mainFormLayout = new com.vaadin.ui.FormLayout();
-		mainFormLayout.setWidthUndefined();
-		main.addComponent(mainFormLayout);
-		main.setComponentAlignment(mainFormLayout, Alignment.MIDDLE_CENTER);
 		
-		return mainFormLayout;
+		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
+		container.addFormLayoutToRootLayout(main);
+		return container;
 	}
 	
-	protected void createControls(AbstractOrderedLayout layout, InvitationWithCode invitation) 
-			throws EngineException
+	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 
 	{
 		identityParamEditors = new HashMap<>();
 		attributeEditor = new HashMap<>();
-		atTypes = aTypeMan.getAttributeTypesAsMap();
+		atTypes = getAttributeTypesMap();
 		agreementSelectors = new ArrayList<>();
 		groupSelectors = new HashMap<>();
 		credentialParamEditors = new ArrayList<>();
-		Collection<CredentialDefinition> allCreds = credMan.getCredentialDefinitions();
+		Collection<CredentialDefinition> allCreds = getCredentialDefinitions();
 		credentials = new HashMap<>();
 		for (CredentialDefinition credential: allCreds)
 			credentials.put(credential.getName(), credential);
 		
 		FormElement previousInserted = null;
-		for (FormElement element : form.getEffectiveFormLayout(msg).getElements())
+		for (FormElement element : formLayout.getElements())
 		{
-			if (createControlFor(layout, element, previousInserted, invitation))
+			if (createControlFor(layoutContainer, element, previousInserted, invitation))
 				previousInserted = element;
+		}
+		// we don't allow for empty sections
+		removePreviousIfSection(layoutContainer.registrationFormLayout, previousInserted);
+	}
+	
+	private Map<String, AttributeType> getAttributeTypesMap()
+	{
+		try
+		{
+			return aTypeMan.getAttributeTypesAsMap();
+		} catch (EngineException e)
+		{
+			throw new IllegalStateException("Can not read attribute types", e);
 		}
 	}
 	
-	protected boolean createControlFor(AbstractOrderedLayout layout, FormElement element, 
-			FormElement previousInserted, InvitationWithCode invitation) throws EngineException
+	private Collection<CredentialDefinition> getCredentialDefinitions()
+	{
+		try
+		{
+			return credMan.getCredentialDefinitions();
+		} catch (EngineException e)
+		{
+			throw new IllegalStateException("Can not read credential definitions", e);
+		}
+	}
+
+	protected void focusFirst(VerticalLayout container)
+	{
+		Iterator<Component> iterator = container.iterator();
+		while(iterator.hasNext())
+		{
+			Component next = iterator.next();
+			if (next instanceof Focusable)
+			{
+				((Focusable)next).focus();
+				break;
+			}
+		}
+	}
+	
+	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
+			FormElement previousInserted, InvitationWithCode invitation)
 	{
 		switch (element.getType())
 		{
-		case FormLayout.IDENTITY:
-			return createIdentityControl(layout, (FormParameterElement) element, 
+		case IDENTITY:
+			return createIdentityControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
 					invitation != null ? invitation.getIdentities() : new HashMap<>());
 			
-		case FormLayout.ATTRIBUTE:
-			return createAttributeControl(layout, (FormParameterElement) element, 
+		case ATTRIBUTE:
+			return createAttributeControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
 					invitation != null ? invitation.getAttributes() : new HashMap<>());
 			
-		case FormLayout.GROUP:
-			return createGroupControl(layout, (FormParameterElement) element, 
+		case GROUP:
+			return createGroupControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
 					invitation != null ? invitation.getGroupSelections() : new HashMap<>());
 			
-		case FormLayout.CAPTION:
-			return createLabelControl(layout, previousInserted, (FormCaptionElement) element);
+		case CAPTION:
+			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, (FormCaptionElement) element);
 			
-		case FormLayout.SEPARATOR:
-			return createSeparatorControl(layout, (FormSeparatorElement) element);
+		case SEPARATOR:
+			return createSeparatorControl(layoutContainer.registrationFormLayout, (FormSeparatorElement) element);
 			
-		case FormLayout.AGREEMENT:
-			return createAgreementControl(layout, (FormParameterElement) element);
+		case AGREEMENT:
+			return createAgreementControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
 			
-		case FormLayout.COMMENTS:
-			return createCommentsControl(layout, (BasicFormElement) element);
+		case COMMENTS:
+			return createCommentsControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
 			
-		case FormLayout.CREDENTIAL:
-			return createCredentialControl(layout, (FormParameterElement) element);
+		case CREDENTIAL:
+			return createCredentialControl(layoutContainer.registrationFormLayout, (FormParameterElement) element);
+		default:
+			log.error("Unsupported form element, skipping: " + element);
 		}
-		log.error("Unsupported form element, skipping: " + element);
 		return false;
 	}
 	
 	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, FormCaptionElement element)
 	{
-		//we don't allow for empty sections - the previously added caption is removed.
-		if (previousInserted != null && previousInserted instanceof FormCaptionElement)
-		{
-			Component lastComponent = layout.getComponent(layout.getComponentCount()-1);
-			layout.removeComponent(lastComponent);
-		}
+		// we don't allow for empty sections - the previously added caption is removed.
+		removePreviousIfSection(layout, previousInserted);
 		
 		Label label = new Label(element.getValue().getValue(msg));
 		label.addStyleName(Styles.formSection.toString());
+		label.addStyleName("u-reg-sectionHeader");
 		layout.addComponent(label);
+		layout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
 		return true;
 	}	
 
+	private void removePreviousIfSection(AbstractOrderedLayout layout, FormElement previousInserted)
+	{
+		if (previousInserted != null && previousInserted instanceof FormCaptionElement)
+		{
+			Component lastComponent = layout.getComponent(layout.getComponentCount() - 1);
+			layout.removeComponent(lastComponent);
+		}
+	}
+
 	protected boolean createSeparatorControl(Layout layout, FormSeparatorElement element)
 	{
-		layout.addComponent(HtmlTag.horizontalLine());
+		Label horizontalLine = HtmlTag.horizontalLine();
+		horizontalLine.addStyleName("u-reg-separatorLine");
+		horizontalLine.setWidth(formWidth(), formWidthUnit());
+		layout.addComponent(horizontalLine);
 		return true;
 	}	
 	
@@ -472,6 +543,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		AgreementRegistrationParam aParam = form.getAgreements().get(element.getIndex());
 
 		HtmlConfigurableLabel aText = new HtmlConfigurableLabel(aParam.getText().getValue(msg));
+		aText.setWidth(formWidth(), formWidthUnit());
 		CheckBox cb = new CheckBox(msg.getMessage("RegistrationRequest.agree"));
 		agreementSelectors.add(cb);
 		layout.addComponent(aText);
@@ -488,8 +560,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	protected boolean createCommentsControl(Layout layout, BasicFormElement element)
 	{
 		comment = new TextArea();
-		comment.setWidth(80, Unit.PERCENTAGE);
-		comment.setCaption(msg.getMessage("RegistrationRequest.comment"));
+		comment.setWidth(formWidth(), formWidthUnit());
+		String label = ComponentWithLabel.normalizeLabel(msg.getMessage("RegistrationRequest.comment"));
+		if (form.getLayoutSettings().isCompactInputs())
+			comment.setPlaceholder(label);
+		else
+			comment.setCaption(label);
 		layout.addComponent(comment);
 		return true;
 	}
@@ -509,8 +585,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
 		{
-			Label label = new Label(prefilledEntry.getEntry().toString());
-			layout.addComponent(label);
+			ReadOnlyField readOnlyField = new ReadOnlyField(prefilledEntry.getEntry().getValue(), 
+					formWidth(), formWidthUnit());
+			layout.addComponent(readOnlyField);
 		} else if (!idParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 		{
 			if (!idParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
@@ -519,13 +596,18 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (id == null)
 				return false;
 			
-			Label label = new Label(id.toString());
-			layout.addComponent(label);
+			ReadOnlyField readOnlyField = new ReadOnlyField(id.getValue(), formWidth(), formWidthUnit());
+			layout.addComponent(readOnlyField);
 		} else
 		{
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
 			identityParamEditors.put(index, editor);
-			ComponentsContainer editorUI = editor.getEditor(!idParam.isOptional(), false);
+			ComponentsContainer editorUI = editor.getEditor(IdentityEditorContext.builder()
+					.withRequired(!idParam.isOptional())
+					.withLabelInLine(form.getLayoutSettings().isCompactInputs())
+					.withCustomWidth(formWidth())
+					.withCustomWidthUnit(formWidthUnit())
+					.build());
 			layout.addComponents(editorUI.getComponents());
 			
 			if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive && rid != null)
@@ -536,14 +618,14 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			}
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
 				editor.setDefaultValue(prefilledEntry.getEntry());
-			
 			if (idParam.getLabel() != null)
-				editorUI.setCaption(idParam.getLabel());
+				editorUI.setLabel(idParam.getLabel());
 			if (idParam.getDescription() != null)
 				editorUI.setDescription(HtmlEscapers.htmlEscaper().escape(idParam.getDescription()));
 		}
 		return true;
 	}
+	
 	
 	protected boolean createAttributeControl(AbstractOrderedLayout layout, FormParameterElement element, 
 			Map<Integer, PrefilledEntry<Attribute>> fromInvitation)
@@ -567,9 +649,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		layoutAdapter.setOffset(layout.getComponentCount());
 		if (readOnlyAttribute != null)
 		{
+			AttributeViewerContext context = AttributeViewerContext.builder()
+					.withCustomWidth(formWidth())
+					.withCustomWidthUnit(formWidthUnit())
+					.withShowCaption(!(form.getLayoutSettings().isCompactInputs()))
+					.build();
 			AttributeViewer viewer = new AttributeViewer(msg, attributeHandlerRegistry, 
-					aType, readOnlyAttribute, false);
-			layoutAdapter.addContainer(viewer.getComponentsGroup());
+					aType, readOnlyAttribute, false, context);
+			ComponentsGroup componentsGroup = viewer.getComponentsGroup();
+			layoutAdapter.addContainer(componentsGroup);
 		} else
 		{
 			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 
@@ -589,6 +677,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					.withConfirmationMode(confirmationMode).withRequired(!aParam.isOptional())
 					.withAttributeType(aType)
 					.withAttributeGroup(aParam.isUsingDynamicGroup() ? "/" : aParam.getGroup())
+					.withLabelInline(form.getLayoutSettings().isCompactInputs())
+					.withCustomWidth(formWidth())
+					.withCustomWidthUnit(formWidthUnit())
 					.build();
 
 			FixedAttributeEditor editor = new FixedAttributeEditor(msg,
@@ -608,7 +699,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}	
 	
 	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
-			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation) throws EngineException
+			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation)
 	{
 		int index = element.getIndex();
 		GroupRegistrationParam groupParam = form.getGroupParams().get(index);
@@ -631,6 +722,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		GroupsSelection selection = GroupsSelection.getGroupsSelection(msg, groupParam.isMultiSelect(), 
 				isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
+		selection.setWidth(formWidth(), formWidthUnit());
 
 		if (hasPrefilledROSelected)
 		{
@@ -666,17 +758,23 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	
-	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element) throws EngineException
+	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element)
 	{
 		int index = element.getIndex();
 		CredentialRegistrationParam param = form.getCredentialParams().get(index);
 		CredentialDefinition credDefinition = credentials.get(param.getCredentialName());
 		CredentialEditor editor = credentialEditorRegistry.getEditor(credDefinition.getTypeId());
-		ComponentsContainer editorUI = editor.getEditor(credDefinition.getConfiguration(), true, null, false);
+		ComponentsContainer editorUI = editor.getEditor(CredentialEditorContext.builder()
+				.withConfiguration(credDefinition.getConfiguration())
+				.withRequired(true)
+				.withShowLabelInline(form.getLayoutSettings().isCompactInputs())
+				.withCustomWidth(formWidth())
+				.withCustomWidthUnit(formWidthUnit())
+				.build());
 		if (param.getLabel() != null)
-			editorUI.setCaption(param.getLabel());
+			editorUI.setLabel(param.getLabel());
 		else
-			editorUI.setCaption(credDefinition.getDisplayedName().getValue(msg) + ":");
+			editorUI.setLabel(credDefinition.getDisplayedName().getValue(msg));
 		if (param.getDescription() != null)
 			editorUI.setDescription(HtmlConfigurableLabel.conditionallyEscape(param.getDescription()));
 		else if (!credDefinition.getDescription().isEmpty())
@@ -700,6 +798,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		return remoteAttributes.get(RemoteDataRegistrationParser.getAttributeKey(aParam));
 	}
 	
+	public boolean isUserInteractionRequired()
+	{
+		return !identityParamEditors.isEmpty()
+				|| !attributeEditor.isEmpty()
+				|| !groupSelectors.isEmpty()
+				|| !agreementSelectors.isEmpty()
+				|| !credentialParamEditors.isEmpty()
+				|| form.isCollectComments();
+	}
 
 	protected boolean isEmpty(String str)
 	{
@@ -713,6 +820,16 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 
 		public boolean hasFormException = false;
+	}
+	
+	public Float formWidth()
+	{
+		return form.getLayoutSettings().getColumnWidth();
+	}
+	
+	public Unit formWidthUnit()
+	{
+		return Unit.getUnitFromSymbol(form.getLayoutSettings().getColumnWidthUnit());
 	}
 }
 

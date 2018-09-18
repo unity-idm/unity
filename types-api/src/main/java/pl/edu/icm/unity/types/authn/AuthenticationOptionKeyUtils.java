@@ -2,7 +2,7 @@
  * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.authn;
+package pl.edu.icm.unity.types.authn;
 
 /**
  * Creates and parses string representation containing authenticator key and its authN option key.

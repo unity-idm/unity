@@ -88,7 +88,10 @@ class InternalAttributeValueEditor implements Editor<LabelledValue>
 		{
 			String base = (baseLabel.endsWith(":")) ? baseLabel.substring(0, baseLabel.length()-1) 
 					: baseLabel;
-			return base +" (" + (position+1) +"):";
+			base = base +" (" + (position+1) +")";
+			if (!editContext.isShowLabelInline())
+				base = base + ":";
+			return base;
 		} else
 			return baseLabel;
 	}

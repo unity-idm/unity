@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
@@ -43,6 +44,7 @@ public class InvitationParam
 	private Map<Integer, PrefilledEntry<GroupSelection>> groupSelections = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 	private Map<String, String> messageParams = new HashMap<>();
+	private ExpectedIdentity expectedIdentity;
 
 	private InvitationParam() {}
 	
@@ -99,6 +101,16 @@ public class InvitationParam
 		return messageParams;
 	}
 
+	public ExpectedIdentity getExpectedIdentity()
+	{
+		return expectedIdentity;
+	}
+
+	public void setExpectedIdentity(ExpectedIdentity expectedIdentity)
+	{
+		this.expectedIdentity = expectedIdentity;
+	}
+
 	@JsonIgnore
 	public boolean isExpired()
 	{
@@ -114,7 +126,9 @@ public class InvitationParam
 		json.put("expiration", getExpiration().toEpochMilli());
 		if (getContactAddress() != null)
 			json.put("contactAddress", getContactAddress());
-
+		if (getExpectedIdentity() != null)
+			json.putPOJO("expectedIdentity", expectedIdentity);
+		
 		json.putPOJO("identities", getIdentities());
 		json.putPOJO("groupSelections", getGroupSelections());
 		json.putPOJO("attributes", getAttributes());
@@ -153,6 +167,10 @@ public class InvitationParam
 				}
 			});
 		}
+		
+		n = json.get("expectedIdentity");
+		if (n != null)
+			expectedIdentity = Constants.MAPPER.convertValue(n, ExpectedIdentity.class);
 	}
 
 	protected <T> void fill(ObjectNode root, Map<Integer, PrefilledEntry<T>> map, Class<T> clazz)
@@ -198,16 +216,16 @@ public class InvitationParam
 				&& Objects.equals(identities, castOther.identities)
 				&& Objects.equals(groupSelections, castOther.groupSelections)
 				&& Objects.equals(attributes, castOther.attributes)
-				&& Objects.equals(messageParams, castOther.messageParams);
+				&& Objects.equals(messageParams, castOther.messageParams)
+				&& Objects.equals(expectedIdentity, castOther.expectedIdentity);
 	}
 
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, attributes,
-				messageParams);
+				messageParams, expectedIdentity);
 	}
-	
 	
 	public static Builder builder()
 	{
@@ -254,6 +272,12 @@ public class InvitationParam
 		{
 			int idx = instance.groupSelections.size();
 			instance.groupSelections.put(idx, new PrefilledEntry<>(new GroupSelection(groups), mode));
+			return this;
+		}
+		public Builder withIdentity(IdentityParam identity, PrefilledEntryMode mode)
+		{
+			int idx = instance.identities.size();
+			instance.identities.put(idx, new PrefilledEntry<>(identity, mode));
 			return this;
 		}
 	}

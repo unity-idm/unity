@@ -25,12 +25,11 @@ import pl.edu.icm.unity.exceptions.InternalException;
  * DateTime attribute sytax. Accept zoned datetime in various formats
  * 
  * @author P.Piernik
- *
  */
 public class ZonedDateTimeAttributeSyntax implements AttributeValueSyntax<ZonedDateTime> 
 {
 	public static final String ID = "zonedDatetime";	
-	public static List<String> ACCEPTABLE_FORMATS = 
+	public static final List<String> ACCEPTABLE_FORMATS = 
 			pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax.ACCEPTABLE_FORMATS.stream()
 			.map(f -> f + "xxx['['VV']'][X]").collect(Collectors.toList());	
 

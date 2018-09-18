@@ -153,7 +153,7 @@ public class AttributeHandlerRegistry
 		indentedValues.setSpacing(true);
 		WebAttributeHandler handler = getHandler(syntax);
 		for (String value: attribute.getValues())
-			indentedValues.addComponent(handler.getRepresentation(value));
+			indentedValues.addComponent(handler.getRepresentation(value, AttributeViewerContext.EMPTY));
 		vl.addComponent(indentedValues);
 		return vl;
 	}

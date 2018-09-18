@@ -33,6 +33,8 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Group;
@@ -42,6 +44,7 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
@@ -56,6 +59,8 @@ public class InvitationEditor extends CustomComponent
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InvitationEditor.class);
 	
+	private enum RemoteIdentityExpectation {NONE, HINT, REQUIRED}
+	
 	private static final long DEFAULT_TTL_DAYS = 3; 
 	private static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 	private UnityMessageSource msg;
@@ -68,6 +73,7 @@ public class InvitationEditor extends CustomComponent
 	private NotNullComboBox<String> forms;
 	private DateTimeField expiration;
 	private TextField contactAddress;
+	private EnumComboBox<RemoteIdentityExpectation> remoteIdentityExpectation;
 	private List<TextField> messageParams;
 	
 	private TabSheet tabs;
@@ -113,6 +119,9 @@ public class InvitationEditor extends CustomComponent
 		
 		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
 		
+		remoteIdentityExpectation = new EnumComboBox<>(msg.getMessage("InvitationEditor.requireSameEmail"), 
+				msg, "InvitationEditor.idExpectation.", RemoteIdentityExpectation.class, RemoteIdentityExpectation.NONE);
+		
 		Label prefillInfo = new Label(msg.getMessage("InvitationEditor.prefillInfo"));
 		
 		tabs = new TabSheet();
@@ -121,8 +130,8 @@ public class InvitationEditor extends CustomComponent
 		channel.setCaption(msg.getMessage("InvitationViewer.channelId"));
 		
 		forms = new NotNullComboBox<>(msg.getMessage("InvitationViewer.formId"));
-		forms.setEmptySelectionAllowed(false);
-		forms.addValueChangeListener(event -> {
+		forms.addValueChangeListener(event -> 
+		{
 			RegistrationForm registrationForm = formsByName.get(forms.getValue());
 			setPerFormUI(registrationForm);
 			
@@ -132,11 +141,10 @@ public class InvitationEditor extends CustomComponent
 			else
 				channel.setValue("");
 		});
-		
-		forms.setItems(formsByName.keySet());
-		
 		top = new FormLayout();
-		top.addComponents(forms, channel, expiration, contactAddress);
+		top.addComponents(forms, channel, expiration, contactAddress, remoteIdentityExpectation);
+
+		forms.setItems(formsByName.keySet());
 		
 		VerticalLayout main = new VerticalLayout(top, prefillInfo, tabs);
 		main.setSpacing(true);
@@ -198,7 +206,7 @@ public class InvitationEditor extends CustomComponent
 			return Collections.emptyList();
 		}
 		
-		Set<String> variablesSet = MessageTemplateValidator.extractVariables(msgTemplate.getMessage());
+		Set<String> variablesSet = MessageTemplateValidator.extractCustomVariables(msgTemplate.getMessage());
 		List<String> variables = new ArrayList<>(variablesSet);
 		Collections.sort(variables);
 		
@@ -240,6 +248,13 @@ public class InvitationEditor extends CustomComponent
 				.collect(Collectors.toMap(paramField -> (String)paramField.getData(), 
 						paramField -> paramField.getValue()));
 		ret.getMessageParams().putAll(customParams);
+		
+		if (addr != null && remoteIdentityExpectation.getValue() != RemoteIdentityExpectation.NONE)
+		{
+			IdentityExpectation expectation = remoteIdentityExpectation.getValue() == RemoteIdentityExpectation.HINT ?
+					IdentityExpectation.HINT : IdentityExpectation.MANDATORY;
+			ret.setExpectedIdentity(new ExpectedIdentity(addr, expectation));
+		}
 		return ret;
 	}
 	

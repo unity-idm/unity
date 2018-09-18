@@ -5,15 +5,9 @@
 package pl.edu.icm.unity.types.registration;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.MessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
-import pl.edu.icm.unity.types.registration.layout.FormElement;
-import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -21,6 +15,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.MessageSource;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
+import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
+import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
+import pl.edu.icm.unity.types.registration.layout.FormElement;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
+import pl.edu.icm.unity.types.registration.layout.FormLocalSignupButtonElement;
+import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 
 /**
  * Configuration of a registration form. Registration form data contains:
@@ -40,8 +48,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 public class RegistrationForm extends BaseForm
 {
 	public static final int MAX_CAPTCHA_LENGTH = 8;
-	public static final String CAPTCHA = "CAPTCHA";
-	public static final String REG_CODE = "REG_CODE";
 	
 	private boolean publiclyAvailable;
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
@@ -49,6 +55,12 @@ public class RegistrationForm extends BaseForm
 	private String registrationCode;
 	private boolean byInvitationOnly;
 	private String defaultCredentialRequirement;
+	private I18nString title2ndStage = new I18nString();
+	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
+	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
+	private boolean showSignInLink;
+	private RedirectConfig successRedirect;
+	private RedirectConfig userExistsRedirect;
 
 	@JsonCreator
 	public RegistrationForm(ObjectNode json)
@@ -56,12 +68,16 @@ public class RegistrationForm extends BaseForm
 		super(json);
 		fromJson(json);
 		validateRegistration();
-		if (getLayout() != null)
-			validateLayout();
+		validateLayouts();
 	}
 	
 	RegistrationForm()
 	{
+	}
+	
+	public void validateLayouts()
+	{
+		getFormLayouts().validate(this);
 	}
 	
 	@Override
@@ -125,6 +141,68 @@ public class RegistrationForm extends BaseForm
 	{
 		this.defaultCredentialRequirement = defaultCredentialRequirement;
 	}
+	
+	
+	
+	public ExternalSignupSpec getExternalSignupSpec()
+	{
+		return externalSignupSpec;
+	}
+
+	public void setExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
+	{
+		this.externalSignupSpec = externalSignupSpec;
+	}
+
+	public RegistrationFormLayouts getFormLayouts()
+	{
+		return formLayouts;
+	}
+
+	public void setFormLayouts(RegistrationFormLayouts formLayouts)
+	{
+		this.formLayouts = formLayouts;
+	}
+
+	public I18nString getTitle2ndStage()
+	{
+		return title2ndStage;
+	}
+
+	public void setTitle2ndStage(I18nString title2ndStage)
+	{
+		this.title2ndStage = title2ndStage;
+	}
+
+	public boolean isShowSignInLink()
+	{
+		return showSignInLink;
+	}
+
+	public void setShowSignInLink(boolean showSignInLink)
+	{
+		this.showSignInLink = showSignInLink;
+	}
+
+	public RedirectConfig getSuccessRedirect()
+	{
+		return successRedirect;
+	}
+
+	public void setSuccessRedirect(RedirectConfig successRedirect)
+	{
+		this.successRedirect = successRedirect;
+	}
+
+	public RedirectConfig getUserExistsRedirect()
+	{
+		return userExistsRedirect;
+	}
+
+	public void setUserExistsRedirect(RedirectConfig userExistsRedirect)
+	{
+		this.userExistsRedirect = userExistsRedirect;
+	}
 
 	@Override
 	public String toString()
@@ -139,55 +217,102 @@ public class RegistrationForm extends BaseForm
 					+ "in RegistrationForm");
 	}
 	
-	@Override
-	protected void updateOtherElementsInLayout(Set<String> definedElements)
+
+	public FormLayout getEffectiveSecondaryFormLayoutWithoutCredentials(MessageSource msg)
 	{
-		super.updateOtherElementsInLayout(definedElements);
-		if (captchaLength > 0)
-			getLayout().addBasicElementIfMissing(CAPTCHA, definedElements);
-		else
-			getLayout().removeBasicElementIfPresent(CAPTCHA);
+		FormLayout layout = getEffectiveSecondaryFormLayout(msg);
+		FormLayout layoutWithoutCreds = new FormLayout(layout.toJson());
+		Iterator<FormElement> elementsIter = layoutWithoutCreds.getElements().iterator();
+		while (elementsIter.hasNext())
+		{
+			FormElement element = elementsIter.next();
+			if (element.getType() == FormLayoutElement.CREDENTIAL)
+				elementsIter.remove();
+		}
+		return layoutWithoutCreds;
+	}
+
+	public FormLayout getEffectivePrimaryFormLayout(MessageSource msg)
+	{
+		if (getFormLayouts().getPrimaryLayout() == null)
+			return getDefaultPrimaryFormLayout(msg);
 		
+		return getFormLayouts().getPrimaryLayout();
+	}
+	
+	public FormLayout getEffectiveSecondaryFormLayout(MessageSource msg)
+	{
+		if (getFormLayouts().getSecondaryLayout() == null)
+			return getDefaultSecondaryFormLayout(msg);
+		
+		return getFormLayouts().getSecondaryLayout();
+	}
+	
+	public FormLayout getDefaultPrimaryFormLayout(MessageSource msg)
+	{
+		List<FormElement> elements = new ArrayList<>();
+		if (getExternalSignupSpec().isEnabled())
+		{
+			List<FormElement> externalSignUpElements = getDefaultExternalSignupFormLayoutElements(msg);
+			elements.addAll(externalSignUpElements);
+		}
+		if (getFormLayouts().isLocalSignupEmbeddedAsButton())
+		{
+			elements.add(new FormLocalSignupButtonElement());
+			
+		} else
+		{
+			List<FormElement> defaultElements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
+			addRegistrationFormSpecificElements(msg, defaultElements);
+			if (!defaultElements.isEmpty())
+				elements.add(new FormCaptionElement(new I18nString("RegistrationRequest.or", msg)));
+			elements.addAll(defaultElements);
+		}
+		return new FormLayout(elements);
+	}
+	
+	private List<FormElement> getDefaultExternalSignupFormLayoutElements(MessageSource msg)
+	{
+		List<AuthenticationOptionKey> remoteSignup = getExternalSignupSpec().getSpecs();
+		List<FormElement> ret = new ArrayList<>();
+		for (int i=0; i<remoteSignup.size(); i++)
+		{
+			ret.add(new FormParameterElement(FormLayoutElement.REMOTE_SIGNUP, i));
+		}
+		return ret;
+	}
+
+	public FormLayout getDefaultSecondaryFormLayout(MessageSource msg)
+	{
+		if (!getFormLayouts().isLocalSignupEmbeddedAsButton() && !getExternalSignupSpec().isEnabled())
+			return null;
+		
+		List<FormElement> elements;
+		if (getFormLayouts().isLocalSignupEmbeddedAsButton())
+		{
+			elements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
+		} else
+		{
+			elements = FormLayoutUtils.getDefaultFormLayoutElementsWithoutCredentials(this, msg);
+		}
+		addRegistrationFormSpecificElements(msg, elements);
+		return new FormLayout(elements);
+	}
+	
+	/**
+	 * Adds on the beginning the registration code if exists and capta at the
+	 * end if defined.
+	 */
+	private void addRegistrationFormSpecificElements(MessageSource msg, List<FormElement> elements)
+	{
 		if (registrationCode != null)
-			getLayout().addBasicElementIfMissing(REG_CODE, definedElements);
-		else
-			getLayout().removeBasicElementIfPresent(REG_CODE);
+			elements.add(0, new BasicFormElement(FormLayoutElement.REG_CODE));
+		
+		if (captchaLength > 0)
+			elements.add(new BasicFormElement(FormLayoutElement.CAPTCHA));
 	}
 	
 	@Override
-	protected void checkOtherElementsInLayout(Set<String> definedElements)
-	{
-		super.checkOtherElementsInLayout(definedElements);
-		if (captchaLength > 0)
-			getLayout().checkLayoutElement(CAPTCHA, definedElements);
-		if (registrationCode != null)
-			getLayout().checkLayoutElement(REG_CODE, definedElements);
-
-	}
-
-	@Override
-	public FormLayout getDefaultFormLayout(MessageSource msg)
-	{
-		List<FormElement> elements = new ArrayList<FormElement>();
-		if (registrationCode != null)
-			elements.add(new BasicFormElement(REG_CODE));
-		elements.addAll(getDefaultParametersLayout(FormLayout.IDENTITY, getIdentityParams(), msg, 
-				"RegistrationRequest.identities", "RegistrationRequest.externalIdentities"));
-		elements.addAll(getDefaultBasicParamsLayout(FormLayout.CREDENTIAL, getCredentialParams(), msg, 
-				"RegistrationRequest.credentials", true));
-		elements.addAll(getDefaultParametersLayout(FormLayout.ATTRIBUTE, getAttributeParams(), msg, 
-				"RegistrationRequest.attributes", "RegistrationRequest.externalAttributes"));
-		elements.addAll(getDefaultParametersLayout(FormLayout.GROUP, getGroupParams(), msg, 
-				"RegistrationRequest.groups", "RegistrationRequest.externalGroups"));
-		if (isCollectComments())
-			elements.add(new BasicFormElement(FormLayout.COMMENTS));
-		elements.addAll(getDefaultBasicParamsLayout(FormLayout.AGREEMENT, getAgreements(), msg, 
-				"RegistrationRequest.agreements", true));
-		if (captchaLength > 0)
-			elements.add(new BasicFormElement(CAPTCHA));
-		return new FormLayout(elements);
-	}
-
 	@JsonValue
 	public ObjectNode toJson()
 	{
@@ -199,6 +324,12 @@ public class RegistrationForm extends BaseForm
 		root.put("RegistrationCode", getRegistrationCode());
 		root.put("CaptchaLength", getCaptchaLength());
 		root.put("ByInvitationOnly", isByInvitationOnly());
+		root.set("ExternalSignupSpec", jsonMapper.valueToTree(getExternalSignupSpec()));
+		root.set("RegistrationFormLayouts", jsonMapper.valueToTree(getFormLayouts()));
+		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
+		root.put("ShowSignInLink", showSignInLink);
+		root.set("SuccessRedirect", jsonMapper.valueToTree(getSuccessRedirect()));
+		root.set("UserExistsRedirect", jsonMapper.valueToTree(getUserExistsRedirect()));
 		return root;
 	}
 
@@ -212,12 +343,8 @@ public class RegistrationForm extends BaseForm
 			
 			n = root.get("NotificationsConfiguration");
 			if (n != null)
-			{		
-				String v = jsonMapper.writeValueAsString(n);
-				RegistrationFormNotifications r = jsonMapper.readValue(v, 
-						new TypeReference<RegistrationFormNotifications>(){});
-				setNotificationsConfiguration(r);
-			}
+				setNotificationsConfiguration(jsonMapper.convertValue(
+						n, new TypeReference<RegistrationFormNotifications>(){}));
 
 			n = root.get("PubliclyAvailable");
 			setPubliclyAvailable(n.asBoolean());
@@ -236,7 +363,30 @@ public class RegistrationForm extends BaseForm
 			n = root.get("ByInvitationOnly");
 			if (n != null && !n.isNull())
 				setByInvitationOnly(n.asBoolean());
+
+			n = root.get("ExternalSignupSpec");
+			if (n != null)
+				setExternalSignupSpec(jsonMapper.convertValue(n, new TypeReference<ExternalSignupSpec>(){}));
 			
+			n = root.get("RegistrationFormLayouts");
+			if (n != null)
+				setFormLayouts(jsonMapper.convertValue(n, new TypeReference<RegistrationFormLayouts>(){}));
+			
+			n = root.get("Title2ndStage");
+			if (n != null && !n.isNull())
+				setTitle2ndStage(I18nStringJsonUtil.fromJson(n));
+			
+			n = root.get("ShowSignInLink");
+			if (n != null && !n.isNull())
+				setShowSignInLink(n.asBoolean());
+			
+			n = root.get("SuccessRedirect");
+			if (n != null && !n.isNull())
+				setSuccessRedirect(jsonMapper.convertValue(n, RedirectConfig.class));
+
+			n = root.get("UserExistsRedirect");
+			if (n != null && !n.isNull())
+				setUserExistsRedirect(jsonMapper.convertValue(n, RedirectConfig.class));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize registration form from JSON", e);
@@ -244,60 +394,34 @@ public class RegistrationForm extends BaseForm
 	}
 
 	@Override
-	public int hashCode()
+	public boolean equals(final Object other)
 	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + (byInvitationOnly ? 1231 : 1237);
-		result = prime * result + captchaLength;
-		result = prime
-				* result
-				+ ((defaultCredentialRequirement == null) ? 0
-						: defaultCredentialRequirement.hashCode());
-		result = prime
-				* result
-				+ ((notificationsConfiguration == null) ? 0
-						: notificationsConfiguration.hashCode());
-		result = prime * result + (publiclyAvailable ? 1231 : 1237);
-		result = prime * result
-				+ ((registrationCode == null) ? 0 : registrationCode.hashCode());
-		return result;
+		if (!(other instanceof RegistrationForm))
+			return false;
+		if (!super.equals(other))
+			return false;
+		RegistrationForm castOther = (RegistrationForm) other;
+		return Objects.equals(name, castOther.name) && Objects.equals(description, castOther.description)
+				&& Objects.equals(publiclyAvailable, castOther.publiclyAvailable)
+				&& Objects.equals(notificationsConfiguration, castOther.notificationsConfiguration)
+				&& Objects.equals(captchaLength, castOther.captchaLength)
+				&& Objects.equals(registrationCode, castOther.registrationCode)
+				&& Objects.equals(byInvitationOnly, castOther.byInvitationOnly)
+				&& Objects.equals(defaultCredentialRequirement, castOther.defaultCredentialRequirement)
+				&& Objects.equals(title2ndStage, castOther.title2ndStage)
+				&& Objects.equals(externalSignupSpec, castOther.externalSignupSpec)
+				&& Objects.equals(formLayouts, castOther.formLayouts)
+				&& Objects.equals(showSignInLink, castOther.showSignInLink)
+				&& Objects.equals(successRedirect, castOther.successRedirect)
+				&& Objects.equals(userExistsRedirect, castOther.userExistsRedirect);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		RegistrationForm other = (RegistrationForm) obj;
-		if (byInvitationOnly != other.byInvitationOnly)
-			return false;
-		if (captchaLength != other.captchaLength)
-			return false;
-		if (defaultCredentialRequirement == null)
-		{
-			if (other.defaultCredentialRequirement != null)
-				return false;
-		} else if (!defaultCredentialRequirement.equals(other.defaultCredentialRequirement))
-			return false;
-		if (notificationsConfiguration == null)
-		{
-			if (other.notificationsConfiguration != null)
-				return false;
-		} else if (!notificationsConfiguration.equals(other.notificationsConfiguration))
-			return false;
-		if (publiclyAvailable != other.publiclyAvailable)
-			return false;
-		if (registrationCode == null)
-		{
-			if (other.registrationCode != null)
-				return false;
-		} else if (!registrationCode.equals(other.registrationCode))
-			return false;
-		return true;
+		return Objects.hash(super.hashCode(), name, description, publiclyAvailable, notificationsConfiguration,
+				captchaLength, registrationCode, byInvitationOnly, defaultCredentialRequirement,
+				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, successRedirect,
+				userExistsRedirect);
 	}
 }

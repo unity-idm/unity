@@ -31,12 +31,12 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -46,6 +46,7 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
@@ -345,7 +346,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		enableSharedWidgets(true);
 		authNPanelInProgress = null;
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
-		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance();
+		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance(Context.LOGIN);
 		if (secondaryAuthnUIs.size() > 1)
 		{
 			log.warn("Configuration error: the authenticator configured as the second "

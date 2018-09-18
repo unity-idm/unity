@@ -18,7 +18,7 @@ public class FormSeparatorElement extends FormElement
 {
 	public FormSeparatorElement()
 	{
-		super(FormLayout.SEPARATOR, false);
+		super(FormLayoutElement.SEPARATOR, false);
 	}
 
 	@Override

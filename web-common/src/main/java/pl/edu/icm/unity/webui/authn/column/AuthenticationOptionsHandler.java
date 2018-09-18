@@ -17,9 +17,10 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
 /**
@@ -27,7 +28,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  * 
  * @author K. Benedyczak
  */
-public class AuthenticationOptionsHandler
+class AuthenticationOptionsHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationOptionsHandler.class);
 	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
@@ -83,7 +84,7 @@ public class AuthenticationOptionsHandler
 		}
 		
 		VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance();
+		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(Context.LOGIN);
 		List<AuthNOption> ret = new ArrayList<>();
 		for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 		{
@@ -114,7 +115,7 @@ public class AuthenticationOptionsHandler
 				continue;
 
 			VaadinAuthentication retrieval = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance();
+			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance(Context.LOGIN);
 			for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 			{
 				if (!vaadinAuthenticationUI.isAvailable())

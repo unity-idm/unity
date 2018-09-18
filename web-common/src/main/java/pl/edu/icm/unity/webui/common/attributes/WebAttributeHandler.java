@@ -28,7 +28,7 @@ public interface WebAttributeHandler
 	 * @param value
 	 * @return component allowing to present the value
 	 */
-	public Component getRepresentation(String value);
+	public Component getRepresentation(String value, AttributeViewerContext context);
 	
 	/**
 	 * @param initialValue value to be edited or null if value is to be created from scratch

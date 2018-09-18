@@ -8,11 +8,30 @@
  **********************************************************************/
 package pl.edu.icm.unity.types.registration.layout;
 
-/**
- *
- * @author Krzysztof Benedyczak
- */
-public class LayoutElementsRegistry
-{
+import com.fasterxml.jackson.annotation.JsonCreator;
 
+import pl.edu.icm.unity.MessageSource;
+
+/**
+ * represents a fixed button with custom caption
+ */
+public class FormLocalSignupButtonElement extends FormElement
+{
+	@JsonCreator
+	public FormLocalSignupButtonElement()
+	{
+		super(FormLayoutElement.LOCAL_SIGNUP, true);
+	}
+	
+	@Override
+	public String toString(MessageSource msg)
+	{
+		return toString();
+	}
+	
+	@Override
+	public String toString()
+	{
+		return "Parameter " + getType();
+	}
 }

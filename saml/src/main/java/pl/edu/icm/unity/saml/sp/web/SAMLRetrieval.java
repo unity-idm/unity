@@ -71,7 +71,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	}
 
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		SAMLSPProperties samlProperties = credentialExchange.getSamlValidatorSettings();
@@ -87,7 +87,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 				{
 					ret.add(new SAMLRetrievalUI(msg, credentialExchange, 
 							samlContextManagement, idpKey, 
-							configKey, getAuthenticatorId()));
+							configKey, getAuthenticatorId(), context));
 				}
 			}
 		return ret;

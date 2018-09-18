@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms.signup;
+package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.Optional;
 
@@ -17,7 +17,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
-import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 
 /**
  * Controls the sign up authentication flow and notifies the application through
@@ -26,13 +25,13 @@ import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOpt
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-class SignUpAuthNController
+public class SignUpAuthNController
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, SignUpAuthNController.class);
 	private AuthenticationProcessor authnProcessor;
 	private SignUpAuthNControllerListener listener;
 	
-	private AuthNOption selectedAuthNOption;
+	private SignUpAuthNOption selectedAuthNOption;
 	
 	public SignUpAuthNController(AuthenticationProcessor authnProcessor, SignUpAuthNControllerListener listener)
 	{
@@ -40,7 +39,7 @@ class SignUpAuthNController
 		this.listener = listener;
 	}
 
-	public AuthenticationCallback buildCallback(AuthNOption authenticatorUI)
+	public AuthenticationCallback buildCallback(SignUpAuthNOption authenticatorUI)
 	{
 		return new SignUpAutoRegistrationAuthnCallback(authenticatorUI);
 	}
@@ -50,7 +49,8 @@ class SignUpAuthNController
 		LOG.info("processAuthn {}, {}", result, error);
 		try
 		{
-			authnProcessor.processPrimaryAuthnResult(result, selectedAuthNOption.flow, null);
+			authnProcessor.processPrimaryAuthnResult(result, selectedAuthNOption.flow, 
+					selectedAuthNOption.authenticatorUI.getId());
 			resetSelectedAuthNOption();
 			listener.onUserExists(result);
 		} catch (AuthenticationException e)
@@ -65,7 +65,7 @@ class SignUpAuthNController
 		}
 	}
 	
-	void refresh(VaadinRequest request)
+	public void refresh(VaadinRequest request)
 	{
 		if (selectedAuthNOption != null)
 			selectedAuthNOption.authenticatorUI.refresh(request);
@@ -87,9 +87,9 @@ class SignUpAuthNController
 
 	private class SignUpAutoRegistrationAuthnCallback implements AuthenticationCallback
 	{
-		private final AuthNOption authNOption;
+		private final SignUpAuthNOption authNOption;
 
-		SignUpAutoRegistrationAuthnCallback(AuthNOption authNOption)
+		SignUpAutoRegistrationAuthnCallback(SignUpAuthNOption authNOption)
 		{
 			this.authNOption = authNOption;
 		}

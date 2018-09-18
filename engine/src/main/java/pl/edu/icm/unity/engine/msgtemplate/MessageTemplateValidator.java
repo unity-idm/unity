@@ -4,13 +4,13 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
@@ -54,32 +54,58 @@ public class MessageTemplateValidator
 		I18nString subject = message.getSubject();
 		for (String subjectL: subject.getMap().values())
 			vars.addAll(extractVariables(subjectL));
+		vars.addAll(extractVariables(subject.getDefaultValue()));
 		
 		I18nString body = message.getBody();
 		for (String bodyL: body.getMap().values())
 			vars.addAll(extractVariables(bodyL));
+		vars.addAll(extractVariables(body.getDefaultValue()));
 		return vars;
 	}
-
-	private static List<String> extractVariables(String text)
+	/**
+	 * @return all non-built-in variables used in message template (union over all language variants)
+	 */
+	public static Set<String> extractCustomVariables(I18nMessage message)
 	{
-		List<String> usedField = new ArrayList<>();
-		Pattern pattern = Pattern.compile("\\$\\{[a-zA-Z0-9.]*\\}");
+		return extractVariables(message).stream()
+				.filter(var -> var.startsWith(MessageTemplateDefinition.CUSTOM_VAR_PREFIX))
+				.collect(Collectors.toSet());
+	}
+	
+	private static Set<String> extractVariables(String text)
+	{
+		if (text == null)
+			return Collections.emptySet();
+		Set<String> usedField = extractVariables(text, "\\$\\{[^\\}]*\\}", 1);
+		usedField.addAll(extractVariables(text, "\\{\\{[^\\}]*\\}\\}", 2));
+		return filterDirectives(usedField);
+	}
 
+	private static Set<String> filterDirectives(Set<String> statements)
+	{
+		return statements.stream()
+				.filter(v -> !v.startsWith(MessageTemplateDefinition.INCLUDE_PREFIX))
+				.collect(Collectors.toSet());
+	}
+	
+	private static Set<String> extractVariables(String text, String patternStr, int suffixLen)
+	{
+		Set<String> usedField = new HashSet<>();
+		Pattern pattern = Pattern.compile(patternStr);
 		String b = (String) text;
 		Matcher matcher = pattern.matcher(b);
 		while (matcher.find())
 		{
-			usedField.add(b.substring(matcher.start() + 2, matcher.end() - 1));
+			usedField.add(b.substring(matcher.start() + 2, matcher.end() - suffixLen));
 
 		}
 		return usedField;
 	}
-	
+
 	public static void validateText(MessageTemplateDefinition consumer, String text, boolean checkMandatory) 
 			throws IllegalVariablesException, MandatoryVariablesException
 	{
-		List<String> usedField = extractVariables(text);
+		Set<String> usedField = extractVariables(text);
 
 		Set<String> knownVariables = new HashSet<>();
 		Set<String> mandatory = new HashSet<>();

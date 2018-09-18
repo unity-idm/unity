@@ -19,6 +19,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -28,7 +29,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P.Piernik
  *
  */
-public class TextFieldWithVerifyButton extends CustomField<String>
+public class TextFieldWithVerifyButton extends CustomField<String> implements ComponentWithLabel
 {
 	private CheckBox adminConfirmCheckBox;
 	private Button verifyButton;
@@ -36,12 +37,13 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	private HorizontalLayout fieldLayout;
 	private VerticalLayout main;
 	private Label confirmationStatusIcon;
+	private boolean showLabelInline;
 	
 	public TextFieldWithVerifyButton(boolean adminMode, boolean required,
 			String verifyButtonDesc, Resource verifyButtonIcon,
-			String adminConfirmCheckBoxLabel)
+			String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
-		setRequiredIndicatorVisible(required);
+		this.showLabelInline = showLabelInline;
 		verifyButton = new Button();
 		verifyButton.setIcon(verifyButtonIcon);
 		verifyButton.setStyleName(Styles.vButtonLink.toString());
@@ -50,7 +52,11 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		verifyButton.addStyleName(Styles.largeIcon.toString());
 		verifyButton.setDescription(verifyButtonDesc);
 		editor = new TextField();
-
+		if (showLabelInline)
+			editor.setRequiredIndicatorVisible(required);
+		else
+			setRequiredIndicatorVisible(required);
+		
 		adminConfirmCheckBox = new CheckBox(adminConfirmCheckBoxLabel);
 		fieldLayout = new HorizontalLayout();
 		fieldLayout.setMargin(false);
@@ -162,5 +168,21 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	{
 		editor.setId(id);
 	}
+	
+	@Override
+	public void setLabel(String label)
+	{
+		String normalizedLabel = ComponentWithLabel.normalizeLabel(label);
+		if (showLabelInline)
+			editor.setPlaceholder(normalizedLabel);
+		else
+			setCaption(normalizedLabel + ":");
+	}
 
+	@Override
+	public void setWidth(float width, Unit unit)
+	{
+		if (editor != null)
+			editor.setWidth(width, unit);
+	}
 }

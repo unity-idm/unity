@@ -27,15 +27,12 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
-import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvider;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -53,6 +50,7 @@ import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 public class EnquiryFormEditor extends BaseFormEditor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryFormEditor.class);
+	
 	private UnityMessageSource msg;
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
@@ -68,7 +66,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private RegistrationActionsRegistry actionsRegistry;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
-	private FormLayoutEditor layoutEditor;
+	private EnquiryFormLayoutEditorTab layoutEditor;
 	
 	@Autowired
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -124,7 +122,16 @@ public class EnquiryFormEditor extends BaseFormEditor
 		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
 		builder.withLayout(layoutEditor.getLayout());
-		return builder.build();
+		
+		EnquiryForm form = builder.build();
+		try
+		{
+			form.validateLayout();
+		} catch (Exception e)
+		{
+			throw new FormValidationException(e);
+		}
+		return form;
 	}
 	
 	private EnquiryFormBuilder getFormBuilderBasic() throws FormValidationException
@@ -149,7 +156,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 				ProfileType.REGISTRATION,
 				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
-		layoutEditor.setInitialForm(toEdit);
+		layoutEditor.setLayout(toEdit.getLayout());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 	}
@@ -198,7 +205,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private void initLayoutTab()
 	{
 		VerticalLayout wrapper = new VerticalLayout();
-		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
+		layoutEditor = new EnquiryFormLayoutEditorTab(msg, this::getEnquiryForm);
 		wrapper.setMargin(true);
 		wrapper.setSpacing(false);
 		wrapper.addComponent(layoutEditor);
@@ -218,25 +225,21 @@ public class EnquiryFormEditor extends BaseFormEditor
 				new ArrayList<>()));
 		wrapper.addComponent(profileEditor);
 	}
+	
+	private EnquiryForm getEnquiryForm()
+	{
+		try
+		{
+			return getFormBuilderBasic().build();
+		} catch (Exception e)
+		{
+			log.debug("Ignoring layout update, form is invalid", e);
+			return null;
+		}
+	}
 
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
-	}
-	
-	private class FormProviderImpl implements FormProvider
-	{
-		@Override
-		public BaseForm getForm()
-		{
-			try
-			{
-				return getFormBuilderBasic().build();
-			} catch (Exception e)
-			{
-				log.debug("Ignoring layout update, form is invalid", e);
-				return null;
-			}
-		}
 	}
 }

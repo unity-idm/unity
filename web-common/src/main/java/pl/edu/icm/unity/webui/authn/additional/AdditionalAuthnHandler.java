@@ -24,6 +24,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
 /**
@@ -61,7 +62,7 @@ public class AdditionalAuthnHandler
 	{
 		String authenticator = exception.authenticationOption;
 		VaadinAuthentication authn = getRetrieval(authenticator);
-		VaadinAuthenticationUI authenticationUI = authn.createUIInstance().iterator().next();
+		VaadinAuthenticationUI authenticationUI = authn.createUIInstance(Context.LOGIN).iterator().next();
 		Entity entity = getCurrentEntity();
 		authenticationUI.presetEntity(entity);
 

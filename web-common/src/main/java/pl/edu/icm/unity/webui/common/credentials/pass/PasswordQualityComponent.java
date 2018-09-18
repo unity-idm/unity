@@ -1,15 +1,12 @@
 /*
- * Copyright (c) 2018 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common.credentials.pass;
 
-import com.vaadin.server.ErrorMessage;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.shared.ui.ValueChangeMode;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.PasswordField;
 import com.vaadin.ui.ProgressBar;
 import com.vaadin.ui.VerticalLayout;
 
@@ -17,109 +14,76 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 /**
- * Password editor. This component contains a single masked text field, displays password strength
- * and fulfillment of credential settings. It is not maintaining any additional widgets
- * as password re-typing field.
- * 
- * @author K. Benedyczak
+ * Password quality meter with all password hints that can be configured.
+ *
+ * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class PasswordEditComponent
+public class PasswordQualityComponent extends CustomComponent
 {
 	private final UnityMessageSource msg;
 	private final PasswordCredential config;
-	
-	private PasswordField password;
+
 	private ProgressBar qualityMeter;
 	private Label mainInfo;
 	private Label minLengthStatus;
 	private Label minClassesStatus;
 	private Label sequencesStatus;
-	private ComponentsContainer root;
-	
-	public PasswordEditComponent(UnityMessageSource msg, PasswordCredential config)
+
+	public PasswordQualityComponent(UnityMessageSource msg, PasswordCredential config, 
+			CredentialEditorContext context)
 	{
+		super();
 		this.msg = msg;
 		this.config = config;
-		root = new ComponentsContainer();
 		
-		password = new PasswordField(msg.getMessage("PasswordCredentialEditor.password"));
-		password.setValueChangeMode(ValueChangeMode.LAZY);
-		password.addValueChangeListener(event -> onNewPassword(event.getValue()));
+		initComponent(context);
+	}
+
+	private void initComponent(CredentialEditorContext context)
+	{
 		qualityMeter = new ProgressBar();
 		qualityMeter.setCaption(msg.getMessage("PasswordCredentialEditor.qualityMeter"));
-		qualityMeter.setWidth(210, Unit.PIXELS);
+		qualityMeter.setWidth(15, Unit.EM);
+		qualityMeter.addStyleName("u-password-quality");
 		mainInfo = new Label("", ContentMode.HTML);
-		mainInfo.setWidth(100, Unit.PERCENTAGE);
+		mainInfo.setWidth(16, Unit.EM);
 		mainInfo.addStyleName(Styles.emphasized.toString());
-		VerticalLayout qualityMeterLayout = new VerticalLayout(qualityMeter, mainInfo);
-		qualityMeterLayout.setMargin(false);
-		qualityMeterLayout.setSpacing(false);
+		mainInfo.addStyleName("u-password-hint");
 		minLengthStatus = new Label("", ContentMode.HTML);
+		minLengthStatus.addStyleNames("u-password-stat", "u-password-minLen");
 		minClassesStatus = new Label("", ContentMode.HTML);
+		minClassesStatus.addStyleNames("u-password-stat", "u-password-minClass");
 		sequencesStatus = new Label("", ContentMode.HTML);
+		sequencesStatus.addStyleNames("u-password-stat", "u-password-seq");
 		
-		root.add(password, qualityMeterLayout);
+		VerticalLayout root = new VerticalLayout();
+		root.addStyleName(Styles.leftMarginSmall.toString());
+		root.addStyleName(Styles.passwordQuality.toString());
+		root.setSpacing(false);
+		root.setMargin(false);
+		root.addComponent(qualityMeter);
+		root.setWidth(16, Unit.EM);
 		if (config.getMinLength() > 1)
-			root.add(minLengthStatus);
+			root.addComponent(minLengthStatus);
 		if (config.getMinClassesNum() > 1)
-			root.add(minClassesStatus);
+			root.addComponent(minClassesStatus);
 		if (config.isDenySequences())
-			root.add(sequencesStatus);
+			root.addComponent(sequencesStatus);
+		root.addComponent(mainInfo);
+		setCompositionRoot(root);
+		
+		if (!context.isShowLabelInline())
+			addStyleName(Styles.nonCompactTopMargin.toString());
 		
 		onNewPassword("");
 	}
-	
-	public ComponentsContainer getAsContainer()
-	{
-		return root;
-	}
-	
-	public String getPassword()
-	{
-		return password.getValue();
-	}
-	
-	public void focus()
-	{
-		password.focus();
-	}
-	
-	public void clear()
-	{
-		password.setValue("");
-	}
-	
-	public void setRequiredIndicatorVisible(boolean visible)
-	{
-		password.setRequiredIndicatorVisible(visible);
-	}
 
-	public void setComponentError(ErrorMessage componentError)
-	{
-		password.setComponentError(componentError);
-	}
-	
-	public boolean isValid()
-	{
-		String password = this.password.getValue();
-		StrengthInfo measure = StrengthChecker.measure(password, config.getMinScore(), msg);
-		if (measure.score < config.getMinScore())
-			return false;
-		if (password.length() < config.getMinLength())
-			return false;
-		if (StrengthChecker.getCharacterClasses(password) < config.getMinClassesNum())
-			return false;
-		if (!StrengthChecker.hasNoTrivialSequences(password))
-			return false;
-		return true;
-	}
-	
-	private void onNewPassword(String password)
+	public void onNewPassword(String password)
 	{
 		StrengthInfo measure = StrengthChecker.measure(password, config.getMinScore(), msg);
 		int length = password.length();
@@ -129,11 +93,20 @@ public class PasswordEditComponent
 		qualityMeter.setValue((float)measure.scoreNormalized);
 		if (config.getMinScore() > 0)
 		{
-			Images qualityIcon = measure.score >= config.getMinScore() ? 
-					Images.ok : Images.warn;
+			boolean isScoreOK = measure.score >= config.getMinScore();
+			Images qualityIcon = isScoreOK ? Images.ok : Images.warn;
 			qualityMeter.setIcon(qualityIcon.getResource());
-			qualityMeter.setStyleName(Styles.iconError.toString(), 
-					measure.score < config.getMinScore());
+			qualityMeter.setStyleName(Styles.iconError.toString(), !isScoreOK);
+			if (isScoreOK)
+			{
+				qualityMeter.removeStyleName(Styles.redProgressBar.toString());
+				qualityMeter.setStyleName(Styles.greenProgressBar.toString());
+			}
+			else
+			{
+				qualityMeter.removeStyleName(Styles.greenProgressBar.toString());
+				qualityMeter.setStyleName(Styles.redProgressBar.toString());
+			}
 		}
 		
 		if (!measure.warning.isEmpty())

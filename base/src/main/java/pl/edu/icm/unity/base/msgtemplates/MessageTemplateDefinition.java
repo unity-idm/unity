@@ -24,6 +24,7 @@ public interface MessageTemplateDefinition
 	public static final Set<String> ALL_FACILITIES = Collections.unmodifiableSet(Sets
 			.newHashSet(FacilityName.EMAIL.toString(), FacilityName.SMS.toString()));
 	public static final String CUSTOM_VAR_PREFIX = "custom.";
+	public static final String INCLUDE_PREFIX = "include:";
 	
 	/**
 	 * @return message bundle key with the description of the template definition, with information on

@@ -23,6 +23,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+import pl.edu.icm.unity.webui.common.attributes.ext.AttributeHandlerHelper;
 
 /**
  * Base attribute handler for the web. Renders as label, edit in text field. Extensions has to implement
@@ -49,9 +50,9 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 	}
 	
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return new Label(value);
+		return AttributeHandlerHelper.getRepresentation(value, syntax, context);
 	}
 	
 	@Override
@@ -67,6 +68,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		private AttributeValueSyntax<?> syntax;
 		private AbstractTextField field;
 		private boolean required;
+		private AttributeEditContext context;
 		
 		public StringValueEditor(String value, String label, AttributeValueSyntax<?> syntax)
 		{
@@ -79,6 +81,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
 			this.required = context.isRequired();
+			this.context = context;
 			boolean large = false;
 			if (syntax instanceof StringAttributeSyntax)
 			{
@@ -93,8 +96,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 				field.setWidth(60, Unit.PERCENTAGE);
 			if (value != null)
 				field.setValue(value.toString());
-			field.setCaption(label);
 			field.setRequiredIndicatorVisible(this.required);
+			setLabel(label);
 			
 			StringBuilder sb = new StringBuilder();
 			for (String hint: getHints())
@@ -102,6 +105,9 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			field.setDescription(sb.toString(), ContentMode.HTML);
 			if (label != null)
 				field.setId("ValueEditor."+label);
+			
+			if (context.isCustomWidth())
+				field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			
 			return new ComponentsContainer(field);
 		}
@@ -133,7 +139,10 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			field.setCaption(label);
+			if (context.isShowLabelInline())
+				field.setPlaceholder(label);
+			else
+				field.setCaption(label);
 		}
 	}
 

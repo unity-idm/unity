@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Strings;
@@ -54,8 +55,10 @@ class AutomaticInvitationProcessingSupport
 	private RegistrationFormDB formsDB;
 	private InternalFacilitiesManagement facilitiesManagement;
 	
+	
 	@Autowired
-	public AutomaticInvitationProcessingSupport(InvitationManagement invitationManagement, RegistrationFormDB formsDB,
+	public AutomaticInvitationProcessingSupport(@Qualifier("insecure") InvitationManagement invitationManagement, 
+			RegistrationFormDB formsDB,
 			InternalFacilitiesManagement facilitiesManagement)
 	{
 		this.invitationManagement = invitationManagement;

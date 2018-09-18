@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewer;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
@@ -112,7 +113,7 @@ public class ExposedAttributesComponent extends CustomComponent
 		Attribute at = dat.getAttribute();
 		AttributeType attributeType = dat.getAttributeType();
 		AttributeViewer attrViewer = new AttributeViewer(msg, handlersRegistry, 
-				attributeType, at, false); 
+				attributeType, at, false, AttributeViewerContext.EMPTY); 
 		return attrViewer.getAsComponents(dat.getDisplayedName(), dat.getDescription());
 	}
 }

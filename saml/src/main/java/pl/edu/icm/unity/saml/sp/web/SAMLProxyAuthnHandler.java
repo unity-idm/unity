@@ -15,11 +15,11 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 

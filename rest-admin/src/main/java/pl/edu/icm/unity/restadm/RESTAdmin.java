@@ -789,6 +789,15 @@ public class RESTAdmin
 		return invitationMan.addInvitation(invitationParam);
 	}
 	
+	@Path("/invitation/{code}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateInvitation(@PathParam("code") String code, String jsonInvitation) throws EngineException, IOException
+	{
+		InvitationParam invitationParam = JsonUtil.parse(jsonInvitation, InvitationParam.class);
+		invitationMan.updateInvitation(code, invitationParam);
+	}	
+	
 	@Path("/bulkProcessing/instant")
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)

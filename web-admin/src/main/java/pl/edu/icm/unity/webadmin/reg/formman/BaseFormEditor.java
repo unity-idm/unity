@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import com.google.common.collect.Sets;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -169,13 +170,17 @@ public class BaseFormEditor extends VerticalLayout
 		
 		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
-		
+		agreements.setSpacing(false);
+		agreements.setMargin(true);
+
 		IdentityEditorAndProvider identityEditorAndProvider = new IdentityEditorAndProvider();
 		if (forceInteractiveRetrieval)
 			identityEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
 		identityParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.identityParams"),
 				msg, identityEditorAndProvider, 0, 20, true);
-
+		
+		Component localSignupMethods = createLocalSignupMethodsTab(forceInteractiveRetrieval);
+		
 		GroupEditorAndProvider groupEditorAndProvider = new GroupEditorAndProvider();
 		if (forceInteractiveRetrieval)
 			groupEditorAndProvider.fixRetrievalSettings(ParameterRetrievalSettings.interactive);
@@ -189,9 +194,7 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
 				
-		credentialParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.credentialParams"),
-				msg, new CredentialEditorAndProvider(), 0, 20, true);
-		tabOfLists.addComponents(agreements, identityParams, groupParams, attributeParams, credentialParams);
+		tabOfLists.addComponents(identityParams, localSignupMethods, attributeParams, groupParams, agreements);
 		return tabOfLists;
 	}
 	
@@ -213,6 +216,14 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams.refresh();
 	}
 	
+	private Component createLocalSignupMethodsTab(boolean forceInteractiveRetrieval)
+	{
+		credentialParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.credentialParams"),
+				msg, new CredentialEditorAndProvider(), 0, 20, true);
+		credentialParams.setCaption(msg.getMessage("RegistrationFormEditor.localSignupMethods"));
+		return credentialParams;
+	}
+
 	private class AgreementEditorAndProvider implements EditorProvider<AgreementRegistrationParam>,
 		Editor<AgreementRegistrationParam>
 	{

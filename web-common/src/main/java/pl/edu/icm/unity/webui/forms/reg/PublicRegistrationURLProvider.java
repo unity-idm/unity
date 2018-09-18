@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -29,8 +30,7 @@ import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
 @Component
 public class PublicRegistrationURLProvider implements PublicViewProvider
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
-			PublicRegistrationURLProvider.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, PublicRegistrationURLProvider.class);
 	private RegistrationsManagement regMan;
 	private ObjectFactory<StandaloneRegistrationView> viewFactory;
 	
@@ -71,7 +71,13 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		RegistrationForm form = getForm(formName);
 		if (form == null)
 			return null;
-		return viewFactory.getObject().init(form);
+		StandaloneRegistrationView view = viewFactory.getObject().init(form);
+		VaadinSession vaadinSession = VaadinSession.getCurrent();
+		if (vaadinSession != null)
+		{
+			vaadinSession.setAttribute(StandaloneRegistrationView.class, view);
+		}
+		return view;
 	}
 
 	private String getFormName(String viewAndParameters)
@@ -95,7 +101,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 					return regForm;
 		} catch (EngineException e)
 		{
-			log.error("Can't load registration forms", e);
+			LOG.error("Can't load registration forms", e);
 		}
 		return null;
 	}
@@ -103,6 +109,13 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	@Override
 	public void refresh(VaadinRequest request)
 	{
-		// nop
+		LOG.debug("registration form refreshed");
+		VaadinSession vaadinSession = VaadinSession.getCurrent();
+		if (vaadinSession != null)
+		{
+			StandaloneRegistrationView view = vaadinSession.getAttribute(StandaloneRegistrationView.class);
+			if (view != null)
+				view.refresh(request);
+		}
 	}
 }
