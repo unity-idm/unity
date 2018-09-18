@@ -42,6 +42,11 @@ public class EnquiryForm extends BaseForm
 	{
 		super(json);
 		fromJson(json);
+		validateLayout();
+	}
+	
+	public void validateLayout()
+	{
 		if (getLayout() != null)
 			FormLayoutUtils.validateEnquiryLayout(this);
 	}

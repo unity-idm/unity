@@ -122,7 +122,16 @@ public class EnquiryFormEditor extends BaseFormEditor
 		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
 		builder.withLayout(layoutEditor.getLayout());
-		return builder.build();
+		
+		EnquiryForm form = builder.build();
+		try
+		{
+			form.validateLayout();
+		} catch (Exception e)
+		{
+			throw new FormValidationException(e);
+		}
+		return form;
 	}
 	
 	private EnquiryFormBuilder getFormBuilderBasic() throws FormValidationException
