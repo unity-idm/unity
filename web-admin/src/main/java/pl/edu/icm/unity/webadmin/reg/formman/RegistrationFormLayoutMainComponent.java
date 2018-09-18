@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 
 /**
  * Registration for layouts and settings editor.
@@ -42,7 +43,7 @@ public class RegistrationFormLayoutMainComponent extends VerticalLayout
 		setSpacing(false);
 		TabSheet tabs = new TabSheet();
 		
-		settingsTab = new RegistrationFormLayoutSettingsTab(msg, formProvider);
+		settingsTab = new RegistrationFormLayoutSettingsTab(msg);
 		tabs.addTab(settingsTab, msg.getMessage("RegistrationFormEditor.layoutSettings"));
 		
 		editorTab = new RegistrationFormLayoutEditorTab(msg, formProvider);
@@ -54,7 +55,6 @@ public class RegistrationFormLayoutMainComponent extends VerticalLayout
 
 	public void updateFromForm()
 	{
-		settingsTab.updateFromForm();
 		editorTab.updateFromForm();
 	}
 
@@ -63,7 +63,7 @@ public class RegistrationFormLayoutMainComponent extends VerticalLayout
 		return editorTab.getLayouts();
 	}
 
-	public FormLayoutSettings getSettings()
+	public FormLayoutSettings getSettings() throws FormValidationException
 	{
 		return settingsTab.getSettings();
 	}

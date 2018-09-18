@@ -23,7 +23,7 @@ public class FormLayoutSettings
 	private String columnWidthUnit;
 	private String logoURL;
 
-	protected FormLayoutSettings()
+	public FormLayoutSettings()
 	{
 	}
 
@@ -80,6 +80,11 @@ public class FormLayoutSettings
 	public String getLogoURL()
 	{
 		return logoURL;
+	}
+	
+	public void setLogoURL(String logoURL)
+	{
+		this.logoURL = logoURL;
 	}
 
 	public static Builder builder()

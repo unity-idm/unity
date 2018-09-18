@@ -4,16 +4,26 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.util.function.Supplier;
+import java.util.stream.Stream;
 
+import org.springframework.util.StringUtils;
+
+import com.vaadin.data.Binder;
+import com.vaadin.data.Converter;
+import com.vaadin.data.Result;
+import com.vaadin.data.ValueContext;
+import com.vaadin.data.converter.StringToFloatConverter;
+import com.vaadin.data.validator.FloatRangeValidator;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotNullComboBox;
 
 /**
  * General registration layouts settings editor.
@@ -23,56 +33,80 @@ import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 public class RegistrationFormLayoutSettingsTab extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private Supplier<RegistrationForm> formProvider;
 	private CheckBox compactInputs;
 	private TextField logo;
-
-	public RegistrationFormLayoutSettingsTab(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
+	private TextField columnWidth;
+	private ComboBox<String> columnWidthUnit;
+	
+	private Binder<FormLayoutSettings> binder;
+	
+	public RegistrationFormLayoutSettingsTab(UnityMessageSource msg)
 	{
 		this.msg = msg;
-		this.formProvider = formProvider;
 
 		initUI();
 	}
 
 	private void initUI()
 	{
-		VerticalLayout main = new VerticalLayout();
+		FormLayout main = new FormLayout();
 		main.setSpacing(true);
 		main.setMargin(true);
 		compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
 		logo = new TextField(msg.getMessage("FormLayoutEditor.logo"));
 		logo.setDescription(msg.getMessage("FormLayoutEditor.logoDesc"));
 		logo.setWidth(100, Unit.PERCENTAGE);
-		main.addComponents(compactInputs, logo);
+		columnWidth = new TextField(msg.getMessage("FormLayoutEditor.columnWidth"));
+		columnWidthUnit = new NotNullComboBox<>(msg.getMessage("FormLayoutEditor.columnWidthUnit"));
+		columnWidthUnit.setItems(Stream.of(Unit.values()).map(Unit::toString));
+		
+		main.addComponents(logo, columnWidth, columnWidthUnit, compactInputs);
 		setCompositionRoot(main);
+		
+		binder = new Binder<>(FormLayoutSettings.class);
+		binder.forField(compactInputs).bind("compactInputs");
+		binder.forField(logo)
+			.withConverter(emptyToNull())
+			.withNullRepresentation("")
+			.bind("logoURL");
+		binder.forField(columnWidth)
+			.asRequired(msg.getMessage("fieldRequired"))
+			.withConverter(new StringToFloatConverter(msg.getMessage("FormLayoutEditor.columnWidth.mustBeFloat")))
+			.withValidator(new FloatRangeValidator(msg.getMessage("FormLayoutEditor.columnWidth.mustBePositive"), 0f, Float.MAX_VALUE))
+			.bind("columnWidth");
+		binder.forField(columnWidthUnit)
+			.asRequired(msg.getMessage("fieldRequired"))
+			.bind("columnWidthUnit");
+		binder.setBean(FormLayoutSettings.DEFAULT);
 	}
 
-	public FormLayoutSettings getSettings()
+	public FormLayoutSettings getSettings() throws FormValidationException
 	{
-		FormLayoutSettings settings = FormLayoutSettings.builder()
-				.withColumnWidth(FormLayoutSettings.DEFAULT.getColumnWidth())
-				.withColumnWidthUnit(FormLayoutSettings.DEFAULT.getColumnWidthUnit())
-				.withCompactInputs(compactInputs.getValue())
-				.withLogo(logo.getValue() != null && !logo.getValue().isEmpty() ? logo.getValue() : null)
-				.build(); 
-		return settings;
+		return binder.getBean();
 	}
 
 	public void setSettings(FormLayoutSettings settings)
 	{
-		compactInputs.setValue(settings.isCompactInputs());
-		if (settings.getLogoURL() != null)
-			logo.setValue(settings.getLogoURL());
+		binder.setBean(settings);
 	}
 
-	public void updateFromForm()
+	private Converter<String, String> emptyToNull()
 	{
-		RegistrationForm form = formProvider.get();
-		if (form == null)
-			return;
-
-		setSettings(form.getLayoutSettings());
+		return new Converter<String, String>()
+		{
+			@Override
+			public String convertToPresentation(String value, ValueContext context)
+			{
+				return value;
+			}
+			
+			@Override
+			public Result<String> convertToModel(String value, ValueContext context)
+			{
+				if (StringUtils.isEmpty(value))
+					return Result.ok(null);
+				return Result.ok(value);
+			}
+		};
 	}
-
 }
