@@ -206,11 +206,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private void showCopyEditDialog(Set<RegistrationForm> target, boolean isCopyMode, String caption)
 	{
 		RegistrationForm targetForm =  target.iterator().next();
+		RegistrationForm deepCopy = new RegistrationForm(targetForm.toJson());
 		RegistrationFormEditor editor;
 		try
 		{		
 			editor = editorFactory.getObject().init(isCopyMode);
-			editor.setForm(targetForm);
+			editor.setForm(deepCopy);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage(
