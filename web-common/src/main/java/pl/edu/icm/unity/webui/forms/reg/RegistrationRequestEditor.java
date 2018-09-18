@@ -203,8 +203,6 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		resolveRemoteSignupOptions();
 		
 		createControls(layoutContainer, effectiveLayout, invitation);
-		
-		finalizeLayoutInitialization(layoutContainer);
 	}
 	
 	@Override
@@ -244,7 +242,10 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 			}
 		}
-		return new RegistrationLayoutsContainer(main, formWidth(), formWidthUnit());
+		
+		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
+		container.addFormLayoutToRootLayout(main);
+		return container;
 	}
 	
 	private void resolveRemoteSignupOptions()
@@ -297,9 +298,9 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		case REG_CODE:
 			return createRegistrationCodeControl(layoutContainer.registrationFormLayout, (BasicFormElement) element);
 		case REMOTE_SIGNUP:
-			return createRemoteSignupButton(layoutContainer.mainLayout, (FormParameterElement) element);
+			return createRemoteSignupButton(layoutContainer.registrationFormLayout, (FormParameterElement) element);
 		case LOCAL_SIGNUP:
-			return createLocalSignupButton(layoutContainer.mainLayout, (FormLocalSignupButtonElement) element);
+			return createLocalSignupButton(layoutContainer.registrationFormLayout, (FormLocalSignupButtonElement) element);
 		default:
 			return super.createControlFor(layoutContainer, element, previousAdded, invitation);
 		}

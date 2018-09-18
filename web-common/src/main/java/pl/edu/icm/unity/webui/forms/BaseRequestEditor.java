@@ -405,8 +405,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			main.addComponent(formInformation);
 			main.setComponentAlignment(formInformation, Alignment.MIDDLE_CENTER);
 		}
-
-		return new RegistrationLayoutsContainer(main, formWidth(), formWidthUnit());
+		
+		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
+		container.addFormLayoutToRootLayout(main);
+		return container;
 	}
 	
 	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 
@@ -452,14 +454,6 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		{
 			throw new IllegalStateException("Can not read credential definitions", e);
 		}
-	}
-	
-	protected void finalizeLayoutInitialization(RegistrationLayoutsContainer layoutContainer)
-	{
-		layoutContainer.mainLayout.addComponent(layoutContainer.registrationFormLayout);
-		layoutContainer.mainLayout.setComponentAlignment(layoutContainer.registrationFormLayout,
-				Alignment.MIDDLE_CENTER);
-		focusFirst(layoutContainer.registrationFormLayout);
 	}
 
 	protected void focusFirst(VerticalLayout container)

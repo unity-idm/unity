@@ -5,26 +5,28 @@
 package pl.edu.icm.unity.webui.forms;
 
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
 /**
- * Holds the registration form layouts. At the point of creation of this
- * container, the layouts are not yet embedded into the
- * {@link BaseRequestEditor}. Requires calling
- * {@link BaseRequestEditor#finalizeLayoutInitialization(RegistrationLayoutsContainer)}.
+ * Holds the registration form layout.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
 public class RegistrationLayoutsContainer
 {
-	public final VerticalLayout mainLayout;
 	public final VerticalLayout registrationFormLayout;
 
-	public RegistrationLayoutsContainer(VerticalLayout rootLayout, Float formLayoutWidth, Unit formLayoutWidthUnit)
+	public RegistrationLayoutsContainer(Float formLayoutWidth, Unit formLayoutWidthUnit)
 	{
-		this.mainLayout = rootLayout;
 		this.registrationFormLayout = new VerticalLayout();
 		this.registrationFormLayout.setWidth(formLayoutWidth, formLayoutWidthUnit);
 		this.registrationFormLayout.setMargin(false);
+	}
+
+	public void addFormLayoutToRootLayout(VerticalLayout main)
+	{
+		main.addComponent(registrationFormLayout);
+		main.setComponentAlignment(registrationFormLayout, Alignment.MIDDLE_CENTER);
 	}
 }

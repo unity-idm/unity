@@ -60,8 +60,6 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 		RegistrationLayoutsContainer layoutContainer = createLayouts();
 		
 		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), null);
-		
-		finalizeLayoutInitialization(layoutContainer);
 	}
 }
 
