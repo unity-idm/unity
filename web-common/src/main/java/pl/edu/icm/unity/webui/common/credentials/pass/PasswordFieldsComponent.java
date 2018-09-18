@@ -56,6 +56,12 @@ public class PasswordFieldsComponent extends CustomComponent
 		initUI();
 	}
 
+	@Override
+	public void focus()
+	{
+		password1.focus();
+	}
+	
 	private void initUI()
 	{
 		VerticalLayout root = new VerticalLayout();
@@ -67,7 +73,6 @@ public class PasswordFieldsComponent extends CustomComponent
 		password1.setValueChangeMode(ValueChangeMode.LAZY);
 		password1.addValueChangeListener(event -> onPasswordChangeListener.accept(event.getValue()));
 		password1.addStyleName("u-password-setup");
-		password1.focus();
 	
 		password2 = new PasswordFieldWithContextLabel(context.isShowLabelInline());
 		password2.setLabel(msg.getMessage("PasswordCredentialEditor.repeatPassword"));

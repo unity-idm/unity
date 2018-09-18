@@ -40,6 +40,12 @@ public class PasswordEditorComponent extends CustomComponent implements Componen
 	}
 
 	@Override
+	public void focus()
+	{
+		fieldsComponent.focus();
+	}
+	
+	@Override
 	public void setLabel(String label)
 	{
 		fieldsComponent.setLabel(label);

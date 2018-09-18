@@ -9,6 +9,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.VaadinRequest;
@@ -146,6 +147,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			okButton.addStyleName("u-reg-submit");
 			okButton.addClickListener(event -> onSubmit(editor, mode));
 			okButton.setWidth(100f, Unit.PERCENTAGE);
+			okButton.setClickShortcut(KeyCode.ENTER);
 			
 			formButtons = new HorizontalLayout();
 			formButtons.setWidth(editor.formWidth(), editor.formWidthUnit());

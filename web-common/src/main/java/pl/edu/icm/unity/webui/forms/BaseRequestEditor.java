@@ -9,6 +9,7 @@ import static pl.edu.icm.unity.webui.forms.FormParser.isGroupParamUsedAsMandator
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -458,8 +459,23 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		layoutContainer.mainLayout.addComponent(layoutContainer.registrationFormLayout);
 		layoutContainer.mainLayout.setComponentAlignment(layoutContainer.registrationFormLayout,
 				Alignment.MIDDLE_CENTER);
+		focusFirst(layoutContainer.registrationFormLayout);
 	}
 
+	protected void focusFirst(VerticalLayout container)
+	{
+		Iterator<Component> iterator = container.iterator();
+		while(iterator.hasNext())
+		{
+			Component next = iterator.next();
+			if (next instanceof Focusable)
+			{
+				((Focusable)next).focus();
+				break;
+			}
+		}
+	}
+	
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
 			FormElement previousInserted, InvitationWithCode invitation)
 	{
