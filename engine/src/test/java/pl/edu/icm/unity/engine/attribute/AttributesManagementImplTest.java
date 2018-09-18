@@ -223,6 +223,21 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, null, null);
 		assertEquals(allAts.toString(), DEF_ATTRS, allAts.size());
 	}
+
+	
+	@Test
+	public void afterRemovalAndReaddToGroupOriginalAttributesAreRemoved() throws Exception
+	{
+		groupsMan.addMemberFromParent("/test", entity);
+		Attribute at1 = StringAttribute.of("tel", "/test", "123456");
+		attrsMan.createAttribute(entity, at1);
+		
+		groupsMan.removeMember("/test", entity);
+		groupsMan.addMemberFromParent("/test", entity);
+
+		Collection<AttributeExt> allAts = attrsMan.getAttributes(entity, "/test", null);
+		assertEquals(allAts.toString(), 0, allAts.size());
+	}
 	
 	@Test
 	public void afterCreateTimestampsAreSame() throws Exception

@@ -170,7 +170,10 @@ public class GroupsManagementImpl implements GroupsManagement
 		for (String group: entityMembership)
 		{
 			if (Group.isChildOrSame(group, path))
+			{
 				membershipDAO.deleteByKey(entityId, group);
+				dbAttributes.deleteAttributesInGroup(entityId, group);
+			}
 		}
 	}
 

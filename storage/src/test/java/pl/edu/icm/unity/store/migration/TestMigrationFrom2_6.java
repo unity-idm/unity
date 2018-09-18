@@ -23,11 +23,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.store.StorageCleanerImpl;
+import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -53,6 +55,9 @@ public class TestMigrationFrom2_6
 
 	@Autowired
 	private InvitationDB invitationDB;
+	
+	@Autowired
+	private AttributeDAO attributeDB;
 	
 	@Before
 	public void cleanDB()
@@ -126,5 +131,31 @@ public class TestMigrationFrom2_6
 		assertThat(i2.getGroupSelections().size(), is(2));
 		assertThat(i2.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
 		assertThat(i2.getGroupSelections().get(1).getEntry().getSelectedGroups().isEmpty(), is(true));
+	}
+	
+	@Test
+	public void shouldRemoveOrphanedAttributes()
+	{
+		tx.runInTransaction(() -> {
+			try
+			{
+				ie.load(new BufferedInputStream(new FileInputStream(
+						"src/test/resources/updateData/from2.6.x/"
+								+ "testbed-from2.6.2-withOrphanedAttr.json")));
+				ie.store(new FileOutputStream("target/afterImport2.json"));
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
+
+			checkAttributes();
+		});
+	}
+
+	private void checkAttributes()
+	{
+		List<StoredAttribute> attributes = attributeDB.getAttributes(null, null, "/A");
+		assertThat(attributes.toString(), attributes.size(), is(0));
 	}
 }

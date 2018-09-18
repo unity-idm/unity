@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +24,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.store.export.Update;
 import pl.edu.icm.unity.store.objstore.reg.eform.EnquiryFormHandler;
 import pl.edu.icm.unity.store.objstore.reg.eresp.EnquiryResponseHandler;
@@ -36,6 +39,7 @@ import pl.edu.icm.unity.store.objstore.reg.req.RegistrationRequestHandler;
 @Component
 public class JsonDumpUpdateFromV5 implements Update
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, JsonDumpUpdateFromV5.class);
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -46,9 +50,44 @@ public class JsonDumpUpdateFromV5 implements Update
 		ObjectNode contents = (ObjectNode) root.get("contents");
 		updateRequests(contents);
 		updateInvitations(contents);
+		removeOrphanedAttributes(contents);
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
+	private void removeOrphanedAttributes(ObjectNode contents)
+	{
+		ArrayNode attributes = (ArrayNode) contents.get("attributes");
+		ArrayNode members = (ArrayNode) contents.get("groupMembers");
+		Map<Long, Set<String>> entityGroups = new HashMap<>();
+		for (JsonNode member: members)
+		{
+			String group = member.get("group").asText();
+			long entityId = member.get("entityId").asLong();
+			Set<String> set = entityGroups.get(entityId);
+			if (set == null)
+			{
+				set = new HashSet<>();
+				entityGroups.put(entityId, set);
+			}
+			set.add(group);
+		}
+		
+		Iterator<JsonNode> iterator = attributes.iterator();
+		while(iterator.hasNext())
+		{
+			JsonNode a = iterator.next();
+			String group = a.get("groupPath").asText();
+			long entityId = a.get("entityId").asLong();
+			Set<String> set = entityGroups.get(entityId);
+			if (set == null || !set.contains(group))
+			{
+				log.info("Removing orphaned attribute {} from group {}", JsonUtil.serialize(a), group);
+				iterator.remove();
+			}
+		}
+	}
+
+	
 	private void updateRequests(ObjectNode contents)
 	{
 		updateRequestsGeneric(contents, RegistrationFormHandler.REGISTRATION_FORM_OBJECT_TYPE, 
