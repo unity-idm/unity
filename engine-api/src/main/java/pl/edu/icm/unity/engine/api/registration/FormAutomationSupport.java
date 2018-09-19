@@ -23,6 +23,7 @@ public interface FormAutomationSupport
 	AutomaticRequestAction getAutoProcessAction(UserRequestState<? extends BaseRegistrationInput> request,
 			RequestSubmitStatus status);
 
+	//TODO remove those all
 	I18nMessage getPostSubmitMessage(BaseRegistrationInput request,
 			RegistrationContext context, String requestId);
 

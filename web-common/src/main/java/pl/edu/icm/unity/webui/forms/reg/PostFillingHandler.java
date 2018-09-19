@@ -4,7 +4,9 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
@@ -15,19 +17,14 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
-import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.types.registration.RedirectConfig;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
 
 /**
@@ -38,193 +35,183 @@ import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
 public class PostFillingHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, PostFillingHandler.class);
-	private RegistrationForm form;
 	private UnityMessageSource msg;
-	private IdPLoginController loginController;
-	private FormAutomationSupport formSupport;
 	private RegistrationsManagement registrationsManagement;
+	private String formId;
+	private Consumer<String> redirector;
+	private List<RegistrationWrapUpConfig> wrapUpConfigs;
 	
 	public PostFillingHandler(IdPLoginController loginController, 
-			RegistrationForm form, UnityMessageSource msg, RegistrationsManagement registrationsManagement)
+			RegistrationForm form, UnityMessageSource msg, 
+			RegistrationsManagement registrationsManagement)
 	{
-		this.loginController = loginController;
-		this.form = form;
+		this(url -> redirect(url, loginController), 
+				form.getName(), 
+				form.getWrapUpConfig(), 
+				msg, registrationsManagement);
+	}
+
+	PostFillingHandler(Consumer<String> redirector,
+			String formId, 
+			List<RegistrationWrapUpConfig> wrapUpConfigs,
+			UnityMessageSource msg, 
+			RegistrationsManagement registrationsManagement)
+	{
+		this.redirector = redirector;
+		this.formId = formId;
+		this.wrapUpConfigs = wrapUpConfigs;
 		this.msg = msg;
-		this.formSupport = registrationsManagement.getFormAutomationSupport(form);
 		this.registrationsManagement = registrationsManagement;
 	}
-
-	/**
-	 * Invokes proper redirection or shows an information message depending on request status and form settings.
-	 */
-	public Optional<FinalRegistrationConfiguration> submittedRegistrationRequest(
-			String requestId, RegistrationRequest request, RegistrationContext context)
-	{
-		boolean autoAccepted = isRequestAutoAccepted(requestId, registrationsManagement);
-		return submittedGeneric(requestId, request, context, autoAccepted);
-	}
-
-	public Optional<FinalRegistrationConfiguration> userExistsError()
-	{
-		RedirectConfig redirectCfg = form.getUserExistsRedirect() == null ? 
-				new RedirectConfig(null, null, false) : form.getUserExistsRedirect();
-		String finalRedirectURL = redirectCfg.getRedirectURL() == null ? null : 
-			new RegistrationRedirectURLBuilder(redirectCfg.getRedirectURL(), 
-						form.getName(), null, Status.userExists).build();
-		if (redirectCfg.isAutomatic())
-		{
-			redirect(finalRedirectURL);
-			return Optional.empty();
-		}
-
-		return Optional.of(new FinalRegistrationConfiguration( 
-				msg.getMessage("StandalonePublicFormView.userExistsError"), 
-				null, 
-				finalRedirectURL == null ? null : () -> redirect(finalRedirectURL), 
-				redirectCfg.getRedirectCaption().getValue(msg)));
-	}
 	
-	/**
-	 * Performs action appropriate after request filling cancellation. Can redirect if handler is configured so
-	 * and form has redirect URL defined. Otherwise can show a cancellation message
-	 */
-	public Optional<FinalRegistrationConfiguration> cancelled(RegistrationContext context)
+	public Optional<FinalRegistrationConfiguration> getFinalRegistrationConfigurationPostSubmit(String requestId)
 	{
-		String redirectURL = formSupport.getPostCancelledRedirectURL(context);
+		RegistrationRequestStatus status = getRequestStatus(requestId, registrationsManagement);
+		TriggeringState state = requestStatusToState(status);
+		return getFinalRegistrationConfigurationGeneric(state, requestId);
+	}
+
+	public Optional<FinalRegistrationConfiguration> getFinalRegistrationConfigurationOnError(
+			RegistrationWrapUpConfig.TriggeringState state)
+	{
+		return getFinalRegistrationConfigurationGeneric(state, null);
+	}
+
+	private Optional<FinalRegistrationConfiguration> getFinalRegistrationConfigurationGeneric(
+			RegistrationWrapUpConfig.TriggeringState state, String requestId)
+	{
+		RegistrationWrapUpConfig config = getWrapUpConfigForState(state);
+		String title = getTitle(state, config);
+		String info = getInfo(state, config);
+		String finalRedirectURL = buildFinalRedirectURL(config, requestId, state); 
 		
-		if (redirectURL != null)
+		if (config.isAutomatic() && Strings.isNotEmpty(finalRedirectURL))
 		{
-			String finalRedirectURL = new RegistrationRedirectURLBuilder(redirectURL, 
-					form.getName(), null, Status.cancelled).build();
-			redirect(finalRedirectURL);
+			redirector.accept(finalRedirectURL);
 			return Optional.empty();
-		} else
-		{
-			log.info("Showing dead-end screen after cancelled registration. "
-					+ "Either redirect URL after cancel should be defined or "
-					+ "registration cancelling disabled.");
-			return Optional.of(new FinalRegistrationConfiguration( 
-					msg.getMessage("StandalonePublicFormView.cancel"), 
-					null, 
-					null, 
-					null));
 		}
+		
+		String redirectCaption = config.getRedirectCaption() == null ? 
+				msg.getMessage("RegistrationFormsChooserComponent.defaultRedirectCaption") 
+				: config.getRedirectCaption().getValue(msg);
+		
+		return Optional.of(new FinalRegistrationConfiguration(title, info,
+				finalRedirectURL == null ? null : () -> redirector.accept(finalRedirectURL), 
+				redirectCaption));
 	}
 	
-	public Optional<FinalRegistrationConfiguration> genericFatalError(Exception e, RegistrationContext context)
+	private String buildFinalRedirectURL(RegistrationWrapUpConfig config, String requestId, TriggeringState state)
 	{
-		String redirectURL = formSupport.getPostCancelledRedirectURL(context);
-		if (redirectURL != null)
+		return config.getRedirectURL() == null ? null : 
+			new RegistrationRedirectURLBuilder(config.getRedirectURL(), 
+						formId, requestId, state).build();
+	}
+	
+	private TriggeringState requestStatusToState(RegistrationRequestStatus status)
+	{
+		switch (status)
 		{
-			String redirectUpdated = new RegistrationRedirectURLBuilder(redirectURL, 
-					form.getName(), null, 
-					Status.submittedWithError).setErrorCode(e.toString()).build();
-			log.warn("Form submission finished with error, redirecting to " + 
-					redirectUpdated, e);
-			redirect(redirectUpdated);
-			return Optional.empty();
-		} else
-		{
-			log.warn("Form submission finished with error, showing dead-end screen ", e);
-			return Optional.of(new FinalRegistrationConfiguration( 
-					msg.getMessage("StandalonePublicFormView.submissionFailed"), 
-					null, 
-					null, 
-					null));
+		case accepted:
+			return TriggeringState.AUTO_ACCEPTED;
+		case pending:
+			return TriggeringState.SUBMITTED;
+		case rejected:
+			return TriggeringState.AUTO_REJECTED;
+		default:
+			throw new IllegalStateException("Unknown status: " + status);
 		}
 	}
 	
-	
-	private boolean isRequestAutoAccepted(String requestId, RegistrationsManagement registrationsManagement) 
+	private RegistrationRequestStatus getRequestStatus(String requestId, RegistrationsManagement registrationsManagement) 
 	{
 		try
 		{
 			for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
 			{
-				if (r.getRequestId().equals(requestId)
-					&& r.getStatus() == RegistrationRequestStatus.accepted)
-					return true;
+				if (r.getRequestId().equals(requestId))
+					return r.getStatus();
 			}
 		} catch (EngineException e)
 		{
-			log.error("Shouldn't happen: can't get request status to check if it was auto accepted", e);
+			log.error("Shouldn't happen: can't get request status, assuming rejested", e);
 		}
-		return false;
+		return RegistrationRequestStatus.rejected;
 	}
 
-	private Optional<FinalRegistrationConfiguration> submittedGeneric(String requestId, 
-			BaseRegistrationInput request, RegistrationContext context, boolean autoAccepted)
+	private RegistrationWrapUpConfig getWrapUpConfigForState(RegistrationWrapUpConfig.TriggeringState state)
 	{
-		I18nMessage message = getPostSubmitMessage(requestId, request, context, autoAccepted);
-		RedirectConfig redirectCfg = getPostSubmitRedirectConfig(form, requestId, request, context, autoAccepted);
-		if (redirectCfg.isAutomatic())
+		RegistrationWrapUpConfig defaultCofnig = null;
+		for (RegistrationWrapUpConfig config: wrapUpConfigs)
 		{
-			redirect(redirectCfg.getRedirectURL());
-			return Optional.empty();
+			if (config.getState() == state)
+				return config;
+			if (config.getState() == TriggeringState.DEFAULT)
+				defaultCofnig = config;
 		}
-		return Optional.of(new FinalRegistrationConfiguration( 
-				message.getSubject().getValue(msg), 
-				message.getBody().getValue(msg), 
-				redirectCfg.getRedirectURL() == null ? 
-						null : () -> redirect(redirectCfg.getRedirectURL()), 
-				redirectCfg.getRedirectCaption() == null ? 
-						null : redirectCfg.getRedirectCaption().getValue(msg)));
+		return defaultCofnig == null ? new RegistrationWrapUpConfig(state) : defaultCofnig;
+	}
+	
+	private String getTitle(RegistrationWrapUpConfig.TriggeringState state, RegistrationWrapUpConfig config)
+	{
+		return config.getTitle() == null ? getDefaultTitle(state) : config.getTitle().getValue(msg);
 	}
 
-	private RedirectConfig getPostSubmitRedirectConfig(RegistrationForm form, 
-			String requestId, BaseRegistrationInput request, 
-			RegistrationContext context, boolean autoAccepted)
+	private String getInfo(RegistrationWrapUpConfig.TriggeringState state, RegistrationWrapUpConfig config)
 	{
-		String redirectURL = formSupport.getPostSubmitRedirectURL(request, context, requestId);
-		if (redirectURL != null && form.getSuccessRedirect() != null && 
-				!Strings.isEmpty(form.getSuccessRedirect().getRedirectURL()))
-			log.warn("Post submit redirect URL for form {} is configured directly in form config ({}) "
-					+ "and was obtained from its automation profile. The later will be used: {}",
-					form.getName(),
-					form.getSuccessRedirect().getRedirectURL(),
-					redirectURL);
+		return config.getInfo() == null ? getDefaultInfo(state) : config.getInfo().getValue(msg);
+	}
+	
+	private String getDefaultTitle(RegistrationWrapUpConfig.TriggeringState state)
+	{
+		String msgKey;
+		switch (state)
+		{
+		case AUTO_ACCEPTED:
+			msgKey = "RegistrationWrupUp.requestAcceptedTitle"; 
+			break;
+		case AUTO_REJECTED:
+			msgKey = "RegistrationWrupUp.requestRejectedTitle";
+			break;
+		case CANCELLED:
+			msgKey = "RegistrationWrupUp.registrationCancelledTitle";
+			break;
+		case GENERAL_ERROR:
+			msgKey = "RegistrationWrupUp.genericRegistrationErrorTitle";
+			break;
+		case INVITATION_CONSUMED:
+			msgKey = "RegistrationWrupUp.invitationAlreadyConsumedTitle";
+			break;
+		case INVITATION_EXPIRED:
+			msgKey = "RegistrationWrupUp.invitationExpiredTitle";
+			break;
+		case INVITATION_MISSING:
+			msgKey = "RegistrationWrupUp.invitationUnknownTitle";
+			break;
+		case PRESET_USER_EXISTS:
+			msgKey = "RegistrationWrupUp.userExistsTitle";
+			break;
+		case SUBMITTED:
+			msgKey = "RegistrationWrupUp.requestSubmittedTitle";
+			break;
+		case EMAIL_CONFIRMATION_FAILED:
+			msgKey = "RegistrationWrupUp.confirmationFailedTitle";
+			break;
+		case EMAIL_CONFIRMED:
+			msgKey = "RegistrationWrupUp.emailConfirmedTitle";
+			break;
+		case DEFAULT:
+		default:
+			msgKey = "RegistrationWrupUp.genericRegistrtionFinishTitle";
+		}
+		return new I18nString(msgKey, msg).getValue(msg);
+	}
 
-		if (redirectURL == null && form.getSuccessRedirect() != null)
-			redirectURL = form.getSuccessRedirect().getRedirectURL();
-		if (Strings.isEmpty(redirectURL))
-			return new RedirectConfig(null, null, false);
-		
-		String finalRedirect = new RegistrationRedirectURLBuilder(redirectURL, form.getName(), requestId, 
-				autoAccepted ? Status.submittedAccepted : Status.submitted).build();
-		
-		boolean automatic = form.getSuccessRedirect() != null ? 
-				form.getSuccessRedirect().isAutomatic() : true;
-		I18nString defRedirectCaption = new I18nString("RegistrationFormsChooserComponent.defaultRedirectCaption", msg);
-		I18nString redirectCaption = form.getSuccessRedirect() != null ? 
-				getCaptionWithDefault(form.getSuccessRedirect().getRedirectCaption(), defRedirectCaption) : 
-				new I18nString(""); //not needed as if there is no config then we have automatic redirect
-		return new RedirectConfig(redirectCaption, finalRedirect, automatic);
-	}
-	
-	private I18nString getCaptionWithDefault(I18nString value, I18nString defaultValue)
+	private String getDefaultInfo(RegistrationWrapUpConfig.TriggeringState state)
 	{
-		return value.isEmpty() ? defaultValue : value;
+		return null;
 	}
 	
-	private I18nMessage getPostSubmitMessage(String requestId, BaseRegistrationInput request, 
-			RegistrationContext context, boolean autoAccepted)
-	{
-		I18nMessage message = formSupport.getPostSubmitMessage(request, context, requestId);
-		if (message != null)
-			return message;
-		
-		I18nString title = new I18nString(autoAccepted ? 
-				"RegistrationFormsChooserComponent.requestAccepted" : 
-				"RegistrationFormsChooserComponent.requestSubmitted", msg);
-		
-		I18nString info = new I18nString(autoAccepted ? 
-				"RegistrationFormsChooserComponent.requestSubmittedInfoWithAccept" : 
-				"RegistrationFormsChooserComponent.requestSubmittedInfoNoAccept", 
-				msg);
-		return new I18nMessage(title, info);
-	}
-	
-	private void redirect(String redirectUrl)
+	private static void redirect(String redirectUrl, IdPLoginController loginController)
 	{
 		loginController.breakLogin();
 		Page.getCurrent().open(redirectUrl, null);

@@ -55,7 +55,7 @@ public class EnumComboBox<T extends Enum<?>> extends ComboBox<T>{
 				values.add(constant);
 		setEmptySelectionAllowed(false);
 		setItems(values);
-		setItemCaptionGenerator(i -> msg.getMessage(msgPrefix + i.toString()));
+		setItemCaptionGenerator(i -> msgPrefix == null ? i.toString() : msg.getMessage(msgPrefix + i.toString()));
 		setValue(initialValue);
 	}
 

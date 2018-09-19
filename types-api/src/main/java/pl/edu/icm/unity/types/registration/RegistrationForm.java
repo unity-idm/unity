@@ -59,8 +59,8 @@ public class RegistrationForm extends BaseForm
 	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
 	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
 	private boolean showSignInLink;
-	private RedirectConfig successRedirect;
-	private RedirectConfig userExistsRedirect;
+	private String signInLink;
+	private List<RegistrationWrapUpConfig> wrapUpConfig = new ArrayList<>();
 
 	@JsonCreator
 	public RegistrationForm(ObjectNode json)
@@ -184,24 +184,24 @@ public class RegistrationForm extends BaseForm
 		this.showSignInLink = showSignInLink;
 	}
 
-	public RedirectConfig getSuccessRedirect()
+	public String getSignInLink()
 	{
-		return successRedirect;
+		return signInLink;
 	}
 
-	public void setSuccessRedirect(RedirectConfig successRedirect)
+	public void setSignInLink(String signInLink)
 	{
-		this.successRedirect = successRedirect;
+		this.signInLink = signInLink;
 	}
 
-	public RedirectConfig getUserExistsRedirect()
+	public List<RegistrationWrapUpConfig> getWrapUpConfig()
 	{
-		return userExistsRedirect;
+		return wrapUpConfig;
 	}
 
-	public void setUserExistsRedirect(RedirectConfig userExistsRedirect)
+	public void setWrapUpConfig(List<RegistrationWrapUpConfig> wrapUpConfig)
 	{
-		this.userExistsRedirect = userExistsRedirect;
+		this.wrapUpConfig = wrapUpConfig;
 	}
 
 	@Override
@@ -328,8 +328,8 @@ public class RegistrationForm extends BaseForm
 		root.set("RegistrationFormLayouts", jsonMapper.valueToTree(getFormLayouts()));
 		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
 		root.put("ShowSignInLink", showSignInLink);
-		root.set("SuccessRedirect", jsonMapper.valueToTree(getSuccessRedirect()));
-		root.set("UserExistsRedirect", jsonMapper.valueToTree(getUserExistsRedirect()));
+		root.put("SignInLink", signInLink);
+		root.set("WrapUpConfig", jsonMapper.valueToTree(getWrapUpConfig()));
 		return root;
 	}
 
@@ -380,13 +380,13 @@ public class RegistrationForm extends BaseForm
 			if (n != null && !n.isNull())
 				setShowSignInLink(n.asBoolean());
 			
-			n = root.get("SuccessRedirect");
+			n = root.get("SignInLink");
 			if (n != null && !n.isNull())
-				setSuccessRedirect(jsonMapper.convertValue(n, RedirectConfig.class));
-
-			n = root.get("UserExistsRedirect");
+				setSignInLink(n.asText());
+			
+			n = root.get("WrapUpConfig");
 			if (n != null && !n.isNull())
-				setUserExistsRedirect(jsonMapper.convertValue(n, RedirectConfig.class));
+				setWrapUpConfig(jsonMapper.convertValue(n, new TypeReference<List<RegistrationWrapUpConfig>>(){}));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize registration form from JSON", e);
@@ -412,8 +412,8 @@ public class RegistrationForm extends BaseForm
 				&& Objects.equals(externalSignupSpec, castOther.externalSignupSpec)
 				&& Objects.equals(formLayouts, castOther.formLayouts)
 				&& Objects.equals(showSignInLink, castOther.showSignInLink)
-				&& Objects.equals(successRedirect, castOther.successRedirect)
-				&& Objects.equals(userExistsRedirect, castOther.userExistsRedirect);
+				&& Objects.equals(signInLink, castOther.signInLink)
+				&& Objects.equals(wrapUpConfig, castOther.wrapUpConfig);
 	}
 
 	@Override
@@ -421,7 +421,6 @@ public class RegistrationForm extends BaseForm
 	{
 		return Objects.hash(super.hashCode(), name, description, publiclyAvailable, notificationsConfiguration,
 				captchaLength, registrationCode, byInvitationOnly, defaultCredentialRequirement,
-				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, successRedirect,
-				userExistsRedirect);
+				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, signInLink, wrapUpConfig);
 	}
 }

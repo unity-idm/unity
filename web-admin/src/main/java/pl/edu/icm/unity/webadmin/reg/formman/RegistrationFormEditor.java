@@ -39,13 +39,18 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
+import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
@@ -71,13 +76,12 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private CheckBox publiclyAvailable;
 	private CheckBox byInvitationOnly;
-	private RedirectConfigEditor successRedirect;
-	private RedirectConfigEditor userExistsRedirect;
 	private RegistrationFormNotificationsEditor notificationsEditor;
 	private Slider captcha;
 	
 	private I18nTextField title2ndStage;
 	private CheckBox showGotoSignin;
+	private TextField signInUrl;
 	private TextField registrationCode;
 	private RemoteAuthnProvidersSelection remoteAuthnSelections;
 
@@ -88,6 +92,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private ActionParameterComponentProvider actionComponentFactory;
 	private CheckBox showCancel;
 	private CheckBox localSignupEmbeddedAsButton;
+	
+	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
 	
 	@Autowired
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -128,6 +134,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
+		initWrapUpTab();
 		initLayoutTab();
 		initAssignedTab();
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
@@ -177,9 +184,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		settings.setShowCancel(showCancel.getValue());
 		builder.withFormLayoutSettings(settings);
 		builder.withTitle2ndStage(title2ndStage.getValue());
-		builder.withShowGotoSignIn(showGotoSignin.getValue());
-		builder.withSuccessRedirectConfig(successRedirect.getValue());
-		builder.withUserExistsRedirectConfig(userExistsRedirect.getValue());
+		builder.withShowGotoSignIn(showGotoSignin.getValue(), signInUrl.getValue());
+		builder.withWrapUpConfig(wrapUpConfig.getElements());
 		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
 		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
 		builder.withLayouts(layouts);
@@ -206,9 +212,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 		profileEditor.setValue(profile);
 		layoutEditor.setSettings(toEdit.getLayoutSettings());
 		layoutEditor.setInitialLayouts(toEdit);
-		successRedirect.setValue(toEdit.getSuccessRedirect());
-		userExistsRedirect.setValue(toEdit.getUserExistsRedirect());
+		wrapUpConfig.setEntries(toEdit.getWrapUpConfig());
 		showGotoSignin.setValue(toEdit.isShowSignInLink());
+		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
+		signInUrl.setEnabled(showGotoSignin.getValue());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
@@ -239,17 +246,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 
 		main.addComponents(name, description, publiclyAvailable, byInvitationOnly);
 
-		successRedirect = new RedirectConfigEditor(msg, 
-				msg.getMessage("RegistrationFormViewer.postSignupRedirectUrl"), 
-				msg.getMessage("RegistrationFormEditor.postSignupRedirectCaption"));
-		successRedirect.addToLayout(main);
-		
-		userExistsRedirect = new RedirectConfigEditor(msg, 
-				msg.getMessage("RegistrationFormViewer.userExistsRedirectUrl"), 
-				msg.getMessage("RegistrationFormEditor.userExistsRedirectCaption"));
-		userExistsRedirect.addToLayout(main);
-		
-
 		notificationsEditor = new RegistrationFormNotificationsEditor(msg, groupsMan, 
 				notificationsMan, msgTempMan);
 		notificationsEditor.addToLayout(main);
@@ -260,6 +256,20 @@ public class RegistrationFormEditor extends BaseFormEditor
 		captcha.setDescription(msg.getMessage("RegistrationFormEditor.captchaDescription"));
 		
 		main.addComponents(captcha);
+	}
+	
+	private void initWrapUpTab() throws EngineException
+	{
+		FormLayout main = new CompactFormLayout();
+		VerticalLayout wrapper = new VerticalLayout(main);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormEditor.wrapUpTab"));
+
+		WrapupConfigEditorAndProvider groupEditorAndProvider = new WrapupConfigEditorAndProvider();
+		wrapUpConfig = new ListOfEmbeddedElements<>(null,
+				msg, groupEditorAndProvider, 0, 20, true);
+		main.addComponents(wrapUpConfig);
 	}
 	
 	private void initCollectedTab() throws EngineException
@@ -273,6 +283,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		title2ndStage = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.title2ndStage"));
 		showGotoSignin = new CheckBox(msg.getMessage("RegistrationFormViewer.showGotoSignin"));
+		showGotoSignin.addValueChangeListener(v -> signInUrl.setEnabled(showGotoSignin.getValue()));
+		signInUrl = new TextField(msg.getMessage("RegistrationFormEditor.signinURL"));
+		signInUrl.setWidth(100, Unit.PERCENTAGE);
+		signInUrl.setEnabled(false);
 		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
 		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
@@ -282,7 +296,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabOfLists.addTab(remoteSignUpMetnodsTab, 1);
 		tabOfLists.setSelectedTab(0);
 		
-		main.addComponents(displayedName, title2ndStage, formInformation, showGotoSignin, showCancel,
+		main.addComponents(displayedName, title2ndStage, formInformation, showGotoSignin, signInUrl, 
+				showCancel,
 				localSignupEmbeddedAsButton, registrationCode, collectComments, tabOfLists);
 	}
 	
@@ -352,5 +367,34 @@ public class RegistrationFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
+	}
+	
+	private class WrapupConfigEditorAndProvider implements EditorProvider<RegistrationWrapUpConfig>, Editor<RegistrationWrapUpConfig>
+	{
+		private RegistrationWrapUpConfigEditor editor;
+
+		@Override
+		public Editor<RegistrationWrapUpConfig> getEditor()
+		{
+			return new WrapupConfigEditorAndProvider();
+		}
+
+		@Override
+		public ComponentsContainer getEditorComponent(RegistrationWrapUpConfig value, int index)
+		{
+			editor = new RegistrationWrapUpConfigEditor(msg);
+			if (value != null)
+				editor.setValue(value);
+			return new ComponentsContainer(editor);
+		}
+
+		@Override
+		public RegistrationWrapUpConfig getValue() throws FormValidationException
+		{
+			return editor.getValue();
+		}
+
+		@Override
+		public void setEditedComponentPosition(int position) {}
 	}
 }

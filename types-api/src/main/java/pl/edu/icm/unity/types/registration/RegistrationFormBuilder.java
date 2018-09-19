@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.List;
+
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
@@ -107,21 +109,16 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 
-	public RegistrationFormBuilder withSuccessRedirectConfig(RedirectConfig config)
+	public RegistrationFormBuilder withWrapUpConfig(List<RegistrationWrapUpConfig> config)
 	{
-		instance.setSuccessRedirect(config);
+		instance.setWrapUpConfig(config);
 		return this;
 	}
 	
-	public RegistrationFormBuilder withUserExistsRedirectConfig(RedirectConfig config)
-	{
-		instance.setUserExistsRedirect(config);
-		return this;
-	}
-
-	public RegistrationFormBuilder withShowGotoSignIn(boolean show)
+	public RegistrationFormBuilder withShowGotoSignIn(boolean show, String url)
 	{
 		instance.setShowSignInLink(show);
+		instance.setSignInLink(url);
 		return this;
 	}
 

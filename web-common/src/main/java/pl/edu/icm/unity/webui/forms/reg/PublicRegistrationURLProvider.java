@@ -109,7 +109,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	@Override
 	public void refresh(VaadinRequest request)
 	{
-		LOG.debug("registration form refreshed");
+		LOG.debug("Registration form refreshed");
 		VaadinSession vaadinSession = VaadinSession.getCurrent();
 		if (vaadinSession != null)
 		{

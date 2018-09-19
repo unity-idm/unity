@@ -30,17 +30,16 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.types.registration.RedirectConfig;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
-import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor.Stage;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.ErrorCause;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 /**
@@ -173,10 +172,10 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		}
 	}
 
-	private Optional<RedirectConfig> getGoToSignInURL(RegistrationRequestEditor editor)
+	private Optional<String> getGoToSignInURL(RegistrationRequestEditor editor)
 	{
 		return form.isShowSignInLink() && editor.getStage() == Stage.FIRST ? 
-				Optional.of(form.getUserExistsRedirect()) : Optional.empty();
+				Optional.of(form.getSignInLink()) : Optional.empty();
 	}
 	
 	private boolean isAutoSubmitPossible(RegistrationRequestEditor editor, TriggeringMode mode)
@@ -185,19 +184,12 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 				&& !editor.isUserInteractionRequired();
 	}
 
-	private void handleError(Exception e)
+	private void handleError(Exception e, ErrorCause cause)
 	{
-		if (e instanceof IllegalArgumentException)
-		{
-			ErrorComponent ec = new ErrorComponent();
-			ec.setError(e.getMessage());
-			setCompositionRoot(ec);
-		} else
-		{
-			ErrorComponent ec = new ErrorComponent();
-			ec.setError("Can not open registration editor", e);
-			setCompositionRoot(ec);
-		}
+		Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler
+				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
+		if (finalScreenConfig.isPresent())
+			showFinalError(finalScreenConfig.get());
 	}
 	
 	private void onLocalSignupClickHandler()
@@ -208,10 +200,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	
 	private void onCancel()
 	{
-		RegistrationContext context = new RegistrationContext(false, 
-				idpLoginController.isLoginInProgress(), 
-				TriggeringMode.manualStandalone);
-		Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler.cancelled(context);
+		Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler
+				.getFinalRegistrationConfigurationOnError(TriggeringState.CANCELLED);
 		if (finalScreenConfig.isPresent())
 			showFinalError(finalScreenConfig.get());
 	}
@@ -235,7 +225,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
 			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
-					postFillHandler.submittedRegistrationRequest(requestId, request, context);
+					postFillHandler.getFinalRegistrationConfigurationPostSubmit(requestId);
 			if (finalScreenConfig.isPresent())
 				showFinalSuccess(finalScreenConfig.get());
 		} catch (WrongArgumentException e)
@@ -246,12 +236,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			return;
 		} catch (Exception e)
 		{
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					regMan.getFormAutomationSupport(form))
-				.submissionError(e, context);
-			
 			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
-					postFillHandler.genericFatalError(e, context);
+					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.GENERAL_ERROR);
 			if (finalScreenConfig.isPresent())
 				showFinalError(finalScreenConfig.get());
 		}
@@ -333,9 +319,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		}
 
 		@Override
-		public void onCreationError(Exception e)
+		public void onCreationError(Exception e, ErrorCause cause)
 		{
-			handleError(e);
+			handleError(e, cause);
 		}
 		
 		@Override
@@ -363,7 +349,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		public void onUserExists(AuthenticationResult result)
 		{
 			enableSharedComponentsAndHideAuthnProgress();
-			Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler.userExistsError();
+			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
+					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
 			if (finalScreenConfig.isPresent())
 				showFinalError(finalScreenConfig.get());
 		}

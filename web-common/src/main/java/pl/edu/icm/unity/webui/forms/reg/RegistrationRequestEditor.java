@@ -30,14 +30,12 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
@@ -84,7 +82,6 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private CaptchaComponent captcha;
 	private String regCodeProvided;
 	private InvitationWithCode invitation;
-	private InvitationManagement invitationMan;
 	private AuthenticatorSupportManagement authnSupport;
 	private SignUpAuthNController signUpAuthNController;
 	private Map<AuthenticationOptionKey, SignUpAuthNOption> signupOptions;
@@ -103,7 +100,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, 
-			String registrationCode, InvitationManagement invitationMan, 
+			String registrationCode, InvitationWithCode invitation, 
 			AuthenticatorSupportManagement authnSupport, 
 			SignUpAuthNController signUpAuthNController) throws AuthenticationException
 	{
@@ -111,7 +108,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
-		this.invitationMan = invitationMan;
+		this.invitation = invitation;
 		this.signUpAuthNController = signUpAuthNController;
 		this.authnSupport = authnSupport;
 	}
@@ -197,8 +194,6 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private void initUI()
 	{
 		RegistrationLayoutsContainer layoutContainer = createLayouts();
-		
-		setupInvitationByCode();
 		
 		resolveRemoteSignupOptions();
 		
@@ -352,37 +347,6 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		registrationCode.setRequiredIndicatorVisible(true);
 		layout.addComponent(registrationCode);
 		return true;
-	}
-	
-	private void setupInvitationByCode()
-	{
-		if (regCodeProvided != null)
-			invitation = getInvitation(regCodeProvided);
-
-		if (invitation != null && !invitation.getFormId().equals(form.getName()))
-			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorCodeOfOtherForm"));
-		if (form.isByInvitationOnly() && regCodeProvided == null)
-			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorMissingCode"));
-		if (form.isByInvitationOnly() &&  invitation == null)
-			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorWrongCode"));
-		if (form.isByInvitationOnly() &&  invitation.isExpired())
-			throw new IllegalStateException(msg.getMessage("RegistrationRequest.errorExpiredCode"));
-	}
-	
-	private InvitationWithCode getInvitation(String code)
-	{
-		try
-		{
-			return invitationMan.getInvitation(code);
-		} catch (IllegalArgumentException e)
-		{
-			//ok
-			return null;
-		} catch (EngineException e)
-		{
-			log.warn("Error trying to check invitation with user provided code", e);
-			return null;
-		}
 	}
 }
 
