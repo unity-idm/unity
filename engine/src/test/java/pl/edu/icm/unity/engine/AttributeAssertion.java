@@ -23,9 +23,10 @@ public class AttributeAssertion extends AttributesAssertion
 		this.attributeExt = attributeExt;
 	}
 
-	public void hasValues(String... values)
+	public AttributesAssertion hasValues(String... values)
 	{
 		MatcherAssert.assertThat(attributeExt.getValues(), equalTo(Lists.newArrayList(values)));
+		return this;
 	}
 
 }

@@ -65,7 +65,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private SharedRegistrationManagment internalManagment;
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
-	private RegistrationRequestValidator registrationRequestValidator;
+	private RegistrationRequestPreprocessorAndValidator registrationRequestValidator;
 	private BaseFormValidator baseValidator;
 
 	@Autowired
@@ -75,7 +75,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AuthorizationManager authz, NotificationProducer notificationProducer,
 			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
-			RegistrationRequestValidator registrationRequestValidator,
+			RegistrationRequestPreprocessorAndValidator registrationRequestValidator,
 			BaseFormValidator baseValidator)
 	{
 		this.formsDB = formsDB;
@@ -143,6 +143,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 		RegistrationForm form = recordRequestAndReturnForm(requestFull); 
 		
 		sendNotification(form, requestFull);
+		
 		
 		Long entityId = tryAutoProcess(form, requestFull, context);
 		

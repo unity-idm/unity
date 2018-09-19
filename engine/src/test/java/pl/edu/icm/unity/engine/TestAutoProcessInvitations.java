@@ -88,6 +88,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		commonInitializer.initializeCommonAttributeTypes();
 		groupsMan.addGroup(new Group("/A0"));
 		groupsMan.addGroup(new Group("/A0/A1"));
+		groupsMan.addGroup(new Group("/A0/A2"));
 	}
 	
 	@Test
@@ -335,5 +336,104 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.endGroupParam()
 				.build();
+	}
+	
+	
+	@Test
+	public void shouldAutoAcceptAttributesFromContextualGroup() throws EngineException
+	{
+		// given
+		createTestFormWithAutoAcceptInvitationsAndContextGroup(TEST_1_FORM);
+		
+		InvitationParam invitation = InvitationParam.builder()
+				.withForm(TEST_1_FORM)
+				.withContactAddress("email1@email.io")
+				.withExpiration(Instant.now().plusSeconds(100))
+				.withAttribute(
+						VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "email1@email.io"), 
+						PrefilledEntryMode.DEFAULT)
+				.withAttribute(
+						StringAttribute.of(InitializerCommon.CN_ATTR, "", "cn1"),
+						PrefilledEntryMode.HIDDEN)
+				.withGroup("/A0/A1", PrefilledEntryMode.HIDDEN)
+				.build();
+		invitationMan.addInvitation(invitation);
+		
+		InvitationParam invitationToSubmit = InvitationParam.builder()
+				.withForm(TEST_1_FORM)
+				.withExpiration(Instant.now().plusSeconds(100))
+				.withContactAddress("email1@email.io")
+				.withExpiration(Instant.now().plusSeconds(100))
+				.withAttribute(
+						VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "email1@email.io"), 
+						PrefilledEntryMode.DEFAULT)
+				.withAttribute(
+						StringAttribute.of(InitializerCommon.CN_ATTR, "", "cn2"),
+						PrefilledEntryMode.HIDDEN)
+				.withGroup("/A0/A2", PrefilledEntryMode.HIDDEN)
+				.build();
+		String code = invitationMan.addInvitation(invitationToSubmit);
+		RegistrationRequest request = new RegistrationRequestBuilder()
+				.withFormId(TEST_1_FORM)
+				.withRegistrationCode(code)
+				.withAddedAttribute(
+						VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/", "email1@email.io"))
+				.withAddedAttribute(null)
+				.withAddedGroupSelection(null)
+				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "invitedUser"))
+				.build();
+		
+		// when
+		registrationsMan.submitRegistrationRequest(request, REG_CONTEXT_TRY_AUTO_ACCEPT);
+		
+		// then
+		AttributesAssertion.assertThat(attrsMan, UsernameIdentity.ID, "invitedUser")
+				.hasAttribute(InitializerCommon.EMAIL_ATTR, "/").count(1)
+				.hasAttribute(InitializerCommon.CN_ATTR, "/A0/A2").count(1).attr(0).hasValues("cn2")
+				.hasAttribute(InitializerCommon.CN_ATTR, "/A0/A1").count(1).attr(0).hasValues("cn1");
+		
+	}
+
+	private void createTestFormWithAutoAcceptInvitationsAndContextGroup(String formName) throws EngineException
+	{
+		TranslationAction autoAcceptRequest = new TranslationAction(
+				AutoProcessActionFactory.NAME, AutomaticRequestAction.accept.toString());
+		TranslationAction autoProcessInvitations = new TranslationAction(
+				AutoProcessInvitationsActionFactory.NAME, formName);
+		TranslationProfile translationProfile = 
+				new TranslationProfile(formName, "description", ProfileType.REGISTRATION, 
+						Lists.newArrayList(
+								new TranslationRule("true", autoAcceptRequest),
+								new TranslationRule("true", autoProcessInvitations)));
+		
+		RegistrationForm form = new RegistrationFormBuilder()
+				.withName(formName)
+				.withDescription("desc")
+				.withDefaultCredentialRequirement(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withPubliclyAvailable(true)
+				.withTranslationProfile(translationProfile)
+				.withAddedIdentityParam()
+					.withIdentityType(UsernameIdentity.ID)
+					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.endIdentityParam()
+				.withAddedAttributeParam()
+					.withAttributeType(InitializerCommon.EMAIL_ATTR).withGroup("/")
+					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+					.withOptional(true)
+					.withShowGroups(true)
+				.endAttributeParam()
+				.withAddedAttributeParam()
+					.withAttributeType(InitializerCommon.CN_ATTR).withGroup("DYN:/A0/*")
+					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+					.withOptional(true)
+					.withShowGroups(true)
+				.endAttributeParam()
+				.withAddedGroupParam()
+					.withGroupPath("/A0/*")
+					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.endGroupParam()
+				.build();
+		registrationsMan.addForm(form);
 	}
 }

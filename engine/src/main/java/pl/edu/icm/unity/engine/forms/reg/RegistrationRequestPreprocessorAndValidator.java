@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,10 +46,10 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationRequestValidator extends BaseRequestValidator
+public class RegistrationRequestPreprocessorAndValidator extends BaseRequestValidator
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
-			RegistrationRequestValidator.class);
+			RegistrationRequestPreprocessorAndValidator.class);
 	@Autowired
 	private InvitationDB invitationDB;
 	
@@ -102,26 +103,36 @@ public class RegistrationRequestValidator extends BaseRequestValidator
 			Attribute attr = request.getAttributes().get(i);
 			if (attr == null)
 				continue;
-			AttributeRegistrationParam regParam = form.getAttributeParams().get(i);
-			if (regParam.isUsingDynamicGroup())
-			{
-				String wildcard = regParam.getDynamicGroup();
-				Integer index = wildcardToGroupParamIndex.get(wildcard);
-				if (index == null)
-					throw new IllegalStateException("Form is inconsistent: "
-							+ "no group param for dynamic attribute using group wildcard " 
-							+ wildcard);
-				GroupSelection resolvedGroup = request.getGroupSelections().get(index);
-				if (resolvedGroup == null)
-					throw new IllegalFormContentsException("Group must be selected for parameter " 
-							+ form.getGroupParams().get(index).getLabel());
-				if (resolvedGroup.getSelectedGroups().size() != 1)
-					throw new IllegalFormContentsException("Single group must be selected for parameter " 
-							+ form.getGroupParams().get(index).getLabel());
-				attr.setGroupPath(resolvedGroup.getSelectedGroups().get(0));
-			}
+			
+			applyContextGroupToAttributeIfNeeded(attr, form, i, idx -> request.getGroupSelections().get(idx), 
+					wildcardToGroupParamIndex);
 		}
 	}
+	
+	public static void applyContextGroupToAttributeIfNeeded(Attribute attr, RegistrationForm form, int i, 
+			Function<Integer, GroupSelection> groupResolver, Map<String, Integer> wildcardToGroupParamIndex) 
+					throws IllegalFormContentsException
+	{
+		AttributeRegistrationParam regParam = form.getAttributeParams().get(i);
+		if (regParam.isUsingDynamicGroup())
+		{
+			String wildcard = regParam.getDynamicGroup();
+			Integer index = wildcardToGroupParamIndex.get(wildcard);
+			if (index == null)
+				throw new IllegalStateException("Form is inconsistent: "
+						+ "no group param for dynamic attribute using group wildcard " 
+						+ wildcard);
+			GroupSelection resolvedGroup = groupResolver.apply(index);
+			if (resolvedGroup == null)
+				throw new IllegalFormContentsException("Group must be selected for parameter " 
+						+ form.getGroupParams().get(index).getLabel());
+			if (resolvedGroup.getSelectedGroups().size() != 1)
+				throw new IllegalFormContentsException("Single group must be selected for parameter " 
+						+ form.getGroupParams().get(index).getLabel());
+			attr.setGroupPath(resolvedGroup.getSelectedGroups().get(0));
+		}
+	}
+	
 	
 	/**
 	 * Code is validated, wrt to invitation or form fixed code. What is more the request attributes

@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestValidator;
+import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestPreprocessorAndValidator;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
@@ -43,7 +43,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 public class TestInvitations extends DBIntegrationTestBase
 {
 	@Autowired
-	private RegistrationRequestValidator validator;
+	private RegistrationRequestPreprocessorAndValidator validator;
 	@Autowired
 	private InvitationDB invitationDB;
 	@Autowired

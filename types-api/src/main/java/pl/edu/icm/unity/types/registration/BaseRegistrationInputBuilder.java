@@ -10,9 +10,6 @@ import java.util.List;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
-import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.types.registration.CredentialParamValue;
-import pl.edu.icm.unity.types.registration.Selection;
 
 
 /**
@@ -49,7 +46,7 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 
 		return (GeneratorT) this;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public GeneratorT withAddedIdentity(IdentityParam aValue)
 	{
@@ -150,7 +147,7 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 
 		return new AddedGroupSelectionSelectionBuilder(obj);
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public GeneratorT withAgreements(List<Selection> aValue)
 	{

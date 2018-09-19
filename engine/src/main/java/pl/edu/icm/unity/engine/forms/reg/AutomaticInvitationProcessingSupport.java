@@ -141,7 +141,7 @@ class AutomaticInvitationProcessingSupport
 				invitationRegistrationForm = formsDB.get(invitation.getFormId());
 				registrationFormById.put(invitation.getFormId(), invitationRegistrationForm);
 			}
-			List<Attribute> prefilledAttrs = RegistrationUtil.getPrefilledAndHiddenAttributes(invitation);
+			List<Attribute> prefilledAttrs = RegistrationUtil.getPrefilledAndHiddenAttributes(invitation, invitationRegistrationForm);
 			collected.attributes.addAll(prefilledAttrs);
 			List<GroupParam> prefilledGroups = RegistrationUtil.getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm);
 			collected.groups.addAll(prefilledGroups);
