@@ -132,7 +132,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	@Override
 	public RegistrationRequest getRequest(boolean withCredentials) throws FormValidationException
 	{
-		if (FormLayoutUtils.hasLocalSignupButton(effectiveLayout))
+		if (FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) //FIXME - what is this if about?
 		{
 			throw new FormValidationException(msg.getMessage("RegistrationRequest.continueRegistration"));
 		}
@@ -155,7 +155,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		}
 		
 		if (status.hasFormException)
-			throw new FormValidationException();
+			throw new FormValidationException(status.errorMsg);
 		
 		return ret;
 	}

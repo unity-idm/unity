@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.credentials.pass;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.ValueChangeMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
+import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
 /**
  * Holds the password text fields with security questions if configured.
@@ -136,7 +138,19 @@ public class PasswordFieldsComponent extends CustomComponent
 			return null;
 		
 		if (context.isRequired() && password1.getValue().isEmpty())
-			throw new IllegalCredentialException(msg.getMessage("PasswordCredentialEditor.newPasswordRequired"));
+		{
+			password1.setComponentError(new UserError(msg.getMessage("PasswordCredentialEditor.newPasswordRequired")));
+			throw new MissingCredentialException(msg.getMessage("PasswordCredentialEditor.newPasswordRequired"));
+		}
+		
+		password1.setComponentError(null);
+		
+		if (!isValid())
+		{
+			password1.clear();
+			password2.clear();
+			throw new IllegalCredentialException(msg.getMessage("PasswordCredentialEditor.passwordTooWeak"));
+		}
 		
 		String p1 = password1.getValue();
 		String p2 = password2.getValue();
@@ -148,13 +162,6 @@ public class PasswordFieldsComponent extends CustomComponent
 			throw new IllegalCredentialException(err);
 		}
 
-		if (!isValid())
-		{
-			password1.clear();
-			password2.clear();
-			throw new IllegalCredentialException(msg.getMessage("PasswordCredentialEditor.passwordTooWeak"));
-		}
-		
 		PasswordToken pToken = new PasswordToken(p1);
 		
 		if (requireQA)

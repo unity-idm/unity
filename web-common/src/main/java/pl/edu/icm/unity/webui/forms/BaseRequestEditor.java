@@ -86,6 +86,7 @@ import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
@@ -264,9 +265,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					cp.setCredentialId(form.getCredentialParams().get(i).getCredentialName());
 					cp.setSecrets(credValue);
 					credentials.add(cp);
-				} catch (IllegalCredentialException e)
+				} catch (MissingCredentialException e)
 				{
 					status.hasFormException = true;
+					continue;
+				}
+				catch (IllegalCredentialException e)
+				{
+					status.hasFormException = true;
+					status.errorMsg = e.getMessage();
 					continue;
 				}
 			}
@@ -820,6 +827,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 
 		public boolean hasFormException = false;
+		public String errorMsg = null;
 	}
 	
 	public Float formWidth()

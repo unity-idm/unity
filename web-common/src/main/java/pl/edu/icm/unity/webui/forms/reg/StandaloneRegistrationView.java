@@ -35,6 +35,7 @@ import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
@@ -215,6 +216,11 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		try
 		{
 			request = editor.getRequest(isWithCredentials(mode));
+		} catch (FormValidationException e)
+		{
+			if (e.hasMessage())
+				NotificationPopup.showError(e.getMessage(), "");
+			return;
 		} catch (Exception e) 
 		{
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
