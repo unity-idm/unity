@@ -64,5 +64,6 @@ public class RemoteAuthenticationProgress extends CustomComponent
 		authnProgressHL.addComponent(internalHL);
 		authnProgressHL.setComponentAlignment(internalHL, Alignment.MIDDLE_RIGHT);
 		setCompositionRoot(authnProgressHL);
+		addStyleName("u-remoteAuthnProgress");
 	}
 }
