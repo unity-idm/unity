@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -303,7 +304,7 @@ public class BaseRequestValidator
 		}
 	}
 	
-	protected void checkIdentityIsNotPresent(IdentityParam idParam) throws IllegalFormContentsException
+	protected void checkIdentityIsNotPresent(IdentityParam idParam) throws IdentityExistsException
 	{
 		try
 		{
@@ -313,7 +314,7 @@ public class BaseRequestValidator
 			//OK
 			return;
 		}
-		throw new IllegalFormContentsException("The user with the given identity is already present.");
+		throw new IdentityExistsException("The user with the given identity is already present.");
 	}
 	
 	private void validateRequestCredentials(BaseForm form, BaseRegistrationInput request,

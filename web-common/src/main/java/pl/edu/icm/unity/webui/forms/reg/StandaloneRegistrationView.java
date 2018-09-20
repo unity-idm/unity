@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
@@ -240,6 +241,13 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 					postFillHandler.getFinalRegistrationConfigurationPostSubmit(requestId);
 			if (finalScreenConfig.isPresent())
 				showFinalSuccess(finalScreenConfig.get());
+		} catch (IdentityExistsException e)
+		{
+			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
+					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
+			if (finalScreenConfig.isPresent())
+				showFinalError(finalScreenConfig.get());
+			
 		} catch (WrongArgumentException e)
 		{
 			if (e instanceof IllegalFormContentsException)
