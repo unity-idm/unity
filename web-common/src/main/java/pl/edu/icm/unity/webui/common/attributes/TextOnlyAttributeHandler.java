@@ -6,8 +6,9 @@ package pl.edu.icm.unity.webui.common.attributes;
 
 import java.util.List;
 
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Component;
@@ -24,6 +25,8 @@ import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.ext.AttributeHandlerHelper;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 
 /**
  * Base attribute handler for the web. Renders as label, edit in text field. Extensions has to implement
@@ -69,6 +72,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		private AbstractTextField field;
 		private boolean required;
 		private AttributeEditContext context;
+		private SingleStringFieldBinder binder;
 		
 		public StringValueEditor(String value, String label, AttributeValueSyntax<?> syntax)
 		{
@@ -80,6 +84,8 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
+			binder =  new SingleStringFieldBinder(msg);
+			
 			this.required = context.isRequired();
 			this.context = context;
 			boolean large = false;
@@ -94,9 +100,6 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			field = large ? new TextArea() : new TextField();
 			if (large)
 				field.setWidth(60, Unit.PERCENTAGE);
-			if (value != null)
-				field.setValue(value.toString());
-			field.setRequiredIndicatorVisible(this.required);
 			setLabel(label);
 			
 			StringBuilder sb = new StringBuilder();
@@ -109,31 +112,41 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 			if (context.isCustomWidth())
 				field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			
+			binder.forField(field, required)
+				.withValidator(this::validate)
+				.bind("value");
+			binder.setBean(new StringBindingValue(value == null ? "" : value));
+			
 			return new ComponentsContainer(field);
 		}
 
+		private ValidationResult validate(String value, ValueContext context)
+		{
+			if (value.isEmpty())
+				return ValidationResult.ok(); //fall back to default checking
+			try
+			{
+				syntax.validateStringValue(value);
+				return ValidationResult.ok();
+			} catch (IllegalAttributeValueException e)
+			{
+				return ValidationResult.error(e.getMessage());
+			} catch (Exception e)
+			{
+				return ValidationResult.error(e.getMessage());
+			}
+		}
+
+		
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-			
-			if (!required && field.getValue().isEmpty())
-				return field.getValue();
-			
-			try
-			{
-				String cur= field.getValue();
-				syntax.validateStringValue(cur);
-				field.setComponentError(null);
-				return cur;
-			} catch (IllegalAttributeValueException e)
-			{
-				field.setComponentError(new UserError(e.getMessage()));
-				throw e;
-			} catch (Exception e)
-			{
-				field.setComponentError(new UserError(e.getMessage()));
-				throw new IllegalAttributeValueException(e.getMessage(), e);
+			if (!binder.isValid())
+			{	
+				binder.validate();
+				throw new IllegalAttributeValueException("");
 			}
+			return binder.getBean().getValue();
 		}
 
 		@Override

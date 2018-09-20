@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 
 import com.google.common.html.HtmlEscapers;
 import com.vaadin.server.Resource;
@@ -39,6 +40,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
@@ -269,8 +271,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				{
 					status.hasFormException = true;
 					continue;
-				}
-				catch (IllegalCredentialException e)
+				} catch (IllegalCredentialException e)
 				{
 					status.hasFormException = true;
 					status.errorMsg = e.getMessage();
@@ -306,6 +307,11 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 						} catch (FormValidationException e)
 						{
 							status.hasFormException = true;
+							if (e.getCause() instanceof IllegalAttributeValueException)
+							{
+								if (!Strings.isEmpty(e.getCause().getMessage()))
+									status.errorMsg = e.getCause().getMessage();
+							}
 							continue;
 						}
 					}

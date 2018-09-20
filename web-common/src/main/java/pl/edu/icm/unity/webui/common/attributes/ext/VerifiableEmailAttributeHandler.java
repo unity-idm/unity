@@ -8,7 +8,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.vaadin.server.UserError;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -39,6 +40,8 @@ import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.EmailConfirmationConfigurationViewer;
@@ -151,8 +154,8 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		private ConfirmationInfo confirmationInfo;
 		private TextFieldWithVerifyButton editor;
 		private boolean skipUpdate = false;
-		private AttributeEditContext context;
-
+		private SingleStringFieldBinder binder;
+		
 		public VerifiableEmailValueEditor(String valueRaw, String label)
 		{
 			this.value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
@@ -162,17 +165,14 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.context = context;
 			confirmationInfo = value == null ? new ConfirmationInfo()
 					: value.getConfirmationInfo();
 
 			Optional<EmailConfirmationConfiguration> confirmationConfig = emailConfirmationMan
 					.getConfirmationConfigurationForAttribute(
 							context.getAttributeType().getName());
-
 			editor = new TextFieldWithVerifyButton(
 					context.getConfirmationMode() == ConfirmationMode.ADMIN,
-					context.isRequired(),
 					msg.getMessage("VerifiableEmailAttributeHandler.resendConfirmation"),
 					Images.messageSend.getResource(),
 					msg.getMessage("VerifiableEmailAttributeHandler.confirmedCheckbox"),
@@ -236,15 +236,37 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 			if (context.isCustomWidth())
 				editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			
+			binder = new SingleStringFieldBinder(msg);
+			binder.forField(editor, context.isRequired())
+				.withValidator(this::validate)
+				.bind("value");
+			binder.setBean(new StringBindingValue(value == null ? "" : value.getValue()));
+			
 			return new ComponentsContainer(editor);
 
 		}
 
+		private ValidationResult validate(String value, ValueContext context)
+		{
+			if (value.isEmpty())
+				return ValidationResult.ok(); //fall back
+			try
+			{
+				VerifiableEmail email = new VerifiableEmail(value);
+				email.setConfirmationInfo(confirmationInfo);
+				syntax.validate(email);
+				return ValidationResult.ok();
+			} catch (Exception e)
+			{
+				return ValidationResult.error(e.getMessage());
+			}
+		}
+		
 		private void updateConfirmationStatusIcon()
 		{
 			editor.setConfirmationStatusIcon(formatter.getSimpleConfirmationStatusString(
 					confirmationInfo), confirmationInfo.isConfirmed());
-			editor.setVerifyButtonVisiable(!confirmationInfo
+			editor.setVerifyButtonVisible(!confirmationInfo
 					.isConfirmed()
 					&& !editor.getValue().isEmpty()
 					&& value != null && editor.getValue()
@@ -275,25 +297,13 @@ public class VerifiableEmailAttributeHandler implements WebAttributeHandler
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-			if (!context.isRequired() && editor.getValue().isEmpty())
+			binder.ensureValidityCatched(() -> new IllegalAttributeValueException(""));
+			String emailVal = binder.getBean().getValue().trim();
+			if (emailVal.isEmpty())
 				return null;
-
-			try
-			{
-				VerifiableEmail email = new VerifiableEmail(editor.getValue());
-				email.setConfirmationInfo(confirmationInfo);
-				syntax.validate(email);
-				editor.setComponentError(null);
-				return syntax.convertToString(email);
-			} catch (IllegalAttributeValueException e)
-			{
-				editor.setComponentError(new UserError(e.getMessage()));
-				throw e;
-			} catch (Exception e)
-			{
-				editor.setComponentError(new UserError(e.getMessage()));
-				throw new IllegalAttributeValueException(e.getMessage(), e);
-			}
+			VerifiableEmail email = new VerifiableEmail(emailVal);
+			email.setConfirmationInfo(confirmationInfo);
+			return syntax.convertToString(email);
 		}
 
 		@Override

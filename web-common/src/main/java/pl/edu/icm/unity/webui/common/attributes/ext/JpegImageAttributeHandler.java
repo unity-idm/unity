@@ -175,7 +175,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 			error = new Label();
 			error.setStyleName(Styles.error.toString());
 			error.setVisible(false);
-				
+			
+			required = context.isRequired();
+			
 			Label errorImage = getErrorImage();
 			errorImage.setVisible(false);
 			

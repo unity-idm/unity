@@ -39,6 +39,8 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.attributes.ext.TextFieldWithVerifyButton;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
@@ -71,6 +73,7 @@ public class SMSCredentialEditor implements CredentialEditor
 	private ConfirmationInfo confirmationInfo;
 	private boolean skipUpdate = false;
 	private CredentialEditorContext context;
+	private SingleStringFieldBinder binder;
 	
 	public SMSCredentialEditor(UnityMessageSource msg, AttributeTypeSupport attrTypeSupport,
 			AttributeSupport attrSup,
@@ -87,7 +90,7 @@ public class SMSCredentialEditor implements CredentialEditor
 	@Override
 	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
-
+		binder =  new SingleStringFieldBinder(msg);
 		this.context = context;
 		helper = new SMSCredential();
 		helper.setSerializedConfiguration(JsonUtil.parse(context.getCredentialConfiguration()));
@@ -131,7 +134,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		}
 
 		confirmationInfo = new ConfirmationInfo();
-		editor = new TextFieldWithVerifyButton(context.isAdminMode(), context.isRequired(),
+		editor = new TextFieldWithVerifyButton(context.isAdminMode(), 
 				msg.getMessage("SMSCredentialEditor.verify"),
 				Images.mobile.getResource(),
 				msg.getMessage("SMSCredentialEditor.confirmedCheckbox"),
@@ -181,12 +184,10 @@ public class SMSCredentialEditor implements CredentialEditor
 		if (!userMobiles.isEmpty())
 		{
 			credentialSource.setValue(CredentialSource.Existing);
-			currentMobileAttr.focus();
 		} else
 		{
 
 			credentialSource.setValue(CredentialSource.New);
-			editor.focus();
 			
 			if (context.getEntityId() == null)
 			{
@@ -197,6 +198,8 @@ public class SMSCredentialEditor implements CredentialEditor
 		if (context.isCustomWidth())
 			editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		
+		binder.forField(editor, context.isRequired()).bind("value");
+		binder.setBean(new StringBindingValue(""));
 		return ret;
 	}
 
@@ -205,7 +208,7 @@ public class SMSCredentialEditor implements CredentialEditor
 		editor.setConfirmationStatusIcon(
 				formatter.getSimpleConfirmationStatusString(confirmationInfo),
 				confirmationInfo.isConfirmed());
-		editor.setVerifyButtonVisiable(
+		editor.setVerifyButtonVisible(
 				!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
 		skipUpdate = true;
 		editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -39,7 +40,7 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 	private Label confirmationStatusIcon;
 	private boolean showLabelInline;
 	
-	public TextFieldWithVerifyButton(boolean adminMode, boolean required,
+	public TextFieldWithVerifyButton(boolean adminMode, 
 			String verifyButtonDesc, Resource verifyButtonIcon,
 			String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
@@ -52,11 +53,6 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 		verifyButton.addStyleName(Styles.largeIcon.toString());
 		verifyButton.setDescription(verifyButtonDesc);
 		editor = new TextField();
-		if (showLabelInline)
-			editor.setRequiredIndicatorVisible(required);
-		else
-			setRequiredIndicatorVisible(required);
-		
 		adminConfirmCheckBox = new CheckBox(adminConfirmCheckBoxLabel);
 		fieldLayout = new HorizontalLayout();
 		fieldLayout.setMargin(false);
@@ -65,7 +61,7 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 		confirmationStatusIcon = new Label();
 		confirmationStatusIcon.setContentMode(ContentMode.HTML);
 		
-		fieldLayout.addComponents(editor, confirmationStatusIcon,  verifyButton);
+		fieldLayout.addComponents(editor, confirmationStatusIcon, verifyButton);
 		fieldLayout.setComponentAlignment(confirmationStatusIcon, Alignment.MIDDLE_CENTER);
 		
 		main = new VerticalLayout();
@@ -76,6 +72,27 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 			main.addComponent(adminConfirmCheckBox);
 		}
 			
+	}
+	
+	@Override
+	public void setRequiredIndicatorVisible(boolean visible) 
+	{
+		if (showLabelInline)
+			editor.setRequiredIndicatorVisible(visible);
+		else
+			super.setRequiredIndicatorVisible(visible);
+	}
+
+
+	@Override
+	public void setComponentError(ErrorMessage componentError)
+	{
+		editor.setComponentError(componentError);
+	}
+	
+	public Registration addValueChangeListener(ValueChangeListener<String> listener)
+	{
+		return editor.addValueChangeListener(listener);
 	}
 	
 	@Override
@@ -90,6 +107,12 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 		return editor.getValue();
 	}
 
+	@Override
+	public String getEmptyValue() 
+	{
+		return "";
+	}
+	
 	@Override
 	protected Component initContent()
 	{
@@ -138,7 +161,7 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 		adminConfirmCheckBox.addValueChangeListener(listener);
 	}
 	
-	public void setVerifyButtonVisiable(boolean visible)
+	public void setVerifyButtonVisible(boolean visible)
 	{
 		verifyButton.setVisible(visible);
 	}
@@ -156,12 +179,6 @@ public class TextFieldWithVerifyButton extends CustomField<String> implements Co
 	public void removeVerifyButton()
 	{
 		fieldLayout.removeComponent(verifyButton);
-	}
-
-	@Override
-	public void setComponentError(ErrorMessage componentError)
-	{
-		editor.setComponentError(componentError);
 	}
 
 	public void setTextFieldId(String id)

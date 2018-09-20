@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.Optional;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -19,6 +20,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
@@ -51,6 +53,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 @PrototypeComponent
 public class StandaloneRegistrationView extends CustomComponent implements View
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneRegistrationView.class);
 	private RegistrationForm form;
 	private RegistrationsManagement regMan;
 	private UnityMessageSource msg;
@@ -242,6 +245,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			return;
 		} catch (Exception e)
 		{
+			log.warn("Registration request submision failed", e);
 			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.GENERAL_ERROR);
 			if (finalScreenConfig.isPresent())

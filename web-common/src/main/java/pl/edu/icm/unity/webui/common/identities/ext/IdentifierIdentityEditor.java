@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.common.identities.ext;
 
-import com.vaadin.server.UserError;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -12,6 +11,8 @@ import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 
@@ -24,6 +25,7 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	private UnityMessageSource msg;
 	private TextField field;
 	private IdentityEditorContext context;
+	private SingleStringFieldBinder binder;
 	
 	public IdentifierIdentityEditor(UnityMessageSource msg)
 	{
@@ -33,35 +35,33 @@ public class IdentifierIdentityEditor implements IdentityEditor
 	@Override
 	public ComponentsContainer getEditor(IdentityEditorContext context)
 	{
+		binder = new SingleStringFieldBinder(msg);
 		this.context = context;
 		field = new TextField();
 		setLabel(new IdentifierIdentity().getHumanFriendlyName(msg));
-		field.setRequiredIndicatorVisible(context.isRequired());
 		if (context.isCustomWidth())
 			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		
+		binder.forField(field, context.isRequired()).bind("value");
+		binder.setBean(new StringBindingValue(""));
+		
 		return new ComponentsContainer(field);
 	}
 
 	@Override
 	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
-		String username = field.getValue();
-		if (username.trim().equals(""))
-		{
-			if (!context.isRequired())
-				return null;
-			String err = msg.getMessage("IdentifierIdentityEditor.errorEmpty");
-			field.setComponentError(new UserError(err));
-			throw new IllegalIdentityValueException(err);
-		}
-		field.setComponentError(null);		
-		return new IdentityParam(IdentifierIdentity.ID, username);
+		binder.ensureValidityCatched(() -> new IllegalIdentityValueException(""));
+		String value = binder.getBean().getValue().trim();
+		if (value.isEmpty())
+			return null;
+		return new IdentityParam(IdentifierIdentity.ID, value);
 	}
 
 	@Override
 	public void setDefaultValue(IdentityParam value)
 	{
-		field.setValue(value.getValue());	
+		binder.setBean(new StringBindingValue(value.getValue()));
 	}
 	
 	@Override
@@ -72,5 +72,4 @@ public class IdentifierIdentityEditor implements IdentityEditor
 		else
 			field.setCaption(value + ":");
 	}
-
 }

@@ -24,6 +24,8 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker;
 import pl.edu.icm.unity.stdext.credential.pass.StrengthChecker.StrengthInfo;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
@@ -45,7 +47,8 @@ public class PasswordFieldsComponent extends CustomComponent
 	private boolean requireQA;
 	private CredentialEditorContext context;
 	private Consumer<String> onPasswordChangeListener;
-
+	private SingleStringFieldBinder binder;
+	
 	public PasswordFieldsComponent(UnityMessageSource msg, CredentialEditorContext context, 
 			PasswordCredential config, Consumer<String> onPasswordChangeListener)
 	{
@@ -66,6 +69,7 @@ public class PasswordFieldsComponent extends CustomComponent
 	
 	private void initUI()
 	{
+		binder =  new SingleStringFieldBinder(msg);
 		VerticalLayout root = new VerticalLayout();
 		root.setSpacing(true);
 		root.setMargin(false);
@@ -83,10 +87,7 @@ public class PasswordFieldsComponent extends CustomComponent
 		root.addComponents(password1, password2);
 		
 		if (context.isRequired())
-		{
-			password1.setRequiredIndicatorVisible(true);
 			password2.setRequiredIndicatorVisible(true);
-		}
 		
 		PasswordCredentialResetSettings resetSettings = config.getPasswordResetSettings();
 		requireQA = resetSettings.isEnabled() && resetSettings.isRequireSecurityQuestion(); 
@@ -115,6 +116,8 @@ public class PasswordFieldsComponent extends CustomComponent
 				answer.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		}
 		
+		binder.forField(password1, context.isRequired()).bind("value");
+		binder.setBean(new StringBindingValue(""));
 	}
 	
 	private boolean isValid()
