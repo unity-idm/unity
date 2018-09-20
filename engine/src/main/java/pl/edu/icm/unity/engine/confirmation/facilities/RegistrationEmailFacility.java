@@ -25,6 +25,8 @@ import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.TxManager;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -101,6 +103,8 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 	public EmailConfirmationStatus processConfirmation(String rawState) throws EngineException
 	{
 		ConfirmationResult confirmResult = doConfirm(rawState);
+		I18nString pageTitle = getPageTitle(confirmResult.state.getRequestType(), confirmResult.formId);
+		confirmResult.status.setPageTitle(pageTitle);
 
 		txMan.commit();
 		
@@ -110,6 +114,7 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 			autoProcess(confirmResult.status, confirmResult.state, confirmResult.reqState, 
 					confirmResult.formId);
 		}
+		
 		
 		return confirmResult.status;
 	}
@@ -155,6 +160,20 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 		return new ConfirmationResult(status, state, req.getFormId(), reqState);
 	}
 	
+	private I18nString getPageTitle(RequestType requestType, String formId)
+	{
+		BaseForm form;
+		if (requestType == RequestType.REGISTRATION)
+		{
+			form = formsDB.get(formId);
+		} else
+		{
+			form = enquiresDB.get(formId);
+		}
+	
+		return form.getPageTitle();
+	}
+
 	private void autoProcess(EmailConfirmationStatus status, T state, UserRequestState<?> reqState, String formId) 
 				throws EngineException
 	{
@@ -169,9 +188,9 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 		} else
 		{
 			String info = "Automatically processing enquiry response " + state.getRequestId()
-			+ " after confirmation [" + state.getType() + "]" + 
-			state.getValue() + " by "
-			+ state.getFacilityId() + ". Action: {0}";
+				+ " after confirmation [" + state.getType() + "]" + 
+				state.getValue() + " by "
+				+ state.getFacilityId() + ". Action: {0}";
 			EnquiryForm form = enquiresDB.get(formId);
 			publisher.publishEvent(new EnquiryResponseAutoProcessEvent(form, 
 					(EnquiryResponseState) reqState, info));

@@ -311,7 +311,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		tokensMan.removeToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		log.debug("Process confirmation using " + facility.getName() + " facility");
 		EmailConfirmationStatus status = facility.processConfirmation(rawState);
-
+		
 		if (withDuplicates)
 		{
 			Collection<Token> duplicateTokens = getDuplicateTokens(facility, rawState);

@@ -72,6 +72,9 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 			return;
 		}
 		
+		if (status.getPageTitle() != null)
+			Page.getCurrent().setTitle(status.getPageTitle().getValue(msg));
+		
 		VerticalLayout contents = new VerticalLayout();
 		contents.setMargin(false);
 		contents.setSpacing(false);
