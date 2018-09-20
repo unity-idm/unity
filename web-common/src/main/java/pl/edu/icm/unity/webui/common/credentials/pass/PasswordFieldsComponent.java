@@ -130,7 +130,7 @@ public class PasswordFieldsComponent extends CustomComponent
 			return false;
 		if (StrengthChecker.getCharacterClasses(password) < config.getMinClassesNum())
 			return false;
-		if (!StrengthChecker.hasNoTrivialSequences(password))
+		if (config.isDenySequences() && !StrengthChecker.hasNoTrivialSequences(password))
 			return false;
 		return true;
 	}
