@@ -103,8 +103,11 @@ public abstract class RegistrationEmailFacility <T extends RegistrationEmailConf
 	public EmailConfirmationStatus processConfirmation(String rawState) throws EngineException
 	{
 		ConfirmationResult confirmResult = doConfirm(rawState);
-		I18nString pageTitle = getPageTitle(confirmResult.state.getRequestType(), confirmResult.formId);
-		confirmResult.status.setPageTitle(pageTitle);
+		if (confirmResult.state != null && confirmResult.formId != null)
+		{
+			I18nString pageTitle = getPageTitle(confirmResult.state.getRequestType(), confirmResult.formId);
+			confirmResult.status.setPageTitle(pageTitle);
+		}
 
 		txMan.commit();
 		
