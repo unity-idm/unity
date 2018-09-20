@@ -264,7 +264,7 @@ public class RegistrationForm extends BaseForm
 		{
 			List<FormElement> defaultElements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
 			addRegistrationFormSpecificElements(msg, defaultElements);
-			if (!defaultElements.isEmpty())
+			if (!defaultElements.isEmpty() && getExternalSignupSpec().isEnabled())
 				elements.add(new FormCaptionElement(new I18nString("RegistrationRequest.or", msg)));
 			elements.addAll(defaultElements);
 		}

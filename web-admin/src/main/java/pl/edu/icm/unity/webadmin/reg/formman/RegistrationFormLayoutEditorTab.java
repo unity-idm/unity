@@ -135,8 +135,17 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 	{
 		if (!enableCustomLayout.getValue())
 			return;
+		
 		primaryLayoutEditor.setLayoutFromProvider();
 		secondaryLayoutEditor.setLayoutFromProvider();
+		
+		
+		RegistrationForm form = formProvider.get();
+		if (form == null)
+			return;
+		
+		boolean isSecondLayoutNeeded = form.getExternalSignupSpec().isEnabled() || form.getFormLayouts().isLocalSignupEmbeddedAsButton();
+		secondaryLayoutPanel.setVisible(isSecondLayoutNeeded);
 	}
 	
 	public void updateFromForm()
