@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -105,13 +106,15 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			boolean withCredentials)
 	{
 		initUIBase();
-		
+
 		editorCreator.init(form, signUpAuthNController, context);
 		editorCreator.createSecondStage(new EditorCreatedCallback(mode), withCredentials);
 	}
 
 	private void initUIBase()
 	{
+		if (form.getPageTitle() != null)
+			Page.getCurrent().setTitle(form.getPageTitle().getValue(msg));
 		main = new VerticalLayout();
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);

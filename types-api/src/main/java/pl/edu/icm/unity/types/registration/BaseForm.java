@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.DescribedObjectROImpl;
 import pl.edu.icm.unity.types.I18nString;
@@ -42,6 +43,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private boolean collectComments;
 	private I18nString displayedName = new I18nString();
 	private I18nString formInformation = new I18nString();
+	private I18nString pageTitle = new I18nString();
 	private TranslationProfile translationProfile = 
 			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>());
 	private FormLayoutSettings layoutSettings = FormLayoutSettings.DEFAULT;
@@ -94,6 +96,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.set("DisplayedName", I18nStringJsonUtil.toJson(getDisplayedName()));
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
 		root.set("FormLayoutSettings", jsonMapper.valueToTree(getLayoutSettings()));
+		root.set("PageTitle", jsonMapper.valueToTree(getPageTitle()));
 		return root;
 	}
 
@@ -170,6 +173,12 @@ public abstract class BaseForm extends DescribedObjectROImpl
 						new TypeReference<FormLayoutSettings>(){});
 				setLayoutSettings(r);
 			}
+			
+			if (JsonUtil.notNull(root, "PageTitle"))
+			{
+				setPageTitle(I18nStringJsonUtil.fromJson(root.get("PageTitle")));
+			}
+
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize a form from JSON", e);
@@ -346,6 +355,16 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	public void setLayoutSettings(FormLayoutSettings layoutSettings)
 	{
 		this.layoutSettings = layoutSettings;
+	}
+	
+	public I18nString getPageTitle()
+	{
+		return pageTitle;
+	}
+
+	public void setPageTitle(I18nString pageTitle)
+	{
+		this.pageTitle = pageTitle;
 	}
 
 	void setTranslationProfile(TranslationProfile translationProfile)

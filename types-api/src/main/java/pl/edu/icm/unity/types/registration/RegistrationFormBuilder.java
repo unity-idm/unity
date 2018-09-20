@@ -101,11 +101,16 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		
 		return this;
 	}
-	
 
 	public RegistrationFormBuilder withTitle2ndStage(I18nString aValue)
 	{
 		instance.setTitle2ndStage(aValue);
+		return this;
+	}
+	
+	public RegistrationFormBuilder withPageTitle(I18nString aValue)
+	{
+		instance.setPageTitle(aValue);
 		return this;
 	}
 

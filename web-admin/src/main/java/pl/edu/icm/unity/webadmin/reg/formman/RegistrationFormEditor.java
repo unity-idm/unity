@@ -94,6 +94,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private CheckBox localSignupEmbeddedAsButton;
 	
 	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
+	private I18nTextField registrationPageTitle;
 	
 	@Autowired
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -186,6 +187,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withTitle2ndStage(title2ndStage.getValue());
 		builder.withShowGotoSignIn(showGotoSignin.getValue(), signInUrl.getValue());
 		builder.withWrapUpConfig(wrapUpConfig.getElements());
+		builder.withPageTitle(registrationPageTitle.getValue());
 		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
 		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
 		builder.withLayouts(layouts);
@@ -204,6 +206,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 			registrationCode.setValue(toEdit.getRegistrationCode());
 		if (toEdit.getTitle2ndStage() != null)
 			title2ndStage.setValue(toEdit.getTitle2ndStage());
+		if (toEdit.getPageTitle() != null)
+			registrationPageTitle.setValue(toEdit.getPageTitle());
 		credentialRequirementAssignment.setValue(toEdit.getDefaultCredentialRequirement());
 		TranslationProfile profile = new TranslationProfile(
 				toEdit.getTranslationProfile().getName(), "",
@@ -290,15 +294,16 @@ public class RegistrationFormEditor extends BaseFormEditor
 		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
 		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
 		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
+		registrationPageTitle = new I18nTextField(msg, msg.getMessage("RegistrationFormEditor.registrationPageTitle"));
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
 		Component remoteSignUpMetnodsTab = createRemoteSignupMethodsTab();
 		tabOfLists.addTab(remoteSignUpMetnodsTab, 1);
 		tabOfLists.setSelectedTab(0);
 		
-		main.addComponents(displayedName, title2ndStage, formInformation, showGotoSignin, signInUrl, 
-				showCancel,
-				localSignupEmbeddedAsButton, registrationCode, collectComments, tabOfLists);
+		main.addComponents(displayedName, title2ndStage, formInformation, registrationPageTitle, 
+				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton, registrationCode, 
+				collectComments, tabOfLists);
 	}
 	
 	private Component createRemoteSignupMethodsTab() throws EngineException

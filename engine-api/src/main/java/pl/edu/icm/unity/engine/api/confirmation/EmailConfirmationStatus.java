@@ -4,19 +4,21 @@
  */
 package pl.edu.icm.unity.engine.api.confirmation;
 
+import pl.edu.icm.unity.types.I18nString;
+
 /**
  * Email confirmation status. Contains key for user friendly message about confirmation
  * process
  * 
  * @author P. Piernik
- * 
  */
 public class EmailConfirmationStatus
 {
-	private String returnUrl;	
+	private String returnUrl;
 	private boolean success;
 	private String userMessageKey;
 	private String[] userMessageArgs;
+	private I18nString pageTitle;
 	
 	public EmailConfirmationStatus(boolean status, String returnUrl, String userMessage, String...userMessageArgs)
 	{
@@ -59,5 +61,15 @@ public class EmailConfirmationStatus
 	public String getReturnUrl()
 	{
 		return returnUrl;
+	}
+
+	public void setPageTitle(I18nString pageTitle)
+	{
+		this.pageTitle = pageTitle;
+	}
+
+	public I18nString getPageTitle()
+	{
+		return pageTitle;
 	}
 }
