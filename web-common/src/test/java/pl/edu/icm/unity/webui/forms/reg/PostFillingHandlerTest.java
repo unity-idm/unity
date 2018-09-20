@@ -56,7 +56,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 		shouldHandleDefaultError(TriggeringState.GENERAL_ERROR, "Registration failed");
 		shouldHandleDefaultError(TriggeringState.INVITATION_CONSUMED, "This invitation was already processed");
 		shouldHandleDefaultError(TriggeringState.INVITATION_EXPIRED, "The invitation is expired");
-		shouldHandleDefaultError(TriggeringState.INVITATION_MISSING, "The invitation is not recognized");
+		shouldHandleDefaultError(TriggeringState.INVITATION_MISSING, "The invitation was already processed or was removed");
 	}
 
 	@Test
