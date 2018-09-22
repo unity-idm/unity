@@ -5,16 +5,10 @@
 package pl.edu.icm.unity.webui.forms.reg;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,16 +16,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
 
 public class PostFillingHandlerTest extends DBIntegrationTestBase
 {
@@ -104,103 +97,80 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 
 	private void shouldHandleDefaultSubmitted(RegistrationRequestStatus status, String expectedTitle) throws EngineException
 	{
-		@SuppressWarnings("unchecked")
-		Consumer<String> redirector = mock(Consumer.class);
-		RegistrationsManagement registrationMan = mock(RegistrationsManagement.class);
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList();
-		PostFillingHandler handler = new PostFillingHandler(redirector, "formId", 
-				configs, msg, registrationMan);
+		PostFillingHandler handler = new PostFillingHandler("formId", 
+				configs, msg, "pageTitle", "logo");
 		
-		RegistrationRequestState reqState = new RegistrationRequestState();
-		reqState.setRequestId("requestId");
-		reqState.setStatus(status);
-		when(registrationMan.getRegistrationRequests()).thenReturn(Lists.newArrayList(reqState));
+		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationPostSubmit("requestId", status);
 		
-		Optional<FinalRegistrationConfiguration> ret = handler.getFinalRegistrationConfigurationPostSubmit("requestId");
-		
-		assertThat(ret.isPresent(), is(true));
-		assertThat(ret.get().extraInformation, is(nullValue()));
-		assertThat(ret.get().mainInformation, is(expectedTitle));
-		assertThat(ret.get().redirectButtonText, is("Continue"));
-		assertThat(ret.get().redirectHandler, is(nullValue()));
+		assertThat(ret.extraInformation, is(nullValue()));
+		assertThat(ret.mainInformation, is(expectedTitle));
+		assertThat(ret.redirectButtonText, is("Continue"));
+		assertThat(ret.redirectURL, is(nullValue()));
 	}
 
 	private void shouldHandleDefaultError(TriggeringState state, String expectedTitle) throws EngineException
 	{
-		@SuppressWarnings("unchecked")
-		Consumer<String> redirector = mock(Consumer.class);
-		RegistrationsManagement registrationMan = mock(RegistrationsManagement.class);
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList();
-		PostFillingHandler handler = new PostFillingHandler(redirector, "formId", 
-				configs, msg, registrationMan);
+		PostFillingHandler handler = new PostFillingHandler("formId", 
+				configs, msg, "pageTitle", "logo");
 		
-		Optional<FinalRegistrationConfiguration> ret = handler.getFinalRegistrationConfigurationOnError(state);
+		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationOnError(state);
 		
-		assertThat(ret.isPresent(), is(true));
-		assertThat(ret.get().extraInformation, is(nullValue()));
-		assertThat(ret.get().mainInformation, is(expectedTitle));
-		assertThat(ret.get().redirectButtonText, is("Continue"));
-		assertThat(ret.get().redirectHandler, is(nullValue()));
+		assertThat(ret.autoRedirect, is(false));
+		assertThat(ret.extraInformation, is(nullValue()));
+		assertThat(ret.mainInformation, is(expectedTitle));
+		assertThat(ret.redirectButtonText, is("Continue"));
+		assertThat(ret.redirectURL, is(nullValue()));
 	}
 	
 	private void shouldHandleConfiguredSubmitted(RegistrationRequestStatus status, RegistrationWrapUpConfig config) throws EngineException
 	{
-		@SuppressWarnings("unchecked")
-		Consumer<String> redirector = mock(Consumer.class);
-		RegistrationsManagement registrationMan = mock(RegistrationsManagement.class);
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList(config);
-		PostFillingHandler handler = new PostFillingHandler(redirector, "formId", 
-				configs, msg, registrationMan);
+		PostFillingHandler handler = new PostFillingHandler("formId", 
+				configs, msg, "pageTitle", "logo");
 		
-		RegistrationRequestState reqState = new RegistrationRequestState();
-		reqState.setRequestId("requestId");
-		reqState.setStatus(status);
-		when(registrationMan.getRegistrationRequests()).thenReturn(Lists.newArrayList(reqState));
+		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationPostSubmit("requestId", status);
 		
-		Optional<FinalRegistrationConfiguration> ret = handler.getFinalRegistrationConfigurationPostSubmit("requestId");
-		
+		String url = new RegistrationRedirectURLBuilder(config.getRedirectURL(), "formId", "requestId", 
+				config.getState()).build();
 		if (config.isAutomatic())
 		{
-			assertThat(ret.isPresent(), is(false));
-			String url = new RegistrationRedirectURLBuilder(config.getRedirectURL(), "formId", "requestId", 
-					config.getState()).build();
-			verify(redirector).accept(url);
+			assertThat(ret.autoRedirect, is(true));
+			assertThat(ret.redirectURL, is(url));
 		} else
 		{
-			assertThat(ret.isPresent(), is(true));
-			assertThat(ret.get().extraInformation, is(config.getInfo() == null ? null : config.getInfo().getDefaultValue()));
-			assertThat(ret.get().mainInformation, is(config.getTitle() == null ? "" : config.getTitle().getDefaultValue()));
-			assertThat(ret.get().redirectButtonText, is(config.getRedirectCaption() == null ? 
+			assertThat(ret.autoRedirect, is(false));
+			assertThat(ret.extraInformation, is(config.getInfo() == null ? null : config.getInfo().getDefaultValue()));
+			assertThat(ret.mainInformation, is(config.getTitle() == null ? "" : config.getTitle().getDefaultValue()));
+			assertThat(ret.redirectButtonText, is(config.getRedirectCaption() == null ? 
 					"Continue" : config.getRedirectCaption().getDefaultValue()));
-			assertThat(ret.get().redirectHandler, is(config.getRedirectURL() != null ? notNullValue() : nullValue()));
+			assertThat(ret.redirectURL, is(url));
 		}
 	}
 
 	private void shouldHandleConfiguredOnError(RegistrationWrapUpConfig config) throws EngineException
 	{
-		@SuppressWarnings("unchecked")
-		Consumer<String> redirector = mock(Consumer.class);
-		RegistrationsManagement registrationMan = mock(RegistrationsManagement.class);
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList(config);
-		PostFillingHandler handler = new PostFillingHandler(redirector, "formId", 
-				configs, msg, registrationMan);
+		PostFillingHandler handler = new PostFillingHandler("formId", 
+				configs, msg, "pageTitle", "logo");
 		
-		Optional<FinalRegistrationConfiguration> ret = handler.getFinalRegistrationConfigurationOnError(config.getState());
+		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationOnError(config.getState());
 		
+		String url = new RegistrationRedirectURLBuilder(config.getRedirectURL(), "formId", null, 
+				config.getState()).build();
 		if (config.isAutomatic())
 		{
-			assertThat(ret.isPresent(), is(false));
-			String url = new RegistrationRedirectURLBuilder(config.getRedirectURL(), "formId", null, 
-					config.getState()).build();
-			verify(redirector).accept(url);
+			assertThat(ret.autoRedirect, is(true));
+			assertThat(ret.redirectURL, is(url));
 		} else
 		{
-			assertThat(ret.isPresent(), is(true));
-			assertThat(ret.get().extraInformation, is(config.getInfo() == null ? null : config.getInfo().getDefaultValue()));
-			assertThat(ret.get().mainInformation, is(config.getTitle() == null ? "" : config.getTitle().getDefaultValue()));
-			assertThat(ret.get().redirectButtonText, is(config.getRedirectCaption() == null ? 
+			assertThat(ret.autoRedirect, is(false));
+			assertThat(ret.extraInformation, is(config.getInfo() == null ? null : config.getInfo().getDefaultValue()));
+			assertThat(ret.mainInformation, is(config.getTitle() == null ? "" : config.getTitle().getDefaultValue()));
+			assertThat(ret.redirectButtonText, is(config.getRedirectCaption() == null ? 
 					"Continue" : config.getRedirectCaption().getDefaultValue()));
-			assertThat(ret.get().redirectHandler, is(config.getRedirectURL() != null ? notNullValue() : nullValue()));
+			assertThat(ret.redirectURL, is(url));
 		}
 	}
 

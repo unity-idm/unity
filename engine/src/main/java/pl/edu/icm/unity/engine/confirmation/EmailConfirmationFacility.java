@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.engine.confirmation;
 
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.DescribedObject;
 
@@ -23,7 +23,7 @@ public interface EmailConfirmationFacility<T extends BaseEmailConfirmationState>
 	 * @return
 	 * @throws EngineException
 	 */
-	EmailConfirmationStatus processConfirmation(String state) throws EngineException;
+	WorkflowFinalizationConfiguration processConfirmation(String state) throws EngineException;
 	
 	/**
 	 * Update verifiable element set as unconfirmed and increase the value of

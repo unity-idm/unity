@@ -2,30 +2,18 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms.reg;
+package pl.edu.icm.unity.engine.api.registration;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.util.Strings;
 
-import com.vaadin.server.Page;
-
-import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
-import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
 
 /**
  * Controller making decisions on what to do/show after completed registration.
@@ -34,50 +22,44 @@ import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
  */
 public class PostFillingHandler
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER, PostFillingHandler.class);
 	private UnityMessageSource msg;
-	private RegistrationsManagement registrationsManagement;
 	private String formId;
-	private Consumer<String> redirector;
 	private List<RegistrationWrapUpConfig> wrapUpConfigs;
+	private String pageTitle;
+	private String logoURL;
 	
-	public PostFillingHandler(IdPLoginController loginController, 
-			RegistrationForm form, UnityMessageSource msg, 
-			RegistrationsManagement registrationsManagement)
+	public PostFillingHandler(String formId, List<RegistrationWrapUpConfig> wrapUpConfigs, UnityMessageSource msg,
+			String pageTitle, String logoURL)
 	{
-		this(url -> redirect(url, loginController), 
-				form.getName(), 
-				form.getWrapUpConfig(), 
-				msg, registrationsManagement);
-	}
-
-	PostFillingHandler(Consumer<String> redirector,
-			String formId, 
-			List<RegistrationWrapUpConfig> wrapUpConfigs,
-			UnityMessageSource msg, 
-			RegistrationsManagement registrationsManagement)
-	{
-		this.redirector = redirector;
 		this.formId = formId;
 		this.wrapUpConfigs = wrapUpConfigs;
 		this.msg = msg;
-		this.registrationsManagement = registrationsManagement;
+		this.pageTitle = pageTitle;
+		this.logoURL = logoURL;
 	}
 	
-	public Optional<FinalRegistrationConfiguration> getFinalRegistrationConfigurationPostSubmit(String requestId)
+	public WorkflowFinalizationConfiguration getFinalRegistrationConfigurationPostSubmit(String requestId,
+			RegistrationRequestStatus status)
 	{
-		RegistrationRequestStatus status = getRequestStatus(requestId, registrationsManagement);
 		TriggeringState state = requestStatusToState(status);
-		return getFinalRegistrationConfigurationGeneric(state, requestId);
+		boolean success = status != RegistrationRequestStatus.rejected;
+		return getFinalRegistrationConfigurationGeneric(success, state, requestId);
 	}
 
-	public Optional<FinalRegistrationConfiguration> getFinalRegistrationConfigurationOnError(
+	public WorkflowFinalizationConfiguration getFinalRegistrationConfigurationNonSubmit(boolean successful,
+			String requestId, RegistrationWrapUpConfig.TriggeringState state)
+	{
+		return getFinalRegistrationConfigurationGeneric(successful, state, requestId);
+	}
+	
+	public WorkflowFinalizationConfiguration getFinalRegistrationConfigurationOnError(
 			RegistrationWrapUpConfig.TriggeringState state)
 	{
-		return getFinalRegistrationConfigurationGeneric(state, null);
+		return getFinalRegistrationConfigurationGeneric(false, state, null);
 	}
 
-	private Optional<FinalRegistrationConfiguration> getFinalRegistrationConfigurationGeneric(
+	private WorkflowFinalizationConfiguration getFinalRegistrationConfigurationGeneric(
+			boolean successful,
 			RegistrationWrapUpConfig.TriggeringState state, String requestId)
 	{
 		RegistrationWrapUpConfig config = getWrapUpConfigForState(state);
@@ -86,23 +68,27 @@ public class PostFillingHandler
 		String finalRedirectURL = buildFinalRedirectURL(config, requestId, state); 
 		
 		if (config.isAutomatic() && Strings.isNotEmpty(finalRedirectURL))
-		{
-			redirector.accept(finalRedirectURL);
-			return Optional.empty();
-		}
+			return WorkflowFinalizationConfiguration.autoRedirect(finalRedirectURL);
 		
 		String redirectCaption = config.getRedirectCaption() == null ? 
 				msg.getMessage("RegistrationFormsChooserComponent.defaultRedirectCaption") 
 				: config.getRedirectCaption().getValue(msg);
 		
-		return Optional.of(new FinalRegistrationConfiguration(title, info,
-				finalRedirectURL == null ? null : () -> redirector.accept(finalRedirectURL), 
-				redirectCaption));
+		return WorkflowFinalizationConfiguration.builder()
+				.setSuccess(successful)
+				.setAutoRedirect(false)
+				.setRedirectURL(finalRedirectURL)
+				.setRedirectButtonText(redirectCaption)
+				.setMainInformation(title)
+				.setExtraInformation(info)
+				.setPageTitle(pageTitle)
+				.setLogoURL(logoURL)
+				.build();
 	}
 	
 	private String buildFinalRedirectURL(RegistrationWrapUpConfig config, String requestId, TriggeringState state)
 	{
-		return config.getRedirectURL() == null ? null : 
+		return Strings.isEmpty(config.getRedirectURL()) ? null : 
 			new RegistrationRedirectURLBuilder(config.getRedirectURL(), 
 						formId, requestId, state).build();
 	}
@@ -121,22 +107,7 @@ public class PostFillingHandler
 			throw new IllegalStateException("Unknown status: " + status);
 		}
 	}
-	
-	private RegistrationRequestStatus getRequestStatus(String requestId, RegistrationsManagement registrationsManagement) 
-	{
-		try
-		{
-			for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
-			{
-				if (r.getRequestId().equals(requestId))
-					return r.getStatus();
-			}
-		} catch (EngineException e)
-		{
-			log.error("Shouldn't happen: can't get request status, assuming rejested", e);
-		}
-		return RegistrationRequestStatus.rejected;
-	}
+
 
 	private RegistrationWrapUpConfig getWrapUpConfigForState(RegistrationWrapUpConfig.TriggeringState state)
 	{
@@ -153,12 +124,12 @@ public class PostFillingHandler
 	
 	private String getTitle(RegistrationWrapUpConfig.TriggeringState state, RegistrationWrapUpConfig config)
 	{
-		return config.getTitle() == null ? getDefaultTitle(state) : config.getTitle().getValue(msg);
+		return config.getTitle() == null || config.getTitle().isEmpty() ? getDefaultTitle(state) : config.getTitle().getValue(msg);
 	}
 
 	private String getInfo(RegistrationWrapUpConfig.TriggeringState state, RegistrationWrapUpConfig config)
 	{
-		return config.getInfo() == null ? getDefaultInfo(state) : config.getInfo().getValue(msg);
+		return config.getInfo() == null || config.getInfo().isEmpty() ? getDefaultInfo(state) : config.getInfo().getValue(msg);
 	}
 	
 	private String getDefaultTitle(RegistrationWrapUpConfig.TriggeringState state)
@@ -209,11 +180,5 @@ public class PostFillingHandler
 	private String getDefaultInfo(RegistrationWrapUpConfig.TriggeringState state)
 	{
 		return null;
-	}
-	
-	private static void redirect(String redirectUrl, IdPLoginController loginController)
-	{
-		loginController.breakLogin();
-		Page.getCurrent().open(redirectUrl, null);
 	}
 }

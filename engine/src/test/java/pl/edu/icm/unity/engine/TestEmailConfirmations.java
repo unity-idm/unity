@@ -21,10 +21,10 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.UserEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
@@ -691,7 +691,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 		registrationsMan.processRegistrationRequest(requestId, requestState.getRequest(),
 				RegistrationRequestAction.reject, "", "");
 		
-		EmailConfirmationStatus status = null; 
+		WorkflowFinalizationConfiguration status = null; 
 		try
 		{
 			 status = confirmationMan.processConfirmation(token);
@@ -701,7 +701,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			fail("Cannot proccess confirmation");
 		}
 		
-		Assert.assertFalse(status.isSuccess());
+		Assert.assertFalse(status.success);
 	}
 	
 	@Test

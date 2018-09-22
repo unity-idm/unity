@@ -29,8 +29,11 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -38,11 +41,13 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.forms.FinalRegistrationConfiguration;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor.Stage;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.ErrorCause;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
@@ -88,7 +93,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	public StandaloneRegistrationView init(RegistrationForm form)
 	{
 		this.form = form;
-		this.postFillHandler = new PostFillingHandler(idpLoginController, form, msg, regMan);
+		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
+		this.postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
+				pageTitle, form.getLayoutSettings().getLogoURL());
 		return this;
 	}
 	
@@ -194,10 +201,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 
 	private void handleError(Exception e, ErrorCause cause)
 	{
-		Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler
+		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
 				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
-		if (finalScreenConfig.isPresent())
-			showFinalError(finalScreenConfig.get());
+		gotoFinalStep(finalScreenConfig);
 	}
 	
 	private void onLocalSignupClickHandler()
@@ -208,10 +214,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	
 	private void onCancel()
 	{
-		Optional<FinalRegistrationConfiguration> finalScreenConfig = postFillHandler
+		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
 				.getFinalRegistrationConfigurationOnError(TriggeringState.CANCELLED);
-		if (finalScreenConfig.isPresent())
-			showFinalError(finalScreenConfig.get());
+		gotoFinalStep(finalScreenConfig);
 	}
 	
 	private void onSubmit(RegistrationRequestEditor editor, TriggeringMode mode)
@@ -237,16 +242,15 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		try
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
-			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
-					postFillHandler.getFinalRegistrationConfigurationPostSubmit(requestId);
-			if (finalScreenConfig.isPresent())
-				showFinalSuccess(finalScreenConfig.get());
+			WorkflowFinalizationConfiguration finalScreenConfig = 
+					postFillHandler.getFinalRegistrationConfigurationPostSubmit(requestId,
+							getRequestStatus(requestId));
+			gotoFinalStep(finalScreenConfig);
 		} catch (IdentityExistsException e)
 		{
-			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
+			WorkflowFinalizationConfiguration finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
-			if (finalScreenConfig.isPresent())
-				showFinalError(finalScreenConfig.get());
+			gotoFinalStep(finalScreenConfig);
 			
 		} catch (WrongArgumentException e)
 		{
@@ -257,10 +261,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		} catch (Exception e)
 		{
 			log.warn("Registration request submision failed", e);
-			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
+			WorkflowFinalizationConfiguration finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.GENERAL_ERROR);
-			if (finalScreenConfig.isPresent())
-				showFinalError(finalScreenConfig.get());
+			gotoFinalStep(finalScreenConfig);
 		}
 	}
 
@@ -269,17 +272,15 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		return mode != TriggeringMode.afterRemoteLoginFromRegistrationForm;
 	}
 
-	private void showFinalSuccess(FinalRegistrationConfiguration config)
+	private void gotoFinalStep(WorkflowFinalizationConfiguration config)
 	{
-		showFinalScreenOrRedirect(config, false);
-	}
-
-	private void showFinalError(FinalRegistrationConfiguration config)
-	{
-		showFinalScreenOrRedirect(config, true);
+		if (config.autoRedirect)
+			redirect(config.redirectURL, idpLoginController);
+		else
+			showFinalScreen(config);
 	}
 	
-	private void showFinalScreenOrRedirect(FinalRegistrationConfiguration config, boolean isError)
+	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);
@@ -288,8 +289,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		setSizeFull();
 		setCompositionRoot(wrapper);
 
-		RegistrationCompletedComponent finalScreen = new RegistrationCompletedComponent(config, 
-			isError, form.getLayoutSettings().getLogoURL());
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
+			url -> redirect(url, idpLoginController));
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
@@ -329,6 +330,29 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 				false);
 	}
 	
+	private static void redirect(String redirectUrl, IdPLoginController loginController)
+	{
+		loginController.breakLogin();
+		Page.getCurrent().open(redirectUrl, null);
+	}
+	
+	
+	private RegistrationRequestStatus getRequestStatus(String requestId) 
+	{
+		try
+		{
+			//FIXME - add getRequest to manager
+			for (RegistrationRequestState r : regMan.getRegistrationRequests())
+			{
+				if (r.getRequestId().equals(requestId))
+					return r.getStatus();
+			}
+		} catch (EngineException e)
+		{
+			log.error("Shouldn't happen: can't get request status, assuming rejested", e);
+		}
+		return RegistrationRequestStatus.rejected;
+	}
 	
 	private class EditorCreatedCallback implements RequestEditorCreatedCallback
 	{
@@ -370,10 +394,9 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		public void onUserExists(AuthenticationResult result)
 		{
 			enableSharedComponentsAndHideAuthnProgress();
-			Optional<FinalRegistrationConfiguration> finalScreenConfig = 
+			WorkflowFinalizationConfiguration finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
-			if (finalScreenConfig.isPresent())
-				showFinalError(finalScreenConfig.get());
+			gotoFinalStep(finalScreenConfig);
 		}
 
 		@Override

@@ -11,9 +11,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.identity.IdentityTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -34,16 +36,17 @@ public class EmailIdentityFacility extends UserEmailFacility<EmailIdentityConfir
 	private IdentityTypeHelper identityTypeHelper;
 	private IdentityDAO idDAO;
 	private TxManager txMan;
-	
+	private boolean autoRedirect;
 
 	@Autowired
 	protected EmailIdentityFacility(EntityDAO dbIdentities, IdentityTypeHelper identityTypeHelper,
-			IdentityDAO idDAO, TxManager tx)
+			IdentityDAO idDAO, TxManager tx, UnityMessageSource msg, UnityServerConfiguration serverConfig)
 	{
-		super(dbIdentities);
+		super(dbIdentities, msg);
 		this.identityTypeHelper = identityTypeHelper;
 		this.idDAO = idDAO;
 		this.txMan = tx;
+		this.autoRedirect = serverConfig.getBooleanValue(UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT);
 	}
 
 	@Override
@@ -59,7 +62,7 @@ public class EmailIdentityFacility extends UserEmailFacility<EmailIdentityConfir
 	}
 
 	@Override
-	protected EmailConfirmationStatus confirmElements(EmailIdentityConfirmationState idState) 
+	protected WorkflowFinalizationConfiguration confirmElements(EmailIdentityConfirmationState idState) 
 			throws EngineException
 	{
 		List<Identity> ids = idDAO.getByEntity(idState.getOwnerEntityId());
@@ -81,12 +84,18 @@ public class EmailIdentityFacility extends UserEmailFacility<EmailIdentityConfir
 		txMan.commit();
 		
 		boolean confirmed = (confirmedList.size() > 0);
-		EmailConfirmationStatus status = new EmailConfirmationStatus(confirmed, 
-				confirmed ? getSuccessRedirect(idState) : getErrorRedirect(idState),
-				confirmed ? "ConfirmationStatus.successIdentity"
-						: "ConfirmationStatus.identityChanged",
-						idState.getType());
-		return status;
+		String title = msg.getMessage(confirmed ? 
+				"ConfirmationStatus.successful" : "ConfirmationStatus.unsuccessful");
+		String info = msg.getMessage(confirmed ? 
+				"ConfirmationStatus.success" : "ConfirmationStatus.emailChanged");
+		String redirectURL = confirmed ? getSuccessRedirect(idState) : getErrorRedirect(idState);
+		return WorkflowFinalizationConfiguration.builder()
+				.setAutoRedirect(autoRedirect)
+				.setSuccess(confirmed)
+				.setMainInformation(title)
+				.setExtraInformation(info)
+				.setRedirectURL(redirectURL)
+				.build();
 	}
 
 	@Override
