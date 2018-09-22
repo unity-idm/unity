@@ -87,7 +87,7 @@ public class ImportExportComponent extends VerticalLayout
 		hl.setMargin(true);
 		exportPanel.setContent(hl);
 
-		final DBDumpResource dumpResource = new DBDumpResource();
+		final DBDumpResource dumpResource = new DBDumpResource(serverManagement);
 		DeletingFileDownloader downloader = new DeletingFileDownloader(dumpResource);
 		Button createDump = new Button(msg.getMessage("ImportExport.createDump"));
 		downloader.extend(createDump);
@@ -321,16 +321,18 @@ public class ImportExportComponent extends VerticalLayout
 		}
 	}
 	
-	private class DBDumpResource extends FileResource
+	private static class DBDumpResource extends FileResource
 	{
+		private final ServerManagement serverManagement;
 		private File dump;
 		private String filename;
 		private Exception error;
-		
-		public DBDumpResource()
+
+		public DBDumpResource(ServerManagement serverManagement)
 		{
-			super(new File("somefilesss"));
-			filename = "somefilesss";
+			super(new File(getNewFilename()));
+			this.serverManagement = serverManagement;
+			filename = super.getFilename();
 		}
 
 		@Override
@@ -351,11 +353,11 @@ public class ImportExportComponent extends VerticalLayout
 
 			try 
 			{
-				String ts = new SimpleDateFormat("yyyyMMdd-HHmmssMM").format(new Date());
+				filename = getNewFilename();
 				final DownloadStream ds = new DownloadStream(new FileInputStream(dump), 
-						getMIMEType(), "unity-dbdump-" + ts + ".json");
+						getMIMEType(), filename);
 				ds.setParameter("Content-Length", String.valueOf(dump.length()));
-				ds.setCacheTime(getCacheTime());
+				ds.setCacheTime(0);
 				return ds;
 			} catch (final FileNotFoundException e) 
 			{
@@ -363,12 +365,23 @@ public class ImportExportComponent extends VerticalLayout
 			}
 		}
 
+		private static String getNewFilename()
+		{
+			String ts = new SimpleDateFormat("yyyyMMdd-HHmmssMM").format(new Date());
+			return "unity-dbdump-" + ts + ".json";
+		}
+		
 		@Override
 		public String getFilename() 
 		{
 			return filename;
 		}
 
+		public File getSourceFile() 
+		{
+			return dump;
+		}
+		
 		public synchronized File getFile()
 		{
 			return dump;
