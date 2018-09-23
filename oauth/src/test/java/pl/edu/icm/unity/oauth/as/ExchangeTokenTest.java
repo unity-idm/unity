@@ -17,6 +17,7 @@ import java.util.Map;
 
 import org.junit.Test;
 
+import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
 import com.nimbusds.oauth2.sdk.GrantType;
@@ -198,14 +199,14 @@ public class ExchangeTokenTest extends TokenTestBase
 		}
 
 		@Override
-		public Map<String, String> toParameters()
+		public Map<String, List<String>> toParameters()
 		{
-			Map<String, String> params = new LinkedHashMap<>();
-			params.put("grant_type", AccessTokenResource.EXCHANGE_GRANT);
-			params.put("subject_token", subjectToken);
-			params.put("subject_token_type", subjectTokenType);
-			params.put("requested_token_type", requestedType);
-			params.put("audience", audience);
+			Map<String, List<String>> params = new LinkedHashMap<>();
+			params.put("grant_type", Lists.newArrayList(AccessTokenResource.EXCHANGE_GRANT));
+			params.put("subject_token", Lists.newArrayList(subjectToken));
+			params.put("subject_token_type", Lists.newArrayList(subjectTokenType));
+			params.put("requested_token_type", Lists.newArrayList(requestedType));
+			params.put("audience", Lists.newArrayList(audience));
 			return params;
 
 		}

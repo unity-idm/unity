@@ -13,6 +13,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
+import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
@@ -47,11 +48,11 @@ public class PlainProfileFetcher implements UserProfileFetcher
 			Map<String, List<String>> attributesSoFar) throws Exception
 	{
 
-		Map<String, String> queryParams = new HashMap<>();
+		Map<String, List<String>> queryParams = new HashMap<>();
 		URIBuilder uri = new URIBuilder(userInfoEndpoint);
 		queryParams.putAll(uri.getQueryParams()
 				.stream().collect(Collectors.toMap(NameValuePair::getName,
-						NameValuePair::getValue)));	
+						nvp -> Lists.newArrayList(nvp.getValue()))));	
 		uri.clearParameters();
 		HTTPRequest httpReqRaw = new HTTPRequest(
 				providerConfig.getClientHttpMethodForProfileAccess(),
@@ -66,7 +67,7 @@ public class PlainProfileFetcher implements UserProfileFetcher
 		
 		
 		if (providerConfig.getClientAuthModeForProfileAccess() == ClientAuthnMode.secretPost)
-			queryParams.put("access_token", accessToken.getValue());
+			queryParams.put("access_token", Lists.newArrayList(accessToken.getValue()));
 		else
 			httpReq.setAuthorization(accessToken.toAuthorizationHeader());
 
