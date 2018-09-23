@@ -91,13 +91,14 @@ public class PostFormFillingHandler
 	private boolean isRequestAutoAccepted(String requestId, RegistrationsManagement registrationsManagement) 
 			throws EngineException
 	{
-		for (RegistrationRequestState r : registrationsManagement.getRegistrationRequests())
+		try
 		{
-			if (r.getRequestId().equals(requestId)
-					&& r.getStatus() == RegistrationRequestStatus.accepted)
-				return true;
+			RegistrationRequestState r = registrationsManagement.getRegistrationRequest(requestId);
+			return r.getStatus() == RegistrationRequestStatus.accepted;
+		} catch (IllegalArgumentException e)
+		{
+			return false;
 		}
-		return false;
 	}
 
 	private boolean isResponseAutoAccepted(String requestId, EnquiryManagement registrationsManagement) 

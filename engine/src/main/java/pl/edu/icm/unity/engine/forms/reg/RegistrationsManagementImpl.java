@@ -223,6 +223,14 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	@Override
 	@Transactional
+	public RegistrationRequestState getRegistrationRequest(String id) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.read);
+		return requestDB.get(id);
+	}
+
+	@Override
+	@Transactional
 	public boolean hasForm(String id)
 	{
 		authz.checkAuthorizationRT("/", AuthzCapability.read);

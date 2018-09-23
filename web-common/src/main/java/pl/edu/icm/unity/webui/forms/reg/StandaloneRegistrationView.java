@@ -41,7 +41,6 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -341,12 +340,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	{
 		try
 		{
-			//FIXME - add getRequest to manager
-			for (RegistrationRequestState r : regMan.getRegistrationRequests())
-			{
-				if (r.getRequestId().equals(requestId))
-					return r.getStatus();
-			}
+			return regMan.getRegistrationRequest(requestId).getStatus();
 		} catch (EngineException e)
 		{
 			log.error("Shouldn't happen: can't get request status, assuming rejested", e);

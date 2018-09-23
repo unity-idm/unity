@@ -76,6 +76,11 @@ public interface RegistrationsManagement
 	 * @throws EngineException
 	 */
 	List<RegistrationRequestState> getRegistrationRequests() throws EngineException;
+
+	/**
+	 * @return registration request by id
+	 */
+	RegistrationRequestState getRegistrationRequest(String id) throws EngineException;
 	
 	/**
 	 * Accepts, deletes or rejects a given registration request. The request can be freely modified at this time

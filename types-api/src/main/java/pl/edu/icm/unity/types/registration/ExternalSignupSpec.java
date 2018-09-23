@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
@@ -18,7 +17,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
  * 
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-@JsonIgnoreProperties(ignoreUnknown = true) //TODO remove before release
 public class ExternalSignupSpec
 {
 	private List<AuthenticationOptionKey> specs = new ArrayList<>();
