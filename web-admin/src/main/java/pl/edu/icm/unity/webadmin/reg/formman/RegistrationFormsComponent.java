@@ -10,6 +10,7 @@ import java.util.Set;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Sets;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.Orientation;
@@ -94,6 +95,14 @@ public class RegistrationFormsComponent extends VerticalLayout
 		contextMenu.addActionHandler(getCopyAction());
 		contextMenu.addActionHandler(getDeleteAction());
 		GridSelectionSupport.installClickListener(table);
+		table.addItemClickListener(event -> {
+			if (event.getMouseEventDetails().isDoubleClick()) 
+			{
+				RegistrationForm form = event.getItem();
+				SingleActionHandler<RegistrationForm> editAction = getEditAction();
+				editAction.handle(Sets.newHashSet(form));
+			}
+		});
 				
 		Toolbar<RegistrationForm> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
