@@ -132,7 +132,6 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 			try
 			{
 				autoProcess(confirmResult.confirmationState, confirmResult.reqState, confirmResult.form.getName());
-				requestState = getRequestState(confirmResult.confirmationState);
 			} catch (RuntimeEngineException e)
 			{
 				if (confirmResult.type == RequestType.REGISTRATION
@@ -145,6 +144,7 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 			}
 		}
 		
+		requestState = getRequestState(confirmResult.confirmationState);
 		return getConfirmationStatusFromForm(
 				confirmResult.confirmationSuccessful, 
 				confirmResult.type, 
