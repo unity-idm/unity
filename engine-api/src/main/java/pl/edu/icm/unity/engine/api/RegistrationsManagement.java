@@ -61,7 +61,12 @@ public interface RegistrationsManagement
 	 * Submits a new registration request. It gets a pending state unless automatically processed by the 
 	 * form's automation.
 	 * Note that the input parameter can be modified by the invocation: all the supplied credential secrets
-	 * are transformed to the internal (typically hashed) form. 
+	 * are transformed to the internal (typically hashed) form.
+	 * Important: this API call requires high authZ privileges. This is because the operation trusts confirmation
+	 * state of the passed arguments. In case such operation shall be exposed with a public, unprivileged API,
+	 * then we need an other variant, forcing unconfirmed state of parameters. This can be problematic for mobile 
+	 * numbers.
+	 *    
 	 * @param request
 	 * @param context
 	 * @return automatically assigned identifier of the request

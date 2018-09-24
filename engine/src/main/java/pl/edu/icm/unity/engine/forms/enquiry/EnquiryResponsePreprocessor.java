@@ -9,7 +9,7 @@ import java.util.Collection;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
-import pl.edu.icm.unity.engine.forms.BaseRequestValidator;
+import pl.edu.icm.unity.engine.forms.BaseRequestPreprocessor;
 import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -24,7 +24,7 @@ import pl.edu.icm.unity.types.registration.EnquiryResponse;
  * @author K. Benedyczak
  */
 @Component
-public class EnquiryResponseValidator extends BaseRequestValidator
+public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
 {
 	public void validateSubmittedResponse(EnquiryForm form, EnquiryResponse response,
 			boolean doCredentialCheckAndUpdate) throws IllegalFormContentsException

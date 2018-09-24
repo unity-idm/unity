@@ -54,6 +54,7 @@ class RegistrationInfoProviderImpl implements RegistrationInfoProvider
 		List<RegistrationFormInfo> infos = Lists.newArrayList();
 		Map<String, RegistrationForm> formsByName = registrationsManagement.getForms().stream()
 				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()));
+		//FIXME - filter out non-public and by invitation only
 		for (String configuredForm : configuredForms)
 		{
 			RegistrationForm form = formsByName.get(configuredForm);

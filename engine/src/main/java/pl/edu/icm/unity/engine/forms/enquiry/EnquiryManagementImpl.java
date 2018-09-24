@@ -76,7 +76,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private UnityMessageSource msg;
 	private AuthorizationManager authz;
 	private BaseFormValidator baseFormValidator;
-	private EnquiryResponseValidator enquiryResponseValidator;
+	private EnquiryResponsePreprocessor enquiryResponseValidator;
 	private SharedEndpointManagement sharedEndpointMan;
 	private TransactionalRunner tx;
 	private SharedEnquiryManagment internalManagment;
@@ -90,7 +90,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			RegistrationConfirmationSupport confirmationsSupport,
 			UnityMessageSource msg, AuthorizationManager authz,
 			BaseFormValidator baseFormValidator,
-			EnquiryResponseValidator enquiryResponseValidator,
+			EnquiryResponsePreprocessor enquiryResponseValidator,
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
 			SharedEnquiryManagment internalManagment, EntityResolver identitiesResolver,
 			AttributesHelper dbAttributes, MembershipDAO dbShared)

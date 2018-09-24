@@ -54,7 +54,7 @@ import pl.edu.icm.unity.types.registration.RegistrationParam;
  * Helper component with methods to validate {@link BaseRegistrationInput}. 
  * @author K. Benedyczak
  */
-public class BaseRequestValidator
+public class BaseRequestPreprocessor
 {
 	@Autowired
 	private CredentialRepository credentialRepository;
@@ -88,7 +88,7 @@ public class BaseRequestValidator
 		validateRequestedAttributes(form, request, prefillInfo);
 		if (!skipCredentialsValidation)
 			validateRequestCredentials(form, request, doCredentialCheckAndUpdate);
-		validateRequestedIdentities(form, request, prefillInfo);
+		validateRequestedIdentities(form, request);
 		validateRequestedGroups(form, request);
 		
 		if (!form.isCollectComments() && request.getComments() != null)
@@ -242,30 +242,20 @@ public class BaseRequestValidator
 			@SuppressWarnings("unchecked")
 			AttributeValueSyntax<? extends VerifiableElement> vsyntax = 
 				(AttributeValueSyntax<? extends VerifiableElement>) syntax;
+
+			if (regParam.getConfirmationMode() == ConfirmationMode.ON_ACCEPT 
+					||regParam.getConfirmationMode() == ConfirmationMode.ON_SUBMIT)
+				return;
 			
 			if (regParam.getConfirmationMode() == ConfirmationMode.CONFIRMED)
 				AttributesHelper.setConfirmed(attr, vsyntax);
-			
-			if (prefillInfo.isAttributePrefilled(i) && 
-					(regParam.getConfirmationMode() == ConfirmationMode.ON_ACCEPT 
-					||regParam.getConfirmationMode() == ConfirmationMode.ON_SUBMIT))
-				return;
-			
-			if (syntax.isEmailVerifiable())
-			{
-				if (regParam.getConfirmationMode() != ConfirmationMode.CONFIRMED)
-					AttributesHelper.setUnconfirmed(attr, vsyntax);
-			} else
-			{
-				if (regParam.getConfirmationMode() == ConfirmationMode.DONT_CONFIRM)
-					AttributesHelper.setUnconfirmed(attr, vsyntax);
-			}
-			
+
+			if (regParam.getConfirmationMode() == ConfirmationMode.DONT_CONFIRM)
+				AttributesHelper.setUnconfirmed(attr, vsyntax);
 		}
 	}
 
-	private void validateRequestedIdentities(BaseForm form, BaseRegistrationInput request, 
-			InvitationPrefillInfo prefillInfo) 
+	private void validateRequestedIdentities(BaseForm form, BaseRegistrationInput request) 
 			throws IllegalFormContentsException
 	{
 		List<IdentityParam> requestedIds = request.getIdentities();
@@ -283,19 +273,18 @@ public class BaseRequestValidator
 				throw new IllegalFormContentsException("Identity nr " + i + " must be of " 
 						+ form.getIdentityParams().get(i).getIdentityType() + " type",
 						i, Category.IDENTITY);
-			forceConfirmationStateOfIdentity(formParam, i, idParam, prefillInfo);
+			forceConfirmationStateOfIdentity(formParam, i, idParam);
 		}
 	}
 	
 	private void forceConfirmationStateOfIdentity(IdentityRegistrationParam formParam, int i, 
-			IdentityParam idParam, InvitationPrefillInfo prefillInfo)
+			IdentityParam idParam)
 	{
 		IdentityTypeDefinition idTypeDef = identityTypesRegistry.getByName(formParam.getIdentityType());
 		if (idTypeDef.isEmailVerifiable())
 		{
-			if (prefillInfo.isIdentityPrefilled(i) && 
-					(formParam.getConfirmationMode() == ConfirmationMode.ON_ACCEPT 
-					||formParam.getConfirmationMode() == ConfirmationMode.ON_SUBMIT))
+			if (formParam.getConfirmationMode() == ConfirmationMode.ON_ACCEPT 
+					||formParam.getConfirmationMode() == ConfirmationMode.ON_SUBMIT)
 				return;
 
 			boolean initiallyConfirmed = 

@@ -25,7 +25,7 @@ import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider.Registration
 /**
  * Top header component displayed in the AuthN screen.
  * 
- * Displayes locale selector as well as registration form links if configured.
+ * Displays locale selector as well as registration form links if configured.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */

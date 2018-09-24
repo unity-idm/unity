@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
-import static pl.edu.icm.unity.engine.forms.reg.RegistrationRequestPreprocessorAndValidator.applyContextGroupToAttributeIfNeeded;
+import static pl.edu.icm.unity.engine.forms.reg.RegistrationRequestPreprocessor.applyContextGroupToAttributeIfNeeded;
 
 import java.util.HashMap;
 import java.util.List;

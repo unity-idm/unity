@@ -65,7 +65,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private SharedRegistrationManagment internalManagment;
 	private UnityMessageSource msg;
 	private TransactionalRunner tx;
-	private RegistrationRequestPreprocessorAndValidator registrationRequestValidator;
+	private RegistrationRequestPreprocessor registrationRequestValidator;
 	private BaseFormValidator baseValidator;
 
 	@Autowired
@@ -75,7 +75,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 			AuthorizationManager authz, NotificationProducer notificationProducer,
 			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
-			RegistrationRequestPreprocessorAndValidator registrationRequestValidator,
+			RegistrationRequestPreprocessor registrationRequestValidator,
 			BaseFormValidator baseValidator)
 	{
 		this.formsDB = formsDB;
@@ -133,6 +133,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public String submitRegistrationRequest(RegistrationRequest request, final RegistrationContext context) 
 			throws EngineException
 	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
 		RegistrationRequestState requestFull = new RegistrationRequestState();
 		requestFull.setStatus(RegistrationRequestStatus.pending);
 		requestFull.setRequest(request);

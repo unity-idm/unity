@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
-import pl.edu.icm.unity.engine.forms.BaseRequestValidator;
+import pl.edu.icm.unity.engine.forms.BaseRequestPreprocessor;
 import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -46,10 +46,10 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
  * @author K. Benedyczak
  */
 @Component
-public class RegistrationRequestPreprocessorAndValidator extends BaseRequestValidator
+public class RegistrationRequestPreprocessor extends BaseRequestPreprocessor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER,
-			RegistrationRequestPreprocessorAndValidator.class);
+			RegistrationRequestPreprocessor.class);
 	@Autowired
 	private InvitationDB invitationDB;
 	

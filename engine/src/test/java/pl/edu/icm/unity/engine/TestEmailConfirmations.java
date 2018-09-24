@@ -167,7 +167,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void shouldPreservedOneConfirmationStateIfChangedByUser() throws Exception
+	public void shouldPreserveOneConfirmationStateIfChangedByUser() throws Exception
 	{
 		setupPasswordAuthn();
 		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
@@ -383,7 +383,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void checkAttributeFromRegistrationConfirmationProcess() throws Exception
+	public void shouldConfirmAttributeInRegistrationForm() throws Exception
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
@@ -440,7 +440,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void checkIdentityFromRegistrationConfirmationProcess() throws Exception
+	public void shouldConfirmIdentityInRegistrationForm() throws Exception
 	{
 		commonInitializer.initializeCommonAttributeTypes();
 		commonInitializer.initializeMainAttributeClass();
@@ -493,6 +493,96 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 						.size());
 	}
 
+	@Test
+	public void shouldPreserveConfirmedStateOfIdentity() throws Exception
+	{
+		commonInitializer.initializeCommonAttributeTypes();
+		commonInitializer.initializeMainAttributeClass();
+		groupsMan.addGroup(new Group("/A"));
+		groupsMan.addGroup(new Group("/B"));
+		RegistrationForm form = new RegistrationFormBuilder()
+				.withName("f1")
+				.withDefaultCredentialRequirement(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withAddedIdentityParam()
+					.withIdentityType(EmailIdentity.ID)
+					.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+				.endIdentityParam()
+				.build();
+		registrationsMan.addForm(form);
+
+		addSimpleConfirmationConfiguration(
+				false,
+				EmailIdentity.ID, "demoTemplate", "demoChannel");
+
+		IdentityParam confirmedIdentity = new IdentityParam(EmailIdentity.ID, "example@example.com");
+		confirmedIdentity.setConfirmationInfo(new ConfirmationInfo(true));
+		RegistrationRequest request = new RegistrationRequestBuilder()
+				.withFormId("f1")
+				.withAddedIdentity(confirmedIdentity)
+				.build();
+
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+				false, TriggeringMode.manualAtLogin));
+		Assert.assertEquals(0,
+				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
+						.size());
+
+		VerifiableElement vemail = getFirstEmailIdentityFromRegistration();
+		Assert.assertTrue(vemail.getConfirmationInfo().isConfirmed());
+		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		Assert.assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());
+	}
+
+	@Test
+	public void shouldPreserveConfirmedStateOfAttribute() throws Exception
+	{
+		commonInitializer.initializeCommonAttributeTypes();
+		commonInitializer.initializeMainAttributeClass();
+		groupsMan.addGroup(new Group("/A"));
+		groupsMan.addGroup(new Group("/B"));
+
+		RegistrationForm form = new RegistrationFormBuilder()
+				.withName("f1")
+				.withDefaultCredentialRequirement(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.withAddedIdentityParam()
+					.withIdentityType(UsernameIdentity.ID).withLabel("label")
+					.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+				.endIdentityParam()
+				.withAddedAttributeParam()
+					.withAttributeType(InitializerCommon.EMAIL_ATTR)
+					.withGroup("/")
+					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+					.endAttributeParam()
+				.build();
+		registrationsMan.addForm(form);
+
+		addSimpleConfirmationConfiguration(
+				true,
+				InitializerCommon.EMAIL_ATTR, "demoTemplate", "demoChannel");
+		VerifiableEmail confirmedEmail = new VerifiableEmail("test1@example.com", new ConfirmationInfo(true));
+		RegistrationRequest request = new RegistrationRequestBuilder()
+				.withFormId("f1")
+				.withAddedAttribute(
+						VerifiableEmailAttribute.of(
+								InitializerCommon.EMAIL_ATTR, "/",
+								confirmedEmail))
+				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
+				.build();
+
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+				false, TriggeringMode.manualAtLogin));
+		Assert.assertEquals(0,
+				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
+						.size());
+
+		VerifiableElement vemail = getFirstEmailAttributeValueFromRegistration();
+		Assert.assertTrue(vemail.getConfirmationInfo().isConfirmed());
+		Assert.assertEquals(0, vemail.getConfirmationInfo().getSentRequestAmount());
+		Assert.assertNotEquals(0, vemail.getConfirmationInfo().getConfirmationDate());	
+	}
+	
 	@Test
 	public void shouldAutoAcceptRegistrationRequestAfterConfirmingAttribute()
 			throws EngineException

@@ -66,7 +66,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private RegistrationRequestDB requestDB;
 	private RegistrationConfirmationRewriteSupport confirmationsRewriteSupport;
 	
-	private RegistrationRequestPreprocessorAndValidator registrationRequestValidator;
+	private RegistrationRequestPreprocessor registrationRequestValidator;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
 	private IdentityHelper identityHelper;
 	private AttributeTypeHelper atHelper;
@@ -81,7 +81,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			RegistrationRequestDB requestDB,
 			RegistrationConfirmationRewriteSupport confirmationsRewriteSupport,
 			InternalFacilitiesManagement facilitiesManagement,
-			RegistrationRequestPreprocessorAndValidator registrationRequestValidator,
+			RegistrationRequestPreprocessor registrationRequestValidator,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			IdentityHelper identityHelper,
 			AttributeTypeHelper atHelper,

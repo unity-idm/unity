@@ -64,7 +64,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	private RegistrationConfirmationRewriteSupport confirmationsRewriteSupport;
 	private RegistrationConfirmationSupport confirmationsSupport;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
-	private EnquiryResponseValidator responseValidator;
+	private EnquiryResponsePreprocessor responseValidator;
 	
 
 	private AttributeTypeHelper atHelper;
@@ -78,7 +78,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			RegistrationConfirmationRewriteSupport confirmationsRewriteSupport,
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
-			EnquiryResponseValidator responseValidator,
+			EnquiryResponsePreprocessor responseValidator,
 			AttributeTypeHelper atHelper,
 			RegistrationConfirmationSupport confirmationsSupport)
 	{
