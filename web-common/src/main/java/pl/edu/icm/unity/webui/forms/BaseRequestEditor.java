@@ -445,6 +445,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		// we don't allow for empty sections
 		removePreviousIfSection(layoutContainer.registrationFormLayout, previousInserted);
+		
+		focusFirst(layoutContainer.registrationFormLayout);
 	}
 	
 	private Map<String, AttributeType> getAttributeTypesMap()
@@ -475,7 +477,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		while(iterator.hasNext())
 		{
 			Component next = iterator.next();
-			if (next instanceof Focusable)
+			if (next.isVisible() && next instanceof Focusable)
 			{
 				((Focusable)next).focus();
 				break;
