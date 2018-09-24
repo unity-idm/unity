@@ -470,7 +470,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			throw new IllegalStateException("Can not read credential definitions", e);
 		}
 	}
-
+	
 	protected void focusFirst(VerticalLayout container)
 	{
 		Iterator<Component> iterator = container.iterator();

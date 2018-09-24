@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 import org.apache.logging.log4j.util.Strings;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -79,6 +80,7 @@ public class WorkflowCompletedComponent extends CustomComponent
 			redirectB.setStyleName(Styles.vButtonPrimary.toString());
 			redirectB.addStyleName("u-final-redirect");
 			redirectB.addClickListener(e -> redirector.accept(config.redirectURL));
+			redirectB.setClickShortcut(KeyCode.ENTER);
 			main.addComponent(redirectB);
 			main.setComponentAlignment(redirectB, Alignment.MIDDLE_CENTER);
 		}
