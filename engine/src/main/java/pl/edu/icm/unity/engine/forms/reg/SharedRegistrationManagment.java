@@ -41,6 +41,7 @@ import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -237,7 +238,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			autoProcess(event.form, event.requestFull, event.logMessageTemplate);
 		} catch (EngineException e)
 		{
-			LOG.error("Auto processing of registration form in result of async event failed", e);
+			throw new RuntimeEngineException("Auto processing of registration form in result of async event failed", e);
 		}
 	}
 	

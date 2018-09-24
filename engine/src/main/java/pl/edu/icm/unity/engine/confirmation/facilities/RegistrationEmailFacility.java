@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.confirmation.facilities;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState;
@@ -23,6 +25,8 @@ import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder.S
 import pl.edu.icm.unity.engine.forms.enquiry.EnquiryResponseAutoProcessEvent;
 import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestAutoProcessEvent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IdentityExistsException;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
@@ -46,6 +50,8 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
  */
 public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfirmationState> extends BaseEmailFacility<T>
 {
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER, RegistrationEmailFacility.class);
+	
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	
 	protected RegistrationRequestDB requestDB;
@@ -123,10 +129,21 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 		if (confirmResult.confirmationSuccessful && confirmResult.reqState.getStatus().equals(
 				RegistrationRequestStatus.pending))
 		{
-			autoProcess(confirmResult.confirmationState, confirmResult.reqState, confirmResult.form.getName());
-			requestState = getRequestState(confirmResult.confirmationState);
+			try
+			{
+				autoProcess(confirmResult.confirmationState, confirmResult.reqState, confirmResult.form.getName());
+				requestState = getRequestState(confirmResult.confirmationState);
+			} catch (RuntimeEngineException e)
+			{
+				if (confirmResult.type == RequestType.REGISTRATION
+						&& e.getCause() instanceof IdentityExistsException)
+				{
+					return getRegistrationUserExistsFinalizationConfig(
+							(RegistrationForm) confirmResult.form, confirmResult.requestId);
+				}
+				LOG.error(e);
+			}
 		}
-		
 		
 		return getConfirmationStatusFromForm(
 				confirmResult.confirmationSuccessful, 
@@ -236,12 +253,7 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 	private WorkflowFinalizationConfiguration getRegistrationFormFinalizationConfig(boolean confirmationSuccessful, 
 			RegistrationForm regForm, String requestId, RegistrationRequestStatus requestStatus)
 	{
-		PostFillingHandler postFillingHandler = new PostFillingHandler(
-				regForm.getName(), 
-				regForm.getWrapUpConfig(), 
-				msg,
-				regForm.getPageTitle() == null ? null : regForm.getPageTitle().getValue(msg),
-						regForm.getLayoutSettings().getLogoURL());
+		PostFillingHandler postFillingHandler = craetePostFillingHandler(regForm);
 		if (requestStatus == RegistrationRequestStatus.pending)
 		{
 			return postFillingHandler.getFinalRegistrationConfigurationNonSubmit(
@@ -253,6 +265,25 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 			return postFillingHandler
 					.getFinalRegistrationConfigurationPostSubmit(requestId, requestStatus);
 		}
+	}
+	
+	private WorkflowFinalizationConfiguration getRegistrationUserExistsFinalizationConfig( 
+			RegistrationForm regForm, String requestId)
+	{
+		PostFillingHandler postFillingHandler = craetePostFillingHandler(regForm);
+		return postFillingHandler.getFinalRegistrationConfigurationNonSubmit(
+				false, requestId, TriggeringState.PRESET_USER_EXISTS);
+	}
+	
+	private PostFillingHandler craetePostFillingHandler(RegistrationForm regForm)
+	{
+		PostFillingHandler postFillingHandler = new PostFillingHandler(
+				regForm.getName(), 
+				regForm.getWrapUpConfig(), 
+				msg,
+				regForm.getPageTitle() == null ? null : regForm.getPageTitle().getValue(msg),
+						regForm.getLayoutSettings().getLogoURL());
+		return postFillingHandler;
 	}
 
 	
