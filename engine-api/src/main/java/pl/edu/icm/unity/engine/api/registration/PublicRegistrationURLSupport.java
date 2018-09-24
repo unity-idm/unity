@@ -37,9 +37,9 @@ public class PublicRegistrationURLSupport
 	public static String getPublicRegistrationLink(RegistrationForm form, SharedEndpointManagement sharedEndpointMan)
 	{
 		String formName = form.getName();
-			return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
-					"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
-					"#!" + REGISTRATION_VIEW;
+		return sharedEndpointMan.getServletUrl(PublicWellKnownURLServletProvider.SERVLET_PATH) + 
+				"?" + FORM_PARAM + "=" + urlEncodePath(formName) +
+				"#!" + REGISTRATION_VIEW;
 	}
 	
 	/**
@@ -52,7 +52,7 @@ public class PublicRegistrationURLSupport
 		return sharedEndpointMan.getServerAddress() + 
 				SecuredWellKnownURLServlet.DEFAULT_CONTEXT + 
 				SecuredWellKnownURLServlet.SERVLET_PATH + 
-				"&" + FORM_PARAM + "=" + urlEncodePath(formName) +
+				"?" + FORM_PARAM + "=" + urlEncodePath(formName) +
 				"#!" + ENQUIRY_VIEW;
 	}
 

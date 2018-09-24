@@ -10,11 +10,18 @@ import java.util.Set;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.data.ValueProvider;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -24,9 +31,11 @@ import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
+import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
@@ -42,14 +51,13 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private RegistrationsManagement registrationsManagement;
 	private EventsBus bus;
 	
-	private GenericElementsTable<RegistrationForm> table;
+	private Grid<RegistrationForm> table;
 	private com.vaadin.ui.Component main;
 	private ObjectFactory<RegistrationFormEditor> editorFactory;
 	
-	
 	@Autowired
 	public RegistrationFormsComponent(UnityMessageSource msg, RegistrationsManagement registrationsManagement,
-			ObjectFactory<RegistrationFormEditor> editorFactory)
+			ObjectFactory<RegistrationFormEditor> editorFactory, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -61,22 +69,35 @@ public class RegistrationFormsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
 		
-		table = new GenericElementsTable<>(
-				msg.getMessage("RegistrationFormsComponent.formsTable"), 
-				form -> form.getName());
-
+		table  = new SmallGrid<>();
 		table.setSizeFull();
-		table.setMultiSelect(true);
+		table.setSelectionMode(SelectionMode.MULTI);
+		table.addColumn(RegistrationForm::getName, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationFormsComponent.formsTable"))
+			.setId("name");
+		table.addComponentColumn(form -> 
+			{
+				Link link = new Link();
+				String linkURL = PublicRegistrationURLSupport.getPublicRegistrationLink(form, sharedEndpointMan); 
+				link.setCaption(linkURL);
+				link.setTargetName("_blank");
+				link.setResource(new ExternalResource(linkURL));
+				return link;
+			})
+			.setCaption(msg.getMessage("RegistrationFormsComponent.link"))
+			.setId("link");
 		
-		table.addActionHandler(getRefreshAction());
-		table.addActionHandler(getAddAction());
-		table.addActionHandler(getEditAction());
-		table.addActionHandler(getCopyAction());
-		table.addActionHandler(getDeleteAction());
+		GridContextMenuSupport<RegistrationForm> contextMenu = new GridContextMenuSupport<>(table);
+		contextMenu.addActionHandler(getRefreshAction());
+		contextMenu.addActionHandler(getAddAction());
+		contextMenu.addActionHandler(getEditAction());
+		contextMenu.addActionHandler(getCopyAction());
+		contextMenu.addActionHandler(getDeleteAction());
+		GridSelectionSupport.installClickListener(table);
 				
 		Toolbar<RegistrationForm> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
-		toolbar.addActionHandlers(table.getActionHandlers());
+		toolbar.addActionHandlers(contextMenu.getActionHandlers());
 		
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
@@ -90,7 +111,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		try
 		{
 			List<RegistrationForm> forms = registrationsManagement.getForms();
-			table.setInput(forms);
+			table.setItems(forms);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
