@@ -137,7 +137,8 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		topLevelLayout.setHeightUndefined();
 		setCompositionRoot(topLevelLayout);
 		
-		topHeader = new TopHeaderComponent(localeChoice, enableRegistration, config, registrationInfoProvider);
+		topHeader = new TopHeaderComponent(localeChoice, enableRegistration, config, 
+				registrationInfoProvider, msg);
 
 		topLevelLayout.addComponent(topHeader);
 		topLevelLayout.setComponentAlignment(topHeader, Alignment.MIDDLE_RIGHT);

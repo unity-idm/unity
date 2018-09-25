@@ -10,14 +10,13 @@ import java.util.List;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
- * Provides information about registration forms that is used to build sign in 
- * links at login page.
+ * Provides information about registration forms that are used to build sign in link at login page.
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
 public interface RegistrationInfoProvider
 {
-	public List<RegistrationFormInfo> getRegistrationFormLinksInfo(Collection<String> configuredForms)
+	public List<RegistrationFormInfo> getRegistrationFormLinkInfo(Collection<String> configuredForm)
 			throws EngineException;
 
 	static class RegistrationFormInfo

@@ -49,16 +49,17 @@ class RegistrationInfoProviderImpl implements RegistrationInfoProvider
 	}
 
 	@Override
-	public List<RegistrationFormInfo> getRegistrationFormLinksInfo(Collection<String> configuredForms) throws EngineException
+	public List<RegistrationFormInfo> getRegistrationFormLinkInfo(Collection<String> configuredForms) throws EngineException
 	{
 		List<RegistrationFormInfo> infos = Lists.newArrayList();
 		Map<String, RegistrationForm> formsByName = registrationsManagement.getForms().stream()
 				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()));
-		//FIXME - filter out non-public and by invitation only
+		if (configuredForms == null || configuredForms.isEmpty())
+			configuredForms = formsByName.keySet();
 		for (String configuredForm : configuredForms)
 		{
 			RegistrationForm form = formsByName.get(configuredForm);
-			if (form != null)
+			if (form != null && form.isPubliclyAvailable() && !form.isByInvitationOnly())
 			{
 				String displayedName = form.getDisplayedName().getValue(msg);
 				String link = PublicRegistrationURLSupport.getPublicRegistrationLink(form, sharedEndpointMan);
