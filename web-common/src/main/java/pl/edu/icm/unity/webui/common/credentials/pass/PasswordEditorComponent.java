@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.common.credentials.pass;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
@@ -20,11 +21,12 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class PasswordEditorComponent extends CustomComponent implements ComponentWithLabel
+public class PasswordEditorComponent extends CustomComponent implements Component.Focusable, ComponentWithLabel
 {
 
 	private PasswordFieldsComponent fieldsComponent;
 	private PasswordQualityComponent qualityComponent;
+	private int tabIndex;
 	
 	public PasswordEditorComponent(UnityMessageSource msg, CredentialEditorContext context, PasswordCredential config)
 	{
@@ -64,5 +66,17 @@ public class PasswordEditorComponent extends CustomComponent implements Componen
 	public void disablePasswordRepeat()
 	{
 		fieldsComponent.disablePasswordRepeat();
+	}
+
+	@Override
+	public int getTabIndex()
+	{
+		return tabIndex;
+	}
+
+	@Override
+	public void setTabIndex(int tabIndex)
+	{
+		this.tabIndex = tabIndex;
 	}
 }

@@ -445,6 +445,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 		// we don't allow for empty sections
 		removePreviousIfSection(layoutContainer.registrationFormLayout, previousInserted);
+		
+		focusFirst(layoutContainer.registrationFormLayout);
 	}
 	
 	private Map<String, AttributeType> getAttributeTypesMap()
@@ -468,14 +470,14 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			throw new IllegalStateException("Can not read credential definitions", e);
 		}
 	}
-
+	
 	protected void focusFirst(VerticalLayout container)
 	{
 		Iterator<Component> iterator = container.iterator();
 		while(iterator.hasNext())
 		{
 			Component next = iterator.next();
-			if (next instanceof Focusable)
+			if (next.isVisible() && next instanceof Focusable)
 			{
 				((Focusable)next).focus();
 				break;

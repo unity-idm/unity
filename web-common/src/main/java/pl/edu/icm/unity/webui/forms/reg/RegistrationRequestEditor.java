@@ -88,6 +88,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private Runnable onLocalSignupHandler;
 	private FormLayout effectiveLayout;
 	private Stage stage;
+	private RegistrationLayoutsContainer layoutContainer;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -191,9 +192,15 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			ret.setRegistrationCode(regCodeProvided);
 	}
 	
+
+	void focusFirst()
+	{
+		focusFirst(layoutContainer.registrationFormLayout);
+	}
+	
 	private void initUI()
 	{
-		RegistrationLayoutsContainer layoutContainer = createLayouts();
+		layoutContainer = createLayouts();
 		
 		resolveRemoteSignupOptions();
 		

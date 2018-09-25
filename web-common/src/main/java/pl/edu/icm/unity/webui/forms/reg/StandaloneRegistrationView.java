@@ -297,6 +297,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	public void refresh(VaadinRequest request)
 	{
 		signUpAuthNController.refresh(request);
+		if (currentRegistrationFormEditor != null)
+			currentRegistrationFormEditor.focusFirst();
 	}
 	
 	/**
