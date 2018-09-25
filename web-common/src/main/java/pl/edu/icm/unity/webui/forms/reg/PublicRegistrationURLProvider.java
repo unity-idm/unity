@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.forms.reg;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -12,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 
@@ -107,7 +110,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	}
 
 	@Override
-	public void refresh(VaadinRequest request)
+	public void refresh(VaadinRequest request, Navigator navigator)
 	{
 		LOG.debug("Registration form refreshed");
 		VaadinSession vaadinSession = VaadinSession.getCurrent();
@@ -115,7 +118,27 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		{
 			StandaloneRegistrationView view = vaadinSession.getAttribute(StandaloneRegistrationView.class);
 			if (view != null)
-				view.refresh(request);
+			{
+				String viewName = getCurrentViewName();
+				String requestedFormName = getFormName(getCurrentViewName());
+				String cachedFormName = view.getFormName();
+				if (requestedFormName != null && Objects.equals(requestedFormName, cachedFormName))
+				{
+					view.refresh(request);
+				}
+				else
+				{
+					navigator.navigateTo(viewName);
+				}
+			}
 		}
+	}
+	
+	private String getCurrentViewName()
+	{
+		String viewName = Page.getCurrent().getUriFragment();
+		if (viewName.startsWith("!"))
+			viewName = viewName.substring(1);
+		return viewName;
 	}
 }

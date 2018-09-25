@@ -89,6 +89,13 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
 	}
 	
+	String getFormName()
+	{
+		if (form == null)
+			return null;
+		return form.getName();
+	}
+	
 	public StandaloneRegistrationView init(RegistrationForm form)
 	{
 		this.form = form;

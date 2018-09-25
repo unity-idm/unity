@@ -40,7 +40,7 @@ public class PublicNavigationUI extends GenericNavigationUI<PublicViewProvider>
 	{
 		super.refresh(request);
 		if (this.viewProviders != null)
-			this.viewProviders.forEach(view -> view.refresh(request));
+			this.viewProviders.forEach(view -> view.refresh(request, navigator));
 	}
 }
 
