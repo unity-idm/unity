@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -40,7 +41,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class EnquiryFormsComponent extends VerticalLayout
+public class EnquiryFormsComponent extends VerticalLayout implements ActivationListener
 {
 	private UnityMessageSource msg;
 	private EnquiryManagement enquiriesManagement;
@@ -297,5 +298,12 @@ public class EnquiryFormsComponent extends VerticalLayout
 						}
 			}
 		}).show();
+	}
+	
+	@Override
+	public void stateChanged(boolean enabled)
+	{
+		if (enabled)
+			refresh();
 	}
 }

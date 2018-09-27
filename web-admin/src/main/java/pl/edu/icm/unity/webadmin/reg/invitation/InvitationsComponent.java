@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -37,7 +38,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class InvitationsComponent extends CustomComponent
+public class InvitationsComponent extends CustomComponent implements ActivationListener
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InvitationsComponent.class);
 
@@ -54,6 +55,8 @@ public class InvitationsComponent extends CustomComponent
 	private GroupsManagement groupsManagement;
 
 	private SharedEndpointManagement sharedEndpointManagement;
+
+	private InvitationsTable invitationsTable;
 	
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
@@ -81,7 +84,7 @@ public class InvitationsComponent extends CustomComponent
 	private void initUI()
 	{
 		addStyleName(Styles.visibleScroll.toString());
-		InvitationsTable invitationsTable = new InvitationsTable(msg,
+		invitationsTable = new InvitationsTable(msg,
 				registrationManagement, invitationManagement, attributesManagement,
 				identityEditorRegistry, attrHandlersRegistry,
 				msgTemplateManagement, groupsManagement);
@@ -115,5 +118,12 @@ public class InvitationsComponent extends CustomComponent
 		if (found.isPresent())
 			return found.get();
 		return null;
+	}
+	
+	@Override
+	public void stateChanged(boolean enabled)
+	{
+		if (enabled)
+			invitationsTable.refresh();
 	}
 }

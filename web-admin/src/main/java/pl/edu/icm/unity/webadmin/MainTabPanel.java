@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webadmin;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TabSheet;
 
+import pl.edu.icm.unity.webui.ActivationListener;
+
 /**
  * The main panel with tabs.
  * @author K. Benedyczak
@@ -19,5 +21,11 @@ public class MainTabPanel extends TabSheet
 		
 		for (Component element: elements)
 			addTab(element);
+		addSelectedTabChangeListener(tabChanged -> {
+			Component selectedTab = getSelectedTab();
+			if (selectedTab instanceof ActivationListener)
+				((ActivationListener) selectedTab).stateChanged(true);
+		});
 	}
+	
 }

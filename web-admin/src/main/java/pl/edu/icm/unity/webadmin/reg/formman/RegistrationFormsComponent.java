@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -46,7 +47,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class RegistrationFormsComponent extends VerticalLayout
+public class RegistrationFormsComponent extends VerticalLayout implements ActivationListener
 {
 	private UnityMessageSource msg;
 	private RegistrationsManagement registrationsManagement;
@@ -78,6 +79,8 @@ public class RegistrationFormsComponent extends VerticalLayout
 			.setId("name");
 		table.addComponentColumn(form -> 
 			{
+				if (!form.isPubliclyAvailable())
+					return null;
 				Link link = new Link();
 				String linkURL = PublicRegistrationURLSupport.getPublicRegistrationLink(form, sharedEndpointMan); 
 				link.setCaption(linkURL);
@@ -282,5 +285,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 						}
 			}
 		}).show();
+	}
+
+	@Override
+	public void stateChanged(boolean enabled)
+	{
+		if (enabled)
+			refresh();
 	}
 }

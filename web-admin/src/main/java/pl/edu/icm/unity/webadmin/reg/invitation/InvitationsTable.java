@@ -218,7 +218,7 @@ public class InvitationsTable extends CustomComponent
 			.build();
 	}
 	
-	private void refresh()
+	void refresh()
 	{
 		try
 		{

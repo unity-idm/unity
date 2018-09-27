@@ -361,27 +361,28 @@
 		padding-bottom: 5px;
 	}
 	
-	.u-passwordQuality-nonCompactTopMargin
-	{
+	.u-passwordQuality-nonCompactTopMargin {
 		margin-top: round($v-font-size + 1.5*$u-small-margin);
 	}
 	
-	.v-progressbar.u-greenProgressBar .v-progressbar-indicator 
-	{
+	.v-progressbar.u-greenProgressBar .v-progressbar-indicator {
 		background-color: #2c9020;
 		background-image: -webkit-linear-gradient(top, #2f9822 2%, #26811b 98%);
 		background-image: linear-gradient(to bottom,#2f9822 2%, #26811b 98%);
 		border: 1px solid #227119;
 	}
 	
-	.v-progressbar.u-redProgressBar .v-progressbar-indicator 
-	{
+	.v-progressbar.u-redProgressBar .v-progressbar-indicator {
 		background-color: #DC143C;
 		background-image: -webkit-linear-gradient(top, #de1540 2%, #d01134 98%);
 		background-image: linear-gradient(to bottom,#de1540 2%, #d01134 98%);
 		border: 1px solid #ad0f2f;
 	}
-
+	
+	.v-slot-u-redProgressBar .v-icon {
+		color: $v-error-indicator-color;
+	}
+	
 	.u-margin {
 		margin-left: $v-layout-margin-left;
 		margin-right: $v-layout-margin-right;
