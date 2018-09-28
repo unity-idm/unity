@@ -22,7 +22,6 @@ import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationReques
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
-import pl.edu.icm.unity.engine.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
@@ -60,8 +59,8 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 	{
 		aTypeMan.addAttributeType(new AttributeType("email", VerifiableEmailAttributeSyntax.ID));
 		
-		TranslationAction a1 = new TranslationAction(ConfirmationRedirectActionFactory.NAME, 
-				new String[] {"'URL'"});
+		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
+				new String[] {AutomaticRequestAction.accept.toString()});
 		
 		List<TranslationRule> rules = Lists.newArrayList(
 				new TranslationRule("confirmedElementType == 'attribute' "
@@ -100,18 +99,18 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 		requestFull.setRegistrationContext(new RegistrationContext(true, true, 
 				TriggeringMode.manualStandalone));
 		
-		String postConfirmationRedirectURL = tx.runInTransactionRet(() -> {
-			return rprofile.getPostConfirmationRedirectURL(requestFull, confirmed, "requestId");
+		AutomaticRequestAction action = tx.runInTransactionRet(() -> {
+			return rprofile.getAutoProcessAction(requestFull, RequestSubmitStatus.submitted);
 		});
 		
-		assertThat(postConfirmationRedirectURL, is("URL"));
+		assertThat(action, is(AutomaticRequestAction.accept));
 	}
 
 	@Test
 	public void confirmedIdentityIsPresentInMVELContext()
 	{
-		TranslationAction a1 = new TranslationAction(ConfirmationRedirectActionFactory.NAME, 
-				new String[] {"'URL'"});
+		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
+				new String[] {AutomaticRequestAction.accept.toString()});
 		
 		List<TranslationRule> rules = Lists.newArrayList(
 				new TranslationRule("confirmedElementType == 'identity' "
@@ -150,11 +149,11 @@ public class TestRegistrationFormProfile extends DBIntegrationTestBase
 		requestFull.setRegistrationContext(new RegistrationContext(true, true, 
 				TriggeringMode.manualStandalone));
 		
-		String postConfirmationRedirectURL = tx.runInTransactionRet(() -> {
-			return rprofile.getPostConfirmationRedirectURL(requestFull, confirmed, "requestId");
+		AutomaticRequestAction action = tx.runInTransactionRet(() -> {
+			return rprofile.getAutoProcessAction(requestFull, RequestSubmitStatus.submitted);
 		});
 		
-		assertThat(postConfirmationRedirectURL, is("URL"));
+		assertThat(action, is(AutomaticRequestAction.accept));
 	}
 
 	@Test

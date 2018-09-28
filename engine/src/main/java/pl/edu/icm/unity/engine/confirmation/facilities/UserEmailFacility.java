@@ -30,11 +30,13 @@ public abstract class UserEmailFacility <T extends UserEmailConfirmationState> e
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	protected EntityDAO entityDAO;
 	protected UnityMessageSource msg;
+	private String defaultRedirectURL;
 
-	protected UserEmailFacility(EntityDAO entityDAO, UnityMessageSource msg)
+	protected UserEmailFacility(EntityDAO entityDAO, UnityMessageSource msg, String defaultRedirectURL)
 	{
 		this.entityDAO = entityDAO;
 		this.msg = msg;
+		this.defaultRedirectURL = defaultRedirectURL;
 	}
 
 	protected abstract WorkflowFinalizationConfiguration confirmElements(T state) throws EngineException;
@@ -43,15 +45,14 @@ public abstract class UserEmailFacility <T extends UserEmailConfirmationState> e
 	
 	protected String getSuccessRedirect(T state)
 	{
-		return new EmailConfirmationRedirectURLBuilder(state.getRedirectUrl(), 
-				Status.elementConfirmed).
+		return new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, Status.elementConfirmed).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 			build();
 	}
 	
 	protected String getErrorRedirect(T state)
 	{
-		return new EmailConfirmationRedirectURLBuilder(state.getRedirectUrl(), Status.elementConfirmationError).
+		return new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, Status.elementConfirmationError).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 			build();
 	}
@@ -86,14 +87,14 @@ public abstract class UserEmailFacility <T extends UserEmailConfirmationState> e
 		{
 			return WorkflowFinalizationConfiguration.basicError(
 					msg.getMessage("ConfirmationStatus.entityRemoved"),
-					idState.getRedirectUrl());
+					defaultRedirectURL);
 		}
 
 		if (!entityState.equals(EntityState.valid))
 		{
 			return WorkflowFinalizationConfiguration.basicError(
 					msg.getMessage("ConfirmationStatus.entityInvalid"),
-					idState.getRedirectUrl());
+					defaultRedirectURL);
 		}
 			
 		return confirmElements(idState);

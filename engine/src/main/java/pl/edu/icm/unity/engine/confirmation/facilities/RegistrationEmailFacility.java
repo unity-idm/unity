@@ -19,8 +19,6 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirma
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
-import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder;
-import pl.edu.icm.unity.engine.api.registration.RegistrationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.forms.enquiry.EnquiryResponseAutoProcessEvent;
 import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestAutoProcessEvent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -167,14 +165,8 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 					requestDB.get(requestId) : enquiryResponsesDB.get(requestId);
 		} catch (Exception e)
 		{
-			String redirect = new RegistrationRedirectURLBuilder(confirmationState.getRedirectUrl(), null,
-					requestId, Status.elementConfirmationError).
-				setErrorCode("requestDeleted").
-				setConfirmationInfo(getConfirmedElementType(confirmationState), 
-						confirmationState.getType(), confirmationState.getValue()).
-				build();
 			throw new FailureWithBehavior(WorkflowFinalizationConfiguration.basicError(
-					msg.getMessage("ConfirmationStatus.requestDeleted"), redirect));
+					msg.getMessage("ConfirmationStatus.requestDeleted"), null));
 		}
 	}
 	

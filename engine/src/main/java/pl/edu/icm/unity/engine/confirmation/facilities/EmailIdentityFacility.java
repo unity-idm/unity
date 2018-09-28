@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.confirmation.facilities;
 
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +44,7 @@ public class EmailIdentityFacility extends UserEmailFacility<EmailIdentityConfir
 	protected EmailIdentityFacility(EntityDAO dbIdentities, IdentityTypeHelper identityTypeHelper,
 			IdentityDAO idDAO, TxManager tx, UnityMessageSource msg, UnityServerConfiguration serverConfig)
 	{
-		super(dbIdentities, msg);
+		super(dbIdentities, msg, serverConfig.getValue(CONFIRMATION_DEFAULT_RETURN_URL));
 		this.identityTypeHelper = identityTypeHelper;
 		this.idDAO = idDAO;
 		this.txMan = tx;
@@ -85,9 +87,9 @@ public class EmailIdentityFacility extends UserEmailFacility<EmailIdentityConfir
 		
 		boolean confirmed = (confirmedList.size() > 0);
 		String title = msg.getMessage(confirmed ? 
-				"ConfirmationStatus.successful" : "ConfirmationStatus.unsuccessful");
+				"ConfirmationStatus.successTitle" : "ConfirmationStatus.unsuccessful");
 		String info = msg.getMessage(confirmed ? 
-				"ConfirmationStatus.success" : "ConfirmationStatus.emailChanged");
+				"ConfirmationStatus.successDetail" : "ConfirmationStatus.emailChanged", idState.getValue());
 		String redirectURL = confirmed ? getSuccessRedirect(idState) : getErrorRedirect(idState);
 		return WorkflowFinalizationConfiguration.builder()
 				.setAutoRedirect(autoRedirect)

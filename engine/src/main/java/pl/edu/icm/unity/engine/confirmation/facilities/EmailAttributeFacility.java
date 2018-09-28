@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine.confirmation.facilities;
 
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -40,10 +43,10 @@ public class EmailAttributeFacility extends UserEmailFacility<EmailAttribiuteCon
 	public EmailAttributeFacility(AttributeDAO dbAttributes, EntityDAO dbIdentities,
 			AttributeTypeHelper atHelper, UnityMessageSource msg, UnityServerConfiguration serverConfig)
 	{
-		super(dbIdentities, msg);
+		super(dbIdentities, msg, serverConfig.getValue(CONFIRMATION_DEFAULT_RETURN_URL));
 		this.dbAttributes = dbAttributes;
 		this.atHelper = atHelper;
-		this.autoRedirect = serverConfig.getBooleanValue(UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT);
+		this.autoRedirect = serverConfig.getBooleanValue(CONFIRMATION_AUTO_REDIRECT);
 	}
 
 	@Override
@@ -76,9 +79,9 @@ public class EmailAttributeFacility extends UserEmailFacility<EmailAttribiuteCon
 		}
 		boolean confirmed = (confirmedList.size() > 0);
 		String title = msg.getMessage(confirmed ? 
-				"ConfirmationStatus.successful" : "ConfirmationStatus.unsuccessful");
+				"ConfirmationStatus.successTitle" : "ConfirmationStatus.unsuccessful");
 		String info = msg.getMessage(confirmed ? 
-				"ConfirmationStatus.success" : "ConfirmationStatus.emailChanged");
+				"ConfirmationStatus.successDetail" : "ConfirmationStatus.emailChanged", attrState.getValue());
 		String redirectURL = confirmed ? getSuccessRedirect(attrState) : getErrorRedirect(attrState);
 		return WorkflowFinalizationConfiguration.builder()
 				.setAutoRedirect(autoRedirect)

@@ -25,7 +25,6 @@ public class BaseEmailConfirmationState
 	protected String type;
 	protected String value;
 	protected String locale;
-	protected String redirectUrl;
 	
 	public BaseEmailConfirmationState(String facilityId, String type, String value, String locale)
 	{
@@ -35,13 +34,6 @@ public class BaseEmailConfirmationState
 		this.facilityId = facilityId;
 	}
 	
-	public BaseEmailConfirmationState(String facilityId, String type, String value,
-			String locale, String redirectUrl)
-	{
-		this(facilityId, type, value, locale);
-		this.redirectUrl = redirectUrl;
-	}
-
 	public BaseEmailConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		setSerializedConfiguration(serializedState);
@@ -67,10 +59,6 @@ public class BaseEmailConfirmationState
 	{
 		return locale;
 	}
-	public String getRedirectUrl()
-	{
-		return redirectUrl;
-	}
 	
 	public String getSerializedConfiguration() throws InternalException
 	{
@@ -85,8 +73,6 @@ public class BaseEmailConfirmationState
 		state.put("type", getType());
 		state.put("facilityId", getFacilityId());
 		state.put("locale", getLocale());
-		if (getRedirectUrl() != null)
-			state.put("redirectUrl", getRedirectUrl());
 		return state;
 	}
 	
@@ -103,8 +89,6 @@ public class BaseEmailConfirmationState
 			value = main.get("value").asText();
 			facilityId = main.get("facilityId").asText();
 			locale = main.get("locale").asText();
-			if (main.has("redirectUrl"))
-				redirectUrl = main.get("redirectUrl").asText();
 		} catch (Exception e)
 		{
 			throw new IllegalArgumentException("Can't perform JSON deserialization", e);

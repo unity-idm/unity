@@ -374,7 +374,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 						entityId,
 						attribute.getName(), val.getValue(),
 						msg.getDefaultLocaleCode(),
-						attribute.getGroupPath(), defaultRedirectURL);
+						attribute.getGroupPath());
 				sendConfirmationRequest(state, force);
 			}
 		}
@@ -421,8 +421,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		//TODO - should use user's preferred locale
 		EmailIdentityConfirmationState state = new EmailIdentityConfirmationState(
 				identity.getEntityId(), identity.getTypeId(),  
-				identity.getValue(), msg.getDefaultLocaleCode(),
-				defaultRedirectURL);
+				identity.getValue(), msg.getDefaultLocaleCode());
 		sendConfirmationRequest(state, force);
 	}
 

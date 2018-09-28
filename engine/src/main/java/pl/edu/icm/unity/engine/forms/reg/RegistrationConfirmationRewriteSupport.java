@@ -122,8 +122,7 @@ public class RegistrationConfirmationRewriteSupport
 		{
 			EmailAttribiuteConfirmationState newstate = new EmailAttribiuteConfirmationState(
 					entityId, oldState.getType(), oldState.getValue(),
-					oldState.getLocale(), oldState.getGroup(),
-					oldState.getRedirectUrl());
+					oldState.getLocale(), oldState.getGroup());
 			log.debug("Update confirmation token " + tk.getValue()
 					+ ", changing facility to " + newstate.getFacilityId());
 			tokensMan.addToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk
@@ -158,7 +157,7 @@ public class RegistrationConfirmationRewriteSupport
 		{
 			EmailIdentityConfirmationState newstate = new EmailIdentityConfirmationState(
 					entityId, oldState.getType(), oldState.getValue(),
-					oldState.getLocale(), oldState.getRedirectUrl());
+					oldState.getLocale());
 			log.debug("Update confirmation token " + tk.getValue()
 					+ ", changing facility to " + newstate.getFacilityId());
 			tokensMan.addToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk

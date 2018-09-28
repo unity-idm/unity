@@ -28,14 +28,6 @@ public class RegistrationReqEmailAttribiuteConfirmationState extends Registratio
 	}
 
 	public RegistrationReqEmailAttribiuteConfirmationState(String requestId,
-			String type, String value, String locale, String group, String redirectUrl, 
-			RequestType requestType)
-	{
-		super(FACILITY_ID, type, value, locale, redirectUrl, requestId, requestType);
-		this.group = group;
-	}
-	
-	public RegistrationReqEmailAttribiuteConfirmationState(String requestId,
 			String type, String value, String locale, String group, RequestType requestType)
 	{
 		super(FACILITY_ID, type, value, locale, requestId, requestType);

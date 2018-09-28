@@ -10,8 +10,6 @@ import org.apache.log4j.NDC;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
@@ -24,16 +22,12 @@ import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
-import pl.edu.icm.unity.engine.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.SubmitMessageActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.confirmation.VerifiableElement;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.GroupSelection;
@@ -157,52 +151,6 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		return result.getRedirectURL();
 	}
 
-	@Transactional
-	@Override
-	public String getPostConfirmationRedirectURL(UserRequestState<?> request,
-			IdentityParam confirmed, String requestId)
-	{
-		return getPostConfirmationRedirectURL(request.getRequest(), request.getRegistrationContext(),
-				requestId,
-				EmailConfirmationRedirectURLBuilder.ConfirmedElementType.identity.toString(), 
-				confirmed.getTypeId(), confirmed.getValue());
-	}
-
-	@Transactional
-	@Override
-	public String getPostConfirmationRedirectURL(UserRequestState<?> request,
-			Attribute confirmed, String requestId)
-	{
-		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(confirmed.getName());
-		VerifiableElement parsed = (VerifiableElement) syntax.convertFromString(confirmed.getValues().get(0));
-		return getPostConfirmationRedirectURL(request.getRequest(), request.getRegistrationContext(),
-				requestId,
-				EmailConfirmationRedirectURLBuilder.ConfirmedElementType.attribute.toString(), 
-				confirmed.getName(), parsed.getValue());
-	}
-	
-	private String getPostConfirmationRedirectURL(BaseRegistrationInput request,
-			RegistrationContext regContxt, String requestId, 
-			String cType, String cName, String cValue)
-	{
-		log.debug("Consulting form profile to establish post-confirmation redirect URL");
-		RegistrationMVELContext mvelCtx = new RegistrationMVELContext(form, request, 
-				RequestSubmitStatus.submitted, 
-				regContxt.triggeringMode, regContxt.isOnIdpEndpoint, requestId, atHelper);
-		mvelCtx.addConfirmationContext(cType, cName, cValue);
-		TranslatedRegistrationRequest result;
-		try
-		{
-			result = executeFilteredActions(request, mvelCtx, ConfirmationRedirectActionFactory.NAME);
-		} catch (EngineException e)
-		{
-			log.error("Couldn't establish redirect URL from profile", e);
-			return null;
-		}
-		
-		return "".equals(result.getRedirectURL()) ? null : result.getRedirectURL();
-	}
-	
 	protected TranslatedRegistrationRequest executeFilteredActions(
 			BaseRegistrationInput request, Map<String, Object> mvelCtx, 
 			String actionNameFilter) throws EngineException

@@ -4,11 +4,7 @@
  */
 package pl.edu.icm.unity.engine.translation.form.action;
 
-import java.io.Serializable;
-import java.util.HashMap;
-
 import org.apache.logging.log4j.Logger;
-import org.mvel2.MVEL;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -27,6 +23,7 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
  * @author K. Benedyczak
  */
 @Component
+@Deprecated
 public class RedirectActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	public static final String NAME = "redirect";
@@ -46,35 +43,22 @@ public class RedirectActionFactory extends AbstractRegistrationTranslationAction
 		return new RedirectAction(getActionType(), parameters);
 	}
 	
+	@Deprecated
 	public static class RedirectAction extends RegistrationTranslationAction
 	{
 		private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION,
 				RedirectActionFactory.RedirectAction.class);
-		private Serializable urlExpression;
 		
 		public RedirectAction(TranslationActionType description, String[] params)
 		{
 			super(description, params);
-			setParameters(params);
 		}
 
 		@Override
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
 				String currentProfile) throws EngineException
 		{
-			Object value = MVEL.executeExpression(urlExpression, mvelCtx, new HashMap<>());
-			if (value == null)
-			{
-				log.debug("Redirect URL expression evaluated to null, skipping");
-				return;
-			}
-			
-			state.setRedirectURL(value.toString());
-		}
-		
-		private void setParameters(String[] parameters)
-		{
-			urlExpression = MVEL.compileExpression(parameters[0]);
+			log.error("The redirect form action is effect less. Please reconfigure your form to use Finalization config instead.");
 		}
 	}
 }
