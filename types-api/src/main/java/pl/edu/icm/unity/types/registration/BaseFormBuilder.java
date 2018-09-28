@@ -210,6 +210,13 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 		return (T) this;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public T withWrapUpConfig(List<RegistrationWrapUpConfig> config)
+	{
+		instance.setWrapUpConfig(config);
+		return (T)this;
+	}
+	
 	public class GroupRegistrationParamBuilder
 	{
 		private GroupRegistrationParam instance;

@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import java.util.List;
-
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
@@ -111,12 +109,6 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 	public RegistrationFormBuilder withPageTitle(I18nString aValue)
 	{
 		instance.setPageTitle(aValue);
-		return this;
-	}
-
-	public RegistrationFormBuilder withWrapUpConfig(List<RegistrationWrapUpConfig> config)
-	{
-		instance.setWrapUpConfig(config);
 		return this;
 	}
 	

@@ -39,18 +39,13 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
-import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
-import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
@@ -93,7 +88,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private CheckBox showCancel;
 	private CheckBox localSignupEmbeddedAsButton;
 	
-	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
 	private I18nTextField registrationPageTitle;
 	
 	@Autowired
@@ -186,7 +180,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withFormLayoutSettings(settings);
 		builder.withTitle2ndStage(title2ndStage.getValue());
 		builder.withShowGotoSignIn(showGotoSignin.getValue(), signInUrl.getValue());
-		builder.withWrapUpConfig(wrapUpConfig.getElements());
 		builder.withPageTitle(registrationPageTitle.getValue());
 		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
 		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
@@ -216,7 +209,6 @@ public class RegistrationFormEditor extends BaseFormEditor
 		profileEditor.setValue(profile);
 		layoutEditor.setSettings(toEdit.getLayoutSettings());
 		layoutEditor.setInitialLayouts(toEdit);
-		wrapUpConfig.setEntries(toEdit.getWrapUpConfig());
 		showGotoSignin.setValue(toEdit.isShowSignInLink());
 		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
 		signInUrl.setEnabled(showGotoSignin.getValue());
@@ -264,16 +256,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private void initWrapUpTab() throws EngineException
 	{
-		FormLayout main = new CompactFormLayout();
-		VerticalLayout wrapper = new VerticalLayout(main);
-		wrapper.setMargin(true);
-		wrapper.setSpacing(false);
-		tabs.addTab(wrapper, msg.getMessage("RegistrationFormEditor.wrapUpTab"));
-
-		WrapupConfigEditorAndProvider groupEditorAndProvider = new WrapupConfigEditorAndProvider();
-		wrapUpConfig = new ListOfEmbeddedElements<>(null,
-				msg, groupEditorAndProvider, 0, 20, true);
-		main.addComponents(wrapUpConfig);
+		tabs.addTab(getWrapUpComponent(), msg.getMessage("RegistrationFormEditor.wrapUpTab"));
 	}
 	
 	private void initCollectedTab() throws EngineException
@@ -372,34 +355,5 @@ public class RegistrationFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
-	}
-	
-	private class WrapupConfigEditorAndProvider implements EditorProvider<RegistrationWrapUpConfig>, Editor<RegistrationWrapUpConfig>
-	{
-		private RegistrationWrapUpConfigEditor editor;
-
-		@Override
-		public Editor<RegistrationWrapUpConfig> getEditor()
-		{
-			return new WrapupConfigEditorAndProvider();
-		}
-
-		@Override
-		public ComponentsContainer getEditorComponent(RegistrationWrapUpConfig value, int index)
-		{
-			editor = new RegistrationWrapUpConfigEditor(msg);
-			if (value != null)
-				editor.setValue(value);
-			return new ComponentsContainer(editor);
-		}
-
-		@Override
-		public RegistrationWrapUpConfig getValue() throws FormValidationException
-		{
-			return editor.getValue();
-		}
-
-		@Override
-		public void setEditedComponentPosition(int position) {}
 	}
 }

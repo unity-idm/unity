@@ -16,6 +16,7 @@ import com.google.common.collect.Sets;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -41,6 +42,8 @@ import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
@@ -81,6 +84,7 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<AttributeRegistrationParam> attributeParams;
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
+	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
 
 	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
@@ -116,6 +120,7 @@ public class BaseFormEditor extends VerticalLayout
 		groupParams.setEntries(toEdit.getGroupParams());
 		attributeParams.setEntries(toEdit.getAttributeParams());
 		credentialParams.setEntries(toEdit.getCredentialParams());
+		wrapUpConfig.setEntries(toEdit.getWrapUpConfig());
 	}
 	
 	protected void buildCommon(BaseFormBuilder<?> builder) throws FormValidationException
@@ -133,6 +138,8 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withGroupParams(groupParams.getElements());
 		builder.withIdentityParams(identityParams.getElements());
 		builder.withName(name.getValue());
+		
+		builder.withWrapUpConfig(wrapUpConfig.getElements());
 	}
 		
 	protected void initNameAndDescFields(String defaultName) throws EngineException
@@ -196,6 +203,20 @@ public class BaseFormEditor extends VerticalLayout
 				
 		tabOfLists.addComponents(identityParams, localSignupMethods, attributeParams, groupParams, agreements);
 		return tabOfLists;
+	}
+	
+	protected Component getWrapUpComponent() throws EngineException
+	{
+		FormLayout main = new CompactFormLayout();
+		VerticalLayout wrapper = new VerticalLayout(main);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+
+		WrapupConfigEditorAndProvider groupEditorAndProvider = new WrapupConfigEditorAndProvider();
+		wrapUpConfig = new ListOfEmbeddedElements<>(null,
+				msg, groupEditorAndProvider, 0, 20, true);
+		main.addComponents(wrapUpConfig);
+		return wrapper;
 	}
 	
 	private List<String> getDynamicGroups()
@@ -585,4 +606,33 @@ public class BaseFormEditor extends VerticalLayout
 		}
 	}	
 
+	
+	private class WrapupConfigEditorAndProvider implements EditorProvider<RegistrationWrapUpConfig>, Editor<RegistrationWrapUpConfig>
+	{
+		private RegistrationWrapUpConfigEditor editor;
+
+		@Override
+		public Editor<RegistrationWrapUpConfig> getEditor()
+		{
+			return new WrapupConfigEditorAndProvider();
+		}
+
+		@Override
+		public ComponentsContainer getEditorComponent(RegistrationWrapUpConfig value, int index)
+		{
+			editor = new RegistrationWrapUpConfigEditor(msg);
+			if (value != null)
+				editor.setValue(value);
+			return new ComponentsContainer(editor);
+		}
+
+		@Override
+		public RegistrationWrapUpConfig getValue() throws FormValidationException
+		{
+			return editor.getValue();
+		}
+
+		@Override
+		public void setEditedComponentPosition(int position) {}
+	}
 }

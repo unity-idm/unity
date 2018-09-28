@@ -103,6 +103,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
+		initWrapUpTab();
 		initLayoutTab();
 		initAssignedTab();
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
@@ -211,6 +212,11 @@ public class EnquiryFormEditor extends BaseFormEditor
 		wrapper.addComponent(layoutEditor);
 		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+	}
+	
+	private void initWrapUpTab() throws EngineException
+	{
+		tabs.addTab(getWrapUpComponent(), msg.getMessage("RegistrationFormEditor.wrapUpTab"));
 	}
 	
 	private void initAssignedTab() throws EngineException

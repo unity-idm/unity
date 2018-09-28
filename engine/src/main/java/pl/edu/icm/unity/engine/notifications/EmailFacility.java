@@ -105,7 +105,6 @@ public class EmailFacility implements NotificationFacility
 	@Override
 	public void validateConfiguration(String configuration) throws WrongArgumentException
 	{
-		// TODO create properties helper and validate more throughly?
 		Properties props = new Properties();
 		try
 		{

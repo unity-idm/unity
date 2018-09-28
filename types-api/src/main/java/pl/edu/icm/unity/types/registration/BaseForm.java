@@ -47,7 +47,8 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	private TranslationProfile translationProfile = 
 			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>());
 	private FormLayoutSettings layoutSettings = FormLayoutSettings.DEFAULT;
-	
+	private List<RegistrationWrapUpConfig> wrapUpConfig = new ArrayList<>();
+
 	@JsonCreator
 	BaseForm(ObjectNode json)
 	{
@@ -97,6 +98,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.set("TranslationProfile", getTranslationProfile().toJsonObject());
 		root.set("FormLayoutSettings", jsonMapper.valueToTree(getLayoutSettings()));
 		root.set("PageTitle", jsonMapper.valueToTree(getPageTitle()));
+		root.set("WrapUpConfig", jsonMapper.valueToTree(getWrapUpConfig()));
 		return root;
 	}
 
@@ -179,6 +181,10 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				setPageTitle(I18nStringJsonUtil.fromJson(root.get("PageTitle")));
 			}
 
+			n = root.get("WrapUpConfig");
+			if (n != null && !n.isNull())
+				setWrapUpConfig(jsonMapper.convertValue(n, new TypeReference<List<RegistrationWrapUpConfig>>(){}));
+			
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize a form from JSON", e);
@@ -373,6 +379,16 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			throw new IllegalArgumentException("Only a registration profile can be used with registration form");
 		this.translationProfile = translationProfile;
 	}
+
+	public List<RegistrationWrapUpConfig> getWrapUpConfig()
+	{
+		return wrapUpConfig;
+	}
+
+	public void setWrapUpConfig(List<RegistrationWrapUpConfig> wrapUpConfig)
+	{
+		this.wrapUpConfig = wrapUpConfig;
+	}
 	
 	public abstract BaseFormNotifications getNotificationsConfiguration();
 	
@@ -395,13 +411,15 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				&& Objects.equals(displayedName, castOther.displayedName)
 				&& Objects.equals(formInformation, castOther.formInformation)
 				&& Objects.equals(translationProfile, castOther.translationProfile)
-				&& Objects.equals(layoutSettings, castOther.layoutSettings);
+				&& Objects.equals(layoutSettings, castOther.layoutSettings)
+				&& Objects.equals(wrapUpConfig, castOther.wrapUpConfig);
 	}
 
 	@Override
 	public int hashCode()
 	{
 		return Objects.hash(super.hashCode(), identityParams, attributeParams, groupParams, credentialParams,
-				agreements, collectComments, displayedName, formInformation, translationProfile, layoutSettings);
+				agreements, collectComments, displayedName, formInformation, translationProfile, 
+				layoutSettings, wrapUpConfig);
 	}
 }

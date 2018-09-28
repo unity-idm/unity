@@ -60,7 +60,6 @@ public class RegistrationForm extends BaseForm
 	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
 	private boolean showSignInLink;
 	private String signInLink;
-	private List<RegistrationWrapUpConfig> wrapUpConfig = new ArrayList<>();
 
 	@JsonCreator
 	public RegistrationForm(ObjectNode json)
@@ -194,16 +193,6 @@ public class RegistrationForm extends BaseForm
 		this.signInLink = signInLink;
 	}
 
-	public List<RegistrationWrapUpConfig> getWrapUpConfig()
-	{
-		return wrapUpConfig;
-	}
-
-	public void setWrapUpConfig(List<RegistrationWrapUpConfig> wrapUpConfig)
-	{
-		this.wrapUpConfig = wrapUpConfig;
-	}
-
 	@Override
 	public String toString()
 	{
@@ -329,7 +318,6 @@ public class RegistrationForm extends BaseForm
 		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
 		root.put("ShowSignInLink", showSignInLink);
 		root.put("SignInLink", signInLink);
-		root.set("WrapUpConfig", jsonMapper.valueToTree(getWrapUpConfig()));
 		return root;
 	}
 
@@ -383,10 +371,6 @@ public class RegistrationForm extends BaseForm
 			n = root.get("SignInLink");
 			if (n != null && !n.isNull())
 				setSignInLink(n.asText());
-			
-			n = root.get("WrapUpConfig");
-			if (n != null && !n.isNull())
-				setWrapUpConfig(jsonMapper.convertValue(n, new TypeReference<List<RegistrationWrapUpConfig>>(){}));
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize registration form from JSON", e);
@@ -412,8 +396,7 @@ public class RegistrationForm extends BaseForm
 				&& Objects.equals(externalSignupSpec, castOther.externalSignupSpec)
 				&& Objects.equals(formLayouts, castOther.formLayouts)
 				&& Objects.equals(showSignInLink, castOther.showSignInLink)
-				&& Objects.equals(signInLink, castOther.signInLink)
-				&& Objects.equals(wrapUpConfig, castOther.wrapUpConfig);
+				&& Objects.equals(signInLink, castOther.signInLink);
 	}
 
 	@Override
@@ -421,6 +404,6 @@ public class RegistrationForm extends BaseForm
 	{
 		return Objects.hash(super.hashCode(), name, description, publiclyAvailable, notificationsConfiguration,
 				captchaLength, registrationCode, byInvitationOnly, defaultCredentialRequirement,
-				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, signInLink, wrapUpConfig);
+				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, signInLink);
 	}
 }
