@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdentityConfirmationState;
@@ -44,9 +43,9 @@ public class RegistrationReqEmailIdentityFacility extends RegistrationEmailFacil
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			ApplicationEventPublisher publisher,
 			IdentityTypesRegistry identityTypesRegistry,
-			TxManager tx, UnityMessageSource msg, UnityServerConfiguration serverConfig)
+			TxManager tx, UnityMessageSource msg)
 	{
-		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, tx, msg, serverConfig);
+		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, tx, msg);
 		this.identityTypesRegistry = identityTypesRegistry;
 	}
 

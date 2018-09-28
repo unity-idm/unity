@@ -13,7 +13,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
@@ -61,13 +60,12 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 	private ApplicationEventPublisher publisher;
 	private TxManager txMan;
 	private UnityMessageSource msg;
-	private boolean autoRedirect;
 
 
 	public RegistrationEmailFacility(RegistrationRequestDB requestDB, EnquiryResponseDB enquiryResponsesDB,
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			ApplicationEventPublisher publisher,
-			TxManager txMan, UnityMessageSource msg, UnityServerConfiguration serverConfig)
+			TxManager txMan, UnityMessageSource msg)
 	{
 		this.requestDB = requestDB;
 		this.enquiryResponsesDB = enquiryResponsesDB;
@@ -76,7 +74,6 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 		this.publisher = publisher;
 		this.txMan = txMan;
 		this.msg = msg;
-		this.autoRedirect = serverConfig.getBooleanValue(UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT);
 	}
 
 	@Override
@@ -94,22 +91,6 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 			throws EngineException;
 	
 	protected abstract ConfirmedElementType getConfirmedElementType(T state);
-
-	private String getSuccessRedirect(T state, UserRequestState<?> reqState)
-	{
-		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
-				reqState.getRequestId(), Status.elementConfirmed).
-			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-			build();
-	}
-	
-	private String getErrorRedirect(T state, UserRequestState<?> reqState)
-	{
-		return new RegistrationRedirectURLBuilder(state.getRedirectUrl(), reqState.getRequest().getFormId(),
-				reqState.getRequestId(), Status.elementConfirmationError).
-			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-			build();
-	}
 	
 	@Override
 	public WorkflowFinalizationConfiguration processConfirmation(String rawState) throws EngineException
@@ -145,13 +126,11 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 		}
 		
 		requestState = getRequestState(confirmResult.confirmationState);
-		return getConfirmationStatusFromForm(
+		return getConfirmationStatusForForm(
 				confirmResult.confirmationSuccessful, 
-				confirmResult.type, 
 				confirmResult.form, 
 				confirmResult.requestId, 
-				requestState, 
-				confirmResult.confirmationState);
+				requestState.getStatus());
 	}
 	
 	private ConfirmationResult doConfirm(String rawState) throws EngineException
@@ -165,9 +144,9 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 		
 		if (requestState.getStatus().equals(RegistrationRequestStatus.rejected))
 		{
-			throw new FailureWithBehavior(getConfirmationStatusFromForm(
-					false, confirmationState.getRequestType(), 
-					form, requestId, requestState, confirmationState));
+			throw new FailureWithBehavior(getConfirmationStatusForForm(
+					false, 
+					form, requestId, requestState.getStatus()));
 		}
 		boolean status = confirmElements(requestState, confirmationState);
 		
@@ -199,61 +178,10 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 		}
 	}
 	
-	private WorkflowFinalizationConfiguration getConfirmationStatusFromForm(boolean confirmationSuccessful, 
-			RequestType type, BaseForm form, 
-			String requestId, UserRequestState<?> reqState, T state)
+	private WorkflowFinalizationConfiguration getConfirmationStatusForForm(boolean confirmationSuccessful, 
+			BaseForm form, String requestId, RegistrationRequestStatus requestStatus)
 	{
-		if (type == RequestType.ENQUIRY)
-		{
-			return getEnquiryFinalizationConfig(confirmationSuccessful, form, requestId, reqState, state);
-		} else
-		{
-			return getRegistrationFormFinalizationConfig(confirmationSuccessful, 
-					(RegistrationForm) form, requestId, reqState.getStatus());
-		}
-	}
-
-	
-	private WorkflowFinalizationConfiguration getEnquiryFinalizationConfig(boolean confirmationSuccessful, 
-			BaseForm form, 
-			String requestId, UserRequestState<?> reqState, T state)
-	{
-		if (reqState.getStatus() == RegistrationRequestStatus.rejected)
-		{
-			String info = msg.getMessage("ConfirmationStatus.requestRejected");
-			String redirectURL = new RegistrationRedirectURLBuilder(state.getRedirectUrl(), null,
-					requestId, Status.elementConfirmationError).
-					setErrorCode("requestRejected").
-					setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
-					build();
-			return 	WorkflowFinalizationConfiguration.builder()
-					.setSuccess(false)
-					.setAutoRedirect(autoRedirect)
-					.setRedirectURL(redirectURL)
-					.setMainInformation(info)
-					.build();
-		} else
-		{
-			String redirectURL = confirmationSuccessful ? getSuccessRedirect(state, reqState) 
-					: getErrorRedirect(state, reqState);
-			String title = msg.getMessage(confirmationSuccessful ? 
-					"ConfirmationStatus.successful" : "ConfirmationStatus.unsuccessful");
-			String info = msg.getMessage(confirmationSuccessful ? 
-					"ConfirmationStatus.success" : "ConfirmationStatus.emailChanged");
-			return WorkflowFinalizationConfiguration.builder()
-				.setSuccess(confirmationSuccessful)
-				.setAutoRedirect(autoRedirect)
-				.setRedirectURL(redirectURL)
-				.setMainInformation(title)
-				.setExtraInformation(info)
-				.build();
-		}
-	}
-	
-	private WorkflowFinalizationConfiguration getRegistrationFormFinalizationConfig(boolean confirmationSuccessful, 
-			RegistrationForm regForm, String requestId, RegistrationRequestStatus requestStatus)
-	{
-		PostFillingHandler postFillingHandler = craetePostFillingHandler(regForm);
+		PostFillingHandler postFillingHandler = createPostFillingHandler(form);
 		if (requestStatus == RegistrationRequestStatus.pending)
 		{
 			return postFillingHandler.getFinalRegistrationConfigurationNonSubmit(
@@ -270,12 +198,12 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 	private WorkflowFinalizationConfiguration getRegistrationUserExistsFinalizationConfig( 
 			RegistrationForm regForm, String requestId)
 	{
-		PostFillingHandler postFillingHandler = craetePostFillingHandler(regForm);
+		PostFillingHandler postFillingHandler = createPostFillingHandler(regForm);
 		return postFillingHandler.getFinalRegistrationConfigurationNonSubmit(
 				false, requestId, TriggeringState.PRESET_USER_EXISTS);
 	}
 	
-	private PostFillingHandler craetePostFillingHandler(RegistrationForm regForm)
+	private PostFillingHandler createPostFillingHandler(BaseForm regForm)
 	{
 		PostFillingHandler postFillingHandler = new PostFillingHandler(
 				regForm.getName(), 
