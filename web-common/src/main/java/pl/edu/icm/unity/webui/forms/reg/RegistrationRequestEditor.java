@@ -310,9 +310,6 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 
 	private boolean createRemoteSignupButton(AbstractOrderedLayout layout, FormParameterElement element)
 	{
-		if (signUpAuthNController == null)
-			return false;
-		
 		int index = element.getIndex();
 		AuthenticationOptionKey spec =  form.getExternalSignupSpec().getSpecs().get(index);
 		SignUpAuthNOption option = signupOptions.get(spec);
@@ -321,11 +318,20 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			log.debug("Ignoring not available remote sign up option {}", spec.toGlobalKey());
 			return false;
 		}
-		option.authenticatorUI.setAuthenticationCallback(signUpAuthNController.buildCallback(option));
+		
 		Component signupOptionComponent = option.authenticatorUI.getComponent();
 		signupOptionComponent.setWidth(formWidth(), formWidthUnit()); 
 		layout.addComponent(signupOptionComponent);
 		layout.setComponentAlignment(signupOptionComponent, Alignment.MIDDLE_CENTER);
+
+		if (signUpAuthNController == null)
+		{
+			signupOptionComponent.setEnabled(false); //for some UIs (admin) we can't really trigger external authN
+		} else
+		{
+			option.authenticatorUI.setAuthenticationCallback(signUpAuthNController.buildCallback(option));
+		}
+		
 		return true;
 	}
 	
