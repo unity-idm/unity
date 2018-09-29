@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
+import java.util.function.Predicate;
+
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -25,7 +27,8 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 	private CheckBox automatic;
 	private I18nTextField redirectCaption;
 	
-	public RegistrationWrapUpConfigEditor(UnityMessageSource msg)
+	public RegistrationWrapUpConfigEditor(UnityMessageSource msg, 
+			Predicate<RegistrationWrapUpConfig.TriggeringState> filter)
 	{
 		FormLayout layout = new CompactFormLayout();
 		title = new I18nTextField(msg, msg.getMessage("RegistrationFormEditor.wrapupTitle"));
@@ -37,7 +40,7 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 		automatic = new CheckBox(msg.getMessage("RegistrationFormEditor.automaticRedirect"));
 		trigger = new EnumComboBox<RegistrationWrapUpConfig.TriggeringState>(
 				msg.getMessage("RegistrationFormEditor.wrapupWhen"), msg, null, 
-				TriggeringState.class, TriggeringState.DEFAULT);
+				TriggeringState.class, TriggeringState.DEFAULT, filter);
 		automatic.addValueChangeListener(e -> setState());
 		layout.addComponents(trigger, title, info, redirectURL, automatic, redirectCaption);
 		setCompositionRoot(layout);

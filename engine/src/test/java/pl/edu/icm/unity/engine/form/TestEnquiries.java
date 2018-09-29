@@ -198,7 +198,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				CRED_REQ_PASS, EntityState.valid, false);
 		
 		setupUserContext("tuser", null);
-		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(true, false, 
+		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(false, 
 				TriggeringMode.manualStandalone));
 		setupAdmin();
 		
@@ -265,7 +265,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 			.withFormId("enquiry1")
 			.build();
 		enquiryManagement.submitEnquiryResponse(response, 
-				new RegistrationContext(true, false, TriggeringMode.manualStandalone));
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
 		setupAdmin();
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
@@ -336,7 +336,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		setupUserContext("tuser", null);
 		
 		String id = enquiryManagement.submitEnquiryResponse(response, 
-					new RegistrationContext(true, false, 
+					new RegistrationContext(false, 
 							TriggeringMode.manualStandalone));
 		
 		setupAdmin();

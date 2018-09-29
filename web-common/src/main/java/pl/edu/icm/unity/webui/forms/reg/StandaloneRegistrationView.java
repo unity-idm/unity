@@ -43,7 +43,6 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
@@ -101,7 +100,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		this.form = form;
 		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
 		this.postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
-				pageTitle, form.getLayoutSettings().getLogoURL());
+				pageTitle, form.getLayoutSettings().getLogoURL(), true);
 		return this;
 	}
 	
@@ -227,24 +226,11 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	
 	private void onSubmit(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		RegistrationContext context = new RegistrationContext(true, 
-				idpLoginController.isLoginInProgress(), 
-				mode);
-		RegistrationRequest request;
-		try
-		{
-			request = editor.getRequest(isWithCredentials(mode));
-		} catch (FormValidationException e)
-		{
-			if (e.hasMessage())
-				NotificationPopup.showError(e.getMessage(), "");
+		RegistrationContext context = new RegistrationContext(idpLoginController.isLoginInProgress(), mode);
+		RegistrationRequest request = editor.getRequestWithStandardErrorHandling(isWithCredentials(mode))
+				.orElse(null);
+		if (request == null)
 			return;
-		} catch (Exception e) 
-		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-			return;
-		}
-		
 		try
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
@@ -352,7 +338,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			return regMan.getRegistrationRequest(requestId).getStatus();
 		} catch (EngineException e)
 		{
-			log.error("Shouldn't happen: can't get request status, assuming rejested", e);
+			log.error("Shouldn't happen: can't get request status, assuming rejected", e);
 		}
 		return RegistrationRequestStatus.rejected;
 	}

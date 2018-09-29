@@ -415,7 +415,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 		Assert.assertEquals(1,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -466,7 +466,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedIdentity(new IdentityParam(EmailIdentity.ID, "example@example.com"))
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 		Assert.assertEquals(1,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -522,7 +522,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedIdentity(confirmedIdentity)
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 		Assert.assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -571,7 +571,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 		Assert.assertEquals(0,
 				tokensMan.getAllTokens(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE)
@@ -620,7 +620,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
 				.build();
 
-		registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+		registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 
 		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan
@@ -686,7 +686,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedIdentity(new IdentityParam(EmailIdentity.ID, "test33@example.com"))
 				.build();
 
-		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext(
 				false, TriggeringMode.manualAtLogin));
 
 		Assert.assertEquals(2,
@@ -765,7 +765,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "username"))
 				.build();
 
-		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext(true, 
+		String requestId = registrationsMan.submitRegistrationRequest(request, new RegistrationContext( 
 				false, TriggeringMode.manualAtLogin));
 		
 		Assert.assertEquals(RegistrationRequestStatus.pending, registrationsMan

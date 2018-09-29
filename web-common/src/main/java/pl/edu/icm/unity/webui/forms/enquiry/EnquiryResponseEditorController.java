@@ -21,19 +21,24 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
-import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
 
 /**
  * Logic behind {@link EnquiryResponseEditor}. Provides a simple method to create editor instance and to handle 
@@ -132,38 +137,62 @@ public class EnquiryResponseEditorController
 		return null;
 	}
 	
-	public boolean submitted(EnquiryResponse response, EnquiryForm form, 
+	public WorkflowFinalizationConfiguration submitted(EnquiryResponse response, EnquiryForm form, 
 			TriggeringMode mode) throws WrongArgumentException
 	{
-		RegistrationContext context = new RegistrationContext(true, 
+		RegistrationContext context = new RegistrationContext(
 				idpLoginController.isLoginInProgress(), mode);
-		String id;
 		try
 		{
-			id = enquiryManagement.submitEnquiryResponse(response, context);
-			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponseChangedEvent(id));
+			String requestId = enquiryManagement.submitEnquiryResponse(response, context);
+			WebSession.getCurrent().getEventBus().fireEvent(new EnquiryResponseChangedEvent(requestId));
+			return getFinalizationHandler(form).getFinalRegistrationConfigurationPostSubmit(requestId,
+					getRequestStatus(requestId));
+		} catch (IdentityExistsException e)
+		{
+			return getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
+					TriggeringState.PRESET_USER_EXISTS);
 		} catch (WrongArgumentException e)
 		{
 			throw e;
 		} catch (Exception e)
 		{
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					enquiryManagement.getFormAutomationSupport(form)).submissionError(e, context);
-			return false;
+			log.warn("Registration request submision failed", e);
+			return getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
+					TriggeringState.GENERAL_ERROR);
 		}
-
-		new PostFormFillingHandler(idpLoginController, form, msg, 
-				enquiryManagement.getFormAutomationSupport(form), mode != TriggeringMode.manualAdmin).
-			submittedEnquiryResponse(id, enquiryManagement, response, context);
-		return true;
 	}
 	
-	public void cancelled(EnquiryForm form, TriggeringMode mode)
+	private RegistrationRequestStatus getRequestStatus(String requestId) 
 	{
-		RegistrationContext context = new RegistrationContext(false, idpLoginController.isLoginInProgress(), 
-				mode);
-		new PostFormFillingHandler(idpLoginController, form, msg, 
-				enquiryManagement.getFormAutomationSupport(form)).
-			cancelled(false, context);
+		try
+		{
+			return enquiryManagement.getEnquiryResponse(requestId).getStatus();
+		} catch (Exception e)
+		{
+			log.error("Shouldn't happen: can't get request status, assuming rejected", e);
+			return RegistrationRequestStatus.rejected;
+		}
+	}
+	
+	public WorkflowFinalizationConfiguration cancelled(EnquiryForm form, TriggeringMode mode)
+	{
+		if (form.getType() != EnquiryType.REQUESTED_MANDATORY)
+		{
+			markFormAsIgnored(form.getName());
+			return getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
+					TriggeringState.IGNORED_ENQUIRY);
+		} else
+		{
+			return getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
+					TriggeringState.CANCELLED);
+		}
+	}
+	
+	private PostFillingHandler getFinalizationHandler(EnquiryForm form)
+	{
+		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
+		return new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
+				pageTitle, form.getLayoutSettings().getLogoURL(), false);
 	}
 }

@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
@@ -43,6 +44,7 @@ import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
@@ -79,6 +81,7 @@ public class BaseFormEditor extends VerticalLayout
 	protected I18nTextField displayedName;
 	protected I18nTextArea formInformation;
 	protected CheckBox collectComments;
+	protected I18nTextField pageTitle;
 	private ListOfEmbeddedElements<AgreementRegistrationParam> agreements;	
 	private ListOfEmbeddedElements<IdentityRegistrationParam> identityParams;
 	private ListOfEmbeddedElements<AttributeRegistrationParam> attributeParams;
@@ -121,6 +124,8 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams.setEntries(toEdit.getAttributeParams());
 		credentialParams.setEntries(toEdit.getCredentialParams());
 		wrapUpConfig.setEntries(toEdit.getWrapUpConfig());
+		if (toEdit.getPageTitle() != null)
+			pageTitle.setValue(toEdit.getPageTitle());
 	}
 	
 	protected void buildCommon(BaseFormBuilder<?> builder) throws FormValidationException
@@ -140,6 +145,8 @@ public class BaseFormEditor extends VerticalLayout
 		builder.withName(name.getValue());
 		
 		builder.withWrapUpConfig(wrapUpConfig.getElements());
+		
+		builder.withPageTitle(pageTitle.getValue());
 	}
 		
 	protected void initNameAndDescFields(String defaultName) throws EngineException
@@ -154,6 +161,7 @@ public class BaseFormEditor extends VerticalLayout
 		displayedName = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
 		formInformation = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
 		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
+		pageTitle = new I18nTextField(msg, msg.getMessage("RegistrationFormEditor.registrationPageTitle"));
 	}
 	
 	protected void setNameFieldValue(String initialValue)
@@ -205,14 +213,14 @@ public class BaseFormEditor extends VerticalLayout
 		return tabOfLists;
 	}
 	
-	protected Component getWrapUpComponent() throws EngineException
+	protected Component getWrapUpComponent(Predicate<TriggeringState> filter) throws EngineException
 	{
 		FormLayout main = new CompactFormLayout();
 		VerticalLayout wrapper = new VerticalLayout(main);
 		wrapper.setMargin(true);
 		wrapper.setSpacing(false);
 
-		WrapupConfigEditorAndProvider groupEditorAndProvider = new WrapupConfigEditorAndProvider();
+		WrapupConfigEditorAndProvider groupEditorAndProvider = new WrapupConfigEditorAndProvider(filter);
 		wrapUpConfig = new ListOfEmbeddedElements<>(null,
 				msg, groupEditorAndProvider, 0, 20, true);
 		main.addComponents(wrapUpConfig);
@@ -610,17 +618,23 @@ public class BaseFormEditor extends VerticalLayout
 	private class WrapupConfigEditorAndProvider implements EditorProvider<RegistrationWrapUpConfig>, Editor<RegistrationWrapUpConfig>
 	{
 		private RegistrationWrapUpConfigEditor editor;
+		private Predicate<RegistrationWrapUpConfig.TriggeringState> filter;
+		
+		WrapupConfigEditorAndProvider(Predicate<TriggeringState> filter)
+		{
+			this.filter = filter;
+		}
 
 		@Override
 		public Editor<RegistrationWrapUpConfig> getEditor()
 		{
-			return new WrapupConfigEditorAndProvider();
+			return new WrapupConfigEditorAndProvider(filter);
 		}
 
 		@Override
 		public ComponentsContainer getEditorComponent(RegistrationWrapUpConfig value, int index)
 		{
-			editor = new RegistrationWrapUpConfigEditor(msg);
+			editor = new RegistrationWrapUpConfigEditor(msg, filter);
 			if (value != null)
 				editor.setValue(value);
 			return new ComponentsContainer(editor);

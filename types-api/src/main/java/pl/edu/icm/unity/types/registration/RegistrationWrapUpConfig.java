@@ -16,30 +16,45 @@ import pl.edu.icm.unity.types.I18nString;
 public class RegistrationWrapUpConfig
 {
 	public enum TriggeringState {
-		DEFAULT(null), 
-		AUTO_ACCEPTED("submittedAccepted"), 
-		AUTO_REJECTED("submittedRejected"), 
-		SUBMITTED("submitted"), 
-		INVITATION_EXPIRED("invitationExpired"), 
-		INVITATION_MISSING("invitationMissing"), 
-		INVITATION_CONSUMED("invitationConsumed"), 
-		GENERAL_ERROR("submittedWithError"), 
-		PRESET_USER_EXISTS("userExists"), 
-		CANCELLED("cancelled"),
-		EMAIL_CONFIRMED("elementConfirmed"),
-		EMAIL_CONFIRMATION_FAILED("elementConfirmationError");
+		DEFAULT(null, true, true), 
+		AUTO_ACCEPTED("submittedAccepted", true, true), 
+		AUTO_REJECTED("submittedRejected", true, true), 
+		SUBMITTED("submitted", true, true), 
+		INVITATION_EXPIRED("invitationExpired", true, false), 
+		INVITATION_MISSING("invitationMissing", true, false), 
+		INVITATION_CONSUMED("invitationConsumed", true, false), 
+		GENERAL_ERROR("submittedWithError", true, true), 
+		PRESET_USER_EXISTS("userExists", true, true), 
+		CANCELLED("cancelled", true, true),
+		EMAIL_CONFIRMED("elementConfirmed", true, true),
+		EMAIL_CONFIRMATION_FAILED("elementConfirmationError", true, true),
+		IGNORED_ENQUIRY("ignoredEnquiry", false, true);
 		
 		
 		private String urlState;
+		private boolean suitableForEnquiry;
+		private boolean suitableForRegistration;
 		
-		private TriggeringState(String urlState)
+		private TriggeringState(String urlState, boolean suitableForRegistration, boolean suitableForEnquiry)
 		{
 			this.urlState = urlState;
+			this.suitableForEnquiry = suitableForEnquiry;
+			this.suitableForRegistration = suitableForRegistration;
 		}
 
 		public String toURLState()
 		{
 			return urlState;
+		}
+
+		public boolean isSuitableForEnquiry()
+		{
+			return suitableForEnquiry;
+		}
+
+		public boolean isSuitableForRegistration()
+		{
+			return suitableForRegistration;
 		}
 	}
 	

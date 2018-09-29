@@ -61,7 +61,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public static final String TEST_FORM = "form-1";
 	
 	private static final RegistrationContext REG_CONTEXT = new RegistrationContext(
-			false, false, TriggeringMode.manualStandalone);
+			false, TriggeringMode.manualStandalone);
 	
 	@Autowired
 	private InvitationManagement invitationMan;

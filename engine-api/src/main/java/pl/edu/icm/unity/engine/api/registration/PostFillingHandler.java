@@ -27,15 +27,17 @@ public class PostFillingHandler
 	private List<RegistrationWrapUpConfig> wrapUpConfigs;
 	private String pageTitle;
 	private String logoURL;
+	private String msgPrefix;
 	
 	public PostFillingHandler(String formId, List<RegistrationWrapUpConfig> wrapUpConfigs, UnityMessageSource msg,
-			String pageTitle, String logoURL)
+			String pageTitle, String logoURL, boolean registration)
 	{
 		this.formId = formId;
 		this.wrapUpConfigs = wrapUpConfigs;
 		this.msg = msg;
 		this.pageTitle = pageTitle;
 		this.logoURL = logoURL;
+		this.msgPrefix = registration ? "RegistrationWrupUp." : "EnquiryWrupUp.";
 	}
 	
 	public WorkflowFinalizationConfiguration getFinalRegistrationConfigurationPostSubmit(String requestId,
@@ -138,43 +140,46 @@ public class PostFillingHandler
 		switch (state)
 		{
 		case AUTO_ACCEPTED:
-			msgKey = "RegistrationWrupUp.requestAcceptedTitle"; 
+			msgKey = "requestAcceptedTitle"; 
 			break;
 		case AUTO_REJECTED:
-			msgKey = "RegistrationWrupUp.requestRejectedTitle";
+			msgKey = "requestRejectedTitle";
 			break;
 		case CANCELLED:
-			msgKey = "RegistrationWrupUp.registrationCancelledTitle";
+			msgKey = "registrationCancelledTitle";
 			break;
 		case GENERAL_ERROR:
-			msgKey = "RegistrationWrupUp.genericRegistrationErrorTitle";
+			msgKey = "genericRegistrationErrorTitle";
 			break;
 		case INVITATION_CONSUMED:
-			msgKey = "RegistrationWrupUp.invitationAlreadyConsumedTitle";
+			msgKey = "invitationAlreadyConsumedTitle";
 			break;
 		case INVITATION_EXPIRED:
-			msgKey = "RegistrationWrupUp.invitationExpiredTitle";
+			msgKey = "invitationExpiredTitle";
 			break;
 		case INVITATION_MISSING:
-			msgKey = "RegistrationWrupUp.invitationUnknownTitle";
+			msgKey = "invitationUnknownTitle";
 			break;
 		case PRESET_USER_EXISTS:
-			msgKey = "RegistrationWrupUp.userExistsTitle";
+			msgKey = "userExistsTitle";
 			break;
 		case SUBMITTED:
-			msgKey = "RegistrationWrupUp.requestSubmittedTitle";
+			msgKey = "requestSubmittedTitle";
 			break;
 		case EMAIL_CONFIRMATION_FAILED:
-			msgKey = "RegistrationWrupUp.confirmationFailedTitle";
+			msgKey = "confirmationFailedTitle";
 			break;
 		case EMAIL_CONFIRMED:
-			msgKey = "RegistrationWrupUp.emailConfirmedTitle";
+			msgKey = "emailConfirmedTitle";
+			break;
+		case IGNORED_ENQUIRY:
+			msgKey = "ignoredEnquiry";
 			break;
 		case DEFAULT:
 		default:
-			msgKey = "RegistrationWrupUp.genericRegistrtionFinishTitle";
+			msgKey = "genericRegistrtionFinishTitle";
 		}
-		return new I18nString(msgKey, msg).getValue(msg);
+		return new I18nString(msgPrefix + msgKey, msg).getValue(msg);
 	}
 
 	private String getDefaultInfo(RegistrationWrapUpConfig.TriggeringState state)

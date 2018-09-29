@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
@@ -75,6 +76,7 @@ import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -171,6 +173,23 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	public abstract T getRequest(boolean withCredentials) throws FormValidationException;
+	
+	public Optional<T> getRequestWithStandardErrorHandling(boolean withCredentials)
+	{
+		try
+		{
+			return Optional.of(getRequest(withCredentials));
+		} catch (FormValidationException e)
+		{
+			if (e.hasMessage())
+				NotificationPopup.showError(e.getMessage(), "");
+			return Optional.empty();
+		} catch (Exception e) 
+		{
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			return Optional.empty();
+		}
+	}
 	
 	/**
 	 * Called if a form being edited was not accepted by the engine. 

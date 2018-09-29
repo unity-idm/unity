@@ -22,16 +22,12 @@ import pl.edu.icm.unity.engine.translation.ExecutionBreakException;
 import pl.edu.icm.unity.engine.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationProfileInstance;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
-import pl.edu.icm.unity.engine.translation.form.action.RedirectActionFactory;
-import pl.edu.icm.unity.engine.translation.form.action.SubmitMessageActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.tx.Transactional;
-import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -90,65 +86,6 @@ public abstract class BaseFormTranslationProfile extends TranslationProfileInsta
 		}
 		log.debug("Established automatic processing action: " + result.getAutoAction());
 		return result.getAutoAction();
-	}
-
-	@Transactional
-	@Override
-	public I18nMessage getPostSubmitMessage(BaseRegistrationInput request,
-			RegistrationContext context, String requestId)
-	{
-		log.debug("Consulting form profile to establish post-submit message");
-		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted, 
-				context.triggeringMode, context.isOnIdpEndpoint, requestId, atHelper);
-		TranslatedRegistrationRequest result;
-		try
-		{
-			result = executeFilteredActions(request, mvelCtx, SubmitMessageActionFactory.NAME);
-		} catch (EngineException e)
-		{
-			log.warn("Couldn't establish post submission message from profile", e);
-			return null;
-		}
-		return result.getPostSubmitMessage();
-	}
-	
-	@Transactional
-	@Override
-	public String getPostSubmitRedirectURL(BaseRegistrationInput request,
-			RegistrationContext context, String requestId)
-	{
-		log.debug("Consulting form profile to establish post-submit redirect URL");
-		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, request, RequestSubmitStatus.submitted, 
-				context.triggeringMode, context.isOnIdpEndpoint, requestId, atHelper);
-		TranslatedRegistrationRequest result;
-		try
-		{
-			result = executeFilteredActions(request, mvelCtx, RedirectActionFactory.NAME);
-		} catch (EngineException e)
-		{
-			log.warn("Couldn't establish redirect URL from profile", e);
-			return null;
-		}
-		return result.getRedirectURL();
-	}
-
-	@Transactional
-	@Override
-	public String getPostCancelledRedirectURL(RegistrationContext context)
-	{
-		log.debug("Consulting form profile to establish post-cancel redirect URL");
-		Map<String, Object> mvelCtx = new RegistrationMVELContext(form, RequestSubmitStatus.notSubmitted, 
-				context.triggeringMode, context.isOnIdpEndpoint);
-		TranslatedRegistrationRequest result;
-		try
-		{
-			result = executeFilteredActions(null, mvelCtx, RedirectActionFactory.NAME);
-		} catch (EngineException e)
-		{
-			log.warn("Couldn't establish redirect URL from profile", e);
-			return null;
-		}
-		return result.getRedirectURL();
 	}
 
 	protected TranslatedRegistrationRequest executeFilteredActions(

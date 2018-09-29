@@ -106,12 +106,6 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 	
-	public RegistrationFormBuilder withPageTitle(I18nString aValue)
-	{
-		instance.setPageTitle(aValue);
-		return this;
-	}
-	
 	public RegistrationFormBuilder withShowGotoSignIn(boolean show, String url)
 	{
 		instance.setShowSignInLink(show);

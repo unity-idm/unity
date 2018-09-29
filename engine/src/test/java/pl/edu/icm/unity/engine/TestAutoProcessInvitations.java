@@ -75,7 +75,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 	private static final String TEST_1_FORM = "form1";
 	private static final String TEST_2_FORM = "form2";
 	private static final RegistrationContext REG_CONTEXT_TRY_AUTO_ACCEPT = new RegistrationContext(
-			true, false, TriggeringMode.manualStandalone);
+			false, TriggeringMode.manualStandalone);
 	
 	@Autowired
 	private InvitationManagement invitationMan;

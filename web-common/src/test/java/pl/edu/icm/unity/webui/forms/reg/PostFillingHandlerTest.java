@@ -99,7 +99,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 	{
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList();
 		PostFillingHandler handler = new PostFillingHandler("formId", 
-				configs, msg, "pageTitle", "logo");
+				configs, msg, "pageTitle", "logo", true);
 		
 		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationPostSubmit("requestId", status);
 		
@@ -113,7 +113,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 	{
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList();
 		PostFillingHandler handler = new PostFillingHandler("formId", 
-				configs, msg, "pageTitle", "logo");
+				configs, msg, "pageTitle", "logo", true);
 		
 		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationOnError(state);
 		
@@ -128,7 +128,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 	{
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList(config);
 		PostFillingHandler handler = new PostFillingHandler("formId", 
-				configs, msg, "pageTitle", "logo");
+				configs, msg, "pageTitle", "logo", true);
 		
 		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationPostSubmit("requestId", status);
 		
@@ -153,7 +153,7 @@ public class PostFillingHandlerTest extends DBIntegrationTestBase
 	{
 		List<RegistrationWrapUpConfig> configs = Lists.newArrayList(config);
 		PostFillingHandler handler = new PostFillingHandler("formId", 
-				configs, msg, "pageTitle", "logo");
+				configs, msg, "pageTitle", "logo", true);
 		
 		WorkflowFinalizationConfiguration ret = handler.getFinalRegistrationConfigurationOnError(config.getState());
 		

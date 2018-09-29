@@ -61,6 +61,11 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 		
 		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), null);
 	}
+	
+	String getPageTitle()
+	{
+		return enquiryForm.getPageTitle() == null ? null : enquiryForm.getPageTitle().getValue(msg);
+	}
 }
 
 

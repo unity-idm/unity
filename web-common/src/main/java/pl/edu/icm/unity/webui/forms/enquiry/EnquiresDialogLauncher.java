@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -19,6 +20,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
  * Used to establish enquires to be filled and shows dialogs to fill them.
@@ -84,13 +86,16 @@ public class EnquiresDialogLauncher
 		}
 
 		@Override
-		public boolean newRequest(EnquiryResponse request) throws WrongArgumentException
+		public void newRequest(EnquiryResponse request) throws WrongArgumentException
 		{
-			boolean submitted = enquiryController.submitted(request, formsToFill.get(currentFormIndex), 
+			WorkflowFinalizationConfiguration submitted = enquiryController.submitted(request, formsToFill.get(currentFormIndex), 
 					TriggeringMode.manualAtLogin);
-			if (submitted)
-				showNextIfNeeded();
-			return submitted;
+			if (!submitted.success)
+			{
+				NotificationPopup.showError(submitted.mainInformation, 
+						submitted.extraInformation == null ? "" : submitted.extraInformation);
+			}
+			showNextIfNeeded();
 		}
 
 		@Override

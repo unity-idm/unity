@@ -12,7 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
 
@@ -39,6 +41,7 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupsSelectionList;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Allows to edit an {@link EnquiryForm}. Can be configured to edit an existing form (name is fixed)
@@ -200,7 +203,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true);
-		main.addComponents(displayedName, formInformation, collectComments, tabOfLists);
+		main.addComponents(displayedName, formInformation, pageTitle, collectComments, tabOfLists);
 	}
 	
 	private void initLayoutTab()
@@ -216,7 +219,14 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	private void initWrapUpTab() throws EngineException
 	{
-		tabs.addTab(getWrapUpComponent(), msg.getMessage("RegistrationFormEditor.wrapUpTab"));
+		VerticalLayout main = new VerticalLayout();
+		Label hint = new Label(msg.getMessage("RegistrationFormEditor.onlyForStandaloneEnquiry"));
+		hint.addStyleName(Styles.emphasized.toString());
+		hint.setWidth(100, Unit.PERCENTAGE);
+		main.addComponent(hint);
+		Component wrapUpComponent = getWrapUpComponent(t -> t.isSuitableForEnquiry());
+		main.addComponent(wrapUpComponent);
+		tabs.addTab(main, msg.getMessage("RegistrationFormEditor.wrapUpTab"));
 	}
 	
 	private void initAssignedTab() throws EngineException

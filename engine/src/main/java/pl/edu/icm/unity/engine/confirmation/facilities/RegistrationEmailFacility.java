@@ -202,7 +202,7 @@ public abstract class RegistrationEmailFacility<T extends RegistrationEmailConfi
 				regForm.getWrapUpConfig(), 
 				msg,
 				regForm.getPageTitle() == null ? null : regForm.getPageTitle().getValue(msg),
-						regForm.getLayoutSettings().getLogoURL());
+						regForm.getLayoutSettings().getLogoURL(), true);
 		return postFillingHandler;
 	}
 

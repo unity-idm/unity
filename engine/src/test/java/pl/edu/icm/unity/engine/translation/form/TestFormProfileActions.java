@@ -39,11 +39,9 @@ import pl.edu.icm.unity.engine.translation.form.action.AddAttributeClassActionFa
 import pl.edu.icm.unity.engine.translation.form.action.AddIdentityActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
-import pl.edu.icm.unity.engine.translation.form.action.ConfirmationRedirectActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.FilterGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.FilterIdentityActionFactory;
-import pl.edu.icm.unity.engine.translation.form.action.RedirectActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.ScheduleEntityChangeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.SetCredentialRequirementActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.SetEntityStateActionFactory;
@@ -216,32 +214,6 @@ public class TestFormProfileActions
 		action.invoke(state, createContext(), "testProf");
 		
 		assertThat(state.getAutoAction(), is(AutomaticRequestAction.accept));
-	}	
-
-	@Test
-	public void testConfirmationRedirect() throws EngineException
-	{
-		ConfirmationRedirectActionFactory factory = new ConfirmationRedirectActionFactory();
-		RegistrationTranslationAction action = factory.getInstance("'http://someurl'");
-		
-		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
-		
-		action.invoke(state, createContext(), "testProf");
-		
-		assertThat(state.getRedirectURL(), is("http://someurl"));
-	}
-	
-	@Test
-	public void testRedirect() throws EngineException
-	{
-		RedirectActionFactory factory = new RedirectActionFactory();
-		RegistrationTranslationAction action = factory.getInstance("'http://someurl'");
-		
-		TranslatedRegistrationRequest state = new TranslatedRegistrationRequest("defaultCR");
-		
-		action.invoke(state, createContext(), "testProf");
-		
-		assertThat(state.getRedirectURL(), is("http://someurl"));
 	}	
 
 	@Test

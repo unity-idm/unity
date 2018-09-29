@@ -18,6 +18,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -26,11 +27,9 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.common.ConfirmationComponent;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.TopHeader;
-import pl.edu.icm.unity.webui.forms.enquiry.EnquiryWellKnownURLView.Callback;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
+import pl.edu.icm.unity.webui.forms.enquiry.StandaloneEnquiryView.Callback;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 import pl.edu.icm.unity.webui.wellknownurl.SecuredViewProvider;
@@ -92,41 +91,40 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			return null;
 		}
 		
-		return new EnquiryWellKnownURLView(editor, authnProcessor, msg, new Callback()
+		return new StandaloneEnquiryView(editor, authnProcessor, msg, new Callback()
 		{
 			@Override
-			public boolean submitted()
+			public WorkflowFinalizationConfiguration submitted()
 			{
-				EnquiryResponse request;
-				try
-				{
-					request = editor.getRequest(true);
-				} catch (Exception e)
-				{
-					NotificationPopup.showError(msg, 
-							msg.getMessage("EnquiryResponse.errorSubmit"), e);
-					return false;
-				}
-				
-				try
-				{
-					return editorController.submitted(request, form, TriggeringMode.manualStandalone);
-				} catch (WrongArgumentException e)
-				{
-					NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-					if (e instanceof IllegalFormContentsException)
-						editor.markErrorsFromException((IllegalFormContentsException) e);
-					return false;
-				}
+				return onSubmission(form, editor);
 			}
 			
 			@Override
-			public void cancelled()
+			public WorkflowFinalizationConfiguration ignored()
 			{
-				editorController.cancelled(form, TriggeringMode.manualStandalone);
+				
+				return editorController.cancelled(form, TriggeringMode.manualStandalone);
 			}
 		});
 	}
+	
+	private WorkflowFinalizationConfiguration onSubmission(EnquiryForm form, EnquiryResponseEditor editor)
+	{
+		EnquiryResponse request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
+		if (request == null)
+			return null;
+		try
+		{
+			return editorController.submitted(request, form, TriggeringMode.manualStandalone);
+		} catch (WrongArgumentException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
+			if (e instanceof IllegalFormContentsException)
+				editor.markErrorsFromException((IllegalFormContentsException) e);
+			return null;
+		}
+	}
+
 	
 	private String getFormName(String viewAndParameters)
 	{
@@ -156,21 +154,19 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		@Override
 		public void enter(ViewChangeEvent event)
 		{
+			WorkflowFinalizationConfiguration config = WorkflowFinalizationConfiguration.basicError(
+					msg.getMessage("EnquiryWellKnownURLViewProvider.notApplicableEnquiry"), null);
+			
 			VerticalLayout wrapper = new VerticalLayout();
-			
-			TopHeader header = new TopHeader("", authnProcessor, msg);
-			wrapper.addComponent(header);
-			
-			ConfirmationComponent confirmation = new ConfirmationComponent(Images.error, 
-					msg.getMessage("EnquiryWellKnownURLViewProvider.notApplicableEnquiry"));
-			wrapper.addComponent(confirmation);
-			wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
-			wrapper.setExpandRatio(confirmation, 2f);
-			wrapper.setSizeFull();
 			wrapper.setSpacing(false);
 			wrapper.setMargin(false);
+			wrapper.setSizeFull();
 			setSizeFull();
 			setCompositionRoot(wrapper);
+
+			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {});
+			wrapper.addComponent(finalScreen);
+			wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 		}
 	}
 }

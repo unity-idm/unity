@@ -285,8 +285,6 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private boolean tryAutoProcess(EnquiryForm form, EnquiryResponseState requestFull, 
 			RegistrationContext context) throws EngineException
 	{
-		if (!context.tryAutoAccept)
-			return false;
 		return tx.runInTransactionRetThrowing(() -> {
 			return internalManagment.autoProcessEnquiry(form, requestFull, 
 						"Automatic processing of the request  " + 
@@ -325,6 +323,14 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		return requestDB.getAll();
 	}
 
+	@Transactional
+	@Override
+	public EnquiryResponseState getEnquiryResponse(String requestId)
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.read);
+		return requestDB.get(requestId);
+	}
+	
 	@Transactional
 	@Override
 	public List<EnquiryForm> getPendingEnquires(EntityParam entity) throws EngineException

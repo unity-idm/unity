@@ -71,7 +71,7 @@ public class RegistrationFormsComponent extends VerticalLayout implements Activa
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
 		
-		table  = new SmallGrid<>();
+		table = new SmallGrid<>();
 		table.setSizeFull();
 		table.setSelectionMode(SelectionMode.MULTI);
 		table.addColumn(RegistrationForm::getName, ValueProvider.identity())

@@ -204,8 +204,6 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private Long tryAutoProcess(RegistrationForm form, RegistrationRequestState requestFull, 
 			RegistrationContext context) throws EngineException
 	{
-		if (!context.tryAutoAccept)
-			return null;
 		return tx.runInTransactionRetThrowing(() -> {
 			return internalManagment.autoProcess(form, requestFull, 
 						"Automatic processing of the request  " + 

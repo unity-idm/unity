@@ -10,12 +10,19 @@ import java.util.Set;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Sets;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
@@ -27,10 +34,12 @@ import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
+import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryFormChangedEvent;
@@ -47,7 +56,7 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 	private EnquiryManagement enquiriesManagement;
 	private EventsBus bus;
 	
-	private GenericElementsTable<EnquiryForm> table;
+	private Grid<EnquiryForm> table;
 	private com.vaadin.ui.Component main;
 	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
 	
@@ -67,22 +76,46 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 		setSpacing(false);
 		setCaption(msg.getMessage("EnquiryFormsComponent.caption"));
 		
-		
-		table = new GenericElementsTable<>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
-				form -> form.getName());
+		table = new SmallGrid<>();
 		table.setSizeFull();
-		table.setMultiSelect(true);
+		table.setSelectionMode(SelectionMode.MULTI);
+		table.addColumn(EnquiryForm::getName, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationFormsComponent.formsTable"))
+			.setId("name");
+		table.addComponentColumn(form -> 
+			{
+				Link link = new Link();
+				String linkURL = PublicRegistrationURLSupport.getWellknownEnquiryLink(
+						form.getName(), sharedEndpointMan); 
+				link.setCaption(linkURL);
+				link.setTargetName("_blank");
+				link.setResource(new ExternalResource(linkURL));
+				return link;
+			})
+			.setCaption(msg.getMessage("RegistrationFormsComponent.link"))
+			.setId("link");
 		
-		table.addActionHandler(getRefreshAction());
-		table.addActionHandler(getAddAction());
-		table.addActionHandler(getEditAction());
-		table.addActionHandler(getCopyAction());
-		table.addActionHandler(getDeleteAction());
-		table.addActionHandler(getResendAction());
-				
+		GridContextMenuSupport<EnquiryForm> contextMenu = new GridContextMenuSupport<>(table);
+		contextMenu.addActionHandler(getRefreshAction());
+		contextMenu.addActionHandler(getAddAction());
+		contextMenu.addActionHandler(getEditAction());
+		contextMenu.addActionHandler(getCopyAction());
+		contextMenu.addActionHandler(getDeleteAction());
+		contextMenu.addActionHandler(getResendAction());
+		GridSelectionSupport.installClickListener(table);
+		table.addItemClickListener(event -> {
+			if (event.getMouseEventDetails().isDoubleClick()) 
+			{
+				EnquiryForm form = event.getItem();
+				SingleActionHandler<EnquiryForm> editAction = getEditAction();
+				editAction.handle(Sets.newHashSet(form));
+			}
+		});
+		
+		
 		Toolbar<EnquiryForm> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
-		toolbar.addActionHandlers(table.getActionHandlers());
+		toolbar.addActionHandlers(contextMenu.getActionHandlers());
 		
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
@@ -96,7 +129,7 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 		try
 		{
 			List<EnquiryForm> forms = enquiriesManagement.getEnquires();
-			table.setInput(forms);
+			table.setItems(forms);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)

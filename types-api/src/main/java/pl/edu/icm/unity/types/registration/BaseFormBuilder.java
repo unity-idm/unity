@@ -210,6 +210,14 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 		return (T) this;
 	}
 	
+	
+	@SuppressWarnings("unchecked")
+	public T withPageTitle(I18nString aValue)
+	{
+		instance.setPageTitle(aValue);
+		return (T)this;
+	}
+	
 	@SuppressWarnings("unchecked")
 	public T withWrapUpConfig(List<RegistrationWrapUpConfig> config)
 	{

@@ -5,9 +5,8 @@
 package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.function.Predicate;
 
 import com.vaadin.ui.ComboBox;
 
@@ -26,24 +25,24 @@ public class EnumComboBox<T extends Enum<?>> extends ComboBox<T>{
 	
 	public EnumComboBox(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue)
 	{
-		init(msg, msgPrefix, enumClass, initialValue, new HashSet<T>());
+		init(msg, msgPrefix, enumClass, initialValue, t -> true);
 	}
 	
 	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
 			T initialValue)
 	{
-		this(caption, msg, msgPrefix, enumClass, initialValue, new HashSet<T>());
+		this(caption, msg, msgPrefix, enumClass, initialValue, t -> true);
 	}
 	
 	public EnumComboBox(String caption, UnityMessageSource msg, String msgPrefix, Class<T> enumClass, 
-			T initialValue,	Set<T> hidden)
+			T initialValue,	Predicate<T> filter)
 	{
 		super(caption);
-		init(msg, msgPrefix, enumClass, initialValue, hidden);
+		init(msg, msgPrefix, enumClass, initialValue, filter);
 	}
 
-	private void init(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue, 
-			Set<T> hidden)
+	private void init(UnityMessageSource msg, String msgPrefix, Class<T> enumClass, T initialValue,
+		Predicate<T> filter)
 	{
 		this.msg = msg;
 		this.msgPrefix = msgPrefix;
@@ -51,7 +50,7 @@ public class EnumComboBox<T extends Enum<?>> extends ComboBox<T>{
 		T[] consts = enumClass.getEnumConstants();
 		
 		for (T constant: consts)
-			if (!hidden.contains(constant))
+			if (filter.test(constant))
 				values.add(constant);
 		setEmptySelectionAllowed(false);
 		setItems(values);
