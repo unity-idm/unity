@@ -291,7 +291,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	@Override
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
-			FormElement previousAdded, InvitationWithCode invitation)
+			FormElement previousAdded, FormElement next, InvitationWithCode invitation)
 	{
 		switch (element.getType())
 		{
@@ -304,7 +304,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		case LOCAL_SIGNUP:
 			return createLocalSignupButton(layoutContainer.registrationFormLayout, (FormLocalSignupButtonElement) element);
 		default:
-			return super.createControlFor(layoutContainer, element, previousAdded, invitation);
+			return super.createControlFor(layoutContainer, element, previousAdded, next, invitation);
 		}
 	}
 

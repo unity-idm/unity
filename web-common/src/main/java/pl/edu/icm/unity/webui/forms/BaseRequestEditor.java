@@ -457,9 +457,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			credentials.put(credential.getName(), credential);
 		
 		FormElement previousInserted = null;
-		for (FormElement element : formLayout.getElements())
+		List<FormElement> elements = formLayout.getElements();
+		for (int i=0; i<elements.size(); i++)
 		{
-			if (createControlFor(layoutContainer, element, previousInserted, invitation))
+			FormElement element = elements.get(i);
+			FormElement nextElement = i + 1 < elements.size() ? elements.get(i+1) : null;
+			if (createControlFor(layoutContainer, element, previousInserted, nextElement, invitation))
 				previousInserted = element;
 		}
 		// we don't allow for empty sections
@@ -505,7 +508,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
-			FormElement previousInserted, InvitationWithCode invitation)
+			FormElement previousInserted, FormElement next, InvitationWithCode invitation)
 	{
 		switch (element.getType())
 		{
@@ -522,7 +525,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					invitation != null ? invitation.getGroupSelections() : new HashMap<>());
 			
 		case CAPTION:
-			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, (FormCaptionElement) element);
+			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, 
+					next, (FormCaptionElement) element);
 			
 		case SEPARATOR:
 			return createSeparatorControl(layoutContainer.registrationFormLayout, (FormSeparatorElement) element);
@@ -541,11 +545,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		return false;
 	}
 	
-	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, FormCaptionElement element)
+	protected boolean createLabelControl(AbstractOrderedLayout layout, FormElement previousInserted, 
+			FormElement next, FormCaptionElement element)
 	{
-		// we don't allow for empty sections - the previously added caption is removed.
-		removePreviousIfSection(layout, previousInserted);
-		
+		if (previousInserted == null || next == null)
+			return false;
+		if (previousInserted instanceof FormCaptionElement)
+			return false;
 		Label label = new Label(element.getValue().getValue(msg));
 		label.addStyleName(Styles.formSection.toString());
 		label.addStyleName("u-reg-sectionHeader");
