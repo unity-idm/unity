@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
@@ -222,6 +223,14 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 	public T withWrapUpConfig(List<RegistrationWrapUpConfig> config)
 	{
 		instance.setWrapUpConfig(config);
+		return (T)this;
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public T withFormLayoutSettings(FormLayoutSettings settings)
+	{
+		instance.setLayoutSettings(settings);
 		return (T)this;
 	}
 	

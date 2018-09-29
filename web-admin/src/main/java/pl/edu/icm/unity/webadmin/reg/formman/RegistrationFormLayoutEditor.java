@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class RegistrationFormLayoutEditorTab extends CustomComponent
+public class RegistrationFormLayoutEditor extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private Supplier<RegistrationForm> formProvider;
@@ -37,7 +37,7 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 	private boolean isInitialValueSet = false;
 	private Panel secondaryLayoutPanel;
 
-	public RegistrationFormLayoutEditorTab(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
+	public RegistrationFormLayoutEditor(UnityMessageSource msg, Supplier<RegistrationForm> formProvider)
 	{
 		super();
 		this.msg = msg;
@@ -50,12 +50,12 @@ public class RegistrationFormLayoutEditorTab extends CustomComponent
 	{
 		layouts = new CssLayout();
 		primaryLayoutEditor = new FormLayoutEditor(msg, () -> formProvider.get().getEffectivePrimaryFormLayout(msg));
-		primaryLayoutEditor.setWidth(600, Unit.PIXELS);
+		primaryLayoutEditor.setWidth(38, Unit.EM);
 		secondaryLayoutEditor = new FormLayoutEditor(msg, () -> formProvider.get().getEffectiveSecondaryFormLayout(msg));
-		secondaryLayoutEditor.setWidth(600, Unit.PIXELS);
+		secondaryLayoutEditor.setWidth(38, Unit.EM);
 		Panel primaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.primaryLayout"), primaryLayoutEditor);
-		primaryLayoutPanel.setStyleName(Styles.bottomMargin.toString());
-		primaryLayoutPanel.setStyleName(Styles.rightMargin.toString());
+		primaryLayoutPanel.addStyleName(Styles.bottomMargin.toString());
+		primaryLayoutPanel.addStyleName(Styles.rightMargin.toString());
 		primaryLayoutPanel.setSizeUndefined();
 		secondaryLayoutPanel = new Panel(msg.getMessage("RegistrationFormEditor.secondaryLayout"), secondaryLayoutEditor);
 		secondaryLayoutPanel.setSizeUndefined();

@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.types.registration;
 
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 
 /**
  * Builder of {@link RegistrationForm}
@@ -93,13 +92,6 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 	
-	public RegistrationFormBuilder withFormLayoutSettings(FormLayoutSettings settings)
-	{
-		instance.setLayoutSettings(settings);
-		
-		return this;
-	}
-
 	public RegistrationFormBuilder withTitle2ndStage(I18nString aValue)
 	{
 		instance.setTitle2ndStage(aValue);

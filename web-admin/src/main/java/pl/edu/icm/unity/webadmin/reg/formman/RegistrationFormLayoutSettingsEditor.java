@@ -30,7 +30,7 @@ import pl.edu.icm.unity.webui.common.NotNullComboBox;
  *
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
-public class RegistrationFormLayoutSettingsTab extends CustomComponent
+public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private CheckBox compactInputs;
@@ -40,7 +40,7 @@ public class RegistrationFormLayoutSettingsTab extends CustomComponent
 	
 	private Binder<FormLayoutSettings> binder;
 	
-	public RegistrationFormLayoutSettingsTab(UnityMessageSource msg)
+	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg)
 	{
 		this.msg = msg;
 

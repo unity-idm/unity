@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -65,6 +66,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private EnumComboBox<EnquiryType> enquiryType;
 	private GroupsSelectionList targetGroups;
 	private EnquiryFormNotificationsEditor notificationsEditor;
+	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
 	
 	private RegistrationActionsRegistry actionsRegistry;
 	private ActionParameterComponentProvider actionComponentProvider;
@@ -106,8 +108,9 @@ public class EnquiryFormEditor extends BaseFormEditor
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
-		initWrapUpTab();
+		initDisplayedTab();
 		initLayoutTab();
+		initWrapUpTab();
 		initAssignedTab();
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
 		addComponent(ignoreRequests);
@@ -125,6 +128,9 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withTranslationProfile(profileEditor.getProfile());
 		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
+		FormLayoutSettings settings = layoutSettingsEditor.getSettings();
+		builder.withFormLayoutSettings(settings);
+		
 		builder.withLayout(layoutEditor.getLayout());
 		
 		EnquiryForm form = builder.build();
@@ -160,6 +166,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 				ProfileType.REGISTRATION,
 				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
+		layoutSettingsEditor.setSettings(toEdit.getLayoutSettings());
 		layoutEditor.setLayout(toEdit.getLayout());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
@@ -195,15 +202,27 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private void initCollectedTab()
 	{
 		FormLayout main = new CompactFormLayout();
-		VerticalLayout wrapper = new VerticalLayout(main);
-		wrapper.setMargin(true);
-		wrapper.setSpacing(false);
-		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
-		
-		initCommonDisplayedFields();
+		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
+		main.addComponents(collectComments);
 		
 		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), true);
-		main.addComponents(displayedName, formInformation, pageTitle, collectComments, tabOfLists);
+		
+		VerticalLayout wrapper = new VerticalLayout(main, tabOfLists);
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
+	}
+	
+	private void initDisplayedTab()
+	{
+		FormLayout main = new CompactFormLayout();
+		initCommonDisplayedFields();
+		main.addComponents(displayedName, formInformation, pageTitle);
+		
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg);
+		
+		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.displayTab"));
 	}
 	
 	private void initLayoutTab()

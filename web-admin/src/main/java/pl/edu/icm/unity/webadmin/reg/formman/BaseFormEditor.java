@@ -160,7 +160,6 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		displayedName = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.displayedName"));
 		formInformation = new I18nTextArea(msg, msg.getMessage("RegistrationFormViewer.formInformation"));
-		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
 		pageTitle = new I18nTextField(msg, msg.getMessage("RegistrationFormEditor.registrationPageTitle"));
 	}
 	
@@ -212,7 +211,7 @@ public class BaseFormEditor extends VerticalLayout
 		tabOfLists.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
 		return tabOfLists;
 	}
-	
+
 	protected Component getWrapUpComponent(Predicate<TriggeringState> filter) throws EngineException
 	{
 		FormLayout main = new CompactFormLayout();
