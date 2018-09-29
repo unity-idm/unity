@@ -209,7 +209,7 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
 				
-		tabOfLists.addComponents(identityParams, localSignupMethods, attributeParams, groupParams, agreements);
+		tabOfLists.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
 		return tabOfLists;
 	}
 	

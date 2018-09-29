@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -42,7 +43,7 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
-		main.setMargin(true);
+		main.setMargin(new MarginInfo(true, false));
 		
 		code = new Label(msg.getMessage("RequestReviewPanel.codeValid"));
 		code.addStyleName(Styles.bold.toString());

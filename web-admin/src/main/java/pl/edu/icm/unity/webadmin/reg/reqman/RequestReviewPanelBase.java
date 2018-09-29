@@ -11,6 +11,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -81,15 +82,15 @@ public class RequestReviewPanelBase extends CustomComponent
 		attributes = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedAttributeIgnore")), 
 				DisableMode.WHEN_SELECTED);
-		attributes.addStyleName(Styles.margin.toString());
+		attributes.setWidth(100, Unit.PERCENTAGE);
 		attributesPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedAttributes"), 
-				attributes);
+				new VerticalLayout(attributes));
 		
 		groups = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), 
 				DisableMode.WHEN_SELECTED);
-		groups.addStyleName(Styles.margin.toString());
-		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), groups);
+		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), 
+				new VerticalLayout(groups));
 		
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
 		{
@@ -191,6 +192,7 @@ public class RequestReviewPanelBase extends CustomComponent
 			if (ap == null)
 				continue;
 			Component rep = handlersRegistry.getRepresentation(ap);
+			rep.setWidth(100, Unit.PERCENTAGE);
 			attributes.addEntry(rep, false);
 		}
 		attributesPanel.setVisible(!attributes.isEmpty());
