@@ -61,7 +61,7 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 	}
 
 	@Override
-	protected void appInit(VaadinRequest request)
+	protected void enter(VaadinRequest request)
 	{
 		VerticalLayout contents = new VerticalLayout();
 		contents.setMargin(false);

@@ -45,17 +45,16 @@ public class EnquiresDialogLauncher
 		this.authnProcessor = authnProcessor;
 	}
 
-	public void showEnquiryDialogIfNeeded()
+	public void showEnquiryDialogIfNeeded(Runnable gotoNextUI)
 	{
 		List<EnquiryForm> formsToFill = enquiryController.getFormsToFill();
 		if (!formsToFill.isEmpty())
-		{
-			showEnquiryDialog(0, formsToFill);
-			return;
-		}
+			showEnquiryDialog(0, formsToFill, gotoNextUI);
+		else
+			gotoNextUI.run();
 	}
 	
-	private void showEnquiryDialog(int currentFormIndex, List<EnquiryForm> formsToFill)
+	private void showEnquiryDialog(int currentFormIndex, List<EnquiryForm> formsToFill, Runnable gotoNextUI)
 	{
 		EnquiryForm enquiry = formsToFill.get(currentFormIndex);
 		EnquiryResponseEditor editor;
@@ -70,7 +69,7 @@ public class EnquiresDialogLauncher
 		}
 		EnquiryFormFillDialog dialog = new EnquiryFormFillDialog(msg, 
 				msg.getMessage("EnquiresDialogLauncher.caption"), editor, 
-				new CallbackImpl(currentFormIndex, formsToFill), enquiry.getType());
+				new CallbackImpl(currentFormIndex, formsToFill, gotoNextUI), enquiry.getType());
 		dialog.show();
 	}
 	
@@ -78,11 +77,13 @@ public class EnquiresDialogLauncher
 	{
 		private int currentFormIndex;
 		private List<EnquiryForm> formsToFill;
+		private Runnable gotoNextUI;
 		
-		public CallbackImpl(int currentFormIndex, List<EnquiryForm> formsToFill)
+		public CallbackImpl(int currentFormIndex, List<EnquiryForm> formsToFill, Runnable gotoNextUI)
 		{
 			this.currentFormIndex = currentFormIndex;
 			this.formsToFill = formsToFill;
+			this.gotoNextUI = gotoNextUI;
 		}
 
 		@Override
@@ -123,7 +124,9 @@ public class EnquiresDialogLauncher
 		{
 			currentFormIndex++;
 			if (formsToFill.size() > currentFormIndex)
-				showEnquiryDialog(currentFormIndex, formsToFill);
+				showEnquiryDialog(currentFormIndex, formsToFill, gotoNextUI);
+			else
+				gotoNextUI.run();
 		}
 	}
 }

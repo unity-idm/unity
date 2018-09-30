@@ -22,6 +22,7 @@ import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -38,6 +39,7 @@ import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences;
 import pl.edu.icm.unity.oauth.as.preferences.OAuthPreferences.OAuthClientSettings;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 import pl.edu.icm.unity.webui.idpcommon.EopException;
@@ -59,16 +61,19 @@ public class ASConsentDeciderServlet extends HttpServlet
 	private SessionManagement sessionMan;
 	private String oauthUiServletPath;
 	private String authenticationUIServletPath;
+	private EnquiryManagement enquiryManagement;
 
 	
 	public ASConsentDeciderServlet(PreferencesManagement preferencesMan, IdPEngine idpEngine,
 			TokensManagement tokensMan, SessionManagement sessionMan,
-			String oauthUiServletPath, String authenticationUIServletPath)
+			String oauthUiServletPath, String authenticationUIServletPath,
+			EnquiryManagement enquiryManagement)
 	{
 		this.tokensMan = tokensMan;
 		this.preferencesMan = preferencesMan;
 		this.sessionMan = sessionMan;
 		this.authenticationUIServletPath = authenticationUIServletPath;
+		this.enquiryManagement = enquiryManagement;
 		this.idpEngine = new OAuthIdPEngine(idpEngine);
 		this.oauthUiServletPath = oauthUiServletPath;
 	}
@@ -143,7 +148,8 @@ public class ASConsentDeciderServlet extends HttpServlet
 	
 	private boolean isInteractiveUIRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
-		return isConsentRequired(preferences, oauthCtx) || isActiveValueSelectionRequired(oauthCtx);
+		return isConsentRequired(preferences, oauthCtx) || isActiveValueSelectionRequired(oauthCtx) 
+				|| isEnquiryWaiting();
 	}
 
 	
@@ -160,7 +166,21 @@ public class ASConsentDeciderServlet extends HttpServlet
 		
 		return !oauthCtx.getConfig().isSkipConsent();
 	}
-	
+
+	private boolean isEnquiryWaiting()
+	{
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
+		EntityParam entity = new EntityParam(ae.getEntityId());
+		try
+		{
+			return !enquiryManagement.getPendingEnquires(entity).isEmpty();
+		} catch (EngineException e)
+		{
+			log.warn("Can't retrieve pending enquiries for user", e);
+			return false;
+		}
+	}
+
 	/**
 	 * Automatically sends an OAuth response, without the consent screen.
 	 * @throws IOException 

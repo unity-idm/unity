@@ -94,7 +94,7 @@ public class OAuthAuthzUI extends UnityEndpointUIBase
 	}
 
 	@Override
-	protected void appInit(VaadinRequest request)
+	protected void enter(VaadinRequest request)
 	{
 		OAuthAuthzContext ctx = OAuthContextUtils.getContext();
 		OAuthASProperties config = ctx.getConfig();

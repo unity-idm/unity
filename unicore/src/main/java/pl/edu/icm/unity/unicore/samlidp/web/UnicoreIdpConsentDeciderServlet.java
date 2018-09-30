@@ -15,10 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -58,10 +60,11 @@ public class UnicoreIdpConsentDeciderServlet extends IdpConsentDeciderServlet
 			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerAppHandler freemarker,
-			SessionManagement sessionMan)
+			SessionManagement sessionMan,
+			@Qualifier("insecure") EnquiryManagement enquiryManagement)
 	{
 		super(aTypeSupport, preferencesMan, idpEngine, 
-				freemarker, sessionMan);
+				freemarker, sessionMan, enquiryManagement);
 	}
 	
 	

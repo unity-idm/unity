@@ -413,15 +413,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		main.setWidth(100, Unit.PERCENTAGE);
 		setCompositionRoot(main);
 		
-		String logoURL = form.getLayoutSettings().getLogoURL();
-		if (logoURL != null && !logoURL.isEmpty())
-		{
-			Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
-			Image image = new Image(null, logoResource);
-			image.addStyleName("u-signup-logo");
-			main.addComponent(image);
-			main.setComponentAlignment(image, Alignment.TOP_CENTER);
-		}
+		addLogo(main);
 		
 		Label formName = new Label(form.getDisplayedName().getValue(msg));
 		formName.addStyleName(Styles.vLabelH1.toString());
@@ -441,6 +433,27 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		RegistrationLayoutsContainer container = new RegistrationLayoutsContainer(formWidth(), formWidthUnit());
 		container.addFormLayoutToRootLayout(main);
 		return container;
+	}
+	
+	private void addLogo(VerticalLayout main)
+	{
+		String logoURL = form.getLayoutSettings().getLogoURL();
+		if (logoURL != null && !logoURL.isEmpty())
+		{
+			Resource logoResource;
+			try
+			{
+				logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+			} catch (Exception e)
+			{
+				log.warn("Can't add logo", e);
+				return;
+			}
+			Image image = new Image(null, logoResource);
+			image.addStyleName("u-signup-logo");
+			main.addComponent(image);
+			main.setComponentAlignment(image, Alignment.TOP_CENTER);
+		}
 	}
 	
 	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 
