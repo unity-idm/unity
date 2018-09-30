@@ -30,7 +30,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.UrlHelper;
@@ -62,7 +61,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	
 	private String configKey;
 	private String idpKey;
-	private SAMLSPProperties samlProperties;
+	private IdPVisalSettings configuration;
 	private SamlContextManagement samlContextManagement;
 	private Set<String> tags;
 	
@@ -82,7 +81,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		this.idpKey = idpKey;
 		this.configKey = configKey;
 		this.authenticatorName = authenticatorName;
-		this.samlProperties = credentialExchange.getSamlValidatorSettings();
+		this.configuration = credentialExchange.getVisualSettings(configKey, msg.getLocale());
 		this.context = context;
 		initUI();
 	}
@@ -96,7 +95,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public Component getGridCompatibleComponent()
 	{
-		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), getName());
+		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), 
+				configuration.name);
 		idpComponent.addClickListener(event -> startLogin());
 		idpComponent.setWidth(100, Unit.PERCENTAGE);
 		return idpComponent;
@@ -106,8 +106,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		redirectParam = installRequestHandler();
 		
-		String name = getName();
-		String logoUrl = samlProperties.getLocalizedValue(configKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
+		String logoUrl = configuration.logoUrl;
+		
 		Resource logo;
 		try
 		{
@@ -119,25 +119,20 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		}
 		String signInLabel;
 		if (context == Context.LOGIN)
-			signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
+			signInLabel = msg.getMessage("AuthenticationUI.signInWith", configuration.name);
 		else
-			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", name);
+			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", configuration.name);
 		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
 		idpComponent.setWidth(100, Unit.PERCENTAGE);
-		this.tags = new HashSet<>(samlProperties.getListOfValues(configKey + SAMLSPProperties.IDP_NAME + "."));
-		this.tags.remove(name);
+		this.tags = new HashSet<>(configuration.tags);
+		this.tags.remove(configuration.name);
 		this.main = idpComponent;
 	}
 
 	private String getRetrievalClassName()
 	{
 		return authenticatorName + "." + idpKey;
-	}
-	
-	private String getName()
-	{
-		return samlProperties.getLocalizedName(configKey, msg.getLocale());
 	}
 	
 	private String installRequestHandler()
@@ -284,21 +279,20 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public String getLabel()
 	{	
-		return getName();
+		return configuration.name;
 	}
 
 	@Override
 	public Resource getImage()
 	{
-		String url = samlProperties.getLocalizedValue(configKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
-		if (url == null)
+		if (configuration.logoUrl == null)
 			return null;
 		try
 		{
-			return ImageUtils.getLogoResource(url);
+			return ImageUtils.getLogoResource(configuration.logoUrl);
 		} catch (MalformedURLException e)
 		{
-			log.error("Invalid logo URL " + url, e);
+			log.error("Invalid logo URL " + configuration.logoUrl, e);
 			return null;
 		}
 	}
