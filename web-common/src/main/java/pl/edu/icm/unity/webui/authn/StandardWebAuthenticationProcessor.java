@@ -348,12 +348,6 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	{
 		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
 		
-		if (mode == LogoutMode.internalOnly)
-		{
-			destroySession(soft);
-			return;
-		}
-		
 		LoginSession session = InvocationContext.getCurrent().getLoginSession();
 		try
 		{
@@ -365,8 +359,12 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 			destroySession(soft);
 			return;
 		}
-		
-		if (mode == LogoutMode.internalAndSyncPeers)
+			
+		if (mode == LogoutMode.internalOnly)
+		{
+			destroySession(soft);
+		}
+		else if (mode == LogoutMode.internalAndSyncPeers)
 		{
 			logoutProcessorsManager.handleSynchronousLogout(session);
 			destroySession(soft);
