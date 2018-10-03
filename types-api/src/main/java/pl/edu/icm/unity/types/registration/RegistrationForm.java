@@ -273,16 +273,13 @@ public class RegistrationForm extends BaseForm
 
 	public FormLayout getDefaultSecondaryFormLayout(MessageSource msg)
 	{
-		if (!getFormLayouts().isLocalSignupEmbeddedAsButton() && !getExternalSignupSpec().isEnabled())
-			return null;
-		
 		List<FormElement> elements;
-		if (getFormLayouts().isLocalSignupEmbeddedAsButton())
-		{
-			elements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
-		} else
+		if (!getExternalSignupSpec().isEnabled())
 		{
 			elements = FormLayoutUtils.getDefaultFormLayoutElementsWithoutCredentials(this, msg);
+		} else
+		{
+			elements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
 		}
 		addRegistrationFormSpecificElements(msg, elements);
 		return new FormLayout(elements);

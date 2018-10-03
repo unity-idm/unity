@@ -205,7 +205,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
 		layoutSettingsEditor.setSettings(toEdit.getLayoutSettings());
-		layoutEditor.setFormLayouts(toEdit, toEdit.getFormLayouts());
+		layoutEditor.setFormLayouts(toEdit.getFormLayouts());
 		showGotoSignin.setValue(toEdit.isShowSignInLink());
 		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
 		signInUrl.setEnabled(showGotoSignin.getValue());

@@ -102,7 +102,7 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 		return layouts;
 	}
 
-	public void setFormLayouts(RegistrationForm form, RegistrationFormLayouts formLayouts)
+	public void setFormLayouts(RegistrationFormLayouts formLayouts)
 	{
 		boolean isCustomLayoutDisabled = formLayouts.getPrimaryLayout() == null 
 				&& formLayouts.getSecondaryLayout() == null;
@@ -122,8 +122,6 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 		if (!enableCustomLayout.getValue())
 			return;
 
-		boolean isSecondLayoutNeeded = form.getExternalSignupSpec().isEnabled() || formLayouts.isLocalSignupEmbeddedAsButton();
-		secondaryLayoutPanel.setVisible(isSecondLayoutNeeded);
 		if (!isCustomLayoutDisabled)
 		{
 			primaryLayoutEditor.setLayout(formLayouts.getPrimaryLayout());
@@ -143,9 +141,6 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 		RegistrationForm form = formProvider.get();
 		if (form == null)
 			return;
-		
-		boolean isSecondLayoutNeeded = form.getExternalSignupSpec().isEnabled() || form.getFormLayouts().isLocalSignupEmbeddedAsButton();
-		secondaryLayoutPanel.setVisible(isSecondLayoutNeeded);
 	}
 	
 	public void updateFromForm()
@@ -157,7 +152,7 @@ public class RegistrationFormLayoutEditor extends CustomComponent
 		RegistrationFormLayouts layouts = getCurrentLayouts();
 		layouts.setLocalSignupEmbeddedAsButton(form.getFormLayouts().isLocalSignupEmbeddedAsButton());
 		FormLayoutUtils.updateRegistrationFormLayout(layouts, form);
-		setFormLayouts(form, layouts);
+		setFormLayouts(layouts);
 	}
 
 }

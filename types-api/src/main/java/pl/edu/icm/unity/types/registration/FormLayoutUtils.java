@@ -115,35 +115,17 @@ public final class FormLayoutUtils
 		updateSecondaryLayout(layouts, form);
 	}
 	
-	/**
-	 * Defined either when local or remote sign up method is configured.
-	 * In case local sign up the credentials should be available, otherwise removed.
-	 */
 	private static void updateSecondaryLayout(RegistrationFormLayouts layouts, RegistrationForm form)
 	{
-		boolean isLocalSignup = layouts.isLocalSignupEmbeddedAsButton();
-		boolean isExternalSignup = form.getExternalSignupSpec().isEnabled();
-		if (layouts.getSecondaryLayout() == null 
-				&& (isExternalSignup || isLocalSignup))
-		{
+		if (layouts.getSecondaryLayout() == null)
 			layouts.setSecondaryLayout(new FormLayout(new ArrayList<>()));
-		}
 		
-		if (layouts.getSecondaryLayout() != null)
-		{
-			FormLayout secondaryLayout = layouts.getSecondaryLayout();
-			if (isExternalSignup || isLocalSignup)
-			{
-				Set<String> definedElements = getDefinedElements(secondaryLayout);
-				updateFormParametersInLayout(secondaryLayout, form, definedElements);
-				updateOtherElementsInLayout(secondaryLayout, form, definedElements);
-			}
-			if (!isLocalSignup)
-				removeAllElements(secondaryLayout, FormLayoutElement.CREDENTIAL);
-			
-			if (!isExternalSignup && !isLocalSignup)
-				layouts.setSecondaryLayout(null);
-		}
+		FormLayout secondaryLayout = layouts.getSecondaryLayout();
+		Set<String> definedElements = getDefinedElements(secondaryLayout);
+		updateFormParametersInLayout(secondaryLayout, form, definedElements);
+		updateOtherElementsInLayout(secondaryLayout, form, definedElements);
+		if (!layouts.isLocalSignupEmbeddedAsButton())
+			removeAllElements(secondaryLayout, FormLayoutElement.CREDENTIAL);
 	}
 
 	/**
