@@ -57,9 +57,9 @@ public class RegistrationFormTest
 		MessageSource msg = Mockito.mock(MessageSource.class);
 		
 		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
-		layouts.setPrimaryLayout(complete.getDefaultPrimaryFormLayout(msg));
-		layouts.setSecondaryLayout(complete.getDefaultSecondaryFormLayout(msg));
 		complete.setFormLayouts(layouts);
+		layouts.setPrimaryLayout(complete.getEffectivePrimaryFormLayout(msg));
+		layouts.setSecondaryLayout(complete.getEffectiveSecondaryFormLayout(msg));
 		
 		String jsonStr = JsonUtil.toJsonString(complete);
 		System.err.println(jsonStr);
@@ -77,8 +77,9 @@ public class RegistrationFormTest
 		RegistrationFormLayouts layouts = new RegistrationFormLayouts();
 		layouts.setLocalSignupEmbeddedAsButton(true);
 		complete.setFormLayouts(layouts);
-		layouts.setPrimaryLayout(complete.getDefaultPrimaryFormLayout(msg));
-		layouts.setSecondaryLayout(complete.getDefaultSecondaryFormLayout(msg));
+		
+		layouts.setPrimaryLayout(complete.getEffectivePrimaryFormLayout(msg));
+		layouts.setSecondaryLayout(complete.getEffectiveSecondaryFormLayout(msg));
 		
 		layouts.validate(complete);
 		

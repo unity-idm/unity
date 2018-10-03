@@ -251,7 +251,7 @@ public final class FormLayoutUtils
 	public static void validateSecondaryLayout(RegistrationForm form)
 	{
 		FormLayout layout = form.getFormLayouts().getSecondaryLayout();
-		if (form.getFormLayouts().isLocalSignupEmbeddedAsButton())
+		if (RegistrationForm.isCredentialAvailableAtSecondaryFormLayout(form))
 		{
 			validateLayout(layout, form, true, false);
 		} else

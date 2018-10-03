@@ -274,7 +274,7 @@ public class RegistrationForm extends BaseForm
 	public FormLayout getDefaultSecondaryFormLayout(MessageSource msg)
 	{
 		List<FormElement> elements;
-		if (!getExternalSignupSpec().isEnabled())
+		if (!isCredentialAvailableAtSecondaryFormLayout(this))
 		{
 			elements = FormLayoutUtils.getDefaultFormLayoutElementsWithoutCredentials(this, msg);
 		} else
@@ -283,6 +283,11 @@ public class RegistrationForm extends BaseForm
 		}
 		addRegistrationFormSpecificElements(msg, elements);
 		return new FormLayout(elements);
+	}
+	
+	public static boolean isCredentialAvailableAtSecondaryFormLayout(RegistrationForm form)
+	{
+		return form.getExternalSignupSpec().isEnabled() && !form.getFormLayouts().isLocalSignupEmbeddedAsButton();
 	}
 	
 	/**
