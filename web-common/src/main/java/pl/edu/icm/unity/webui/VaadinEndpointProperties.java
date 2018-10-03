@@ -73,6 +73,9 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final float DEFAULT_AUTHN_COLUMN_WIDTH = 15f;
 	public static final String AUTHN_COLUMN_WIDTH = "columnWidth";
 	public static final String AUTHN_COLUMN_CONTENTS = "columnContents";
+	
+	public static final String CRED_RESET_COMPACT = "compactCredentialRest";
+	
 
 
 	@DocumentationReferenceMeta
@@ -181,6 +184,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 						+ "Header will be only added if there is a non-text element after it"
 						+ " (what is the only difference to separator). "
 						+ "+_GRID_ID+ - inserts grid widget into the column. Grid must be defined with the provided id."));
+
+		META.put(CRED_RESET_COMPACT, new PropertyMD("true").
+				setDescription("Controls if credential reset UI and outdated credential UI should use separate captions (false), "
+						+ "or captions put as placeholders resembling authN UI (true)."));
 		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));

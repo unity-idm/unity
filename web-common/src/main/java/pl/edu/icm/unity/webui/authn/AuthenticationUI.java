@@ -4,7 +4,11 @@
  */
 package pl.edu.icm.unity.webui.authn;
 
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMNS_PFX;
+import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Function;
@@ -38,8 +42,11 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider;
+import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
+import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
@@ -67,10 +74,10 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private EndpointRegistrationConfiguration registrationConfiguration;
 	private EntityManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
-	private ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory;
+	private ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory;
 	private List<AuthenticationFlow> authnFlows;
 	
-	private AuthenticationScreen ui;
+	private AuthenticationScreen authenticationUI;
 	private RegistrationInfoProvider registrationInfoProvider;
 	
 	@Autowired
@@ -80,7 +87,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			InputTranslationEngine inputTranslationEngine,
-			ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory,
+			ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
 			RegistrationInfoProvider registrationInfoProvider)
 	{
 		super(msg);
@@ -114,14 +121,14 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-		ui = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
+		authenticationUI = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
 				this::showOutdatedCredentialDialog, 
 				this::showRegistrationDialog, 
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
 				unknownUserDialogProvider, 
 				authnProcessor, localeChoice, authnFlows, registrationInfoProvider);
-		setContent(ui);
+		setContent(authenticationUI);
 		setSizeFull();
 	}
 	
@@ -136,12 +143,34 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		LoginSession ls = (LoginSession) vss.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		if (ls != null && ls.isUsedOutdatedCredential())
 		{
-			outdatedCredentialDialogFactory.getObject().show(authnProcessor);
+			CredentialChangeConfiguration uiConfig = new CredentialChangeConfiguration(
+					config.getValue(VaadinEndpointProperties.AUTHN_LOGO), 
+					getFirstColumnWidth(), 
+					config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
+			
+			
+			OutdatedCredentialController outdatedCredentialController = outdatedCredentialDialogFactory.getObject();
+			outdatedCredentialController.init(uiConfig, authnProcessor, this::resetToFreshAuthenticationScreen);
+			setContent(outdatedCredentialController.getComponent());
 			return true;
 		}
 		return false;
 	}
-		
+	
+	private float getFirstColumnWidth()
+	{
+		Iterator<String> columnKeys = config.getStructuredListKeys(AUTHN_COLUMNS_PFX).iterator();
+		return columnKeys.hasNext() ? 
+				(float)(double)config.getDoubleValue(columnKeys.next()+AUTHN_COLUMN_WIDTH) 
+				: VaadinEndpointProperties.DEFAULT_AUTHN_COLUMN_WIDTH;
+	}
+	
+	private void resetToFreshAuthenticationScreen()
+	{
+		setContent(authenticationUI);
+		authenticationUI.reset();
+	}
+	
 	private boolean isRegistrationEnabled()
 	{
 		if (!registrationConfiguration.isShowRegistrationOption())
@@ -186,7 +215,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	@Override
 	protected void refresh(VaadinRequest request) 
 	{
-		ui.refresh(request);
+		authenticationUI.refresh(request);
 		showOutdatedCredentialDialog();
 	}
 }

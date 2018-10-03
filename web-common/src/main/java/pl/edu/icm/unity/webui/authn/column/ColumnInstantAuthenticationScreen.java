@@ -126,6 +126,12 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		refreshAuthenticationState(request);
 		authNColumns.focusFirst();
 	}
+
+	@Override
+	public void reset()
+	{
+		switchBackToPrimaryAuthentication();
+	}
 	
 	protected void init()
 	{

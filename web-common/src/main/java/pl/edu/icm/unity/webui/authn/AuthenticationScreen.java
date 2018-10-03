@@ -15,5 +15,10 @@ import com.vaadin.ui.Component;
  */
 public interface AuthenticationScreen extends Component 
 {
-	public void refresh(VaadinRequest request); 
+	void refresh(VaadinRequest request);
+	
+	/**
+	 * After handling this method the authN UI should be eset to initial state - ready for next login
+	 */
+	void reset();
 }
