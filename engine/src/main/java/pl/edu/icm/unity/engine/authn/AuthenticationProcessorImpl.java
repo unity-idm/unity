@@ -224,6 +224,8 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 		}
 		AuthenticatedEntity logInfo = result2.getAuthenticatedEntity();
 		logInfo.getAuthenticatedWith().addAll(firstAuthenticated.getAuthenticatedWith());
+		if (firstAuthenticated.getOutdatedCredentialId() != null)
+			logInfo.setOutdatedCredentialId(firstAuthenticated.getOutdatedCredentialId());
 		return logInfo;
 	}
 	
