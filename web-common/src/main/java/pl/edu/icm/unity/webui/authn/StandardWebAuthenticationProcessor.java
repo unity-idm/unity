@@ -356,18 +356,14 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 			destroySession(soft);
 		} else if (mode == LogoutMode.internalAndSyncPeers)
 		{
-			LoginSession session = null;
 			try
 			{
-				session = sessionMan.getSession(contextSession.getId());
+				LoginSession session = sessionMan.getSession(contextSession.getId());
+				logoutProcessorsManager.handleSynchronousLogout(session);
 			} catch (IllegalArgumentException e)
 			{
 				log.warn("Can not refresh the state of the current session. Logout of session participants "
 						+ "won't be performed", e);
-			}
-			if (session != null)
-			{
-				logoutProcessorsManager.handleSynchronousLogout(session);
 			}
 			destroySession(soft);
 		} else
