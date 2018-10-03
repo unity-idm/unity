@@ -31,15 +31,18 @@ public class RegistrationFormFillDialog extends AbstractDialog
 	private Callback callback;
 	private boolean onFinalScreen;
 	private IdPLoginController idpLoginController;
+	private boolean withSimplifiedFinalization;
 	
 	public RegistrationFormFillDialog(UnityMessageSource msg, String caption, 
-			RegistrationRequestEditor editor, Callback callback, IdPLoginController idpLoginController)
+			RegistrationRequestEditor editor, Callback callback, IdPLoginController idpLoginController,
+			boolean withSimplifiedFinalization)
 	{
 		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 
 				msg.getMessage("cancel"));
 		this.editor = editor;
 		this.callback = callback;
 		this.idpLoginController = idpLoginController;
+		this.withSimplifiedFinalization = withSimplifiedFinalization;
 		setSizeMode(SizeMode.LARGE);
 	}
 
@@ -102,7 +105,13 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		try
 		{
 			WorkflowFinalizationConfiguration config = callback.newRequest(request);
-			gotoFinalScreen(config);
+			if (withSimplifiedFinalization)
+			{
+				closeDialogAndShowInfo(config.mainInformation);
+			} else
+			{
+				gotoFinalScreen(config);
+			}
 		} catch (Exception e) 
 		{
 			if (e instanceof IllegalFormContentsException)
@@ -111,6 +120,12 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		}
 	}
 	
+	private void closeDialogAndShowInfo(String mainInformation)
+	{
+		close();
+		NotificationPopup.showNotice(mainInformation, mainInformation);
+	}
+
 	public interface Callback
 	{
 		WorkflowFinalizationConfiguration newRequest(RegistrationRequest request) throws WrongArgumentException;

@@ -39,9 +39,9 @@ public class RegistrationContext
 		
 		/**
 		 * Form was shown after a successful remote authentication 
-		 * which was not mapped to a local entity by an input transaltion profile. 
+		 * which was not mapped to a local entity by an input translation profile. 
 		 */
-		afterRemoteLogin,
+		afterRemoteLoginWhenUnknownUser,
 		
 		/**
 		 * The form was submitted as a result of secondary sign up step, where a

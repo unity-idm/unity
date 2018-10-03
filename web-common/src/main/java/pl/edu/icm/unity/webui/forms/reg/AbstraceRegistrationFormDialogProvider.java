@@ -44,9 +44,19 @@ public abstract class AbstraceRegistrationFormDialogProvider implements Registra
 	public void showRegistrationDialog(RegistrationForm form, RemotelyAuthenticatedContext remoteContext,
 			TriggeringMode mode, AsyncErrorHandler errorHandler)
 	{
-		showFistStageDialog(form, remoteContext, mode, errorHandler);
+		if (isRemoteLoginWhenUnknownUser(mode))
+		{
+			showSecondStageDialog(form, remoteContext, mode, errorHandler);
+		} else
+		{
+			showFistStageDialog(form, remoteContext, mode, errorHandler);
+		}
 	}
 
+	protected boolean isRemoteLoginWhenUnknownUser(TriggeringMode mode)
+	{
+		return mode == TriggeringMode.afterRemoteLoginWhenUnknownUser;
+	}
 
 	private EditorCreatedCallbackImpl showFistStageDialog(final RegistrationForm form, 
 			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,

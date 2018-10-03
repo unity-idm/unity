@@ -85,7 +85,7 @@ public class RegistrationRequestTest extends AbstractNamedWithTSTest<Registratio
 		
 		RegistrationRequestState state = new RegistrationRequestState();
 		state.setAdminComments(Lists.newArrayList(new AdminComment("contents", 3, true)));
-		state.setRegistrationContext(new RegistrationContext(true, TriggeringMode.afterRemoteLogin));
+		state.setRegistrationContext(new RegistrationContext(true, TriggeringMode.afterRemoteLoginWhenUnknownUser));
 		state.setRequest(req);
 		state.setRequestId(id);
 		state.setStatus(RegistrationRequestStatus.pending);

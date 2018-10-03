@@ -54,7 +54,7 @@ public class EnquiryResponseTest extends BaseRequestTest<EnquiryResponseState>
 		
 		EnquiryResponseState state = new EnquiryResponseState();
 		state.setAdminComments(Lists.newArrayList(new AdminComment("contents", 3, true)));
-		state.setRegistrationContext(new RegistrationContext(true, TriggeringMode.afterRemoteLogin));
+		state.setRegistrationContext(new RegistrationContext(true, TriggeringMode.manualAtLogin));
 		state.setRequest(req);
 		state.setRequestId(id);
 		state.setStatus(RegistrationRequestStatus.pending);

@@ -123,6 +123,7 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 	{
 		RegistrationContext context = new RegistrationContext(
 				idpLoginController.isLoginInProgress(), mode);
+		boolean isSimplifiedFinalization = isRemoteLoginWhenUnknownUser(mode);
 		RegistrationFormFillDialog dialog = new RegistrationFormFillDialog(msg, 
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 				editor, new RegistrationFormFillDialog.Callback()
@@ -137,7 +138,7 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 					public void cancelled()
 					{
 					}
-				}, idpLoginController);
+				}, idpLoginController, isSimplifiedFinalization);
 		return dialog;
 	}
 }

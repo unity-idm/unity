@@ -151,7 +151,7 @@ public class UnknownUserDialog extends AbstractDialog
 	{
 		try
 		{
-			formLauncher.showRegistrationDialog(form, ctx, TriggeringMode.afterRemoteLogin,
+			formLauncher.showRegistrationDialog(form, ctx, TriggeringMode.afterRemoteLoginWhenUnknownUser,
 					this::handleRegistrationError);
 			close();
 		} catch (Exception e)
