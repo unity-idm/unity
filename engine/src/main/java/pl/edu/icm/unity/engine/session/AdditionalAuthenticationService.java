@@ -205,6 +205,8 @@ public class AdditionalAuthenticationService
 	{
 		if (authenticator.getRetrieval().requiresRedirect())
 			return false;
+		if (authenticator.getAuthenticatorInstance().getLocalCredentialName() == null)
+			return false;
 		return userCanUse(authenticator.getAuthenticatorInstance());
 	}
 	
