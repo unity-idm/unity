@@ -231,7 +231,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				return new AuthenticationResult(Status.deny, null);
 			}
 			boolean isOutdated = isCurrentPasswordOutdated(password, credState, resolved);
-			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, isOutdated ? resolved.getCredentialName() : null);
+			AuthenticatedEntity ae = new AuthenticatedEntity(resolved.getEntityId(), username, 
+					isOutdated ? resolved.getCredentialName() : null);
 			return new AuthenticationResult(Status.success, ae);
 		} catch (Exception e)
 		{
@@ -270,18 +271,19 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		if (isCurrentCredentialOutdated(credState))
 			return true;
 
-		PasswordValidator validator = getPasswordValidator();
-		RuleResult result = validator.validate(new PasswordData(new Password(password)));
-		if (!result.isValid())
+		try
+		{
+			verifyPasswordStrength(password);
+		} catch (IllegalCredentialException e)
 		{
 			String invalidated = invalidate(resolved.getCredentialValue());
 			try
 			{
 				credentialHelper.updateCredential(resolved.getEntityId(), resolved.getCredentialName(), 
 							invalidated);
-			} catch (EngineException e)
+			} catch (EngineException ee)
 			{
-				throw new AuthenticationException("Problem invalidating outdated credential", e);
+				throw new AuthenticationException("Problem invalidating outdated credential", ee);
 			}
 			return true;
 		}
@@ -334,6 +336,13 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	private void verifyNewPassword(String password, Deque<PasswordInfo> currentCredentials, int historyLookback) 
 			throws IllegalCredentialException
 	{
+		verifyPasswordStrength(password);
+		
+		verifyPasswordNotReused(password, currentCredentials, historyLookback);
+	}
+
+	private void verifyPasswordStrength(String password) throws IllegalCredentialException
+	{
 		Zxcvbn zxcvbn = new Zxcvbn();
 		Strength strength = zxcvbn.measure(password);
 		if (strength.getGuessesLog10() < credential.getMinScore())
@@ -344,7 +353,11 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		RuleResult result = validator.validate(new PasswordData(new Password(password)));
 		if (!result.isValid())
 			throw new IllegalCredentialException("Password is too weak");
-		
+	}
+
+	private void verifyPasswordNotReused(String password, Deque<PasswordInfo> currentCredentials, int historyLookback) 
+			throws IllegalCredentialException
+	{
 		Iterator<PasswordInfo> iterator = currentCredentials.iterator();
 		for (int i=0; i<historyLookback && iterator.hasNext(); i++)
 		{
@@ -354,6 +367,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		}
 	}
 
+	
 	private PasswordValidator getPasswordValidator()
 	{
 		List<Rule> ruleList = new ArrayList<Rule>();
