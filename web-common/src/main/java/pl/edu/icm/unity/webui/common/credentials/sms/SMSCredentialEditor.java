@@ -340,9 +340,9 @@ public class SMSCredentialEditor implements CredentialEditor
 	{
 		if (error == null)
 		{
-			editor.setComponentError(null);
 			currentMobileAttr.setComponentError(null);
 			editor.setValue("");
+			editor.setComponentError(null);
 			return;
 		}
 

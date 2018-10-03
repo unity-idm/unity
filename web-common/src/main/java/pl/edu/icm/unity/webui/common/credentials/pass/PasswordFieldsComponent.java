@@ -193,7 +193,11 @@ public class PasswordFieldsComponent extends CustomComponent
 		password1.clear();
 		password2.setValue("");
 		if (error == null)
+		{
+			password1.setComponentError(null);
+			password2.setComponentError(null);
 			return;
+		}
 		
 		if (error instanceof CredentialRecentlyUsedException)
 		{
