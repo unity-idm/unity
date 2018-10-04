@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.authn.credreset.password;
 
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -62,6 +61,8 @@ public class PasswordCredentialReset2Dialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
+		addStyleName("u-credreset-dialog");
+
 		if (CredentialResetStateVariable.get() != 1)
 		{
 			NotificationPopup.showError(msg.getMessage("error"),
@@ -77,7 +78,7 @@ public class PasswordCredentialReset2Dialog extends AbstractDialog
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
 		ret.addComponent(userLabel);
-		FormLayout form = new FormLayout(question, answer);
+		VerticalLayout form = new VerticalLayout(question, answer);
 		ret.addComponent(form);
 		return ret;
 	}

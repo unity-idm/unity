@@ -135,12 +135,14 @@ public class PasswordCredentialResetSettings
 		this.confirmationMode = ConfirmationMode.valueOf(node.get("confirmationMode").asText());
 		this.requireSecurityQuestion = node.get("requireSecurityQuestion").asBoolean();
 		ArrayNode questionsNode = (ArrayNode) node.get("questions");
-		if (questionsNode.size() == 0 && requireSecurityQuestion)
-			throw new InternalException("At least one security question must be defined " +
+		if (requireSecurityQuestion)
+		{
+			if (questionsNode == null || questionsNode.size() == 0)
+				throw new InternalException("At least one security question must be defined " +
 					"if questions are required");
-		for (int i=0; i<questionsNode.size(); i++)
-			this.questions.add(questionsNode.get(i).asText());
-		
+			for (int i=0; i<questionsNode.size(); i++)
+				this.questions.add(questionsNode.get(i).asText());
+		}
 		if (node.has("emailSecurityCodeMsgTemplate") && !node.get("emailSecurityCodeMsgTemplate").isNull())
 			emailSecurityCodeMsgTemplate = node.get("emailSecurityCodeMsgTemplate").asText();
 		else

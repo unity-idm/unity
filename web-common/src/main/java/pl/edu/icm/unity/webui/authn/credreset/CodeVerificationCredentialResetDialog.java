@@ -7,11 +7,11 @@ package pl.edu.icm.unity.webui.authn.credreset;
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.UserError;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -73,6 +73,8 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 	@Override
 	protected Component getContents() throws Exception
 	{
+		addStyleName("u-credreset-dialog");
+
 		if (CredentialResetStateVariable.get() != expectedState)
 		{
 			NotificationPopup.showError(msg.getMessage("error"),
@@ -92,7 +94,6 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 			throw e;
 		}
 		
-		Label userLabel = new Label(msg.getMessage("CredentialReset.changingFor", username));
 		Label info = new Label(infoLabel);
 		info.setWidth(100, Unit.PERCENTAGE);
 		
@@ -121,9 +122,10 @@ public abstract class CodeVerificationCredentialResetDialog extends AbstractDial
 		});
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
-		ret.addComponent(userLabel);
 		ret.addComponent(info);
-		FormLayout form = new FormLayout(answer, resend);
+		VerticalLayout form = new VerticalLayout(answer, resend);
+		form.setComponentAlignment(answer, Alignment.TOP_CENTER);
+		form.setComponentAlignment(resend, Alignment.TOP_CENTER);
 		ret.addComponent(form);
 		return ret;
 	}

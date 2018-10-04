@@ -76,10 +76,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		super(caption);
 		this.msg = msg;
-		confirm = new Button(confirmM, this);
-		confirm.setId("AbstractDialog.confirm");
 		if (cancelM != null)
-			cancel = new Button(cancelM, this);		
+			cancel = createCancelButton();
+		confirm = createConfirmButton();
 	}
 	
 	/**
@@ -91,8 +90,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		super(caption);
 		this.msg = msg;
-		confirm = new Button(msg.getMessage("ok"), this);
-		cancel = new Button(msg.getMessage("cancel"), this);
+		cancel = createCancelButton();
+		confirm = createConfirmButton();
 	}	
 	
 	protected abstract Component getContents() throws Exception;
@@ -108,6 +107,21 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		this.widthEm = widthEm;
 		this.heightEm = heightEm;
+	}
+	
+	protected Button createConfirmButton()
+	{
+		Button confirm = new Button(msg.getMessage("ok"), this);
+		confirm.setId("AbstractDialog.confirm");
+		confirm.addStyleName("u-dialog-confirm");
+		return confirm;
+	}
+
+	protected Button createCancelButton()
+	{
+		Button confirm = new Button(msg.getMessage("cancel"), this);
+		confirm.addStyleName("u-dialog-cancel");
+		return confirm;
 	}
 	
 	/**
@@ -199,6 +213,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSizeFull();
+		vl.addStyleName("u-dialog-contents");
 		
 		Panel contentsPanel = new SafePanel();
 		contentsPanel.setSizeFull();
@@ -244,9 +259,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected AbstractOrderedLayout getButtonsBar()
 	{
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.addComponent(confirm);
 		if (cancel != null)
 			hl.addComponent(cancel);
+		hl.addComponent(confirm);
 		return hl;
 	}
 	
