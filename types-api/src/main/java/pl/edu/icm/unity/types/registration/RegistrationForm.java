@@ -287,7 +287,7 @@ public class RegistrationForm extends BaseForm
 	
 	public static boolean isCredentialAvailableAtSecondaryFormLayout(RegistrationForm form)
 	{
-		return form.getExternalSignupSpec().isEnabled() && !form.getFormLayouts().isLocalSignupEmbeddedAsButton();
+		return form.getExternalSignupSpec().isEnabled() && form.getFormLayouts().isLocalSignupEmbeddedAsButton();
 	}
 	
 	/**

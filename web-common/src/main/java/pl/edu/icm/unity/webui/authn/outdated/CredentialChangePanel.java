@@ -104,25 +104,44 @@ class CredentialChangePanel extends CustomComponent
 		wrapper.addComponent(info);
 		wrapper.setComponentAlignment(info, Alignment.TOP_CENTER);
 		
-		wrapper.addComponents(credEditorComp.getComponents());
+		VerticalLayout fixedWidthCol = new VerticalLayout();
+		fixedWidthCol.addStyleName("u-outdatedcred-fixedWidthCol");
+		fixedWidthCol.setMargin(false);
+		fixedWidthCol.setWidth(uiConfig.width, Unit.EM);
+		Component editor = getEditorAsSingle(uiConfig);
+		fixedWidthCol.addComponent(editor);
+		fixedWidthCol.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 		
-		wrapper.addComponent(new Label("&nbsp;", ContentMode.HTML));
+		fixedWidthCol.addComponent(new Label("&nbsp;", ContentMode.HTML));
 		
 		Button update = new Button(msg.getMessage("OutdatedCredentialDialog.update"));
-		update.setWidth(uiConfig.width, Unit.EM);
+		update.setWidth(100, Unit.PERCENTAGE);
+		update.addStyleName("u-outdatedcred-update");
 		update.addClickListener(event -> {
 			if (updateCredential(false))
 				updatedCallback.run();
 		});
 		update.setClickShortcut(KeyCode.ENTER);
-		wrapper.addComponent(update);
-		wrapper.setComponentAlignment(update, Alignment.MIDDLE_CENTER);
+		fixedWidthCol.addComponent(update);
+		fixedWidthCol.setComponentAlignment(update, Alignment.MIDDLE_CENTER);
+		
+		wrapper.addComponent(fixedWidthCol);
+		wrapper.setComponentAlignment(fixedWidthCol, Alignment.TOP_CENTER);
 		
 		setCompositionRoot(wrapper);
 		setWidthUndefined();
 		addStyleName("u-outdatedcred-panel");
 	}
 
+	private Component getEditorAsSingle(CredentialChangeConfiguration uiConfig)
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setMargin(false);
+		wrapper.addComponents(credEditorComp.getComponents());
+		wrapper.setWidth(uiConfig.width, Unit.EM);
+		return wrapper;
+	}
+	
 	Component.Focusable getFocussedComponent()
 	{
 		for (Component component: credEditorComp.getComponents())
