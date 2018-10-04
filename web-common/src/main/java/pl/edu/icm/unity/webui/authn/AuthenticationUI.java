@@ -31,11 +31,11 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -44,14 +44,12 @@ import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
-import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChooserDialog;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
+import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 
 /**
  * Vaadin UI of the authentication application. Displays configured authentication UI and 
@@ -65,41 +63,37 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 @PreserveOnRefresh
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
 	private LocaleChoiceComponent localeChoice;
 	private StandardWebAuthenticationProcessor authnProcessor;
-	private RegistrationFormsChooserComponent formsChooser;
+	private RegistrationFormsLayoutController registrationFormController;
 	private InsecureRegistrationFormLauncher formLauncher;
 	private ExecutorsService execService;
-	private EndpointRegistrationConfiguration registrationConfiguration;
 	private EntityManagement idsMan;
 	private InputTranslationEngine inputTranslationEngine;
 	private ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory;
 	private List<AuthenticationFlow> authnFlows;
 	
 	private AuthenticationScreen authenticationUI;
-	private RegistrationInfoProvider registrationInfoProvider;
 	
 	@Autowired
 	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
 			StandardWebAuthenticationProcessor authnProcessor,
-			RegistrationFormsChooserComponent formsChooser,
+			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncher formLauncher,
 			ExecutorsService execService, @Qualifier("insecure") EntityManagement idsMan,
 			InputTranslationEngine inputTranslationEngine,
-			ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory,
-			RegistrationInfoProvider registrationInfoProvider)
+			ObjectFactory<OutdatedCredentialController> outdatedCredentialDialogFactory)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
 		this.authnProcessor = authnProcessor;
-		this.formsChooser = formsChooser;
+		this.registrationFormController = registrationFormController;
 		this.formLauncher = formLauncher;
 		this.execService = execService;
 		this.idsMan = idsMan;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
-		this.registrationInfoProvider = registrationInfoProvider;
 	}
 
 
@@ -111,7 +105,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		super.configure(description, authnFlows, registrationConfiguration, genericEndpointConfiguration);
 		this.authnFlows = new ArrayList<>(authnFlows);
-		this.registrationConfiguration = registrationConfiguration;
+		this.registrationFormController.configure(registrationConfiguration);
 	}
 	
 	@Override
@@ -123,11 +117,11 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				getSandboxServletURLForAssociation());
 		authenticationUI = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
 				this::showOutdatedCredentialDialog, 
-				this::showRegistrationDialog, 
+				this::showRegistrationLayout, 
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
 				unknownUserDialogProvider, 
-				authnProcessor, localeChoice, authnFlows, registrationInfoProvider);
+				authnProcessor, localeChoice, authnFlows);
 		setContent(authenticationUI);
 		setSizeFull();
 	}
@@ -169,53 +163,67 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	{
 		setContent(authenticationUI);
 		authenticationUI.reset();
+		registrationFormController.resetSessionRegistraionAttribute();
 	}
 	
 	private boolean isRegistrationEnabled()
 	{
-		if (!registrationConfiguration.isShowRegistrationOption())
-			return false;
-		if (registrationConfiguration.getEnabledForms().size() > 0)
-			formsChooser.setAllowedForms(registrationConfiguration.getEnabledForms());
-		formsChooser.initUI(TriggeringMode.manualAtLogin);
-		if (formsChooser.getDisplayedForms().size() == 0)
-			return false;
-		return true;
-	}
-	
-	private void showRegistrationDialog()
-	{
-		if (formsChooser.getDisplayedForms().size() == 1)
+		try
 		{
-			RegistrationForm form = formsChooser.getDisplayedForms().get(0);
-			formLauncher.showRegistrationDialog(form, 
-					RemotelyAuthenticatedContext.getLocalContext(),
-					TriggeringMode.manualAtLogin, 
-					error -> handleRegistrationError(error, form.getName()));
-		} else
+			return registrationFormController.isRegistrationEnabled();
+		} catch (EngineException e)
 		{
-			RegistrationFormChooserDialog chooser = new RegistrationFormChooserDialog(
-				msg, msg.getMessage("RegistrationFormChooserDialog.selectForm"), formsChooser);
-			chooser.show();
+			LOG.error("Failed to determine whether registration is enabled or not on "
+					+ "authentication screen.", e);
+			return false;
 		}
 	}
 	
-	private void handleRegistrationError(Exception e, String formName)
+	private void showRegistrationLayout()
 	{
-		log.info("Can't initialize registration form '" + formName + "' UI. "
-				+ "It can be fine in some cases, but often means "
-				+ "that the form should not be marked "
-				+ "as public or its configuration is invalid: " + e.toString());
-		if (log.isDebugEnabled())
-			log.debug("Deatils: ", e);
-		NotificationPopup.showError(msg.getMessage("error"), 
-				msg.getMessage("AuthenticationUI.registrationFormInitError"));
+		try
+		{
+			List<RegistrationForm> forms = registrationFormController.getDisplayedForms();
+			if (forms.isEmpty())
+			{
+				NotificationPopup.showError(msg.getMessage("error"), 
+						msg.getMessage("RegistrationFormsChooserComponent.noFormsInfo"));
+			} else if (forms.size() == 1)
+			{
+				formSelected(forms.get(0));
+			} else
+			{
+				RegistrationFormsChooserComponent chooser = new RegistrationFormsChooserComponent(
+						forms, this::formSelected, this::resetToFreshAuthenticationScreen, msg);
+				setContent(chooser);
+			}
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg.getMessage("error"), 
+					msg.getMessage("AuthenticationUI.registrationFormInitError"));
+		}
+	}
+	
+	private void formSelected(RegistrationForm form)
+	{
+		StandaloneRegistrationView view = registrationFormController.createRegistrationView(form);
+		registrationFormController.setSessionRegistrationAttribute(view);
+		view.enter(TriggeringMode.manualAtLogin, this::resetToFreshAuthenticationScreen);
+		setContent(view);
 	}
 	
 	@Override
 	protected void refresh(VaadinRequest request) 
 	{
-		authenticationUI.refresh(request);
-		showOutdatedCredentialDialog();
+		StandaloneRegistrationView registrationFormView = registrationFormController.getSessionRegistraionAttribute();
+		if (registrationFormView != null)
+		{
+			registrationFormView.refresh(request);
+		} else
+		{
+			authenticationUI.refresh(request);
+			showOutdatedCredentialDialog();
+		}
 	}
+	
 }

@@ -18,7 +18,7 @@ public interface AuthenticationScreen extends Component
 	void refresh(VaadinRequest request);
 	
 	/**
-	 * After handling this method the authN UI should be eset to initial state - ready for next login
+	 * After handling this method the authN UI should be reset to initial state - ready for next login
 	 */
 	void reset();
 }

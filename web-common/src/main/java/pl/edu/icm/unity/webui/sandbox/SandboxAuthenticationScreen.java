@@ -13,8 +13,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
-import com.google.common.collect.Lists;
-
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -57,8 +55,7 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 				SandboxAuthenticationScreen::disabledUnknownUserProvider, 
 				authnProcessor, 
 				localeChoice, 
-				authenticators,
-				forms -> Lists.newArrayList());
+				authenticators);
 		this.sandboxRouter = sandboxRouter;
 	}
 

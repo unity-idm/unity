@@ -32,7 +32,6 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.column.RegistrationInfoProvider;
 
 /**
  * Vaadin UI of the sandbox application using all remote authenticators. Suitable for sandbox authn used in 
@@ -64,8 +63,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
-			AuthenticatorSupportManagement authenticatorSupport,
-			RegistrationInfoProvider registrationInfoProvider)
+			AuthenticatorSupportManagement authenticatorSupport)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;

@@ -66,7 +66,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final Supplier<Boolean> outdatedCredentialDialogLauncher;
-	private final Runnable registrationDialogLauncher;
+	private final Runnable registrationLayoutLauncher;
 	private final boolean enableRegistration;
 	private final CancelHandler cancelHandler;
 	
@@ -87,25 +87,23 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private SandboxAuthnResultCallback sandboxCallback;
 	private Component topHeader;
 	private Component cancelComponent;
-	private RegistrationInfoProvider registrationInfoProvider;
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			Supplier<Boolean> outdatedCredentialDialogLauncher,
-			Runnable registrationDialogLauncher, CancelHandler cancelHandler,
+			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
 			WebAuthenticationProcessor authnProcessor,
 			LocaleChoiceComponent localeChoice,
-			List<AuthenticationFlow> flows,
-			RegistrationInfoProvider registrationInfoProvider)
+			List<AuthenticationFlow> flows)
 	{
 		this.msg = msg;
 		this.config = config;
 		this.endpointDescription = endpointDescription;
 		this.outdatedCredentialDialogLauncher = outdatedCredentialDialogLauncher;
-		this.registrationDialogLauncher = registrationDialogLauncher;
+		this.registrationLayoutLauncher = registrationLayoutLauncher;
 		this.cancelHandler = cancelHandler;
 		this.idsMan = idsMan;
 		this.execService = execService;
@@ -114,7 +112,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
 		this.flows = flows;
-		this.registrationInfoProvider = registrationInfoProvider;
 		
 		init();
 	}
@@ -144,7 +141,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		setCompositionRoot(topLevelLayout);
 		
 		topHeader = new TopHeaderComponent(localeChoice, enableRegistration, config, 
-				registrationInfoProvider, msg);
+				registrationLayoutLauncher, msg);
 
 		topLevelLayout.addComponent(topHeader);
 		topLevelLayout.setComponentAlignment(topHeader, Alignment.MIDDLE_RIGHT);
@@ -194,7 +191,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		
 		authNColumns = new AuthnOptionsColumns(config, msg, 
 				authnOptionsHandler, enableRegistration, new AuthnPanelFactoryImpl(), 
-				registrationDialogLauncher);
+				registrationLayoutLauncher);
 		
 		authenticationMainLayout.addComponent(authNColumns);
 		authenticationMainLayout.setComponentAlignment(authNColumns, Alignment.TOP_CENTER);

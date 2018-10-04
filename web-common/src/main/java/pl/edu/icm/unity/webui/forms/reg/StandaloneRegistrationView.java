@@ -71,6 +71,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private SignUpTopHeaderComponent header;
 	private HorizontalLayout formButtons;
 	private PostFillingHandler postFillHandler;
+	private Runnable customCancelHandler;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -107,7 +108,21 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	@Override
 	public void enter(ViewChangeEvent changeEvent)
 	{	
-		showFirstStage(RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone);
+		enter(TriggeringMode.manualStandalone, null);
+	}
+	
+	/**
+	 * @param customCancelHandler
+	 *            Used only in case where registration form is displayed from
+	 *            authentication screen.
+	 * 
+	 *            The custom cancel handler is used when there is no explicit
+	 *            TriggeringState.CANCELLED finalization configured in the form.
+	 */
+	public void enter(TriggeringMode mode, Runnable customCancelHandler)
+	{
+		this.customCancelHandler = customCancelHandler;
+		showFirstStage(RemotelyAuthenticatedContext.getLocalContext(), mode);
 	}
 	
 	private void showFirstStage(RemotelyAuthenticatedContext context, TriggeringMode mode)
@@ -159,29 +174,34 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		editor.setWidth(100, Unit.PERCENTAGE);
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 		
+		Button okButton = null;
+		Button cancelButton = null;
 		if (editor.isSubmissionPossible())
 		{
-			Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
-			okButton.addStyleName(Styles.vButtonPrimary.toString());
-			okButton.addStyleName("u-reg-submit");
-			okButton.addClickListener(event -> onSubmit(editor, mode));
-			okButton.setWidth(100f, Unit.PERCENTAGE);
-			okButton.setClickShortcut(KeyCode.ENTER);
+			okButton = createOKButton(editor, mode);
 			
-			formButtons = new HorizontalLayout();
-			formButtons.setWidth(editor.formWidth(), editor.formWidthUnit());
-			formButtons.addComponent(okButton);
 			if (form.getLayoutSettings().isShowCancel())
 			{
-				Button cancelButton = new Button(msg.getMessage("cancel"));
-				cancelButton.addClickListener(event -> onCancel());
-				cancelButton.addStyleName("u-reg-cancel");
-				cancelButton.setWidth(100f, Unit.PERCENTAGE);
-				formButtons.addComponent(cancelButton);
+				cancelButton = createCancelButton();
 			}
+		} else if (isStanaloneModeFromAuthNScreen() && form.getLayoutSettings().isShowCancel())
+		{
+			cancelButton = createCancelButton();
+		}
+		
+		if (okButton != null || cancelButton != null)
+		{
+			formButtons = new HorizontalLayout();
+			formButtons.setWidth(editor.formWidth(), editor.formWidthUnit());
+			
+			if (okButton != null)
+				formButtons.addComponent(okButton);
+			if (cancelButton != null)
+				formButtons.addComponent(cancelButton);
+			
 			formButtons.setMargin(false);
 			main.addComponent(formButtons);
-			main.setComponentAlignment(formButtons, Alignment.MIDDLE_CENTER);		
+			main.setComponentAlignment(formButtons, Alignment.MIDDLE_CENTER);	
 		} else
 		{
 			/*
@@ -191,7 +211,27 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			formButtons = null;
 		}
 	}
+	
+	private Button createOKButton(RegistrationRequestEditor editor, TriggeringMode mode)
+	{
+		Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
+		okButton.addStyleName(Styles.vButtonPrimary.toString());
+		okButton.addStyleName("u-reg-submit");
+		okButton.addClickListener(event -> onSubmit(editor, mode));
+		okButton.setWidth(100f, Unit.PERCENTAGE);
+		okButton.setClickShortcut(KeyCode.ENTER);
+		return okButton;
+	}
 
+	private Button createCancelButton()
+	{
+		Button cancelButton = new Button(msg.getMessage("cancel"));
+		cancelButton.addClickListener(event -> onCancel());
+		cancelButton.addStyleName("u-reg-cancel");
+		cancelButton.setWidth(100f, Unit.PERCENTAGE);
+		return cancelButton;
+	}
+	
 	private Optional<String> getGoToSignInURL(RegistrationRequestEditor editor)
 	{
 		return form.isShowSignInLink() && editor.getStage() == Stage.FIRST ? 
@@ -219,11 +259,33 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	
 	private void onCancel()
 	{
-		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
-				.getFinalRegistrationConfigurationOnError(TriggeringState.CANCELLED);
-		gotoFinalStep(finalScreenConfig);
+		if (isCustomCancelHandlerEnabled())
+		{
+			customCancelHandler.run();
+		}
+		else
+		{
+			WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
+					.getFinalRegistrationConfigurationOnError(TriggeringState.CANCELLED);
+			gotoFinalStep(finalScreenConfig);
+		}
 	}
 	
+	private boolean isCustomCancelHandlerEnabled()
+	{
+		if (isStanaloneModeFromAuthNScreen()
+				&& !postFillHandler.hasConfiguredFinalizationFor(TriggeringState.CANCELLED))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isStanaloneModeFromAuthNScreen()
+	{
+		return customCancelHandler != null;
+	}
+
 	private void onSubmit(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		RegistrationContext context = new RegistrationContext(idpLoginController.isLoginInProgress(), mode);

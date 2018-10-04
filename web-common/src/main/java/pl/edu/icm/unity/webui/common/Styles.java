@@ -77,6 +77,7 @@ public enum Styles
 	externalGridSignInButton("u-externalGridSignInButton"),
 	greenProgressBar("u-greenProgressBar"),
 	redProgressBar("u-redProgressBar"),
+	RegistrationLink("registrationLink"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

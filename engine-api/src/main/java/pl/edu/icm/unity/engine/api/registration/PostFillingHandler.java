@@ -186,4 +186,11 @@ public class PostFillingHandler
 	{
 		return null;
 	}
+
+	public boolean hasConfiguredFinalizationFor(TriggeringState toCheck)
+	{
+		return wrapUpConfigs.stream()
+				.map(RegistrationWrapUpConfig::getState)
+				.anyMatch(state -> state.equals(toCheck));
+	}
 }

@@ -64,21 +64,21 @@ public class AuthnOptionsColumns extends CustomComponent
 	private final AuthenticationOptionsHandler authnOptionsHandler;
 	private final boolean enableRegistration;
 	private final AuthNPanelFactory authNPanelFactory;
-	private final Runnable registrationDialogLauncher;
+	private final Runnable registrationLayoutLauncher;
 	
 	private List<AuthnOptionsColumn> columns;
 	
 	AuthnOptionsColumns(VaadinEndpointProperties config, UnityMessageSource msg,
 			AuthenticationOptionsHandler authnOptionsHandler, boolean enableRegistration,
 			AuthNPanelFactory authNPanelFactory,
-			Runnable registrationDialogLauncher)
+			Runnable registrationLayoutLauncher)
 	{
 		this.config = config;
 		this.msg = msg;
 		this.authnOptionsHandler = authnOptionsHandler;
 		this.enableRegistration = enableRegistration;
 		this.authNPanelFactory = authNPanelFactory;
-		this.registrationDialogLauncher = registrationDialogLauncher;
+		this.registrationLayoutLauncher = registrationLayoutLauncher;
 		
 		this.columns = new ArrayList<>();
 		setRootComponent(getAuthnColumnsComponent());
@@ -447,7 +447,7 @@ public class AuthnOptionsColumns extends CustomComponent
 			return null;
 		Button register = new Button(msg.getMessage("RegistrationFormChooserDialog.register"));
 		register.addStyleName("u-signUpButton");
-		register.addClickListener(event -> registrationDialogLauncher.run());
+		register.addClickListener(event -> registrationLayoutLauncher.run());
 		register.setId("AuthenticationUI.registerButton");
 		return register;
 	}
