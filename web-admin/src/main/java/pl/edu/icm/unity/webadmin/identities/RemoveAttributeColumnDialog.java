@@ -41,7 +41,7 @@ public class RemoveAttributeColumnDialog extends AbstractDialog
 		this.alreadyUsedInRoot = alreadyUsedInRoot;
 		this.callback = callback;
 		this.currentGroup = currentGroup;
-		setSizeMode(SizeMode.SMALL);
+		setSizeEm(38, 18);
 	}
 
 	@Override
@@ -50,24 +50,25 @@ public class RemoveAttributeColumnDialog extends AbstractDialog
 		labelsToAttr = new HashMap<>();
 		Label info = new Label(msg.getMessage("RemoveAttributeColumnDialog.info"));
 		attributeType = new ComboBox<>(msg.getMessage("RemoveAttributeColumnDialog.attribute"));
+		attributeType.setWidth(100, Unit.PERCENTAGE);
 		List<String> values = new ArrayList<>();
 		for (String at: alreadyUsedInRoot)
 		{
-			String key = at + "@/";
-			values.add(key);
-			labelsToAttr.put(key, at + "@//" );
+			String value = toRootGroupLabel(at);
+			values.add(value);
+			labelsToAttr.put(value, at + "@/" );
 		}
 		for (String at: alreadyUsedInCurrent)
 		{
-			String key = at + "@" + currentGroup;
-			values.add(key);
-			labelsToAttr.put(key, at + "@/" + currentGroup );
+			String value = toCurrentGroupLabel(at);
+			values.add(value);
+			labelsToAttr.put(value, at + "@/" + currentGroup );
 		}
 		attributeType.setItems(values);
 		if (alreadyUsedInRoot.size() > 0)
-			attributeType.setSelectedItem(alreadyUsedInRoot.iterator().next() + "@/");
+			attributeType.setSelectedItem(toRootGroupLabel(alreadyUsedInRoot.iterator().next()));
 		else if (alreadyUsedInCurrent.size() > 0)
-			attributeType.setSelectedItem(alreadyUsedInCurrent.iterator().next() + "@" + currentGroup);
+			attributeType.setSelectedItem(toCurrentGroupLabel(alreadyUsedInCurrent.iterator().next()));
 
 		attributeType.setEmptySelectionAllowed(false);
 		FormLayout main = new CompactFormLayout();
@@ -76,6 +77,17 @@ public class RemoveAttributeColumnDialog extends AbstractDialog
 		return main;
 	}
 
+	private String toCurrentGroupLabel(String attribute)
+	{
+		return attribute + "@" + currentGroup + " (current)";
+	}
+
+	private String toRootGroupLabel(String attribute)
+	{
+		return attribute + "@/ (fixed)";
+	}
+
+	
 	@Override
 	protected void onConfirm()
 	{

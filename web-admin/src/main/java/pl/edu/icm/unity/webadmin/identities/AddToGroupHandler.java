@@ -88,7 +88,7 @@ class AddToGroupHandler
 			groupSelection = new GroupComboBox(msg.getMessage("AddToGroupHandler.selectGroup"), 
 					groupsManagement);
 			groupSelection.setInput("/", false);
-
+			groupSelection.setWidth(100, Unit.PERCENTAGE);
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupSelection);
 			main.setSizeFull();
