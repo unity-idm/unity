@@ -8,10 +8,10 @@ import com.vaadin.ui.TextArea;
 
 public class ReadOnlyArea extends TextArea
 {
-	public ReadOnlyArea(String value)
+	public ReadOnlyArea(String value, int rows)
 	{
-		super();
 		setValue(value);
 		setReadOnly(true);
+		setRows(rows);
 	}
 }

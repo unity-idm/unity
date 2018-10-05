@@ -8,12 +8,9 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ReadOnlyArea;
 import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
-import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
 
 /**
  * Helper for attributes handlers
@@ -23,11 +20,12 @@ import pl.edu.icm.unity.webui.common.attributes.TextOnlyAttributeHandler;
  */
 public class AttributeHandlerHelper
 {
-	public static Component getRepresentation(String value, AttributeValueSyntax<?> syntax, AttributeViewerContext context)
+	public static Component getRepresentation(String value, AttributeViewerContext context)
 	{
 		Component component;
-		if (isLarge(syntax))
-			component = new ReadOnlyArea(value);
+		int lines = getLineBreaks(value);
+		if (lines > 1)
+			component = new ReadOnlyArea(value, lines);
 		else
 			component = new ReadOnlyField(value);
 		
@@ -37,15 +35,10 @@ public class AttributeHandlerHelper
 		return component;
 	}
 	
-	public static boolean isLarge(AttributeValueSyntax<?> syntax)
+	private static int getLineBreaks(String string)
 	{
-		if (syntax instanceof StringAttributeSyntax)
-		{
-			StringAttributeSyntax sas = (StringAttributeSyntax) syntax;
-			if (sas.getMaxLength() > TextOnlyAttributeHandler.LARGE_STRING)
-				return true;
-		}
-		return false;
+		String lineSeparator = System.getProperty("line.separator");
+		return string.split(lineSeparator).length;
 	}
 
 	public static VerticalLayout getEmptyEditor()

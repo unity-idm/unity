@@ -55,7 +55,7 @@ public abstract class TextOnlyAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(value, syntax, context);
+		return AttributeHandlerHelper.getRepresentation(value, context);
 	}
 	
 	@Override

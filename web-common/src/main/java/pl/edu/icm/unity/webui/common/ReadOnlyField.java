@@ -10,7 +10,6 @@ public class ReadOnlyField extends TextField
 {
 	public ReadOnlyField(String value, float width, Unit widthUnit)
 	{
-		super();
 		setValue(value);
 		setWidth(width, widthUnit);
 		setReadOnly(true);
@@ -18,7 +17,6 @@ public class ReadOnlyField extends TextField
 	
 	public ReadOnlyField(String value)
 	{
-		super();
 		setValue(value);
 		setReadOnly(true);
 	}
