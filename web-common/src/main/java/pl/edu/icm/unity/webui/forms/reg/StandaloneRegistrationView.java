@@ -72,6 +72,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private HorizontalLayout formButtons;
 	private PostFillingHandler postFillHandler;
 	private Runnable customCancelHandler;
+	private Runnable completedRegistrationHandler;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -108,7 +109,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	@Override
 	public void enter(ViewChangeEvent changeEvent)
 	{	
-		enter(TriggeringMode.manualStandalone, null);
+		enter(TriggeringMode.manualStandalone, null, null);
 	}
 	
 	/**
@@ -117,11 +118,15 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	 *            authentication screen.
 	 * 
 	 *            The custom cancel handler is used when there is no explicit
-	 *            TriggeringState.CANCELLED finalization configured in the form.
+	 *            TriggeringState.CANCELLED finalization configured in the form. 
+	 *            It is supposed to handle the UI changes.
+	 * @param completedRegistrationHandler run when registration is completed. It is notification which should
+	 * cause reset of the UI during the *subsequent* request in scope of the current session 
 	 */
-	public void enter(TriggeringMode mode, Runnable customCancelHandler)
+	public void enter(TriggeringMode mode, Runnable customCancelHandler, Runnable completedRegistrationHandler)
 	{
 		this.customCancelHandler = customCancelHandler;
+		this.completedRegistrationHandler = completedRegistrationHandler;
 		showFirstStage(RemotelyAuthenticatedContext.getLocalContext(), mode);
 	}
 	
@@ -189,16 +194,11 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			cancelButton = createCancelButton();
 		}
 		
-		if (okButton != null || cancelButton != null)
+		if (okButton != null)
 		{
 			formButtons = new HorizontalLayout();
 			formButtons.setWidth(editor.formWidth(), editor.formWidthUnit());
-			
-			if (okButton != null)
-				formButtons.addComponent(okButton);
-			if (cancelButton != null)
-				formButtons.addComponent(cancelButton);
-			
+			formButtons.addComponent(okButton);
 			formButtons.setMargin(false);
 			main.addComponent(formButtons);
 			main.setComponentAlignment(formButtons, Alignment.MIDDLE_CENTER);	
@@ -209,6 +209,12 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			 * button instead.
 			 */
 			formButtons = null;
+		}
+		
+		if (cancelButton != null)
+		{
+			main.addComponent(cancelButton);
+			main.setComponentAlignment(cancelButton, Alignment.MIDDLE_CENTER);
 		}
 	}
 	
@@ -227,8 +233,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	{
 		Button cancelButton = new Button(msg.getMessage("cancel"));
 		cancelButton.addClickListener(event -> onCancel());
+		cancelButton.setStyleName(Styles.vButtonLink.toString());
 		cancelButton.addStyleName("u-reg-cancel");
-		cancelButton.setWidth(100f, Unit.PERCENTAGE);
 		return cancelButton;
 	}
 	
@@ -328,6 +334,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 
 	private void gotoFinalStep(WorkflowFinalizationConfiguration config)
 	{
+		if (completedRegistrationHandler != null)
+			completedRegistrationHandler.run();
 		if (config.autoRedirect)
 			redirect(config.redirectURL, idpLoginController);
 		else

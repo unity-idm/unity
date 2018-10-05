@@ -55,7 +55,7 @@ class RegistrationFormsChooserComponent extends CustomComponent
 			main.setComponentAlignment(button, Alignment.MIDDLE_CENTER);
 		}
 		Button cancel = new Button(msg.getMessage("cancel"));
-		cancel.setStyleName(Styles.margin.toString());
+		cancel.addStyleName(Styles.margin.toString());
 		cancel.addClickListener(event -> finishHandler.run());
 		main.addComponent(cancel);
 		main.setComponentAlignment(cancel, Alignment.MIDDLE_CENTER);
