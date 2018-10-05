@@ -51,7 +51,6 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 	{
 		FormLayout main = new FormLayout();
 		main.setSpacing(true);
-		main.setMargin(true);
 		compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
 		logo = new TextField(msg.getMessage("FormLayoutEditor.logo"));
 		logo.setDescription(msg.getMessage("FormLayoutEditor.logoDesc"));
