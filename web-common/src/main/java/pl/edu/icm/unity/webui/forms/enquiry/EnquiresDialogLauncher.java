@@ -103,7 +103,7 @@ public class EnquiresDialogLauncher
 		public void cancelled()
 		{
 			enquiryController.cancelled(formsToFill.get(currentFormIndex), 
-					TriggeringMode.manualAtLogin);
+					TriggeringMode.manualAtLogin, false);
 			if (formsToFill.get(currentFormIndex).getType() == EnquiryType.REQUESTED_MANDATORY)
 			{
 				authnProcessor.logout(true);

@@ -103,7 +103,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			public WorkflowFinalizationConfiguration ignored()
 			{
 				
-				return editorController.cancelled(form, TriggeringMode.manualStandalone);
+				return editorController.cancelled(form, TriggeringMode.manualStandalone, true);
 			}
 		});
 	}

@@ -175,11 +175,13 @@ public class EnquiryResponseEditorController
 		}
 	}
 	
-	public WorkflowFinalizationConfiguration cancelled(EnquiryForm form, TriggeringMode mode)
+	public WorkflowFinalizationConfiguration cancelled(EnquiryForm form, TriggeringMode mode,
+			boolean markFormAsIgnored)
 	{
 		if (form.getType() != EnquiryType.REQUESTED_MANDATORY)
 		{
-			markFormAsIgnored(form.getName());
+			if (markFormAsIgnored)
+				markFormAsIgnored(form.getName());
 			return getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
 					TriggeringState.IGNORED_ENQUIRY);
 		} else
