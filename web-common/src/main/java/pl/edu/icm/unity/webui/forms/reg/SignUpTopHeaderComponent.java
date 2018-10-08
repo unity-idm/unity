@@ -28,6 +28,8 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class SignUpTopHeaderComponent extends CustomComponent
 {
 	private RemoteAuthenticationProgress authNProgress;
+	private Button gotoSignIn;
+	private LocaleChoiceComponent localeChoice;
 
 	public SignUpTopHeaderComponent(UnityServerConfiguration cfg, UnityMessageSource msg, Runnable cancelHandler,
 			Optional<String> signInRedirect)
@@ -37,14 +39,14 @@ public class SignUpTopHeaderComponent extends CustomComponent
 		main.setSpacing(true);
 		main.setWidth(100, Unit.PERCENTAGE);
 
-		LocaleChoiceComponent localeChoice = new LocaleChoiceComponent(cfg, msg);
+		localeChoice = new LocaleChoiceComponent(cfg, msg);
 
 		main.addComponent(localeChoice);
 		main.setComponentAlignment(localeChoice, Alignment.TOP_RIGHT);
 
 		if (signInRedirect.isPresent() && !Strings.isEmpty(signInRedirect.get()))
 		{
-			Button gotoSignIn = new Button(msg.getMessage("StandalonePublicFormView.gotoSignIn"));
+			gotoSignIn = new Button(msg.getMessage("StandalonePublicFormView.gotoSignIn"));
 			gotoSignIn.setStyleName(Styles.vButtonLink.toString());
 			gotoSignIn.addStyleName("u-reg-gotoSignIn");
 			gotoSignIn.addClickListener(e -> 
@@ -64,5 +66,12 @@ public class SignUpTopHeaderComponent extends CustomComponent
 	public void setAuthNProgressVisibility(boolean visible)
 	{
 		authNProgress.setInternalVisibility(visible);
+	}
+	
+	void setInteractionsEnabled(boolean enabled)
+	{
+		localeChoice.setEnabled(enabled);
+		if (gotoSignIn != null)
+			gotoSignIn.setEnabled(enabled);
 	}
 }

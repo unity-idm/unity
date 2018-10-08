@@ -385,6 +385,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			currentRegistrationFormEditor.setEnabled(isEnabled);
 		if (formButtons != null)
 			formButtons.setEnabled(isEnabled);
+		header.setInteractionsEnabled(isEnabled);
 	}
 
 	private void switchTo2ndStagePostAuthn(AuthenticationResult result)
@@ -464,7 +465,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			enableSharedComponentsAndHideAuthnProgress();
 			String genericError = msg.getMessage(e.getMessage());
 			String errorToShow = authenticatorError == null ? genericError : authenticatorError;
-			NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
+			NotificationPopup.showError(errorToShow, "");
 		}
 
 		@Override

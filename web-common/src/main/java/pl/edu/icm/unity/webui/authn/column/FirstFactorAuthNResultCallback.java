@@ -148,7 +148,7 @@ class FirstFactorAuthNResultCallback implements AuthenticationCallback
 		setAuthenticationAborted();
 		authNPanel.focusIfPossible();
 		String errorToShow = authenticatorError == null ? genericError : authenticatorError;
-		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), errorToShow);
+		NotificationPopup.showError(errorToShow, "");
 		authNPanel.showWaitScreenIfNeeded(clientIp);
 	}
 	
