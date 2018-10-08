@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.function.Predicate;
 
 import com.vaadin.ui.CheckBox;
@@ -16,6 +18,7 @@ import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 public class RegistrationWrapUpConfigEditor extends CustomComponent
@@ -26,10 +29,12 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 	private TextField redirectURL;
 	private CheckBox automatic;
 	private I18nTextField redirectCaption;
+	private UnityMessageSource msg;
 	
 	public RegistrationWrapUpConfigEditor(UnityMessageSource msg, 
 			Predicate<RegistrationWrapUpConfig.TriggeringState> filter)
 	{
+		this.msg = msg;
 		FormLayout layout = new CompactFormLayout();
 		title = new I18nTextField(msg, msg.getMessage("RegistrationFormEditor.wrapupTitle"));
 		info = new I18nTextField(msg, msg.getMessage("RegistrationFormEditor.wrapupInfo"));
@@ -70,8 +75,16 @@ public class RegistrationWrapUpConfigEditor extends CustomComponent
 		info.setEnabled(!automatic.getValue());
 	}
 	
-	public RegistrationWrapUpConfig getValue()
+	public RegistrationWrapUpConfig getValue() throws FormValidationException
 	{
+		try
+		{
+			new URI(redirectURL.getValue());
+		} catch (URISyntaxException e)
+		{
+			throw new FormValidationException(msg.getMessage("RegistrationFormEditor.invalidRedirectURL", trigger.getValue().name()));
+		}
+
 		return new RegistrationWrapUpConfig(trigger.getValue(), title.getValue(), info.getValue(), 
 				redirectCaption.getValue(), 
 				automatic.getValue(), redirectURL.getValue());
