@@ -218,8 +218,11 @@ class EntitiesLoader
 		Collection<AttributeExt> rawRootAttrs = new ArrayList<>();
 		try
 		{
-			rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
-				true, "/", null, true);
+			if ("/".equals(group))
+				rawRootAttrs = rawCurAttrs;
+			else
+				rawRootAttrs = attrMan.getAllAttributes(new EntityParam(entity), 
+						true, "/", null, true);
 		} catch (AuthorizationException e)
 		{
 			log.debug("can not resolve attributes in '/' for entity, " + entity + 
