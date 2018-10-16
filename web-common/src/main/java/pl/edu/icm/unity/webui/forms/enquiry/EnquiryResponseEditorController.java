@@ -92,7 +92,7 @@ public class EnquiryResponseEditorController
 		List<EnquiryForm> formsToFill = getFormsToFill();
 		Optional<String> found = formsToFill.stream()
 				.map(form -> form.getName())
-				.filter(name -> formName.equals(formName))
+				.filter(name -> name.equals(formName))
 				.findAny();
 		return found.isPresent();
 	}
