@@ -101,10 +101,12 @@ class StandaloneEnquiryView extends CustomComponent implements View
 			gotoFinalStep(config);
 		});
 		
-		Button ignore = new Button(msg.getMessage("EnquiryFormFillDialog.ignore"));
+		String exitMessage = editor.isManadtory() ? msg.getMessage("cancel") 
+				: msg.getMessage("EnquiryFormFillDialog.ignore");
+		Button ignore = new Button(exitMessage);
 		ignore.setWidth(100, Unit.PERCENTAGE);
 		ignore.addClickListener(event -> {
-			WorkflowFinalizationConfiguration config = callback.ignored();
+			WorkflowFinalizationConfiguration config = callback.cancelled();
 			gotoFinalStep(config);
 		});
 		
@@ -146,6 +148,6 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	public interface Callback
 	{
 		WorkflowFinalizationConfiguration submitted();
-		WorkflowFinalizationConfiguration ignored();
+		WorkflowFinalizationConfiguration cancelled();
 	}
 }

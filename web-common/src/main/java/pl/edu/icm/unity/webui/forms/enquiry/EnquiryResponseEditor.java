@@ -11,6 +11,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -65,6 +66,11 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	String getPageTitle()
 	{
 		return enquiryForm.getPageTitle() == null ? null : enquiryForm.getPageTitle().getValue(msg);
+	}
+	
+	boolean isManadtory()
+	{
+		return enquiryForm.getType() == EnquiryType.REQUESTED_MANDATORY;
 	}
 }
 
