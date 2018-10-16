@@ -188,6 +188,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		enquiryType = new EnumComboBox<>(msg.getMessage("EnquiryFormViewer.type"), 
 				msg, "EnquiryType.", EnquiryType.class, 
 				EnquiryType.REQUESTED_OPTIONAL);
+		enquiryType.setWidth(20, Unit.EM);
 		
 		targetGroups = new GroupsSelectionList(msg.getMessage("EnquiryFormViewer.targetGroups"), 
 				notificationsEditor.getGroups());

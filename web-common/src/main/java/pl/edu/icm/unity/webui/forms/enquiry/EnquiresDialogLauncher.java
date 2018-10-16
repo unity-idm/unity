@@ -91,7 +91,8 @@ public class EnquiresDialogLauncher
 		{
 			WorkflowFinalizationConfiguration submitted = enquiryController.submitted(request, formsToFill.get(currentFormIndex), 
 					TriggeringMode.manualAtLogin);
-			if (!submitted.success)
+			//auto redirect is ignored when in dialog
+			if (!submitted.autoRedirect && !submitted.success)
 			{
 				NotificationPopup.showError(submitted.mainInformation, 
 						submitted.extraInformation == null ? "" : submitted.extraInformation);
