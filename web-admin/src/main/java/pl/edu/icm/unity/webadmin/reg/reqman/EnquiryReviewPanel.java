@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -49,7 +50,7 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
-		main.setMargin(true);
+		main.setMargin(new MarginInfo(true, false));
 		entity = new Label();
 		entity.setCaption(msg.getMessage("EnquiryReviewPanel.enquirySubmitter"));
 		main.addComponent(entity);

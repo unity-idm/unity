@@ -30,7 +30,7 @@ public class TestFormAutomationSupport extends RegistrationTestBase
 	{
 		RegistrationForm form = initAndCreateForm(true, "true");
 		FormAutomationSupport automationSupport = registrationsMan.getFormAutomationSupport(form);
-		RegistrationContext context = new RegistrationContext(true, true, TriggeringMode.manualAtLogin);
+		RegistrationContext context = new RegistrationContext(true, TriggeringMode.manualAtLogin);
 
 		RegistrationRequest rawRequest = getRequest();
 		UserRequestState<RegistrationRequest> request = new RegistrationRequestState();

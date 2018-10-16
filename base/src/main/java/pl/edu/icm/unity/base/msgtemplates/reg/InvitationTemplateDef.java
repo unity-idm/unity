@@ -58,5 +58,10 @@ public class InvitationTemplateDef implements MessageTemplateDefinition
 	{
 		return ALL_FACILITIES;
 	}
-
+	
+	@Override
+	public boolean allowCustomVariables()
+	{
+		return true;
+	}
 }

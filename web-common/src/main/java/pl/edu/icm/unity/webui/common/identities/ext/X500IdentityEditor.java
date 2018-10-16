@@ -9,8 +9,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
 import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.server.UserError;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Upload;
@@ -29,7 +30,10 @@ import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 
 /**
  * {@link X500Identity} editor
@@ -39,7 +43,8 @@ public class X500IdentityEditor implements IdentityEditor
 {
 	private UnityMessageSource msg;
 	private TextField field;
-	private boolean required;
+	private IdentityEditorContext context;
+	private SingleStringFieldBinder binder;
 	
 	public X500IdentityEditor(UnityMessageSource msg)
 	{
@@ -47,11 +52,15 @@ public class X500IdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required, boolean adminMode)
+	public ComponentsContainer getEditor(IdentityEditorContext context)
 	{
-		this.required = required;
+		binder = new SingleStringFieldBinder(msg);
+		this.context = context;
 		field = new TextField();
-		field.setWidth(80, Unit.PERCENTAGE);
+		if (context.isCustomWidth())
+			field.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		else
+			field.setWidth(80, Unit.PERCENTAGE);
 		Upload upload = new Upload();
 		upload.setCaption(msg.getMessage("X500IdentityEditor.certUploadCaption"));
 		CertUploader uploader = new CertUploader(); 
@@ -60,45 +69,53 @@ public class X500IdentityEditor implements IdentityEditor
 		
 		FormLayout wrapper = new CompactFormLayout(upload);
 		wrapper.setMargin(false);
-		field.setCaption(new X500Identity().getHumanFriendlyName(msg) + ":");
-		field.setRequiredIndicatorVisible(required);
+		setLabel(new X500Identity().getHumanFriendlyName(msg));
+		
+		binder.forField(field, context.isRequired())
+			.withValidator(this::validate)
+			.bind("value");
+		binder.setBean(new StringBindingValue(""));
+		
 		return new ComponentsContainer(field, wrapper);
 	}
 
+	private ValidationResult validate(String value, ValueContext context)
+	{
+		if (value.isEmpty())
+			return ValidationResult.ok(); //fall back
+		try
+		{
+			X500NameUtils.getX500Principal(value);
+			return ValidationResult.ok();
+		} catch (Exception e)
+		{
+			return ValidationResult.error(msg.getMessage("X500IdentityEditor.dnError", 
+					e.getMessage()));
+		}
+	}
+	
 	@Override
 	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
-		String dn = field.getValue();
-		if (dn.trim().equals(""))
-		{
-			if (!required)
-				return null;
-			String err = msg.getMessage("X500IdentityEditor.dnEmpty");
-			field.setComponentError(new UserError(err));
-			throw new IllegalIdentityValueException(err);
-		}
-		try
-		{
-			X500NameUtils.getX500Principal(dn);
-			field.setComponentError(null);
-		} catch (Exception e)
-		{
-			field.setComponentError(new UserError(msg.getMessage("X500IdentityEditor.dnError", 
-					e.getMessage())));
-			throw new IllegalIdentityValueException(e.getMessage());
-		}
+		binder.ensureValidityCatched(() -> new IllegalIdentityValueException(""));
+		String dn = field.getValue().trim();
+		if (dn.isEmpty())
+			return null;
 		return new IdentityParam(X500Identity.ID, dn);
 	}
 
-	private class CertUploader implements Receiver, SucceededListener {
+	private class CertUploader implements Receiver, SucceededListener 
+	{
 		private LimitedOuputStream fos;
 		
+		@Override
 		public OutputStream receiveUpload(String filename, String mimeType) 
 		{
 			fos = new LimitedOuputStream(102400, new ByteArrayOutputStream(102400));
 			return fos;
 		}
 
+		@Override
 		public void uploadSucceeded(SucceededEvent event) 
 		{
 			if (fos.isOverflow())
@@ -126,13 +143,16 @@ public class X500IdentityEditor implements IdentityEditor
 	@Override
 	public void setDefaultValue(IdentityParam value)
 	{
-		field.setValue(value.getValue());	
+		binder.setBean(new StringBindingValue(value.getValue()));
 	}
 	
 
 	@Override
 	public void setLabel(String value)
 	{
-		field.setCaption(value);
+		if (context.isShowLabelInline())
+			field.setPlaceholder(value);
+		else
+			field.setCaption(value + ":");
 	}
 }

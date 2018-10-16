@@ -25,11 +25,6 @@ public class FormParameterElementEditor extends CustomComponent implements FormE
 		this.element = element;
 		label.setValue(this.element.toString());
 	}
-
-	public void updateFormValue(String formValue)
-	{
-		label.setValue(this.element + " (" + formValue + ")");
-	}
 	
 	@Override
 	public FormParameterElement getElement()

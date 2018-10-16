@@ -291,3 +291,17 @@ unity.endpoint.web.authnScreenOptionsLabel.OR.text=OR
 unity.endpoint.web.authnScreenColumn.1.columnTitle=Local authentication
 unity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb _SEPARATOR_OR certWeb
 ----
+
+
+==== From 2.6.0 to 2.7.0
+
+Update affects users creating registration forms using REST Admin API. 
+Json format of registration form was significantly updated: there is a new syntax of group registration params,
+finalization and many new options.
+
+The registration form automation actions setting redirect URL and post submit message are effectless from now on 
+and will be removed in subsequent versions. Their invocation will print warning in log. Instead use the new 
+finalization feature of registration form, which offers both easier and wider capabilities.
+ 
+
+ 

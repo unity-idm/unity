@@ -21,6 +21,5 @@ public class SMSCredentialResetFinalDialog extends CredentialResetFinalDialog
 			CredentialReset backend, CredentialEditor credEditor)
 	{
 		super(msg, backend, credEditor, 2);
-		setSizeEm(40, 30);
 	}
 }

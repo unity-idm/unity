@@ -46,6 +46,7 @@ import net.minidev.json.JSONArray;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
@@ -620,7 +621,7 @@ public class RESTAdmin
 		Map<String, String> customTemplateParams = Maps.newHashMap();
 		uriInfo.getQueryParameters().forEach((key, value) -> 
 		{
-			if (!"identityType".equals(key))
+			if (key.startsWith(MessageTemplateDefinition.CUSTOM_VAR_PREFIX))
 			{
 				String flatValue = value.stream().collect(Collectors.joining());
 				customTemplateParams.put(key, flatValue);
@@ -787,6 +788,15 @@ public class RESTAdmin
 		InvitationParam invitationParam = JsonUtil.parse(jsonInvitation, InvitationParam.class);
 		return invitationMan.addInvitation(invitationParam);
 	}
+	
+	@Path("/invitation/{code}")
+	@PUT
+	@Consumes(MediaType.APPLICATION_JSON)
+	public void updateInvitation(@PathParam("code") String code, String jsonInvitation) throws EngineException, IOException
+	{
+		InvitationParam invitationParam = JsonUtil.parse(jsonInvitation, InvitationParam.class);
+		invitationMan.updateInvitation(code, invitationParam);
+	}	
 	
 	@Path("/bulkProcessing/instant")
 	@POST

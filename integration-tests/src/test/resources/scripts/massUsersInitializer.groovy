@@ -50,7 +50,7 @@ try
 		return;
 	}
 	
-	for (int i=0; i<100; i++)
+	for (int i=0; i<1000; i++)
 		createExampleUser(i);
 	
 } catch (Exception e)
@@ -85,9 +85,9 @@ void createExampleUser(int suffix)
 	Attribute cnA = StringAttribute.of(NAME_ATTR, "/", "Demo user " + suffix);
 	attributesManagement.createAttribute(entityP, cnA);
 
-	PasswordToken pToken = new PasswordToken("the!test12");
-	entityCredentialManagement.setEntityCredential(entityP, EngineInitialization.DEFAULT_CREDENTIAL,
-			pToken.toJson());
-	log.warn("Demo user 'demo-user-" + suffix + "' was created with default password");
+//	PasswordToken pToken = new PasswordToken("the!test12");
+	//entityCredentialManagement.setEntityCredential(entityP, EngineInitialization.DEFAULT_CREDENTIAL,
+		//	pToken.toJson());
+	log.warn("Demo user 'demo-user-" + suffix + "' was created");
 }
 

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.StorageEngine;
@@ -61,10 +62,10 @@ public class DB implements StoreLoaderInternal
 				"Have you initialized it? Are connection details correctly " +
 				"entered in configuration? The error was:\n\n" + e, e);
 		}
-		if (!actualDbVersion.equals(AppDataSchemaVersion.DB_VERSION))
+		if (!actualDbVersion.equals(AppDataSchemaVersion.CURRENT.getDbVersion()))
 			throw new InternalException("The database is initialized with " +
 				"wrong schema. It is of version: " + actualDbVersion + 
-				" while you are using now version:" + AppDataSchemaVersion.DB_VERSION);
+				" while you are using now version:" + AppDataSchemaVersion.CURRENT.getDbVersion());
 	}
 	
 	public String checkCurrentVersion(DBSessionManager sessionMan) throws Exception

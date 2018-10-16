@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.TreeData;
@@ -333,6 +334,12 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	{
 		String key = (group == null) ? ATTR_CURRENT_COL_PREFIX + attribute 
 				: ATTR_ROOT_COL_PREFIX + attribute;
+		if (getColumn(key) != null)
+		{
+			NotificationPopup.showError(msg.getMessage("Identities.customColumnExists"), "");
+			return;
+		}
+		
 		addColumn(ie -> ie.getAttribute(key))
 			.setCaption(attribute + (group == null ? "@" + this.group : "@/"))
 			.setExpandRatio(ATTR_COL_RATIO)
@@ -351,15 +358,12 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		}
 	}
 
-	public void removeAttributeColumn(String group, String... attributes)
+	void removeAttributeColumn(String group, String attribute)
 	{
-		for (String attribute: attributes)
-		{
-			if (group.equals("/"))
-				removeColumn(ATTR_ROOT_COL_PREFIX + attribute);
-			else if (group.equals(this.group))
-				removeColumn(ATTR_CURRENT_COL_PREFIX + attribute);
-		}
+		if (Strings.isEmpty(group))
+			removeColumn(ATTR_ROOT_COL_PREFIX + attribute);
+		else if (group.equals(this.group))
+			removeColumn(ATTR_CURRENT_COL_PREFIX + attribute);
 		reloadTableContentsFromData();
 		savePreferences();
 	}

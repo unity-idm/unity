@@ -11,6 +11,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -19,7 +20,7 @@ import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 import pl.edu.icm.unity.webui.common.ListOfElements;
@@ -81,15 +82,15 @@ public class RequestReviewPanelBase extends CustomComponent
 		attributes = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedAttributeIgnore")), 
 				DisableMode.WHEN_SELECTED);
-		attributes.addStyleName(Styles.margin.toString());
+		attributes.setWidth(100, Unit.PERCENTAGE);
 		attributesPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedAttributes"), 
-				attributes);
+				new VerticalLayout(attributes));
 		
 		groups = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), 
 				DisableMode.WHEN_SELECTED);
-		groups.addStyleName(Styles.margin.toString());
-		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), groups);
+		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), 
+				new VerticalLayout(groups));
 		
 		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
 		{
@@ -120,21 +121,13 @@ public class RequestReviewPanelBase extends CustomComponent
 		ret.setIdentities(orig.getIdentities());
 		ret.setUserLocale(orig.getUserLocale());
 		
-		ret.setGroupSelections(new ArrayList<Selection>(orig.getGroupSelections().size()));
-		for (int i=0, j=0; i<orig.getGroupSelections().size(); i++)
+		ret.setGroupSelections(new ArrayList<>(orig.getGroupSelections().size()));
+		for (int i=0; i<orig.getGroupSelections().size(); i++)
 		{
-			Selection origSelection = orig.getGroupSelections().get(i);
-			if (origSelection.isSelected())
-			{
-				boolean ignore = groups.getSelection().size() > j && 
-						groups.getSelection().get(j).getValue();
-				origSelection.setSelected(!ignore);
-				ret.getGroupSelections().add(origSelection);
-				j++;
-			} else
-			{
-				ret.getGroupSelections().add(new Selection(false));
-			}
+			GroupSelection origSelection = orig.getGroupSelections().get(i);
+			boolean ignore = groups.getSelection().size() > i && 
+					groups.getSelection().get(i).getValue();
+			ret.getGroupSelections().add(ignore? null : origSelection);
 		}
 		
 		ret.setAttributes(new ArrayList<Attribute>(attributes.getSelection().size()));
@@ -199,6 +192,7 @@ public class RequestReviewPanelBase extends CustomComponent
 			if (ap == null)
 				continue;
 			Component rep = handlersRegistry.getRepresentation(ap);
+			rep.setWidth(100, Unit.PERCENTAGE);
 			attributes.addEntry(rep, false);
 		}
 		attributesPanel.setVisible(!attributes.isEmpty());
@@ -206,14 +200,12 @@ public class RequestReviewPanelBase extends CustomComponent
 		groups.clearEntries();
 		for (int i=0; i<request.getGroupSelections().size(); i++)
 		{
-			Selection selection = request.getGroupSelections().get(i);
-			if (!selection.isSelected())
-				continue;
+			GroupSelection selection = request.getGroupSelections().get(i);
 			if (form.getGroupParams().size() <= i)
 				break;
-			GroupRegistrationParam groupParam = form.getGroupParams().get(i);
-			String groupEntry = selection.getExternalIdp() == null ? groupParam.getGroupPath() :
-				"[from: " + selection.getExternalIdp() + "] " + groupParam.getGroupPath();
+			String groupEntry = selection.getExternalIdp() == null ? 
+					selection.getSelectedGroups().toString() :
+					"[from: " + selection.getExternalIdp() + "] " + selection.getSelectedGroups();
 			groups.addEntry(new Label(groupEntry), false);
 		}
 		groupsPanel.setVisible(!groups.isEmpty());

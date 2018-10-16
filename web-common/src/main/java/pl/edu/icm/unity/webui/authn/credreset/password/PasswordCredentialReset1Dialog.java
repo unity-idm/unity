@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.webui.authn.credreset.password;
 
 import com.vaadin.server.UserError;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
@@ -50,24 +50,33 @@ public class PasswordCredentialReset1Dialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
+		addStyleName("u-credreset-dialog");
 		if (CredentialResetStateVariable.get() != 0)
 		{
 			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("CredentialReset.illegalAppState"));
 			throw new Exception();
 		}
-		VerticalLayout ret = new VerticalLayout();
-		ret.setMargin(false);
+		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		
 		Label info = new Label(msg.getMessage("CredentialReset.info"));
-		ret.addComponent(info);
 		info.setWidth(100, Unit.PERCENTAGE);
-		FormLayout form = new FormLayout();
+		main.addComponent(info);
+		
+		VerticalLayout centeredCol = new VerticalLayout();
+		centeredCol.setMargin(false);
+		centeredCol.setWidthUndefined();
 		username = new TextField(msg.getMessage("CredentialReset.username"));
+		centeredCol.addComponent(username);
+		
 		captcha = new CaptchaComponent(msg);
-		form.addComponent(username);
-		captcha.addToFormLayout(form);
-		ret.addComponent(form);
-		return ret;
+		Component captchaComp = captcha.getAsComponent(Alignment.TOP_LEFT);
+		centeredCol.addComponent(captchaComp);
+
+		main.addComponent(centeredCol);
+		main.setComponentAlignment(centeredCol, Alignment.MIDDLE_CENTER);
+		return main;
 	}
 
 	@Override

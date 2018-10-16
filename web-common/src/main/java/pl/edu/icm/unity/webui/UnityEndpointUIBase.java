@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui;
 
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -25,8 +26,10 @@ public abstract class UnityEndpointUIBase extends UnityUIBase
 	}
 
 	@Override
-	protected void initExtensions()
+	protected final void appInit(VaadinRequest request)
 	{
-		enquiryDialogLauncher.showEnquiryDialogIfNeeded();
+		enquiryDialogLauncher.showEnquiryDialogIfNeeded(() -> enter(request));
 	}
+	
+	protected abstract void enter(VaadinRequest request);
 }

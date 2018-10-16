@@ -22,8 +22,8 @@ import com.vaadin.ui.Grid.SelectionMode;
 import com.vaadin.ui.renderers.ImageRenderer;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.common.Images;

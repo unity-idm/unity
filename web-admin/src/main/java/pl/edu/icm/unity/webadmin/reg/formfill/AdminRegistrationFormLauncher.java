@@ -4,37 +4,41 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formfill;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
-import pl.edu.icm.unity.webui.AsyncErrorHandler;
+import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
+import pl.edu.icm.unity.webui.forms.reg.AbstraceRegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormFillDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 
 
@@ -46,9 +50,9 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class AdminRegistrationFormLauncher implements RegistrationFormDialogProvider
+public class AdminRegistrationFormLauncher extends AbstraceRegistrationFormDialogProvider
 {
-	protected UnityMessageSource msg;
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AdminRegistrationFormLauncher.class);
 	protected RegistrationsManagement registrationsManagement;
 	protected CredentialEditorRegistry credentialEditorRegistry;
 	protected AttributeHandlerRegistry attributeHandlerRegistry;
@@ -58,7 +62,6 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 	
 	protected EventsBus bus;
 	private IdPLoginController idpLoginController;
-	private ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory;
 	
 	@Autowired
 	public AdminRegistrationFormLauncher(UnityMessageSource msg,
@@ -69,8 +72,7 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 			GroupsManagement groupsMan, IdPLoginController idpLoginController,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFactory)
 	{
-		super();
-		this.msg = msg;
+		super(msg, requestEditorCreatorFactory);
 		this.registrationsManagement = registrationsManagement;
 		this.credentialEditorRegistry = credentialEditorRegistry;
 		this.attributeHandlerRegistry = attributeHandlerRegistry;
@@ -78,104 +80,100 @@ public class AdminRegistrationFormLauncher implements RegistrationFormDialogProv
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
-		this.requestEditorCreatorFactory = requestEditorCreatorFactory;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
-	protected boolean addRequest(RegistrationRequest request, boolean andAccept, RegistrationForm form, 
+	protected void addRequest(RegistrationRequest request, boolean andAccept, RegistrationForm form, 
 			TriggeringMode mode) throws WrongArgumentException
 	{
-		RegistrationContext context = new RegistrationContext(!andAccept, 
-				idpLoginController.isLoginInProgress(), mode);
-		String id;
-		try
-		{
-			id = registrationsManagement.submitRegistrationRequest(request, context);
-			bus.fireEvent(new RegistrationRequestChangedEvent(id));
-		}  catch (WrongArgumentException e)
-		{
-			throw e;
-		} catch (EngineException e)
-		{
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					registrationsManagement.getFormAutomationSupport(form)).submissionError(e, context);
-			return false;
-		}
-
+		String id = submitRequestCore(request, form);
+		if (id == null)
+			return;
+		RegistrationRequestStatus status = getRequestStatus(id);
+		
 		try
 		{							
-			if (andAccept)
+			if (status == RegistrationRequestStatus.pending && andAccept)
 			{
 				registrationsManagement.processRegistrationRequest(id, request, 
 						RegistrationRequestAction.accept, null, 
 						msg.getMessage("AdminFormLauncher.autoAccept"));
 				bus.fireEvent(new RegistrationRequestChangedEvent(id));
 			}	
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					registrationsManagement.getFormAutomationSupport(form), false).
-				submittedRegistrationRequest(id, registrationsManagement, request, context);
-			
-			return true;
 		} catch (EngineException e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage(
 					"AdminFormLauncher.errorRequestAutoAccept"), e);
-			return true;
 		}
 	}
 	
-	@Override
-	public void showRegistrationDialog(final RegistrationForm form, 
-			RemotelyAuthenticatedContext remoteContext, TriggeringMode mode,
-			AsyncErrorHandler errorHandler)
+	private String submitRequestCore(RegistrationRequest request, RegistrationForm form) throws WrongArgumentException
 	{
-			RequestEditorCreator editorCreator = requestEditorCreatorFactory.getObject().init(form, 
-					remoteContext);
-			editorCreator.invoke(new RequestEditorCreatedCallback()
-			{
-				@Override
-				public void onCreationError(Exception e)
-				{
-					errorHandler.onError(e);
-				}
-				
-				@Override
-				public void onCreated(RegistrationRequestEditor editor)
-				{
-					showDialog(form, editor, mode);
-				}
-
-				@Override
-				public void onCancel()
-				{
-					//nop
-				}
-			});
+		RegistrationContext context = new RegistrationContext(
+				idpLoginController.isLoginInProgress(), TriggeringMode.manualAdmin);
+		try
+		{
+			String requestId = registrationsManagement.submitRegistrationRequest(request, context);
+			bus.fireEvent(new RegistrationRequestChangedEvent(requestId));
+			return requestId;
+		} catch (IdentityExistsException e)
+		{
+			WorkflowFinalizationConfiguration config = getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
+					TriggeringState.PRESET_USER_EXISTS);
+			NotificationPopup.showError(config.mainInformation, 
+					config.extraInformation == null ? "" : config.extraInformation);
+		} catch (WrongArgumentException e)
+		{
+			throw e;
+		} catch (Exception e)
+		{
+			log.warn("Registration request submision failed", e);
+			WorkflowFinalizationConfiguration config =  getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
+					TriggeringState.GENERAL_ERROR);
+			NotificationPopup.showError(config.mainInformation, 
+					config.extraInformation == null ? "" : config.extraInformation);
+		}
+		return null;
 	}
 	
-	private void showDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
+	private RegistrationRequestStatus getRequestStatus(String requestId) 
+	{
+		try
+		{
+			return registrationsManagement.getRegistrationRequest(requestId).getStatus();
+		} catch (Exception e)
+		{
+			log.error("Shouldn't happen: can't get request status, assuming rejected", e);
+			return RegistrationRequestStatus.rejected;
+		}
+	}
+	
+	private PostFillingHandler getFinalizationHandler(RegistrationForm form)
+	{
+		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
+		return new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
+				pageTitle, form.getLayoutSettings().getLogoURL(), true);
+	}
+	
+	@Override
+	protected AbstractDialog createDialog(RegistrationForm form, RegistrationRequestEditor editor, TriggeringMode mode)
 	{
 		AdminFormFillDialog<RegistrationRequest> dialog = new AdminFormFillDialog<>(msg, 
 				msg.getMessage("AdminRegistrationFormLauncher.dialogCaption"), 
 				editor, new AdminFormFillDialog.Callback<RegistrationRequest>()
 				{
 					@Override
-					public boolean newRequest(RegistrationRequest request, boolean autoAccept) 
+					public void newRequest(RegistrationRequest request, boolean autoAccept) 
 							throws WrongArgumentException
 					{
-						return addRequest(request, autoAccept, form, mode);
+						addRequest(request, autoAccept, form, mode);
 					}
 
 					@Override
 					public void cancelled()
 					{
-						RegistrationContext context = new RegistrationContext(false, 
-								idpLoginController.isLoginInProgress(), mode);
-						new PostFormFillingHandler(idpLoginController, form, msg, 
-								registrationsManagement.getFormAutomationSupport(form)).
-							cancelled(false, context);
 					}
 				});
-		dialog.show();
+		return dialog;
 	}
 }

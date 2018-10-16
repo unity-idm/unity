@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -40,7 +41,7 @@ public interface EmailConfirmationManager
 	 * @return Confirmation status which contains user message key and args
 	 * @throws EngineException
 	 */
-	EmailConfirmationStatus processConfirmation(String tokenValue) throws EngineException;
+	WorkflowFinalizationConfiguration processConfirmation(String tokenValue) throws EngineException;
 
 	/**
 	 * Sends confirmation messages for the values of an attribute which are verifiable, 

@@ -31,12 +31,12 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -46,6 +46,7 @@ import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
@@ -65,7 +66,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final Supplier<Boolean> outdatedCredentialDialogLauncher;
-	private final Runnable registrationDialogLauncher;
+	private final Runnable registrationLayoutLauncher;
 	private final boolean enableRegistration;
 	private final CancelHandler cancelHandler;
 	
@@ -84,13 +85,13 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private VerticalLayout secondFactorHolder;
 	private Component rememberMeComponent;
 	private SandboxAuthnResultCallback sandboxCallback;
-	private Component languageChoice;
+	private Component topHeader;
 	private Component cancelComponent;
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			Supplier<Boolean> outdatedCredentialDialogLauncher,
-			Runnable registrationDialogLauncher, CancelHandler cancelHandler,
+			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,
@@ -102,7 +103,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.config = config;
 		this.endpointDescription = endpointDescription;
 		this.outdatedCredentialDialogLauncher = outdatedCredentialDialogLauncher;
-		this.registrationDialogLauncher = registrationDialogLauncher;
+		this.registrationLayoutLauncher = registrationLayoutLauncher;
 		this.cancelHandler = cancelHandler;
 		this.idsMan = idsMan;
 		this.execService = execService;
@@ -122,6 +123,12 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		refreshAuthenticationState(request);
 		authNColumns.focusFirst();
 	}
+
+	@Override
+	public void reset()
+	{
+		switchBackToPrimaryAuthentication();
+	}
 	
 	protected void init()
 	{
@@ -132,10 +139,12 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		topLevelLayout.setMargin(new MarginInfo(false, true, true, true));
 		topLevelLayout.setHeightUndefined();
 		setCompositionRoot(topLevelLayout);
+		
+		topHeader = new TopHeaderComponent(localeChoice, enableRegistration, config, 
+				registrationLayoutLauncher, msg);
 
-		languageChoice = getLanguageChoiceComponent();
-		topLevelLayout.addComponent(languageChoice);
-		topLevelLayout.setComponentAlignment(languageChoice, Alignment.TOP_CENTER);
+		topLevelLayout.addComponent(topHeader);
+		topLevelLayout.setComponentAlignment(topHeader, Alignment.MIDDLE_RIGHT);
 		
 		authNProgress = new RemoteAuthenticationProgress(msg, this::triggerAuthNCancel);
 		topLevelLayout.addComponent(authNProgress);
@@ -155,19 +164,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		refreshAuthenticationState(VaadinService.getCurrentRequest());
 	}
 	
-		
-	private Component getLanguageChoiceComponent()
-	{
-		HorizontalLayout languageChoiceLayout = new HorizontalLayout();
-		languageChoiceLayout.setMargin(true);
-		languageChoiceLayout.setSpacing(false);
-		languageChoiceLayout.setWidth(100, Unit.PERCENTAGE);
-		languageChoiceLayout.addComponent(localeChoice);
-		languageChoiceLayout.setComponentAlignment(localeChoice, Alignment.MIDDLE_RIGHT);
-		return languageChoiceLayout;
-	}
-	
-
 	/**
 	 * @return main authentication: logo, title, columns with authentication options
 	 */
@@ -195,7 +191,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		
 		authNColumns = new AuthnOptionsColumns(config, msg, 
 				authnOptionsHandler, enableRegistration, new AuthnPanelFactoryImpl(), 
-				registrationDialogLauncher);
+				registrationLayoutLauncher);
 		
 		authenticationMainLayout.addComponent(authNColumns);
 		authenticationMainLayout.setComponentAlignment(authNColumns, Alignment.TOP_CENTER);
@@ -354,7 +350,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		enableSharedWidgets(true);
 		authNPanelInProgress = null;
 		VaadinAuthentication secondaryAuthn = (VaadinAuthentication) partialState.getSecondaryAuthenticator();
-		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance();
+		Collection<VaadinAuthenticationUI> secondaryAuthnUIs = secondaryAuthn.createUIInstance(Context.LOGIN);
 		if (secondaryAuthnUIs.size() > 1)
 		{
 			log.warn("Configuration error: the authenticator configured as the second "
@@ -411,7 +407,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		rememberMeComponent.setEnabled(enable);
 		if (cancelComponent != null)
 			cancelComponent.setEnabled(enable);
-		languageChoice.setEnabled(enable);
+		topHeader.setEnabled(enable);
 	}
 	
 	private void onCompletedAuthentication()

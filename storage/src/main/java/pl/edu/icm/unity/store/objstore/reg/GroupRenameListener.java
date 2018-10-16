@@ -42,7 +42,7 @@ public class GroupRenameListener<T extends BaseForm> implements ReferenceUpdateH
 					updateNeeded = true;
 				}
 			for (AttributeRegistrationParam attr: form.getAttributeParams())
-				if (Group.isChildOrSame(attr.getGroup(), modifiedName))
+				if (!attr.isUsingDynamicGroup() && Group.isChildOrSame(attr.getGroup(), modifiedName))
 				{
 					attr.setGroup(Group.renameParent(attr.getGroup(), 
 							modifiedName, newGroup));

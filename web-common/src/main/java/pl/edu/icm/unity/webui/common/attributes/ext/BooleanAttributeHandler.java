@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
@@ -16,6 +15,7 @@ import pl.edu.icm.unity.stdext.attr.BooleanAttributeSyntax;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -128,9 +128,9 @@ public class BooleanAttributeHandler implements WebAttributeHandler
 
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return new Label(value);
+		return AttributeHandlerHelper.getRepresentation(value, context);
 	}
 
 

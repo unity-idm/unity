@@ -22,12 +22,14 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.exceptions.SAMLRequesterException;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -76,19 +78,21 @@ public class IdpConsentDeciderServlet extends HttpServlet
 	protected SessionManagement sessionMan;
 	protected String samlUiServletPath;
 	private String authenticationUIServletPath;
-
 	protected AttributeTypeSupport aTypeSupport;
+	private EnquiryManagement enquiryManagement;
 	
 	@Autowired
 	public IdpConsentDeciderServlet(AttributeTypeSupport aTypeSupport, 
 			PreferencesManagement preferencesMan, 
 			IdPEngine idpEngine,
 			FreemarkerAppHandler freemarker,
-			SessionManagement sessionMan)
+			SessionManagement sessionMan,
+			@Qualifier("insecure") EnquiryManagement enquiryManagement)
 	{
 		this.aTypeSupport = aTypeSupport;
 		this.preferencesMan = preferencesMan;
 		this.idpEngine = idpEngine;
+		this.enquiryManagement = enquiryManagement;
 		this.ssoResponseHandler = new SSOResponseHandler(freemarker);
 		this.sessionMan = sessionMan;
 	}
@@ -181,7 +185,8 @@ public class IdpConsentDeciderServlet extends HttpServlet
 
 	private boolean isInteractiveUIRequired(SPSettings preferences, SAMLAuthnContext samlCtx)
 	{
-		return isConsentRequired(preferences, samlCtx) || isActiveValueSelectionRequired(samlCtx);
+		return isConsentRequired(preferences, samlCtx) || isActiveValueSelectionRequired(samlCtx) ||
+				isEnquiryWaiting();
 	}
 
 	
@@ -206,6 +211,21 @@ public class IdpConsentDeciderServlet extends HttpServlet
 		
 		return true;
 	}
+
+	private boolean isEnquiryWaiting()
+	{
+		LoginSession ae = InvocationContext.getCurrent().getLoginSession();
+		EntityParam entity = new EntityParam(ae.getEntityId());
+		try
+		{
+			return !enquiryManagement.getPendingEnquires(entity).isEmpty();
+		} catch (EngineException e)
+		{
+			log.warn("Can't retrieve pending enquiries for user", e);
+			return false;
+		}
+	}
+
 	
 	/**
 	 * Automatically sends a SAML response, without the consent screen.

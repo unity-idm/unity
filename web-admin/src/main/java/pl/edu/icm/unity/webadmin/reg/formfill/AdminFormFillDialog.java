@@ -84,9 +84,11 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 	{
 		try
 		{
-			T request = editor.getRequest();
-			if (callback.newRequest(request, autoAccept))
-				close();
+			T request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
+			if (request == null)
+				return;
+			callback.newRequest(request, autoAccept);
+			close();
 		} catch (Exception e) 
 		{
 			if (e instanceof IllegalFormContentsException)
@@ -98,7 +100,7 @@ public class AdminFormFillDialog<T extends BaseRegistrationInput> extends Abstra
 	
 	public interface Callback<T>
 	{
-		boolean newRequest(T request, boolean autoAccept) throws WrongArgumentException;
+		void newRequest(T request, boolean autoAccept) throws WrongArgumentException;
 		void cancelled();
 	}
 	

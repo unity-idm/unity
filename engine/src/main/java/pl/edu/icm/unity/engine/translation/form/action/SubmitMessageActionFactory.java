@@ -4,14 +4,13 @@
  */
 package pl.edu.icm.unity.engine.translation.form.action;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.I18nMessage;
-import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
 import pl.edu.icm.unity.types.translation.TranslationActionType;
@@ -23,8 +22,10 @@ import pl.edu.icm.unity.types.translation.TranslationActionType;
  * @author K. Benedyczak
  */
 @Component
+@Deprecated
 public class SubmitMessageActionFactory extends AbstractRegistrationTranslationActionFactory
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_TRANSLATION, SubmitMessageActionFactory.class);
 	public static final String NAME = "submissionMessage";
 	
 	public SubmitMessageActionFactory()
@@ -47,33 +48,16 @@ public class SubmitMessageActionFactory extends AbstractRegistrationTranslationA
 	
 	public static class SubmitMessageAction extends RegistrationTranslationAction
 	{
-		private I18nString message;
-		private I18nString caption;
-		
 		public SubmitMessageAction(TranslationActionType description, String[] params)
 		{
 			super(description, params);
-			setParameters(params);
 		}
 
 		@Override
 		protected void invokeWrapped(TranslatedRegistrationRequest state, Object mvelCtx,
 				String currentProfile) throws EngineException
 		{
-			state.setPostSubmitMessage(new I18nMessage(caption, message));
-		}
-		
-		private void setParameters(String[] parameters)
-		{
-			try
-			{
-				caption = Constants.MAPPER.readValue(parameters[0], I18nString.class);
-				message = Constants.MAPPER.readValue(parameters[1], I18nString.class);
-			} catch (Exception e)
-			{
-				throw new IllegalArgumentException("Action parameter is not a "
-						+ "valid JSON representation of i18n string", e);
-			}
+			log.error("The submissionMessage form action is effectless. Please reconfigure your form to use Finalization config instead.");
 		}
 	}
 }

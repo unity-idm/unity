@@ -14,6 +14,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.internet.MimeUtility;
@@ -91,8 +92,8 @@ public class CustomHTTPSRequest extends HTTPRequest
 			conn.setRequestProperty("Authorization", wrapped.getAuthorization());
 
 		conn.setRequestMethod(method.name());
-		for (Map.Entry<String,String> header: wrapped.getHeaders().entrySet())
-			conn.setRequestProperty(header.getKey(), header.getValue());
+		for (Map.Entry<String, List<String>> header: wrapped.getHeaderMap().entrySet())
+			conn.setRequestProperty(header.getKey(), header.getValue().get(0));
 
 		if (method.equals(HTTPRequest.Method.POST) || method.equals(Method.PUT)) {
 
@@ -257,7 +258,7 @@ public class CustomHTTPSRequest extends HTTPRequest
 	}
 
 	@Override
-	public Map<String, String> getQueryParameters()
+	public Map<String, List<String>> getQueryParameters()
 	{
 		return wrapped.getQueryParameters();
 	}
@@ -269,8 +270,14 @@ public class CustomHTTPSRequest extends HTTPRequest
 	}
 	
 	@Override
-	public void setHeader(final String name, final String value) 
+	public Map<String,List<String>> getHeaderMap() 
 	{
-		wrapped.setHeader(name, value);
+		return wrapped.getHeaderMap();
+	}
+	
+	@Override
+	public void setHeader(final String name, final String... values) 
+	{
+		wrapped.setHeader(name, values);
 	}
 }

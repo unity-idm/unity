@@ -346,39 +346,37 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	
 	private void logoutSessionPeers(URI currentLocation, boolean soft)
 	{
-		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE, LogoutMode.class);
-		
+		LogoutMode mode = config.getEnumValue(UnityServerConfiguration.LOGOUT_MODE,
+				LogoutMode.class);
+
+		LoginSession contextSession = InvocationContext.getCurrent().getLoginSession();
+
 		if (mode == LogoutMode.internalOnly)
 		{
 			destroySession(soft);
-			return;
-		}
-		
-		LoginSession session = InvocationContext.getCurrent().getLoginSession();
-		try
+		} else if (mode == LogoutMode.internalAndSyncPeers)
 		{
-			session = sessionMan.getSession(session.getId());
-		} catch (IllegalArgumentException e)
-		{
-			log.warn("Can not refresh the state of the current session. Logout of session participants "
-					+ "won't be performed", e);
-			destroySession(soft);
-			return;
-		}
-		
-		if (mode == LogoutMode.internalAndSyncPeers)
-		{
-			logoutProcessorsManager.handleSynchronousLogout(session);
+			try
+			{
+				LoginSession session = sessionMan.getSession(contextSession.getId());
+				logoutProcessorsManager.handleSynchronousLogout(session);
+			} catch (IllegalArgumentException e)
+			{
+				log.warn("Can not refresh the state of the current session. Logout of session participants "
+						+ "won't be performed", e);
+			}
 			destroySession(soft);
 		} else
 		{
-			VaadinSession vSession = VaadinSession.getCurrent(); 
+			VaadinSession vSession = VaadinSession.getCurrent();
 			vSession.addRequestHandler(new LogoutRedirectHandler());
 			vSession.setAttribute(LOGOUT_REDIRECT_TRIGGERING, new Boolean(soft));
-			vSession.setAttribute(LOGOUT_REDIRECT_RET_URI, Page.getCurrent().getLocation().toASCIIString());
+			vSession.setAttribute(LOGOUT_REDIRECT_RET_URI,
+					Page.getCurrent().getLocation().toASCIIString());
 		}
+		
 		// clear remember me cookie and token only when whole authn is remembered
-		rememberMeProcessor.removeRememberMeWithWholeAuthn(session.getRealm(),
+		rememberMeProcessor.removeRememberMeWithWholeAuthn(contextSession.getRealm(),
 				VaadinServletRequest.getCurrent(),
 				VaadinServletResponse.getCurrent());
 

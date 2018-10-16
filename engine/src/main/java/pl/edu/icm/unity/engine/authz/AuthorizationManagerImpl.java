@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.AuthorizationExceptionRT;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
@@ -187,6 +188,20 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 
 	@Override
 	@Transactional
+	public void checkAuthorizationRT(String group, AuthzCapability... requiredCapabilities)
+			throws AuthorizationExceptionRT
+	{
+		try
+		{
+			checkAuthorizationInternal(getCallerMethodName(2), false, group, requiredCapabilities);
+		} catch (AuthorizationException e)
+		{
+			throw new AuthorizationExceptionRT(e.getMessage(), e.getCause());
+		}
+	}
+
+	@Override
+	@Transactional
 	public void checkAuthorization(boolean selfAccess, String groupPath, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, groupPath, requiredCapabilities);
@@ -350,5 +365,4 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 			return "UNKNOWN";
 		return stackTrace[i].getMethodName();
 	}
-
 }

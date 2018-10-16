@@ -6,7 +6,8 @@ package pl.edu.icm.unity.webui.common.identities.ext;
 
 import org.apache.logging.log4j.Logger;
 
-import com.vaadin.server.UserError;
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
@@ -24,7 +25,10 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.ext.TextFieldWithVerifyButton;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 /**
@@ -35,7 +39,6 @@ public class EmailIdentityEditor implements IdentityEditor
 {
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailIdentityEditor.class);
 	private UnityMessageSource msg;
-	private boolean required;
 	private ConfirmationInfo confirmationInfo;
 	private TextFieldWithVerifyButton editor;
 	private boolean skipUpdate = false;
@@ -43,8 +46,10 @@ public class EmailIdentityEditor implements IdentityEditor
 	private EmailConfirmationManager emailConfirmationMan;
 	private EntityResolver idResolver;
 	private ConfirmationInfoFormatter formatter;
+	private SingleStringFieldBinder binder;
 	
-	public EmailIdentityEditor(UnityMessageSource msg, EmailConfirmationManager emailConfirmationMan, EntityResolver idResolver, ConfirmationInfoFormatter formatter)
+	public EmailIdentityEditor(UnityMessageSource msg, EmailConfirmationManager emailConfirmationMan, 
+			EntityResolver idResolver, ConfirmationInfoFormatter formatter)
 	{
 		this.msg = msg;
 		this.emailConfirmationMan = emailConfirmationMan;
@@ -53,17 +58,18 @@ public class EmailIdentityEditor implements IdentityEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean required, boolean adminMode)
+	public ComponentsContainer getEditor(IdentityEditorContext context)
 	{
-		this.required = required;
+		binder = new SingleStringFieldBinder(msg);
 		confirmationInfo = new ConfirmationInfo();	
-		editor = new TextFieldWithVerifyButton(adminMode, required, msg.getMessage(
-				"EmailIdentityEditor.resendConfirmation"),
+		editor = new TextFieldWithVerifyButton(context.isAdminMode(), 
+				msg.getMessage("EmailIdentityEditor.resendConfirmation"),
 				Images.messageSend.getResource(),
-				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"));
+				msg.getMessage("EmailIdentityEditor.confirmedCheckbox"),
+				context.isShowLabelInline());
 		
 		ComponentsContainer ret = new ComponentsContainer(editor);
-		editor.setCaption(new EmailIdentity().getHumanFriendlyName(msg) + ":");
+		editor.setLabel(new EmailIdentity().getHumanFriendlyName(msg));
 		
 		editor.addVerifyButtonClickListener(e -> {
 
@@ -104,8 +110,16 @@ public class EmailIdentityEditor implements IdentityEditor
 			}
 		});
 		
+		if (context.isCustomWidth())
+			editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		
 		updateConfirmationStatusIcon();
-			
+		
+		binder.forField(editor, context.isRequired())
+			.withValidator(this::validate)
+			.bind("value");
+		binder.setBean(new StringBindingValue(""));
+		
 		return ret;
 
 	}
@@ -130,7 +144,7 @@ public class EmailIdentityEditor implements IdentityEditor
 	{
 		if (value == null)
 		{
-			editor.setConfirmationStatusIconVisiable(false);;
+			editor.setConfirmationStatusIconVisiable(false);
 		} else
 		{
 			editor.setConfirmationStatusIcon(
@@ -138,38 +152,38 @@ public class EmailIdentityEditor implements IdentityEditor
 							confirmationInfo),
 					confirmationInfo.isConfirmed());
 		}
-		editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed()
+		editor.setVerifyButtonVisible(!confirmationInfo.isConfirmed()
 				&& !editor.getValue().isEmpty() && value != null
 				&& editor.getValue().equals(value.getValue()));
 		skipUpdate = true;
 		editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());
 		skipUpdate = false;
 	}
+	
+	private ValidationResult validate(String value, ValueContext context)
+	{
+		if (value.isEmpty())
+			return ValidationResult.ok(); //fall back
+		try
+		{
+			new EmailIdentity().validate(value);
+			return ValidationResult.ok();
+		} catch (IllegalIdentityValueException e)
+		{
+			return ValidationResult.error(e.getMessage());
+		}
+	}
+
 
 	@Override
 	public IdentityParam getValue() throws IllegalIdentityValueException
 	{
-		String emailVal = editor.getValue().trim();
-		if (emailVal.equals(""))
-		{
-			if (!required)
-				return null;
-			String err = msg.getMessage("EmailIdentityEditor.emailEmpty");
-			editor.setComponentError(new UserError(err));
-			throw new IllegalIdentityValueException(err);
-		}
-		editor.setComponentError(null);
+		binder.ensureValidityCatched(() -> new IllegalIdentityValueException(""));
+		String emailVal = binder.getBean().getValue().trim();
+		if (emailVal.isEmpty())
+			return null;
 		
-		try
-		{
-			new EmailIdentity().validate(emailVal);
-		} catch (IllegalArgumentException e)
-		{
-			editor.setComponentError(new UserError(e.getMessage()));
-			throw e;
-		}
-		
-		VerifiableEmail ve = new VerifiableEmail(emailVal, confirmationInfo);
+		VerifiableEmail ve = new VerifiableEmail(binder.getBean().getValue().trim(), confirmationInfo);
 		return EmailIdentity.toIdentityParam(ve, null, null);
 	}
 
@@ -179,13 +193,15 @@ public class EmailIdentityEditor implements IdentityEditor
 		VerifiableEmail ve = EmailIdentity.fromIdentityParam(value);
 		this.value = value;
 		confirmationInfo = ve.getConfirmationInfo();
-		editor.setValue(ve.getValue());
+		binder.setBean(new StringBindingValue(ve.getValue()));
 		updateConfirmationStatusIcon();
 	}
 
 	@Override
 	public void setLabel(String value)
 	{
-		editor.setCaption(value);
+		editor.setLabel(value);
 	}
+	
+	
 }

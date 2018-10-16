@@ -1,16 +1,16 @@
 /*
- * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webadmin.reg.formman.layout;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -20,73 +20,48 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutElement;
 import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
- * Editor of {@link FormLayout}. Allows for selecting whether the default layout should be used or not.
- * If default layout is not used then list of entries is displayed.
- * The editor allows for incremental updating of the current layout with changes in the upstream form: 
- * all required parameter fields are added and all non existing parameter fields are removed.
- * 
- * @author K. Benedyczak
+ * Editor of {@link FormLayout}. The editor allows for incremental updating of
+ * the current layout with changes in the upstream form: all required parameter
+ * fields are added and all non existing parameter fields are removed.
+ *
+ * @author Roman Krysinski (roman@unity-idm.eu)
  */
 public class FormLayoutEditor extends CustomComponent
 {
-	protected UnityMessageSource msg;
+	private UnityMessageSource msg;
+	private Supplier<FormLayout> layoutProvider;
 	
-	protected List<EntryComponent> entries;
-
 	private Component layoutControls;
-
-	private CheckBox enableCustom;
-	
-	private FormProvider formProvider;
-
-	private VerticalLayout entriesLayout;
-	
-	private ErrorComponent errorInfo;
-
 	private VerticalLayout main;
+	private List<EntryComponent> entries;
+	private VerticalLayout entriesLayout;
 
-	public FormLayoutEditor(UnityMessageSource msg, FormProvider formProvider)
+	public FormLayoutEditor(UnityMessageSource msg, Supplier<FormLayout> layoutProvider)
 	{
+		super();
 		this.msg = msg;
-		this.formProvider = formProvider;
+		this.layoutProvider = layoutProvider;
 		this.entries = new ArrayList<>();
 		initUI();
 	}
-	
+
 	private void initUI()
 	{
-		errorInfo = new ErrorComponent();
-		errorInfo.setWarning(msg.getMessage("FormLayoutEditor.invalidFormInfo"));
-		
 		main = new VerticalLayout();
 		main.setSpacing(true);
-		main.setMargin(false);
-		enableCustom = new CheckBox(msg.getMessage("FormLayoutEditor.enableCustom"));
-		enableCustom.addValueChangeListener(event -> {
-			boolean enabled = enableCustom.getValue();
-			layoutControls.setVisible(enabled);
-			if (enabled)
-			{
-				BaseForm form = getForm();
-				if (form != null)
-					setLayout(form.getDefaultFormLayout(msg));
-			}
-		});
-		main.addComponent(enableCustom);
+		main.setMargin(true);
 		
 		layoutControls = getLayoutControls();
-		layoutControls.setVisible(false);
 		main.addComponent(layoutControls);
 		
 		setCompositionRoot(main);
@@ -117,15 +92,15 @@ public class FormLayoutEditor extends CustomComponent
 		Label label = new Label(msg.getMessage("FormLayoutEditor.addCaption"));
 		addElementLayout.addComponent(label);
 		addElementLayout.setComponentAlignment(label, Alignment.MIDDLE_CENTER);
-		ComboBox<String> elementSelector = new ComboBox<>();
-		elementSelector.setItems(FormLayout.SEPARATOR, FormLayout.CAPTION);
-		elementSelector.setSelectedItem(FormLayout.CAPTION);
+		ComboBox<FormLayoutElement> elementSelector = new ComboBox<>();
+		elementSelector.setItems(FormLayoutElement.SEPARATOR, FormLayoutElement.CAPTION);
+		elementSelector.setSelectedItem(FormLayoutElement.CAPTION);
 		elementSelector.setEmptySelectionAllowed(false);
 		
 		Button add = new Button();
 		add.setIcon(Images.add.getResource());
 		add.addClickListener(event -> {
-			FormElement added = createExtraElementOfType(elementSelector.getValue().toString());
+			FormElement added = createExtraElementOfType(elementSelector.getValue());
 			addComponentFor(added, 0);
 			refreshComponents();
 		});
@@ -133,43 +108,19 @@ public class FormLayoutEditor extends CustomComponent
 		return addElementLayout;
 	}
 	
-	public void setInitialForm(BaseForm form)
+	protected FormElement createExtraElementOfType(FormLayoutElement type)
 	{
-		if (form != null)
+		switch (type)
 		{
-			boolean customLayout = form.getLayout() != null;
-			layoutControls.setVisible(customLayout);
-			enableCustom.setValue(customLayout);
-			if (customLayout)
-				setLayout(form.getLayout());
-		}
-	}
-
-	public void updateFromForm()
-	{
-		if (!enableCustom.getValue())
-			return;
-
-		BaseForm form = getForm();
-		if (form != null)
-		{
-			form.setLayout(getCurrentLayout());
-			form.updateLayout();
-			setLayout(form.getLayout());
+		case CAPTION:
+			return new FormCaptionElement(new I18nString());
+		case SEPARATOR:
+			return new FormSeparatorElement();
+		default: 
+			throw new IllegalStateException("Unsupported extra layout element type " + type);
 		}
 	}
 	
-	private void setLayout(FormLayout formLayout)
-	{
-		entries.clear();
-		entriesLayout.removeAllComponents();
-		for (int i = 0; i < formLayout.getElements().size(); i++)
-		{
-			FormElement formElement = formLayout.getElements().get(i);
-			addComponentFor(formElement, i);
-		}
-		refreshComponents();
-	}
 	
 	protected void addComponentFor(FormElement formElement, int index)
 	{
@@ -178,68 +129,6 @@ public class FormLayoutEditor extends CustomComponent
 				msg, elementEditor, new CallbackImpl());
 		entries.add(index, component);
 		entriesLayout.addComponent(component, index);
-	}
-
-	protected FormElement createExtraElementOfType(String type)
-	{
-		switch (type)
-		{
-		case FormLayout.CAPTION:
-			return new FormCaptionElement(new I18nString());
-		case FormLayout.SEPARATOR:
-			return new FormSeparatorElement();
-		default: 
-			throw new IllegalStateException("Unsupported extra layout element type " + type);
-		}
-	}
-	
-	protected FormElementEditor<?> getElementEditor(FormElement formElement)
-	{
-		switch (formElement.getType())
-		{
-		case FormLayout.CAPTION:
-			return new CaptionElementEditor(msg, (FormCaptionElement) formElement);
-		case FormLayout.AGREEMENT:
-		case FormLayout.ATTRIBUTE:
-		case FormLayout.CREDENTIAL:
-		case FormLayout.GROUP:
-		case FormLayout.IDENTITY:
-			return new FormParameterElementEditor((FormParameterElement) formElement);
-			
-		default: 
-			return new DefaultElementEditor(formElement);
-		}
-	}
-	
-	private FormLayout getCurrentLayout()
-	{
-		if (!enableCustom.getValue())
-			return null;
-		return new FormLayout(entries.stream()
-				.map(entry -> entry.getEditor().getElement())
-				.collect(Collectors.toList()));
-	}
-	
-	public FormLayout getLayout()
-	{
-		updateFromForm();
-		return getCurrentLayout();
-	}
-	
-	private void refreshComponents()
-	{
-		for (int i=0; i<entries.size(); i++)
-			entries.get(i).setPosition(i, entries.size());
-	}
-	
-	private BaseForm getForm()
-	{
-		BaseForm form = formProvider.getForm();
-		if (form == null)
-			setCompositionRoot(errorInfo);
-		else
-			setCompositionRoot(main);
-		return form;
 	}
 	
 	private class CallbackImpl implements EntryComponent.Callback
@@ -264,13 +153,64 @@ public class FormLayoutEditor extends CustomComponent
 		}
 	}
 	
-	/**
-	 * Used to provide a current form to the layout editor. It is needed
-	 * to keep track of all mandatory layout elements and to build default layout.
-	 * @author K. Benedyczak
-	 */
-	public interface FormProvider
+	protected FormElementEditor<?> getElementEditor(FormElement formElement)
 	{
-		BaseForm getForm();
+		switch (formElement.getType())
+		{
+		case CAPTION:
+			return new CaptionElementEditor(msg, (FormCaptionElement) formElement);
+		case AGREEMENT:
+		case ATTRIBUTE:
+		case CREDENTIAL:
+		case REMOTE_SIGNUP:
+		case GROUP:
+		case IDENTITY:
+			return new FormParameterElementEditor((FormParameterElement) formElement);
+			
+		default: 
+			return new DefaultElementEditor(formElement);
+		}
+	}
+	
+	private void refreshComponents()
+	{
+		for (int i=0; i<entries.size(); i++)
+			entries.get(i).setPosition(i, entries.size());
+	}
+	
+	
+	public void setLayoutFromProvider()
+	{
+		if (layoutProvider == null)
+			return;
+		FormLayout formLayout = layoutProvider.get();
+		setLayout(formLayout);
+	}
+	
+	
+	public void setLayout(FormLayout formLayout)
+	{
+		entries.clear();
+		entriesLayout.removeAllComponents();
+		
+		if (formLayout == null)
+			return;
+		
+		for (int i = 0; i < formLayout.getElements().size(); i++)
+		{
+			FormElement formElement = formLayout.getElements().get(i);
+			addComponentFor(formElement, i);
+		}
+		
+		refreshComponents();
+	}
+
+	public FormLayout getLayout()
+	{
+		if (entries.isEmpty())
+			return null;
+		return new FormLayout(entries.stream()
+				.map(entry -> entry.getEditor().getElement())
+				.collect(Collectors.toList()));
 	}
 }

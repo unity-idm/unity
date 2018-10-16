@@ -7,11 +7,11 @@ package pl.edu.icm.unity.webui.common;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import org.apache.logging.log4j.core.config.ConfigurationException;
-
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
 import com.vaadin.server.ThemeResource;
+
+import eu.unicore.util.configuration.ConfigurationException;
 
 public class ImageUtils
 {

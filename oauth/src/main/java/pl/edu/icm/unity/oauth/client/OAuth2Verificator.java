@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -49,7 +50,9 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest.Builder;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -74,6 +77,8 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
@@ -160,8 +165,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	@Override
-	public OAuthContext createRequest(String providerKey) throws URISyntaxException,  
-		ParseException, IOException
+	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity) 
+			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
 		String clientId = providerCfg.getValue(CustomProviderProperties.CLIENT_ID);
@@ -184,14 +189,17 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 							+ " it is not available in the discovered OpenID Provider metadata.");
 				authzEndpoint = providerMeta.getAuthorizationEndpointURI().toString();
 			}
-			req = new AuthenticationRequest(
-				new URI(authzEndpoint),
-				new ResponseType(ResponseType.Value.CODE),
-				Scope.parse(scopes),
-				new ClientID(clientId),
-				new URI(responseConsumerAddress),
-				new State(context.getRelayState()),
-				null);
+			Builder builder = new AuthenticationRequest.Builder(new ResponseType(ResponseType.Value.CODE), 
+					Scope.parse(scopes), new ClientID(clientId),
+					new URI(responseConsumerAddress));
+			builder.state(new State(context.getRelayState()))
+				.endpointURI(new URI(authzEndpoint));
+			if (expectedIdentity.isPresent())
+			{
+				builder.loginHint(expectedIdentity.get().getIdentity());
+				context.setExpectedIdentity(expectedIdentity.get());
+			}
+			req = builder.build();
 		} else
 		{
 			Scope scope = scopes == null ? null : Scope.parse(scopes);
@@ -229,6 +237,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
+			verifyExpectedIdentity(input, context.getExpectedIdentity());
 			String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
 					CommonWebAuthnProperties.TRANSLATION_PROFILE);
 		
@@ -241,6 +250,27 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 	}
 	
+
+	private void verifyExpectedIdentity(RemotelyAuthenticatedInput input, ExpectedIdentity expectedIdentity)
+	{
+		if (expectedIdentity == null)
+			return;
+		if (expectedIdentity.getExpectation() == IdentityExpectation.HINT)
+			return;
+		String identity = expectedIdentity.getIdentity();
+		if (input.getIdentities().values().stream()
+				.filter(ri -> ri.getName().equals(identity))
+				.findAny().isPresent())
+			return;
+		if (input.getAttributes().values().stream()
+				.filter(ra -> ra.getName().equals(UserInfo.EMAIL_CLAIM_NAME))
+				.filter(ra -> ra.getValues().contains(identity))
+				.findAny().isPresent())
+			return;
+		log.debug("Failing OAuth authentication as expected&mandatory identity {} was not found "
+				+ "in received user data: {}", identity, input.getTextDump());
+		throw new UnexpectedIdentityException(identity);
+	}
 
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) 
 			throws AuthenticationException 

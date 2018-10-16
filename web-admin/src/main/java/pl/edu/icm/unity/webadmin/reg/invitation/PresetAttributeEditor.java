@@ -70,7 +70,8 @@ public class PresetAttributeEditor extends PresetEditorBase<Attribute>
 		
 		AttributeEditContext editContext = AttributeEditContext.builder()
 				.withConfirmationMode(ConfirmationMode.ADMIN).required()
-				.withAttributeType(at).withAttributeGroup(selectedParam.getGroup())
+				.withAttributeType(at)
+				.withAttributeGroup(selectedParam.isUsingDynamicGroup() ? "/" : selectedParam.getGroup())
 				.build();
 		
 		fixedAttributeEditor = new FixedAttributeEditor(msg, attrHandlersRegistry, 

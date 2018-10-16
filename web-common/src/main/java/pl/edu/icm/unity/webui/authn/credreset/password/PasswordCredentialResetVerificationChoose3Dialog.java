@@ -5,10 +5,9 @@
 
 package pl.edu.icm.unity.webui.authn.credreset.password;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.CredentialReset;
@@ -47,20 +46,18 @@ public class PasswordCredentialResetVerificationChoose3Dialog extends AbstractDi
 	@Override
 	protected Component getContents() throws Exception
 	{
-		
+		addStyleName("u-credreset-dialog");
+
 		choose = new ComboBox<>();
+		choose.setCaption(msg.getMessage("CredentialReset.chooseVerificationMethod"));
 		choose.setItems(VerificationMethod.values());
 		choose.setValue(VerificationMethod.Email);
 		choose.setEmptySelectionAllowed(false);	
 		choose.setItemCaptionGenerator(i -> msg.getMessage("CredentialReset." + i.toString()));
 		
-		VerticalLayout ret = new VerticalLayout();
+		VerticalLayout ret = new VerticalLayout(choose);
 		ret.setMargin(false);
-		Label label = new Label(msg.getMessage("CredentialReset.chooseVerificationMethod"));
-		ret.addComponent(label);
-		label.setWidth(100, Unit.PERCENTAGE);
-		FormLayout form = new FormLayout(choose);
-		ret.addComponent(form);
+		ret.setComponentAlignment(choose,  Alignment.TOP_CENTER);
 		return ret;
 	}
 

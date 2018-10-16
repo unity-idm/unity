@@ -11,7 +11,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
@@ -24,12 +26,21 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 @Component("PublicNavigationUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
+@PreserveOnRefresh
 public class PublicNavigationUI extends GenericNavigationUI<PublicViewProvider>
 {
 	@Autowired
 	public PublicNavigationUI(UnityMessageSource msg, Collection<PublicViewProvider> viewProviders)
 	{
 		super(msg, viewProviders);
+	}
+
+	@Override
+	protected void refresh(VaadinRequest request)
+	{
+		super.refresh(request);
+		if (this.viewProviders != null)
+			this.viewProviders.forEach(view -> view.refresh(request, navigator));
 	}
 }
 

@@ -59,7 +59,7 @@ public class ListOfSelectableElements extends CustomComponent
 	public void addEntry(Component representation, boolean selected, Object data)
 	{
 		gl.setRows(gl.getRows()+1);
-		gl.addComponent(wrapWithLayout(representation), 0, row);
+		gl.addComponent(representation, 0, row);
 
 		CheckBox cb = new CheckBox();
 		if (data != null)

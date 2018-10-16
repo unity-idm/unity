@@ -52,6 +52,8 @@ public class SMSCredentialReset1Dialog extends AbstractDialog
 	@Override
 	protected Component getContents() throws Exception
 	{
+		addStyleName("u-credreset-dialog");
+
 		if (CredentialResetStateVariable.get() != 0)
 		{
 			NotificationPopup.showError(msg.getMessage("error"),

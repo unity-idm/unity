@@ -105,7 +105,12 @@ public class SingleCredentialPanel extends VerticalLayout
 
 		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
 
-		credEditorComp = credEditor.getEditor(toEdit.getConfiguration(), true, entityId, !simpleMode);
+		credEditorComp = credEditor.getEditor(CredentialEditorContext.builder()
+				.withConfiguration(toEdit.getConfiguration())
+				.withRequired(true)
+				.withEntityId(entityId)
+				.withAdminMode(!simpleMode)
+				.build());
 		
 		clear = new Button(msg.getMessage("CredentialChangeDialog.clear"));
 		clear.setIcon(Images.undeploy.getResource());

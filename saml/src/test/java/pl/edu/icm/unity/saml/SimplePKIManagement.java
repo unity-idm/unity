@@ -11,8 +11,8 @@ import java.util.Set;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -47,9 +47,7 @@ public class SimplePKIManagement implements PKIManagement
 		if (name.equals("MAIN"))
 			try
 			{
-				return new KeystoreCredential("src/test/resources/demoKeystore.p12",
-						"the!uvos".toCharArray(), "the!uvos".toCharArray(), 
-						null, "PKCS12");
+				return DBIntegrationTestBase.getDemoCredential();
 			} catch (Exception e)
 			{
 				throw new InternalException("error loading credential", e);

@@ -4,8 +4,8 @@
  */
 package pl.edu.icm.unity.webui.authn.credreset;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -13,8 +13,11 @@ import pl.edu.icm.unity.engine.api.authn.CredentialReset;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
+import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
 
 /**
  * 6th, last step of credential reset pipeline. In this dialog the user must provide the new credential.
@@ -38,7 +41,7 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		this.backend = backend;
 		this.credEditor = credEditor;
 		this.expectedState = expectedState;
-		setSizeEm(40, 50);
+		setSizeEm(40, 30);
 	}
 
 	@Override
@@ -52,12 +55,19 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		}
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
-		ret.setSpacing(false);
+		ret.setSpacing(true);
 		ret.addComponent(new Label(msg.getMessage("CredentialReset.updateCredentialInfo")));
-		FormLayout internal = new FormLayout();
-		internal.addComponents(credEditor.getEditor(backend.getCredentialConfiguration(), 
-				true, backend.getEntityId(), false).getComponents());
+
+		VerticalLayout internal = new VerticalLayout();
+		ComponentsContainer componentContainer = credEditor.getEditor(CredentialEditorContext.builder()
+				.withConfiguration(backend.getCredentialConfiguration())
+				.withRequired(true)
+				.withEntityId(backend.getEntityId())
+				.build());
+		internal.addComponents(componentContainer.getComponents());
+		internal.setWidthUndefined();
 		ret.addComponent(internal);
+		ret.setComponentAlignment(internal, Alignment.MIDDLE_CENTER);
 		return ret;
 	}
 
@@ -78,11 +88,12 @@ public class CredentialResetFinalDialog extends AbstractDialog
 		try
 		{
 			updatedValue = credEditor.getValue();
+		} catch (MissingCredentialException mc)
+		{
+			return;
 		} catch (IllegalCredentialException e)
 		{
-			NotificationPopup.showError(msg
-					.getMessage("CredentialChangeDialog.credentialUpdateError"),
-					e.getMessage());
+			NotificationPopup.showError(e.getMessage(), "");
 			return;
 		}
 		

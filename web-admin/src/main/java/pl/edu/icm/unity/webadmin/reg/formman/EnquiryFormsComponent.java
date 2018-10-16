@@ -4,34 +4,42 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Sets;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.utils.MessageUtils;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
+import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryFormChangedEvent;
@@ -42,13 +50,13 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class EnquiryFormsComponent extends VerticalLayout
+public class EnquiryFormsComponent extends VerticalLayout implements ActivationListener
 {
 	private UnityMessageSource msg;
 	private EnquiryManagement enquiriesManagement;
 	private EventsBus bus;
 	
-	private GenericElementsTable<EnquiryForm> table;
+	private Grid<EnquiryForm> table;
 	private com.vaadin.ui.Component main;
 	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
 	
@@ -56,8 +64,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 	@Autowired
 	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryManagement enquiryManagement,
 			SharedEndpointManagement sharedEndpointMan,
-			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory,
-			EnquiryFormViewer viewer)
+			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory)
 	{
 		this.msg = msg;
 		this.enquiriesManagement = enquiryManagement;
@@ -69,41 +76,51 @@ public class EnquiryFormsComponent extends VerticalLayout
 		setSpacing(false);
 		setCaption(msg.getMessage("EnquiryFormsComponent.caption"));
 		
-		
-		table = new GenericElementsTable<>(msg.getMessage("RegistrationFormsComponent.formsTable"), 
-				form -> form.getName());
+		table = new SmallGrid<>();
 		table.setSizeFull();
-		table.setMultiSelect(true);
-		viewer.setInput(null);
-		table.addSelectionListener(event -> 
-		{
-			Collection<EnquiryForm> items = event.getAllSelectedItems();
-			if (items.size() > 1 || items.isEmpty())
+		table.setSelectionMode(SelectionMode.MULTI);
+		table.addColumn(EnquiryForm::getName, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationFormsComponent.formsTable"))
+			.setId("name");
+		table.addComponentColumn(form -> 
 			{
-				viewer.setInput(null);
-				return;
+				Link link = new Link();
+				String linkURL = PublicRegistrationURLSupport.getWellknownEnquiryLink(
+						form.getName(), sharedEndpointMan); 
+				link.setCaption(linkURL);
+				link.setTargetName("_blank");
+				link.setResource(new ExternalResource(linkURL));
+				return link;
+			})
+			.setCaption(msg.getMessage("RegistrationFormsComponent.link"))
+			.setId("link");
+		
+		GridContextMenuSupport<EnquiryForm> contextMenu = new GridContextMenuSupport<>(table);
+		contextMenu.addActionHandler(getRefreshAction());
+		contextMenu.addActionHandler(getAddAction());
+		contextMenu.addActionHandler(getEditAction());
+		contextMenu.addActionHandler(getCopyAction());
+		contextMenu.addActionHandler(getDeleteAction());
+		contextMenu.addActionHandler(getResendAction());
+		GridSelectionSupport.installClickListener(table);
+		table.addItemClickListener(event -> {
+			if (event.getMouseEventDetails().isDoubleClick()) 
+			{
+				EnquiryForm form = event.getItem();
+				SingleActionHandler<EnquiryForm> editAction = getEditAction();
+				editAction.handle(Sets.newHashSet(form));
 			}
-			EnquiryForm item = items.iterator().next();	
-			viewer.setInput(item);
 		});
 		
-		table.addActionHandler(getRefreshAction());
-		table.addActionHandler(getAddAction());
-		table.addActionHandler(getEditAction());
-		table.addActionHandler(getCopyAction());
-		table.addActionHandler(getDeleteAction());
-		table.addActionHandler(getResendAction());
-				
+		
 		Toolbar<EnquiryForm> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
-		toolbar.addActionHandlers(table.getActionHandlers());
+		toolbar.addActionHandlers(contextMenu.getActionHandlers());
 		
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
 		
-		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);
-
-		main = hl;
+		main = tableWithToolbar;
 		refresh();
 	}
 	
@@ -112,7 +129,7 @@ public class EnquiryFormsComponent extends VerticalLayout
 		try
 		{
 			List<EnquiryForm> forms = enquiriesManagement.getEnquires();
-			table.setInput(forms);
+			table.setItems(forms);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -314,5 +331,12 @@ public class EnquiryFormsComponent extends VerticalLayout
 						}
 			}
 		}).show();
+	}
+	
+	@Override
+	public void stateChanged(boolean enabled)
+	{
+		if (enabled)
+			refresh();
 	}
 }

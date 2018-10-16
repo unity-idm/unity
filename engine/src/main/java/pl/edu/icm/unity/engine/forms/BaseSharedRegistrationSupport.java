@@ -53,6 +53,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 public class BaseSharedRegistrationSupport
 {	
 	public static final String AUTO_PROCESS_COMMENT = "Automatically processed";
+	public static final String AUTO_PROCESS_INVITATIONS_COMMENT = "Automatically processed invitations";
 
 	protected UnityMessageSource msg;
 	protected NotificationProducer notificationProducer;
@@ -76,10 +77,10 @@ public class BaseSharedRegistrationSupport
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
-			TranslatedRegistrationRequest translatedRequest) throws EngineException
+			Collection<GroupParam> requestedGroups) throws EngineException
 	{
-		Map<String, GroupParam> sortedGroups = establishSortedGroups(translatedRequest.getGroups());
-
+		Map<String, GroupParam> sortedGroups = establishSortedGroups(requestedGroups);
+		
 		EntityParam entity = new EntityParam(entityId);
 		for (Map.Entry<String, GroupParam> entry : sortedGroups.entrySet())
 		{

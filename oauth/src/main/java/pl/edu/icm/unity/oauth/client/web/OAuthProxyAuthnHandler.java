@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.oauth.client.web;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 
 import javax.servlet.http.Cookie;
@@ -15,10 +16,10 @@ import javax.servlet.http.HttpSession;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
 
@@ -89,7 +90,7 @@ class OAuthProxyAuthnHandler
 		String currentRelativeURI = ProxyAuthenticationFilter.getCurrentRelativeURL(httpRequest);
 		try
 		{
-			context = credentialExchange.createRequest(idpConfigKey);
+			context = credentialExchange.createRequest(idpConfigKey, Optional.empty());
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			session.setAttribute(ProxyAuthenticationFilter.AUTOMATED_LOGIN_FIRED, "true");

@@ -25,6 +25,8 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public class RemotelyAuthenticatedContext
 {
+	private static final String NONE = "--none--";
+	
 	private String remoteIdPName;
 	private String inputTranslationProfile;
 	private Set<SessionParticipant> sessionParticipants;
@@ -41,7 +43,12 @@ public class RemotelyAuthenticatedContext
 	 */
 	public static RemotelyAuthenticatedContext getLocalContext()
 	{
-		return new RemotelyAuthenticatedContext("--none--", "--none--");
+		return new RemotelyAuthenticatedContext(NONE, NONE);
+	}
+	
+	public static boolean isLocalContext(RemotelyAuthenticatedContext ctx)
+	{
+		return NONE.equals(ctx.getRemoteIdPName()) && NONE.equalsIgnoreCase(ctx.getInputTranslationProfile());
 	}
 	
 	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
@@ -120,7 +127,7 @@ public class RemotelyAuthenticatedContext
 	}
 	public void setSessionParticipants(Set<SessionParticipant> sessionParticipants)
 	{
-		this.sessionParticipants = new HashSet<SessionParticipant>();
+		this.sessionParticipants = new HashSet<>();
 		this.sessionParticipants.addAll(sessionParticipants);
 	}
 }

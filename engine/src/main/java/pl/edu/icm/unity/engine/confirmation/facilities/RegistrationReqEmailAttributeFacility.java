@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
@@ -45,9 +45,9 @@ public class RegistrationReqEmailAttributeFacility extends RegistrationEmailFaci
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			ApplicationEventPublisher publisher,
 			AttributeTypeHelper atHelper,
-			TxManager txMan)
+			TxManager txMan, UnityMessageSource msg)
 	{
-		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, txMan);
+		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, txMan, msg);
 		this.atHelper = atHelper;
 	}
 
@@ -64,17 +64,13 @@ public class RegistrationReqEmailAttributeFacility extends RegistrationEmailFaci
 	}
 
 	@Override
-	protected EmailConfirmationStatus confirmElements(UserRequestState<?> reqState, 
-			RegistrationReqEmailAttribiuteConfirmationState attrState) throws EngineException
+	protected boolean confirmElements(UserRequestState<?> reqState, 
+			RegistrationReqEmailAttribiuteConfirmationState attrState)
 	{
+		
 		Collection<Attribute> confirmedList = confirmAttributes(reqState.getRequest().getAttributes(),
 				attrState.getType(), attrState.getGroup(), attrState.getValue(), atHelper);
-		boolean confirmed = (confirmedList.size() > 0);
-		return new EmailConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(attrState, reqState)
-				: getErrorRedirect(attrState, reqState),
-				confirmed ? "ConfirmationStatus.successAttribute"
-						: "ConfirmationStatus.attributeChanged",
-				attrState.getType());
+		return (confirmedList.size() > 0);
 	}
 	
 	@Override

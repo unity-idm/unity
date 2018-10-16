@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.types.basic;
 
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
@@ -33,7 +33,7 @@ import pl.edu.icm.unity.types.I18nString;
  * @author K. Benedyczak
  */
 public class MessageTemplate extends DescribedObjectImpl
-{
+{	
 	private I18nMessage message;
 	private String consumer;
 	private MessageType type;
@@ -168,57 +168,6 @@ public class MessageTemplate extends DescribedObjectImpl
 	{
 		this.notificationChannel = notificationChannel;
 	}
-
-	public Message getMessage(String locale, String defaultLocale, Map<String, String> params,
-			Map<String, MessageTemplate> genericTemplates)
-	{
-		MessageTemplate preprocessed = preprocessMessage(genericTemplates);
-		String subject = preprocessed.getMessage().getSubject().getValue(locale, defaultLocale);
-		String body = preprocessed.getMessage().getBody().getValue(locale, defaultLocale);
-		Message ret = new Message(subject, body, type);
-		for (Map.Entry<String, String> paramE: params.entrySet())
-		{
-			if (paramE.getValue() == null)
-				continue;
-			ret.setSubject(ret.getSubject().replace("${" + paramE.getKey() + "}", paramE.getValue()));
-			ret.setBody(ret.getBody().replace("${" + paramE.getKey() + "}", paramE.getValue()));
-		}
-		return ret;
-	}
-
-	public MessageTemplate preprocessMessage(Map<String, MessageTemplate> genericTemplates)
-	{
-		I18nString srcBody = getMessage().getBody();
-		String def = preprocessString(srcBody.getDefaultValue(), genericTemplates, null);
-		I18nString preprocessedBody = new I18nString(def);
-		for (Map.Entry<String, String> entry: srcBody.getMap().entrySet())
-			preprocessedBody.addValue(entry.getKey(), 
-					preprocessString(entry.getValue(), genericTemplates, 
-							entry.getKey()));
-		I18nMessage processedMessage = new I18nMessage(getMessage().getSubject(), 
-				preprocessedBody);
-		return new MessageTemplate(getName(), getDescription(), processedMessage, consumer, type, notificationChannel);
-	}
-
-	private String preprocessString(String source, Map<String, MessageTemplate> genericTemplates,
-			String locale)
-	{
-		if (source == null)
-			return null;
-		String work = source;
-		for (Map.Entry<String, MessageTemplate> genericTemplate: genericTemplates.entrySet())
-		{
-			I18nString included = genericTemplate.getValue().getMessage().getBody();
-			String includedString = locale == null ? included.getDefaultValue() : 
-				included.getValueRaw(locale);
-			if (includedString == null)
-				includedString = included.getDefaultValue();
-			if (includedString != null)
-				work = work.replace("${include:" + genericTemplate.getKey() + "}", 
-					includedString);
-		}
-		return work;
-	}
 	
 	public I18nMessage getMessage()
 	{
@@ -280,41 +229,19 @@ public class MessageTemplate extends DescribedObjectImpl
 		}
 
 		@Override
-		public int hashCode()
+		public boolean equals(final Object other)
 		{
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((body == null) ? 0 : body.hashCode());
-			result = prime * result + ((subject == null) ? 0 : subject.hashCode());
-			result = prime * result + ((type == null) ? 0 : type.hashCode());
-			return result;
+			if (!(other instanceof Message))
+				return false;
+			Message castOther = (Message) other;
+			return Objects.equals(body, castOther.body) && Objects.equals(subject, castOther.subject)
+					&& Objects.equals(type, castOther.type);
 		}
 
 		@Override
-		public boolean equals(Object obj)
+		public int hashCode()
 		{
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Message other = (Message) obj;
-			if (body == null)
-			{
-				if (other.body != null)
-					return false;
-			} else if (!body.equals(other.body))
-				return false;
-			if (subject == null)
-			{
-				if (other.subject != null)
-					return false;
-			} else if (!subject.equals(other.subject))
-				return false;
-			if (type != other.type)
-				return false;
-			return true;
+			return Objects.hash(body, subject, type);
 		}
 	}
 	
@@ -333,47 +260,22 @@ public class MessageTemplate extends DescribedObjectImpl
 	}
 
 	@Override
-	public int hashCode()
+	public boolean equals(final Object other)
 	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((consumer == null) ? 0 : consumer.hashCode());
-		result = prime * result + ((message == null) ? 0 : message.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		result = prime * result + ((notificationChannel == null) ? 0 : notificationChannel.hashCode());
-		return result;
+		if (!(other instanceof MessageTemplate))
+			return false;
+		if (!super.equals(other))
+			return false;
+		MessageTemplate castOther = (MessageTemplate) other;
+		return Objects.equals(message, castOther.message) && Objects.equals(consumer, castOther.consumer)
+				&& Objects.equals(type, castOther.type)
+				&& Objects.equals(notificationChannel, castOther.notificationChannel);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		MessageTemplate other = (MessageTemplate) obj;
-		if (consumer == null)
-		{
-			if (other.consumer != null)
-				return false;
-		} else if (!consumer.equals(other.consumer))
-			return false;
-		if (message == null)
-		{
-			if (other.message != null)
-				return false;
-		} else if (!message.equals(other.message))
-			return false;	
-		if (notificationChannel == null)
-		{
-			if (other.notificationChannel != null)
-				return false;
-		} else if (!notificationChannel.equals(other.notificationChannel))
-			return false;
-		if (type != other.type)
-			return false;
-		return true;
+		return Objects.hash(super.hashCode(), message, consumer, type, notificationChannel);
 	}
+
 }

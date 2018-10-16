@@ -76,7 +76,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
@@ -86,7 +86,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
 					key.length()-1);
 			ret.add(new OAuth2RetrievalUI(msg, credentialExchange, contextManagement, 
-					executorsService, idpKey, key, getAuthenticatorId()));
+					executorsService, idpKey, key, getAuthenticatorId(), context));
 		}
 		return ret;
 	}

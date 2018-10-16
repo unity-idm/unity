@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.common.attributes.ext;
 
 import com.vaadin.server.ErrorMessage;
 import com.vaadin.server.Resource;
+import com.vaadin.shared.Registration;
 import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -19,6 +20,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -28,7 +30,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P.Piernik
  *
  */
-public class TextFieldWithVerifyButton extends CustomField<String>
+public class TextFieldWithVerifyButton extends CustomField<String> implements ComponentWithLabel
 {
 	private CheckBox adminConfirmCheckBox;
 	private Button verifyButton;
@@ -36,12 +38,13 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 	private HorizontalLayout fieldLayout;
 	private VerticalLayout main;
 	private Label confirmationStatusIcon;
+	private boolean showLabelInline;
 	
-	public TextFieldWithVerifyButton(boolean adminMode, boolean required,
+	public TextFieldWithVerifyButton(boolean adminMode, 
 			String verifyButtonDesc, Resource verifyButtonIcon,
-			String adminConfirmCheckBoxLabel)
+			String adminConfirmCheckBoxLabel, boolean showLabelInline)
 	{
-		setRequiredIndicatorVisible(required);
+		this.showLabelInline = showLabelInline;
 		verifyButton = new Button();
 		verifyButton.setIcon(verifyButtonIcon);
 		verifyButton.setStyleName(Styles.vButtonLink.toString());
@@ -50,7 +53,6 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		verifyButton.addStyleName(Styles.largeIcon.toString());
 		verifyButton.setDescription(verifyButtonDesc);
 		editor = new TextField();
-
 		adminConfirmCheckBox = new CheckBox(adminConfirmCheckBoxLabel);
 		fieldLayout = new HorizontalLayout();
 		fieldLayout.setMargin(false);
@@ -59,7 +61,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		confirmationStatusIcon = new Label();
 		confirmationStatusIcon.setContentMode(ContentMode.HTML);
 		
-		fieldLayout.addComponents(editor, confirmationStatusIcon,  verifyButton);
+		fieldLayout.addComponents(editor, confirmationStatusIcon, verifyButton);
 		fieldLayout.setComponentAlignment(confirmationStatusIcon, Alignment.MIDDLE_CENTER);
 		
 		main = new VerticalLayout();
@@ -70,6 +72,27 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 			main.addComponent(adminConfirmCheckBox);
 		}
 			
+	}
+	
+	@Override
+	public void setRequiredIndicatorVisible(boolean visible) 
+	{
+		if (showLabelInline)
+			editor.setRequiredIndicatorVisible(visible);
+		else
+			super.setRequiredIndicatorVisible(visible);
+	}
+
+
+	@Override
+	public void setComponentError(ErrorMessage componentError)
+	{
+		editor.setComponentError(componentError);
+	}
+	
+	public Registration addValueChangeListener(ValueChangeListener<String> listener)
+	{
+		return editor.addValueChangeListener(listener);
 	}
 	
 	@Override
@@ -84,6 +107,12 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		return editor.getValue();
 	}
 
+	@Override
+	public String getEmptyValue() 
+	{
+		return "";
+	}
+	
 	@Override
 	protected Component initContent()
 	{
@@ -132,7 +161,7 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		adminConfirmCheckBox.addValueChangeListener(listener);
 	}
 	
-	public void setVerifyButtonVisiable(boolean visible)
+	public void setVerifyButtonVisible(boolean visible)
 	{
 		verifyButton.setVisible(visible);
 	}
@@ -152,15 +181,25 @@ public class TextFieldWithVerifyButton extends CustomField<String>
 		fieldLayout.removeComponent(verifyButton);
 	}
 
-	@Override
-	public void setComponentError(ErrorMessage componentError)
-	{
-		editor.setComponentError(componentError);
-	}
-
 	public void setTextFieldId(String id)
 	{
 		editor.setId(id);
 	}
+	
+	@Override
+	public void setLabel(String label)
+	{
+		String normalizedLabel = ComponentWithLabel.normalizeLabel(label);
+		if (showLabelInline)
+			editor.setPlaceholder(normalizedLabel);
+		else
+			setCaption(normalizedLabel + ":");
+	}
 
+	@Override
+	public void setWidth(float width, Unit unit)
+	{
+		if (editor != null)
+			editor.setWidth(width, unit);
+	}
 }

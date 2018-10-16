@@ -10,7 +10,6 @@ import java.util.List;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -38,6 +37,7 @@ public class ListOfEmbeddedElementsStub<T>
 	private HorizontalLayout lonelyBar;
 	private List<Entry> components;
 	private ComponentsGroup group;
+	private Runnable valueChangeListener;
 	
 	
 	public ListOfEmbeddedElementsStub(UnityMessageSource msg, EditorProvider<T> editorProvider,
@@ -51,19 +51,14 @@ public class ListOfEmbeddedElementsStub<T>
 		this.group = new ComponentsGroup();
 
 		components = new ArrayList<>();
+		
 		Button lonelyAdd = new Button();
 		lonelyAdd.setIcon(Images.add.getResource());
 		lonelyAdd.setDescription(msg.getMessage("add"));
 		lonelyAdd.addStyleName(Styles.toolbarButton.toString());
 		lonelyAdd.addStyleName(Styles.vButtonLink.toString());
-		lonelyAdd.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				addEntry(null, null);
-			}
-		});
+		lonelyAdd.addClickListener(event -> addEntry(null, null));
+		
 		lonelyBar = new HorizontalLayout(lonelyAdd);
 		lonelyBar.setSpacing(true);
 		lonelyBar.setMargin(new MarginInfo(true, false, true, false));
@@ -72,6 +67,11 @@ public class ListOfEmbeddedElementsStub<T>
 			addEntry(null, null);
 	}
 
+	public void setValueChangeListener(Runnable listener)
+	{
+		valueChangeListener = listener;
+	}
+	
 	/**
 	 * Sets label which is displayed before the button to add the <b>first</b> value.
 	 * By default this label is empty.
@@ -80,6 +80,12 @@ public class ListOfEmbeddedElementsStub<T>
 	public void setLonelyLabel(String label)
 	{
 		lonelyBar.setCaption(label);
+	}
+	
+	public void refresh()
+	{
+		for (int i=0; i<components.size(); i++)
+			components.get(i).refresh(i);
 	}
 	
 	public void setEntries(Collection<? extends T> values)
@@ -120,6 +126,8 @@ public class ListOfEmbeddedElementsStub<T>
 		
 		for (int i=0; i<components.size(); i++)
 			components.get(i).refresh(i);
+		if (valueChangeListener != null)
+			valueChangeListener.run();
 		return entry;
 	}
 	
@@ -133,6 +141,8 @@ public class ListOfEmbeddedElementsStub<T>
 			components.get(i).refresh(i);
 		if (components.size() == 0)
 			lonelyBar.setVisible(true);
+		if (valueChangeListener != null)
+			valueChangeListener.run();
 	}
 	
 	public void clearContents()
@@ -144,6 +154,8 @@ public class ListOfEmbeddedElementsStub<T>
 		}
 		components.clear();
 		lonelyBar.setVisible(false);
+		if (valueChangeListener != null)
+			valueChangeListener.run();
 	}
 	
 	public List<T> getElements() throws FormValidationException
@@ -213,27 +225,13 @@ public class ListOfEmbeddedElementsStub<T>
 			add.setDescription(msg.getMessage("add"));
 			add.addStyleName(Styles.toolbarButton.toString());
 			add.addStyleName(Styles.vButtonLink.toString());
-			add.addClickListener(new Button.ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					addEntry(null, Entry.this);
-				}
-			});
+			add.addClickListener(event -> addEntry(null, Entry.this));
 			remove = new Button();
 			remove.setIcon(Images.delete.getResource());
 			remove.setDescription(msg.getMessage("remove"));
 			remove.addStyleName(Styles.toolbarButton.toString());
 			remove.addStyleName(Styles.vButtonLink.toString());
-			remove.addClickListener(new Button.ClickListener()
-			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					remove(Entry.this);
-				}
-			});
+			remove.addClickListener(event -> remove(Entry.this));
 			
 			addRemoveBar = new HorizontalLayout();
 			addRemoveBar.setSpacing(true);

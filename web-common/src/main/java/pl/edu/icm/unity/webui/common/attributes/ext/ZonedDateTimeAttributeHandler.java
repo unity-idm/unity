@@ -23,6 +23,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.ZonedDateTimeAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -52,13 +53,13 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	@Override
 	public String getValueAsString(String value)
 	{
-		return AttributeHandlerHelper.getValueAsString(value);
+		return value;
 	}
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(value);
+		return AttributeHandlerHelper.getRepresentation(value, context);
 	}
 
 	@Override
@@ -96,10 +97,10 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 	private class ZonedDateTimeValueEditor implements AttributeValueEditor
 	{
 		private String label;
-		private boolean required;
 		private DateTimeField datetime;
 		private ZonedDateTime value;
 		private ComboBox<String> zone;
+		private AttributeEditContext context;
 		
 		public ZonedDateTimeValueEditor(String valueRaw, String label)
 		{
@@ -110,20 +111,27 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			this.context = context;
 			datetime = new DateTimeField();
 			zone = new ComboBox<>(msg.getMessage("ZonedDateTimeAttributeHandler.zone"), ZoneId.getAvailableZoneIds());
 			zone.setSelectedItem(ZoneId.systemDefault().toString());
 			zone.setEmptySelectionAllowed(false);
 			datetime.setResolution(DateTimeResolution.SECOND);
-			datetime.setCaption(label);
+			setLabel(label);
 			datetime.setDateFormat("yyyy-MM-dd HH:mm:ss");
-			datetime.setRequiredIndicatorVisible(required);
+			datetime.setRequiredIndicatorVisible(context.isRequired());
 			if (value != null)
 			{
 				datetime.setValue(value.toLocalDateTime());
 				zone.setSelectedItem(value.getZone().toString());
 			}
+
+			if (context.isCustomWidth())
+			{
+				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+				zone.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			}
+			
 			ComponentsContainer ret = new ComponentsContainer(datetime, zone);
 			return ret;
 		}
@@ -132,7 +140,7 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 
-			if (!required && datetime.getValue() == null)
+			if (!context.isRequired() && datetime.getValue() == null)
 				return null;
 
 			try
@@ -160,8 +168,10 @@ public class ZonedDateTimeAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			datetime.setCaption(label);
-
+			if (context.isShowLabelInline())
+				datetime.setPlaceholder(label);
+			else
+				datetime.setCaption(label);
 		}
 
 	}

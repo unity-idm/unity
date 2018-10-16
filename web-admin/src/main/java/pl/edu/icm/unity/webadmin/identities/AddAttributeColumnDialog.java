@@ -4,9 +4,7 @@
  */
 package pl.edu.icm.unity.webadmin.identities;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -40,14 +38,16 @@ public class AddAttributeColumnDialog extends AbstractDialog
 		super(msg, msg.getMessage("AddAttributeColumnDialog.caption"));
 		this.attrsMan = attrsMan;
 		this.callback = callback;
-		setSizeMode(SizeMode.MEDIUM);
+		setSizeEm(38, 24);
 	}
 
 	@Override
 	protected FormLayout getContents()
 	{
 		Label info = new Label(msg.getMessage("AddAttributeColumnDialog.info"));
+		info.setWidth(100, Unit.PERCENTAGE);
 		Label info2 = new Label(msg.getMessage("AddAttributeColumnDialog.info2"));
+		info2.setWidth(100, Unit.PERCENTAGE);
 		Collection<AttributeType> attrTypes;
 		try
 		{
@@ -58,14 +58,8 @@ public class AddAttributeColumnDialog extends AbstractDialog
 					msg.getMessage("AddAttributeColumnDialog.cantGetAttrTypes"));
 			throw new IllegalStateException();
 		}
-		List<AttributeType> filtered = new ArrayList<>(attrTypes.size());
-		for (AttributeType at: attrTypes)
-		{
-			if (!at.isInstanceImmutable())
-				filtered.add(at);
-		}
 		attributeType = new AttributeSelectionComboBox(msg.getMessage("AddAttributeColumnDialog.attribute"),
-				filtered);
+				attrTypes, false);
 		
 		useRootGroup = new CheckBox(msg.getMessage("AddAttributeColumnDialog.useRootGroup"), true);
 		useRootGroup.setDescription(msg.getMessage("AddAttributeColumnDialog.useRootGroupTooltip"));

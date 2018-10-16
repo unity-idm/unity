@@ -19,6 +19,7 @@ import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;
  * @author K. Benedyczak
  */
 @Component
+@Deprecated
 public class ConfirmationRedirectActionFactory extends AbstractRegistrationTranslationActionFactory
 {
 	

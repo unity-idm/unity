@@ -6,10 +6,15 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Component;
@@ -21,16 +26,25 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
@@ -43,6 +57,10 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 public class InvitationEditor extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InvitationEditor.class);
+	
+	private enum RemoteIdentityExpectation {NONE, HINT, REQUIRED}
+	
 	private static final long DEFAULT_TTL_DAYS = 3; 
 	private static final ZoneId DEFAULT_ZONE_ID = ZoneId.systemDefault();
 	private UnityMessageSource msg;
@@ -55,28 +73,39 @@ public class InvitationEditor extends CustomComponent
 	private NotNullComboBox<String> forms;
 	private DateTimeField expiration;
 	private TextField contactAddress;
+	private EnumComboBox<RemoteIdentityExpectation> remoteIdentityExpectation;
+	private List<TextField> messageParams;
 	
 	private TabSheet tabs;
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
-	private ListOfEmbeddedElements<PrefilledEntry<Selection>> presetGroups;
+	private ListOfEmbeddedElements<PrefilledEntry<GroupSelection>> presetGroups;
 	private ListOfEmbeddedElements<PrefilledEntry<Attribute>> presetAttributes;
+	private List<Group> allGroups;
+	private FormLayout top;
+	private MessageTemplateManagement msgTemplateMan;
 
 	
 	public InvitationEditor(UnityMessageSource msg, IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry, Map<String, MessageTemplate> msgTemplates, 
 			Collection<RegistrationForm> availableForms,
-			Map<String, AttributeType> attrTypes) throws WrongArgumentException
+			Map<String, AttributeType> attrTypes,
+			List<Group> allGroups,
+			MessageTemplateManagement msgTemplateMan) throws WrongArgumentException
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.attrTypes = attrTypes;
 		this.msgTemplates = msgTemplates;
+		this.allGroups = allGroups;
+		this.msgTemplateMan = msgTemplateMan;
 		initUI(availableForms);
 	}
 
 	private void initUI(Collection<RegistrationForm> availableForms) throws WrongArgumentException
 	{
+		messageParams = new ArrayList<>();
+		
 		formsByName = availableForms.stream()
 				.filter(form -> form.getRegistrationCode() == null && form.isPubliclyAvailable())
 				.collect(Collectors.toMap(RegistrationForm::getName, form -> form));
@@ -90,6 +119,9 @@ public class InvitationEditor extends CustomComponent
 		
 		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
 		
+		remoteIdentityExpectation = new EnumComboBox<>(msg.getMessage("InvitationEditor.requireSameEmail"), 
+				msg, "InvitationEditor.idExpectation.", RemoteIdentityExpectation.class, RemoteIdentityExpectation.NONE);
+		
 		Label prefillInfo = new Label(msg.getMessage("InvitationEditor.prefillInfo"));
 		
 		tabs = new TabSheet();
@@ -98,8 +130,8 @@ public class InvitationEditor extends CustomComponent
 		channel.setCaption(msg.getMessage("InvitationViewer.channelId"));
 		
 		forms = new NotNullComboBox<>(msg.getMessage("InvitationViewer.formId"));
-		forms.setEmptySelectionAllowed(false);
-		forms.addValueChangeListener(event -> {
+		forms.addValueChangeListener(event -> 
+		{
 			RegistrationForm registrationForm = formsByName.get(forms.getValue());
 			setPerFormUI(registrationForm);
 			
@@ -109,11 +141,10 @@ public class InvitationEditor extends CustomComponent
 			else
 				channel.setValue("");
 		});
-		
+		top = new FormLayout();
+		top.addComponents(forms, channel, expiration, contactAddress, remoteIdentityExpectation);
+
 		forms.setItems(formsByName.keySet());
-		
-		FormLayout top = new FormLayout();
-		top.addComponents(forms, channel, expiration, contactAddress);
 		
 		VerticalLayout main = new VerticalLayout(top, prefillInfo, tabs);
 		main.setSpacing(true);
@@ -123,6 +154,8 @@ public class InvitationEditor extends CustomComponent
 
 	private void setPerFormUI(RegistrationForm form)
 	{
+		for (Component mparam: messageParams)
+			top.removeComponent(mparam);
 		tabs.removeAllComponents();
 		
 		int idParamsNum = form.getIdentityParams() == null ? 0 : form.getIdentityParams().size();
@@ -147,13 +180,50 @@ public class InvitationEditor extends CustomComponent
 		int groupParamsNum = form.getGroupParams() == null ? 0 : form.getGroupParams().size();
 		presetGroups = new ListOfEmbeddedElements<>(msg, () ->
 		{
-			return new PresetMembershipEditor(msg, form.getGroupParams());
+			return new PresetMembershipEditor(msg, allGroups, form.getGroupParams());
 		}, groupParamsNum, groupParamsNum, true);
 		presetGroups.setCaption(msg.getMessage("InvitationEditor.groups"));
 		if (groupParamsNum > 0)
 			addTabWithMargins(presetGroups);
+		
+		messageParams = getMessageParams(form);
+		for (Component mparam: messageParams)
+			top.addComponent(mparam);
 	}
 	
+	private List<TextField> getMessageParams(RegistrationForm form)
+	{
+		String invitationTemplate = form.getNotificationsConfiguration().getInvitationTemplate();
+		if (invitationTemplate == null)
+			return Collections.emptyList();
+		MessageTemplate msgTemplate;
+		try
+		{
+			msgTemplate = msgTemplateMan.getTemplate(invitationTemplate);
+		} catch (EngineException e)
+		{
+			log.error("Can not read invitation template of the form, won't fill any parameters", e);
+			return Collections.emptyList();
+		}
+		
+		Set<String> variablesSet = MessageTemplateValidator.extractCustomVariables(msgTemplate.getMessage());
+		List<String> variables = new ArrayList<>(variablesSet);
+		Collections.sort(variables);
+		
+		List<TextField> ret = new ArrayList<>();
+		for (String variable: variables)
+		{
+			String caption = variable.startsWith(MessageTemplateDefinition.CUSTOM_VAR_PREFIX) ? 
+					variable.substring(MessageTemplateDefinition.CUSTOM_VAR_PREFIX.length()) : variable;
+			if (!caption.isEmpty())
+				caption = Character.toUpperCase(caption.charAt(0)) + caption.substring(1);
+			TextField field = new TextField(caption + ":");
+			field.setData(variable);
+			ret.add(field);
+		}
+		return ret;
+	}
+
 	private void addTabWithMargins(Component src)
 	{
 		VerticalLayout wrapper = new VerticalLayout(src);
@@ -173,6 +243,18 @@ public class InvitationEditor extends CustomComponent
 		prefill(presetIdentities.getElements(), ret.getIdentities());
 		prefill(presetAttributes.getElements(), ret.getAttributes());
 		prefill(presetGroups.getElements(), ret.getGroupSelections());
+		
+		Map<String, String> customParams = messageParams.stream()
+				.collect(Collectors.toMap(paramField -> (String)paramField.getData(), 
+						paramField -> paramField.getValue()));
+		ret.getMessageParams().putAll(customParams);
+		
+		if (addr != null && remoteIdentityExpectation.getValue() != RemoteIdentityExpectation.NONE)
+		{
+			IdentityExpectation expectation = remoteIdentityExpectation.getValue() == RemoteIdentityExpectation.HINT ?
+					IdentityExpectation.HINT : IdentityExpectation.MANDATORY;
+			ret.setExpectedIdentity(new ExpectedIdentity(addr, expectation));
+		}
 		return ret;
 	}
 	

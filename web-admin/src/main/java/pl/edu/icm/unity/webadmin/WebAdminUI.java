@@ -79,7 +79,7 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	}
 	
 	@Override
-	protected void appInit(VaadinRequest request)
+	protected void enter(VaadinRequest request)
 	{
 		contents = new VerticalLayout();
 		contents.setMargin(false);

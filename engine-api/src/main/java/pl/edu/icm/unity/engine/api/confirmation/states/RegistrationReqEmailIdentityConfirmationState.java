@@ -21,12 +21,6 @@ public class RegistrationReqEmailIdentityConfirmationState extends RegistrationE
 	}
 
 	public RegistrationReqEmailIdentityConfirmationState(String requestId, String type,
-			String value, String locale, String redirectUrl, RequestType requestType)
-	{
-		super(FACILITY_ID, type, value, locale, redirectUrl, requestId, requestType);
-	}
-	
-	public RegistrationReqEmailIdentityConfirmationState(String requestId, String type,
 			String value, String locale, RequestType requestType)
 	{
 		super(FACILITY_ID, type, value, locale, requestId, requestType);

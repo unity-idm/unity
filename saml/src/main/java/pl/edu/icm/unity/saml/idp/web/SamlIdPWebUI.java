@@ -123,7 +123,7 @@ public class SamlIdPWebUI extends UnityEndpointUIBase implements UnityWebUI
 	}
 
 	@Override
-	protected void appInit(VaadinRequest request)
+	protected void enter(VaadinRequest request)
 	{
 		SAMLAuthnContext samlCtx = SAMLContextSupport.getContext();
 		samlProcessor = new AuthnResponseProcessor(aTypeSupport, samlCtx, 

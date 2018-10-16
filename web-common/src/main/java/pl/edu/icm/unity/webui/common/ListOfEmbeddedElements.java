@@ -36,6 +36,11 @@ public class ListOfEmbeddedElements<T> extends CompactFormLayout
 			setCaption(caption);
 	}
 
+	public void setValueChangeListener(Runnable listener)
+	{
+		stub.setValueChangeListener(listener);
+	}
+	
 	/**
 	 * Sets label which is displayed before the button to add the <b>first</b> value.
 	 * By default this label is empty.
@@ -64,5 +69,10 @@ public class ListOfEmbeddedElements<T> extends CompactFormLayout
 	public List<T> getElements() throws FormValidationException
 	{
 		return stub.getElements();
+	}
+	
+	public void refresh()
+	{
+		stub.refresh();
 	}
 }

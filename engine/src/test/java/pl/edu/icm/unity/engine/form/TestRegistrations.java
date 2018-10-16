@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
@@ -29,10 +30,13 @@ import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
+import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -44,7 +48,6 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -52,6 +55,7 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
+import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -138,18 +142,6 @@ public class TestRegistrations extends RegistrationTestBase
 	}
 	
 	@Test 
-	public void formWithMissingGroupCantBeAdded() throws Exception
-	{
-		RegistrationForm form = initAndCreateForm(false, null);
-		RegistrationFormBuilder testFormBuilder = getFormBuilder(false, null, true);
-
-		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
-		groupParam.setGroupPath("/missing");
-		testFormBuilder.withGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalArgumentException.class);
-	}
-
-	@Test 
 	public void formWithMissingIdentityCantBeAdded() throws Exception
 	{
 		RegistrationForm form = initAndCreateForm(false, null);
@@ -166,7 +158,7 @@ public class TestRegistrations extends RegistrationTestBase
 		initAndCreateForm(false, null);
 		
 		registrationsMan.submitRegistrationRequest(getRequest(), 
-				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
+				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		
 		try
 		{
@@ -183,7 +175,7 @@ public class TestRegistrations extends RegistrationTestBase
 		initAndCreateForm(false, null);
 		
 		registrationsMan.submitRegistrationRequest(getRequest(), 
-				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
+				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		
 		registrationsMan.updateForm(getFormBuilder(false, null, true).build(), true);
 	}
@@ -194,7 +186,7 @@ public class TestRegistrations extends RegistrationTestBase
 		RegistrationForm form = initAndCreateForm(false, null);
 		
 		registrationsMan.submitRegistrationRequest(getRequest(), 
-				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
+				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		
 		try
 		{
@@ -212,7 +204,7 @@ public class TestRegistrations extends RegistrationTestBase
 		RegistrationForm form = initAndCreateForm(false, null);
 		
 		registrationsMan.submitRegistrationRequest(getRequest(), 
-				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
+				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		
 		registrationsMan.removeForm(form.getName(), true);
 		assertEquals(0, registrationsMan.getRegistrationRequests().size());
@@ -262,7 +254,7 @@ public class TestRegistrations extends RegistrationTestBase
 		RegistrationRequest request = getRequest();
 		request.setRegistrationCode(null);
 		registrationsMan.submitRegistrationRequest(request, 
-				new RegistrationContext(false, false, TriggeringMode.manualAtLogin));
+				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		RegistrationRequestState fromDb = registrationsMan.getRegistrationRequests().get(0);
 		assertThat(fromDb.getRequest().getRegistrationCode(), is(nullValue()));
 	}
@@ -271,7 +263,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void addedCommentsAreReturned() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
 		RegistrationRequest request = getRequest();
 		String id = registrationsMan.submitRegistrationRequest(request, defContext);
@@ -296,7 +288,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void addedRequestIsReturned() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
 		RegistrationRequest request = getRequest();
 		String id1 = registrationsMan.submitRegistrationRequest(request, defContext);
@@ -313,7 +305,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void droppedRequestIsNotReturned() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
 		RegistrationRequest request = getRequest();
 		String id = registrationsMan.submitRegistrationRequest(request, defContext);
@@ -326,7 +318,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void rejectedRequestIsReturned() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
 
 		RegistrationRequest request = getRequest();
@@ -346,7 +338,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void acceptedRequestIsFullyApplied() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
 		RegistrationRequest request = getRequest();
 		String id3 = registrationsMan.submitRegistrationRequest(request, defContext);
@@ -399,7 +391,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void updateOfRequestIdentityUponAcceptIsRespected() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(false, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, null);
 		
 		RegistrationRequest request = getRequest();
@@ -420,7 +412,7 @@ public class TestRegistrations extends RegistrationTestBase
 	public void formProfileGroupAddingIsRecursive() throws EngineException
 	{
 		initContents();
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 
 		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
 				new String[] {AutomaticRequestAction.accept.toString()});
@@ -449,7 +441,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithAutoAcceptIsAccepted() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "true");
 		RegistrationRequest request = getRequest();
 		
@@ -462,7 +454,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithoutAutoAcceptIsPending() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "false");
 		RegistrationRequest request = getRequest();
 		
@@ -475,7 +467,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithMetAutoAcceptConditionIsAccepted() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "idsByType[\"" + X500Identity.ID +"\"] != null");
 		RegistrationRequest request = getRequest();
 		
@@ -488,7 +480,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithMetAutoAcceptConditionIsAccepted2() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "attr[\"email\"].toString() == \"foo@example.com\"");
 		RegistrationRequest request = getRequest();
 		
@@ -501,7 +493,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithNotMetAutoAcceptConditionIsPending() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "attrs[\"email\"][0] == \"NoAccept\"");
 		RegistrationRequest request = getRequest();
 		
@@ -514,7 +506,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithMetAutoAcceptConditionIsAccepted3() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);	
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);	
 		initAndCreateForm(false, "agrs[0] == true");
 		RegistrationRequest request = getRequest();
 		
@@ -527,7 +519,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithNotMetAutoAcceptConditionIsPending2() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(false, "agrs[0] == false");
 		RegistrationRequest request = getRequest();
 		
@@ -541,7 +533,7 @@ public class TestRegistrations extends RegistrationTestBase
 	@Test
 	public void requestWithoutOptionalFieldsIsAccepted() throws EngineException
 	{
-		RegistrationContext defContext = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		initAndCreateForm(true, "true", false);
 		RegistrationRequest request = getRequestWithoutOptionalElements();
 		String id1 = registrationsMan.submitRegistrationRequest(request, defContext);
@@ -551,6 +543,34 @@ public class TestRegistrations extends RegistrationTestBase
 		assertEquals(RegistrationRequestStatus.accepted, fromDb.getStatus());
 		assertEquals(id1, fromDb.getRequestId());
 		assertNotNull(fromDb.getTimestamp());
+	}
+	
+	@Test
+	public void submittedRequestAfterRemoteAuthnFromRegistrationDoesNotValidateCredentials() throws EngineException
+	{
+		// given
+		RegistrationContext defContext = new RegistrationContext(false, TriggeringMode.afterRemoteLoginFromRegistrationForm);
+		initAndCreateForm(false, null);
+		Attribute emailA = new Attribute(InitializerCommon.EMAIL_ATTR, VerifiableEmailAttributeSyntax.ID, "/",
+				Lists.newArrayList(EmailUtils.convertFromString("foo@example.com").toJsonString()));
+		RegistrationRequest request = new RegistrationRequestBuilder()
+				.withFormId("f1")
+				.withComments("comments")
+				.withRegistrationCode("123")
+				.withAddedAgreement()
+				.withSelected(true)
+				.endAgreement()
+				.withAddedAttribute(emailA)
+				.withAddedGroupSelection().withGroup("/B").endGroupSelection()
+				.withAddedIdentity(new IdentityParam(X500Identity.ID, "CN=registration test"))
+				.withAddedIdentity(new IdentityParam(UsernameIdentity.ID, "test-user"))
+				.build();
+		
+		// when
+		Throwable exception = Assertions.catchThrowable(() -> registrationsMan.submitRegistrationRequest(request, defContext));
+		
+		// then
+		Assertions.assertThat(exception).isNull();
 	}
 	
 }

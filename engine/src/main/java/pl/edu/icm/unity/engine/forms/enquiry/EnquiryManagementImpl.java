@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
+import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -75,7 +76,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private UnityMessageSource msg;
 	private AuthorizationManager authz;
 	private BaseFormValidator baseFormValidator;
-	private EnquiryResponseValidator enquiryResponseValidator;
+	private EnquiryResponsePreprocessor enquiryResponseValidator;
 	private SharedEndpointManagement sharedEndpointMan;
 	private TransactionalRunner tx;
 	private SharedEnquiryManagment internalManagment;
@@ -89,7 +90,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			RegistrationConfirmationSupport confirmationsSupport,
 			UnityMessageSource msg, AuthorizationManager authz,
 			BaseFormValidator baseFormValidator,
-			EnquiryResponseValidator enquiryResponseValidator,
+			EnquiryResponsePreprocessor enquiryResponseValidator,
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
 			SharedEnquiryManagment internalManagment, EntityResolver identitiesResolver,
 			AttributesHelper dbAttributes, MembershipDAO dbShared)
@@ -242,7 +243,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			AdminComment publicComment, AdminComment internalComment) 
 			throws EngineException
 	{
-		enquiryResponseValidator.validateSubmittedRequest(form, currentRequest.getRequest(), false);
+		enquiryResponseValidator.validateSubmittedRequest(form, currentRequest.getRequest(), 
+				new InvitationPrefillInfo(), false);
 		requestDB.update(currentRequest);
 		internalManagment.sendProcessingNotification(form, 
 				form.getNotificationsConfiguration().getUpdatedTemplate(),
@@ -253,7 +255,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId());
-			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), true);
+			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), 
+					new InvitationPrefillInfo(), true);
 			requestDB.create(responseFull);
 			addToAttribute(responseFull.getEntityId(), EnquiryAttributeTypesProvider.FILLED_ENQUIRES, 
 					form.getName());
@@ -282,8 +285,6 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private boolean tryAutoProcess(EnquiryForm form, EnquiryResponseState requestFull, 
 			RegistrationContext context) throws EngineException
 	{
-		if (!context.tryAutoAccept)
-			return false;
 		return tx.runInTransactionRetThrowing(() -> {
 			return internalManagment.autoProcessEnquiry(form, requestFull, 
 						"Automatic processing of the request  " + 
@@ -322,6 +323,14 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		return requestDB.getAll();
 	}
 
+	@Transactional
+	@Override
+	public EnquiryResponseState getEnquiryResponse(String requestId)
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.read);
+		return requestDB.get(requestId);
+	}
+	
 	@Transactional
 	@Override
 	public List<EnquiryForm> getPendingEnquires(EntityParam entity) throws EngineException

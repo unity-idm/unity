@@ -4,11 +4,11 @@
  */
 package pl.edu.icm.unity.types.registration;
 
-import pl.edu.icm.unity.Constants;
-
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
 
 /**
  * Describes registration context, i.e. circumstances and environment at the request submission.
@@ -39,26 +39,29 @@ public class RegistrationContext
 		
 		/**
 		 * Form was shown after a successful remote authentication 
-		 * which was not mapped to a local entity by an input transaltion profile. 
+		 * which was not mapped to a local entity by an input translation profile. 
 		 */
-		afterRemoteLogin
+		afterRemoteLoginWhenUnknownUser,
+		
+		/**
+		 * The form was submitted as a result of secondary sign up step, where a
+		 * remote authentication was used to fill out registration form.
+		 */
+		afterRemoteLoginFromRegistrationForm
 	}
 	
-	public final boolean tryAutoAccept;
 	public final boolean isOnIdpEndpoint;
 	public final TriggeringMode triggeringMode;
 	
-	public RegistrationContext(boolean tryAutoAccept, boolean isOnIdpEndpoint,
+	public RegistrationContext(boolean isOnIdpEndpoint,
 			TriggeringMode triggeringMode)
 	{
-		this.tryAutoAccept = tryAutoAccept;
 		this.isOnIdpEndpoint = isOnIdpEndpoint;
 		this.triggeringMode = triggeringMode;
 	}
 	
 	public RegistrationContext(JsonNode object)
 	{
-		tryAutoAccept = object.get("tryAutoAccept").asBoolean();
 		isOnIdpEndpoint = object.get("isOnIdpEndpoint").asBoolean();
 		triggeringMode = TriggeringMode.valueOf(object.get("triggeringMode").asText());
 	}
@@ -67,7 +70,6 @@ public class RegistrationContext
 	public JsonNode toJson()
 	{
 		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("tryAutoAccept", tryAutoAccept);
 		root.put("isOnIdpEndpoint", isOnIdpEndpoint);
 		root.put("triggeringMode", triggeringMode.name());
 		return root;
@@ -77,8 +79,8 @@ public class RegistrationContext
 	@Override
 	public String toString()
 	{
-		return "RegistrationContext [tryAutoAccept=" + tryAutoAccept + ", isOnIdpEndpoint="
-				+ isOnIdpEndpoint + ", triggeringMode=" + triggeringMode + "]";
+		return "RegistrationContext [isOnIdpEndpoint="	+ isOnIdpEndpoint 
+				+ ", triggeringMode=" + triggeringMode + "]";
 	}
 
 	@Override
@@ -89,7 +91,6 @@ public class RegistrationContext
 		result = prime * result + (isOnIdpEndpoint ? 1231 : 1237);
 		result = prime * result
 				+ ((triggeringMode == null) ? 0 : triggeringMode.hashCode());
-		result = prime * result + (tryAutoAccept ? 1231 : 1237);
 		return result;
 	}
 
@@ -106,8 +107,6 @@ public class RegistrationContext
 		if (isOnIdpEndpoint != other.isOnIdpEndpoint)
 			return false;
 		if (triggeringMode != other.triggeringMode)
-			return false;
-		if (tryAutoAccept != other.tryAutoAccept)
 			return false;
 		return true;
 	}

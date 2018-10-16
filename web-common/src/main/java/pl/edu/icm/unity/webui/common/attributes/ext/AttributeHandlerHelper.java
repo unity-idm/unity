@@ -8,6 +8,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.ReadOnlyArea;
+import pl.edu.icm.unity.webui.common.ReadOnlyField;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
+
 /**
  * Helper for attributes handlers
  * 
@@ -16,15 +20,25 @@ import com.vaadin.ui.VerticalLayout;
  */
 public class AttributeHandlerHelper
 {
-
-	public static String getValueAsString(String value)
+	public static Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return value.toString();
+		Component component;
+		int lines = getLineBreaks(value);
+		if (lines > 1)
+			component = new ReadOnlyArea(value, lines);
+		else
+			component = new ReadOnlyField(value);
+		
+		if (context.isCustomWidth())
+			component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+
+		return component;
 	}
-
-	public static Component getRepresentation(String value)
+	
+	private static int getLineBreaks(String string)
 	{
-		return new Label(getValueAsString(value));
+		String lineSeparator = System.getProperty("line.separator");
+		return string.split(lineSeparator).length;
 	}
 
 	public static VerticalLayout getEmptyEditor()

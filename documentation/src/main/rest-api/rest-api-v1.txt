@@ -1,7 +1,8 @@
 RESTful Administration API
 ==========================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 2.6.0
+//Set to override automated version, which is the project version
+//:revnumber: 9.9.9-FIXED
 :numbered:
 :toc: left
 :linkcss:
@@ -774,6 +775,18 @@ Syntax of prefilled parameters, can be seen in the result of retrieving an Admin
 via the REST GET methods.
 
 
+=== Update invitation
+
++@Path("invitation/{code}")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates an existing invitation - preserving its code, but changing metadata and prefilled information. 
+The registration form to which invitation was originally issued can not be modified as 
+well as the original contact address. 
+
+Body conforms to the same syntax as when creating a new invitation.
+
 === Identity bulk processing
 
 +@Path("bulkProcessing/instant")+ +
@@ -844,3 +857,14 @@ The optional +owner+, +ownerType+ and +type+ query parameters can be used to fil
 Removes a requested token. No content is returned. If a caller has administrative privileges 
 then any token can be removed, otherwise it is allowed for removing owned tokens only.
 
+
+=== Send user notification
+
++@Path("/userNotification-trigger/entity/{identityValue}/template/{templateId}")+ +
++@POST+ +
++@QueryParam("identityType")+ +
+
+Triggers sending user notification of the given message template. Request may use additional, variable, query parameters
+which are used as template parameters. All such parameters should have the +custom.+ prefix (which is mandatory
+in message template for custom properties).
+ 

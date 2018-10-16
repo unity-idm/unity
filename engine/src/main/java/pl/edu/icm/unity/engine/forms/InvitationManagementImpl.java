@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Objects;
+
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
@@ -105,10 +107,11 @@ public class InvitationManagementImpl implements InvitationManagement
 				userLocale, msg.getDefaultLocaleCode()));
 		notifyParams.put(InvitationTemplateDef.CODE, invitation.getRegistrationCode());
 		notifyParams.put(InvitationTemplateDef.URL, 
-				PublicRegistrationURLSupport.getPublicRegistrationLink(invitation.getFormId(), code, 
+				PublicRegistrationURLSupport.getPublicRegistrationLink(form, code, 
 						sharedEndpointMan));
 		ZonedDateTime expiry = invitation.getExpiration().atZone(ZoneId.systemDefault());
 		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+		notifyParams.putAll(invitation.getMessageParams());
 		
 		Instant sentTime = Instant.now();
 		notificationProducer.sendNotification(invitation.getContactAddress(),
@@ -139,5 +142,19 @@ public class InvitationManagementImpl implements InvitationManagement
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return invitationDB.get(code);
+	}
+
+	@Override
+	public void updateInvitation(String code, InvitationParam invitation) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		InvitationWithCode current = invitationDB.get(code);
+		if (!Objects.equal(current.getFormId(), invitation.getFormId()))
+			throw new WrongArgumentException("Can not update form of an invitation");
+		if (!Objects.equal(current.getContactAddress(), invitation.getContactAddress()))
+			throw new WrongArgumentException("Can not update contact address of an invitation");
+		InvitationWithCode updated = new InvitationWithCode(invitation, current.getRegistrationCode(), 
+				current.getLastSentTime(), current.getNumberOfSends());
+		invitationDB.update(updated);
 	}
 }

@@ -148,7 +148,9 @@ public class CaptchaComponent
 	{
 		VerticalLayout ret = new VerticalLayout();
 		ret.setMargin(false);
-		ret.addComponents(createCapchaLine(), answer);
+		HorizontalLayout capchaLine = createCapchaLine();
+		ret.addComponents(capchaLine, answer);
+		ret.setComponentAlignment(capchaLine, answerAligment);
 		ret.setComponentAlignment(answer, answerAligment);
 		return ret;
 	}

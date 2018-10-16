@@ -38,11 +38,11 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -262,11 +262,8 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 				params, locale);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
-	public EmailConfirmationStatus processConfirmation(String token)
+	public WorkflowFinalizationConfiguration processConfirmation(String token)
 			throws EngineException
 	{
 		if (token == null)
@@ -274,7 +271,8 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, 
 					Status.elementConfirmationError).
 					setErrorCode("noToken").build();
-			return new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
+			return WorkflowFinalizationConfiguration.basicError(
+					msg.getMessage("ConfirmationStatus.invalidToken"), redirectURL); 
 		}
 		
 		return tx.runInTransactionRetThrowing(() -> {
@@ -287,14 +285,15 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 				String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, 
 						Status.elementConfirmationError).
 						setErrorCode("invalidToken").build();
-				return new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.invalidToken");
+				return WorkflowFinalizationConfiguration.basicError(
+						msg.getMessage("ConfirmationStatus.invalidToken"), redirectURL);
 			}
 
 			return processConfirmationInternal(tk, true);
 		});
 	}
 
-	private EmailConfirmationStatus processConfirmationInternal(Token tk, boolean withDuplicates)
+	private WorkflowFinalizationConfiguration processConfirmationInternal(Token tk, boolean withDuplicates)
 			throws EngineException
 	{
 		Date today = new Date();
@@ -303,15 +302,16 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 			String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, 
 					Status.elementConfirmationError).
 					setErrorCode("expiredToken").build();
-			return new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.expiredToken");
+			return WorkflowFinalizationConfiguration.basicError(
+					msg.getMessage("ConfirmationStatus.expiredToken"), redirectURL);
 		}
 		String rawState = tk.getContentsString();
 		BaseEmailConfirmationState baseState = new BaseEmailConfirmationState(rawState);
 		EmailConfirmationFacility<?> facility = confirmationFacilitiesRegistry.getByName(baseState.getFacilityId());
 		tokensMan.removeToken(EmailConfirmationManager.CONFIRMATION_TOKEN_TYPE, tk.getValue());
 		log.debug("Process confirmation using " + facility.getName() + " facility");
-		EmailConfirmationStatus status = facility.processConfirmation(rawState);
-
+		WorkflowFinalizationConfiguration status = facility.processConfirmation(rawState);
+		
 		if (withDuplicates)
 		{
 			Collection<Token> duplicateTokens = getDuplicateTokens(facility, rawState);
@@ -374,7 +374,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 						entityId,
 						attribute.getName(), val.getValue(),
 						msg.getDefaultLocaleCode(),
-						attribute.getGroupPath(), defaultRedirectURL);
+						attribute.getGroupPath());
 				sendConfirmationRequest(state, force);
 			}
 		}
@@ -421,8 +421,7 @@ public class EmailConfirmationManagerImpl implements EmailConfirmationManager
 		//TODO - should use user's preferred locale
 		EmailIdentityConfirmationState state = new EmailIdentityConfirmationState(
 				identity.getEntityId(), identity.getTypeId(),  
-				identity.getValue(), msg.getDefaultLocaleCode(),
-				defaultRedirectURL);
+				identity.getValue(), msg.getDefaultLocaleCode());
 		sendConfirmationRequest(state, force);
 	}
 

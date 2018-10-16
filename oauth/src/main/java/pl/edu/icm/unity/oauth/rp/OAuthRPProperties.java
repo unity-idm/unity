@@ -94,7 +94,7 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 				setDescription("If true then the profile is fetched from the profile endpoint"
 						+ " with assumption that the server is working in the OpenID Connect "
 						+ "compatible way."));
-		META.put(OPENID_MODE_WITH_TYPO, new PropertyMD().setDeprecated().
+		META.put(OPENID_MODE_WITH_TYPO, new PropertyMD("false").setDeprecated().
 				setDescription("Use the option without type - this one is provided for backwards "
 						+ "compatibility only."));
 		META.put(CLIENT_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL).

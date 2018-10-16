@@ -59,7 +59,7 @@ public class TestRegRequests extends RESTAdminTestBase
 	public void allRequestsAreReturned() throws Exception
 	{
 		RegistrationRequest request = getRequest();
-		RegistrationContext context = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext context = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		regMan.submitRegistrationRequest(request, context);
 		regMan.submitRegistrationRequest(request, context);
 		
@@ -81,7 +81,7 @@ public class TestRegRequests extends RESTAdminTestBase
 	public void requestsIsReturnedById() throws Exception
 	{
 		RegistrationRequest request = getRequest();
-		RegistrationContext context = new RegistrationContext(true, false, TriggeringMode.manualAtLogin);
+		RegistrationContext context = new RegistrationContext(false, TriggeringMode.manualAtLogin);
 		String id = regMan.submitRegistrationRequest(request, context);
 		
 		HttpGet get = new HttpGet("/restadm/v1/registrationRequest/" + id);

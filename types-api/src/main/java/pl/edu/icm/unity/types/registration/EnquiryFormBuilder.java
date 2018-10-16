@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.types.registration;
 
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.types.registration.layout.FormLayout;
 
 
 /**
@@ -30,21 +31,28 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 	{
 		instance.setTargetGroups(aValue);
 
-		return (EnquiryFormBuilder) this;
+		return this;
 	}
 
 	public EnquiryFormBuilder withType(EnquiryType aValue)
 	{
 		instance.setType(aValue);
 
-		return (EnquiryFormBuilder) this;
+		return this;
 	}
 
 	public EnquiryFormBuilder withNotificationsConfiguration(EnquiryFormNotifications aValue)
 	{
 		instance.setNotificationsConfiguration(aValue);
 
-		return (EnquiryFormBuilder) this;
+		return this;
+	}
+	
+	public EnquiryFormBuilder withLayout(FormLayout layout)
+	{
+		instance.setLayout(layout);
+		
+		return this;
 	}
 
 	public EnquiryFormNotificationsBuilder withNotificationsConfiguration()

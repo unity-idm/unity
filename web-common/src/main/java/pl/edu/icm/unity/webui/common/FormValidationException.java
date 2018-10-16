@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common;
 
+import org.apache.logging.log4j.util.Strings;
+
 public class FormValidationException extends Exception
 {
 	public FormValidationException()
@@ -24,5 +26,10 @@ public class FormValidationException extends Exception
 	public FormValidationException(Throwable cause)
 	{
 		super(cause);
+	}
+	
+	public boolean hasMessage()
+	{
+		return !Strings.isEmpty(getMessage());
 	}
 }

@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
@@ -20,6 +21,7 @@ import com.vaadin.ui.UI;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -74,8 +76,22 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	protected final void init(VaadinRequest request)
 	{
 		setErrorHandler(new ErrorHandlerImpl());
+		initializeDefaultPageTitle();
 		appInit(request);
-		initExtensions();
+	}
+
+	private void initializeDefaultPageTitle()
+	{
+		if (endpointDescription == null 
+				|| endpointDescription.getEndpoint() == null 
+				|| endpointDescription.getEndpoint().getConfiguration() == null)
+			return;
+		EndpointConfiguration endpointConfiguration = endpointDescription.getEndpoint().getConfiguration();
+		if (endpointConfiguration.getDisplayedName() != null)
+		{
+			String pageTitle = endpointConfiguration.getDisplayedName().getValue(msg);
+			Page.getCurrent().setTitle(pageTitle);
+		}
 	}
 
 	@Override
@@ -153,12 +169,5 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
-	}
-
-	/**
-	 * Extensions can overwrite this method to provide additional initialization logic.
-	 */
-	protected void initExtensions()
-	{
 	}
 }

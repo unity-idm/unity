@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.authz;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.AuthorizationExceptionRT;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
 
@@ -53,6 +54,11 @@ public interface AuthorizationManager
 	 */
 	void checkAuthorization(String group, AuthzCapability... requiredCapabilities) throws AuthorizationException;
 
+	/**
+	 * As {@link #checkAuthorization(Group, AuthzCapability...)} but throws runtime exception
+	 */
+	void checkAuthorizationRT(String group, AuthzCapability... requiredCapabilities) throws AuthorizationExceptionRT;
+	
 	/**
 	 * Checks the authorization in a specified group. It is checked if the current caller has all the 
 	 * requiredCapabilities in the scope of the specified group.

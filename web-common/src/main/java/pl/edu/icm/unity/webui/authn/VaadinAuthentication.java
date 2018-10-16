@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 
@@ -28,11 +29,17 @@ public interface VaadinAuthentication extends BindingAuthn
 {
 	public static final String NAME = "web-vaadin7";
 	
+	public enum Context
+	{
+		LOGIN,
+		REGISTRATION
+	}
+	
 	/**
 	 * @return a new instance of the credential retrieval UIs. The collection is returned as one authenticator 
 	 * may provide many authN options (e.g. many remote IdPs). 
 	 */
-	Collection<VaadinAuthenticationUI> createUIInstance();
+	Collection<VaadinAuthenticationUI> createUIInstance(Context context);
 	
 	/**
 	 * @return true only if {@link VaadinAuthenticationUI#getGridCompatibleComponent()} 
@@ -130,6 +137,15 @@ public interface VaadinAuthentication extends BindingAuthn
 		default boolean isAvailable()
 		{
 			return true;
+		}
+		
+		/**
+		 * System may use this method to set expected identity that should be returned by authentication
+		 * facility. This is useful in case of remote authentication, in case when authentication 
+		 * triggering subsystem expects a particular identity to sign in. 
+		 */
+		default void setExpectedIdentity(ExpectedIdentity expectedIdentity)
+		{
 		}
 	}
 

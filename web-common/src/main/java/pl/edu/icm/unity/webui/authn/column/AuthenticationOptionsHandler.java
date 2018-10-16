@@ -17,9 +17,10 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 
 /**
@@ -37,7 +38,7 @@ class AuthenticationOptionsHandler
 
 	private Set<String> consumedAuthenticatorEntries = new HashSet<>();
 
-	AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint)
+	public AuthenticationOptionsHandler(List<AuthenticationFlow> availableAuthentionFlows, String endpoint)
 	{
 		this.endpoint = endpoint;
 		for (AuthenticationFlow ao : availableAuthentionFlows)
@@ -64,7 +65,7 @@ class AuthenticationOptionsHandler
 		return ret.isEmpty() ? null : ret.get(0);
 	}
 
-	List<AuthNOption> getMatchingAuthnOptions(String spec)
+	public List<AuthNOption> getMatchingAuthnOptions(String spec)
 	{
 		String authenticatorName = AuthenticationOptionKeyUtils.decodeAuthenticator(spec);
 		AuthenticatorWithFlow authenticatorWF = authenticatorsByName.get(authenticatorName);
@@ -83,7 +84,7 @@ class AuthenticationOptionsHandler
 		}
 		
 		VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance();
+		Collection<VaadinAuthenticationUI> optionUIInstances = vaadinAuthenticator.createUIInstance(Context.LOGIN);
 		List<AuthNOption> ret = new ArrayList<>();
 		for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 		{
@@ -114,7 +115,7 @@ class AuthenticationOptionsHandler
 				continue;
 
 			VaadinAuthentication retrieval = (VaadinAuthentication) authenticatorWF.authenticator.getRetrieval();
-			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance();
+			Collection<VaadinAuthenticationUI> optionUIInstances = retrieval.createUIInstance(Context.LOGIN);
 			for (VaadinAuthenticationUI vaadinAuthenticationUI : optionUIInstances)
 			{
 				if (!vaadinAuthenticationUI.isAvailable())

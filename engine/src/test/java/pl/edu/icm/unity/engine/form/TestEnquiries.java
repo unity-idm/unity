@@ -23,10 +23,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.engine.AttributesAssertion;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
+import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
@@ -45,6 +47,7 @@ import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
@@ -53,14 +56,13 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseBuilder;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
-import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
@@ -149,19 +151,6 @@ public class TestEnquiries extends DBIntegrationTestBase
 		checkUpdateOrAdd(testFormBuilder.build(), "cred", IllegalArgumentException.class);
 	}
 
-	
-	@Test 
-	public void formWithMissingGroupCantBeAdded() throws Exception
-	{
-		EnquiryForm form = initAndCreateEnquiry(null);
-		EnquiryFormBuilder testFormBuilder = getFormBuilder(null);
-
-		GroupRegistrationParam groupParam = form.getGroupParams().get(0);
-		groupParam.setGroupPath("/missing");
-		testFormBuilder.withGroupParams(Collections.singletonList(groupParam));
-		checkUpdateOrAdd(testFormBuilder.build(), "group", IllegalArgumentException.class);
-	}
-
 	@Test 
 	public void formWithMissingIdentityCantBeAdded() throws Exception
 	{
@@ -212,7 +201,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				CRED_REQ_PASS, EntityState.valid, false);
 		
 		setupUserContext("tuser", null);
-		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(true, false, 
+		enquiryManagement.submitEnquiryResponse(response, new RegistrationContext(false, 
 				TriggeringMode.manualStandalone));
 		setupAdmin();
 		
@@ -279,7 +268,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 			.withFormId("enquiry1")
 			.build();
 		enquiryManagement.submitEnquiryResponse(response, 
-				new RegistrationContext(true, false, TriggeringMode.manualStandalone));
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
 		setupAdmin();
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
@@ -350,7 +339,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		setupUserContext("tuser", null);
 		
 		String id = enquiryManagement.submitEnquiryResponse(response, 
-					new RegistrationContext(true, false, 
+					new RegistrationContext(false, 
 							TriggeringMode.manualStandalone));
 		
 		setupAdmin();
@@ -413,6 +402,53 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withGroupPath("/B")
 				.withRetrievalSettings(ParameterRetrievalSettings.automatic)
 				.endGroupParam();
+	}
+	
+	@Test
+	public void shouldAddAttributeCollectedInEnquiry() throws Exception
+	{
+		// given
+		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
+				new String[] {AutomaticRequestAction.accept.toString()});
+		List<TranslationRule> rules = Lists.newArrayList(new TranslationRule("true", a1));
+		TranslationProfile translationProfile = new TranslationProfile("form", "", 
+				ProfileType.REGISTRATION, rules);
+		EnquiryForm form = new EnquiryFormBuilder()
+				.withName("enquiry1")
+				.withTargetGroups(new String[] {"/A"})
+				.withTranslationProfile(translationProfile)
+				.withType(EnquiryType.REQUESTED_OPTIONAL)
+				.withAddedAttributeParam()
+					.withAttributeType(InitializerCommon.CN_ATTR).withGroup("/A")
+					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
+				.endAttributeParam()
+				.withAddedGroupParam()
+					.withGroupPath("/A")
+					.withRetrievalSettings(ParameterRetrievalSettings.automatic)
+				.endGroupParam()
+				.build();
+		enquiryManagement.addEnquiry(form);
+		
+		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER));
+		groupsMan.addMemberFromParent("/A", ep);
+		setupUserContext(DEF_USER, null);
+		
+		EnquiryResponse response = new EnquiryResponseBuilder()
+				.withFormId("enquiry1")
+				.withAddedAttribute(StringAttribute.of(InitializerCommon.CN_ATTR, 
+						"/A", "some"))
+				.withAddedGroupSelection(null)
+				.build();
+		
+		// when
+		setupUserContext(DEF_USER, null);
+		enquiryManagement.submitEnquiryResponse(response, 
+					new RegistrationContext(false, TriggeringMode.manualStandalone));
+		
+		// then
+		AttributesAssertion.assertThat(attrsMan, UsernameIdentity.ID, DEF_USER)
+				.hasAttribute(InitializerCommon.CN_ATTR, "/A").count(1).attr(0).hasValues("some");
 	}
 	
 	private void checkUpdateOrAdd(EnquiryForm form, String msg, Class<?> exception) throws EngineException

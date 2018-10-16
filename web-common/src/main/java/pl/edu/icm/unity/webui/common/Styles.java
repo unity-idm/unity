@@ -57,6 +57,10 @@ public enum Styles
 	floatRight("u-floatRight"),
 	horizontalMarginSmall("u-hMarginSmall"),
 	rightMargin("u-rightMargin"),
+	leftMargin("u-leftMargin"),
+	leftMarginSmall("u-leftMarginSmall"),
+	passwordQuality("u-passwordQuality"),
+	nonCompactTopMargin("u-passwordQuality-nonCompactTopMargin"),
 	bottomMargin("u-bottomMargin"),
 	margin("u-margin"),
 	idpTile("u-idptile"),
@@ -71,6 +75,9 @@ public enum Styles
 	signUpButton("u-signUpButton"),
 	externalSignInButton("u-externalSignInButton"),
 	externalGridSignInButton("u-externalGridSignInButton"),
+	greenProgressBar("u-greenProgressBar"),
+	redProgressBar("u-redProgressBar"),
+	RegistrationLink("registrationLink"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -104,6 +111,7 @@ public enum Styles
 		this.value = value;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return value;

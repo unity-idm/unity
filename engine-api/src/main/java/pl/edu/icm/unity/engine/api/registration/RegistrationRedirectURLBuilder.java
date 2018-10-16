@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.registration;
 
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 
 /**
  * Creates redirect URL which shall be used in certain situations after registration request submission 
@@ -13,7 +14,7 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuil
  */
 public class RegistrationRedirectURLBuilder extends EmailConfirmationRedirectURLBuilder
 {
-	public enum Status {submitted, submittedAccepted, submittedWithError, cancelled, elementConfirmed,
+	public enum Status {submitted, submittedAccepted, submittedWithError, userExists, cancelled, elementConfirmed,
 		elementConfirmationError}
 	
 	public static final String PARAM_FORM_ID = "form_id";
@@ -21,7 +22,17 @@ public class RegistrationRedirectURLBuilder extends EmailConfirmationRedirectURL
 	
 	public RegistrationRedirectURLBuilder(String baseUrl, String formName, String requestId, Status status)
 	{
-		super(baseUrl, status.toString());
+		this(baseUrl, formName, requestId, status.toString());
+	}
+
+	public RegistrationRedirectURLBuilder(String baseUrl, String formName, String requestId, TriggeringState status)
+	{
+		this(baseUrl, formName, requestId, status.toURLState());
+	}
+
+	private RegistrationRedirectURLBuilder(String baseUrl, String formName, String requestId, String status)
+	{
+		super(baseUrl, status);
 		
 		if (formName != null)
 			uriBuilder.addParameter(PARAM_FORM_ID, formName);

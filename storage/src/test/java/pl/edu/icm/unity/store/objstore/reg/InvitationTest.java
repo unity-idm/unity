@@ -8,18 +8,18 @@ import java.time.Instant;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-
-import com.google.common.collect.Lists;
 
 public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 {
@@ -42,7 +42,7 @@ public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 				new Attribute("a1", "string", "/", Lists.newArrayList("v1")), 
 				PrefilledEntryMode.DEFAULT));
 		param.getGroupSelections().put(0, new PrefilledEntry<>(
-				new Selection(true), 
+				new GroupSelection("/A"), 
 				PrefilledEntryMode.HIDDEN));
 		param.getIdentities().put(0, new PrefilledEntry<>(
 				new IdentityParam("id123", "identifier"), 
@@ -61,7 +61,7 @@ public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 				new Attribute("a2", "string", "/", Lists.newArrayList("v1")), 
 				PrefilledEntryMode.DEFAULT));
 		param.getGroupSelections().put(0, new PrefilledEntry<>(
-				new Selection(false), 
+				new GroupSelection("/A"), 
 				PrefilledEntryMode.HIDDEN));
 		param.getIdentities().put(0, new PrefilledEntry<>(
 				new IdentityParam("id123", "identifier"), 

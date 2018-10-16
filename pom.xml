@@ -19,16 +19,16 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.10.v20180503</jetty.version>
+		<jetty.version>9.4.12.v20180830</jetty.version>
 		<slf4j.version>1.7.25</slf4j.version>
-		<log4j.version>2.11.0</log4j.version>
-		<spring.version>5.0.6.RELEASE</spring.version>
-		<vaadin.version>8.4.1</vaadin.version>
+		<log4j.version>2.11.1</log4j.version>
+		<spring.version>5.1.0.RELEASE</spring.version>
+		<vaadin.version>8.5.2</vaadin.version>
 		<groovy-all.version>2.4.8</groovy-all.version>
 		<cxf.version>3.1.10</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
-		<bc.version>1.59</bc.version>
-		<selenium.version>3.12.0</selenium.version>
+		<bc.version>1.60</bc.version>
+		<selenium.version>3.14.0</selenium.version>
 
 		<!-- Sonar -->
 		<sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
@@ -232,6 +232,12 @@
 				<scope>test</scope>
 			</dependency>
 			<dependency>
+				<groupId>com.tngtech.java</groupId>
+				<artifactId>junit-dataprovider</artifactId>
+				<version>1.13.1</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
 				<groupId>eu.codearte.catch-exception</groupId>
 				<artifactId>catch-exception</artifactId>
 				<version>1.4.6</version>
@@ -240,7 +246,7 @@
 			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
-				<version>3.10.0</version>
+				<version>3.11.1</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -252,13 +258,13 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>2.13.0</version>
+				<version>2.22.0</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.awaitility</groupId>
 				<artifactId>awaitility</artifactId>
-				<version>3.1.0</version>
+				<version>3.1.2</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -339,12 +345,12 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.5</version>
+				<version>2.9.7</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.5.1</version>
+				<version>4.5.4</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -373,17 +379,17 @@
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>secutils-cxf</artifactId>
-				<version>1.5.1</version>
+				<version>1.5.4</version>
 			</dependency>
 			<dependency>
 				<groupId>org.postgresql</groupId>
 				<artifactId>postgresql</artifactId>
-				<version>42.2.2.jre7</version>
+				<version>42.2.5.jre7</version>
 			</dependency>
 			<dependency>
     			<groupId>org.mariadb.jdbc</groupId>
     			<artifactId>mariadb-java-client</artifactId>
-    			<version>2.2.3</version>
+    			<version>2.3.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.h2database</groupId>
@@ -484,7 +490,7 @@
 			<dependency>
 				<groupId>com.sun.mail</groupId>
 				<artifactId>javax.mail</artifactId>
-				<version>1.6.1</version>
+				<version>1.6.2</version>
 			</dependency>
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>
@@ -499,32 +505,32 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>4.0.5</version>
+				<version>4.0.8</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
-				<version>2.4.0.Final</version>
+				<version>2.4.2.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
 				<artifactId>httpclient</artifactId>
-				<version>4.5.5</version>
+				<version>4.5.6</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>5.61</version>
+				<version>6.0</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>5.10</version>
+				<version>6.0.2</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>25.0-jre</version>
+				<version>26.0-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.directory.server</groupId>
@@ -559,12 +565,12 @@
 			<dependency>
 				<groupId>net.java.dev.jna</groupId>
 				<artifactId>jna</artifactId>
-				<version>4.5.1</version>
+				<version>4.5.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.kohsuke</groupId>
 				<artifactId>libpam4j</artifactId>
-				<version>1.8</version>
+				<version>1.11</version>
 			</dependency>
 			<dependency>
 				<groupId>org.codehaus.groovy</groupId>

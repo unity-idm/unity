@@ -4,6 +4,9 @@
  */
 package pl.edu.icm.unity.engine.confirmation.facilities;
 
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -11,9 +14,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
@@ -32,14 +37,16 @@ public class EmailAttributeFacility extends UserEmailFacility<EmailAttribiuteCon
 {
 	private AttributeDAO dbAttributes;
 	private AttributeTypeHelper atHelper;
+	private boolean autoRedirect;
 
 	@Autowired
 	public EmailAttributeFacility(AttributeDAO dbAttributes, EntityDAO dbIdentities,
-			AttributeTypeHelper atHelper)
+			AttributeTypeHelper atHelper, UnityMessageSource msg, UnityServerConfiguration serverConfig)
 	{
-		super(dbIdentities);
+		super(dbIdentities, msg, serverConfig.getValue(CONFIRMATION_DEFAULT_RETURN_URL));
 		this.dbAttributes = dbAttributes;
 		this.atHelper = atHelper;
+		this.autoRedirect = serverConfig.getBooleanValue(CONFIRMATION_AUTO_REDIRECT);
 	}
 
 	@Override
@@ -55,10 +62,9 @@ public class EmailAttributeFacility extends UserEmailFacility<EmailAttribiuteCon
 	}
 
 	@Override
-	protected EmailConfirmationStatus confirmElements(EmailAttribiuteConfirmationState attrState) 
+	protected WorkflowFinalizationConfiguration confirmElements(EmailAttribiuteConfirmationState attrState) 
 			throws EngineException
 	{
-		EmailConfirmationStatus status;
 		List<AttributeExt> allAttrs = dbAttributes.getEntityAttributes(attrState.getOwnerEntityId(), 
 				attrState.getType(), attrState.getGroup());
 
@@ -72,12 +78,18 @@ public class EmailAttributeFacility extends UserEmailFacility<EmailAttribiuteCon
 			dbAttributes.updateAttribute(confirmed);
 		}
 		boolean confirmed = (confirmedList.size() > 0);
-		status = new EmailConfirmationStatus(confirmed, 
-				confirmed ? getSuccessRedirect(attrState) : getErrorRedirect(attrState),
-						confirmed ? "ConfirmationStatus.successAttribute"
-								: "ConfirmationStatus.attributeChanged",
-								attrState.getType());
-		return status;
+		String title = msg.getMessage(confirmed ? 
+				"ConfirmationStatus.successTitle" : "ConfirmationStatus.unsuccessful");
+		String info = msg.getMessage(confirmed ? 
+				"ConfirmationStatus.successDetail" : "ConfirmationStatus.emailChanged", attrState.getValue());
+		String redirectURL = confirmed ? getSuccessRedirect(attrState) : getErrorRedirect(attrState);
+		return WorkflowFinalizationConfiguration.builder()
+				.setAutoRedirect(autoRedirect)
+				.setSuccess(confirmed)
+				.setMainInformation(title)
+				.setExtraInformation(info)
+				.setRedirectURL(redirectURL)
+				.build();
 	}
 
 	@Override
