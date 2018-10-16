@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedWithLogoutComponent;
 
 /**
  * Standalone view presenting enquiry form.
@@ -135,7 +135,8 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		setSizeFull();
 		setCompositionRoot(wrapper);
 
-		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, this::redirect);
+		Component finalScreen = new WorkflowCompletedWithLogoutComponent(config, this::redirect, 
+				msg.getMessage("MainHeader.logout"), authnProcessor::logout);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}
