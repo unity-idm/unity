@@ -81,6 +81,11 @@ public class GroupHelper
 		GroupMembership param = new GroupMembership(path, entityId, creationTs, translationProfile, idp);
 		membershipDAO.create(param);
 	}
+	
+	public boolean isMember(long entityId, String path)
+	{
+		return membershipDAO.isMember(entityId, path);
+	}
 
 	/**
 	 * Checks if all group's attribute statements seems correct.

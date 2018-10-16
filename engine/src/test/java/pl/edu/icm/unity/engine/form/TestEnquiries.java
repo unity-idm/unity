@@ -18,7 +18,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -406,7 +405,6 @@ public class TestEnquiries extends DBIntegrationTestBase
 	}
 	
 	@Test
-	@Ignore
 	public void shouldAddAttributeCollectedInEnquiry() throws Exception
 	{
 		// given

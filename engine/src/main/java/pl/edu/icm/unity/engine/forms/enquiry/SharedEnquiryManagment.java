@@ -7,10 +7,13 @@ package pl.edu.icm.unity.engine.forms.enquiry;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +24,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
+import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -40,6 +44,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -136,6 +141,9 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		
 		applyRequestedGroups(entityId, remainingAttributesByGroup, 
 				translatedRequest.getGroups());
+		
+		applyRequestedAttributesInCurrentMembership(entityId, remainingAttributesByGroup,
+				translatedRequest.getGroups());
 
 		applyRequestedAttributeClasses(translatedRequest, entityId);
 		
@@ -156,6 +164,42 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			confirmationsRewriteSupport.rewriteRequestToken(currentRequest, entityId);
 	}
 	
+	/**
+	 * The group of the requested attributes may not have the "requested in the
+	 * enquiry group" counterpart. User may already be a member of the group
+	 * which is requested in attribute.
+	 * @param collection 
+	 */
+	private void applyRequestedAttributesInCurrentMembership(long entityId,
+			Map<String, List<Attribute>> remainingAttributesByGroup, 
+			Collection<GroupParam> requestedGroups) throws EngineException
+	{
+		Set<String> groupsAlreadyProcessed = establishGroups(requestedGroups);
+		for (Map.Entry<String, List<Attribute>> entry : remainingAttributesByGroup.entrySet())
+		{
+			String attributeGroup = entry.getKey();
+			if (!groupsAlreadyProcessed.contains(attributeGroup) 
+					&& groupHelper.isMember(entityId, attributeGroup))
+			{
+				List<Attribute> attributes = entry.getValue();
+				attributesHelper.checkGroupAttributeClassesConsistency(attributes, attributeGroup);
+				attributesHelper.addAttributesList(attributes, entityId, true);
+			}
+		}
+	}
+
+	private Set<String> establishGroups(Collection<GroupParam> requestedGroups)
+	{
+		Set<String> allGroups = new HashSet<>();
+		allGroups.add("/");
+		for (GroupParam group : requestedGroups)
+		{
+			Deque<String> missingGroups = Group.getMissingGroups(group.getGroup(), allGroups);
+			allGroups.addAll(missingGroups);
+		}
+		return allGroups;
+	}
+
 	public void dropEnquiryResponse(String id) throws EngineException
 	{
 		enquiryResponseDB.delete(id);
