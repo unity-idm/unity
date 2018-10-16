@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webui.forms.reg;
 import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -73,6 +74,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private PostFillingHandler postFillHandler;
 	private Runnable customCancelHandler;
 	private Runnable completedRegistrationHandler;
+	private Runnable gotoSignInRedirector;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -109,7 +111,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	@Override
 	public void enter(ViewChangeEvent changeEvent)
 	{	
-		enter(TriggeringMode.manualStandalone, null, null);
+		enter(TriggeringMode.manualStandalone, null, null, null);
 	}
 	
 	/**
@@ -123,10 +125,12 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	 * @param completedRegistrationHandler run when registration is completed. It is notification which should
 	 * cause reset of the UI during the *subsequent* request in scope of the current session 
 	 */
-	public void enter(TriggeringMode mode, Runnable customCancelHandler, Runnable completedRegistrationHandler)
+	public void enter(TriggeringMode mode, Runnable customCancelHandler, Runnable completedRegistrationHandler,
+			Runnable gotoSignInRedirector)
 	{
 		this.customCancelHandler = customCancelHandler;
 		this.completedRegistrationHandler = completedRegistrationHandler;
+		this.gotoSignInRedirector = gotoSignInRedirector;
 		showFirstStage(RemotelyAuthenticatedContext.getLocalContext(), mode);
 	}
 	
@@ -171,7 +175,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	
 	private void showEditorContent(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		header = new SignUpTopHeaderComponent(cfg, msg, this::onUserAuthnCancel, getGoToSignInURL(editor));
+		header = new SignUpTopHeaderComponent(cfg, msg, this::onUserAuthnCancel, 
+				getGoToSignInRedirector(editor));
 		main.addComponent(header);
 		main.setComponentAlignment(header, Alignment.TOP_RIGHT);
 
@@ -238,10 +243,24 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		return cancelButton;
 	}
 	
-	private Optional<String> getGoToSignInURL(RegistrationRequestEditor editor)
+	private Optional<Runnable> getGoToSignInRedirector(RegistrationRequestEditor editor)
 	{
-		return form.isShowSignInLink() && editor.getStage() == Stage.FIRST ? 
-				Optional.of(form.getSignInLink()) : Optional.empty();
+		if (!form.isShowSignInLink() || editor.getStage() != Stage.FIRST)
+			return Optional.empty();
+
+		if (gotoSignInRedirector != null)
+			return Optional.of(gotoSignInRedirector);
+		
+		if (Strings.isEmpty(form.getSignInLink()))
+			return Optional.empty();
+		
+		Runnable signinRedirector = () -> 
+		{
+			if (completedRegistrationHandler != null)
+				completedRegistrationHandler.run();
+			Page.getCurrent().open(form.getSignInLink(), null);
+		};
+		return Optional.of(signinRedirector);
 	}
 	
 	private boolean isAutoSubmitPossible(RegistrationRequestEditor editor, TriggeringMode mode)

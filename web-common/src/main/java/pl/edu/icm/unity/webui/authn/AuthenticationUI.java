@@ -167,11 +167,16 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		registrationFormController.resetSessionRegistraionAttribute();
 	}
 
-	private void scheduleRestToFreshState()
+	private void scheduleResetToFreshState()
 	{
 		resetScheduled = true;
 	}
 
+	private void resetToFreshState()
+	{
+		scheduleResetToFreshState();
+		refresh(VaadinRequest.getCurrent());
+	}
 	
 	private boolean isRegistrationEnabled()
 	{
@@ -216,7 +221,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		StandaloneRegistrationView view = registrationFormController.createRegistrationView(form);
 		registrationFormController.setSessionRegistrationAttribute(view);
 		view.enter(TriggeringMode.manualAtLogin, this::resetToFreshAuthenticationScreen, 
-				this::scheduleRestToFreshState);
+				this::scheduleResetToFreshState, this::resetToFreshState);
 		setContent(view);
 	}
 	
