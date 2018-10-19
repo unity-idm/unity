@@ -1,0 +1,346 @@
+/* Colors */
+$wb-dark-color: rgb(66, 66, 66);
+$wb-white-color: rgb(245, 245, 245);
+
+@import "webConsole-utils";
+
+@mixin webConsole {
+    .webConsole {
+        position: relative;
+        z-index: 1;
+             
+        /* top menu */
+        .v-slot-topMenu {
+            @include wbPos(fixed, 0, null, null, 0, 1000);
+            
+            .topMenu {
+                @include wbPos(fixed, 0, 100px, null, null, 1000);
+                
+                .v-slot.v-slot-topMenuTextField > div {
+                    @include wbTransition(width 0.3s ease-in-out);
+                    width: 36px !important;
+                    overflow: hidden;
+                    
+                    .v-caption-topMenuTextField {
+                        display: inline-block;
+                        max-width: 36px;
+                        width: 100%;
+                        padding: 0;
+                    }
+                    
+                    input.topMenuTextField {
+                        @include wbTransition(width 0.3s ease-in-out);
+                        display: inline-block;
+                        box-shadow: none !important;
+                        outline: unset !important;
+                        border-radius: 0 !important;
+                        border: none !important;
+                        @include wbSize(0, 30px);
+                        margin: 6px 0 0 5px;
+                        padding: 5px;
+                    }
+                    
+                    &:hover {
+                        width: 206px !important;
+                        
+                        input.topMenuTextField {
+                            width: 150px !important;
+                        }
+                    }
+                }
+                
+                .v-slot > div {
+                    @include wbSize(36px, 44px);
+                    @include wbPos(relative);
+                    vertical-align: middle;
+                    text-align: center;
+                    line-height: 42px;
+                    margin: 0 5px;
+                    
+                    &.menuButton {
+                        @include wbTransition(background 0.3s ease-in-out, border-top-width 0.3s ease-in-out, height 0.3s ease-in-out);
+                        border-top: 0 solid;
+                        cursor: pointer;
+                        
+                        .menuButton-caption {
+                            margin: 0;
+                            
+                            .toolTip {
+                                @include wbPos(absolute, 32px, -6px);
+                                border-radius: 4px;
+                                line-height: 17px;
+                                font-size: 14px;
+                                padding: 5px;
+                            }
+                        }
+                        
+                        &:hover {
+                            border-top-width: 4px;
+                            height: 48px;
+                            
+                            .menuButton-caption {
+                                pointer-events: auto !important;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        /* root content */
+        .rootContent {
+            & > .v-expand {
+                @include wbTransition(padding-left 0.3s ease-in-out);
+                padding-left: 250px !important;
+                
+                /* Left Menu */
+                .v-slot-leftMenu {
+                    @include wbTransition(margin-left 0.3s ease-in-out);
+                    margin-left: -250px !important;
+                    
+                    .leftMenu {
+                        @include wbTransition(width 0.3s ease-in-out);
+                        width: 250px !important;
+                        
+                        & > .v-expand > .v-slot {
+                            height: auto !important;
+                        }
+                        
+                        &:not(.minimal) {
+                            overflow: auto;
+                        }
+                        
+                        .v-slot-menuLabel > div {
+                            width: 100%;
+                            
+                            .v-caption {
+                                text-align: center;
+                                position: relative;
+                                font-size: 20px;
+                                padding: 10px;
+                                
+                                &:after {
+                                    @include wbPos(absolute, null, null, 0, 0);
+                                    border-bottom: 1px solid;
+                                    content: '';
+                                    width: 100%;
+                                }
+                                
+                                .v-icon {
+                                    margin-right: 5px;
+                                    max-height: 32px;
+                                }
+                            }
+                            
+                            .v-label {
+                                display: none;
+                            }
+                        }
+
+                        .menuButton {
+                            @include wbTransition(background 0.3s, border-left 0.3s, height 0.5s);
+                            border-left: 0 solid transparent;
+                            background: transparent;
+                            overflow: hidden;
+                            cursor: pointer;
+                            display: block;
+                            padding: 8px 0;
+                            height: 45px;
+
+                            &.active {
+                                border-left-width: 3px;
+                            }
+
+                            &:hover, &.active:hover {
+                                border-left-width: 5px;
+                            }
+                        }
+
+                        .menuButton-wrap {
+                            @include wbTransition(border 0.3s);
+                            @include wbPos(relative);
+                            display: block;
+                            z-index: 1000;
+
+                            .v-icon {
+                                @include wbPos(relative);
+                                vertical-align: middle;
+                                display: inline-block;
+                                text-align: center;
+                                margin-left: 10px;
+                                width: 25px;
+                            }
+
+                            .menuButton-caption {
+                                font-size: 17px;
+                                vertical-align: middle;
+                            }
+                        }
+                        
+                        .subMenu {
+                            & > .v-slot {
+                                &:first-child .toolTip {
+                                    @include wbPos(absolute, 0, 5px);
+                                    @include wbSize(30px, 30px);
+
+                                    .v-icon {
+                                        @include wbTransition(transform 0.3s ease-in-out);
+                                        @include wbTransformRotate(0deg);
+                                        @include wbSize(30px, 30px);
+                                        line-height: 27px;
+                                        margin: 0;
+                                    }
+                                }
+
+                                &:last-child > .v-verticallayout {
+                                    @include wbTransition(max-height 0.5s ease-in-out);
+                                    width: calc(100% - 24px) !important;
+                                    border-left: 1px solid transparent;
+                                    position: relative;
+                                    margin-left: 24px;
+                                    overflow: hidden;
+                                    display: block;
+                                    max-height: 0;
+                                }
+                            }
+                        
+                            &.open > .v-slot {
+                                &:first-child .toolTip .v-icon {
+                                    @include wbTransformRotate(-180deg);
+                                }
+
+                                &:last-child > .v-verticallayout {
+                                    max-height: 1000px !important;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            /* breadcrumbs */
+            .breadcrumbs {
+                padding: 15px 20px;
+                
+                .v-slot {
+                    width: auto !important;
+                    
+                    .menuButton.clickable {
+                        cursor: pointer;
+                    }
+                    
+                    .menuLabel {
+                        display: none !important;
+                    }
+                }
+            }
+            
+            /* left menu minimal */
+            &.minimal {
+                overflow: inherit;
+                
+                & > .v-expand {
+                    padding-left: 50px !important;
+
+                    .v-slot-leftMenu {
+                        margin-left: -50px !important;
+
+                        .leftMenu {
+                            overflow: visible;
+                            width: 50px !important;
+
+                            .v-slot-menuLabel > div .v-caption .v-captiontext {
+                                display: none;
+                            }
+                            
+                            .menuButton {
+                                overflow: visible;
+                                
+                                &:hover .menuButton-caption {
+                                    pointer-events: all !important;
+                                    opacity: 1 !important;
+                                    left: 45px !important;
+                                }
+                                
+                                .menuButton-wrap {
+                                    z-index: 100;
+                                    
+                                    .v-icon {
+                                        width: 100%;
+                                        margin: 0;
+                                    }
+
+                                    .menuButton-caption {
+                                        @include wbTransition(left 0.5s ease-in-out, opacity 0.5s ease-in-out);
+                                        padding: 9px 13px 8px;
+                                        top: calc(-50% + 5px);
+                                        pointer-events: none;
+                                        position: absolute;
+                                        white-space: pre;
+                                        z-index: 10000;
+                                        height: 28px;
+                                        left: -500px;
+                                        opacity: 0;
+                                        margin: 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            /* content */
+            .v-slot-contentBox {
+                overflow-y: auto;
+                
+                .contentBox {
+                    padding: 0 !important;
+                    
+                    & > .v-margin-top {
+                        padding-top: 0 !important;
+                    }
+                }
+            }
+        }
+        
+        
+        $tooltip-background: rgb(25, 118, 210);
+        $tooltip-active-background: rgb(51, 105, 30);
+        
+        // white theme
+        &.white {
+            $white-content-background: rgb(245, 245, 245);
+            $white-menuLeft-background: rgb(224, 224, 224);
+            $white-button-active-background: $white-content-background;
+            $white-button-hover-background: rgb(189, 189, 189);
+            
+            @include wbTheme(
+                    $white-content-background, 
+                    $white-menuLeft-background,
+                    $white-button-active-background,
+                    $white-button-hover-background,
+                    $tooltip-background,
+                    $tooltip-active-background
+                );
+        }
+        
+        // dark theme
+        &.dark {
+            $dark-content-background: rgb(83, 83, 83);
+            $dark-menuLeft-background: rgb(53, 53, 53);
+            $dark-button-active-background: $dark-content-background;
+            $dark-button-hover-background: rgb(33, 33, 33);
+        
+            @include wbTheme(
+                    $dark-content-background, 
+                    $dark-menuLeft-background,
+                    $dark-button-active-background,
+                    $dark-button-hover-background,
+                    $tooltip-background,
+                    $tooltip-active-background
+                );
+        }
+        
+    }
+}

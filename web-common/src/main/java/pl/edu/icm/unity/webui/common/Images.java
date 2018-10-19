@@ -16,6 +16,7 @@ import com.vaadin.server.ThemeResource;
 public enum Images
 {
 	logo		(I.PB + "logo.png"),
+	logoSmall	(I.PB + "logo-hand.png"),
 	loader		(I.PB + "loader.gif"),
 	password	(I.PB + "password.png"),
 	mobile_sms	(I.PB + "mobile-sms.png"),
@@ -71,6 +72,7 @@ public enum Images
 	topArrow	(VaadinIcons.ANGLE_DOUBLE_UP),
 	downArrow	(VaadinIcons.ANGLE_DOWN),
 	bottomArrow	(VaadinIcons.ANGLE_DOUBLE_DOWN),
+	rightArrow 	(VaadinIcons.ANGLE_RIGHT),
 	wizard		(VaadinIcons.MAGIC),
 	dryrun		(VaadinIcons.COG_O),
 	play		(VaadinIcons.PLAY),
@@ -84,6 +86,7 @@ public enum Images
 	close_small	(VaadinIcons.CLOSE_SMALL),
 	resize		(VaadinIcons.RESIZE_H),
 	mobile		(VaadinIcons.MOBILE_RETRO);
+	
 	
 	
 	private final Resource resource;
