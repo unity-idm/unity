@@ -35,7 +35,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
 	
-	public static final int MAXIMUM_ALLOWED_URIS = 256;
+	public static final int MAXIMUM_ALLOWED_URIS = 512;
 	
 	public enum GrantFlow {authorizationCode, implicit, openidHybrid, client};
 	
