@@ -79,6 +79,7 @@ public enum Images
 	plFlag		(I.P + "16-flags/pl.png"),
 	enFlag		(I.P + "16-flags/en.png"),
 	deFlag		(I.P + "16-flags/de.png"),
+	nbFlag		(I.P + "16-flags/no.png"),
 	menu		(VaadinIcons.MENU),
 	remove		(VaadinIcons.CLOSE_CIRCLE_O),
 	close_small	(VaadinIcons.CLOSE_SMALL),
@@ -120,6 +121,8 @@ public enum Images
 			return plFlag.getResource();
 		case "de":
 			return deFlag.getResource();
+		case "nb":
+			return nbFlag.getResource();
 		}
 		return null;
 	}

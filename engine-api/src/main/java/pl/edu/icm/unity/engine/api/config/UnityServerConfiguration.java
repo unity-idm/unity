@@ -453,6 +453,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
 		SUPPORTED_LOCALES.put("de", new Locale("de"));
+		SUPPORTED_LOCALES.put("nb", new Locale("nb"));
 	}
 
 	private UnityHttpServerConfiguration jp;
