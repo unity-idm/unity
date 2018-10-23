@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.navigator.ViewProvider;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
@@ -36,6 +37,7 @@ public class WebConsoleLayout extends VerticalLayout {
 	private VerticalLayout rootContent = new VerticalLayout();
 	private TopMenu topMenu = new TopMenu();
 	private LeftMenu leftMenu = new LeftMenu();
+	private ViewProvider viewProvider;
 
 	public static WebConsoleLayout get() {
 		return new WebConsoleLayout();
@@ -66,6 +68,9 @@ public class WebConsoleLayout extends VerticalLayout {
 
 			new Navigator(ui, naviRootContent);
 			ui.getNavigator().setErrorView(Dashboard.class);
+			ui.getNavigator().addProvider(viewProvider);
+			
+			
 			ui.getNavigator().addViewChangeListener(new ViewChangeListener()
 			{
 				@Override
@@ -138,7 +143,16 @@ public class WebConsoleLayout extends VerticalLayout {
 		return this;
 	}
 	
+	public WebConsoleLayout withViewProvider(ViewProvider provider)
+	{
+		this.viewProvider = provider;
+		return this;
+	}
+	
 	public void setViewChangeManager(DefaultViewChangeManager viewChangeManager) {
 		this.viewChangeManager = viewChangeManager;
 	}
+
+
+
 }

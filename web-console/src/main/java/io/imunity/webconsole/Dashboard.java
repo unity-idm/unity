@@ -10,11 +10,14 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+
 /**
  * Default page 
  * @author P.Piernik
  *
  */
+@PrototypeComponent
 public class Dashboard extends VerticalLayout implements View
 {
 	@Override

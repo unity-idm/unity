@@ -9,7 +9,6 @@ package io.imunity.webconsole.leftmenu.components;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
@@ -124,22 +123,22 @@ public class MenuButton extends Button implements MenuComponent<MenuButton> {
 	}
 	
 	public <T extends View> MenuButton withNavigateTo(Class<T> viewClass) {
-		withNavigateTo(viewClass.getSimpleName(), viewClass);
+		withNavigateTo(viewClass.getSimpleName());
 		return this;
 	}
 	
-	public <T extends View> MenuButton withNavigateTo(String viewName, Class<T> viewClass) {
-		navigateTo = viewName;
-		
-		Navigator navigator = UI.getCurrent().getNavigator();
-		
-		navigator.removeView(viewName);
-		navigator.addView(viewName, viewClass);
-		
-		return this.withClickListener(e -> {
-			navigator.navigateTo(navigateTo);
-		});
-	}
+//	public <T extends View> MenuButton withNavigateTo(String viewName, Class<T> viewClass) {
+//		navigateTo = viewName;
+//		
+//		Navigator navigator = UI.getCurrent().getNavigator();
+//		
+//		//navigator.removeView(viewName);
+//		//navigator.addView(viewName, viewClass);
+//		
+//		return this.withClickListener(e -> {
+//			navigator.navigateTo(navigateTo);
+//		});
+//	}
 	
 	public MenuButton updateToolTip() {
 		String toolTip = "";

@@ -13,12 +13,14 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.idprovider.OAuth;
 import io.imunity.webconsole.idprovider.SAML;
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
  * Lists all flows
  * @author P.Piernik
  *
  */
+@PrototypeComponent
 public class Flows extends VerticalLayout implements View
 {
 	@Override

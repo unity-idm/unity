@@ -10,11 +10,14 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+
 /**
  * Lists all routes
  * @author P.Piernik
  *
  */
+@PrototypeComponent
 public class Routes extends VerticalLayout implements View
 {
 	@Override

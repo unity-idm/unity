@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webconsole;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +28,8 @@ import io.imunity.webconsole.layout.LeftMenu;
 import io.imunity.webconsole.layout.TopMenu;
 import io.imunity.webconsole.layout.WebConsoleLayout;
 import io.imunity.webconsole.leftmenu.components.MenuButton;
-import io.imunity.webconsole.leftmenu.components.SubMenu;
 import io.imunity.webconsole.leftmenu.components.MenuLabelClickable;
+import io.imunity.webconsole.leftmenu.components.SubMenu;
 import io.imunity.webconsole.other.OtherServices;
 import io.imunity.webconsole.topmenu.components.TopMenuTextField;
 import io.imunity.webconsole.userprofile.UserProfile;
@@ -55,27 +54,29 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private StandardWebAuthenticationProcessor authnProcessor;
-
-	private WebConsoleLayout webConsoleLayout = null;
+	private WebConsoleLayout webConsoleLayout;
+	private AppContextViewProvider appContextViewProvider;
 
 	@Autowired
 	public WebConsoleUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
-			StandardWebAuthenticationProcessor authnProcessor)
+			StandardWebAuthenticationProcessor authnProcessor,
+			AppContextViewProvider viewProvider)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
+		this.appContextViewProvider = viewProvider;
 	}
 
 	private void setDefaultPage()
 	{
 		UI.getCurrent().getNavigator().setErrorView(Dashboard.class);
-		
+
 	}
 
 	private void buildTopOnlyMenu()
 	{
 		TopMenu topMenu = webConsoleLayout.getTopMenu();
-		topMenu.add(TopMenuTextField.get(VaadinIcons.SEARCH, "Search ..."));
+		topMenu.add(TopMenuTextField.get(VaadinIcons.SEARCH, msg.getMessage("WebConsoleUIMenu.search")));
 		topMenu.add(MenuButton.get().withIcon(VaadinIcons.HOME)
 				.withDescription(msg.getMessage("WebConsoleUIMenu.dashboard"))
 				.withNavigateTo(Dashboard.class));
@@ -115,7 +116,8 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 				.withCaption(msg.getMessage("WebConsoleUIMenu.idprovider"))
 				.withIcon(Images.ok.getResource()));
 
-		idprovider.add(MenuButton.get().withCaption(msg.getMessage("WebConsoleUIMenu.oauth"))
+		idprovider.add(MenuButton.get()
+				.withCaption(msg.getMessage("WebConsoleUIMenu.oauth"))
 				.withIcon(Images.ok.getResource()).withNavigateTo(OAuth.class));
 
 		idprovider.add(MenuButton.get().withCaption(msg.getMessage("WebConsoleUIMenu.saml"))
@@ -160,7 +162,9 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-		webConsoleLayout = WebConsoleLayout.get().withNaviContent(new VerticalLayout()).build();
+
+		webConsoleLayout = WebConsoleLayout.get().withNaviContent(new VerticalLayout())
+				.withViewProvider(appContextViewProvider).build();
 		buildTopOnlyMenu();
 		buildLeftMenu();
 		setDefaultPage();

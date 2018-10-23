@@ -11,11 +11,14 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+
 /**
  * 
  * @author P.Piernik
  *
  */
+@PrototypeComponent
 public class UserProfile extends VerticalLayout implements View
 {
 	@Override

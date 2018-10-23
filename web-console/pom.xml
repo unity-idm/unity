@@ -20,7 +20,7 @@
 		<tag>HEAD</tag>
 	</scm>
 	
- <dependencies>
+ 	<dependencies>
 		<!-- test -->
 		<dependency>
 			<groupId>junit</groupId>
