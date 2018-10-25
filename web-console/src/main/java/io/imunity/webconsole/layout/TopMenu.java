@@ -8,6 +8,8 @@ package io.imunity.webconsole.layout;
 
 import com.vaadin.ui.HorizontalLayout;
 
+import pl.edu.icm.unity.webui.common.Styles;
+
 /**
  * Top menu bar
  * 
@@ -16,14 +18,10 @@ import com.vaadin.ui.HorizontalLayout;
  */
 public class TopMenu extends HorizontalLayout
 {
-
-	public static final String STYLE_NAME = "topMenu";
-
 	public TopMenu()
 	{
-		super();
 		setHeight(0, Unit.PIXELS);
-		setStyleName(STYLE_NAME);
+		setStyleName(Styles.topMenu.toString());
 		setMargin(false);
 		setSpacing(false);
 	}

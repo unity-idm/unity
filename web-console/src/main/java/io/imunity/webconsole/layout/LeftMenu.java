@@ -12,6 +12,8 @@ import com.vaadin.server.VaadinSession;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.webui.common.Styles;
+
 /**
  * Toggleable left menu
  * 
@@ -19,14 +21,11 @@ import com.vaadin.ui.VerticalLayout;
  *
  */
 public class LeftMenu extends VerticalLayout implements MenuComponent<VerticalLayout> {
-	
-	public static final String STYLE_NAME = "leftMenu";
-	
+		
 	public LeftMenu() {
-		super();
 		setWidth(250, Unit.EM);
 		setHeight(100, Unit.PERCENTAGE);
-		setStyleName(STYLE_NAME);
+		setStyleName(Styles.leftMenu.toString());
 		setMargin(false);
 		setSpacing(false);
 	}

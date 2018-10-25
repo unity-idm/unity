@@ -305,8 +305,8 @@ $wb-white-color: rgb(245, 245, 245);
         }
         
         
-        $tooltip-background: rgb(25, 118, 210);
-        $tooltip-active-background: rgb(51, 105, 30);
+        $tooltip-background: rgba(0,0,0,0);
+        $tooltip-active-background: rgba(0,0,0,0);
         
         // white theme
         &.white {

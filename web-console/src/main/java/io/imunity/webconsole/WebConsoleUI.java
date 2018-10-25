@@ -28,7 +28,7 @@ import io.imunity.webconsole.layout.LeftMenu;
 import io.imunity.webconsole.layout.TopMenu;
 import io.imunity.webconsole.layout.WebConsoleLayout;
 import io.imunity.webconsole.leftmenu.components.MenuButton;
-import io.imunity.webconsole.leftmenu.components.MenuLabelClickable;
+import io.imunity.webconsole.leftmenu.components.MenuLabel;
 import io.imunity.webconsole.leftmenu.components.SubMenu;
 import io.imunity.webconsole.other.OtherServices;
 import io.imunity.webconsole.topmenu.components.TopMenuTextField;
@@ -96,15 +96,13 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 
 		LeftMenu leftMenu = webConsoleLayout.getLeftMenu();
-		MenuLabelClickable label = MenuLabelClickable.get()
+		MenuLabel label = MenuLabel.get()
 				.withIcon(Images.logoSmall.getResource());
 
 		label.addLayoutClickListener(e -> {
 			webConsoleLayout.getLeftMenu().toggleSize();
 		});
 		leftMenu.add(label);
-
-		leftMenu.setHeight(100, Unit.PERCENTAGE);
 
 		MenuButton dashboard = leftMenu.add(MenuButton.get()
 				.withCaption(msg.getMessage("WebConsoleUIMenu.dashboard"))

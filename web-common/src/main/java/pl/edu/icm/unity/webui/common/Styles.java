@@ -95,9 +95,26 @@ public enum Styles
 	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
-	vDropLayout("drop-layout"),
-	vGroupBrowser("v-tree8");
+	vDropLayout("drop-layout"),	
+	vGroupBrowser("v-tree8"),
 	
+	
+	//webConsole
+	breadcrumbs("breadcrumbs"),
+	leftMenu("leftMenu"),
+	topMenu("topMenu"),
+	webConsole("webConsole"),
+	contentBox("contentBox"),
+	rootContent("rootContent"),
+	wbWhite("white"),
+	menuButton("menuButton"),
+	menuButtonClickable("clickable"),
+	menuButtonActive("active"),
+	menuLabel("menuLabel"),
+	subMenu("subMenu"),
+	subMenuOpen("open"),
+	topMenuTextField("topMenuTextField"),
+	tooltip("toolTip");
 	
 	/**
 	 * Number of columns for wider then regular text fields.

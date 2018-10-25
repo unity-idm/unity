@@ -15,6 +15,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.layout.MenuComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Submenu component. Contains show/hide button and layout for submenu content. 
@@ -23,9 +24,6 @@ import pl.edu.icm.unity.webui.common.Images;
  */
 public class SubMenu extends VerticalLayout implements MenuComponent<VerticalLayout>
 {
-	public static final String STYLE_NAME = "subMenu";
-	public static final String OPEN_STYLE = "open";
-	
 	private MenuButton button;
 	private VerticalLayout content;
 	
@@ -58,10 +56,10 @@ public class SubMenu extends VerticalLayout implements MenuComponent<VerticalLay
 		content = new VerticalLayout();
 		content.setMargin(false);
 		content.setSpacing(false);
-		super.setMargin(false);
-		super.setSpacing(false);
-		super.addComponents(button, content);
-		setPrimaryStyleName(STYLE_NAME);
+		setMargin(false);
+		setSpacing(false);
+		addComponents(button, content);
+		setPrimaryStyleName(Styles.subMenu.toString());
 	}
 
 	@Override
@@ -102,26 +100,26 @@ public class SubMenu extends VerticalLayout implements MenuComponent<VerticalLay
 	public SubMenu open()
 	{
 		button.setActive(true);
-		addStyleName(OPEN_STYLE);
+		addStyleName(Styles.subMenuOpen.toString());
 		return this;
 	}
 
 	public SubMenu close()
 	{
 		button.setActive(false);
-		removeStyleName(OPEN_STYLE);
+		removeStyleName(Styles.subMenuOpen.toString());
 		return this;
 	}
 
 	public boolean isOpen()
 	{
-		return getStyleName().contains(OPEN_STYLE);
+		return getStyleName().contains(Styles.subMenuOpen.toString());
 	}
 
 	@Override
 	public String getRootStyle()
 	{
-		return STYLE_NAME;
+		return Styles.subMenu.toString();
 	}
 
 	public <C extends MenuComponent<?>> C add(C c)

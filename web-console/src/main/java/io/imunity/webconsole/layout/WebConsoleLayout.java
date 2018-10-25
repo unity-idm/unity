@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webconsole.layout;
 
 import java.util.List;
@@ -17,142 +16,139 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.Dashboard;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Main layout of Webconsole endpoint
+ * 
  * @author P.Piernik
  *
  */
-public class WebConsoleLayout extends VerticalLayout {
-	
-	public static final String STYLE_NAME = "webConsole";
-	
-	private DefaultViewChangeManager viewChangeManager = new DefaultViewChangeManager();
-	private boolean buildRunning = false;
+public class WebConsoleLayout extends VerticalLayout
+{
 
-	private HorizontalLayout content = new HorizontalLayout();
-	
-	private BreadCrumbs breadcrumbs = null;
-	private Layout naviRootContent = null;
-	private VerticalLayout rootContent = new VerticalLayout();
-	private TopMenu topMenu = new TopMenu();
-	private LeftMenu leftMenu = new LeftMenu();
+	private DefaultViewChangeManager viewChangeManager;
 	private ViewProvider viewProvider;
+	
+	private HorizontalLayout rootContent;
+	private BreadCrumbs breadcrumbs;
+	private Layout naviContent;
+	private TopMenu topMenu;
+	private LeftMenu leftMenu;
+	
 
-	public static WebConsoleLayout get() {
+	public static WebConsoleLayout get()
+	{
 		return new WebConsoleLayout();
 	}
-	
-	public WebConsoleLayout() {
-		super();
+
+	public WebConsoleLayout()
+	{
 		setSizeFull();
-		setStyleName(STYLE_NAME);
+		setStyleName(Styles.webConsole.toString());
 		setMargin(false);
 		setSpacing(false);
+		topMenu = new TopMenu();
+		leftMenu = new LeftMenu();
+		viewChangeManager = new DefaultViewChangeManager();
 	}
 
 	public WebConsoleLayout build()
 	{
-		if (!buildRunning)
-		{
-			UI ui = UI.getCurrent();
+		UI ui = UI.getCurrent();
 
-			if (naviRootContent == null)
+		if (naviContent == null)
+		{
+			naviContent = new VerticalLayout();
+		}
+		naviContent.setSizeFull();
+		naviContent.setStyleName(Styles.contentBox.toString());
+
+		new Navigator(ui, naviContent);
+		ui.getNavigator().setErrorView(Dashboard.class);
+		ui.getNavigator().addProvider(viewProvider);
+
+		ui.getNavigator().addViewChangeListener(new ViewChangeListener()
+		{
+			@Override
+			public boolean beforeViewChange(ViewChangeEvent event)
 			{
-				naviRootContent = new VerticalLayout();
+				return true;
 			}
 
-		//	naviRootContent.setWidth(100, Unit.PERCENTAGE);
-			naviRootContent.setSizeFull();
-			naviRootContent.setStyleName("contentBox");
-
-			new Navigator(ui, naviRootContent);
-			ui.getNavigator().setErrorView(Dashboard.class);
-			ui.getNavigator().addProvider(viewProvider);
-			
-			
-			ui.getNavigator().addViewChangeListener(new ViewChangeListener()
+			@Override
+			public void afterViewChange(ViewChangeEvent event)
 			{
-				@Override
-				public boolean beforeViewChange(ViewChangeEvent event)
-				{
-					return true;
-				}
+				List<MenuComponent<?>> menuContentList = viewChangeManager
+						.init(WebConsoleLayout.this);
+				viewChangeManager.manage(WebConsoleLayout.this, leftMenu, event,
+						menuContentList);
+				viewChangeManager.finish(WebConsoleLayout.this, menuContentList);
+			}
+		});
 
-				@Override
-				public void afterViewChange(ViewChangeEvent event)
-				{
-					List<MenuComponent<?>> menuContentList = viewChangeManager
-							.init(WebConsoleLayout.this);
-					viewChangeManager.manage(WebConsoleLayout.this, leftMenu, event,
-							menuContentList);
-					viewChangeManager.finish(WebConsoleLayout.this, menuContentList);
-				}
-			});
+		addComponent(topMenu);
 
-			addComponent(topMenu);
+		rootContent = new HorizontalLayout();
+		rootContent.setSizeFull();
+		rootContent.setMargin(false);
+		rootContent.setSpacing(false);
+		rootContent.setStyleName(Styles.rootContent.toString());
 
-			content.setSizeFull();
-			content.setMargin(false);
-			content.setSpacing(false);
-			content.setStyleName("rootContent");
-			addComponent(content);
-			setExpandRatio(content, 1f);
+		VerticalLayout naviContentWrapper = new VerticalLayout();
+		naviContentWrapper.setMargin(false);
+		naviContentWrapper.setSpacing(false);
+		naviContentWrapper.setSizeFull();
+		breadcrumbs = new BreadCrumbs();
+		naviContentWrapper.addComponents(breadcrumbs, naviContent);
+		naviContentWrapper.setExpandRatio(naviContent, 1f);
 
-			content.addComponents(leftMenu, rootContent);
-			content.setExpandRatio(rootContent, 1f);
+		rootContent.addComponents(leftMenu, naviContentWrapper);
+		rootContent.setExpandRatio(naviContentWrapper, 1f);
 
-			rootContent.setMargin(false);
-			rootContent.setSpacing(false);
-			rootContent.setSizeFull();
-			breadcrumbs = new BreadCrumbs();
-			rootContent.addComponent(breadcrumbs);
-			rootContent.addComponent(naviRootContent);
-			rootContent.setExpandRatio(naviRootContent, 1f);
+		addComponent(rootContent);
+		setExpandRatio(rootContent, 1f);
 
-			addStyleName("white");
-			//VaadinSession.getCurrent().setAttribute(WebConsoleLayout.class, this);
-			buildRunning = true;
-		}
+		addStyleName(Styles.wbWhite.toString());
+
 		return this;
 	}
-	
-	public VerticalLayout getRootContent() {
-		return rootContent;
-	}
-	
-	public LeftMenu getLeftMenu() {
+
+	public LeftMenu getLeftMenu()
+	{
 		return leftMenu;
 	}
-	
-	public TopMenu getTopMenu() {
+
+	public TopMenu getTopMenu()
+	{
 		return topMenu;
 	}
-	
-	public BreadCrumbs getBreadCrumbs() {
+
+	public BreadCrumbs getBreadCrumbs()
+	{
 		return breadcrumbs;
 	}
-	
 
-	public Layout getNaviContent() {
-		return naviRootContent;
+	public Layout getNaviContent()
+	{
+		return naviContent;
 	}
-	
-	public WebConsoleLayout withNaviContent(Layout naviRootContent) {
-		this.naviRootContent = naviRootContent;
+
+	public WebConsoleLayout withNaviContent(Layout naviRootContent)
+	{
+		this.naviContent = naviRootContent;
 		return this;
 	}
-	
+
 	public WebConsoleLayout withViewProvider(ViewProvider provider)
 	{
 		this.viewProvider = provider;
 		return this;
 	}
-	
-	public void setViewChangeManager(DefaultViewChangeManager viewChangeManager) {
+
+	public void setViewChangeManager(DefaultViewChangeManager viewChangeManager)
+	{
 		this.viewChangeManager = viewChangeManager;
 	}
-
-
 
 }
