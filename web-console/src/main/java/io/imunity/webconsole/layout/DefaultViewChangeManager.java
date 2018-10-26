@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webconsole.layout;
 
 import java.util.ArrayList;
@@ -16,7 +15,8 @@ import io.imunity.webconsole.leftmenu.components.MenuLabel;
 import io.imunity.webconsole.leftmenu.components.SubMenu;
 
 /**
- * Controls menu and breadcrumbs refreshing after each view change 
+ * Controls menu and breadcrumbs refreshing after each view change
+ * 
  * @author P.Piernik
  *
  */
@@ -29,7 +29,7 @@ public class DefaultViewChangeManager
 		return new ArrayList<MenuComponent<?>>();
 	}
 
-	public boolean manage(WebConsoleLayout hybridMenu, MenuComponent<?> menuComponent,
+	public boolean manage(WebConsoleLayout wbLayout, MenuComponent<?> menuComponent,
 			ViewChangeEvent event, List<MenuComponent<?>> menuContentList)
 	{
 		boolean foundActiveButton = false;
@@ -41,7 +41,7 @@ public class DefaultViewChangeManager
 			{
 				for (MenuComponent<?> cacheMenuComponent : menuComponent.getList())
 				{
-					if (manage(hybridMenu, cacheMenuComponent, event,
+					if (manage(wbLayout, cacheMenuComponent, event,
 							cacheMenuContentList))
 					{
 						foundActiveButton = true;
@@ -54,10 +54,10 @@ public class DefaultViewChangeManager
 				current.setActive(foundActiveButton);
 				if (foundActiveButton)
 				{
-					add(hybridMenu, MenuButton.get()
-							.withCaption(menuComponent.getCaption())
-							.clickable()
-							.withClickListener(
+					add(wbLayout, MenuButton.get()
+							.withCaption(current.getBreadCrumbProvider()
+									.getBreadCrumb(event))
+							.clickable().withClickListener(
 									e -> ((MenuButton) menuComponent)
 											.click()),
 							menuContentList);
@@ -66,12 +66,9 @@ public class DefaultViewChangeManager
 
 				if (checkButton(current, event))
 				{
-					add(hybridMenu, MenuButton.get()
-							.withCaption(menuComponent.getCaption())
-							.clickable()
-							.withClickListener(
-									e -> ((MenuButton) menuComponent)
-											.click()),
+					add(wbLayout, MenuButton.get()
+							.withCaption(current.getBreadCrumbProvider()
+									.getBreadCrumb(event)),
 							cacheMenuContentList);
 					foundActiveButton = true;
 
@@ -91,7 +88,7 @@ public class DefaultViewChangeManager
 						breadCrumButton.setToolTip(
 								hmSubMenu.getButton().getToolTip());
 						breadCrumButton.removeToolTip();
-						add(hybridMenu, breadCrumButton, menuContentList);
+						add(wbLayout, breadCrumButton, menuContentList);
 						hmSubMenu.open();
 					} else
 					{
@@ -107,12 +104,13 @@ public class DefaultViewChangeManager
 		return foundActiveButton;
 	}
 
-	public void add(WebConsoleLayout hybridMenu, MenuComponent<?> menuComponent,
+	public void add(WebConsoleLayout wbLayout, MenuComponent<?> menuComponent,
 			List<MenuComponent<?>> menuContentList)
 	{
-		if (hybridMenu.getBreadCrumbs().getRoot() != null || menuContentList.size() > 0)
+		if (wbLayout.getBreadCrumbs().getRoot() != null || menuContentList.size() > 0)
 		{
-			menuContentList.add(MenuLabel.get().withCaption(BreadCrumbs.BREADCRUMB_SEPARATOR));
+			menuContentList.add(MenuLabel.get()
+					.withCaption(BreadCrumbs.BREADCRUMB_SEPARATOR));
 		}
 		menuContentList.add(menuComponent);
 	}

@@ -20,6 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.authentication.Flows;
 import io.imunity.webconsole.authentication.Routes;
+import io.imunity.webconsole.authentication.realms.EditRealm;
 import io.imunity.webconsole.authentication.realms.NewRealm;
 import io.imunity.webconsole.authentication.realms.Realms;
 import io.imunity.webconsole.idprovider.OAuth;
@@ -142,8 +143,13 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		MenuButton newRealm = MenuButton.get()
 				.withCaption(msg.getMessage("WebConsoleUIMenu.newRealm"))
 				.withNavigateTo(NewRealm.class);
+		
+		MenuButton editRealm = MenuButton.get()
+				.withCaption(msg.getMessage("WebConsoleUIMenu.editRealm"))
+				.withNavigateTo(EditRealm.class).withBreadCrumbProvider(e -> e.getParameters());
 
 		realms.add(newRealm);
+		realms.add(editRealm);
 
 		authentication.add(realms);
 

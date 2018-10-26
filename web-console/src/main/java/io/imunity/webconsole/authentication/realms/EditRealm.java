@@ -14,21 +14,20 @@ import com.vaadin.ui.UI;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
- * View for add realm
+ * View for edit realm
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class NewRealm extends AbstractEditRealm
+public class EditRealm extends AbstractEditRealm
 {
-
+	
 	@Autowired
-	public NewRealm(UnityMessageSource msg, RealmController controller)
+	public EditRealm(UnityMessageSource msg, RealmController controller)
 	{
 		super(msg, controller);
 	}
@@ -40,38 +39,49 @@ public class NewRealm extends AbstractEditRealm
 		{
 			return;
 		}
-
+			
 		try
 		{
-			if (!controller.addRealm(binder.getBean()))
+			if (!controller.updateRealm(binder.getBean()))
 				return;
 		} catch (Exception e)
 		{
-			// TODO
+			//TODO
 			NotificationPopup.showError(msg, "IVALID REALM", e);
 			return;
 		}
-
+			
+			
+			
 		UI.getCurrent().getNavigator().navigateTo(Realms.class.getSimpleName());
-
+		
 	}
 
 	@Override
 	protected void onCancel()
 	{
 		UI.getCurrent().getNavigator().navigateTo(Realms.class.getSimpleName());
-
+		
 	}
 
+
 	@Override
-	protected void init(Map<String, String> parameters)
+	protected void init(Map<String, String> parameters) throws Exception
 	{
-		AuthenticationRealm bean = new AuthenticationRealm();
-		bean.setRememberMePolicy(RememberMePolicy.allowFor2ndFactor);
-		bean.setAllowForRememberMeDays(14);
-		bean.setBlockFor(60);
-		bean.setMaxInactivity(1800);
-		bean.setBlockAfterUnsuccessfulLogins(5);
-		binder.setBean(bean);
+		if (parameters.isEmpty())
+				throw new Exception("");
+		
+		
+		
+		for (AuthenticationRealm realm : controller.getRealms())
+		{
+			if (realm.getName().equals(parameters.keySet().iterator().next()))
+			{
+				binder.setBean(realm);
+			}
+		}
+		name.setReadOnly(true);
+		
+		
 	}
 }

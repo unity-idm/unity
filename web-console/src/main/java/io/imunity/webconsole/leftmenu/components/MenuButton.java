@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.vaadin.navigator.View;
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
@@ -27,6 +28,7 @@ public class MenuButton extends Button implements MenuComponent<MenuButton>
 
 	private String toolTip;
 	private String navigateTo;
+	private BreadCrumbProvider breadCrumbProvider;
 
 	private List<MenuComponent<?>> components;
 
@@ -78,6 +80,7 @@ public class MenuButton extends Button implements MenuComponent<MenuButton>
 
 		}
 		setPrimaryStyleName(Styles.menuButton.toString());
+		breadCrumbProvider = e -> getCaption();
 	}
 
 	public MenuButton withStyleName(String style)
@@ -136,6 +139,14 @@ public class MenuButton extends Button implements MenuComponent<MenuButton>
 			UI.getCurrent().getNavigator().navigateTo(link);
 		});
 	}
+	
+
+	public MenuButton withBreadCrumbProvider(BreadCrumbProvider provider)
+	{
+		this.breadCrumbProvider = provider;
+		return this;
+	}
+
 
 	public <T extends View> MenuButton withNavigateTo(Class<T> viewClass)
 	{
@@ -223,6 +234,11 @@ public class MenuButton extends Button implements MenuComponent<MenuButton>
 	{
 		return navigateTo;
 	}
+	
+	public BreadCrumbProvider getBreadCrumbProvider()
+	{
+		return breadCrumbProvider;
+	}
 
 	@Override
 	public String getRootStyle()
@@ -269,4 +285,10 @@ public class MenuButton extends Button implements MenuComponent<MenuButton>
 	{
 		return components;
 	}
+	
+	public interface BreadCrumbProvider 
+	{
+		public String getBreadCrumb(ViewChangeEvent event);
+	}
+	
 }

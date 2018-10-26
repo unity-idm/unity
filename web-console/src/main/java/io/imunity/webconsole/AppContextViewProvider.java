@@ -50,6 +50,11 @@ public class AppContextViewProvider implements ViewProvider
 	@Override
 	public String getViewName(String viewAndParameters)
 	{
+		for (String view : viewList.keySet())
+		{
+			if (viewAndParameters.startsWith(view))
+				return view;
+		}
 		return viewAndParameters;
 	}
 
