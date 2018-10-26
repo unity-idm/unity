@@ -920,7 +920,7 @@ public class EntityManagementImpl implements EntityManagement
 		for (Identity id: all)
 			if (id.getTarget() == null || id.getTarget().equals(target))
 				ret.add(id);
-		Set<String> presentTypes = new HashSet<String>();
+		Set<String> presentTypes = new HashSet<>();
 		for (Identity id: ret)
 			presentTypes.add(id.getTypeId());
 		if (allowCreate)

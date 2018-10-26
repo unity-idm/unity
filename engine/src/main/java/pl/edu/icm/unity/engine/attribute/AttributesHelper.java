@@ -274,7 +274,7 @@ public class AttributesHelper
 	{
 		Map<String, Map<String, AttributeExt>> asMap = getAllAttributesAsMap(entityId, groupPath, effective, 
 				attributeTypeName);
-		List<AttributeExt> ret = new ArrayList<AttributeExt>();
+		List<AttributeExt> ret = new ArrayList<>();
 		for (Map<String, AttributeExt> entry: asMap.values())
 			ret.addAll(entry.values());
 		return ret;
