@@ -28,6 +28,8 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
  * @author P.Piernik
  *
  */
+//FIXME -> use composition instead of inheritance. So that you can have ConfirmView, which takes come 
+//other component as its contents. 
 public abstract class AbstractEditRealm extends AbstractConfirmView
 {
 	protected Binder<AuthenticationRealm> binder;

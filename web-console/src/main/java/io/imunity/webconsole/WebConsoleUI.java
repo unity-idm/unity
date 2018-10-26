@@ -95,7 +95,6 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 
 	private void buildLeftMenu()
 	{
-
 		LeftMenu leftMenu = webConsoleLayout.getLeftMenu();
 		MenuLabel label = MenuLabel.get()
 				.withIcon(Images.logoSmall.getResource());
@@ -148,6 +147,13 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 				.withCaption(msg.getMessage("WebConsoleUIMenu.editRealm"))
 				.withNavigateTo(EditRealm.class).withBreadCrumbProvider(e -> e.getParameters());
 
+		//FIXME - I think this is a good example of a problem with this design: is "new realm" a button? no it is not.
+		//is realms button in left menu a parent of button "new realm"? it is not. 
+		//I think what is mixed up here are views, their relationships and elements of menus. 
+		//I'd suggest: create a structure of views. A new interface (e.g. UIView). UIView can have parent and subordinary UIViews.
+		//UIView may provide a component to be inserted to left menu 
+		//(note: LeftMenu has very trivial needs for its contents, basically just a Component)
+		// menu element UI != menu element. One menu element may have different UIs etc.
 		realms.add(newRealm);
 		realms.add(editRealm);
 

@@ -21,7 +21,8 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 public class Routes extends VerticalLayout implements View
 {
 	@Override
-	public void enter(ViewChangeEvent event) {
+	public void enter(ViewChangeEvent event) 
+	{
 		Label title = new Label();
 		
 		title.setCaption("Routes");
