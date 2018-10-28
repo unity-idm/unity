@@ -23,6 +23,7 @@ import io.imunity.webconsole.authentication.Routes;
 import io.imunity.webconsole.authentication.realms.EditRealm;
 import io.imunity.webconsole.authentication.realms.NewRealm;
 import io.imunity.webconsole.authentication.realms.Realms;
+import io.imunity.webconsole.authentication.realms.ViewRealm;
 import io.imunity.webconsole.idprovider.OAuth;
 import io.imunity.webconsole.idprovider.SAML;
 import io.imunity.webconsole.layout.LeftMenu;
@@ -146,6 +147,10 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		MenuButton editRealm = MenuButton.get()
 				.withCaption(msg.getMessage("WebConsoleUIMenu.editRealm"))
 				.withNavigateTo(EditRealm.class).withBreadCrumbProvider(e -> e.getParameters());
+		
+		MenuButton viewRealm = MenuButton.get()
+				.withCaption(msg.getMessage("WebConsoleUIMenu.viewRealm"))
+				.withNavigateTo(ViewRealm.class).withBreadCrumbProvider(e -> e.getParameters());
 
 		//FIXME - I think this is a good example of a problem with this design: is "new realm" a button? no it is not.
 		//is realms button in left menu a parent of button "new realm"? it is not. 
@@ -156,6 +161,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		// menu element UI != menu element. One menu element may have different UIs etc.
 		realms.add(newRealm);
 		realms.add(editRealm);
+		realms.add(viewRealm);
 
 		authentication.add(realms);
 

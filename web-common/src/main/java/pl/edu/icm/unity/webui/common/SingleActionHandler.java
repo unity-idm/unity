@@ -111,6 +111,19 @@ public class SingleActionHandler<T>
 	 * @param clazz
 	 * @return
 	 */
+	public static <T> Builder<T> builder4ShowDetails(UnityMessageSource msg, Class<T> clazz)
+	{
+		return new Builder<T>()
+				.withCaption(msg.getMessage("showDetails"))
+				.withIcon(Images.info.getResource());
+	}
+	
+	/**
+	 * Sets icon and caption
+	 * @param msg
+	 * @param clazz
+	 * @return
+	 */
 	public static <T> Builder<T> builder4Copy(UnityMessageSource msg, Class<T> clazz)
 	{
 		return new Builder<T>()

@@ -5,86 +5,67 @@
 
 package io.imunity.webconsole.authentication.realms;
 
-import java.util.Map;
-
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
-import io.imunity.webconsole.common.AbstractConfirmView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 
 /**
- * Base for realm editor.
+ * Authentication realm editor.
  * 
  * @author P.Piernik
  *
  */
-//FIXME -> use composition instead of inheritance. So that you can have ConfirmView, which takes come 
-//other component as its contents. 
-public abstract class AbstractEditRealm extends AbstractConfirmView
+public class AuthenticationRealmEditor extends CustomComponent
 {
-	protected Binder<AuthenticationRealm> binder;
 
-	protected TextField name;
-
+	private Binder<AuthenticationRealm> binder;
+	private TextField name;
 	private TextArea description;
-
 	private IntStepper blockFor;
-
 	private IntStepper blockAfterUnsuccessfulLogins;
-
 	private IntStepper maxInactivity;
-
 	private IntStepper allowForRememberMeDays;
-
 	private ComboBox<RememberMePolicy> rememberMePolicy;
 
-	protected RealmController controller;
-
-	public AbstractEditRealm(UnityMessageSource msg, RealmController controller)
+	public AuthenticationRealmEditor(UnityMessageSource msg,
+			AuthenticationRealm toEdit)
 	{
-		super(msg, msg.getMessage("ok"), msg.getMessage("cancel"));
-		this.controller = controller;
-	}
+		name = new TextField(msg.getMessage("AuthenticationRealm.name"));
 
-	@Override
-	protected Component getContents(Map<String, String> parameters) throws Exception
-	{
-		name = new TextField(msg.getMessage("RealmEditor.name"));
+		description = new DescriptionTextArea(msg.getMessage("AuthenticationRealm.description"));
 
-		description = new DescriptionTextArea(msg.getMessage("RealmEditor.description"));
-
-		blockFor = new IntStepper(msg.getMessage("RealmEditor.blockFor"));
+		blockFor = new IntStepper(msg.getMessage("AuthenticationRealm.blockFor"));
 		blockFor.setMinValue(1);
 		blockFor.setMaxValue(999);
 		blockFor.setWidth(4, Unit.EM);
 
 		blockAfterUnsuccessfulLogins = new IntStepper(
-				msg.getMessage("RealmEditor.blockAfterUnsuccessfulLogins"));
+				msg.getMessage("AuthenticationRealm.blockAfterUnsuccessfulLogins"));
 		blockAfterUnsuccessfulLogins.setMinValue(1);
 		blockAfterUnsuccessfulLogins.setMaxValue(999);
 		blockAfterUnsuccessfulLogins.setWidth(4, Unit.EM);
 
 		allowForRememberMeDays = new IntStepper(
-				msg.getMessage("RealmEditor.allowForRememberMeDays"));
+				msg.getMessage("AuthenticationRealm.allowForRememberMeDays"));
 		allowForRememberMeDays.setMinValue(1);
 		allowForRememberMeDays.setMaxValue(999);
 		allowForRememberMeDays.setWidth(4, Unit.EM);
 
-		rememberMePolicy = new ComboBox<>(msg.getMessage("RealmEditor.rememberMePolicy"));
+		rememberMePolicy = new ComboBox<>(msg.getMessage("AuthenticationRealm.rememberMePolicy"));
 		rememberMePolicy.setItems(RememberMePolicy.values());
 		rememberMePolicy.setEmptySelectionAllowed(false);
 
-		maxInactivity = new IntStepper(msg.getMessage("RealmEditor.maxInactivity"));
+		maxInactivity = new IntStepper(msg.getMessage("AuthenticationRealm.maxInactivity"));
 		maxInactivity.setMinValue(1);
 		maxInactivity.setMaxValue(9999);
 		maxInactivity.setWidth(4, Unit.EM);
@@ -107,13 +88,26 @@ public abstract class AbstractEditRealm extends AbstractConfirmView
 
 		binder.forField(maxInactivity).asRequired(msg.getMessage("fieldRequired"))
 				.bind("maxInactivity");
-		init(parameters);
+		binder.setBean(toEdit);
 		FormLayout mainLayout = new FormLayout();
 
 		mainLayout.addComponents(name, description, blockFor, blockAfterUnsuccessfulLogins,
 				allowForRememberMeDays, rememberMePolicy, maxInactivity);
-		return mainLayout;
+		setCompositionRoot(mainLayout);
 	}
 
-	protected abstract void init(Map<String, String> parameters) throws Exception;
+	public void editMode()
+	{
+		name.setReadOnly(true);
+	}
+	
+	public boolean hasErrors()
+	{
+		return binder.validate().hasErrors();
+	}
+
+	public AuthenticationRealm getAuthenticationRealm()
+	{
+		return binder.getBean();
+	}
 }

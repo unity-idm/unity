@@ -9,8 +9,11 @@ import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
 
+import io.imunity.webconsole.common.AbstractConfirmView;
+import io.imunity.webconsole.common.ControllerException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -24,31 +27,34 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  *
  */
 @PrototypeComponent
-public class NewRealm extends AbstractEditRealm
+public class NewRealm extends AbstractConfirmView
 {
+	private RealmController controller;
+	private AuthenticationRealmEditor editor;
 
 	@Autowired
 	public NewRealm(UnityMessageSource msg, RealmController controller)
 	{
-		super(msg, controller);
+		super(msg, msg.getMessage("ok", msg.getMessage("cancel")));
+		this.controller = controller;
 	}
 
 	@Override
 	protected void onConfirm()
 	{
-		if (binder.validate().hasErrors())
+		if (editor.hasErrors())
 		{
 			return;
 		}
 
 		try
 		{
-			if (!controller.addRealm(binder.getBean()))
+			if (!controller.addRealm(editor.getAuthenticationRealm()))
 				return;
-		} catch (Exception e)
+		} catch (ControllerException e)
 		{
-			// TODO
-			NotificationPopup.showError(msg, "IVALID REALM", e);
+
+			NotificationPopup.showError(e.getErrorCaption(), e.getErrorDetails());
 			return;
 		}
 
@@ -64,14 +70,16 @@ public class NewRealm extends AbstractEditRealm
 	}
 
 	@Override
-	protected void init(Map<String, String> parameters)
+	protected Component getContents(Map<String, String> params) throws Exception
 	{
 		AuthenticationRealm bean = new AuthenticationRealm();
+		bean.setName(msg.getMessage("AuthenticationRealm.defaultName"));
 		bean.setRememberMePolicy(RememberMePolicy.allowFor2ndFactor);
 		bean.setAllowForRememberMeDays(14);
 		bean.setBlockFor(60);
 		bean.setMaxInactivity(1800);
 		bean.setBlockAfterUnsuccessfulLogins(5);
-		binder.setBean(bean);
+		editor = new AuthenticationRealmEditor(msg, bean);
+		return editor;
 	}
 }
