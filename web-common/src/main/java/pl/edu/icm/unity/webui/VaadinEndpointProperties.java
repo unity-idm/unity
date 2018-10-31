@@ -6,9 +6,11 @@ package pl.edu.icm.unity.webui;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
@@ -47,6 +49,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String AUTO_LOGIN = "autoLogin";
 	
 	public static final String ENABLE_REGISTRATION = "enableRegistration";
+	public static final String EXTERNAL_REGISTRATION_URL = "externalRegistrationURL";
 	public static final String ENABLED_REGISTRATION_FORMS = "enabledRegistrationForms.";
 	public static final String SHOW_REGISTRATION_FORMS_IN_HEADER = "showRegistrationFormsInHeader";
 
@@ -191,6 +194,10 @@ public class VaadinEndpointProperties extends PropertiesHelper
 		
 		META.put(ENABLE_REGISTRATION, new PropertyMD("false").
 				setDescription("Controls if registration option should be allowed for an endpoint."));
+		META.put(EXTERNAL_REGISTRATION_URL, new PropertyMD().
+				setDescription("If set then registration links on the authentication screen are not "
+						+ "showing any Unity-provided registration forms, but redirect "
+						+ "straight to the given address."));
 		META.put(SHOW_REGISTRATION_FORMS_IN_HEADER, new PropertyMD("false").
 				setDescription("Displays the links with registration forms in the top right corner of page, if registration "
 						+ "is configured."));
@@ -230,10 +237,15 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	
 	public EndpointRegistrationConfiguration getRegistrationConfiguration()
 	{
+		String extURL = getValue(EXTERNAL_REGISTRATION_URL);
+		Optional<String> externalRegistrationURL = Strings.isEmpty(extURL) ? 
+				Optional.empty() : Optional.of(extURL);
+				
 		return new EndpointRegistrationConfiguration(getListOfValues(
 				VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS),
 				getBooleanValue(VaadinEndpointProperties.ENABLE_REGISTRATION),
-				getBooleanValue(VaadinEndpointProperties.SHOW_REGISTRATION_FORMS_IN_HEADER));
+				getBooleanValue(VaadinEndpointProperties.SHOW_REGISTRATION_FORMS_IN_HEADER),
+				externalRegistrationURL);
 	}
 
 }

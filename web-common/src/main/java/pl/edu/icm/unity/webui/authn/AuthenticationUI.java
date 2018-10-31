@@ -22,6 +22,7 @@ import org.springframework.context.annotation.Scope;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
@@ -118,7 +119,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				getSandboxServletURLForAssociation());
 		authenticationUI = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
 				this::showOutdatedCredentialDialog, 
-				this::showRegistrationLayout, 
+				this::showRegistration, 
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
 				unknownUserDialogProvider, 
@@ -188,6 +189,18 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			LOG.error("Failed to determine whether registration is enabled or not on "
 					+ "authentication screen.", e);
 			return false;
+		}
+	}
+	
+	private void showRegistration()
+	{
+		if (config.getRegistrationConfiguration().getExternalRegistrationURL().isPresent())
+		{
+			String redirectURL = config.getRegistrationConfiguration().getExternalRegistrationURL().get();
+			Page.getCurrent().open(redirectURL, null);
+		} else
+		{
+			showRegistrationLayout();
 		}
 	}
 	
