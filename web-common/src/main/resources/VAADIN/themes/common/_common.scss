@@ -421,6 +421,10 @@
 		@include flag-bg-template($flagImageDe);
 	}
 
+	.u-flag-bg-nb {
+		@include flag-bg-template($flagImageNo);
+	}
+
 	.v-menubar .v-menubar-submenu-indicator + .v-menubar-menuitem-caption::after {
 		margin: 0 -3px 0 -3px;
 		font-family: FontAwesome;

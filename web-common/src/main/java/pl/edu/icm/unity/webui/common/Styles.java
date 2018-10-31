@@ -124,6 +124,7 @@ public enum Styles
 		case "en":
 		case "pl":
 		case "de":
+		case "nb":
 			return "u-flag-bg-" + localeCode;
 		}
 		return null;
