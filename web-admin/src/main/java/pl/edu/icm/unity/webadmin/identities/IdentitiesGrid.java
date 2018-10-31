@@ -98,7 +98,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private final AttributeSupport attributeSupport;
 	private final IdentityTypeSupport idTypeSupport;
 	private final UnityMessageSource msg;
-	private final EntitiesLoader entitiesLoader;
+	private final EntitiesLoader2 entitiesLoader;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
 	
 	private boolean groupByEntity;
@@ -119,7 +119,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	@SuppressWarnings("unchecked")
 	@Autowired
 	public IdentitiesGrid(UnityMessageSource msg, AttributeSupport attributeSupport,
-			IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
+			IdentityTypeSupport idTypeSupport, EntitiesLoader2 entitiesLoader,
 			AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan)
 
 	{
@@ -292,8 +292,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		}
 	}
 	
-	private IdentityEntry createEntry(Identity id, Entity ent, Map<String, Attribute> rootAttributes,
-			Map<String, Attribute> curAttributes)
+	private IdentityEntry createEntry(Identity id, Entity ent, Map<String, ? extends Attribute> rootAttributes,
+			Map<String, ? extends Attribute> curAttributes)
 	{
 		String label = null;
 		if (entityNameAttribute != null && rootAttributes.containsKey(entityNameAttribute))
@@ -402,8 +402,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		}
 	}
 		
-	private Attribute getAttributeForColumnProperty(String propId, Map<String, Attribute> rootAttributes, 
-			Map<String, Attribute> curAttributes)
+	private Attribute getAttributeForColumnProperty(String propId, Map<String, ? extends Attribute> rootAttributes, 
+			Map<String, ? extends Attribute> curAttributes)
 	{
 		if (propId.startsWith(ATTR_CURRENT_COL_PREFIX))
 		{

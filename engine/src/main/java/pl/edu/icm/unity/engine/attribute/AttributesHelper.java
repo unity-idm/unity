@@ -35,6 +35,7 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
@@ -69,6 +70,7 @@ public class AttributesHelper
 	private MembershipDAO membershipDAO;
 	private AttributeStatementProcessor statementsHelper;
 	private AttributeTypeHelper atHelper;
+	private GroupDAO groupDAO;
 	
 	
 	
@@ -78,7 +80,8 @@ public class AttributesHelper
 			EntityDAO entityDAO, EntityResolver idResolver,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			MembershipDAO membershipDAO, AttributeStatementProcessor statementsHelper,
-			AttributeTypeHelper atHelper, AttributeClassUtil acUtil)
+			AttributeTypeHelper atHelper, AttributeClassUtil acUtil,
+			GroupDAO groupDAO)
 	{
 		this.atMetaProvidersRegistry = atMetaProvidersRegistry;
 		this.acDB = acDB;
@@ -91,6 +94,7 @@ public class AttributesHelper
 		this.statementsHelper = statementsHelper;
 		this.atHelper = atHelper;
 		this.acUtil = acUtil;
+		this.groupDAO = groupDAO;
 	}
 
 	/**
@@ -123,7 +127,8 @@ public class AttributesHelper
 		for (String group: groups)
 		{
 			Map<String, AttributeExt> inGroup = statementsHelper.getEffectiveAttributes(identities, 
-					group, attributeTypeName, allGroups, directAttributesByGroup, allClasses);
+					group, attributeTypeName, allGroups, directAttributesByGroup, allClasses,
+					groupDAO::get, attributeTypeDAO::get);
 			ret.put(group, inGroup);
 		}
 		return ret;

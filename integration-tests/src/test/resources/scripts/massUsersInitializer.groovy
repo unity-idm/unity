@@ -28,7 +28,8 @@ import groovy.transform.Field
 
 @Field final String NAME_ATTR = "name"
 @Field final String EMAIL_ATTR = "email";
-
+@Field final int ENTITIES = 10000;
+@Field final int GROUPS = 3000;
 
 //if (!isColdStart)
 //{
@@ -50,14 +51,44 @@ try
 		return;
 	}
 	
-	for (int i=0; i<1000; i++)
+	createExampleGroups();
+	for (int i=0; i<ENTITIES; i++)
 		createExampleUser(i);
+	addFirstUserToAllGroups();
 	
 } catch (Exception e)
 {
 	log.warn("Error loading demo contents. This can happen and by far is not critical. " +
 			"It means that demonstration contents was not loaded to your database, " +
 			"usaully due to conflict with its existing data", e);
+}
+
+void createExampleGroups()
+{
+	groupsManagement.addGroup(new Group("/root"));
+	for (int i=0; i<GROUPS; i++)
+	{
+		String grp = "/root/grp" + i;
+		groupsManagement.addGroup(new Group(grp));
+		log.warn("Group " + grp + " was created");
+	}
+}
+
+void addFirstUserToAllGroups()
+{
+	EntityParam entityP = new EntityParam(3);
+	groupsManagement.addMemberFromParent("/root", entityP);
+	for (int i=0; i<GROUPS; i++)
+	{
+		String grp = "/root/grp" + i;
+		groupsManagement.addMemberFromParent(grp, entityP);
+		log.warn("Added user to group " + grp);
+	}
+	
+	Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "System Manager");
+	attributesManagement.createAttribute(entityP, a);
+	PasswordToken pToken = new PasswordToken("the!test12");
+	entityCredentialManagement.setEntityCredential(entityP, EngineInitialization.DEFAULT_CREDENTIAL, pToken.toJson());
 }
 
 

@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.ThreadContext;
@@ -26,8 +27,6 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
-import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
@@ -35,6 +34,7 @@ import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeStatement.Direction;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
 
 /**
@@ -58,18 +58,13 @@ public class AttributeStatementProcessor
 		entityId;
 	}
 	
-	private GroupDAO groupDAO;
-	private AttributeTypeDAO atDAO;
 	private AttributeTypeHelper atHelper;
 	private AttributeValueConverter attrConverter;
 
 	
 	@Autowired
-	public AttributeStatementProcessor(GroupDAO groupDAO, AttributeTypeDAO atDAO,
-			AttributeTypeHelper atHelper, AttributeValueConverter attrConverter)
+	public AttributeStatementProcessor(AttributeTypeHelper atHelper, AttributeValueConverter attrConverter)
 	{
-		this.groupDAO = groupDAO;
-		this.atDAO = atDAO;
 		this.atHelper = atHelper;
 		this.attrConverter = attrConverter;
 	}
@@ -96,29 +91,28 @@ public class AttributeStatementProcessor
 	 * @param atMapper
 	 * @param gMapper
 	 * @return collected attributes in a map form. Map keys are attribute names.
-	 * @throws IllegalGroupValueException 
 	 * @throws WrongArgumentException 
 	 */
 	public Map<String, AttributeExt> getEffectiveAttributes(List<Identity> identities, String group, 
 			String queriedAttribute, 
 			Set<String> allGroups, Map<String, Map<String, AttributeExt>> directAttributesByGroup,
-			Map<String, AttributesClass> knownClasses) 
-					throws IllegalGroupValueException, IllegalTypeException
+			Map<String, AttributesClass> knownClasses,
+			Function<String, Group> groupInfoProvider,
+			Function<String, AttributeType> attrTypeProvider) 
 	{		
-		Map<String, Map<String, AttributeExt>> downwardsAttributes = 
-				new HashMap<String, Map<String,AttributeExt>>();
+		Map<String, Map<String, AttributeExt>> downwardsAttributes = new HashMap<>();
 		collectUpOrDownAttributes(Direction.downwards, group, null, identities, downwardsAttributes, 
-				directAttributesByGroup, allGroups, knownClasses);
+				directAttributesByGroup, allGroups, knownClasses, groupInfoProvider, attrTypeProvider);
 
-		Map<String, Map<String, AttributeExt>> upwardsAttributes = new HashMap<String, Map<String,AttributeExt>>();
+		Map<String, Map<String, AttributeExt>> upwardsAttributes = new HashMap<>();
 		collectUpOrDownAttributes(Direction.upwards, group, null, identities, upwardsAttributes, 
-				directAttributesByGroup, allGroups, knownClasses);
+				directAttributesByGroup, allGroups, knownClasses, groupInfoProvider, attrTypeProvider);
 
-		AttributeStatement[] statements = getGroupStatements(group);
+		AttributeStatement[] statements = getGroupStatements(group, groupInfoProvider);
 		
 		return processAttributeStatements(Direction.undirected, directAttributesByGroup, 
 				upwardsAttributes, downwardsAttributes, group, 
-				queriedAttribute, identities, statements, allGroups, knownClasses);
+				queriedAttribute, identities, statements, allGroups, knownClasses, attrTypeProvider);
 	}
 
 	/**
@@ -129,9 +123,9 @@ public class AttributeStatementProcessor
 	 * @return 
 	 * @throws IllegalGroupValueException 
 	 */
-	private AttributeStatement[] getGroupStatements(String groupPath) throws IllegalGroupValueException
+	private AttributeStatement[] getGroupStatements(String groupPath, Function<String, Group> groupInfoProvider) 
 	{
-		return groupDAO.get(groupPath).getAttributeStatements();
+		return groupInfoProvider.apply(groupPath).getAttributeStatements();
 	}
 	
 	/**
@@ -144,26 +138,16 @@ public class AttributeStatementProcessor
 	 * <li> normal processing of the statements of this group is performed, however only the input
 	 * for rules related to the groups in the mode is provided. Statements in opposite direction are ignored. 
 	 * </ol>
-	 * @param mode
-	 * @param groupPath
-	 * @param upOrDownAttributes
-	 * @param allAttributesByGroup
-	 * @param allGroups
-	 * @param mapper
-	 * @param gMapper
-	 * @throws IllegalGroupValueException 
-	 * @throws WrongArgumentException 
-	 * @throws IllegalAttributeTypeException 
-	 * @throws IllegalTypeException 
 	 */
 	private void collectUpOrDownAttributes(Direction mode, String groupPath, String queriedAttribute, 
 			List<Identity> identities,
 			Map<String, Map<String, AttributeExt>> upOrDownAttributes, 
 			Map<String, Map<String, AttributeExt>> allAttributesByGroup,
-			Set<String> allGroups, Map<String, AttributesClass> knownClasses) 
-			throws IllegalGroupValueException, IllegalTypeException
+			Set<String> allGroups, Map<String, AttributesClass> knownClasses,
+			Function<String, Group> groupInfoProvider,
+			Function<String, AttributeType> attrTypeProvider) 
 	{
-		AttributeStatement[] statements = getGroupStatements(groupPath);
+		AttributeStatement[] statements = getGroupStatements(groupPath, groupInfoProvider);
 		
 		Set<String> interestingGroups = new HashSet<String>();
 		for (AttributeStatement as: statements)
@@ -182,14 +166,14 @@ public class AttributeStatementProcessor
 				continue;
 			collectUpOrDownAttributes(mode, interestingGroup, queriedAttribute, identities,
 					upOrDownAttributes, allAttributesByGroup,
-					allGroups, knownClasses);
+					allGroups, knownClasses, groupInfoProvider, attrTypeProvider);
 		}
 		
 		Map<String, AttributeExt> ret = (mode == Direction.upwards) ? 
 				processAttributeStatements(mode, allAttributesByGroup, upOrDownAttributes, null,
-						groupPath, null, identities, statements, allGroups, knownClasses):
+						groupPath, null, identities, statements, allGroups, knownClasses, attrTypeProvider):
 				processAttributeStatements(mode, allAttributesByGroup, null, upOrDownAttributes, 
-						groupPath, null, identities, statements, allGroups, knownClasses);
+						groupPath, null, identities, statements, allGroups, knownClasses, attrTypeProvider);
 		upOrDownAttributes.put(groupPath, ret);
 	}
 	
@@ -208,8 +192,8 @@ public class AttributeStatementProcessor
 			Map<String, Map<String, AttributeExt>> upwardsAttributesByGroup,
 			Map<String, Map<String, AttributeExt>> downwardsAttributesByGroup,
 			String group, String queriedAttribute, List<Identity> identities, AttributeStatement[] statements, 
-			Set<String> allGroups, Map<String, AttributesClass> knownClasses) 
-					throws IllegalTypeException 
+			Set<String> allGroups, Map<String, AttributesClass> knownClasses,
+			Function<String, AttributeType> attrTypeProvider) 
 	{
 		Map<String, AttributeExt> collectedAttributes = new HashMap<String, AttributeExt>();
 		Map<String, AttributeExt> regularAttributesInGroup = allRegularAttributesByGroup.get(group);
@@ -254,7 +238,7 @@ public class AttributeStatementProcessor
 			{
 				processAttributeStatement(direction, group, as, queriedAttribute, identities, 
 						collectedAttributes, regularAttributesInGroup, extraAttributes, 
-						allGroups, acHelper);
+						allGroups, acHelper, attrTypeProvider);
 			} catch (Exception e) 
 			{
 				log.error("Error processing statement " + 
@@ -284,7 +268,8 @@ public class AttributeStatementProcessor
 			Map<String, AttributeExt> collectedAttributes,
 			Map<String, AttributeExt> regularGroupAttributes,
 			Map<String, AttributeExt> extraGroupAttributes,
-			Set<String> allGroups, AttributeClassHelper acHelper) 
+			Set<String> allGroups, AttributeClassHelper acHelper,
+			Function<String, AttributeType> attrTypeProvider) 
 	{
 		//we are in the recursive process of establishing downwards or upwards attributes and the
 		// statement is oppositely directed. 
@@ -305,7 +290,7 @@ public class AttributeStatementProcessor
 			return;
 		
 		Attribute ret = statement.dynamicAttributeMode() ? 
-				evaluateStatementValue(statement, group, context) : 
+				evaluateStatementValue(statement, group, context, attrTypeProvider) : 
 				statement.getFixedAttribute();
 		
 		if (ret == null)
@@ -332,7 +317,7 @@ public class AttributeStatementProcessor
 				return;
 			case merge:
 				log.trace("Conflict detected, will try to merge values");					
-				AttributeType at = atDAO.get(ret.getName());
+				AttributeType at = attrTypeProvider.apply(ret.getName());
 				if (at.getMaxElements() == Integer.MAX_VALUE)
 				{
 					((List)existing.getValues()).addAll(ret.getValues());
@@ -383,7 +368,7 @@ public class AttributeStatementProcessor
 	}
 
 	private Attribute evaluateStatementValue(AttributeStatement statement, 
-			String group, Map<String, Object> context)
+			String group, Map<String, Object> context, Function<String, AttributeType> attrTypeProvider)
 	{
 		Object value;
 		try
@@ -407,7 +392,7 @@ public class AttributeStatementProcessor
 		}
 		
 		String attributeName = statement.getDynamicAttributeType();
-		AttributeType attributeType = atDAO.get(attributeName);
+		AttributeType attributeType = attrTypeProvider.apply(attributeName);
 		AttributeValueSyntax<?> valueSyntax = atHelper.getSyntax(attributeType);
 		
 		List<String> typedValues;

@@ -50,7 +50,7 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 class EntitiesLoader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EntitiesLoader.class);
-	private static final int LOAD_IN_SYNC = 100;
+	private static final int LOAD_IN_SYNC = 10000;
 	private static final int CHUNK = 100;
 	private static final int UI_REFRESH = 250;
 	

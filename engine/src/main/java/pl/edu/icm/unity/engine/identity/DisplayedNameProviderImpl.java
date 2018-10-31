@@ -55,7 +55,7 @@ public class DisplayedNameProviderImpl implements DisplayedNameProvider
 	public String getDisplayedName(EntityParam entity) throws EngineException
 	{
 		long entityId = idResolver.getEntityId(entity);
-		AttributeType displayedNameAttr = attributesHelper.getAttributeTypeWithSingeltonMetadata(
+		AttributeType displayedNameAttr = attributesHelper.getAttributeTypeWithSingeltonMetadata(//TODO can be cached
 				EntityNameMetadataProvider.NAME);
 		if (displayedNameAttr != null)
 		{
@@ -69,7 +69,7 @@ public class DisplayedNameProviderImpl implements DisplayedNameProvider
 	@Override
 	public Map<Long, String> getDisplayedNamesInGroup(String group) throws EngineException
 	{
-		AttributeType displayedNameAttr = attributesHelper.getAttributeTypeWithSingeltonMetadata(
+		AttributeType displayedNameAttr = attributesHelper.getAttributeTypeWithSingeltonMetadata(//TODO can be cached
 				EntityNameMetadataProvider.NAME);
 		
 		// TODO Auto-generated method stub

@@ -15,6 +15,11 @@ import org.springframework.context.ApplicationEventPublisher;
  */
 public class RuntimeEngineException extends RuntimeException
 {
+	public RuntimeEngineException(String message)
+	{
+		super(message);
+	}
+	
 	public RuntimeEngineException(EngineException e)
 	{
 		super(e);

@@ -22,11 +22,11 @@ class ResolvedEntity
 {
 	private Entity entity;
 	private Set<Identity> identities;
-	private Map<String, Attribute> rootAttributes;
-	private Map<String, Attribute> currentAttributes;
+	private Map<String, ? extends Attribute> rootAttributes;
+	private Map<String, ? extends Attribute> currentAttributes;
 
 	public ResolvedEntity(Entity entity, List<Identity> identities, 
-			Map<String, Attribute> rootAttributes, Map<String, Attribute> currentAttributes)
+			Map<String, ? extends Attribute> rootAttributes, Map<String, ? extends Attribute> currentAttributes)
 	{
 		this.identities = new LinkedHashSet<>(identities); 
 		this.rootAttributes = rootAttributes;
@@ -44,12 +44,12 @@ class ResolvedEntity
 		return identities;
 	}
 
-	public Map<String, Attribute> getRootAttributes()
+	public Map<String, ? extends Attribute> getRootAttributes()
 	{
 		return rootAttributes;
 	}
 
-	public Map<String, Attribute> getCurrentAttributes()
+	public Map<String, ? extends Attribute> getCurrentAttributes()
 	{
 		return currentAttributes;
 	}
