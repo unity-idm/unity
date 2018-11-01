@@ -66,7 +66,6 @@ class AuthnsGridWidget extends CustomComponent
 		dataProvider = DataProvider.ofCollection(providers);
 		providersChoice = new Grid<>(dataProvider);
 		providersChoice.setSelectionMode(SelectionMode.NONE);
-
 		Column<AuthenticationOptionGridEntry, Resource> imageColumn = providersChoice.addColumn(
 				AuthenticationOptionGridEntry::getImage, new ImageRenderer<>());
 		Column<AuthenticationOptionGridEntry, Component> buttonColumn = providersChoice
@@ -122,6 +121,9 @@ class AuthnsGridWidget extends CustomComponent
 					logoImage, authnPanel);
 			providers.add(providerEntry);
 		}
+		
+		providers.sort(null);
+		
 		dataProvider.refreshAll();
 		setVisible(size() != 0);
 	}
@@ -164,10 +166,11 @@ class AuthnsGridWidget extends CustomComponent
 
 		public boolean contains(String what)
 		{
-			if (name.toLowerCase().contains(what))
+			String whatLowercase = what.toLowerCase();
+			if (name.toLowerCase().contains(whatLowercase))
 				return true;
 			for (String tag : tags)
-				if (tag.toLowerCase().contains(what))
+				if (tag.toLowerCase().contains(whatLowercase))
 					return true;
 			return false;
 		}
@@ -179,7 +182,7 @@ class AuthnsGridWidget extends CustomComponent
 		}
 	}
 
-	private class AuthenticationOptionGridEntry
+	private class AuthenticationOptionGridEntry implements Comparable<AuthenticationOptionGridEntry>
 	{
 		private String id;
 		private NameWithTags nameWithTags;
@@ -212,6 +215,14 @@ class AuthnsGridWidget extends CustomComponent
 		public Component getComponent()
 		{
 			return component;
+		}
+
+		@Override
+		public int compareTo(AuthenticationOptionGridEntry o)
+		{
+			String otherName = o.getNameWithTags().name;
+			String thisName = getNameWithTags().name;
+			return thisName.compareTo(otherName);
 		}
 	}
 }
