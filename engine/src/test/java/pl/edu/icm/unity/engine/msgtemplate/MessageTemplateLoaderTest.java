@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.server;
+package pl.edu.icm.unity.engine.msgtemplate;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
@@ -21,6 +21,7 @@ import org.mockito.ArgumentCaptor;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -36,12 +37,12 @@ public class MessageTemplateLoaderTest
 		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
 				.forClass(MessageTemplate.class);
 		MessageTemplateLoader loader = new MessageTemplateLoader(man,
-				getMockNotificationManager());
+				getMockNotificationManager(), false);
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
 		props.setProperty("msg1.body", "body");
-		loader.initializeMsgTemplates(props);
+		loader.initializeMsgTemplates(props, s->true);
 		
 		verify(man).addTemplate(captor.capture());
 		
@@ -60,12 +61,12 @@ public class MessageTemplateLoaderTest
 		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
 				.forClass(MessageTemplate.class);
 		MessageTemplateLoader loader = new MessageTemplateLoader(man,
-				getMockNotificationManager());
+				getMockNotificationManager(), false);
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject.en", "sub");
 		props.setProperty("msg1.body.en", "body");
-		loader.initializeMsgTemplates(props);
+		loader.initializeMsgTemplates(props, s->true);
 		
 		verify(man).addTemplate(captor.capture());
 		
@@ -86,14 +87,14 @@ public class MessageTemplateLoaderTest
 		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
 				.forClass(MessageTemplate.class);
 		MessageTemplateLoader loader = new MessageTemplateLoader(man,
-				getMockNotificationManager());
+				getMockNotificationManager(), false);
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
 		props.setProperty("msg1.body.pl", "body-pl");
 		props.setProperty("msg1.body.en", "body-en");
 		props.setProperty("msg1.body", "body");
-		loader.initializeMsgTemplates(props);
+		loader.initializeMsgTemplates(props, s->true);
 		
 		verify(man).addTemplate(captor.capture());
 		
@@ -114,13 +115,13 @@ public class MessageTemplateLoaderTest
 		ArgumentCaptor<MessageTemplate> captor = ArgumentCaptor
 				.forClass(MessageTemplate.class);
 		MessageTemplateLoader loader = new MessageTemplateLoader(man,
-				getMockNotificationManager());
+				getMockNotificationManager(), false);
 		
 		Properties props = new Properties();
 		props.setProperty("msg1.subject", "sub");
 		props.setProperty("msg1.body.en", "body-inline");
 		props.setProperty("msg1.bodyFile.en", "src/test/resources/templateBody.txt");
-		loader.initializeMsgTemplates(props);
+		loader.initializeMsgTemplates(props, s->true);
 		
 		verify(man).addTemplate(captor.capture());
 		

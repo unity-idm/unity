@@ -72,6 +72,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String PKI_CONF = "pkiConfigFile";
 	public static final String THREAD_POOL_SIZE = "threadPoolSize";
 	public static final String IGNORE_CONFIGURED_CONTENTS_SETTING = "ignoreContentsReloadingFromConfiguration";
+	public static final String RELOAD_MSG_TEMPLATES = "reloadMessageTemplatesFromConfiguration";
 	public static final String CONFIG_ONLY_ERA_CONTROL = "fullyRecreateEndpointsAROnStartup";
 	private static final String RECREATE_ENDPOINTS_ON_STARTUP = "recreateEndpointsOnStartup";
 	public static final String LOGOUT_MODE = "logoutMode";
@@ -206,6 +207,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "database contents (endpoints, authenticators, credentials, ...) "
 						+ "are ignored. This is useful in the case of redundant Unity instance,"
 						+ " which should use the database contents configured at the master serevr."));
+		defaults.put(RELOAD_MSG_TEMPLATES, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If set to true then message templates will be reloaded at startup "
+						+ "from files on disk. Otherwise only the new templates are "
+						+ "loaded and the tempaltes in DB are left untouched."));
 		defaults.put(CONFIG_ONLY_ERA_CONTROL, new PropertyMD("true").setCategory(mainCat).
 				setDescription("If set to true then all Endpoints, Authenticators and authentication Realms "
 						+ "are fully recreated from configuration at startup. This is convenient unless you "

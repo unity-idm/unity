@@ -76,6 +76,7 @@ import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateInitializatior;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
 import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
 import pl.edu.icm.unity.engine.translation.in.SystemInputTranslationProfileProvider;
@@ -192,7 +193,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private NotificationChannelsLoader notificationChannelLoader;
 	@Autowired
-	private MessageTemplateLoader msgTemplateLoader;
+	private MessageTemplateInitializatior msgTemplateLoader;
 	@Autowired
 	private Optional<List<ServerInitializer>> initializers;
 	@Autowired
@@ -341,8 +342,7 @@ public class EngineInitialization extends LifecycleBase
 	
 		notificationChannelLoader.initialize();
 		
-		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
-		msgTemplateLoader.initializeMsgTemplates(file);
+		msgTemplateLoader.initializeMsgTemplates();
 		
 		runInitializers();
 		

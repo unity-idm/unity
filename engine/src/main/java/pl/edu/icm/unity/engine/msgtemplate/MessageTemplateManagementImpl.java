@@ -4,8 +4,10 @@
  */
 package pl.edu.icm.unity.engine.msgtemplate;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.msgtemplates.GenericMessageTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -43,16 +47,22 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	private MessageTemplateConsumersRegistry registry;
 	private InternalFacilitiesManagement facilityMan;
 	private MessageTemplateProcessor messageTemplateProcessor = new MessageTemplateProcessor();
-	
+	private MessageTemplateLoader loader;
+	private File configFile;
+
 	@Autowired
 	public MessageTemplateManagementImpl(AuthorizationManager authz, MessageTemplateDB mtDB,
 			MessageTemplateConsumersRegistry registry,
-			InternalFacilitiesManagement facilityMan)
+			InternalFacilitiesManagement facilityMan,
+			NotificationsManagement notificationMan,
+			UnityServerConfiguration config)
 	{
 		this.authz = authz;
 		this.mtDB = mtDB;
 		this.registry = registry;
 		this.facilityMan = facilityMan;
+		this.loader = new MessageTemplateLoader(this, notificationMan, true);
+		configFile = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
 	}
 	
 	@Transactional
@@ -143,6 +153,14 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 			}
 		}
 		return ret;
+	}
+	
+	@Transactional
+	@Override
+	public void reloadFromConfiguration(Set<String> toReload)
+	{
+		authz.checkAuthorizationRT("/", AuthzCapability.maintenance);
+		loader.initializeMsgTemplates(configFile, s -> toReload.contains(s));
 	}
 	
 	private void validateMessageTemplate(MessageTemplate toValidate)

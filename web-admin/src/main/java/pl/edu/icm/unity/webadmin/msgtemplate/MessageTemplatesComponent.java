@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -89,6 +91,7 @@ public class MessageTemplatesComponent extends VerticalLayout
 		table.addActionHandler(getAddAction());
 		table.addActionHandler(getEditAction());
 		table.addActionHandler(getDeleteAction());
+		table.addActionHandler(getReloadFromConfigAction());
 		
 		Toolbar<MessageTemplate> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
@@ -239,5 +242,29 @@ public class MessageTemplatesComponent extends VerticalLayout
 				"MessageTemplatesComponent.confirmDelete", confirmText),
 				() -> items.forEach(this::removeTemplate)).show();
 	}
+
 	
+	private SingleActionHandler<MessageTemplate> getReloadFromConfigAction()
+	{
+		return SingleActionHandler.builder(MessageTemplate.class)
+				.withCaption(msg.getMessage("MessageTemplatesComponent.reloadFromConfig"))
+				.withIcon(Images.reload.getResource())
+				.withHandler(this::reloadFromConfigHandler)
+				.dontRequireTarget()
+				.multiTarget()
+				.build();
+	}
+	
+	private void reloadFromConfigHandler(Collection<MessageTemplate> items)
+	{	
+		new ConfirmDialog(msg, msg.getMessage(
+				"MessageTemplatesComponent.confirmReloadFromConfig"),
+				() -> reloadFromConfig(items)).show();
+	}
+	
+	private void reloadFromConfig(Collection<MessageTemplate> items)
+	{
+		msgTempMan.reloadFromConfiguration(items.stream().map(mt -> mt.getName()).collect(Collectors.toSet()));
+		refresh();
+	}
 }

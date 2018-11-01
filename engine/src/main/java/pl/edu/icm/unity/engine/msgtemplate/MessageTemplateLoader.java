@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.server;
+package pl.edu.icm.unity.engine.msgtemplate;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,13 +13,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigIncludesProcessor;
 import eu.unicore.util.configuration.ConfigurationException;
@@ -41,25 +39,25 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  * 
  * @author K. Benedyczak
  */
-@Component
 class MessageTemplateLoader
 {
-	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, 
+	private static final Logger logLegacy = Log.getLegacyLogger(Log.U_SERVER_CFG, 
 			MessageTemplateLoader.class);
+	private static final org.apache.logging.log4j.Logger log = Log.getLogger(Log.U_SERVER_CFG, MessageTemplateLoader.class);
 	
 	private MessageTemplateManagement msgTemplatesManagement;
 	private NotificationsManagement notificationMan;
-	
-	@Autowired
-	public MessageTemplateLoader(
-			@Qualifier("insecure") MessageTemplateManagement msgTemplatesManagement,
-			@Qualifier("insecure") NotificationsManagement notificationMan)
+	private boolean updateExisting;
+
+	public MessageTemplateLoader(MessageTemplateManagement msgTemplatesManagement,
+			NotificationsManagement notificationMan, boolean updateExisting)
 	{
 		this.msgTemplatesManagement = msgTemplatesManagement;
 		this.notificationMan = notificationMan;
+		this.updateExisting = updateExisting;
 	}
 
-	void initializeMsgTemplates(File file)
+	void initializeMsgTemplates(File file, Predicate<String> filter)
 	{
 		Properties props = null;
 		try
@@ -69,15 +67,15 @@ class MessageTemplateLoader
 					.filter(k -> k.toString().contains(".bodyFile"))
 					.findAny().isPresent();
 			if (newFormat)
-				props = ConfigIncludesProcessor.preprocess(props, log);
+				props = ConfigIncludesProcessor.preprocess(props, logLegacy);
 		} catch (IOException e)
 		{
 			throw new InternalException("Can't load message templates config file", e);
 		}
-		initializeMsgTemplates(props);
+		initializeMsgTemplates(props, filter);
 	}
 	
-	void initializeMsgTemplates(Properties props)
+	void initializeMsgTemplates(Properties props, Predicate<String> filter)
 	{
 		Map<String, NotificationChannel> notificationChannels;
 		try
@@ -106,33 +104,66 @@ class MessageTemplateLoader
 				templateKeys.add(key.substring(0, key.indexOf('.')));
 		}	
 		
-		for(String key:templateKeys)
+		for(String key: templateKeys)
 		{
-			if (existingTemplates.containsKey(key))
-			{
+			if (!filter.test(key))
 				continue;
-			}
 			try
 			{
-				MessageTemplate templ = loadTemplate(props, key);
-				String channel = templ.getNotificationChannel();
-				if (channel.isEmpty() || notificationChannels.keySet().contains(channel))
-					msgTemplatesManagement.addTemplate(templ);
+				if (updateExisting)
+					addOrUpdateMessageTemplate(key, notificationChannels, existingTemplates, props);
 				else
-					log.debug("Skip adding message template " + templ.getName()
-							+ " - configured notification channel "
-							+ channel
-							+ " does not exists");
+					addMessageTemplate(key, notificationChannels, existingTemplates, props);
 			} catch (WrongArgumentException e)
 			{
-				log.error("Template with id " + key + " is invalid, reason: "
-						+ e.getMessage(), e);
+				log.error("Template with id " + key + " is invalid, reason: " + e.getMessage(), e);
 			} catch (EngineException e)
 			{
 				log.error("Cannot add template " + key, e);
 			}
 		}
-		
+	}
+	
+	private void addMessageTemplate(String key, Map<String, NotificationChannel> notificationChannels,
+			Map<String, MessageTemplate> existingTemplates, Properties props) throws EngineException
+	{
+		if (existingTemplates.containsKey(key))
+			return;
+		log.info("Installing message template {}", key);
+		MessageTemplate templ = loadTemplate(props, key);
+		if (!verifyNotificationChannelExists(templ, notificationChannels))
+			return;
+		msgTemplatesManagement.addTemplate(templ);
+	}
+
+	private void addOrUpdateMessageTemplate(String key, Map<String, NotificationChannel> notificationChannels,
+			Map<String, MessageTemplate> existingTemplates, Properties props) throws EngineException
+	{
+		MessageTemplate templ = loadTemplate(props, key);
+		if (!verifyNotificationChannelExists(templ, notificationChannels))
+			return;
+		if (existingTemplates.containsKey(key))
+		{
+			log.info("Updating message template {}", key);
+			msgTemplatesManagement.updateTemplate(templ);
+		} else
+		{
+			log.info("Installing message template {}", key);
+			msgTemplatesManagement.addTemplate(templ);
+		}
+	}
+	
+	private boolean verifyNotificationChannelExists(MessageTemplate templ, 
+			Map<String, NotificationChannel> notificationChannels)
+	{
+		String channel = templ.getNotificationChannel();
+		if (!channel.isEmpty() && !notificationChannels.keySet().contains(channel))
+		{
+			log.debug("Skip adding message template {}: configured notification channel {} does not exist",
+					templ.getName(), channel);
+			return false;
+		}
+		return true;
 	}
 	
 	private MessageTemplate loadTemplate(Properties properties, String id) throws WrongArgumentException
