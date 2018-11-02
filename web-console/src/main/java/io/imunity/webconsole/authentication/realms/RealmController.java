@@ -10,7 +10,7 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.common.ControllerException;
+import io.imunity.webelements.exception.ControllerException;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
 /**
  * Controller for all realms view
+ * 
  * @author P.Piernik
  *
  */
@@ -43,8 +44,8 @@ public class RealmController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("RealmController.addError", realm.getName()), e.getMessage(),
-					e);
+					msg.getMessage("RealmController.addError", realm.getName()),
+					e.getMessage(), e);
 		}
 
 		return true;
@@ -87,8 +88,8 @@ public class RealmController
 			return realmMan.getRealms();
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage("RealmController.getAllError"), e.getMessage(),
-					e);
+			throw new ControllerException(msg.getMessage("RealmController.getAllError"),
+					e.getMessage(), e);
 		}
 	}
 
@@ -99,8 +100,9 @@ public class RealmController
 			return realmMan.getRealm(realmName);
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage("RealmController.getError", realmName), e.getMessage(),
-					e);
+			throw new ControllerException(
+					msg.getMessage("RealmController.getError", realmName),
+					e.getMessage(), e);
 		}
 	}
 }

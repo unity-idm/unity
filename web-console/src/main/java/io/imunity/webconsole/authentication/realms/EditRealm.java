@@ -5,15 +5,20 @@
 
 package io.imunity.webconsole.authentication.realms;
 
-import java.util.Map;
-
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
 
-import io.imunity.webconsole.common.AbstractConfirmView;
-import io.imunity.webconsole.common.ControllerException;
+import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.authentication.realms.Realms.RealmsNavigationInfoProvider;
+import io.imunity.webelements.common.AbstractConfirmView;
+import io.imunity.webelements.exception.ControllerException;
+import io.imunity.webelements.navigation.NameParamViewNameProvider;
+import io.imunity.webelements.navigation.NavigationInfo;
+import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -28,6 +33,8 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 @PrototypeComponent
 public class EditRealm extends AbstractConfirmView
 {
+
+	public static String VIEW_NAME = "EditRealm";
 
 	private RealmController controller;
 	private AuthenticationRealmEditor editor;
@@ -70,15 +77,13 @@ public class EditRealm extends AbstractConfirmView
 	}
 
 	@Override
-	protected Component getContents(Map<String, String> parameters) throws Exception
+	protected Component getContents(ViewChangeEvent event) throws Exception
 	{
-	
-		String realmName = parameters.isEmpty() ? "" :  parameters.keySet().iterator().next();
 
 		AuthenticationRealm realm;
 		try
 		{
-			realm = controller.getRealm(realmName);
+			realm = controller.getRealm(getRealmName(event));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e.getErrorCaption(), e.getErrorDetails());
@@ -90,5 +95,42 @@ public class EditRealm extends AbstractConfirmView
 		editor.editMode();
 
 		return editor;
+	}
+
+	private String getRealmName(ViewChangeEvent event)
+	{
+		return event.getParameterMap().isEmpty() || !event.getParameterMap().containsKey("name")? ""
+				: event.getParameterMap().get("name");
+
+	}
+
+	@org.springframework.stereotype.Component
+	public static class EditRealmViewInfoProvider implements WebConsoleNavigationInfoProvider
+	{
+
+		private RealmsNavigationInfoProvider parent;
+		private ObjectFactory<?> factory;
+
+		@Autowired
+		public EditRealmViewInfoProvider(RealmsNavigationInfoProvider parent,
+				ObjectFactory<EditRealm> factory)
+		{
+			this.parent = parent;
+			this.factory = factory;
+
+		}
+
+		@Override
+		public NavigationInfo getNavigationInfo()
+		{
+
+			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
+					Type.ParameterizedView)
+							.withParent(parent.getNavigationInfo())
+							.withObjectFactory(factory)
+							.withDisplayNameProvider(
+									new NameParamViewNameProvider())
+							.build();
+		}
 	}
 }

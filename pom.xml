@@ -55,6 +55,7 @@
 		<module>std-plugins</module>
 		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
+		<module>web-elements</module>
 		<module>web-admin</module>
 		<module>web-console</module>
 		<module>rest</module>

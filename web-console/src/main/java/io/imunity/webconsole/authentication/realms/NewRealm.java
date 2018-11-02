@@ -5,15 +5,20 @@
 
 package io.imunity.webconsole.authentication.realms;
 
-import java.util.Map;
-
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.UI;
 
-import io.imunity.webconsole.common.AbstractConfirmView;
-import io.imunity.webconsole.common.ControllerException;
+import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.authentication.realms.Realms.RealmsNavigationInfoProvider;
+import io.imunity.webelements.common.AbstractConfirmView;
+import io.imunity.webelements.exception.ControllerException;
+import io.imunity.webelements.navigation.NameParamViewNameProvider;
+import io.imunity.webelements.navigation.NavigationInfo;
+import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -29,6 +34,9 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 @PrototypeComponent
 public class NewRealm extends AbstractConfirmView
 {
+
+	public static String VIEW_NAME = "NewRealm";
+
 	private RealmController controller;
 	private AuthenticationRealmEditor editor;
 
@@ -69,8 +77,7 @@ public class NewRealm extends AbstractConfirmView
 
 	}
 
-	@Override
-	protected Component getContents(Map<String, String> params) throws Exception
+	private AuthenticationRealm getDefaultAuthenticationRealm()
 	{
 		AuthenticationRealm bean = new AuthenticationRealm();
 		bean.setName(msg.getMessage("AuthenticationRealm.defaultName"));
@@ -79,7 +86,45 @@ public class NewRealm extends AbstractConfirmView
 		bean.setBlockFor(60);
 		bean.setMaxInactivity(1800);
 		bean.setBlockAfterUnsuccessfulLogins(5);
-		editor = new AuthenticationRealmEditor(msg, bean);
+		return bean;
+	}
+
+	@Override
+	protected Component getContents(ViewChangeEvent event) throws Exception
+	{
+
+		editor = new AuthenticationRealmEditor(msg, getDefaultAuthenticationRealm());
 		return editor;
+	}
+
+	@org.springframework.stereotype.Component
+	public static class NewRealmNavigationInfoProvider
+			implements WebConsoleNavigationInfoProvider
+	{
+
+		private RealmsNavigationInfoProvider parent;
+		private ObjectFactory<?> factory;
+
+		@Autowired
+		public NewRealmNavigationInfoProvider(RealmsNavigationInfoProvider parent,
+				ObjectFactory<NewRealm> factory)
+		{
+			this.parent = parent;
+			this.factory = factory;
+
+		}
+
+		@Override
+		public NavigationInfo getNavigationInfo()
+		{
+
+			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
+					Type.ParameterizedView)
+							.withParent(parent.getNavigationInfo())
+							.withObjectFactory(factory)
+							.withDisplayNameProvider(
+									new NameParamViewNameProvider())
+							.build();
+		}
 	}
 }

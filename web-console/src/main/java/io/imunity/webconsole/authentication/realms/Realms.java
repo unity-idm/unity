@@ -8,18 +8,25 @@ package io.imunity.webconsole.authentication.realms;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.common.ControllerException;
-import io.imunity.webconsole.common.ListOfElementWithActions;
+import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
+import io.imunity.webelements.common.ListOfElementsWithActions;
+import io.imunity.webelements.exception.ControllerException;
+import io.imunity.webelements.navigation.NavigationInfo;
+import io.imunity.webelements.navigation.NavigationInfo.Type;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -33,13 +40,13 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
  *
  */
 @PrototypeComponent
-public class Realms extends VerticalLayout implements View
+public class Realms extends CustomComponent implements UnityView
 {
+	public static final String viewName = "Realms";
+
 	private RealmController realmsMan;
-
 	private UnityMessageSource msg;
-
-	private ListOfElementWithActions<AuthenticationRealm> realmsList;
+	private ListOfElementsWithActions<AuthenticationRealm> realmsList;
 
 	@Autowired
 	public Realms(UnityMessageSource msg, RealmController realmsMan)
@@ -51,7 +58,7 @@ public class Realms extends VerticalLayout implements View
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-
+		VerticalLayout main = new VerticalLayout();
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		Button newRealm = new Button();
 		newRealm.setCaption(msg.getMessage("add"));
@@ -62,19 +69,19 @@ public class Realms extends VerticalLayout implements View
 		buttonsBar.setComponentAlignment(newRealm, Alignment.MIDDLE_RIGHT);
 		buttonsBar.setWidth(100, Unit.PERCENTAGE);
 
-		realmsList = new ListOfElementWithActions<>(r -> new Label(r.getName()));
+		realmsList = new ListOfElementsWithActions<>(r -> new Label(r.getName()));
 
 		SingleActionHandler<AuthenticationRealm> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationRealm.class)
 				.withHandler(r -> getUI().getNavigator()
-						.navigateTo(EditRealm.class.getSimpleName() + "/"
-								+ r.iterator().next().getName()))
+						.navigateTo(EditRealm.VIEW_NAME + "?"
+								+ "name=" + r.iterator().next().getName()))
 				.build();
 		SingleActionHandler<AuthenticationRealm> view = SingleActionHandler
 				.builder4ShowDetails(msg, AuthenticationRealm.class)
 				.withHandler(r -> getUI().getNavigator()
-						.navigateTo(ViewRealm.class.getSimpleName() + "/"
-								+ r.iterator().next().getName()))
+						.navigateTo(ViewRealm.VIEW_NAME + "?"
+								+ "name=" + r.iterator().next().getName()))
 				.build();
 
 		SingleActionHandler<AuthenticationRealm> remove = SingleActionHandler
@@ -97,10 +104,12 @@ public class Realms extends VerticalLayout implements View
 			realmsList.addEntry(realm);
 		}
 
-		addComponent(buttonsBar);
-		addComponent(realmsList);
-		
-		setWidth(50, Unit.PERCENTAGE);
+		main.addComponent(buttonsBar);
+		main.addComponent(realmsList);
+
+		main.setWidth(50, Unit.PERCENTAGE);
+
+		setCompositionRoot(main);
 	}
 
 	private Collection<AuthenticationRealm> getRealms()
@@ -132,4 +141,36 @@ public class Realms extends VerticalLayout implements View
 		}
 	}
 
+	@Component
+	public static class RealmsNavigationInfoProvider implements WebConsoleNavigationInfoProvider
+	{
+
+		private UnityMessageSource msg;
+		private AuthenticationNavigationInfoProvider parent;
+		private ObjectFactory<?> factory;
+
+		@Autowired
+		public RealmsNavigationInfoProvider(UnityMessageSource msg,
+				AuthenticationNavigationInfoProvider parent,
+				ObjectFactory<Realms> factory)
+		{
+			this.msg = msg;
+			this.parent = parent;
+			this.factory = factory;
+
+		}
+
+		@Override
+		public NavigationInfo getNavigationInfo()
+		{
+
+			return new NavigationInfo.NavigationInfoBuilder(viewName, Type.View)
+					.withParent(parent.getNavigationInfo())
+					.withObjectFactory(factory)
+					.withDisplayNameProvider(e -> msg.getMessage(
+							"WebConsoleMenu.authentication.realms"))
+					.build();
+		}
+
+	}
 }

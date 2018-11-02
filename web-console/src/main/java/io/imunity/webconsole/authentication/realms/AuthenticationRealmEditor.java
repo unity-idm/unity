@@ -37,12 +37,12 @@ public class AuthenticationRealmEditor extends CustomComponent
 	private IntStepper allowForRememberMeDays;
 	private ComboBox<RememberMePolicy> rememberMePolicy;
 
-	public AuthenticationRealmEditor(UnityMessageSource msg,
-			AuthenticationRealm toEdit)
+	public AuthenticationRealmEditor(UnityMessageSource msg, AuthenticationRealm toEdit)
 	{
 		name = new TextField(msg.getMessage("AuthenticationRealm.name"));
 
-		description = new DescriptionTextArea(msg.getMessage("AuthenticationRealm.description"));
+		description = new DescriptionTextArea(
+				msg.getMessage("AuthenticationRealm.description"));
 
 		blockFor = new IntStepper(msg.getMessage("AuthenticationRealm.blockFor"));
 		blockFor.setMinValue(1);
@@ -61,7 +61,8 @@ public class AuthenticationRealmEditor extends CustomComponent
 		allowForRememberMeDays.setMaxValue(999);
 		allowForRememberMeDays.setWidth(4, Unit.EM);
 
-		rememberMePolicy = new ComboBox<>(msg.getMessage("AuthenticationRealm.rememberMePolicy"));
+		rememberMePolicy = new ComboBox<>(
+				msg.getMessage("AuthenticationRealm.rememberMePolicy"));
 		rememberMePolicy.setItems(RememberMePolicy.values());
 		rememberMePolicy.setEmptySelectionAllowed(false);
 
@@ -100,7 +101,7 @@ public class AuthenticationRealmEditor extends CustomComponent
 	{
 		name.setReadOnly(true);
 	}
-	
+
 	public boolean hasErrors()
 	{
 		return binder.validate().hasErrors();

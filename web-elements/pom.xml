@@ -6,12 +6,12 @@
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>unity-server-web-console</artifactId>
+	<artifactId>unity-server-web-elements</artifactId>
 	<packaging>jar</packaging>
 	<name>UNITY Server ${m.name} module</name>
-	<description>Task oriented web based administration UI</description>
+	<description>Common unity web elements</description>
 	<properties>
-		<m.name>web-console</m.name>
+		<m.name>web-elements</m.name>
 	</properties>
 	
 	<scm>
@@ -30,16 +30,10 @@
 		<!-- compile -->
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-web-elements</artifactId>
+			<artifactId>unity-server-web-common</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
-		<dependency>
-			<groupId>pl.edu.icm.unity</groupId>
-			<artifactId>unity-server-engine-api</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		
+				
 	</dependencies>
 	
 	<build>
