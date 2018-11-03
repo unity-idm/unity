@@ -56,4 +56,15 @@ public class IdentityRDBMSStoreInt extends GenericNamedRDBMSCRUD<StoredIdentity,
 	{
 		return getByEntityFull(entityId).stream().map(si -> si.getIdentity()).collect(Collectors.toList());
 	}
+
+	@Override
+	public List<StoredIdentity> getByGroup(String group)
+	{
+		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
+		List<IdentityBean> allInDB = mapper.getByGroup(group);
+		List<StoredIdentity> ret = new ArrayList<>(allInDB.size());
+		for (IdentityBean bean: allInDB)
+			ret.add(jsonSerializer.fromDB(bean));
+		return ret;
+	}
 }

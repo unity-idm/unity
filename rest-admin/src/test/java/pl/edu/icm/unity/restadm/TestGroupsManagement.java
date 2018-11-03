@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.basic.GroupMember;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 /**
@@ -132,5 +133,24 @@ public class TestGroupsManagement extends RESTAdminTestBase
 		assertEquals(Status.NO_CONTENT.getStatusCode(), addResponse.getStatusLine().getStatusCode());
 		existingGroups = idsMan.getGroups(entityParam).keySet();
 		assertThat(existingGroups, equalTo(Sets.newHashSet("/", "/A", "/A/B", "/A/B/C")));
+	}
+	
+	@Test
+	public void shouldReturnEntityWithBulQuery() throws Exception
+	{
+		// given
+		setupUserContext(DEF_USER, null);
+		
+		HttpGet get = new HttpGet("/restadm/v1/group-members/%2F");
+		
+		// when
+		HttpResponse getResponse = client.execute(host, get, localcontext);
+		
+		// then
+		String contents = EntityUtils.toString(getResponse.getEntity());
+		assertEquals(contents, Status.OK.getStatusCode(), getResponse.getStatusLine().getStatusCode());
+		List<GroupMember> groupContent = Constants.MAPPER.readValue(contents, 
+				new TypeReference<List<GroupMember>>(){});
+		assertThat(groupContent.size(), is(2));
 	}
 }

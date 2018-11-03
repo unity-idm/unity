@@ -41,10 +41,6 @@ public class GroupBrowserComponent extends SafePanel
 	private void init()
 	{
 		setCaption(msg.getMessage("GroupBrowser.caption"));
-		
-//		Toolbar<TreeNode> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
-//		groupsTree.addSelectionListener(toolbar.getSelectionListener());
-//		toolbar.addActionHandlers(groupsTree.getActionHandlers());
 		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, groupsTree.getToolbar());
 		treeWithToolbar.setSizeFull();
 		

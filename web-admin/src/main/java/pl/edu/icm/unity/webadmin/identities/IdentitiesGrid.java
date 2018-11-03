@@ -98,7 +98,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private final AttributeSupport attributeSupport;
 	private final IdentityTypeSupport idTypeSupport;
 	private final UnityMessageSource msg;
-	private final EntitiesLoader2 entitiesLoader;
+	private final EntitiesLoader entitiesLoader;
 	private final AttributeHandlerRegistry attrHandlerRegistry;
 	
 	private boolean groupByEntity;
@@ -119,7 +119,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	@SuppressWarnings("unchecked")
 	@Autowired
 	public IdentitiesGrid(UnityMessageSource msg, AttributeSupport attributeSupport,
-			IdentityTypeSupport idTypeSupport, EntitiesLoader2 entitiesLoader,
+			IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
 			AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan)
 
 	{

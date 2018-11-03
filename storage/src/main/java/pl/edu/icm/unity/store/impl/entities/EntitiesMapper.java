@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.entities;
 
+import java.util.List;
+
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
 
@@ -13,4 +15,5 @@ import pl.edu.icm.unity.store.rdbms.BasicCRUDMapper;
  */
 public interface EntitiesMapper extends BasicCRUDMapper<BaseBean>
 {
+	List<BaseBean> getByGroup(String path);
 }

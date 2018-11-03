@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.entities;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -37,5 +39,11 @@ public class EntityRDBMSCachingStore extends BasicCachingCRUD<EntityInformation,
 	{
 		cache.flushWithEvent();
 		return wrapped.create(obj);
+	}
+
+	@Override
+	public List<EntityInformation> getByGroup(String group)
+	{
+		return wrapped.getByGroup(group);
 	}
 }

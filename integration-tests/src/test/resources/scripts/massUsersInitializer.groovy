@@ -51,10 +51,11 @@ try
 		return;
 	}
 	
-	createExampleGroups();
-	for (int i=0; i<ENTITIES; i++)
-		createExampleUser(i);
-	addFirstUserToAllGroups();
+	//createExampleGroups();
+	//for (int i=0; i<ENTITIES; i++)
+	//	createExampleUser(i);
+	//setCredentialForFirst();
+	addUsersToAllGroups();
 	
 } catch (Exception e)
 {
@@ -74,17 +75,24 @@ void createExampleGroups()
 	}
 }
 
-void addFirstUserToAllGroups()
+void addUsersToAllGroups()
+{
+	for (int e=4; e<104; e++)
+	{
+		EntityParam entityP = new EntityParam(e);
+		groupsManagement.addMemberFromParent("/root", entityP);
+		for (int i=0; i<GROUPS; i++)
+		{
+			String grp = "/root/grp" + i;
+			groupsManagement.addMemberFromParent(grp, entityP);
+			log.warn("Added user to group " + grp);
+		}
+	}
+}
+
+void setCredentialForFirst()
 {
 	EntityParam entityP = new EntityParam(3);
-	groupsManagement.addMemberFromParent("/root", entityP);
-	for (int i=0; i<GROUPS; i++)
-	{
-		String grp = "/root/grp" + i;
-		groupsManagement.addMemberFromParent(grp, entityP);
-		log.warn("Added user to group " + grp);
-	}
-	
 	Attribute a = EnumAttribute.of("sys:AuthorizationRole", "/", "System Manager");
 	attributesManagement.createAttribute(entityP, a);
 	PasswordToken pToken = new PasswordToken("the!test12");

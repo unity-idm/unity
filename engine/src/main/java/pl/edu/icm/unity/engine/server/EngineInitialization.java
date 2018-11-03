@@ -68,7 +68,7 @@ import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
-import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
+import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
@@ -130,7 +130,7 @@ public class EngineInitialization extends LifecycleBase
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
 	public static final String DEFAULT_CREDENTIAL = "sys:password";
-	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemCredentialRequirements.NAME;
+	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemAllCredentialRequirements.NAME;
 
 	@Autowired
 	private UnityMessageSource msg;
@@ -491,9 +491,7 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info("Database contains no admin user, creating the configured admin user");
 				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
-				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
-				
-				Identity adminId = createAdminSafe(admin, crDef);
+				Identity adminId = createAdminSafe(admin, SystemAllCredentialRequirements.NAME);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
@@ -527,11 +525,11 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 	
-	private Identity createAdminSafe(IdentityParam admin, CredentialRequirements crDef) throws EngineException
+	private Identity createAdminSafe(IdentityParam admin, String crDef) throws EngineException
 	{
 		try
 		{
-			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
 		} catch (SchemaConsistencyException e)
 		{
 			//most probably '/' group attribute class forbids to insert admin. As we need the admin
@@ -540,9 +538,9 @@ public class EngineInitialization extends LifecycleBase
 					+ "attribute classes of the '/' group will be removed. Error: " + e.toString());
 			GroupContents root = groupManagement.getContents("/", GroupContents.METADATA);
 			log.info("Removing ACs: " + root.getGroup().getAttributesClasses());
-			root.getGroup().setAttributesClasses(new HashSet<String>());
+			root.getGroup().setAttributesClasses(new HashSet<>());
 			groupManagement.updateGroup("/", root.getGroup());
-			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
 		}
 	}
 	

@@ -10,12 +10,17 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.base.Stopwatch;
+
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.CompositeGroupContents;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -24,14 +29,18 @@ import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.CredentialInfo;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Entity;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 
 @Component
 class BulkQueryServiceImpl implements BulkGroupQueryService
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkQueryServiceImpl.class);
 	@Autowired
 	private AttributeStatementProcessor statementsHelper;
 	@Autowired
@@ -43,49 +52,91 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	@Autowired
 	private AuthorizationManager authz;
 	
+	@Transactional
 	@Override
-	public CompositeGroupContents getBulkDataForGroup(String group) throws EngineException
+	public GroupMembershipData getBulkMembershipData(String group) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
 		return dataProvider.getCompositeGroupContents(group);
+	}
+	
+
+	@Transactional
+	@Override
+	public GroupStructuralData getBulkStructuralData(String group) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
+		return dataProvider.getGroupStructuralContents(group);
 	}
 	
 	/**
 	 * @return all effective attributes of all entities in the group (including disabled ones)
 	 */
 	@Override
-	public Map<Long, Map<String, AttributeExt>> getGroupUsersAttributes(String group, CompositeGroupContents dataO)
+	public Map<Long, Map<String, AttributeExt>> getGroupUsersAttributes(String group, GroupMembershipData dataO)
 	{
-		CompositeGroupContentsImpl data = (CompositeGroupContentsImpl) dataO;
+		Stopwatch watch = Stopwatch.createStarted();
+		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
 		Map<Long, Map<String, AttributeExt>> ret = new HashMap<>();
 		for (Long entityId: data.getEntityInfo().keySet())
 			ret.put(entityId, getAllAttributesAsMap(entityId, group, data));
+		log.debug("Bulk attributes assembly: {}", watch.toString());
 		return ret;
 	}
 
 	@Override
-	public Map<Long, Entity> getGroupEntitiesNoContextWithTargeted(String group, CompositeGroupContents dataO)
+	public Map<Long, Entity> getGroupEntitiesNoContextWithTargeted(GroupMembershipData dataO)
 	{
-		return getGroupEntitiesNoContextWithTargeted(group, true, dataO);
+		return getGroupEntitiesNoContext(true, dataO);
 	}
 
 	@Override
-	public Map<Long, Entity> getGroupEntitiesNoContextWithoutTargeted(String group, CompositeGroupContents dataO)
+	public Map<Long, Entity> getGroupEntitiesNoContextWithoutTargeted(GroupMembershipData dataO)
 	{
-		return getGroupEntitiesNoContextWithTargeted(group, false, dataO);
+		return getGroupEntitiesNoContext(false, dataO);
 	}
 	
-	private Map<Long, Entity> getGroupEntitiesNoContextWithTargeted(String group, boolean includeTargeted, 
-			CompositeGroupContents dataO)
+
+	@Override
+	public Map<String, GroupContents> getGroupAndSubgroups(GroupStructuralData dataO)
 	{
-		CompositeGroupContentsImpl data = (CompositeGroupContentsImpl) dataO;
+		Stopwatch watch = Stopwatch.createStarted();
+		Map<String, GroupContents> ret = new HashMap<>();
+		GroupStructuralDataImpl data = (GroupStructuralDataImpl) dataO;
+		Set<String> allGroups = data.getGroups().keySet();
+		for (Group group: data.getGroups().values())
+		{
+			GroupContents entry = new GroupContents();
+			entry.setGroup(group);
+			entry.setSubGroups(getDirectSubGroups(group.toString(), allGroups));
+			ret.put(group.toString(), entry);
+		}
+		log.debug("Bulk group and subgroups resolve: {}", watch.toString());
+		return ret;
+	}
+	
+	private List<String> getDirectSubGroups(String root, Set<String> allGroups)
+	{
+		int prefix = root.length() + 1;
+		return allGroups.stream().
+				filter(g -> Group.isChild(g, root)).
+				filter(g -> !g.substring(prefix).contains("/")).
+				collect(Collectors.toList());
+	}
+	
+	private Map<Long, Entity> getGroupEntitiesNoContext(boolean includeTargeted, 
+			GroupMembershipData dataO)
+	{
+		Stopwatch watch = Stopwatch.createStarted();
+		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
 		Map<Long, Entity> ret = new HashMap<>();
 		for (Long entityId: data.getEntityInfo().keySet())
 			ret.put(entityId, assembleEntity(entityId, includeTargeted, data));
+		log.debug("Bulk entities assembly: {}", watch.toString());
 		return ret;
 	}
 	
-	private Entity assembleEntity(long entityId, boolean includeTargeted, CompositeGroupContentsImpl data)
+	private Entity assembleEntity(long entityId, boolean includeTargeted, GroupMembershipDataImpl data)
 	{
 		CredentialInfo credInfo = getCredentialInfo(entityId, data);
 		List<Identity> identitites = data.getIdentities().get(entityId);
@@ -96,23 +147,22 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	
 	private List<Identity> filterTargetedIdentitites(List<Identity> all)
 	{
-		return all.stream().filter(id -> id.getTarget() != null).collect(Collectors.toList());
+		return all.stream().filter(id -> id.getTarget() == null).collect(Collectors.toList());
 	}
 	
-	private Map<String, AttributeExt> getAllAttributesAsMap(long entityId, String groupPath, 
-			CompositeGroupContentsImpl data) 
+	private Map<String, AttributeExt> getAllAttributesAsMap(long entityId, String group, GroupMembershipDataImpl data) 
 	{
 		Map<String, Map<String, AttributeExt>> directAttributesByGroup = data.getDirectAttributes().get(entityId);
 		Set<String> allGroups = data.getMemberships().get(entityId);
 		List<Identity> identities = data.getIdentities().get(entityId);
 		return statementsHelper.getEffectiveAttributes(identities, 
-				groupPath, null, allGroups, directAttributesByGroup, 
+				group, null, allGroups, directAttributesByGroup, 
 				data.getAttributeClasses(),
 				data.getGroups()::get, 
 				data.getAttributeTypes()::get);
 	}
 	
-	private CredentialInfo getCredentialInfo(long entityId, CompositeGroupContentsImpl data)
+	private CredentialInfo getCredentialInfo(long entityId, GroupMembershipDataImpl data)
 	{
 		Map<String, AttributeExt> attributes = data.getDirectAttributes().get(entityId).get("/");
 		String credentialRequirementId = credentialsHelper.getCredentialReqFromAttribute(attributes);

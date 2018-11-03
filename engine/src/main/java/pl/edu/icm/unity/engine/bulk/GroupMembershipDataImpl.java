@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import pl.edu.icm.unity.engine.api.bulk.CompositeGroupContents;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -26,8 +26,9 @@ import pl.edu.icm.unity.types.basic.Identity;
  * 
  * @author K. Benedyczak
  */
-class CompositeGroupContentsImpl implements CompositeGroupContents
+class GroupMembershipDataImpl implements GroupMembershipData
 {
+	private String group;
 	private Map<String, AttributeType> attributeTypes;
 	private Map<String, Group> groups;
 	private Map<Long, EntityInformation> entityInfo;
@@ -38,15 +39,20 @@ class CompositeGroupContentsImpl implements CompositeGroupContents
 	private Collection<CredentialDefinition> credentials;
 	private Map<String, CredentialRequirements> credentialRequirements;
 	
-	private CompositeGroupContentsImpl() 
+	private GroupMembershipDataImpl() 
 	{
 	}
 	
-	public static Builder builder()
+	public static Builder builder(String group)
 	{
-		return new Builder();
+		return new Builder(group);
 	}
 	
+	public String getGroup()
+	{
+		return group;
+	}
+
 	public Map<String, AttributeType> getAttributeTypes()
 	{
 		return attributeTypes;
@@ -96,7 +102,12 @@ class CompositeGroupContentsImpl implements CompositeGroupContents
 
 	public static class Builder
 	{
-		CompositeGroupContentsImpl obj = new CompositeGroupContentsImpl();
+		GroupMembershipDataImpl obj = new GroupMembershipDataImpl();
+		
+		private Builder(String group)
+		{
+			obj.group = group;
+		}
 		
 		public Builder withAttributeTypes(Map<String, AttributeType> attributeTypes)
 		{
@@ -152,10 +163,10 @@ class CompositeGroupContentsImpl implements CompositeGroupContents
 			return this;
 		}
 		
-		public CompositeGroupContentsImpl build()
+		public GroupMembershipDataImpl build()
 		{
-			CompositeGroupContentsImpl ret = obj;
-			obj = new CompositeGroupContentsImpl();
+			GroupMembershipDataImpl ret = obj;
+			obj = new GroupMembershipDataImpl();
 			return ret;
 		}
 	}

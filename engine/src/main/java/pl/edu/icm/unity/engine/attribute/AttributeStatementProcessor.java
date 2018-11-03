@@ -474,8 +474,7 @@ public class AttributeStatementProcessor
 		Map<String, List<String>> attrs = new HashMap<>();
 		for (AttributeExt a: attributes.values())
 		{
-			List<String> values = attrConverter.internalValuesToExternal(
-					a.getName(), a.getValues());	
+			List<String> values = internalValuesToExternal(a.getValueSyntax(), a.getValues());	
 			String v = values.isEmpty() ? "" : values.get(0);
 			attr.put(a.getName(), v);
 			attrs.put(a.getName(), values);
@@ -484,4 +483,9 @@ public class AttributeStatementProcessor
 		target.put(fullKey.name(), attrs);
 	}
 
+	private List<String> internalValuesToExternal(String valueSyntax, List<String> internalValues) 
+	{
+		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(valueSyntax);
+		return attrConverter.internalValuesToExternal(syntax, internalValues);
+	}
 }

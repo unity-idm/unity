@@ -59,6 +59,8 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.UserImportManagement;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
@@ -126,6 +128,8 @@ public class RESTAdmin
 	private SecuredTokensManagement securedTokenMan;
 	private Token2JsonFormatter jsonFormatter;
 	private UserNotificationTriggerer userNotificationTriggerer;
+
+	private BulkGroupQueryService bulkQueryService;
 	
 	@Autowired
 	public RESTAdmin(EntityManagement identitiesMan, GroupsManagement groupsMan,
@@ -140,7 +144,8 @@ public class RESTAdmin
 			EventPublisher eventPublisher,
 			SecuredTokensManagement securedTokenMan,
 			Token2JsonFormatter jsonFormatter,
-			UserNotificationTriggerer userNotificationTriggerer)
+			UserNotificationTriggerer userNotificationTriggerer,
+			BulkGroupQueryService bulkQueryService)
 	{
 		this.identitiesMan = identitiesMan;
 		this.groupsMan = groupsMan;
@@ -158,6 +163,7 @@ public class RESTAdmin
 		this.securedTokenMan = securedTokenMan;
 		this.jsonFormatter = jsonFormatter;
 		this.userNotificationTriggerer = userNotificationTriggerer;
+		this.bulkQueryService = bulkQueryService;
 	}
 
 	
@@ -431,14 +437,15 @@ public class RESTAdmin
 		log.debug("getGroupMembersResolved query for " + group);
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		GroupContents contents = groupsMan.getContents(group, GroupContents.MEMBERS);
-		List<GroupMembership> members = contents.getMembers();
-		List<GroupMember> ret = new ArrayList<>(members.size());
-		for (GroupMembership membership: members)
+		GroupMembershipData bulkMembershipData = bulkQueryService.getBulkMembershipData(group);
+		Map<Long, Map<String, AttributeExt>> userAttributes = 
+				bulkQueryService.getGroupUsersAttributes(group, bulkMembershipData);
+		Map<Long, Entity> entitiesData = bulkQueryService.getGroupEntitiesNoContextWithoutTargeted(bulkMembershipData);
+		List<GroupMember> ret = new ArrayList<>(userAttributes.size());
+		for (Long memberId: userAttributes.keySet())
 		{
-			EntityParam entityP = new EntityParam(membership.getEntityId());
-			Collection<AttributeExt> attributes = attributesMan.getAttributes(entityP, group, null);
-			Entity entity = identitiesMan.getEntity(entityP);
+			Collection<AttributeExt> attributes = userAttributes.get(memberId).values(); 
+			Entity entity = entitiesData.get(memberId);
 			ret.add(new GroupMember(group, entity, attributes));
 		}
 		return mapper.writeValueAsString(ret);

@@ -19,4 +19,6 @@ public interface AttributesMapper extends BasicCRUDMapper<AttributeBean>
 	void deleteAttributesInGroup(AttributeBean a);
 
 	List<AttributeBean> getAttributes(AttributeBean a);
+	
+	List<AttributeBean> getGroupMembersAttributes(String group);
 }

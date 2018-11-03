@@ -48,4 +48,10 @@ public class IdentityRDBMSStore extends NamedCachingCRUD<StoredIdentity, Identit
 	{
 		return getByEntityFull(entityId).stream().map(si -> si.getIdentity()).collect(Collectors.toList());
 	}
+
+	@Override
+	public List<StoredIdentity> getByGroup(String group)
+	{
+		return wrapped.getByGroup(group);
+	}
 }

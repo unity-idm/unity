@@ -46,20 +46,26 @@ public class CredentialReqRepository
 	@Transactional
 	public Collection<CredentialRequirements> getCredentialRequirements() throws EngineException
 	{
-
 		List<CredentialRequirements> res = credentialRequirementDB.getAll();
-		res.add(new SystemCredentialRequirements(credentialRepo, msg));
+		res.add(getSystemAllCredReq());
 		return res;
 	}
 
 	@Transactional
-	public CredentialRequirements get(String name)
+	public CredentialRequirements get(String name) throws EngineException
 	{
-		if (SystemCredentialRequirements.NAME.equals(name))
-			return new SystemCredentialRequirements(credentialRepo, msg);
+		if (SystemAllCredentialRequirements.NAME.equals(name))
+			return getSystemAllCredReq();
 		return credentialRequirementDB.get(name);
 	}
 
+	private CredentialRequirements getSystemAllCredReq() throws EngineException
+	{
+		Set<String> all = credentialRepo.getCredentialDefinitions().stream()
+				.map(c -> c.getName()).collect(Collectors.toSet());
+		return new SystemAllCredentialRequirements(msg, all);
+	}
+	
 	public void assertExist(String name) throws EngineException
 	{
 		if (!getAllNames().contains(name))

@@ -98,4 +98,12 @@ class AttributeRDBMSNoCacheStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		param.setGroup(group);
 		return mapper.getAttributes(param);
 	}
+
+	@Override
+	public List<StoredAttribute> getAttributesOfGroupMembers(String group)
+	{
+		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
+		List<AttributeBean> groupMembersAttributes = mapper.getGroupMembersAttributes(group);
+		return convertList(groupMembersAttributes);
+	}
 }

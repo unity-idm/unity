@@ -71,7 +71,7 @@ public class TestSystemCredential extends DBIntegrationTestBase
 		Collection<CredentialRequirements> credentialRequirements = credReqMan.getCredentialRequirements();	
 		for (CredentialRequirements req : credentialRequirements)
 		{
-			if (req.getName().equals(SystemCredentialRequirements.NAME))
+			if (req.getName().equals(SystemAllCredentialRequirements.NAME))
 			{
 				assertThat(req.getRequiredCredentials().contains("new cred"), is(true));
 			}			

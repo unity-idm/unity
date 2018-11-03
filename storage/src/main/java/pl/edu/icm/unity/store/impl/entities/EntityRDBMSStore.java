@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.store.impl.entities;
 
+import java.util.List;
+
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 
 
@@ -28,5 +31,13 @@ public class EntityRDBMSStore extends GenericRDBMSCRUD<EntityInformation, BaseBe
 		long ret = super.create(obj);
 		obj.setId(ret);
 		return ret;
+	}
+
+	@Override
+	public List<EntityInformation> getByGroup(String group)
+	{
+		EntitiesMapper mapper = SQLTransactionTL.getSql().getMapper(EntitiesMapper.class);
+		List<BaseBean> allInDB = mapper.getByGroup(group);
+		return convertList(allInDB);
 	}
 }

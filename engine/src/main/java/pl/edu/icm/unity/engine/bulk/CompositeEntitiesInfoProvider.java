@@ -12,10 +12,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.bulk.CompositeGroupContents;
+import com.google.common.base.Stopwatch;
+
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -37,6 +42,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 @Component
 class CompositeEntitiesInfoProvider
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, CompositeEntitiesInfoProvider.class);
 	@Autowired
 	private AttributeTypeDAO attributeTypeDAO;
 	@Autowired
@@ -57,20 +63,33 @@ class CompositeEntitiesInfoProvider
 	private CredentialReqRepository credentialReqRepository;
 
 	
-	public CompositeGroupContents getCompositeGroupContents(String group) throws EngineException
+	public GroupMembershipData getCompositeGroupContents(String group) throws EngineException
 	{
+		Stopwatch watch = Stopwatch.createStarted();
 		Map<Long, Set<String>> memberships = getMemberships(group);
-		return CompositeGroupContentsImpl.builder()
+		GroupMembershipDataImpl ret = GroupMembershipDataImpl.builder(group)
 			.withAttributeTypes(attributeTypeDAO.getAllAsMap())
 			.withAttributeClasses(acDB.getAllAsMap())
 			.withGroups(groupDAO.getAllAsMap())
-			.withMemberships(memberships)
-			.withEntityInfo(getEntityInfo(memberships.keySet()))
-			.withIdentities(getIdentities(memberships.keySet()))
-			.withDirectAttributes(getAttributes(memberships.keySet()))
 			.withCredentials(credentialRepository.getCredentialDefinitions())
+			.withMemberships(memberships)
+			.withEntityInfo(getEntityInfo(group))
+			.withIdentities(getIdentities(memberships.keySet(), group))
+			.withDirectAttributes(getAttributes(memberships.keySet(), group))
 			.withCredentialRequirements(getCredentialRequirements())
 			.build();
+		log.debug("Bulk group membership data retrieval: {}", watch.toString());
+		return ret;
+	}
+	
+	public GroupStructuralData getGroupStructuralContents(String group) throws EngineException
+	{
+		Stopwatch watch = Stopwatch.createStarted();
+		GroupStructuralDataImpl ret = GroupStructuralDataImpl.builder()
+			.withGroups(groupDAO.getAllAsMap())
+			.build();
+		log.debug("Bulk group structural data retrieval: {}", watch.toString());
+		return ret;
 	}
 	
 	private Map<String, CredentialRequirements> getCredentialRequirements() throws EngineException
@@ -79,14 +98,15 @@ class CompositeEntitiesInfoProvider
 			.collect(Collectors.toMap(cr -> cr.getName(), cr -> cr));
 	}
 
-	private Map<Long, Map<String, Map<String, AttributeExt>>> getAttributes(Set<Long> entities)
+	private Map<Long, Map<String, Map<String, AttributeExt>>> getAttributes(Set<Long> entities, String group)
 	{
-		List<StoredAttribute> all = attributeDAO.getAll(); //TODO improve, get by group from DB
+		Stopwatch w = Stopwatch.createStarted();
+		List<StoredAttribute> all = attributeDAO.getAttributesOfGroupMembers(group);
+		log.debug("getAttrs {}", w.toString());
 		Map<Long, Map<String, Map<String, AttributeExt>>> ret = new HashMap<>();
 		for (Long member: entities)
 			ret.put(member, new HashMap<>());
 		all.stream() 
-			.filter(sa -> entities.contains(sa.getEntityId()))
 			.forEach(sa -> 
 			{
 				Map<String, Map<String, AttributeExt>> entityAttrs = ret.get(sa.getEntityId());
@@ -101,37 +121,34 @@ class CompositeEntitiesInfoProvider
 		return ret;
 	}
 
-	private Map<Long, EntityInformation> getEntityInfo(Set<Long> entities)
+	private Map<Long, EntityInformation> getEntityInfo(String group)
 	{
-		return entityDAO.getAll().stream() //TODO improve, get by group from DB
-			.filter(entity -> entities.contains(entity.getId()))
+		return entityDAO.getByGroup(group).stream()
 			.collect(Collectors.toMap(entity -> entity.getId(), entity->entity));
 	}
 
-	private Map<Long, List<Identity>> getIdentities(Set<Long> entities)
+	private Map<Long, List<Identity>> getIdentities(Set<Long> entities, String group)
 	{
-		List<StoredIdentity> all = identityDAO.getAll(); //TODO improve, get by group from DB
+		Stopwatch w = Stopwatch.createStarted();
+		List<StoredIdentity> all = identityDAO.getByGroup(group);
+		log.debug("getIdentities {}", w.toString());
 		Map<Long, List<Identity>> ret = new HashMap<>();
 		for (Long member: entities)
 			ret.put(member, new ArrayList<>());
 		all.stream() 
-			.filter(storedIdentity -> entities.contains(storedIdentity.getEntityId()))
 			.forEach(storedIdentity -> ret.get(storedIdentity.getEntityId()).add(storedIdentity.getIdentity()));
 		return ret;
 	}
 
 	private Map<Long, Set<String>> getMemberships(String group)
 	{
-		List<GroupMembership> all = membershipDAO.getAll(); //TODO: improve, getBygroup from DB
-		Set<Long> members = all.stream()
-				.filter(g -> g.getGroup().equals(group))
-				.map(g -> g.getEntityId())
-				.collect(Collectors.toSet());
+		Stopwatch w = Stopwatch.createStarted();
+		List<GroupMembership> all = membershipDAO.getMembers(group);
+		log.debug("getMembers {}", w.toString());
 		Map<Long, Set<String>> ret = new HashMap<>();
-		for (Long member: members)
-			ret.put(member, new HashSet<>());
+		for (GroupMembership gm: all)
+			ret.put(gm.getEntityId(), new HashSet<>());
 		all.stream()
-			.filter(membership -> members.contains(membership.getEntityId()))
 			.forEach(membership -> ret.get(membership.getEntityId()).add(membership.getGroup()));
 		return ret;
 	}

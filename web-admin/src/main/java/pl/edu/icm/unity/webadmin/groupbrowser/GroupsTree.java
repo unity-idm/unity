@@ -10,9 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -31,12 +31,13 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -69,7 +70,6 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GroupsTree extends TreeGrid<TreeNode>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupsTree.class);
 	private GroupsManagement groupsMan;
 	private EntityManagement identitiesMan;
 	private UnityMessageSource msg;
@@ -79,18 +79,21 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private GridContextMenuSupport<TreeNode> contextMenuSupp;
 	private EntityCreationHandler entityCreationDialogHandler;
 	private Toolbar<TreeNode> toolbar;
+	private BulkGroupQueryService bulkQueryService;
 	
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
 			UnityMessageSource msg, AttributeClassManagement acMan,
 			EntityCreationHandler entityCreationDialogHandler,
-			GroupManagementHelper groupManagementHelper)
+			GroupManagementHelper groupManagementHelper,
+			BulkGroupQueryService bulkQueryService)
 	{
 		this.groupsMan = groupsMan;
 		this.identitiesMan = identitiesMan;
 		this.msg = msg;
 		this.acMan = acMan;
 		this.entityCreationDialogHandler = entityCreationDialogHandler;
+		this.bulkQueryService = bulkQueryService;
 		
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 		addExpandListener(new GroupExpandListener());
@@ -538,11 +541,11 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			// in case of refresh
 			removeAllChildren(expandedNode);
 			
-			GroupContents contents;
+			
+			GroupStructuralData bulkData;
 			try
 			{
-				contents = groupsMan.getContents(expandedNode.getPath(),
-						GroupContents.GROUPS | GroupContents.METADATA);
+				bulkData = bulkQueryService.getBulkStructuralData(expandedNode.getPath());
 			} catch (Exception e)
 			{
 				expandedNode.setIcon(Images.noAuthzGrp.getHtml());
@@ -550,27 +553,21 @@ public class GroupsTree extends TreeGrid<TreeNode>
 				expand(expandedNode);
 				return;
 			}
+			Map<String, GroupContents> groupAndSubgroups = bulkQueryService.getGroupAndSubgroups(bulkData);
+
 			expandedNode.setIcon(Images.folder.getHtml());
+			GroupContents contents = groupAndSubgroups.get(expandedNode.getPath());
 			expandedNode.setGroupMetadata(contents.getGroup());
 
 			List<String> subgroups = contents.getSubGroups();
 			Collections.sort(subgroups);
 			for (String subgroup : subgroups)
 			{
-				GroupContents contents2;
-				try
-				{
-					contents2 = groupsMan.getContents(subgroup,
-							GroupContents.METADATA);
-					TreeNode node = new TreeNode(msg, contents2.getGroup(),
-							Images.folder.getHtml(),
-							expandedNode);
-					treeData.addItem(node.getParentNode(), node);
-				} catch (EngineException e)
-				{
-					log.debug("Group " + subgroup
-							+ " won't be shown - metadata not readable.");
-				}
+				GroupContents contents2 = groupAndSubgroups.get(subgroup);
+				TreeNode node = new TreeNode(msg, contents2.getGroup(),
+						Images.folder.getHtml(),
+						expandedNode);
+				treeData.addItem(node.getParentNode(), node);
 			}
 			
 			expandedNode.setContentsFetched(true);

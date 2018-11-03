@@ -46,7 +46,7 @@ public class CredentialRequirementsHolder
 	private void initHandlers(Set<String> configuredCredentials, Collection<CredentialDefinition> credDefs) 
 			throws IllegalCredentialException
 	{
-		Map<String, CredentialDefinition> crDefsMap = new HashMap<String, CredentialDefinition>();
+		Map<String, CredentialDefinition> crDefsMap = new HashMap<>();
 		for (CredentialDefinition cr: credDefs)
 			crDefsMap.put(cr.getName(), cr);
 		for (String credDef: configuredCredentials)

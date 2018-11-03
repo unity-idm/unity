@@ -5,9 +5,9 @@
 package pl.edu.icm.unity.engine.api.bulk;
 
 /**
- * Marker interface for data structure used for bulk queries.
+ * Marker interface for data structure used for bulk queries on group members and their attributes.
  * @author K. Benedyczak
  */
-public interface CompositeGroupContents
+public interface GroupMembershipData
 {
 }

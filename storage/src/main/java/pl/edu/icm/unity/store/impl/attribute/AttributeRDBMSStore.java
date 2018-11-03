@@ -82,4 +82,10 @@ public class AttributeRDBMSStore extends BasicCachingCRUD<StoredAttribute, Attri
 	{
 		return src.stream().map(sa -> sa.getAttribute()).collect(Collectors.toList());
 	}
+
+	@Override
+	public List<StoredAttribute> getAttributesOfGroupMembers(String group)
+	{
+		return wrapped.getAttributesOfGroupMembers(group);
+	}
 }

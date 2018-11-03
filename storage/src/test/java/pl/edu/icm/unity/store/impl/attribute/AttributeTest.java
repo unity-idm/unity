@@ -22,6 +22,7 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 {
@@ -40,6 +42,8 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	private EntityDAO entityDAO;
 	@Autowired
 	private AttributeTypeDAO atDao;
+	@Autowired
+	private MembershipDAO membershipDao;
 
 	
 	private long entityId;
@@ -112,6 +116,38 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			List<StoredAttribute> attributes = dao.getAttributes(null, null, "/C");
 			
 			assertAllAndOnlyAllInSA(Lists.newArrayList(obj2, obj3, obj4), attributes);
+		});
+	}
+
+	@Test
+	public void allAttribtuesOfGroupMembersAreReturned()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			obj.getAttribute().setGroupPath("/");
+			obj.getAttribute().setName("attr");
+			dao.create(obj);
+			
+			StoredAttribute obj2 = getObject("");
+			obj2.getAttribute().setGroupPath("/C");
+			obj2.getAttribute().setName("attr2");
+			dao.create(obj2);
+
+			StoredAttribute obj4 = getObject("");
+			obj4.getAttribute().setGroupPath("/C");
+			obj4.getAttribute().setName("attr3");
+			obj4 = new StoredAttribute(obj4.getAttribute(), entityId2);
+			dao.create(obj4);
+
+
+			membershipDao.create(new GroupMembership("/C", entityId, new Date(1)));
+			membershipDao.create(new GroupMembership("/", entityId, new Date(1)));
+			membershipDao.create(new GroupMembership("/", entityId2, new Date(1)));
+			
+			List<StoredAttribute> attributes = dao.getAttributesOfGroupMembers("/C");
+			
+			assertAllAndOnlyAllInSA(Lists.newArrayList(obj, obj2), attributes);
 		});
 	}
 	

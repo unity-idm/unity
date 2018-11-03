@@ -40,7 +40,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
-import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
+import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -155,7 +155,7 @@ public class EntityManagementImpl implements EntityManagement
 	public Identity addEntity(IdentityParam toAdd, EntityState initialState,
 			boolean extractAttributes) throws EngineException
 	{
-		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, null);
+		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, null);
 	}
 
 	@Override
@@ -178,7 +178,7 @@ public class EntityManagementImpl implements EntityManagement
 			EntityState initialState, boolean extractAttributes,
 			List<Attribute> attributesP) throws EngineException
 	{
-		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, attributesP);
+		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, attributesP);
 	}
 	
 	private static class IdentityWithAuthzInfo
