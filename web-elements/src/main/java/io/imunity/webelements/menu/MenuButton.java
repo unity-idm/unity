@@ -120,7 +120,7 @@ public class MenuButton extends Button implements MenuElement
 		return id;
 	}
 
-	public MenuButton updateToolTip()
+	private MenuButton updateToolTip()
 	{
 		String toolTip = "";
 		String caption = getCaption();
@@ -151,7 +151,7 @@ public class MenuButton extends Button implements MenuElement
 		return this;
 	}
 
-	public MenuButton removeToolTip()
+	private MenuButton removeToolTip()
 	{
 		String caption = getCaption();
 		if (toolTip != null && !toolTip.isEmpty() && caption != null && !caption.isEmpty())
@@ -162,7 +162,7 @@ public class MenuButton extends Button implements MenuElement
 		return this;
 	}
 
-	public boolean isActive()
+	private boolean isActive()
 	{
 		return getStyleName().contains(Styles.menuButtonActive.toString());
 	}

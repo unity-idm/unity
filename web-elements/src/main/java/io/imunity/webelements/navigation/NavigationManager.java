@@ -32,7 +32,7 @@ public class NavigationManager
 
 		navigationMap = providers.stream().collect(Collectors
 				.toMap(p -> p.getNavigationInfo().id, p -> p.getNavigationInfo()));
-		initChild();
+		initChildren();
 		initDefaultView();
 	}
 
@@ -50,7 +50,7 @@ public class NavigationManager
 			navigationMap.put("", defaultView);
 	}
 
-	public void initChild()
+	private void initChildren()
 	{
 		navigationChildren = new HashMap<>();
 
@@ -59,14 +59,13 @@ public class NavigationManager
 
 			if (view.parent == null)
 			{
-				initChild(view);
+				initChilden(view);
 			}
 		}
 	}
 
-	private void initChild(NavigationInfo view)
+	private void initChilden(NavigationInfo view)
 	{
-
 		List<NavigationInfo> children = navigationMap.values().stream()
 				.filter(v -> v.parent != null && v.parent.id.equals(view.id))
 				.collect(Collectors.toList());
@@ -78,7 +77,7 @@ public class NavigationManager
 
 		for (NavigationInfo child : children)
 		{
-			initChild(child);
+			initChilden(child);
 		}
 
 	}
