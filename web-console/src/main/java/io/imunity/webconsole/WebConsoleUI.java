@@ -12,7 +12,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.PushStateNavigation;
@@ -46,7 +45,6 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 @Component("WebConsoleUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
-@PreserveOnRefresh
 public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private StandardWebAuthenticationProcessor authnProcessor;
@@ -90,10 +88,9 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	private void buildLeftMenu()
 	{
 		LeftMenu leftMenu = webConsoleLayout.getLeftMenu();
-		LeftMenuLabel label = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource())
-				.withClickListener(e -> {
-					webConsoleLayout.getLeftMenu().toggleSize();
-				});
+		LeftMenuLabel label = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
+				//TODO - disabled until minimalized menu CSS is fixed.
+				//.withClickListener(e -> webConsoleLayout.getLeftMenu().toggleSize());
 
 		leftMenu.addMenuElement(label);
 		leftMenu.addNavigationElements(RootNavigationInfoProvider.ID);
@@ -102,7 +99,6 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-
 		webConsoleLayout = SidebarLayout.get(navigationMan)
 				.withNaviContent(new VerticalLayout())
 				.withViewProvider(appContextViewProvider)
@@ -113,5 +109,11 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		buildTopOnlyMenu();
 		buildLeftMenu();
 		setContent(webConsoleLayout);
+	}
+	
+	@Override
+	public String getUiRootPath()
+	{
+		return endpointDescription.getEndpoint().getContextAddress();
 	}
 }
