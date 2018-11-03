@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider;
+package io.imunity.webconsole;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +13,6 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityViewBase;
@@ -21,20 +20,21 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
- * SAML view
+ * Default error view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class SAML extends UnityViewBase
+public class WebConsoleErrorView extends UnityViewBase
 {
-	public static String VIEW_NAME = "SAML";
+
+	public static final String VIEW_NAME = "Error";
 
 	private UnityMessageSource msg;
 
 	@Autowired
-	public SAML(UnityMessageSource msg)
+	public WebConsoleErrorView(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -44,7 +44,7 @@ public class SAML extends UnityViewBase
 	{
 		VerticalLayout main = new VerticalLayout();
 		Label title = new Label();
-		title.setValue("SAML");
+		title.setValue(msg.getMessage("error"));
 		main.addComponent(title);
 		setCompositionRoot(main);
 	}
@@ -52,22 +52,17 @@ public class SAML extends UnityViewBase
 	@Override
 	public String getDisplayName()
 	{
-		return msg.getMessage("WebConsoleMenu.idpProvider.saml");
+		return msg.getMessage("error");
 	}
 
 	@Component
-	public static class SAMLViewInfoProvider implements WebConsoleNavigationInfoProvider
+	public class WebConsoleErrorViewInfoProvider implements WebConsoleNavigationInfoProvider
 	{
-		private UnityMessageSource msg;
-		private IdpNavigationInfoProvider parent;
 		private ObjectFactory<?> factory;
 
 		@Autowired
-		public SAMLViewInfoProvider(UnityMessageSource msg,
-				IdpNavigationInfoProvider parent, ObjectFactory<SAML> factory)
+		public WebConsoleErrorViewInfoProvider(ObjectFactory<WebConsoleErrorView> factory)
 		{
-			this.msg = msg;
-			this.parent = parent;
 			this.factory = factory;
 
 		}
@@ -77,10 +72,8 @@ public class SAML extends UnityViewBase
 		{
 
 			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo())
-					.withObjectFactory(factory).withCaption(msg.getMessage(
-							"WebConsoleMenu.idpProvider.saml"))
-					.build();
+					.withParent(null).withObjectFactory(factory).build();
 		}
+
 	}
 }

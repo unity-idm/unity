@@ -3,9 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.exception;
-
-import pl.edu.icm.unity.exceptions.EngineException;
+package pl.edu.icm.unity.exceptions;
 
 /**
  * Thrown to signal UI element about problem with engine operation.
@@ -13,7 +11,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * @author P.Piernik
  *
  */
-public class ControllerException extends EngineException
+public class ControllerException extends Exception
 {
 	public enum Type
 	{
@@ -21,7 +19,7 @@ public class ControllerException extends EngineException
 	}
 
 	private Type type;
-	private String errorCapion;
+	private String capion;
 
 	public ControllerException(String errorCapion, Throwable cause)
 	{
@@ -37,7 +35,7 @@ public class ControllerException extends EngineException
 			Throwable cause)
 	{
 		super(errorDetails, cause);
-		this.errorCapion = errorCapion;
+		this.capion = errorCapion;
 		this.type = type;
 	}
 
@@ -46,12 +44,12 @@ public class ControllerException extends EngineException
 		return type;
 	}
 
-	public String getErrorCaption()
+	public String getCaption()
 	{
-		return errorCapion;
+		return capion;
 	}
 
-	public String getErrorDetails()
+	public String getDetails()
 	{
 		return getMessage();
 	}

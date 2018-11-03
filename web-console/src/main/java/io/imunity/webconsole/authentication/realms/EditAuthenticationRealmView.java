@@ -9,18 +9,19 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
-import io.imunity.webconsole.authentication.realms.Realms.RealmsNavigationInfoProvider;
-import io.imunity.webelements.common.AbstractConfirmView;
-import io.imunity.webelements.exception.ControllerException;
-import io.imunity.webelements.navigation.NameParamViewNameProvider;
+import io.imunity.webconsole.authentication.realms.AuthenticationRealmsView.RealmsNavigationInfoProvider;
+import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
+import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -31,23 +32,24 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  *
  */
 @PrototypeComponent
-public class EditRealm extends AbstractConfirmView
+public class EditAuthenticationRealmView extends UnityViewBase
 {
 
-	public static String VIEW_NAME = "EditRealm";
+	public static String VIEW_NAME = "EditAuthenticationRealm";
 
-	private RealmController controller;
+	private AuthenticationRealmController controller;
 	private AuthenticationRealmEditor editor;
+	private UnityMessageSource msg;
+	private String realmName;
 
 	@Autowired
-	public EditRealm(UnityMessageSource msg, RealmController controller)
+	public EditAuthenticationRealmView(UnityMessageSource msg, AuthenticationRealmController controller)
 	{
-		super(msg, msg.getMessage("ok", msg.getMessage("cancel")));
+		this.msg = msg;
 		this.controller = controller;
 	}
 
-	@Override
-	protected void onConfirm()
+	private void onConfirm()
 	{
 		if (editor.hasErrors())
 		{
@@ -61,47 +63,49 @@ public class EditRealm extends AbstractConfirmView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e.getErrorCaption(), e.getErrorDetails());
+			NotificationPopup.showError(e);
 			return;
 		}
 
-		UI.getCurrent().getNavigator().navigateTo(Realms.class.getSimpleName());
+		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.VIEW_NAME);
+
+	}
+
+	private void onCancel()
+	{
+		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.VIEW_NAME);
 
 	}
 
 	@Override
-	protected void onCancel()
+	public void enter(ViewChangeEvent event)
 	{
-		UI.getCurrent().getNavigator().navigateTo(Realms.class.getSimpleName());
-
-	}
-
-	@Override
-	protected Component getContents(ViewChangeEvent event) throws Exception
-	{
-
+		realmName = getParam(event, "name");
 		AuthenticationRealm realm;
 		try
 		{
-			realm = controller.getRealm(getRealmName(event));
+			realm = controller.getRealm(realmName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e.getErrorCaption(), e.getErrorDetails());
-			UI.getCurrent().getNavigator().navigateTo(Realms.class.getSimpleName());
-			return null;
+			NotificationPopup.showError(e);
+			UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.VIEW_NAME);
+			return;
 		}
 
 		editor = new AuthenticationRealmEditor(msg, realm);
-		editor.editMode();
+		VerticalLayout main = new VerticalLayout();
 
-		return editor;
+		main.addComponent(editor);
+		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
+				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());
+		main.addComponent(hl);
+		setCompositionRoot(main);
 	}
-
-	private String getRealmName(ViewChangeEvent event)
+	
+	@Override
+	public String getDisplayName()
 	{
-		return event.getParameterMap().isEmpty() || !event.getParameterMap().containsKey("name")? ""
-				: event.getParameterMap().get("name");
-
+		return realmName;
 	}
 
 	@org.springframework.stereotype.Component
@@ -113,7 +117,7 @@ public class EditRealm extends AbstractConfirmView
 
 		@Autowired
 		public EditRealmViewInfoProvider(RealmsNavigationInfoProvider parent,
-				ObjectFactory<EditRealm> factory)
+				ObjectFactory<EditAuthenticationRealmView> factory)
 		{
 			this.parent = parent;
 			this.factory = factory;
@@ -128,9 +132,9 @@ public class EditRealm extends AbstractConfirmView
 					Type.ParameterizedView)
 							.withParent(parent.getNavigationInfo())
 							.withObjectFactory(factory)
-							.withDisplayNameProvider(
-									new NameParamViewNameProvider())
 							.build();
 		}
 	}
+
+	
 }

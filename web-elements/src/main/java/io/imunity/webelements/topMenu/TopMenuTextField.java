@@ -12,6 +12,7 @@ import io.imunity.webelements.common.MenuElement;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
+ * Top menu text field. By default is collapsed. Expands on mouse hover
  * 
  * @author P.Piernik
  *

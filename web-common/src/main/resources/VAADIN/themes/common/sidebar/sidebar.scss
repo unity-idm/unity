@@ -1,23 +1,23 @@
 /* Colors */
-$wb-dark-color: rgb(66, 66, 66);
-$wb-white-color: rgb(245, 245, 245);
+$sidebar-dark-color: rgb(66, 66, 66);
+$sidebar-white-color: rgb(245, 245, 245);
 
-@import "webConsole-utils";
+@import "sidebar-utils";
 
-@mixin webConsole {
-    .webConsole {
+@mixin sidebar {
+    .sidebar {
         position: relative;
         z-index: 1;
              
         /* top menu */
         .v-slot-topMenu {
-            @include wbPos(fixed, 0, null, null, 0, 1000);
+            @include sidebarPos(fixed, 0, null, null, 0, 1000);
             
             .topMenu {
-                @include wbPos(fixed, 0, 100px, null, null, 1000);
+                @include sidebarPos(fixed, 0, 100px, null, null, 1000);
                 
                 .v-slot.v-slot-topMenuTextField > div {
-                    @include wbTransition(width 0.3s ease-in-out);
+                    @include sidebarTransition(width 0.3s ease-in-out);
                     width: 36px !important;
                     overflow: hidden;
                     
@@ -29,13 +29,13 @@ $wb-white-color: rgb(245, 245, 245);
                     }
                     
                     input.topMenuTextField {
-                        @include wbTransition(width 0.3s ease-in-out);
+                        @include sidebarTransition(width 0.3s ease-in-out);
                         display: inline-block;
                         box-shadow: none !important;
                         outline: unset !important;
                         border-radius: 0 !important;
                         border: none !important;
-                        @include wbSize(0, 30px);
+                        @include sidebarSize(0, 30px);
                         margin: 6px 0 0 5px;
                         padding: 5px;
                     }
@@ -50,15 +50,15 @@ $wb-white-color: rgb(245, 245, 245);
                 }
                 
                 .v-slot > div {
-                    @include wbSize(36px, 44px);
-                    @include wbPos(relative);
+                    @include sidebarSize(36px, 44px);
+                    @include sidebarPos(relative);
                     vertical-align: middle;
                     text-align: center;
                     line-height: 42px;
                     margin: 0 5px;
                     
                     &.menuButton {
-                        @include wbTransition(background 0.3s ease-in-out, border-top-width 0.3s ease-in-out, height 0.3s ease-in-out);
+                        @include sidebarTransition(background 0.3s ease-in-out, border-top-width 0.3s ease-in-out, height 0.3s ease-in-out);
                         border-top: 0 solid;
                         cursor: pointer;
                         
@@ -66,7 +66,7 @@ $wb-white-color: rgb(245, 245, 245);
                             margin: 0;
                             
                             .toolTip {
-                                @include wbPos(absolute, 32px, -6px);
+                                @include sidebarPos(absolute, 32px, -6px);
                                 border-radius: 4px;
                                 line-height: 17px;
                                 font-size: 14px;
@@ -90,16 +90,16 @@ $wb-white-color: rgb(245, 245, 245);
         /* root content */
         .rootContent {
             & > .v-expand {
-                @include wbTransition(padding-left 0.3s ease-in-out);
+                @include sidebarTransition(padding-left 0.3s ease-in-out);
                 padding-left: 250px !important;
                 
                 /* Left Menu */
                 .v-slot-leftMenu {
-                    @include wbTransition(margin-left 0.3s ease-in-out);
+                    @include sidebarTransition(margin-left 0.3s ease-in-out);
                     margin-left: -250px !important;
                     
                     .leftMenu {
-                        @include wbTransition(width 0.3s ease-in-out);
+                        @include sidebarTransition(width 0.3s ease-in-out);
                         width: 250px !important;
                         
                         & > .v-expand > .v-slot {
@@ -120,7 +120,7 @@ $wb-white-color: rgb(245, 245, 245);
                                 padding: 10px;
                                 
                                 &:after {
-                                    @include wbPos(absolute, null, null, 0, 0);
+                                    @include sidebarPos(absolute, null, null, 0, 0);
                                     border-bottom: 1px solid;
                                     content: '';
                                     width: 100%;
@@ -138,7 +138,7 @@ $wb-white-color: rgb(245, 245, 245);
                         }
 
                         .menuButton {
-                            @include wbTransition(background 0.3s, border-left 0.3s, height 0.5s);
+                            @include sidebarTransition(background 0.3s, border-left 0.3s, height 0.5s);
                             border-left: 0 solid transparent;
                             background: transparent;
                             overflow: hidden;
@@ -157,13 +157,13 @@ $wb-white-color: rgb(245, 245, 245);
                         }
 
                         .menuButton-wrap {
-                            @include wbTransition(border 0.3s);
-                            @include wbPos(relative);
+                            @include sidebarTransition(border 0.3s);
+                            @include sidebarPos(relative);
                             display: block;
                             z-index: 1000;
 
                             .v-icon {
-                                @include wbPos(relative);
+                                @include sidebarPos(relative);
                                 vertical-align: middle;
                                 display: inline-block;
                                 text-align: center;
@@ -180,20 +180,20 @@ $wb-white-color: rgb(245, 245, 245);
                         .subMenu {
                             & > .v-slot {
                                 &:first-child .toolTip {
-                                    @include wbPos(absolute, 0, 5px);
-                                    @include wbSize(30px, 30px);
+                                    @include sidebarPos(absolute, 0, 5px);
+                                    @include sidebarSize(30px, 30px);
 
                                     .v-icon {
-                                        @include wbTransition(transform 0.3s ease-in-out);
-                                        @include wbTransformRotate(0deg);
-                                        @include wbSize(30px, 30px);
+                                        @include sidebarTransition(transform 0.3s ease-in-out);
+                                        @include sidebarTransformRotate(0deg);
+                                        @include sidebarSize(30px, 30px);
                                         line-height: 27px;
                                         margin: 0;
                                     }
                                 }
 
                                 &:last-child > .v-verticallayout {
-                                    @include wbTransition(max-height 0.5s ease-in-out);
+                                    @include sidebarTransition(max-height 0.5s ease-in-out);
                                     width: calc(100% - 24px) !important;
                                     border-left: 1px solid transparent;
                                     position: relative;
@@ -206,7 +206,7 @@ $wb-white-color: rgb(245, 245, 245);
                         
                             &.open > .v-slot {
                                 &:first-child .toolTip .v-icon {
-                                    @include wbTransformRotate(-180deg);
+                                    @include sidebarTransformRotate(-180deg);
                                 }
 
                                 &:last-child > .v-verticallayout {
@@ -271,7 +271,7 @@ $wb-white-color: rgb(245, 245, 245);
                                     }
 
                                     .menuButton-caption {
-                                        @include wbTransition(left 0.5s ease-in-out, opacity 0.5s ease-in-out);
+                                        @include sidebarTransition(left 0.5s ease-in-out, opacity 0.5s ease-in-out);
                                         padding: 9px 13px 8px;
                                         top: calc(-50% + 5px);
                                         pointer-events: none;
@@ -315,7 +315,7 @@ $wb-white-color: rgb(245, 245, 245);
             $white-button-active-background: $white-content-background;
             $white-button-hover-background: rgb(189, 189, 189);
             
-            @include wbTheme(
+            @include sidebarTheme(
                     $white-content-background, 
                     $white-menuLeft-background,
                     $white-button-active-background,
@@ -332,7 +332,7 @@ $wb-white-color: rgb(245, 245, 245);
             $dark-button-active-background: $dark-content-background;
             $dark-button-hover-background: rgb(33, 33, 33);
         
-            @include wbTheme(
+            @include sidebarTheme(
                     $dark-content-background, 
                     $dark-menuLeft-background,
                     $dark-button-active-background,

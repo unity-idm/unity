@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -18,21 +17,29 @@ import io.imunity.webconsole.RootNavigationInfoProvider;
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
+import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
- * Default page
+ * Default dashbord view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class Dashboard extends CustomComponent implements UnityView
+public class Dashboard extends UnityViewBase
 {
 
 	public static final String VIEW_NAME = "Dashboard";
+
+	private UnityMessageSource msg;
+
+	@Autowired
+	public Dashboard(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
@@ -42,6 +49,12 @@ public class Dashboard extends CustomComponent implements UnityView
 		title.setValue("Welcome in Unity Web Console");
 		main.addComponent(title);
 		setCompositionRoot(main);
+	}
+
+	@Override
+	public String getDisplayName()
+	{
+		return msg.getMessage("WebConsoleMenu.dashboard");
 	}
 
 	@Component
@@ -68,10 +81,10 @@ public class Dashboard extends CustomComponent implements UnityView
 			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withDisplayNameProvider(e -> msg
-							.getMessage("WebConsoleMenu.dashboard"))
+					.withCaption(msg.getMessage("WebConsoleMenu.dashboard"))
 					.withPosition(0).build();
 		}
 
 	}
+
 }

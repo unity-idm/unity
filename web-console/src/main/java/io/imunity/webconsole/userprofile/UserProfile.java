@@ -10,28 +10,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.RootNavigationInfoProvider;
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
-import io.imunity.webconsole.dashboard.Dashboard;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
+import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
+ * User profile view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class UserProfile extends CustomComponent implements UnityView
+public class UserProfile extends UnityViewBase
 {
 	public static String VIEW_NAME = "UserProfile";
+
+	private UnityMessageSource msg;
+
+	@Autowired
+	public UserProfile(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
@@ -41,6 +48,12 @@ public class UserProfile extends CustomComponent implements UnityView
 		title.setValue("User profile");
 		main.addComponent(title);
 		setCompositionRoot(main);
+	}
+
+	@Override
+	public String getDisplayName()
+	{
+		return msg.getMessage("WebConsoleMenu.userProfile");
 	}
 
 	@Component
@@ -53,7 +66,7 @@ public class UserProfile extends CustomComponent implements UnityView
 
 		@Autowired
 		public UserProfileNavigationInfoProvider(UnityMessageSource msg,
-				RootNavigationInfoProvider parent, ObjectFactory<Dashboard> factory)
+				RootNavigationInfoProvider parent, ObjectFactory<UserProfile> factory)
 		{
 			this.msg = msg;
 			this.parent = parent;
@@ -68,10 +81,8 @@ public class UserProfile extends CustomComponent implements UnityView
 			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withDisplayNameProvider(e -> msg
-							.getMessage("WebConsoleMenu.otherServices"))
+					.withCaption(msg.getMessage("WebConsoleMenu.userProfile"))
 					.withPosition(3).build();
 		}
 	}
-
 }

@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 /**
+ * Unity navigation structure manager. Contains map of
+ * {@link NavigationInfoProvider}. Initializes the default view
  * 
  * @author P.Piernik
  *
@@ -27,7 +27,6 @@ public class NavigationManager
 	private Map<String, NavigationInfo> navigationMap;
 	private Map<String, List<NavigationInfo>> navigationChildren;
 
-	@Autowired
 	public NavigationManager(Collection<? extends NavigationInfoProvider> providers)
 	{
 
@@ -87,10 +86,12 @@ public class NavigationManager
 	public List<NavigationInfo> getParentPath(String viewName)
 	{
 		List<NavigationInfo> ret = new ArrayList<>();
-		if (viewName != null)
+
+		if (viewName != null && navigationMap.containsKey(viewName))
 		{
 			getParent(navigationMap.get(viewName), ret);
 		}
+
 		Collections.reverse(ret);
 		return trimRootGroup(ret);
 
@@ -103,10 +104,12 @@ public class NavigationManager
 
 	private List<NavigationInfo> getParent(NavigationInfo viewInfo, List<NavigationInfo> ret)
 	{
-		ret.add(navigationMap.get(viewInfo.id));
+		if (viewInfo == null)
+			return ret;
+		ret.add(viewInfo);
 		if (viewInfo.parent == null)
 			return ret;
-		return getParent(navigationMap.get(viewInfo.parent.id), ret);
+		return getParent(viewInfo.parent, ret);
 	}
 
 	public List<NavigationInfo> getChildren(String viewName)

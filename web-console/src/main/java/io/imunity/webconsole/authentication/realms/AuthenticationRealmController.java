@@ -10,9 +10,9 @@ import java.util.Collection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webelements.exception.ControllerException;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 
@@ -23,13 +23,13 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  *
  */
 @Component
-public class RealmController
+public class AuthenticationRealmController
 {
 	private RealmsManagement realmMan;
 	private UnityMessageSource msg;
 
 	@Autowired
-	public RealmController(UnityMessageSource msg, RealmsManagement realmMan)
+	public AuthenticationRealmController(UnityMessageSource msg, RealmsManagement realmMan)
 	{
 		this.realmMan = realmMan;
 		this.msg = msg;
@@ -44,7 +44,8 @@ public class RealmController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("RealmController.addError", realm.getName()),
+					msg.getMessage("AuthenticationRealmController.addError",
+							realm.getName()),
 					e.getMessage(), e);
 		}
 
@@ -59,8 +60,10 @@ public class RealmController
 			realmMan.updateRealm(realm);
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("RealmController.updateError",
-					realm.getName()), e.getMessage(), e);
+			throw new ControllerException(
+					msg.getMessage("AuthenticationRealmController.updateError",
+							realm.getName()),
+					e.getMessage(), e);
 		}
 
 		return true;
@@ -74,8 +77,10 @@ public class RealmController
 
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("RealmController.removeError",
-					realm.getName()), e.getMessage(), e);
+			throw new ControllerException(
+					msg.getMessage("AuthenticationRealmController.removeError",
+							realm.getName()),
+					e.getMessage(), e);
 		}
 
 		return true;
@@ -88,7 +93,8 @@ public class RealmController
 			return realmMan.getRealms();
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage("RealmController.getAllError"),
+			throw new ControllerException(
+					msg.getMessage("AuthenticationRealmController.getAllError"),
 					e.getMessage(), e);
 		}
 	}
@@ -101,7 +107,8 @@ public class RealmController
 		} catch (EngineException e)
 		{
 			throw new ControllerException(
-					msg.getMessage("RealmController.getError", realmName),
+					msg.getMessage("AuthenticationRealmController.getError",
+							realmName),
 					e.getMessage(), e);
 		}
 	}

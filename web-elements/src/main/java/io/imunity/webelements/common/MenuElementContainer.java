@@ -8,7 +8,7 @@ package io.imunity.webelements.common;
 import java.util.Collection;
 
 /**
- * 
+ * Contains {@link MenuElement}
  * @author P.Piernik
  *
  */

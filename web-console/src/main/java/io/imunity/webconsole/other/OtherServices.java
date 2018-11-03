@@ -10,16 +10,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.RootNavigationInfoProvider;
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
-import io.imunity.webconsole.dashboard.Dashboard;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
+import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -30,10 +28,18 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  *
  */
 @PrototypeComponent
-public class OtherServices extends CustomComponent implements UnityView
+public class OtherServices extends UnityViewBase
 {
 
 	public static String VIEW_NAME = "OtherServices";
+
+	private UnityMessageSource msg;
+
+	@Autowired
+	public OtherServices(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
@@ -46,6 +52,13 @@ public class OtherServices extends CustomComponent implements UnityView
 		setCompositionRoot(main);
 	}
 
+	@Override
+	public String getDisplayName()
+	{
+
+		return msg.getMessage("WebConsoleMenu.otherServices");
+	}
+
 	@Component
 	public static class OtherServicesNavigationInfoProvider
 			implements WebConsoleNavigationInfoProvider
@@ -56,7 +69,7 @@ public class OtherServices extends CustomComponent implements UnityView
 
 		@Autowired
 		public OtherServicesNavigationInfoProvider(UnityMessageSource msg,
-				RootNavigationInfoProvider parent, ObjectFactory<Dashboard> factory)
+				RootNavigationInfoProvider parent, ObjectFactory<OtherServices> factory)
 		{
 			this.msg = msg;
 			this.parent = parent;
@@ -71,8 +84,7 @@ public class OtherServices extends CustomComponent implements UnityView
 			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withDisplayNameProvider(e -> msg
-							.getMessage("WebConsoleMenu.otherServices"))
+					.withCaption(msg.getMessage("WebConsoleMenu.otherServices"))
 					.withPosition(4).build();
 		}
 	}

@@ -21,18 +21,18 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P.Piernik
  *
  */
-public class MenuLabel extends CustomComponent implements MenuElement
+public class LeftMenuLabel extends CustomComponent implements MenuElement
 {
 
 	private Label label;
 	private HorizontalLayout main;
 
-	public static MenuLabel get()
+	public static LeftMenuLabel get()
 	{
-		return new MenuLabel();
+		return new LeftMenuLabel();
 	}
 
-	public MenuLabel()
+	public LeftMenuLabel()
 	{
 		main = new HorizontalLayout();
 		main.setSizeFull();
@@ -47,42 +47,36 @@ public class MenuLabel extends CustomComponent implements MenuElement
 		setCompositionRoot(main);
 	}
 
-	public MenuLabel withCaption(String caption)
+	public LeftMenuLabel withCaption(String caption)
 	{
 		label.setCaption(caption);
 		return this;
 	}
 
-	public MenuLabel withIcon(Resource icon)
+	public LeftMenuLabel withIcon(Resource icon)
 	{
 		label.setIcon(icon);
 		return this;
 	}
 
-	public MenuLabel withClickListener(LayoutClickListener listener)
+	public LeftMenuLabel withClickListener(LayoutClickListener listener)
 	{
 		main.addLayoutClickListener(listener);
 		return this;
 	}
 
-//	@Override
-//	public void setPrimaryStyleName(String style)
-//	{
-//		label.addStyleName(style);
-//	}
-
 	@Override
 	public void activate()
 	{
 		setVisible(true);
-		
+
 	}
 
 	@Override
 	public void deactivate()
 	{
 		setVisible(true);
-		
+
 	}
 
 	@Override
@@ -90,51 +84,4 @@ public class MenuLabel extends CustomComponent implements MenuElement
 	{
 		return super.getId();
 	}
-
-	
-
-	
-	
-	
-//	@Override
-//	public String getRootStyle()
-//	{
-//		return Styles.menuLabel.toString();
-//	}
-//
-//	@Override
-//	public <C extends MenuComponent<?>> C add(C c)
-//	{
-//		return null;
-//	}
-//
-//	@Override
-//	public <C extends MenuComponent<?>> C addAsFirst(C c)
-//	{
-//		return null;
-//	}
-//
-//	@Override
-//	public <C extends MenuComponent<?>> C addAt(C c, int index)
-//	{
-//		return null;
-//	}
-//
-//	@Override
-//	public int count()
-//	{
-//		return 0;
-//	}
-//
-//	@Override
-//	public <C extends MenuComponent<?>> Label remove(C c)
-//	{
-//		return null;
-//	}
-//
-//	@Override
-//	public List<MenuComponent<?>> getList()
-//	{
-//		return null;
-//	}
 }

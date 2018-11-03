@@ -20,6 +20,7 @@ import com.vaadin.navigator.ViewProvider;
 import pl.edu.icm.unity.base.utils.Log;
 
 /**
+ * Provides unity view based on {@link NavigationManager}
  * 
  * @author P.Piernik
  *
@@ -37,7 +38,8 @@ public class AppContextViewProvider implements ViewProvider
 	{
 		viewFactories = new HashMap<>();
 
-		for (Entry<String, NavigationInfo> navEntry : navMan.getNavigationInfoMap().entrySet())
+		for (Entry<String, NavigationInfo> navEntry : navMan.getNavigationInfoMap()
+				.entrySet())
 		{
 			viewFactories.put(navEntry.getKey(), navEntry.getValue().objectFactory);
 		}
@@ -62,7 +64,7 @@ public class AppContextViewProvider implements ViewProvider
 	@Override
 	public View getView(String viewName)
 	{
-		if (viewName != null)
+		if (viewName != null && viewFactories.containsKey(viewName))
 		{
 			try
 			{
@@ -72,6 +74,9 @@ public class AppContextViewProvider implements ViewProvider
 			{
 				LOG.debug("Cannot load view " + viewName, e);
 			}
+		} else
+		{
+			LOG.debug("View " + viewName + " not exits");
 		}
 
 		return null;

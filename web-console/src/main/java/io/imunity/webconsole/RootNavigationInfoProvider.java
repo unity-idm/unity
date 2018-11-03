@@ -10,9 +10,10 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
+import io.imunity.webelements.navigation.UnityView;
 
 /**
- * 
+ * Root for all navigable web console {@link UnityView}
  * @author P.Piernik
  *
  */

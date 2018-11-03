@@ -9,11 +9,11 @@ package io.imunity.webelements.navigation;
 import com.vaadin.navigator.View;
 
 /**
- * 
+ * In principle all View should implement this interface.
  * @author P.Piernik
  *
  */
 public interface UnityView extends View
 {
-	//String getViewDisplayName();
+	String getDisplayName();
 }

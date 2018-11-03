@@ -15,7 +15,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
- * 
+ * Provides @{link {@link NavigationInfo} about idp providers submenu
  * @author P.Piernik
  *
  */
@@ -41,8 +41,7 @@ public class IdpNavigationInfoProvider implements WebConsoleNavigationInfoProvid
 
 		return new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
-				.withDisplayNameProvider(
-						e -> msg.getMessage("WebConsoleMenu.idpProvider"))
+				.withCaption(msg.getMessage("WebConsoleMenu.idpProvider"))
 				.withPosition(2).build();
 	}
 

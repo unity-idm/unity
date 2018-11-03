@@ -12,6 +12,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
@@ -23,13 +24,15 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.common.ListOfElementsWithActions;
-import io.imunity.webelements.exception.ControllerException;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
@@ -40,16 +43,16 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
  *
  */
 @PrototypeComponent
-public class Realms extends CustomComponent implements UnityView
+public class AuthenticationRealmsView extends CustomComponent implements UnityView
 {
-	public static final String viewName = "Realms";
+	public static final String VIEW_NAME = "AuthenticationRealms";
 
-	private RealmController realmsMan;
+	private AuthenticationRealmController realmsMan;
 	private UnityMessageSource msg;
 	private ListOfElementsWithActions<AuthenticationRealm> realmsList;
 
 	@Autowired
-	public Realms(UnityMessageSource msg, RealmController realmsMan)
+	public AuthenticationRealmsView(UnityMessageSource msg, AuthenticationRealmController realmsMan)
 	{
 		this.realmsMan = realmsMan;
 		this.msg = msg;
@@ -63,7 +66,7 @@ public class Realms extends CustomComponent implements UnityView
 		Button newRealm = new Button();
 		newRealm.setCaption(msg.getMessage("add"));
 		newRealm.addClickListener(e -> {
-			getUI().getNavigator().navigateTo(NewRealm.class.getSimpleName());
+			getUI().getNavigator().navigateTo(NewAuthenticationRealmView.VIEW_NAME);
 		});
 		buttonsBar.addComponent(newRealm);
 		buttonsBar.setComponentAlignment(newRealm, Alignment.MIDDLE_RIGHT);
@@ -74,20 +77,20 @@ public class Realms extends CustomComponent implements UnityView
 		SingleActionHandler<AuthenticationRealm> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationRealm.class)
 				.withHandler(r -> getUI().getNavigator()
-						.navigateTo(EditRealm.VIEW_NAME + "?"
-								+ "name=" + r.iterator().next().getName()))
+						.navigateTo(EditAuthenticationRealmView.VIEW_NAME + "?" + "name="
+								+ r.iterator().next().getName()))
 				.build();
 		SingleActionHandler<AuthenticationRealm> view = SingleActionHandler
 				.builder4ShowDetails(msg, AuthenticationRealm.class)
 				.withHandler(r -> getUI().getNavigator()
-						.navigateTo(ViewRealm.VIEW_NAME + "?"
-								+ "name=" + r.iterator().next().getName()))
+						.navigateTo(ShowAuthenticationRealmView.VIEW_NAME + "?" + "name="
+								+ r.iterator().next().getName()))
 				.build();
 
 		SingleActionHandler<AuthenticationRealm> remove = SingleActionHandler
 				.builder4Delete(msg, AuthenticationRealm.class).withHandler(r -> {
 
-					remove(r.iterator().next());
+					tryRemove(r.iterator().next());
 
 				}
 
@@ -97,7 +100,7 @@ public class Realms extends CustomComponent implements UnityView
 		realmsList.addActionHandler(edit);
 		realmsList.addActionHandler(remove);
 		realmsList.setAddSeparatorLine(true);
-		realmsList.addHeader(msg.getMessage("Realms.nameTitle"), msg.getMessage("actions"));
+		realmsList.addHeader(msg.getMessage("AuthenticationRealm.nameCaption"), msg.getMessage("actions"));
 
 		for (AuthenticationRealm realm : getRealms())
 		{
@@ -106,7 +109,6 @@ public class Realms extends CustomComponent implements UnityView
 
 		main.addComponent(buttonsBar);
 		main.addComponent(realmsList);
-
 		main.setWidth(50, Unit.PERCENTAGE);
 
 		setCompositionRoot(main);
@@ -119,14 +121,9 @@ public class Realms extends CustomComponent implements UnityView
 			return realmsMan.getRealms();
 		} catch (ControllerException e)
 		{
-			showError(e);
+			NotificationPopup.showError(e);
 		}
 		return Collections.emptyList();
-	}
-
-	private void showError(ControllerException e)
-	{
-		NotificationPopup.showError(e.getErrorCaption(), e.getErrorDetails());
 	}
 
 	private void remove(AuthenticationRealm realm)
@@ -137,8 +134,25 @@ public class Realms extends CustomComponent implements UnityView
 				realmsList.removeEntry(realm);
 		} catch (ControllerException e)
 		{
-			showError(e);
+			NotificationPopup.showError(e);
 		}
+	}
+
+	private void tryRemove(AuthenticationRealm realm)
+	{
+
+		String confirmText = MessageUtils.createConfirmFromStrings(msg,
+				Sets.newHashSet(realm.getName()));
+		new ConfirmDialog(msg, msg.getMessage("AuthenticationRealm.confirmDelete", confirmText),
+				() -> remove(realm)).show();
+
+	}
+	
+
+	@Override
+	public String getDisplayName()
+	{
+		return msg.getMessage("WebConsoleMenu.authentication.realms");
 	}
 
 	@Component
@@ -152,7 +166,7 @@ public class Realms extends CustomComponent implements UnityView
 		@Autowired
 		public RealmsNavigationInfoProvider(UnityMessageSource msg,
 				AuthenticationNavigationInfoProvider parent,
-				ObjectFactory<Realms> factory)
+				ObjectFactory<AuthenticationRealmsView> factory)
 		{
 			this.msg = msg;
 			this.parent = parent;
@@ -164,10 +178,10 @@ public class Realms extends CustomComponent implements UnityView
 		public NavigationInfo getNavigationInfo()
 		{
 
-			return new NavigationInfo.NavigationInfoBuilder(viewName, Type.View)
+			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withDisplayNameProvider(e -> msg.getMessage(
+					.withCaption(msg.getMessage(
 							"WebConsoleMenu.authentication.realms"))
 					.build();
 		}

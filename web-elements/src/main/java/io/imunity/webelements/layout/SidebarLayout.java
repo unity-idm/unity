@@ -5,11 +5,7 @@
 
 package io.imunity.webelements.layout;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.navigator.ViewProvider;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -17,14 +13,15 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.common.DefaultErrorView;
 import io.imunity.webelements.leftMenu.LeftMenu;
+import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.UnityView;
 import io.imunity.webelements.topMenu.TopMenu;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
- * Main layout of Webconsole endpoint
+ * Main layout of left sidebar like endpoint
  * 
  * @author P.Piernik
  *
@@ -32,14 +29,15 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class SidebarLayout extends CustomComponent
 {
 
-	private NavigationManager viewMan;
-	private Collection<ViewProvider> viewProviders;
+	private NavigationManager navMan;
+	private ViewProvider viewProvider;
 
 	private HorizontalLayout rootContent;
 	private BreadCrumbs breadcrumbs;
 	private Layout naviContent;
 	private TopMenu topMenu;
 	private LeftMenu leftMenu;
+	private UnityView errorView;
 
 	public static SidebarLayout get(NavigationManager viewMan)
 	{
@@ -48,18 +46,18 @@ public class SidebarLayout extends CustomComponent
 
 	public SidebarLayout(NavigationManager viewMan)
 	{
-		this.viewMan = viewMan;
-		this.viewProviders = new ArrayList<>();
+		this.navMan = viewMan;
 		setSizeFull();
-		setStyleName(Styles.webConsole.toString());
+		setStyleName(Styles.sidebar.toString());
 
 		topMenu = new TopMenu();
-		leftMenu = new LeftMenu();
+		leftMenu = new LeftMenu(viewMan);
 
 	}
 
 	public SidebarLayout build()
 	{
+
 		VerticalLayout main = new VerticalLayout();
 		main.setSizeFull();
 		main.setMargin(false);
@@ -75,27 +73,22 @@ public class SidebarLayout extends CustomComponent
 		naviContent.setStyleName(Styles.contentBox.toString());
 
 		new Navigator(ui, naviContent);
-		ui.getNavigator().setErrorView(DefaultErrorView.class);
-		for (ViewProvider p : viewProviders)
+
+		ui.getNavigator().addViewChangeListener(leftMenu);
+
+		if (errorView != null)
 		{
-			ui.getNavigator().addProvider(p);
+			ui.getNavigator().setErrorView(errorView);
+
+		} 
+
+		if (viewProvider != null)
+		{
+			ui.getNavigator().addProvider(viewProvider);
+		} else
+		{
+			ui.getNavigator().addProvider(new AppContextViewProvider(navMan));
 		}
-		ui.getNavigator().addViewChangeListener(new ViewChangeListener()
-		{
-			@Override
-			public boolean beforeViewChange(ViewChangeEvent event)
-			{
-				return true;
-			}
-
-			@Override
-			public void afterViewChange(ViewChangeEvent event)
-			{
-
-				leftMenu.adapt(viewMan.getParentPath(event.getViewName()));
-
-			}
-		});
 
 		main.addComponent(topMenu);
 
@@ -109,7 +102,7 @@ public class SidebarLayout extends CustomComponent
 		naviContentWrapper.setMargin(false);
 		naviContentWrapper.setSpacing(false);
 		naviContentWrapper.setSizeFull();
-		breadcrumbs = new BreadCrumbs(viewMan);
+		breadcrumbs = new BreadCrumbs(navMan);
 		ui.getNavigator().addViewChangeListener(breadcrumbs);
 		naviContentWrapper.addComponents(breadcrumbs, naviContent);
 		naviContentWrapper.setExpandRatio(naviContent, 1f);
@@ -120,7 +113,7 @@ public class SidebarLayout extends CustomComponent
 		main.addComponent(rootContent);
 		main.setExpandRatio(rootContent, 1f);
 
-		addStyleName(Styles.wbWhite.toString());
+		addStyleName(Styles.sidebarWhite.toString());
 		setCompositionRoot(main);
 
 		return this;
@@ -154,7 +147,13 @@ public class SidebarLayout extends CustomComponent
 
 	public SidebarLayout withViewProvider(ViewProvider provider)
 	{
-		viewProviders.add(provider);
+		this.viewProvider = provider;
+		return this;
+	}
+
+	public SidebarLayout withErrorView(UnityView errorView)
+	{
+		this.errorView = errorView;
 		return this;
 	}
 }

@@ -1,4 +1,4 @@
-@mixin wbTransition($settings1, $settings2: null, $settings3: null) {
+@mixin sidebarTransition($settings1, $settings2: null, $settings3: null) {
     @if ($settings2) {
         @if ($settings3) {
             -webkit-transition: $settings1, $settings2, $settings3;
@@ -22,7 +22,7 @@
     }
 }
 
-@mixin wbPos($position: null, $top: null, $right: null, $bottom: null, $left: null, $z-index: null) {
+@mixin sidebarPos($position: null, $top: null, $right: null, $bottom: null, $left: null, $z-index: null) {
     @if ($position) {
         position: $position;
     }
@@ -43,7 +43,7 @@
     }
 }
 
-@mixin wbSize($width: null, $height: null) {
+@mixin sidebarSize($width: null, $height: null) {
     @if ($width) {
         width: $width;
     }
@@ -52,7 +52,7 @@
     }
 }
 
-@mixin wbTransformTranslate($x: null, $y: null) {
+@mixin sidebarTransformTranslate($x: null, $y: null) {
     @if ($x) {
         @if ($y) {
             -webkit-transform: translateX($x) translateY($y);
@@ -76,7 +76,7 @@
     }
 }
 
-@mixin wbTransformRotate($settings1) {
+@mixin sidebarTransformRotate($settings1) {
     -webkit-transform: rotate($settings1);
     -moz-transform: rotate($settings1);
     -ms-transform: rotate($settings1);
@@ -84,33 +84,33 @@
     transform: rotate($settings1);
 }
 
-@mixin wbTheme($content-background, 
+@mixin sidebarTheme($content-background, 
         $menuLeft-background,
         $button-active-background,
         $button-hover-background,
         $tooltip-background,
         $tooltip-active-background) {
     .topMenu .v-slot > div {
-        @include wbBackgroundWithColor($menuLeft-background);
+        @include sidebarBackgroundWithColor($menuLeft-background);
         border-top-color: $tooltip-background !important;
         
         &:hover {
-            @include wbBackgroundWithColor($button-hover-background);
+            @include sidebarBackgroundWithColor($button-hover-background);
         }
         
         .menuButton-caption .toolTip {
-            @include wbBackgroundWithColor($tooltip-background);
+            @include sidebarBackgroundWithColor($tooltip-background);
         }
     }
     
     .rootContent {
-        @include wbBackgroundWithColor($content-background);
+        @include sidebarBackgroundWithColor($content-background);
 
         .leftMenu {
             background: $menuLeft-background;
 
             .v-slot-menuLabel > div .v-caption:after {
-                border-bottom-color: rgba(wbColorDedect($menuLeft-background), 0.25) !important;
+                border-bottom-color: rgba(sidebarColorDetect($menuLeft-background), 0.25) !important;
             }
             
             .menuButton {
@@ -118,30 +118,30 @@
 
                 &.active {
                     border-left-color: $tooltip-active-background !important;
-                    @include wbBackgroundWithColor($button-active-background);
+                    @include sidebarBackgroundWithColor($button-active-background);
                 }
 
                 &:hover {
-                    @include wbBackgroundWithColor($button-hover-background);
+                    @include sidebarBackgroundWithColor($button-hover-background);
                 }
             }
 
             .subMenu > .v-slot:last-child > .v-verticallayout {
-                border-left-color: rgba(wbColorDedect($menuLeft-background), 0.25) !important;
+                border-left-color: rgba(sidebarColorDetect($menuLeft-background), 0.25) !important;
             }
         }
     }
 }
 
-@function wbColorDedect($background) {
+@function sidebarColorDetect($background) {
     @if (lightness($background) > 50) {
-        @return $wb-dark-color;
+        @return $sidebar-dark-color;
     } @else {
-        @return $wb-white-color;
+        @return $sidebar-white-color;
     }
 }
 
-@mixin wbBackgroundWithColor($background) {
+@mixin sidebarBackgroundWithColor($background) {
     background: $background;
-    color: wbColorDedect($background);
+    color: sidebarColorDetect($background);
 }

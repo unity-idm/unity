@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
+import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -28,10 +27,17 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  *
  */
 @PrototypeComponent
-public class Routes extends CustomComponent implements UnityView
+public class Routes extends UnityViewBase
 {
 
 	public static final String VIEW_NAME = "Routes";
+	private UnityMessageSource msg;
+
+	@Autowired
+	public Routes(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
@@ -41,6 +47,13 @@ public class Routes extends CustomComponent implements UnityView
 		Label title = new Label();
 		title.setValue("Routes main");
 		setCompositionRoot(main);
+	}
+
+	@Override
+	public String getDisplayName()
+	{
+
+		return msg.getMessage("WebConsoleMenu.authentication.routes");
 	}
 
 	@Component
@@ -68,7 +81,7 @@ public class Routes extends CustomComponent implements UnityView
 			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withDisplayNameProvider(e -> msg.getMessage(
+					.withCaption(msg.getMessage(
 							"WebConsoleMenu.authentication.routes"))
 					.build();
 		}

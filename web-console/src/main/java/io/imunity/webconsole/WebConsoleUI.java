@@ -6,7 +6,6 @@
 package io.imunity.webconsole;
 
 import java.util.Collection;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -22,15 +21,12 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.dashboard.Dashboard;
 import io.imunity.webelements.common.MenuButton;
-import io.imunity.webelements.common.MenuElementContainer;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.leftMenu.LeftMenu;
-import io.imunity.webelements.leftMenu.MenuLabel;
-import io.imunity.webelements.leftMenu.SubMenu;
+import io.imunity.webelements.leftMenu.LeftMenuLabel;
 import io.imunity.webelements.navigation.AppContextViewProvider;
-import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.UnityView;
 import io.imunity.webelements.topMenu.TopMenu;
 import io.imunity.webelements.topMenu.TopMenuTextField;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -94,46 +90,13 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	private void buildLeftMenu()
 	{
 		LeftMenu leftMenu = webConsoleLayout.getLeftMenu();
-		MenuLabel label = MenuLabel.get().withIcon(Images.logoSmall.getResource())
+		LeftMenuLabel label = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource())
 				.withClickListener(e -> {
 					webConsoleLayout.getLeftMenu().toggleSize();
 				});
 
-		leftMenu.addEntry(label);
-
-		buildLeftMenu(navigationMan.getChildren(RootNavigationInfoProvider.ID), leftMenu);
-	}
-
-	private void buildLeftMenu(List<NavigationInfo> viewChildren, LeftMenu menuContainer)
-
-	{
-		for (NavigationInfo child : viewChildren)
-		{
-			if (child.type == Type.ViewGroup)
-			{
-
-				MenuElementContainer subMenu = SubMenu.get(child.id)
-						.withCaption(child.id).withIcon(child.icon);
-				buildSubMenu(navigationMan.getChildren(child.id), subMenu);
-				menuContainer.addSubContainerEntry(subMenu);
-
-			} else if (child.type == Type.View || child.type == Type.DefaultView)
-			{
-				menuContainer.addEntry(MenuButton.get(child.id)
-						.withCaption(child.id).withNavigateTo(child.id)
-						.withIcon(child.icon));
-			}
-		}
-	}
-
-	private void buildSubMenu(List<NavigationInfo> viewChildren,
-			MenuElementContainer menuContainer)
-	{
-		for (NavigationInfo child : viewChildren)
-		{
-			menuContainer.addMenuElement(MenuButton.get(child.id).withCaption(child.id)
-					.withNavigateTo(child.id).withIcon(child.icon));
-		}
+		leftMenu.addMenuElement(label);
+		leftMenu.addNavigationElements(RootNavigationInfoProvider.ID);
 	}
 
 	@Override
@@ -142,7 +105,11 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 
 		webConsoleLayout = SidebarLayout.get(navigationMan)
 				.withNaviContent(new VerticalLayout())
-				.withViewProvider(appContextViewProvider).build();
+				.withViewProvider(appContextViewProvider)
+				.withErrorView((UnityView) navigationMan.getNavigationInfoMap()
+						.get(WebConsoleErrorView.VIEW_NAME).objectFactory
+								.getObject())
+				.build();
 		buildTopOnlyMenu();
 		buildLeftMenu();
 		setContent(webConsoleLayout);

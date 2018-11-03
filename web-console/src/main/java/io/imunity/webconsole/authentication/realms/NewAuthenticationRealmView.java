@@ -9,46 +9,48 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
+import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
-import io.imunity.webconsole.authentication.realms.Realms.RealmsNavigationInfoProvider;
-import io.imunity.webelements.common.AbstractConfirmView;
-import io.imunity.webelements.exception.ControllerException;
-import io.imunity.webelements.navigation.NameParamViewNameProvider;
+import io.imunity.webconsole.authentication.realms.AuthenticationRealmsView.RealmsNavigationInfoProvider;
+import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
- * View for add realm
+ * Add realm view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class NewRealm extends AbstractConfirmView
+public class NewAuthenticationRealmView extends CustomComponent implements UnityView
 {
 
-	public static String VIEW_NAME = "NewRealm";
+	public static String VIEW_NAME = "NewAuthenticationRealm";
 
-	private RealmController controller;
+	private AuthenticationRealmController controller;
 	private AuthenticationRealmEditor editor;
+	private UnityMessageSource msg;
 
 	@Autowired
-	public NewRealm(UnityMessageSource msg, RealmController controller)
+	public NewAuthenticationRealmView(UnityMessageSource msg, AuthenticationRealmController controller)
 	{
-		super(msg, msg.getMessage("ok", msg.getMessage("cancel")));
+		this.msg = msg;
 		this.controller = controller;
 	}
 
-	@Override
-	protected void onConfirm()
+	private void onConfirm()
 	{
 		if (editor.hasErrors())
 		{
@@ -62,18 +64,17 @@ public class NewRealm extends AbstractConfirmView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e.getErrorCaption(), e.getErrorDetails());
+			NotificationPopup.showError(e);
 			return;
 		}
 
-		UI.getCurrent().getNavigator().navigateTo(Realms.class.getSimpleName());
+		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.class.getSimpleName());
 
 	}
 
-	@Override
-	protected void onCancel()
+	private void onCancel()
 	{
-		UI.getCurrent().getNavigator().navigateTo(Realms.class.getSimpleName());
+		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.class.getSimpleName());
 
 	}
 
@@ -90,11 +91,22 @@ public class NewRealm extends AbstractConfirmView
 	}
 
 	@Override
-	protected Component getContents(ViewChangeEvent event) throws Exception
+	public void enter(ViewChangeEvent event)
 	{
-
+		VerticalLayout main = new VerticalLayout();
 		editor = new AuthenticationRealmEditor(msg, getDefaultAuthenticationRealm());
-		return editor;
+		main.addComponent(editor);
+		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
+				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());
+		main.addComponent(hl);
+		setCompositionRoot(main);
+
+	}
+	
+	@Override
+	public String getDisplayName()
+	{
+		return msg.getMessage("new");
 	}
 
 	@org.springframework.stereotype.Component
@@ -107,7 +119,7 @@ public class NewRealm extends AbstractConfirmView
 
 		@Autowired
 		public NewRealmNavigationInfoProvider(RealmsNavigationInfoProvider parent,
-				ObjectFactory<NewRealm> factory)
+				ObjectFactory<NewAuthenticationRealmView> factory)
 		{
 			this.parent = parent;
 			this.factory = factory;
@@ -122,9 +134,9 @@ public class NewRealm extends AbstractConfirmView
 					Type.ParameterizedView)
 							.withParent(parent.getNavigationInfo())
 							.withObjectFactory(factory)
-							.withDisplayNameProvider(
-									new NameParamViewNameProvider())
 							.build();
 		}
 	}
+
+	
 }

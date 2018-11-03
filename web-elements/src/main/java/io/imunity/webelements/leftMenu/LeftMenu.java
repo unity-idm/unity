@@ -11,12 +11,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.common.MenuButton;
 import io.imunity.webelements.common.MenuElement;
 import io.imunity.webelements.common.MenuElementContainer;
 import io.imunity.webelements.navigation.NavigationInfo;
+import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -25,7 +29,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P.Piernik
  *
  */
-public class LeftMenu extends CustomComponent
+public class LeftMenu extends CustomComponent implements ViewChangeListener, MenuElementContainer
 {
 
 	public enum ToggleMode
@@ -33,6 +37,7 @@ public class LeftMenu extends CustomComponent
 		NORMAL, MINIMAL;
 	}
 
+	private NavigationManager navMan;
 	private VerticalLayout main;
 	private Map<String, MenuElement> menuElements;
 	private Map<String, MenuElementContainer> menuContainers;
@@ -40,9 +45,9 @@ public class LeftMenu extends CustomComponent
 	private List<MenuElement> activatedElements;
 	private ToggleMode toggleMode;
 
-	public LeftMenu()
+	public LeftMenu(NavigationManager navMan)
 	{
-
+		this.navMan = navMan;
 		main = new VerticalLayout();
 		setWidth(250, Unit.EM);
 		setHeight(100, Unit.PERCENTAGE);
@@ -54,7 +59,7 @@ public class LeftMenu extends CustomComponent
 		menuContainers = new HashMap<>();
 		allElements = new HashMap<>();
 		activatedElements = new ArrayList<>();
-		
+
 		toggleMode = ToggleMode.NORMAL;
 	}
 
@@ -108,15 +113,7 @@ public class LeftMenu extends CustomComponent
 
 	}
 
-	public void addEntry(MenuElement entry)
-	{
-
-		menuElements.put(entry.getMenuElementId(), entry);
-		allElements.put(entry.getMenuElementId(), entry);
-		main.addComponent(entry);
-	}
-
-	public void addSubContainerEntry(MenuElementContainer container)
+	public void addSubContainerElement(MenuElementContainer container)
 	{
 		menuContainers.put(container.getMenuElementId(), container);
 		allElements.put(container.getMenuElementId(), container);
@@ -129,7 +126,7 @@ public class LeftMenu extends CustomComponent
 		main.addComponent(container);
 	}
 
-	public void adapt(List<NavigationInfo> path)
+	private void adapt(List<NavigationInfo> path)
 	{
 		for (MenuElement activeted : activatedElements)
 		{
@@ -141,7 +138,7 @@ public class LeftMenu extends CustomComponent
 		{
 			container.deactivate();
 		}
-		
+
 		for (NavigationInfo view : path)
 		{
 			if (allElements.containsKey(view.id))
@@ -152,14 +149,72 @@ public class LeftMenu extends CustomComponent
 			}
 		}
 	}
+	
+	@Override
+	public String getMenuElementId()
+	{
+		return super.getId();
+	}
 
-	public Collection<MenuElement> getEntries()
+	@Override
+	public void addMenuElement(MenuElement entry)
+	{
+		menuElements.put(entry.getMenuElementId(), entry);
+		allElements.put(entry.getMenuElementId(), entry);
+		main.addComponent(entry);	
+	}
+
+	@Override
+	public Collection<MenuElement> getMenuElements()
 	{
 		return menuElements.values();
 	}
 
-	public Collection<MenuElementContainer> getSubContainerEntries()
+	public Collection<MenuElementContainer> getSubContainerElements()
 	{
 		return menuContainers.values();
+	}
+
+	public void addNavigationElements(String rootNavElement)
+
+	{
+		for (NavigationInfo child : navMan.getChildren(rootNavElement))
+		{
+			if (child.type == Type.ViewGroup)
+			{
+
+				MenuElementContainer subMenu = SubMenu.get(child.id)
+						.withCaption(child.caption).withIcon(child.icon);
+				buildSubMenu(navMan.getChildren(child.id), subMenu);
+				addSubContainerElement(subMenu);
+
+			} else if (child.type == Type.View || child.type == Type.DefaultView)
+			{
+				addMenuElement(MenuButton.get(child.id).withCaption(child.caption)
+						.withNavigateTo(child.id).withIcon(child.icon));
+			}
+		}
+	}
+
+	private void buildSubMenu(List<NavigationInfo> viewChildren,
+			MenuElementContainer menuContainer)
+	{
+		for (NavigationInfo child : viewChildren)
+		{
+			menuContainer.addMenuElement(MenuButton.get(child.id).withCaption(child.caption)
+					.withNavigateTo(child.id).withIcon(child.icon));
+		}
+	}
+
+	@Override
+	public boolean beforeViewChange(ViewChangeEvent event)
+	{
+		return true;
+	}
+
+	@Override
+	public void afterViewChange(ViewChangeEvent event)
+	{
+		adapt(navMan.getParentPath(event.getViewName()));
 	}
 }

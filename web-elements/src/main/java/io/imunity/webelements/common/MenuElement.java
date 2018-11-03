@@ -8,7 +8,7 @@ package io.imunity.webelements.common;
 import com.vaadin.ui.Component;
 
 /**
- * 
+ * Single menu element
  * @author P.Piernik
  *
  */

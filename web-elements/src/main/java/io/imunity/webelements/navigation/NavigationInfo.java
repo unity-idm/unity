@@ -12,7 +12,7 @@ import com.vaadin.server.Resource;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
- * 
+ * Contains information about @{link {@link UnityView}
  * @author P.Piernik
  *
  */
@@ -27,7 +27,7 @@ public class NavigationInfo
 	public final NavigationInfo parent;
 	public final Type type;
 	public final ObjectFactory<?> objectFactory;
-	public final ViewDisplayNameProvider displayNameProvider;
+	public final String caption;
 	public final Resource icon;
 	public final int position;
 
@@ -39,48 +39,9 @@ public class NavigationInfo
 		this.type = builder.type;
 		this.objectFactory = builder.objectFactory;
 		this.icon = builder.icon;
-		this.displayNameProvider = builder.displayNameProvider;
+		this.caption = builder.caption;
 		this.position = builder.position;
 	}
-
-	//
-	// public NavigationInfo(Type type, String id, NavigationInfo parent)
-	// {
-	// this(type, id, parent, null, e -> id, null, 0);
-	// }
-	//
-	// public NavigationInfo(Type type, String id, NavigationInfo parent,
-	// int order)
-	// {
-	// this(type, id, parent, null, e -> id, null, order);
-	// }
-	//
-	// public NavigationInfo(Type type, String id, NavigationInfo parent,
-	// ObjectFactory<?> objectFactory, ViewDisplayNameProvider
-	// displayNameProvider)
-	// {
-	// this(type, id, parent, objectFactory, displayNameProvider, null, 0);
-	// }
-	//
-	// public NavigationInfo(Type type, String id, NavigationInfo parent,
-	// ViewDisplayNameProvider displayNameProvider, int order)
-	// {
-	// this(type, id, parent, null, displayNameProvider, null, order);
-	// }
-	//
-	// public NavigationInfo(Type type, String id, NavigationInfo parent,
-	// ObjectFactory<?> objectFactory, ViewDisplayNameProvider
-	// displayNameProvider,
-	// Resource icon, int order)
-	// {
-	// this.type = type;
-	// this.id = id;
-	// this.parent = parent;
-	// this.objectFactory = objectFactory;
-	// this.displayNameProvider = displayNameProvider;
-	// this.icon = icon;
-	// this.position = order;
-	// }
 
 	public static class NavigationInfoBuilder
 	{
@@ -89,7 +50,7 @@ public class NavigationInfo
 		private Type type;
 
 		private ObjectFactory<?> objectFactory;
-		private ViewDisplayNameProvider displayNameProvider;
+		private String caption;
 		private Resource icon;
 		private int position;
 
@@ -97,7 +58,7 @@ public class NavigationInfo
 		{
 			this.id = id;
 			this.type = type;
-			this.displayNameProvider = e -> e.getViewName();
+			this.caption = id;
 			this.position = 0;
 			this.icon = Images.ok.getResource();
 			this.parent = null;
@@ -121,10 +82,9 @@ public class NavigationInfo
 			return this;
 		}
 
-		public NavigationInfoBuilder withDisplayNameProvider(
-				ViewDisplayNameProvider displayNameProvider)
+		public NavigationInfoBuilder withCaption(String caption)
 		{
-			this.displayNameProvider = displayNameProvider;
+			this.caption = caption;
 			return this;
 		}
 
@@ -133,7 +93,7 @@ public class NavigationInfo
 			this.parent = parent;
 			return this;
 		}
-		
+
 		public NavigationInfo build()
 		{
 			return new NavigationInfo(this);

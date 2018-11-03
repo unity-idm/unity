@@ -10,14 +10,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
+import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -28,10 +27,18 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  *
  */
 @PrototypeComponent
-public class OAuth extends CustomComponent implements UnityView
+public class OAuth extends UnityViewBase
 {
 
 	public static String VIEW_NAME = "OAuth";
+
+	private UnityMessageSource msg;
+
+	@Autowired
+	public OAuth(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
@@ -67,9 +74,16 @@ public class OAuth extends CustomComponent implements UnityView
 			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withDisplayNameProvider(e -> msg.getMessage(
+					.withCaption(msg.getMessage(
 							"WebConsoleMenu.idpProvider.oauth"))
 					.build();
 		}
+	}
+
+	@Override
+	public String getDisplayName()
+	{
+
+		return msg.getMessage("WebConsoleMenu.idpProvider.oauth");
 	}
 }
