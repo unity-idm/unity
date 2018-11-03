@@ -106,6 +106,8 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		Set<String> allGroups = data.getGroups().keySet();
 		for (Group group: data.getGroups().values())
 		{
+			if (!Group.isChildOrSame(group.toString(), data.getGroup()))
+				continue;
 			GroupContents entry = new GroupContents();
 			entry.setGroup(group);
 			entry.setSubGroups(getDirectSubGroups(group.toString(), allGroups));

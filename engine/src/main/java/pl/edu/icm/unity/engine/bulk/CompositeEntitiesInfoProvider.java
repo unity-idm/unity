@@ -86,6 +86,7 @@ class CompositeEntitiesInfoProvider
 	{
 		Stopwatch watch = Stopwatch.createStarted();
 		GroupStructuralDataImpl ret = GroupStructuralDataImpl.builder()
+			.withGroup(group)
 			.withGroups(groupDAO.getAllAsMap())
 			.build();
 		log.debug("Bulk group structural data retrieval: {}", watch.toString());

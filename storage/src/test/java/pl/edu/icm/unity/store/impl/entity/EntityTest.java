@@ -4,27 +4,39 @@
  */
 package pl.edu.icm.unity.store.impl.entity;
 
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.Date;
+import java.util.List;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
 import pl.edu.icm.unity.store.tx.TransactionTL;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.EntityState;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 {
 	@Autowired
 	private EntityDAO dao;
+	
+	@Autowired
+	private MembershipDAO membershipDao;
+	
+	@Autowired
+	private GroupDAO groupDAO;
 	
 	@Override
 	protected EntityDAO getDAO()
@@ -100,6 +112,28 @@ public class EntityTest extends AbstractBasicDAOTest<EntityInformation>
 			dao.create(obj2);
 			
 			assertThat(obj2.getId() != key, is(true));
+		});
+	}
+	
+	@Test
+	public void shouldReturnByGroupMembership()
+	{
+		tx.runInTransaction(() -> {
+			long id1 = dao.create(getObject("1"));
+			long id2 = dao.create(getObject("2"));
+			long id3 = dao.create(getObject("3"));
+			
+			groupDAO.create(new Group("/C"));
+			groupDAO.create(new Group("/A"));
+			membershipDao.create(new GroupMembership("/C", id1, new Date(1)));
+			membershipDao.create(new GroupMembership("/C", id2, new Date(1)));
+			membershipDao.create(new GroupMembership("/A", id3, new Date(1)));
+			
+			List<EntityInformation> ret = dao.getByGroup("/C");
+
+			assertThat(ret, is(notNullValue()));
+			assertThat(ret.size(), is(2));
+			assertThat(ret, hasItems(dao.getByKey(id1), dao.getByKey(id2)));
 		});
 	}
 }

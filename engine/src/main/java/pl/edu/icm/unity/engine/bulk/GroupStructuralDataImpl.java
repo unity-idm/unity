@@ -18,6 +18,7 @@ import pl.edu.icm.unity.types.basic.Group;
 class GroupStructuralDataImpl implements GroupStructuralData
 {
 	private Map<String, Group> groups;
+	private String group;
 	
 	private GroupStructuralDataImpl() 
 	{
@@ -33,6 +34,11 @@ class GroupStructuralDataImpl implements GroupStructuralData
 		return groups;
 	}
 
+	public String getGroup()
+	{
+		return group;
+	}
+
 	public static class Builder
 	{
 		GroupStructuralDataImpl obj = new GroupStructuralDataImpl();
@@ -40,6 +46,12 @@ class GroupStructuralDataImpl implements GroupStructuralData
 		public Builder withGroups(Map<String, Group> groups)
 		{
 			obj.groups = Collections.unmodifiableMap(groups);
+			return this;
+		}
+
+		public Builder withGroup(String group)
+		{
+			obj.group = group;
 			return this;
 		}
 		
