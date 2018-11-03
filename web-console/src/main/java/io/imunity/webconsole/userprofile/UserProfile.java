@@ -20,6 +20,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * User profile view
@@ -82,6 +83,7 @@ public class UserProfile extends UnityViewBase
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.userProfile"))
+					.withIcon(Images.user.getResource())
 					.withPosition(3).build();
 		}
 	}

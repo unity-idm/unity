@@ -123,7 +123,7 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 
 	public boolean isOpen()
 	{
-		return getStyleName().contains(Styles.subMenuOpen.toString());
+		return main.getStyleName().contains(Styles.subMenuOpen.toString());
 	}
 
 	@Override

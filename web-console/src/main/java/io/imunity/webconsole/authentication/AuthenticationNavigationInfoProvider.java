@@ -13,9 +13,11 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Provides @{link {@link NavigationInfo} about authentication submenu
+ * 
  * @author P.Piernik
  *
  */
@@ -42,8 +44,7 @@ public class AuthenticationNavigationInfoProvider implements WebConsoleNavigatio
 
 		return new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
-				.withCaption(msg
-						.getMessage("WebConsoleMenu.authentication"))
-				.withPosition(1).build();
+				.withCaption(msg.getMessage("WebConsoleMenu.authentication"))
+				.withIcon(Images.key_o.getResource()).withPosition(1).build();
 	}
 }

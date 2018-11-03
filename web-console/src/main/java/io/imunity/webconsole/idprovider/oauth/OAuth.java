@@ -3,19 +3,18 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.authentication;
+package io.imunity.webconsole.idprovider.oauth;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
-import io.imunity.webconsole.idprovider.SAML;
+import io.imunity.webconsole.idprovider.IdpNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityViewBase;
@@ -23,19 +22,21 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
- * Lists all flows
+ * OAuth view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class Flows extends UnityViewBase
+public class OAuth extends UnityViewBase
 {
-	public static final String VIEW_NAME = "Flows";
+
+	public static String VIEW_NAME = "OAuth";
+
 	private UnityMessageSource msg;
 
 	@Autowired
-	public Flows(UnityMessageSource msg)
+	public OAuth(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -44,40 +45,22 @@ public class Flows extends UnityViewBase
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
-
 		Label title = new Label();
-		title.setValue("Flows");
+		title.setValue("OAuth");
 		main.addComponent(title);
-
-		Button link2 = new Button();
-		link2.setCaption("Go to SAML");
-		link2.addClickListener(e -> {
-			goToView(SAML.VIEW_NAME);
-		});
-
-		main.addComponent(link2);
 		setCompositionRoot(main);
-
-	}
-
-	@Override
-	public String getDisplayName()
-	{
-		return msg.getMessage("WebConsoleMenu.authentication.flows");
 	}
 
 	@Component
-	public static class FlowsNavigationInfoProvider implements WebConsoleNavigationInfoProvider
+	public static class OAuthViewInfoProvider implements WebConsoleNavigationInfoProvider
 	{
-
 		private UnityMessageSource msg;
-		private AuthenticationNavigationInfoProvider parent;
+		private IdpNavigationInfoProvider parent;
 		private ObjectFactory<?> factory;
 
 		@Autowired
-		public FlowsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent,
-				ObjectFactory<Flows> factory)
+		public OAuthViewInfoProvider(UnityMessageSource msg,
+				IdpNavigationInfoProvider parent, ObjectFactory<OAuth> factory)
 		{
 			this.msg = msg;
 			this.parent = parent;
@@ -93,9 +76,15 @@ public class Flows extends UnityViewBase
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage(
-							"WebConsoleMenu.authentication.flows"))
+							"WebConsoleMenu.idpProvider.oauth"))
 					.build();
 		}
 	}
 
+	@Override
+	public String getDisplayName()
+	{
+
+		return msg.getMessage("WebConsoleMenu.idpProvider.oauth");
+	}
 }

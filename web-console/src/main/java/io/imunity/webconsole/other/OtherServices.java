@@ -20,6 +20,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Other service view
@@ -85,6 +86,7 @@ public class OtherServices extends UnityViewBase
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.otherServices"))
+					.withIcon(Images.question.getResource())
 					.withPosition(4).build();
 		}
 	}

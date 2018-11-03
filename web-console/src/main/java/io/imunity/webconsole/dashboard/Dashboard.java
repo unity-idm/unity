@@ -20,6 +20,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityViewBase;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Default dashbord view
@@ -82,6 +83,7 @@ public class Dashboard extends UnityViewBase
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.dashboard"))
+					.withIcon(Images.dashboard.getResource())
 					.withPosition(0).build();
 		}
 

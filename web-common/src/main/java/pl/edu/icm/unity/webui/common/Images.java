@@ -85,9 +85,11 @@ public enum Images
 	remove		(VaadinIcons.CLOSE_CIRCLE_O),
 	close_small	(VaadinIcons.CLOSE_SMALL),
 	resize		(VaadinIcons.RESIZE_H),
-	mobile		(VaadinIcons.MOBILE_RETRO);
-	
-	
+	mobile		(VaadinIcons.MOBILE_RETRO),
+	dashboard 	(VaadinIcons.DASHBOARD),
+	user		(VaadinIcons.USER),
+	question	(VaadinIcons.QUESTION_CIRCLE_O),
+	globe		(VaadinIcons.GLOBE);
 	
 	private final Resource resource;
 	

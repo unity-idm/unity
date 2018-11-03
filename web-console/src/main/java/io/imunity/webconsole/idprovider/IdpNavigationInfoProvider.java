@@ -13,9 +13,11 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Provides @{link {@link NavigationInfo} about idp providers submenu
+ * 
  * @author P.Piernik
  *
  */
@@ -42,7 +44,7 @@ public class IdpNavigationInfoProvider implements WebConsoleNavigationInfoProvid
 		return new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.idpProvider"))
-				.withPosition(2).build();
+				.withIcon(Images.globe.getResource()).withPosition(2).build();
 	}
 
 }
