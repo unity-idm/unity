@@ -13,11 +13,11 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.leftMenu.LeftMenu;
+import io.imunity.webelements.menu.left.LeftMenu;
+import io.imunity.webelements.menu.top.TopMenu;
 import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationManager;
 import io.imunity.webelements.navigation.UnityView;
-import io.imunity.webelements.topMenu.TopMenu;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

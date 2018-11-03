@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.webelements.topMenu;
+package io.imunity.webelements.menu.top;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -12,8 +12,8 @@ import java.util.Map;
 
 import com.vaadin.ui.HorizontalLayout;
 
-import io.imunity.webelements.common.MenuElement;
-import io.imunity.webelements.common.MenuElementContainer;
+import io.imunity.webelements.menu.MenuElement;
+import io.imunity.webelements.menu.MenuElementContainer;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

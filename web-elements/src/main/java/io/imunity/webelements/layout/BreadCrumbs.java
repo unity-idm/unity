@@ -14,7 +14,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import io.imunity.webelements.common.MenuButton;
+import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationManager;
 import io.imunity.webelements.navigation.UnityView;

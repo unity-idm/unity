@@ -3,12 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.topMenu;
+package io.imunity.webelements.menu.top;
 
 import com.vaadin.server.Resource;
 import com.vaadin.ui.TextField;
 
-import io.imunity.webelements.common.MenuElement;
+import io.imunity.webelements.menu.MenuElement;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

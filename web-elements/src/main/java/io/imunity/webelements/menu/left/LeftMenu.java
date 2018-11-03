@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.leftMenu;
+package io.imunity.webelements.menu.left;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,9 +15,9 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.common.MenuButton;
-import io.imunity.webelements.common.MenuElement;
-import io.imunity.webelements.common.MenuElementContainer;
+import io.imunity.webelements.menu.MenuButton;
+import io.imunity.webelements.menu.MenuElement;
+import io.imunity.webelements.menu.MenuElementContainer;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationManager;
 import io.imunity.webelements.navigation.NavigationInfo.Type;

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.leftMenu;
+package io.imunity.webelements.menu.left;
 
 import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.Resource;
@@ -12,7 +12,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
-import io.imunity.webelements.common.MenuElement;
+import io.imunity.webelements.menu.MenuElement;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

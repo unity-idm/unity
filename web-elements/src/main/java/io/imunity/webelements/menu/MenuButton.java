@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.common;
+package io.imunity.webelements.menu;
 
 import com.vaadin.navigator.View;
 import com.vaadin.server.Resource;
