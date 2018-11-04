@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityViewBase;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
@@ -28,14 +29,14 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  *
  */
 @PrototypeComponent
-public class Routes extends UnityViewBase
+public class RoutesView extends CustomComponent implements UnityView
 {
 
 	public static final String VIEW_NAME = "Routes";
 	private UnityMessageSource msg;
 
 	@Autowired
-	public Routes(UnityMessageSource msg)
+	public RoutesView(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -51,40 +52,28 @@ public class Routes extends UnityViewBase
 	}
 
 	@Override
-	public String getDisplayName()
+	public String getDisplayedName()
 	{
 
 		return msg.getMessage("WebConsoleMenu.authentication.routes");
 	}
 
 	@Component
-	public static class RoutesNavigationInfoProvider implements WebConsoleNavigationInfoProvider
+	public static class RoutesNavigationInfoProvider
+			extends WebConsoleNavigationInfoProviderBase
 	{
-		private UnityMessageSource msg;
-		private AuthenticationNavigationInfoProvider parent;
-		private ObjectFactory<?> factory;
-
 		@Autowired
 		public RoutesNavigationInfoProvider(UnityMessageSource msg,
 				AuthenticationNavigationInfoProvider parent,
-				ObjectFactory<Routes> factory)
+				ObjectFactory<RoutesView> factory)
 		{
-			this.msg = msg;
-			this.parent = parent;
-			this.factory = factory;
-
-		}
-
-		@Override
-		public NavigationInfo getNavigationInfo()
-		{
-
-			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage(
 							"WebConsoleMenu.authentication.routes"))
-					.build();
+					.build());
+
 		}
 	}
 }

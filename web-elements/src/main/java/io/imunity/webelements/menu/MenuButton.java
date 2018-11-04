@@ -5,7 +5,6 @@
 
 package io.imunity.webelements.menu;
 
-import com.vaadin.navigator.View;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
@@ -24,8 +23,6 @@ public class MenuButton extends Button implements MenuElement
 	private String toolTip;
 	private String navigateTo;
 	private String id;
-
-	// private List<MenuComponent<?>> components;
 
 	public static MenuButton get(String id)
 	{
@@ -108,18 +105,6 @@ public class MenuButton extends Button implements MenuElement
 		});
 	}
 
-	public <T extends View> MenuButton withNavigateTo(Class<T> viewClass)
-	{
-		withNavigateTo(viewClass.getSimpleName());
-		return this;
-	}
-
-	@Override
-	public String getId()
-	{
-		return id;
-	}
-
 	private MenuButton updateToolTip()
 	{
 		String toolTip = "";
@@ -167,7 +152,8 @@ public class MenuButton extends Button implements MenuElement
 		return getStyleName().contains(Styles.menuButtonActive.toString());
 	}
 
-	public MenuButton setActive(boolean active)
+	@Override
+	public void setActive(boolean active)
 	{
 		if (active != isActive())
 		{
@@ -179,26 +165,11 @@ public class MenuButton extends Button implements MenuElement
 				removeStyleName(Styles.menuButtonActive.toString());
 			}
 		}
-		return this;
 	}
 
 	public String getNavigateTo()
 	{
 		return navigateTo;
-	}
-
-	@Override
-	public void activate()
-	{
-		setActive(true);
-
-	}
-
-	@Override
-	public void deactivate()
-	{
-		setActive(false);
-
 	}
 
 	@Override

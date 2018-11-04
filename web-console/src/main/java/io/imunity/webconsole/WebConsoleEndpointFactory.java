@@ -47,9 +47,9 @@ public class WebConsoleEndpointFactory implements EndpointFactory
 		this.server = server;
 		this.msg = msg;
 		
-		Set<String> supportedAuthn = new HashSet<String>();
+		Set<String> supportedAuthn = new HashSet<>();
 		supportedAuthn.add(VaadinAuthentication.NAME);
-		Map<String,String> paths=new HashMap<String, String>();
+		Map<String,String> paths=new HashMap<>();
 		paths.put(SERVLET_PATH,"Web console endpoint");
 		description = new EndpointTypeDescription(NAME, 
 				"Web administrative console user interface", supportedAuthn,paths);

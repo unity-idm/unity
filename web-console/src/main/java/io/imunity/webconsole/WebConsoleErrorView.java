@@ -10,23 +10,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityViewBase;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
- * Default error view
+ * Default web console error view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class WebConsoleErrorView extends UnityViewBase
+public class WebConsoleErrorView extends CustomComponent implements UnityView
 {
 
 	public static final String VIEW_NAME = "Error";
@@ -50,30 +51,20 @@ public class WebConsoleErrorView extends UnityViewBase
 	}
 
 	@Override
-	public String getDisplayName()
+	public String getDisplayedName()
 	{
 		return msg.getMessage("error");
 	}
 
 	@Component
-	public class WebConsoleErrorViewInfoProvider implements WebConsoleNavigationInfoProvider
+	public class WebConsoleErrorViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-		private ObjectFactory<?> factory;
-
 		@Autowired
 		public WebConsoleErrorViewInfoProvider(ObjectFactory<WebConsoleErrorView> factory)
 		{
-			this.factory = factory;
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+					.withParent(null).withObjectFactory(factory).build());
 
 		}
-
-		@Override
-		public NavigationInfo getNavigationInfo()
-		{
-
-			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(null).withObjectFactory(factory).build();
-		}
-
 	}
 }

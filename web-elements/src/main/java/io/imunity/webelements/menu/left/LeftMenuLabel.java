@@ -64,19 +64,11 @@ public class LeftMenuLabel extends CustomComponent implements MenuElement
 		main.addLayoutClickListener(listener);
 		return this;
 	}
-
+	
 	@Override
-	public void activate()
+	public void setActive(boolean active)
 	{
-		setVisible(true);
-
-	}
-
-	@Override
-	public void deactivate()
-	{
-		setVisible(true);
-
+		setVisible(active);		
 	}
 
 	@Override

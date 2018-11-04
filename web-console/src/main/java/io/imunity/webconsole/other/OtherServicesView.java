@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.RootNavigationInfoProvider;
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityViewBase;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -29,7 +30,7 @@ import pl.edu.icm.unity.webui.common.Images;
  *
  */
 @PrototypeComponent
-public class OtherServices extends UnityViewBase
+public class OtherServicesView extends CustomComponent implements UnityView
 {
 
 	public static String VIEW_NAME = "OtherServices";
@@ -37,7 +38,7 @@ public class OtherServices extends UnityViewBase
 	private UnityMessageSource msg;
 
 	@Autowired
-	public OtherServices(UnityMessageSource msg)
+	public OtherServicesView(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -54,7 +55,7 @@ public class OtherServices extends UnityViewBase
 	}
 
 	@Override
-	public String getDisplayName()
+	public String getDisplayedName()
 	{
 
 		return msg.getMessage("WebConsoleMenu.otherServices");
@@ -62,32 +63,20 @@ public class OtherServices extends UnityViewBase
 
 	@Component
 	public static class OtherServicesNavigationInfoProvider
-			implements WebConsoleNavigationInfoProvider
+			extends WebConsoleNavigationInfoProviderBase
 	{
-		private UnityMessageSource msg;
-		private RootNavigationInfoProvider parent;
-		private ObjectFactory<?> factory;
-
 		@Autowired
 		public OtherServicesNavigationInfoProvider(UnityMessageSource msg,
-				RootNavigationInfoProvider parent, ObjectFactory<OtherServices> factory)
+				WebConsoleRootNavigationInfoProvider parent,
+				ObjectFactory<OtherServicesView> factory)
 		{
-			this.msg = msg;
-			this.parent = parent;
-			this.factory = factory;
-
-		}
-
-		@Override
-		public NavigationInfo getNavigationInfo()
-		{
-
-			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.otherServices"))
-					.withIcon(Images.question.getResource())
-					.withPosition(4).build();
+					.withIcon(Images.question.getResource()).withPosition(4)
+					.build());
+
 		}
 	}
 }

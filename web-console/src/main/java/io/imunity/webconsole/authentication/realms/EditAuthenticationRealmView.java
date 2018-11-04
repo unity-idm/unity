@@ -9,21 +9,23 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.realms.AuthenticationRealmsView.RealmsNavigationInfoProvider;
 import io.imunity.webelements.helpers.ConfirmViewHelper;
+import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityViewBase;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * View for edit realm
@@ -32,7 +34,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  *
  */
 @PrototypeComponent
-public class EditAuthenticationRealmView extends UnityViewBase
+public class EditAuthenticationRealmView extends CustomComponent implements UnityView
 {
 
 	public static String VIEW_NAME = "EditAuthenticationRealm";
@@ -43,7 +45,8 @@ public class EditAuthenticationRealmView extends UnityViewBase
 	private String realmName;
 
 	@Autowired
-	public EditAuthenticationRealmView(UnityMessageSource msg, AuthenticationRealmController controller)
+	public EditAuthenticationRealmView(UnityMessageSource msg,
+			AuthenticationRealmController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -80,7 +83,7 @@ public class EditAuthenticationRealmView extends UnityViewBase
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		realmName = getParam(event, "name");
+		realmName = NavigationHelper.getParam(event, "name");
 		AuthenticationRealm realm;
 		try
 		{
@@ -88,7 +91,8 @@ public class EditAuthenticationRealmView extends UnityViewBase
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.VIEW_NAME);
+			UI.getCurrent().getNavigator()
+					.navigateTo(AuthenticationRealmsView.VIEW_NAME);
 			return;
 		}
 
@@ -101,40 +105,27 @@ public class EditAuthenticationRealmView extends UnityViewBase
 		main.addComponent(hl);
 		setCompositionRoot(main);
 	}
-	
+
 	@Override
-	public String getDisplayName()
+	public String getDisplayedName()
 	{
 		return realmName;
 	}
 
 	@org.springframework.stereotype.Component
-	public static class EditRealmViewInfoProvider implements WebConsoleNavigationInfoProvider
+	public static class EditRealmViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
-		private RealmsNavigationInfoProvider parent;
-		private ObjectFactory<?> factory;
 
 		@Autowired
 		public EditRealmViewInfoProvider(RealmsNavigationInfoProvider parent,
 				ObjectFactory<EditAuthenticationRealmView> factory)
 		{
-			this.parent = parent;
-			this.factory = factory;
-
-		}
-
-		@Override
-		public NavigationInfo getNavigationInfo()
-		{
-
-			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)
 							.withParent(parent.getNavigationInfo())
-							.withObjectFactory(factory)
-							.build();
+							.withObjectFactory(factory).build());
+
 		}
 	}
 
-	
 }

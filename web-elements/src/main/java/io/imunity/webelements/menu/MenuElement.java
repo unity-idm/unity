@@ -14,7 +14,6 @@ import com.vaadin.ui.Component;
  */
 public interface MenuElement extends Component
 {
-	void activate();
-	void deactivate();
+	void setActive(boolean active);
 	String getMenuElementId();
 }

@@ -33,16 +33,9 @@ public class TopMenuTextField extends TextField implements MenuElement
 	}
 
 	@Override
-	public void activate()
+	public void setActive(boolean active)
 	{
-		setVisible(true);
-
-	}
-
-	@Override
-	public void deactivate()
-	{
-		setVisible(false);
+		setVisible(active);
 
 	}
 

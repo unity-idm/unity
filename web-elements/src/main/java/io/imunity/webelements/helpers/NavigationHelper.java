@@ -3,22 +3,20 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.navigation;
+package io.imunity.webelements.helpers;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.UI;
 
 /**
- * Abstract base for all unity view
+ * Helper for navigating through views
  * 
  * @author P.Piernik
  *
  */
-public abstract class UnityViewBase extends CustomComponent implements UnityView
+public class NavigationHelper
 {
-
-	protected String getParam(ViewChangeEvent event, String paramName)
+	public static String getParam(ViewChangeEvent event, String paramName)
 	{
 		return event.getParameterMap().isEmpty()
 				|| !event.getParameterMap().containsKey(paramName) ? ""
@@ -26,7 +24,7 @@ public abstract class UnityViewBase extends CustomComponent implements UnityView
 
 	}
 
-	protected void goToView(String viewName)
+	public static void goToView(String viewName)
 	{
 		UI.getCurrent().getNavigator().navigateTo(viewName);
 	}

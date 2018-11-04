@@ -19,7 +19,7 @@ import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
 import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -37,7 +37,7 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 		NORMAL, MINIMAL;
 	}
 
-	private NavigationManager navMan;
+	private NavigationHierarchyManager navMan;
 	private VerticalLayout main;
 	private Map<String, MenuElement> menuElements;
 	private Map<String, MenuElementContainer> menuContainers;
@@ -45,7 +45,7 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	private List<MenuElement> activatedElements;
 	private ToggleMode toggleMode;
 
-	public LeftMenu(NavigationManager navMan)
+	public LeftMenu(NavigationHierarchyManager navMan)
 	{
 		this.navMan = navMan;
 		main = new VerticalLayout();
@@ -101,18 +101,6 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 		return toggleMode;
 	}
 
-	public void activate()
-	{
-		setVisible(true);
-
-	}
-
-	public void deactivate()
-	{
-		setVisible(false);
-
-	}
-
 	public void addSubContainerElement(MenuElementContainer container)
 	{
 		menuContainers.put(container.getMenuElementId(), container);
@@ -130,13 +118,13 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	{
 		for (MenuElement activeted : activatedElements)
 		{
-			activeted.deactivate();
+			activeted.setActive(false);
 		}
 		activatedElements.clear();
 
 		for (MenuElementContainer container : menuContainers.values())
 		{
-			container.deactivate();
+			container.setActive(false);
 		}
 
 		for (NavigationInfo view : path)
@@ -144,12 +132,12 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 			if (allElements.containsKey(view.id))
 			{
 				MenuElement toActive = allElements.get(view.id);
-				toActive.activate();
+				toActive.setActive(true);
 				activatedElements.add(toActive);
 			}
 		}
 	}
-	
+
 	@Override
 	public String getMenuElementId()
 	{
@@ -161,7 +149,7 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	{
 		menuElements.put(entry.getMenuElementId(), entry);
 		allElements.put(entry.getMenuElementId(), entry);
-		main.addComponent(entry);	
+		main.addComponent(entry);
 	}
 
 	@Override
@@ -201,8 +189,9 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	{
 		for (NavigationInfo child : viewChildren)
 		{
-			menuContainer.addMenuElement(MenuButton.get(child.id).withCaption(child.caption)
-					.withNavigateTo(child.id).withIcon(child.icon));
+			menuContainer.addMenuElement(MenuButton.get(child.id)
+					.withCaption(child.caption).withNavigateTo(child.id)
+					.withIcon(child.icon));
 		}
 	}
 
@@ -216,5 +205,11 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	public void afterViewChange(ViewChangeEvent event)
 	{
 		adapt(navMan.getParentPath(event.getViewName()));
+	}
+
+	@Override
+	public void setActive(boolean active)
+	{
+		setVisible(active);
 	}
 }

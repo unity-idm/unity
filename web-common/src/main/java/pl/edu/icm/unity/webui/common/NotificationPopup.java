@@ -15,8 +15,8 @@ import com.vaadin.ui.themes.ValoTheme;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 
 /**
@@ -51,7 +51,7 @@ public class NotificationPopup
 	
 	public static void showError(ControllerException exception)
 	{
-		if (exception.getType() == pl.edu.icm.unity.exceptions.ControllerException.Type.Error)
+		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.Error)
 		{
 			showError(exception.getCaption(), exception.getDetails());
 		}else

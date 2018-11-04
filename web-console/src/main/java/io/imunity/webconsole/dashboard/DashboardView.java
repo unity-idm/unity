@@ -10,14 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.RootNavigationInfoProvider;
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityViewBase;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -29,7 +30,7 @@ import pl.edu.icm.unity.webui.common.Images;
  *
  */
 @PrototypeComponent
-public class Dashboard extends UnityViewBase
+public class DashboardView extends CustomComponent implements UnityView
 {
 
 	public static final String VIEW_NAME = "Dashboard";
@@ -37,7 +38,7 @@ public class Dashboard extends UnityViewBase
 	private UnityMessageSource msg;
 
 	@Autowired
-	public Dashboard(UnityMessageSource msg)
+	public DashboardView(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -53,40 +54,27 @@ public class Dashboard extends UnityViewBase
 	}
 
 	@Override
-	public String getDisplayName()
+	public String getDisplayedName()
 	{
 		return msg.getMessage("WebConsoleMenu.dashboard");
 	}
 
 	@Component
-	public class DashboardGroupInfoProvider implements WebConsoleNavigationInfoProvider
+	public class DashboardGroupInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-		private UnityMessageSource msg;
-		private RootNavigationInfoProvider parent;
-		private ObjectFactory<?> factory;
-
 		@Autowired
 		public DashboardGroupInfoProvider(UnityMessageSource msg,
-				RootNavigationInfoProvider parent, ObjectFactory<Dashboard> factory)
+				WebConsoleRootNavigationInfoProvider parent,
+				ObjectFactory<DashboardView> factory)
 		{
-			this.msg = msg;
-			this.parent = parent;
-			this.factory = factory;
-
-		}
-
-		@Override
-		public NavigationInfo getNavigationInfo()
-		{
-
-			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.dashboard"))
-					.withIcon(Images.dashboard.getResource())
-					.withPosition(0).build();
-		}
+					.withIcon(Images.dashboard.getResource()).withPosition(0)
+					.build());
 
+		}
 	}
 
 }

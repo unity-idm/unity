@@ -20,7 +20,7 @@ import com.vaadin.navigator.ViewProvider;
 import pl.edu.icm.unity.base.utils.Log;
 
 /**
- * Provides unity view based on {@link NavigationManager}
+ * Provides unity view based on {@link NavigationHierarchyManager}
  * 
  * @author P.Piernik
  *
@@ -34,7 +34,7 @@ public class AppContextViewProvider implements ViewProvider
 	private Map<String, ObjectFactory<?>> viewFactories;
 
 	@Autowired
-	public AppContextViewProvider(NavigationManager navMan)
+	public AppContextViewProvider(NavigationHierarchyManager navMan)
 	{
 		viewFactories = new HashMap<>();
 

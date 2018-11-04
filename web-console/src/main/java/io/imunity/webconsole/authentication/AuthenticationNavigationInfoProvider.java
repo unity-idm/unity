@@ -8,8 +8,8 @@ package io.imunity.webconsole.authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.RootNavigationInfoProvider;
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -22,29 +22,19 @@ import pl.edu.icm.unity.webui.common.Images;
  *
  */
 @Component
-public class AuthenticationNavigationInfoProvider implements WebConsoleNavigationInfoProvider
+public class AuthenticationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 {
 	public static final String ID = "Authentication";
 
-	private UnityMessageSource msg;
-	private RootNavigationInfoProvider parent;
-
 	@Autowired
 	public AuthenticationNavigationInfoProvider(UnityMessageSource msg,
-			RootNavigationInfoProvider parent)
+			WebConsoleRootNavigationInfoProvider parent)
 	{
-		this.msg = msg;
-		this.parent = parent;
-
-	}
-
-	@Override
-	public NavigationInfo getNavigationInfo()
-	{
-
-		return new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
+		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.authentication"))
-				.withIcon(Images.key_o.getResource()).withPosition(1).build();
+				.withIcon(Images.key_o.getResource()).withPosition(1).build());
+
 	}
+
 }

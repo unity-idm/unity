@@ -16,7 +16,7 @@ import com.vaadin.ui.Label;
 
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -33,9 +33,9 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 	public static final Images BREADCRUMB_SEPARATOR = Images.rightArrow;
 
 	private HorizontalLayout main;
-	private NavigationManager navMan;
+	private NavigationHierarchyManager navMan;
 
-	public BreadCrumbs(NavigationManager navMan)
+	public BreadCrumbs(NavigationHierarchyManager navMan)
 	{
 		this.navMan = navMan;
 		main = new HorizontalLayout();
@@ -75,7 +75,7 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 		} else if (element.type == NavigationInfo.Type.ParameterizedView)
 		{
 			main.addComponent(MenuButton.get(element.id)
-					.withCaption(view.getDisplayName()));
+					.withCaption(view.getDisplayedName()));
 		} else
 		{
 			main.addComponent(MenuButton.get(element.id).withCaption(element.caption));

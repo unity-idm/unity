@@ -3,39 +3,41 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.idprovider.saml;
+package io.imunity.webconsole.idprovider.oauth;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.idprovider.IdpNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityViewBase;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 
 /**
- * SAML view
+ * OAuth view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class SAML extends UnityViewBase
+public class OAuthView extends CustomComponent implements UnityView
 {
-	public static String VIEW_NAME = "SAML";
+
+	public static String VIEW_NAME = "OAuth";
 
 	private UnityMessageSource msg;
 
 	@Autowired
-	public SAML(UnityMessageSource msg)
+	public OAuthView(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -45,43 +47,33 @@ public class SAML extends UnityViewBase
 	{
 		VerticalLayout main = new VerticalLayout();
 		Label title = new Label();
-		title.setValue("SAML");
+		title.setValue("OAuth");
 		main.addComponent(title);
 		setCompositionRoot(main);
 	}
 
 	@Override
-	public String getDisplayName()
+	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.idpProvider.saml");
+
+		return msg.getMessage("WebConsoleMenu.idpProvider.oauth");
 	}
 
 	@Component
-	public static class SAMLViewInfoProvider implements WebConsoleNavigationInfoProvider
+	public static class OAuthViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-		private UnityMessageSource msg;
-		private IdpNavigationInfoProvider parent;
-		private ObjectFactory<?> factory;
-
 		@Autowired
-		public SAMLViewInfoProvider(UnityMessageSource msg,
-				IdpNavigationInfoProvider parent, ObjectFactory<SAML> factory)
+		public OAuthViewInfoProvider(UnityMessageSource msg,
+				IdpNavigationInfoProvider parent, ObjectFactory<OAuthView> factory)
 		{
-			this.msg = msg;
-			this.parent = parent;
-			this.factory = factory;
-
-		}
-
-		@Override
-		public NavigationInfo getNavigationInfo()
-		{
-
-			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
-					.withObjectFactory(factory).withCaption(msg.getMessage(
-							"WebConsoleMenu.idpProvider.saml"))
-					.build();
+					.withObjectFactory(factory)
+					.withCaption(msg.getMessage(
+							"WebConsoleMenu.idpProvider.oauth"))
+					.build());
+
 		}
 	}
+
 }

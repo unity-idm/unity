@@ -18,7 +18,7 @@ import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.dashboard.Dashboard;
+import io.imunity.webconsole.dashboard.DashboardView;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
@@ -26,7 +26,7 @@ import io.imunity.webelements.menu.left.LeftMenuLabel;
 import io.imunity.webelements.menu.top.TopMenu;
 import io.imunity.webelements.menu.top.TopMenuTextField;
 import io.imunity.webelements.navigation.AppContextViewProvider;
-import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
@@ -50,7 +50,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private SidebarLayout webConsoleLayout;
 	private AppContextViewProvider appContextViewProvider;
-	private NavigationManager navigationMan;
+	private NavigationHierarchyManager navigationMan;
 
 	@Autowired
 	public WebConsoleUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
@@ -60,7 +60,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
 
-		this.navigationMan = new NavigationManager(providers);
+		this.navigationMan = new NavigationHierarchyManager(providers);
 		this.appContextViewProvider = new AppContextViewProvider(navigationMan);
 
 	}
@@ -72,7 +72,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 				msg.getMessage("WebConsoleMenu.search")));
 		topMenu.addMenuElement(MenuButton.get("home").withIcon(VaadinIcons.HOME)
 				.withDescription(msg.getMessage("WebConsoleMenu.dashboard"))
-				.withNavigateTo(Dashboard.class));
+				.withNavigateTo(DashboardView.VIEW_NAME));
 
 		topMenu.addMenuElement(MenuButton.get("logout").withIcon(Images.exit.getResource())
 				.withDescription(msg.getMessage("WebConsoleMenu.logout"))
@@ -93,7 +93,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 				//.withClickListener(e -> webConsoleLayout.getLeftMenu().toggleSize());
 
 		leftMenu.addMenuElement(label);
-		leftMenu.addNavigationElements(RootNavigationInfoProvider.ID);
+		leftMenu.addNavigationElements(WebConsoleRootNavigationInfoProvider.ID);
 	}
 
 	@Override

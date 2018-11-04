@@ -16,7 +16,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.top.TopMenu;
 import io.imunity.webelements.navigation.AppContextViewProvider;
-import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class SidebarLayout extends CustomComponent
 {
 
-	private NavigationManager navMan;
+	private NavigationHierarchyManager navMan;
 	private ViewProvider viewProvider;
 
 	private HorizontalLayout rootContent;
@@ -39,12 +39,12 @@ public class SidebarLayout extends CustomComponent
 	private LeftMenu leftMenu;
 	private UnityView errorView;
 
-	public static SidebarLayout get(NavigationManager viewMan)
+	public static SidebarLayout get(NavigationHierarchyManager viewMan)
 	{
 		return new SidebarLayout(viewMan);
 	}
 
-	public SidebarLayout(NavigationManager viewMan)
+	public SidebarLayout(NavigationHierarchyManager viewMan)
 	{
 		this.navMan = viewMan;
 		setSizeFull();

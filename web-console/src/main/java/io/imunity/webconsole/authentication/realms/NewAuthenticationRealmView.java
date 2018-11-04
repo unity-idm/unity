@@ -11,21 +11,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.WebConsoleNavigationInfoProvider;
+import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.realms.AuthenticationRealmsView.RealmsNavigationInfoProvider;
 import io.imunity.webelements.helpers.ConfirmViewHelper;
+import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Add realm view
@@ -44,7 +44,8 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 	private UnityMessageSource msg;
 
 	@Autowired
-	public NewAuthenticationRealmView(UnityMessageSource msg, AuthenticationRealmController controller)
+	public NewAuthenticationRealmView(UnityMessageSource msg,
+			AuthenticationRealmController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -68,13 +69,13 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 			return;
 		}
 
-		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.class.getSimpleName());
+		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.class.getSimpleName());
+		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
 
 	}
 
@@ -102,41 +103,27 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 		setCompositionRoot(main);
 
 	}
-	
+
 	@Override
-	public String getDisplayName()
+	public String getDisplayedName()
 	{
 		return msg.getMessage("new");
 	}
 
 	@org.springframework.stereotype.Component
-	public static class NewRealmNavigationInfoProvider
-			implements WebConsoleNavigationInfoProvider
+	public static class NewRealmNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
-		private RealmsNavigationInfoProvider parent;
-		private ObjectFactory<?> factory;
 
 		@Autowired
 		public NewRealmNavigationInfoProvider(RealmsNavigationInfoProvider parent,
 				ObjectFactory<NewAuthenticationRealmView> factory)
 		{
-			this.parent = parent;
-			this.factory = factory;
-
-		}
-
-		@Override
-		public NavigationInfo getNavigationInfo()
-		{
-
-			return new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)
 							.withParent(parent.getNavigationInfo())
-							.withObjectFactory(factory)
-							.build();
+							.withObjectFactory(factory).build());
+
 		}
 	}
 
-	
 }

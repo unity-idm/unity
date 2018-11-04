@@ -46,16 +46,9 @@ public class TopMenu extends HorizontalLayout implements MenuElementContainer
 	}
 
 	@Override
-	public void activate()
+	public void setActive(boolean active)
 	{
-		setVisible(true);
-		
-	}
-
-	@Override
-	public void deactivate()
-	{
-		setVisible(false);
+		setVisible(active);
 		
 	}
 

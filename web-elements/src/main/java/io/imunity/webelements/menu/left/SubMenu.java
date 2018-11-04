@@ -135,16 +135,15 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 	}
 
 	@Override
-	public void activate()
+	public void setActive(boolean active)
 	{
-		open();
-
-	}
-
-	@Override
-	public void deactivate()
-	{
-		close();
+		if (active)
+		{
+			open();
+		} else
+		{
+			close();
+		}
 
 	}
 

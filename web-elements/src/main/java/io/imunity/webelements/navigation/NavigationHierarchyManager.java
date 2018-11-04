@@ -21,13 +21,13 @@ import java.util.stream.Collectors;
  *
  */
 
-public class NavigationManager
+public class NavigationHierarchyManager
 {
 
 	private Map<String, NavigationInfo> navigationMap;
 	private Map<String, List<NavigationInfo>> navigationChildren;
 
-	public NavigationManager(Collection<? extends NavigationInfoProvider> providers)
+	public NavigationHierarchyManager(Collection<? extends NavigationInfoProvider> providers)
 	{
 
 		navigationMap = providers.stream().collect(Collectors
@@ -59,12 +59,12 @@ public class NavigationManager
 
 			if (view.parent == null)
 			{
-				initChilden(view);
+				initChildren(view);
 			}
 		}
 	}
 
-	private void initChilden(NavigationInfo view)
+	private void initChildren(NavigationInfo view)
 	{
 		List<NavigationInfo> children = navigationMap.values().stream()
 				.filter(v -> v.parent != null && v.parent.id.equals(view.id))
@@ -77,22 +77,24 @@ public class NavigationManager
 
 		for (NavigationInfo child : children)
 		{
-			initChilden(child);
+			initChildren(child);
 		}
 
 	}
 
 	public List<NavigationInfo> getParentPath(String viewName)
 	{
-		List<NavigationInfo> ret = new ArrayList<>();
 
 		if (viewName != null && navigationMap.containsKey(viewName))
 		{
-			getParent(navigationMap.get(viewName), ret);
+			List<NavigationInfo> ret = getParentRecursive(navigationMap.get(viewName),
+					new ArrayList<>());
+			Collections.reverse(ret);
+			return trimRootGroup(ret);
+		} else
+		{
+			return Collections.emptyList();
 		}
-
-		Collections.reverse(ret);
-		return trimRootGroup(ret);
 
 	}
 
@@ -101,28 +103,35 @@ public class NavigationManager
 		return ret.size() > 1 ? ret.subList(1, ret.size()) : ret;
 	}
 
-	private List<NavigationInfo> getParent(NavigationInfo viewInfo, List<NavigationInfo> ret)
+	private List<NavigationInfo> getParentRecursive(NavigationInfo viewInfo,
+			List<NavigationInfo> ret)
 	{
 		if (viewInfo == null)
 			return ret;
 		ret.add(viewInfo);
 		if (viewInfo.parent == null)
 			return ret;
-		return getParent(viewInfo.parent, ret);
+		return getParentRecursive(viewInfo.parent, ret);
 	}
 
 	public List<NavigationInfo> getChildren(String viewName)
 	{
+		if (viewName != null && navigationChildren.containsKey(viewName))
+		{
 
-		List<NavigationInfo> ret = navigationChildren.get(viewName);
-		ret.sort((c1, c2) -> {
-			return c1.position - c2.position;
-		});
-		return ret;
+			List<NavigationInfo> ret = navigationChildren.get(viewName);
+			ret.sort((c1, c2) -> {
+				return c1.position - c2.position;
+			});
+			return ret;
+		} else
+		{
+			return Collections.emptyList();
+		}
 	}
 
 	public Map<String, NavigationInfo> getNavigationInfoMap()
 	{
-		return navigationMap;
+		return new HashMap<>(navigationMap);
 	}
 }

@@ -3,17 +3,21 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webelements.navigation;
 
 import com.vaadin.navigator.View;
 
+import io.imunity.webelements.layout.BreadCrumbs;
+
 /**
- * In principle all View should implement this interface.
+ * In principle all View should implement this interface. Displayed name is used
+ * by {@link BreadCrumbs} component to show name of element displayed by view
+ * which implements this interface
+ * 
  * @author P.Piernik
  *
  */
 public interface UnityView extends View
 {
-	String getDisplayName();
+	String getDisplayedName();
 }

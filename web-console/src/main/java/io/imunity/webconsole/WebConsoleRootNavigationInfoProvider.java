@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webconsole;
 
 import org.springframework.stereotype.Component;
@@ -14,17 +13,18 @@ import io.imunity.webelements.navigation.UnityView;
 
 /**
  * Root for all navigable web console {@link UnityView}
+ * 
  * @author P.Piernik
  *
  */
 @Component
-public class RootNavigationInfoProvider implements WebConsoleNavigationInfoProvider
-{		
+public class WebConsoleRootNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+{
 	public static final String ID = "Root";
-	
-	@Override
-	public NavigationInfo getNavigationInfo()
+
+	public WebConsoleRootNavigationInfoProvider()
 	{
-		return new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup).build();
-	}		
+		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup).build());
+
+	}
 }

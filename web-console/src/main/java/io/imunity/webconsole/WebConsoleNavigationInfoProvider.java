@@ -6,10 +6,10 @@
 package io.imunity.webconsole;
 
 import io.imunity.webelements.navigation.NavigationInfoProvider;
-import io.imunity.webelements.navigation.NavigationManager;
+import io.imunity.webelements.navigation.NavigationHierarchyManager;
 
 /**
- * Dummy interface acting as an indicator for {@link NavigationManager} about
+ * Dummy interface acting as an indicator for {@link NavigationHierarchyManager} about
  * which views should be loaded
  * 
  * @author P.Piernik

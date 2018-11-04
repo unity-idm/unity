@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.ControllerException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Controller for all realms view
