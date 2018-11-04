@@ -6,7 +6,6 @@
 package io.imunity.webconsole;
 
 import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationInfoProvider;
 
 /**
  * Base for all web console navigation info providers. Contains boilerplate code
@@ -14,7 +13,7 @@ import io.imunity.webelements.navigation.NavigationInfoProvider;
  * @author P.Piernik
  *
  */
-public class WebConsoleNavigationInfoProviderBase implements NavigationInfoProvider
+public class WebConsoleNavigationInfoProviderBase implements WebConsoleNavigationInfoProvider
 {
 	private NavigationInfo navigationInfo;
 

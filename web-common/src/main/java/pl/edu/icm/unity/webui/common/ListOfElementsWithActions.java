@@ -3,10 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.common;
+package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,8 +22,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
@@ -34,11 +34,22 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
  */
 public class ListOfElementsWithActions<T> extends CustomComponent
 {
+	public enum ButtonsPosition
+	{
+		Left, Right
+	};
+
 	private List<Entry> components;
 	private LabelConverter<T> labelConverter;
 	private boolean addSeparatorLine;
 	private List<SingleActionHandler<T>> actionHandlers;
 	private VerticalLayout main;
+	private ButtonsPosition buttonsPosition;
+
+	public ListOfElementsWithActions()
+	{
+		this(t -> new Label(t.toString()));
+	}
 
 	public ListOfElementsWithActions(LabelConverter<T> labelConverter)
 	{
@@ -46,9 +57,11 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 		this.labelConverter = labelConverter;
 		this.components = new ArrayList<>();
 		this.actionHandlers = new ArrayList<>();
+		this.buttonsPosition = ButtonsPosition.Right;
 		main = new VerticalLayout();
-		main.setMargin(false);
+		main.setMargin(true);
 		main.setSpacing(false);
+		main.setId("ListOfElements");
 		setCompositionRoot(main);
 	}
 
@@ -116,6 +129,11 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 		actionHandlers.add(handler);
 	}
 
+	public void setButtonsPosition(ButtonsPosition buttonsPosition)
+	{
+		this.buttonsPosition = buttonsPosition;
+	}
+
 	public void addHeader(String labelTitle, String actionTitle)
 	{
 
@@ -129,16 +147,22 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 
 	}
 
-	private Component getEntryLine(Component comp1, Component comp2)
+	private Component getEntryLine(Component comp1, Component buttons)
 	{
 		HorizontalLayout cont = new HorizontalLayout();
 		cont.setMargin(false);
-		cont.setSpacing(false);
-		cont.setWidth(100, Unit.PERCENTAGE);
-		cont.addComponents(comp1, comp2);
+		cont.setSpacing(true);
 
-		cont.setComponentAlignment(comp1, Alignment.MIDDLE_LEFT);
-		cont.setComponentAlignment(comp2, Alignment.MIDDLE_RIGHT);
+		if (buttonsPosition == ButtonsPosition.Right)
+		{
+			cont.setWidth(100, Unit.PERCENTAGE);
+			cont.addComponents(comp1, buttons);
+			cont.setComponentAlignment(comp1, Alignment.MIDDLE_LEFT);
+			cont.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
+		} else
+		{
+			cont.addComponents(buttons, comp1);
+		}
 
 		VerticalLayout main = new VerticalLayout(cont);
 		main.setSpacing(false);
@@ -163,25 +187,30 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 			HorizontalLayout buttons = new HorizontalLayout();
 			buttons.setMargin(false);
 			buttons.setSpacing(false);
-			// TODO full support for single actions handlers,
-			// disable predicate etc.
 			for (SingleActionHandler<T> handler : actionHandlers)
 			{
-				Button actionButton = new Button();
-				actionButton.setIcon(handler.getIcon());
-				actionButton.setDescription(handler.getCaption());
-				actionButton.setStyleName(Styles.vButtonSmall.toString());
-				actionButton.addClickListener(new Button.ClickListener()
-				{
-					@Override
-					public void buttonClick(ClickEvent event)
-					{
-						handler.handle(Stream.of(elementV)
-								.collect(Collectors.toSet()));
-					}
-				});
-				buttons.addComponent(actionButton);
 
+				Set<T> elementsSet = new HashSet<>();
+				elementsSet.add(element);
+				if (handler.isVisible(elementsSet))
+				{
+					Button actionButton = new Button();
+					actionButton.setIcon(handler.getIcon());
+					actionButton.setDescription(handler.getCaption());
+					actionButton.setStyleName(Styles.vButtonSmall.toString());
+					actionButton.addClickListener(new Button.ClickListener()
+					{
+						@Override
+						public void buttonClick(ClickEvent event)
+						{
+							handler.handle(Stream.of(elementV).collect(
+									Collectors.toSet()));
+						}
+					});
+					actionButton.setEnabled(handler.isEnabled(elementsSet));
+
+					buttons.addComponent(actionButton);
+				}
 			}
 
 			setCompositionRoot(getEntryLine(labelConverter.toLabel(element), buttons));
