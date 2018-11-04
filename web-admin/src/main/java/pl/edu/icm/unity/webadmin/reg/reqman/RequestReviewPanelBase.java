@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.UserRequestState;
-import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -46,8 +46,8 @@ public class RequestReviewPanelBase extends CustomComponent
 	
 	private ListOfSelectableElements attributes;
 	private ListOfSelectableElements groups;
-	private ListOfElements<String> identities;
-	private ListOfElements<String> agreements;
+	private ListOfElementsWithActions<String> identities;
+	private ListOfElementsWithActions<String> agreements;
 	private Label comment;
 	private Panel attributesPanel;
 	private Panel groupsPanel;
@@ -67,7 +67,7 @@ public class RequestReviewPanelBase extends CustomComponent
 	
 	protected void addStandardComponents(Layout main)
 	{
-		identities = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		identities = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -76,7 +76,6 @@ public class RequestReviewPanelBase extends CustomComponent
 			}
 		});
 		identities.setAddSeparatorLine(false);
-		identities.setMargin(true);
 		identitiesP = new SafePanel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
 		
 		attributes = new ListOfSelectableElements(null,
@@ -92,7 +91,7 @@ public class RequestReviewPanelBase extends CustomComponent
 		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), 
 				new VerticalLayout(groups));
 		
-		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		agreements = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -101,7 +100,6 @@ public class RequestReviewPanelBase extends CustomComponent
 			}
 		});
 		agreements.setAddSeparatorLine(false);
-		agreements.setMargin(true);
 		agreementsP = new SafePanel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
 		
 		comment = new Label();

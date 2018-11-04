@@ -20,8 +20,9 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ButtonsPosition;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
 
@@ -39,7 +40,7 @@ public class PasswordCredentialResetSettingsEditor
 	private TextFieldWithButton questionAdder;
 	private CompatibleTemplatesComboBox emailCodeMessageTemplate;
 	private CompatibleTemplatesComboBox mobileCodeMessageTemplate;
-	private ListOfElements<String> questions;
+	private ListOfElementsWithActions<String> questions;
 	private MessageTemplateManagement msgTplMan;
 	private ComboBox<ConfirmationMode> confirmationMode;
 	
@@ -164,7 +165,7 @@ public class PasswordCredentialResetSettingsEditor
 						return true;
 					}
 				});
-		questions = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		questions = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -172,14 +173,20 @@ public class PasswordCredentialResetSettingsEditor
 				return new Label(value);
 			}
 		});
-		questions.setRemoveHandler(new RemoveHandler<String>()
-		{
-			@Override
-			public boolean remove(String value)
-			{
-				return true;
-			}
-		});
+		questions.setButtonsPosition(ButtonsPosition.Left);
+		
+		SingleActionHandler<String> remove = SingleActionHandler
+				.builder4Delete(msg, String.class).withHandler(r -> {
+
+					questions.removeEntry(r.iterator().next());
+
+				}
+
+				).build();
+		
+		questions.addActionHandler(remove);
+		
+		
 	}
 	
 	public boolean getEmailMessageTemplateState()

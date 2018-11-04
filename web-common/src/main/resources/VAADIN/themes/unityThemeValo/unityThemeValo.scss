@@ -1,6 +1,7 @@
 @import "../valo/valo.scss";
 @import "../../addons/stepper/stepper.scss";
 @import "../common/common.scss";
+@import "../common/sidebar/sidebar.scss";
 
 @mixin unityThemeValo {
 
@@ -9,6 +10,8 @@
 	@include stepper;
 	
 	@include vaadin-icons;	
+	
+	@include sidebar;
 	
 	@include unityCommon;
 

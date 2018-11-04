@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -57,9 +57,9 @@ public class InvitationViewer extends CustomComponent
 	private Label messageParams;
 	private Label expectedIdentity;
 	private Link link;
-	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
+	private ListOfElementsWithActions<PrefilledEntry<IdentityParam>> identities;
 	private VerticalLayout attributes;
-	private ListOfElements<Map.Entry<String, PrefilledEntry<GroupSelection>>> groups;
+	private ListOfElementsWithActions<Map.Entry<String, PrefilledEntry<GroupSelection>>> groups;
 
 	private SafePanel identitiesPanel;
 	private SafePanel attributesPanel;
@@ -117,8 +117,7 @@ public class InvitationViewer extends CustomComponent
 		expectedIdentity.setWidth(100, Unit.PERCENTAGE);
 		expectedIdentity.setCaption(msg.getMessage("InvitationViewer.expectedIdentity"));
 		
-		identities = new ListOfElements<>(msg);
-		identities.setMargin(true);
+		identities = new ListOfElementsWithActions<>();
 		identitiesPanel = new SafePanel(msg.getMessage("InvitationViewer.identities"), identities);
 		
 		attributes = new VerticalLayout();
@@ -128,12 +127,11 @@ public class InvitationViewer extends CustomComponent
 		attributes.setMargin(true);
 		attributesPanel = new SafePanel(msg.getMessage("InvitationViewer.attributes"), attributes);
 
-		groups = new ListOfElements<>(msg, entry -> {
+		groups = new ListOfElementsWithActions<>(entry -> {
 			PrefilledEntryMode mode = entry.getValue().getMode();
 			List<String> selectedGroups = entry.getValue().getEntry().getSelectedGroups();
 			return new Label("[" + mode.name() + "] " + selectedGroups);
 		});
-		groups.setMargin(true);
 		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);
 		
 		main.addComponents(formId, code, link, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
