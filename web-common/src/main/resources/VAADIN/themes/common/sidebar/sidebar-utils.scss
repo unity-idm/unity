@@ -91,11 +91,11 @@
         $tooltip-background,
         $tooltip-active-background) {
     .topMenu .v-slot > div {
-        @include sidebarBackgroundWithColor($menuLeft-background);
-        border-top-color: $tooltip-background !important;
+        //@include sidebarBackgroundWithColor($menuLeft-background);
+        //border-top-color: $tooltip-background !important;
         
         &:hover {
-            @include sidebarBackgroundWithColor($button-hover-background);
+            //@include sidebarBackgroundWithColor($button-hover-background);
         }
         
         .menuButton-caption .toolTip {
@@ -109,39 +109,31 @@
         .leftMenu {
             background: $menuLeft-background;
 
-            .v-slot-menuLabel > div .v-caption:after {
-                border-bottom-color: rgba(sidebarColorDetect($menuLeft-background), 0.25) !important;
-            }
+//for minimalized mode?
+//            .v-slot-menuLabel > div .v-caption:after {
+//              border-bottom-color: rgba($menu-color, 0.25) !important;
+//            }
             
             .menuButton {
-                border-left-color: $tooltip-background !important;
-
                 &.active {
-                    border-left-color: $tooltip-active-background !important;
-                    @include sidebarBackgroundWithColor($button-active-background);
+                    font-weight: 900;
+                    border-bottom: 2px solid;	
                 }
 
                 &:hover {
-                    @include sidebarBackgroundWithColor($button-hover-background);
+                   
                 }
             }
 
-            .subMenu > .v-slot:last-child > .v-verticallayout {
-                border-left-color: rgba(sidebarColorDetect($menuLeft-background), 0.25) !important;
-            }
+//for minimalized mode?
+//            .subMenu > .v-slot:last-child > .v-verticallayout {
+//                border-left-color: rgba($menu-color, 0.25) !important;
+//            }
         }
-    }
-}
-
-@function sidebarColorDetect($background) {
-    @if (lightness($background) > 50) {
-        @return $sidebar-dark-color;
-    } @else {
-        @return $sidebar-white-color;
     }
 }
 
 @mixin sidebarBackgroundWithColor($background) {
     background: $background;
-    color: sidebarColorDetect($background);
+    color: $menu-color;
 }

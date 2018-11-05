@@ -13,18 +13,15 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.icons.VaadinIcons;
 import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.dashboard.DashboardView;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.left.LeftMenuLabel;
 import io.imunity.webelements.menu.top.TopMenu;
-import io.imunity.webelements.menu.top.TopMenuTextField;
 import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
@@ -68,11 +65,6 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	private void buildTopOnlyMenu()
 	{
 		TopMenu topMenu = webConsoleLayout.getTopMenu();
-		topMenu.addMenuElement(TopMenuTextField.get(VaadinIcons.SEARCH,
-				msg.getMessage("WebConsoleMenu.search")));
-		topMenu.addMenuElement(MenuButton.get("home").withIcon(VaadinIcons.HOME)
-				.withDescription(msg.getMessage("WebConsoleMenu.dashboard"))
-				.withNavigateTo(DashboardView.VIEW_NAME));
 
 		topMenu.addMenuElement(MenuButton.get("logout").withIcon(Images.exit.getResource())
 				.withDescription(msg.getMessage("WebConsoleMenu.logout"))

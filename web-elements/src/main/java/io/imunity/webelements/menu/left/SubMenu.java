@@ -109,14 +109,12 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 
 	public SubMenu open()
 	{
-		button.setActive(true);
 		main.addStyleName(Styles.subMenuOpen.toString());
 		return this;
 	}
 
 	public SubMenu close()
 	{
-		button.setActive(false);
 		main.removeStyleName(Styles.subMenuOpen.toString());
 		return this;
 	}
@@ -129,7 +127,7 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 	@Override
 	public void addMenuElement(MenuElement entry)
 	{
-		menuElements.put(entry.getId(), entry);
+		menuElements.put(entry.getMenuElementId(), entry);
 		content.addComponent(entry);
 
 	}

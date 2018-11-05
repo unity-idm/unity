@@ -1,6 +1,11 @@
 /* Colors */
-$sidebar-dark-color: rgb(66, 66, 66);
-$sidebar-white-color: rgb(245, 245, 245);
+$tooltip-background: #000000;
+$tooltip-active-background: #000000;
+$menu-color: #303030;
+$content-background: #f5f5f5;
+$menuLeft-background: #c0d6df;
+$button-active-background: $content-background;
+$button-hover-background: #f0f0f0;
 
 @import "sidebar-utils";
 
@@ -8,7 +13,12 @@ $sidebar-white-color: rgb(245, 245, 245);
     .sidebar {
         position: relative;
         z-index: 1;
-             
+        
+        *:focus {
+ 		   outline:none;
+		}
+        
+        
         /* top menu */
         .v-slot-topMenu {
             @include sidebarPos(fixed, 0, null, null, 0, 1000);
@@ -195,7 +205,7 @@ $sidebar-white-color: rgb(245, 245, 245);
                                 &:last-child > .v-verticallayout {
                                     @include sidebarTransition(max-height 0.5s ease-in-out);
                                     width: calc(100% - 24px) !important;
-                                    border-left: 1px solid transparent;
+                                    /*border-left: 1px solid transparent;*/
                                     position: relative;
                                     margin-left: 24px;
                                     overflow: hidden;
@@ -303,44 +313,15 @@ $sidebar-white-color: rgb(245, 245, 245);
                 }
             }
         }
+
         
-        
-        $tooltip-background: rgba(0,0,0,0);
-        $tooltip-active-background: rgba(0,0,0,0);
-        
-        // white theme
-        &.white {
-            $white-content-background: rgb(245, 245, 245);
-            $white-menuLeft-background: rgb(224, 224, 224);
-            $white-button-active-background: $white-content-background;
-            $white-button-hover-background: rgb(189, 189, 189);
-            
-            @include sidebarTheme(
-                    $white-content-background, 
-                    $white-menuLeft-background,
-                    $white-button-active-background,
-                    $white-button-hover-background,
-                    $tooltip-background,
-                    $tooltip-active-background
-                );
-        }
-        
-        // dark theme
-        &.dark {
-            $dark-content-background: rgb(83, 83, 83);
-            $dark-menuLeft-background: rgb(53, 53, 53);
-            $dark-button-active-background: $dark-content-background;
-            $dark-button-hover-background: rgb(33, 33, 33);
-        
-            @include sidebarTheme(
-                    $dark-content-background, 
-                    $dark-menuLeft-background,
-                    $dark-button-active-background,
-                    $dark-button-hover-background,
-                    $tooltip-background,
-                    $tooltip-active-background
-                );
-        }
-        
+        @include sidebarTheme(
+                $content-background, 
+                $menuLeft-background,
+                $button-active-background,
+                $button-hover-background,
+                $tooltip-background,
+                $tooltip-active-background
+         );
     }
 }
