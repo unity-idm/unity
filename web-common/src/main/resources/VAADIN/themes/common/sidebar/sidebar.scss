@@ -146,7 +146,12 @@ $button-hover-background: #f0f0f0;
                                 display: none;
                             }
                         }
-
+                       
+                        .v-slot-menuCombo > div {
+                        	  width: 100%;
+                              text-align: center;
+						}
+	
                         .menuButton {
                             @include sidebarTransition(background 0.3s, border-left 0.3s, height 0.5s);
                             border-left: 0 solid transparent;

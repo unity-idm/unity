@@ -58,6 +58,7 @@
 		<module>web-elements</module>
 		<module>web-admin</module>
 		<module>web-console</module>
+		<module>web-upman</module>
 		<module>rest</module>
 		<module>rest-admin</module>
 		<module>ws</module>

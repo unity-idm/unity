@@ -90,7 +90,11 @@ public enum Images
 	dashboard 	(VaadinIcons.DASHBOARD),
 	user		(VaadinIcons.USER),
 	question	(VaadinIcons.QUESTION_CIRCLE_O),
-	globe		(VaadinIcons.GLOBE);
+	globe		(VaadinIcons.GLOBE),
+	family		(VaadinIcons.FAMILY),
+	file_tree 	(VaadinIcons.FILE_TREE),
+	envelope_open	(VaadinIcons.ENVELOPE_OPEN),
+	user_check	(VaadinIcons.USER_CHECK);
 	
 	private final Resource resource;
 	
