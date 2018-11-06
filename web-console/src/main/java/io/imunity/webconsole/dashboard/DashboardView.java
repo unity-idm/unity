@@ -60,10 +60,10 @@ public class DashboardView extends CustomComponent implements UnityView
 	}
 
 	@Component
-	public class DashboardGroupInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public class DashboardNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public DashboardGroupInfoProvider(UnityMessageSource msg,
+		public DashboardNavigationInfoProvider(UnityMessageSource msg,
 				WebConsoleRootNavigationInfoProvider parent,
 				ObjectFactory<DashboardView> factory)
 		{

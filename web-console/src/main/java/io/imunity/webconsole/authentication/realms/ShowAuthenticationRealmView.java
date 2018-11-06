@@ -54,6 +54,7 @@ public class ShowAuthenticationRealmView extends CustomComponent implements Unit
 	public void enter(ViewChangeEvent event)
 	{
 		FormLayout main = new FormLayout();
+		main.setMargin(true);
 
 		realmName = NavigationHelper.getParam(event, "name");
 

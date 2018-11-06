@@ -58,10 +58,10 @@ public class SAMLView extends CustomComponent implements UnityView
 	}
 
 	@Component
-	public static class SAMLViewInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class SAMLNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public SAMLViewInfoProvider(UnityMessageSource msg,
+		public SAMLNavigationInfoProvider(UnityMessageSource msg,
 				IdpNavigationInfoProvider parent, ObjectFactory<SAMLView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
