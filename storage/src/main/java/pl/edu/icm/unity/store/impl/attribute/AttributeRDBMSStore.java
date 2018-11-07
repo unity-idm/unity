@@ -40,22 +40,22 @@ public class AttributeRDBMSStore extends BasicCachingCRUD<StoredAttribute, Attri
 	@Override
 	public void updateAttribute(StoredAttribute a)
 	{
-		cache.flushWithEvent();
 		wrapped.updateAttribute(a);
+		cache.flushWithEvent();
 	}
 
 	@Override
 	public void deleteAttribute(String attribute, long entityId, String group)
 	{
-		cache.flushWithEvent();
 		wrapped.deleteAttribute(attribute, entityId, group);
+		cache.flushWithEvent();
 	}
 
 	@Override
 	public void deleteAttributesInGroup(long entityId, String group)
 	{
-		cache.flushWithEvent();
 		wrapped.deleteAttributesInGroup(entityId, group);
+		cache.flushWithEvent();
 	}
 
 	@Override

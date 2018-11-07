@@ -28,36 +28,37 @@ public class BasicCachingCRUD<T, DAO extends BasicCRUDDAO<T>, CACHE extends Basi
 	@Override
 	public long create(T obj)
 	{
+		long created = wrapped.create(obj);
 		cache.flushWithEvent();
-		return wrapped.create(obj);
+		return created;
 	}
 
 	@Override
 	public void createWithId(long id, T obj)
 	{
-		cache.flushWithEvent();
 		wrapped.createWithId(id, obj);
+		cache.flushWithEvent();
 	}
 
 	@Override
 	public void updateByKey(long id, T obj)
 	{
-		cache.flushWithEvent();
 		wrapped.updateByKey(id, obj);
+		cache.flushWithEvent();
 	}
 
 	@Override
 	public void deleteByKey(long id)
 	{
-		cache.flushWithEvent();
 		wrapped.deleteByKey(id);
+		cache.flushWithEvent();
 	}
 
 	@Override
 	public void deleteAll()
 	{
-		cache.flushWithEvent();
 		wrapped.deleteAll();
+		cache.flushWithEvent();
 	}
 
 	@Override

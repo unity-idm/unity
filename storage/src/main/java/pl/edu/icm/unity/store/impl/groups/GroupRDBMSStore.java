@@ -35,15 +35,16 @@ public class GroupRDBMSStore extends NamedCachingCRUD<Group, GroupDAOInternal, N
 	@Override
 	public long create(Group obj)
 	{
+		long created = wrapped.create(obj);
 		cache.flushWithEvent();
-		return wrapped.create(obj);
+		return created;
 	}
 	
 	@Override
 	public void updateByKey(long key, Group obj)
 	{
-		cache.flushWithEvent();
 		wrapped.updateByKey(key, obj);
+		cache.flushWithEvent();
 	}
 
 	@Override

@@ -37,8 +37,9 @@ public class EntityRDBMSCachingStore extends BasicCachingCRUD<EntityInformation,
 	@Override
 	public long create(EntityInformation obj)
 	{
+		long created = wrapped.create(obj);
 		cache.flushWithEvent();
-		return wrapped.create(obj);
+		return created;
 	}
 
 	@Override

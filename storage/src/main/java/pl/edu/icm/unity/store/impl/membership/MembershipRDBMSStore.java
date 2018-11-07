@@ -40,15 +40,15 @@ public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 	@Override
 	public void create(GroupMembership obj)
 	{
-		cache.flushWithEvent();
 		wrapped.create(obj);
+		cache.flushWithEvent();
 	}
 
 	@Override
 	public void deleteByKey(long entityId, String group)
 	{
-		cache.flushWithEvent();
 		wrapped.deleteByKey(entityId, group);
+		cache.flushWithEvent();
 	}
 
 	@Override
