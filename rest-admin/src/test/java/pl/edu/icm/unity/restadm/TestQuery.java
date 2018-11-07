@@ -79,7 +79,7 @@ public class TestQuery extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/a+foo@ex.com");
 		HttpResponse response = client.execute(host, resolve, localcontext);
@@ -95,7 +95,7 @@ public class TestQuery extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/userName/admin");
 		HttpResponse response = client.execute(host, resolve, localcontext);
@@ -144,7 +144,7 @@ public class TestQuery extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		Identity persistent = entity.getIdentities().stream().
@@ -167,7 +167,7 @@ public class TestQuery extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		HttpGet getGroups = new HttpGet("/restadm/v1/entity/tested/groups?identityType=" 
 				+ UsernameIdentity.ID);
@@ -182,7 +182,7 @@ public class TestQuery extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		return client.execute(host, request, localcontext);
 	}
 	

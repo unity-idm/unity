@@ -63,7 +63,7 @@ public class TstPerfLogin extends PerformanceTestBase
 		for (int i = 0; i < WARM_SIZE; i++)
 		{
 			HttpClient client = getClient();
-			HttpContext localcontext = getClientContext(client, host, "user" + i,
+			HttpContext localcontext = getClientContext(host, "user" + i,
 					"PassWord8743#%$^&*");
 			HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 			HttpResponse response = client.execute(host, get, localcontext);
@@ -81,7 +81,7 @@ public class TstPerfLogin extends PerformanceTestBase
 			{
 				
 				HttpClient client = getClient();
-				HttpContext localcontext = getClientContext(client, host,
+				HttpContext localcontext = getClientContext(host,
 						"user" + index, "PassWord8743#%$^&*");
 				index++;
 				HttpGet get = new HttpGet("/mock/mock-rest/test/r1");

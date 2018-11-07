@@ -50,12 +50,12 @@ public abstract class TestRESTBase extends DBIntegrationTestBase
 	protected AuthenticationFlowManagement authFlowMan;
 	
 	
-	protected HttpClientContext getClientContext(HttpClient client, HttpHost host)
+	protected HttpClientContext getClientContext(HttpHost host)
 	{
-		return getClientContext(client, host, DEF_USER, DEF_PASSWORD);
+		return getClientContext(host, DEF_USER, DEF_PASSWORD);
 	}
 		
-	protected HttpClientContext getClientContext(HttpClient client, HttpHost host, String user, String pass)
+	protected HttpClientContext getClientContext(HttpHost host, String user, String pass)
 	{
 		CredentialsProvider credsProvider = new BasicCredentialsProvider();
 		credsProvider.setCredentials(
