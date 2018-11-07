@@ -60,10 +60,10 @@ public class OAuthView extends CustomComponent implements UnityView
 	}
 
 	@Component
-	public static class OAuthViewInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class OAuthNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public OAuthViewInfoProvider(UnityMessageSource msg,
+		public OAuthNavigationInfoProvider(UnityMessageSource msg,
 				IdpNavigationInfoProvider parent, ObjectFactory<OAuthView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)

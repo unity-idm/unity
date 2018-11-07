@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.dashboard;
+package io.imunity.upman.invitations;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +14,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
+import io.imunity.upman.UpManNavigationInfoProviderBase;
+import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -24,21 +24,21 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
- * Default dashbord view
+ * Invitations view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class DashboardView extends CustomComponent implements UnityView
+public class InvitationsView extends CustomComponent implements UnityView
 {
 
-	public static final String VIEW_NAME = "Dashboard";
+	public static final String VIEW_NAME = "Invitations";
 
 	private UnityMessageSource msg;
 
 	@Autowired
-	public DashboardView(UnityMessageSource msg)
+	public InvitationsView(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -48,7 +48,7 @@ public class DashboardView extends CustomComponent implements UnityView
 	{
 		VerticalLayout main = new VerticalLayout();
 		Label title = new Label();
-		title.setValue("Welcome in Unity Web Console");
+		title.setValue("Invitations");
 		main.addComponent(title);
 		setCompositionRoot(main);
 	}
@@ -56,22 +56,22 @@ public class DashboardView extends CustomComponent implements UnityView
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.dashboard");
+		return msg.getMessage("UpManMenu.invitations");
 	}
 
 	@Component
-	public class DashboardNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public class InvitationsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public DashboardNavigationInfoProvider(UnityMessageSource msg,
-				WebConsoleRootNavigationInfoProvider parent,
-				ObjectFactory<DashboardView> factory)
+		public InvitationsNavigationInfoProvider(UnityMessageSource msg,
+				UpManRootNavigationInfoProvider parent,
+				ObjectFactory<InvitationsView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.dashboard"))
-					.withIcon(Images.dashboard.getResource()).withPosition(0)
+					.withCaption(msg.getMessage("UpManMenu.invitations"))
+					.withIcon(Images.envelope_open.getResource()).withPosition(2)
 					.build());
 
 		}

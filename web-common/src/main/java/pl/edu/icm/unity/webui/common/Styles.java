@@ -111,6 +111,7 @@ public enum Styles
 	menuButtonClickable("clickable"),
 	menuButtonActive("active"),
 	menuLabel("menuLabel"),
+	menuCombo("menuCombo"),
 	subMenu("subMenu"),
 	subMenuOpen("open"),
 	topMenuTextField("topMenuTextField"),
