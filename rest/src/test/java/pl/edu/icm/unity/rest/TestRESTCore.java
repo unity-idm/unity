@@ -87,7 +87,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 		HttpResponse response = client.execute(host, get, localcontext);
@@ -114,7 +114,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1/exception");
 		HttpResponse response = client.execute(host, get, localcontext);
@@ -130,7 +130,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
 		preflight.addHeader("Access-Control-Request-Method", "PUT");
@@ -145,7 +145,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
 		preflight.addHeader("Access-Control-Request-Method", "PUT");
@@ -177,7 +177,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", "http://notAllowedOrigin.com");
 		
@@ -196,7 +196,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
 		preflight.addHeader("Access-Control-Request-Method", "PUT");

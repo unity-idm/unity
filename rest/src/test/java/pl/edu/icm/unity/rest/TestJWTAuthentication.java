@@ -146,7 +146,7 @@ public class TestJWTAuthentication extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		return client.execute(host, request, localcontext);
 	}
 	

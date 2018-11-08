@@ -65,7 +65,7 @@ public class TestAttributeTypes extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/attributeTypes");
 		HttpResponse response = client.execute(host, resolve, localcontext);
@@ -84,7 +84,7 @@ public class TestAttributeTypes extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		
 		HttpPost addAT = new HttpPost("/restadm/v1/attributeType");

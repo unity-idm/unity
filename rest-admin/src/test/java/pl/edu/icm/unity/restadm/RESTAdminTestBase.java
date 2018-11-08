@@ -41,7 +41,7 @@ public abstract class RESTAdminTestBase extends TestRESTBase
 				"restAdmin", "/restadm");		
 		client = getClient();
 		host = new HttpHost("localhost", 53456, "https");
-		localcontext = getClientContext(client, host);
+		localcontext = getClientContext(host);
 	}
 
 }
