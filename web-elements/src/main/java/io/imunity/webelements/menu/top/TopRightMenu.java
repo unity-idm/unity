@@ -22,14 +22,14 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P.Piernik
  *
  */
-public class TopMenu extends HorizontalLayout implements MenuElementContainer
+public class TopRightMenu extends HorizontalLayout implements MenuElementContainer
 {
 	private Map<String, MenuElement> menuElements;
 	
-	public TopMenu()
+	public TopRightMenu()
 	{
 		setHeight(0, Unit.PIXELS);
-		setStyleName(Styles.topMenu.toString());
+		setStyleName(Styles.topRightMenu.toString());
 		setMargin(false);
 		setSpacing(false);
 		menuElements = new HashMap<>();

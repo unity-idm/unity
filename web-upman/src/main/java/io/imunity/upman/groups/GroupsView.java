@@ -58,7 +58,7 @@ public class GroupsView extends CustomComponent implements UnityView
 	{
 		return msg.getMessage("UpManMenu.groups");
 	}
-
+		
 	@Component
 	public class GroupsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{

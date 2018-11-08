@@ -10,7 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -22,6 +24,7 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Invitations view
@@ -57,6 +60,21 @@ public class InvitationsView extends CustomComponent implements UnityView
 	public String getDisplayedName()
 	{
 		return msg.getMessage("UpManMenu.invitations");
+	}
+	
+	@Override
+	public com.vaadin.ui.Component getViewHeader()
+	{
+		HorizontalLayout header = new  HorizontalLayout();
+		Label name = new Label(getDisplayedName());
+		name.setStyleName(Styles.textXLarge.toString());
+		name.addStyleName(Styles.bold.toString());
+
+		Button addInvitationButton = new Button(msg.getMessage("Invitations.newInvite"),
+				Images.add.getResource());
+
+		header.addComponents(name, addInvitationButton);
+		return header;
 	}
 
 	@Component

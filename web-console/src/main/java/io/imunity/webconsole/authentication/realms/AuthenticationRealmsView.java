@@ -80,14 +80,14 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 				.builder4Edit(msg, AuthenticationRealm.class)
 				.withHandler(r -> NavigationHelper
 						.goToView(EditAuthenticationRealmView.VIEW_NAME
-								+ "?" + "name="
+								+ "/" + "name="
 								+ r.iterator().next().getName()))
 				.build();
 		SingleActionHandler<AuthenticationRealm> view = SingleActionHandler
 				.builder4ShowDetails(msg, AuthenticationRealm.class)
 				.withHandler(r -> NavigationHelper
 						.goToView(ShowAuthenticationRealmView.VIEW_NAME
-								+ "?" + "name="
+								+ "/" + "name="
 								+ r.iterator().next().getName()))
 				.build();
 

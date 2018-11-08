@@ -24,7 +24,7 @@ import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuComoboBox;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.left.LeftMenuLabel;
-import io.imunity.webelements.menu.top.TopMenu;
+import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
@@ -67,7 +67,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 
 	private void buildTopMenu()
 	{
-		TopMenu topMenu = upManLayout.getTopMenu();
+		TopRightMenu topMenu = upManLayout.getTopRightMenu();
 
 		topMenu.addMenuElement(MenuButton.get("logout").withIcon(Images.exit.getResource())
 				.withDescription(msg.getMessage("UpManMenu.logout"))

@@ -13,15 +13,16 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.layout.BreadCrumbs;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.left.LeftMenuLabel;
-import io.imunity.webelements.menu.top.TopMenu;
+import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
@@ -38,7 +39,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
  * @author P.Piernik
  *
  */
-@PushStateNavigation
+//@PushStateNavigation
 @Component("WebConsoleUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
@@ -62,9 +63,9 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 
 	}
 
-	private void buildTopOnlyMenu()
+	private void buildTopRightMenu()
 	{
-		TopMenu topMenu = webConsoleLayout.getTopMenu();
+		TopRightMenu topMenu = webConsoleLayout.getTopRightMenu();
 
 		topMenu.addMenuElement(MenuButton.get("logout").withIcon(Images.exit.getResource())
 				.withDescription(msg.getMessage("WebConsoleMenu.logout"))
@@ -91,15 +92,21 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
+		
+		BreadCrumbs breadCrumbs = new BreadCrumbs(navigationMan);	
 		webConsoleLayout = SidebarLayout.get(navigationMan)
+				.withTopComponent(breadCrumbs)
 				.withNaviContent(new VerticalLayout())
 				.withViewProvider(appContextViewProvider)
 				.withErrorView((UnityView) navigationMan.getNavigationInfoMap()
 						.get(WebConsoleErrorView.VIEW_NAME).objectFactory
 								.getObject())
 				.build();
-		buildTopOnlyMenu();
+		UI.getCurrent().getNavigator().addViewChangeListener(breadCrumbs);
+		
+		buildTopRightMenu();
 		buildLeftMenu();
+	
 		setContent(webConsoleLayout);
 	}
 	

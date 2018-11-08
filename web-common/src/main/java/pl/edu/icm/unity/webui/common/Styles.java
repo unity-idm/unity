@@ -102,7 +102,8 @@ public enum Styles
 	//webConsole
 	breadcrumbs("breadcrumbs"),
 	leftMenu("leftMenu"),
-	topMenu("topMenu"),
+	topRightMenu("topRightMenu"),
+	viewHeader("viewHeader"),
 	sidebar("sidebar"),
 	contentBox("contentBox"),
 	rootContent("rootContent"),

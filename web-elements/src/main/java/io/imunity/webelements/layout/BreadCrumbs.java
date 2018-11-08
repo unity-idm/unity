@@ -41,7 +41,7 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 		main = new HorizontalLayout();
 		main.setStyleName(Styles.breadcrumbs.toString());
 		main.setWidth(100, Unit.PERCENTAGE);
-		main.setMargin(false);
+		main.setMargin(true);
 		main.setSpacing(true);
 		setCompositionRoot(main);
 	}
@@ -70,7 +70,7 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 				|| element.type == NavigationInfo.Type.DefaultView)
 		{
 			main.addComponent(MenuButton.get(element.id).withNavigateTo(element.id)
-					.withCaption(element.caption));
+					.withCaption(element.caption).clickable());
 
 		} else if (element.type == NavigationInfo.Type.ParameterizedView)
 		{

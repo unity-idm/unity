@@ -54,11 +54,21 @@ public class AppContextViewProvider implements ViewProvider
 			for (String view : viewFactories.keySet().stream().filter(v -> !v.isEmpty())
 					.collect(Collectors.toSet()))
 			{
-				if (viewAndParameters.startsWith(view))
+				if (getViewNameInternal(viewAndParameters).equals(view))
 					return view;
 			}
 		}
 		return viewAndParameters;
+	}
+	
+	private String getViewNameInternal(String viewAndParameters)
+	{
+		if (viewAndParameters.contains("/"))
+		{
+			return viewAndParameters.split("/")[0];
+		}
+		
+		return viewAndParameters;	
 	}
 
 	@Override

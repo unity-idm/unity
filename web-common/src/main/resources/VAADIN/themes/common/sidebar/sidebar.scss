@@ -20,6 +20,7 @@ $button-hover-background: #f0f0f0;
         
         
         /* top menu */
+        /*
         .v-slot-topMenu {
             @include sidebarPos(fixed, 0, null, null, 0, 1000);
             
@@ -95,7 +96,7 @@ $button-hover-background: #f0f0f0;
                     }
                 }
             }
-        }
+        }/*
         
         /* root content */
         .rootContent {
@@ -235,7 +236,7 @@ $button-hover-background: #f0f0f0;
             
             /* breadcrumbs */
             .breadcrumbs {
-                padding: 15px 20px;
+              //  padding: 15px 20px;
                 
                 .v-slot {
                     width: auto !important;
@@ -248,6 +249,38 @@ $button-hover-background: #f0f0f0;
                         display: none !important;
                     }
                 }
+            }
+           
+            /* topRightMenu */
+            .topRightMenu {
+                padding-right: 5px;
+          		//TODO topRightMenu    
+          
+          		//TODO menuButton- actually is mixed from vButtonLink and u-largeIcon 
+          		.menuButton {
+						border: none;
+						-webkit-box-shadow: none;
+						box-shadow: none;
+						background: transparent;
+						color: inherit;
+						cursor: pointer;
+						//color: #197de1;
+						text-decoration: underline;
+						font-weight: inherit;
+						-webkit-transition: color 140ms;
+						-moz-transition: color 140ms;
+						transition: color 140ms;
+						font-size : 24px
+				}		  	
+          	}  
+               
+          
+            /* viewHeader */
+            .viewHeader {
+                padding: 15px 20px;
+         	    //TODO  
+               
+               
             }
             
             /* left menu minimal */
