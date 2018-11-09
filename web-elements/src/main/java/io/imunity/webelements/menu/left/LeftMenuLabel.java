@@ -65,6 +65,12 @@ public class LeftMenuLabel extends CustomComponent implements MenuElement
 		return this;
 	}
 	
+	public LeftMenuLabel withStyleName(String style)
+	{
+		main.addStyleName(style);
+		return this;
+	}
+	
 	@Override
 	public void setActive(boolean active)
 	{

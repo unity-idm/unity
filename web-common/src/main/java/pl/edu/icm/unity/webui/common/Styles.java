@@ -104,6 +104,7 @@ public enum Styles
 	leftMenu("leftMenu"),
 	topRightMenu("topRightMenu"),
 	viewHeader("viewHeader"),
+	headerBar("headerBar"),
 	sidebar("sidebar"),
 	contentBox("contentBox"),
 	rootContent("rootContent"),

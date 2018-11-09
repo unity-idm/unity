@@ -15,6 +15,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component for displaying the unity view header
+ * 
  * @author P.Piernik
  *
  */
@@ -26,6 +27,8 @@ public class ViewHeader extends CustomComponent implements ViewChangeListener
 	{
 		main = new HorizontalLayout();
 		main.setStyleName(Styles.viewHeader.toString());
+		main.setMargin(false);
+		main.setSpacing(false);
 		setCompositionRoot(main);
 	}
 

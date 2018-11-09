@@ -16,6 +16,9 @@ import com.vaadin.ui.UI;
  */
 public class NavigationHelper
 {
+	public static enum CommonViewParam { name };
+	
+	
 	public static String getParam(ViewChangeEvent event, String paramName)
 	{
 		return event.getParameterMap().isEmpty()

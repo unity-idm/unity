@@ -88,9 +88,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 				//.withClickListener(e -> webConsoleLayout.getLeftMenu().toggleSize());
 
 		leftMenu.addMenuElement(label);
-
 		LeftMenuLabel space1 = LeftMenuLabel.get();
-		
 		leftMenu.addMenuElement(space1);
 		
 		MenuComoboBox projectCombo = MenuComoboBox.get().withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
@@ -102,10 +100,8 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		projectCombo.setEmptySelectionAllowed(false);
 	
 		leftMenu.addMenuElement(projectCombo);
-
-		LeftMenuLabel space = LeftMenuLabel.get();
-		
-		leftMenu.addMenuElement(space);
+		LeftMenuLabel space2 = LeftMenuLabel.get();
+		leftMenu.addMenuElement(space2);
 		
 		
 		leftMenu.addNavigationElements(UpManRootNavigationInfoProvider.ID);

@@ -139,7 +139,7 @@ $button-hover-background: #f0f0f0;
                                 
                                 .v-icon {
                                     margin-right: 5px;
-                                    max-height: 32px;
+                                    max-height: 52px;
                                 }
                             }
                             
@@ -251,6 +251,14 @@ $button-hover-background: #f0f0f0;
                 }
             }
            
+            /* headerBar */
+            .headerBar {
+             	//   border-bottom: 1px solid;
+         	    //TODO  
+               
+               
+            }
+           
             /* topRightMenu */
             .topRightMenu {
                 padding-right: 5px;
@@ -274,10 +282,11 @@ $button-hover-background: #f0f0f0;
 				}		  	
           	}  
                
+         
           
             /* viewHeader */
             .viewHeader {
-                padding: 15px 20px;
+             	//padding: 15px 20px;
          	    //TODO  
                
                

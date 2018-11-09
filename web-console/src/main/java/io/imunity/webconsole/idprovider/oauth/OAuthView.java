@@ -32,7 +32,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 public class OAuthView extends CustomComponent implements UnityView
 {
 
-	public static String VIEW_NAME = "OAuth";
+	public static final String VIEW_NAME = "OAuth";
 
 	private UnityMessageSource msg;
 

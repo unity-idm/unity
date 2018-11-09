@@ -32,8 +32,7 @@ import pl.edu.icm.unity.webui.common.Images;
 @PrototypeComponent
 public class OtherServicesView extends CustomComponent implements UnityView
 {
-
-	public static String VIEW_NAME = "OtherServices";
+	public static final String VIEW_NAME = "OtherServices";
 
 	private UnityMessageSource msg;
 

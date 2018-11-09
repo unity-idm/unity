@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 @PrototypeComponent
 public class SAMLView extends CustomComponent implements UnityView
 {
-	public static String VIEW_NAME = "SAML";
+	public static final String VIEW_NAME = "SAML";
 
 	private UnityMessageSource msg;
 

@@ -31,8 +31,8 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 @PrototypeComponent
 public class RoutesView extends CustomComponent implements UnityView
 {
-
 	public static final String VIEW_NAME = "Routes";
+	
 	private UnityMessageSource msg;
 
 	@Autowired

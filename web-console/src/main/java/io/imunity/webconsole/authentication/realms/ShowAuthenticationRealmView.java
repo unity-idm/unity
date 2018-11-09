@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class ShowAuthenticationRealmView extends CustomComponent implements UnityView
 {
 
-	public static String VIEW_NAME = "ViewAuthenticationRealm";
+	public static final String VIEW_NAME = "ViewAuthenticationRealm";
 
 	private AuthenticationRealmController controller;
 	private UnityMessageSource msg;

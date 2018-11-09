@@ -90,18 +90,19 @@
         $button-hover-background,
         $tooltip-background,
         $tooltip-active-background) {
-    .topMenu .v-slot > div {
+  	
+  	 // .topMenu .v-slot > div {
         //@include sidebarBackgroundWithColor($menuLeft-background);
         //border-top-color: $tooltip-background !important;
         
-        &:hover {
+    //    &:hover {
             //@include sidebarBackgroundWithColor($button-hover-background);
-        }
+   //     }
         
-        .menuButton-caption .toolTip {
-            @include sidebarBackgroundWithColor($tooltip-background);
-        }
-    }
+   //     .menuButton-caption .toolTip {
+    //        @include sidebarBackgroundWithColor($tooltip-background);
+    //    }
+   // }
     
     .rootContent {
         @include sidebarBackgroundWithColor($content-background);

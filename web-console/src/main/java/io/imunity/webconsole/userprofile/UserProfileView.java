@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.Images;
 @PrototypeComponent
 public class UserProfileView extends CustomComponent implements UnityView
 {
-	public static String VIEW_NAME = "UserProfile";
+	public static final String VIEW_NAME = "UserProfile";
 
 	private UnityMessageSource msg;
 

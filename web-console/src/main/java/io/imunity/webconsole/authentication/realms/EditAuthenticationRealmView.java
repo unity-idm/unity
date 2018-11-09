@@ -11,13 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Layout;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.realms.AuthenticationRealmsView.RealmsNavigationInfoProvider;
 import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class EditAuthenticationRealmView extends CustomComponent implements UnityView
 {
 
-	public static String VIEW_NAME = "EditAuthenticationRealm";
+	public static final String VIEW_NAME = "EditAuthenticationRealm";
 
 	private AuthenticationRealmController controller;
 	private AuthenticationRealmEditor editor;
@@ -70,20 +70,20 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 			return;
 		}
 
-		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		UI.getCurrent().getNavigator().navigateTo(AuthenticationRealmsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
 
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		realmName = NavigationHelper.getParam(event, "name");
+		realmName = NavigationHelper.getParam(event, CommonViewParam.name.toString());
 		AuthenticationRealm realm;
 		try
 		{
@@ -91,8 +91,7 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			UI.getCurrent().getNavigator()
-					.navigateTo(AuthenticationRealmsView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
 			return;
 		}
 

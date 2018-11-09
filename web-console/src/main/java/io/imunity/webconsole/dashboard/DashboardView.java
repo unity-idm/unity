@@ -32,7 +32,6 @@ import pl.edu.icm.unity.webui.common.Images;
 @PrototypeComponent
 public class DashboardView extends CustomComponent implements UnityView
 {
-
 	public static final String VIEW_NAME = "Dashboard";
 
 	private UnityMessageSource msg;

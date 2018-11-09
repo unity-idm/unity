@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
@@ -22,6 +23,7 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * User updates view
@@ -57,6 +59,18 @@ public class UserUpdatesView extends CustomComponent implements UnityView
 	public String getDisplayedName()
 	{
 		return msg.getMessage("UpManMenu.userUpdates");
+	}
+	
+	@Override
+	public com.vaadin.ui.Component getViewHeader()
+	{
+		HorizontalLayout header = new  HorizontalLayout();
+		header.setMargin(true);
+		Label name = new Label(getDisplayedName());
+		name.setStyleName(Styles.textXLarge.toString());
+		name.addStyleName(Styles.bold.toString());
+		header.addComponents(name);
+		return header;
 	}
 
 	@Component

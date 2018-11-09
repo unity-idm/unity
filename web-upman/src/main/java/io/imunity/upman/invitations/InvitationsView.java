@@ -66,6 +66,7 @@ public class InvitationsView extends CustomComponent implements UnityView
 	public com.vaadin.ui.Component getViewHeader()
 	{
 		HorizontalLayout header = new  HorizontalLayout();
+		header.setMargin(true);
 		Label name = new Label(getDisplayedName());
 		name.setStyleName(Styles.textXLarge.toString());
 		name.addStyleName(Styles.bold.toString());

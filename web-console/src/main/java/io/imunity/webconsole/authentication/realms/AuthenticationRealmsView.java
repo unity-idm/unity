@@ -24,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -78,16 +79,18 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 
 		SingleActionHandler<AuthenticationRealm> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationRealm.class)
-				.withHandler(r -> NavigationHelper
-						.goToView(EditAuthenticationRealmView.VIEW_NAME
-								+ "/" + "name="
+				.withHandler(r -> NavigationHelper.goToView(
+						EditAuthenticationRealmView.VIEW_NAME + "/"
+								+ CommonViewParam.name.toString()
+								+ "="
 								+ r.iterator().next().getName()))
 				.build();
 		SingleActionHandler<AuthenticationRealm> view = SingleActionHandler
 				.builder4ShowDetails(msg, AuthenticationRealm.class)
-				.withHandler(r -> NavigationHelper
-						.goToView(ShowAuthenticationRealmView.VIEW_NAME
-								+ "/" + "name="
+				.withHandler(r -> NavigationHelper.goToView(
+						ShowAuthenticationRealmView.VIEW_NAME + "/"
+								+ CommonViewParam.name.toString()
+								+ "="
 								+ r.iterator().next().getName()))
 				.build();
 

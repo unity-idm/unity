@@ -99,8 +99,6 @@ public class SidebarLayout extends CustomComponent
 			ui.getNavigator().addProvider(new AppContextViewProvider(navMan));
 		}
 
-		// main.addComponent(topMenu);
-
 		rootContent = new HorizontalLayout();
 		rootContent.setSizeFull();
 		rootContent.setMargin(false);
@@ -115,12 +113,13 @@ public class SidebarLayout extends CustomComponent
 		HorizontalLayout headerBar = new HorizontalLayout();
 		headerBar.setSpacing(false);
 		headerBar.setMargin(false);
+		headerBar.setStyleName(Styles.headerBar.toString());
 		headerBar.setWidth(100, Unit.PERCENTAGE);
 		if (topComponent == null)
 		{
 			topComponent = getDefaultTopComponent();
 		}
-	
+			
 		headerBar.addComponent(topComponent);
 		headerBar.setComponentAlignment(topComponent, Alignment.TOP_LEFT);
 		

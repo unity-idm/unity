@@ -17,7 +17,7 @@ import io.imunity.webelements.menu.MenuElementContainer;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
- * Top menu bar
+ * Top right menu bar
  * 
  * @author P.Piernik
  *
@@ -28,7 +28,6 @@ public class TopRightMenu extends HorizontalLayout implements MenuElementContain
 	
 	public TopRightMenu()
 	{
-		setHeight(0, Unit.PIXELS);
 		setStyleName(Styles.topRightMenu.toString());
 		setMargin(false);
 		setSpacing(false);
@@ -38,9 +37,6 @@ public class TopRightMenu extends HorizontalLayout implements MenuElementContain
 	@Override
 	public void addMenuElement(MenuElement entry)
 	{
-		if (entry.getCaption() != null && !entry.getCaption().trim().isEmpty()) {
-			entry.setCaption(null);
-		}
 		menuElements.put(entry.getId(), entry);
 		addComponent(entry);		
 	}
