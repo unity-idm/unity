@@ -184,7 +184,7 @@ public class AttributeHandlerRegistry
 	 * @param attribute
 	 * @return
 	 */
-	public String getSimplifiedAttributeRepresentation(Attribute attribute, String displayedName)
+	private String getSimplifiedAttributeRepresentation(Attribute attribute, String displayedName)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(displayedName);
@@ -202,12 +202,16 @@ public class AttributeHandlerRegistry
 	 * @param attribute
 	 * @return
 	 */
-	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute)
+	private String getSimplifiedAttributeValuesRepresentation(Attribute attribute)
+	{
+		WebAttributeHandler handler = getHandlerWithStringFallback(attribute);
+		return getSimplifiedAttributeValuesRepresentation(attribute, handler);
+	}
+	
+	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute, WebAttributeHandler handler)
 	{
 		StringBuilder sb = new StringBuilder();
 		List<String> values = attribute.getValues();
-		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(attribute);
-		WebAttributeHandler handler = getHandler(syntax);
 		for (int i=0; i<values.size(); i++)
 		{
 			String val = handler.getValueAsString(values.get(i));
