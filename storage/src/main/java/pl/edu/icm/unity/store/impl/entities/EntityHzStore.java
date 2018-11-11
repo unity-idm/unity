@@ -34,9 +34,9 @@ public class EntityHzStore extends GenericBasicHzCRUD<EntityInformation> impleme
 	public static final String STORE_ID = DAO_ID + "hz";
 
 	@Autowired
-	public EntityHzStore(EntityRDBMSCachingStore rdbmsDAO)
+	public EntityHzStore(EntityRDBMSStore rdbmsDAO)
 	{
-		super(STORE_ID, NAME, EntityRDBMSCachingStore.BEAN, rdbmsDAO);
+		super(STORE_ID, NAME, EntityRDBMSStore.BEAN, rdbmsDAO);
 	}
 	
 	@Override
