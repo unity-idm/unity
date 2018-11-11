@@ -121,10 +121,11 @@ public class SidebarLayout extends CustomComponent
 		}
 			
 		headerBar.addComponent(topComponent);
-		headerBar.setComponentAlignment(topComponent, Alignment.TOP_LEFT);
+		headerBar.setComponentAlignment(topComponent, Alignment.MIDDLE_LEFT);
+		headerBar.setExpandRatio(topComponent, 1);
 		
 		headerBar.addComponent(topRightMenu);
-		headerBar.setComponentAlignment(topRightMenu, Alignment.TOP_RIGHT);
+		headerBar.setComponentAlignment(topRightMenu, Alignment.MIDDLE_RIGHT);
 
 		naviContentWrapper.addComponents(headerBar, naviContent);
 		naviContentWrapper.setExpandRatio(naviContent, 1f);

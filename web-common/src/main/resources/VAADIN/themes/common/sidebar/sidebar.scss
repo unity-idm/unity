@@ -1,11 +1,26 @@
 /* Colors */
 $tooltip-background: #000000;
 $tooltip-active-background: #000000;
-$menu-color: #303030;
-$content-background: #f5f5f5;
-$menuLeft-background: #c0d6df;
+
+
+
+$menuLeft-color: #e0e0e2;
+$menuLeft-bg-color: #223843;
+
+$menuLeft-hoover-color: #e0e0e2;
+$menuLeft-hoover-bg-color: #1f7a8c;
+
+$menuTop-color: #223843;
+$menuTop-hoover-color: #1f7a8c;
+$menuTop-bg-color: #eeeeee;
+
+$content-bg-color: #ffffff	;
+$content-color: #223843;
+
 $button-active-background: $content-background;
 $button-hover-background: #f0f0f0;
+
+$transition-time: 0.3s;
 
 @import "sidebar-utils";
 
@@ -18,6 +33,10 @@ $button-hover-background: #f0f0f0;
  		   outline:none;
 		}
         
+        .headerBar {
+        	background-color: $menuTop-bg-color;
+        	color: $menuTop-color;
+        }
         
         /* top menu */
         /*
@@ -132,7 +151,7 @@ $button-hover-background: #f0f0f0;
                                 
                                 &:after {
                                     @include sidebarPos(absolute, null, null, 0, 0);
-                                    border-bottom: 1px solid;
+                                    //border-bottom: 1px solid;
                                     content: '';
                                     width: 100%;
                                 }
@@ -154,7 +173,7 @@ $button-hover-background: #f0f0f0;
 						}
 	
                         .menuButton {
-                            @include sidebarTransition(background 0.3s, border-left 0.3s, height 0.5s);
+                            @include sidebarTransition(background 0.3s);
                             border-left: 0 solid transparent;
                             background: transparent;
                             overflow: hidden;
@@ -164,11 +183,11 @@ $button-hover-background: #f0f0f0;
                             height: 45px;
 
                             &.active {
-                                border-left-width: 3px;
                             }
 
                             &:hover, &.active:hover {
-                                border-left-width: 5px;
+                            	background-color: $menuLeft-hoover-bg-color;
+                            	color: $menuLeft-hoover-color;
                             }
                         }
 
@@ -235,9 +254,7 @@ $button-hover-background: #f0f0f0;
             }
             
             /* breadcrumbs */
-            .breadcrumbs {
-              //  padding: 15px 20px;
-                
+            .breadcrumbs {                
                 .v-slot {
                     width: auto !important;
                     
@@ -251,45 +268,32 @@ $button-hover-background: #f0f0f0;
                 }
             }
            
-            /* headerBar */
             .headerBar {
-             	//   border-bottom: 1px solid;
-         	    //TODO  
-               
-               
+
             }
            
-            /* topRightMenu */
             .topRightMenu {
-                padding-right: 5px;
-          		//TODO topRightMenu    
-          
-          		//TODO menuButton- actually is mixed from vButtonLink and u-largeIcon 
+                padding-right: 5px;          
           		.menuButton {
 						border: none;
 						-webkit-box-shadow: none;
 						box-shadow: none;
 						background: transparent;
-						color: inherit;
 						cursor: pointer;
-						//color: #197de1;
 						text-decoration: underline;
 						font-weight: inherit;
-						-webkit-transition: color 140ms;
-						-moz-transition: color 140ms;
-						transition: color 140ms;
-						font-size : 24px
-				}		  	
+						-webkit-transition: color $transition-time;
+						-moz-transition: color $transition-time;
+						transition: color $transition-time;
+						font-size : $v-font-size * 1.8;
+						
+						&:hover {
+							color: $menuTop-hoover-color;
+						}
+				}
           	}  
                
-         
-          
-            /* viewHeader */
             .viewHeader {
-             	//padding: 15px 20px;
-         	    //TODO  
-               
-               
             }
             
             /* left menu minimal */
@@ -361,14 +365,40 @@ $button-hover-background: #f0f0f0;
             }
         }
 
-        
-        @include sidebarTheme(
-                $content-background, 
-                $menuLeft-background,
-                $button-active-background,
-                $button-hover-background,
-                $tooltip-background,
-                $tooltip-active-background
-         );
+       	.topMenu .v-slot > div {
+			&:hover {
+       		}   
+    	}
+    
+    	.rootContent {
+			background: $content-bg-color;
+			color: $content-color;
+		
+        	.leftMenu {
+            	background: $menuLeft-bg-color;
+            	color: $menuLeft-color;
+
+//for minimalized mode?
+//            .v-slot-menuLabel > div .v-caption:after {
+//            	border-bottom-color: rgba($menu-color, 0.25) !important;
+//            }
+            
+			.menuButton {
+                &.active {
+                    font-weight: 900;
+                    border-bottom: 2px solid;	
+                }
+
+                &:hover {
+                   
+                }
+            }
+
+//for minimalized mode?
+//            .subMenu > .v-slot:last-child > .v-verticallayout {
+//                border-left-color: rgba($menu-color, 0.25) !important;
+//            }
+        	}
+    	}
     }
 }

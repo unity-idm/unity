@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.vaadin.ui.Alignment;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
 import io.imunity.webelements.menu.MenuElement;
@@ -22,23 +24,29 @@ import pl.edu.icm.unity.webui.common.Styles;
  * @author P.Piernik
  *
  */
-public class TopRightMenu extends HorizontalLayout implements MenuElementContainer
+public class TopRightMenu extends CustomComponent implements MenuElementContainer
 {
 	private Map<String, MenuElement> menuElements;
+	private HorizontalLayout layout;
 	
 	public TopRightMenu()
 	{
+		layout = new HorizontalLayout();
+		layout.setWidthUndefined();
 		setStyleName(Styles.topRightMenu.toString());
-		setMargin(false);
-		setSpacing(false);
+		layout.setMargin(false);
+		layout.setSpacing(false);
 		menuElements = new HashMap<>();
+		setCompositionRoot(layout);
+		setWidthUndefined();
 	}
 
 	@Override
 	public void addMenuElement(MenuElement entry)
 	{
 		menuElements.put(entry.getId(), entry);
-		addComponent(entry);		
+		layout.addComponent(entry);
+		layout.setComponentAlignment(entry, Alignment.MIDDLE_CENTER);
 	}
 
 	@Override
