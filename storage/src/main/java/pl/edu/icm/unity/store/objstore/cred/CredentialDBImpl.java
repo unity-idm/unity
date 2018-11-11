@@ -9,9 +9,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
-import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
-import pl.edu.icm.unity.store.rdbms.cache.HashMapNamedCache;
-import pl.edu.icm.unity.store.rdbms.cache.NamedCachingCRUDWithTS;
+import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
@@ -19,12 +17,11 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
  * @author K. Benedyczak
  */
 @Component
-public class CredentialDBImpl extends NamedCachingCRUDWithTS<CredentialDefinition, CredentialDBNoCacheImpl> implements CredentialDB
+public class CredentialDBImpl extends GenericObjectsDAOImpl<CredentialDefinition> implements CredentialDB
 {
 	@Autowired
-	public CredentialDBImpl(CredentialHandler handler, ObjectStoreDAO dbGeneric, CacheManager cacheManager)
+	CredentialDBImpl(CredentialHandler handler, ObjectStoreDAO dbGeneric)
 	{
-		super(new CredentialDBNoCacheImpl(handler, dbGeneric), new HashMapNamedCache<>(c -> c.clone()));
-		cacheManager.registerCacheWithFlushingPropagation(cache);
+		super(handler, dbGeneric, CredentialDefinition.class, "credential");
 	}
 }

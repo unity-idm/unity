@@ -88,4 +88,9 @@ public interface AuthorizationManager
 	 * @return
 	 */
 	boolean isSelf(long subject);
+	
+	/**
+	 * Empties authZ cache.
+	 */
+	void clearCache();
 }

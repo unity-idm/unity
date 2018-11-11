@@ -83,4 +83,9 @@ public class InternalNoAuthzImpl implements AuthorizationManager
 			throws AuthorizationExceptionRT
 	{
 	}
+
+	@Override
+	public void clearCache()
+	{
+	}
 }
