@@ -57,6 +57,12 @@ public class DashboardView extends CustomComponent implements UnityView
 	{
 		return msg.getMessage("WebConsoleMenu.dashboard");
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@Component
 	public class DashboardNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase

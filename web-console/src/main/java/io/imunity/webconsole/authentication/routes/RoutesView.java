@@ -57,6 +57,12 @@ public class RoutesView extends CustomComponent implements UnityView
 
 		return msg.getMessage("WebConsoleMenu.authentication.routes");
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@Component
 	public static class RoutesNavigationInfoProvider

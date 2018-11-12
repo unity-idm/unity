@@ -58,6 +58,12 @@ public class OAuthView extends CustomComponent implements UnityView
 
 		return msg.getMessage("WebConsoleMenu.idpProvider.oauth");
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@Component
 	public static class OAuthNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase

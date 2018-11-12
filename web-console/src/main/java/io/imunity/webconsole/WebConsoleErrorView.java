@@ -56,6 +56,12 @@ public class WebConsoleErrorView extends CustomComponent implements UnityView
 		return msg.getMessage("error");
 	}
 
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
+	
 	@Component
 	public class WebConsoleErrorViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{

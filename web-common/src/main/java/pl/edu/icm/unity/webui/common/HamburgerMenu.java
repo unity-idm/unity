@@ -88,4 +88,9 @@ public class HamburgerMenu<T> extends MenuBar
 			item.setVisible(false);
 		}
 	}
+	
+	public void setTarget(Set<T> target)
+	{
+		this.target = target;
+	}
 }

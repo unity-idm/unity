@@ -2,23 +2,85 @@
 $tooltip-background: #000000;
 $tooltip-active-background: #000000;
 
+/**
+ * Colors v1
+ * Exported as sass from http://paletton.com/#uid=23-0u0k8uuK1KQU4GEHd1q4i7l-
+ */
+$color-primary-0: #788C9F;	// Main Primary color */
+$color-primary-1: #D7DDE3;
+$color-primary-2: #A7B4C1;
+$color-primary-3: #546E87;
+$color-primary-4: #355370;
+
+$font-color: #223843;
 
 
+/**
+ * Bright color scheme
+ */
+/*
+$menuLeft-color: $font-color; 
+$menuLeft-bg-color: $color-primary-1;
+$menuLeft-bg-right-border: $color-primary-2;
+
+$menuLeft-hoover-color: $menuLeft-color; 
+$menuLeft-hoover-bg-color: $color-primary-2;
+$menuLeft-active-bg-color: $color-primary-2;
+
+$menuTop-color: $font-color;
+$menuTop-hoover-color: $color-primary-3;
+$menuTop-bg-color: $menuLeft-bg-color;
+$menuTop-bottom-border: $menuLeft-bg-right-border;
+
+$content-bg-color: #ffffff;
+$content-color: $font-color;
+
+$button-active-background: $content-background;
+*/
+
+/**
+ * Darker color scheme
+ */
+$menuLeft-color: $color-primary-1; 
+$menuLeft-bg-color: $color-primary-3;
+$menuLeft-bg-right-border: $menuLeft-bg-color;
+
+$menuLeft-hoover-color: $color-primary-1; 
+$menuLeft-hoover-bg-color: $color-primary-4;
+$menuLeft-active-bg-color: $color-primary-4;
+
+$menuTop-color: $font-color;
+$menuTop-hoover-color: $color-primary-3;
+$menuTop-bg-color: $color-primary-1;
+$menuTop-bottom-border: $menuTop-bg-color;
+
+$content-bg-color: #ffffff;
+$content-color: $font-color;
+
+$button-active-background: $content-background;
+
+/**
+ * Original color scheme
+ */
+ /*
 $menuLeft-color: #e0e0e2;
 $menuLeft-bg-color: #1f7a8c;
+$menuLeft-bg-right-border: $menuLeft-bg-color;
 
 $menuLeft-hoover-color: #e0e0e2;
 $menuLeft-hoover-bg-color: #223843;
+$menuLeft-active-bg-color: $menuLeft-hoover-bg-color;
 
 $menuTop-color: #223843;
 $menuTop-hoover-color: #1f7a8c;
 $menuTop-bg-color: #eef0f2;
+$menuTop-bottom-border: $menuTop-bg-color;
 
 $content-bg-color: #ffffff;
 $content-color: #223843;
 
 $button-active-background: $content-background;
-$button-hover-background: #f0f0f0;
+*/
 
 $transition-time: 0.3s;
 
@@ -35,6 +97,7 @@ $transition-time: 0.3s;
         
         .headerBar {
         	background-color: $menuTop-bg-color;
+        	border-bottom: 1px solid $menuTop-bottom-border;
         	color: $menuTop-color;
         }
         
@@ -53,6 +116,7 @@ $transition-time: 0.3s;
                     
                     .leftMenu {
                         background: $menuLeft-bg-color;
+                        border-right: 1px solid $menuLeft-bg-right-border;
             			color: $menuLeft-color;
                         @include sidebarTransition(width 0.3s ease-in-out);
                         width: 250px !important;
@@ -111,15 +175,16 @@ $transition-time: 0.3s;
                             padding: 8px 0;
                             height: 45px;
 
-                            &.active {
+                            &.active, &.active:hover {
                         		font-weight: 900;
-                    			border-bottom: 2px solid;
-                    			background-color: $menuLeft-hoover-bg-color;
+                    			background-color: $menuLeft-active-bg-color;
                             }
 
-                            &:hover, &.active:hover {
+                            &:hover {
                             	background-color: $menuLeft-hoover-bg-color;
                             	color: $menuLeft-hoover-color;
+                            	border-top: 1px solid $menuLeft-hoover-color;
+                            	border-bottom: 1px solid $menuLeft-hoover-color;
                             }
                         }
 
@@ -277,7 +342,7 @@ $transition-time: 0.3s;
                                         height: 28px;
                                         opacity: 0;
                                         margin-left: 4px;
-                                        background-color: $menuLeft-hoover-bg-color;
+                                        background-color: $menuLeft-active-bg-color;
                                         visibility: hidden;
                                     }
                                 }

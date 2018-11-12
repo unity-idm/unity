@@ -16,9 +16,12 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.PushStateNavigation;
+import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuComoboBox;
@@ -52,6 +55,8 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	private AppContextViewProvider appContextViewProvider;
 	private NavigationHierarchyManager navigationMan;
 
+	private MenuComoboBox projectCombo;
+
 	@Autowired
 	public UpManUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
 			StandardWebAuthenticationProcessor authnProcessor,
@@ -84,34 +89,38 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		LeftMenu leftMenu = upManLayout.getLeftMenu();
 		LeftMenuLabel label = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
-				//TODO - disabled until minimalized menu CSS is fixed.
-				//.withClickListener(e -> webConsoleLayout.getLeftMenu().toggleSize());
+		// TODO - disabled until minimalized menu CSS is fixed.
+		// .withClickListener(e ->
+		// webConsoleLayout.getLeftMenu().toggleSize());
 
 		leftMenu.addMenuElement(label);
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
-		
-		MenuComoboBox projectCombo = MenuComoboBox.get().withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
-		
-		//TODO Fill project names
-		//LoginSession entity = InvocationContext.getCurrent().getLoginSession();
+
+		projectCombo = MenuComoboBox.get()
+				.withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
 		projectCombo.setItems(getProjectNames(null));
 		projectCombo.setValue(getProjectNames(null).iterator().next());
 		projectCombo.setEmptySelectionAllowed(false);
-	
+		projectCombo.addValueChangeListener(e -> {
+			View view = UI.getCurrent().getNavigator().getCurrentView();
+			if (view instanceof UnityView)
+			{
+				NavigationHelper.goToView(((UnityView) view).getViewName());
+			}
+		});
+
 		leftMenu.addMenuElement(projectCombo);
 		LeftMenuLabel space2 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space2);
-		
-		
+
 		leftMenu.addNavigationElements(UpManRootNavigationInfoProvider.ID);
 	}
 
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-		upManLayout = SidebarLayout.get(navigationMan)
-				.withNaviContent(new VerticalLayout())
+		upManLayout = SidebarLayout.get(navigationMan).withNaviContent(new VerticalLayout())
 				.withViewProvider(appContextViewProvider)
 				.withErrorView((UnityView) navigationMan.getNavigationInfoMap()
 						.get(UpManErrorView.VIEW_NAME).objectFactory
@@ -121,19 +130,31 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		buildLeftMenu();
 		setContent(upManLayout);
 	}
-	
+
 	@Override
 	public String getUiRootPath()
 	{
 		return endpointDescription.getEndpoint().getContextAddress();
 	}
-	
-	//TODO 
+
+	// TODO
 	private Set<String> getProjectNames(String loggedUserName)
 	{
-		return Sets.newHashSet("Project 1" , "Project 2" , "Project 3");
-		
+		// LoginSession entity =
+		// InvocationContext.getCurrent().getLoginSession();
+		return Sets.newHashSet("/A", "/unicore");
+
 	}
 
+	private String getProjectNameInternal()
+	{
+		return projectCombo.getValue();
+	}
+
+	public static String getProjectName()
+	{
+		UpManUI ui = (UpManUI) UI.getCurrent();
+		return ui.getProjectNameInternal();
+	}
 
 }

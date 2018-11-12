@@ -21,6 +21,7 @@ import io.imunity.webelements.layout.BreadCrumbs;
  */
 public interface UnityView extends View
 {
+	String getViewName();
 	String getDisplayedName();
 	default Component getViewHeader()
 	{

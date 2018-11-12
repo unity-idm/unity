@@ -57,6 +57,12 @@ public class UserProfileView extends CustomComponent implements UnityView
 	{
 		return msg.getMessage("WebConsoleMenu.userProfile");
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@Component
 	public static class UserProfileNavigationInfoProvider

@@ -110,6 +110,12 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 		return msg.getMessage("new");
 	}
 
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
+	
 	@org.springframework.stereotype.Component
 	public static class NewRealmNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
