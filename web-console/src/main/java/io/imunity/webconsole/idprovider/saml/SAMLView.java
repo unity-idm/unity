@@ -56,6 +56,12 @@ public class SAMLView extends CustomComponent implements UnityView
 	{
 		return msg.getMessage("WebConsoleMenu.idpProvider.saml");
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@Component
 	public static class SAMLNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase

@@ -110,6 +110,12 @@ public class ShowAuthenticationRealmView extends CustomComponent implements Unit
 	{
 		return realmName;
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@org.springframework.stereotype.Component
 	public static class ViewRealmNavigationInfoProvider

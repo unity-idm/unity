@@ -62,6 +62,12 @@ public class UserUpdatesView extends CustomComponent implements UnityView
 	}
 	
 	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
+	
+	@Override
 	public com.vaadin.ui.Component getViewHeader()
 	{
 		HorizontalLayout header = new  HorizontalLayout();

@@ -94,7 +94,10 @@ public enum Images
 	family		(VaadinIcons.FAMILY),
 	file_tree 	(VaadinIcons.FILE_TREE),
 	envelope_open	(VaadinIcons.ENVELOPE_OPEN),
-	user_check	(VaadinIcons.USER_CHECK);
+	user_check	(VaadinIcons.USER_CHECK),
+	star 		(VaadinIcons.STAR),
+	trending_down 	(VaadinIcons.TRENDIND_DOWN),
+	trending_up 	(VaadinIcons.TRENDING_UP);
 	
 	private final Resource resource;
 	

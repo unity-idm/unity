@@ -68,6 +68,12 @@ public class FlowsView extends CustomComponent implements UnityView
 	{
 		return msg.getMessage("WebConsoleMenu.authentication.flows");
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@Component
 	public static class FlowsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase

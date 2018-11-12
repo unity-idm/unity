@@ -162,6 +162,12 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	{
 		return msg.getMessage("WebConsoleMenu.authentication.realms");
 	}
+	
+	@Override
+	public String getViewName()
+	{
+		return VIEW_NAME;
+	}
 
 	@Component
 	public static class RealmsNavigationInfoProvider
