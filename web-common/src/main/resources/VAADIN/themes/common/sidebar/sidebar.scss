@@ -38,97 +38,22 @@ $transition-time: 0.3s;
         	color: $menuTop-color;
         }
         
-        /* top menu */
-        /*
-        .v-slot-topMenu {
-            @include sidebarPos(fixed, 0, null, null, 0, 1000);
-            
-            .topMenu {
-                @include sidebarPos(fixed, 0, 100px, null, null, 1000);
-                
-                .v-slot.v-slot-topMenuTextField > div {
-                    @include sidebarTransition(width 0.3s ease-in-out);
-                    width: 36px !important;
-                    overflow: hidden;
-                    
-                    .v-caption-topMenuTextField {
-                        display: inline-block;
-                        max-width: 36px;
-                        width: 100%;
-                        padding: 0;
-                    }
-                    
-                    input.topMenuTextField {
-                        @include sidebarTransition(width 0.3s ease-in-out);
-                        display: inline-block;
-                        box-shadow: none !important;
-                        outline: unset !important;
-                        border-radius: 0 !important;
-                        border: none !important;
-                        @include sidebarSize(0, 30px);
-                        margin: 6px 0 0 5px;
-                        padding: 5px;
-                    }
-                    
-                    &:hover {
-                        width: 206px !important;
-                        
-                        input.topMenuTextField {
-                            width: 150px !important;
-                        }
-                    }
-                }
-                
-                .v-slot > div {
-                    @include sidebarSize(36px, 44px);
-                    @include sidebarPos(relative);
-                    vertical-align: middle;
-                    text-align: center;
-                    line-height: 42px;
-                    margin: 0 5px;
-                    
-                    &.menuButton {
-                        @include sidebarTransition(background 0.3s ease-in-out, border-top-width 0.3s ease-in-out, height 0.3s ease-in-out);
-                        border-top: 0 solid;
-                        cursor: pointer;
-                        
-                        .menuButton-caption {
-                            margin: 0;
-                            
-                            .toolTip {
-                                @include sidebarPos(absolute, 32px, -6px);
-                                border-radius: 4px;
-                                line-height: 17px;
-                                font-size: 14px;
-                                padding: 5px;
-                            }
-                        }
-                        
-                        &:hover {
-                            border-top-width: 4px;
-                            height: 48px;
-                            
-                            .menuButton-caption {
-                                pointer-events: auto !important;
-                            }
-                        }
-                    }
-                }
-            }
-        }/*
-        
-        /* root content */
         .rootContent {
+        	background: $content-bg-color;
+			color: $content-color;
+        
+        
             & > .v-expand {
                 @include sidebarTransition(padding-left 0.3s ease-in-out);
                 padding-left: 250px !important;
                 
-                /* Left Menu */
                 .v-slot-leftMenu {
                     @include sidebarTransition(margin-left 0.3s ease-in-out);
                     margin-left: -250px !important;
                     
                     .leftMenu {
+                        background: $menuLeft-bg-color;
+            			color: $menuLeft-color;
                         @include sidebarTransition(width 0.3s ease-in-out);
                         width: 250px !important;
                         
@@ -159,6 +84,8 @@ $transition-time: 0.3s;
                                 .v-icon {
                                     margin-right: 5px;
                                     max-height: 52px;
+                                    max-width: 52px;
+                                    width: 100%;
                                 }
                             }
                             
@@ -183,6 +110,9 @@ $transition-time: 0.3s;
                             height: 45px;
 
                             &.active {
+                        		font-weight: 900;
+                    			border-bottom: 2px solid;
+                    			background-color: $menuLeft-hoover-bg-color;
                             }
 
                             &:hover, &.active:hover {
@@ -230,7 +160,6 @@ $transition-time: 0.3s;
                                 &:last-child > .v-verticallayout {
                                     @include sidebarTransition(max-height 0.5s ease-in-out);
                                     width: calc(100% - 24px) !important;
-                                    /*border-left: 1px solid transparent;*/
                                     position: relative;
                                     margin-left: 24px;
                                     overflow: hidden;
@@ -246,6 +175,7 @@ $transition-time: 0.3s;
 
                                 &:last-child > .v-verticallayout {
                                     max-height: 1000px !important;
+                                    overflow: visible;
                                 }
                             }
                         }
@@ -253,7 +183,6 @@ $transition-time: 0.3s;
                 }
             }
             
-            /* breadcrumbs */
             .breadcrumbs {                
                 .v-slot {
                     width: auto !important;
@@ -314,13 +243,18 @@ $transition-time: 0.3s;
                                 display: none;
                             }
                             
+                            .toolTip .v-icon {
+                            	display: none;
+                            }
+                            
                             .menuButton {
                                 overflow: visible;
                                 
                                 &:hover .menuButton-caption {
                                     pointer-events: all !important;
-                                    opacity: 1 !important;
-                                    left: 45px !important;
+                                    opacity: 0.9 !important;
+                                    z-index: 10000;
+                                    visibility: visible !important;
                                 }
                                 
                                 .menuButton-wrap {
@@ -330,19 +264,19 @@ $transition-time: 0.3s;
                                         width: 100%;
                                         margin: 0;
                                     }
-
+                                	
                                     .menuButton-caption {
-                                        @include sidebarTransition(left 0.5s ease-in-out, opacity 0.5s ease-in-out);
+                                        @include sidebarTransition(opacity $transition-time ease-in-out);
                                         padding: 9px 13px 8px;
-                                        top: calc(-50% + 5px);
+                                        top: calc(-50% + 4px);
                                         pointer-events: none;
                                         position: absolute;
                                         white-space: pre;
-                                        z-index: 10000;
                                         height: 28px;
-                                        left: -500px;
                                         opacity: 0;
-                                        margin: 0;
+                                        margin-left: 4px;
+                                        background-color: $menuLeft-hoover-bg-color;
+                                        visibility: hidden;
                                     }
                                 }
                             }
@@ -351,7 +285,6 @@ $transition-time: 0.3s;
                 }
             }
             
-            /* content */
             .v-slot-contentBox {
                 overflow-y: auto;
                 
@@ -364,41 +297,5 @@ $transition-time: 0.3s;
                 }
             }
         }
-
-       	.topMenu .v-slot > div {
-			&:hover {
-       		}   
-    	}
-    
-    	.rootContent {
-			background: $content-bg-color;
-			color: $content-color;
-		
-        	.leftMenu {
-            	background: $menuLeft-bg-color;
-            	color: $menuLeft-color;
-
-//for minimalized mode?
-//            .v-slot-menuLabel > div .v-caption:after {
-//            	border-bottom-color: rgba($menu-color, 0.25) !important;
-//            }
-            
-			.menuButton {
-                &.active {
-                    font-weight: 900;
-                    border-bottom: 2px solid;	
-                }
-
-                &:hover {
-                   
-                }
-            }
-
-//for minimalized mode?
-//            .subMenu > .v-slot:last-child > .v-verticallayout {
-//                border-left-color: rgba($menu-color, 0.25) !important;
-//            }
-        	}
-    	}
     }
 }

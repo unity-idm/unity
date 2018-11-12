@@ -81,9 +81,8 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	private void buildLeftMenu()
 	{
 		LeftMenu leftMenu = webConsoleLayout.getLeftMenu();
-		LeftMenuLabel logo = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
-				//TODO - disabled until minimalized menu CSS is fixed.
-				//.withClickListener(e -> webConsoleLayout.getLeftMenu().toggleSize());
+		LeftMenuLabel logo = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource())
+				.withClickListener(e -> webConsoleLayout.getLeftMenu().toggleSize());
 
 		leftMenu.addMenuElement(logo);
 		LeftMenuLabel space1 = LeftMenuLabel.get();
