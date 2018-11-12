@@ -12,15 +12,17 @@ import java.util.List;
 import java.util.Map;
 
 import com.vaadin.navigator.ViewChangeListener;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
-import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
+import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -44,6 +46,7 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	private Map<String, MenuElement> allElements;
 	private List<MenuElement> activatedElements;
 	private ToggleMode toggleMode;
+	private Button toggleButton;
 
 	public LeftMenu(NavigationHierarchyManager navMan)
 	{
@@ -61,6 +64,13 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 		activatedElements = new ArrayList<>();
 
 		toggleMode = ToggleMode.NORMAL;
+		toggleButton = new Button();
+		toggleButton.setIcon(Images.leftDoubleArrow.getResource());
+		main.addComponent(toggleButton);
+		toggleButton.addClickListener(e -> toggleSize());
+		toggleButton.addStyleName(Styles.vButtonBorderless.toString());
+		//toggleButton.addStyleName(Styles.menuButton.toString());
+		toggleButton.addStyleName("u-left-menu-toggle");
 	}
 
 	public LeftMenu toggleSize()
@@ -83,10 +93,12 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 			{
 			case MINIMAL:
 				setWidth(50, Unit.EM);
+				toggleButton.setIcon(Images.rightDoubleArrow.getResource());
 				getParent().addStyleName(ToggleMode.MINIMAL.name().toLowerCase());
 				break;
 			case NORMAL:
 				setWidth(250, Unit.EM);
+				toggleButton.setIcon(Images.leftDoubleArrow.getResource());
 				getParent().removeStyleName(
 						ToggleMode.MINIMAL.name().toLowerCase());
 				break;

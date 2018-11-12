@@ -299,5 +299,22 @@ $transition-time: 0.3s;
                 }
             }
         }
+        
+        .u-left-menu-toggle {
+        	bottom: $v-layout-margin-bottom;
+        	right: 8px;
+        	padding: 0px 8px 0px 8px;
+			position: absolute;
+			outline: none;
+			&:hover, &.active:hover {
+            	background-color: $menuLeft-hoover-bg-color;
+                color: $menuLeft-hoover-color;
+            }
+			&:focus::after {
+ 				outline: none;
+ 				box-shadow: none;
+ 				-webkit-box-shadow: none;
+			}
+		}
     }
 }

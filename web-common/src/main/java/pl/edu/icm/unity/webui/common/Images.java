@@ -73,6 +73,8 @@ public enum Images
 	downArrow	(VaadinIcons.ANGLE_DOWN),
 	bottomArrow	(VaadinIcons.ANGLE_DOUBLE_DOWN),
 	rightArrow 	(VaadinIcons.ANGLE_RIGHT),
+	rightDoubleArrow (VaadinIcons.ANGLE_DOUBLE_RIGHT),
+	leftDoubleArrow (VaadinIcons.ANGLE_DOUBLE_LEFT),
 	wizard		(VaadinIcons.MAGIC),
 	dryrun		(VaadinIcons.COG_O),
 	play		(VaadinIcons.PLAY),
