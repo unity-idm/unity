@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -41,7 +42,7 @@ public class GroupMembersController
 	private GroupsManagement groupMan;
 	private AttributeTypeManagement attrTypeMan;
 	private AttributesManagement attrMan;
-	private AttributeHandlerRegistry attrHandlerRegistry;
+	private CachedAttributeHandlers cachedAttrHandlerRegistry;
 	private UnityMessageSource msg;
 
 	@Autowired
@@ -53,7 +54,7 @@ public class GroupMembersController
 		this.groupMan = groupMan;
 		this.attrTypeMan = attrTypeMan;
 		this.attrMan = attrMan;
-		this.attrHandlerRegistry = attrHandlerRegistry;
+		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
 	}
 
 	public List<GroupMemberEntry> getGroupMembers(
@@ -94,6 +95,7 @@ public class GroupMembersController
 			Collection<AttributeType> attributes, String group)
 			throws ControllerException
 	{
+		
 		Map<String, String> attributesVal = new HashMap<>();
 		for (AttributeType atype : attributes)
 		{
@@ -112,7 +114,7 @@ public class GroupMembersController
 			for (AttributeExt a : attrs)
 			{
 
-				attributesVal.put(atype.getName(), attrHandlerRegistry
+				attributesVal.put(atype.getName(), cachedAttrHandlerRegistry
 						.getSimplifiedAttributeValuesRepresentation(a));
 			}
 		}

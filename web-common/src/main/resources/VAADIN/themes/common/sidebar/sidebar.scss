@@ -1,11 +1,26 @@
 /* Colors */
 $tooltip-background: #000000;
 $tooltip-active-background: #000000;
-$menu-color: #303030;
-$content-background: #f5f5f5;
-$menuLeft-background: #c0d6df;
+
+
+
+$menuLeft-color: #e0e0e2;
+$menuLeft-bg-color: #1f7a8c;
+
+$menuLeft-hoover-color: #e0e0e2;
+$menuLeft-hoover-bg-color: #223843;
+
+$menuTop-color: #223843;
+$menuTop-hoover-color: #1f7a8c;
+$menuTop-bg-color: #eef0f2;
+
+$content-bg-color: #ffffff;
+$content-color: #223843;
+
 $button-active-background: $content-background;
 $button-hover-background: #f0f0f0;
+
+$transition-time: 0.3s;
 
 @import "sidebar-utils";
 
@@ -18,112 +33,44 @@ $button-hover-background: #f0f0f0;
  		   outline:none;
 		}
         
+        .headerBar {
+        	background-color: $menuTop-bg-color;
+        	color: $menuTop-color;
+        }
         
-        /* top menu */
-        /*
-        .v-slot-topMenu {
-            @include sidebarPos(fixed, 0, null, null, 0, 1000);
-            
-            .topMenu {
-                @include sidebarPos(fixed, 0, 100px, null, null, 1000);
-                
-                .v-slot.v-slot-topMenuTextField > div {
-                    @include sidebarTransition(width 0.3s ease-in-out);
-                    width: 36px !important;
-                    overflow: hidden;
-                    
-                    .v-caption-topMenuTextField {
-                        display: inline-block;
-                        max-width: 36px;
-                        width: 100%;
-                        padding: 0;
-                    }
-                    
-                    input.topMenuTextField {
-                        @include sidebarTransition(width 0.3s ease-in-out);
-                        display: inline-block;
-                        box-shadow: none !important;
-                        outline: unset !important;
-                        border-radius: 0 !important;
-                        border: none !important;
-                        @include sidebarSize(0, 30px);
-                        margin: 6px 0 0 5px;
-                        padding: 5px;
-                    }
-                    
-                    &:hover {
-                        width: 206px !important;
-                        
-                        input.topMenuTextField {
-                            width: 150px !important;
-                        }
-                    }
-                }
-                
-                .v-slot > div {
-                    @include sidebarSize(36px, 44px);
-                    @include sidebarPos(relative);
-                    vertical-align: middle;
-                    text-align: center;
-                    line-height: 42px;
-                    margin: 0 5px;
-                    
-                    &.menuButton {
-                        @include sidebarTransition(background 0.3s ease-in-out, border-top-width 0.3s ease-in-out, height 0.3s ease-in-out);
-                        border-top: 0 solid;
-                        cursor: pointer;
-                        
-                        .menuButton-caption {
-                            margin: 0;
-                            
-                            .toolTip {
-                                @include sidebarPos(absolute, 32px, -6px);
-                                border-radius: 4px;
-                                line-height: 17px;
-                                font-size: 14px;
-                                padding: 5px;
-                            }
-                        }
-                        
-                        &:hover {
-                            border-top-width: 4px;
-                            height: 48px;
-                            
-                            .menuButton-caption {
-                                pointer-events: auto !important;
-                            }
-                        }
-                    }
-                }
-            }
-        }/*
-        
-        /* root content */
         .rootContent {
+        	background: $content-bg-color;
+			color: $content-color;
+        
+        
             & > .v-expand {
                 @include sidebarTransition(padding-left 0.3s ease-in-out);
                 padding-left: 250px !important;
                 
-                /* Left Menu */
                 .v-slot-leftMenu {
                     @include sidebarTransition(margin-left 0.3s ease-in-out);
                     margin-left: -250px !important;
                     
                     .leftMenu {
+                        background: $menuLeft-bg-color;
+            			color: $menuLeft-color;
                         @include sidebarTransition(width 0.3s ease-in-out);
                         width: 250px !important;
                         
                         & > .v-expand > .v-slot {
-                            height: auto !important;
+                           height: auto !important;
                         }
                         
                         &:not(.minimal) {
                             overflow: auto;
                         }
                         
+                        
+                  
+                        
                         .v-slot-menuLabel > div {
                             width: 100%;
-                            
+                                                        
                             .v-caption {
                                 text-align: center;
                                 position: relative;
@@ -132,14 +79,15 @@ $button-hover-background: #f0f0f0;
                                 
                                 &:after {
                                     @include sidebarPos(absolute, null, null, 0, 0);
-                                    border-bottom: 1px solid;
+                                    //border-bottom: 1px solid;
                                     content: '';
                                     width: 100%;
                                 }
                                 
                                 .v-icon {
                                     margin-right: 5px;
-                                    max-height: 52px;
+									max-width: 52px;
+                                    width: 100%;
                                 }
                             }
                             
@@ -154,7 +102,7 @@ $button-hover-background: #f0f0f0;
 						}
 	
                         .menuButton {
-                            @include sidebarTransition(background 0.3s, border-left 0.3s, height 0.5s);
+                            @include sidebarTransition(background 0.3s);
                             border-left: 0 solid transparent;
                             background: transparent;
                             overflow: hidden;
@@ -164,11 +112,14 @@ $button-hover-background: #f0f0f0;
                             height: 45px;
 
                             &.active {
-                                border-left-width: 3px;
+                        		font-weight: 900;
+                    			border-bottom: 2px solid;
+                    			background-color: $menuLeft-hoover-bg-color;
                             }
 
                             &:hover, &.active:hover {
-                                border-left-width: 5px;
+                            	background-color: $menuLeft-hoover-bg-color;
+                            	color: $menuLeft-hoover-color;
                             }
                         }
 
@@ -211,7 +162,6 @@ $button-hover-background: #f0f0f0;
                                 &:last-child > .v-verticallayout {
                                     @include sidebarTransition(max-height 0.5s ease-in-out);
                                     width: calc(100% - 24px) !important;
-                                    /*border-left: 1px solid transparent;*/
                                     position: relative;
                                     margin-left: 24px;
                                     overflow: hidden;
@@ -227,6 +177,7 @@ $button-hover-background: #f0f0f0;
 
                                 &:last-child > .v-verticallayout {
                                     max-height: 1000px !important;
+                                    overflow: visible;
                                 }
                             }
                         }
@@ -234,10 +185,7 @@ $button-hover-background: #f0f0f0;
                 }
             }
             
-            /* breadcrumbs */
-            .breadcrumbs {
-              //  padding: 15px 20px;
-                
+            .breadcrumbs {                
                 .v-slot {
                     width: auto !important;
                     
@@ -251,45 +199,32 @@ $button-hover-background: #f0f0f0;
                 }
             }
            
-            /* headerBar */
             .headerBar {
-             	//   border-bottom: 1px solid;
-         	    //TODO  
-               
-               
+
             }
            
-            /* topRightMenu */
             .topRightMenu {
-                padding-right: 5px;
-          		//TODO topRightMenu    
-          
-          		//TODO menuButton- actually is mixed from vButtonLink and u-largeIcon 
+                padding-right: 5px;          
           		.menuButton {
 						border: none;
 						-webkit-box-shadow: none;
 						box-shadow: none;
 						background: transparent;
-						color: inherit;
 						cursor: pointer;
-						//color: #197de1;
 						text-decoration: underline;
 						font-weight: inherit;
-						-webkit-transition: color 140ms;
-						-moz-transition: color 140ms;
-						transition: color 140ms;
-						font-size : 24px
-				}		  	
+						-webkit-transition: color $transition-time;
+						-moz-transition: color $transition-time;
+						transition: color $transition-time;
+						font-size : $v-font-size * 1.8;
+						
+						&:hover {
+							color: $menuTop-hoover-color;
+						}
+				}
           	}  
                
-         
-          
-            /* viewHeader */
             .viewHeader {
-             	//padding: 15px 20px;
-         	    //TODO  
-               
-               
             }
             
             /* left menu minimal */
@@ -310,13 +245,18 @@ $button-hover-background: #f0f0f0;
                                 display: none;
                             }
                             
+                            .toolTip .v-icon {
+                            	display: none;
+                            }
+                            
                             .menuButton {
                                 overflow: visible;
                                 
                                 &:hover .menuButton-caption {
                                     pointer-events: all !important;
-                                    opacity: 1 !important;
-                                    left: 45px !important;
+                                    opacity: 0.9 !important;
+                                    z-index: 10000;
+                                    visibility: visible !important;
                                 }
                                 
                                 .menuButton-wrap {
@@ -326,19 +266,19 @@ $button-hover-background: #f0f0f0;
                                         width: 100%;
                                         margin: 0;
                                     }
-
+                                	
                                     .menuButton-caption {
-                                        @include sidebarTransition(left 0.5s ease-in-out, opacity 0.5s ease-in-out);
+                                        @include sidebarTransition(opacity $transition-time ease-in-out);
                                         padding: 9px 13px 8px;
-                                        top: calc(-50% + 5px);
+                                        top: calc(-50% + 4px);
                                         pointer-events: none;
                                         position: absolute;
                                         white-space: pre;
-                                        z-index: 10000;
                                         height: 28px;
-                                        left: -500px;
                                         opacity: 0;
-                                        margin: 0;
+                                        margin-left: 4px;
+                                        background-color: $menuLeft-hoover-bg-color;
+                                        visibility: hidden;
                                     }
                                 }
                             }
@@ -347,7 +287,6 @@ $button-hover-background: #f0f0f0;
                 }
             }
             
-            /* content */
             .v-slot-contentBox {
                 overflow-y: auto;
                 
@@ -360,15 +299,5 @@ $button-hover-background: #f0f0f0;
                 }
             }
         }
-
-        
-        @include sidebarTheme(
-                $content-background, 
-                $menuLeft-background,
-                $button-active-background,
-                $button-hover-background,
-                $tooltip-background,
-                $tooltip-active-background
-         );
     }
 }

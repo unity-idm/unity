@@ -35,8 +35,8 @@ public class RDBMSConfiguration extends PropertiesHelper
 	public static final String MAX_POOL_SIZE = "maxConnectionPoolSize";
 	public static final String MIN_POOL_SIZE = "minConnectionPoolSize";
 	public static final String MAX_IDLE_CONNECTION_TIME = "maxIdleConnectionLifetime";
-	public static final String CACHE_MAX_ENTRIES = "cacheMaxEntries";
-	public static final String CACHE_TTL = "cacheTTL";
+	private static final String CACHE_MAX_ENTRIES = "cacheMaxEntries";
+	private static final String CACHE_TTL = "cacheTTL";
 	
 	@DocumentationReferenceMeta
 	public static final Map<String, PropertyMD> META;
@@ -55,14 +55,10 @@ public class RDBMSConfiguration extends PropertiesHelper
 				setDescription("Maximum number of DB connections allowed in pool"));
 		META.put(MIN_POOL_SIZE, new PropertyMD("1").
 				setDescription("Minimum number of DB connections to be kept in pool"));
-		META.put(CACHE_MAX_ENTRIES, new PropertyMD("-1").
-				setDescription("Maximum number of cache entries per DAO. "
-						+ "Use negative value to have unlimited cache. Use zero to turn off caching."));
-		META.put(CACHE_TTL, new PropertyMD("-1").
-				setDescription("Maximum number of seconds an entry can live in cache. Note that cache "
-						+ "is automatically flushed if local change is detected regardless of this setting, "
-						+ "therefore ttl makes sense only when single DB is shared by multiple Unity instances. "
-						+ "Use negative value to have unlimited cache. Use zero to turn off caching."));
+		META.put(CACHE_MAX_ENTRIES, new PropertyMD("-1").setDeprecated().
+				setDescription("Not used anymore - please remove from configuration"));
+		META.put(CACHE_TTL, new PropertyMD("-1").setDeprecated().
+				setDescription("Not used anymore - please remove from configuration"));
 	}
 	
 	public RDBMSConfiguration(Properties src) throws ConfigurationException

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -115,8 +116,8 @@ public class GroupMembersView extends CustomComponent implements UnityView
 	@Override
 	public com.vaadin.ui.Component getViewHeader()
 	{
-		HorizontalLayout header = new HorizontalLayout();
-		header.setMargin(true);
+		HorizontalLayout header = new  HorizontalLayout();
+		header.setMargin(new MarginInfo(false, true));
 		Label name = new Label(getDisplayedName());
 		name.setStyleName(Styles.textXLarge.toString());
 		name.addStyleName(Styles.bold.toString());

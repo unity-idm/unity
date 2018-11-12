@@ -48,6 +48,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 
 /**
  * Displays a tree grid with identities. Can present contents in two modes: 
@@ -243,31 +244,31 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private void addResolvedEntities(List<ResolvedEntity> entities, Set<IdentityEntry> selected,
 			float progress)
 	{
+		CachedAttributeHandlers attributeHandlers = new CachedAttributeHandlers(attrHandlerRegistry);
 		for (ResolvedEntity entity: entities)
 		{
 			if (groupByEntity)
-				addGroupedEntriesToTable(entity, selected);
+				addGroupedEntriesToTable(entity, selected, attributeHandlers);
 			else
-				addFlatEntriesToTable(entity, selected);
+				addFlatEntriesToTable(entity, selected, attributeHandlers);
 		}
 		dataProvider.refreshAll();
 	}
 	
 	private void addGroupedEntriesToTable(ResolvedEntity resolvedEntity, 
-			Set<IdentityEntry> savedSelection)
+			Set<IdentityEntry> savedSelection, CachedAttributeHandlers attributeHandlers)
 	{
 		Entity entity = resolvedEntity.getEntity();
 		IdentityEntry parentEntry = createEntry(null, entity, 
 				resolvedEntity.getRootAttributes(), 
-				resolvedEntity.getCurrentAttributes());
-		
+				resolvedEntity.getCurrentAttributes(), attributeHandlers);
 		treeData.addItem(null, parentEntry);
 		restoreSelectionIfMatching(savedSelection, parentEntry);
 		for (Identity id: resolvedEntity.getIdentities())
 		{
 			IdentityEntry childEntry = createEntry(id, entity, 
 					resolvedEntity.getRootAttributes(), 
-					resolvedEntity.getCurrentAttributes());
+					resolvedEntity.getCurrentAttributes(), attributeHandlers);
 			treeData.addItem(parentEntry, childEntry);
 			restoreSelectionIfMatching(savedSelection, childEntry);
 		}
@@ -280,20 +281,20 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	}
 	
 	private void addFlatEntriesToTable(ResolvedEntity resolvedEntity, 
-			Set<IdentityEntry> savedSelection)
+			Set<IdentityEntry> savedSelection, CachedAttributeHandlers attributeHandlers)
 	{
 		for (Identity id: resolvedEntity.getIdentities())
 		{
 			IdentityEntry idEntry = createEntry(id, resolvedEntity.getEntity(), 
 					resolvedEntity.getRootAttributes(), 
-					resolvedEntity.getCurrentAttributes());
+					resolvedEntity.getCurrentAttributes(), attributeHandlers);
 			treeData.addItem(null, idEntry);
 			restoreSelectionIfMatching(savedSelection, idEntry);
 		}
 	}
 	
 	private IdentityEntry createEntry(Identity id, Entity ent, Map<String, ? extends Attribute> rootAttributes,
-			Map<String, ? extends Attribute> curAttributes)
+			Map<String, ? extends Attribute> curAttributes, CachedAttributeHandlers attributeHandlers)
 	{
 		String label = null;
 		if (entityNameAttribute != null && rootAttributes.containsKey(entityNameAttribute))
@@ -312,7 +313,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			if (attribute == null)
 				val = msg.getMessage("Identities.attributeUndefined");
 			else
-				val = attrHandlerRegistry.getSimplifiedAttributeValuesRepresentation(attribute);
+				val = attributeHandlers.getSimplifiedAttributeValuesRepresentation(attribute);
 			attributesByColumnId.put(columnId, val);
 		}
 		

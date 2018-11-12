@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.ui.Alignment;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
 import io.imunity.webelements.menu.MenuButton;
-import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
+import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -84,10 +84,8 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 
 	private void addSeparator()
 	{
-		Label s = new Label();
-		s.setIcon(BREADCRUMB_SEPARATOR.getResource());
+		Label s = new Label(BREADCRUMB_SEPARATOR.getHtml(), ContentMode.HTML);
 		main.addComponent(s);
-		main.setComponentAlignment(s, Alignment.BOTTOM_CENTER);
 	}
 
 	@Override

@@ -4,100 +4,101 @@
  */
 package pl.edu.icm.unity.store.impl.membership;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
+import pl.edu.icm.unity.store.impl.StorageLimits;
 import pl.edu.icm.unity.store.rdbms.RDBMSDAO;
-import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 
 
 /**
- * Cache over actual RDBMS storage of {@link GroupMembership}
+ * RDBMS storage of {@link GroupMembership}
  * @author K. Benedyczak
  */
 @Repository(MembershipRDBMSStore.BEAN)
 public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
-	
-	private MembershipRDBMSStoreNoCache wrapped;
-	private MembershipRDBMSCache cache;
+	private MembershipJsonSerializer jsonSerializer;
+	private GroupDAO groupDAO;
 	
 	@Autowired
-	public MembershipRDBMSStore(MembershipJsonSerializer jsonSerializer, GroupDAO groupDAO, CacheManager cacheManager)
+	MembershipRDBMSStore(MembershipJsonSerializer jsonSerializer, GroupDAO groupDAO)
 	{
-		wrapped = new MembershipRDBMSStoreNoCache(jsonSerializer, groupDAO);
-		cache = new MembershipRDBMSCache();
-		cacheManager.registerCacheWithFlushingPropagation(cache);
+		this.jsonSerializer = jsonSerializer;
+		this.groupDAO = groupDAO;
 	}
 
 	@Override
 	public void create(GroupMembership obj)
 	{
-		wrapped.create(obj);
-		cache.flushWithEvent();
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		GroupElementBean toAdd = jsonSerializer.toDB(obj);
+		StorageLimits.checkContentsLimit(toAdd.getContents());
+		mapper.create(toAdd);
 	}
 
 	@Override
 	public void deleteByKey(long entityId, String group)
 	{
-		wrapped.deleteByKey(entityId, group);
-		cache.flushWithEvent();
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		long groupId = groupDAO.getKeyForName(group);
+		GroupElementBean param = new GroupElementBean(groupId, entityId);
+		GroupElementBean byKey = mapper.getByKey(param);
+		if (byKey == null)
+			throw new IllegalArgumentException("Entity " + entityId + 
+					" is not a member of group " + group);
+		mapper.deleteByKey(param);
 	}
 
 	@Override
 	public boolean isMember(long entityId, String group)
 	{
-		Optional<Boolean> cached = cache.isMember(entityId, group);
-		if (cached.isPresent())
-			return cached.get();
-		getAll();
-		cached = cache.isMember(entityId, group);
-		if (cached.isPresent())
-			return cached.get();
-		return wrapped.isMember(entityId, group);
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		long groupId = groupDAO.getKeyForName(group);
+		GroupElementBean param = new GroupElementBean(groupId, entityId);
+		return mapper.getByKey(param) != null;
 	}
 
 	@Override
 	public List<GroupMembership> getEntityMembership(long entityId)
 	{
-		Optional<List<GroupMembership>> cached = cache.getEntityMembership(entityId);
-		if (cached.isPresent())
-			return cached.get();
-		getAll();
-		cached = cache.getEntityMembership(entityId);
-		if (cached.isPresent())
-			return cached.get();
-		return wrapped.getEntityMembership(entityId);
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		List<GroupElementBean> entityMembershipB = mapper.getEntityMembership(entityId);
+		return deserializeList(entityMembershipB);
 	}
 
 	@Override
 	public List<GroupMembership> getMembers(String group)
 	{
-		Optional<List<GroupMembership>> cached = cache.getMembers(group);
-		if (cached.isPresent())
-			return cached.get();
-		getAll();
-		cached = cache.getMembers(group);
-		if (cached.isPresent())
-			return cached.get();
-		return wrapped.getMembers(group);
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		long groupId = groupDAO.getKeyForName(group);
+		List<GroupElementBean> entityMembershipB = mapper.getMembers(groupId);
+		return deserializeList(entityMembershipB);
 	}
 
 	@Override
 	public List<GroupMembership> getAll()
 	{
-		Optional<List<GroupMembership>> cached = cache.getAll();
-		if (cached.isPresent())
-			return cached.get();
-		List<GroupMembership> all = wrapped.getAll();
-		cache.storeAll(all);
-		return all;
+		MembershipMapper mapper = SQLTransactionTL.getSql().getMapper(MembershipMapper.class);
+		List<GroupElementBean> entityMembershipB = mapper.getAll();
+		return deserializeList(entityMembershipB);
 	}
+	
+	
+	private List<GroupMembership> deserializeList(List<GroupElementBean> entityMembershipB)
+	{
+		List<GroupMembership> ret = new ArrayList<>(entityMembershipB.size());
+		for (GroupElementBean geb: entityMembershipB)
+			ret.add(jsonSerializer.fromDB(geb));
+		return ret;
+	}
+
 }

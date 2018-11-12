@@ -132,6 +132,10 @@ public class AttributesManagementImpl implements AttributesManagement
 
 			attributesHelper.addAttribute(entityId, attribute, at, allowUpdate, fullAuthz);
 		});
+		//this is merely to propagate the change to authz layer more quickly in typical situations. It does 
+		// not guarantee that authz cache is cleared after all possible situations when roles are be altered. 
+		if (RoleAttributeTypeProvider.AUTHORIZATION_ROLE.equals(attribute.getName()))
+			authz.clearCache();
 		if (sendConfirmations)
 			confirmationManager.sendVerificationQuietNoTx(entity, attribute, false);
 	}

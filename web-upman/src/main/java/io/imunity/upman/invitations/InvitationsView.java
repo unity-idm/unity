@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -72,15 +74,15 @@ public class InvitationsView extends CustomComponent implements UnityView
 	public com.vaadin.ui.Component getViewHeader()
 	{
 		HorizontalLayout header = new  HorizontalLayout();
-		header.setMargin(true);
+		header.setMargin(new MarginInfo(false, true));
 		Label name = new Label(getDisplayedName());
 		name.setStyleName(Styles.textXLarge.toString());
 		name.addStyleName(Styles.bold.toString());
 
 		Button addInvitationButton = new Button(msg.getMessage("Invitations.newInvite"),
 				Images.add.getResource());
-
 		header.addComponents(name, addInvitationButton);
+		header.setComponentAlignment(addInvitationButton, Alignment.MIDDLE_CENTER);
 		return header;
 	}
 

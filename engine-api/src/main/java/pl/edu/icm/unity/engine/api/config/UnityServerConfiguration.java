@@ -160,6 +160,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	
 	public static final String MOBILE_CONFIRMATION_REQUEST_LIMIT = "mobileConfirmationRequestLimit";
 	
+	public static final String AUTHZ_CACHE_MS = "authorizationRoleCacheTTL";
+	
 	public static final String SCRIPTS = "script.";
 	public static final String SCRIPT_FILE = "file";
 	public static final String SCRIPT_TYPE = "type";
@@ -454,6 +456,13 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "which can be in turn consumed by scripts. This feature however causes a "
 						+ "small performance penalty (even without taking into account a potential script "
 						+ "execution time) and therefore by defualt is disabled."));
+		
+		defaults.put(AUTHZ_CACHE_MS, new PropertyMD("2000").setCategory(mainCat).
+				setDescription("Defines for how long (in ms) authorization roles are cached. "
+						+ "Increasing this value improves server overall performance, "
+						+ "but change of authrization role may not be fully recognized "
+						+ "by the system untile the time defined here passes. "
+						+ "Set to 0 to disable cache."));
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));

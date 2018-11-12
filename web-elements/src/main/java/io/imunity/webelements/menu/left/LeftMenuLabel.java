@@ -9,8 +9,8 @@ import com.vaadin.event.LayoutEvents.LayoutClickListener;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.menu.MenuElement;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -25,7 +25,7 @@ public class LeftMenuLabel extends CustomComponent implements MenuElement
 {
 
 	private Label label;
-	private HorizontalLayout main;
+	private VerticalLayout main;
 
 	public static LeftMenuLabel get()
 	{
@@ -34,7 +34,7 @@ public class LeftMenuLabel extends CustomComponent implements MenuElement
 
 	public LeftMenuLabel()
 	{
-		main = new HorizontalLayout();
+		main = new VerticalLayout();
 		main.setSizeFull();
 		main.setMargin(false);
 		main.setSpacing(false);

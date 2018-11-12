@@ -4,16 +4,16 @@
  */
 package pl.edu.icm.unity.store.impl.identities;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import pl.edu.icm.unity.store.api.IdentityDAO;
-import pl.edu.icm.unity.store.rdbms.cache.CacheManager;
-import pl.edu.icm.unity.store.rdbms.cache.NamedCachingCRUD;
+import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
+import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -23,26 +23,41 @@ import pl.edu.icm.unity.types.basic.Identity;
  * @author K. Benedyczak
  */
 @Repository(IdentityRDBMSStore.BEAN)
-public class IdentityRDBMSStore extends NamedCachingCRUD<StoredIdentity, IdentityDAO, IdentitiesCache> implements IdentityDAO
+public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, IdentityBean> implements IdentityDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 
 	@Autowired
-	public IdentityRDBMSStore(IdentityJsonSerializer jsonSerializer, CacheManager cacheMananger)
+	public IdentityRDBMSStore(IdentityJsonSerializer jsonSerializer)
 	{
-		super(new IdentityRDBMSStoreInt(jsonSerializer), new IdentitiesCache(id -> id.clone()));
-		cacheMananger.registerCache(cache);
+		super(IdentitiesMapper.class, jsonSerializer, NAME);
 	}
 
 	@Override
 	public List<StoredIdentity> getByEntityFull(long entityId)
 	{
-		Optional<List<StoredIdentity>> cached = cache.getByEntity(entityId, this::getAll);
-		if (cached.isPresent())
-			return cached.get();
-		return wrapped.getByEntityFull(entityId);
+		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
+		List<IdentityBean> allInDB = mapper.getByEntity(entityId);
+		List<StoredIdentity> ret = new ArrayList<>(allInDB.size());
+		for (IdentityBean bean: allInDB)
+			ret.add(jsonSerializer.fromDB(bean));
+		return ret;
 	}
 	
+	@Override
+	protected void preUpdateCheck(IdentityBean oldBean, StoredIdentity supdated)
+	{
+		Identity old = jsonSerializer.fromDB(oldBean).getIdentity();
+		Identity updated = supdated.getIdentity();
+		if (!old.getTypeId().equals(updated.getTypeId()))
+			throw new IllegalArgumentException("Can not change identity type from " + 
+					old.getTypeId() + " to " + updated.getTypeId());
+		if (!old.getComparableValue().equals(updated.getComparableValue()))
+			throw new IllegalArgumentException("Can not change identity value from " + 
+					old.getComparableValue() + " to " + updated.getValue());
+		
+	}
+
 	@Override
 	public List<Identity> getByEntity(long entityId)
 	{
@@ -52,6 +67,11 @@ public class IdentityRDBMSStore extends NamedCachingCRUD<StoredIdentity, Identit
 	@Override
 	public List<StoredIdentity> getByGroup(String group)
 	{
-		return wrapped.getByGroup(group);
+		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
+		List<IdentityBean> allInDB = mapper.getByGroup(group);
+		List<StoredIdentity> ret = new ArrayList<>(allInDB.size());
+		for (IdentityBean bean: allInDB)
+			ret.add(jsonSerializer.fromDB(bean));
+		return ret;
 	}
 }
