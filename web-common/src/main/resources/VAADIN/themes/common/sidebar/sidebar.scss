@@ -58,16 +58,19 @@ $transition-time: 0.3s;
                         width: 250px !important;
                         
                         & > .v-expand > .v-slot {
-                            height: auto !important;
+                           height: auto !important;
                         }
                         
                         &:not(.minimal) {
                             overflow: auto;
                         }
                         
+                        
+                  
+                        
                         .v-slot-menuLabel > div {
                             width: 100%;
-                            
+                                                        
                             .v-caption {
                                 text-align: center;
                                 position: relative;
@@ -83,8 +86,7 @@ $transition-time: 0.3s;
                                 
                                 .v-icon {
                                     margin-right: 5px;
-                                    max-height: 52px;
-                                    max-width: 52px;
+									max-width: 52px;
                                     width: 100%;
                                 }
                             }
