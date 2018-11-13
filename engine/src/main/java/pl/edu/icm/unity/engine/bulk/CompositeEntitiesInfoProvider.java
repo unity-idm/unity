@@ -66,16 +66,16 @@ class CompositeEntitiesInfoProvider
 	public GroupMembershipData getCompositeGroupContents(String group) throws EngineException
 	{
 		Stopwatch watch = Stopwatch.createStarted();
-		Map<Long, Set<String>> memberships = getMemberships(group);
+		Set<Long> members = getMembers(group);
 		GroupMembershipDataImpl ret = GroupMembershipDataImpl.builder(group)
 			.withAttributeTypes(attributeTypeDAO.getAllAsMap())
 			.withAttributeClasses(acDB.getAllAsMap())
 			.withGroups(groupDAO.getAllAsMap())
 			.withCredentials(credentialRepository.getCredentialDefinitions())
-			.withMemberships(memberships)
+			.withMemberships(getAllMemberships(members))
 			.withEntityInfo(getEntityInfo(group))
-			.withIdentities(getIdentities(memberships.keySet(), group))
-			.withDirectAttributes(getAttributes(memberships.keySet(), group))
+			.withIdentities(getIdentities(members, group))
+			.withDirectAttributes(getAttributes(members, group))
 			.withCredentialRequirements(getCredentialRequirements())
 			.build();
 		log.debug("Bulk group membership data retrieval: {}", watch.toString());
@@ -141,15 +141,27 @@ class CompositeEntitiesInfoProvider
 		return ret;
 	}
 
-	private Map<Long, Set<String>> getMemberships(String group)
+	private Set<Long> getMembers(String group)
 	{
 		Stopwatch w = Stopwatch.createStarted();
 		List<GroupMembership> all = membershipDAO.getMembers(group);
 		log.debug("getMembers {}", w.toString());
-		Map<Long, Set<String>> ret = new HashMap<>();
+		Set<Long> ret = new HashSet<>();
 		for (GroupMembership gm: all)
-			ret.put(gm.getEntityId(), new HashSet<>());
+			ret.add(gm.getEntityId());
+		return ret;
+	}
+	
+	private Map<Long, Set<String>> getAllMemberships(Set<Long> entities)
+	{
+		Stopwatch w = Stopwatch.createStarted();
+		List<GroupMembership> all = membershipDAO.getAll();
+		log.debug("getMemberships {}", w.toString());
+		Map<Long, Set<String>> ret = new HashMap<>();
+		for (Long entity: entities)
+			ret.put(entity, new HashSet<>());
 		all.stream()
+			.filter(gm -> entities.contains(gm.getEntityId()))
 			.forEach(membership -> ret.get(membership.getEntityId()).add(membership.getGroup()));
 		return ret;
 	}
