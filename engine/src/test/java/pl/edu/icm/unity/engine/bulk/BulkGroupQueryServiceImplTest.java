@@ -27,6 +27,7 @@ import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -34,6 +35,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 
 public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 {
@@ -96,6 +98,41 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		assertThat(resultInRoot.get(added.getEntityId()), is(notNullValue()));
 		assertThat(resultInRoot.get(added.getEntityId()).size(), is(2)); //+ cred req mandatory attr
 		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Anonymous User"));
+	}
+	
+	@Test
+	public void shouldRetrieveDynamicAttributesEntitiesInGroup() throws EngineException
+	{
+		Group example = new Group("/example");
+		AttributeStatement addAttr = new AttributeStatement("eattr contains 'sys:AuthorizationRole'", "/", 
+				ConflictResolution.skip, 
+				"sys:AuthorizationRole", "eattr['sys:AuthorizationRole']");
+		example.setAttributeStatements(new AttributeStatement[] {addAttr});
+		groupsMan.addGroup(example);
+		
+		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), 
+				EntityState.valid, false);
+		EntityParam entity = new EntityParam(added.getEntityId());
+		
+		groupsMan.addMemberFromParent("/example", entity);
+		Attribute saRoot = EnumAttribute.of(AUTHORIZATION_ROLE, 
+				"/", Lists.newArrayList("Inspector"));
+		attrsMan.createAttribute(entity, saRoot);
+		
+		
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/example");
+		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/example", bulkData);
+		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
+		
+		assertThat(resultInA.size(), is(1));
+		assertThat(resultInA.get(added.getEntityId()), is(notNullValue()));
+		assertThat(resultInA.get(added.getEntityId()).size(), is(1));
+		assertThat(resultInA.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Inspector"));
+
+		assertThat(resultInRoot.size(), is(1));
+		assertThat(resultInRoot.get(added.getEntityId()), is(notNullValue()));
+		assertThat(resultInRoot.get(added.getEntityId()).size(), is(2)); //+ cred req mandatory attr
+		assertThat(resultInRoot.get(added.getEntityId()).get(AUTHORIZATION_ROLE).getValues().get(0), is("Inspector"));
 	}
 	
 	@Test
