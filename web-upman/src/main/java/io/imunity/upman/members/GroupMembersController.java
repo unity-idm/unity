@@ -15,8 +15,6 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Lists;
-
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -39,6 +37,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupMembersController
 {
+	//TODO replace all by new management
 	private GroupsManagement groupMan;
 	private AttributeTypeManagement attrTypeMan;
 	private AttributesManagement attrMan;
@@ -57,9 +56,9 @@ public class GroupMembersController
 		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
 	}
 
-	public List<GroupMemberEntry> getGroupMembers(
-			Collection<AttributeType> additionalProjectAttributes, String group)
-			throws ControllerException
+	// TODO
+	public List<GroupMemberEntry> getGroupMembers(Collection<String> additionalAttributeNames,
+			String group) throws ControllerException
 	{
 
 		List<GroupMemberEntry> ret = new ArrayList<>();
@@ -79,31 +78,30 @@ public class GroupMembersController
 		{
 			GroupMemberEntry entry = new GroupMemberEntry(member.getEntityId(),
 					member.getGroup(),
-					getMemberAttribute(member, additionalProjectAttributes,
-							group),
-					GroupMemberEntry.Role.regular,
+					getMemberAttribute(member, additionalAttributeNames, group),
+					(member.getEntityId() & 1) == 0
+							? GroupMemberEntry.Role.regular
+							: GroupMemberEntry.Role.admin,
 					"name" + member.getEntityId(),
-					"email" + member.getEntityId());
+					"email" + member.getEntityId() + "@imunity.io");
 			ret.add(entry);
 		}
 
 		return ret;
-
 	}
 
 	private Map<String, String> getMemberAttribute(GroupMembership member,
-			Collection<AttributeType> attributes, String group)
-			throws ControllerException
+			Collection<String> attributes, String group) throws ControllerException
 	{
-		
+
 		Map<String, String> attributesVal = new HashMap<>();
-		for (AttributeType atype : attributes)
+		for (String atype : attributes)
 		{
 			Collection<AttributeExt> attrs = null;
 			try
 			{
 				attrs = attrMan.getAttributes(new EntityParam(member.getEntityId()),
-						group, atype.getName());
+						group, atype);
 			} catch (EngineException e)
 			{
 				throw new ControllerException(msg.getMessage(
@@ -114,7 +112,7 @@ public class GroupMembersController
 			for (AttributeExt a : attrs)
 			{
 
-				attributesVal.put(atype.getName(), cachedAttrHandlerRegistry
+				attributesVal.put(atype, cachedAttrHandlerRegistry
 						.getSimplifiedAttributeValuesRepresentation(a));
 			}
 		}
@@ -133,8 +131,9 @@ public class GroupMembersController
 			childGroups = groupMan.getChildGroups(root);
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage(
-					"GroupMembersController.getChildGroupsError", root),
+			throw new ControllerException(
+					msg.getMessage("GroupMembersController.getChildGroupsError",
+							root),
 					e.getMessage(), e);
 		}
 
@@ -144,24 +143,55 @@ public class GroupMembersController
 					"|_" + childGroup.replace(root, "").replace("/", "_"));
 		}
 
-		groups.put(root, root.substring(root.lastIndexOf('/') + 1) + " (" + msg.getMessage("AllMemebers") + ")");
+		groups.put(root, root.substring(root.lastIndexOf('/') + 1) + " ("
+				+ msg.getMessage("AllMemebers") + ")");
 
 		return groups;
 
 	}
 
 	// TODO get attr based on group del config
-	public Collection<AttributeType> getAdditionalAttributeTypesForGroup(String group)
+	public Map<String, String> getAdditionalAttributeTypesForGroup(String group)
 			throws ControllerException
 	{
+		Map<String, String> ret = new HashMap<>();
 		try
 		{
-			return Lists.newArrayList(attrTypeMan.getAttributeType("mobile"));
+			AttributeType attr = null;
+			if (group.length() == 2)
+				attr = attrTypeMan.getAttributeType("mobile");
+			else
+				attr = attrTypeMan.getAttributeType("firstname");
+
+			ret.put(attr.getName(), attr.getDisplayedName().getValue(msg));
 		} catch (EngineException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new ControllerException(msg.getMessage(
+					"GroupMembersController.getGroupAttributeError"),
+					e.getMessage(), e);
 		}
-		return null;
+		return ret;
+	}
+
+	public void addToGroup(String group, Set<GroupMemberEntry> selection)
+	{
+		// TODO Auto-generated method stub
+	}
+
+	public void removeFromGroup(String group, Set<GroupMemberEntry> selection)
+	{
+		// TODO Auto-generated method stub
+	}
+
+	public void addManagerPrivileges(String group, Set<GroupMemberEntry> items)
+	{
+		// TODO Auto-generated method stub
+
+	}
+
+	public void revokeManagerPrivileges(String group, Set<GroupMemberEntry> items)
+	{
+		// TODO Auto-generated method stub
+
 	}
 }

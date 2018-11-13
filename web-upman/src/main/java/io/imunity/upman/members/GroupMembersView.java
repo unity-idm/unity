@@ -28,6 +28,7 @@ import io.imunity.upman.UpManUI;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -49,19 +50,21 @@ public class GroupMembersView extends CustomComponent implements UnityView
 
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
+	private GroupsManagement groupMan;
 	private String project;
 
 	@Autowired
-	public GroupMembersView(UnityMessageSource msg, GroupMembersController controller)
+	public GroupMembersView(UnityMessageSource msg, GroupMembersController controller, GroupsManagement groupMan)
 	{
 		this.msg = msg;
 		this.controller = controller;
+		this.groupMan = groupMan;
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		this.project = UpManUI.getProjectName();
+		this.project = UpManUI.getProjectGroup();
 		VerticalLayout main = new VerticalLayout();
 
 		ComboBox<String> subGroupCombo = new ComboBox<>(
@@ -87,7 +90,7 @@ public class GroupMembersView extends CustomComponent implements UnityView
 		GroupMembersComponent groupMembersComponent;
 		try
 		{
-			groupMembersComponent = new GroupMembersComponent(msg, controller);
+			groupMembersComponent = new GroupMembersComponent(msg, groupMan, controller, project);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -95,7 +98,7 @@ public class GroupMembersView extends CustomComponent implements UnityView
 		}
 		main.addComponent(groupMembersComponent);
 		subGroupCombo.addValueChangeListener(
-				e -> groupMembersComponent.setGroup(project, e.getValue()));
+				e -> groupMembersComponent.setGroup(e.getValue()));
 		subGroupCombo.setValue(sortedGroups.iterator().next());
 
 		setCompositionRoot(main);
