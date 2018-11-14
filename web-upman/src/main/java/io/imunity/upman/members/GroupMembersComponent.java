@@ -6,6 +6,7 @@
 package io.imunity.upman.members;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,13 +17,10 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.upman.UpManUI;
 import io.imunity.upman.members.GroupMemberEntry.Role;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.GroupComboBox;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -30,6 +28,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
+ * Component displays members grid with simple hamburger menu on the top
  * 
  * @author P.Piernik
  *
@@ -45,15 +44,12 @@ public class GroupMembersComponent extends VerticalLayout
 	private String group;
 	private String project;
 	private Map<String, String> additionalProjectAttributes;
-	private GroupsManagement groupMan;
 
-	public GroupMembersComponent(UnityMessageSource msg, GroupsManagement groupMan,
-			GroupMembersController controller, String project)
-			throws ControllerException
+	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller,
+			String project) throws ControllerException
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.groupMan = groupMan;
 		this.project = project;
 		this.additionalProjectAttributes = controller
 				.getAdditionalAttributeTypesForGroup(project);
@@ -113,8 +109,7 @@ public class GroupMembersComponent extends VerticalLayout
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
 				.withCaption(msg.getMessage("GroupMemberGrid.addToGroupAction"))
-				.withIcon(Images.add.getResource())
-				.multiTarget()
+				.withIcon(Images.add.getResource()).multiTarget()
 				.withHandler(this::showAddToGroupDialog).build();
 	}
 
@@ -182,22 +177,20 @@ public class GroupMembersComponent extends VerticalLayout
 	private void showAddToGroupDialog(Set<GroupMemberEntry> selection)
 	{
 
-		new TargetGroupSelectionDialog(msg, UpManUI.getProjectGroup(),
+		new TargetGroupSelectionDialog(msg,
 				group -> controller.addToGroup(group, selection)).show();
 	}
 
 	private class TargetGroupSelectionDialog extends AbstractDialog
 	{
 		private Consumer<String> selectionConsumer;
-		private GroupComboBox groupSelection;
-		private String rootGroup;
+		private GroupIndentCombo groupSelection;
 
-		public TargetGroupSelectionDialog(UnityMessageSource msg, String rootGroup,
+		public TargetGroupSelectionDialog(UnityMessageSource msg,
 				Consumer<String> selectionConsumer)
 		{
 			super(msg, msg.getMessage("AddToGroupDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
-			this.rootGroup = rootGroup;
 			setSizeEm(30, 18);
 		}
 
@@ -206,9 +199,18 @@ public class GroupMembersComponent extends VerticalLayout
 		{
 			Label info = new Label(msg.getMessage("AddToGroupDialog.info"));
 			info.setWidth(100, Unit.PERCENTAGE);
-			groupSelection = new GroupComboBox(
-					msg.getMessage("AddToGroupDialog.selectGroup"), groupMan);
-			groupSelection.setInput(rootGroup, false);
+
+			Map<String, String> groupsMap = new HashMap<>();
+			try
+			{
+				groupsMap.putAll(controller.getGroupsMap(project));
+			} catch (ControllerException e)
+			{
+				NotificationPopup.showError(e);
+			}
+
+			groupSelection = new GroupIndentCombo(
+					msg.getMessage("AddToGroupDialog.selectGroup"), groupsMap);
 			groupSelection.setWidth(100, Unit.PERCENTAGE);
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupSelection);

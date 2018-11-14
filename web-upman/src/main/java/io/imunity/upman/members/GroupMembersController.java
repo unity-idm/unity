@@ -7,22 +7,28 @@ package io.imunity.upman.members;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -30,33 +36,36 @@ import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * 
+ * Group members management helper
  * @author P.Piernik
  *
  */
 @Component
 public class GroupMembersController
 {
-	//TODO replace all by new management
+	// TODO replace all by new management
 	private GroupsManagement groupMan;
 	private AttributeTypeManagement attrTypeMan;
 	private AttributesManagement attrMan;
+	private BulkGroupQueryService groupQueryService;
+
 	private CachedAttributeHandlers cachedAttrHandlerRegistry;
 	private UnityMessageSource msg;
 
 	@Autowired
 	public GroupMembersController(UnityMessageSource msg, GroupsManagement groupMan,
 			AttributeTypeManagement attrTypeMan, AttributesManagement attrMan,
-			AttributeHandlerRegistry attrHandlerRegistry)
+			AttributeHandlerRegistry attrHandlerRegistry,
+			BulkGroupQueryService groupQueryService)
 	{
 		this.msg = msg;
 		this.groupMan = groupMan;
 		this.attrTypeMan = attrTypeMan;
 		this.attrMan = attrMan;
+		this.groupQueryService = groupQueryService;
 		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
 	}
 
-	// TODO
 	public List<GroupMemberEntry> getGroupMembers(Collection<String> additionalAttributeNames,
 			String group) throws ControllerException
 	{
@@ -124,29 +133,72 @@ public class GroupMembersController
 	public Map<String, String> getGroupsMap(String root) throws ControllerException
 	{
 		Map<String, String> groups = new HashMap<>();
-
-		Set<String> childGroups = null;
+		GroupStructuralData bulkData;
 		try
 		{
-			childGroups = groupMan.getChildGroups(root);
-		} catch (EngineException e)
+			bulkData = groupQueryService.getBulkStructuralData(root);
+		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("GroupMembersController.getChildGroupsError",
-							root),
+			throw new ControllerException(msg
+					.getMessage("GroupMembersController.getGroupsError", root),
 					e.getMessage(), e);
 		}
 
-		for (String childGroup : childGroups)
+		Map<String, GroupContents> groupAndSubgroups = groupQueryService
+				.getGroupAndSubgroups(bulkData);
+
+		groups.put(root, getGroupDisplayName(groupAndSubgroups.get(root).getGroup()));
+
+		fillGroupRecursive(root, groupAndSubgroups, groups);
+
+		return getGroupTree(root, groups);
+	}
+
+	private String getGroupDisplayName(Group group)
+	{
+		String displayName = group.getDisplayedName().getValue(msg);
+
+		if (group.getName().equals(displayName))
 		{
-			groups.put(childGroup,
-					"|_" + childGroup.replace(root, "").replace("/", "_"));
+			return group.getNameShort();
 		}
 
-		groups.put(root, root.substring(root.lastIndexOf('/') + 1) + " ("
-				+ msg.getMessage("AllMemebers") + ")");
+		return displayName;
+	}
 
-		return groups;
+	private Map<String, String> getGroupTree(String root, Map<String, String> groups)
+	{
+		Map<String, String> tree = new HashMap<>();
+
+		int initIndend = StringUtils.countOccurrencesOf(root, "/");
+
+		tree.put(root, groups.get(root));
+		for (String gr : groups.keySet().stream().filter(i -> !i.equals(root))
+				.collect(Collectors.toList()))
+		{
+			tree.put(gr, generateIndent(
+					StringUtils.countOccurrencesOf(gr, "/") - initIndend)
+					+ groups.get(gr));
+		}
+		return tree;
+
+	}
+
+	private String generateIndent(int count)
+	{
+
+		return String.join("", Collections.nCopies(count, " ")) + "|-";
+	}
+
+	private void fillGroupRecursive(String root, Map<String, GroupContents> groupAndSubgroups,
+			Map<String, String> groups)
+	{
+		for (String subgroup : groupAndSubgroups.get(root).getSubGroups())
+		{
+			groups.put(subgroup, getGroupDisplayName(
+					groupAndSubgroups.get(subgroup).getGroup()));
+			fillGroupRecursive(subgroup, groupAndSubgroups, groups);
+		}
 
 	}
 

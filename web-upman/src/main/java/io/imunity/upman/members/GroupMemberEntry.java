@@ -11,8 +11,8 @@ import java.util.Map;
 import io.imunity.upman.members.GroupMemebersGrid.BaseColumn;
 
 /**
- * /** Data object behind a row in {@link GroupMemebersGrid}. Stores group
- * member information
+ * Data object behind a row in {@link GroupMemebersGrid}. Stores group member
+ * information
  * 
  * @author P.Piernik
  *
@@ -76,7 +76,7 @@ public class GroupMemberEntry
 			return false;
 
 		GroupMemberEntry other = (GroupMemberEntry) obj;
-	
+
 		if (entityId != other.getEntityId())
 			return false;
 

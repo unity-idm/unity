@@ -78,6 +78,7 @@ public enum Styles
 	greenProgressBar("u-greenProgressBar"),
 	redProgressBar("u-redProgressBar"),
 	RegistrationLink("registrationLink"),
+	indentComboBox("u-indentComboBox"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
