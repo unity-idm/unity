@@ -161,7 +161,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 	}
 	
 	
-	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
+	public LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity,
 			final AuthenticationRealm realm, String firstFactorAuhtnOptionId,
 			String secondFactorAuhtnOptionId)
 	{
@@ -173,7 +173,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 				new RememberMeInfo(false, false), firstFactorAuhtnOptionId,
 				secondFactorAuhtnOptionId);
 	}
-
+	
 	@Override
 	public void processSecondaryAuthnResult(PartialAuthnState state,
 			AuthenticationResult result2, String clientIp, AuthenticationRealm realm,
@@ -236,7 +236,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		return null;
 	}
 
-	private void logged(AuthenticatedEntity authenticatedEntity, LoginSession ls, 
+	public void logged(AuthenticatedEntity authenticatedEntity, LoginSession ls, 
 			final AuthenticationRealm realm, String clientIp, final boolean rememberMe,
 			List<SessionParticipant> participants) throws AuthenticationException
 	{	
