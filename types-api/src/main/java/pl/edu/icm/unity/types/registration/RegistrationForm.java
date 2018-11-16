@@ -60,6 +60,12 @@ public class RegistrationForm extends BaseForm
 	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
 	private boolean showSignInLink;
 	private String signInLink;
+	/**
+	 * @implNote: if the value is provided, then after the registration is
+	 *            completed from standalone view and the request is accepted,
+	 *            newly registered user is automatically login into this realm.
+	 */
+	private String realmName;
 
 	@JsonCreator
 	public RegistrationForm(ObjectNode json)
@@ -192,6 +198,16 @@ public class RegistrationForm extends BaseForm
 	{
 		this.signInLink = signInLink;
 	}
+	
+	public String getRealmName()
+	{
+		return realmName;
+	}
+
+	public void setRealmName(String realmName)
+	{
+		this.realmName = realmName;
+	}
 
 	@Override
 	public String toString()
@@ -320,6 +336,7 @@ public class RegistrationForm extends BaseForm
 		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
 		root.put("ShowSignInLink", showSignInLink);
 		root.put("SignInLink", signInLink);
+		root.put("RealmName", realmName);
 		return root;
 	}
 
@@ -373,6 +390,10 @@ public class RegistrationForm extends BaseForm
 			n = root.get("SignInLink");
 			if (n != null && !n.isNull())
 				setSignInLink(n.asText());
+			
+			n = root.get("RealmName");
+			if (n != null && !n.isNull())
+				setRealmName(n.asText());
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize registration form from JSON", e);

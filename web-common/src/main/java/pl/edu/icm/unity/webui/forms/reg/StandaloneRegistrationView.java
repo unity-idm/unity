@@ -42,6 +42,7 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -75,6 +76,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private Runnable customCancelHandler;
 	private Runnable completedRegistrationHandler;
 	private Runnable gotoSignInRedirector;
+	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -82,7 +84,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			UnityServerConfiguration cfg, 
 			IdPLoginController idpLoginController,
 			RequestEditorCreator editorCreator,
-			AuthenticationProcessor authnProcessor)
+			AuthenticationProcessor authnProcessor,
+			AutoLoginAfterSignUpProcessor autoLogin)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
@@ -90,6 +93,7 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		this.idpLoginController = idpLoginController;
 		this.editorCreator = editorCreator;
 		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
+		this.autoLoginProcessor = autoLogin;
 	}
 	
 	String getFormName()
@@ -321,9 +325,16 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		try
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
+			RegistrationRequestState requestState = getRequestStatus(requestId);
+			
+			autoLoginProcessor.signInIfPossible(editor, requestState);
+			
+			RegistrationRequestStatus effectiveStateForFinalization = requestState == null 
+					? RegistrationRequestStatus.rejected 
+					: requestState.getStatus();
 			WorkflowFinalizationConfiguration finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationPostSubmit(requestId,
-							getRequestStatus(requestId));
+							effectiveStateForFinalization);
 			gotoFinalStep(finalScreenConfig);
 		} catch (IdentityExistsException e)
 		{
@@ -421,16 +432,16 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	}
 	
 	
-	private RegistrationRequestStatus getRequestStatus(String requestId) 
+	private RegistrationRequestState getRequestStatus(String requestId) 
 	{
 		try
 		{
-			return regMan.getRegistrationRequest(requestId).getStatus();
+			return regMan.getRegistrationRequest(requestId);
 		} catch (EngineException e)
 		{
 			log.error("Shouldn't happen: can't get request status, assuming rejected", e);
 		}
-		return RegistrationRequestStatus.rejected;
+		return null;
 	}
 	
 	private class EditorCreatedCallback implements RequestEditorCreatedCallback

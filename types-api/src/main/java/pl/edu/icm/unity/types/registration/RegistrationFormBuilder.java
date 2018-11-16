@@ -104,6 +104,12 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		instance.setSignInLink(url);
 		return this;
 	}
+	
+	public RegistrationFormBuilder withRealmName(String name)
+	{
+		instance.setRealmName(name);
+		return this;
+	}
 
 	public static class RegistrationFormNotificationsBuilder
 	{
