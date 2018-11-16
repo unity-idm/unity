@@ -36,7 +36,8 @@ import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Group members management helper
+ * Group members controller
+ * 
  * @author P.Piernik
  *
  */
@@ -66,8 +67,10 @@ public class GroupMembersController
 		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
 	}
 
+	// TODO new manager should replace DelegatedGroupMemebership with email,
+	// name and role
 	public List<GroupMemberEntry> getGroupMembers(Collection<String> additionalAttributeNames,
-			String group) throws ControllerException
+			String groupPath) throws ControllerException
 	{
 
 		List<GroupMemberEntry> ret = new ArrayList<>();
@@ -75,11 +78,12 @@ public class GroupMembersController
 		GroupContents contents = null;
 		try
 		{
-			contents = groupMan.getContents(group, GroupContents.MEMBERS);
+			contents = groupMan.getContents(groupPath, GroupContents.MEMBERS);
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage(
-					"GroupMembersController.getGroupContentError", group),
+			throw new ControllerException(
+					msg.getMessage("GroupMembersController.getGroupError",
+							new Group(groupPath).getNameShort()),
 					e.getMessage(), e);
 		}
 
@@ -87,7 +91,8 @@ public class GroupMembersController
 		{
 			GroupMemberEntry entry = new GroupMemberEntry(member.getEntityId(),
 					member.getGroup(),
-					getMemberAttribute(member, additionalAttributeNames, group),
+					getMemberAttribute(member, additionalAttributeNames,
+							groupPath),
 					(member.getEntityId() & 1) == 0
 							? GroupMemberEntry.Role.regular
 							: GroupMemberEntry.Role.admin,
@@ -99,8 +104,9 @@ public class GroupMembersController
 		return ret;
 	}
 
+	// TODO move this to new manager
 	private Map<String, String> getMemberAttribute(GroupMembership member,
-			Collection<String> attributes, String group) throws ControllerException
+			Collection<String> attributes, String groupPath) throws ControllerException
 	{
 
 		Map<String, String> attributesVal = new HashMap<>();
@@ -110,12 +116,14 @@ public class GroupMembersController
 			try
 			{
 				attrs = attrMan.getAttributes(new EntityParam(member.getEntityId()),
-						group, atype);
+						groupPath, atype);
 			} catch (EngineException e)
 			{
 				throw new ControllerException(msg.getMessage(
 						"GroupMembersController.getAttributesError",
-						member.getEntityId(), group), e.getMessage(), e);
+						member.getEntityId(),
+						new Group(groupPath).getNameShort()),
+						e.getMessage(), e);
 			}
 
 			for (AttributeExt a : attrs)
@@ -130,28 +138,30 @@ public class GroupMembersController
 
 	}
 
-	public Map<String, String> getGroupsMap(String root) throws ControllerException
+	public Map<String, String> getGroupsMap(String rootPath) throws ControllerException
 	{
 		Map<String, String> groups = new HashMap<>();
 		GroupStructuralData bulkData;
 		try
 		{
-			bulkData = groupQueryService.getBulkStructuralData(root);
+			bulkData = groupQueryService.getBulkStructuralData(rootPath);
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg
-					.getMessage("GroupMembersController.getGroupsError", root),
+			throw new ControllerException(
+					msg.getMessage("GroupMembersController.getGroupError",
+							rootPath),
 					e.getMessage(), e);
 		}
 
 		Map<String, GroupContents> groupAndSubgroups = groupQueryService
 				.getGroupAndSubgroups(bulkData);
 
-		groups.put(root, getGroupDisplayName(groupAndSubgroups.get(root).getGroup()));
+		groups.put(rootPath,
+				getGroupDisplayName(groupAndSubgroups.get(rootPath).getGroup()));
 
-		fillGroupRecursive(root, groupAndSubgroups, groups);
+		fillGroupRecursive(rootPath, groupAndSubgroups, groups);
 
-		return getGroupTree(root, groups);
+		return getGroupTree(rootPath, groups);
 	}
 
 	private String getGroupDisplayName(Group group)
@@ -166,14 +176,14 @@ public class GroupMembersController
 		return displayName;
 	}
 
-	private Map<String, String> getGroupTree(String root, Map<String, String> groups)
+	private Map<String, String> getGroupTree(String rootPath, Map<String, String> groups)
 	{
 		Map<String, String> tree = new HashMap<>();
 
-		int initIndend = StringUtils.countOccurrencesOf(root, "/");
+		int initIndend = StringUtils.countOccurrencesOf(rootPath, "/");
 
-		tree.put(root, groups.get(root));
-		for (String gr : groups.keySet().stream().filter(i -> !i.equals(root))
+		tree.put(rootPath, groups.get(rootPath));
+		for (String gr : groups.keySet().stream().filter(i -> !i.equals(rootPath))
 				.collect(Collectors.toList()))
 		{
 			tree.put(gr, generateIndent(
@@ -184,16 +194,16 @@ public class GroupMembersController
 
 	}
 
+	// TODO replace subgroup string |-
 	private String generateIndent(int count)
 	{
-
 		return String.join("", Collections.nCopies(count, " ")) + "|-";
 	}
 
-	private void fillGroupRecursive(String root, Map<String, GroupContents> groupAndSubgroups,
-			Map<String, String> groups)
+	private void fillGroupRecursive(String parentPath,
+			Map<String, GroupContents> groupAndSubgroups, Map<String, String> groups)
 	{
-		for (String subgroup : groupAndSubgroups.get(root).getSubGroups())
+		for (String subgroup : groupAndSubgroups.get(parentPath).getSubGroups())
 		{
 			groups.put(subgroup, getGroupDisplayName(
 					groupAndSubgroups.get(subgroup).getGroup()));
@@ -203,14 +213,14 @@ public class GroupMembersController
 	}
 
 	// TODO get attr based on group del config
-	public Map<String, String> getAdditionalAttributeTypesForGroup(String group)
+	public Map<String, String> getAdditionalAttributeTypesForGroup(String groupPath)
 			throws ControllerException
 	{
 		Map<String, String> ret = new HashMap<>();
 		try
 		{
 			AttributeType attr = null;
-			if (group.length() == 2)
+			if (groupPath.length() == 2)
 				attr = attrTypeMan.getAttributeType("mobile");
 			else
 				attr = attrTypeMan.getAttributeType("firstname");
@@ -225,23 +235,23 @@ public class GroupMembersController
 		return ret;
 	}
 
-	public void addToGroup(String group, Set<GroupMemberEntry> selection)
+	public void addToGroup(String groupPath, Set<GroupMemberEntry> selection)
 	{
 		// TODO Auto-generated method stub
 	}
 
-	public void removeFromGroup(String group, Set<GroupMemberEntry> selection)
+	public void removeFromGroup(String groupPath, Set<GroupMemberEntry> selection)
 	{
 		// TODO Auto-generated method stub
 	}
 
-	public void addManagerPrivileges(String group, Set<GroupMemberEntry> items)
+	public void addManagerPrivileges(String groupPath, Set<GroupMemberEntry> items)
 	{
 		// TODO Auto-generated method stub
 
 	}
 
-	public void revokeManagerPrivileges(String group, Set<GroupMemberEntry> items)
+	public void revokeManagerPrivileges(String groupPath, Set<GroupMemberEntry> items)
 	{
 		// TODO Auto-generated method stub
 

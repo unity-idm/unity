@@ -66,6 +66,8 @@ public class GroupMembersView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
+			//TODO maybe put error icon to main
+			setCompositionRoot(main);
 			return;
 		}
 

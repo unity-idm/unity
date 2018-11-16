@@ -248,4 +248,9 @@ public class SingleActionHandler<T>
 	{
 		this.forceDisabled = disabled;
 	}
+	
+	public void setHideIfInactive(boolean hideIfInactive)
+	{
+		this.hideIfInactive = hideIfInactive;
+	}
 }

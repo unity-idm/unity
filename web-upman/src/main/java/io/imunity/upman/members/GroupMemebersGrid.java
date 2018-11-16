@@ -36,8 +36,10 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 
 	enum BaseColumn
 	{
-		role("GroupMember.role"), name("GroupMember.name"), email(
-				"GroupMember.email"), action("GroupMember.action");
+		role("GroupMember.role"), 
+		name("GroupMember.name"),
+		email("GroupMember.email"),
+		action("GroupMember.action");
 		private String captionKey;
 
 		BaseColumn(String captionKey)
@@ -70,30 +72,6 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
 		setSizeFull();
-	}
-
-	private void createActionColumn()
-	{
-		addComponentColumn(ie -> {
-			HamburgerMenu<GroupMemberEntry> menu = new HamburgerMenu<GroupMemberEntry>();
-			menu.setTarget(Sets.newHashSet(ie));
-			menu.addActionHandlers(rowActionHandlers);
-			return menu;
-
-		}).setCaption(msg.getMessage(BaseColumn.action.captionKey)).setWidth(80)
-				.setResizable(false);
-
-	}
-
-	private void createAttrsColumns(Map<String, String> additionalAttributes)
-	{
-
-		for (Map.Entry<String, String> attr : additionalAttributes.entrySet())
-		{
-			addColumn(ie -> ie.getAttribute(attr.getKey())).setCaption(attr.getValue())
-					.setWidth(200).setId(ATTR_COL_PREFIX + attr.getKey());
-		}
-
 	}
 
 	public void setValue(Collection<GroupMemberEntry> items)
@@ -140,5 +118,29 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 		addColumn(ie -> ie.getBaseValue(BaseColumn.email))
 				.setCaption(msg.getMessage(BaseColumn.email.captionKey))
 				.setWidth(250);
+	}
+	
+	private void createAttrsColumns(Map<String, String> additionalAttributes)
+	{
+
+		for (Map.Entry<String, String> attr : additionalAttributes.entrySet())
+		{
+			addColumn(ie -> ie.getAttribute(attr.getKey())).setCaption(attr.getValue())
+					.setWidth(200).setId(ATTR_COL_PREFIX + attr.getKey());
+		}
+
+	}
+	
+	private void createActionColumn()
+	{
+		addComponentColumn(ie -> {
+			HamburgerMenu<GroupMemberEntry> menu = new HamburgerMenu<GroupMemberEntry>();
+			menu.setTarget(Sets.newHashSet(ie));
+			menu.addActionHandlers(rowActionHandlers);
+			return menu;
+
+		}).setCaption(msg.getMessage(BaseColumn.action.captionKey)).setWidth(80)
+				.setResizable(false);
+
 	}
 }

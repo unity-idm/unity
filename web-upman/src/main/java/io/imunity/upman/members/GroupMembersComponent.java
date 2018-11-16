@@ -57,17 +57,26 @@ public class GroupMembersComponent extends VerticalLayout
 		setMargin(false);
 		setSpacing(false);
 
-		List<SingleActionHandler<GroupMemberEntry>> actions = new ArrayList<>();
-		actions.add(getRemoveFromProjectAction());
-		actions.add(getRemoveFromGroupAction());
-		actions.add(getAddToGroupAction());
-		actions.add(getAddManagerPrivilegesAction());
-		actions.add(getRevokeManagerPrivilegesAction());
-		groupMemebersGrid = new GroupMemebersGrid(msg, actions,
+		List<SingleActionHandler<GroupMemberEntry>> commonActions = new ArrayList<>();
+		commonActions.add(getRemoveFromProjectAction());
+		commonActions.add(getRemoveFromGroupAction());
+		commonActions.add(getAddToGroupAction());
+
+		List<SingleActionHandler<GroupMemberEntry>> rawActions = new ArrayList<>();
+		rawActions.addAll(commonActions);
+		rawActions.add(getAddManagerPrivilegesAction(true));
+		rawActions.add(getRevokeManagerPrivilegesAction(true));
+
+		groupMemebersGrid = new GroupMemebersGrid(msg, rawActions,
 				additionalProjectAttributes);
+
 		HamburgerMenu<GroupMemberEntry> hamburgerMenu = new HamburgerMenu<>();
 		groupMemebersGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
-		hamburgerMenu.addActionHandlers(actions);
+
+		hamburgerMenu.addActionHandlers(commonActions);
+		hamburgerMenu.addActionHandler(getAddManagerPrivilegesAction(false));
+		hamburgerMenu.addActionHandler(getRevokeManagerPrivilegesAction(false));
+
 		HorizontalLayout menuBar = new HorizontalLayout();
 		menuBar.setSpacing(false);
 		// TODO remove space, add styles
@@ -81,7 +90,7 @@ public class GroupMembersComponent extends VerticalLayout
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
 				.withCaption(msg.getMessage(
-						"GroupMemberGrid.removeFromProjectAction"))
+						"GroupMembersComponent.removeFromProjectAction"))
 				.withIcon(Images.removeFromGroup.getResource()).multiTarget()
 				.withHandler(this::removeFromProject).build();
 	}
@@ -95,7 +104,7 @@ public class GroupMembersComponent extends VerticalLayout
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
 				.withCaption(msg.getMessage(
-						"GroupMemberGrid.removeFromGroupAction"))
+						"GroupMembersComponent.removeFromGroupAction"))
 				.withIcon(Images.deleteFolder.getResource()).multiTarget()
 				.withHandler(this::removeFromProject).build();
 	}
@@ -108,20 +117,24 @@ public class GroupMembersComponent extends VerticalLayout
 	private SingleActionHandler<GroupMemberEntry> getAddToGroupAction()
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
-				.withCaption(msg.getMessage("GroupMemberGrid.addToGroupAction"))
+				.withCaption(msg.getMessage("GroupMembersComponent.addToGroupAction"))
 				.withIcon(Images.add.getResource()).multiTarget()
 				.withHandler(this::showAddToGroupDialog).build();
 	}
 
-	private SingleActionHandler<GroupMemberEntry> getAddManagerPrivilegesAction()
+	private SingleActionHandler<GroupMemberEntry> getAddManagerPrivilegesAction(
+			boolean hideIfInactive)
 	{
-		return SingleActionHandler.builder(GroupMemberEntry.class)
+		SingleActionHandler<GroupMemberEntry> handler = SingleActionHandler
+				.builder(GroupMemberEntry.class)
 				.withCaption(msg.getMessage(
-						"GroupMemberGrid.addManagerPrivilegesAction"))
+						"GroupMembersComponent.addManagerPrivilegesAction"))
 				.withIcon(Images.trending_up.getResource()).multiTarget()
 				.withHandler(this::addManagerPrivileges)
 				.withDisabledPredicate(e -> !e.getRole().equals(Role.regular))
 				.build();
+		handler.setHideIfInactive(hideIfInactive);
+		return handler;
 	}
 
 	public void addManagerPrivileges(Set<GroupMemberEntry> items)
@@ -129,15 +142,19 @@ public class GroupMembersComponent extends VerticalLayout
 		controller.addManagerPrivileges(group, items);
 	}
 
-	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction()
+	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction(
+			boolean hideIfInactive)
 	{
-		return SingleActionHandler.builder(GroupMemberEntry.class)
+		SingleActionHandler<GroupMemberEntry> handler = SingleActionHandler
+				.builder(GroupMemberEntry.class)
 				.withCaption(msg.getMessage(
-						"GroupMemberGrid.revokeManagerPrivilegesAction"))
+						"GroupMembersComponent.revokeManagerPrivilegesAction"))
 				.withIcon(Images.trending_down.getResource()).multiTarget()
 				.withHandler(this::revokeManagerPrivileges)
 				.withDisabledPredicate(e -> !e.getRole().equals(Role.admin))
 				.build();
+		handler.setHideIfInactive(hideIfInactive);
+		return handler;
 	}
 
 	public void revokeManagerPrivileges(Set<GroupMemberEntry> items)
