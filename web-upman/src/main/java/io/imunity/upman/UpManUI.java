@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.navigator.View;
 import com.vaadin.server.VaadinRequest;
@@ -36,6 +37,7 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**
@@ -52,7 +54,6 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private SidebarLayout upManLayout;
-	private AppContextViewProvider appContextViewProvider;
 	private NavigationHierarchyManager navigationMan;
 	private ProjectController controller;
 
@@ -61,13 +62,13 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	@Autowired
 	public UpManUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
 			StandardWebAuthenticationProcessor authnProcessor,
-			Collection<UpManNavigationInfoProvider> providers, ProjectController controller)
+			Collection<UpManNavigationInfoProvider> providers,
+			ProjectController controller)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
 
 		this.navigationMan = new NavigationHierarchyManager(providers);
-		this.appContextViewProvider = new AppContextViewProvider(navigationMan);
 		this.controller = controller;
 
 	}
@@ -90,6 +91,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	private void buildLeftMenu()
 	{
 		LeftMenu leftMenu = upManLayout.getLeftMenu();
+		leftMenu.setToggleVisible(false);
 		LeftMenuLabel label = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
 		// TODO - disabled until minimalized menu CSS is fixed.
 		// .withClickListener(e ->
@@ -127,12 +129,19 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
+		VerticalLayout naviContent = new VerticalLayout();
+		naviContent.setSizeFull();
+		naviContent.setStyleName(Styles.contentBox.toString());
+		Navigator navigator = new Navigator(this, naviContent);
+
+		navigator.setErrorView((UnityView) navigationMan.getNavigationInfoMap()
+				.get(UpManErrorView.VIEW_NAME).objectFactory.getObject());
+		navigator.addProvider(new AppContextViewProvider(navigationMan));
+		ViewHeader viewHedear = new ViewHeader();
+		navigator.addViewChangeListener(viewHedear);
+
 		upManLayout = SidebarLayout.get(navigationMan).withNaviContent(new VerticalLayout())
-				.withViewProvider(appContextViewProvider)
-				.withErrorView((UnityView) navigationMan.getNavigationInfoMap()
-						.get(UpManErrorView.VIEW_NAME).objectFactory
-								.getObject())
-				.build();
+				.withNaviContent(naviContent).withTopComponent(viewHedear).build();
 		buildTopMenu();
 		buildLeftMenu();
 		setContent(upManLayout);

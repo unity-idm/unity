@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.layout;
+package io.imunity.upman;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
