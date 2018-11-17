@@ -8,7 +8,11 @@ package io.imunity.upman;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Controller for project management
@@ -19,16 +23,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class ProjectController
 {
-	
-	
-	//TODO
-	Map<String, String> getProjectForUser(long entityId)
+	private UnityMessageSource msg;
+
+	@Autowired
+	public ProjectController(UnityMessageSource msg)
+	{
+		this.msg = msg;
+	}
+
+	// TODO
+	Map<String, String> getProjectForUser(long entityId) throws ControllerException
 	{
 		Map<String, String> projects = new HashMap<>();
 
-		projects.put("/A", "A");
-		projects.put("/unicore", "UNICORE");
-		projects.put("/", "ROOT");
+		 projects.put("/A", "A");
+		 projects.put("/unicore", "UNICORE");
+		 projects.put("/", "ROOT");
+
+		if (projects.isEmpty())
+			throw new ControllerException(
+					msg.getMessage("ProjectController.noProjectAvailable"),
+					new Throwable());
 
 		return projects;
 
