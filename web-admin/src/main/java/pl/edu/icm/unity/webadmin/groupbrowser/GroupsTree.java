@@ -32,8 +32,10 @@ import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
@@ -64,6 +66,7 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Tree with groups obtained dynamically from the engine.
+ * 
  * @author K. Benedyczak
  */
 @Component
@@ -80,13 +83,17 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private EntityCreationHandler entityCreationDialogHandler;
 	private Toolbar<TreeNode> toolbar;
 	private BulkGroupQueryService bulkQueryService;
-	
+	private RegistrationsManagement registrationMan;
+	private EnquiryManagement enquiryMan;
+
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
 			UnityMessageSource msg, AttributeClassManagement acMan,
 			EntityCreationHandler entityCreationDialogHandler,
 			GroupManagementHelper groupManagementHelper,
-			BulkGroupQueryService bulkQueryService)
+			BulkGroupQueryService bulkQueryService, 
+			RegistrationsManagement registrationMan,
+			EnquiryManagement enquiryMan)
 	{
 		this.groupsMan = groupsMan;
 		this.identitiesMan = identitiesMan;
@@ -94,50 +101,53 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		this.acMan = acMan;
 		this.entityCreationDialogHandler = entityCreationDialogHandler;
 		this.bulkQueryService = bulkQueryService;
-		
+		this.registrationMan = registrationMan;
+		this.enquiryMan = enquiryMan;
+
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 		addExpandListener(new GroupExpandListener());
 		addSelectionListener(e -> {
 			final TreeNode node = getSelection();
 			bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getPath()));
 		});
-		
-		SingleSelectionModel<TreeNode> singleSelect =
-				      (SingleSelectionModel<TreeNode>) getSelectionModel();
-			
+
+		SingleSelectionModel<TreeNode> singleSelect = (SingleSelectionModel<TreeNode>) getSelectionModel();
+
 		singleSelect.setDeselectAllowed(false);
-	
-		
+
 		toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		addSelectionListener(toolbar.getSelectionListener());
-		
-		HamburgerMenu<TreeNode> hamburgerMenu= new HamburgerMenu<>();
+
+		HamburgerMenu<TreeNode> hamburgerMenu = new HamburgerMenu<>();
 		addSelectionListener(hamburgerMenu.getSelectionListener());
-		
-		
+
 		SingleActionHandler<TreeNode> refreshAction = getRefreshAction();
 		addActionHandler(refreshAction);
-		
+
 		SingleActionHandler<TreeNode> expandAllAction = getExpandAllAction();
 		addActionHandler(expandAllAction);
-		
+
 		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAllAction();
 		addActionHandler(collapseAllAction);
-		
+
 		SingleActionHandler<TreeNode> addAction = getAddAction();
 		addActionHandler(addAction);
-		
+
 		SingleActionHandler<TreeNode> editAction = getEditAction();
 		addActionHandler(editAction);
-		
+
 		SingleActionHandler<TreeNode> editACAction = getEditACsAction();
 		addActionHandler(editACAction);
+
+		SingleActionHandler<TreeNode> editDelegationConfigAction = getEditDelegationConfigAction();
+		addActionHandler(editDelegationConfigAction);		
 		
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
 		addActionHandler(deleteAction);
 
 		SingleActionHandler<TreeNode> addEntityAction = getAddEntityAction();
 		addActionHandler(addEntityAction);
+
 		
 		toolbar.addActionHandler(addAction);
 		toolbar.addActionHandler(deleteAction);
@@ -146,24 +156,24 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(collapseAllAction);
 		hamburgerMenu.addActionHandler(editAction);
 		hamburgerMenu.addActionHandler(editACAction);
+		hamburgerMenu.addActionHandler(editDelegationConfigAction);
 		hamburgerMenu.addActionHandler(addEntityAction);
 		toolbar.addHamburger(hamburgerMenu);
-		
+
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		treeData = new TreeData<>();
 		setDataProvider(new GroupsDataProvider(treeData));
 
-		addColumn(n -> n.getIcon() + " " + n.toString(), 
-				new HtmlRenderer());
+		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer());
 		setHeaderVisible(false);
 		setPrimaryStyleName(Styles.vGroupBrowser.toString());
-	        setRowHeight(34);
-	        
+		setRowHeight(34);
+
 		setSizeFull();
-		
+
 		setupDragNDrop(groupManagementHelper);
-		
+
 		try
 		{
 			setupRoot();
@@ -182,26 +192,27 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	@SuppressWarnings("unchecked")
 	private void setupDragNDrop(GroupManagementHelper groupManagementHelper)
 	{
-		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this, DropMode.ON_TOP);
+		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this,
+				DropMode.ON_TOP);
 		dropTarget.setDropEffect(DropEffect.MOVE);
-		dropTarget.setDropCriteriaScript(DnDGridUtils.getTypedCriteriaScript(
-				IdentitiesGrid.ENTITY_DND_TYPE));
-		dropTarget.addGridDropListener(e -> 
-		{
-			e.getDragSourceExtension().ifPresent(source -> 
-			{
-				if (source instanceof GridDragSource 
+		dropTarget.setDropCriteriaScript(DnDGridUtils
+				.getTypedCriteriaScript(IdentitiesGrid.ENTITY_DND_TYPE));
+		dropTarget.addGridDropListener(e -> {
+			e.getDragSourceExtension().ifPresent(source -> {
+				if (source instanceof GridDragSource
 						&& e.getDropTargetRow().isPresent()
 						&& source.getDragData() != null)
 				{
-					Set<EntityWithLabel> dragData = (Set<EntityWithLabel>) source.getDragData();
-					groupManagementHelper.bulkAddToGroup(e.getDropTargetRow().get().getPath(),
+					Set<EntityWithLabel> dragData = (Set<EntityWithLabel>) source
+							.getDragData();
+					groupManagementHelper.bulkAddToGroup(
+							e.getDropTargetRow().get().getPath(),
 							dragData, true);
 				}
 			});
 		});
 	}
-	
+
 	private void addActionHandler(SingleActionHandler<TreeNode> actionHandler)
 	{
 		contextMenuSupp.addActionHandler(actionHandler);
@@ -217,7 +228,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	{
 		return toolbar;
 	}
-	
+
 	/**
 	 * We can have two cases: either we can read '/' or not. In the latter
 	 * case we take groups where the logged user is the member, and we put
@@ -310,10 +321,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		}
 		node.setContentsFetched(false);
 		getDataProvider().refreshAll();
-		collapse(node);		
+		collapse(node);
 		expand(node);
 	}
-
 
 	private void removeGroup(TreeNode parent, String path, boolean recursive)
 	{
@@ -352,8 +362,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		}
 	}
 
-	
-	
 	private SingleActionHandler<TreeNode> getAddAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
@@ -389,6 +397,21 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		dialog.show();
 
 	}
+	
+	private Group resolveGroup(TreeNode node)
+	{
+		Group group = null;
+		try
+		{
+			group = groupsMan.getContents(node.getPath(), GroupContents.METADATA)
+					.getGroup();
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupsTree.resolveGroupError"), e);
+		}
+		return group;
+	}
 
 	private SingleActionHandler<TreeNode> getEditAction()
 	{
@@ -399,23 +422,36 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private void showEditDialog(Collection<TreeNode> target)
 	{
 		TreeNode node = target.iterator().next();
-		Group group;
-		try
-		{
-			group = groupsMan.getContents(node.getPath(), GroupContents.METADATA)
-					.getGroup();
-		} catch (Exception e)
-		{
-			NotificationPopup.showError(msg,
-					msg.getMessage("GroupsTree.resolveGroupError"), e);
+		Group group = resolveGroup(node);
+		if (group == null)
 			return;
-		}
 
 		new GroupEditDialog(msg, group, true, g -> {
 			updateGroup(node.getPath(), g);
 			refreshNode(node.getParentNode());
 			if (node.equals(getSelection()))
 				bus.fireEvent(new GroupChangedEvent(node.getPath()));
+		}).show();
+
+	}
+
+	private SingleActionHandler<TreeNode> getEditDelegationConfigAction()
+	{
+		return SingleActionHandler.builder(TreeNode.class)
+				.withCaption(msg.getMessage("GroupsTree.editDelegationConfigAction"))
+				.withIcon(Images.forward.getResource())
+				.withHandler(this::showEditDelegationCondigDialog).build();
+	}
+
+	private void showEditDelegationCondigDialog(Collection<TreeNode> target)
+	{
+		TreeNode node = target.iterator().next();
+		Group group = resolveGroup(node);
+		if (group == null)
+			return;
+		
+		new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, group, g -> {
+			updateGroup(node.getPath(), g);
 		}).show();
 
 	}
@@ -442,7 +478,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private void showAddEntityDialog(Collection<TreeNode> target)
 	{
 		final TreeNode node = target.iterator().next();
-		entityCreationDialogHandler.showAddEntityDialog(() -> node.getPath(), 
+		entityCreationDialogHandler.showAddEntityDialog(() -> node.getPath(),
 				i -> onCreatedIdentity(node, i));
 	}
 
@@ -511,7 +547,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 				collapseItemsRecursively(Arrays.asList(child));
 		}
 	}
-	
+
 	private class GroupExpandListener implements ExpandListener<TreeNode>
 	{
 		private void removeAllChildren(TreeNode item)
@@ -540,12 +576,12 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 			// in case of refresh
 			removeAllChildren(expandedNode);
-			
-			
+
 			GroupStructuralData bulkData;
 			try
 			{
-				bulkData = bulkQueryService.getBulkStructuralData(expandedNode.getPath());
+				bulkData = bulkQueryService
+						.getBulkStructuralData(expandedNode.getPath());
 			} catch (Exception e)
 			{
 				expandedNode.setIcon(Images.noAuthzGrp.getHtml());
@@ -553,7 +589,8 @@ public class GroupsTree extends TreeGrid<TreeNode>
 				expand(expandedNode);
 				return;
 			}
-			Map<String, GroupContents> groupAndSubgroups = bulkQueryService.getGroupAndSubgroups(bulkData);
+			Map<String, GroupContents> groupAndSubgroups = bulkQueryService
+					.getGroupAndSubgroups(bulkData);
 
 			expandedNode.setIcon(Images.folder.getHtml());
 			GroupContents contents = groupAndSubgroups.get(expandedNode.getPath());
@@ -565,30 +602,30 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			{
 				GroupContents contents2 = groupAndSubgroups.get(subgroup);
 				TreeNode node = new TreeNode(msg, contents2.getGroup(),
-						Images.folder.getHtml(),
-						expandedNode);
+						Images.folder.getHtml(), expandedNode);
 				treeData.addItem(node.getParentNode(), node);
 			}
-			
+
 			expandedNode.setContentsFetched(true);
 			getDataProvider().refreshAll();
-			//we expand empty node before, we have to expand one more time to reload
+			// we expand empty node before, we have to expand one
+			// more time to reload
 			expand(expandedNode);
 		}
 	}
-	
+
 	private class GroupsDataProvider extends TreeDataProvider<TreeNode>
 	{
 		public GroupsDataProvider(TreeData<TreeNode> treeData)
 		{
 			super(treeData);
 		}
-		
+
 		@Override
 		public boolean hasChildren(TreeNode item)
 		{
 			if (!item.isContentsFetched())
-					return true;
+				return true;
 			return super.hasChildren(item);
 		}
 	}

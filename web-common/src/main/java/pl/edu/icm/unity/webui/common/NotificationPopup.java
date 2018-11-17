@@ -71,6 +71,12 @@ public class NotificationPopup
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 	
+	public static Notification getErrorNotification(String caption, String description)
+	{
+		return createGeneric(caption, description, Type.ERROR_MESSAGE, Images.error.getResource(),
+				ValoTheme.NOTIFICATION_CLOSABLE);
+	}
+	
 	public static void showError(UnityMessageSource msg, String message, Exception e)
 	{
 		String description = getHumanMessage(e);

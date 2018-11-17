@@ -17,7 +17,9 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.navigator.View;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
@@ -37,7 +39,9 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**
@@ -55,9 +59,10 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private SidebarLayout upManLayout;
 	private NavigationHierarchyManager navigationMan;
-	private ProjectController controller;
 
 	private MenuComoboBox projectCombo;
+	private Map<String, String> projects;
+	private ProjectController controller;
 
 	@Autowired
 	public UpManUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
@@ -67,10 +72,8 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
-
 		this.navigationMan = new NavigationHierarchyManager(providers);
 		this.controller = controller;
-
 	}
 
 	private void buildTopMenu()
@@ -98,31 +101,22 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 
-		Map<String, String> projects = controller.getProjectForUser(
-				InvocationContext.getCurrent().getLoginSession().getEntityId());
-
 		projectCombo = MenuComoboBox.get()
 				.withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
-		if (!projects.isEmpty())
-		{
-			projectCombo.setItems(projects.keySet());
-			projectCombo.setValue(projects.keySet().iterator().next());
-			projectCombo.setItemCaptionGenerator(i -> projects.get(i));
-			projectCombo.setEmptySelectionAllowed(false);
-			projectCombo.addValueChangeListener(e -> {
-				View view = UI.getCurrent().getNavigator().getCurrentView();
-				if (view instanceof UnityView)
-				{
-					NavigationHelper.goToView(((UnityView) view).getViewName());
-				}
-			});
+		projectCombo.setItems(projects.keySet());
+		projectCombo.setValue(projects.keySet().iterator().next());
+		projectCombo.setItemCaptionGenerator(i -> projects.get(i));
+		projectCombo.setEmptySelectionAllowed(false);
+		projectCombo.addValueChangeListener(e -> {
+			View view = UI.getCurrent().getNavigator().getCurrentView();
+			if (view instanceof UnityView)
+			{
+				NavigationHelper.goToView(((UnityView) view).getViewName());
+			}
+		});
 
-			leftMenu.addMenuElement(projectCombo);
-		}else
-		{
-			leftMenu.addMenuElement(LeftMenuLabel.get().withCaption(
-					msg.getMessage("UpManMenu.noProjectAvailable")));
-		}
+		leftMenu.addMenuElement(projectCombo);
+
 		LeftMenuLabel space2 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space2);
 
@@ -132,6 +126,19 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
+		try
+		{
+			projects = controller.getProjectForUser(InvocationContext.getCurrent()
+					.getLoginSession().getEntityId());
+		} catch (ControllerException e)
+		{
+			Notification notification = NotificationPopup.getErrorNotification(e.getCaption(), e.getDetails());
+			notification.addCloseListener( l -> logout());			
+			notification.show(Page.getCurrent());
+			setContent(new VerticalLayout());
+			return;
+		}
+			
 		VerticalLayout naviContent = new VerticalLayout();
 		naviContent.setSizeFull();
 		naviContent.setStyleName(Styles.contentBox.toString());

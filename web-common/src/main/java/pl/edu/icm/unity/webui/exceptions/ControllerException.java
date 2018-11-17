@@ -20,7 +20,7 @@ public class ControllerException extends Exception
 
 	private Type type;
 	private String capion;
-
+	
 	public ControllerException(String errorCapion, Throwable cause)
 	{
 		this(Type.Error, errorCapion, "", cause);
