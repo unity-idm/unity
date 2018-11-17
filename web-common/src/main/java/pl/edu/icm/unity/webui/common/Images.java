@@ -102,7 +102,8 @@ public enum Images
 	trending_up 	(VaadinIcons.TRENDING_UP),
 	padlock_lock	(VaadinIcons.LOCK),
 	padlock_unlock	(VaadinIcons.UNLOCK),
-	pencil		(VaadinIcons.PENCIL);
+	pencil		(VaadinIcons.PENCIL),
+	forward		(VaadinIcons.FORWARD);
 	
 	
 	private final Resource resource;
