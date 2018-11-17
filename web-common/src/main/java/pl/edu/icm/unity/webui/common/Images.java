@@ -99,7 +99,11 @@ public enum Images
 	user_check	(VaadinIcons.USER_CHECK),
 	star 		(VaadinIcons.STAR),
 	trending_down 	(VaadinIcons.TRENDIND_DOWN),
-	trending_up 	(VaadinIcons.TRENDING_UP);
+	trending_up 	(VaadinIcons.TRENDING_UP),
+	padlock_lock	(VaadinIcons.LOCK),
+	padlock_unlock	(VaadinIcons.UNLOCK),
+	pencil		(VaadinIcons.PENCIL);
+	
 	
 	private final Resource resource;
 	

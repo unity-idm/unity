@@ -224,4 +224,9 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	{
 		setVisible(active);
 	}
+	
+	public void setToggleVisible(boolean visible)
+	{
+		toggleButton.setVisible(visible);
+	}
 }

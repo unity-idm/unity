@@ -18,13 +18,16 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
+import io.imunity.upman.UpManUI;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Groups management view
@@ -39,21 +42,40 @@ public class GroupsView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "Groups";
 
 	private UnityMessageSource msg;
+	private GroupsController controller;
 
 	@Autowired
-	public GroupsView(UnityMessageSource msg)
+	public GroupsView(UnityMessageSource msg, GroupsController controller)
 	{
 		this.msg = msg;
+		this.controller = controller;
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
+		String project = UpManUI.getProjectGroup();
 		VerticalLayout main = new VerticalLayout();
-		Label title = new Label();
-		title.setValue("Groups");
-		main.addComponent(title);
 		setCompositionRoot(main);
+		
+		if (project == null || project.isEmpty())
+		{
+			//TODO maybe put error icon to main
+			return;
+		}
+		
+		GroupsComponent groupsComponent;
+		try
+		{
+			groupsComponent = new GroupsComponent(msg, controller, project);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+			// TODO maybe put error icon to main
+			return;
+		}
+		main.addComponent(groupsComponent);
+		
 	}
 
 	@Override
@@ -61,17 +83,17 @@ public class GroupsView extends CustomComponent implements UnityView
 	{
 		return msg.getMessage("UpManMenu.groups");
 	}
-	
+
 	@Override
 	public String getViewName()
 	{
 		return VIEW_NAME;
 	}
-	
+
 	@Override
 	public com.vaadin.ui.Component getViewHeader()
 	{
-		HorizontalLayout header = new  HorizontalLayout();
+		HorizontalLayout header = new HorizontalLayout();
 		header.setMargin(new MarginInfo(false, true));
 		Label name = new Label(getDisplayedName());
 		name.setStyleName(Styles.textXLarge.toString());
@@ -79,7 +101,7 @@ public class GroupsView extends CustomComponent implements UnityView
 		header.addComponents(name);
 		return header;
 	}
-		
+
 	@Component
 	public class GroupsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{

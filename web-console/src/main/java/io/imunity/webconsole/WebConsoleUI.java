@@ -13,11 +13,10 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
+import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.layout.BreadCrumbs;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**
@@ -47,7 +47,6 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private SidebarLayout webConsoleLayout;
-	private AppContextViewProvider appContextViewProvider;
 	private NavigationHierarchyManager navigationMan;
 
 	@Autowired
@@ -59,8 +58,6 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		this.authnProcessor = authnProcessor;
 
 		this.navigationMan = new NavigationHierarchyManager(providers);
-		this.appContextViewProvider = new AppContextViewProvider(navigationMan);
-
 	}
 
 	private void buildTopRightMenu()
@@ -92,18 +89,23 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	@Override
 	protected void enter(VaadinRequest request)
 	{
+		VerticalLayout naviContent = new VerticalLayout();
+		naviContent.setSizeFull();
+		naviContent.setStyleName(Styles.contentBox.toString());
+		Navigator navigator = new Navigator(this, naviContent);
 		
-		BreadCrumbs breadCrumbs = new BreadCrumbs(navigationMan);	
+		navigator.setErrorView((UnityView) navigationMan.getNavigationInfoMap()
+				.get(WebConsoleErrorView.VIEW_NAME).objectFactory
+				.getObject());
+		navigator.addProvider(new AppContextViewProvider(navigationMan));
+		BreadCrumbs breadCrumbs = new BreadCrumbs(navigationMan);
+		navigator.addViewChangeListener(breadCrumbs);
+		
 		webConsoleLayout = SidebarLayout.get(navigationMan)
 				.withTopComponent(breadCrumbs)
-				.withNaviContent(new VerticalLayout())
-				.withViewProvider(appContextViewProvider)
-				.withErrorView((UnityView) navigationMan.getNavigationInfoMap()
-						.get(WebConsoleErrorView.VIEW_NAME).objectFactory
-								.getObject())
+				.withNaviContent(naviContent)
 				.build();
-		UI.getCurrent().getNavigator().addViewChangeListener(breadCrumbs);
-		
+	
 		buildTopRightMenu();
 		buildLeftMenu();
 	

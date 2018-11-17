@@ -5,8 +5,6 @@
 
 package io.imunity.webelements.layout;
 
-import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.ViewProvider;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
@@ -18,9 +16,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.top.TopRightMenu;
-import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
-import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -31,17 +27,11 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class SidebarLayout extends CustomComponent
 {
-
-	private NavigationHierarchyManager navMan;
-	private ViewProvider viewProvider;
-
 	private HorizontalLayout rootContent;
-	private BreadCrumbs breadcrumbs;
 	private Layout naviContent;
 	private TopRightMenu topRightMenu;
 	private LeftMenu leftMenu;
 	private Component topComponent;
-	private UnityView errorView;
 
 	public static SidebarLayout get(NavigationHierarchyManager viewMan)
 	{
@@ -50,49 +40,18 @@ public class SidebarLayout extends CustomComponent
 
 	public SidebarLayout(NavigationHierarchyManager viewMan)
 	{
-		this.navMan = viewMan;
 		setSizeFull();
 		setStyleName(Styles.sidebar.toString());
 
 		topRightMenu = new TopRightMenu();
 		leftMenu = new LeftMenu(viewMan);
 	}
-	
-	private Component getDefaultTopComponent()
-	{
-		ViewHeader viewHedear = new ViewHeader();
-		UI.getCurrent().getNavigator().addViewChangeListener(viewHedear);
-		return viewHedear;
-	}
 
 	public SidebarLayout build()
 	{
 		UI ui = UI.getCurrent();
-
-		if (naviContent == null)
-		{
-			naviContent = new VerticalLayout();
-		}
-		naviContent.setSizeFull();
-		naviContent.setStyleName(Styles.contentBox.toString());
-
-		new Navigator(ui, naviContent);
-
-		ui.getNavigator().addViewChangeListener(leftMenu);
-
-		if (errorView != null)
-		{
-			ui.getNavigator().setErrorView(errorView);
-
-		}
-
-		if (viewProvider != null)
-		{
-			ui.getNavigator().addProvider(viewProvider);
-		} else
-		{
-			ui.getNavigator().addProvider(new AppContextViewProvider(navMan));
-		}
+		if (ui.getNavigator() != null)
+			ui.getNavigator().addViewChangeListener(leftMenu);
 
 		rootContent = new HorizontalLayout();
 		rootContent.setSizeFull();
@@ -110,12 +69,17 @@ public class SidebarLayout extends CustomComponent
 		
 		if (topComponent == null)
 		{
-			topComponent = getDefaultTopComponent();
+			topComponent = new HorizontalLayout();
 		}
-			
+		
+		if (naviContent == null)
+		{
+			naviContent = new VerticalLayout();
+			naviContent.setStyleName(Styles.contentBox.toString());
+		}
+
 		headerBar.addComponent(topComponent);
 		headerBar.setComponentAlignment(topComponent, Alignment.MIDDLE_LEFT);
-		
 		headerBar.addComponent(topRightMenu);
 		headerBar.setComponentAlignment(topRightMenu, Alignment.MIDDLE_RIGHT);
 
@@ -144,11 +108,6 @@ public class SidebarLayout extends CustomComponent
 		return topRightMenu;
 	}
 
-	public BreadCrumbs getBreadCrumbs()
-	{
-		return breadcrumbs;
-	}
-
 	public Layout getNaviContent()
 	{
 		return naviContent;
@@ -157,18 +116,6 @@ public class SidebarLayout extends CustomComponent
 	public SidebarLayout withNaviContent(Layout naviRootContent)
 	{
 		this.naviContent = naviRootContent;
-		return this;
-	}
-
-	public SidebarLayout withViewProvider(ViewProvider provider)
-	{
-		this.viewProvider = provider;
-		return this;
-	}
-
-	public SidebarLayout withErrorView(UnityView errorView)
-	{
-		this.errorView = errorView;
 		return this;
 	}
 

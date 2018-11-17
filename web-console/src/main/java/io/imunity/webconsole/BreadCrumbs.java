@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webelements.layout;
+package io.imunity.webconsole;
 
 import java.util.List;
 import java.util.stream.Collectors;
