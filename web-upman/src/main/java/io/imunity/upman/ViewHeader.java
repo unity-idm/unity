@@ -11,7 +11,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Component for displaying the unity view header
@@ -26,7 +25,7 @@ public class ViewHeader extends CustomComponent implements ViewChangeListener
 	public ViewHeader()
 	{
 		main = new HorizontalLayout();
-		main.setStyleName(Styles.viewHeader.toString());
+		main.setStyleName("u-viewHeader");
 		main.setMargin(false);
 		main.setSpacing(false);
 		setCompositionRoot(main);

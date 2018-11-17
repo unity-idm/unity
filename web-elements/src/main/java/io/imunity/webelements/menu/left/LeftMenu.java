@@ -52,7 +52,7 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	{
 		this.navMan = navMan;
 		main = new VerticalLayout();
-		setWidth(250, Unit.EM);
+		setWidth(250, Unit.PIXELS);
 		setHeight(100, Unit.PERCENTAGE);
 		setStyleName(Styles.leftMenu.toString());
 		main.setMargin(false);

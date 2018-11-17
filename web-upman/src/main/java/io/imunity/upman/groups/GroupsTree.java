@@ -58,7 +58,7 @@ public class GroupsTree extends TreeGrid<GroupNode>
 
 		loadNode(root, null);
 		expand(treeData.getChildren(null));
-
+		setWidth(100, Unit.PERCENTAGE);
 	}
 
 	private void loadNode(String path, GroupNode parent) throws ControllerException

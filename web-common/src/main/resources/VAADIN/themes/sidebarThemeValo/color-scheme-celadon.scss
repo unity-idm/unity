@@ -1,0 +1,73 @@
+$color-light-grey: #F4F4F4;
+$color-grey: #C5C5C5;
+$color-black: #323232;
+$color-v-table-border: #D4D4D4;
+
+// Palette URL: http://paletton.com/#uid=23m0u0kh8sw1nUs91IZnTnFrzj7 */
+
+$color-primary-0: #43808C;	// Main Primary color */
+$color-primary-1: #E1E9EB;
+$color-primary-2: #91BFC8;
+$color-primary-3: #1F6774;
+$color-primary-4: #0F515E;
+
+$color-complement-0: #E3A56A;	// Main Complement color */
+$color-complement-1: #FFF9F4;
+$color-complement-2: #FFDAB7;
+$color-complement-3: #BD7530;
+$color-complement-4: #985515;
+
+
+$tooltip-background: $color-primary-4;
+$tooltip-active-background: $color-primary-4;
+
+$font-color-dark: $color-black;
+$font-color-light: $color-light-grey;
+
+$icon-color: $color-primary-0;
+
+$menuLeft-color: $font-color-light;
+$menuLeft-bg-color: $color-primary-0;
+$menuLeft-bg-right-border: $menuLeft-bg-color;
+$menuLeft-hoover-color: $font-color-light;
+$menuLeft-hoover-bg-color: $color-primary-3;
+$menuLeft-active-bg-color: $color-primary-4;
+
+$menuTop-color: $font-color-dark;
+$menuTop-bg-color: $color-light-grey;
+$menuTop-bottom-border: $menuTop-bg-color;
+
+$hover-bg-color: $color-light-grey;
+
+$button-border-color: $color-grey;
+
+$smallButton-color: $icon-color;
+$smallButton-hover-color: $icon-color;
+$smallButton-bg-color: transparent;
+$smallButton-hover-bg-color: $hover-bg-color;
+
+$button-color: $font-color-dark;
+$button-hover-color: $font-color-dark;
+$button-bg-color: transparent;
+$button-hover-bg-color: $hover-bg-color;
+
+$topMenuButton-color: $icon-color;
+$topMenuButton-hover-color: $color-complement-0;
+$topMenuButton-bg-color: transparent;
+$topMenuButton-hover-bg-color: transparent;
+
+$menubar-icon-color: $icon-color;
+
+$content-bg-color: #FFFFFF;
+$content-color: $font-color-dark;
+
+$button-active-background: $content-background;
+
+$selected-color: $color-primary-1;
+
+//$v-background-color: $color-primary;
+//$v-selection-color: $color-grey;
+//$v-focus-color: $color-grey;
+//$v-bevel: none;
+//$v-gradient: none;
+//$v-bevel-depth: 0px;

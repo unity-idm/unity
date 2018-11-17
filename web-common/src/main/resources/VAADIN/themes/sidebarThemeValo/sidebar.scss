@@ -7,12 +7,39 @@ $narrow-bar-size: 50px;
 
 @mixin sidebar {
 
+	.v-menubar-menuitem .v-icon {
+		color: $menubar-icon-color !important;
+	}
+        
+	.v-menubar-menuitem {
+		color: $font-color-dark;
+		outline: none;
+	}
+        
+    .v-menubar-menuitem:hover {
+      	background: $hover-bg-color;
+		color: $font-color-dark;
+    }
+        
+    .v-menubar > .v-menubar-menuitem-selected {
+       	background-color: $hover-bg-color;
+       	background-image: none;
+    }
+
+	.v-filterselect-suggestpopup .gwt-MenuItem-selected {
+		color: $font-color-dark;
+		background-color: $hover-bg-color;
+       	background-image: none;
+	}
+	
+
+	
     .sidebar {
     
     
         position: relative;
         z-index: 1;
-        
+
         *:focus {
  		   outline:none;
 		}
@@ -42,6 +69,36 @@ $narrow-bar-size: 50px;
 			box-shadow: none;
         }
         
+                .u-viewHeader {
+        	font-size: $v-font-size * 1.5;
+        }
+        
+        .v-grid-row-selected > td {
+        	background: $selected-color;
+        	color: $font-color-dark;
+        	border-color: $color-v-table-border;
+        }
+        
+        .v-treegrid-row-selected > td {
+        	background: $selected-color;
+        	color: $font-color-dark;
+        	border-color: $color-v-table-border;
+        }
+        
+        .v-treegrid-row-focused::before {
+        	border: 1px solid $color-v-table-border;
+        }
+        
+        .headerBar {
+        	background-color: $menuTop-bg-color;
+        	border-bottom: 1px solid $menuTop-bottom-border;
+        	color: $menuTop-color;
+        }
+        
+        .contentBox {
+        	overflow: auto;
+        }
+
         .v-button-small {
         	@include sidebarTransition(background $transition-time);
         	@include sidebarTransition(border-color $transition-time);
@@ -82,28 +139,16 @@ $narrow-bar-size: 50px;
  				-webkit-box-shadow: none;
 			}
 		}
-        
-        
-        .headerBar {
-        	background-color: $menuTop-bg-color;
-        	border-bottom: 1px solid $menuTop-bottom-border;
-        	color: $menuTop-color;
-        }
-        
-        .contentBox {
-        	overflow: auto;
-        }
+
         
         .rootContent {
         	background: $content-bg-color;
 			color: $content-color;
         
             & > .v-expand {
-                @include sidebarTransition(padding-left $transition-time ease-in-out);
                 padding-left: 250px !important;
                 
                 .v-slot-leftMenu {
-                    @include sidebarTransition(margin-left $transition-time ease-in-out);
                     margin-left: -250px !important;
                     
                     .leftMenu {

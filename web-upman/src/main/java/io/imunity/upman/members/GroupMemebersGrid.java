@@ -23,6 +23,7 @@ import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Displays a grid with group members
@@ -109,15 +110,15 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 						Images.user);
 			}
 
-		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setWidth(110)
+		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(2)
 				.setResizable(false);
 
 		addColumn(ie -> ie.getBaseValue(BaseColumn.name))
 				.setCaption(msg.getMessage(BaseColumn.name.captionKey))
-				.setWidth(250);
+				.setExpandRatio(3);
 		addColumn(ie -> ie.getBaseValue(BaseColumn.email))
 				.setCaption(msg.getMessage(BaseColumn.email.captionKey))
-				.setWidth(250);
+				.setExpandRatio(3);
 	}
 	
 	private void createAttrsColumns(Map<String, String> additionalAttributes)
@@ -126,7 +127,7 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 		for (Map.Entry<String, String> attr : additionalAttributes.entrySet())
 		{
 			addColumn(ie -> ie.getAttribute(attr.getKey())).setCaption(attr.getValue())
-					.setWidth(200).setId(ATTR_COL_PREFIX + attr.getKey());
+				.setExpandRatio(3).setId(ATTR_COL_PREFIX + attr.getKey());
 		}
 
 	}
@@ -137,6 +138,7 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 			HamburgerMenu<GroupMemberEntry> menu = new HamburgerMenu<GroupMemberEntry>();
 			menu.setTarget(Sets.newHashSet(ie));
 			menu.addActionHandlers(rowActionHandlers);
+			menu.addStyleName(Styles.sidebar.toString());
 			return menu;
 
 		}).setCaption(msg.getMessage(BaseColumn.action.captionKey)).setWidth(80)

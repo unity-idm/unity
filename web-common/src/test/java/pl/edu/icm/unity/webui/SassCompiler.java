@@ -10,6 +10,8 @@ public class SassCompiler
 	{
 		com.vaadin.sass.SassCompiler.main(new String[] {"src/main/resources/VAADIN/themes/unityThemeValo/styles.scss", 
 				"src/main/resources/VAADIN/themes/unityThemeValo/styles.css"});
+		com.vaadin.sass.SassCompiler.main(new String[] {"src/main/resources/VAADIN/themes/sidebarThemeValo/styles.scss", 
+				"src/main/resources/VAADIN/themes/sidebarThemeValo/styles.css"});
 
 	}
 }

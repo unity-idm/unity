@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 //@PushStateNavigation
 @Component("WebConsoleUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityThemeValo")
+@Theme("sidebarThemeValo")
 public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private StandardWebAuthenticationProcessor authnProcessor;

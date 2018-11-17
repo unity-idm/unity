@@ -49,7 +49,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 @PushStateNavigation
 @Component("UpManUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-@Theme("unityThemeValo")
+@Theme("sidebarThemeValo")
 public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private StandardWebAuthenticationProcessor authnProcessor;
@@ -93,9 +93,6 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		LeftMenu leftMenu = upManLayout.getLeftMenu();
 		leftMenu.setToggleVisible(false);
 		LeftMenuLabel label = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
-		// TODO - disabled until minimalized menu CSS is fixed.
-		// .withClickListener(e ->
-		// webConsoleLayout.getLeftMenu().toggleSize());
 
 		leftMenu.addMenuElement(label);
 		LeftMenuLabel space1 = LeftMenuLabel.get();
@@ -146,7 +143,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		ViewHeader viewHedear = new ViewHeader();
 		navigator.addViewChangeListener(viewHedear);
 
-		upManLayout = SidebarLayout.get(navigationMan).withNaviContent(new VerticalLayout())
+		upManLayout = SidebarLayout.get(navigationMan)
 				.withNaviContent(naviContent).withTopComponent(viewHedear).build();
 		buildTopMenu();
 		buildLeftMenu();

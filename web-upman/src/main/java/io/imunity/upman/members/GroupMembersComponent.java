@@ -25,6 +25,7 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -71,6 +72,7 @@ public class GroupMembersComponent extends VerticalLayout
 				additionalProjectAttributes);
 
 		HamburgerMenu<GroupMemberEntry> hamburgerMenu = new HamburgerMenu<>();
+		hamburgerMenu.addStyleName(Styles.sidebar.toString());
 		groupMemebersGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);

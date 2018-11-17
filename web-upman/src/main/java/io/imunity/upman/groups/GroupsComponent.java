@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -37,7 +38,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 
-public class GroupsComponent extends VerticalLayout
+public class GroupsComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private GroupsController controller;
@@ -71,7 +72,10 @@ public class GroupsComponent extends VerticalLayout
 		Label space = new Label();
 		space.setWidth(9, Unit.PIXELS);
 		menuBar.addComponents(space, hamburgerMenu);
-		addComponents(menuBar, groupBrowser);
+		VerticalLayout vl = new VerticalLayout();
+		vl.setMargin(false);
+		vl.addComponents(menuBar, groupBrowser);
+		setCompositionRoot(vl);
 	}
 
 	private SingleActionHandler<GroupNode> getMakePrivateAction()
