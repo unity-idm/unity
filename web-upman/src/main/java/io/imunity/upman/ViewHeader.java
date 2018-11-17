@@ -25,7 +25,6 @@ public class ViewHeader extends CustomComponent implements ViewChangeListener
 	public ViewHeader()
 	{
 		main = new HorizontalLayout();
-		main.setStyleName("u-viewHeader");
 		main.setMargin(false);
 		main.setSpacing(false);
 		setCompositionRoot(main);

@@ -23,6 +23,7 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * User updates view
@@ -72,6 +73,7 @@ public class UserUpdatesView extends CustomComponent implements UnityView
 		HorizontalLayout header = new  HorizontalLayout();
 		header.setMargin(false);
 		Label name = new Label(getDisplayedName());
+		name.addStyleName(Styles.viewHeader.toString());
 		header.addComponents(name);
 		return header;
 	}

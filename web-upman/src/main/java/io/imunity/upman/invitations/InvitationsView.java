@@ -25,6 +25,7 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Invitations view
@@ -74,10 +75,11 @@ public class InvitationsView extends CustomComponent implements UnityView
 		HorizontalLayout header = new  HorizontalLayout();
 		header.setMargin(false);
 		Label name = new Label(getDisplayedName());
-
+		name.addStyleName(Styles.viewHeader.toString());
 		Button addInvitationButton = new Button(msg.getMessage("Invitations.newInvite"),
 				Images.add.getResource());
 		header.addComponents(name, addInvitationButton);
+		header.setComponentAlignment(name, Alignment.MIDDLE_CENTER);
 		header.setComponentAlignment(addInvitationButton, Alignment.MIDDLE_CENTER);
 		return header;
 	}
