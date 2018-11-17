@@ -54,17 +54,14 @@ public class GroupsComponent extends VerticalLayout
 		List<SingleActionHandler<GroupNode>> rawActions = new ArrayList<>();
 		rawActions.add(getDeleteGroupAction());
 		rawActions.add(getAddToGroupAction());
-		rawActions.add(getMakePublicAction(true));
-		rawActions.add(getMakePrivateAction(true));
+		rawActions.add(getMakePublicAction());
+		rawActions.add(getMakePrivateAction());
 		rawActions.add(getRenameGroupcAction());
 
 		groupBrowser = new GroupsTree(msg, controller, rawActions, rootGroup);
 		HamburgerMenu<GroupNode> hamburgerMenu = new HamburgerMenu<>();
 		groupBrowser.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		// hamburgerMenu.addActionHandler(getDeleteGroupAction());
-		hamburgerMenu.addActionHandler(getMakePublicAction(false));
-		hamburgerMenu.addActionHandler(getMakePrivateAction(false));
 		hamburgerMenu.addActionHandler(getExpandAllAction());
 		hamburgerMenu.addActionHandler(getCollapseAllAction());
 
@@ -77,54 +74,55 @@ public class GroupsComponent extends VerticalLayout
 		addComponents(menuBar, groupBrowser);
 	}
 
-	private SingleActionHandler<GroupNode> getMakePrivateAction(boolean hideIfInactive)
+	private SingleActionHandler<GroupNode> getMakePrivateAction()
 	{
-		SingleActionHandler<GroupNode> handler = SingleActionHandler
-				.builder(GroupNode.class)
+		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.makePrivateAction"))
-				.withIcon(Images.padlock_lock.getResource()).multiTarget()
-				.withHandler(this::makePrivate).build();
-		handler.setHideIfInactive(hideIfInactive);
-		return handler;
+				.withIcon(Images.padlock_lock.getResource())
+				.withDisabledPredicate(n -> !n.isPublic())
+				.withHandler(this::makePrivate).hideIfInactive().build();
 	}
 
 	private void makePrivate(Set<GroupNode> items)
 	{
+
+		if (items.isEmpty())
+			return;
+		GroupNode groupNode = items.iterator().next();
+
 		try
 		{
-			for (GroupNode group : items)
-			{
 
-				controller.setPrivateGroupAccess(group.getPath());
-				groupBrowser.reloadNode(group);
-			}
+			controller.setPrivateGroupAccess(groupNode.getPath());
+			groupBrowser.reloadNode(groupNode);
+
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
 		}
 	}
 
-	private SingleActionHandler<GroupNode> getMakePublicAction(boolean hideIfInactive)
+	private SingleActionHandler<GroupNode> getMakePublicAction()
 	{
-		SingleActionHandler<GroupNode> handler = SingleActionHandler
-				.builder(GroupNode.class)
+		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.makePublicAction"))
-				.withIcon(Images.padlock_unlock.getResource()).multiTarget()
-				.withHandler(this::makePublic).build();
-		handler.setHideIfInactive(hideIfInactive);
-		return handler;
+				.withIcon(Images.padlock_unlock.getResource())
+				.withDisabledPredicate(n -> n.isPublic())
+				.withHandler(this::makePublic).hideIfInactive().build();
 	}
 
 	private void makePublic(Set<GroupNode> items)
 	{
+		if (items.isEmpty())
+			return;
+		GroupNode groupNode = items.iterator().next();
+
 		try
 		{
-			for (GroupNode group : items)
-			{
 
-				controller.setPublicGroupAccess(group.getPath());
-				groupBrowser.reloadNode(group);
-			}
+			controller.setPublicGroupAccess(groupNode.getPath());
+			groupBrowser.reloadNode(groupNode);
+
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -159,13 +157,14 @@ public class GroupsComponent extends VerticalLayout
 	private void confirmDelete(Set<GroupNode> items)
 	{
 
-		final GroupNode node = items.iterator().next();
-		new ConfirmDialog(msg,
-				msg.getMessage("RemoveGroupDialog.confirmDelete", node.toString()),
-				() -> deleteGroup(node)
+		if (items.isEmpty())
+			return;
+
+		GroupNode groupNode = items.iterator().next();
+		new ConfirmDialog(msg, msg.getMessage("RemoveGroupDialog.confirmDelete",
+				groupNode.toString()), () -> deleteGroup(groupNode)
 
 		).show();
-
 	}
 
 	private void deleteGroup(GroupNode group)
@@ -191,16 +190,19 @@ public class GroupsComponent extends VerticalLayout
 				.withHandler(this::showAddGroupDialog).build();
 	}
 
-	private void showAddGroupDialog(Set<GroupNode> selection)
+	private void showAddGroupDialog(Set<GroupNode> items)
 	{
 
-		GroupNode item = selection.iterator().next();
-		new AddGroupDialog(msg, item, group -> {
+		if (items.isEmpty())
+			return;
+
+		GroupNode groupNode = items.iterator().next();
+		new AddGroupDialog(msg, groupNode, group -> {
 			try
 			{
 				controller.addGroup(group);
-				groupBrowser.reloadNode(item);
-				groupBrowser.expand(item);
+				groupBrowser.reloadNode(groupNode);
+				groupBrowser.expand(groupNode);
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);
@@ -303,5 +305,4 @@ public class GroupsComponent extends VerticalLayout
 			close();
 		}
 	}
-
 }

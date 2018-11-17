@@ -59,6 +59,14 @@ public class GroupMembersView extends CustomComponent implements UnityView
 	{
 		String project = UpManUI.getProjectGroup();
 		VerticalLayout main = new VerticalLayout();
+		setCompositionRoot(main);
+		
+		if (project == null || project.isEmpty())
+		{
+			//TODO maybe put error icon to main
+			return;
+		}
+		
 		Map<String, String> groups;
 		try
 		{
@@ -67,7 +75,6 @@ public class GroupMembersView extends CustomComponent implements UnityView
 		{
 			NotificationPopup.showError(e);
 			//TODO maybe put error icon to main
-			setCompositionRoot(main);
 			return;
 		}
 
@@ -90,7 +97,7 @@ public class GroupMembersView extends CustomComponent implements UnityView
 				e -> groupMembersComponent.setGroup(e.getValue()));
 		
 		groupMembersComponent.setGroup(project);
-		setCompositionRoot(main);
+		
 	}
 
 	@Override

@@ -106,20 +106,26 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 
 		projectCombo = MenuComoboBox.get()
 				.withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
-		projectCombo.setItems(projects.keySet());
 		if (!projects.isEmpty())
+		{
+			projectCombo.setItems(projects.keySet());
 			projectCombo.setValue(projects.keySet().iterator().next());
-		projectCombo.setItemCaptionGenerator(i -> projects.get(i));
-		projectCombo.setEmptySelectionAllowed(false);
-		projectCombo.addValueChangeListener(e -> {
-			View view = UI.getCurrent().getNavigator().getCurrentView();
-			if (view instanceof UnityView)
-			{
-				NavigationHelper.goToView(((UnityView) view).getViewName());
-			}
-		});
+			projectCombo.setItemCaptionGenerator(i -> projects.get(i));
+			projectCombo.setEmptySelectionAllowed(false);
+			projectCombo.addValueChangeListener(e -> {
+				View view = UI.getCurrent().getNavigator().getCurrentView();
+				if (view instanceof UnityView)
+				{
+					NavigationHelper.goToView(((UnityView) view).getViewName());
+				}
+			});
 
-		leftMenu.addMenuElement(projectCombo);
+			leftMenu.addMenuElement(projectCombo);
+		}else
+		{
+			leftMenu.addMenuElement(LeftMenuLabel.get().withCaption(
+					msg.getMessage("UpManMenu.noProjectAvailable")));
+		}
 		LeftMenuLabel space2 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space2);
 

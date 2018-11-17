@@ -26,7 +26,6 @@ public class ProjectController
 	{
 		Map<String, String> projects = new HashMap<>();
 
-		
 		projects.put("/A", "A");
 		projects.put("/unicore", "UNICORE");
 		projects.put("/", "ROOT");

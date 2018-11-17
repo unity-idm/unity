@@ -11,6 +11,7 @@ import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Tree node used in {@link GroupsTree}
+ * 
  * @author P.Piernik
  *
  */
@@ -21,6 +22,7 @@ public class GroupNode
 	private GroupNode parent;
 	private UnityMessageSource msg;
 	private String icon;
+	private boolean publicGroup;
 
 	public GroupNode(UnityMessageSource msg, Group group)
 	{
@@ -32,8 +34,10 @@ public class GroupNode
 		this.msg = msg;
 		this.path = group.toString();
 		this.parent = parent;
-		//TODO set icon based on group access mode
-		this.icon = Images.padlock_unlock.getHtml();
+		// TODO set icon based on group access mode
+		this.publicGroup = true;
+		this.icon = publicGroup ? Images.padlock_unlock.getHtml()
+				: Images.padlock_lock.getHtml();
 		setGroupMetadata(group);
 	}
 
@@ -76,6 +80,11 @@ public class GroupNode
 	public String toString()
 	{
 		return name;
+	}
+
+	public boolean isPublic()
+	{
+		return publicGroup;
 	}
 
 	@Override

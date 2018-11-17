@@ -44,8 +44,7 @@ public class GroupsTree extends TreeGrid<GroupNode>
 
 		treeData = new TreeData<>();
 		setDataProvider(new TreeDataProvider<>(treeData));
-		setSelectionMode(SelectionMode.MULTI);
-
+		
 		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer())
 				.setCaption(msg.getMessage("GroupTree.group"));
 
