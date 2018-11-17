@@ -292,7 +292,6 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
 				refreshToken, additionalParams);
-
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(subToken.getOwner()),
 				newToken.getSerialized(), now, accessExpiration);
@@ -349,7 +348,8 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
 				null, null);
-
+		log.debug("Refreshed access token {} of entity {}, valid until {}", 
+				tokenToLog(accessToken.getValue()), refreshToken.getOwner(), accessExpiration);
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(refreshToken.getOwner()),
 				newToken.getSerialized(), now, accessExpiration);
@@ -375,7 +375,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		internalToken.setAccessToken(accessToken.getValue());
 		
 		Date expiration = getAccessTokenExpiration(now);
-
+		log.debug("Client cred grant: issuing new access token {}, valid until {}", 
+				tokenToLog(accessToken.getValue()), expiration);
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(
 				new Tokens(accessToken, null));
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
@@ -421,6 +422,8 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(internalToken,
 				accessToken, refreshToken, null);
+		log.debug("Authz code grant: issuing new access token {}, valid until {}", tokenToLog(accessToken.getValue()), 
+				accessExpiration);
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(codeToken.getOwner()),
 				internalToken.getSerialized(), now, accessExpiration);

@@ -1,72 +1,88 @@
 $transition-time: 0.3s;
+$narrow-bar-size: 50px;
 
-/* Colors */
-
-$tooltip-background: #000000;
-$tooltip-active-background: #000000;
-
-$font-color: #223843;
-
-$menuLeft-color: #e0e0e2;
-$menuLeft-bg-color: #1f7a8c;
-$menuLeft-bg-right-border: $menuLeft-bg-color;
-
-$menuLeft-hoover-color: #e0e0e2;
-$menuLeft-hoover-bg-color: #223843;
-$menuLeft-active-bg-color: $menuLeft-hoover-bg-color;
-
-$menuTop-color: #223843;
-$menuTop-hoover-color: #1f7a8c;
-$menuTop-bg-color: #eef0f2;
-$menuTop-bottom-border: $menuTop-bg-color;
-
-$content-bg-color: #ffffff;
-$content-color: #223843;
-
-$button-active-background: $content-background;
-
-
-/**
- * Bright color scheme - alternative, disabled
- * Exported as sass from http://paletton.com/#uid=23-0u0k8uuK1KQU4GEHd1q4i7l-
- */
-/*
-$color-primary-0: #788C9F;	// Main Primary color
-$color-primary-1: #D7DDE3;
-$color-primary-2: #A7B4C1;
-$color-primary-3: #546E87;
-$color-primary-4: #355370;
-
-$menuLeft-color: $font-color; 
-$menuLeft-bg-color: $color-primary-1;
-$menuLeft-bg-right-border: $color-primary-2;
-
-$menuLeft-hoover-color: $menuLeft-color; 
-$menuLeft-hoover-bg-color: $color-primary-2;
-$menuLeft-active-bg-color: $color-primary-2;
-
-$menuTop-color: $font-color;
-$menuTop-hoover-color: $color-primary-3;
-$menuTop-bg-color: $menuLeft-bg-color;
-$menuTop-bottom-border: $menuLeft-bg-right-border;
-
-$content-bg-color: #ffffff;
-$content-color: $font-color;
-
-$button-active-background: $content-background;
-*/
-
+@import "color-scheme-celadon";
 
 @import "sidebar-utils";
 
 @mixin sidebar {
+
     .sidebar {
+    
+    
         position: relative;
         z-index: 1;
         
         *:focus {
  		   outline:none;
 		}
+		
+        .v-button:hover::after {
+        	background-color: transparent;
+        }
+
+        .v-button {
+        	@include sidebarTransition(background $transition-time);
+        	background-image: none;
+        	background-color: $button-bg-color;
+        	color: $button-color;
+        	-webkit-box-shadow: none;
+        	box-shadow: none;
+        	border-color: $button-border-color;
+        }
+
+        .v-button:hover {
+        	background-color: $button-hover-bg-color !important;
+        	color: $button-hover-color;
+        }
+        
+        .v-button:focus::after {
+        	border-color: none;
+			-webkit-box-shadow: none;
+			box-shadow: none;
+        }
+        
+        .v-button-small {
+        	@include sidebarTransition(background $transition-time);
+        	@include sidebarTransition(border-color $transition-time);
+        	padding: 2px 0px 0px 0px;
+        	width: $v-unit-size;
+        	background-image: none;
+        	background-color: $smallButton-bg-color;
+        	color: $smallButton-color;
+        	margin-left: $v-layout-margin-left * 0.25;
+        	border: none;
+        	box-shadow: none;
+        	border-color: transparent;
+        }
+
+        .v-button-small:hover {
+        	background-color: $smallButton-hover-bg-color !important;
+        	color: $smallButton-hover-color;
+        	border: 1px solid;
+        	border-color: $button-border-color;
+        }
+        
+        .u-left-menu-toggle {
+        	bottom: $v-layout-margin-bottom;
+        	right: 8px;
+        	padding: 0px 8px 0px 8px;
+			position: absolute;
+			outline: none;
+			color: $menuLeft-color;
+			background-color: transparent;
+			
+			&:hover, &.active:hover {
+            	background-color: $menuLeft-hoover-bg-color !important;
+                color: $menuLeft-hoover-color !important;
+            }
+			&:focus::after {
+ 				outline: none;
+ 				box-shadow: none;
+ 				-webkit-box-shadow: none;
+			}
+		}
+        
         
         .headerBar {
         	background-color: $menuTop-bg-color;
@@ -74,24 +90,27 @@ $button-active-background: $content-background;
         	color: $menuTop-color;
         }
         
+        .contentBox {
+        	overflow: auto;
+        }
+        
         .rootContent {
         	background: $content-bg-color;
 			color: $content-color;
         
-        
             & > .v-expand {
-                @include sidebarTransition(padding-left 0.3s ease-in-out);
+                @include sidebarTransition(padding-left $transition-time ease-in-out);
                 padding-left: 250px !important;
                 
                 .v-slot-leftMenu {
-                    @include sidebarTransition(margin-left 0.3s ease-in-out);
+                    @include sidebarTransition(margin-left $transition-time ease-in-out);
                     margin-left: -250px !important;
                     
                     .leftMenu {
                         background: $menuLeft-bg-color;
                         border-right: 1px solid $menuLeft-bg-right-border;
             			color: $menuLeft-color;
-                        @include sidebarTransition(width 0.3s ease-in-out);
+                        @include sidebarTransition(width $transition-time ease-in-out);
                         width: 250px !important;
                         
                         & > .v-expand > .v-slot {
@@ -139,7 +158,7 @@ $button-active-background: $content-background;
 						}
 	
                         .menuButton {
-                            @include sidebarTransition(background 0.3s);
+                            @include sidebarTransition(background $transition-time);
                             border-left: 0 solid transparent;
                             background: transparent;
                             overflow: hidden;
@@ -228,7 +247,11 @@ $button-active-background: $content-background;
                     width: auto !important;
                     
                     .menuButton.clickable {
+                    	transition: color $transition-time;
                         cursor: pointer;
+                        &:hover {
+							color: $topMenuButton-hover-color;
+						}
                     }
                     
                     .menuLabel {
@@ -238,26 +261,26 @@ $button-active-background: $content-background;
             }
            
             .headerBar {
-
+				height: $narrow-bar-size !important;
             }
            
             .topRightMenu {
-                padding-right: 5px;          
           		.menuButton {
+          				color: $topMenuButton-color;
 						border: none;
 						-webkit-box-shadow: none;
 						box-shadow: none;
-						background: transparent;
+						background: $topMenuButton-bg-color;
 						cursor: pointer;
 						text-decoration: underline;
-						font-weight: inherit;
 						-webkit-transition: color $transition-time;
 						-moz-transition: color $transition-time;
 						transition: color $transition-time;
-						font-size : $v-font-size * 1.8;
+						font-size : $v-font-size * 1.6;
 						
 						&:hover {
-							color: $menuTop-hoover-color;
+							color: $topMenuButton-hover-color;
+							background: $topMenuButton-hover-bg-color;
 						}
 				}
           	}  
@@ -270,14 +293,14 @@ $button-active-background: $content-background;
                 overflow: inherit;
                 
                 & > .v-expand {
-                    padding-left: 50px !important;
+                    padding-left: $narrow-bar-size !important;
 
                     .v-slot-leftMenu {
-                        margin-left: -50px !important;
+                        margin-left: -1 * $narrow-bar-size !important;
 
                         .leftMenu {
                             overflow: visible;
-                            width: 50px !important;
+                            width: $narrow-bar-size !important;
 
                             .v-slot-menuLabel > div .v-caption .v-captiontext {
                                 display: none;
@@ -324,35 +347,6 @@ $button-active-background: $content-background;
                     }
                 }
             }
-            
-            .v-slot-contentBox {
-                overflow-y: auto;
-                
-                .contentBox {
-                    padding: 0 !important;
-                    
-                    & > .v-margin-top {
-                        padding-top: 0 !important;
-                    }
-                }
-            }
         }
-        
-        .u-left-menu-toggle {
-        	bottom: $v-layout-margin-bottom;
-        	right: 8px;
-        	padding: 0px 8px 0px 8px;
-			position: absolute;
-			outline: none;
-			&:hover, &.active:hover {
-            	background-color: $menuLeft-hoover-bg-color;
-                color: $menuLeft-hoover-color;
-            }
-			&:focus::after {
- 				outline: none;
- 				box-shadow: none;
- 				-webkit-box-shadow: none;
-			}
-		}
     }
 }

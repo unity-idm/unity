@@ -7,6 +7,7 @@ package io.imunity.webelements.layout;
 
 import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.ViewProvider;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -66,12 +67,6 @@ public class SidebarLayout extends CustomComponent
 
 	public SidebarLayout build()
 	{
-
-		VerticalLayout main = new VerticalLayout();
-		main.setSizeFull();
-		main.setMargin(false);
-		main.setSpacing(false);
-
 		UI ui = UI.getCurrent();
 
 		if (naviContent == null)
@@ -105,16 +100,14 @@ public class SidebarLayout extends CustomComponent
 		rootContent.setSpacing(false);
 		rootContent.setStyleName(Styles.rootContent.toString());
 
-		VerticalLayout naviContentWrapper = new VerticalLayout();
-		naviContentWrapper.setMargin(false);
-		naviContentWrapper.setSpacing(false);
-		naviContentWrapper.setSizeFull();
 
 		HorizontalLayout headerBar = new HorizontalLayout();
 		headerBar.setSpacing(false);
-		headerBar.setMargin(false);
+		headerBar.setMargin(new MarginInfo(false, true));
 		headerBar.setStyleName(Styles.headerBar.toString());
 		headerBar.setWidth(100, Unit.PERCENTAGE);
+		headerBar.setHeightUndefined();
+		
 		if (topComponent == null)
 		{
 			topComponent = getDefaultTopComponent();
@@ -122,22 +115,21 @@ public class SidebarLayout extends CustomComponent
 			
 		headerBar.addComponent(topComponent);
 		headerBar.setComponentAlignment(topComponent, Alignment.MIDDLE_LEFT);
-		headerBar.setExpandRatio(topComponent, 1);
 		
 		headerBar.addComponent(topRightMenu);
 		headerBar.setComponentAlignment(topRightMenu, Alignment.MIDDLE_RIGHT);
 
-		naviContentWrapper.addComponents(headerBar, naviContent);
-		naviContentWrapper.setExpandRatio(naviContent, 1f);
+		VerticalLayout rightSpace = new VerticalLayout();
+		rightSpace.setMargin(false);
+		rightSpace.setSpacing(false);
+		rightSpace.setSizeFull();
+		rightSpace.addComponents(headerBar, naviContent);
+		rightSpace.setExpandRatio(naviContent, 1f);
 
-		rootContent.addComponents(leftMenu, naviContentWrapper);
-		rootContent.setExpandRatio(naviContentWrapper, 1f);
+		rootContent.addComponents(leftMenu, rightSpace);
+		rootContent.setExpandRatio(rightSpace, 1f);
 
-		main.addComponent(rootContent);
-		main.setExpandRatio(rootContent, 1f);
-
-		addStyleName(Styles.sidebarWhite.toString());
-		setCompositionRoot(main);
+		setCompositionRoot(rootContent);
 
 		return this;
 	}

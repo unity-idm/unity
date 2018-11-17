@@ -97,7 +97,7 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 
 		editor = new AuthenticationRealmEditor(msg, realm);
 		VerticalLayout main = new VerticalLayout();
-
+		main.setMargin(false);
 		main.addComponent(editor);
 		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
 				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());

@@ -108,7 +108,6 @@ public enum Styles
 	sidebar("sidebar"),
 	contentBox("contentBox"),
 	rootContent("rootContent"),
-	sidebarWhite("white"),
 	menuButton("menuButton"),
 	menuButtonClickable("clickable"),
 	menuButtonActive("active"),

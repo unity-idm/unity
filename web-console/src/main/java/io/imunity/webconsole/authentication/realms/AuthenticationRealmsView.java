@@ -64,8 +64,8 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		VerticalLayout main = new VerticalLayout();
 		HorizontalLayout buttonsBar = new HorizontalLayout();
+		buttonsBar.setMargin(false);
 		Button newRealm = new Button();
 		newRealm.setCaption(msg.getMessage("add"));
 		newRealm.addClickListener(e -> {
@@ -85,14 +85,6 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 								+ "="
 								+ r.iterator().next().getName()))
 				.build();
-		SingleActionHandler<AuthenticationRealm> view = SingleActionHandler
-				.builder4ShowDetails(msg, AuthenticationRealm.class)
-				.withHandler(r -> NavigationHelper.goToView(
-						ShowAuthenticationRealmView.VIEW_NAME + "/"
-								+ CommonViewParam.name.toString()
-								+ "="
-								+ r.iterator().next().getName()))
-				.build();
 
 		SingleActionHandler<AuthenticationRealm> remove = SingleActionHandler
 				.builder4Delete(msg, AuthenticationRealm.class).withHandler(r -> {
@@ -103,7 +95,6 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 
 				).build();
 
-		realmsList.addActionHandler(view);
 		realmsList.addActionHandler(edit);
 		realmsList.addActionHandler(remove);
 		realmsList.setAddSeparatorLine(true);
@@ -115,9 +106,11 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 			realmsList.addEntry(realm);
 		}
 
+		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
 		main.addComponent(realmsList);
-		main.setWidth(50, Unit.PERCENTAGE);
+		main.setWidth(100, Unit.PERCENTAGE);
+		main.setMargin(false);
 
 		setCompositionRoot(main);
 	}

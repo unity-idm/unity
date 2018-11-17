@@ -95,6 +95,7 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
 		editor = new AuthenticationRealmEditor(msg, getDefaultAuthenticationRealm());
 		main.addComponent(editor);
 		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),

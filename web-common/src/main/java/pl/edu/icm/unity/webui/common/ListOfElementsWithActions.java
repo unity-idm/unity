@@ -59,7 +59,7 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 		this.actionHandlers = new ArrayList<>();
 		this.buttonsPosition = ButtonsPosition.Right;
 		main = new VerticalLayout();
-		main.setMargin(true);
+		main.setMargin(false);
 		main.setSpacing(false);
 		main.setId("ListOfElements");
 		setCompositionRoot(main);

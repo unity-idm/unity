@@ -1,0 +1,70 @@
+$color-light-grey: #F4F4F4;
+$color-grey: #C5C5C5;
+$color-black: #323232;
+
+// Palette URL: http://paletton.com/#uid=63m0d0kpxsydsL5k0wVsZlHA+df */
+
+$color-primary: #1F7B8C;	// Main Primary color */
+$color-primary-lightest: #7AC1CE;
+$color-primary-light: #3E90A0;
+$color-primary-dark: #0C5C6A;
+$color-primary-darkest: #013741;
+
+$color-secondary-1-0: #1E9672;	// Main Secondary color (1) */
+$color-secondary-1-1: #7BD4B9;
+$color-secondary-1-2: #40AB8B;
+$color-secondary-1-3: #0B7253;
+$color-secondary-1-4: #004631;
+
+$color-secondary-2-0: #266093;	// Main Secondary color (2) */
+$color-secondary-2-1: #80ABD2;
+$color-secondary-2-2: #467AA8;
+$color-secondary-2-3: #124370;
+$color-secondary-2-4: #042644;
+
+$color-complement-0: #E3872E;	// Main Complement color */
+$color-complement-1: #FFC894;
+$color-complement-2: #FFAD60;
+$color-complement-3: #AD5D10;
+$color-complement-4: #693300;
+
+
+$tooltip-background: $color-primary-darkest;
+$tooltip-active-background: $color-primary-darkest;
+
+$font-color-dark: $color-black;
+$font-color-light: $color-light-grey;
+
+$menuLeft-color: $font-color-light;
+$menuLeft-bg-color: $color-primary;
+$menuLeft-bg-right-border: $menuLeft-bg-color;
+$menuLeft-hoover-color: $font-color-light;
+$menuLeft-hoover-bg-color: $color-primary-dark;
+$menuLeft-active-bg-color: $color-primary-darkest;
+
+$menuTop-color: $font-color-dark;
+$menuTop-bg-color: $color-light-grey;
+$menuTop-bottom-border: $menuTop-bg-color;
+
+$button-border-color: $color-grey;
+
+$smallButton-color: $font-color-dark;
+$smallButton-hover-color: $font-color-dark;
+$smallButton-bg-color: transparent;
+$smallButton-hover-bg-color: $color-light-grey;
+
+$button-color: $font-color-dark;
+$button-hover-color: $font-color-dark;
+$button-bg-color: transparent;
+$button-hover-bg-color: $color-light-grey;
+
+$topMenuButton-color: $font-color-dark;
+$topMenuButton-hover-color: $color-complement-0;
+$topMenuButton-bg-color: transparent;
+$topMenuButton-hover-bg-color: transparent;
+
+
+$content-bg-color: #FFFFFF;
+$content-color: $font-color-dark;
+
+$button-active-background: $content-background;

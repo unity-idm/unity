@@ -47,7 +47,7 @@ public class FlowsView extends CustomComponent implements UnityView
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
-
+		main.setMargin(false);
 		Label title = new Label();
 		title.setValue("Flows");
 		main.addComponent(title);

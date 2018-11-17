@@ -41,7 +41,8 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 		main = new HorizontalLayout();
 		main.setStyleName(Styles.breadcrumbs.toString());
 		main.setWidth(100, Unit.PERCENTAGE);
-		main.setMargin(true);
+		main.setHeightUndefined();
+		main.setMargin(false);
 		main.setSpacing(true);
 		setCompositionRoot(main);
 	}
