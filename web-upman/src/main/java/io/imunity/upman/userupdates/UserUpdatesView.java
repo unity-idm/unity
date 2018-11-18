@@ -18,9 +18,9 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.common.UpManStyles;
+import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
-import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.Images;
  *
  */
 @PrototypeComponent
-public class UserUpdatesView extends CustomComponent implements UnityView
+public class UserUpdatesView extends CustomComponent implements UpManView
 {
 
 	public static final String VIEW_NAME = "UserUpdates";

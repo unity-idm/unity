@@ -33,7 +33,7 @@ public class GroupsTree extends TreeGrid<GroupNode>
 	private TreeData<GroupNode> treeData;
 	private GroupsController controller;
 	private UnityMessageSource msg;
-	List<SingleActionHandler<GroupNode>> rowActionHandlers;
+	private List<SingleActionHandler<GroupNode>> rowActionHandlers;
 
 	public GroupsTree(UnityMessageSource msg, GroupsController controller,
 			List<SingleActionHandler<GroupNode>> actions, String root) throws ControllerException

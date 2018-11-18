@@ -10,8 +10,6 @@ import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
-import io.imunity.webelements.navigation.UnityView;
-
 /**
  * Component for displaying the unity view header
  * 
@@ -41,9 +39,9 @@ public class ViewHeader extends CustomComponent implements ViewChangeListener
 	{
 		main.removeAllComponents();
 		View uView = event.getNewView();
-		if (uView instanceof UnityView)
+		if (uView instanceof UpManView)
 		{
-			main.addComponent(((UnityView) uView).getViewHeader());
+			main.addComponent(((UpManView) uView).getViewHeader());
 		}
 	}
 
