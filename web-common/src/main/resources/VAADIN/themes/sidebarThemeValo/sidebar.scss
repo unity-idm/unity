@@ -1,7 +1,7 @@
 $transition-time: 0.3s;
 $narrow-bar-size: 50px;
 
-@import "color-scheme-blue";
+@import "color-scheme-celadon";
 
 @import "sidebar-utils";
 
@@ -39,6 +39,59 @@ $narrow-bar-size: 50px;
 	.v-grid-row-stripe > td {
  	   background-color: $content-bg-color;
 	}
+	
+	.v-button:hover::after {
+      	background-color: transparent;
+    }
+
+    .v-button {
+       	@include sidebarTransition(background $transition-time);
+       	background-image: none;
+       	background-color: $button-bg-color;
+       	color: $button-color;
+       	-webkit-box-shadow: none;
+       	box-shadow: none;
+       	border-color: $button-border-color;
+    }
+
+    .v-button:hover {
+       	background-color: $button-hover-bg-color;
+       	color: $button-hover-color;
+    }
+        
+    .v-button:focus::after {
+       	border-color: none;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+    }
+	
+	.u-view-save {
+		background-color: $color-complement-0;
+		color: $font-color-dark;
+		width: 9em;
+		&:hover {
+			background-color: $color-complement-3;
+		}
+	}
+
+	.u-view-close {
+		background-color: $color-light-grey;
+		color: $font-color-dark;
+		width: 9em;
+		
+		&:hover {
+			background-color: $color-grey;
+		}
+	}
+
+	.stepper-updown .v-icon {
+		@include sidebarTransition(color $transition-time);
+		color: $color-dark-grey;
+		
+		&:hover {
+			color: $font-color-dark;
+		}
+	}
 
     .u-sidebar {
     
@@ -49,31 +102,6 @@ $narrow-bar-size: 50px;
         *:focus {
  		   outline:none;
 		}
-		
-        .v-button:hover::after {
-        	background-color: transparent;
-        }
-
-        .v-button {
-        	@include sidebarTransition(background $transition-time);
-        	background-image: none;
-        	background-color: $button-bg-color;
-        	color: $button-color;
-        	-webkit-box-shadow: none;
-        	box-shadow: none;
-        	border-color: $button-border-color;
-        }
-
-        .v-button:hover {
-        	background-color: $button-hover-bg-color !important;
-        	color: $button-hover-color;
-        }
-        
-        .v-button:focus::after {
-        	border-color: none;
-			-webkit-box-shadow: none;
-			box-shadow: none;
-        }
         
         .viewHeader {
         	font-size: $v-font-size * 1.5;
