@@ -1,7 +1,7 @@
 $transition-time: 0.3s;
 $narrow-bar-size: 50px;
 
-@import "color-scheme-celadon";
+@import "color-scheme-blue";
 
 @import "sidebar-utils";
 
@@ -35,7 +35,11 @@ $narrow-bar-size: 50px;
 	.u-indentSmall {
 		margin-left: 10px;
 	}
-	
+
+	.v-grid-row-stripe > td {
+ 	   background-color: $content-bg-color;
+	}
+
     .u-sidebar {
     
     
