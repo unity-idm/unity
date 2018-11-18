@@ -65,23 +65,18 @@ $narrow-bar-size: 50px;
 		box-shadow: none;
     }
 	
-	.u-view-save {
-		background-color: $color-complement-0;
-		color: $font-color-dark;
-		width: 9em;
+	.u-button-action {
+		background-color: $button-action-bg-color;
+		color: $button-action-color;
+
 		&:hover {
-			background-color: $color-complement-3;
+			background-color: $button-action-hover-bg-color;
+			color: $button-action-color;
 		}
 	}
 
-	.u-view-close {
-		background-color: $color-light-grey;
-		color: $font-color-dark;
+	.u-button-form {
 		width: 9em;
-		
-		&:hover {
-			background-color: $color-grey;
-		}
 	}
 
 	.stepper-updown .v-icon {

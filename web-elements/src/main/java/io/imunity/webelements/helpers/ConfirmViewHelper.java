@@ -31,14 +31,15 @@ public class ConfirmViewHelper
 	public static Button createConfirmButton(String confirmCaption, Runnable onConfirm)
 	{
 		Button confirm = new Button(confirmCaption, e -> onConfirm.run());
-		confirm.addStyleName("u-view-save");
+		confirm.addStyleName("u-button-form");
+		confirm.addStyleName("u-button-action");
 		return confirm;
 	}
 
 	public static Button createCancelButton(String cancelCaption, Runnable onCancel)
 	{
 		Button confirm = new Button(cancelCaption, e -> onCancel.run());
-		confirm.addStyleName("u-view-close");
+		confirm.addStyleName("u-button-form");
 		return confirm;
 	}
 }

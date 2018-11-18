@@ -68,6 +68,7 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		buttonsBar.setMargin(false);
 		Button newRealm = new Button();
 		newRealm.setCaption(msg.getMessage("add"));
+		newRealm.addStyleName("u-button-action");
 		newRealm.addClickListener(e -> {
 			getUI().getNavigator().navigateTo(NewAuthenticationRealmView.VIEW_NAME);
 		});
