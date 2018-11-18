@@ -128,8 +128,6 @@ public class GroupDelegationConfiguration
 	{
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
-			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		GroupDelegationConfiguration other = (GroupDelegationConfiguration) obj;
