@@ -14,10 +14,10 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Main layout of left sidebar like endpoint
@@ -28,27 +28,17 @@ import pl.edu.icm.unity.webui.common.Styles;
 public class SidebarLayout extends CustomComponent
 {
 	private HorizontalLayout rootContent;
-	private Layout naviContent;
 	private TopRightMenu topRightMenu;
 	private LeftMenu leftMenu;
-	private Component topComponent;
 
-	public static SidebarLayout get(NavigationHierarchyManager viewMan)
-	{
-		return new SidebarLayout(viewMan);
-	}
-
-	public SidebarLayout(NavigationHierarchyManager viewMan)
+	public SidebarLayout(NavigationHierarchyManager viewMan, Layout naviContent,
+			Component topComponent)
 	{
 		setSizeFull();
-		setStyleName(Styles.sidebar.toString());
+		setStyleName(SidebarStyles.sidebar.toString());
+		this.topRightMenu = new TopRightMenu();
+		this.leftMenu = new LeftMenu(viewMan);
 
-		topRightMenu = new TopRightMenu();
-		leftMenu = new LeftMenu(viewMan);
-	}
-
-	public SidebarLayout build()
-	{
 		UI ui = UI.getCurrent();
 		if (ui.getNavigator() != null)
 			ui.getNavigator().addViewChangeListener(leftMenu);
@@ -57,25 +47,24 @@ public class SidebarLayout extends CustomComponent
 		rootContent.setSizeFull();
 		rootContent.setMargin(false);
 		rootContent.setSpacing(false);
-		rootContent.setStyleName(Styles.rootContent.toString());
-
+		rootContent.setStyleName(SidebarStyles.rootContent.toString());
 
 		HorizontalLayout headerBar = new HorizontalLayout();
 		headerBar.setSpacing(false);
 		headerBar.setMargin(new MarginInfo(false, true));
-		headerBar.setStyleName(Styles.headerBar.toString());
+		headerBar.setStyleName(SidebarStyles.headerBar.toString());
 		headerBar.setWidth(100, Unit.PERCENTAGE);
 		headerBar.setHeightUndefined();
-		
+
 		if (topComponent == null)
 		{
-			topComponent = new HorizontalLayout();
+			throw new IllegalArgumentException("Top component cannot be null");
 		}
-		
+
 		if (naviContent == null)
 		{
-			naviContent = new VerticalLayout();
-			naviContent.setStyleName(Styles.contentBox.toString());
+			throw new IllegalArgumentException(
+					"Navigation content component cannot be null");
 		}
 
 		headerBar.addComponent(topComponent);
@@ -94,8 +83,6 @@ public class SidebarLayout extends CustomComponent
 		rootContent.setExpandRatio(rightSpace, 1f);
 
 		setCompositionRoot(rootContent);
-
-		return this;
 	}
 
 	public LeftMenu getLeftMenu()
@@ -106,22 +93,5 @@ public class SidebarLayout extends CustomComponent
 	public TopRightMenu getTopRightMenu()
 	{
 		return topRightMenu;
-	}
-
-	public Layout getNaviContent()
-	{
-		return naviContent;
-	}
-
-	public SidebarLayout withNaviContent(Layout naviRootContent)
-	{
-		this.naviContent = naviRootContent;
-		return this;
-	}
-
-	public SidebarLayout withTopComponent(Component topComponent)
-	{
-		this.topComponent = topComponent;
-		return this;
 	}
 }

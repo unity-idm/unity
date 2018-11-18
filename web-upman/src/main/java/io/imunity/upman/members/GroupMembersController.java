@@ -194,10 +194,9 @@ public class GroupMembersController
 
 	}
 
-	// TODO replace subgroup string |-
 	private String generateIndent(int count)
 	{
-		return String.join("", Collections.nCopies(count, " ")) + "|-";
+		return String.join("", Collections.nCopies(count, "\u2003"));
 	}
 
 	private void fillGroupRecursive(String parentPath,

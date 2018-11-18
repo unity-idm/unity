@@ -9,7 +9,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.webui.common.Styles;
+import io.imunity.webelements.common.SidebarStyles;
 
 /**
  * Menu button
@@ -45,7 +45,7 @@ public class MenuButton extends Button implements MenuElement
 			withClickListener(clickListener);
 
 		}
-		setPrimaryStyleName(Styles.menuButton.toString());
+		setPrimaryStyleName(SidebarStyles.menuButton.toString());
 	}
 
 	public MenuButton withStyleName(String style)
@@ -75,7 +75,7 @@ public class MenuButton extends Button implements MenuElement
 
 	public MenuButton clickable()
 	{
-		withStyleName(Styles.menuButtonClickable.toString());
+		withStyleName(SidebarStyles.menuButtonClickable.toString());
 		return this;
 	}
 
@@ -115,7 +115,7 @@ public class MenuButton extends Button implements MenuElement
 		}
 		if (this.toolTip != null && !this.toolTip.isEmpty())
 		{
-			toolTip += "<div class=\"toolTip\">" + this.toolTip + "</div>";
+			toolTip += "<div class=\"u-toolTip\">" + this.toolTip + "</div>";
 		}
 		setCaption(toolTip);
 		return this;
@@ -142,14 +142,14 @@ public class MenuButton extends Button implements MenuElement
 		if (toolTip != null && !toolTip.isEmpty() && caption != null && !caption.isEmpty())
 		{
 			setCaption(caption.replaceAll(
-					"<div class=\"toolTip\">" + toolTip + "</div>", ""));
+					"<div class=\"u-toolTip\">" + toolTip + "</div>", ""));
 		}
 		return this;
 	}
 
 	private boolean isActive()
 	{
-		return getStyleName().contains(Styles.menuButtonActive.toString());
+		return getStyleName().contains(SidebarStyles.menuButtonActive.toString());
 	}
 
 	@Override
@@ -159,10 +159,10 @@ public class MenuButton extends Button implements MenuElement
 		{
 			if (active)
 			{
-				addStyleName(Styles.menuButtonActive.toString());
+				addStyleName(SidebarStyles.menuButtonActive.toString());
 			} else
 			{
-				removeStyleName(Styles.menuButtonActive.toString());
+				removeStyleName(SidebarStyles.menuButtonActive.toString());
 			}
 		}
 	}

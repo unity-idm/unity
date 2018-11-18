@@ -18,12 +18,12 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
 import io.imunity.upman.members.GroupMemberEntry.Role;
+import io.imunity.webelements.common.SidebarStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Displays a grid with group members
@@ -138,7 +138,7 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 			HamburgerMenu<GroupMemberEntry> menu = new HamburgerMenu<GroupMemberEntry>();
 			menu.setTarget(Sets.newHashSet(ie));
 			menu.addActionHandlers(rowActionHandlers);
-			menu.addStyleName(Styles.sidebar.toString());
+			menu.addStyleName(SidebarStyles.sidebar.toString());
 			return menu;
 
 		}).setCaption(msg.getMessage(BaseColumn.action.captionKey)).setWidth(80)

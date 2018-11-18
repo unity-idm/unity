@@ -18,6 +18,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.common.UpManStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
@@ -61,17 +62,13 @@ public class GroupsComponent extends CustomComponent
 
 		groupBrowser = new GroupsTree(msg, controller, rawActions, rootGroup);
 		HamburgerMenu<GroupNode> hamburgerMenu = new HamburgerMenu<>();
+		hamburgerMenu.addStyleNames(UpManStyles.indentSmall.toString());
 		groupBrowser.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandler(getExpandAllAction());
 		hamburgerMenu.addActionHandler(getCollapseAllAction());
 
-		HorizontalLayout menuBar = new HorizontalLayout();
-		menuBar.setSpacing(false);
-		// TODO remove space, add styles
-		Label space = new Label();
-		space.setWidth(9, Unit.PIXELS);
-		menuBar.addComponents(space, hamburgerMenu);
+		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
 		VerticalLayout vl = new VerticalLayout();
 		vl.setMargin(false);
 		vl.addComponents(menuBar, groupBrowser);

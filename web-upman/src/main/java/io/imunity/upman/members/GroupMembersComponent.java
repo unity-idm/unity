@@ -17,7 +17,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.common.UpManStyles;
 import io.imunity.upman.members.GroupMemberEntry.Role;
+import io.imunity.webelements.common.SidebarStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
@@ -25,7 +27,6 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -72,19 +73,15 @@ public class GroupMembersComponent extends VerticalLayout
 				additionalProjectAttributes);
 
 		HamburgerMenu<GroupMemberEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleName(Styles.sidebar.toString());
+		hamburgerMenu.addStyleNames(UpManStyles.indentSmall.toString());
+		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		groupMemebersGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);
 		hamburgerMenu.addActionHandler(getAddManagerPrivilegesAction(false));
 		hamburgerMenu.addActionHandler(getRevokeManagerPrivilegesAction(false));
 
-		HorizontalLayout menuBar = new HorizontalLayout();
-		menuBar.setSpacing(false);
-		// TODO remove space, add styles
-		Label space = new Label();
-		space.setWidth(9, Unit.PIXELS);
-		menuBar.addComponents(space, hamburgerMenu);
+		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
 		addComponents(menuBar, groupMemebersGrid);
 	}
 

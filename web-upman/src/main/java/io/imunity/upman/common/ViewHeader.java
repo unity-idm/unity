@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.upman;
+package io.imunity.upman.common;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;

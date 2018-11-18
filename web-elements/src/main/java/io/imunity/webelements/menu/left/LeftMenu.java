@@ -16,6 +16,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
@@ -54,7 +55,7 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 		main = new VerticalLayout();
 		setWidth(250, Unit.PIXELS);
 		setHeight(100, Unit.PERCENTAGE);
-		setStyleName(Styles.leftMenu.toString());
+		setStyleName(SidebarStyles.leftMenu.toString());
 		main.setMargin(false);
 		main.setSpacing(false);
 		setCompositionRoot(main);

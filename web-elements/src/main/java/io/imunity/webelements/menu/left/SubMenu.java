@@ -13,11 +13,11 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Submenu component. Contains show/hide button and layout for submenu content.
@@ -67,7 +67,7 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 		main.setMargin(false);
 		main.setSpacing(false);
 		main.addComponents(button, content);
-		main.setStyleName(Styles.subMenu.toString());
+		main.setStyleName(SidebarStyles.subMenu.toString());
 		menuElements = new HashMap<>();
 		setCompositionRoot(main);
 	}
@@ -109,19 +109,19 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 
 	public SubMenu open()
 	{
-		main.addStyleName(Styles.subMenuOpen.toString());
+		main.addStyleName(SidebarStyles.subMenuOpen.toString());
 		return this;
 	}
 
 	public SubMenu close()
 	{
-		main.removeStyleName(Styles.subMenuOpen.toString());
+		main.removeStyleName(SidebarStyles.subMenuOpen.toString());
 		return this;
 	}
 
 	public boolean isOpen()
 	{
-		return main.getStyleName().contains(Styles.subMenuOpen.toString());
+		return main.getStyleName().contains(SidebarStyles.subMenuOpen.toString());
 	}
 
 	@Override

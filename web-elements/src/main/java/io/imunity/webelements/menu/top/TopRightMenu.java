@@ -14,9 +14,9 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
+import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Top right menu bar
@@ -33,7 +33,7 @@ public class TopRightMenu extends CustomComponent implements MenuElementContaine
 	{
 		layout = new HorizontalLayout();
 		layout.setWidthUndefined();
-		setStyleName(Styles.topRightMenu.toString());
+		setStyleName(SidebarStyles.topRightMenu.toString());
 		layout.setMargin(false);
 		layout.setSpacing(false);
 		menuElements = new HashMap<>();

@@ -78,7 +78,6 @@ public enum Styles
 	greenProgressBar("u-greenProgressBar"),
 	redProgressBar("u-redProgressBar"),
 	RegistrationLink("registrationLink"),
-	indentComboBox("u-indentComboBox"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -97,27 +96,8 @@ public enum Styles
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
 	vDropLayout("drop-layout"),	
-	vGroupBrowser("v-tree8"),
+	vGroupBrowser("v-tree8");
 	
-	
-	//webConsole
-	breadcrumbs("breadcrumbs"),
-	leftMenu("leftMenu"),
-	topRightMenu("topRightMenu"),
-	viewHeader("viewHeader"),
-	headerBar("headerBar"),
-	sidebar("sidebar"),
-	contentBox("contentBox"),
-	rootContent("rootContent"),
-	menuButton("menuButton"),
-	menuButtonClickable("clickable"),
-	menuButtonActive("active"),
-	menuLabel("menuLabel"),
-	menuCombo("menuCombo"),
-	subMenu("subMenu"),
-	subMenuOpen("open"),
-	topMenuTextField("topMenuTextField"),
-	tooltip("toolTip");
 	
 	/**
 	 * Number of columns for wider then regular text fields.

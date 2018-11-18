@@ -23,6 +23,8 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.common.ViewHeader;
+import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
@@ -40,7 +42,6 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
@@ -141,7 +142,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 			
 		VerticalLayout naviContent = new VerticalLayout();
 		naviContent.setSizeFull();
-		naviContent.setStyleName(Styles.contentBox.toString());
+		naviContent.setStyleName(SidebarStyles.contentBox.toString());
 		Navigator navigator = new Navigator(this, naviContent);
 
 		navigator.setErrorView((UnityView) navigationMan.getNavigationInfoMap()
@@ -150,8 +151,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		ViewHeader viewHedear = new ViewHeader();
 		navigator.addViewChangeListener(viewHedear);
 
-		upManLayout = SidebarLayout.get(navigationMan)
-				.withNaviContent(naviContent).withTopComponent(viewHedear).build();
+		upManLayout = new SidebarLayout(navigationMan, naviContent, viewHedear);
 		buildTopMenu();
 		buildLeftMenu();
 		setContent(upManLayout);

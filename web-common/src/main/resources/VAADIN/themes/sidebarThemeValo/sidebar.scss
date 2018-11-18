@@ -32,9 +32,11 @@ $narrow-bar-size: 50px;
        	background-image: none;
 	}
 	
-
+	.u-indentSmall {
+		margin-left: 10px;
+	}
 	
-    .sidebar {
+    .u-sidebar {
     
     
         position: relative;
@@ -89,13 +91,13 @@ $narrow-bar-size: 50px;
         	border: 1px solid $color-v-table-border;
         }
         
-        .headerBar {
+        .u-headerBar {
         	background-color: $menuTop-bg-color;
         	border-bottom: 1px solid $menuTop-bottom-border;
         	color: $menuTop-color;
         }
         
-        .contentBox {
+        .u-contentBox {
         	overflow: auto;
         }
 
@@ -141,17 +143,17 @@ $narrow-bar-size: 50px;
 		}
 
         
-        .rootContent {
+        .u-rootContent {
         	background: $content-bg-color;
 			color: $content-color;
         
             & > .v-expand {
                 padding-left: 250px !important;
                 
-                .v-slot-leftMenu {
+                .v-slot-u-leftMenu {
                     margin-left: -250px !important;
                     
-                    .leftMenu {
+                    .u-leftMenu {
                         background: $menuLeft-bg-color;
                         border-right: 1px solid $menuLeft-bg-right-border;
             			color: $menuLeft-color;
@@ -169,7 +171,7 @@ $narrow-bar-size: 50px;
                         
                   
                         
-                        .v-slot-menuLabel > div {
+                        .v-slot-u-menuLabel > div {
                             width: 100%;
                                                         
                             .v-caption {
@@ -197,12 +199,12 @@ $narrow-bar-size: 50px;
                             }
                         }
                        
-                        .v-slot-menuCombo > div {
+                        .v-slot-u-menuCombo > div {
                         	  width: 100%;
                               text-align: center;
 						}
 	
-                        .menuButton {
+                        .u-menuButton {
                             @include sidebarTransition(background $transition-time);
                             border-left: 0 solid transparent;
                             background: transparent;
@@ -212,7 +214,7 @@ $narrow-bar-size: 50px;
                             padding: 8px 0;
                             height: 45px;
 
-                            &.active, &.active:hover {
+                            &.u-active, &.active:hover {
                         		font-weight: 900;
                     			background-color: $menuLeft-active-bg-color;
                             }
@@ -225,7 +227,7 @@ $narrow-bar-size: 50px;
                             }
                         }
 
-                        .menuButton-wrap {
+                        .u-menuButton-wrap {
                             @include sidebarTransition(border 0.3s);
                             @include sidebarPos(relative);
                             display: block;
@@ -240,15 +242,15 @@ $narrow-bar-size: 50px;
                                 width: 25px;
                             }
 
-                            .menuButton-caption {
+                            .u-menuButton-caption {
                                 font-size: 17px;
                                 vertical-align: middle;
                             }
                         }
                         
-                        .subMenu {
+                        .u-subMenu {
                             & > .v-slot {
-                                &:first-child .toolTip {
+                                &:first-child .u-toolTip {
                                     @include sidebarPos(absolute, 0, 5px);
                                     @include sidebarSize(30px, 30px);
 
@@ -272,8 +274,8 @@ $narrow-bar-size: 50px;
                                 }
                             }
                         
-                            &.open > .v-slot {
-                                &:first-child .toolTip .v-icon {
+                            &.u-open > .v-slot {
+                                &:first-child .u-toolTip .v-icon {
                                     @include sidebarTransformRotate(-180deg);
                                 }
 
@@ -287,11 +289,11 @@ $narrow-bar-size: 50px;
                 }
             }
             
-            .breadcrumbs {                
+            .u-breadcrumbs {                
                 .v-slot {
                     width: auto !important;
                     
-                    .menuButton.clickable {
+                    .u-menuButton.u-clickable {
                     	transition: color $transition-time;
                         cursor: pointer;
                         &:hover {
@@ -299,18 +301,18 @@ $narrow-bar-size: 50px;
 						}
                     }
                     
-                    .menuLabel {
+                    .u-menuLabel {
                         display: none !important;
                     }
                 }
             }
            
-            .headerBar {
+            .u-headerBar {
 				height: $narrow-bar-size !important;
             }
            
-            .topRightMenu {
-          		.menuButton {
+            .u-topRightMenu {
+          		.u-menuButton {
           				color: $topMenuButton-color;
 						border: none;
 						-webkit-box-shadow: none;
@@ -337,32 +339,32 @@ $narrow-bar-size: 50px;
                 & > .v-expand {
                     padding-left: $narrow-bar-size !important;
 
-                    .v-slot-leftMenu {
+                    .v-slot-u-leftMenu {
                         margin-left: -1 * $narrow-bar-size !important;
 
-                        .leftMenu {
+                        .u-leftMenu {
                             overflow: visible;
                             width: $narrow-bar-size !important;
 
-                            .v-slot-menuLabel > div .v-caption .v-captiontext {
+                            .v-slot-u-menuLabel > div .v-caption .v-captiontext {
                                 display: none;
                             }
                             
-                            .toolTip .v-icon {
+                            .u-toolTip .v-icon {
                             	display: none;
                             }
                             
-                            .menuButton {
+                            .u-menuButton {
                                 overflow: visible;
                                 
-                                &:hover .menuButton-caption {
+                                &:hover .u-menuButton-caption {
                                     pointer-events: all !important;
                                     opacity: 0.9 !important;
                                     z-index: 10000;
                                     visibility: visible !important;
                                 }
                                 
-                                .menuButton-wrap {
+                                .u-menuButton-wrap {
                                     z-index: 100;
                                     
                                     .v-icon {
@@ -370,7 +372,7 @@ $narrow-bar-size: 50px;
                                         margin: 0;
                                     }
                                 	
-                                    .menuButton-caption {
+                                    .u-menuButton-caption {
                                         @include sidebarTransition(opacity $transition-time ease-in-out);
                                         padding: 9px 13px 8px;
                                         top: calc(-50% + 4px);

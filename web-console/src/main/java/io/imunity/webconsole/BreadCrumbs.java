@@ -14,12 +14,12 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
+import io.imunity.webconsole.common.WebConsoleStyles;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Breadcrumbs component
@@ -39,7 +39,7 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 	{
 		this.navMan = navMan;
 		main = new HorizontalLayout();
-		main.setStyleName(Styles.breadcrumbs.toString());
+		main.setStyleName(WebConsoleStyles.breadcrumbs.toString());
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setHeightUndefined();
 		main.setMargin(false);

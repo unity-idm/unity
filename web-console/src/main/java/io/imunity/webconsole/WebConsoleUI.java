@@ -17,6 +17,7 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
@@ -30,7 +31,6 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**
@@ -39,7 +39,6 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
  * @author P.Piernik
  *
  */
-//@PushStateNavigation
 @Component("WebConsoleUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("sidebarThemeValo")
@@ -91,7 +90,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		VerticalLayout naviContent = new VerticalLayout();
 		naviContent.setSizeFull();
-		naviContent.setStyleName(Styles.contentBox.toString());
+		naviContent.setStyleName(SidebarStyles.contentBox.toString());
 		Navigator navigator = new Navigator(this, naviContent);
 		
 		navigator.setErrorView((UnityView) navigationMan.getNavigationInfoMap()
@@ -101,10 +100,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		BreadCrumbs breadCrumbs = new BreadCrumbs(navigationMan);
 		navigator.addViewChangeListener(breadCrumbs);
 		
-		webConsoleLayout = SidebarLayout.get(navigationMan)
-				.withTopComponent(breadCrumbs)
-				.withNaviContent(naviContent)
-				.build();
+		webConsoleLayout =  new SidebarLayout(navigationMan, naviContent, breadCrumbs);
 	
 		buildTopRightMenu();
 		buildLeftMenu();
