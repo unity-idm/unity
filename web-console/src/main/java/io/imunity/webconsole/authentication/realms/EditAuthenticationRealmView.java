@@ -9,6 +9,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
@@ -99,9 +100,11 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
-				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());
+		main.setWidth(44, Unit.EM);
+		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
+				msg.getMessage("close"), () -> onConfirm(), () -> onCancel());
 		main.addComponent(hl);
+		main.setComponentAlignment(hl, Alignment.BOTTOM_RIGHT);
 		setCompositionRoot(main);
 	}
 

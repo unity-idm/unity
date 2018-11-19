@@ -174,8 +174,6 @@ public class GroupMembersComponent extends VerticalLayout
 
 	private void reloadMemebersGrid()
 	{
-		groupMemebersGrid.clear();
-
 		List<GroupMemberEntry> groupMembers;
 		try
 		{

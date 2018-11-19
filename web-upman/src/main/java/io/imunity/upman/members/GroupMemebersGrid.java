@@ -77,16 +77,12 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 
 	public void setValue(Collection<GroupMemberEntry> items)
 	{
-		for (GroupMemberEntry entry : items)
-		{
-			groupMemberEntries.add(entry);
-		}
-		dataProvider.refreshAll();
-	}
-
-	public void clear()
-	{
 		groupMemberEntries.clear();
+		groupMemberEntries.addAll(items);
+		if (groupMemberEntries.size() <= 18)
+			setHeightByRows(groupMemberEntries.size());
+		else
+			setHeight(100, Unit.PERCENTAGE);
 		dataProvider.refreshAll();
 	}
 	

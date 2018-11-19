@@ -35,7 +35,59 @@ $narrow-bar-size: 50px;
 	.u-indentSmall {
 		margin-left: 10px;
 	}
+
+	.v-grid-row-stripe > td {
+ 	   background-color: $content-bg-color;
+	}
 	
+	.v-button:hover::after {
+      	background-color: transparent;
+    }
+
+    .v-button {
+       	@include sidebarTransition(background $transition-time);
+       	background-image: none;
+       	background-color: $button-bg-color;
+       	color: $button-color;
+       	-webkit-box-shadow: none;
+       	box-shadow: none;
+       	border-color: $button-border-color;
+    }
+
+    .v-button:hover {
+       	background-color: $button-hover-bg-color;
+       	color: $button-hover-color;
+    }
+        
+    .v-button:focus::after {
+       	border-color: none;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+    }
+	
+	.u-button-action {
+		background-color: $button-action-bg-color;
+		color: $button-action-color;
+
+		&:hover {
+			background-color: $button-action-hover-bg-color;
+			color: $button-action-color;
+		}
+	}
+
+	.u-button-form {
+		width: 9em;
+	}
+
+	.stepper-updown .v-icon {
+		@include sidebarTransition(color $transition-time);
+		color: $color-dark-grey;
+		
+		&:hover {
+			color: $font-color-dark;
+		}
+	}
+
     .u-sidebar {
     
     
@@ -45,31 +97,6 @@ $narrow-bar-size: 50px;
         *:focus {
  		   outline:none;
 		}
-		
-        .v-button:hover::after {
-        	background-color: transparent;
-        }
-
-        .v-button {
-        	@include sidebarTransition(background $transition-time);
-        	background-image: none;
-        	background-color: $button-bg-color;
-        	color: $button-color;
-        	-webkit-box-shadow: none;
-        	box-shadow: none;
-        	border-color: $button-border-color;
-        }
-
-        .v-button:hover {
-        	background-color: $button-hover-bg-color !important;
-        	color: $button-hover-color;
-        }
-        
-        .v-button:focus::after {
-        	border-color: none;
-			-webkit-box-shadow: none;
-			box-shadow: none;
-        }
         
         .viewHeader {
         	font-size: $v-font-size * 1.5;
