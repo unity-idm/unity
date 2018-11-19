@@ -32,14 +32,10 @@ import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
  * Used in standalone registration from to automatically sign in user, only in
  * case where:
  * <ul>
- * <li>the registration request was accepted
+ * <li>the registration request was auto accepted
  * <li>realm is configured at registration form level
+ * <li>remote sign up method was used to fill out the registration request
  * </ul>
- * 
- * It bypass the second factor authn, whenever registration request is
- * successful, it creates login session and sign in newly created by accepted
- * registration request user. It does not set either first nor secondary factor
- * authn option in the session.
  * 
  * @author Roman Krysinski (roman@unity-idm.eu)
  */
@@ -69,30 +65,50 @@ class AutoLoginAfterSignUpProcessor
 		}
 		
 		RegistrationForm form = editor.getForm();
-		if (form.getRealmName() == null)
+		if (form.getAutoLoginToRealm() == null)
 		{
 			LOG.debug("Automatic login for registration form {} disabled, skipping "
 					+ "sign in for registration request {}", form.getName(), requestState.getRequestId());
 			return;
 		}
+		
+		RemotelyAuthenticatedContext remoteContext = editor.getRemotelyAuthContext();
+		if (RemotelyAuthenticatedContext.isLocalContext(remoteContext))
+		{
+			LOG.debug("Automatic login for registration request {} is not supported, "
+					+ "auto sign in requires form to be submitted with remote sign up method", 
+					requestState.getRequestId());
+			return;
+		}
+		
 		AuthenticationRealm realm;
 		try
 		{
-			realm = realmsManagement.getRealm(form.getRealmName());
+			realm = realmsManagement.getRealm(form.getAutoLoginToRealm());
 		} catch (EngineException e)
 		{
 			LOG.error("Unable to automatically sign in entity {}.", requestState.getCreatedEntityId(), e);
 			return;
 		}
 		
-		RemotelyAuthenticatedContext remoteContext = editor.getRemotelyAuthContext();
-		AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(requestState.getCreatedEntityId(), 
-		        remoteContext.getMappingResult().getAuthenticatedWith(), null);
-		authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
+		try
+		{
+			AuthenticatedEntity authenticatedEntity = new AuthenticatedEntity(requestState.getCreatedEntityId(), 
+					remoteContext.getMappingResult().getAuthenticatedWith(), null);
+			authenticatedEntity.setRemoteIdP(remoteContext.getRemoteIdPName());
+			
+			LoginSession ls = getLoginSessionForEntity(authenticatedEntity, realm);
+			
+			logged(authenticatedEntity, realm, ls, remoteContext);
+			
+			LOG.info("Entity Id {} automatically signed into realm {}, as the result of successful "
+					+ "registration request processing: {}", requestState.getCreatedEntityId(), 
+					form.getAutoLoginToRealm(), requestState.getRequestId());
+		} catch (Exception e)
+		{
+			LOG.error("Failed to automatically sign in entity {}.", e);
+		}
 		
-		LoginSession ls = getLoginSessionForEntity(authenticatedEntity, realm);
-		
-		logged(authenticatedEntity, realm, ls, remoteContext);
 	}
 
 	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm)

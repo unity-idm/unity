@@ -105,9 +105,9 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 	
-	public RegistrationFormBuilder withRealmName(String name)
+	public RegistrationFormBuilder withAutoLoginToRealm(String name)
 	{
-		instance.setRealmName(name);
+		instance.setAutoLoginToRealm(name);
 		return this;
 	}
 
