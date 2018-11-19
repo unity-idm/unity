@@ -17,9 +17,9 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
-import io.imunity.upman.members.GroupMemberEntry.Role;
 import io.imunity.webelements.common.SidebarStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
@@ -89,6 +89,7 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 		groupMemberEntries.clear();
 		dataProvider.refreshAll();
 	}
+	
 
 	private Label getRoleLabel(String caption, Images icon)
 	{
@@ -101,7 +102,7 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 	{
 
 		addComponentColumn(ie -> {
-			if (ie.getRole().equals(Role.admin))
+			if (ie.getRole().equals(GroupAuthorizationRole.manager))
 			{
 				return getRoleLabel(msg.getMessage("Role.admin"), Images.star);
 			} else

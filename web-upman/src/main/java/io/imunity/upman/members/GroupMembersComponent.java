@@ -18,9 +18,9 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.common.UpManStyles;
-import io.imunity.upman.members.GroupMemberEntry.Role;
 import io.imunity.webelements.common.SidebarStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -130,7 +130,7 @@ public class GroupMembersComponent extends VerticalLayout
 						"GroupMembersComponent.addManagerPrivilegesAction"))
 				.withIcon(Images.trending_up.getResource()).multiTarget()
 				.withHandler(this::addManagerPrivileges)
-				.withDisabledPredicate(e -> !e.getRole().equals(Role.regular))
+				.withDisabledPredicate(e -> !e.getRole().equals(GroupAuthorizationRole.regular))
 				.build();
 		handler.setHideIfInactive(hideIfInactive);
 		return handler;
@@ -138,7 +138,7 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void addManagerPrivileges(Set<GroupMemberEntry> items)
 	{
-		controller.addManagerPrivileges(group, items);
+		controller.addManagerPrivileges(project, items.iterator().next());
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction(
@@ -150,7 +150,7 @@ public class GroupMembersComponent extends VerticalLayout
 						"GroupMembersComponent.revokeManagerPrivilegesAction"))
 				.withIcon(Images.trending_down.getResource()).multiTarget()
 				.withHandler(this::revokeManagerPrivileges)
-				.withDisabledPredicate(e -> !e.getRole().equals(Role.admin))
+				.withDisabledPredicate(e -> !e.getRole().equals(GroupAuthorizationRole.manager))
 				.build();
 		handler.setHideIfInactive(hideIfInactive);
 		return handler;
@@ -158,7 +158,7 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void revokeManagerPrivileges(Set<GroupMemberEntry> items)
 	{
-		controller.revokeManagerPrivileges(group, items);
+		controller.revokeManagerPrivileges(project, items.iterator().next());
 	}
 
 	public String getGroup()
@@ -180,7 +180,7 @@ public class GroupMembersComponent extends VerticalLayout
 		try
 		{
 			groupMembers = controller.getGroupMembers(
-					additionalProjectAttributes.keySet(), group);
+					project, group);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
