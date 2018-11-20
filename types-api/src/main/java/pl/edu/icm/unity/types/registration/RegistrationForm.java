@@ -60,6 +60,13 @@ public class RegistrationForm extends BaseForm
 	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
 	private boolean showSignInLink;
 	private String signInLink;
+	/**
+	 * @implNote: if the realm name is provided, then after the registration is
+	 *            completed from standalone view, and the request meets various
+	 *            criteria, newly registered user is automatically logged into
+	 *            this realm.
+	 */
+	private String autoLoginToRealm;
 
 	@JsonCreator
 	public RegistrationForm(ObjectNode json)
@@ -141,8 +148,6 @@ public class RegistrationForm extends BaseForm
 		this.defaultCredentialRequirement = defaultCredentialRequirement;
 	}
 	
-	
-	
 	public ExternalSignupSpec getExternalSignupSpec()
 	{
 		return externalSignupSpec;
@@ -191,6 +196,16 @@ public class RegistrationForm extends BaseForm
 	public void setSignInLink(String signInLink)
 	{
 		this.signInLink = signInLink;
+	}
+	
+	public String getAutoLoginToRealm()
+	{
+		return autoLoginToRealm;
+	}
+
+	public void setAutoLoginToRealm(String autoLoginToRealm)
+	{
+		this.autoLoginToRealm = autoLoginToRealm;
 	}
 
 	@Override
@@ -320,6 +335,7 @@ public class RegistrationForm extends BaseForm
 		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
 		root.put("ShowSignInLink", showSignInLink);
 		root.put("SignInLink", signInLink);
+		root.put("AutoLoginToRealm", autoLoginToRealm);
 		return root;
 	}
 
@@ -373,6 +389,10 @@ public class RegistrationForm extends BaseForm
 			n = root.get("SignInLink");
 			if (n != null && !n.isNull())
 				setSignInLink(n.asText());
+			
+			n = root.get("AutoLoginToRealm");
+			if (n != null && !n.isNull())
+				setAutoLoginToRealm(n.asText());
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize registration form from JSON", e);
@@ -398,6 +418,7 @@ public class RegistrationForm extends BaseForm
 				&& Objects.equals(externalSignupSpec, castOther.externalSignupSpec)
 				&& Objects.equals(formLayouts, castOther.formLayouts)
 				&& Objects.equals(showSignInLink, castOther.showSignInLink)
+				&& Objects.equals(autoLoginToRealm, castOther.autoLoginToRealm)
 				&& Objects.equals(signInLink, castOther.signInLink);
 	}
 
@@ -406,6 +427,7 @@ public class RegistrationForm extends BaseForm
 	{
 		return Objects.hash(super.hashCode(), name, description, publiclyAvailable, notificationsConfiguration,
 				captchaLength, registrationCode, byInvitationOnly, defaultCredentialRequirement,
-				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, signInLink);
+				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, signInLink, 
+				autoLoginToRealm);
 	}
 }

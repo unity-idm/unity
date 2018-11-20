@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -36,6 +37,7 @@ public class RemotelyAuthenticatedContext
 	private Collection<String> groups = new ArrayList<>();
 	private MappingResult mappingResult;
 	private RemotelyAuthenticatedInput input;
+	private Instant creationTime;
 
 	/**
 	 * @return pseudo remote authn context, which is empty. Used as we don't want to pass null reference
@@ -124,6 +126,14 @@ public class RemotelyAuthenticatedContext
 	public Set<SessionParticipant> getSessionParticipants()
 	{
 		return sessionParticipants;
+	}
+	public Instant getCreationTime()
+	{
+		return creationTime;
+	}
+	public void setCreationTime(Instant creationTime)
+	{
+		this.creationTime = creationTime;
 	}
 	public void setSessionParticipants(Set<SessionParticipant> sessionParticipants)
 	{

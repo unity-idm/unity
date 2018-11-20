@@ -18,6 +18,7 @@ public class WorkflowFinalizationConfiguration
 	public final String extraInformation;
 	public final String redirectURL;
 	public final String redirectButtonText;
+	private boolean isAutoLoginAfterSignUp;
 
 	public WorkflowFinalizationConfiguration(boolean success, boolean autoRedirect, String pageTitle, String logoURL,
 			String mainInformation, String extraInformation, String redirectURL, String redirectButtonText)
@@ -30,6 +31,16 @@ public class WorkflowFinalizationConfiguration
 		this.extraInformation = extraInformation;
 		this.redirectURL = redirectURL;
 		this.redirectButtonText = redirectButtonText;
+	}
+	
+	public boolean isAutoLoginAfterSignUp()
+	{
+		return isAutoLoginAfterSignUp;
+	}
+
+	public void setAutoLoginAfterSignUp(boolean isAutoLoginAfterSignUp)
+	{
+		this.isAutoLoginAfterSignUp = isAutoLoginAfterSignUp;
 	}
 
 	public static Builder builder()

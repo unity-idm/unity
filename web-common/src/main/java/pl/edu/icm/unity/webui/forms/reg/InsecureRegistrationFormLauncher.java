@@ -26,6 +26,7 @@ import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.AsyncErrorHandler;
@@ -47,27 +48,40 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 	private RegistrationsManagement registrationsManagement;
 	private IdPLoginController idpLoginController;
 	private EventsBus bus;
+	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
 	
 	@Autowired
 	public InsecureRegistrationFormLauncher(UnityMessageSource msg, IdPLoginController idpLoginController,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory, 
-			@Qualifier("insecure") RegistrationsManagement registrationsManagement)
+			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
+			AutoLoginAfterSignUpProcessor autoLoginProcessor)
 	{
 		super(msg, requestEditorCreatorFatory);
 		this.idpLoginController = idpLoginController;
 		this.registrationsManagement = registrationsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
+		this.autoLoginProcessor = autoLoginProcessor;
 	}
 
-	private WorkflowFinalizationConfiguration addRequest(RegistrationRequest request, RegistrationForm form, 
-			RegistrationContext context) throws WrongArgumentException
+	private WorkflowFinalizationConfiguration addRequest(RegistrationRequest request, 
+			RegistrationRequestEditor editor, RegistrationContext context) throws WrongArgumentException
 	{
+		RegistrationForm form = editor.getForm();
 		try
 		{
 			String requestId = registrationsManagement.submitRegistrationRequest(request, context);
 			bus.fireEvent(new RegistrationRequestChangedEvent(requestId));
-			RegistrationRequestStatus status = getRequestStatus(requestId);
-			return getFinalizationHandler(form).getFinalRegistrationConfigurationPostSubmit(requestId, status);
+			RegistrationRequestState requestState = getRequestStatus(requestId);
+			
+			boolean isAutoLogin = autoLoginProcessor.signInIfPossible(editor, requestState);
+			
+			RegistrationRequestStatus effectiveStateForFinalization = requestState == null 
+					? RegistrationRequestStatus.rejected 
+					: requestState.getStatus();
+			WorkflowFinalizationConfiguration finalization = getFinalizationHandler(form)
+					.getFinalRegistrationConfigurationPostSubmit(requestId, effectiveStateForFinalization);
+			finalization.setAutoLoginAfterSignUp(isAutoLogin);
+			return finalization;
 		} catch (IdentityExistsException e)
 		{
 			return getFinalizationHandler(form).getFinalRegistrationConfigurationOnError(
@@ -83,15 +97,15 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 		}
 	}
 	
-	private RegistrationRequestStatus getRequestStatus(String requestId) 
+	private RegistrationRequestState getRequestStatus(String requestId) 
 	{
 		try
 		{
-			return registrationsManagement.getRegistrationRequest(requestId).getStatus();
+			return registrationsManagement.getRegistrationRequest(requestId);
 		} catch (Exception e)
 		{
 			log.error("Shouldn't happen: can't get request status, assuming rejected", e);
-			return RegistrationRequestStatus.rejected;
+			return null;
 		}
 	}
 	
@@ -131,7 +145,7 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 					@Override
 					public WorkflowFinalizationConfiguration newRequest(RegistrationRequest request) throws WrongArgumentException
 					{
-						return addRequest(request, form, context);
+						return addRequest(request, editor, context);
 					}
 					
 					@Override
