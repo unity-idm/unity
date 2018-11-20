@@ -34,17 +34,20 @@ public class GroupsTree extends TreeGrid<GroupNode>
 	private GroupsController controller;
 	private UnityMessageSource msg;
 	private List<SingleActionHandler<GroupNode>> rowActionHandlers;
+	private String root;
 
 	public GroupsTree(UnityMessageSource msg, GroupsController controller,
-			List<SingleActionHandler<GroupNode>> actions, String root) throws ControllerException
+			List<SingleActionHandler<GroupNode>> actions, String root)
+			throws ControllerException
 	{
 		this.controller = controller;
 		this.msg = msg;
 		this.rowActionHandlers = actions;
+		this.root = root;
 
 		treeData = new TreeData<>();
 		setDataProvider(new TreeDataProvider<>(treeData));
-		
+
 		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer())
 				.setCaption(msg.getMessage("GroupTree.group"));
 
@@ -65,7 +68,7 @@ public class GroupsTree extends TreeGrid<GroupNode>
 	{
 		Map<String, List<Group>> groupTree;
 
-		groupTree = controller.getGroupTree(path);
+		groupTree = controller.getGroupTree(root, path);
 
 		for (Group rootGr : groupTree.get(null))
 		{

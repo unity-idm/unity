@@ -8,7 +8,8 @@ package io.imunity.upman.members;
 import java.util.HashMap;
 import java.util.Map;
 
-import io.imunity.upman.members.GroupMemebersGrid.BaseColumn;
+import pl.edu.icm.unity.types.basic.DelegatedGroupMember;
+import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
 
 /**
  * Data object behind a row in {@link GroupMemebersGrid}. Stores group member
@@ -19,27 +20,19 @@ import io.imunity.upman.members.GroupMemebersGrid.BaseColumn;
  */
 public class GroupMemberEntry
 {
-	public enum Role
-	{
-		regular, admin
-	};
-
-	private Map<BaseColumn, String> columnsToValues = new HashMap<>();
 	private Map<String, String> attributes;
-	private long entityId;
-	private Role role;
+	private Long entityId;
+	private String name;
+	private String email;
+	private GroupAuthorizationRole role;
 
-	GroupMemberEntry(long entityId, String group, Map<String, String> attributes, Role role,
-			String name, String email)
+	GroupMemberEntry(DelegatedGroupMember member, Map<String, String> attributes)
 	{
 
-		this.entityId = entityId;
-		this.role = role;
-
-		columnsToValues.put(BaseColumn.name, name);
-		columnsToValues.put(BaseColumn.email, email);
-		columnsToValues.put(BaseColumn.role, role.toString());
-
+		this.entityId = member.entityId;
+		this.name = member.name;
+		this.email = member.email;
+		this.role = member.role;
 		this.attributes = new HashMap<>(attributes);
 
 	}
@@ -49,19 +42,16 @@ public class GroupMemberEntry
 		return attributes.get(key);
 	}
 
-	public String getBaseValue(BaseColumn key)
-	{
-		return columnsToValues.get(key);
-	}
-
 	@Override
 	public int hashCode()
 	{
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result
-				+ ((columnsToValues == null) ? 0 : columnsToValues.hashCode());
+		result = prime * result + ((entityId == null) ? 0 : entityId.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((email == null) ? 0 : email.hashCode());
+		result = prime * result + ((role == null) ? 0 : role.hashCode());
 		return result;
 	}
 
@@ -80,18 +70,34 @@ public class GroupMemberEntry
 		if (entityId != other.getEntityId())
 			return false;
 
+		if (name == null)
+		{
+			if (other.name != null)
+				return false;
+		} else if (!name.equals(other.name))
+			return false;
+
+		if (email == null)
+		{
+			if (other.email != null)
+				return false;
+		} else if (!email.equals(other.email))
+			return false;
+
+		if (role == null)
+		{
+			if (other.role != null)
+				return false;
+		} else if (!role.equals(other.role))
+			return false;
+
 		if (attributes == null)
 		{
 			if (other.attributes != null)
 				return false;
 		} else if (!attributes.equals(other.attributes))
 			return false;
-		if (columnsToValues == null)
-		{
-			if (other.columnsToValues != null)
-				return false;
-		} else if (!columnsToValues.equals(other.columnsToValues))
-			return false;
+
 		return true;
 	}
 
@@ -100,8 +106,18 @@ public class GroupMemberEntry
 		return entityId;
 	}
 
-	public Role getRole()
+	public GroupAuthorizationRole getRole()
 	{
 		return role;
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+
+	public String getEmail()
+	{
+		return email;
 	}
 }

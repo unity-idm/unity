@@ -84,9 +84,8 @@ public class GroupsComponent extends CustomComponent
 				.withHandler(this::makePrivate).hideIfInactive().build();
 	}
 
-	private void makePrivate(Set<GroupNode> items)
+	private void updateGroupAccess(Set<GroupNode> items, boolean isOpen)
 	{
-
 		if (items.isEmpty())
 			return;
 		GroupNode groupNode = items.iterator().next();
@@ -94,7 +93,7 @@ public class GroupsComponent extends CustomComponent
 		try
 		{
 
-			controller.setPrivateGroupAccess(groupNode.getPath());
+			controller.setPublicGroupAccess(rootPath, groupNode.getPath(), isOpen);
 			groupBrowser.reloadNode(groupNode);
 
 		} catch (ControllerException e)
@@ -102,7 +101,13 @@ public class GroupsComponent extends CustomComponent
 			NotificationPopup.showError(e);
 		}
 	}
+	
+	private void makePrivate(Set<GroupNode> items)
+	{
 
+		updateGroupAccess(items, false);
+	}
+	
 	private SingleActionHandler<GroupNode> getMakePublicAction()
 	{
 		return SingleActionHandler.builder(GroupNode.class)
@@ -114,20 +119,7 @@ public class GroupsComponent extends CustomComponent
 
 	private void makePublic(Set<GroupNode> items)
 	{
-		if (items.isEmpty())
-			return;
-		GroupNode groupNode = items.iterator().next();
-
-		try
-		{
-
-			controller.setPublicGroupAccess(groupNode.getPath());
-			groupBrowser.reloadNode(groupNode);
-
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(e);
-		}
+		updateGroupAccess(items, true);
 	}
 
 	private SingleActionHandler<GroupNode> getExpandAllAction()
@@ -173,7 +165,7 @@ public class GroupsComponent extends CustomComponent
 		try
 		{
 
-			controller.deleteGroup(group.getPath());
+			controller.deleteGroup(rootPath, group.getPath());
 			groupBrowser.reloadNode(group.getParentNode());
 
 		} catch (ControllerException e)
@@ -201,7 +193,7 @@ public class GroupsComponent extends CustomComponent
 		new AddGroupDialog(msg, groupNode, group -> {
 			try
 			{
-				controller.addGroup(group);
+				controller.addGroup(rootPath, group);
 				groupBrowser.reloadNode(groupNode);
 				groupBrowser.expand(groupNode);
 			} catch (ControllerException e)
@@ -265,7 +257,7 @@ public class GroupsComponent extends CustomComponent
 		new RenameGroupDialog(msg, groupName -> {
 			try
 			{
-				controller.updateGroupName(selection.iterator().next().getPath(),
+				controller.updateGroupName(rootPath, selection.iterator().next().getPath(),
 						groupName);
 				groupBrowser.reloadNode(selection.iterator().next());
 			} catch (ControllerException e)

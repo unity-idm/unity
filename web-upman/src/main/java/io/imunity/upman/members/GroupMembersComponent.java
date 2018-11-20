@@ -54,7 +54,7 @@ public class GroupMembersComponent extends VerticalLayout
 		this.controller = controller;
 		this.project = project;
 		this.additionalProjectAttributes = controller
-				.getAdditionalAttributeTypesForGroup(project);
+				.getAdditionalAttributeNamesForProject(project);
 
 		setMargin(false);
 		setSpacing(false);
@@ -96,7 +96,15 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void removeFromProject(Set<GroupMemberEntry> items)
 	{
-		controller.removeFromGroup(project, items);
+		try
+		{
+			controller.removeFromGroup(project, project, items);
+
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		reloadMemebersGrid();
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getRemoveFromGroupAction()
@@ -105,18 +113,27 @@ public class GroupMembersComponent extends VerticalLayout
 				.withCaption(msg.getMessage(
 						"GroupMembersComponent.removeFromGroupAction"))
 				.withIcon(Images.deleteFolder.getResource()).multiTarget()
-				.withHandler(this::removeFromProject).build();
+				.withHandler(this::removeFromGroup).build();
 	}
 
 	public void removeFromGroup(Set<GroupMemberEntry> items)
 	{
-		controller.removeFromGroup(group, items);
+		try
+		{
+			controller.removeFromGroup(project, group, items);
+
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		reloadMemebersGrid();
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getAddToGroupAction()
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
-				.withCaption(msg.getMessage("GroupMembersComponent.addToGroupAction"))
+				.withCaption(msg.getMessage(
+						"GroupMembersComponent.addToGroupAction"))
 				.withIcon(Images.add.getResource()).multiTarget()
 				.withHandler(this::showAddToGroupDialog).build();
 	}
@@ -130,7 +147,8 @@ public class GroupMembersComponent extends VerticalLayout
 						"GroupMembersComponent.addManagerPrivilegesAction"))
 				.withIcon(Images.trending_up.getResource()).multiTarget()
 				.withHandler(this::addManagerPrivileges)
-				.withDisabledPredicate(e -> !e.getRole().equals(GroupAuthorizationRole.regular))
+				.withDisabledPredicate(e -> !e.getRole()
+						.equals(GroupAuthorizationRole.regular))
 				.build();
 		handler.setHideIfInactive(hideIfInactive);
 		return handler;
@@ -138,7 +156,14 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void addManagerPrivileges(Set<GroupMemberEntry> items)
 	{
-		controller.addManagerPrivileges(project, items.iterator().next());
+		try
+		{
+			controller.addManagerPrivileges(project, items);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		reloadMemebersGrid();
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction(
@@ -150,7 +175,8 @@ public class GroupMembersComponent extends VerticalLayout
 						"GroupMembersComponent.revokeManagerPrivilegesAction"))
 				.withIcon(Images.trending_down.getResource()).multiTarget()
 				.withHandler(this::revokeManagerPrivileges)
-				.withDisabledPredicate(e -> !e.getRole().equals(GroupAuthorizationRole.manager))
+				.withDisabledPredicate(e -> !e.getRole()
+						.equals(GroupAuthorizationRole.manager))
 				.build();
 		handler.setHideIfInactive(hideIfInactive);
 		return handler;
@@ -158,7 +184,14 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void revokeManagerPrivileges(Set<GroupMemberEntry> items)
 	{
-		controller.revokeManagerPrivileges(project, items.iterator().next());
+		try
+		{
+			controller.revokeManagerPrivileges(project, items);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		reloadMemebersGrid();
 	}
 
 	public String getGroup()
@@ -177,8 +210,7 @@ public class GroupMembersComponent extends VerticalLayout
 		List<GroupMemberEntry> groupMembers;
 		try
 		{
-			groupMembers = controller.getGroupMembers(
-					project, group);
+			groupMembers = controller.getGroupMembers(project, group);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -191,8 +223,17 @@ public class GroupMembersComponent extends VerticalLayout
 	private void showAddToGroupDialog(Set<GroupMemberEntry> selection)
 	{
 
-		new TargetGroupSelectionDialog(msg,
-				group -> controller.addToGroup(group, selection)).show();
+		new TargetGroupSelectionDialog(msg, group -> {
+			try
+			{
+				controller.addToGroup(project, group, selection);
+			} catch (ControllerException e)
+			{
+				NotificationPopup.showError(e);
+			}
+			reloadMemebersGrid();
+
+		}).show();
 	}
 
 	private class TargetGroupSelectionDialog extends AbstractDialog
@@ -217,7 +258,7 @@ public class GroupMembersComponent extends VerticalLayout
 			Map<String, String> groupsMap = new HashMap<>();
 			try
 			{
-				groupsMap.putAll(controller.getGroupsMap(project));
+				groupsMap.putAll(controller.getProjectGroupsMap(project));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);

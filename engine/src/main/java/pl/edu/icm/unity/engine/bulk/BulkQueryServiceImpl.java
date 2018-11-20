@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.base.Stopwatch;
@@ -38,20 +39,31 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 
 @Component
-class BulkQueryServiceImpl implements BulkGroupQueryService
+@Primary
+public class BulkQueryServiceImpl implements BulkGroupQueryService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkQueryServiceImpl.class);
-	@Autowired
+	
 	private AttributeStatementProcessor statementsHelper;
-	@Autowired
 	private EntityCredentialsHelper credentialsHelper;
-	@Autowired
 	private LocalCredentialsRegistry localCredReg;
-	@Autowired
 	private CompositeEntitiesInfoProvider dataProvider;
-	@Autowired
 	private AuthorizationManager authz;
 	
+	@Autowired
+	public BulkQueryServiceImpl(AttributeStatementProcessor statementsHelper,
+			EntityCredentialsHelper credentialsHelper,
+			LocalCredentialsRegistry localCredReg,
+			CompositeEntitiesInfoProvider dataProvider, AuthorizationManager authz)
+	{
+		this.statementsHelper = statementsHelper;
+		this.credentialsHelper = credentialsHelper;
+		this.localCredReg = localCredReg;
+		this.dataProvider = dataProvider;
+		this.authz = authz;
+	}
+
+
 	@Transactional
 	@Override
 	public GroupMembershipData getBulkMembershipData(String group) throws EngineException

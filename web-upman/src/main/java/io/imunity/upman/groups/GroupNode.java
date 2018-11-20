@@ -34,8 +34,7 @@ public class GroupNode
 		this.msg = msg;
 		this.path = group.toString();
 		this.parent = parent;
-		// TODO set icon based on group access mode
-		this.publicGroup = true;
+		this.publicGroup = group.isOpen();
 		this.icon = publicGroup ? Images.padlock_unlock.getHtml()
 				: Images.padlock_lock.getHtml();
 		setGroupMetadata(group);

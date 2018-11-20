@@ -6,7 +6,6 @@
 package io.imunity.upman.members;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -18,19 +17,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DelegatedGroupMember;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.basic.GroupContents;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -44,41 +39,31 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupMembersController
 {
-	// TODO replace all by new management
-	private GroupsManagement groupMan;
-	private AttributeTypeManagement attrTypeMan;
-	private AttributesManagement attrMan;
-	private BulkGroupQueryService groupQueryService;
 
+	private DelegatedGroupManagement delGroupMan;
 	private CachedAttributeHandlers cachedAttrHandlerRegistry;
 	private UnityMessageSource msg;
 
 	@Autowired
 	public GroupMembersController(UnityMessageSource msg, GroupsManagement groupMan,
-			AttributeTypeManagement attrTypeMan, AttributesManagement attrMan,
 			AttributeHandlerRegistry attrHandlerRegistry,
-			BulkGroupQueryService groupQueryService)
+			DelegatedGroupManagement delGroupMan)
 	{
 		this.msg = msg;
-		this.groupMan = groupMan;
-		this.attrTypeMan = attrTypeMan;
-		this.attrMan = attrMan;
-		this.groupQueryService = groupQueryService;
+		this.delGroupMan = delGroupMan;
 		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
 	}
 
-	// TODO new manager should replace DelegatedGroupMemebership with email,
-	// name and role
-	public List<GroupMemberEntry> getGroupMembers(Collection<String> additionalAttributeNames,
-			String groupPath) throws ControllerException
+	public List<GroupMemberEntry> getGroupMembers(String projectPath, String groupPath)
+			throws ControllerException
 	{
 
 		List<GroupMemberEntry> ret = new ArrayList<>();
 
-		GroupContents contents = null;
+		List<DelegatedGroupMember> contents = null;
 		try
 		{
-			contents = groupMan.getContents(groupPath, GroupContents.MEMBERS);
+			contents = delGroupMan.getGroupMembers(projectPath, groupPath);
 		} catch (EngineException e)
 		{
 			throw new ControllerException(
@@ -87,64 +72,31 @@ public class GroupMembersController
 					e.getMessage(), e);
 		}
 
-		for (GroupMembership member : contents.getMembers())
+		for (DelegatedGroupMember member : contents)
 		{
-			GroupMemberEntry entry = new GroupMemberEntry(member.getEntityId(),
-					member.getGroup(),
-					getMemberAttribute(member, additionalAttributeNames,
-							groupPath),
-					(member.getEntityId() & 1) == 0
-							? GroupMemberEntry.Role.regular
-							: GroupMemberEntry.Role.admin,
-					"name" + member.getEntityId(),
-					"email" + member.getEntityId() + "@imunity.io");
+
+			Map<String, String> additionalAttributes = new HashMap<>();
+
+			for (Attribute attr : member.attributes)
+			{
+				additionalAttributes.put(attr.getName(), cachedAttrHandlerRegistry
+						.getSimplifiedAttributeValuesRepresentation(attr));
+			}
+
+			GroupMemberEntry entry = new GroupMemberEntry(member, additionalAttributes);
 			ret.add(entry);
 		}
 
 		return ret;
 	}
 
-	// TODO move this to new manager
-	private Map<String, String> getMemberAttribute(GroupMembership member,
-			Collection<String> attributes, String groupPath) throws ControllerException
-	{
-
-		Map<String, String> attributesVal = new HashMap<>();
-		for (String atype : attributes)
-		{
-			Collection<AttributeExt> attrs = null;
-			try
-			{
-				attrs = attrMan.getAttributes(new EntityParam(member.getEntityId()),
-						groupPath, atype);
-			} catch (EngineException e)
-			{
-				throw new ControllerException(msg.getMessage(
-						"GroupMembersController.getAttributesError",
-						member.getEntityId(),
-						new Group(groupPath).getNameShort()),
-						e.getMessage(), e);
-			}
-
-			for (AttributeExt a : attrs)
-			{
-
-				attributesVal.put(atype, cachedAttrHandlerRegistry
-						.getSimplifiedAttributeValuesRepresentation(a));
-			}
-		}
-
-		return attributesVal;
-
-	}
-
-	public Map<String, String> getGroupsMap(String rootPath) throws ControllerException
+	public Map<String, String> getProjectGroupsMap(String rootPath) throws ControllerException
 	{
 		Map<String, String> groups = new HashMap<>();
-		GroupStructuralData bulkData;
+		Map<String, GroupContents> groupAndSubgroups;
 		try
 		{
-			bulkData = groupQueryService.getBulkStructuralData(rootPath);
+			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(rootPath, rootPath);
 		} catch (Exception e)
 		{
 			throw new ControllerException(
@@ -152,9 +104,6 @@ public class GroupMembersController
 							rootPath),
 					e.getMessage(), e);
 		}
-
-		Map<String, GroupContents> groupAndSubgroups = groupQueryService
-				.getGroupAndSubgroups(bulkData);
 
 		groups.put(rootPath,
 				getGroupDisplayName(groupAndSubgroups.get(rootPath).getGroup()));
@@ -212,47 +161,92 @@ public class GroupMembersController
 	}
 
 	// TODO get attr based on group del config
-	public Map<String, String> getAdditionalAttributeTypesForGroup(String groupPath)
+	public Map<String, String> getAdditionalAttributeNamesForProject(String groupPath)
 			throws ControllerException
 	{
-		Map<String, String> ret = new HashMap<>();
 		try
 		{
-			AttributeType attr = null;
-			if (groupPath.length() == 2)
-				attr = attrTypeMan.getAttributeType("mobile");
-			else
-				attr = attrTypeMan.getAttributeType("firstname");
-
-			ret.put(attr.getName(), attr.getDisplayedName().getValue(msg));
+			return delGroupMan.getAdditionalAttributeNamesForProject(groupPath);
 		} catch (EngineException e)
 		{
 			throw new ControllerException(msg.getMessage(
 					"GroupMembersController.getGroupAttributeError"),
 					e.getMessage(), e);
 		}
-		return ret;
 	}
 
-	public void addToGroup(String groupPath, Set<GroupMemberEntry> selection)
+	public void addToGroup(String projectPath, String groupPath, Set<GroupMemberEntry> items)
+			throws ControllerException
 	{
-		// TODO Auto-generated method stub
+		try
+		{
+			for (GroupMemberEntry member : items)
+			{
+				delGroupMan.addMemberToGroup(projectPath, groupPath,
+						member.getEntityId());
+			}
+		} catch (EngineException e)
+		{
+			throw new ControllerException(msg.getMessage(
+					"GroupMembersController.addToGroupError", groupPath),
+					e.getMessage(), e);
+		}
 	}
 
-	public void removeFromGroup(String groupPath, Set<GroupMemberEntry> selection)
+	public void removeFromGroup(String projectPath, String groupPath,
+			Set<GroupMemberEntry> items) throws ControllerException
 	{
-		// TODO Auto-generated method stub
+		try
+		{
+			for (GroupMemberEntry member : items)
+			{
+				delGroupMan.removeMemberFromGroup(projectPath, groupPath,
+						member.getEntityId());
+
+			}
+		} catch (EngineException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public void addManagerPrivileges(String groupPath, Set<GroupMemberEntry> items)
+			throws ControllerException
 	{
-		// TODO Auto-generated method stub
+		try
+		{
+			for (GroupMemberEntry member : items)
+			{
+				delGroupMan.setGroupAuthorizationRole(groupPath,
+						member.getEntityId(),
+						GroupAuthorizationRole.manager);
+			}
+		} catch (EngineException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 
+	// TODO check if one admin is in group
 	public void revokeManagerPrivileges(String groupPath, Set<GroupMemberEntry> items)
+			throws ControllerException
 	{
-		// TODO Auto-generated method stub
+		try
+		{
+			for (GroupMemberEntry member : items)
+			{
+				delGroupMan.setGroupAuthorizationRole(groupPath,
+						member.getEntityId(),
+						GroupAuthorizationRole.regular);
+			}
+		} catch (EngineException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 	}
 }

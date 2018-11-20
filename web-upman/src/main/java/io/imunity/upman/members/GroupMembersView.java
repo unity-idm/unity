@@ -70,7 +70,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		Map<String, String> groups;
 		try
 		{
-			groups = controller.getGroupsMap(project);
+			groups = controller.getProjectGroupsMap(project);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

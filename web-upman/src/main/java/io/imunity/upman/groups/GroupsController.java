@@ -15,9 +15,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
+import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
@@ -27,43 +25,37 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Groups controller
+ * 
  * @author P.Piernik
  *
  */
 @Component
 public class GroupsController
 {
-	// TODO replace all by new management
-	private BulkGroupQueryService groupQueryService;
-	private GroupsManagement groupMan;
 
+	private DelegatedGroupManagement delGroupMan;
 	private UnityMessageSource msg;
 
 	@Autowired
-	public GroupsController(UnityMessageSource msg, BulkGroupQueryService groupQueryService,
-			GroupsManagement groupMan)
+	public GroupsController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan)
 	{
 		this.msg = msg;
-		this.groupQueryService = groupQueryService;
-		this.groupMan = groupMan;
-
+		this.delGroupMan = delGroupMan;
 	}
 
-	public Map<String, List<Group>> getGroupTree(String root) throws ControllerException
+	public Map<String, List<Group>> getGroupTree(String project, String root)
+			throws ControllerException
 	{
-		GroupStructuralData bulkData;
+		Map<String, GroupContents> groupAndSubgroups;
 		try
 		{
-			bulkData = groupQueryService.getBulkStructuralData(root);
+			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(project, root);
 		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("GroupsController.getGroupError", root),
 					e.getMessage(), e);
 		}
-
-		Map<String, GroupContents> groupAndSubgroups = groupQueryService
-				.getGroupAndSubgroups(bulkData);
 
 		Map<String, List<Group>> groupTree = new HashMap<>();
 
@@ -83,11 +75,11 @@ public class GroupsController
 		return groupTree;
 	}
 
-	public void addGroup(Group group) throws ControllerException
+	public void addGroup(String project, Group group) throws ControllerException
 	{
 		try
 		{
-			groupMan.addGroup(group);
+			delGroupMan.addGroup(project, group);
 		} catch (EngineException e)
 		{
 			throw new ControllerException(
@@ -97,11 +89,11 @@ public class GroupsController
 		}
 	}
 
-	public void deleteGroup(String groupPath) throws ControllerException
+	public void deleteGroup(String project, String groupPath) throws ControllerException
 	{
 		try
 		{
-			groupMan.removeGroup(groupPath, true);
+			delGroupMan.removeGroup(project, groupPath, true);
 		} catch (EngineException e)
 		{
 
@@ -113,50 +105,39 @@ public class GroupsController
 
 	}
 
-	public void setPrivateGroupAccess(String path) throws ControllerException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	public void setPublicGroupAccess(String path) throws ControllerException
-	{
-		// TODO Auto-generated method stub
-
-	}
-
-	public void updateGroupName(String groupPath, I18nString groupName)
+	public void setPublicGroupAccess(String project, String path, boolean isOpen)
 			throws ControllerException
 	{
-
-		GroupContents contents;
-		try
-		{
-			contents = groupMan.getContents(groupPath, GroupContents.METADATA);
-
-		} catch (Exception e)
-		{
-			throw new ControllerException(
-					msg.getMessage("GroupsController.getGroupError",
-							new Group(groupPath).getNameShort()),
-					e.getMessage(), e);
-		}
-
-		Group group = contents.getGroup();
-		group.setDisplayedName(groupName);
-
 		try
 		{
 
-			groupMan.updateGroup(group.getName(), group);
+			delGroupMan.setGroupAccessMode(project, path, isOpen);
 
 		} catch (EngineException e)
 		{
 			throw new ControllerException(
-					msg.getMessage("GroupsController.renameGroupError",
-							group.getNameShort()),
+					msg.getMessage("GroupsController.updateGroupAccessError",
+							new Group(path).getNameShort()),
 					e.getMessage(), e);
 		}
 
+	}
+
+	public void updateGroupName(String project, String path, I18nString groupName)
+			throws ControllerException
+	{
+
+		try
+		{
+
+			delGroupMan.setGroupDisplayedName(project, path, groupName);
+
+		} catch (EngineException e)
+		{
+			throw new ControllerException(
+					msg.getMessage("GroupsController.updateGroupNameError",
+							new Group(path).getNameShort()),
+					e.getMessage(), e);
+		}
 	}
 }

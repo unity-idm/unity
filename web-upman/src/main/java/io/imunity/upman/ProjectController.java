@@ -6,12 +6,16 @@
 package io.imunity.upman;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -24,28 +28,46 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 public class ProjectController
 {
 	private UnityMessageSource msg;
+	private DelegatedGroupManagement delGroupMan;
 
 	@Autowired
-	public ProjectController(UnityMessageSource msg)
+	public ProjectController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan)
 	{
 		this.msg = msg;
+		this.delGroupMan = delGroupMan;
 	}
 
-	// TODO
 	Map<String, String> getProjectForUser(long entityId) throws ControllerException
 	{
-		Map<String, String> projects = new HashMap<>();
 
-		 projects.put("/A", "A");
-		 projects.put("/unicore", "UNICORE");
-		 projects.put("/", "ROOT");
+		List<Group> projects;
+		try
+		{
+			projects = delGroupMan.getProjectsForEntity(entityId);
+		} catch (EngineException e)
+		{
+			throw new ControllerException(
+					msg.getMessage("ProjectController.getProjectsError"), e);
+		}
 
 		if (projects.isEmpty())
 			throw new ControllerException(
 					msg.getMessage("ProjectController.noProjectAvailable"),
 					new Throwable());
 
-		return projects;
+		Map<String, String> projectMap = new HashMap<>();
 
+		for (Group p : projects)
+		{
+			String projectName = p.getDisplayedName().getValue(msg);
+			if (projectName.equals(p.getName()))
+			{
+				projectName = p.getNameShort();
+
+			}
+			projectMap.put(p.getName(), projectName);
+		}
+
+		return projectMap;
 	}
 }

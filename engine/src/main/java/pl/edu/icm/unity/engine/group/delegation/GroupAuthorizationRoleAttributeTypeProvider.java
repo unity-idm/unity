@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
 
 
 /**
@@ -27,20 +28,6 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 @Component
 public class GroupAuthorizationRoleAttributeTypeProvider extends AbstractAttributeTypeProvider
 {
-	public enum GroupAuthorizationRole
-	{
-		manager("Group manager"),
-		regular("Regular group member");
-
-		private String description;
-
-		GroupAuthorizationRole(String description)
-		{
-			this.description = description;
-
-		}
-	};
-
 	public static final String GROUP_AUTHORIZATION_ROLE = "sys:GroupAuthorizationRole";
 
 	@Autowired
@@ -59,7 +46,7 @@ public class GroupAuthorizationRoleAttributeTypeProvider extends AbstractAttribu
 		AttributeType authorizationAt = new AttributeType(GROUP_AUTHORIZATION_ROLE,
 				EnumAttributeSyntax.ID, msg, GROUP_AUTHORIZATION_ROLE,
 				new Object[] { Stream.of(GroupAuthorizationRole.values())
-						.map(e -> e.description)
+						.map(e -> e.getDescription())
 						.collect(Collectors.toSet()) });
 		authorizationAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
 		authorizationAt.setMinElements(1);

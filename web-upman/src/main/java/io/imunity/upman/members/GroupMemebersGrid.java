@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 import com.vaadin.data.provider.DataProvider;
@@ -27,6 +29,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
  * Displays a grid with group members
+ * 
  * @author P.Piernik
  *
  */
@@ -37,16 +40,13 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 
 	enum BaseColumn
 	{
-		role("GroupMember.role"), 
-		name("GroupMember.name"),
-		email("GroupMember.email"),
-		action("GroupMember.action");
+		role("GroupMember.role"), name("GroupMember.name"), email(
+				"GroupMember.email"), action("GroupMember.action");
 		private String captionKey;
 
 		BaseColumn(String captionKey)
 		{
 			this.captionKey = captionKey;
-
 		}
 	};
 
@@ -57,7 +57,7 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 
 	public GroupMemebersGrid(UnityMessageSource msg,
 			List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
-			Map<String, String>  additionalAttributesName)
+			Map<String, String> additionalAttributesName)
 	{
 		this.msg = msg;
 		this.rowActionHandlers = rowActionHandlers;
@@ -77,15 +77,27 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 
 	public void setValue(Collection<GroupMemberEntry> items)
 	{
+		Set<GroupMemberEntry> selectedItems = getSelectedItems();
+		deselectAll();
 		groupMemberEntries.clear();
 		groupMemberEntries.addAll(items);
 		if (groupMemberEntries.size() <= 18)
-			setHeightByRows(groupMemberEntries.size());
+			setHeightByRows(groupMemberEntries.isEmpty() ? 1
+					: groupMemberEntries.size());
 		else
 			setHeight(100, Unit.PERCENTAGE);
 		dataProvider.refreshAll();
+
+		for (long selected : selectedItems.stream().map(s -> s.getEntityId())
+				.collect(Collectors.toList()))
+		{
+			for (GroupMemberEntry entry : groupMemberEntries)
+				if (entry.getEntityId() == selected)
+					select(entry);
+
+		}
+
 	}
-	
 
 	private Label getRoleLabel(String caption, Images icon)
 	{
@@ -110,25 +122,24 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(2)
 				.setResizable(false);
 
-		addColumn(ie -> ie.getBaseValue(BaseColumn.name))
-				.setCaption(msg.getMessage(BaseColumn.name.captionKey))
+		addColumn(ie -> ie.getName()).setCaption(msg.getMessage(BaseColumn.name.captionKey))
 				.setExpandRatio(3);
-		addColumn(ie -> ie.getBaseValue(BaseColumn.email))
+		addColumn(ie -> ie.getEmail())
 				.setCaption(msg.getMessage(BaseColumn.email.captionKey))
 				.setExpandRatio(3);
 	}
-	
+
 	private void createAttrsColumns(Map<String, String> additionalAttributes)
 	{
 
 		for (Map.Entry<String, String> attr : additionalAttributes.entrySet())
 		{
 			addColumn(ie -> ie.getAttribute(attr.getKey())).setCaption(attr.getValue())
-				.setExpandRatio(3).setId(ATTR_COL_PREFIX + attr.getKey());
+					.setExpandRatio(3).setId(ATTR_COL_PREFIX + attr.getKey());
 		}
 
 	}
-	
+
 	private void createActionColumn()
 	{
 		addComponentColumn(ie -> {
