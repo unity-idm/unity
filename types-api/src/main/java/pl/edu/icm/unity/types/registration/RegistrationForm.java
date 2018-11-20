@@ -63,7 +63,7 @@ public class RegistrationForm extends BaseForm
 	/**
 	 * @implNote: if the realm name is provided, then after the registration is
 	 *            completed from standalone view, and the request meets various
-	 *            criteria, newly registered user is automatically login into
+	 *            criteria, newly registered user is automatically logged into
 	 *            this realm.
 	 */
 	private String autoLoginToRealm;
