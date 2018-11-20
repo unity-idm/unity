@@ -54,17 +54,17 @@ class AutoLoginAfterSignUpProcessor
 	@Qualifier("insecure")  
 	private RealmsManagement realmsManagement;
 	
-	public void signInIfPossible(RegistrationRequestEditor editor, RegistrationRequestState requestState)
+	public boolean signInIfPossible(RegistrationRequestEditor editor, RegistrationRequestState requestState)
 	{
 		if (requestState == null)
-			return;
+			return false;
 
 		if (requestState.getStatus() != RegistrationRequestStatus.accepted)
 		{
 			LOG.debug("Registration request {} is not eligible for automatic sign in, "
 					+ "status was: {}, expected: {}", requestState.getRequestId(),
 					requestState.getStatus(), RegistrationRequestStatus.accepted);
-			return;
+			return false;
 		}
 		
 		RegistrationForm form = editor.getForm();
@@ -72,7 +72,7 @@ class AutoLoginAfterSignUpProcessor
 		{
 			LOG.debug("Automatic login for registration form {} disabled, skipping "
 					+ "sign in for registration request {}", form.getName(), requestState.getRequestId());
-			return;
+			return false;
 		}
 		
 		RemotelyAuthenticatedContext remoteContext = editor.getRemoteAuthnContext();
@@ -81,7 +81,7 @@ class AutoLoginAfterSignUpProcessor
 			LOG.debug("Automatic login for registration request {} is not supported, "
 					+ "auto sign in requires form to be submitted with remote sign up method", 
 					requestState.getRequestId());
-			return;
+			return false;
 		}
 		
 		AuthenticationRealm realm;
@@ -91,7 +91,7 @@ class AutoLoginAfterSignUpProcessor
 		} catch (EngineException e)
 		{
 			LOG.error("Unable to automatically sign in entity {}.", requestState.getCreatedEntityId(), e);
-			return;
+			return false;
 		}
 		
 		if (remoteContext.getCreationTime() == null)
@@ -99,14 +99,14 @@ class AutoLoginAfterSignUpProcessor
 			LOG.debug("Unable to determine whether session expired or not, "
 					+ "entity {} is not eligible for sign up after registration {}.", 
 					requestState.getCreatedEntityId(), requestState.getRequestId());
-			return;
+			return false;
 		}
 		
 		if (isSessionExpiredDueToUserInactivity(remoteContext.getCreationTime(), realm))
 		{
 			LOG.debug("Automatic login for registration request {} is not possible, "
 					+ "session expired.", requestState.getRequestId());
-			return;
+			return false;
 		}
 		
 		try
@@ -122,9 +122,11 @@ class AutoLoginAfterSignUpProcessor
 			LOG.info("Entity Id {} automatically signed into realm {}, as the result of successful "
 					+ "registration request processing: {}", requestState.getCreatedEntityId(), 
 					form.getAutoLoginToRealm(), requestState.getRequestId());
+			return true;
 		} catch (Exception e)
 		{
 			LOG.error("Failed to automatically sign in entity {}.", e);
+			return false;
 		}
 	}
 

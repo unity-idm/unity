@@ -108,6 +108,8 @@ public class RegistrationFormFillDialog extends AbstractDialog
 			if (withSimplifiedFinalization)
 			{
 				closeDialogAndShowInfo(config.mainInformation);
+				if (config.isAutoLoginAfterSignUp())
+					Page.getCurrent().reload();
 			} else
 			{
 				gotoFinalScreen(config);
