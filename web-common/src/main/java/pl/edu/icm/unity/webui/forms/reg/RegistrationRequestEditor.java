@@ -361,6 +361,16 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		layout.addComponent(registrationCode);
 		return true;
 	}
+	
+	RegistrationForm getForm()
+	{
+		return form;
+	}
+	
+	RemotelyAuthenticatedContext getRemoteAuthnContext()
+	{
+		return remotelyAuthenticated;
+	}
 }
 
 
