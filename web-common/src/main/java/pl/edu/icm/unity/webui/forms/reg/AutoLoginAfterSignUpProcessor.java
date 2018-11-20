@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.apache.logging.log4j.Logger;
@@ -35,6 +36,8 @@ import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
  * <li>the registration request was auto accepted
  * <li>realm is configured at registration form level
  * <li>remote sign up method was used to fill out the registration request
+ * <li>time from remote authN to now should not be < realm's max session
+ * inactivity time
  * </ul>
  * 
  * @author Roman Krysinski (roman@unity-idm.eu)
@@ -72,7 +75,7 @@ class AutoLoginAfterSignUpProcessor
 			return;
 		}
 		
-		RemotelyAuthenticatedContext remoteContext = editor.getRemotelyAuthContext();
+		RemotelyAuthenticatedContext remoteContext = editor.getRemoteAuthnContext();
 		if (RemotelyAuthenticatedContext.isLocalContext(remoteContext))
 		{
 			LOG.debug("Automatic login for registration request {} is not supported, "
@@ -88,6 +91,21 @@ class AutoLoginAfterSignUpProcessor
 		} catch (EngineException e)
 		{
 			LOG.error("Unable to automatically sign in entity {}.", requestState.getCreatedEntityId(), e);
+			return;
+		}
+		
+		if (remoteContext.getCreationTime() == null)
+		{
+			LOG.debug("Unable to determine whether session expired or not, "
+					+ "entity {} is not eligible for sign up after registration {}.", 
+					requestState.getCreatedEntityId(), requestState.getRequestId());
+			return;
+		}
+		
+		if (isSessionExpiredDueToUserInactivity(remoteContext.getCreationTime(), realm))
+		{
+			LOG.debug("Automatic login for registration request {} is not possible, "
+					+ "session expired.", requestState.getRequestId());
 			return;
 		}
 		
@@ -108,7 +126,16 @@ class AutoLoginAfterSignUpProcessor
 		{
 			LOG.error("Failed to automatically sign in entity {}.", e);
 		}
-		
+	}
+
+	private boolean isSessionExpiredDueToUserInactivity(Instant loginTime, AuthenticationRealm realm)
+	{
+		long now = Instant.now().getEpochSecond();
+		long login = loginTime.getEpochSecond();
+		long userActivityDuration = now - login;
+		if (userActivityDuration > realm.getMaxInactivity())
+			return true;
+		return false;
 	}
 
 	private LoginSession getLoginSessionForEntity(AuthenticatedEntity authenticatedEntity, AuthenticationRealm realm)

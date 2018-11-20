@@ -367,7 +367,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return form;
 	}
 	
-	RemotelyAuthenticatedContext getRemotelyAuthContext()
+	RemotelyAuthenticatedContext getRemoteAuthnContext()
 	{
 		return remotelyAuthenticated;
 	}
