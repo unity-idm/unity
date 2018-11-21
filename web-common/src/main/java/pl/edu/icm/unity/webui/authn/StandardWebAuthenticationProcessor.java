@@ -169,7 +169,7 @@ public class StandardWebAuthenticationProcessor implements WebAuthenticationProc
 		long entityId = authenticatedEntity.getEntityId();
 		String label = getLabel(entityId);
 		return sessionMan.getCreateSession(entityId, realm, label,
-				authenticatedEntity.getOutdatedCredentialId(), null,
+				authenticatedEntity.getOutdatedCredentialId(), 
 				new RememberMeInfo(false, false), firstFactorAuhtnOptionId,
 				secondFactorAuhtnOptionId);
 	}

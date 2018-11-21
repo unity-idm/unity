@@ -332,7 +332,6 @@ public class RememberMeProcessor
 				realm, 
 				label, 
 				null, 
-				null,
 				new RememberMeInfo(firstFactorSkipped,
 						secondFactorAuthnOptionId != null),
 				unityRememberMeToken.get().getFirstFactorAuthnOptionId(),

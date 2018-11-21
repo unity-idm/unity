@@ -85,7 +85,7 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-				String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
+				String outdatedCredentialId, RememberMeInfo rememberMeInfo,
 				String firstFactorOptionId, String secondFactorOptionId)
 	{
 		try
@@ -123,7 +123,7 @@ public class SessionManagementImpl implements SessionManagement
 			}
 
 			return createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
-					absoluteExpiration, rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
+					rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
 
 		} finally
 		{
@@ -152,14 +152,14 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	@Transactional
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
-			String entityLabel, String outdatedCredentialId, Date absoluteExpiration,
+			String entityLabel, String outdatedCredentialId, 
 			RememberMeInfo rememberMeInfo, String firstFactorOptionId,
 			String secondFactorOptionId)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
 		Date now = new Date();
-		LoginSession ls = new LoginSession(id, now, absoluteExpiration,
+		LoginSession ls = new LoginSession(id, now, 
 				realm.getMaxInactivity()*1000, loggedEntity, 
 				realm.getName(), rememberMeInfo, new AuthNInfo(firstFactorOptionId, now), 
 				new AuthNInfo(secondFactorOptionId, now));
@@ -213,7 +213,12 @@ public class SessionManagementImpl implements SessionManagement
 	public LoginSession getSession(String id)
 	{
 		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
-		return token2session(token);
+		LoginSession session = token2session(token);
+		if (session.isExpiredAt(System.currentTimeMillis()))
+			throw new SessionExpiredException();
+		log.trace("Returning session {} last used at {} maxInactivity {}", id, session.getLastUsed(), 
+				session.getMaxInactivity());
+		return session;
 	}
 
 	
@@ -224,7 +229,7 @@ public class SessionManagementImpl implements SessionManagement
 		for (Token token: tokens)
 		{
 			LoginSession ls = token2session(token);
-			if (realm.equals(ls.getRealm()))
+			if (realm.equals(ls.getRealm()) && !ls.isExpiredAt(System.currentTimeMillis()))
 				return ls;
 		}
 		return null;
@@ -252,7 +257,8 @@ public class SessionManagementImpl implements SessionManagement
 				return;
 		}
 		
-		updateSession(id, session -> session.setLastUsed(new Date()));
+		if (!updateSession(id, session -> session.setLastUsed(new Date())))
+			throw new SessionExpiredException();
 
 		log.trace("Updated in db session activity timestamp for " + id);
 		recentUsageUpdates.put(id, System.currentTimeMillis());
@@ -275,16 +281,20 @@ public class SessionManagementImpl implements SessionManagement
 		}
 	}
 	
-	private void updateSession(String id, Consumer<LoginSession> updater) 
+	private boolean updateSession(String id, Consumer<LoginSession> updater) 
 	{
 		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
 		LoginSession session = token2session(token);
+		
+		if (session.isExpiredAt(System.currentTimeMillis()))
+			return false;
 		
 		updater.accept(session);
 		updateCurrentSessionIfMatching(session);
 		
 		byte[] contents = session.getTokenContents();
 		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+		return true;
 	}
 	
 	private void updateCurrentSessionIfMatching(LoginSession changed)
@@ -326,23 +336,36 @@ public class SessionManagementImpl implements SessionManagement
 			long now = System.currentTimeMillis();
 			for (Token t: tokens)
 			{
-				if (t.getExpires() != null)
-					continue;
-				LoginSession session = token2session(t);
-				long inactiveFor = now - session.getLastUsed().getTime(); 
-				if (inactiveFor > session.getMaxInactivity())
+				try
 				{
-					log.debug("Expiring login session " + session + " inactive for: " + 
-							inactiveFor);
-					try
-					{
-						removeSession(session.getId(), false);
-					} catch (Exception e)
-					{
-						log.error("Can't expire the session " + session, e);
-					}
+					removeSessionIfExpired(now, t);
+				} catch (Exception e)
+				{
+					log.warn("Removing expired session " + t.getValue() + " failed", e);
 				}
 			}
 		}
+		
+		private void removeSessionIfExpired(long now, Token t)
+		{
+			LoginSession session = token2session(t);
+			long inactiveFor = now - session.getLastUsed().getTime(); 
+			if (inactiveFor > session.getMaxInactivity())
+			{
+				log.debug("Expiring login session " + session + " inactive for: " + 
+						inactiveFor);
+				try
+				{
+					removeSession(session.getId(), false);
+				} catch (Exception e)
+				{
+					log.error("Can't expire the session " + session, e);
+				}
+			}
+		}
+	}
+	
+	public static class SessionExpiredException extends IllegalArgumentException
+	{
 	}
 }
