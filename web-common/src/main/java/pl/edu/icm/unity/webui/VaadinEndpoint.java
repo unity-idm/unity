@@ -230,9 +230,10 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	
 	protected int getHeartbeatInterval(int sessionTimeout)
 	{
-		if (sessionTimeout >= 2*DEFAULT_HEARTBEAT) 
+		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT) 
 			return DEFAULT_HEARTBEAT;
-		return sessionTimeout/2;
+		int ret = sessionTimeout/3;
+		return ret < 2 ? 2 : ret;
 	}
 	
 	/**
@@ -255,7 +256,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		{
 			int sessionTimeout = description.getRealm().getMaxInactivity();
 			int heartBeat = getHeartbeatInterval(sessionTimeout);
-			sessionTimeout = sessionTimeout - heartBeat - heartBeat/2;
+			sessionTimeout = sessionTimeout - heartBeat;
 			if (sessionTimeout < 2)
 				sessionTimeout = 2;
 			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));

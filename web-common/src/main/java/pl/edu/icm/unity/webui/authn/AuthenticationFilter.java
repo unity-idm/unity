@@ -119,7 +119,9 @@ public class AuthenticationFilter implements Filter
 				.getAttribute(LoginToHttpSessionBinder.USER_SESSION_KEY);
 		if (loginSession == null)
 			return;
-
+		if (loginSession.isExpiredAt(System.currentTimeMillis()))
+			return;
+		
 		dosGauard.successfulAttempt(clientIp);
 		if (!loginSession.isUsedOutdatedCredential())
 		{
@@ -131,6 +133,9 @@ public class AuthenticationFilter implements Filter
 				{
 					log.trace("Update session activity for " + loginSessionId);
 					sessionMan.updateSessionActivity(loginSessionId);
+				} else
+				{
+					
 				}
 				gotoProtectedResource(httpRequest, response, chain);
 				throw new EopException();

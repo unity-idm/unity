@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.api.session;
 
-import java.util.Date;
 import java.util.Map;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -26,13 +25,12 @@ public interface SessionManagement
 	 * @param realm
 	 * @param label used only when a new session is created
 	 * @param outdatedCredential used only if a new session is created
-	 * @param absoluteExpiration can be null or absolute expiration time (then session is not closed after 
 	 * @param rememberMeInfo information about remember me steps
 	 * inactive timeout).
 	 * @return
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
-			String label, String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
+			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
 			String firstFactorOptionId, String secondFactorOptionId);
 	
 	
@@ -42,13 +40,11 @@ public interface SessionManagement
 	 * @param realm
 	 * @param label used only when a new session is created
 	 * @param outdatedCredential used only if a new session is created
-	 * @param absoluteExpiration can be null or absolute expiration time (then session is not closed after 
 	 * @param rememberMeInfo information about remember me steps
-	 * inactive timeout).
 	 * @return
 	 */
 	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm, 
-			String label, String outdatedCredentialId, Date absoluteExpiration, RememberMeInfo rememberMeInfo,
+			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
 			String firstFactorOptionId, String secondFactorOptionId);
 	
 	/**

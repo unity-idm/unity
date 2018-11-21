@@ -263,6 +263,12 @@ public class LoginSession
 		this.additionalAuthn = additionalAuthn;
 	}
 
+	public boolean isExpiredAt(long timestamp)
+	{
+		long inactiveFor = timestamp - getLastUsed().getTime();
+		return inactiveFor > getMaxInactivity();
+	}
+	
 	public void deserialize(Token token)
 	{
 		ObjectNode main = JsonUtil.parse(token.getContents());
