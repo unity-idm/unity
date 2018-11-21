@@ -10,14 +10,12 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
@@ -62,8 +60,7 @@ public class GroupsController
 		for (String group : groupAndSubgroups.keySet())
 		{
 			List<Group> subGr = new ArrayList<>();
-			for (String sgr : groupAndSubgroups.get(group).getSubGroups().stream()
-					.sorted().collect(Collectors.toList()))
+			for (String sgr : groupAndSubgroups.get(group).getSubGroups())
 			{
 				subGr.add(groupAndSubgroups.get(sgr).getGroup());
 			}
@@ -75,16 +72,17 @@ public class GroupsController
 		return groupTree;
 	}
 
-	public void addGroup(String project, Group group) throws ControllerException
+	public void addGroup(String project, String parentPath, I18nString groupName,
+			boolean isOpen) throws ControllerException
 	{
 		try
 		{
-			delGroupMan.addGroup(project, group);
-		} catch (EngineException e)
+			delGroupMan.addGroup(project, parentPath, groupName, isOpen);
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("GroupsController.addGroupError",
-							group.getNameShort()),
+							groupName.getValue(msg)),
 					e.getMessage(), e);
 		}
 	}
@@ -94,7 +92,7 @@ public class GroupsController
 		try
 		{
 			delGroupMan.removeGroup(project, groupPath, true);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 
 			throw new ControllerException(
@@ -105,7 +103,7 @@ public class GroupsController
 
 	}
 
-	public void setPublicGroupAccess(String project, String path, boolean isOpen)
+	public void setGroupAccessMode(String project, String path, boolean isOpen)
 			throws ControllerException
 	{
 		try
@@ -113,7 +111,7 @@ public class GroupsController
 
 			delGroupMan.setGroupAccessMode(project, path, isOpen);
 
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("GroupsController.updateGroupAccessError",
@@ -132,7 +130,7 @@ public class GroupsController
 
 			delGroupMan.setGroupDisplayedName(project, path, groupName);
 
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("GroupsController.updateGroupNameError",

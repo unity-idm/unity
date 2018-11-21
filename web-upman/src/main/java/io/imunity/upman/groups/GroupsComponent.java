@@ -8,20 +8,20 @@ package io.imunity.upman.groups;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import com.vaadin.server.UserError;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.common.UpManStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -44,14 +44,14 @@ public class GroupsComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private GroupsController controller;
 	private GroupsTree groupBrowser;
-	private String rootPath;
+	private String projectPath;
 
 	public GroupsComponent(UnityMessageSource msg, GroupsController controller,
-			String rootGroup) throws ControllerException
+			String projectPath) throws ControllerException
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.rootPath = rootGroup;
+		this.projectPath = projectPath;
 
 		List<SingleActionHandler<GroupNode>> rawActions = new ArrayList<>();
 		rawActions.add(getDeleteGroupAction());
@@ -60,7 +60,7 @@ public class GroupsComponent extends CustomComponent
 		rawActions.add(getMakePrivateAction());
 		rawActions.add(getRenameGroupcAction());
 
-		groupBrowser = new GroupsTree(msg, controller, rawActions, rootGroup);
+		groupBrowser = new GroupsTree(msg, controller, rawActions, projectPath);
 		HamburgerMenu<GroupNode> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleNames(UpManStyles.indentSmall.toString());
 		groupBrowser.addSelectionListener(hamburgerMenu.getSelectionListener());
@@ -80,8 +80,14 @@ public class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.makePrivateAction"))
 				.withIcon(Images.padlock_lock.getResource())
-				.withDisabledPredicate(n -> !n.isPublic())
-				.withHandler(this::makePrivate).hideIfInactive().build();
+				.withDisabledPredicate(n -> {
+					boolean disabled = !n.isOpen();
+					for (GroupNode child : groupBrowser.getChildren(n))
+					{
+						disabled = disabled || child.isOpen();
+					}
+					return disabled;
+				}).withHandler(this::makePrivate).hideIfInactive().build();
 	}
 
 	private void updateGroupAccess(Set<GroupNode> items, boolean isOpen)
@@ -93,7 +99,7 @@ public class GroupsComponent extends CustomComponent
 		try
 		{
 
-			controller.setPublicGroupAccess(rootPath, groupNode.getPath(), isOpen);
+			controller.setGroupAccessMode(projectPath, groupNode.getPath(), isOpen);
 			groupBrowser.reloadNode(groupNode);
 
 		} catch (ControllerException e)
@@ -101,19 +107,27 @@ public class GroupsComponent extends CustomComponent
 			NotificationPopup.showError(e);
 		}
 	}
-	
+
 	private void makePrivate(Set<GroupNode> items)
 	{
 
 		updateGroupAccess(items, false);
 	}
-	
+
 	private SingleActionHandler<GroupNode> getMakePublicAction()
 	{
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.makePublicAction"))
 				.withIcon(Images.padlock_unlock.getResource())
-				.withDisabledPredicate(n -> n.isPublic())
+				.withDisabledPredicate(n -> {
+					boolean disabled = n.isOpen();
+					if (n.getParentNode() != null)
+					{
+						disabled = disabled || !n.getParentNode().isOpen();
+					}
+					return disabled;
+				})
+
 				.withHandler(this::makePublic).hideIfInactive().build();
 	}
 
@@ -143,7 +157,7 @@ public class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.deleteGroupAction"))
 				.withIcon(Images.removeFromGroup.getResource())
-				.withDisabledPredicate(n -> n.getPath().equals(rootPath))
+				.withDisabledPredicate(n -> n.getPath().equals(projectPath))
 				.hideIfInactive().withHandler(this::confirmDelete).build();
 	}
 
@@ -165,7 +179,7 @@ public class GroupsComponent extends CustomComponent
 		try
 		{
 
-			controller.deleteGroup(rootPath, group.getPath());
+			controller.deleteGroup(projectPath, group.getPath());
 			groupBrowser.reloadNode(group.getParentNode());
 
 		} catch (ControllerException e)
@@ -190,10 +204,11 @@ public class GroupsComponent extends CustomComponent
 			return;
 
 		GroupNode groupNode = items.iterator().next();
-		new AddGroupDialog(msg, groupNode, group -> {
+		new AddGroupDialog(msg, groupNode, (groupName, isOpen) -> {
 			try
 			{
-				controller.addGroup(rootPath, group);
+				controller.addGroup(projectPath, groupNode.getPath(), groupName,
+						isOpen);
 				groupBrowser.reloadNode(groupNode);
 				groupBrowser.expand(groupNode);
 			} catch (ControllerException e)
@@ -205,13 +220,13 @@ public class GroupsComponent extends CustomComponent
 
 	private class AddGroupDialog extends AbstractDialog
 	{
-		private Consumer<Group> groupConsumer;
-		private TextField groupNameField;
+		private BiConsumer<I18nString, Boolean> groupConsumer;
+		private I18nTextField groupNameField;
 		private GroupNode parentGroup;
-		private CheckBox isPublic;
+		private CheckBox isOpen;
 
 		public AddGroupDialog(UnityMessageSource msg, GroupNode parentGroup,
-				Consumer<Group> groupConsumer)
+				BiConsumer<I18nString, Boolean> groupConsumer)
 		{
 			super(msg, msg.getMessage("AddGroupDialog.caption"));
 			this.groupConsumer = groupConsumer;
@@ -225,11 +240,15 @@ public class GroupsComponent extends CustomComponent
 			Label info = new Label(msg.getMessage("AddGroupDialog.info", parentGroup));
 			info.setWidth(100, Unit.PERCENTAGE);
 
-			groupNameField = new TextField(msg.getMessage("AddGroupDialog.groupName"));
-			isPublic = new CheckBox(msg.getMessage("AddGroupDialog.public"));
+			groupNameField = new I18nTextField(msg,
+					msg.getMessage("AddGroupDialog.groupName"));
+			isOpen = new CheckBox(msg.getMessage("AddGroupDialog.public"));
+
+			isOpen.setEnabled(parentGroup.isOpen());
+			isOpen.setValue(parentGroup.isOpen());
 
 			FormLayout main = new CompactFormLayout();
-			main.addComponents(info, groupNameField, isPublic);
+			main.addComponents(info, groupNameField, isOpen);
 			main.setSizeFull();
 			return main;
 		}
@@ -237,8 +256,14 @@ public class GroupsComponent extends CustomComponent
 		@Override
 		protected void onConfirm()
 		{
-			groupConsumer.accept(new Group(
-					parentGroup.getPath() + "/" + groupNameField.getValue()));
+			if (groupNameField.isEmpty())
+			{
+				groupNameField.setComponentError(new UserError(msg
+						.getMessage("AddGroupDialog.emptyGroupNameError")));
+				return;
+			}
+
+			groupConsumer.accept(groupNameField.getValue(), isOpen.getValue());
 			close();
 		}
 	}
@@ -248,7 +273,8 @@ public class GroupsComponent extends CustomComponent
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.renameGroupAction"))
 				.withIcon(Images.pencil.getResource())
-				.withHandler(this::showRenameGroupDialog).build();
+				.withDisabledPredicate(n -> n.getPath().equals(projectPath))
+				.hideIfInactive().withHandler(this::showRenameGroupDialog).build();
 	}
 
 	private void showRenameGroupDialog(Set<GroupNode> selection)
@@ -257,8 +283,8 @@ public class GroupsComponent extends CustomComponent
 		new RenameGroupDialog(msg, groupName -> {
 			try
 			{
-				controller.updateGroupName(rootPath, selection.iterator().next().getPath(),
-						groupName);
+				controller.updateGroupName(projectPath,
+						selection.iterator().next().getPath(), groupName);
 				groupBrowser.reloadNode(selection.iterator().next());
 			} catch (ControllerException e)
 			{
@@ -294,6 +320,13 @@ public class GroupsComponent extends CustomComponent
 		@Override
 		protected void onConfirm()
 		{
+			if (groupNameField.isEmpty())
+			{
+				groupNameField.setComponentError(new UserError(msg.getMessage(
+						"RenameGroupDialog.emptyGroupNameError")));
+				return;
+			}
+
 			groupNameConsumer.accept(groupNameField.getValue());
 			close();
 		}

@@ -20,9 +20,8 @@ public class GroupNode
 	private String name;
 	private String path;
 	private GroupNode parent;
-	private UnityMessageSource msg;
 	private String icon;
-	private boolean publicGroup;
+	private boolean open;
 
 	public GroupNode(UnityMessageSource msg, Group group)
 	{
@@ -31,23 +30,12 @@ public class GroupNode
 
 	public GroupNode(UnityMessageSource msg, Group group, GroupNode parent)
 	{
-		this.msg = msg;
 		this.path = group.toString();
 		this.parent = parent;
-		this.publicGroup = group.isOpen();
-		this.icon = publicGroup ? Images.padlock_unlock.getHtml()
+		this.open = group.isOpen();
+		this.icon = open ? Images.padlock_unlock.getHtml()
 				: Images.padlock_lock.getHtml();
-		setGroupMetadata(group);
-	}
-
-	public void setGroupMetadata(Group group)
-	{
-
-		this.name = group.getDisplayedName().getValue(msg);
-		String realName = group.toString();
-		if (realName.equals(name))
-			this.name = group.getNameShort();
-
+		this.name = group.getDisplayedName().getValue(msg);;
 	}
 
 	public String getIcon()
@@ -81,9 +69,9 @@ public class GroupNode
 		return name;
 	}
 
-	public boolean isPublic()
+	public boolean isOpen()
 	{
-		return publicGroup;
+		return open;
 	}
 
 	@Override

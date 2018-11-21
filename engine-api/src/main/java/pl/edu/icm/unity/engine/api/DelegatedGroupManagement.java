@@ -25,7 +25,8 @@ public interface DelegatedGroupManagement
 	/**
 	 * {@link GroupsManagement#addGroup(Group)}
 	 */
-	void addGroup(String projectPath, Group toAdd) throws EngineException;
+	void addGroup(String projectPath, String parentPath, I18nString groupName, boolean isOpen)
+			throws EngineException;
 
 	/**
 	 * {@link GroupsManagement#removeGroup(Group)}
@@ -115,4 +116,6 @@ public interface DelegatedGroupManagement
 	 */
 	void removeMemberFromGroup(String projectPath, String groupPath, long entityId)
 			throws EngineException;
+
+	
 }

@@ -34,20 +34,21 @@ public class GroupsTree extends TreeGrid<GroupNode>
 	private GroupsController controller;
 	private UnityMessageSource msg;
 	private List<SingleActionHandler<GroupNode>> rowActionHandlers;
-	private String root;
+	private String projectPath;
 
 	public GroupsTree(UnityMessageSource msg, GroupsController controller,
-			List<SingleActionHandler<GroupNode>> actions, String root)
+			List<SingleActionHandler<GroupNode>> actions, String projectPath)
 			throws ControllerException
 	{
 		this.controller = controller;
 		this.msg = msg;
 		this.rowActionHandlers = actions;
-		this.root = root;
+		this.projectPath = projectPath;
 
 		treeData = new TreeData<>();
-		setDataProvider(new TreeDataProvider<>(treeData));
-
+		TreeDataProvider<GroupNode> dataProvider = new TreeDataProvider<>(treeData);
+		dataProvider.setSortComparator((g1, g2) -> g1.toString().compareTo(g2.toString()));
+		setDataProvider(dataProvider);
 		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer())
 				.setCaption(msg.getMessage("GroupTree.group"));
 
@@ -58,8 +59,8 @@ public class GroupsTree extends TreeGrid<GroupNode>
 			return menu;
 
 		}).setCaption(msg.getMessage("GroupTree.action")).setWidth(80).setResizable(false);
-
-		loadNode(root, null);
+		
+		loadNode(projectPath, null);
 		expand(treeData.getChildren(null));
 		setWidth(100, Unit.PERCENTAGE);
 	}
@@ -68,16 +69,14 @@ public class GroupsTree extends TreeGrid<GroupNode>
 	{
 		Map<String, List<Group>> groupTree;
 
-		groupTree = controller.getGroupTree(root, path);
+		groupTree = controller.getGroupTree(projectPath, path);
 
 		for (Group rootGr : groupTree.get(null))
 		{
 			GroupNode rootNode = new GroupNode(msg, rootGr, parent);
 			treeData.addItem(parent, rootNode);
 			addChilds(rootNode, groupTree);
-
 		}
-
 	}
 
 	public void reloadNode(GroupNode node) throws ControllerException
@@ -86,6 +85,11 @@ public class GroupsTree extends TreeGrid<GroupNode>
 		loadNode(node.getPath(), node.getParentNode());
 		getDataProvider().refreshAll();
 
+	}
+	
+	public List<GroupNode> getChildren(GroupNode node)
+	{
+		return treeData.getChildren(node);
 	}
 
 	private void addChilds(GroupNode parentNode, Map<String, List<Group>> groupTree)
