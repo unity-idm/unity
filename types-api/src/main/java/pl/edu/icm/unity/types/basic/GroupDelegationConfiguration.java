@@ -72,7 +72,8 @@ public class GroupDelegationConfiguration
 			List<String> attrs = new ArrayList<>();
 			for (JsonNode e : jsonAttrs)
 				attrs.add(e.asText());
-			setAttributes(attrs);
+			if (!attrs.isEmpty())
+				setAttributes(attrs);
 		}
 	}
 
@@ -84,7 +85,7 @@ public class GroupDelegationConfiguration
 		root.put("logoUrl", getLogoUrl());
 		root.put("registratioForm", getRegistratioForm());
 		root.put("signupEnquiryForm", getSignupEnquiryForm());
-		root.put("stickyEnquiryForm", getSignupEnquiryForm());
+		root.put("stickyEnquiryForm", getSignupEnquiryForm());	
 		ArrayNode attrs = root.putArray("attributes");
 		List<String> attributes = getAttributes();
 		if (attributes != null)
