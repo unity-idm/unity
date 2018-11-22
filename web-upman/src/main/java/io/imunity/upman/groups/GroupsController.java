@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.DelegatedGroupContents;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -44,7 +44,7 @@ public class GroupsController
 	public Map<String, List<Group>> getGroupTree(String projectPath, String rootPath)
 			throws ControllerException
 	{
-		Map<String, GroupContents> groupAndSubgroups;
+		Map<String, DelegatedGroupContents> groupAndSubgroups;
 		try
 		{
 			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(projectPath, rootPath);

@@ -85,7 +85,7 @@ public interface DelegatedGroupManagement
 	 * @throws EngineException
 	 */
 
-	Map<String, GroupContents> getGroupAndSubgroups(String projectPath, String groupPath)
+	Map<String, DelegatedGroupContents> getGroupAndSubgroups(String projectPath, String groupPath)
 			throws EngineException;
 
 	

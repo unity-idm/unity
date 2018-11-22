@@ -98,7 +98,7 @@ public class GroupMembersController
 	public Map<String, String> getProjectGroupsMap(String rootPath) throws ControllerException
 	{
 		Map<String, String> groups = new HashMap<>();
-		Map<String, GroupContents> groupAndSubgroups;
+		Map<String, DelegatedGroupContents> groupAndSubgroups;
 		try
 		{
 			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(rootPath, rootPath);
@@ -152,7 +152,7 @@ public class GroupMembersController
 	}
 
 	private void fillGroupRecursive(String parentPath,
-			Map<String, GroupContents> groupAndSubgroups, Map<String, String> groups)
+			Map<String, DelegatedGroupContents> groupAndSubgroups, Map<String, String> groups)
 	{
 		for (String subgroup : groupAndSubgroups.get(parentPath).getSubGroups())
 		{

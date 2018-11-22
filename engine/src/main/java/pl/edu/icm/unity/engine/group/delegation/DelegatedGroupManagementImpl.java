@@ -8,8 +8,10 @@ package pl.edu.icm.unity.engine.group.delegation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,14 +128,20 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 	@Override
 	@Transactional
-	public Map<String, GroupContents> getGroupAndSubgroups(String projectPath, String path)
+	public Map<String, DelegatedGroupContents> getGroupAndSubgroups(String projectPath, String path)
 			throws EngineException
 	{
 
 		authz.checkManagerAuthorization(projectPath);
 		assertGroupIsChildren(projectPath, path);
 		GroupStructuralData bulkData = bulkQueryService.getBulkStructuralData(path);
-		return bulkQueryService.getGroupAndSubgroups(bulkData);
+		Map<String, GroupContents> groupAndSubgroups = bulkQueryService.getGroupAndSubgroups(bulkData);
+		Map<String, DelegatedGroupContents> ret = new HashMap<>();
+		for (Entry<String, GroupContents> entry : groupAndSubgroups.entrySet())
+		{
+		    ret.put(entry.getKey(), getDelegatedGroupContent(projectPath, entry.getValue()));
+		}
+		return ret;
 	}
 
 	@Override
