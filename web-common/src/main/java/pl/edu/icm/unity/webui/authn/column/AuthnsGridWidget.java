@@ -222,7 +222,7 @@ class AuthnsGridWidget extends CustomComponent
 		{
 			String otherName = o.getNameWithTags().name;
 			String thisName = getNameWithTags().name;
-			return thisName.compareTo(otherName);
+			return thisName.compareToIgnoreCase(otherName);
 		}
 	}
 }
