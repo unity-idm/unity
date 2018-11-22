@@ -32,6 +32,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	private boolean multiSelectable;
 	private Set<T> allItems = new LinkedHashSet<>();
 	private boolean readOnly;
+	private int maxSelection = 0;
 
 	public ChipsWithDropdown()
 	{
@@ -98,6 +99,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 			return;
 		combo.setSelectedItem(null);
 		selectGroup(selectedItem.get());
+		checkMaxSelection();
 	}
 
 	private void selectGroup(T selected)
@@ -151,6 +153,13 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	{
 		updateItemsAvailableToSelect();
 		chipsRow.setVisible(!chipsRow.getChipsData().isEmpty());
+		checkMaxSelection();
+	}
+	
+	private void checkMaxSelection()
+	{
+		if (maxSelection > 0)
+			combo.setEnabled(getSelectedItems().size() < maxSelection);
 	}
 	
 	@Override
@@ -159,5 +168,10 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		super.setWidth(width, unit);
 		if (combo != null)
 			combo.setWidth(width, unit);
+	}
+	
+	public void setMaxSelection(int maxSelection)
+	{
+		this.maxSelection = maxSelection;
 	}
 }

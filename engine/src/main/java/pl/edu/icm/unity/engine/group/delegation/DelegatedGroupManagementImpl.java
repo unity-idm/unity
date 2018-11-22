@@ -8,7 +8,6 @@ package pl.edu.icm.unity.engine.group.delegation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,6 +37,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DelegatedGroupContents;
 import pl.edu.icm.unity.types.basic.DelegatedGroupMember;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -112,17 +112,15 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		toAdd.setOpen(isOpen);
 		toAdd.setDisplayedName(groupName);
 		groupMan.addGroup(toAdd);
-
 	}
 
 	@Override
 	@Transactional
-	public void removeGroup(String projectPath, String path, boolean recursive)
-			throws EngineException
+	public void removeGroup(String projectPath, String path) throws EngineException
 	{
 		authz.checkManagerAuthorization(projectPath);
 		assertGroupIsChildren(projectPath, path);
-		groupMan.removeGroup(path, recursive);
+		groupMan.removeGroup(path, true);
 
 	}
 
@@ -139,26 +137,50 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	}
 
 	@Override
-	public Map<String, String> getAdditionalAttributeNamesForProject(String groupPath)
+	@Transactional
+	public DelegatedGroupContents getContents(String projectPath, String path, int filter)
 			throws EngineException
 	{
+		authz.checkManagerAuthorization(projectPath);
+		assertGroupIsChildren(projectPath, path);
+		GroupContents orgGroupContents = groupMan.getContents(path, filter);
+		return getDelegatedGroupContent(projectPath, orgGroupContents);
 
-		authz.checkManagerAuthorization(groupPath);
-		Map<String, String> ret = new HashMap<>();
-
-		AttributeType attr = null;
-		if (groupPath.length() == 2)
-
-			attr = attrTypeMan.getAttributeType("mobile");
-		else
-			attr = attrTypeMan.getAttributeType("firstname");
-
-		ret.put(attr.getName(), attr.getDisplayedName().getValue(msg));
-
-		return ret;
 	}
 
-	private Group getGroup(String path) throws EngineException
+	private DelegatedGroupContents getDelegatedGroupContent(String projectPath,
+			GroupContents orgGroupContents) throws EngineException
+	{
+		DelegatedGroupContents contents = new DelegatedGroupContents();
+		contents.setGroup(orgGroupContents.getGroup());
+		contents.setSubGroups(orgGroupContents.getSubGroups());
+
+		List<GroupMembership> orgMembers = orgGroupContents.getMembers();
+		if (orgMembers != null)
+		{
+			List<DelegatedGroupMember> members = new ArrayList<>();
+			List<String> projectAttrs = getProjectAttrs(projectPath);
+			for (GroupMembership member : orgGroupContents.getMembers())
+			{
+				long entity = member.getEntityId();
+				DelegatedGroupMember entry = new DelegatedGroupMember(
+						member.getEntityId(), projectPath,
+						member.getGroup(),
+						getGroupAuthRoleAttr(entity, projectPath),
+						getAttributeFromMeta(entity, projectPath,
+								EntityNameMetadataProvider.NAME),
+						getAttributeFromMeta(entity, projectPath,
+								ContactEmailMetadataProvider.NAME),
+						getProjectMemberAttributes(entity, projectPath,
+								projectAttrs));
+				members.add(entry);
+			}
+			contents.setMembers(members);
+		}
+		return contents;
+	}
+
+	private Group getGroupInternal(String path) throws EngineException
 	{
 		return groupMan.getContents(path, GroupContents.METADATA).getGroup();
 	}
@@ -170,7 +192,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	{
 		authz.checkManagerAuthorization(projectPath);
 		assertGroupIsChildren(projectPath, path);
-		Group group = getGroup(path);
+		Group group = getGroupInternal(path);
 		group.setDisplayedName(newName);
 		groupMan.updateGroup(path, group);
 	}
@@ -179,8 +201,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	{
 		for (String child : group.getSubGroups())
 		{
-			Group childGroup = groupMan.getContents(child, GroupContents.METADATA)
-					.getGroup();
+			Group childGroup = getGroupInternal(child);
 			if (childGroup.isOpen())
 			{
 				throw new IllegalArgumentException("Cannot set group "
@@ -191,18 +212,16 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			}
 		}
 	}
-	
-	private void assertIfParentIsClose(Group parentGroup) throws EngineException
+
+	private void assertIfParentIsClose(Group group) throws EngineException
 	{
-		if (!parentGroup.isTopLevel())
+		if (!group.isTopLevel())
 		{
-			Group parent = groupMan.getContents(parentGroup.getParentPath(),
-					GroupContents.METADATA).getGroup();
+			Group parent = getGroupInternal(group.getParentPath());
 			if (!parent.isOpen())
 			{
 				throw new IllegalArgumentException("Cannot set group "
-						+ parentGroup.getDisplayedName()
-								.getValue(msg)
+						+ group.getDisplayedName().getValue(msg)
 						+ " to open mode, parent group "
 						+ parent.getDisplayedName().getValue(msg)
 						+ " is close");
@@ -217,7 +236,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	{
 		authz.checkManagerAuthorization(projectPath);
 		assertGroupIsChildren(projectPath, path);
-		GroupContents groupContent = groupMan.getContents(path, GroupContents.EVERYTHING);
+		GroupContents groupContent = groupMan.getContents(path, GroupContents.METADATA | GroupContents.GROUPS);
 		Group group = groupContent.getGroup();
 		if (!isOpen)
 		{
@@ -228,11 +247,12 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 				assertIfParentIsClose(group);
 
 		}
-		
+
 		group.setOpen(isOpen);
 		groupMan.updateGroup(path, group);
 	}
 
+	//TODO check if at least one admin will remain 
 	@Override
 	@Transactional
 	public void setGroupAuthorizationRole(String projectPath, long entityId,
@@ -248,53 +268,26 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 	}
 
-	@Override
-	@Transactional
-	public List<DelegatedGroupMember> getGroupMembers(String projectPath, String path)
-			throws EngineException
-	{
-		authz.checkManagerAuthorization(projectPath);
-		assertGroupIsChildren(projectPath, path);
-
-		List<DelegatedGroupMember> ret = new ArrayList<>();
-
-		GroupContents contents = groupMan.getContents(path, GroupContents.MEMBERS);
-
-		for (GroupMembership member : contents.getMembers())
-		{
-
-			long entity = member.getEntityId();
-			DelegatedGroupMember entry = new DelegatedGroupMember(member.getEntityId(),
-					projectPath, member.getGroup(),
-					getGroupAuthRoleAttr(entity, projectPath),
-					getAttributeFromMeta(entity, projectPath,
-							EntityNameMetadataProvider.NAME),
-					getAttributeFromMeta(entity, projectPath,
-							ContactEmailMetadataProvider.NAME),
-					getProjectMemberAttributes(entity, projectPath));
-			ret.add(entry);
-		}
-		return ret;
-	}
-
-	private List<Attribute> getProjectMemberAttributes(long entity, String projectPath)
-			throws EngineException
+	private List<Attribute> getProjectMemberAttributes(long entity, String projectPath,
+			List<String> attributes) throws EngineException
 	{
 		List<Attribute> ret = new ArrayList<>();
-
-		Map<String, String> additionalAttributeTypesForGroup = getAdditionalAttributeNamesForProject(
-				projectPath);
-
-		for (String attr : additionalAttributeTypesForGroup.keySet())
+		if (attributes == null || attributes.isEmpty())
+			return ret;
+		for (String attr : attributes)
 		{
 			Optional<Attribute> oattr = getAttribute(entity, projectPath, attr);
 			if (oattr.isPresent())
 				ret.add(oattr.get());
 
 		}
-
 		return ret;
+	}
 
+	private List<String> getProjectAttrs(String projectPath) throws EngineException
+	{
+		Group projectGroup = getGroupInternal(projectPath);
+		return projectGroup.getDelegationConfiguration().getAttributes();
 	}
 
 	private Optional<Attribute> getAttribute(long entityId, String path, String attribute)
@@ -315,7 +308,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	{
 
 		Optional<Attribute> attr = getAttribute(entityId, path, attribute);
-
 		if (attr.isPresent())
 		{
 			if (!attr.get().getValues().isEmpty())
@@ -343,7 +335,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	private String getAttributeFromMeta(long entityId, String path, String metadata)
 			throws EngineException
 	{
-
 		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);
 		if (attrType == null)
 			return null;
@@ -352,15 +343,20 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		AttributeValueSyntax<?> syntax = atHelper
 				.getUnconfiguredSyntaxForAttributeName(attrType.getName());
-		if (syntax.isEmailVerifiable() && value.isPresent())
+
+		if (value.isPresent())
 		{
-			VerifiableEmail email = (VerifiableEmail) syntax
-					.convertFromString(value.get());
-			value = Optional.of(email.getValue());
+			if (syntax.isEmailVerifiable() && value.isPresent())
+			{
+				VerifiableEmail email = (VerifiableEmail) syntax
+						.convertFromString(value.get());
+				return email.getValue();
+			}
+			return value.get();
+		} else
+		{
+			return null;
 		}
-
-		return value.isPresent() ? value.get() : null;
-
 	}
 
 	private void assertGroupIsChildren(String projectPath, String childPath)
@@ -441,6 +437,21 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		String current = notMember.pollLast();
 		groupMan.addMemberFromParent(current, new EntityParam(entity));
 		addToGroupRecursive(notMember, entity);
+	}
+
+	@Override
+	public String getAttributeDisplayedName(String projectPath, String attrName)
+			throws EngineException
+	{
+		authz.checkManagerAuthorization(projectPath);
+		List<String> attrs = getProjectAttrs(projectPath);
+
+		if (!attrs.contains(attrName))
+		{
+			throw new IllegalArgumentException("Attribute " + attrName
+					+ " is not definded as read only attribute in project group configuration");
+		}
+		return attrTypeMan.getAttributeType(attrName).getDisplayedName().getValue(msg);
 	}
 
 }

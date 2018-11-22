@@ -137,7 +137,6 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 			addColumn(ie -> ie.getAttribute(attr.getKey())).setCaption(attr.getValue())
 					.setExpandRatio(3).setId(ATTR_COL_PREFIX + attr.getKey());
 		}
-
 	}
 
 	private void createActionColumn()
@@ -151,6 +150,5 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 
 		}).setCaption(msg.getMessage(BaseColumn.action.captionKey)).setWidth(80)
 				.setResizable(false);
-
 	}
 }

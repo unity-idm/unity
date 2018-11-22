@@ -5,8 +5,13 @@
 
 package pl.edu.icm.unity.types.basic;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
@@ -25,20 +30,22 @@ public class GroupDelegationConfiguration
 	private String registratioForm;
 	private String signupEnquiryForm;
 	private String stickyEnquiryForm;
+	private List<String> attributes;
 
 	public GroupDelegationConfiguration(boolean enabled)
 	{
-		this(enabled, null, null, null, null);
+		this(enabled, null, null, null, null, null);
 	}
 
 	public GroupDelegationConfiguration(boolean enabled, String logoUrl, String registratioForm,
-			String signupEnquiryForm, String stickyEnquiryForm)
+			String signupEnquiryForm, String stickyEnquiryForm, List<String> attributes)
 	{
 		this.enabled = enabled;
 		this.logoUrl = logoUrl;
 		this.registratioForm = registratioForm;
 		this.signupEnquiryForm = signupEnquiryForm;
 		this.stickyEnquiryForm = stickyEnquiryForm;
+		this.attributes = attributes;
 	}
 
 	@JsonCreator
@@ -59,6 +66,14 @@ public class GroupDelegationConfiguration
 			setSignupEnquiryForm(root.get("signupEnquiryForm").asText());
 		if (JsonUtil.notNull(root, "stickyEnquiryForm"))
 			setStickyEnquiryForm(root.get("stickyEnquiryForm").asText());
+		if (JsonUtil.notNull(root, "attributes"))
+		{
+			ArrayNode jsonAttrs = (ArrayNode) root.get("attributes");
+			List<String> attrs = new ArrayList<>();
+			for (JsonNode e : jsonAttrs)
+				attrs.add(e.asText());
+			setAttributes(attrs);
+		}
 	}
 
 	@JsonValue
@@ -70,6 +85,13 @@ public class GroupDelegationConfiguration
 		root.put("registratioForm", getRegistratioForm());
 		root.put("signupEnquiryForm", getSignupEnquiryForm());
 		root.put("stickyEnquiryForm", getSignupEnquiryForm());
+		ArrayNode attrs = root.putArray("attributes");
+		List<String> attributes = getAttributes();
+		if (attributes != null)
+		{
+			for (String attr : getAttributes())
+				attrs.add(attr);
+		}
 		return root;
 	}
 
@@ -123,6 +145,16 @@ public class GroupDelegationConfiguration
 		this.stickyEnquiryForm = stickyEnquiryForm;
 	}
 
+	public List<String> getAttributes()
+	{
+		return attributes;
+	}
+
+	public void setAttributes(List<String> attributes)
+	{
+		this.attributes = attributes;
+	}
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -160,6 +192,13 @@ public class GroupDelegationConfiguration
 			if (other.logoUrl != null)
 				return false;
 		} else if (!logoUrl.equals(other.logoUrl))
+			return false;
+
+		if (attributes == null)
+		{
+			if (other.attributes != null)
+				return false;
+		} else if (!attributes.equals(other.attributes))
 			return false;
 
 		return true;

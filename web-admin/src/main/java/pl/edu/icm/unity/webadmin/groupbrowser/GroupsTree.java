@@ -32,6 +32,7 @@ import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -85,6 +86,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private BulkGroupQueryService bulkQueryService;
 	private RegistrationsManagement registrationMan;
 	private EnquiryManagement enquiryMan;
+	private AttributeTypeManagement attrTypeMan;
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
@@ -93,7 +95,8 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			GroupManagementHelper groupManagementHelper,
 			BulkGroupQueryService bulkQueryService, 
 			RegistrationsManagement registrationMan,
-			EnquiryManagement enquiryMan)
+			EnquiryManagement enquiryMan,
+			AttributeTypeManagement attrTypeMan)
 	{
 		this.groupsMan = groupsMan;
 		this.identitiesMan = identitiesMan;
@@ -103,6 +106,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		this.bulkQueryService = bulkQueryService;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
+		this.attrTypeMan = attrTypeMan;
 
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 		addExpandListener(new GroupExpandListener());
@@ -450,9 +454,11 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		if (group == null)
 			return;
 		
-		new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, group, g -> {
-			updateGroup(node.getPath(), g);
-		}).show();
+		new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan,
+				group.getDelegationConfiguration(), delConfig -> {
+					group.setDelegationConfiguration(delConfig);
+					updateGroup(node.getPath(), group);
+				}).show();
 
 	}
 

@@ -41,17 +41,17 @@ public class GroupsController
 		this.delGroupMan = delGroupMan;
 	}
 
-	public Map<String, List<Group>> getGroupTree(String project, String root)
+	public Map<String, List<Group>> getGroupTree(String projectPath, String rootPath)
 			throws ControllerException
 	{
 		Map<String, GroupContents> groupAndSubgroups;
 		try
 		{
-			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(project, root);
+			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(projectPath, rootPath);
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("GroupsController.getGroupError", root),
+					msg.getMessage("GroupsController.getGroupError"),
 					e.getMessage(), e);
 		}
 
@@ -67,7 +67,7 @@ public class GroupsController
 			groupTree.put(group, subGr);
 		}
 
-		groupTree.put(null, Arrays.asList(groupAndSubgroups.get(root).getGroup()));
+		groupTree.put(null, Arrays.asList(groupAndSubgroups.get(rootPath).getGroup()));
 
 		return groupTree;
 	}
@@ -87,54 +87,51 @@ public class GroupsController
 		}
 	}
 
-	public void deleteGroup(String project, String groupPath) throws ControllerException
+	public void deleteGroup(String projectPath, String groupPath) throws ControllerException
 	{
 		try
 		{
-			delGroupMan.removeGroup(project, groupPath, true);
+			delGroupMan.removeGroup(projectPath, groupPath);
 		} catch (Exception e)
 		{
 
 			throw new ControllerException(
-					msg.getMessage("GroupsController.deleteGroupError",
-							new Group(groupPath).getNameShort()),
+					msg.getMessage("GroupsController.deleteGroupError"),
 					e.getMessage(), e);
 		}
 
 	}
 
-	public void setGroupAccessMode(String project, String path, boolean isOpen)
+	public void setGroupAccessMode(String projectPath, String groupPath, boolean isOpen)
 			throws ControllerException
 	{
 		try
 		{
 
-			delGroupMan.setGroupAccessMode(project, path, isOpen);
+			delGroupMan.setGroupAccessMode(projectPath, groupPath, isOpen);
 
 		} catch (Exception e)
 		{
+			e.printStackTrace();
 			throw new ControllerException(
-					msg.getMessage("GroupsController.updateGroupAccessError",
-							new Group(path).getNameShort()),
+					msg.getMessage("GroupsController.updateGroupAccessError"),
 					e.getMessage(), e);
 		}
-
 	}
 
-	public void updateGroupName(String project, String path, I18nString groupName)
+	public void updateGroupName(String projectPath, String groupPath, I18nString groupName)
 			throws ControllerException
 	{
 
 		try
 		{
 
-			delGroupMan.setGroupDisplayedName(project, path, groupName);
+			delGroupMan.setGroupDisplayedName(projectPath, groupPath, groupName);
 
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("GroupsController.updateGroupNameError",
-							new Group(path).getNameShort()),
+					msg.getMessage("GroupsController.updateGroupNameError"),
 					e.getMessage(), e);
 		}
 	}

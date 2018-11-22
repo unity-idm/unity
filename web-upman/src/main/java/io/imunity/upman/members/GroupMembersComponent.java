@@ -45,7 +45,6 @@ public class GroupMembersComponent extends VerticalLayout
 	private GroupMemebersGrid groupMemebersGrid;
 	private String group;
 	private String project;
-	private Map<String, String> additionalProjectAttributes;
 
 	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller,
 			String project) throws ControllerException
@@ -53,7 +52,7 @@ public class GroupMembersComponent extends VerticalLayout
 		this.msg = msg;
 		this.controller = controller;
 		this.project = project;
-		this.additionalProjectAttributes = controller
+		Map<String, String> additionalProjectAttributes = controller
 				.getAdditionalAttributeNamesForProject(project);
 
 		setMargin(false);
@@ -166,6 +165,7 @@ public class GroupMembersComponent extends VerticalLayout
 		reloadMemebersGrid();
 	}
 
+	//TODO disable when all admins are selected
 	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction(
 			boolean hideIfInactive)
 	{
@@ -207,14 +207,13 @@ public class GroupMembersComponent extends VerticalLayout
 
 	private void reloadMemebersGrid()
 	{
-		List<GroupMemberEntry> groupMembers;
+		List<GroupMemberEntry> groupMembers = new ArrayList<>();
 		try
 		{
-			groupMembers = controller.getGroupMembers(project, group);
+			groupMembers.addAll(controller.getGroupMembers(project, group));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			return;
 		}
 
 		groupMemebersGrid.setValue(groupMembers);

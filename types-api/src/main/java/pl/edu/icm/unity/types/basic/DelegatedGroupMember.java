@@ -8,7 +8,7 @@ package pl.edu.icm.unity.types.basic;
 import java.util.List;
 
 /**
- * 
+ * Contains information about delegated group member. 
  * @author P.Piernik
  *
  */

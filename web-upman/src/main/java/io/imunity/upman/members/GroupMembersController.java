@@ -8,6 +8,7 @@ package io.imunity.upman.members;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -22,6 +23,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.DelegatedGroupContents;
 import pl.edu.icm.unity.types.basic.DelegatedGroupMember;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
@@ -60,21 +62,24 @@ public class GroupMembersController
 
 		List<GroupMemberEntry> ret = new ArrayList<>();
 
-		List<DelegatedGroupMember> contents = null;
+		DelegatedGroupContents contents = null;
 		try
 		{
-			contents = delGroupMan.getGroupMembers(projectPath, groupPath);
+			contents = delGroupMan.getContents(projectPath, groupPath,
+					GroupContents.MEMBERS);
 		} catch (EngineException e)
 		{
 			throw new ControllerException(
-					msg.getMessage("GroupMembersController.getGroupError",
-							new Group(groupPath).getNameShort()),
+					msg.getMessage("GroupMembersController.getGroupError"),
 					e.getMessage(), e);
 		}
 
-		for (DelegatedGroupMember member : contents)
-		{
+		List<DelegatedGroupMember> members = contents.getMembers();
+		if (members == null || members.isEmpty())
+			return ret;
 
+		for (DelegatedGroupMember member : members)
+		{
 			Map<String, String> additionalAttributes = new HashMap<>();
 
 			for (Attribute attr : member.attributes)
@@ -100,8 +105,7 @@ public class GroupMembersController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("GroupMembersController.getGroupError",
-							rootPath),
+					msg.getMessage("GroupMembersController.getGroupError"),
 					e.getMessage(), e);
 		}
 
@@ -128,7 +132,6 @@ public class GroupMembersController
 	private Map<String, String> getGroupTree(String rootPath, Map<String, String> groups)
 	{
 		Map<String, String> tree = new HashMap<>();
-
 		int initIndend = StringUtils.countOccurrencesOf(rootPath, "/");
 
 		tree.put(rootPath, groups.get(rootPath));
@@ -160,93 +163,146 @@ public class GroupMembersController
 
 	}
 
-	// TODO get attr based on group del config
-	public Map<String, String> getAdditionalAttributeNamesForProject(String groupPath)
+	public Map<String, String> getAdditionalAttributeNamesForProject(String projectPath)
 			throws ControllerException
 	{
+
+		Map<String, String> attrs = new LinkedHashMap<>();
 		try
 		{
-			return delGroupMan.getAdditionalAttributeNamesForProject(groupPath);
-		} catch (EngineException e)
+			Group group = delGroupMan.getContents(projectPath, projectPath,
+					GroupContents.METADATA).getGroup();
+			if (group == null)
+				return attrs;
+
+			List<String> groupAttrs = group.getDelegationConfiguration()
+					.getAttributes();
+
+			if (groupAttrs == null || groupAttrs.isEmpty())
+				return attrs;
+
+			for (String attr : groupAttrs)
+			{
+				attrs.put(attr, delGroupMan.getAttributeDisplayedName(projectPath,
+						attr));
+			}
+		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage(
 					"GroupMembersController.getGroupAttributeError"),
 					e.getMessage(), e);
 		}
+		return attrs;
 	}
 
 	public void addToGroup(String projectPath, String groupPath, Set<GroupMemberEntry> items)
 			throws ControllerException
 	{
+		List<String> added = new ArrayList<>();
+
 		try
 		{
 			for (GroupMemberEntry member : items)
 			{
 				delGroupMan.addMemberToGroup(projectPath, groupPath,
 						member.getEntityId());
+				added.add(member.getName());
 			}
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage(
-					"GroupMembersController.addToGroupError", groupPath),
-					e.getMessage(), e);
+			if (added.isEmpty())
+			{
+				throw new ControllerException(msg.getMessage(
+						"GroupMembersController.addToGroupError"),
+						msg.getMessage("GroupMembersController.notAdded"),
+						e);
+			} else
+			{
+				throw new ControllerException(msg.getMessage(
+						"GroupMembersController.addToGroupError"),
+						msg.getMessage("GroupMembersController.partiallyAdded",
+								added),
+						e);
+			}
 		}
 	}
 
 	public void removeFromGroup(String projectPath, String groupPath,
 			Set<GroupMemberEntry> items) throws ControllerException
 	{
+		List<String> removed = new ArrayList<>();
+
 		try
 		{
 			for (GroupMemberEntry member : items)
 			{
 				delGroupMan.removeMemberFromGroup(projectPath, groupPath,
 						member.getEntityId());
+				removed.add(member.getName());
 
 			}
 		} catch (EngineException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (removed.isEmpty())
+			{
+				throw new ControllerException(msg.getMessage(
+						"GroupMembersController.removeFromGroupError"),
+						msg.getMessage("GroupMembersController.notRemoved"),
+						e);
+			} else
+			{
+				throw new ControllerException(msg.getMessage(
+						"GroupMembersController.addToGroupError"),
+						msg.getMessage("GroupMembersController.partiallyRemoved",
+								removed),
+						e);
+			}
 		}
 	}
 
 	public void addManagerPrivileges(String groupPath, Set<GroupMemberEntry> items)
 			throws ControllerException
 	{
-		try
-		{
-			for (GroupMemberEntry member : items)
-			{
-				delGroupMan.setGroupAuthorizationRole(groupPath,
-						member.getEntityId(),
-						GroupAuthorizationRole.manager);
-			}
-		} catch (EngineException e)
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
+		updatePrivileges(groupPath, GroupAuthorizationRole.manager, items);
 	}
 
-	// TODO check if one admin is in group
 	public void revokeManagerPrivileges(String groupPath, Set<GroupMemberEntry> items)
 			throws ControllerException
 	{
+		updatePrivileges(groupPath, GroupAuthorizationRole.regular, items);
+	}
+
+	private void updatePrivileges(String groupPath, GroupAuthorizationRole role,
+			Set<GroupMemberEntry> items) throws ControllerException
+	{
+
+		List<String> updated = new ArrayList<>();
+
 		try
 		{
 			for (GroupMemberEntry member : items)
 			{
 				delGroupMan.setGroupAuthorizationRole(groupPath,
 						member.getEntityId(),
-						GroupAuthorizationRole.regular);
+						role);
+				updated.add(member.getName());
 			}
 		} catch (EngineException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			if (updated.isEmpty())
+			{
+				throw new ControllerException(msg.getMessage(
+						"GroupMembersController.updatePrivilegesError"),
+						msg.getMessage("GroupMembersController.notUpdated"),
+						e);
+			} else
+			{
+				throw new ControllerException(msg.getMessage(
+						"GroupMembersController.addToGroupError"),
+						msg.getMessage("GroupMembersController.partiallyUpdated",
+								updated),
+						e);
+			}
 		}
-
 	}
 }
