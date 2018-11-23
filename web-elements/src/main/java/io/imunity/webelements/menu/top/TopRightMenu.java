@@ -14,9 +14,9 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 
-import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
  * Top right menu bar

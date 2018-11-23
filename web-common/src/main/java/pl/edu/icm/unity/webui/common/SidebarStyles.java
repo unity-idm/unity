@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.webelements.common;
+package pl.edu.icm.unity.webui.common;
 
 /**
  * General purpose styles defined for Sidebar layout components
@@ -26,7 +26,11 @@ public enum SidebarStyles
 	menuCombo("u-menuCombo"),
 	subMenu("u-subMenu"),
 	subMenuOpen("u-open"),
-	tooltip("u-toolTip");
+	tooltip("u-toolTip"),
+	breadcrumbs("u-breadcrumbs"),
+	indentSmall("u-indentSmall"),
+	viewHeader("u-viewHeader"),
+	indentComboBox("u-indentComboBox");
 
 	private String value;
 

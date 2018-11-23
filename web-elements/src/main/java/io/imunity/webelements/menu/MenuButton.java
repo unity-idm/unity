@@ -9,7 +9,7 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.UI;
 
-import io.imunity.webelements.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
  * Menu button

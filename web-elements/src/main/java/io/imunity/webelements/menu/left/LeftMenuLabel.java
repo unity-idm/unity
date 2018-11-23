@@ -12,8 +12,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.MenuElement;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
  * Simple left menu label

@@ -13,11 +13,11 @@ import com.vaadin.server.Resource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
  * Submenu component. Contains show/hide button and layout for submenu content.

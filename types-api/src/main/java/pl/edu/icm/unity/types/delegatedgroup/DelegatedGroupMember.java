@@ -3,9 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.types.delegatedgroup;
 
 import java.util.List;
+
+import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
  * Contains information about delegated group member. 

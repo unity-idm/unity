@@ -21,13 +21,11 @@ import org.springframework.util.StringUtils;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.DelegatedGroupContents;
-import pl.edu.icm.unity.types.basic.DelegatedGroupMember;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
-import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupMember;
+import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -62,19 +60,17 @@ public class GroupMembersController
 
 		List<GroupMemberEntry> ret = new ArrayList<>();
 
-		DelegatedGroupContents contents = null;
+		List<DelegatedGroupMember> members = null;
 		try
 		{
-			contents = delGroupMan.getContents(projectPath, groupPath,
-					GroupContents.MEMBERS);
-		} catch (EngineException e)
+			members = delGroupMan.getDelegatedGroupMemebers(projectPath, groupPath);
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("GroupMembersController.getGroupError"),
 					e.getMessage(), e);
 		}
 
-		List<DelegatedGroupMember> members = contents.getMembers();
 		if (members == null || members.isEmpty())
 			return ret;
 
@@ -110,7 +106,7 @@ public class GroupMembersController
 		}
 
 		groups.put(rootPath,
-				getGroupDisplayName(groupAndSubgroups.get(rootPath).getGroup()));
+				getGroupDisplayName(groupAndSubgroups.get(rootPath).group));
 
 		fillGroupRecursive(rootPath, groupAndSubgroups, groups);
 
@@ -154,10 +150,10 @@ public class GroupMembersController
 	private void fillGroupRecursive(String parentPath,
 			Map<String, DelegatedGroupContents> groupAndSubgroups, Map<String, String> groups)
 	{
-		for (String subgroup : groupAndSubgroups.get(parentPath).getSubGroups())
+		for (String subgroup : groupAndSubgroups.get(parentPath).subGroups)
 		{
 			groups.put(subgroup, getGroupDisplayName(
-					groupAndSubgroups.get(subgroup).getGroup()));
+					groupAndSubgroups.get(subgroup).group));
 			fillGroupRecursive(subgroup, groupAndSubgroups, groups);
 		}
 
@@ -170,8 +166,7 @@ public class GroupMembersController
 		Map<String, String> attrs = new LinkedHashMap<>();
 		try
 		{
-			Group group = delGroupMan.getContents(projectPath, projectPath,
-					GroupContents.METADATA).getGroup();
+			Group group = delGroupMan.getContents(projectPath, projectPath).group;
 			if (group == null)
 				return attrs;
 
@@ -208,7 +203,7 @@ public class GroupMembersController
 						member.getEntityId());
 				added.add(member.getName());
 			}
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			if (added.isEmpty())
 			{
@@ -241,7 +236,7 @@ public class GroupMembersController
 				removed.add(member.getName());
 
 			}
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			if (removed.isEmpty())
 			{
@@ -287,7 +282,7 @@ public class GroupMembersController
 						role);
 				updated.add(member.getName());
 			}
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			if (updated.isEmpty())
 			{

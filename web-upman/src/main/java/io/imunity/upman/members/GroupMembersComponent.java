@@ -11,21 +11,21 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.upman.common.UpManStyles;
-import io.imunity.webelements.common.SidebarStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
+import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -66,19 +66,20 @@ public class GroupMembersComponent extends VerticalLayout
 		List<SingleActionHandler<GroupMemberEntry>> rawActions = new ArrayList<>();
 		rawActions.addAll(commonActions);
 		rawActions.add(getAddManagerPrivilegesAction(true));
-		rawActions.add(getRevokeManagerPrivilegesAction(true));
+		rawActions.add(getRevokeManagerPrivilegesAction(true, s -> false));
 
 		groupMemebersGrid = new GroupMemebersGrid(msg, rawActions,
 				additionalProjectAttributes);
 
 		HamburgerMenu<GroupMemberEntry> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(UpManStyles.indentSmall.toString());
+		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
 		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		groupMemebersGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandlers(commonActions);
 		hamburgerMenu.addActionHandler(getAddManagerPrivilegesAction(false));
-		hamburgerMenu.addActionHandler(getRevokeManagerPrivilegesAction(false));
+		hamburgerMenu.addActionHandler(getRevokeManagerPrivilegesAction(false,
+				s -> checkIfAllManagersSelected(s)));
 
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
 		addComponents(menuBar, groupMemebersGrid);
@@ -165,9 +166,9 @@ public class GroupMembersComponent extends VerticalLayout
 		reloadMemebersGrid();
 	}
 
-	//TODO disable when all admins are selected
 	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction(
-			boolean hideIfInactive)
+			boolean hideIfInactive,
+			Predicate<Set<GroupMemberEntry>> disabledCompositePredicate)
 	{
 		SingleActionHandler<GroupMemberEntry> handler = SingleActionHandler
 				.builder(GroupMemberEntry.class)
@@ -176,10 +177,28 @@ public class GroupMembersComponent extends VerticalLayout
 				.withIcon(Images.trending_down.getResource()).multiTarget()
 				.withHandler(this::revokeManagerPrivileges)
 				.withDisabledPredicate(e -> !e.getRole()
-						.equals(GroupAuthorizationRole.manager))
-				.build();
+						.equals(GroupAuthorizationRole.manager)
+						|| groupMemebersGrid.getManagersCount() < 2)
+				.withDisabledCompositePredicate(disabledCompositePredicate).build();
 		handler.setHideIfInactive(hideIfInactive);
 		return handler;
+	}
+
+	private boolean checkIfAllManagersSelected(Set<GroupMemberEntry> items)
+	{
+		int selectedManagerCount = 0;
+		for (GroupMemberEntry e : items)
+		{
+			if (e.getRole().equals(GroupAuthorizationRole.manager))
+			{
+				selectedManagerCount++;
+			}
+		}
+		if (selectedManagerCount == groupMemebersGrid.getManagersCount())
+		{
+			return true;
+		}
+		return false;
 	}
 
 	public void revokeManagerPrivileges(Set<GroupMemberEntry> items)

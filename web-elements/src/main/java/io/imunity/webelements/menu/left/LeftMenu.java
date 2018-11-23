@@ -16,7 +16,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.MenuElement;
 import io.imunity.webelements.menu.MenuElementContainer;
@@ -24,6 +23,7 @@ import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**

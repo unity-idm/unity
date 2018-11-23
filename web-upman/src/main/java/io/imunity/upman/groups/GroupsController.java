@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.DelegatedGroupContents;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -60,14 +60,14 @@ public class GroupsController
 		for (String group : groupAndSubgroups.keySet())
 		{
 			List<Group> subGr = new ArrayList<>();
-			for (String sgr : groupAndSubgroups.get(group).getSubGroups())
+			for (String sgr : groupAndSubgroups.get(group).subGroups)
 			{
-				subGr.add(groupAndSubgroups.get(sgr).getGroup());
+				subGr.add(groupAndSubgroups.get(sgr).group);
 			}
 			groupTree.put(group, subGr);
 		}
 
-		groupTree.put(null, Arrays.asList(groupAndSubgroups.get(rootPath).getGroup()));
+		groupTree.put(null, Arrays.asList(groupAndSubgroups.get(rootPath).group));
 
 		return groupTree;
 	}

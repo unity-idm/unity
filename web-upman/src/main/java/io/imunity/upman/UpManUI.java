@@ -24,7 +24,6 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.common.ViewHeader;
-import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
@@ -42,6 +41,7 @@ import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 

@@ -14,10 +14,10 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.top.TopRightMenu;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
  * Main layout of left sidebar like endpoint

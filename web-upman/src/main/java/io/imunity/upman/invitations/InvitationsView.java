@@ -19,13 +19,13 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
-import io.imunity.upman.common.UpManStyles;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
  * Invitations view
@@ -75,7 +75,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 		HorizontalLayout header = new  HorizontalLayout();
 		header.setMargin(false);
 		Label name = new Label(getDisplayedName());
-		name.addStyleName(UpManStyles.viewHeader.toString());
+		name.addStyleName(SidebarStyles.viewHeader.toString());
 		Button addInvitationButton = new Button(msg.getMessage("Invitations.newInvite"),
 				Images.add.getResource());
 		header.addComponents(name, addInvitationButton);

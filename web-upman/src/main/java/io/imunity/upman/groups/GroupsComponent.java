@@ -19,7 +19,6 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.upman.common.UpManStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
@@ -28,6 +27,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -62,7 +62,7 @@ public class GroupsComponent extends CustomComponent
 
 		groupBrowser = new GroupsTree(msg, controller, rawActions, projectPath);
 		HamburgerMenu<GroupNode> hamburgerMenu = new HamburgerMenu<>();
-		hamburgerMenu.addStyleNames(UpManStyles.indentSmall.toString());
+		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
 		groupBrowser.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandler(getExpandAllAction());

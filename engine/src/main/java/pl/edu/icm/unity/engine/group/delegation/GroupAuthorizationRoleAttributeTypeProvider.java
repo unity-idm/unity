@@ -16,7 +16,7 @@ import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
+import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 
 
 /**

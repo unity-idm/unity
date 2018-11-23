@@ -8,8 +8,8 @@ package io.imunity.upman.members;
 import java.util.HashMap;
 import java.util.Map;
 
-import pl.edu.icm.unity.types.basic.DelegatedGroupMember;
-import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupMember;
+import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 
 /**
  * Data object behind a row in {@link GroupMemebersGrid}. Stores group member

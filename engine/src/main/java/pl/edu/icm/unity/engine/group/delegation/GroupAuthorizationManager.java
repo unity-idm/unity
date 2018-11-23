@@ -19,7 +19,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
+import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 
 /**
  * Authorizes group operations on the engine

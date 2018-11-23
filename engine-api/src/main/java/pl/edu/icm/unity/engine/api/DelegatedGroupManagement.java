@@ -10,10 +10,10 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.DelegatedGroupContents;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
-import pl.edu.icm.unity.types.basic.GroupContents;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupMember;
+import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 
 /**
  * Internal engine API for delegated groups management
@@ -47,12 +47,10 @@ public interface DelegatedGroupManagement
 	 * Allows to retrieve group's contents and metadata. 
 	 * 
 	 * @param path group to be queried.
-	 * @param filter what should be retrieved. Flags are defined in {@link GroupContents} class.
-	 * Can be OR-ed.
 	 * @return
 	 * @throws EngineException
 	 */
-	DelegatedGroupContents getContents(String projectPath, String path, int filter) throws EngineException;
+	DelegatedGroupContents getContents(String projectPath, String path) throws EngineException;
 
 	/**
 	 * Sets group display name
@@ -77,11 +75,11 @@ public interface DelegatedGroupManagement
 			throws EngineException;
 
 	/**
-	 * Gets group members
 	 * 
 	 * @param projectPath project group path
 	 * @param groupPath group to be queried
-	 * @return
+	 * @return keys of the returned map include the selected group and all its children. Values are 
+	 * objects with group's metadata and subgroups
 	 * @throws EngineException
 	 */
 
@@ -132,12 +130,22 @@ public interface DelegatedGroupManagement
 	 * Removes from the group and all subgroups if the user is in any. 
 	 * Entity can not be removed from the group == '/' 
 	 * 
-	 * @param projectPath  project group path
+	 * @param projectPath project group path
 	 * @param groupPath group removing from 
 	 * @param entityId entity id to remove
 	 * @throws EngineException
 	 */
 	void removeMemberFromGroup(String projectPath, String groupPath, long entityId)
+			throws EngineException;
+
+	/**
+	 * Gets delegated group members
+	 * @param projectPath project group path
+	 * @param groupPath
+	 * @return
+	 * @throws EngineException
+	 */
+	List<DelegatedGroupMember> getDelegatedGroupMemebers(String projectPath, String groupPath)
 			throws EngineException;
 
 }

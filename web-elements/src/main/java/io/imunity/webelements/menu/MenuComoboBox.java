@@ -8,7 +8,7 @@ package io.imunity.webelements.menu;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.ComboBox;
 
-import io.imunity.webelements.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
  * Left menu combobox

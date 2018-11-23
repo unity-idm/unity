@@ -17,7 +17,6 @@ import com.vaadin.navigator.Navigator;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webelements.common.SidebarStyles;
 import io.imunity.webelements.layout.SidebarLayout;
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
@@ -31,6 +30,7 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**

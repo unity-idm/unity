@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.basic;
+package pl.edu.icm.unity.types.delegatedgroup;
 
 /**
  * Group authotirization role with description

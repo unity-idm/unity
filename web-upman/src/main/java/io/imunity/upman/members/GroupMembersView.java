@@ -21,7 +21,6 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
-import io.imunity.upman.common.UpManStyles;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -118,7 +118,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		HorizontalLayout header = new HorizontalLayout();
 		header.setMargin(false);
 		Label name = new Label(getDisplayedName());
-		name.addStyleName(UpManStyles.viewHeader.toString());
+		name.addStyleName(SidebarStyles.viewHeader.toString());
 		header.addComponents(name);
 		return header;
 	}

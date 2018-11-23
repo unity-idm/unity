@@ -19,12 +19,12 @@ import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
-import io.imunity.webelements.common.SidebarStyles;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.GroupAuthorizationRole;
+import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
@@ -97,6 +97,11 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 
 		}
 
+	}
+	
+	public long getManagersCount()
+	{
+		return groupMemberEntries.stream().filter(m -> m.getRole().equals(GroupAuthorizationRole.manager)).count();
 	}
 
 	private Label getRoleLabel(String caption, Images icon)
