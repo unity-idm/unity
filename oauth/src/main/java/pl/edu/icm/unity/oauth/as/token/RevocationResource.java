@@ -32,9 +32,9 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 /**
  * Implementation of RFC 7009  https://tools.ietf.org/html/rfc7009
  * <p>
- * Limitations: refresh tokens revocation is not implemented (as Unity doesn't support yet
- * refresh tokens at all). The endpoint access is not authorized - or better said the access
- * is authorized implicitly by providing a valid access token to be revoked. The user_id must be always given. 
+ * Limitations: token_type_hint parameter is mandatory, only access_token and refresh_token are supported.
+ * The endpoint access is not authorized - or better said the access
+ * is authorized implicitly by providing a valid access token to be revoked. The client_id must be always given. 
  * <p>
  * Typical usage:
  * <code>
@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
    Host: ... 
    Content-Type: application/x-www-form-urlencoded
    
-   token=45ghiukldjahdnhzdauz&user_id=oauth-client
+   token=45ghiukldjahdnhzdauz&client_id=oauth-client&token_type_hint=refresh_token
  * </code>
  * <p>
  * Unity also supports one non standard extension. If a logout=true parameter is added, then 
