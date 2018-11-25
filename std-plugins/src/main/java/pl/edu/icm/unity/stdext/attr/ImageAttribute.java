@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.stdext.attr;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class ImageAttribute
 {
 	public static Attribute of(String name, String groupPath,
-			List<String> values, String remoteIdp, String translationProfile)
+							   List<String> values, String remoteIdp, String translationProfile)
 	{
 		return new Attribute(name, ImageAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
 	}
@@ -28,12 +28,12 @@ public class ImageAttribute
 	{
 		return new Attribute(name, ImageAttributeSyntax.ID, groupPath, convert(values));
 	}
-	
+
 	public static Attribute of(String name, String groupPath, BufferedImageWithExt... values)
 	{
 		return of(name, groupPath, Lists.newArrayList(values));
-	}	
-	
+	}
+
 	private static List<String> convert(List<BufferedImageWithExt> values)
 	{
 		ImageAttributeSyntax syntax = new ImageAttributeSyntax();

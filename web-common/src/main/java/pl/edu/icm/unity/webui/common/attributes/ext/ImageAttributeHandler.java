@@ -1,12 +1,10 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
 
 import com.vaadin.data.Binder;
-import com.vaadin.event.MouseEvents;
-import com.vaadin.event.MouseEvents.ClickEvent;
 import com.vaadin.server.Resource;
 import com.vaadin.server.StreamResource;
 import com.vaadin.server.StreamResource.StreamSource;
@@ -24,7 +22,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.ImageAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.BufferedImageWithExt;
+import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.webui.common.*;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
 import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
@@ -68,12 +66,12 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		return "Image";
 	}
 
-	private Resource getValueAsImage(BufferedImageWithExt value,
+	private Resource getValueAsImage(UnityImage value,
 									 ImageAttributeSyntax syntax, int maxWidth, int maxHeight)
 	{
 		try
 		{
-			BufferedImage scaled = scaleIfNeeded(value.getImage(), maxWidth, maxHeight);
+			BufferedImage scaled = scaleIfNeeded(value.getBufferedImage(), maxWidth, maxHeight);
 			SimpleImageSource source = new SimpleImageSource(scaled, syntax, value.getType());
 			return source.getResource();
 		} catch (Exception e)
@@ -86,12 +84,12 @@ public class ImageAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
-		BufferedImageWithExt value = syntax.convertFromString(valueRaw);
+		UnityImage value = syntax.convertFromString(valueRaw);
 		if (value == null)
-			return  getErrorImage();
-		
-		int width = value.getImage().getWidth();
-		int height = value.getImage().getHeight();
+			return getErrorImage();
+
+		int width = value.getWidth();
+		int height = value.getHeight();
 		Resource resValue = getValueAsImage(value, syntax, width,
 				height);
 		if (resValue != null)
@@ -102,13 +100,13 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			return image;
 		} else
 		{
-			return  getErrorImage();
-		}	
+			return getErrorImage();
+		}
 	}
-	
+
 	private Label getErrorImage()
 	{
-		Label errorImage =  new Label(Images.error.getHtml());
+		Label errorImage = new Label(Images.error.getHtml());
 		errorImage.setContentMode(ContentMode.HTML);
 		errorImage.addStyleName(Styles.largeIcon.toString());
 		return errorImage;
@@ -118,15 +116,15 @@ public class ImageAttributeHandler implements WebAttributeHandler
 	{
 		int w = value.getWidth();
 		int h = value.getHeight();
-		if (w<=maxWidth && h<=maxHeight)
+		if (w <= maxWidth && h <= maxHeight)
 			return value;
-		
-		double ratioW = maxWidth/(double)w;
-		double ratioH = maxHeight/(double)h;
+
+		double ratioW = maxWidth / (double) w;
+		double ratioH = maxHeight / (double) h;
 		double ratio = ratioW > ratioH ? ratioH : ratioW;
 		int newWidth = new Double(w * ratio).intValue();
 		int newHeight = new Double(h * ratio).intValue();
-		
+
 		BufferedImage resized = new BufferedImage(newWidth, newHeight, value.getType());
 		Graphics2D g = resized.createGraphics();
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
@@ -134,16 +132,16 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		g.dispose();
 		return resized;
 	}
-	
+
 	@Override
 	public AttributeValueEditor getEditorComponent(String initialValue, String label)
 	{
 		return new ImageValueEditor(initialValue, label);
 	}
-	
+
 	private class ImageValueEditor implements AttributeValueEditor
 	{
-		private BufferedImageWithExt value;
+		private UnityImage value;
 		private String label;
 		private Image field;
 		private Upload upload;
@@ -151,7 +149,7 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		private CheckBox scale;
 		private Label error;
 		private boolean required;
-		
+
 		public ImageValueEditor(String valueRaw, String label)
 		{
 			this.value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
@@ -164,18 +162,18 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			error = new Label();
 			error.setStyleName(Styles.error.toString());
 			error.setVisible(false);
-			
+
 			required = context.isRequired();
-			
+
 			Label errorImage = getErrorImage();
 			errorImage.setVisible(false);
-			
+
 			field = new Image();
 			if (value != null)
 			{
 				try
 				{
-					BufferedImage scalledPreview = scaleIfNeeded(value.getImage(), PREVIEW_WIDTH, PREVIEW_HEIGHT);
+					BufferedImage scalledPreview = scaleIfNeeded(value.getBufferedImage(), PREVIEW_WIDTH, PREVIEW_HEIGHT);
 					SimpleImageSource source = new SimpleImageSource(scalledPreview, syntax, value.getType());
 					field.setSource(source.getResource());
 					errorImage.setVisible(false);
@@ -187,31 +185,29 @@ public class ImageAttributeHandler implements WebAttributeHandler
 					field.setVisible(false);
 				}
 			}
-			field.addClickListener(new MouseEvents.ClickListener()
-			{
-				@Override
-				public void click(ClickEvent event)
-				{
-					if (value != null)
-						new ShowImageDialog(syntax, value).show();
-				}
-			});
-			field.setDescription(msg.getMessage("JpegAttributeHandler.clickToEnlarge"));
-			
+
+			field.addClickListener(event ->
+					{
+						if (value != null)
+							new ShowImageDialog(syntax, value).show();
+					}
+			);
+
+			field.setDescription(msg.getMessage("ImageAttributeHandler.clickToEnlarge"));
+
 			upload = new Upload();
 			progressIndicator = new ProgressBar(0);
 			progressIndicator.setVisible(false);
-			
+
 			ImageUploader uploader = new ImageUploader(field, syntax, progressIndicator);
 			uploader.register();
 			upload.setCaption(label);
 
 			upload.setAcceptMimeTypes(
-					BufferedImageWithExt.ImageType.getSupportedMimeTypes(","));
-
-			scale = new CheckBox(msg.getMessage("JpegAttributeHandler.scaleIfNeeded"));
+					UnityImage.ImageType.getSupportedMimeTypes(","));
+			scale = new CheckBox(msg.getMessage("ImageAttributeHandler.scaleIfNeeded"));
 			scale.setValue(true);
-			return new ComponentsContainer(field, errorImage, error, upload, progressIndicator, scale, 
+			return new ComponentsContainer(field, errorImage, error, upload, progressIndicator, scale,
 					getHints(syntax));
 		}
 
@@ -222,10 +218,10 @@ public class ImageAttributeHandler implements WebAttributeHandler
 				return null;
 			if (value == null)
 			{
-				error.setValue(msg.getMessage("JpegAttributeHandler.noImage"));
+				error.setValue(msg.getMessage("ImageAttributeHandler.noImage"));
 				error.setVisible(true);
 				field.setVisible(false);
-				throw new IllegalAttributeValueException(msg.getMessage("JpegAttributeHandler.noImage"));
+				throw new IllegalAttributeValueException(msg.getMessage("ImageAttributeHandler.noImage"));
 			}
 			try
 			{
@@ -237,19 +233,19 @@ public class ImageAttributeHandler implements WebAttributeHandler
 				field.setVisible(false);
 				throw e;
 			}
-			
+
 			error.setVisible(false);
 			field.setVisible(true);
 			return syntax.convertToString(value);
 		}
-		
+
 		private class ImageUploader extends AbstractUploadReceiver
 		{
 			private Image image;
 			private LimitedOuputStream fos;
 			private ImageAttributeSyntax syntax;
-			private BufferedImageWithExt.ImageType type;
-			
+			private UnityImage.ImageType type;
+
 			public ImageUploader(Image image, ImageAttributeSyntax syntax, ProgressBar progress)
 			{
 				super(upload, progress);
@@ -258,48 +254,62 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			}
 
 			@Override
-			public OutputStream receiveUpload(String filename, String mimeType) 
+			public OutputStream receiveUpload(String filename, String mimeType)
 			{
 				int length = syntax.getMaxSize();
-				fos = new LimitedOuputStream(length, 
-						new ByteArrayOutputStream(length > 102400 ? 102400 : length)); // FIXME - incorrect size definition?
-				type = BufferedImageWithExt.ImageType.fromMimeType(mimeType); // FIXME - exception is breaking flow
+				fos = new LimitedOuputStream(length,
+						new ByteArrayOutputStream(length > 102400 ? 102400 : length));
 				return fos;
 			}
 
-			// TODO - overide upload Started to verify type.
+			@Override
+			public void uploadStarted(Upload.StartedEvent event)
+			{
+				try
+				{
+					type = UnityImage.ImageType.fromMimeType(event.getMIMEType());
+				} catch (RuntimeException e)
+				{
+					NotificationPopup.showError(
+							msg.getMessage("ImageAttributeHandler.uploadFailed"),
+							msg.getMessage("ImageAttributeHandler.formatNotSupported"));
+					upload.interruptUpload();
+					return;
+				}
 
+				super.uploadStarted(event);
+			}
 
 			@Override
-			public void uploadSucceeded(SucceededEvent event) 
+			public void uploadSucceeded(SucceededEvent event)
 			{
 				super.uploadSucceeded(event);
-				
+
 				if (fos.isOverflow())
 				{
 					NotificationPopup.showError(
-							msg.getMessage("JpegAttributeHandler.uploadFailed"),
-							msg.getMessage("JpegAttributeHandler.imageSizeTooBig"));
+							msg.getMessage("ImageAttributeHandler.uploadFailed"),
+							msg.getMessage("ImageAttributeHandler.imageSizeTooBig"));
 					fos = null;
 					return;
 				}
 				try
 				{
 					image.setVisible(true);
-					value = new BufferedImageWithExt(
+					value = new UnityImage(
 							syntax.deserialize(((ByteArrayOutputStream)
-							fos.getWrappedStream()).toByteArray()),
-									type);
+									fos.getWrappedStream()).toByteArray()),
+							type);
 					if (scale.getValue())
-						value.setImage(scaleIfNeeded(value.getImage(), syntax.getMaxWidth(),
+						value.setBufferedImage(scaleIfNeeded(value.getBufferedImage(), syntax.getMaxWidth(),
 								syntax.getMaxHeight()));
-					BufferedImage scalledPreview = scaleIfNeeded(value.getImage(),
+					BufferedImage scalledPreview = scaleIfNeeded(value.getBufferedImage(),
 							PREVIEW_WIDTH, PREVIEW_HEIGHT);
 					image.setSource(new SimpleImageSource(scalledPreview, syntax, value.getType()).
 							getResource());
 				} catch (Exception e)
 				{
-					NotificationPopup.showError(msg.getMessage("JpegAttributeHandler.uploadInvalid"),
+					NotificationPopup.showError(msg.getMessage("ImageAttributeHandler.uploadInvalid"),
 							"");
 					fos = null;
 				}
@@ -310,41 +320,43 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		public void setLabel(String label)
 		{
 			upload.setCaption(label);
-		};		
+		}
+
+		;
 	}
-	
+
 	private Component getHints(ImageAttributeSyntax syntax)
 	{
-		Label ret = new Label(msg.getMessage("JpegAttributeHandler.maxSize", syntax.getMaxSize())
-				+ "  " + 
-				msg.getMessage("JpegAttributeHandler.maxDim", syntax.getMaxWidth(),
+		Label ret = new Label(msg.getMessage("ImageAttributeHandler.maxSize", syntax.getMaxSize())
+				+ "  " +
+				msg.getMessage("ImageAttributeHandler.maxDim", syntax.getMaxWidth(),
 						syntax.getMaxHeight()));
 		ret.addStyleName(Styles.vLabelSmall.toString());
 		return ret;
 	}
-	
+
 	public static class SimpleImageSource implements StreamSource
 	{
 		private final byte[] isData;
-		private final BufferedImageWithExt.ImageType type;
-		
-		public SimpleImageSource(BufferedImage value, 
-				ImageAttributeSyntax syntax, BufferedImageWithExt.ImageType type)
+		private final UnityImage.ImageType type;
+
+		public SimpleImageSource(BufferedImage value,
+								 ImageAttributeSyntax syntax, UnityImage.ImageType type)
 		{
 			this.isData = syntax.serialize(value, type);
 			this.type = type;
 		}
-		
+
 		@Override
 		public InputStream getStream()
 		{
 			return new ByteArrayInputStream(isData);
 		}
-		
+
 		public Resource getResource()
 		{
-			return new StreamResource(this, "imgattribute-"+r.nextLong()+r.nextLong()
-					+"." + type.toExt());
+			return new StreamResource(this, "imgattribute-" + r.nextLong() + r.nextLong()
+					+ "." + type.toExt());
 		}
 	}
 
@@ -354,8 +366,8 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		return new CompactFormLayout(getHints(syntax));
 	}
 
-	
-	private static class ImageSyntaxEditor implements AttributeSyntaxEditor<BufferedImageWithExt>
+
+	private static class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
 	{
 		private ImageAttributeSyntax initial;
 		private IntegerBoundEditor maxHeight, maxSize;
@@ -374,16 +386,16 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		{
 			FormLayout fl = new CompactFormLayout();
 			maxWidth = new IntegerBoundEditor(msg,
-					msg.getMessage("JpegAttributeHandler.maxWidthUnlimited"),
-					msg.getMessage("JpegAttributeHandler.maxWidthE"),
+					msg.getMessage("ImageAttributeHandler.maxWidthUnlimited"),
+					msg.getMessage("ImageAttributeHandler.maxWidthE"),
 					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
 			maxHeight = new IntegerBoundEditor(msg,
-					msg.getMessage("JpegAttributeHandler.maxHeightUnlimited"),
-					msg.getMessage("JpegAttributeHandler.maxHeightE"),
+					msg.getMessage("ImageAttributeHandler.maxHeightUnlimited"),
+					msg.getMessage("ImageAttributeHandler.maxHeightE"),
 					Integer.MAX_VALUE, 1, Integer.MAX_VALUE);
 			maxSize = new IntegerBoundEditor(msg,
-					msg.getMessage("JpegAttributeHandler.maxSizeUnlimited"),
-					msg.getMessage("JpegAttributeHandler.maxSizeE"),
+					msg.getMessage("ImageAttributeHandler.maxSizeUnlimited"),
+					msg.getMessage("ImageAttributeHandler.maxSizeE"),
 					Integer.MAX_VALUE, 100, Integer.MAX_VALUE);
 
 			binder = new Binder<>(ImageSyntaxBindingValue.class);
@@ -410,7 +422,7 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		}
 
 		@Override
-		public AttributeValueSyntax<BufferedImageWithExt> getCurrentValue()
+		public AttributeValueSyntax<UnityImage> getCurrentValue()
 				throws IllegalAttributeTypeException
 		{
 
@@ -440,7 +452,7 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			private Integer maxSize;
 			private Integer maxWidth;
 			private Integer maxHeight;
-			
+
 			public ImageSyntaxBindingValue()
 			{
 
@@ -477,16 +489,16 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			}
 		}
 	}
-	
+
 	private class ShowImageDialog extends AbstractDialog
 	{
 		private ImageAttributeSyntax syntax;
-		private BufferedImageWithExt image;
-		
-		public ShowImageDialog(ImageAttributeSyntax syntax, BufferedImageWithExt image)
+		private UnityImage image;
+
+		public ShowImageDialog(ImageAttributeSyntax syntax, UnityImage image)
 		{
 			super(ImageAttributeHandler.this.msg,
-					ImageAttributeHandler.this.msg.getMessage("JpegAttributeHandler.image"),
+					ImageAttributeHandler.this.msg.getMessage("ImageAttributeHandler.image"),
 					ImageAttributeHandler.this.msg.getMessage("close"));
 			this.syntax = syntax;
 			this.image = image;
@@ -508,9 +520,8 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			close();
 		}
 	}
-	
-	
-	
+
+
 	@org.springframework.stereotype.Component
 	public static class ImageAttributeHandlerFactory implements WebAttributeHandlerFactory
 	{
@@ -521,21 +532,21 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		{
 			this.msg = msg;
 		}
-		
-		
+
+
 		@Override
 		public String getSupportedSyntaxId()
 		{
 			return ImageAttributeSyntax.ID;
 		}
-		
+
 		@Override
-		public AttributeSyntaxEditor<BufferedImageWithExt> getSyntaxEditorComponent(
+		public AttributeSyntaxEditor<UnityImage> getSyntaxEditorComponent(
 				AttributeValueSyntax<?> initialValue)
 		{
 			return new ImageSyntaxEditor((ImageAttributeSyntax) initialValue, msg);
 		}
-		
+
 		@Override
 		public WebAttributeHandler createInstance(AttributeValueSyntax<?> syntax)
 		{

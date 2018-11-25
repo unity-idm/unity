@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.stdext.attr;
@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
 import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.stdext.utils.BufferedImageWithExt;
+import pl.edu.icm.unity.stdext.utils.UnityImage;
 
-import java.util.Base64;
+import java.io.IOException;
 
 
 /**
@@ -18,7 +18,7 @@ import java.util.Base64;
  *
  * @author R. Ledzinski
  */
-public class ImageAttributeSyntax extends AbstractImageAttributeSyntax<BufferedImageWithExt>
+public class ImageAttributeSyntax extends AbstractImageAttributeSyntax<UnityImage>
 {
 	public static final String ID = "image";
 
@@ -29,31 +29,31 @@ public class ImageAttributeSyntax extends AbstractImageAttributeSyntax<BufferedI
 	}
 
 	@Override
-	public void validate(BufferedImageWithExt value) throws IllegalAttributeValueException {
-		super.validate(value.getImage(), value.getType().toExt());
+	public void validate(UnityImage value) throws IllegalAttributeValueException
+	{
+		super.validate(value.getBufferedImage(), value.getType().toExt());
 	}
 
 	@Override
-	public BufferedImageWithExt convertFromString(String stringRepresentation)
+	public UnityImage convertFromString(String stringRepresentation)
 	{
-		if (stringRepresentation.length() < 3) {
-			throw new InternalException("Image can not be encoded - imageRepresentation (" + stringRepresentation +
-					") too short");
+		try
+		{
+			return new UnityImage(stringRepresentation);
 		}
-		String typeStr = stringRepresentation.substring(0, 3);
-		return new BufferedImageWithExt(convertFromStringToBI(stringRepresentation.substring(3)),
-				BufferedImageWithExt.ImageType.valueOf(typeStr));
+		catch (IOException e) {
+			throw new InternalException("Error encoding image from string.", e);
+		}
 	}
 
 	@Override
-	public String convertToString(BufferedImageWithExt value)
+	public String convertToString(UnityImage value)
 	{
-		byte[] binary = serialize(value.getImage(), value.getType());
-		return value.getType().toString() + Base64.getEncoder().encodeToString(binary);
+		return value.serialize();
 	}
 
 	@Component
-	public static class Factory extends AbstractAttributeValueSyntaxFactory<BufferedImageWithExt>
+	public static class Factory extends AbstractAttributeValueSyntaxFactory<UnityImage>
 	{
 		public Factory()
 		{
