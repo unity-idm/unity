@@ -31,7 +31,7 @@ public enum SidebarStyles
 	indentSmall("u-indentSmall"),
 	viewHeader("u-viewHeader"),
 	indentComboBox("u-indentComboBox");
-
+	
 	private String value;
 
 	private SidebarStyles(String value)

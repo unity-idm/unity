@@ -75,6 +75,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 			throw new IllegalArgumentException("Can not select more then one element in single-selectable chips");
 		items.forEach(this::selectGroup);
 		updateItemsAvailableToSelect();
+		checkMaxSelection();
 		chipsRow.setVisible(!items.isEmpty());
 		
 	}

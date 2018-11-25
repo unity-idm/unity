@@ -96,16 +96,15 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		LeftMenu leftMenu = upManLayout.getLeftMenu();
 		leftMenu.setToggleVisible(false);
-		LeftMenuLabel label = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
+		LeftMenuLabel logo = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
 
-		leftMenu.addMenuElement(label);
+		leftMenu.addMenuElement(logo);
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 
 		projectCombo = MenuComoboBox.get()
 				.withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
 		projectCombo.setItems(projects.keySet());
-		projectCombo.setValue(projects.keySet().iterator().next());
 		projectCombo.setItemCaptionGenerator(i -> projects.get(i));
 		projectCombo.setEmptySelectionAllowed(false);
 		projectCombo.addValueChangeListener(e -> {
@@ -114,9 +113,21 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 			{
 				NavigationHelper.goToView(((UnityView) view).getViewName());
 			}
+			logo.setIcon(controller.getProjectLogoSafe(e.getValue()));
 		});
+		projectCombo.setValue(projects.keySet().iterator().next());
 
-		leftMenu.addMenuElement(projectCombo);
+		if (!(projects.size() == 1))
+		{
+			leftMenu.addMenuElement(projectCombo);
+		} else
+		{
+			LeftMenuLabel projectLabel = LeftMenuLabel.get()
+					.withCaption(msg.getMessage("UpManMenu.projectNameCaption")
+							+ " "
+							+ projects.values().iterator().next());
+			leftMenu.addMenuElement(projectLabel);
+		}
 
 		LeftMenuLabel space2 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space2);
@@ -133,13 +144,14 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 					.getLoginSession().getEntityId());
 		} catch (ControllerException e)
 		{
-			Notification notification = NotificationPopup.getErrorNotification(e.getCaption(), e.getDetails());
-			notification.addCloseListener( l -> logout());			
+			Notification notification = NotificationPopup
+					.getErrorNotification(e.getCaption(), e.getDetails());
+			notification.addCloseListener(l -> logout());
 			notification.show(Page.getCurrent());
 			setContent(new VerticalLayout());
 			return;
 		}
-			
+
 		VerticalLayout naviContent = new VerticalLayout();
 		naviContent.setSizeFull();
 		naviContent.setStyleName(SidebarStyles.contentBox.toString());

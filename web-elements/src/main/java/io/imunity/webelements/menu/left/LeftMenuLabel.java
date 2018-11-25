@@ -52,7 +52,7 @@ public class LeftMenuLabel extends CustomComponent implements MenuElement
 		label.setCaption(caption);
 		return this;
 	}
-
+	
 	public LeftMenuLabel withIcon(Resource icon)
 	{
 		label.setIcon(icon);
@@ -81,5 +81,10 @@ public class LeftMenuLabel extends CustomComponent implements MenuElement
 	public String getMenuElementId()
 	{
 		return super.getId();
+	}
+	
+	public void setIcon(Resource icon)
+	{
+		label.setIcon(icon);
 	}
 }

@@ -12,10 +12,14 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.server.Resource;
+
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -44,7 +48,7 @@ public class ProjectController
 		try
 		{
 			projects = delGroupMan.getProjectsForEntity(entityId);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("ProjectController.getProjectsError"), e);
@@ -69,5 +73,26 @@ public class ProjectController
 		}
 
 		return projectMap;
+	}
+
+	public Resource getProjectLogoSafe(String projectPath)
+	{
+		Resource logo = Images.logoSmall.getResource();
+		Group group;
+		try
+		{
+			group = delGroupMan.getContents(projectPath, projectPath).group;
+		} catch (Exception e)
+		{
+			return logo;
+		}
+		GroupDelegationConfiguration config = group.getDelegationConfiguration();
+		String logoUrl = config.getLogoUrl();
+		if (logoUrl != null && !logoUrl.isEmpty())
+		{
+			return ImageUtils.getConfiguredImageResource(logoUrl);
+		}
+
+		return logo;
 	}
 }
