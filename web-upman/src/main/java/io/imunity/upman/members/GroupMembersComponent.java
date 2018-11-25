@@ -18,10 +18,12 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -30,7 +32,7 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Component displays members grid with simple hamburger menu on the top
+ * Component displays members grid with hamburger menu on the top
  * 
  * @author P.Piernik
  *
@@ -38,7 +40,6 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 public class GroupMembersComponent extends VerticalLayout
 {
-
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
 
@@ -96,15 +97,7 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void removeFromProject(Set<GroupMemberEntry> items)
 	{
-		try
-		{
-			controller.removeFromGroup(project, project, items);
-
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(e);
-		}
-		reloadMemebersGrid();
+		removeFromGroup(project, items);
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getRemoveFromGroupAction()
@@ -118,9 +111,29 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void removeFromGroup(Set<GroupMemberEntry> items)
 	{
+		removeFromGroup(group, items);
+	}
+
+	private void removeFromGroup(String groupFrom, Set<GroupMemberEntry> items)
+	{
+		if (checkIfSelfProjectOperation(groupFrom, items))
+		{
+			new ConfirmDialog(msg, msg.getMessage(
+					"GroupMembersComponent.confirmSelfRemoveFromProject",
+					getProjectDisplayedNameSafe(project)), () ->
+
+			confirmedRemoveFromGroup(groupFrom, items)).show();
+		} else
+		{
+			confirmedRemoveFromGroup(groupFrom, items);
+		}
+	}
+
+	private void confirmedRemoveFromGroup(String groupFrom, Set<GroupMemberEntry> items)
+	{
 		try
 		{
-			controller.removeFromGroup(project, group, items);
+			controller.removeFromGroup(project, groupFrom, items);
 
 		} catch (ControllerException e)
 		{
@@ -203,6 +216,21 @@ public class GroupMembersComponent extends VerticalLayout
 
 	public void revokeManagerPrivileges(Set<GroupMemberEntry> items)
 	{
+		if (checkIfSelfProjectOperation(project, items))
+		{
+			new ConfirmDialog(msg, msg.getMessage(
+					"GroupMembersComponent.confirmSelfRevokeManagerPrivileges",
+					getProjectDisplayedNameSafe(project)), () ->
+
+			confirmedRevokeManagerPrivileges(items)).show();
+		} else
+		{
+			confirmedRevokeManagerPrivileges(items);
+		}
+	}
+
+	private void confirmedRevokeManagerPrivileges(Set<GroupMemberEntry> items)
+	{
 		try
 		{
 			controller.revokeManagerPrivileges(project, items);
@@ -211,11 +239,6 @@ public class GroupMembersComponent extends VerticalLayout
 			NotificationPopup.showError(e);
 		}
 		reloadMemebersGrid();
-	}
-
-	public String getGroup()
-	{
-		return group;
 	}
 
 	public void setGroup(String group)
@@ -236,6 +259,37 @@ public class GroupMembersComponent extends VerticalLayout
 		}
 
 		groupMemebersGrid.setValue(groupMembers);
+	}
+
+	private boolean checkIfSelfProjectOperation(String group, Set<GroupMemberEntry> items)
+	{
+		boolean selfOperation = false;
+		if (project.equals(group))
+		{
+			long managerId = InvocationContext.getCurrent().getLoginSession()
+					.getEntityId();
+
+			for (GroupMemberEntry e : items)
+			{
+				if (e.getEntityId() == managerId)
+					selfOperation = true;
+			}
+		}
+		return selfOperation;
+	}
+
+	private String getProjectDisplayedNameSafe(String projectPath)
+	{
+		String name = "";
+
+		try
+		{
+			name = controller.getProjectGroupsMap(projectPath).get(projectPath);
+		} catch (ControllerException e)
+		{
+			// ok
+		}
+		return name;
 	}
 
 	private void showAddToGroupDialog(Set<GroupMemberEntry> selection)

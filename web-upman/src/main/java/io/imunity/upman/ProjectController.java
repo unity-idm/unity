@@ -16,8 +16,8 @@ import com.vaadin.server.Resource;
 
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -44,7 +44,7 @@ public class ProjectController
 	Map<String, String> getProjectForUser(long entityId) throws ControllerException
 	{
 
-		List<Group> projects;
+		List<DelegatedGroup> projects;
 		try
 		{
 			projects = delGroupMan.getProjectsForEntity(entityId);
@@ -61,15 +61,9 @@ public class ProjectController
 
 		Map<String, String> projectMap = new HashMap<>();
 
-		for (Group p : projects)
+		for (DelegatedGroup p : projects)
 		{
-			String projectName = p.getDisplayedName().getValue(msg);
-			if (projectName.equals(p.getName()))
-			{
-				projectName = p.getNameShort();
-
-			}
-			projectMap.put(p.getName(), projectName);
+			projectMap.put(p.path, p.displayedName);
 		}
 
 		return projectMap;
@@ -78,7 +72,7 @@ public class ProjectController
 	public Resource getProjectLogoSafe(String projectPath)
 	{
 		Resource logo = Images.logoSmall.getResource();
-		Group group;
+		DelegatedGroup group;
 		try
 		{
 			group = delGroupMan.getContents(projectPath, projectPath).group;
@@ -86,7 +80,7 @@ public class ProjectController
 		{
 			return logo;
 		}
-		GroupDelegationConfiguration config = group.getDelegationConfiguration();
+		GroupDelegationConfiguration config = group.delegationConfiguration;
 		String logoUrl = config.getLogoUrl();
 		if (logoUrl != null && !logoUrl.isEmpty())
 		{

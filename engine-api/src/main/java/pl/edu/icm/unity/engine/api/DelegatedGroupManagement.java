@@ -10,7 +10,7 @@ import java.util.Map;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
 import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
 import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupMember;
 import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
@@ -113,7 +113,7 @@ public interface DelegatedGroupManagement
 	 * @return All project group of entity
 	 * @throws EngineException
 	 */
-	List<Group> getProjectsForEntity(long entityId) throws EngineException;
+	List<DelegatedGroup> getProjectsForEntity(long entityId) throws EngineException;
 
 	/**
 	 * Adds a new member to the group

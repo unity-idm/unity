@@ -17,7 +17,7 @@ import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -32,7 +32,6 @@ public class GroupsTree extends TreeGrid<GroupNode>
 {
 	private TreeData<GroupNode> treeData;
 	private GroupsController controller;
-	private UnityMessageSource msg;
 	private List<SingleActionHandler<GroupNode>> rowActionHandlers;
 	private String projectPath;
 
@@ -41,7 +40,6 @@ public class GroupsTree extends TreeGrid<GroupNode>
 			throws ControllerException
 	{
 		this.controller = controller;
-		this.msg = msg;
 		this.rowActionHandlers = actions;
 		this.projectPath = projectPath;
 
@@ -67,13 +65,13 @@ public class GroupsTree extends TreeGrid<GroupNode>
 
 	private void loadNode(String path, GroupNode parent) throws ControllerException
 	{
-		Map<String, List<Group>> groupTree;
+		Map<String, List<DelegatedGroup>> groupTree;
 
 		groupTree = controller.getGroupTree(projectPath, path);
 
-		for (Group rootGr : groupTree.get(null))
+		for (DelegatedGroup rootGr : groupTree.get(null))
 		{
-			GroupNode rootNode = new GroupNode(msg, rootGr, parent);
+			GroupNode rootNode = new GroupNode(rootGr, parent);
 			treeData.addItem(parent, rootNode);
 			addChilds(rootNode, groupTree);
 		}
@@ -92,15 +90,14 @@ public class GroupsTree extends TreeGrid<GroupNode>
 		return treeData.getChildren(node);
 	}
 
-	private void addChilds(GroupNode parentNode, Map<String, List<Group>> groupTree)
+	private void addChilds(GroupNode parentNode, Map<String, List<DelegatedGroup>> groupTree)
 	{
-		for (Group child : groupTree.get(parentNode.getPath()))
+		for (DelegatedGroup child : groupTree.get(parentNode.getPath()))
 		{
-			GroupNode childNode = new GroupNode(msg, child, parentNode);
+			GroupNode childNode = new GroupNode(child, parentNode);
 			treeData.addItem(parentNode, childNode);
 			addChilds(childNode, groupTree);
 		}
-
 	}
 
 	private void expandItemsRecursively(Collection<GroupNode> items)

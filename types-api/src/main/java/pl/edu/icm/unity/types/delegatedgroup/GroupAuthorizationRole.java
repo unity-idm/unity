@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.types.delegatedgroup;
 
 /**
- * Group authotirization role with description
+ * Group authorization role with description
  * 
  * @author P.Piernik
  *

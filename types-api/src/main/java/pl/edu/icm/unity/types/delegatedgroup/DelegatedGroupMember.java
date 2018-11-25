@@ -10,7 +10,7 @@ import java.util.List;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 /**
- * Contains information about delegated group member. 
+ * Holds information about delegated group member. 
  * @author P.Piernik
  *
  */

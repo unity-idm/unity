@@ -37,7 +37,6 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @PrototypeComponent
 public class GroupsView extends CustomComponent implements UpManView
 {
-
 	public static final String VIEW_NAME = "Groups";
 
 	private UnityMessageSource msg;
@@ -57,13 +56,7 @@ public class GroupsView extends CustomComponent implements UpManView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		setCompositionRoot(main);
-		
-		if (project == null || project.isEmpty())
-		{
-			//TODO maybe put error icon to main
-			return;
-		}
-		
+
 		GroupsComponent groupsComponent;
 		try
 		{
@@ -71,11 +64,9 @@ public class GroupsView extends CustomComponent implements UpManView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			// TODO maybe put error icon to main
 			return;
 		}
 		main.addComponent(groupsComponent);
-		
 	}
 
 	@Override

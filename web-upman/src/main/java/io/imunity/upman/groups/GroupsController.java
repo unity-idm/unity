@@ -11,13 +11,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import io.imunity.upman.common.ServerFaultException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
 import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -30,6 +33,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupsController
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupsController.class);
 
 	private DelegatedGroupManagement delGroupMan;
 	private UnityMessageSource msg;
@@ -41,7 +45,7 @@ public class GroupsController
 		this.delGroupMan = delGroupMan;
 	}
 
-	public Map<String, List<Group>> getGroupTree(String projectPath, String rootPath)
+	public Map<String, List<DelegatedGroup>> getGroupTree(String projectPath, String rootPath)
 			throws ControllerException
 	{
 		Map<String, DelegatedGroupContents> groupAndSubgroups;
@@ -50,16 +54,15 @@ public class GroupsController
 			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(projectPath, rootPath);
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("GroupsController.getGroupError"),
-					e.getMessage(), e);
+			log.debug("Can not get group " + projectPath, e);
+			throw new ServerFaultException(msg);
 		}
 
-		Map<String, List<Group>> groupTree = new HashMap<>();
+		Map<String, List<DelegatedGroup>> groupTree = new HashMap<>();
 
 		for (String group : groupAndSubgroups.keySet())
 		{
-			List<Group> subGr = new ArrayList<>();
+			List<DelegatedGroup> subGr = new ArrayList<>();
 			for (String sgr : groupAndSubgroups.get(group).subGroups)
 			{
 				subGr.add(groupAndSubgroups.get(sgr).group);
@@ -72,18 +75,16 @@ public class GroupsController
 		return groupTree;
 	}
 
-	public void addGroup(String project, String parentPath, I18nString groupName,
+	public void addGroup(String projectPath, String parentPath, I18nString groupName,
 			boolean isOpen) throws ControllerException
 	{
 		try
 		{
-			delGroupMan.addGroup(project, parentPath, groupName, isOpen);
+			delGroupMan.addGroup(projectPath, parentPath, groupName, isOpen);
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("GroupsController.addGroupError",
-							groupName.getValue(msg)),
-					e.getMessage(), e);
+			log.debug("Can not add group " + parentPath, e);
+			throw new ServerFaultException(msg);
 		}
 	}
 
@@ -95,9 +96,8 @@ public class GroupsController
 		} catch (Exception e)
 		{
 
-			throw new ControllerException(
-					msg.getMessage("GroupsController.deleteGroupError"),
-					e.getMessage(), e);
+			log.debug("Can not remove group " + groupPath, e);
+			throw new ServerFaultException(msg);
 		}
 
 	}
@@ -112,10 +112,8 @@ public class GroupsController
 
 		} catch (Exception e)
 		{
-			e.printStackTrace();
-			throw new ControllerException(
-					msg.getMessage("GroupsController.updateGroupAccessError"),
-					e.getMessage(), e);
+			log.debug("Can not set group access mode for " + groupPath, e);
+			throw new ServerFaultException(msg);
 		}
 	}
 
@@ -130,9 +128,8 @@ public class GroupsController
 
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("GroupsController.updateGroupNameError"),
-					e.getMessage(), e);
+			log.debug("Can not rename group " + groupPath, e);
+			throw new ServerFaultException(msg);
 		}
 	}
 }

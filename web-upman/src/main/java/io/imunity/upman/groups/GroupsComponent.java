@@ -33,8 +33,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Component displays groups in tree and simple hamburger menu on the top
- * 
+ * Component displays groups in tree grid with hamburger menu on the top
  * @author P.Piernik
  *
  */
@@ -245,7 +244,7 @@ public class GroupsComponent extends CustomComponent
 			isOpen = new CheckBox(msg.getMessage("AddGroupDialog.public"));
 
 			isOpen.setEnabled(parentGroup.isOpen());
-			isOpen.setValue(parentGroup.isOpen());
+			isOpen.setValue(!parentGroup.isOpen());
 
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupNameField, isOpen);

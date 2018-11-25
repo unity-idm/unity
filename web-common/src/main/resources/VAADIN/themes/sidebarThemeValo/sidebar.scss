@@ -6,6 +6,14 @@ $narrow-bar-size: 50px;
 @import "sidebar-utils";
 
 @mixin sidebar {
+	
+	.v-filterselect-suggestpopup-u-indentComboBox .v-filterselect-suggestmenu .gwt-MenuItem {
+		white-space: pre;
+	}
+
+	.u-indentComboBox{
+		white-space: nowrap
+	}
 
 	.v-menubar-menuitem .v-icon {
 		color: $menubar-icon-color !important;

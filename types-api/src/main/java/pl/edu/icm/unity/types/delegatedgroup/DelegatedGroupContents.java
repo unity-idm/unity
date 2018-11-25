@@ -7,18 +7,16 @@ package pl.edu.icm.unity.types.delegatedgroup;
 
 import java.util.List;
 
-import pl.edu.icm.unity.types.basic.Group;
-
 /**
- * Holds information about delegated group contents.
+ * Holds information about delegated group and subgroup.
  * @author P.Piernik
  *
  */
 public class DelegatedGroupContents
 {
-	public final Group group;
+	public final DelegatedGroup group;
 	public final List<String> subGroups;
-	public DelegatedGroupContents(Group group, List<String> subGroups)
+	public DelegatedGroupContents(DelegatedGroup group, List<String> subGroups)
 	{
 		this.group = group;
 		this.subGroups = subGroups;

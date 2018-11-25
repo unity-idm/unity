@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -42,7 +43,7 @@ public class GroupAuthorizationManager
 	}
 
 	@Transactional
-	public void checkManagerAuthorization(String groupPath) throws AuthorizationException
+	public void checkManagerAuthorization(String groupPath) throws AuthorizationException, IllegalGroupValueException
 	{
 		InvocationContext authnCtx = InvocationContext.getCurrent();
 		LoginSession client = authnCtx.getLoginSession();
@@ -62,15 +63,15 @@ public class GroupAuthorizationManager
 		if (!checkIfDelegationIsActive(groupPath))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires enabled delegation in path "
+					"Access is denied. The operation requires enabled delegation in "
 							+ groupPath + " group");
 		}
 
 		if (!checkAuthManagerAttribute(groupPath, client.getEntityId()))
 		{
 			throw new AuthorizationException(
-					"Access is denied. The operation requires manager capability in path "
-							+ groupPath);
+					"Access is denied. The operation requires manager capability in "
+							+ groupPath + " group");
 		}
 	}
 
@@ -101,7 +102,7 @@ public class GroupAuthorizationManager
 
 	}
 
-	private boolean checkIfDelegationIsActive(String groupPath)
+	private boolean checkIfDelegationIsActive(String groupPath) throws IllegalGroupValueException
 	{
 		try
 		{
@@ -109,7 +110,7 @@ public class GroupAuthorizationManager
 			return group.getDelegationConfiguration().isEnabled();
 		} catch (Exception e)
 		{
-			throw new IllegalArgumentException(
+			throw new IllegalGroupValueException(
 					"Group " + groupPath + " does not exist");
 		}
 	}

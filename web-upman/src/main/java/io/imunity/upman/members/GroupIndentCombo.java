@@ -31,6 +31,7 @@ public class GroupIndentCombo extends ComboBox<String>
 		setItems(sortedGroups);
 		setItemCaptionGenerator(i -> groups.get(i));
 		setEmptySelectionAllowed(false);
+		setWidth(30, Unit.EM);
 		
 		if (!sortedGroups.isEmpty())
 		{

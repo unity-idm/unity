@@ -61,12 +61,6 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		main.setMargin(false);
 		setCompositionRoot(main);
 		
-		if (project == null || project.isEmpty())
-		{
-			//TODO maybe put error icon to main
-			return;
-		}
-		
 		Map<String, String> groups;
 		try
 		{
@@ -74,7 +68,6 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			//TODO maybe put error icon to main
 			return;
 		}
 

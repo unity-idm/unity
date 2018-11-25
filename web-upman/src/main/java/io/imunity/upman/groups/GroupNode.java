@@ -5,8 +5,7 @@
 
 package io.imunity.upman.groups;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -23,19 +22,19 @@ public class GroupNode
 	private String icon;
 	private boolean open;
 
-	public GroupNode(UnityMessageSource msg, Group group)
+	public GroupNode(DelegatedGroup group)
 	{
-		this(msg, group, null);
+		this(group, null);
 	}
 
-	public GroupNode(UnityMessageSource msg, Group group, GroupNode parent)
+	public GroupNode(DelegatedGroup group, GroupNode parent)
 	{
-		this.path = group.toString();
+		this.path = group.path;
 		this.parent = parent;
-		this.open = group.isOpen();
+		this.open = group.open;
 		this.icon = open ? Images.padlock_unlock.getHtml()
 				: Images.padlock_lock.getHtml();
-		this.name = group.getDisplayedName().getValue(msg);;
+		this.name = group.displayedName;
 	}
 
 	public String getIcon()

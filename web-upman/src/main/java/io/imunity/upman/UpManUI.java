@@ -96,9 +96,10 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		LeftMenu leftMenu = upManLayout.getLeftMenu();
 		leftMenu.setToggleVisible(false);
-		LeftMenuLabel logo = LeftMenuLabel.get().withIcon(Images.logoSmall.getResource());
-
+		
+		LeftMenuLabel logo = LeftMenuLabel.get();
 		leftMenu.addMenuElement(logo);
+		
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 
@@ -131,7 +132,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 
 		LeftMenuLabel space2 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space2);
-
+		
 		leftMenu.addNavigationElements(UpManRootNavigationInfoProvider.ID);
 	}
 
@@ -185,5 +186,4 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		UpManUI ui = (UpManUI) UI.getCurrent();
 		return ui.getProjectGroupInternal();
 	}
-
 }

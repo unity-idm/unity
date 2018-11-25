@@ -14,15 +14,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
+import io.imunity.upman.common.ServerFaultException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
 import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
 import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupMember;
 import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
@@ -39,6 +42,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupMembersController
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupMembersController.class);
 
 	private DelegatedGroupManagement delGroupMan;
 	private CachedAttributeHandlers cachedAttrHandlerRegistry;
@@ -66,9 +70,8 @@ public class GroupMembersController
 			members = delGroupMan.getDelegatedGroupMemebers(projectPath, groupPath);
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("GroupMembersController.getGroupError"),
-					e.getMessage(), e);
+			log.debug("Can not get memebers of group " + projectPath, e);
+			throw new ServerFaultException(msg);
 		}
 
 		if (members == null || members.isEmpty())
@@ -100,30 +103,18 @@ public class GroupMembersController
 			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(rootPath, rootPath);
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("GroupMembersController.getGroupError"),
-					e.getMessage(), e);
+			log.debug("Can not get group " + rootPath, e);
+			throw new ServerFaultException(msg);
 		}
 
-		groups.put(rootPath,
-				getGroupDisplayName(groupAndSubgroups.get(rootPath).group));
+		groups.put(rootPath, groupAndSubgroups.get(rootPath).group.displayedName);
 
 		fillGroupRecursive(rootPath, groupAndSubgroups, groups);
 
 		return getGroupTree(rootPath, groups);
 	}
 
-	private String getGroupDisplayName(Group group)
-	{
-		String displayName = group.getDisplayedName().getValue(msg);
-
-		if (group.getName().equals(displayName))
-		{
-			return group.getNameShort();
-		}
-
-		return displayName;
-	}
+	
 
 	private Map<String, String> getGroupTree(String rootPath, Map<String, String> groups)
 	{
@@ -148,12 +139,13 @@ public class GroupMembersController
 	}
 
 	private void fillGroupRecursive(String parentPath,
-			Map<String, DelegatedGroupContents> groupAndSubgroups, Map<String, String> groups)
+			Map<String, DelegatedGroupContents> groupAndSubgroups,
+			Map<String, String> groups)
 	{
 		for (String subgroup : groupAndSubgroups.get(parentPath).subGroups)
 		{
-			groups.put(subgroup, getGroupDisplayName(
-					groupAndSubgroups.get(subgroup).group));
+			groups.put(subgroup,
+					groupAndSubgroups.get(subgroup).group.displayedName);
 			fillGroupRecursive(subgroup, groupAndSubgroups, groups);
 		}
 
@@ -166,12 +158,11 @@ public class GroupMembersController
 		Map<String, String> attrs = new LinkedHashMap<>();
 		try
 		{
-			Group group = delGroupMan.getContents(projectPath, projectPath).group;
+			DelegatedGroup group = delGroupMan.getContents(projectPath, projectPath).group;
 			if (group == null)
 				return attrs;
 
-			List<String> groupAttrs = group.getDelegationConfiguration()
-					.getAttributes();
+			List<String> groupAttrs = group.delegationConfiguration.getAttributes();
 
 			if (groupAttrs == null || groupAttrs.isEmpty())
 				return attrs;
@@ -183,9 +174,8 @@ public class GroupMembersController
 			}
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage(
-					"GroupMembersController.getGroupAttributeError"),
-					e.getMessage(), e);
+			log.debug("Can not get attribute names for project " + projectPath, e);
+			throw new ServerFaultException(msg);
 		}
 		return attrs;
 	}
@@ -205,19 +195,20 @@ public class GroupMembersController
 			}
 		} catch (Exception e)
 		{
+			log.debug("Can not add member to group " + groupPath, e);
 			if (added.isEmpty())
 			{
 				throw new ControllerException(msg.getMessage(
 						"GroupMembersController.addToGroupError"),
 						msg.getMessage("GroupMembersController.notAdded"),
-						e);
+						null);
 			} else
 			{
 				throw new ControllerException(msg.getMessage(
 						"GroupMembersController.addToGroupError"),
 						msg.getMessage("GroupMembersController.partiallyAdded",
 								added),
-						e);
+						null);
 			}
 		}
 	}
@@ -238,19 +229,20 @@ public class GroupMembersController
 			}
 		} catch (Exception e)
 		{
+			log.debug("Can not remove member from group " + groupPath, e);
 			if (removed.isEmpty())
 			{
 				throw new ControllerException(msg.getMessage(
 						"GroupMembersController.removeFromGroupError"),
 						msg.getMessage("GroupMembersController.notRemoved"),
-						e);
+						null);
 			} else
 			{
 				throw new ControllerException(msg.getMessage(
-						"GroupMembersController.addToGroupError"),
+						"GroupMembersController.removeFromGroupError"),
 						msg.getMessage("GroupMembersController.partiallyRemoved",
 								removed),
-						e);
+						null);
 			}
 		}
 	}
@@ -278,25 +270,25 @@ public class GroupMembersController
 			for (GroupMemberEntry member : items)
 			{
 				delGroupMan.setGroupAuthorizationRole(groupPath,
-						member.getEntityId(),
-						role);
+						member.getEntityId(), role);
 				updated.add(member.getName());
 			}
 		} catch (Exception e)
 		{
+			log.debug("Can not update group authorization role", e);
 			if (updated.isEmpty())
 			{
 				throw new ControllerException(msg.getMessage(
 						"GroupMembersController.updatePrivilegesError"),
 						msg.getMessage("GroupMembersController.notUpdated"),
-						e);
+						null);
 			} else
 			{
 				throw new ControllerException(msg.getMessage(
 						"GroupMembersController.addToGroupError"),
 						msg.getMessage("GroupMembersController.partiallyUpdated",
 								updated),
-						e);
+						null);
 			}
 		}
 	}
