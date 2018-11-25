@@ -9,11 +9,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.server.Resource;
 
+import io.imunity.upman.common.ServerFaultException;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
@@ -31,6 +34,8 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class ProjectController
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, ProjectController.class);
+
 	private UnityMessageSource msg;
 	private DelegatedGroupManagement delGroupMan;
 
@@ -50,14 +55,14 @@ public class ProjectController
 			projects = delGroupMan.getProjectsForEntity(entityId);
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("ProjectController.getProjectsError"), e);
+			log.debug("Can not get projects for entity " + entityId, e);
+			throw new ServerFaultException(msg);
 		}
 
 		if (projects.isEmpty())
 			throw new ControllerException(
 					msg.getMessage("ProjectController.noProjectAvailable"),
-					new Throwable());
+					null);
 
 		Map<String, String> projectMap = new HashMap<>();
 

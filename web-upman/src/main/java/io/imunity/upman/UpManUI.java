@@ -96,19 +96,24 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 	{
 		LeftMenu leftMenu = upManLayout.getLeftMenu();
 		leftMenu.setToggleVisible(false);
-		
+
 		LeftMenuLabel logo = LeftMenuLabel.get();
 		leftMenu.addMenuElement(logo);
-		
+
 		LeftMenuLabel space1 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space1);
 
 		projectCombo = MenuComoboBox.get()
 				.withCaption(msg.getMessage("UpManMenu.projectNameCaption"));
-		projectCombo.setItems(projects.keySet());
 		projectCombo.setItemCaptionGenerator(i -> projects.get(i));
 		projectCombo.setEmptySelectionAllowed(false);
+		reloadProjectsCombo();
+		logo.setIcon(controller.getProjectLogoSafe(projectCombo.getValue()));
+
 		projectCombo.addValueChangeListener(e -> {
+			if (e.getValue() == null || e.getValue().isEmpty())
+				return;
+
 			View view = UI.getCurrent().getNavigator().getCurrentView();
 			if (view instanceof UnityView)
 			{
@@ -116,7 +121,6 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 			}
 			logo.setIcon(controller.getProjectLogoSafe(e.getValue()));
 		});
-		projectCombo.setValue(projects.keySet().iterator().next());
 
 		if (!(projects.size() == 1))
 		{
@@ -132,27 +136,15 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 
 		LeftMenuLabel space2 = LeftMenuLabel.get();
 		leftMenu.addMenuElement(space2);
-		
+
 		leftMenu.addNavigationElements(UpManRootNavigationInfoProvider.ID);
 	}
 
 	@Override
 	protected void enter(VaadinRequest request)
 	{
-		try
-		{
-			projects = controller.getProjectForUser(InvocationContext.getCurrent()
-					.getLoginSession().getEntityId());
-		} catch (ControllerException e)
-		{
-			Notification notification = NotificationPopup
-					.getErrorNotification(e.getCaption(), e.getDetails());
-			notification.addCloseListener(l -> logout());
-			notification.show(Page.getCurrent());
-			setContent(new VerticalLayout());
+		if (!reloadProjectInternal())
 			return;
-		}
-
 		VerticalLayout naviContent = new VerticalLayout();
 		naviContent.setSizeFull();
 		naviContent.setStyleName(SidebarStyles.contentBox.toString());
@@ -181,9 +173,44 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		return projectCombo.getValue();
 	}
 
+	private boolean reloadProjectInternal()
+	{
+		try
+		{
+			projects = controller.getProjectForUser(InvocationContext.getCurrent()
+					.getLoginSession().getEntityId());
+		} catch (ControllerException e)
+		{
+			Notification notification = NotificationPopup
+					.getErrorNotification(e.getCaption(), e.getDetails());
+			notification.addCloseListener(l -> logout());
+			notification.show(Page.getCurrent());
+			setContent(new VerticalLayout());
+			return false;
+		}
+		return true;
+	}
+
+	private void reloadProjectsCombo()
+	{
+		projectCombo.clear();
+		if (projects != null)
+		{
+			projectCombo.setItems(projects.keySet());
+			projectCombo.setValue(projects.keySet().iterator().next());
+		}
+	}
+
 	public static String getProjectGroup()
 	{
 		UpManUI ui = (UpManUI) UI.getCurrent();
 		return ui.getProjectGroupInternal();
+	}
+
+	public static void reloadProjects()
+	{
+		UpManUI ui = (UpManUI) UI.getCurrent();
+		if (ui.reloadProjectInternal())
+			ui.reloadProjectsCombo();
 	}
 }

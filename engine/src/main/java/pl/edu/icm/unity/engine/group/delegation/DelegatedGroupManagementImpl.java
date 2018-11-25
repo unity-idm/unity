@@ -267,15 +267,14 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	public List<DelegatedGroup> getProjectsForEntity(long entityId) throws EngineException
 	{
 
-		GroupStructuralData bulkData = bulkQueryService.getBulkStructuralData("/");
-		Map<String, GroupContents> groupAndSubgroups = bulkQueryService
-				.getGroupAndSubgroups(bulkData);
-
 		List<DelegatedGroup> projects = new ArrayList<>();
 
-		for (String group : groupAndSubgroups.keySet())
+		Map<String, GroupMembership> groups = identitiesMan
+				.getGroups(new EntityParam(entityId));
+
+		for (String group : groups.keySet())
 		{
-			Group gr = groupAndSubgroups.get(group).getGroup();
+			Group gr = getGroupInternal(group);
 			if (gr.getDelegationConfiguration().isEnabled())
 			{
 				Optional<String> val = getAttributeValue(entityId, gr.getName(),
@@ -382,23 +381,22 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	private void assertIfOneManagerRemain(String projectPath, long entityId)
 			throws EngineException
 	{
+
+		List<DelegatedGroupMember> delegatedGroupMemebersInternal = getDelegatedGroupMemebersInternal(
+				projectPath, projectPath);
+		List<Long> managers = new ArrayList<>();
+
+		for (DelegatedGroupMember member : delegatedGroupMemebersInternal)
 		{
-			List<DelegatedGroupMember> delegatedGroupMemebersInternal = getDelegatedGroupMemebersInternal(
-					projectPath, projectPath);
-			List<Long> managers = new ArrayList<>();
-
-			for (DelegatedGroupMember member : delegatedGroupMemebersInternal)
+			if (member.role.equals(GroupAuthorizationRole.manager))
 			{
-				if (member.role.equals(GroupAuthorizationRole.manager))
-				{
-					managers.add(member.entityId);
-				}
+				managers.add(member.entityId);
 			}
-
-			if (managers.size() == 1 && managers.contains(entityId))
-				throw new OneManagerRemainsException(getGroupInternal(projectPath)
-						.getDisplayedName().getValue(msg));
 		}
+
+		if (managers.size() == 1 && managers.contains(entityId))
+			throw new OneManagerRemainsException(getGroupInternal(projectPath)
+					.getDisplayedName().getValue(msg));
 	}
 
 	private List<Attribute> getProjectMemberAttributes(long entity, String projectPath,

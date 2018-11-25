@@ -18,6 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.UpManUI;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
@@ -120,12 +121,14 @@ public class GroupMembersComponent extends VerticalLayout
 		{
 			new ConfirmDialog(msg, msg.getMessage(
 					"GroupMembersComponent.confirmSelfRemoveFromProject",
-					getProjectDisplayedNameSafe(project)), () ->
-
-			confirmedRemoveFromGroup(groupFrom, items)).show();
+					getProjectDisplayedNameSafe(project)), () -> {
+						confirmedRemoveFromGroup(groupFrom, items);
+						UpManUI.reloadProjects();
+					}).show();
 		} else
 		{
 			confirmedRemoveFromGroup(groupFrom, items);
+			reloadMemebersGrid();
 		}
 	}
 
@@ -139,7 +142,6 @@ public class GroupMembersComponent extends VerticalLayout
 		{
 			NotificationPopup.showError(e);
 		}
-		reloadMemebersGrid();
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getAddToGroupAction()
@@ -220,12 +222,16 @@ public class GroupMembersComponent extends VerticalLayout
 		{
 			new ConfirmDialog(msg, msg.getMessage(
 					"GroupMembersComponent.confirmSelfRevokeManagerPrivileges",
-					getProjectDisplayedNameSafe(project)), () ->
+					getProjectDisplayedNameSafe(project)), () -> {
 
-			confirmedRevokeManagerPrivileges(items)).show();
+						confirmedRevokeManagerPrivileges(items);
+						UpManUI.reloadProjects();
+					}).show();
+
 		} else
 		{
 			confirmedRevokeManagerPrivileges(items);
+			reloadMemebersGrid();
 		}
 	}
 
@@ -238,7 +244,6 @@ public class GroupMembersComponent extends VerticalLayout
 		{
 			NotificationPopup.showError(e);
 		}
-		reloadMemebersGrid();
 	}
 
 	public void setGroup(String group)
