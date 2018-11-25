@@ -43,8 +43,14 @@ class AuthenticationOptionsHandler
 		this.endpoint = endpoint;
 		for (AuthenticationFlow ao : availableAuthentionFlows)
 			for (Authenticator a: ao.getFirstFactorAuthenticators())
-				authenticatorsByName.put(a.getRetrieval().getAuthenticatorId(), 
-						new AuthenticatorWithFlow(ao, a));
+			{
+				String authenticatorId = a.getRetrieval().getAuthenticatorId();
+				if (authenticatorsByName.containsKey(authenticatorId))
+					log.warn("Endpoint {} has authenticator {} enabled more then once as a first "
+							+ "factor. Most likely it is provisioned from 2 flows. "
+							+ "Random one will be used.", endpoint, authenticatorId);
+				authenticatorsByName.put(authenticatorId, new AuthenticatorWithFlow(ao, a));
+			}
 	}
 
 	void clear()
