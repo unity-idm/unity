@@ -154,14 +154,18 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		workFactor.setMaxValue(ScryptParams.MAX_WORK_FACTOR);
 		workFactor.setWidth(3, Unit.EM);
 		workFactor.setDescription(msg.getMessage("PasswordDefinitionEditor.workFactorDesc"));
-
+		Button testWorkFactor = new Button(msg.getMessage("PasswordDefinitionEditor.testWorkFactor"));
+		testWorkFactor.addStyleName(Styles.vButtonLink.toString());
+		testWorkFactor.addClickListener(this::showTestWorkFactorDialog);
+		
+		
 		allowLegacy = new CheckBox(msg.getMessage("PasswordDefinitionEditor.allowLegacy"));
 		allowLegacy.setDescription(msg.getMessage("PasswordDefinitionEditor.allowLegacyDesc"));
 		
 
 		FormLayout form = new CompactFormLayout(testMe, minScore, scoreNote, 
 				minLength, minClasses, denySequences, historySize, limitMaxAge,
-				maxAge, workFactor, allowLegacy);
+				maxAge, workFactor, testWorkFactor, allowLegacy);
 		form.setSpacing(true);
 		form.setMargin(true);
 		PasswordCredential helper = new PasswordCredential();
@@ -179,6 +183,11 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	private void showTestDialog(ClickEvent event)
 	{
 		new TestPasswordDialog(msg, getCredential()).show();
+	}
+
+	private void showTestWorkFactorDialog(ClickEvent event)
+	{
+		new TestWorkFactorDialog(msg, getCredential()).show();
 	}
 	
 	private PasswordCredential getCredential()

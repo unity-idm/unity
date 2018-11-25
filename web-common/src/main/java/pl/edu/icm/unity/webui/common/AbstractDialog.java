@@ -60,6 +60,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	private int height = 50;
 	private float widthEm;
 	private float heightEm;
+	private String confirmMessage;
+	private String cancelMessage;
 	
 	/**
 	 * With only one, confirm button, which usually should be labelled as 'close'. 
@@ -76,6 +78,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		super(caption);
 		this.msg = msg;
+		this.cancelMessage = cancelM;
+		this.confirmMessage = confirmM;
 		if (cancelM != null)
 			cancel = createCancelButton();
 		confirm = createConfirmButton();
@@ -111,7 +115,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	
 	protected Button createConfirmButton()
 	{
-		Button confirm = new Button(msg.getMessage("ok"), this);
+		Button confirm = new Button(confirmMessage == null ? msg.getMessage("ok") : confirmMessage, this);
 		confirm.setId("AbstractDialog.confirm");
 		confirm.addStyleName("u-dialog-confirm");
 		return confirm;
@@ -119,7 +123,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 
 	protected Button createCancelButton()
 	{
-		Button confirm = new Button(msg.getMessage("cancel"), this);
+		Button confirm = new Button(cancelMessage == null ? msg.getMessage("cancel") : cancelMessage, this);
 		confirm.addStyleName("u-dialog-cancel");
 		return confirm;
 	}
