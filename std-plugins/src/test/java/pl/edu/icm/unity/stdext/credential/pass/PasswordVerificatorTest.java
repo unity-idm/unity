@@ -7,16 +7,24 @@ package pl.edu.icm.unity.stdext.credential.pass;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.Test;
 
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
+import pl.edu.icm.unity.engine.api.authn.local.CredentialHelper;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
+import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
-import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
-import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
-import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
 
 public class PasswordVerificatorTest
@@ -267,6 +275,46 @@ public class PasswordVerificatorTest
 
 		assertEquals(LocalCredentialState.correct, verificator.checkCredentialState(c8).getState());
 	}
+
+	@Test
+	public void shouldReturnOutdatedStateWhenScryptParamsAreChangedWithoutPassword() throws Exception
+	{
+		LocalCredentialVerificator verificator = new PasswordVerificator(null, null);
+		PasswordCredential credCfg = getEmpty();
+		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
+		
+		String withOldHash = verificator.prepareCredential(new PasswordToken("1qaZ2wsX").toJson(), "", true);
+		
+		credCfg.setScryptParams(new ScryptParams(11));
+		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
+		
+		CredentialPublicInformation credInfo = verificator.checkCredentialState(withOldHash);
+		assertEquals(LocalCredentialState.outdated, credInfo.getState());
+	}
+
+	@Test
+	public void shouldRehashAndReturnCorrectWhenScryptParamsAreChangedAndPasswordGiven() throws Exception
+	{
+		CredentialHelper credHelper = mock(CredentialHelper.class);
+		PasswordVerificator verificator = new PasswordVerificator(null, credHelper);
+		IdentityResolver identityResolver = mock(IdentityResolver.class);
+		verificator.setIdentityResolver(identityResolver);
+		EntityWithCredential entityWithCred = new EntityWithCredential();
+		when(identityResolver.resolveIdentity(eq("username"), any(), any())).thenReturn(entityWithCred);
+		
+		PasswordCredential credCfg = getEmpty();
+		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
+		String withOldHash = verificator.prepareCredential(new PasswordToken("1qaZ2wsX").toJson(), "", true);
+		entityWithCred.setCredentialValue(withOldHash);
+		
+		credCfg.setScryptParams(new ScryptParams(11));
+		verificator.setSerializedConfiguration(JsonUtil.serialize(credCfg.getSerializedConfiguration()));
+		
+		AuthenticationResult result = verificator.checkPassword("username", "1qaZ2wsX", null);
+		assertEquals(Status.success, result.getStatus());
+		verify(credHelper).updateCredential(eq(0L), eq(null), anyString());
+	}
+
 	
 	private PasswordCredential getEmpty()
 	{
@@ -277,7 +325,7 @@ public class PasswordVerificatorTest
 		credCfg.setHistorySize(0);
 		credCfg.setMaxAge(PasswordCredential.MAX_AGE_UNDEF);
 		credCfg.setMinClassesNum(1);
-		credCfg.setScryptParams(new ScryptParams(1));
+		credCfg.setScryptParams(new ScryptParams(10));
 		return credCfg;
 	}
 }

@@ -127,6 +127,12 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			verifyNewPassword(pToken.getPassword(), 
 					currentPasswords, credential.getHistorySize());
 		
+		return prepareCredentialForStorage(currentPasswords, pToken);
+	}
+
+	private String prepareCredentialForStorage(Deque<PasswordInfo> currentPasswords, PasswordToken pToken)
+			throws IllegalCredentialException, InternalException
+	{
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion())
 		{
@@ -138,8 +144,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				throw new IllegalCredentialException("The chosen answer for security question is invalid");
 		}
 		
-		PasswordInfo currentPassword = passwordEngine.prepareForStore(credential, 
-				pToken.getPassword());
+		PasswordInfo currentPassword = passwordEngine.prepareForStore(credential, pToken.getPassword());
 		if (credential.getHistorySize() <= currentPasswords.size() && !currentPasswords.isEmpty())
 			currentPasswords.removeLast();
 		currentPasswords.addFirst(currentPassword);
@@ -151,8 +156,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return PasswordCredentialDBState.toJson(credential, currentPasswords, 
 				pToken.getQuestion(), questionAnswer);
 	}
-
-
+	
+	
 	@Override
 	public String invalidate(String currentCredential)
 	{
@@ -181,7 +186,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 				parsedCred.getSecurityQuestion());
 		String extraInfo = pei.toJson();
 		
-		if (isCurrentCredentialOutdated(parsedCred))
+		//TODO we should distinguish those states and return different information
+		if (isCurrentCredentialOutdated(parsedCred) || storedPasswordRequiresRehash(parsedCred)) 
 			return new CredentialPublicInformation(LocalCredentialState.outdated, extraInfo);
 		return new CredentialPublicInformation(LocalCredentialState.correct, extraInfo);
 	}
@@ -201,7 +207,7 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return authenticationResult;
 	}
 
-	public AuthenticationResult checkPasswordInternal(String username, String password)
+	private AuthenticationResult checkPasswordInternal(String username, String password)
 	{
 		EntityWithCredential resolved;
 		try
@@ -287,12 +293,33 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			}
 			return true;
 		}
+		
+		if (storedPasswordRequiresRehash(credState))
+			rehashPassword(password, credState, resolved);
+		
 		return false;
 	}
 
+	
+	private void rehashPassword(String password, PasswordCredentialDBState credState, 
+			EntityWithCredential resolved) throws AuthenticationException
+	{
+		try
+		{
+			log.info("Re-hashing password of entity {} to match updated security requirements", resolved.getEntityId());
+			PasswordToken passwordToken = new PasswordToken(password);
+			String rehashed = prepareCredentialForStorage(credState.getPasswords(), passwordToken);
+			credentialHelper.updateCredential(resolved.getEntityId(), resolved.getCredentialName(), 
+					rehashed);
+		} catch (Exception e)
+		{
+			throw new AuthenticationException("Problem rehasing password", e);
+		}
+	}
+	
 	/**
 	 * Checks if the provided credential state is fulfilling the rules of the credential,
-	 * if it was expired manually and if password did expire on its own.  
+	 * if it was expired manually or if password did expire on its own.  
 	 *  
 	 * @param password
 	 * @return true if credential is invalid
@@ -318,16 +345,26 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			log.debug("Password is outdated: its validity expired on {}", validityEnd);
 			return true;
 		}
-		if (!passwordEngine.checkParamsUpToDate(credential, current))
-		{
-			log.debug("Password is outdated: hashing parameters were changed");
-			return true;
-		}
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion() &&
 				!passwordEngine.checkParamsUpToDate(credential, credState.getAnswer()))
 		{
 			log.debug("Password is outdated: security question answers do not meet current requirements");
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * @return true if the password as stored in DB was hashed using outdated credential settings 
+	 * (e.g. other number of iterations, some of legacy key derivation functions).
+	 */
+	private boolean storedPasswordRequiresRehash(PasswordCredentialDBState credState)
+	{
+		PasswordInfo current = credState.getPasswords().getFirst();
+		if (!passwordEngine.checkParamsUpToDate(credential, current))
+		{
+			log.debug("Password hash is outdated: hashing parameters were changed");
 			return true;
 		}
 		return false;

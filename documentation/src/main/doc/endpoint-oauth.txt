@@ -177,13 +177,12 @@ scope="openid profile read-tasks"
 ==== Revocation and logout
 
 The path +/revoke+ can be used to revoke an access token which was previously issued. This endpoint
-is implemented according to the RFC 7009. 
+is implemented according to the RFC 7009, with the following Unity specifics: 
 
-Limitations: 
-
-. Refresh tokens revocation is not implemented (as Unity doesn't support yet refresh tokens at all). 
+. The +token_type_hint+ is a mandatory argument, must be always provided (in RFC it is optional). THe allowed values
+  are +access_token+ and +refresh_token+.
 . The endpoint access is not authenticated - or better said the access is authorized implicitly by providing
-  a valid access token to be revoked. The +client_id+ must be always given.
+  a valid token to be revoked. The +client_id+ must be always given.
    
 Typical usage:
 
@@ -192,7 +191,7 @@ POST /.../revoke HTTP/1.1
 Host: ... 
 Content-Type: application/x-www-form-urlencoded
    
-token=45ghiukldjahdnhzdauz&user_id=oauth-client
+token=45ghiukldjahdnhzdauz&client_id=oauth-client&token_type_hint=refresh_token
 ----
 
 Besides the standard token revocation, it is also possible to request token's owner logout (disposal of the SSO session)
