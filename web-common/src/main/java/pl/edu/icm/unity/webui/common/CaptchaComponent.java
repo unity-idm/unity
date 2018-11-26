@@ -79,11 +79,11 @@ public class CaptchaComponent
 	
 	private void initEngine()
 	{
-		engine = new Captcha.Builder(33*length, 50)
+		engine = new Captcha.Builder(31*length, 50)
 			.addText(new DefaultTextProducer(length, CAPTCHA_CHARS))
 			.addBackground(new GradiatedBackgroundProducer(new Color(0xf5, 0x92, 0x01), 
 					new Color(0xE0, 0xE0, 0xE0)))
-			.gimp(new FishEyeGimpyRenderer())
+			.gimp(new FishEyeGimpyRenderer(Color.gray, Color.gray))
 			.addBorder()
 			.build();
 	}
@@ -134,7 +134,7 @@ public class CaptchaComponent
 		HorizontalLayout captchaLine = new HorizontalLayout();
 		captchaLine.addComponents(challenge, resetChallenge);
 		captchaLine.setMargin(false);
-		captchaLine.setComponentAlignment(resetChallenge, Alignment.TOP_LEFT);
+		captchaLine.setComponentAlignment(resetChallenge, Alignment.MIDDLE_LEFT);
 		captchaLine.setExpandRatio(challenge, 2);
 		return captchaLine;
 	}

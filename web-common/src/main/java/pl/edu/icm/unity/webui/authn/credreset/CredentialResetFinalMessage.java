@@ -37,6 +37,7 @@ public class CredentialResetFinalMessage extends CredentialResetLayout
 		ret.setWidth(MAIN_WIDTH_EM, Unit.EM);
 
 		Button proceed = new Button(msg.getMessage("continue"));
+		proceed.addStyleName("u-cred-reset-proceed");
 		proceed.addClickListener(e -> closeCallback.run());
 		proceed.setWidth(100, Unit.PERCENTAGE);
 		proceed.setClickShortcut(KeyCode.ENTER);
