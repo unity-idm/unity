@@ -77,7 +77,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 	public static final String AUTHN_COLUMN_WIDTH = "columnWidth";
 	public static final String AUTHN_COLUMN_CONTENTS = "columnContents";
 	
-	public static final String CRED_RESET_COMPACT = "compactCredentialRest";
+	public static final String CRED_RESET_COMPACT = "compactCredentialReset";
 	
 
 

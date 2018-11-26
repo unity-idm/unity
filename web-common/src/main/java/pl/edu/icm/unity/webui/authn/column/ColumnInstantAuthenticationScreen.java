@@ -43,6 +43,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -87,10 +88,12 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private SandboxAuthnResultCallback sandboxCallback;
 	private Component topHeader;
 	private Component cancelComponent;
+	private CredentialResetLauncher credentialResetLauncher;
 	
 	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			Supplier<Boolean> outdatedCredentialDialogLauncher,
+			CredentialResetLauncher credentialResetLauncher,
 			Runnable registrationLayoutLauncher, CancelHandler cancelHandler,
 			EntityManagement idsMan,
 			ExecutorsService execService, boolean enableRegistration,
@@ -103,6 +106,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.config = config;
 		this.endpointDescription = endpointDescription;
 		this.outdatedCredentialDialogLauncher = outdatedCredentialDialogLauncher;
+		this.credentialResetLauncher = credentialResetLauncher;
 		this.registrationLayoutLauncher = registrationLayoutLauncher;
 		this.cancelHandler = cancelHandler;
 		this.idsMan = idsMan;
@@ -286,7 +290,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				optionId, endpointDescription.getEndpoint().getContextAddress(), 
 				authNPanel);
 		authnOption.authenticatorUI.setAuthenticationCallback(controller);
-		
+		authnOption.authenticatorUI.setCredentialResetLauncher(credentialResetLauncher);
 		return authNPanel;
 	}
 
@@ -304,6 +308,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 				endpointDescription.getRealm(), listener, this::isSetRememberMe, 
 				partialAuthnState, authNPanel);
 		secondaryUI.setAuthenticationCallback(controller);
+		secondaryUI.setCredentialResetLauncher(credentialResetLauncher);
 		return authNPanel;
 	}
 
@@ -496,7 +501,6 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 			onCompletedAuthentication();
 		}
 	}
-	
 	
 	//for sandbox extensions
 	protected void setSandboxCallbackForAuthenticators(SandboxAuthnResultCallback callback) 

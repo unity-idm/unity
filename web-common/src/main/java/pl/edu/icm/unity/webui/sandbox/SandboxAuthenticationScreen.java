@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import com.vaadin.ui.Component;
+
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
@@ -23,6 +25,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
+import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
 import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
@@ -49,8 +52,11 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 			SandboxAuthnRouter sandboxRouter)
 	{
 		super(msg, prepareConfiguration(config.getProperties(), title), 
-				endpointDescription, () -> false, 
-				() -> {}, cancelHandler, idsMan, 
+				endpointDescription, 
+				() -> false,
+				new NoOpCredentialRestLauncher(),
+				() -> {},
+				cancelHandler, idsMan, 
 				execService, false, 
 				SandboxAuthenticationScreen::disabledUnknownUserProvider, 
 				authnProcessor, 
@@ -97,6 +103,20 @@ class SandboxAuthenticationScreen extends ColumnInstantAuthenticationScreen
 		public void sandboxedAuthenticationDone(SandboxAuthnContext ctx)
 		{
 			sandboxRouter.firePartialEvent(new SandboxAuthnEvent(ctx));
+		}
+	}
+	
+	private static class NoOpCredentialRestLauncher implements CredentialResetLauncher
+	{
+		@Override
+		public void startCredentialReset(Component credentialResetUI)
+		{
+		}
+
+		@Override
+		public CredentialResetUIConfig getConfiguration()
+		{
+			return null;
 		}
 	}
 }

@@ -55,8 +55,9 @@ import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
+import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.credreset.sms.SMSCredentialReset1Dialog;
+import pl.edu.icm.unity.webui.authn.credreset.sms.SMSCredentialResetController;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
@@ -160,6 +161,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		private VerticalLayout mainLayout;
 		private Button authenticateButton;
 		private Button lostPhone;
+		private CredentialResetLauncher credResetLauncher;
 		
 		public SMSRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -183,7 +185,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			mainLayout.addComponent(usernameLabel);
 			usernameLabel.setVisible(false);
 
-			capcha = new CaptchaComponent(msg);
+			capcha = new CaptchaComponent(msg, false);
 			capchaInfoLabel = new Label();
 			capchaComponent = new VerticalLayout();
 			capchaComponent.setMargin(false);
@@ -390,10 +392,10 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 
 		private void showResetDialog()
 		{
-			SMSCredentialReset1Dialog dialog = new SMSCredentialReset1Dialog(msg,
+			SMSCredentialResetController controller = new SMSCredentialResetController(msg,
 					credentialExchange.getSMSCredentialResetBackend(),
-					credEditor);
-			dialog.show();
+					credEditor, credResetLauncher.getConfiguration());
+			credResetLauncher.startCredentialReset(controller.getInitialUI());
 		}
 
 		@Override
@@ -425,7 +427,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			this.sandboxCallback = sandboxCallback;
 		}
 
-		public void setAuthenticatedIdentity(String authenticatedIdentity)
+		void setAuthenticatedIdentity(String authenticatedIdentity)
 		{
 			this.username = authenticatedIdentity;
 			sendCodeButton.setVisible(false);
@@ -447,6 +449,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			if (lostPhone != null)
 				lostPhone.setVisible(false);
 		}
+
+		void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
+		{
+			this.credResetLauncher = credResetLauncher;
+			
+		}
 	}
 
 	private class SMSRetrievalUI implements VaadinAuthenticationUI
@@ -464,6 +472,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			theComponent.setCallback(callback);
 		}
 
+		@Override
+		public void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
+		{
+			theComponent.setCredentialResetLauncher(credResetLauncher);
+		}
+		
 		@Override
 		public Component getComponent()
 		{
