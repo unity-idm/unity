@@ -109,15 +109,15 @@
 		line-height: 1.1;
 		font-weight: 300;
 	}
-
-	.u-textHeading2 {
+	
+	.u-textTitle {
 		font-family: $font;
 		letter-spacing: -1px;
-		font-size: 26px;
-		font-weight: 300;
-		color: #464646;
+		font-size: 2em;
+		line-height: 1.2;
+		margin-bottom: $v-unit-size;
 	}
-		
+
 	.u-bigTab .v-icon {
 		margin-top: -8px;
 		margin-bottom: 8px;

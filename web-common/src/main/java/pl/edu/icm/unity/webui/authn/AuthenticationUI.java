@@ -10,6 +10,7 @@ import static pl.edu.icm.unity.webui.VaadinEndpointProperties.AUTHN_COLUMN_WIDTH
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.function.Function;
 
@@ -23,9 +24,11 @@ import org.springframework.context.annotation.Scope;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Page;
+import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
+import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -48,6 +51,7 @@ import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
+import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
@@ -117,8 +121,9 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-		authenticationUI = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription, 
+		authenticationUI = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription,
 				this::showOutdatedCredentialDialog, 
+				new CredentialResetLauncherImpl(),
 				this::showRegistration, 
 				cancelHandler, idsMan, execService, 
 				isRegistrationEnabled(), 
@@ -259,4 +264,38 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		}
 	}
 	
+	
+	private class CredentialResetLauncherImpl implements CredentialResetLauncher
+	{
+		@Override
+		public void startCredentialReset(Component credentialResetUI)
+		{
+			setContent(credentialResetUI);
+		}
+
+		@Override
+		public CredentialResetUIConfig getConfiguration()
+		{
+			return new CredentialResetUIConfig(getLogo(), 
+					() -> resetToFreshAuthenticationScreen(), 
+					getFirstColumnWidth() * 2, 
+					getFirstColumnWidth(),
+					config.getBooleanValue(VaadinEndpointProperties.CRED_RESET_COMPACT));
+		}
+
+		private Optional<Resource> getLogo()
+		{
+			String logoURL = config.getValue(VaadinEndpointProperties.AUTHN_LOGO);
+			
+			if (!logoURL.isEmpty())
+			{
+				Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+				return Optional.of(logoResource);
+			} else
+			{
+				return Optional.empty();
+			}
+				
+		}
+	}
 }
