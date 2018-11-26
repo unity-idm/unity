@@ -70,15 +70,20 @@ public interface VaadinAuthentication extends BindingAuthn
 		/**
 		 * Sets a callback object which is used to communicate the authentication result back to the 
 		 * main authentication framework. 
-		 * @param callback
 		 */
 		void setAuthenticationCallback(AuthenticationCallback callback);
 	
 		/**
+		 * Sets object allowing for triggering credential reset if the component supports this.
+		 */
+		default void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
+		{
+		}
+		
+		/**
 		 * TODO do we need separate ? 
 		 * Sets a callback object which is used to indicate sandbox authentication. The result of 
 		 * authn is returned back to the sandbox servlet. 
-		 * @param callback
 		 */
 		void setSandboxAuthnCallback(SandboxAuthnResultCallback callback);
 		
@@ -125,6 +130,8 @@ public interface VaadinAuthentication extends BindingAuthn
 		 * @param authenticatedEntity
 		 */
 		void presetEntity(Entity authenticatedEntity);
+		
+		
 		
 		default void disableCredentialReset()
 		{

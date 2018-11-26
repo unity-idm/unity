@@ -46,14 +46,16 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
+import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialReset1Dialog;
+import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -159,6 +161,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		private PasswordField passwordField;
 		private int tabIndex;
 		private Button reset;
+		private CredentialResetLauncher credResetLauncher;
 
 		public PasswordRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -288,9 +291,10 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		
 		private void showResetDialog()
 		{
-			PasswordCredentialReset1Dialog dialog = new PasswordCredentialReset1Dialog(msg, 
-					credentialExchange.getCredentialResetBackend(), credEditor);
-			dialog.show();
+			PasswordCredentialResetController passReset = new PasswordCredentialResetController(msg, 
+					credentialExchange.getCredentialResetBackend(), credEditor, 
+					credResetLauncher.getConfiguration());
+			credResetLauncher.startCredentialReset(passReset.getInitialUI());
 		}
 
 		@Override
@@ -340,6 +344,11 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			if (reset!= null)
 				reset.setVisible(false);
+		}
+
+		public void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
+		{
+			this.credResetLauncher = credResetLauncher;
 		}
 	}
 	
@@ -423,7 +432,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			List<Identity> ids = authenticatedEntity.getIdentities();
 			for (Identity id: ids)
-				if (id.getTypeId().equals(UsernameIdentity.ID))
+				if (id.getTypeId().equals(UsernameIdentity.ID) || 
+						id.getTypeId().equals(EmailIdentity.ID))
 				{
 					theComponent.setAuthenticatedIdentity(id.getValue());
 					return;
@@ -440,6 +450,12 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public void disableCredentialReset()
 		{
 			theComponent.disablePasswordReset();
+		}
+
+		@Override
+		public void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
+		{
+			theComponent.setCredentialResetLauncher(credResetLauncher);
 		}
 	}
 	

@@ -348,7 +348,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	private boolean createCaptchaControl(Layout layout, BasicFormElement element)
 	{
-		captcha = new CaptchaComponent(msg, form.getCaptchaLength());
+		captcha = new CaptchaComponent(msg, form.getCaptchaLength(), form.getLayoutSettings().isCompactInputs());
 		layout.addComponent(HtmlTag.br());
 		layout.addComponent(captcha.getAsComponent());
 		return true;
