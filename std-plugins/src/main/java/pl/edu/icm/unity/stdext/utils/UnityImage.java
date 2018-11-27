@@ -38,9 +38,9 @@ public class UnityImage
 	 */
 	public enum ImageType
 	{
-		JPG("bufferedImage/jpeg"),
-		PNG("bufferedImage/png"),
-		GIF("bufferedImage/gif");
+		JPG("image/jpeg"),
+		PNG("image/png"),
+		GIF("image/gif");
 
 		private String mimeType;
 
@@ -95,6 +95,51 @@ public class UnityImage
 	public byte[] getImage()
 	{
 		return image;
+	}
+
+	/**
+	 * Recreate the image to match given maximum width and height keeping current aspect ratio.
+	 * If image already fits the size no action in taken.
+	 *
+	 * Method returns new byte array - current object is not modified.
+	 *
+	 * @param maxWidth
+	 * @param maxHeight
+	 */
+	public byte[] getScaledDownImage(int maxWidth, int maxHeight)
+	{
+		int w = bufferedImage.getWidth();
+		int h = bufferedImage.getHeight();
+
+		if (w <= maxWidth && h <= maxHeight)
+			return Arrays.copyOf(image, image.length); // Scaling not needed, image smaller than limitation
+
+		// Calculated multiplies
+		double ratioW = maxWidth / (double) w;
+		double ratioH = maxHeight / (double) h;
+		double ratio = ratioW > ratioH ? ratioH : ratioW;
+		int newWidth = new Double(w * ratio).intValue();
+		int newHeight = new Double(h * ratio).intValue();
+
+		// Redraw image
+		BufferedImage resized = new BufferedImage(newWidth, newHeight, bufferedImage.getType());
+		Graphics2D g = resized.createGraphics();
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.drawImage(bufferedImage, 0, 0, newWidth, newHeight, 0, 0, w, h, null);
+		g.dispose();
+
+		// Convert to raw data
+		ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
+		BufferedImage bi;
+		try
+		{
+			bi = convertType(resized);
+			ImageIO.write(bi, type.toExt(), bos);
+		} catch (IOException e)
+		{
+			throw new InternalException("Image can not be encoded as " + type, e);
+		}
+		return bos.toByteArray();
 	}
 
 	public BufferedImage getBufferedImage()
@@ -159,11 +204,12 @@ public class UnityImage
 		{
 			// Make sure BufferedImage is supported - convert if required
 			bi = convertType(bufferedImage);
-			/* Default ImageIO configuration should not introduce comression ar quality impact.
+			/* Default ImageIO configuration should not introduce any compression or quality impact.
 			Translation from BufferedImage to byte[] and back to BufferedImage gives the same same byte[] for gif and
-			png formats. But there are some variations for jpg.
+			png formats. There are some variations for jpg - at this moment it doesn't seems to be high issue and
+			current solution should fit the purpose.
 			*/
-			ImageIO.write(bufferedImage, type.toExt(), bos);
+			ImageIO.write(bi, type.toExt(), bos);
 		} catch (IOException e)
 		{
 			throw new InternalException("Image can not be encoded as " + type, e);
@@ -199,32 +245,15 @@ public class UnityImage
 	}
 
 	/**
-	 * Recreate the image to match given maximum size keeping current aspect ratio.
+	 * Recreate the image to match given maximum width and height keeping current aspect ratio.
 	 * If image already fits the size no action in taken.
 	 *
 	 * @param maxWidth
 	 * @param maxHeight
 	 */
-	private void scaleDown(int maxWidth, int maxHeight)
+	public void scaleDown(int maxWidth, int maxHeight)
 	{
-		int w = bufferedImage.getWidth();
-		int h = bufferedImage.getHeight();
-
-		if (w <= maxWidth && h <= maxHeight)
-			return; // Scaling not needed, image smaller than limitation
-
-		double ratioW = maxWidth / (double) w;
-		double ratioH = maxHeight / (double) h;
-		double ratio = ratioW > ratioH ? ratioH : ratioW;
-		int newWidth = new Double(w * ratio).intValue();
-		int newHeight = new Double(h * ratio).intValue();
-
-		BufferedImage resized = new BufferedImage(newWidth, newHeight, bufferedImage.getType());
-		Graphics2D g = resized.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.drawImage(bufferedImage, 0, 0, newWidth, newHeight, 0, 0, w, h, null);
-		g.dispose();
-		setBufferedImage(resized, type);
+		setImage(getScaledDownImage(maxWidth, maxHeight), type);
 	}
 
 	public String serialize()

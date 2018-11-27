@@ -66,21 +66,6 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		return "Image";
 	}
 
-	private Resource getValueAsImage(UnityImage value,
-									 ImageAttributeSyntax syntax, int maxWidth, int maxHeight)
-	{
-		try
-		{
-			BufferedImage scaled = scaleIfNeeded(value.getBufferedImage(), maxWidth, maxHeight);
-			SimpleImageSource source = new SimpleImageSource(scaled, syntax, value.getType());
-			return source.getResource();
-		} catch (Exception e)
-		{
-			log.warn("Problem getting value's image as resource: " + e, e);
-			return null;
-		}
-	}
-
 	@Override
 	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
@@ -88,10 +73,8 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		if (value == null)
 			return getErrorImage();
 
-		int width = value.getWidth();
-		int height = value.getHeight();
-		Resource resValue = getValueAsImage(value, syntax, width,
-				height);
+		Resource resValue = new SimpleImageSource(value.getImage(), value.getType()).getResource();
+
 		if (resValue != null)
 		{
 			Image image = new Image();
@@ -110,27 +93,6 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		errorImage.setContentMode(ContentMode.HTML);
 		errorImage.addStyleName(Styles.largeIcon.toString());
 		return errorImage;
-	}
-
-	private BufferedImage scaleIfNeeded(BufferedImage value, int maxWidth, int maxHeight)
-	{
-		int w = value.getWidth();
-		int h = value.getHeight();
-		if (w <= maxWidth && h <= maxHeight)
-			return value;
-
-		double ratioW = maxWidth / (double) w;
-		double ratioH = maxHeight / (double) h;
-		double ratio = ratioW > ratioH ? ratioH : ratioW;
-		int newWidth = new Double(w * ratio).intValue();
-		int newHeight = new Double(h * ratio).intValue();
-
-		BufferedImage resized = new BufferedImage(newWidth, newHeight, value.getType());
-		Graphics2D g = resized.createGraphics();
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		g.drawImage(value, 0, 0, newWidth, newHeight, 0, 0, w, h, null);
-		g.dispose();
-		return resized;
 	}
 
 	@Override
@@ -173,9 +135,10 @@ public class ImageAttributeHandler implements WebAttributeHandler
 			{
 				try
 				{
-					BufferedImage scalledPreview = scaleIfNeeded(value.getBufferedImage(), PREVIEW_WIDTH, PREVIEW_HEIGHT);
-					SimpleImageSource source = new SimpleImageSource(scalledPreview, syntax, value.getType());
-					field.setSource(source.getResource());
+					field.setSource(new SimpleImageSource(
+								value.getScaledDownImage(PREVIEW_WIDTH, PREVIEW_HEIGHT),
+								value.getType())
+							.getResource());
 					errorImage.setVisible(false);
 					field.setVisible(true);
 				} catch (Exception e)
@@ -205,6 +168,7 @@ public class ImageAttributeHandler implements WebAttributeHandler
 
 			upload.setAcceptMimeTypes(
 					UnityImage.ImageType.getSupportedMimeTypes(","));
+
 			scale = new CheckBox(msg.getMessage("ImageAttributeHandler.scaleIfNeeded"));
 			scale.setValue(true);
 			return new ComponentsContainer(field, errorImage, error, upload, progressIndicator, scale,
@@ -297,15 +261,15 @@ public class ImageAttributeHandler implements WebAttributeHandler
 				{
 					image.setVisible(true);
 					value = new UnityImage(
-							syntax.deserialize(((ByteArrayOutputStream)
-									fos.getWrappedStream()).toByteArray()),
+							((ByteArrayOutputStream) fos.getWrappedStream()).toByteArray(),
 							type);
+
 					if (scale.getValue())
-						value.setBufferedImage(scaleIfNeeded(value.getBufferedImage(), syntax.getMaxWidth(),
-								syntax.getMaxHeight()));
-					BufferedImage scalledPreview = scaleIfNeeded(value.getBufferedImage(),
-							PREVIEW_WIDTH, PREVIEW_HEIGHT);
-					image.setSource(new SimpleImageSource(scalledPreview, syntax, value.getType()).
+						value.scaleDown(syntax.getMaxWidth(), syntax.getMaxHeight());
+
+					image.setSource(new SimpleImageSource(
+								value.getScaledDownImage(PREVIEW_WIDTH, PREVIEW_HEIGHT),
+								value.getType()).
 							getResource());
 				} catch (Exception e)
 				{
@@ -335,15 +299,14 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		return ret;
 	}
 
-	public static class SimpleImageSource implements StreamSource
+	private static class SimpleImageSource implements StreamSource
 	{
 		private final byte[] isData;
 		private final UnityImage.ImageType type;
 
-		public SimpleImageSource(BufferedImage value,
-								 ImageAttributeSyntax syntax, UnityImage.ImageType type)
+		public SimpleImageSource(byte[] value, UnityImage.ImageType type)
 		{
-			this.isData = syntax.serialize(value, type);
+			this.isData = value;
 			this.type = type;
 		}
 
@@ -509,8 +472,7 @@ public class ImageAttributeHandler implements WebAttributeHandler
 		protected Component getContents() throws Exception
 		{
 			Image imageC = new Image();
-			SimpleImageSource source = new SimpleImageSource(image.getImage(), syntax, image.getType());
-			imageC.setSource(source.getResource());
+			imageC.setSource(new SimpleImageSource(image.getImage(), image.getType()).getResource());
 			return imageC;
 		}
 

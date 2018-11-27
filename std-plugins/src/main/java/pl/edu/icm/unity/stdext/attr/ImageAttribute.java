@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.stdext.attr;
 
 import com.google.common.collect.Lists;
-import pl.edu.icm.unity.stdext.utils.BufferedImageWithExt;
+import pl.edu.icm.unity.stdext.utils.UnityImage;
 import pl.edu.icm.unity.types.basic.Attribute;
 
 import java.util.List;
@@ -24,17 +24,17 @@ public class ImageAttribute
 		return new Attribute(name, ImageAttributeSyntax.ID, groupPath, values, remoteIdp, translationProfile);
 	}
 
-	public static Attribute of(String name, String groupPath, List<BufferedImageWithExt> values)
+	public static Attribute of(String name, String groupPath, List<UnityImage> values)
 	{
 		return new Attribute(name, ImageAttributeSyntax.ID, groupPath, convert(values));
 	}
 
-	public static Attribute of(String name, String groupPath, BufferedImageWithExt... values)
+	public static Attribute of(String name, String groupPath, UnityImage... values)
 	{
 		return of(name, groupPath, Lists.newArrayList(values));
 	}
 
-	private static List<String> convert(List<BufferedImageWithExt> values)
+	private static List<String> convert(List<UnityImage> values)
 	{
 		ImageAttributeSyntax syntax = new ImageAttributeSyntax();
 		return values.stream().
