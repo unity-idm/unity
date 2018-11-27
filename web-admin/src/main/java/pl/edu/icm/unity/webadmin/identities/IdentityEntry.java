@@ -8,8 +8,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.util.StringUtils;
+
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesGrid.BaseColumn;
@@ -81,6 +84,19 @@ class IdentityEntry
 		return columnsToValues.get(key);
 	}
 
+	String getCredentialStatus(String credential)
+	{
+		CredentialPublicInformation credInfo = sourceEntity.getEntity().getCredentialInfo()
+				.getCredentialsState().get(credential);
+		if (credInfo == null)
+			return "";
+		
+		String status = credInfo.getState().toString();
+		if (!StringUtils.isEmpty(credInfo.getStateDetail()))
+			status = status + " - " + credInfo.getStateDetail();
+		return status;
+	}
+	
 	public String getAnyValue(String key)
 	{
 		try

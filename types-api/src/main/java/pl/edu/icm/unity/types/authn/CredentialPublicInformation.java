@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import java.util.Objects;
 
 /**
  * Stores information about credential: its status and credential-type dependent data, 
@@ -13,6 +14,7 @@ package pl.edu.icm.unity.types.authn;
 public class CredentialPublicInformation
 {
 	private LocalCredentialState state;
+	private String stateDetail;
 	private String extraInformation;
 	
 	public CredentialPublicInformation(
@@ -23,6 +25,17 @@ public class CredentialPublicInformation
 		this.extraInformation = extraInformation;
 	}
 
+	public CredentialPublicInformation(
+			LocalCredentialState state,
+			String stateDetail,
+			String extraInformation)
+	{
+		this.state = state;
+		this.stateDetail = stateDetail;
+		this.extraInformation = extraInformation;
+	}
+
+	
 	/**
 	 * Used by JSON deserialization
 	 */
@@ -41,22 +54,22 @@ public class CredentialPublicInformation
 		return extraInformation;
 	}
 
+	public String getStateDetail()
+	{
+		return stateDetail;
+	}
+
 	@Override
 	public String toString()
 	{
-		return "CredentialPublicInformation [state=" + state + ", extraInformation="
-				+ extraInformation + "]";
+		return "CredentialPublicInformation [state=" + state + ", stateDetail=" + stateDetail
+				+ ", extraInformation=" + extraInformation + "]";
 	}
 
 	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ ((extraInformation == null) ? 0 : extraInformation.hashCode());
-		result = prime * result + ((state == null) ? 0 : state.hashCode());
-		return result;
+		return Objects.hash(extraInformation, state, stateDetail);
 	}
 
 	@Override
@@ -69,14 +82,7 @@ public class CredentialPublicInformation
 		if (getClass() != obj.getClass())
 			return false;
 		CredentialPublicInformation other = (CredentialPublicInformation) obj;
-		if (extraInformation == null)
-		{
-			if (other.extraInformation != null)
-				return false;
-		} else if (!extraInformation.equals(other.extraInformation))
-			return false;
-		if (state != other.state)
-			return false;
-		return true;
+		return Objects.equals(extraInformation, other.extraInformation) && state == other.state
+				&& Objects.equals(stateDetail, other.stateDetail);
 	}
 }
