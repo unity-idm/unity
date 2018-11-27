@@ -185,10 +185,13 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		PasswordExtraInfo pei = new PasswordExtraInfo(currentPassword.getTime(), 
 				parsedCred.getSecurityQuestion());
 		String extraInfo = pei.toJson();
-		
-		//TODO we should distinguish those states and return different information
-		if (isCurrentCredentialOutdated(parsedCred) || storedPasswordRequiresRehash(parsedCred)) 
-			return new CredentialPublicInformation(LocalCredentialState.outdated, extraInfo);
+
+		PasswordStatus upToDateStatus = checkIfCredentialIsOutdated(parsedCred);
+		if (upToDateStatus.outdated)
+			return new CredentialPublicInformation(LocalCredentialState.outdated, 
+					upToDateStatus.reason, extraInfo);
+		if (storedPasswordRequiresRehash(parsedCred)) 
+			return new CredentialPublicInformation(LocalCredentialState.outdated, "rehash required", extraInfo);
 		return new CredentialPublicInformation(LocalCredentialState.correct, extraInfo);
 	}
 
@@ -326,33 +329,38 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 */
 	private boolean isCurrentCredentialOutdated(PasswordCredentialDBState credState)
 	{
+		return checkIfCredentialIsOutdated(credState).outdated;
+	}
+
+	private PasswordStatus checkIfCredentialIsOutdated(PasswordCredentialDBState credState)
+	{
 		if (credState.isOutdated())
 		{
 			log.debug("Password is outdated: was previously set to outdated state");
-			return true;
+			return new PasswordStatus(true, "set as");
 		}
 		if (credState.getSecurityQuestion() == null && 
 				credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion())
 		{
 			log.debug("Password is outdated: security question is not set while it is required now");
-			return true;
+			return new PasswordStatus(true, "no question");
 		}
 		PasswordInfo current = credState.getPasswords().getFirst();
 		Date validityEnd = new Date(current.getTime().getTime() + credential.getMaxAge());
 		if (new Date().after(validityEnd))
 		{
 			log.debug("Password is outdated: its validity expired on {}", validityEnd);
-			return true;
+			return new PasswordStatus(true, "expired");
 		}
 		if (credential.getPasswordResetSettings().isEnabled() && 
 				credential.getPasswordResetSettings().isRequireSecurityQuestion() &&
 				!passwordEngine.checkParamsUpToDate(credential, credState.getAnswer()))
 		{
 			log.debug("Password is outdated: security question answers do not meet current requirements");
-			return true;
+			return new PasswordStatus(true, "question outdated");
 		}
-		return false;
+		return new PasswordStatus(false, null);
 	}
 
 	/**
@@ -440,6 +448,18 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	public boolean isCredentialSet(EntityParam entity) throws EngineException
 	{
 		return credentialHelper.isCredentialSet(entity, credentialName);
+	}
+	
+	private static class PasswordStatus
+	{
+		boolean outdated;
+		String reason;
+
+		PasswordStatus(boolean outdated, String reason)
+		{
+			this.outdated = outdated;
+			this.reason = reason;
+		}
 	}
 	
 	@Component
