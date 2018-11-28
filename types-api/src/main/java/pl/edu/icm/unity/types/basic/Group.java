@@ -18,11 +18,13 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nDescribedObject;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.I18nStringJsonUtil;
@@ -270,7 +272,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 	{
 		this.open = open;
 	}
-	
+
 	/**
 	 * @return last component of the group path
 	 */
@@ -316,12 +318,15 @@ public class Group extends I18nDescribedObject implements NamedObject
 		for (String ac : getAttributesClasses())
 			aces.add(ac);
 
-		main.set("delegationConfiguration",
-				getDelegationConfiguration() != null
-						? getDelegationConfiguration().toJson()
-						: new GroupDelegationConfiguration(false).toJson());
-		main.put("open", isOpen());
 		
+		GroupDelegationConfiguration delegationConfig = getDelegationConfiguration();
+		if (delegationConfig == null)
+		{
+			delegationConfig = new GroupDelegationConfiguration(false);
+		}
+		main.set("delegationConfiguration",  Constants.MAPPER.valueToTree(delegationConfig));
+		main.put("open", isOpen());
+
 		return main;
 	}
 
@@ -350,17 +355,31 @@ public class Group extends I18nDescribedObject implements NamedObject
 
 		if (JsonUtil.notNull(main, "delegationConfiguration"))
 		{
-			setDelegationConfiguration(new GroupDelegationConfiguration(
-					(ObjectNode) main.get("delegationConfiguration")));
+			ObjectMapper jsonMapper = Constants.MAPPER;
+			String v;
+			try
+			{
+				v = jsonMapper.writeValueAsString(
+						main.get("delegationConfiguration"));
+				GroupDelegationConfiguration config = jsonMapper.readValue(v,
+						GroupDelegationConfiguration.class);
+				setDelegationConfiguration(config);
+			} catch (Exception e)
+			{
+				throw new InternalException(
+						"Can't deserialize group delegation configuration from JSON",
+						e);
+			}
+
 		} else
 		{
 			setDelegationConfiguration(new GroupDelegationConfiguration(false));
 		}
-		
+
 		if (JsonUtil.notNull(main, "open"))
 		{
 			setOpen(main.get("open").asBoolean());
-		}else
+		} else
 		{
 			setOpen(false);
 		}

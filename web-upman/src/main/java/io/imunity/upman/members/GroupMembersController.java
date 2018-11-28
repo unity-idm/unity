@@ -24,11 +24,11 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
+import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupMember;
-import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -42,8 +42,10 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class GroupMembersController
 {
+	public static final String GROUPS_TREE_INDENT_CHAR = "\u2003";
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupMembersController.class);
-
+	
 	private DelegatedGroupManagement delGroupMan;
 	private CachedAttributeHandlers cachedAttrHandlerRegistry;
 	private UnityMessageSource msg;
@@ -135,7 +137,7 @@ public class GroupMembersController
 
 	private String generateIndent(int count)
 	{
-		return String.join("", Collections.nCopies(count, "\u2003"));
+		return String.join("", Collections.nCopies(count, GROUPS_TREE_INDENT_CHAR));
 	}
 
 	private void fillGroupRecursive(String parentPath,

@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -21,7 +22,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.upman.UpManUI;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
+import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -39,7 +40,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 
-public class GroupMembersComponent extends VerticalLayout
+class GroupMembersComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
@@ -57,8 +58,10 @@ public class GroupMembersComponent extends VerticalLayout
 		Map<String, String> additionalProjectAttributes = controller
 				.getAdditionalAttributeNamesForProject(project);
 
-		setMargin(false);
-		setSpacing(false);
+		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		main.setSpacing(false);
+		setCompositionRoot(main);
 
 		List<SingleActionHandler<GroupMemberEntry>> commonActions = new ArrayList<>();
 		commonActions.add(getRemoveFromProjectAction());
@@ -84,7 +87,7 @@ public class GroupMembersComponent extends VerticalLayout
 				s -> checkIfAllManagersSelected(s)));
 
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
-		addComponents(menuBar, groupMemebersGrid);
+		main.addComponents(menuBar, groupMemebersGrid);
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getRemoveFromProjectAction()

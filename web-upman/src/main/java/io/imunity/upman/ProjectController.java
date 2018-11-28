@@ -5,9 +5,9 @@
 
 package io.imunity.upman;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,8 +19,8 @@ import io.imunity.upman.common.ServerFaultException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -64,14 +64,7 @@ public class ProjectController
 					msg.getMessage("ProjectController.noProjectAvailable"),
 					null);
 
-		Map<String, String> projectMap = new HashMap<>();
-
-		for (DelegatedGroup p : projects)
-		{
-			projectMap.put(p.path, p.displayedName);
-		}
-
-		return projectMap;
+		return projects.stream().collect(Collectors.toMap(p -> p.path, p -> p.displayedName));
 	}
 
 	public Resource getProjectLogoSafe(String projectPath)

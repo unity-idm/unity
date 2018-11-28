@@ -8,12 +8,12 @@ package pl.edu.icm.unity.engine.api;
 import java.util.List;
 import java.util.Map;
 
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
+import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupContents;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroupMember;
-import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 
 /**
  * Internal engine API for delegated groups management

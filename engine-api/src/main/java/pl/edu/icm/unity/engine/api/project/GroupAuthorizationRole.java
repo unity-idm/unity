@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.types.delegatedgroup;
+package pl.edu.icm.unity.engine.api.project;
 
 /**
  * Group authorization role with description

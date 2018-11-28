@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.group.delegation;
+package pl.edu.icm.unity.engine.project;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,9 +14,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.AbstractAttributeTypeProvider;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
 
 
 /**
@@ -26,12 +26,12 @@ import pl.edu.icm.unity.types.delegatedgroup.GroupAuthorizationRole;
  */
 
 @Component
-public class GroupAuthorizationRoleAttributeTypeProvider extends AbstractAttributeTypeProvider
+public class ProjectAuthorizationRoleAttributeTypeProvider extends AbstractAttributeTypeProvider
 {
-	public static final String GROUP_AUTHORIZATION_ROLE = "sys:GroupAuthorizationRole";
+	public static final String PROJECT_MANAGEMENT_AUTHORIZATION_ROLE = "sys:ProjectManagementAuthorizationRole";
 
 	@Autowired
-	public GroupAuthorizationRoleAttributeTypeProvider(UnityMessageSource msg)
+	public ProjectAuthorizationRoleAttributeTypeProvider(UnityMessageSource msg)
 	{
 		super(msg);
 	}
@@ -43,8 +43,8 @@ public class GroupAuthorizationRoleAttributeTypeProvider extends AbstractAttribu
 				.collect(Collectors.toSet());
 
 		EnumAttributeSyntax syntax = new EnumAttributeSyntax(vals);
-		AttributeType authorizationAt = new AttributeType(GROUP_AUTHORIZATION_ROLE,
-				EnumAttributeSyntax.ID, msg, GROUP_AUTHORIZATION_ROLE,
+		AttributeType authorizationAt = new AttributeType(PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
+				EnumAttributeSyntax.ID, msg, PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
 				new Object[] { Stream.of(GroupAuthorizationRole.values())
 						.map(e -> e.getDescription())
 						.collect(Collectors.toSet()) });

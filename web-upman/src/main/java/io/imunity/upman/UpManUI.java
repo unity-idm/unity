@@ -23,6 +23,7 @@ import com.vaadin.ui.Notification;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.common.UpManErrorView;
 import io.imunity.upman.common.ViewHeader;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.layout.SidebarLayout;
@@ -109,7 +110,6 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		projectCombo.setEmptySelectionAllowed(false);
 		reloadProjectsCombo();
 		logo.setIcon(controller.getProjectLogoSafe(projectCombo.getValue()));
-
 		projectCombo.addValueChangeListener(e -> {
 			if (e.getValue() == null || e.getValue().isEmpty())
 				return;

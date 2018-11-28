@@ -40,7 +40,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 
 @Component
 @Primary
-public class BulkQueryServiceImpl implements BulkGroupQueryService
+class BulkQueryServiceImpl implements BulkGroupQueryService
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, BulkQueryServiceImpl.class);
 	

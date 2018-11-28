@@ -75,7 +75,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 			throw new IllegalArgumentException("Can not select more then one element in single-selectable chips");
 		items.forEach(this::selectGroup);
 		updateItemsAvailableToSelect();
-		checkMaxSelection();
+		verifySelectionLimit();
 		chipsRow.setVisible(!items.isEmpty());
 		
 	}
@@ -100,7 +100,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 			return;
 		combo.setSelectedItem(null);
 		selectGroup(selectedItem.get());
-		checkMaxSelection();
+		verifySelectionLimit();
 	}
 
 	private void selectGroup(T selected)
@@ -154,10 +154,10 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	{
 		updateItemsAvailableToSelect();
 		chipsRow.setVisible(!chipsRow.getChipsData().isEmpty());
-		checkMaxSelection();
+		verifySelectionLimit();
 	}
 	
-	private void checkMaxSelection()
+	private void verifySelectionLimit()
 	{
 		if (maxSelection > 0)
 			combo.setEnabled(getSelectedItems().size() < maxSelection);
@@ -174,5 +174,6 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	public void setMaxSelection(int maxSelection)
 	{
 		this.maxSelection = maxSelection;
+		verifySelectionLimit();
 	}
 }

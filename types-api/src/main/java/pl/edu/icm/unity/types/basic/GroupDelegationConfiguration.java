@@ -5,17 +5,8 @@
 
 package pl.edu.icm.unity.types.basic;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.JsonUtil;
+import java.util.Objects;
 
 /**
  * Contains configuration of group delegation
@@ -32,6 +23,14 @@ public class GroupDelegationConfiguration
 	private String stickyEnquiryForm;
 	private List<String> attributes;
 
+	/**
+	 * Used by Jackson during deserialization
+	 */
+	public GroupDelegationConfiguration()
+	{
+
+	}
+
 	public GroupDelegationConfiguration(boolean enabled)
 	{
 		this(enabled, null, null, null, null, null);
@@ -46,54 +45,6 @@ public class GroupDelegationConfiguration
 		this.signupEnquiryForm = signupEnquiryForm;
 		this.stickyEnquiryForm = stickyEnquiryForm;
 		this.attributes = attributes;
-	}
-
-	@JsonCreator
-	public GroupDelegationConfiguration(ObjectNode root)
-	{
-		fromJson(root);
-	}
-
-	private void fromJson(ObjectNode root)
-	{
-		if (JsonUtil.notNull(root, "enabled"))
-			setEnabled(root.get("enabled").asBoolean());
-		if (JsonUtil.notNull(root, "logoUrl"))
-			setLogoUrl(root.get("logoUrl").asText());
-		if (JsonUtil.notNull(root, "registratioForm"))
-			setRegistratioForm(root.get("registratioForm").asText());
-		if (JsonUtil.notNull(root, "signupEnquiryForm"))
-			setSignupEnquiryForm(root.get("signupEnquiryForm").asText());
-		if (JsonUtil.notNull(root, "stickyEnquiryForm"))
-			setStickyEnquiryForm(root.get("stickyEnquiryForm").asText());
-		if (JsonUtil.notNull(root, "attributes"))
-		{
-			ArrayNode jsonAttrs = (ArrayNode) root.get("attributes");
-			List<String> attrs = new ArrayList<>();
-			for (JsonNode e : jsonAttrs)
-				attrs.add(e.asText());
-			if (!attrs.isEmpty())
-				setAttributes(attrs);
-		}
-	}
-
-	@JsonValue
-	public ObjectNode toJson()
-	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.put("enabled", isEnabled());
-		root.put("logoUrl", getLogoUrl());
-		root.put("registratioForm", getRegistratioForm());
-		root.put("signupEnquiryForm", getSignupEnquiryForm());
-		root.put("stickyEnquiryForm", getSignupEnquiryForm());	
-		ArrayNode attrs = root.putArray("attributes");
-		List<String> attributes = getAttributes();
-		if (attributes != null)
-		{
-			for (String attr : getAttributes())
-				attrs.add(attr);
-		}
-		return root;
 	}
 
 	public boolean isEnabled()
@@ -157,51 +108,26 @@ public class GroupDelegationConfiguration
 	}
 
 	@Override
+	public int hashCode()
+	{
+		return Objects.hash(this.enabled, this.logoUrl, this.registratioForm, this.signupEnquiryForm,
+				this.stickyEnquiryForm, this.attributes);
+	}
+
+	@Override
 	public boolean equals(Object obj)
 	{
 		if (this == obj)
 			return true;
 		if (getClass() != obj.getClass())
 			return false;
-		GroupDelegationConfiguration other = (GroupDelegationConfiguration) obj;
-		if (enabled != other.enabled)
-			return false;
+		final GroupDelegationConfiguration other = (GroupDelegationConfiguration) obj;
+		return Objects.equals(this.enabled, other.enabled)
+				&& Objects.equals(this.registratioForm, other.registratioForm)
+				&& Objects.equals(this.signupEnquiryForm, other.signupEnquiryForm)
+				&& Objects.equals(this.logoUrl, other.logoUrl)
+				&& Objects.equals(this.stickyEnquiryForm, other.stickyEnquiryForm)
+				&& Objects.equals(this.attributes, other.attributes);
 
-		if (registratioForm == null)
-		{
-			if (other.registratioForm != null)
-				return false;
-		} else if (!registratioForm.equals(other.registratioForm))
-			return false;
-
-		if (signupEnquiryForm == null)
-		{
-			if (other.signupEnquiryForm != null)
-				return false;
-		} else if (!signupEnquiryForm.equals(other.signupEnquiryForm))
-			return false;
-
-		if (stickyEnquiryForm == null)
-		{
-			if (other.stickyEnquiryForm != null)
-				return false;
-		} else if (!stickyEnquiryForm.equals(other.stickyEnquiryForm))
-			return false;
-
-		if (logoUrl == null)
-		{
-			if (other.logoUrl != null)
-				return false;
-		} else if (!logoUrl.equals(other.logoUrl))
-			return false;
-
-		if (attributes == null)
-		{
-			if (other.attributes != null)
-				return false;
-		} else if (!attributes.equals(other.attributes))
-			return false;
-
-		return true;
 	}
 }

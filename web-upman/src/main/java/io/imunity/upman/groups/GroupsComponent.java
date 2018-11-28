@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 
-public class GroupsComponent extends CustomComponent
+class GroupsComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private GroupsController controller;

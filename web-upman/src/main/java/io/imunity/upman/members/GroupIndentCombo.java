@@ -19,7 +19,7 @@ import pl.edu.icm.unity.webui.common.SidebarStyles;
  * @author P.Piernik
  *
  */
-public class GroupIndentCombo extends ComboBox<String>
+class GroupIndentCombo extends ComboBox<String>
 {
 
 	public GroupIndentCombo(String caption, Map<String, String> groups)

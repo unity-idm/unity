@@ -17,7 +17,7 @@ import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-public class GroupsTree extends TreeGrid<GroupNode>
+class GroupsTree extends TreeGrid<GroupNode>
 {
 	private TreeData<GroupNode> treeData;
 	private GroupsController controller;

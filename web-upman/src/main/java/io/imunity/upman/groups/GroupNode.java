@@ -5,7 +5,7 @@
 
 package io.imunity.upman.groups;
 
-import pl.edu.icm.unity.types.delegatedgroup.DelegatedGroup;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
@@ -14,13 +14,11 @@ import pl.edu.icm.unity.webui.common.Images;
  * @author P.Piernik
  *
  */
-public class GroupNode
+class GroupNode
 {
-	private String name;
-	private String path;
+	private DelegatedGroup group;
 	private GroupNode parent;
 	private String icon;
-	private boolean open;
 
 	public GroupNode(DelegatedGroup group)
 	{
@@ -29,12 +27,9 @@ public class GroupNode
 
 	public GroupNode(DelegatedGroup group, GroupNode parent)
 	{
-		this.path = group.path;
+		this.group = group;
 		this.parent = parent;
-		this.open = group.open;
-		this.icon = open ? Images.padlock_unlock.getHtml()
-				: Images.padlock_lock.getHtml();
-		this.name = group.displayedName;
+		this.icon = group.open ? Images.padlock_unlock.getHtml() : Images.padlock_lock.getHtml();
 	}
 
 	public String getIcon()
@@ -54,39 +49,33 @@ public class GroupNode
 
 	public String getPath()
 	{
-		return path;
-	}
-
-	public void setPath(String path)
-	{
-		this.path = path;
+		return group.path;
 	}
 
 	@Override
 	public String toString()
 	{
-		return name;
+		return group.displayedName;
 	}
 
 	public boolean isOpen()
 	{
-		return open;
+		return group.open;
 	}
 
 	@Override
 	public int hashCode()
 	{
-
-		return path.hashCode();
+		return group.hashCode();
 	}
 
 	@Override
 	public boolean equals(Object obj)
 	{
 		if (obj instanceof String)
-			return path.equals(obj);
+			return group.path.equals(obj);
 		if (obj instanceof GroupNode)
-			return path.equals(((GroupNode) obj).path);
+			return group.path.equals(((GroupNode) obj).group.path);
 		return false;
 	}
 }
