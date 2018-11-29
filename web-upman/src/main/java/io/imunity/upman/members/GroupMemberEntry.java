@@ -24,7 +24,7 @@ class GroupMemberEntry
 	private Map<String, String> attributes;
 	private DelegatedGroupMember member;
 
-	GroupMemberEntry(DelegatedGroupMember member, Map<String, String> attributes)
+	public GroupMemberEntry(DelegatedGroupMember member, Map<String, String> attributes)
 	{
 
 		this.member = member;

@@ -21,11 +21,11 @@ import org.springframework.util.StringUtils;
 
 import io.imunity.upman.common.ServerFaultException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.basic.Attribute;

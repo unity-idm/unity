@@ -3,15 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.api;
+package pl.edu.icm.unity.engine.api.project;
 
 import java.util.List;
 import java.util.Map;
 
-import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
-import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
 

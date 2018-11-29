@@ -5,27 +5,48 @@
 
 package io.imunity.upman.invitations;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.data.Binder;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.DateTimeField;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
+import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
+import io.imunity.upman.members.GroupMembersController;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.stdext.utils.EmailUtils;
+import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Invitations view
@@ -40,21 +61,29 @@ public class InvitationsView extends CustomComponent implements UpManView
 	public static final String VIEW_NAME = "Invitations";
 
 	private UnityMessageSource msg;
+	private InvitationsController controller;
+	private GroupMembersController groupController;
+	private String project;
+	private InvitationsComponent invitationsComponent;
 
 	@Autowired
-	public InvitationsView(UnityMessageSource msg)
+	public InvitationsView(UnityMessageSource msg, InvitationsController controller,
+			GroupMembersController groupController)
 	{
 		this.msg = msg;
+		this.controller = controller;
+		this.groupController = groupController;
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
+		project = UpManUI.getProjectGroup();
 		VerticalLayout main = new VerticalLayout();
-		Label title = new Label();
-		title.setValue("Invitations");
-		main.addComponent(title);
+		main.setMargin(false);
 		setCompositionRoot(main);
+		invitationsComponent = new InvitationsComponent(msg, controller, project);
+		main.addComponent(invitationsComponent);
 	}
 
 	@Override
@@ -62,22 +91,39 @@ public class InvitationsView extends CustomComponent implements UpManView
 	{
 		return msg.getMessage("UpManMenu.invitations");
 	}
-	
+
 	@Override
 	public String getViewName()
 	{
 		return VIEW_NAME;
 	}
-	
+
 	@Override
 	public com.vaadin.ui.Component getViewHeader()
 	{
-		HorizontalLayout header = new  HorizontalLayout();
+		HorizontalLayout header = new HorizontalLayout();
 		header.setMargin(false);
 		Label name = new Label(getDisplayedName());
 		name.addStyleName(SidebarStyles.viewHeader.toString());
 		Button addInvitationButton = new Button(msg.getMessage("Invitations.newInvite"),
 				Images.add.getResource());
+		addInvitationButton.addClickListener(e -> {
+
+			new NewInvitationDialog(msg, invitation -> {
+
+				try
+				{
+					controller.addInvitation(invitation);
+
+				} catch (ControllerException er)
+				{
+					NotificationPopup.showError(er);
+				}
+				invitationsComponent.reload();
+			}).show();
+
+		});
+
 		header.addComponents(name, addInvitationButton);
 		header.setComponentAlignment(name, Alignment.MIDDLE_CENTER);
 		header.setComponentAlignment(addInvitationButton, Alignment.MIDDLE_CENTER);
@@ -88,17 +134,99 @@ public class InvitationsView extends CustomComponent implements UpManView
 	public class InvitationsNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public InvitationsNavigationInfoProvider(UnityMessageSource msg,
-				UpManRootNavigationInfoProvider parent,
+		public InvitationsNavigationInfoProvider(UnityMessageSource msg, UpManRootNavigationInfoProvider parent,
 				ObjectFactory<InvitationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo())
-					.withObjectFactory(factory)
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.invitations"))
-					.withIcon(Images.envelope_open.getResource()).withPosition(2)
-					.build());
+					.withIcon(Images.envelope_open.getResource()).withPosition(2).build());
 
+		}
+	}
+
+	private class NewInvitationDialog extends AbstractDialog
+	{
+		private static final long DEFAULT_TTL_DAYS = 3;
+
+		private Consumer<ProjectInvitationParam> selectionConsumer;
+		private TextField email;
+		private ChipsWithDropdown<NamedGroup> groups;
+		private DateTimeField lifeTime;
+		private Binder<ProjectInvitationParam> binder;
+
+		public NewInvitationDialog(UnityMessageSource msg, Consumer<ProjectInvitationParam> selectionConsumer)
+		{
+			super(msg, msg.getMessage("NewInvitationDialog.caption"));
+			this.selectionConsumer = selectionConsumer;
+			setSizeEm(30, 18);
+		}
+
+		@Override
+		protected FormLayout getContents()
+		{
+			email = new TextField(msg.getMessage("NewInvitationDialog.email"));
+			Map<String, String> groupsMap = new HashMap<>();
+			try
+			{
+				groupsMap.putAll(groupController.getProjectGroupsMap(project));
+			} catch (ControllerException e)
+			{
+				NotificationPopup.showError(e);
+			}
+
+			groups = new ChipsWithDropdown<>(g -> g.name, true);
+			groups.setCaption(msg.getMessage("NewInvitationDialog.allowedGroups"));
+			groups.setItems(groupsMap.entrySet().stream().map(e -> new NamedGroup(e.getKey(), e.getValue()))
+					.collect(Collectors.toList()));
+
+			lifeTime = new DateTimeField(msg.getMessage("NewInvitationDialog.invitationLivetime"));
+			lifeTime.setResolution(DateTimeResolution.MINUTE);
+
+			binder = new Binder<>(ProjectInvitationParam.class);
+			binder.forField(email).asRequired(msg.getMessage("fieldRequired"))
+					.withValidator(v -> EmailUtils.validate(v) == null,
+							msg.getMessage("NewInvitationDialog.incorrectEmail"))
+					.bind("contactAddress");
+			binder.forField(lifeTime).asRequired(msg.getMessage("fieldRequired"))
+					.withConverter(d -> d.atZone(ZoneId.systemDefault()).toInstant(),
+							d -> LocalDateTime.ofInstant(d, ZoneId.systemDefault()))
+					.bind("expiration");
+
+			ProjectInvitationParam bean = new ProjectInvitationParam();
+			bean.setExpiration(LocalDateTime.now(ZoneId.systemDefault()).plusDays(DEFAULT_TTL_DAYS)
+					.atZone(ZoneId.systemDefault()).toInstant());
+			binder.setBean(bean);
+
+			FormLayout main = new CompactFormLayout();
+			main.addComponents(email, groups, lifeTime);
+			main.setSizeFull();
+			return main;
+		}
+
+		@Override
+		protected void onConfirm()
+		{
+			if (!binder.validate().isOk())
+				return;
+			ProjectInvitationParam param = binder.getBean();
+			param.setGroupPaths(groups.getSelectedItems().stream().map(g -> g.path)
+					.collect(Collectors.toList()));
+			param.setProject(project);
+			selectionConsumer.accept(param);
+			close();
+		}
+
+		private class NamedGroup
+		{
+			public final String path;
+			public final String name;
+
+			public NamedGroup(String path, String name)
+			{
+				this.path = path;
+				this.name = name;
+			}
 		}
 	}
 

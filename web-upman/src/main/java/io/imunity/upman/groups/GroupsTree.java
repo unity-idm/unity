@@ -48,7 +48,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 		dataProvider.setSortComparator((g1, g2) -> g1.toString().compareTo(g2.toString()));
 		setDataProvider(dataProvider);
 		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer())
-				.setCaption(msg.getMessage("GroupTree.group"));
+				.setCaption(msg.getMessage("DelegatedGroupsTree.group"));
 
 		addComponentColumn(g -> {
 			HamburgerMenu<GroupNode> menu = new HamburgerMenu<GroupNode>();
@@ -56,7 +56,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 			menu.addActionHandlers(rowActionHandlers);
 			return menu;
 
-		}).setCaption(msg.getMessage("GroupTree.action")).setWidth(80).setResizable(false);
+		}).setCaption(msg.getMessage("DelegatedGroupsTree.action")).setWidth(80).setResizable(false);
 		
 		loadNode(projectPath, null);
 		expand(treeData.getChildren(null));

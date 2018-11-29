@@ -103,7 +103,10 @@ public enum Images
 	padlock_lock	(VaadinIcons.LOCK),
 	padlock_unlock	(VaadinIcons.UNLOCK),
 	pencil		(VaadinIcons.PENCIL),
-	forward		(VaadinIcons.FORWARD);
+	forward		(VaadinIcons.FORWARD),
+	external_link 	(VaadinIcons.EXTERNAL_LINK),
+	trash		(VaadinIcons.TRASH),
+	envelope	(VaadinIcons.ENVELOPE);
 	
 	
 	private final Resource resource;
