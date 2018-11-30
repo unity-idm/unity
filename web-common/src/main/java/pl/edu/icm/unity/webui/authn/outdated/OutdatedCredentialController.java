@@ -89,7 +89,8 @@ public class OutdatedCredentialController
 		master.setSizeFull();
 		ui = new CredentialChangePanel(msg, entityId, ecredMan, entityMan,
 					credEditorReg, credDef, additionalAuthnHandler, uiConfig,
-					() -> afterCredentialUpdate(true));
+					() -> afterCredentialUpdate(true),
+					() -> afterCredentialUpdate(false));
 		master.addComponent(ui);
 		master.setComponentAlignment(ui, Alignment.MIDDLE_CENTER);
 		
@@ -121,7 +122,7 @@ public class OutdatedCredentialController
 		}
 	}
 
-	private void afterCredentialUpdate(final boolean changed)
+	private void afterCredentialUpdate(boolean changed)
 	{
 		finishHandler.run();
 		authnProcessor.logout(true);
