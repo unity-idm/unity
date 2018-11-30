@@ -58,7 +58,7 @@ class CredentialChangePanel extends CustomComponent
 			EntityCredentialManagement ecredMan, 
 			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
 			CredentialDefinition toEdit, AdditionalAuthnHandler additionalAuthnHandler,
-			CredentialChangeConfiguration uiConfig, Runnable updatedCallback)
+			CredentialChangeConfiguration uiConfig, Runnable updatedCallback, Runnable cancelHandler)
 	{
 		this.msg = msg;
 		this.ecredMan = ecredMan;
@@ -68,10 +68,10 @@ class CredentialChangePanel extends CustomComponent
 		this.toEdit = toEdit;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		loadEntity(new EntityParam(entityId));
-		init(uiConfig, updatedCallback);
+		init(uiConfig, updatedCallback, cancelHandler);
 	}
 
-	private void init(CredentialChangeConfiguration uiConfig, Runnable updatedCallback)
+	private void init(CredentialChangeConfiguration uiConfig, Runnable updatedCallback, Runnable cancelHandler)
 	{
 		credEditor = credEditorReg.getEditor(toEdit.getTypeId());
 		credEditorComp = credEditor.getEditor(CredentialEditorContext.builder()
@@ -124,6 +124,16 @@ class CredentialChangePanel extends CustomComponent
 		update.setClickShortcut(KeyCode.ENTER);
 		fixedWidthCol.addComponent(update);
 		fixedWidthCol.setComponentAlignment(update, Alignment.MIDDLE_CENTER);
+		
+		Button cancel = new Button(msg.getMessage("cancel"));
+		cancel.setStyleName(Styles.vButtonLink.toString());
+		cancel.addStyleName("u-outdatedcred-cancel");
+		cancel.addClickListener(e -> {
+			cancelHandler.run();
+		});
+		fixedWidthCol.addComponent(cancel);
+		fixedWidthCol.setComponentAlignment(cancel, Alignment.TOP_RIGHT);
+		
 		
 		wrapper.addComponent(fixedWidthCol);
 		wrapper.setComponentAlignment(fixedWidthCol, Alignment.TOP_CENTER);
