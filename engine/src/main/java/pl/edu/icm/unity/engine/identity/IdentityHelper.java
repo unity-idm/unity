@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +15,10 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -180,6 +184,9 @@ public class IdentityHelper
 		
 		if (extractAttributes)
 			addExtractedAttributes(ret);
+		
+		addDynamic(entityId, Sets.newHashSet(ret.getTypeId()), new ArrayList<>(), null);
+		
 		return ret;
 	}
 	
@@ -190,7 +197,8 @@ public class IdentityHelper
 			boolean extractAttributes, List<Attribute> attributes, boolean honorInitialConfirmation) 
 					throws EngineException
 	{
-		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, attributes, honorInitialConfirmation);
+		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, 
+				attributes, honorInitialConfirmation);
 	}
 	
 	/**
@@ -270,5 +278,33 @@ public class IdentityHelper
 		}
 		
 		return identity;
+	}
+	
+	
+	/**
+	 * Creates dynamic identities which are currently absent for the entity.
+	 */
+	void addDynamic(long entityId, Set<String> presentTypes, List<Identity> ret, String target)
+	{
+		for (IdentityTypeDefinition idType: idTypesRegistry.getDynamic())
+		{
+			if (presentTypes.contains(idType.getId()))
+				continue;
+			if (idType.isTargeted() && target == null)
+				continue;
+			Identity added = createDynamicIdentity(idType, entityId, target);
+			if (added != null)
+				ret.add(added);
+		}
+	}
+	
+	private Identity createDynamicIdentity(IdentityTypeDefinition idTypeImpl, long entityId, String target)
+	{
+		String realm = InvocationContext.safeGetRealm();
+		if (idTypeImpl.isTargeted() && (realm == null || target == null))
+			return null;
+		Identity newId = idTypeImpl.createNewIdentity(realm, target, entityId);
+		identityDAO.create(new StoredIdentity(newId));
+		return newId;
 	}
 }

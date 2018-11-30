@@ -647,21 +647,6 @@ public class TestIdentities extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void dynamicIdentitiesNotAddedWhenNotRequested() throws Exception
-	{
-		setupMockAuthn();
-		setupAdmin();
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
-		EntityParam entityParam = new EntityParam(id.getEntityId());
-		
-		Entity e1 = idsMan.getEntity(entityParam, null, false, "/");
-	
-		assertEquals(1, e1.getIdentities().size());
-		assertEquals(X500Identity.ID, e1.getIdentities().get(0).getTypeId());
-	}
-
-	@Test
 	public void onlyPersistentAddedWhenAllowedWithoutTarget() throws Exception
 	{
 		setupMockAuthn();
@@ -669,6 +654,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
 		EntityParam entityParam = new EntityParam(id.getEntityId());
+		idsMan.resetIdentity(entityParam, PersistentIdentity.ID, null, null);
 		
 		Entity e2 = idsMan.getEntity(entityParam, null, true, "/");
 		
@@ -677,6 +663,23 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertTrue(getByType(e2, PersistentIdentity.ID).getValue().length() > 0);
 	}
 
+	@Test
+	public void shouldCreatePersistentIdentityWithEntity() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(id.getEntityId());
+		
+		Entity e2 = idsMan.getEntity(entityParam, null, false, "/");
+		
+		assertEquals(2, e2.getIdentities().size());
+		assertNotNull(getByType(e2, X500Identity.ID));
+		assertTrue(getByType(e2, PersistentIdentity.ID).getValue().length() > 0);
+	}
+
+	
 	@Test
 	public void allAddedWhenAllowedWithTarget() throws Exception
 	{
@@ -774,7 +777,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		Entity ret = idsMan.getEntity(new EntityParam(id.getEntityId()), null, false, "/");
 		
-		assertThat(ret.getIdentities().size(), is(2));
+		assertThat(ret.getIdentities().size(), is(3));
 		assertThat(getIdentityByType(ret.getIdentities(), UsernameIdentity.ID).getValue(), is("id"));
 		assertThat(getIdentityByType(ret.getIdentities(), IdentifierIdentity.ID).getValue(), is("id"));
 	}
@@ -877,11 +880,12 @@ public class TestIdentities extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void removeingLastIdentityIsProhibited() throws Exception
+	public void removingLastIdentityIsProhibited() throws Exception
 	{
 		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		idsMan.resetIdentity(new EntityParam(id.getEntityId()), PersistentIdentity.ID, null, null);
 		
 		catchException(idsMan).removeIdentity(id);
 

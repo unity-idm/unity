@@ -27,7 +27,6 @@ import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
@@ -471,7 +470,7 @@ public class EntityManagementImpl implements EntityManagement
 	{
 		Map<String, Set<IdentityParam>> ret = new HashMap<>();
 		for (String type: updatedTypes)
-			ret.put(type, new HashSet<IdentityParam>());
+			ret.put(type, new HashSet<>());
 		for (IdentityParam id: identities)
 		{
 			ret.get(id.getTypeId()).add(id);
@@ -484,7 +483,7 @@ public class EntityManagementImpl implements EntityManagement
 	{
 		Map<String, Set<Identity>> ret = new HashMap<>();
 		for (String type: updatedTypes)
-			ret.put(type, new HashSet<Identity>());
+			ret.put(type, new HashSet<>());
 		for (Identity id: identities)
 		{
 			if (!updatedTypes.contains(id.getTypeId()))
@@ -924,37 +923,10 @@ public class EntityManagementImpl implements EntityManagement
 		for (Identity id: ret)
 			presentTypes.add(id.getTypeId());
 		if (allowCreate)
-			addDynamic(entityId, presentTypes, ret, target);
+			identityHelper.addDynamic(entityId, presentTypes, ret, target);
 		return ret;
 	}
 
-	/**
-	 * Creates dynamic identities which are currently absent for the entity.
-	 */
-	private void addDynamic(long entityId, Set<String> presentTypes, List<Identity> ret, String target)
-	{
-		for (IdentityTypeDefinition idType: idTypesRegistry.getDynamic())
-		{
-			if (presentTypes.contains(idType.getId()))
-				continue;
-			if (idType.isTargeted() && target == null)
-				continue;
-			Identity added = createDynamicIdentity(idType, entityId, target);
-			if (added != null)
-				ret.add(added);
-		}
-	}
-	
-	private Identity createDynamicIdentity(IdentityTypeDefinition idTypeImpl, long entityId, String target)
-	{
-		String realm = InvocationContext.safeGetRealm();
-		if (idTypeImpl.isTargeted() && (realm == null || target == null))
-			return null;
-		Identity newId = idTypeImpl.createNewIdentity(realm, target, entityId);
-		idDAO.create(new StoredIdentity(newId));
-		return newId;
-	}
-	
 	private void sendNotification(long entityId, String templateId)
 	{
 		if (templateId == null)
