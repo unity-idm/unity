@@ -237,7 +237,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
 		AttributeAssertionParser a = client.getAssertion(new NameID(DEMO_SERVER_DN, 
 				SAMLConstants.NFORMAT_DN), localIssuer);
-		assertEquals(6, a.getAttributes().size()); //2 identities, 1 group, 3 plain attributes
+		assertEquals(7, a.getAttributes().size()); //3 identities, 1 group, 3 plain attributes
 		ParsedAttribute a1 = a.getAttribute("stringA");
 		assertNotNull(a1);
 		assertEquals(0, a1.getStringValues().size());
@@ -307,7 +307,7 @@ public class TestSoapEndpoint extends AbstractTestIdpBase
 		SAMLAttributeQueryClient client = new SAMLAttributeQueryClient(attrWSUrl, clientCfg);
 		AttributeAssertionParser a = client.getAssertion(new NameID(DEMO_SERVER_DN, SAMLConstants.NFORMAT_DN),
 				localIssuer);
-		assertEquals(5, a.getAttributes().size()); //2 identities, 3 plain attributes
+		assertEquals(6, a.getAttributes().size()); //3 identities, 3 plain attributes
 		ParsedAttribute a1 = a.getAttribute("stringA");
 		assertNotNull(a1);
 		assertEquals(0, a1.getStringValues().size());
