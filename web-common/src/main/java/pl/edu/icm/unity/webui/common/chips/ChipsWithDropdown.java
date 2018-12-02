@@ -28,7 +28,8 @@ public class ChipsWithDropdown<T> extends CustomComponent
 {
 	private ChipsRow<T> chipsRow;
 	private ComboBox<T> combo;
-	private Function<T, String> renderer;
+	private Function<T, String> comboRenderer;
+	private Function<T, String> chipRenderer;
 	private boolean multiSelectable;
 	private Set<T> allItems = new LinkedHashSet<>();
 	private boolean readOnly;
@@ -39,15 +40,21 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		this(Object::toString, true);
 	}
 	
-	public ChipsWithDropdown(Function<T, String> renderer, boolean multiSelectable)
+	public ChipsWithDropdown(Function<T, String> comboRenderer, boolean multiSelectable)
 	{
-		this.renderer = renderer;
+		this(comboRenderer, comboRenderer, multiSelectable);
+	}
+	
+	public ChipsWithDropdown(Function<T, String> comboRenderer, Function<T, String> chipRenderer, boolean multiSelectable)
+	{
+		this.comboRenderer = comboRenderer;
+		this.chipRenderer = chipRenderer;
 		this.multiSelectable = multiSelectable;
 		chipsRow = new ChipsRow<>();
 		chipsRow.addChipRemovalListener(this::onChipRemoval);
 		chipsRow.setVisible(false);
 		combo = new ComboBox<>();
-		combo.setItemCaptionGenerator(item -> renderer.apply(item));
+		combo.setItemCaptionGenerator(item -> comboRenderer.apply(item));
 		combo.addSelectionListener(this::onSelectionChange);
 		
 		VerticalLayout main = new VerticalLayout();
@@ -105,7 +112,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 
 	private void selectGroup(T selected)
 	{
-		chipsRow.addChip(new Chip<>(renderer.apply(selected), selected));
+		chipsRow.addChip(new Chip<>(chipRenderer.apply(selected), selected));
 		chipsRow.setVisible(true);
 		updateItemsAvailableToSelect();
 	}
@@ -134,8 +141,8 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	
 	private int compareItems(T a, T b)
 	{
-		String aStr = renderer.apply(a);
-		String bStr = renderer.apply(b);
+		String aStr = comboRenderer.apply(a);
+		String bStr = comboRenderer.apply(b);
 		return aStr.compareTo(bStr);
 	}
 	

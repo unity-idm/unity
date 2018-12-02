@@ -292,7 +292,7 @@ class GroupMembersComponent extends CustomComponent
 
 		try
 		{
-			name = controller.getProjectGroupsMap(projectPath).get(projectPath);
+			name = controller.getProjectIndentGroupsMap(projectPath).get(projectPath);
 		} catch (ControllerException e)
 		{
 			// ok
@@ -338,7 +338,7 @@ class GroupMembersComponent extends CustomComponent
 			Map<String, String> groupsMap = new HashMap<>();
 			try
 			{
-				groupsMap.putAll(controller.getProjectGroupsMap(project));
+				groupsMap.putAll(controller.getProjectIndentGroupsMap(project));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);

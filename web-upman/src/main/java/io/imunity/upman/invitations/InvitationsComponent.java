@@ -120,5 +120,4 @@ public class InvitationsComponent extends CustomComponent
 
 		invitationsGrid.setValue(groupMembers);
 	}
-
 }

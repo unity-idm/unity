@@ -33,7 +33,7 @@ import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
-import io.imunity.upman.members.GroupMembersController;
+import io.imunity.upman.utils.GroupIndentHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -62,17 +62,14 @@ public class InvitationsView extends CustomComponent implements UpManView
 
 	private UnityMessageSource msg;
 	private InvitationsController controller;
-	private GroupMembersController groupController;
 	private String project;
 	private InvitationsComponent invitationsComponent;
 
 	@Autowired
-	public InvitationsView(UnityMessageSource msg, InvitationsController controller,
-			GroupMembersController groupController)
+	public InvitationsView(UnityMessageSource msg, InvitationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.groupController = groupController;
 	}
 
 	@Override
@@ -169,13 +166,15 @@ public class InvitationsView extends CustomComponent implements UpManView
 			Map<String, String> groupsMap = new HashMap<>();
 			try
 			{
-				groupsMap.putAll(groupController.getProjectGroupsMap(project));
+				groupsMap.putAll(controller.getAllowedIndentGroupsMap(project));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);
 			}
 
-			groups = new ChipsWithDropdown<>(g -> g.name, true);
+			groups = new ChipsWithDropdown<>(g -> g.name, g -> {
+				return new String(g.name).replace(GroupIndentHelper.GROUPS_TREE_INDENT_CHAR, "");
+			}, true);
 			groups.setCaption(msg.getMessage("NewInvitationDialog.allowedGroups"));
 			groups.setItems(groupsMap.entrySet().stream().map(e -> new NamedGroup(e.getKey(), e.getValue()))
 					.collect(Collectors.toList()));
