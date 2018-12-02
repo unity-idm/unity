@@ -21,31 +21,26 @@ import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 
 /**
- * Implementation of {@link AuthenticatorsManagement}
- * 
- * @author K. Benedyczak
+ * See {@link AuthenticatorSupportManagement}
  */
 @Component
 public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagement
 {
 	private AuthenticatorLoader authnLoader;
-	private AuthenticatorInstanceDB authenticatorDB;
 	private AuthenticatorsRegistry authnRegistry;
 	private AuthenticatorManagement authenticationManagement;
 	
 	@Autowired
-	public AuthenticatorsManagementImpl(AuthenticatorLoader authnLoader, AuthenticatorInstanceDB authenticatorDB,
+	public AuthenticatorsManagementImpl(AuthenticatorLoader authnLoader, 
 			AuthenticatorsRegistry authnRegistry, AuthenticatorManagement authenticationManagement)
 	{
 		this.authnLoader = authnLoader;
-		this.authenticatorDB = authenticatorDB;
 		this.authnRegistry = authnRegistry;
 		this.authenticationManagement = authenticationManagement;
 	}
@@ -57,13 +52,6 @@ public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagem
 			throws EngineException
 	{
 		return authnLoader.getAuthenticationFlows(authnFlows);
-	}
-	
-	@Override
-	@Transactional
-	public void removeAllPersistedAuthenticators() throws EngineException
-	{
-		authenticatorDB.deleteAll();
 	}
 	
 	@Override

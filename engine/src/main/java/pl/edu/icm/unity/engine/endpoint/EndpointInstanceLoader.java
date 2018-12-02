@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
  * @author K. Benedyczak
  */
 @Component
-public class EndpointInstanceLoader
+class EndpointInstanceLoader
 {
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private RealmDB realmDB;
@@ -43,7 +43,7 @@ public class EndpointInstanceLoader
 	 * @param src
 	 * @return
 	 */
-	public EndpointInstance createEndpointInstance(Endpoint src)
+	EndpointInstance createEndpointInstance(Endpoint src)
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(src.getTypeId());
 		EndpointInstance instance = factory.newInstance();

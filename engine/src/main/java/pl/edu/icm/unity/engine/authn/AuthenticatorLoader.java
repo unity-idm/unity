@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -57,26 +58,71 @@ public class AuthenticatorLoader
 		this.authenticationFlowDB = authenticationFlowDB;
 	}
 	
-	public List<Authenticator> getAuthenticators(Collection<String> ids)
+	public List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions)
 	{
-		List<Authenticator> authneticators = new ArrayList<>();
-		for (String id : ids)
+		Map<String, AuthenticationFlowDefinition> allFlows = authenticationFlowDB.getAllAsMap();
+		Map<String, AuthenticatorInstance> allAuthenticators = authenticatorDB.getAllAsMap();
+
+		List<AuthenticationFlowDefinition> defs = new ArrayList<>();
+
+		for (String authOption : authnOptions)
 		{
-			AuthenticatorImpl ret = getAuthenticator(id);
-			authneticators.add(ret);
+			AuthenticationFlowDefinition def = allFlows.get(authOption);
+			if (def == null)
+			{
+				AuthenticatorInstance authenticator = allAuthenticators.get(authOption);
+				def = createAdHocAuthenticatorWrappingFlow(authOption, authenticator);
+			}
+			defs.add(def);
 		}
-		
-		return authneticators; 
+		return getAuthenticationFlows(defs);
+
 	}
 	
-	public AuthenticatorImpl getAuthenticator(String id) 
+	List<AuthenticationFlow> getAuthenticationFlows(List<AuthenticationFlowDefinition> authnFlows)
+	{
+		List<AuthenticationFlow> ret = new ArrayList<>(authnFlows.size());
+
+		for (AuthenticationFlowDefinition authenticationFlowDefinition : authnFlows)
+		{
+			List<Authenticator> firstFactorAuthImpl = getAuthenticators(
+					authenticationFlowDefinition.getFirstFactorAuthenticators());
+			List<Authenticator> secondFactorFactorAuthImpl = getAuthenticators(
+					authenticationFlowDefinition.getSecondFactorAuthenticators());
+			
+			ret.add(new AuthenticationFlow(authenticationFlowDefinition.getName(),
+					authenticationFlowDefinition.getPolicy(),
+					Sets.newHashSet(firstFactorAuthImpl),
+					secondFactorFactorAuthImpl, authenticationFlowDefinition.getRevision()));
+		}
+		return ret;
+	}
+	
+	AuthenticatorImpl getAuthenticator(String id) 
 	{
 		AuthenticatorInstance authnInstance = authenticatorDB.get(id);
 		AuthenticatorImpl ret = getAuthenticatorNoCheck(authnInstance);
 		return ret;
 	}
 	
-	public AuthenticatorImpl getAuthenticatorNoCheck(AuthenticatorInstance authnInstance)
+	private AuthenticationFlowDefinition createAdHocAuthenticatorWrappingFlow(String authOption,
+			AuthenticatorInstance authenticator)
+	{
+		if (authenticator != null)
+		{
+			return new AuthenticationFlowDefinition(
+					authenticator.getId(), Policy.NEVER,
+					Sets.newHashSet(authenticator.getId()));
+		} else
+		{
+			throw new IllegalArgumentException(
+					"Authentication flow or authenticator "
+							+ authOption
+							+ " is undefined");
+		}
+	}
+	
+	private AuthenticatorImpl getAuthenticatorNoCheck(AuthenticatorInstance authnInstance)
 	{
 		String localCredential = authnInstance.getLocalCredentialName();
 
@@ -94,62 +140,11 @@ public class AuthenticatorLoader
 					authnInstance.getId(), authnInstance);
 	}
 	
-	public List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions)
-	{
-		Map<String, AuthenticationFlowDefinition> allFlows = authenticationFlowDB
-				.getAllAsMap();
-		Map<String, AuthenticatorInstance> allAuthenticators = authenticatorDB
-				.getAllAsMap();
-
-		List<AuthenticationFlowDefinition> defs = new ArrayList<>();
-
-		for (String authOption : authnOptions)
-		{
-			AuthenticationFlowDefinition def = allFlows.get(authOption);
-			if (def == null)
-			{
-				AuthenticatorInstance authenticator = allAuthenticators
-						.get(authOption);
-				if (authenticator != null)
-				{
-					def = new AuthenticationFlowDefinition(
-							authenticator.getId(), Policy.NEVER,
-							Sets.newHashSet(authenticator.getId()));
-				} else
-				{
-					throw new IllegalArgumentException(
-							"Authentication flow or authenticator "
-									+ authOption
-									+ " is undefined");
-				}
-			}
-
-			defs.add(def);
-		}
-		return getAuthenticationFlows(defs);
-
-	}
 	
-	public List<AuthenticationFlow> getAuthenticationFlows(
-			List<AuthenticationFlowDefinition> authnFlows)
+	private List<Authenticator> getAuthenticators(Collection<String> ids)
 	{
-		List<AuthenticationFlow> ret = new ArrayList<>(authnFlows.size());
-
-		for (AuthenticationFlowDefinition authenticationFlowDefinition : authnFlows)
-		{
-			
-			List<Authenticator> firstFactorAuthImpl = getAuthenticators(
-					authenticationFlowDefinition
-							.getFirstFactorAuthenticators());
-			List<Authenticator> secondFactorFactorAuthImpl = getAuthenticators(
-					authenticationFlowDefinition
-							.getSecondFactorAuthenticators());
-			
-			ret.add(new AuthenticationFlow(authenticationFlowDefinition.getName(),
-					authenticationFlowDefinition.getPolicy(),
-					Sets.newHashSet(firstFactorAuthImpl),
-					secondFactorFactorAuthImpl, authenticationFlowDefinition.getRevision()));
-		}
-		return ret;
+		return ids.stream()
+				.map(this::getAuthenticator)
+				.collect(Collectors.toList());
 	}
 }
