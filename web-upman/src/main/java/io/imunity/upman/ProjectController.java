@@ -79,7 +79,7 @@ public class ProjectController
 			return logo;
 		}
 		GroupDelegationConfiguration config = group.delegationConfiguration;
-		String logoUrl = config.getLogoUrl();
+		String logoUrl = config.logoUrl;
 		if (logoUrl != null && !logoUrl.isEmpty())
 		{
 			return ImageUtils.getConfiguredImageResource(logoUrl);

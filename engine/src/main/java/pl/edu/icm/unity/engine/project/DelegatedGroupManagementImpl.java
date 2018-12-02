@@ -254,7 +254,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		for (String group : groups.keySet())
 		{
 			Group gr = getGroupInternal(group);
-			if (gr.getDelegationConfiguration().isEnabled())
+			if (gr.getDelegationConfiguration().enabled)
 			{
 				Optional<String> val = getAttributeValue(entityId, gr.getName(),
 						ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE);
@@ -384,7 +384,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	private List<String> getProjectAttrs(String projectPath) throws EngineException
 	{
 		Group projectGroup = getGroupInternal(projectPath);
-		return projectGroup.getDelegationConfiguration().getAttributes();
+		return projectGroup.getDelegationConfiguration().attributes;
 	}
 
 	private Optional<Attribute> getAttribute(long entityId, String path, String attribute) throws EngineException
@@ -478,7 +478,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		return displayName;
 	}
 
-	private static class NotOpenChildGroupException extends InternalException
+	public static class NotOpenChildGroupException extends InternalException
 	{
 		public NotOpenChildGroupException(String parent, String child)
 		{
@@ -486,7 +486,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 	}
 
-	private static class ParentIsCloseGroupException extends InternalException
+	public static class ParentIsCloseGroupException extends InternalException
 	{
 		public ParentIsCloseGroupException(String parent, String child)
 		{
@@ -494,7 +494,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 	}
 
-	private static class IllegalGroupAttributeException extends InternalException
+	public static class IllegalGroupAttributeException extends InternalException
 	{
 		public IllegalGroupAttributeException(String attributeName, String projectPath)
 		{
@@ -504,7 +504,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 	}
 
-	private static class OneManagerRemainsException extends InternalException
+	public static class OneManagerRemainsException extends InternalException
 	{
 		public OneManagerRemainsException(String group)
 		{
@@ -512,7 +512,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 	}
 
-	private static class RenameProjectGroupException extends InternalException
+	public static class RenameProjectGroupException extends InternalException
 	{
 		public RenameProjectGroupException(String group)
 		{
@@ -520,7 +520,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 	}
 
-	private static class RemovalOfProjectGroupException extends InternalException
+	public static class RemovalOfProjectGroupException extends InternalException
 	{
 		public RemovalOfProjectGroupException(String group)
 		{
@@ -528,7 +528,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 	}
 
-	private static class IllegalGroupNameException extends InternalException
+	public static class IllegalGroupNameException extends InternalException
 	{
 		public IllegalGroupNameException()
 		{

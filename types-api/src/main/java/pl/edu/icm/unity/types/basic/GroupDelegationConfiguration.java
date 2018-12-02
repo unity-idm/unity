@@ -5,8 +5,12 @@
 
 package pl.edu.icm.unity.types.basic;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Contains configuration of group delegation
@@ -16,101 +20,38 @@ import java.util.Objects;
  */
 public class GroupDelegationConfiguration
 {
-	private boolean enabled;
-	private String logoUrl;
-	private String registratioForm;
-	private String signupEnquiryForm;
-	private String stickyEnquiryForm;
-	private List<String> attributes;
-
-	/**
-	 * Used by Jackson during deserialization
-	 */
-	public GroupDelegationConfiguration()
-	{
-
-	}
+	public final boolean enabled;
+	public final String logoUrl;
+	public final String registrationForm;
+	public final String signupEnquiryForm;
+	public final String stickyEnquiryForm;
+	public final List<String> attributes;
 
 	public GroupDelegationConfiguration(boolean enabled)
 	{
 		this(enabled, null, null, null, null, null);
 	}
 
-	public GroupDelegationConfiguration(boolean enabled, String logoUrl, String registratioForm,
-			String signupEnquiryForm, String stickyEnquiryForm, List<String> attributes)
+	@JsonCreator
+	public GroupDelegationConfiguration(@JsonProperty("enabled") boolean enabled,
+			@JsonProperty("logoUrl") String logoUrl,
+			@JsonProperty("registrationForm") String registrationForm,
+			@JsonProperty("signupEnquiryForm") String signupEnquiryForm,
+			@JsonProperty("stickyEnquiryForm") String stickyEnquiryForm,
+			@JsonProperty("attributes") List<String> attributes)
 	{
 		this.enabled = enabled;
 		this.logoUrl = logoUrl;
-		this.registratioForm = registratioForm;
+		this.registrationForm = registrationForm;
 		this.signupEnquiryForm = signupEnquiryForm;
 		this.stickyEnquiryForm = stickyEnquiryForm;
-		this.attributes = attributes;
-	}
-
-	public boolean isEnabled()
-	{
-		return enabled;
-	}
-
-	public void setEnabled(boolean enabled)
-	{
-		this.enabled = enabled;
-	}
-
-	public String getLogoUrl()
-	{
-		return logoUrl;
-	}
-
-	public void setLogoUrl(String logoUrl)
-	{
-		this.logoUrl = logoUrl;
-	}
-
-	public String getRegistratioForm()
-	{
-		return registratioForm;
-	}
-
-	public void setRegistratioForm(String registratioForm)
-	{
-		this.registratioForm = registratioForm;
-	}
-
-	public String getSignupEnquiryForm()
-	{
-		return signupEnquiryForm;
-	}
-
-	public void setSignupEnquiryForm(String signupEnquiryForm)
-	{
-		this.signupEnquiryForm = signupEnquiryForm;
-	}
-
-	public String getStickyEnquiryForm()
-	{
-		return stickyEnquiryForm;
-	}
-
-	public void setStickyEnquiryForm(String stickyEnquiryForm)
-	{
-		this.stickyEnquiryForm = stickyEnquiryForm;
-	}
-
-	public List<String> getAttributes()
-	{
-		return attributes;
-	}
-
-	public void setAttributes(List<String> attributes)
-	{
-		this.attributes = attributes;
+		this.attributes = attributes != null ? new ArrayList<>(attributes) : null;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(this.enabled, this.logoUrl, this.registratioForm, this.signupEnquiryForm,
+		return Objects.hash(this.enabled, this.logoUrl, this.registrationForm, this.signupEnquiryForm,
 				this.stickyEnquiryForm, this.attributes);
 	}
 
@@ -123,7 +64,7 @@ public class GroupDelegationConfiguration
 			return false;
 		final GroupDelegationConfiguration other = (GroupDelegationConfiguration) obj;
 		return Objects.equals(this.enabled, other.enabled)
-				&& Objects.equals(this.registratioForm, other.registratioForm)
+				&& Objects.equals(this.registrationForm, other.registrationForm)
 				&& Objects.equals(this.signupEnquiryForm, other.signupEnquiryForm)
 				&& Objects.equals(this.logoUrl, other.logoUrl)
 				&& Objects.equals(this.stickyEnquiryForm, other.stickyEnquiryForm)

@@ -89,7 +89,7 @@ public class ProjectAuthorizationManager
 		try
 		{
 			Group group = groupDao.get(projectPath);
-			return group.getDelegationConfiguration().isEnabled();
+			return group.getDelegationConfiguration().enabled;
 		} catch (Exception e)
 		{
 			throw new InternalException("Can not get group " + projectPath);
@@ -113,7 +113,7 @@ public class ProjectAuthorizationManager
 		try
 		{
 			attributes.addAll(attrDao.getAttributes(
-					ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE,
+					ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE.toString(),
 					entity, projectPath));
 
 		} catch (Exception e)

@@ -80,7 +80,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);
 
-		String registrationFormId = config.getRegistratioForm();
+		String registrationFormId = config.registrationForm;
 		List<ProjectInvitation> ret = new ArrayList<>();
 		if (registrationFormId == null || registrationFormId.isEmpty())
 		{
@@ -122,7 +122,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private String getRegistrationFormForProject(String projectPath) throws EngineException
 	{
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);
-		return config.getRegistratioForm();
+		return config.registrationForm;
 	}
 
 	@Override

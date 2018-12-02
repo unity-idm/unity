@@ -114,7 +114,7 @@ public class GroupMembersController
 			if (group == null)
 				return attrs;
 
-			List<String> groupAttrs = group.delegationConfiguration.getAttributes();
+			List<String> groupAttrs = group.delegationConfiguration.attributes;
 
 			if (groupAttrs == null || groupAttrs.isEmpty())
 				return attrs;
