@@ -41,7 +41,7 @@ public class SignUpAuthNController
 
 	public AuthenticationCallback buildCallback(SignUpAuthNOption authenticatorUI)
 	{
-		return new SignUpAutoRegistrationAuthnCallback(authenticatorUI);
+		return new SignUpAuthnCallback(authenticatorUI);
 	}
 	
 	private void processAuthn(AuthenticationResult result, String error)
@@ -85,11 +85,11 @@ public class SignUpAuthNController
 		selectedAuthNOption = null;
 	}
 
-	private class SignUpAutoRegistrationAuthnCallback implements AuthenticationCallback
+	private class SignUpAuthnCallback implements AuthenticationCallback
 	{
 		private final SignUpAuthNOption authNOption;
 
-		SignUpAutoRegistrationAuthnCallback(SignUpAuthNOption authNOption)
+		SignUpAuthnCallback(SignUpAuthNOption authNOption)
 		{
 			this.authNOption = authNOption;
 		}
