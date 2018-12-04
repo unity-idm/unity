@@ -325,7 +325,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			Group childGroup = getGroupInternal(child);
 			if (childGroup.isOpen())
 			{
-				throw new NotOpenChildGroupException(group.getGroup().getDisplayedName().getValue(msg),
+				throw new OpenChildGroupException(group.getGroup().getDisplayedName().getValue(msg),
 						childGroup.getDisplayedName().getValue(msg));
 
 			}
@@ -361,8 +361,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 
 		if (managers.size() == 1 && managers.contains(entityId))
-			throw new OneManagerRemainsException(
-					getGroupInternal(projectPath).getDisplayedName().getValue(msg));
+			throw new OneManagerRemainsException(projectPath);
 	}
 
 	private List<Attribute> getProjectMemberAttributes(long entity, String projectPath, List<String> attributes)
@@ -436,7 +435,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		if (value.isPresent())
 		{
-			if (syntax.isEmailVerifiable() && value.isPresent())
+			if (syntax != null && syntax.isEmailVerifiable() && value.isPresent())
 			{
 				VerifiableEmail email = (VerifiableEmail) syntax.convertFromString(value.get());
 				return email.getValue();
@@ -478,9 +477,9 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		return displayName;
 	}
 
-	public static class NotOpenChildGroupException extends InternalException
+	public static class OpenChildGroupException extends InternalException
 	{
-		public NotOpenChildGroupException(String parent, String child)
+		public OpenChildGroupException(String parent, String child)
 		{
 			super("Cannot set group " + parent + " to close mode, child group " + child + " is open");
 		}
@@ -490,7 +489,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	{
 		public ParentIsCloseGroupException(String parent, String child)
 		{
-			super("Cannot set group " + child + " to open mode, parent group " + parent + " is open");
+			super("Cannot set group " + child + " to open mode, parent group " + parent + " is close");
 		}
 	}
 
