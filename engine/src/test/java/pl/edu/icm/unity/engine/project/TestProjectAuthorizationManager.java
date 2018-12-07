@@ -6,9 +6,9 @@
 package pl.edu.icm.unity.engine.project;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -43,14 +43,22 @@ public class TestProjectAuthorizationManager
 	@Test
 	public void shouldThrowAuthzExceptionWhenDelegationIsNotEnabled()
 	{
-		checkAuthz(false, GroupAuthorizationRole.manager);
+		assertAuthzException(checkAuthz(false, GroupAuthorizationRole.manager));
 
 	}
 
 	@Test
 	public void shouldThrowAuthzExceptionWhenRegularUser()
 	{
-		checkAuthz(true, GroupAuthorizationRole.regular);
+		assertAuthzException(checkAuthz(true, GroupAuthorizationRole.regular));
+
+	}
+
+	@Test
+	public void shouldAcceptAuthzWhenManagerInEnabledGroupCall() throws AuthorizationException
+	{
+		Throwable ex = checkAuthz(true, GroupAuthorizationRole.manager);
+		Assertions.assertThat(ex).isNull();
 
 	}
 
@@ -61,7 +69,7 @@ public class TestProjectAuthorizationManager
 		InvocationContext.setCurrent(invContext);
 	}
 
-	private void checkAuthz(boolean groupWithEnabledDelegation, GroupAuthorizationRole userRole)
+	private Throwable checkAuthz(boolean groupWithEnabledDelegation, GroupAuthorizationRole userRole)
 	{
 		setupInvocationContext();
 		ProjectAuthorizationManager mockAuthz = new ProjectAuthorizationManager(mockGroupDao, mockAttrDao);
@@ -75,8 +83,8 @@ public class TestProjectAuthorizationManager
 						new Attribute(null, null, null, Arrays.asList(userRole.toString())),
 						false), 1L)));
 
-		Throwable exception = catchThrowable(() -> mockAuthz.checkManagerAuthorization("/project"));
-		assertAuthzException(exception);
+		return catchThrowable(() -> mockAuthz.checkManagerAuthorization("/project"));
+
 	}
 
 	private void assertAuthzException(Throwable exception)

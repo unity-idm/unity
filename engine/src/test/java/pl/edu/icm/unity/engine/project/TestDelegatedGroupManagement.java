@@ -94,7 +94,7 @@ public class TestDelegatedGroupManagement
 	EntityManagement idMan;
 
 	@Test
-	public void shouldAddGroup() throws EngineException
+	public void shouldForwardGroupAddToCoreManager() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -110,30 +110,30 @@ public class TestDelegatedGroupManagement
 	}
 	
 	@Test
-	public void shouldThrowIllegalGroupName() throws EngineException
+	public void shoudForbidToAddGroupWithIllegalName() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
 
-		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project"));
+		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project1"));
 
 		Throwable exception = catchThrowable(
 				() -> dGroupMan.addGroup("/project1", "project1/subgroup", new I18nString(), false));
-		assertException(exception, IllegalGroupNameException.class);
+		assertExceptionType(exception, IllegalGroupNameException.class);
 	}
 
 	@Test
-	public void shouldThrowRemovalOfProjectGroupException() throws EngineException
+	public void shouldForbidRemoveOfProjectGroup() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
 
 		Throwable exception = catchThrowable(() -> dGroupMan.removeGroup("/project1", "/project1"));
-		assertException(exception, RemovalOfProjectGroupException.class);
+		assertExceptionType(exception, RemovalOfProjectGroupException.class);
 	}
 
 	@Test
-	public void shouldRemoveGroup() throws EngineException
+	public void shouldForwardGroupRemoveToCoreManager() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -229,7 +229,7 @@ public class TestDelegatedGroupManagement
 	}
 
 	@Test
-	public void shouldThrowIllegalGroupAttributeException() throws EngineException
+	public void shouldForbidGetDisplayNameOfNonProjectAttribute() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -239,22 +239,22 @@ public class TestDelegatedGroupManagement
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(contents);
 
 		Throwable exception = catchThrowable(() -> dGroupMan.getAttributeDisplayedName("/project", "demo"));
-		assertException(exception, IllegalGroupAttributeException.class);
+		assertExceptionType(exception, IllegalGroupAttributeException.class);
 	}
 
 	@Test
-	public void shouldThrowRenameProjectGroupException()
+	public void shouldForbidRenameProjectGroup()
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
 
 		Throwable exception = catchThrowable(
 				() -> dGroupMan.setGroupDisplayedName("/project", "/project", null));
-		assertException(exception, RenameProjectGroupException.class);
+		assertExceptionType(exception, RenameProjectGroupException.class);
 	}
 
 	@Test
-	public void shouldRenameGroup() throws EngineException
+	public void shouldForwardRenameGroupToCoreManager() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -270,7 +270,7 @@ public class TestDelegatedGroupManagement
 	}
 
 	@Test
-	public void shouldThrowOpenChildGroupException() throws EngineException
+	public void shouldForbidChangeAccessModeToCloseWhenChildGroupIsOpen() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -285,11 +285,11 @@ public class TestDelegatedGroupManagement
 
 		Throwable exception = catchThrowable(
 				() -> dGroupMan.setGroupAccessMode("/project", "/project/subgroup", false));
-		assertException(exception, OpenChildGroupException.class);
+		assertExceptionType(exception, OpenChildGroupException.class);
 	}
 
 	@Test
-	public void shouldThrowParentIsCloseGroupException() throws EngineException
+	public void shouldForbidChangeAccessModeToOpenWhenParentGroupIsClose() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -304,11 +304,11 @@ public class TestDelegatedGroupManagement
 
 		Throwable exception = catchThrowable(
 				() -> dGroupMan.setGroupAccessMode("/project", "/project/subgroup", true));
-		assertException(exception, ParentIsCloseGroupException.class);
+		assertExceptionType(exception, ParentIsCloseGroupException.class);
 	}
 
 	@Test
-	public void shouldOpenGroup() throws EngineException
+	public void shouldForwardUpdateGroupAccessModeToCoreManager() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -329,7 +329,7 @@ public class TestDelegatedGroupManagement
 	}
 
 	@Test
-	public void shouldSetManagerRole() throws EngineException
+	public void shouldForwardSetGroupAuthAttributeToCoreManager() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, attrHelper, null, mockAuthz);
@@ -344,7 +344,7 @@ public class TestDelegatedGroupManagement
 	}
 
 	@Test
-	public void shouldThrowOneManagerRemainsException() throws EngineException
+	public void shouldForbidRemoveLastManagerInProjectGroup() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				attrMan, attrTypeMan, null, attrHelper, atHelper, mockAuthz);
@@ -359,7 +359,7 @@ public class TestDelegatedGroupManagement
 
 		Throwable exception = catchThrowable(() -> dGroupMan.setGroupAuthorizationRole("/project", 1L,
 				GroupAuthorizationRole.regular));
-		assertException(exception, OneManagerRemainsException.class);
+		assertExceptionType(exception, OneManagerRemainsException.class);
 	}
 
 	@Test
@@ -387,7 +387,7 @@ public class TestDelegatedGroupManagement
 	}
 
 	@Test
-	public void shouldAddMember() throws EngineException
+	public void shouldForwardAddMemberToCoreManager() throws EngineException
 	{
 
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
@@ -402,7 +402,7 @@ public class TestDelegatedGroupManagement
 	}
 
 	@Test
-	public void shouldRemoveMember() throws EngineException
+	public void shouldForwardRemoveMemberToCoreManager() throws EngineException
 	{
 		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
 				null, null, null, null, null, mockAuthz);
@@ -411,7 +411,7 @@ public class TestDelegatedGroupManagement
 		verify(mockGroupMan).removeMember(eq("/project/destination"), any());
 	}
 
-	private void assertException(Throwable exception, Class<?> type)
+	private void assertExceptionType(Throwable exception, Class<?> type)
 	{
 		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
 	}
