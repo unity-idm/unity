@@ -22,7 +22,7 @@ import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.utils.ScheduledUpdaterBase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
@@ -47,7 +47,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	private static final Logger log = Log.getLogger(Log.U_SERVER, EndpointsUpdater.class);
 	private InternalEndpointManagement endpointMan;
 	private EndpointDB endpointDB;
-	private AuthenticatorInstanceDB authnDB;
+	private AuthenticatorConfigurationDB authnDB;
 	private AuthenticationFlowDB authnFlowDB;
 	private EndpointInstanceLoader loader;
 	private TransactionalRunner tx;
@@ -55,7 +55,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 	@Autowired
 	public EndpointsUpdater(TransactionalRunner tx,
 			InternalEndpointManagement endpointMan, EndpointDB endpointDB,
-			AuthenticatorInstanceDB authnDB, AuthenticationFlowDB authnFlowDB, EndpointInstanceLoader loader)
+			AuthenticatorConfigurationDB authnDB, AuthenticationFlowDB authnFlowDB, EndpointInstanceLoader loader)
 	{
 		super("endpoints");
 		this.tx = tx;

@@ -6,6 +6,9 @@ package pl.edu.icm.unity.store.types;
 
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
@@ -21,8 +24,13 @@ public class AuthenticatorConfiguration implements NamedObject
 	private String localCredentialName;
 	private long revision = 0;
 	
-	public AuthenticatorConfiguration(String name, String verificationMethod, String configuration,
-			String localCredentialName, long revision)
+	@JsonCreator
+	public AuthenticatorConfiguration(
+			@JsonProperty("name") String name, 
+			@JsonProperty("verificationMethod") String verificationMethod, 
+			@JsonProperty("configuration") String configuration,
+			@JsonProperty("localCredentialName") String localCredentialName, 
+			@JsonProperty("revision") long revision)
 	{
 		this.name = name;
 		this.verificationMethod = verificationMethod;

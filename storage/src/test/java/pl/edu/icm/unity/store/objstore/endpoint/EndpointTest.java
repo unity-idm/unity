@@ -16,7 +16,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RealmDB;
@@ -42,7 +42,7 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 	private AuthenticationFlowDB authnFlowDB;
 	
 	@Autowired
-	private AuthenticatorInstanceDB authnDB;
+	private AuthenticatorConfigurationDB authnDB;
 	
 	@Override
 	protected NamedCRUDDAOWithTS<Endpoint> getDAO()

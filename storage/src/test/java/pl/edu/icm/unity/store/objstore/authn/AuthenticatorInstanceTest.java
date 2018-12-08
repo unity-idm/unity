@@ -15,7 +15,7 @@ import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<AuthenticatorConfiguration>
 {
 	@Autowired
-	private AuthenticatorInstanceDB dao;
+	private AuthenticatorConfigurationDB dao;
 	
 	@Autowired
 	private CredentialDB credentialDB;

@@ -9,7 +9,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.store.objstore.cred.CredentialDBImpl;
@@ -25,11 +25,11 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticatorInstanceDBImpl extends GenericObjectsDAOImpl<AuthenticatorConfiguration> 
-		implements AuthenticatorInstanceDB
+public class AuthenticatorConfigurationDBImpl extends GenericObjectsDAOImpl<AuthenticatorConfiguration> 
+		implements AuthenticatorConfigurationDB
 {
 	@Autowired
-	AuthenticatorInstanceDBImpl(AuthenticatorInstanceHandler handler,
+	AuthenticatorConfigurationDBImpl(AuthenticatorConfigurationHandler handler,
 			ObjectStoreDAO dbGeneric, CredentialDBImpl credentialDB)
 	{
 		super(handler, dbGeneric, AuthenticatorConfiguration.class, "authenticator");

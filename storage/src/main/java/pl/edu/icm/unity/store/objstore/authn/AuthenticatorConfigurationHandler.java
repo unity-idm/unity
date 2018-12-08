@@ -20,12 +20,12 @@ import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticatorInstanceHandler extends DefaultEntityHandler<AuthenticatorConfiguration>
+public class AuthenticatorConfigurationHandler extends DefaultEntityHandler<AuthenticatorConfiguration>
 {
 	public static final String AUTHENTICATOR_OBJECT_TYPE = "authenticator";
 	
 	@Autowired
-	public AuthenticatorInstanceHandler(ObjectMapper jsonMapper)
+	public AuthenticatorConfigurationHandler(ObjectMapper jsonMapper)
 	{
 		super(jsonMapper, AUTHENTICATOR_OBJECT_TYPE, AuthenticatorConfiguration.class);
 	}

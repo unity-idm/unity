@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
@@ -43,7 +43,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 {
 	private AuthenticatorsRegistry authReg;
 	private LocalCredentialsRegistry localCredReg;
-	private AuthenticatorInstanceDB authenticatorDB;
+	private AuthenticatorConfigurationDB authenticatorDB;
 	private AuthenticationFlowDB authenticationFlowDB;
 	private CredentialRepository credentialRepository;
 	private EndpointsUpdater endpointsUpdater;
@@ -54,7 +54,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 	@Autowired
 	public AuthenticatorManagementImpl(AuthenticatorsRegistry authReg, 
 			TransactionalRunner tx,
-			AuthenticatorInstanceDB authenticatorDB,
+			AuthenticatorConfigurationDB authenticatorDB,
 			AuthenticationFlowDB authenticationFlowDB,
 			CredentialRepository credentialRepository,
 			EndpointsUpdater endpointsUpdater, 

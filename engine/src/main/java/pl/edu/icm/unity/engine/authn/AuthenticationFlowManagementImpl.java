@@ -26,7 +26,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -46,12 +46,12 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 
 	private AuthenticationFlowDB authnFlowDB;
 	private AuthorizationManager authz;
-	private AuthenticatorInstanceDB authenticatorDB;
+	private AuthenticatorConfigurationDB authenticatorDB;
 	private AttributeDAO dbAttributes;
 	
 	@Autowired
 	public AuthenticationFlowManagementImpl(AuthenticationFlowDB authnFlowDB,
-			AuthorizationManager authz, AuthenticatorInstanceDB authenticatorDB, AttributeDAO dbAttributes)
+			AuthorizationManager authz, AuthenticatorConfigurationDB authenticatorDB, AttributeDAO dbAttributes)
 	{
 		
 		this.authnFlowDB = authnFlowDB;

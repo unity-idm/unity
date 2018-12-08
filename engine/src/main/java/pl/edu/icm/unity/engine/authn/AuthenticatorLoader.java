@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
@@ -40,7 +40,7 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 @Component
 public class AuthenticatorLoader
 {
-	private AuthenticatorInstanceDB authenticatorDB;
+	private AuthenticatorConfigurationDB authenticatorDB;
 	private AuthenticationFlowDB authenticationFlowDB;
 	private AuthenticatorsRegistry authReg;
 	private LocalCredentialsRegistry localCredReg;
@@ -48,7 +48,7 @@ public class AuthenticatorLoader
 	private AuthenticatorFactory authenticatorFactory;
 	
 	@Autowired
-	public AuthenticatorLoader(AuthenticatorInstanceDB authenticatorDB,
+	public AuthenticatorLoader(AuthenticatorConfigurationDB authenticatorDB,
 			AuthenticationFlowDB authenticationFlowDB, AuthenticatorsRegistry authReg,
 			CredentialRepository credRepository, LocalCredentialsRegistry localCredReg,
 			AuthenticatorFactory authenticatorFactory)

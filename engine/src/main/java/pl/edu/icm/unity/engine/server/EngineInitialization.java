@@ -93,7 +93,7 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -170,7 +170,7 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AuthenticatorManagement authnManagement;
 	@Autowired
-	private AuthenticatorInstanceDB authenticatorDAO;
+	private AuthenticatorConfigurationDB authenticatorDAO;
 	@Autowired
 	private AuthenticationFlowDB authenticationFlowDAO;
 	@Autowired

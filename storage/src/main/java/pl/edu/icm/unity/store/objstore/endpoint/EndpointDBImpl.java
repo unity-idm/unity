@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceDBImpl;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationDBImpl;
 import pl.edu.icm.unity.store.objstore.authnFlow.AuthenticationFlowDBImpl;
 import pl.edu.icm.unity.store.objstore.realm.RealmDBImpl;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
@@ -28,7 +28,7 @@ public class EndpointDBImpl extends GenericObjectsDAOImpl<Endpoint> implements E
 {
 	@Autowired
 	public EndpointDBImpl(EndpointHandler handler, ObjectStoreDAO dbGeneric,
-			AuthenticationFlowDBImpl authnFlowDAO, AuthenticatorInstanceDBImpl authnDAO, RealmDBImpl realmDAO)
+			AuthenticationFlowDBImpl authnFlowDAO, AuthenticatorConfigurationDBImpl authnDAO, RealmDBImpl realmDAO)
 	{
 		super(handler, dbGeneric, Endpoint.class, "endpoint");
 		authnDAO.addRemovalHandler(this::restrictAuthenticatorRemoval);

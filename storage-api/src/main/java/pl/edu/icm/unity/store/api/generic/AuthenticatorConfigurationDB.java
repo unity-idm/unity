@@ -10,6 +10,6 @@ import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
  * Easy access to {@link AuthenticatorConfiguration} storage.
  * @author K. Benedyczak
  */
-public interface AuthenticatorInstanceDB extends NamedCRUDDAOWithTS<AuthenticatorConfiguration>
+public interface AuthenticatorConfigurationDB extends NamedCRUDDAOWithTS<AuthenticatorConfiguration>
 {
 }
