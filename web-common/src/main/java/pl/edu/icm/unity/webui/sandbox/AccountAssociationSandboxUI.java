@@ -18,7 +18,7 @@ import com.vaadin.server.VaadinRequest;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -53,7 +53,7 @@ public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWeb
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
-			AuthenticatorSupportManagement authenticatorSupport)
+			AuthenticatorSupportService authenticatorSupport)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;

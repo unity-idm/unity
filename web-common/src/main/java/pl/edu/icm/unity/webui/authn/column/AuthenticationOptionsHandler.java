@@ -17,7 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
@@ -42,7 +42,7 @@ class AuthenticationOptionsHandler
 	{
 		this.endpoint = endpoint;
 		for (AuthenticationFlow ao : availableAuthentionFlows)
-			for (Authenticator a: ao.getFirstFactorAuthenticators())
+			for (AuthenticatorInstance a: ao.getFirstFactorAuthenticators())
 			{
 				String authenticatorId = a.getRetrieval().getAuthenticatorId();
 				if (authenticatorsByName.containsKey(authenticatorId))
@@ -59,7 +59,7 @@ class AuthenticationOptionsHandler
 		consumedAuthenticatorEntries.clear();
 	}
 
-	Authenticator getMatchingAuthenticator(String spec)
+	AuthenticatorInstance getMatchingAuthenticator(String spec)
 	{
 		String authenticatorName = AuthenticationOptionKeyUtils.decodeAuthenticator(spec);
 		return authenticatorsByName.get(authenticatorName).authenticator;
@@ -138,9 +138,9 @@ class AuthenticationOptionsHandler
 	private static class AuthenticatorWithFlow
 	{
 		final AuthenticationFlow flow;
-		final Authenticator authenticator;
+		final AuthenticatorInstance authenticator;
 
-		public AuthenticatorWithFlow(AuthenticationFlow flow, Authenticator authenticator)
+		public AuthenticatorWithFlow(AuthenticationFlow flow, AuthenticatorInstance authenticator)
 		{
 			this.flow = flow;
 			this.authenticator = authenticator;

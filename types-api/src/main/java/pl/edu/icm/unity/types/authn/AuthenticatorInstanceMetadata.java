@@ -18,11 +18,11 @@ import pl.edu.icm.unity.types.NamedObject;
  * Uses default JSON serialization.  
  * @author K. Benedyczak
  */
-public class AuthenticatorInstance implements NamedObject
+public class AuthenticatorInstanceMetadata implements NamedObject
 {
 	private String id;
 	private AuthenticatorTypeDescription typeDescription;
-	private String verificatorConfiguration;
+	private String configuration;
 	private String localCredentialName;
 	private long revision = 0;
 	
@@ -39,11 +39,11 @@ public class AuthenticatorInstance implements NamedObject
 	}
 	
 	@Override
-	public AuthenticatorInstance clone()
+	public AuthenticatorInstanceMetadata clone()
 	{
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode json = mapper.convertValue(this, ObjectNode.class);
-		return mapper.convertValue(json, AuthenticatorInstance.class);
+		return mapper.convertValue(json, AuthenticatorInstanceMetadata.class);
 	}
 	
 	@JsonIgnore
@@ -72,14 +72,14 @@ public class AuthenticatorInstance implements NamedObject
 		this.typeDescription = typeDescription;
 	}
 	
-	public String getVerificatorConfiguration()
+	public String getConfiguration()
 	{
-		return verificatorConfiguration;
+		return configuration;
 	}
 	
-	public void setVerificatorConfiguration(String verificatorJsonConfiguration)
+	public void setConfiguration(String configuration)
 	{
-		this.verificatorConfiguration = verificatorJsonConfiguration;
+		this.configuration = configuration;
 	}
 	
 	public long getRevision()
@@ -95,7 +95,7 @@ public class AuthenticatorInstance implements NamedObject
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(id, localCredentialName, revision, typeDescription, verificatorConfiguration);
+		return Objects.hash(id, localCredentialName, revision, typeDescription, configuration);
 	}
 	
 	@Override
@@ -107,9 +107,9 @@ public class AuthenticatorInstance implements NamedObject
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		AuthenticatorInstance other = (AuthenticatorInstance) obj;
+		AuthenticatorInstanceMetadata other = (AuthenticatorInstanceMetadata) obj;
 		return Objects.equals(id, other.id) && Objects.equals(localCredentialName, other.localCredentialName)
 				&& revision == other.revision && Objects.equals(typeDescription, other.typeDescription)
-				&& Objects.equals(verificatorConfiguration, other.verificatorConfiguration);
+				&& Objects.equals(configuration, other.configuration);
 	}
 }

@@ -32,8 +32,8 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -82,7 +82,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private CaptchaComponent captcha;
 	private String regCodeProvided;
 	private InvitationWithCode invitation;
-	private AuthenticatorSupportManagement authnSupport;
+	private AuthenticatorSupportService authnSupport;
 	private SignUpAuthNController signUpAuthNController;
 	private Map<AuthenticationOptionKey, SignUpAuthNOption> signupOptions;
 	private Runnable onLocalSignupHandler;
@@ -102,7 +102,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, 
 			String registrationCode, InvitationWithCode invitation, 
-			AuthenticatorSupportManagement authnSupport, 
+			AuthenticatorSupportService authnSupport, 
 			SignUpAuthNController signUpAuthNController) throws AuthenticationException
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
@@ -259,12 +259,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		Set<String> authnOptions = form.getExternalSignupSpec().getSpecs().stream()
 			.map(AuthenticationOptionKey::getAuthenticatorKey)
 			.collect(Collectors.toSet());
-		List<AuthenticationFlow> flows = authnSupport.resolveAndGetAuthenticationFlows(Lists.newArrayList(authnOptions),
+		List<AuthenticationFlow> flows = authnSupport.resolveAuthenticationFlows(Lists.newArrayList(authnOptions),
 				VaadinAuthentication.NAME);
 		Set<AuthenticationOptionKey> formSignupSpec = form.getExternalSignupSpec().getSpecs().stream().collect(Collectors.toSet());
 		for (AuthenticationFlow flow : flows)
 		{
-			for (Authenticator authenticator : flow.getFirstFactorAuthenticators())
+			for (AuthenticatorInstance authenticator : flow.getFirstFactorAuthenticators())
 			{
 				VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticator.getRetrieval();
 				String authenticatorKey = vaadinAuthenticator.getAuthenticatorId();

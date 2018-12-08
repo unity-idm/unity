@@ -16,15 +16,13 @@ import java.util.Objects;
  */
 public class AuthenticatorTypeDescription
 {
-	private String id;
 	private String verificationMethod;
 	private String verificationMethodDescription;
 	private boolean local;
 
-	public AuthenticatorTypeDescription(String id, String verificationMethod, String verificationMethodDescription,
+	public AuthenticatorTypeDescription(String verificationMethod, String verificationMethodDescription,
 			boolean local)
 	{
-		this.id = id;
 		this.verificationMethod = verificationMethod;
 		this.verificationMethodDescription = verificationMethodDescription;
 		this.local = local;
@@ -33,11 +31,6 @@ public class AuthenticatorTypeDescription
 	public boolean isLocal()
 	{
 		return local;
-	}
-
-	public String getId()
-	{
-		return id;
 	}
 
 	public String getVerificationMethod()
@@ -53,7 +46,7 @@ public class AuthenticatorTypeDescription
 	@Override
 	public String toString()
 	{
-		return "AuthenticatorTypeDescription [id=" + id + ", verificationMethod=" + verificationMethod
+		return "AuthenticatorTypeDescription [verificationMethod=" + verificationMethod
 				+ ", verificationMethodDescription=" + verificationMethodDescription + ", local="
 				+ local + "]";
 	}
@@ -61,7 +54,7 @@ public class AuthenticatorTypeDescription
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(id, local, verificationMethod, verificationMethodDescription);
+		return Objects.hash(local, verificationMethod, verificationMethodDescription);
 	}
 
 	@Override
@@ -74,7 +67,7 @@ public class AuthenticatorTypeDescription
 		if (getClass() != obj.getClass())
 			return false;
 		AuthenticatorTypeDescription other = (AuthenticatorTypeDescription) obj;
-		return Objects.equals(id, other.id) && local == other.local
+		return local == other.local
 				&& Objects.equals(verificationMethod, other.verificationMethod)
 				&& Objects.equals(verificationMethodDescription, other.verificationMethodDescription);
 	}

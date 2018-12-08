@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 /**
  * Utility methods processing results of authenticators.
@@ -21,12 +21,12 @@ public interface AuthenticationProcessor
 	/**
 	 * @return authenticator which is valid for the given entity from the given pool
 	 */
-	Authenticator getValidAuthenticatorForEntity(Collection<Authenticator> pool, long entityId);
+	AuthenticatorInstance getValidAuthenticatorForEntity(Collection<AuthenticatorInstance> pool, long entityId);
 	
 	/**
 	 * @return true only if user can use the given authenticator. Works well (currently) only for local authenticators
 	 */
-	boolean checkIfUserHasCredential(AuthenticatorInstance authn, long entityId);
+	boolean checkIfUserHasCredential(AuthenticatorInstanceMetadata authn, long entityId);
 	
 	/**
 	 * Starting point: the result of the primary authenticator is verified. If the authentication failed

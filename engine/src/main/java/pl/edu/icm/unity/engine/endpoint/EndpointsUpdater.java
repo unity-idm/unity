@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.utils.ScheduledUpdaterBase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -137,7 +137,7 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 
 		for (AuthenticationFlow flow : instance.getAuthenticationFlows())
 		{
-			for (Authenticator authenticator : flow.getAllAuthenticators())
+			for (AuthenticatorInstance authenticator : flow.getAllAuthenticators())
 			{
 				revisionMap.put(authenticator.getRetrieval().getAuthenticatorId(),
 						authenticator.getRevision());

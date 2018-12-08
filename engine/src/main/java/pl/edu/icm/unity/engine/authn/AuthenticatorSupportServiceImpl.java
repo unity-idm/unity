@@ -15,8 +15,8 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
@@ -27,18 +27,17 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 
 /**
- * See {@link AuthenticatorSupportManagement}
- * FIXME rename class, methods
+ * See {@link AuthenticatorSupportService}
  */
 @Component
-public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagement
+public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportService
 {
 	private AuthenticatorLoader authnLoader;
 	private AuthenticatorsRegistry authnRegistry;
 	private AuthenticatorManagement authenticationManagement;
 	
 	@Autowired
-	public AuthenticatorsManagementImpl(AuthenticatorLoader authnLoader, 
+	public AuthenticatorSupportServiceImpl(AuthenticatorLoader authnLoader, 
 			AuthenticatorsRegistry authnRegistry, AuthenticatorManagement authenticationManagement)
 	{
 		this.authnLoader = authnLoader;
@@ -49,16 +48,7 @@ public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagem
 
 	@Override
 	@Transactional
-	public List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows, String bindingId)
-			throws EngineException
-	{
-		return authnLoader.getAuthenticationFlows(authnFlows, bindingId);
-	}
-	
-	@Override
-	@Transactional
-	public List<AuthenticationFlowDefinition> resolveAllRemoteAuthenticatorFlows(String bindingId)
-			throws EngineException
+	public List<AuthenticationFlow> getRemoteAuthenticatorsAsFlows(String bindingId) throws EngineException
 	{
 		ArrayList<AuthenticationFlowDefinition> flows = new ArrayList<>();
 
@@ -75,14 +65,31 @@ public class AuthenticatorsManagementImpl implements AuthenticatorSupportManagem
 				flows.add(authnFlow);
 			}
 		}
-
-		return flows;
+		return authnLoader.createAuthenticationFlows(flows, bindingId);
 	}
 
 	@Override
 	@Transactional
-	public List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions, String bindingId)
+	public List<AuthenticationFlow> resolveAuthenticationFlows(List<String> authnOptions, String bindingId)
 	{
-		return authnLoader.resolveAndGetAuthenticationFlows(authnOptions, bindingId);
+		return authnLoader.resolveAuthenticationFlows(authnOptions, bindingId);
+	}
+
+
+	@Override
+	public List<AuthenticatorInstance> getRemoteAuthenticators(String bindingId) throws EngineException
+	{
+		ArrayList<AuthenticatorInstance> ret = new ArrayList<>();
+
+		Collection<AuthenticatorInstance> authnInstances = authnLoader.getAuthenticators(bindingId);
+		for (AuthenticatorInstance authenticator : authnInstances)
+		{
+			if (authenticator.getMetadata().getLocalCredentialName() == null)
+			{
+				ret.add(authnLoader.getAuthenticator(authenticator.getMetadata().getName(), 
+						bindingId));
+			}
+		}
+		return ret;
 	}
 }

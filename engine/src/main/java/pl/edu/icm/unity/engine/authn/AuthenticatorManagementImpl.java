@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -35,13 +34,12 @@ import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Authentication management implementation.
- * FIXME rename
  * @author K. Benedyczak
  */
 @Component
 @Primary
 @InvocationEventProducer
-public class AuthenticationManagementImpl implements AuthenticatorManagement
+public class AuthenticatorManagementImpl implements AuthenticatorManagement
 {
 	private AuthenticatorsRegistry authReg;
 	private LocalCredentialsRegistry localCredReg;
@@ -54,7 +52,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	private TransactionalRunner tx;
 	
 	@Autowired
-	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, 
+	public AuthenticatorManagementImpl(AuthenticatorsRegistry authReg, 
 			TransactionalRunner tx,
 			AuthenticatorInstanceDB authenticatorDB,
 			AuthenticationFlowDB authenticationFlowDB,
@@ -73,16 +71,6 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		this.endpointsUpdater = endpointsUpdater;
 		this.authenticatorLoader = authenticatorLoader;
 		this.authz = authz;
-	}
-
-
-	//TODO remove
-	public Collection<AuthenticatorTypeDescription> getAuthenticatorTypes(String bindingId) throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.readInfo);
-		if (bindingId == null)
-			return authReg.getAuthenticators();
-		return authReg.getAuthenticatorsByBinding(bindingId);
 	}
 
 	@Override
@@ -154,7 +142,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	private AuthenticatorInfo getExposedAuthenticatorInfo(AuthenticatorConfiguration persistedAuthenticator)
 	{
 		return new AuthenticatorInfo(persistedAuthenticator.getName(), 
-				authReg.getAuthenticatorsById(persistedAuthenticator.getName()), 
+				authReg.getAuthenticatorTypeById(persistedAuthenticator.getName()), 
 				persistedAuthenticator.getConfiguration(), 
 				Optional.ofNullable(persistedAuthenticator.getLocalCredentialName()), 
 				authReg.getSupportedBindings(persistedAuthenticator.getName()));
@@ -162,7 +150,7 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	
 	private void verifyConfiguration(String typeId, String config, String localCredential) throws IllegalCredentialException
 	{
-		AuthenticatorTypeDescription typeDescription = authReg.getAuthenticatorsById(typeId);
+		AuthenticatorTypeDescription typeDescription = authReg.getAuthenticatorTypeById(typeId);
 		if (typeDescription == null)
 			throw new IllegalArgumentException("Can not add authenticator of unknown type " + typeId);
 		String effectiveConfig = config;

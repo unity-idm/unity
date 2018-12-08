@@ -72,7 +72,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		}
 		
 		addFieldToContent(msg.getMessage("Authenticators.type"), authenticator
-				.getTypeDescription().getId());
+				.getTypeDescription().getVerificationMethod());
 		addFieldToContent(msg.getMessage("Authenticators.verificationMethod"),
 				authenticator.getTypeDescription().getVerificationMethod());
 		addFieldToContent(msg.getMessage("Authenticators.verificationMethodDescription"),

@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine;
+package pl.edu.icm.unity.engine.authn;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -26,14 +26,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
+import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
@@ -48,7 +49,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -92,9 +93,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 				"crMock", EntityState.valid, false);
 
 		//create authenticator, authentication flow and an endpoint with it
-		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorsByBinding("web");
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
-		authnMan.createAuthenticator("auth1", authType.getId(), "bbb", "credential1");
+		authnMan.createAuthenticator("auth1", authType.getVerificationMethod(), "bbb", "credential1");
 		
 		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				"flow1", Policy.NEVER, Sets.newHashSet("auth1")));
@@ -135,14 +136,14 @@ public class TestAuthentication extends DBIntegrationTestBase
 			throws Exception
 	{
 		super.setupMockAuthn();
-		Collection<AuthenticatorTypeDescription> authenticatorTypes1 = authenticatorsReg.getAuthenticatorsByBinding("web");
-		Collection<AuthenticatorTypeDescription> authenticatorTypes2 = authenticatorsReg.getAuthenticatorsByBinding("web2");
+		Collection<AuthenticatorTypeDescription> authenticatorTypes1 = authenticatorsReg.getAuthenticatorTypesByBinding("web");
+		Collection<AuthenticatorTypeDescription> authenticatorTypes2 = authenticatorsReg.getAuthenticatorTypesByBinding("web2");
 		
 		authnMan.createAuthenticator(
-				"auth0", authenticatorTypes1.iterator().next().getId(), "aaa", "credential1");
+				"auth0", authenticatorTypes1.iterator().next().getVerificationMethod(), "aaa", "credential1");
 		
 		authnMan.createAuthenticator(
-				"auth1", authenticatorTypes2.iterator().next().getId(), "bbb", "credential1");
+				"auth1", authenticatorTypes2.iterator().next().getVerificationMethod(), "bbb", "credential1");
 		
 		
 		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
@@ -152,9 +153,9 @@ public class TestAuthentication extends DBIntegrationTestBase
 	@Test
 	public void shouldReturnAllAuthnTypes() throws Exception
 	{
-		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorsByBinding("web");
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
 		assertEquals(1, authTypes.size());
-		authTypes = authenticatorsReg.getAuthenticators();
+		authTypes = authenticatorsReg.getAuthenticatorTypes();
 		assertEquals(2, authTypes.size());
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		assertEquals(true, authType.isLocal());
@@ -165,12 +166,12 @@ public class TestAuthentication extends DBIntegrationTestBase
 	public void authenticatorCRUDTest() throws Exception
 	{	
 		super.setupMockAuthn();
-		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorsByBinding("web");
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		
-		authnMan.createAuthenticator("auth0", authType.getId(), "aaa", "credential1");
+		authnMan.createAuthenticator("auth0", authType.getVerificationMethod(), "aaa", "credential1");
 
-		authnMan.createAuthenticator("auth1", authType.getId(), "bbb", "credential1");
+		authnMan.createAuthenticator("auth1", authType.getVerificationMethod(), "bbb", "credential1");
 
 		Collection<AuthenticatorInfo> auths = authnMan.getAuthenticators("web");
 		assertEquals(2, auths.size());
@@ -191,13 +192,13 @@ public class TestAuthentication extends DBIntegrationTestBase
 	public void authenticationFlowCRUDTest() throws Exception
 	{
 		super.setupMockAuthn();
-		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorsByBinding("web");
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		authnMan.createAuthenticator("auth0",
-				authType.getId(), "aaa", "credential1");
+				authType.getVerificationMethod(), "aaa", "credential1");
 
 		authnMan.createAuthenticator("auth1",
-				authType.getId(), "bbb", "credential1");
+				authType.getVerificationMethod(), "bbb", "credential1");
 		
 		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				"flow1", Policy.NEVER, Sets.newHashSet("auth0")));
@@ -221,11 +222,11 @@ public class TestAuthentication extends DBIntegrationTestBase
 				10, 10, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
-		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorsByBinding("web");
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		
 		AuthenticatorInfo authInstance1 = authnMan.createAuthenticator(
-				"auth0", authType.getId(), "bbb", "credential1");
+				"auth0", authType.getVerificationMethod(), "bbb", "credential1");
 
 		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				"flow1", Policy.NEVER, Sets.newHashSet("auth0")));
@@ -345,10 +346,10 @@ public class TestAuthentication extends DBIntegrationTestBase
 	{
 		addDefaultCredentialDef();
 		
-		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorsByBinding("web");
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		authnMan.createAuthenticator("auth1",
-				authType.getId(), "bbb", "credential1");
+				authType.getVerificationMethod(), "bbb", "credential1");
 		
 		credMan.removeCredentialDefinition("credential1");	
 	}
@@ -483,7 +484,7 @@ public class TestAuthentication extends DBIntegrationTestBase
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
 		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
-		Authenticator authenticator = getAuthenticator("authn", "credential1"); 
+		AuthenticatorInstance authenticator = getAuthenticator("authn", "credential1"); 
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, Sets.newHashSet(authenticator), 
 				Collections.emptyList(), 1);
 		setupUserContext(sessionMan, identityResolver, "user2", null, Lists.newArrayList(flow));
@@ -496,13 +497,13 @@ public class TestAuthentication extends DBIntegrationTestBase
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
 	}
 
-	private Authenticator getAuthenticator(String authenticator, String credential)
+	private AuthenticatorInstance getAuthenticator(String authenticator, String credential)
 	{
-		Authenticator auth1 = mock(Authenticator.class);
-		AuthenticatorInstance instance1 = mock(AuthenticatorInstance.class);
+		AuthenticatorInstance auth1 = mock(AuthenticatorInstance.class);
+		AuthenticatorInstanceMetadata instance1 = mock(AuthenticatorInstanceMetadata.class);
 		when(instance1.getLocalCredentialName()).thenReturn(credential);
 		when(instance1.getId()).thenReturn(authenticator);
-		when(auth1.getAuthenticatorInstance()).thenReturn(instance1);
+		when(auth1.getMetadata()).thenReturn(instance1);
 		CredentialRetrieval retrieval = mock(CredentialRetrieval.class);
 		when(auth1.getRetrieval()).thenReturn(retrieval);
 		return auth1;
