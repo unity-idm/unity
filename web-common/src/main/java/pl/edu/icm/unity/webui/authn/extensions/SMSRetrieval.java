@@ -5,20 +5,19 @@
 
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
@@ -32,7 +31,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
@@ -44,14 +42,12 @@ import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.credential.sms.SMSCredentialRecoverySettings;
 import pl.edu.icm.unity.stdext.credential.sms.SMSExchange;
 import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
@@ -83,6 +79,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	private I18nString name;
 	private String logoURL;
 	private CredentialEditorRegistry credEditorReg;
+	private String configuration;
 	
 	@Autowired
 	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
@@ -95,31 +92,22 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	@Override
 	public String getSerializedConfiguration()
 	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.set("i18nName", I18nStringJsonUtil.toJson(name));
-		if (logoURL != null)
-			root.put("logoURL", logoURL);
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize web-based SMS retrieval configuration to JSON", e);
-		}
+		return configuration;
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String configuration)
 	{
+		this.configuration = configuration;
 		try
 		{
-			JsonNode root = Constants.MAPPER.readTree(json);
-			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
+			Properties properties = new Properties();
+			properties.load(new StringReader(configuration));
+			SMSRetrievalProperties config = new SMSRetrievalProperties(properties);
+			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebSMSRetrieval.title", msg);
-			JsonNode logoNode = root.get("logoURL");
-			if (logoNode != null && !logoNode.isNull())
-				logoURL = logoNode.asText();
+			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);
 			if (logoURL != null && !logoURL.isEmpty())
 				ImageUtils.getLogoResource(logoURL);
 		} catch (Exception e)
