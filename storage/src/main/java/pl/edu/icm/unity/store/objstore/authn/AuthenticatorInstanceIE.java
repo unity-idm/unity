@@ -11,19 +11,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.objstore.GenericObjectIEBase;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 
 /**
- * Handles import/export of {@link AuthenticatorInstance}.
+ * Handles import/export of {@link AuthenticatorConfiguration}.
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticatorInstanceIE extends GenericObjectIEBase<AuthenticatorInstance>
+public class AuthenticatorInstanceIE extends GenericObjectIEBase<AuthenticatorConfiguration>
 {
 	@Autowired
 	public AuthenticatorInstanceIE(AuthenticatorInstanceDB dao, ObjectMapper jsonMapper)
 	{
-		super(dao, jsonMapper, AuthenticatorInstance.class, 101, 
+		super(dao, jsonMapper, AuthenticatorConfiguration.class, 101, 
 				AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE);
 	}
 }

@@ -8,9 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
@@ -194,12 +192,10 @@ public class OAuthAuthzWebEndpoint extends VaadinEndpoint
 		
 		private static EndpointTypeDescription initDescription()
 		{
-			Set<String> supportedAuthn = new HashSet<>();
-			supportedAuthn.add(VaadinAuthentication.NAME);
 			Map<String, String> paths = new HashMap<>();
 			paths.put(OAUTH_CONSUMER_SERVLET_PATH, "OAuth 2 Authorization Grant web endpoint");
 			return new EndpointTypeDescription(NAME, 
-					"OAuth 2 Server - Authorization Grant endpoint", supportedAuthn, paths);
+					"OAuth 2 Server - Authorization Grant endpoint", VaadinAuthentication.NAME, paths);
 		}
 		
 		@Override

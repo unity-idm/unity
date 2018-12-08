@@ -6,9 +6,7 @@ package pl.edu.icm.unity.saml.ecp;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
@@ -22,6 +20,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.metadata.MultiMetadataServlet;
 import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
+import pl.edu.icm.unity.ws.authn.WebServiceAuthentication;
 
 /**
  * Factory of {@link ECPEndpoint}s.
@@ -56,11 +55,11 @@ public class ECPEndpointFactory implements EndpointFactory
 	
 	private static EndpointTypeDescription initDescription()
 	{
-		Set<String> supportedAuthn = new HashSet<String>();
-		Map<String,String> paths = new HashMap<String, String>();
+		Map<String,String> paths = new HashMap<>();
 		paths.put(SERVLET_PATH, "SAML 2 ECP authentication endpoint");
 		paths.put(METADATA_SERVLET_PATH, "Metadata of the SAML ECP endpoint");
-		return new EndpointTypeDescription(NAME, "SAML 2 ECP authentication endpoint", supportedAuthn, paths);
+		return new EndpointTypeDescription(NAME, "SAML 2 ECP authentication endpoint", 
+				WebServiceAuthentication.NAME, paths);
 	}
 	
 	@Override

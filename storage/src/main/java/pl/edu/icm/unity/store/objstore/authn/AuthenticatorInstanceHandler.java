@@ -13,30 +13,30 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.objstore.DefaultEntityHandler;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 
 /**
- * Handler for {@link AuthenticatorInstance}
+ * Handler for {@link AuthenticatorConfiguration}
  * @author K. Benedyczak
  */
 @Component
-public class AuthenticatorInstanceHandler extends DefaultEntityHandler<AuthenticatorInstance>
+public class AuthenticatorInstanceHandler extends DefaultEntityHandler<AuthenticatorConfiguration>
 {
 	public static final String AUTHENTICATOR_OBJECT_TYPE = "authenticator";
 	
 	@Autowired
 	public AuthenticatorInstanceHandler(ObjectMapper jsonMapper)
 	{
-		super(jsonMapper, AUTHENTICATOR_OBJECT_TYPE, AuthenticatorInstance.class);
+		super(jsonMapper, AUTHENTICATOR_OBJECT_TYPE, AuthenticatorConfiguration.class);
 	}
 
 	@Override
-	public GenericObjectBean toBlob(AuthenticatorInstance value)
+	public GenericObjectBean toBlob(AuthenticatorConfiguration value)
 	{
 		try
 		{
 			byte[] contents = jsonMapper.writeValueAsBytes(value);
-			return new GenericObjectBean(value.getId(), contents, supportedType);
+			return new GenericObjectBean(value.getName(), contents, supportedType);
 		} catch (JsonProcessingException e)
 		{
 			throw new InternalException("Can't serialize authenticator state to JSON", e);
@@ -44,11 +44,11 @@ public class AuthenticatorInstanceHandler extends DefaultEntityHandler<Authentic
 	}
 
 	@Override
-	public AuthenticatorInstance fromBlob(GenericObjectBean blob)
+	public AuthenticatorConfiguration fromBlob(GenericObjectBean blob)
 	{
 		try
 		{
-			return jsonMapper.readValue(blob.getContents(), AuthenticatorInstance.class);
+			return jsonMapper.readValue(blob.getContents(), AuthenticatorConfiguration.class);
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize authenticator state from JSON", e);

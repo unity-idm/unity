@@ -38,7 +38,7 @@ public class RESTAdminEndpoint extends RESTEndpoint
 	public static final String V1_PATH = "/v1";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "A RESTful endpoint exposing Unity management API.", 
-			Collections.singleton(JAXRSAuthentication.NAME),
+			JAXRSAuthentication.NAME,
 			Collections.singletonMap(V1_PATH, "The REST management base path"));
 	
 	private ObjectFactory<RESTAdmin> factory;

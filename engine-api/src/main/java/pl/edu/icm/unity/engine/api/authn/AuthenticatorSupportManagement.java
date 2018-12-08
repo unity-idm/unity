@@ -15,15 +15,16 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
  * 
  * @author K. Benedyczak
  */
+//TODO check this API. Looks broken or at least very strange
 public interface AuthenticatorSupportManagement
 {
 	/**
 	 * Resolves binding specific authenticator authN implementations for a given
 	 * list of {@link AuthenticationFlowDefinition}.
 	 */
-	List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows) throws EngineException;
+	List<AuthenticationFlow> getAuthenticatorUIs(List<AuthenticationFlowDefinition> authnFlows, String bindingId) throws EngineException;
 
 	List<AuthenticationFlowDefinition> resolveAllRemoteAuthenticatorFlows(String bindingId) throws EngineException;
 	
-	List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions);
+	List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions, String bindingId);
 }

@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,18 +46,18 @@ public class AuthenticatorsRegistry
 		List<CredentialRetrievalFactory> retrievalFactories = retrievalFactoriesO.orElseGet(ArrayList::new);
 		List<CredentialVerificatorFactory> verificatorFactories = verificatorFactoriesO.orElseGet(ArrayList::new);
 		
-		authenticatorsByBinding = new HashMap<String, Set<AuthenticatorTypeDescription>>();
-		authenticatorsById = new HashMap<String, AuthenticatorTypeDescription>();
+		authenticatorsByBinding = new HashMap<>();
+		authenticatorsById = new HashMap<>();
 		
-		credentialRetrievalFactories = new HashMap<String, CredentialRetrievalFactory>();
-		credentialVerificatorFactories = new HashMap<String, CredentialVerificatorFactory>();
+		credentialRetrievalFactories = new HashMap<>();
+		credentialVerificatorFactories = new HashMap<>();
 		
 		for (CredentialRetrievalFactory f: retrievalFactories)
 			credentialRetrievalFactories.put(f.getName(), f);
 		for (CredentialVerificatorFactory f: verificatorFactories)
 			credentialVerificatorFactories.put(f.getName(), f);
 		
-		log.debug("The following authenticator types are available:");
+		log.debug("The following authenticator are available:");
 		for (int j=0; j<verificatorFactories.size(); j++)
 		{
 			CredentialVerificatorFactory vf = verificatorFactories.get(j);
@@ -66,19 +67,17 @@ public class AuthenticatorsRegistry
 				CredentialRetrievalFactory rf = retrievalFactories.get(i);
 				if (!rf.isCredentialExchangeSupported(verificator))
 					continue;
-				AuthenticatorTypeDescription desc = new AuthenticatorTypeDescription();
-				desc.setId(vf.getName() + " with " + rf.getName());
-				desc.setRetrievalMethod(rf.getName());
-				desc.setRetrievalMethodDescription(rf.getDescription());
-				desc.setSupportedBinding(rf.getSupportedBinding());
-				desc.setVerificationMethod(vf.getName());
-				desc.setVerificationMethodDescription(vf.getDescription());
-				desc.setLocal(verificator.getType().equals(VerificatorType.Local));
+				//FIXME - remove the "with" id, align
+				AuthenticatorTypeDescription desc = new AuthenticatorTypeDescription(
+						vf.getName() + " with " + rf.getName(),
+						vf.getName(),
+						vf.getDescription(),
+						verificator.getType().equals(VerificatorType.Local));
 				Set<AuthenticatorTypeDescription> existing = authenticatorsByBinding.get(
 						rf.getSupportedBinding());
 				if (existing == null)
 				{
-					existing = new HashSet<AuthenticatorTypeDescription>();
+					existing = new HashSet<>();
 					authenticatorsByBinding.put(rf.getSupportedBinding(), existing);
 				}
 				existing.add(desc);
@@ -90,6 +89,41 @@ public class AuthenticatorsRegistry
 		authenticatorsByBinding = Collections.unmodifiableMap(authenticatorsByBinding);
 	}
 
+	//FIXME suboptimal
+	public CredentialRetrievalFactory findCredentialRetrieval(String binding, CredentialExchange credExchange)
+	{
+		for (CredentialRetrievalFactory retrieval: credentialRetrievalFactories.values())
+		{
+			if (binding.equals(retrieval.getSupportedBinding()) && 
+					retrieval.isCredentialExchangeSupported(credExchange))
+				return retrieval;
+		}
+		throw new IllegalArgumentException("There is no credential retrieval for binding " + binding + 
+				" and credential type " + credExchange.getExchangeId());
+	}
+	
+	public Set<String> getSupportedBindings(String verificatorId)
+	{
+		return getSupportedRetrievals(verificatorId).stream()
+				.map(retrieval -> retrieval.getSupportedBinding())
+				.collect(Collectors.toSet());
+	}	
+
+	//FIXME very suboptimal
+	public Set<CredentialRetrievalFactory> getSupportedRetrievals(String verificatorId)
+	{
+		CredentialVerificatorFactory verificatorFactory = credentialVerificatorFactories.get(verificatorId);
+		CredentialVerificator verificator = verificatorFactory.newInstance();
+		Set<CredentialRetrievalFactory> supported = new HashSet<>();
+		for (CredentialRetrievalFactory retrieval: credentialRetrievalFactories.values())
+		{
+			if (retrieval.isCredentialExchangeSupported(verificator))
+				supported.add(retrieval);
+		}
+		return supported;
+	}	
+
+	
 	public CredentialRetrievalFactory getCredentialRetrievalFactory(String id)
 	{
 		return credentialRetrievalFactories.get(id);
@@ -100,6 +134,7 @@ public class AuthenticatorsRegistry
 		return credentialVerificatorFactories.get(id);
 	}
 
+	//FIXME name
 	public AuthenticatorTypeDescription getAuthenticatorsById(String id)
 	{
 		return authenticatorsById.get(id);

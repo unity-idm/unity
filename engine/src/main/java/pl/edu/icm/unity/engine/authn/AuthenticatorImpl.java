@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
@@ -27,7 +28,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
  * a local credential name and its configuration must be provided.
  * </ul>
  * @author P.Piernik
- *
+ * TODO move logic to AuthenticatorLoader
  */
 public class AuthenticatorImpl implements Authenticator
 {
@@ -39,39 +40,33 @@ public class AuthenticatorImpl implements Authenticator
 	
 	/**
 	 * For initial object creation in case of local authenticator.
-	 * @param reg
-	 * @param typeId
-	 * @param configuration
-	 * @throws WrongArgumentException 
 	 */
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, 
-			String name, String typeId, String rConfiguration, String localCredentialName, 
-			String localCredentialconfiguration, int revision) throws WrongArgumentException
+			String name, String typeId, String localCredentialName, 
+			String localCredentialconfiguration, String binding) throws WrongArgumentException
 	{
-		this(identitiesResolver, reg, name, revision);
+		this(identitiesResolver, reg, name, 0);
+		//FIXME x2 getting authTypeDesc is actually not needed here, rather checking if we have such verificator, 
+		//but thats done later on anyway
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
 			throw new WrongArgumentException("The authenticator type " + typeId + " is not known");
-		createCoworkers(authDesc, rConfiguration, localCredentialconfiguration, localCredentialName);
+		createCoworkers(authDesc.getVerificationMethod(), localCredentialconfiguration, localCredentialName, binding);
 	}
 	
 	/**
 	 * For initial object creation in case of remote authenticator.
-	 * @param reg
-	 * @param typeId
-	 * @param configuration
-	 * @throws WrongArgumentException 
 	 */
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, 
-			String name, String typeId, String rConfiguration, String vConfiguration, long revision)
+			String name, String typeId, String vConfiguration, String binding)
 					throws WrongArgumentException
 	{
-		this(identitiesResolver, reg, name, revision);
+		this(identitiesResolver, reg, name, 0);
 		AuthenticatorTypeDescription authDesc = authRegistry.getAuthenticatorsById(typeId);
 		if (authDesc == null)
 			throw new WrongArgumentException("The authenticator type '" + typeId + "' is invalid. "
 					+ "Valid authenticator types are: " + authRegistry.getAuthenticatorTypes());
-		createCoworkers(authDesc, rConfiguration, vConfiguration, null);
+		createCoworkers(authDesc.getVerificationMethod(), vConfiguration, null, binding);
 	}	
 	
 	/**
@@ -82,11 +77,11 @@ public class AuthenticatorImpl implements Authenticator
 	 * @param deserialized deserialized state
 	 */
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name,
-			AuthenticatorInstance deserialized)
+			AuthenticatorConfiguration deserialized, String binding)
 	{
 		this(identitiesResolver, reg, name, deserialized.getRevision());
-		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalConfiguration(),
-				deserialized.getVerificatorConfiguration(), null);
+		createCoworkers(deserialized.getVerificationMethod(), deserialized.getConfiguration(),
+				null, binding);
 	}
 	
 	/**
@@ -98,11 +93,11 @@ public class AuthenticatorImpl implements Authenticator
 	 * @param localCredentialConfiguration configuration of the local credential associated with the validator
 	 */
 	public AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name,
-			AuthenticatorInstance deserialized, String localCredentialConfiguration)
+			AuthenticatorConfiguration deserialized, String localCredentialConfiguration, String binding)
 	{
 		this(identitiesResolver, reg, name, deserialized.getRevision());
-		createCoworkers(deserialized.getTypeDescription(), deserialized.getRetrievalConfiguration(),
-				localCredentialConfiguration, deserialized.getLocalCredentialName());
+		createCoworkers(deserialized.getVerificationMethod(), localCredentialConfiguration, 
+				deserialized.getLocalCredentialName(), binding);
 	}
 	
 	private AuthenticatorImpl(IdentityResolver identitiesResolver, AuthenticatorsRegistry reg, String name, long revision)
@@ -115,39 +110,47 @@ public class AuthenticatorImpl implements Authenticator
 		
 	}	
 	
-	private void createCoworkers(AuthenticatorTypeDescription authDesc, String rConfiguration, 
-			String vConfiguration, String localCredential)
+	private void createCoworkers(String verificationMethod, String configuration, String localCredential, 
+			String binding)
 	{
-		CredentialRetrievalFactory retrievalFact = authRegistry.getCredentialRetrievalFactory(
-				authDesc.getRetrievalMethod());
 		CredentialVerificatorFactory verificatorFact = authRegistry.getCredentialVerificatorFactory(
-				authDesc.getVerificationMethod());
+				verificationMethod);
 		verificator = verificatorFact.newInstance();
 		verificator.setIdentityResolver(identitiesResolver);
 		verificator.setInstanceName(instanceDescription.getId());
+		
+		CredentialRetrievalFactory retrievalFact = authRegistry.findCredentialRetrieval(binding, verificator);
 		retrieval = retrievalFact.newInstance();
 		retrieval.setCredentialExchange(verificator, instanceDescription.getId());
-		updateConfiguration(rConfiguration, vConfiguration, localCredential);
+		updateConfiguration(configuration, localCredential);
+		AuthenticatorTypeDescription authDesc = getAuthenticatorDescription(verificator, 
+				localCredential != null);
 		instanceDescription.setTypeDescription(authDesc);
+	}
+	
+	//FIXME - id and verificator id the same.
+	private AuthenticatorTypeDescription getAuthenticatorDescription(CredentialVerificator verificator, 
+			boolean isLocal)
+	{
+		return new AuthenticatorTypeDescription(verificator.getName(), 
+				verificator.getName(), 
+				verificator.getDescription(), 
+				isLocal);
 	}
 	
 	/**
 	 * Updates the current configuration of the authenticator. 
 	 * For local verificators the verificator configuration is only set for the underlying verificator, it is not
 	 * exposed in the instanceDescription. 
-	 * @param rConfiguration
-	 * @param vConfiguration
 	 */
-	public void updateConfiguration(String rConfiguration, String vConfiguration, String localCredential)
+	@Override
+	public void updateConfiguration(String configuration, String localCredential)
 	{
-		if (rConfiguration == null)
-			rConfiguration = "";
-		retrieval.setSerializedConfiguration(rConfiguration);
-		instanceDescription.setRetrievalConfiguration(rConfiguration);
-		verificator.setSerializedConfiguration(vConfiguration);
+		retrieval.setSerializedConfiguration(configuration);
+		verificator.setSerializedConfiguration(configuration);
 		if (!(verificator.getType().equals(VerificatorType.Local)))
 		{
-			instanceDescription.setVerificatorConfiguration(vConfiguration);
+			instanceDescription.setVerificatorConfiguration(configuration);
 		} else 
 		{
 			instanceDescription.setVerificatorConfiguration(null);
@@ -156,22 +159,25 @@ public class AuthenticatorImpl implements Authenticator
 		}
 	}
 	
+	@Override
 	public void setRevision(long revision)
 	{
 		instanceDescription.setRevision(revision);
 	}
 	
+	@Override
 	public long getRevision()
 	{
 		return instanceDescription.getRevision();
 	}
-	
-	
+		
+	@Override
 	public AuthenticatorInstance getAuthenticatorInstance()
 	{
 		return instanceDescription;
 	}
 
+	@Override
 	public CredentialRetrieval getRetrieval()
 	{
 		return retrieval;

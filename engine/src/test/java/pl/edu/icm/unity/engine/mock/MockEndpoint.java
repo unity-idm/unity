@@ -29,7 +29,7 @@ public class MockEndpoint extends AbstractWebEndpoint implements WebAppEndpointI
 {
 	public static final String NAME = "Mock Endpoint";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
-			NAME, "This is mock endpoint for tests", Collections.singleton("web"),
+			NAME, "This is mock endpoint for tests", "web",
 			Collections.singletonMap("endPaths", "descEndPaths"));
 
 	public static final String WRONG_CONFIG = "wrong";

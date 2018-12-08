@@ -259,7 +259,8 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		Set<String> authnOptions = form.getExternalSignupSpec().getSpecs().stream()
 			.map(AuthenticationOptionKey::getAuthenticatorKey)
 			.collect(Collectors.toSet());
-		List<AuthenticationFlow> flows = authnSupport.resolveAndGetAuthenticationFlows(Lists.newArrayList(authnOptions));
+		List<AuthenticationFlow> flows = authnSupport.resolveAndGetAuthenticationFlows(Lists.newArrayList(authnOptions),
+				VaadinAuthentication.NAME);
 		Set<AuthenticationOptionKey> formSignupSpec = form.getExternalSignupSpec().getSpecs().stream().collect(Collectors.toSet());
 		for (AuthenticationFlow flow : flows)
 		{

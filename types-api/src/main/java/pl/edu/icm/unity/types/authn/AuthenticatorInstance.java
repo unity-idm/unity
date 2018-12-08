@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.authn;
 
+import java.util.Objects;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -20,7 +22,6 @@ public class AuthenticatorInstance implements NamedObject
 {
 	private String id;
 	private AuthenticatorTypeDescription typeDescription;
-	private String retrievalConfiguration;
 	private String verificatorConfiguration;
 	private String localCredentialName;
 	private long revision = 0;
@@ -71,16 +72,6 @@ public class AuthenticatorInstance implements NamedObject
 		this.typeDescription = typeDescription;
 	}
 	
-	public String getRetrievalConfiguration()
-	{
-		return retrievalConfiguration;
-	}
-	
-	public void setRetrievalConfiguration(String retrievalJsonConfiguration)
-	{
-		this.retrievalConfiguration = retrievalJsonConfiguration;
-	}
-	
 	public String getVerificatorConfiguration()
 	{
 		return verificatorConfiguration;
@@ -100,24 +91,13 @@ public class AuthenticatorInstance implements NamedObject
 	{
 		this.revision = revision;
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		result = prime * result + ((localCredentialName == null) ? 0
-				: localCredentialName.hashCode());
-		result = prime * result + ((retrievalConfiguration == null) ? 0
-				: retrievalConfiguration.hashCode());
-		result = prime * result
-				+ ((typeDescription == null) ? 0 : typeDescription.hashCode());
-		result = prime * result + ((verificatorConfiguration == null) ? 0
-				: verificatorConfiguration.hashCode());
-		result = prime * result + (int) (revision ^ (revision >>> 32));
-		return result;
+		return Objects.hash(id, localCredentialName, revision, typeDescription, verificatorConfiguration);
 	}
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -128,39 +108,8 @@ public class AuthenticatorInstance implements NamedObject
 		if (getClass() != obj.getClass())
 			return false;
 		AuthenticatorInstance other = (AuthenticatorInstance) obj;
-		if (id == null)
-		{
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		if (localCredentialName == null)
-		{
-			if (other.localCredentialName != null)
-				return false;
-		} else if (!localCredentialName.equals(other.localCredentialName))
-			return false;
-		if (retrievalConfiguration == null)
-		{
-			if (other.retrievalConfiguration != null)
-				return false;
-		} else if (!retrievalConfiguration.equals(other.retrievalConfiguration))
-			return false;
-		if (typeDescription == null)
-		{
-			if (other.typeDescription != null)
-				return false;
-		} else if (!typeDescription.equals(other.typeDescription))
-			return false;
-		if (verificatorConfiguration == null)
-		{
-			if (other.verificatorConfiguration != null)
-				return false;
-		} else if (!verificatorConfiguration.equals(other.verificatorConfiguration))
-			return false;
-		if (revision != other.revision)
-			return false;
-		
-		return true;
+		return Objects.equals(id, other.id) && Objects.equals(localCredentialName, other.localCredentialName)
+				&& revision == other.revision && Objects.equals(typeDescription, other.typeDescription)
+				&& Objects.equals(verificatorConfiguration, other.verificatorConfiguration);
 	}
 }

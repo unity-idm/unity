@@ -21,11 +21,11 @@ import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -87,9 +87,7 @@ public class EndpointTest extends AbstractNamedWithTSTest<Endpoint>
 	public void authenticatorRemovalIsBlockedByEndpoint()
 	{
 		tx.runInTransaction(() -> {
-			AuthenticatorInstance ret = new AuthenticatorInstance();
-			ret.setId("pa2");
-			ret.setVerificatorConfiguration("vCfg");
+			AuthenticatorConfiguration ret = new AuthenticatorConfiguration("pa2", "", "", "", 1);
 			authnDB.create(ret);
 			
 			Endpoint obj = getObject("name1");

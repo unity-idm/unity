@@ -5,9 +5,7 @@
 package pl.edu.icm.unity.saml.idp.web;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +32,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 
 	public SamlIdPWebEndpointFactory()
 	{
-		Set<String> supportedAuthn = new HashSet<String>();
-		supportedAuthn.add(VaadinAuthentication.NAME);
-		Map<String,String> paths = new HashMap<String, String>();
+		Map<String,String> paths = new HashMap<>();
 		paths.put(SamlAuthVaadinEndpoint.SAML_ENTRY_SERVLET_PATH, 
 				"SAML 2 identity provider web endpoint");
 		paths.put(SamlAuthVaadinEndpoint.SAML_META_SERVLET_PATH, 
@@ -46,7 +42,7 @@ public class SamlIdPWebEndpointFactory implements EndpointFactory
 		paths.put(SamlAuthVaadinEndpoint.SAML_SLO_SOAP_SERVLET_PATH, 
 				"Single Logout web endpoint (supports SOAP binding)");
 		description = new EndpointTypeDescription(NAME, 
-				"SAML 2 identity provider web endpoint", supportedAuthn, paths);
+				"SAML 2 identity provider web endpoint", VaadinAuthentication.NAME, paths);
 	}
 	
 	@Override

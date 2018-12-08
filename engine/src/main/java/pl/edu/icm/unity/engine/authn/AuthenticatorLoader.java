@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +19,19 @@ import com.google.common.collect.Sets;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
@@ -58,10 +63,10 @@ public class AuthenticatorLoader
 		this.authenticationFlowDB = authenticationFlowDB;
 	}
 	
-	public List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions)
+	public List<AuthenticationFlow> resolveAndGetAuthenticationFlows(List<String> authnOptions, String binding)
 	{
 		Map<String, AuthenticationFlowDefinition> allFlows = authenticationFlowDB.getAllAsMap();
-		Map<String, AuthenticatorInstance> allAuthenticators = authenticatorDB.getAllAsMap();
+		Map<String, AuthenticatorConfiguration> allAuthenticators = authenticatorDB.getAllAsMap();
 
 		List<AuthenticationFlowDefinition> defs = new ArrayList<>();
 
@@ -70,25 +75,25 @@ public class AuthenticatorLoader
 			AuthenticationFlowDefinition def = allFlows.get(authOption);
 			if (def == null)
 			{
-				AuthenticatorInstance authenticator = allAuthenticators.get(authOption);
+				AuthenticatorConfiguration authenticator = allAuthenticators.get(authOption);
 				def = createAdHocAuthenticatorWrappingFlow(authOption, authenticator);
 			}
 			defs.add(def);
 		}
-		return getAuthenticationFlows(defs);
+		return getAuthenticationFlows(defs, binding);
 
 	}
 	
-	List<AuthenticationFlow> getAuthenticationFlows(List<AuthenticationFlowDefinition> authnFlows)
+	List<AuthenticationFlow> getAuthenticationFlows(List<AuthenticationFlowDefinition> authnFlows, String binding)
 	{
 		List<AuthenticationFlow> ret = new ArrayList<>(authnFlows.size());
 
 		for (AuthenticationFlowDefinition authenticationFlowDefinition : authnFlows)
 		{
 			List<Authenticator> firstFactorAuthImpl = getAuthenticators(
-					authenticationFlowDefinition.getFirstFactorAuthenticators());
+					authenticationFlowDefinition.getFirstFactorAuthenticators(), binding);
 			List<Authenticator> secondFactorFactorAuthImpl = getAuthenticators(
-					authenticationFlowDefinition.getSecondFactorAuthenticators());
+					authenticationFlowDefinition.getSecondFactorAuthenticators(), binding);
 			
 			ret.add(new AuthenticationFlow(authenticationFlowDefinition.getName(),
 					authenticationFlowDefinition.getPolicy(),
@@ -98,21 +103,37 @@ public class AuthenticatorLoader
 		return ret;
 	}
 	
-	AuthenticatorImpl getAuthenticator(String id) 
+	AuthenticatorImpl getAuthenticator(String id, String binding) 
 	{
-		AuthenticatorInstance authnInstance = authenticatorDB.get(id);
-		AuthenticatorImpl ret = getAuthenticatorNoCheck(authnInstance);
-		return ret;
+		AuthenticatorConfiguration authnConfig = authenticatorDB.get(id);
+		return getAuthenticatorNoCheck(authnConfig, binding);
+	}
+	
+	/**
+	 * Checks if configuration is valid for corresponding verificator and all available retrievals
+	 */
+	void verifyConfiguration(String typeId, String config)
+	{
+		CredentialVerificatorFactory verificatorFact = authReg.getCredentialVerificatorFactory(typeId);
+		CredentialVerificator verificator = verificatorFact.newInstance();
+		verificator.setSerializedConfiguration(config);
+		
+		Set<CredentialRetrievalFactory> supportedRetrievals = authReg.getSupportedRetrievals(typeId);
+		for (CredentialRetrievalFactory retrievalFact: supportedRetrievals)
+		{
+			CredentialRetrieval newInstance = retrievalFact.newInstance();
+			newInstance.setSerializedConfiguration(config);
+		}
 	}
 	
 	private AuthenticationFlowDefinition createAdHocAuthenticatorWrappingFlow(String authOption,
-			AuthenticatorInstance authenticator)
+			AuthenticatorConfiguration authenticator)
 	{
 		if (authenticator != null)
 		{
 			return new AuthenticationFlowDefinition(
-					authenticator.getId(), Policy.NEVER,
-					Sets.newHashSet(authenticator.getId()));
+					authenticator.getName(), Policy.NEVER,
+					Sets.newHashSet(authenticator.getName()));
 		} else
 		{
 			throw new IllegalArgumentException(
@@ -122,9 +143,9 @@ public class AuthenticatorLoader
 		}
 	}
 	
-	private AuthenticatorImpl getAuthenticatorNoCheck(AuthenticatorInstance authnInstance)
+	private AuthenticatorImpl getAuthenticatorNoCheck(AuthenticatorConfiguration authnConfiguration, String binding)
 	{
-		String localCredential = authnInstance.getLocalCredentialName();
+		String localCredential = authnConfiguration.getLocalCredentialName();
 
 		if (localCredential != null)
 		{
@@ -133,18 +154,18 @@ public class AuthenticatorLoader
 			String localCredentialConfig = credential.getCredentialDefinition()
 					.getConfiguration();
 			return new AuthenticatorImpl(identityResolver, authReg,
-					authnInstance.getId(), authnInstance,
-					localCredentialConfig);
+					authnConfiguration.getName(), authnConfiguration,
+					localCredentialConfig, binding);
 		} else
 			return new AuthenticatorImpl(identityResolver, authReg,
-					authnInstance.getId(), authnInstance);
+					authnConfiguration.getName(), authnConfiguration, binding);
 	}
 	
 	
-	private List<Authenticator> getAuthenticators(Collection<String> ids)
+	private List<Authenticator> getAuthenticators(Collection<String> ids, String binding)
 	{
 		return ids.stream()
-				.map(this::getAuthenticator)
+				.map(id -> getAuthenticator(id, binding))
 				.collect(Collectors.toList());
 	}
 }

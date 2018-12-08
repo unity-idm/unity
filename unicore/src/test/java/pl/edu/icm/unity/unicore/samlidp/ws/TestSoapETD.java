@@ -177,6 +177,6 @@ public class TestSoapETD extends DBIntegrationTestBase
 		CredentialRequirements cr3 = new CredentialRequirements("cr-cert", "", creds);
 		credReqMan.addCredentialRequirement(cr3);
 		
-		authnMan.createAuthenticator("Acert", "certificate with cxf-certificate", null, "", "credential2");
+		authnMan.createAuthenticator("Acert", "certificate", "", "credential2");
 	}
 }

@@ -142,13 +142,10 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		{
 			setupPasswordAuthn();
 			
-			authnMan.createAuthenticator("a-rp", "oauth-rp with rest-oauth-bearer", OAUTH_RP_CFG, 
-					"", null);
-			authnMan.createAuthenticator("a-rp-int", "oauth-rp with rest-oauth-bearer", 
-					OAUTH_RP_CFG_INTERNAL, "", null);
-			authnMan.createAuthenticator("a-rp-mitre", "oauth-rp with rest-oauth-bearer", 
-					OAUTH_RP_CFG_MITRE, "", null);
-			authnMan.createAuthenticator("Apass", "password with rest-httpbasic", null, "", "credential1");
+			authnMan.createAuthenticator("a-rp", "oauth-rp", OAUTH_RP_CFG, null);
+			authnMan.createAuthenticator("a-rp-int", "oauth-rp", OAUTH_RP_CFG_INTERNAL, null);
+			authnMan.createAuthenticator("a-rp-mitre", "oauth-rp", OAUTH_RP_CFG_MITRE, null);
+			authnMan.createAuthenticator("Apass", "password", null, "credential1");
 			
 			idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), 
 					"cr-pass", EntityState.valid, false);

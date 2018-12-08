@@ -44,7 +44,7 @@ public class JWTManagementEndpoint extends RESTEndpoint
 			NAME, "A RESTful endpoint allowing for management of tokens (issuing, refreshing) "
 					+ "which are subsequently used to authenticate to Unity by "
 					+ "non-browser clients in a simple way.", 
-			Collections.singleton(JAXRSAuthentication.NAME),
+			JAXRSAuthentication.NAME,
 			Collections.singletonMap("", "The REST management base path"));
 
 	private TokensManagement tokensMan;

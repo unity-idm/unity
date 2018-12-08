@@ -133,7 +133,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		
 		try
 		{
-			return authenticatorSupport.getAuthenticatorUIs(flows);
+			return authenticatorSupport.getAuthenticatorUIs(flows, VaadinAuthentication.NAME);
 		} catch (EngineException e)
 		{
 			throw new IllegalStateException("Can not initialize sandbox UI", e);

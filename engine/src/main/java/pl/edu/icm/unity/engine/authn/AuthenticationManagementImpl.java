@@ -5,19 +5,17 @@
 package pl.edu.icm.unity.engine.authn;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
-import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
@@ -26,17 +24,18 @@ import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
+import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
  * Authentication management implementation.
+ * FIXME rename
  * @author K. Benedyczak
  */
 @Component
@@ -49,21 +48,21 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 	private AuthenticatorInstanceDB authenticatorDB;
 	private AuthenticationFlowDB authenticationFlowDB;
 	private CredentialRepository credentialRepository;
-	private IdentityResolver identityResolver;
 	private EndpointsUpdater endpointsUpdater;
 	private AuthenticatorLoader authenticatorLoader;
 	private AuthorizationManager authz;
 	private TransactionalRunner tx;
 	
 	@Autowired
-	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, TransactionalRunner tx,
+	public AuthenticationManagementImpl(AuthenticatorsRegistry authReg, 
+			TransactionalRunner tx,
 			AuthenticatorInstanceDB authenticatorDB,
 			AuthenticationFlowDB authenticationFlowDB,
 			CredentialRepository credentialRepository,
-			IdentityResolver identityResolver, 
-			EndpointsUpdater endpointsUpdater, AuthenticatorLoader authenticatorLoader,
-			AttributeTypeDAO dbAttributes, AuthorizationManager authz, 
-			LocalCredentialsRegistry localCredReg, UnityMessageSource msg)
+			EndpointsUpdater endpointsUpdater, 
+			AuthenticatorLoader authenticatorLoader,
+			AuthorizationManager authz, 
+			LocalCredentialsRegistry localCredReg)
 	{
 		this.authReg = authReg;
 		this.tx = tx;
@@ -71,17 +70,14 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		this.authenticatorDB = authenticatorDB;
 		this.authenticationFlowDB = authenticationFlowDB;
 		this.credentialRepository = credentialRepository;
-		this.identityResolver = identityResolver;
 		this.endpointsUpdater = endpointsUpdater;
 		this.authenticatorLoader = authenticatorLoader;
 		this.authz = authz;
 	}
 
 
-
-	@Override
-	public Collection<AuthenticatorTypeDescription> getAuthenticatorTypes(String bindingId)
-			throws EngineException
+	//TODO remove
+	public Collection<AuthenticatorTypeDescription> getAuthenticatorTypes(String bindingId) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		if (bindingId == null)
@@ -91,8 +87,8 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 
 	@Override
 	@Transactional
-	public AuthenticatorInstance createAuthenticator(String id, String typeId, String jsonVerificatorConfig,
-			String jsonRetrievalConfig, String credentialName) throws EngineException
+	public AuthenticatorInfo createAuthenticator(String id, String typeId, String configuration,
+			String credentialName) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		
@@ -102,71 +98,47 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 					"Can not add authenticator " + id
 							+ ", authentication flow with the same name exists");
 		}
-		Authenticator authenticator;
-		if (credentialName != null)
-		{
-			CredentialDefinition credentialDef = credentialRepository.get(credentialName);
-			CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
-			String credentialConfiguration = credential.getCredentialDefinition().getConfiguration();
-			authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
-					jsonRetrievalConfig, credentialName, credentialConfiguration, 0);
-
-			verifyIfLocalCredentialMatchesVerificator(authenticator, credential, 
-					credentialName);
-		} else
-		{
-			authenticator = new AuthenticatorImpl(identityResolver, authReg, id, typeId, 
-					jsonRetrievalConfig, jsonVerificatorConfig, 0);
-		}
-		authenticatorDB.create(authenticator.getAuthenticatorInstance());
-		return authenticator.getAuthenticatorInstance();
+		verifyConfiguration(typeId, configuration, credentialName);
+		
+		AuthenticatorConfiguration persistedAuthenticator = new AuthenticatorConfiguration(
+				id, typeId, configuration, credentialName, 0);
+		authenticatorDB.create(persistedAuthenticator);
+		return getExposedAuthenticatorInfo(persistedAuthenticator);
 	}
 
 	@Override
-	public Collection<AuthenticatorInstance> getAuthenticators(String bindingId)
+	public Collection<AuthenticatorInfo> getAuthenticators(String bindingId)
 			throws EngineException
 	{
-		List<AuthenticatorInstance> ret = tx.runInTransactionRetThrowing(() -> {
+		List<AuthenticatorConfiguration> persisted = tx.runInTransactionRetThrowing(() -> 
+		{
 			authz.checkAuthorization(AuthzCapability.maintenance);
 			return authenticatorDB.getAll();
 		});
 		
-		if (bindingId != null)
-		{
-			for (Iterator<AuthenticatorInstance> iter = ret.iterator(); iter.hasNext();)
-			{
-				AuthenticatorInstance authnInstance = iter.next();
-				if (!bindingId.equals(authnInstance.getTypeDescription().getSupportedBinding()))
-				{
-					iter.remove();
-				}
-			}
-		}
-		return ret;
+		return persisted.stream()
+				.map(persistedA -> getExposedAuthenticatorInfo(persistedA))
+				.filter(authnInfo -> (bindingId == null || authnInfo.getSupportedBindings().contains(bindingId)))
+				.collect(Collectors.toList());
 	}
 
 	@Override
-	public void updateAuthenticator(String id, String verificatorConfig,
-			String jsonRetrievalConfig, String localCredential) throws EngineException
+	public void updateAuthenticator(String id, String config, String localCredential) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		
-		tx.runInTransactionThrowing(() -> {
-			AuthenticatorImpl current = authenticatorLoader.getAuthenticator(id);
-			String verificatorConfigCopy = verificatorConfig;
-			if (localCredential != null)
-			{
-				CredentialDefinition credentialDef = credentialRepository.get(localCredential);
-				CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
-				verificatorConfigCopy = credential.getCredentialDefinition().getConfiguration();
-				verifyIfLocalCredentialMatchesVerificator(current, credential, 
-						localCredential);
-			}
+		tx.runInTransactionThrowing(() -> 
+		{
+			verifyConfiguration(id, config, localCredential);
 			
-			current.updateConfiguration(jsonRetrievalConfig, verificatorConfigCopy, localCredential);
-			AuthenticatorInstance currentInstance = authenticatorDB.get(id);
-			current.setRevision(currentInstance.getRevision() + 1);		
-			authenticatorDB.update(current.getAuthenticatorInstance());
+			AuthenticatorConfiguration currentConfiguration = authenticatorDB.get(id);
+			AuthenticatorConfiguration updatedConfiguration = new AuthenticatorConfiguration(
+					currentConfiguration.getName(), 
+					currentConfiguration.getVerificationMethod(), 
+					config, 
+					localCredential, 
+					currentConfiguration.getRevision() + 1);
+			authenticatorDB.update(updatedConfiguration);
 		});
 		endpointsUpdater.updateManual();
 	}
@@ -179,12 +151,37 @@ public class AuthenticationManagementImpl implements AuthenticatorManagement
 		authenticatorDB.delete(id);
 	}
 	
-	private void verifyIfLocalCredentialMatchesVerificator(Authenticator authenticator,
-			CredentialHolder credential, String requestedLocalCredential) throws IllegalCredentialException
+	private AuthenticatorInfo getExposedAuthenticatorInfo(AuthenticatorConfiguration persistedAuthenticator)
 	{
-		String verificationMethod = authenticator.getAuthenticatorInstance().
-				getTypeDescription().getVerificationMethod();
-		if (!credential.getCredentialDefinition().getTypeId().equals(verificationMethod))
+		return new AuthenticatorInfo(persistedAuthenticator.getName(), 
+				authReg.getAuthenticatorsById(persistedAuthenticator.getName()), 
+				persistedAuthenticator.getConfiguration(), 
+				Optional.ofNullable(persistedAuthenticator.getLocalCredentialName()), 
+				authReg.getSupportedBindings(persistedAuthenticator.getName()));
+	}
+	
+	private void verifyConfiguration(String typeId, String config, String localCredential) throws IllegalCredentialException
+	{
+		AuthenticatorTypeDescription typeDescription = authReg.getAuthenticatorsById(typeId);
+		if (typeDescription == null)
+			throw new IllegalArgumentException("Can not add authenticator of unknown type " + typeId);
+		String effectiveConfig = config;
+		if (localCredential != null)
+		{
+			CredentialDefinition credentialDef = credentialRepository.get(localCredential);
+			CredentialHolder credential = new CredentialHolder(credentialDef, localCredReg);
+			effectiveConfig = credential.getCredentialDefinition().getConfiguration();
+			verifyIfLocalCredentialMatchesVerificator(typeDescription, credentialDef, localCredential);
+		}
+		
+		authenticatorLoader.verifyConfiguration(typeId, effectiveConfig);
+	}
+	
+	private void verifyIfLocalCredentialMatchesVerificator(AuthenticatorTypeDescription authenticator,
+			CredentialDefinition credentialDef, String requestedLocalCredential) throws IllegalCredentialException
+	{
+		String verificationMethod = authenticator.getVerificationMethod();
+		if (!credentialDef.getTypeId().equals(verificationMethod))
 			throw new IllegalCredentialException("The local credential " + requestedLocalCredential + 
 					"is of different type then the credential suported by the " +
 					"authenticator, which is " + verificationMethod);

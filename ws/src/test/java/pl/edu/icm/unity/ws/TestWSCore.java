@@ -307,10 +307,8 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
-		authnMan.createAuthenticator(AUTHENTICATOR_WS_CERT, "certificate with cxf-certificate", 
-				null, "", "credential2");
-		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password with cxf-httpbasic", 
-				null, "", "credential1");
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_CERT, "certificate", "", "credential2");
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password", "", "credential1");
 		
 		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				AUTHENTICATION_FLOW, Policy.NEVER,

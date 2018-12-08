@@ -55,7 +55,7 @@ public class TestJWTAuthentication extends TestRESTBase
 				10, 100, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
-		authnMan.createAuthenticator("Ajwt", "jwt with rest-jwt", JWT_CONFIG, null, null);
+		authnMan.createAuthenticator("Ajwt", "jwt", JWT_CONFIG, null);
 		
 		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
 				"flow1", Policy.NEVER,

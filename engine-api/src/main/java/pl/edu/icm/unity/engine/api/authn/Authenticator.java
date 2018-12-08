@@ -27,12 +27,8 @@ public interface Authenticator
 	 * Updates the current configuration of the authenticator. For local
 	 * verificators the verificator configuration is only set for the
 	 * underlying verificator, it is not exposed in the instanceDescription.
-	 * 
-	 * @param rConfiguration
-	 * @param vConfiguration
 	 */
-	void updateConfiguration(String rConfiguration, String vConfiguration,
-			String localCredential);
+	void updateConfiguration(String vConfiguration, String localCredential);
 
 	/**
 	 * Get authenticator retrieval

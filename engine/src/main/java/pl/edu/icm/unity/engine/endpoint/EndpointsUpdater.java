@@ -25,8 +25,8 @@ import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 
@@ -144,11 +144,11 @@ public class EndpointsUpdater extends ScheduledUpdaterBase
 			}
 		}
 
-		Map<String, AuthenticatorInstance> allAuth = authnDB.getAllAsMap();
+		Map<String, AuthenticatorConfiguration> allAuth = authnDB.getAllAsMap();
 
 		for (String authn : revisionMap.keySet())
 		{
-			AuthenticatorInstance authInstance = allAuth.get(authn);
+			AuthenticatorConfiguration authInstance = allAuth.get(authn);
 			if (authInstance != null)
 			{
 				if (authInstance.getRevision() > revisionMap.get(authn))

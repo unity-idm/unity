@@ -5,9 +5,7 @@
 package pl.edu.icm.unity.webadmin;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -44,12 +42,10 @@ public class WebAdminEndpointFactory implements EndpointFactory
 		this.server = server;
 		this.msg = msg;
 		
-		Set<String> supportedAuthn = new HashSet<String>();
-		supportedAuthn.add(VaadinAuthentication.NAME);
-		Map<String,String> paths=new HashMap<String, String>();
+		Map<String,String> paths=new HashMap<>();
 		paths.put(SERVLET_PATH,"Web admin endpoint");
 		description = new EndpointTypeDescription(NAME, 
-				"Web administrative user interface", supportedAuthn,paths);
+				"Web administrative user interface", VaadinAuthentication.NAME, paths);
 	}
 	
 	@Override

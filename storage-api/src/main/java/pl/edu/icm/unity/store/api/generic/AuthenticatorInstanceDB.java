@@ -4,12 +4,12 @@
  */
 package pl.edu.icm.unity.store.api.generic;
 
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 
 /**
- * Easy access to {@link AuthenticatorInstance} storage.
+ * Easy access to {@link AuthenticatorConfiguration} storage.
  * @author K. Benedyczak
  */
-public interface AuthenticatorInstanceDB extends NamedCRUDDAOWithTS<AuthenticatorInstance>
+public interface AuthenticatorInstanceDB extends NamedCRUDDAOWithTS<AuthenticatorConfiguration>
 {
 }

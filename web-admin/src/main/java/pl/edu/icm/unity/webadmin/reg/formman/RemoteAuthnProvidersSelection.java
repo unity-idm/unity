@@ -42,7 +42,8 @@ public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<Authenticat
 	{
 		List<AuthenticationFlowDefinition> definitions = authenticatorSupport.resolveAllRemoteAuthenticatorFlows(
 				VaadinAuthentication.NAME);
-		List<AuthenticationFlow> authenticators = authenticatorSupport.getAuthenticatorUIs(definitions);
+		List<AuthenticationFlow> authenticators = authenticatorSupport.getAuthenticatorUIs(definitions, 
+				VaadinAuthentication.NAME);
 		
 		List<AuthenticationOptionKey> authnOptions = Lists.newArrayList();
 		for (AuthenticationFlow authenticatorFlow : authenticators)

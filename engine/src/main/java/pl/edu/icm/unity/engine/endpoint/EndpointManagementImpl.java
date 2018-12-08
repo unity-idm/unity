@@ -8,12 +8,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
@@ -120,7 +121,7 @@ public class EndpointManagementImpl implements EndpointManagement
 			endpointInstance = endpointInstanceLoader.createEndpointInstance(endpoint);
 
 			verifyAuthenticators(endpointInstance.getAuthenticationFlows(), 
-					factory.getDescription().getSupportedBindings());
+					factory.getDescription().getSupportedBinding());
 			
 			endpointDB.create(endpoint);
 		} catch (Exception e)
@@ -158,11 +159,10 @@ public class EndpointManagementImpl implements EndpointManagement
 		}
 	}
 	
-	private void verifyAuthenticators(List<AuthenticationFlow> authenticators,
-			Set<String> supported) throws WrongArgumentException
+	private void verifyAuthenticators(List<AuthenticationFlow> authenticators, String supported) throws WrongArgumentException
 	{
 		for (AuthenticationFlow auths: authenticators)
-			auths.checkIfAuthenticatorsAreAmongSupported(supported);
+			auths.checkIfAuthenticatorsAreAmongSupported(Sets.newHashSet(supported));
 	}
 
 	@Override

@@ -7,15 +7,16 @@ package pl.edu.icm.unity.engine.authn;
 
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
+
+import com.google.common.collect.Sets;
+import com.google.common.collect.Sets.SetView;
 
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -29,16 +30,13 @@ import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 
 /**
  * Authentication flow management implementation.
  * @author P.Piernik
- *
  */
-
 @Component
 @Primary
 @InvocationEventProducer
@@ -78,8 +76,6 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 		
 		assertIfAuthenticatorsExists(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
-		assertAuthenticatorsHaveTheSameBinding(authFlowdef.getAllAuthenticators(),
-				authFlowdef.getName());
 		authFlowdef.setRevision(0);
 		authnFlowDB.create(authFlowdef);	
 	}
@@ -106,49 +102,21 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		assertIfAuthenticatorsExists(authFlowdef.getAllAuthenticators(),
 				authFlowdef.getName());
-		assertAuthenticatorsHaveTheSameBinding(authFlowdef.getAllAuthenticators(),
-				authFlowdef.getName());
 		
 		AuthenticationFlowDefinition current = authnFlowDB.get(authFlowdef.getName());
 		authFlowdef.setRevision(current.getRevision() + 1);	
 		authnFlowDB.update(authFlowdef);	
 	}
 	
-	private void assertAuthenticatorsHaveTheSameBinding(Collection<String> toCheck, String flowName)
-	{
-		Map<String, AuthenticatorInstance> all = authenticatorDB.getAllAsMap();
-		HashSet<String> bindings = new HashSet<>();
-		
-		
-		for (String authName : toCheck)
-		{
-			bindings.add(all.get(authName).getTypeDescription().getSupportedBinding());
-		}
-	
-		if (bindings.size() > 1)
-		{	throw new IllegalArgumentException(
-					"Can not add authentication flow " + flowName
-							+ ", authenticators have different bindings");
-		}
-	
-	}
-	
-	private void assertIfAuthenticatorsExists(Collection<String> toCheck, String flowName)
+	private void assertIfAuthenticatorsExists(Set<String> toCheck, String flowName)
 			throws EngineException
 	{
-		List<AuthenticatorInstance> all = authenticatorDB.getAll();
-		List<String> allIds = all.stream().map(a -> a.getId()).collect(Collectors.toList());
-		for (String toCheckId : toCheck)
-		{
-			if (!allIds.contains(toCheckId))
-			{
-				throw new IllegalArgumentException(
-						"Can not add authentication flow " + flowName
-								+ ", authenticator " + toCheckId
-								+ " is undefined");
-			}
-		}
-
+		Set<String> existing = authenticatorDB.getAllNames();
+		SetView<String> difference = Sets.difference(toCheck, existing);
+		if (!difference.isEmpty())
+			throw new IllegalArgumentException(
+					"Can not add authentication flow " + flowName
+					+ ", containing undefined authenticator(s) " + difference);
 	}
 
 	@Override
@@ -177,7 +145,6 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 	@Override
 	public void setUserMFAOptIn(long entityId, boolean value) throws EngineException
 	{
-
 		if (value == false)
 		{
 			if (getUserOptinInternal(entityId).isPresent())
