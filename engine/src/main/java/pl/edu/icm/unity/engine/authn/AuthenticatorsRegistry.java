@@ -112,6 +112,8 @@ public class AuthenticatorsRegistry
 	public Set<CredentialRetrievalFactory> getSupportedRetrievals(String verificatorId)
 	{
 		CredentialVerificatorFactory verificatorFactory = credentialVerificatorFactories.get(verificatorId);
+		if (verificatorFactory == null)
+			throw new IllegalArgumentException("Unknown verificator: " + verificatorId);
 		CredentialVerificator verificator = verificatorFactory.newInstance();
 		Set<CredentialRetrievalFactory> supported = new HashSet<>();
 		for (CredentialRetrievalFactory retrieval: credentialRetrievalFactories.values())

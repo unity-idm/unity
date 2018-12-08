@@ -131,32 +131,13 @@ public class TestAuthentication extends DBIntegrationTestBase
 	}
 	
 	
-	@Test(expected = IllegalArgumentException.class)
-	public void shouldThrowExceptionWhenAddAuthFlowWithDiffrentBindingAuthenticator()
-			throws Exception
-	{
-		super.setupMockAuthn();
-		Collection<AuthenticatorTypeDescription> authenticatorTypes1 = authenticatorsReg.getAuthenticatorTypesByBinding("web");
-		Collection<AuthenticatorTypeDescription> authenticatorTypes2 = authenticatorsReg.getAuthenticatorTypesByBinding("web2");
-		
-		authnMan.createAuthenticator(
-				"auth0", authenticatorTypes1.iterator().next().getVerificationMethod(), "aaa", "credential1");
-		
-		authnMan.createAuthenticator(
-				"auth1", authenticatorTypes2.iterator().next().getVerificationMethod(), "bbb", "credential1");
-		
-		
-		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
-				"flow1", Policy.NEVER, Sets.newHashSet("auth0","auth1")));
-	}
-
 	@Test
 	public void shouldReturnAllAuthnTypes() throws Exception
 	{
 		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
 		assertEquals(1, authTypes.size());
 		authTypes = authenticatorsReg.getAuthenticatorTypes();
-		assertEquals(2, authTypes.size());
+		assertEquals(1, authTypes.size());
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		assertEquals(true, authType.isLocal());
 		assertEquals(MockPasswordVerificatorFactory.ID, authType.getVerificationMethod());

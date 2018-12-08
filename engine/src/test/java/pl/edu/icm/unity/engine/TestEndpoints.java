@@ -19,8 +19,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.authn.AuthenticatorManagementImpl;
 import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -37,7 +37,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	private static final String REALM_NAME = "testr";
 	
 	@Autowired
-	private AuthenticatorManagementImpl authnMan;
+	private AuthenticatorManagement authnMan;
 	@Autowired
 	private AuthenticatorsRegistry authenticatorsReg;
 	

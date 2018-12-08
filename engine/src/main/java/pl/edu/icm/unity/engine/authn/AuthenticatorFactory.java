@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.authn;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
  * a local credential name and its configuration must be provided.
  * </ul>
  */
+@Component
 class AuthenticatorFactory
 {
 	private AuthenticatorsRegistry authRegistry;

@@ -51,7 +51,7 @@ class EndpointInstanceLoader
 		
 		String endpointConfig = src.getConfiguration().getConfiguration();
 		List<AuthenticationFlow> authenticationFlows = authnLoader.resolveAuthenticationFlows(
-				authnOptions, instance.getEndpointDescription().getType().getSupportedBinding());
+				authnOptions, factory.getDescription().getSupportedBinding());
 		ResolvedEndpoint fullInfo = resolveEndpoint(src);
 		
 		instance.initialize(fullInfo, authenticationFlows, endpointConfig);

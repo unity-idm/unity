@@ -117,9 +117,9 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 		
 		tx.runInTransactionThrowing(() -> 
 		{
-			verifyConfiguration(id, config, localCredential);
-			
 			AuthenticatorConfiguration currentConfiguration = authenticatorDB.get(id);
+			verifyConfiguration(currentConfiguration.getVerificationMethod(), config, localCredential);
+			
 			AuthenticatorConfiguration updatedConfiguration = new AuthenticatorConfiguration(
 					currentConfiguration.getName(), 
 					currentConfiguration.getVerificationMethod(), 
@@ -145,7 +145,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 				authReg.getAuthenticatorTypeById(persistedAuthenticator.getName()), 
 				persistedAuthenticator.getConfiguration(), 
 				Optional.ofNullable(persistedAuthenticator.getLocalCredentialName()), 
-				authReg.getSupportedBindings(persistedAuthenticator.getName()));
+				authReg.getSupportedBindings(persistedAuthenticator.getVerificationMethod()));
 	}
 	
 	private void verifyConfiguration(String typeId, String config, String localCredential) throws IllegalCredentialException

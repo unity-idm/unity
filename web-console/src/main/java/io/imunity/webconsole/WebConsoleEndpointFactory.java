@@ -7,9 +7,7 @@
 package io.imunity.webconsole;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -47,12 +45,10 @@ public class WebConsoleEndpointFactory implements EndpointFactory
 		this.server = server;
 		this.msg = msg;
 		
-		Set<String> supportedAuthn = new HashSet<>();
-		supportedAuthn.add(VaadinAuthentication.NAME);
 		Map<String,String> paths=new HashMap<>();
 		paths.put(SERVLET_PATH,"Web console endpoint");
 		description = new EndpointTypeDescription(NAME, 
-				"Web administrative console user interface", supportedAuthn,paths);
+				"Web administrative console user interface", VaadinAuthentication.NAME, paths);
 	}
 	
 	@Override
