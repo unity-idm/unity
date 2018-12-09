@@ -140,7 +140,7 @@ public class AuthenticatorsRegistry
 		return authenticatorsById.get(id);
 	}
 
-	Set<AuthenticatorTypeDescription> getAuthenticatorTypesByBinding(String binding)
+	public Set<AuthenticatorTypeDescription> getAuthenticatorTypesByBinding(String binding)
 	{
 		return authenticatorsByBinding.get(binding);
 	}

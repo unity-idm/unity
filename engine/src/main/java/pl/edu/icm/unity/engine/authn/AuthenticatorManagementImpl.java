@@ -142,7 +142,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 	private AuthenticatorInfo getExposedAuthenticatorInfo(AuthenticatorConfiguration persistedAuthenticator)
 	{
 		return new AuthenticatorInfo(persistedAuthenticator.getName(), 
-				authReg.getAuthenticatorTypeById(persistedAuthenticator.getName()), 
+				authReg.getAuthenticatorTypeById(persistedAuthenticator.getVerificationMethod()), 
 				persistedAuthenticator.getConfiguration(), 
 				Optional.ofNullable(persistedAuthenticator.getLocalCredentialName()), 
 				authReg.getSupportedBindings(persistedAuthenticator.getVerificationMethod()));
