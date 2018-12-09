@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
@@ -29,6 +30,7 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 /**
  * See {@link AuthenticatorSupportService}
  */
+@Primary
 @Component
 public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportService
 {
@@ -77,6 +79,7 @@ public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportServ
 
 
 	@Override
+	@Transactional
 	public List<AuthenticatorInstance> getRemoteAuthenticators(String bindingId) throws EngineException
 	{
 		ArrayList<AuthenticatorInstance> ret = new ArrayList<>();

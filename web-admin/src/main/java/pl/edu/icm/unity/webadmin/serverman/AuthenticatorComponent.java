@@ -71,9 +71,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			return;
 		}
 		
-		addFieldToContent(msg.getMessage("Authenticators.type"), authenticator
-				.getTypeDescription().getVerificationMethod());
-		addFieldToContent(msg.getMessage("Authenticators.verificationMethod"),
+		addFieldToContent(msg.getMessage("Authenticators.type"), 
 				authenticator.getTypeDescription().getVerificationMethod());
 		addFieldToContent(msg.getMessage("Authenticators.verificationMethodDescription"),
 				authenticator.getTypeDescription()
@@ -84,8 +82,7 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 		if (cr.isPresent())
 			addFieldToContent(msg.getMessage("Authenticators.localCredential"), cr.get());
 		
-		addConfigPanel(msg.getMessage("Authenticators.verificatorJsonConfiguration"), 
-				authenticator.getConfiguration());
+		addConfigPanel(msg.getMessage("Authenticators.configuration"), authenticator.getConfiguration());
 	}
 	
 	
@@ -268,9 +265,8 @@ public class AuthenticatorComponent extends DeployableComponentViewBase
 			externalizedConfig = vConfigFile == null ? null : serverMan.loadConfigurationFile(vConfigFile);
 		} catch (Exception e)
 		{
-			log.error("Cannot read json file", e);
-			NotificationPopup.showError(msg,
-					msg.getMessage("Authenticators.cannotReadJsonConfig"), e);
+			log.error("Cannot read config file", e);
+			NotificationPopup.showError(msg, msg.getMessage("Authenticators.cannotReadConfig"), e);
 			return null;
 		}	
 		return new AuthenticatorConfig(type, externalizedConfig, credential);
