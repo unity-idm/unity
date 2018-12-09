@@ -5,9 +5,7 @@
 package pl.edu.icm.unity.webui.wellknownurl;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -40,13 +38,11 @@ public class WellKnownURLEndpointFactory implements EndpointFactory
 		this.server = server;
 		this.msg = msg;
 		
-		Set<String> supportedAuthn = new HashSet<String>();
-		supportedAuthn.add(VaadinAuthentication.NAME);
-		Map<String,String> paths=new HashMap<String, String>();
+		Map<String,String> paths = new HashMap<>();
 		paths.put(SecuredWellKnownURLServlet.SERVLET_PATH, "Well known links endpoint");
 		description = new EndpointTypeDescription(NAME, 
 				"Provides access to public links which can be used to access parts of "
-				+ "Unity UIs directly", supportedAuthn, paths);
+				+ "Unity UIs directly", VaadinAuthentication.NAME, paths);
 	}
 	
 	@Override

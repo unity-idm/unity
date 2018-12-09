@@ -20,7 +20,7 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 
@@ -77,14 +77,14 @@ public class AdditionalAuthenticationIntegrationTest extends DBIntegrationTestBa
 
 	private List<AuthenticationFlow> getEndpointFlows()
 	{
-		AuthenticatorInstance authnInstance = mock(AuthenticatorInstance.class);
+		AuthenticatorInstanceMetadata authnInstance = mock(AuthenticatorInstanceMetadata.class);
 		when(authnInstance.getLocalCredentialName()).thenReturn("credential1");
 		when(authnInstance.getId()).thenReturn("authenticator1");
 		CredentialRetrieval retrieval = mock(CredentialRetrieval.class);
 		when(retrieval.requiresRedirect()).thenReturn(false);
 		
-		Authenticator authn = mock(Authenticator.class);
-		when(authn.getAuthenticatorInstance()).thenReturn(authnInstance);
+		AuthenticatorInstance authn = mock(AuthenticatorInstance.class);
+		when(authn.getMetadata()).thenReturn(authnInstance);
 		when(authn.getRetrieval()).thenReturn(retrieval);
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER,
 				Sets.newHashSet(authn), Collections.emptyList(), 1);

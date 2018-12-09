@@ -35,7 +35,7 @@ public class TestAccountAssociation extends SeleniumTestBase
 		driver.switchTo().window(popupH);
 
 		//login to Unity over loopback SAML in the sandbox
-		waitForElement(By.className("u-idpAuthentication-samlWeb-5")).click();
+		waitForElement(By.className("u-idpAuthentication-saml-5")).click();
 		
 		//we don't have to login as both are in the same realm so we are instantly SSO-logged-in
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();

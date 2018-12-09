@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -67,7 +67,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
 	private CredentialRequirementManagement credReqMan;
-	private AuthenticatorSupportManagement authenticatorSupport;
+	private AuthenticatorSupportService authenticatorSupport;
 	private RealmsManagement realmsManagement;
 	
 	private TabSheet tabs;
@@ -102,7 +102,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 			CredentialManagement credMan, RegistrationActionsRegistry actionsRegistry,
 			CredentialRequirementManagement credReqMan,
 			ActionParameterComponentProvider actionComponentFactory,
-			AuthenticatorSupportManagement authenticatorSupport,
+			AuthenticatorSupportService authenticatorSupport,
 			RealmsManagement realmsManagement)
 			throws EngineException
 	{

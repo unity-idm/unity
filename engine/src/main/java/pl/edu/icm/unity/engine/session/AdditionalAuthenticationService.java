@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
@@ -23,7 +23,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 /**
  * Establishes whether a sensitive operation should be protected by a repeated or step-up authentication.
@@ -114,7 +114,7 @@ public class AdditionalAuthenticationService
 
 	private String findOnEndpoint(String authenticatorCandidate)
 	{
-		Optional<Authenticator> endpointAuthenticator = getEndpointAuthenticator(authenticatorCandidate);
+		Optional<AuthenticatorInstance> endpointAuthenticator = getEndpointAuthenticator(authenticatorCandidate);
 		if (!endpointAuthenticator.isPresent())
 			return null;
 		if (isValidForReauthentication(endpointAuthenticator.get()))
@@ -131,11 +131,11 @@ public class AdditionalAuthenticationService
 		List<AuthenticationFlow> authenticationFlows = InvocationContext.getCurrent().getEndpointFlows();
 		for (AuthenticationFlow flow: authenticationFlows)
 		{
-			Set<Authenticator> allAuthenticators = flow.getAllAuthenticators();
-			for (Authenticator auth: allAuthenticators)
+			Set<AuthenticatorInstance> allAuthenticators = flow.getAllAuthenticators();
+			for (AuthenticatorInstance auth: allAuthenticators)
 			{
-				String authId = auth.getAuthenticatorInstance().getId();
-				if (credential.equals(auth.getAuthenticatorInstance().getLocalCredentialName()) &&
+				String authId = auth.getMetadata().getId();
+				if (credential.equals(auth.getMetadata().getLocalCredentialName()) &&
 						isValidForReauthentication(auth))
 					return authId;
 			}
@@ -172,45 +172,45 @@ public class AdditionalAuthenticationService
 		List<AuthenticationFlow> authenticationFlows = InvocationContext.getCurrent().getEndpointFlows();
 		for (AuthenticationFlow flow: authenticationFlows)
 		{
-			List<Authenticator> authenticators = flow.getSecondFactorAuthenticators();
+			List<AuthenticatorInstance> authenticators = flow.getSecondFactorAuthenticators();
 			long entityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
-			Authenticator authenticator = authnProcessor.getValidAuthenticatorForEntity(authenticators, entityId);
+			AuthenticatorInstance authenticator = authnProcessor.getValidAuthenticatorForEntity(authenticators, entityId);
 			if (authenticator != null)
-				return authenticator.getAuthenticatorInstance().getId();
+				return authenticator.getMetadata().getId();
 		}
 		return null;
 	}
 
 	
 	
-	private Optional<Authenticator> getEndpointAuthenticator(String name)
+	private Optional<AuthenticatorInstance> getEndpointAuthenticator(String name)
 	{
 		List<AuthenticationFlow> authenticationFlows = InvocationContext.getCurrent().getEndpointFlows();
 		return authenticationFlows.stream()
 			.flatMap(flow -> flow.getAllAuthenticators().stream())
-			.filter(a -> name.equals(a.getAuthenticatorInstance().getId()))
+			.filter(a -> name.equals(a.getMetadata().getId()))
 			.findAny();
 	}
 
 	private boolean isValidForReauthentication(String authnOption)
 	{
-		Optional<Authenticator> endpointAuthenticator = getEndpointAuthenticator(authnOption);
+		Optional<AuthenticatorInstance> endpointAuthenticator = getEndpointAuthenticator(authnOption);
 		if (!endpointAuthenticator.isPresent())
 			return false;
-		Authenticator authenticator = endpointAuthenticator.get();
+		AuthenticatorInstance authenticator = endpointAuthenticator.get();
 		return isValidForReauthentication(authenticator);
 	}
 	
-	private boolean isValidForReauthentication(Authenticator authenticator)
+	private boolean isValidForReauthentication(AuthenticatorInstance authenticator)
 	{
 		if (authenticator.getRetrieval().requiresRedirect())
 			return false;
-		if (authenticator.getAuthenticatorInstance().getLocalCredentialName() == null)
+		if (authenticator.getMetadata().getLocalCredentialName() == null)
 			return false;
-		return userCanUse(authenticator.getAuthenticatorInstance());
+		return userCanUse(authenticator.getMetadata());
 	}
 	
-	private boolean userCanUse(AuthenticatorInstance authn)
+	private boolean userCanUse(AuthenticatorInstanceMetadata authn)
 	{
 		long entityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
 		return authnProcessor.checkIfUserHasCredential(authn, entityId);

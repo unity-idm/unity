@@ -9,11 +9,9 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
@@ -28,7 +26,7 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
  */
 public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<AuthenticationOptionKey>
 {
-	public RemoteAuthnProvidersSelection(AuthenticatorSupportManagement authenticatorSupport, String leftCaption,
+	public RemoteAuthnProvidersSelection(AuthenticatorSupportService authenticatorSupport, String leftCaption,
 			String rightCaption, String caption, String description) throws EngineException
 	{
 		super(AuthenticationOptionKey::toGlobalKey, true);
@@ -38,25 +36,22 @@ public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<Authenticat
 		init(authenticatorSupport);
 	}
 	
-	private void init(AuthenticatorSupportManagement authenticatorSupport) throws EngineException
+	private void init(AuthenticatorSupportService authenticatorSupport) throws EngineException
 	{
-		List<AuthenticationFlowDefinition> definitions = authenticatorSupport.resolveAllRemoteAuthenticatorFlows(
+		List<AuthenticatorInstance> remoteAuthenticators = authenticatorSupport.getRemoteAuthenticators(
 				VaadinAuthentication.NAME);
-		List<AuthenticationFlow> authenticators = authenticatorSupport.getAuthenticatorUIs(definitions);
 		
 		List<AuthenticationOptionKey> authnOptions = Lists.newArrayList();
-		for (AuthenticationFlow authenticatorFlow : authenticators)
+		for (AuthenticatorInstance authenticator : remoteAuthenticators)
 		{
-			String authenticatorKey = authenticatorFlow.getId();
-			for (Authenticator authenticator : authenticatorFlow.getFirstFactorAuthenticators())
+			VaadinAuthentication vaadinRetrieval = (VaadinAuthentication) authenticator.getRetrieval();
+			Collection<VaadinAuthenticationUI> uiInstances = vaadinRetrieval.createUIInstance(Context.REGISTRATION);
+			for (VaadinAuthenticationUI uiInstance : uiInstances)
 			{
-				VaadinAuthentication vaadinAuthenticator = (VaadinAuthentication) authenticator.getRetrieval();
-				Collection<VaadinAuthenticationUI> instances = vaadinAuthenticator.createUIInstance(Context.REGISTRATION);
-				for (VaadinAuthenticationUI instance : instances)
-				{
-					String optionKey = instance.getId();
-					authnOptions.add(new AuthenticationOptionKey(authenticatorKey, optionKey));
-				}
+				String optionKey = uiInstance.getId();
+				authnOptions.add(new AuthenticationOptionKey(
+						authenticator.getMetadata().getId(), 
+						optionKey));
 			}
 		}
 		setItems(authnOptions);

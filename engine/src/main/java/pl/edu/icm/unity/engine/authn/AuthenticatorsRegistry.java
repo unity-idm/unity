@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.api.authn;
+package pl.edu.icm.unity.engine.authn;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -12,18 +12,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
- * Registry of components which are used to create {@link AuthenticatorInstance}s and local credential handlers.
+ * Registry of components which are used to create authenticators and local credential handlers.
  * 
  * @author K. Benedyczak
  */
@@ -45,11 +49,11 @@ public class AuthenticatorsRegistry
 		List<CredentialRetrievalFactory> retrievalFactories = retrievalFactoriesO.orElseGet(ArrayList::new);
 		List<CredentialVerificatorFactory> verificatorFactories = verificatorFactoriesO.orElseGet(ArrayList::new);
 		
-		authenticatorsByBinding = new HashMap<String, Set<AuthenticatorTypeDescription>>();
-		authenticatorsById = new HashMap<String, AuthenticatorTypeDescription>();
+		authenticatorsByBinding = new HashMap<>();
+		authenticatorsById = new HashMap<>();
 		
-		credentialRetrievalFactories = new HashMap<String, CredentialRetrievalFactory>();
-		credentialVerificatorFactories = new HashMap<String, CredentialVerificatorFactory>();
+		credentialRetrievalFactories = new HashMap<>();
+		credentialVerificatorFactories = new HashMap<>();
 		
 		for (CredentialRetrievalFactory f: retrievalFactories)
 			credentialRetrievalFactories.put(f.getName(), f);
@@ -66,30 +70,61 @@ public class AuthenticatorsRegistry
 				CredentialRetrievalFactory rf = retrievalFactories.get(i);
 				if (!rf.isCredentialExchangeSupported(verificator))
 					continue;
-				AuthenticatorTypeDescription desc = new AuthenticatorTypeDescription();
-				desc.setId(vf.getName() + " with " + rf.getName());
-				desc.setRetrievalMethod(rf.getName());
-				desc.setRetrievalMethodDescription(rf.getDescription());
-				desc.setSupportedBinding(rf.getSupportedBinding());
-				desc.setVerificationMethod(vf.getName());
-				desc.setVerificationMethodDescription(vf.getDescription());
-				desc.setLocal(verificator.getType().equals(VerificatorType.Local));
-				Set<AuthenticatorTypeDescription> existing = authenticatorsByBinding.get(
+				AuthenticatorTypeDescription desc = new AuthenticatorTypeDescription(
+						vf.getName(),
+						vf.getDescription(),
+						verificator.getType() == VerificatorType.Local);
+				Set<AuthenticatorTypeDescription> byBinding = authenticatorsByBinding.get(
 						rf.getSupportedBinding());
-				if (existing == null)
+				if (byBinding == null)
 				{
-					existing = new HashSet<AuthenticatorTypeDescription>();
-					authenticatorsByBinding.put(rf.getSupportedBinding(), existing);
+					byBinding = new HashSet<>();
+					authenticatorsByBinding.put(rf.getSupportedBinding(), byBinding);
 				}
-				existing.add(desc);
-				log.debug(" - " + desc);
-				authenticatorsById.put(desc.getId(), desc);
+				byBinding.add(desc);
+				authenticatorsById.put(desc.getVerificationMethod(), desc);
 			}
+			log.debug(" - >" + vf.getName() + "< supporting " + getSupportedBindings(vf.getName()));
 		}
 		
 		authenticatorsByBinding = Collections.unmodifiableMap(authenticatorsByBinding);
 	}
 
+	public CredentialRetrievalFactory findCredentialRetrieval(String binding, CredentialExchange credExchange)
+	{
+		for (CredentialRetrievalFactory retrieval: credentialRetrievalFactories.values())
+		{
+			if (binding.equals(retrieval.getSupportedBinding()) && 
+					retrieval.isCredentialExchangeSupported(credExchange))
+				return retrieval;
+		}
+		throw new IllegalArgumentException("There is no credential retrieval for binding " + binding + 
+				" and credential type " + credExchange.getExchangeId());
+	}
+	
+	public Set<String> getSupportedBindings(String verificatorId)
+	{
+		return getSupportedRetrievals(verificatorId).stream()
+				.map(retrieval -> retrieval.getSupportedBinding())
+				.collect(Collectors.toSet());
+	}	
+
+	public Set<CredentialRetrievalFactory> getSupportedRetrievals(String verificatorId)
+	{
+		CredentialVerificatorFactory verificatorFactory = credentialVerificatorFactories.get(verificatorId);
+		if (verificatorFactory == null)
+			throw new IllegalArgumentException("Unknown verificator: " + verificatorId);
+		CredentialVerificator verificator = verificatorFactory.newInstance();
+		Set<CredentialRetrievalFactory> supported = new HashSet<>();
+		for (CredentialRetrievalFactory retrieval: credentialRetrievalFactories.values())
+		{
+			if (retrieval.isCredentialExchangeSupported(verificator))
+				supported.add(retrieval);
+		}
+		return supported;
+	}
+
+	
 	public CredentialRetrievalFactory getCredentialRetrievalFactory(String id)
 	{
 		return credentialRetrievalFactories.get(id);
@@ -100,17 +135,17 @@ public class AuthenticatorsRegistry
 		return credentialVerificatorFactories.get(id);
 	}
 
-	public AuthenticatorTypeDescription getAuthenticatorsById(String id)
+	public AuthenticatorTypeDescription getAuthenticatorTypeById(String id)
 	{
 		return authenticatorsById.get(id);
 	}
 
-	public Set<AuthenticatorTypeDescription> getAuthenticatorsByBinding(String binding)
+	public Set<AuthenticatorTypeDescription> getAuthenticatorTypesByBinding(String binding)
 	{
 		return authenticatorsByBinding.get(binding);
 	}
 	
-	public Set<AuthenticatorTypeDescription> getAuthenticators()
+	public Set<AuthenticatorTypeDescription> getAuthenticatorTypes()
 	{
 		Set<AuthenticatorTypeDescription> ret = new HashSet<AuthenticatorTypeDescription>();
 		for (Map.Entry<String, Set<AuthenticatorTypeDescription>> entry: authenticatorsByBinding.entrySet())
@@ -118,7 +153,7 @@ public class AuthenticatorsRegistry
 		return ret;
 	}
 	
-	public Set<String> getAuthenticatorTypes()
+	public Set<String> getAuthenticatorTypeNames()
 	{
 		return new HashSet<String>(authenticatorsById.keySet());
 	}

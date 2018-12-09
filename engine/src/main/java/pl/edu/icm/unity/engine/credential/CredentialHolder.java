@@ -21,19 +21,25 @@ public class CredentialHolder
 
 	public CredentialHolder(CredentialDefinition credDef, LocalCredentialsRegistry reg) 
 	{
-		checkCredentialDefinition(credDef, reg);
 		credential = credDef;
+		this.handler = getInitializedLocalVerificator(credDef, reg); 
 	}
 
-	private void checkCredentialDefinition(CredentialDefinition def, LocalCredentialsRegistry reg) 
+	public static void checkCredentialDefinition(CredentialDefinition def, LocalCredentialsRegistry reg) 
+	{
+		getInitializedLocalVerificator(def, reg);
+	}
+
+	private static LocalCredentialVerificator getInitializedLocalVerificator(CredentialDefinition def, LocalCredentialsRegistry reg) 
 	{
 		LocalCredentialVerificatorFactory fact = reg.getLocalCredentialFactory(def.getTypeId());
 		if (fact == null)
 			throw new IllegalArgumentException("The credential type " + def.getTypeId() + " is unknown");
 		LocalCredentialVerificator handler = fact.newInstance();
 		handler.setSerializedConfiguration(def.getConfiguration());
-		this.handler = handler;
+		return handler;
 	}
+
 	
 	public CredentialDefinition getCredentialDefinition()
 	{

@@ -10,20 +10,14 @@ unityServer.core.script.9000.file=${CONF}/scripts/unicoreContentInitializer.groo
 unityServer.core.script.9000.trigger=pre-init
 
 # authenticators relaying on PAM and certificates
-unityServer.core.authenticators.unicorePamWeb.authenticatorName=unicorePamWeb
-unityServer.core.authenticators.unicorePamWeb.authenticatorType=pam with web-password
-unityServer.core.authenticators.unicorePamWeb.retrievalConfigurationFile=${CONF}/modules/unicore/pamRetrieval.json
-unityServer.core.authenticators.unicorePamWeb.verificatorConfigurationFile=${CONF}/modules/unicore/pamVerificator.properties
+unityServer.core.authenticators.unicorePam.authenticatorName=unicorePam
+unityServer.core.authenticators.unicorePam.authenticatorType=pam
+unityServer.core.authenticators.unicorePam.configurationFile=${CONF}/modules/unicore/pamVerificator.properties
 
-unityServer.core.authenticators.unicorePamWS.authenticatorName=unicorePamWS
-unityServer.core.authenticators.unicorePamWS.authenticatorType=pam with cxf-httpbasic
-unityServer.core.authenticators.unicorePamWS.retrievalConfigurationFile=${CONF}/authenticators/empty.json
-unityServer.core.authenticators.unicorePamWS.verificatorConfigurationFile=${CONF}/modules/unicore/pamVerificator.properties
-
-unityServer.core.authenticators.unicoreCertWS.authenticatorName=unicoreCertWS
-unityServer.core.authenticators.unicoreCertWS.authenticatorType=certificate with cxf-certificate
-unityServer.core.authenticators.unicoreCertWS.localCredential=Certificate credential
-unityServer.core.authenticators.unicoreCertWS.retrievalConfigurationFile=${CONF}/authenticators/empty.json
+unityServer.core.authenticators.unicoreCert.authenticatorName=unicoreCert
+unityServer.core.authenticators.unicoreCert.authenticatorType=certificate
+unityServer.core.authenticators.unicoreCert.localCredential=Certificate credential
+unityServer.core.authenticators.unicoreCert.configurationFile=${CONF}/samples/empty
 
 
 # import feature - required for serving UNICORE/X queries about user attributes
@@ -38,7 +32,7 @@ unityServer.core.endpoints.unicoreWeb.endpointConfigurationFile=${CONF}/modules/
 unityServer.core.endpoints.unicoreWeb.contextPath=/unicore-idp
 unityServer.core.endpoints.unicoreWeb.endpointRealm=defaultRealm
 unityServer.core.endpoints.unicoreWeb.endpointName=UNITY UNICORE web authentication
-unityServer.core.endpoints.unicoreWeb.endpointAuthenticators=unicorePamWeb
+unityServer.core.endpoints.unicoreWeb.endpointAuthenticators=unicorePam
 
 # Used by UNICORE/X when authenticating its REST clients and by UCC/URC to provide certificate-less access
 unityServer.core.endpoints.unicoreSOAPPass.endpointType=SAMLUnicoreSoapIdP
@@ -46,7 +40,7 @@ unityServer.core.endpoints.unicoreSOAPPass.endpointConfigurationFile=${CONF}/mod
 unityServer.core.endpoints.unicoreSOAPPass.contextPath=/unicore-soapidp
 unityServer.core.endpoints.unicoreSOAPPass.endpointRealm=defaultRealm
 unityServer.core.endpoints.unicoreSOAPPass.endpointName=UNITY UNICORE SOAP SAML service for REST queries
-unityServer.core.endpoints.unicoreSOAPPass.endpointAuthenticators=unicorePamWS
+unityServer.core.endpoints.unicoreSOAPPass.endpointAuthenticators=unicorePam
 
 # Used by UNICORE/X when user attributes are resolved (XUUDB replacement)
 unityServer.core.endpoints.unicoreSOAPCert.endpointType=SAMLUnicoreSoapIdP
@@ -54,4 +48,4 @@ unityServer.core.endpoints.unicoreSOAPCert.endpointConfigurationFile=${CONF}/mod
 unityServer.core.endpoints.unicoreSOAPCert.contextPath=/unicore-soap-aip
 unityServer.core.endpoints.unicoreSOAPCert.endpointRealm=defaultRealm
 unityServer.core.endpoints.unicoreSOAPCert.endpointName=UNITY UNICORE SOAP SAML service for UNICORE server use (XUUDB replacement)
-unityServer.core.endpoints.unicoreSOAPCert.endpointAuthenticators=unicoreCertWS
+unityServer.core.endpoints.unicoreSOAPCert.endpointAuthenticators=unicoreCert

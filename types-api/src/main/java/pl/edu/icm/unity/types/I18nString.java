@@ -29,7 +29,7 @@ public class I18nString
 	
 	public I18nString()
 	{
-		this.values = new HashMap<String, String>();
+		this.values = new HashMap<>();
 	}
 
 	public I18nString(String defaultValue)

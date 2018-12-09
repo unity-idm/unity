@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceDBImpl;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationDBImpl;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 
 /**
@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 public class AuthenticationFlowDBImpl extends GenericObjectsDAOImpl<AuthenticationFlowDefinition> implements AuthenticationFlowDB
 {
 	@Autowired
-	public AuthenticationFlowDBImpl(AuthenticationFlowHandler handler, ObjectStoreDAO dbGeneric, AuthenticatorInstanceDBImpl authnDAO)
+	public AuthenticationFlowDBImpl(AuthenticationFlowHandler handler, ObjectStoreDAO dbGeneric, AuthenticatorConfigurationDBImpl authnDAO)
 	{
 		super(handler, dbGeneric, AuthenticationFlowDefinition.class, "authenticatorsFlow");
 		authnDAO.addRemovalHandler(this::restrictAuthenticatorRemoval);

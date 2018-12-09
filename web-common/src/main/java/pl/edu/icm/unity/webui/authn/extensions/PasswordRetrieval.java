@@ -4,20 +4,18 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
-import java.net.MalformedURLException;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
@@ -31,7 +29,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
@@ -42,22 +39,18 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
 import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController;
-import pl.edu.icm.unity.webui.common.ImageUtils;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
@@ -77,10 +70,10 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
-	private String logoURL;
 	private String registrationFormForUnknown;
 	private boolean enableAssociation;
 	private CredentialEditorRegistry credEditorReg;
+	private String configuration;
 
 	@Autowired
 	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
@@ -93,43 +86,24 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	@Override
 	public String getSerializedConfiguration()
 	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.set("i18nName", I18nStringJsonUtil.toJson(name));
-		root.put("registrationFormForUnknown", registrationFormForUnknown);
-		root.put("enableAssociation", enableAssociation);
-		if (logoURL != null)
-			root.put("logoURL", logoURL);			
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize web-based password retrieval configuration to JSON", e);
-		}
+		return configuration;
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String configuration)
 	{
+		this.configuration = configuration;
 		try
 		{
-			JsonNode root = Constants.MAPPER.readTree(json);
-			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
+			Properties properties = new Properties();
+			properties.load(new StringReader(configuration));
+			PasswordRetrievalProperties config = new PasswordRetrievalProperties(properties);
+			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebPasswordRetrieval.password", msg);
-			JsonNode formNode = root.get("registrationFormForUnknown");
-			if (formNode != null && !formNode.isNull())
-				registrationFormForUnknown = formNode.asText();
-			
-			JsonNode logoNode = root.get("logoURL");
-			if (logoNode != null && !logoNode.isNull())
-				logoURL = logoNode.asText();
-			if (logoURL != null && !logoURL.isEmpty())
-				ImageUtils.getLogoResource(logoURL);
-			
-			JsonNode enableANode = root.get("enableAssociation");
-			if (enableANode != null && !enableANode.isNull())
-				enableAssociation = enableANode.asBoolean();
+			registrationFormForUnknown = config.getValue(
+					PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN);
+			enableAssociation = config.getBooleanValue(PasswordRetrievalProperties.ENABLE_ASSOCIATION);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -383,21 +357,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Override
 		public Resource getImage()
 		{
-			if (logoURL == null)
-				return null;
-			if ("".equals(logoURL))
-				return Images.password.getResource();
-			else
-			{
-				try
-				{
-					return ImageUtils.getLogoResource(logoURL);
-				} catch (MalformedURLException e)
-				{
-					log.error("Can't load logo", e);
-					return null;
-				}
-			}
+			return null;
 		}
 
 		@Override
