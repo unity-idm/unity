@@ -10,15 +10,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.Sets;
 import com.vaadin.data.TreeData;
 import com.vaadin.data.provider.TreeDataProvider;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
+import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -50,13 +49,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer())
 				.setCaption(msg.getMessage("DelegatedGroupsTree.group"));
 
-		addComponentColumn(g -> {
-			HamburgerMenu<GroupNode> menu = new HamburgerMenu<GroupNode>();
-			menu.setTarget(Sets.newHashSet(g));
-			menu.addActionHandlers(rowActionHandlers);
-			return menu;
-
-		}).setCaption(msg.getMessage("DelegatedGroupsTree.action")).setWidth(80).setResizable(false);
+		UpManGridHelper.createActionColumn(this, rowActionHandlers, msg.getMessage("DelegatedGroupsTree.action"));
 		
 		loadNode(projectPath, null);
 		expand(treeData.getChildren(null));

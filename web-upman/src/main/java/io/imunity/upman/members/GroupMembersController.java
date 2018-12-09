@@ -7,7 +7,6 @@ package io.imunity.upman.members;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +20,6 @@ import io.imunity.upman.utils.GroupIndentHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
@@ -102,33 +100,6 @@ public class GroupMembersController
 			throw new ServerFaultException(msg);
 		}
 		return GroupIndentHelper.getProjectIndentGroupsMap(projectPath, groupAndSubgroups);
-	}
-
-	public Map<String, String> getAdditionalAttributeNamesForProject(String projectPath) throws ControllerException
-	{
-
-		Map<String, String> attrs = new LinkedHashMap<>();
-		try
-		{
-			DelegatedGroup group = delGroupMan.getContents(projectPath, projectPath).group;
-			if (group == null)
-				return attrs;
-
-			List<String> groupAttrs = group.delegationConfiguration.attributes;
-
-			if (groupAttrs == null || groupAttrs.isEmpty())
-				return attrs;
-
-			for (String attr : groupAttrs)
-			{
-				attrs.put(attr, delGroupMan.getAttributeDisplayedName(projectPath, attr));
-			}
-		} catch (Exception e)
-		{
-			log.debug("Can not get attribute names for project " + projectPath, e);
-			throw new ServerFaultException(msg);
-		}
-		return attrs;
 	}
 
 	public void addToGroup(String projectPath, String groupPath, Set<GroupMemberEntry> items)

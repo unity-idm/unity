@@ -5,26 +5,17 @@
 
 package io.imunity.upman.members;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.google.common.collect.Sets;
-import com.vaadin.data.provider.DataProvider;
-import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.shared.ui.ContentMode;
-import com.vaadin.ui.Grid;
 import com.vaadin.ui.Label;
 
+import io.imunity.upman.common.UpManGrid;
+import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.webui.common.GridSelectionSupport;
-import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
@@ -34,14 +25,13 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
  *
  */
 
-public class GroupMemebersGrid extends Grid<GroupMemberEntry>
+class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 {
-	public static final String ATTR_COL_PREFIX = "a::";
 
 	enum BaseColumn
 	{
-		role("GroupMember.role"), name("GroupMember.name"), email(
-				"GroupMember.email"), action("GroupMember.action");
+		role("GroupMember.role"), name("GroupMember.name"), email("GroupMember.email"), action(
+				"GroupMember.action");
 		private String captionKey;
 
 		BaseColumn(String captionKey)
@@ -50,58 +40,17 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 		}
 	};
 
-	private final UnityMessageSource msg;
-	private List<GroupMemberEntry> groupMemberEntries;
-	private ListDataProvider<GroupMemberEntry> dataProvider;
-	private List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers;
-
-	public GroupMemebersGrid(UnityMessageSource msg,
-			List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
+	public GroupMemebersGrid(UnityMessageSource msg, List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
 			Map<String, String> additionalAttributesName)
 	{
-		this.msg = msg;
-		this.rowActionHandlers = rowActionHandlers;
-
-		groupMemberEntries = new ArrayList<>();
-		dataProvider = DataProvider.ofCollection(groupMemberEntries);
-		setDataProvider(dataProvider);
-
-		createBaseColumns();
-		createAttrsColumns(additionalAttributesName);
-		createActionColumn();
-
-		setSelectionMode(SelectionMode.MULTI);
-		GridSelectionSupport.installClickListener(this);
-		setSizeFull();
-	}
-
-	public void setValue(Collection<GroupMemberEntry> items)
-	{
-		Set<GroupMemberEntry> selectedItems = getSelectedItems();
-		deselectAll();
-		groupMemberEntries.clear();
-		groupMemberEntries.addAll(items);
-		if (groupMemberEntries.size() <= 18)
-			setHeightByRows(groupMemberEntries.isEmpty() ? 1
-					: groupMemberEntries.size());
-		else
-			setHeight(100, Unit.PERCENTAGE);
-		dataProvider.refreshAll();
-
-		for (long selected : selectedItems.stream().map(s -> s.getEntityId())
-				.collect(Collectors.toList()))
-		{
-			for (GroupMemberEntry entry : groupMemberEntries)
-				if (entry.getEntityId() == selected)
-					select(entry);
-
-		}
+		super(msg, (GroupMemberEntry e) -> String.valueOf(e.getEntityId()));
+		createColumns(rowActionHandlers, additionalAttributesName);
 
 	}
-	
+
 	public long getManagersCount()
 	{
-		return groupMemberEntries.stream().filter(m -> m.getRole().equals(GroupAuthorizationRole.manager)).count();
+		return getItems().stream().filter(m -> m.getRole().equals(GroupAuthorizationRole.manager)).count();
 	}
 
 	private Label getRoleLabel(String caption, Images icon)
@@ -120,40 +69,22 @@ public class GroupMemebersGrid extends Grid<GroupMemberEntry>
 				return getRoleLabel(msg.getMessage("Role.admin"), Images.star);
 			} else
 			{
-				return getRoleLabel(msg.getMessage("Role.regularUser"),
-						Images.user);
+				return getRoleLabel(msg.getMessage("Role.regularUser"), Images.user);
 			}
 
-		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(2)
-				.setResizable(false);
+		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(2).setResizable(false);
 
-		addColumn(ie -> ie.getName()).setCaption(msg.getMessage(BaseColumn.name.captionKey))
-				.setExpandRatio(3);
-		addColumn(ie -> ie.getEmail())
-				.setCaption(msg.getMessage(BaseColumn.email.captionKey))
+		addColumn(ie -> ie.getName()).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(3);
+		addColumn(ie -> ie.getEmail()).setCaption(msg.getMessage(BaseColumn.email.captionKey))
 				.setExpandRatio(3);
 	}
 
-	private void createAttrsColumns(Map<String, String> additionalAttributes)
+	private void createColumns(List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
+			Map<String, String> additionalAttributesName)
 	{
-
-		for (Map.Entry<String, String> attr : additionalAttributes.entrySet())
-		{
-			addColumn(ie -> ie.getAttribute(attr.getKey())).setCaption(attr.getValue())
-					.setExpandRatio(3).setId(ATTR_COL_PREFIX + attr.getKey());
-		}
-	}
-
-	private void createActionColumn()
-	{
-		addComponentColumn(ie -> {
-			HamburgerMenu<GroupMemberEntry> menu = new HamburgerMenu<GroupMemberEntry>();
-			menu.setTarget(Sets.newHashSet(ie));
-			menu.addActionHandlers(rowActionHandlers);
-			menu.addStyleName(SidebarStyles.sidebar.toString());
-			return menu;
-
-		}).setCaption(msg.getMessage(BaseColumn.action.captionKey)).setWidth(80)
-				.setResizable(false);
+		createBaseColumns();
+		UpManGridHelper.createAttrsColumns(this, (GroupMemberEntry e) -> e.getAttributes(),
+				additionalAttributesName);
+		UpManGridHelper.createActionColumn(this, rowActionHandlers, msg.getMessage(BaseColumn.action.captionKey));
 	}
 }

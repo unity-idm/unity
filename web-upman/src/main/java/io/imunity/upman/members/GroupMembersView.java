@@ -21,6 +21,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
+import io.imunity.upman.common.ProjectAttributeController;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -45,12 +46,14 @@ public class GroupMembersView extends CustomComponent implements UpManView
 
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
+	private ProjectAttributeController attrController;
 
 	@Autowired
-	public GroupMembersView(UnityMessageSource msg, GroupMembersController controller)
+	public GroupMembersView(UnityMessageSource msg, GroupMembersController controller, ProjectAttributeController attrController)
 	{
 		this.msg = msg;
 		this.controller = controller;
+		this.attrController = attrController;
 	}
 
 	@Override
@@ -79,7 +82,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		GroupMembersComponent groupMembersComponent;
 		try
 		{
-			groupMembersComponent = new GroupMembersComponent(msg, controller, project);
+			groupMembersComponent = new GroupMembersComponent(msg, controller, attrController, project);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

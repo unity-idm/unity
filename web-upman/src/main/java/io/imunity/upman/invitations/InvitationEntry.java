@@ -6,6 +6,7 @@
 package io.imunity.upman.invitations;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Objects;
@@ -31,7 +32,7 @@ class InvitationEntry
 	{
 		this.code = code;
 		this.email = email;
-		this.groupsDisplayedNames = groupsDisplayedNames;
+		this.groupsDisplayedNames = new ArrayList<>(groupsDisplayedNames);
 		this.requestedTime = requestedTime;
 		this.expirationTime = expirationTime;
 		this.link = link;

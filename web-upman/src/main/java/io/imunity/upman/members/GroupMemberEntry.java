@@ -32,11 +32,6 @@ class GroupMemberEntry
 
 	}
 
-	public String getAttribute(String key)
-	{
-		return attributes.get(key);
-	}
-
 	@Override
 	public int hashCode()
 	{
@@ -54,6 +49,11 @@ class GroupMemberEntry
 		return Objects.equals(this.member, other.member) && Objects.equals(this.attributes, other.attributes);
 	}
 
+	public Map<String, String> getAttributes()
+	{
+		return attributes;
+	}
+	
 	public long getEntityId()
 	{
 		return member.entityId;

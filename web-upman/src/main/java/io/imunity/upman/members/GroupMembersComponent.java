@@ -20,6 +20,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManUI;
+import io.imunity.upman.common.ProjectAttributeController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -44,18 +45,18 @@ class GroupMembersComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
-
+	
 	private GroupMemebersGrid groupMemebersGrid;
 	private String group;
 	private String project;
 
-	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller,
+	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller, ProjectAttributeController attrController,
 			String project) throws ControllerException
 	{
 		this.msg = msg;
 		this.controller = controller;
 		this.project = project;
-		Map<String, String> additionalProjectAttributes = controller
+		Map<String, String> additionalProjectAttributes = attrController
 				.getAdditionalAttributeNamesForProject(project);
 
 		VerticalLayout main = new VerticalLayout();
