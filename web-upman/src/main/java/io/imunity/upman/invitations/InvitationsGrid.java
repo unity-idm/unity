@@ -5,6 +5,7 @@
 
 package io.imunity.upman.invitations;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +26,6 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Displays a grid with invitations
@@ -63,7 +63,12 @@ class InvitationsGrid extends Grid<InvitationEntry>
 		setDataProvider(dataProvider);
 
 		createBaseColumns();
+		setStyleGenerator(e -> {
+			if (e.expirationTime.isBefore(Instant.now()))
+				return "warn";
 
+			return null;
+		});
 		setSelectionMode(SelectionMode.MULTI);
 		GridSelectionSupport.installClickListener(this);
 		setSizeFull();
@@ -106,14 +111,13 @@ class InvitationsGrid extends Grid<InvitationEntry>
 
 		addComponentColumn(ie -> {
 			Button link = new Button(Images.external_link.getResource());
-			link.addStyleName(SidebarStyles.sidebar.toString());
-			link.addStyleName(Styles.vButtonLink.toString());
-			link.addStyleName(Styles.toolbarButton.toString());
+			link.addStyleName("grid");
 			link.addClickListener(e -> Page.getCurrent().open(ie.link, "_blank"));
 			return link;
 
 		}).setCaption(msg.getMessage(BaseColumn.link.captionKey)).setWidth(80).setResizable(false);
-
+		
+		
 		addComponentColumn(ie -> {
 			HamburgerMenu<InvitationEntry> menu = new HamburgerMenu<InvitationEntry>();
 			menu.setTarget(Sets.newHashSet(ie));

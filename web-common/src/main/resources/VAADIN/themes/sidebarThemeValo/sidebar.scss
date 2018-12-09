@@ -48,6 +48,10 @@ $narrow-bar-size: 50px;
  	   background-color: $content-bg-color;
 	}
 	
+	.v-grid-row.warn > td {
+   		 background-color: #fff0e6;
+	}
+	
 	.v-button:hover::after {
       	background-color: transparent;
     }
@@ -87,6 +91,15 @@ $narrow-bar-size: 50px;
 		width: 9em;
 	}
 
+	.v-button-grid{
+		height: 25px;
+		background-color: $content-bg-color;
+	
+		&:hover {
+			background-color: $hover-bg-color;
+		}
+	}
+	
 	.stepper-updown .v-icon {
 		@include sidebarTransition(color $transition-time);
 		color: $color-dark-grey;
