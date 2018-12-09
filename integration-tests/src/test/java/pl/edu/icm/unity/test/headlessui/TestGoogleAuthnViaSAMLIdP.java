@@ -38,7 +38,7 @@ public class TestGoogleAuthnViaSAMLIdP extends SeleniumTestBase
 	private void singleLoop() throws InterruptedException
 	{
 		waitForElement(By.xpath("//*[contains(text(), 'Login to UNITY admin')]"));
-		waitForElement(By.className("idpentry_samlWeb_remoteIdp.7.")).click();
+		waitForElement(By.className("idpentry_saml_remoteIdp.7.")).click();
 		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
 		
 		waitForElement(By.xpath("//*[contains(text(), 'Login to UNITY SAML web authentication')]"));
