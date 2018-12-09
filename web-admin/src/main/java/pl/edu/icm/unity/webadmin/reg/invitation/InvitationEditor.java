@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -241,6 +242,12 @@ public class InvitationEditor extends CustomComponent
 	public InvitationParam getInvitation() throws FormValidationException
 	{
 		String addr = contactAddress.isEmpty() ? null : contactAddress.getValue();
+		if (expiration.getValue() == null)
+		{
+			expiration.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			throw new FormValidationException();
+		}
+			
 		InvitationParam ret = new InvitationParam(forms.getValue(),
 				expiration.getValue().atZone(DEFAULT_ZONE_ID).toInstant(), addr);
 
