@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.api.project;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Objects;
@@ -18,61 +19,25 @@ import com.google.common.base.Objects;
  */
 public class ProjectInvitationParam
 {
-	private String project;
-	private String contactAddress;
-	private List<String> groupPaths;
-	private Instant expiration;
+	public final String project;
+	public final String contactAddress;
+	public final List<String> allowedGroup;
+	public final Instant expiration;
 
-	// for binder
-	public ProjectInvitationParam()
-	{
 
-	}
-
-	public String getProject()
-	{
-		return project;
-	}
-
-	public void setProject(String project)
+	public ProjectInvitationParam(String project, String contactAddress, List<String> allowedGroup,
+			Instant expiration)
 	{
 		this.project = project;
-	}
-
-	public List<String> getGroupPaths()
-	{
-		return groupPaths;
-	}
-
-	public void setGroupPaths(List<String> groupPaths)
-	{
-		this.groupPaths = groupPaths;
-	}
-
-	public Instant getExpiration()
-	{
-		return expiration;
-	}
-
-	public void setExpiration(Instant expiration)
-	{
-		this.expiration = expiration;
-	}
-
-	public String getContactAddress()
-	{
-		return contactAddress;
-	}
-
-	public void setContactAddress(String contactAddress)
-	{
 		this.contactAddress = contactAddress;
+		this.allowedGroup = new ArrayList<>(allowedGroup);
+		this.expiration = expiration;
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hashCode(project, groupPaths, expiration, contactAddress);
+		return Objects.hashCode(project, allowedGroup, expiration, contactAddress);
 	}
 
 	@Override
@@ -87,7 +52,7 @@ public class ProjectInvitationParam
 		if (!super.equals(obj))
 			return false;
 
-		return Objects.equal(this.project, other.project) && Objects.equal(this.groupPaths, other.groupPaths)
+		return Objects.equal(this.project, other.project) && Objects.equal(this.allowedGroup, other.allowedGroup)
 				&& Objects.equal(this.expiration, other.expiration)
 				&& Objects.equal(this.contactAddress, contactAddress);
 	}

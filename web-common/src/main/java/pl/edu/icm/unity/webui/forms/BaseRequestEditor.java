@@ -534,8 +534,10 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					invitation != null ? invitation.getAttributes() : new HashMap<>());
 			
 		case GROUP:
-			return createGroupControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					invitation != null ? invitation.getGroupSelections() : new HashMap<>());
+			return createGroupControl(layoutContainer.registrationFormLayout,
+					(FormParameterElement) element,
+					invitation != null ? invitation.getGroupSelections() : new HashMap<>(),
+					invitation != null ? invitation.getAllowedGroups() : new HashMap<>());
 			
 		case CAPTION:
 			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, 
@@ -752,7 +754,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}	
 	
 	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
-			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation)
+			Map<Integer, PrefilledEntry<GroupSelection>> prefillFromInvitation, Map<Integer, GroupSelection> allowedFromInvitation)
 	{
 		int index = element.getIndex();
 		GroupRegistrationParam groupParam = form.getGroupParams().get(index);
@@ -760,7 +762,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		List<Group> remotelySelected = GroupPatternMatcher.filterMatching(allMatchingGroups, 
 				remotelyAuthenticated.getGroups());
 		boolean hasRemoteGroup = !remotelySelected.isEmpty();
-		PrefilledEntry<GroupSelection> prefilledEntry = fromInvitation.get(index);
+		PrefilledEntry<GroupSelection> prefilledEntry = prefillFromInvitation.get(index);
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
 			return false;
@@ -794,16 +796,35 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		} else
 		{
 			if (groupParam.getDescription() != null)
-				selection.setDescription(HtmlConfigurableLabel.conditionallyEscape(
-						groupParam.getDescription()));
-			selection.setItems(allMatchingGroups);
-			
-			if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 
+			{
+				selection.setDescription(
+						HtmlConfigurableLabel.conditionallyEscape(groupParam.getDescription()));
+			}
+
+			GroupSelection allowedGroupSel = allowedFromInvitation.get(index);
+			List<Group> allowedGroup = allMatchingGroups;
+			if (allowedGroupSel != null && !allowedGroupSel.getSelectedGroups().isEmpty())
+			{
+				allowedGroup = GroupPatternMatcher.filterMatching(allMatchingGroups,
+						allowedFromInvitation.get(index).getSelectedGroups());
+			}
+			selection.setItems(allowedGroup);
+
+			if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
 					&& hasRemoteGroup)
-				selection.setSelectedItems(remotelySelected);
+			{
+				List<Group> remotelySelectedLimited = GroupPatternMatcher.filterMatching(allowedGroup,
+						remotelySelected.stream().map(g -> g.getName()).collect(Collectors.toList()));
+				selection.setSelectedItems(remotelySelectedLimited);
+			}
+			
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
-				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allMatchingGroups, 
+			{
+
+				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allowedGroup,
 						prefilledEntry.getEntry().getSelectedGroups()));
+
+			}
 			groupSelectors.put(index, selection);
 			layout.addComponent(selection);
 		}

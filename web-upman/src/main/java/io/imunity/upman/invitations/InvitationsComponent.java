@@ -109,15 +109,15 @@ public class InvitationsComponent extends CustomComponent
 
 	public void reload()
 	{
-		List<InvitationEntry> groupMembers = new ArrayList<>();
+		List<InvitationEntry> invitations = new ArrayList<>();
 		try
 		{
-			groupMembers.addAll(controller.getInvitations(project));
+			invitations.addAll(controller.getInvitations(project));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
 		}
-
-		invitationsGrid.setValue(groupMembers);
+			
+		invitationsGrid.setValue(invitations);
 	}
 }

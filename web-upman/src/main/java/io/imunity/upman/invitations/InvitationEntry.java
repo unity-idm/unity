@@ -10,8 +10,6 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
-import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
-
 /***
  * Data object behind a row in {@link InvitationsGrid}. Stores invitation
  * information
@@ -22,24 +20,18 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 class InvitationEntry
 {
 	public final String email;
-	public final List<String> groups;
+	public final List<String> groupsDisplayedNames;
 	public final Instant requestedTime;
 	public final Instant expirationTime;
 	public final String link;
 	public final String code;
 
-	public InvitationEntry(ProjectInvitation invitation)
-	{
-		this(invitation.getRegistrationCode(), invitation.getContactAddress(), invitation.getGroupPaths(),
-				invitation.getLastSentTime(), invitation.getExpiration(), invitation.getLink());
-	}
-
-	public InvitationEntry(String code, String email, List<String> groups, Instant requestedTime,
+	public InvitationEntry(String code, String email, List<String> groupsDisplayedNames, Instant requestedTime,
 			Instant expirationTime, String link)
 	{
 		this.code = code;
 		this.email = email;
-		this.groups = groups;
+		this.groupsDisplayedNames = groupsDisplayedNames;
 		this.requestedTime = requestedTime;
 		this.expirationTime = expirationTime;
 		this.link = link;
@@ -48,7 +40,7 @@ class InvitationEntry
 	@Override
 	public int hashCode()
 	{
-		return Objects.hashCode(code, email, groups, requestedTime, expirationTime, link);
+		return Objects.hashCode(code, email, groupsDisplayedNames, requestedTime, expirationTime, link);
 	}
 
 	@Override
@@ -64,7 +56,7 @@ class InvitationEntry
 			return false;
 
 		return Objects.equal(this.code, other.code) && Objects.equal(this.email, other.email)
-				&& Objects.equal(this.groups, other.groups)
+				&& Objects.equal(this.groupsDisplayedNames, other.groupsDisplayedNames)
 				&& Objects.equal(this.requestedTime, other.requestedTime)
 				&& Objects.equal(this.expirationTime, other.expirationTime)
 				&& Objects.equal(this.link, other.link);

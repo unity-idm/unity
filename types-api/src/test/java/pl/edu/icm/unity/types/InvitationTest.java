@@ -10,6 +10,7 @@ import static org.junit.Assert.assertThat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -50,6 +51,7 @@ public class InvitationTest
 				"user-id"), PrefilledEntryMode.READ_ONLY));
 		complete.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/foo"), 
 				PrefilledEntryMode.READ_ONLY));
+		complete.getAllowedGroups().put(0, new GroupSelection(Arrays.asList("/foo","/bar")));
 		
 		String jsonStr = JsonUtil.toJsonString(complete);
 		

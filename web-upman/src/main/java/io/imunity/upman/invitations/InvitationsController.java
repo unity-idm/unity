@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +23,7 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -114,22 +114,59 @@ public class InvitationsController
 			invitations = invitationMan.getInvitations(projectPath);
 		} catch (Exception e)
 		{
+			log.debug("Can not get project invitations", e);
 			throw new ServerFaultException(msg);
 		}
 
-		return invitations.stream().map(i -> new InvitationEntry(i)).collect(Collectors.toList());
+		List<InvitationEntry> ret = new ArrayList<>();
+		for (ProjectInvitation pinv : invitations)
+		{
+			try
+			{
+				ret.add(new InvitationEntry(pinv.registrationCode, pinv.contactAddress,
+						getGroupsDisplayedNames(projectPath, pinv.allowedGroup), pinv.lastSentTime,
+						pinv.expiration, pinv.link));
+			} catch (EngineException e)
+			{
+				log.debug("Can not get groups displayed names", e);
+				throw new ServerFaultException(msg);
+			}
+		}
+
+		return ret;
+	}
+
+	private List<String> getGroupsDisplayedNames(String project, List<String> groupPaths) throws EngineException
+	{
+		List<String> groups = new ArrayList<>();
+		for (String path : groupPaths)
+		{
+			DelegatedGroupContents con = delGroupMan.getContents(project, path);
+			groups.add(con.group.displayedName);
+		}
+		return groups;
 	}
 
 	public void addInvitation(ProjectInvitationParam invitation) throws ControllerException
 	{
+		String code;
 		try
 		{
-			String code = invitationMan.addInvitation(invitation);
-			invitationMan.sendInvitation(invitation.getProject(), code);
+			code = invitationMan.addInvitation(invitation);
 
 		} catch (Exception e)
 		{
 			log.debug("Can not add invitation", e);
+			throw new ServerFaultException(msg);
+		}
+
+		try
+		{
+			invitationMan.sendInvitation(invitation.project, code);
+
+		} catch (Exception e)
+		{
+			log.debug("Can not send invitation", e);
 			throw new ServerFaultException(msg);
 		}
 	}

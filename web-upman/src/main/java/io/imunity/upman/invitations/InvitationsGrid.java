@@ -95,7 +95,7 @@ class InvitationsGrid extends Grid<InvitationEntry>
 	{
 		addColumn(ie -> ie.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(3);
 		addColumn(ie -> {
-			return (ie.groups != null) ? String.join(",", ie.groups) : "";
+			return (ie.groupsDisplayedNames != null) ? String.join(", ", ie.groupsDisplayedNames) : "";
 		}).setCaption(msg.getMessage(BaseColumn.groups.captionKey)).setExpandRatio(3);
 
 		addColumn(ie -> ie.requestedTime != null ? TimeUtil.formatMediumInstant(ie.requestedTime) : "")

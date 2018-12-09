@@ -42,6 +42,7 @@ public class InvitationParam
 	
 	private Map<Integer, PrefilledEntry<IdentityParam>> identities = new HashMap<>();
 	private Map<Integer, PrefilledEntry<GroupSelection>> groupSelections = new HashMap<>();
+	private Map<Integer, GroupSelection> allowedGroups = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 	private Map<String, String> messageParams = new HashMap<>();
 	private ExpectedIdentity expectedIdentity;
@@ -90,6 +91,11 @@ public class InvitationParam
 	{
 		return groupSelections;
 	}
+	
+	public Map<Integer, GroupSelection> getAllowedGroups()
+	{
+		return allowedGroups;
+	}
 
 	public Map<Integer, PrefilledEntry<Attribute>> getAttributes()
 	{
@@ -131,6 +137,7 @@ public class InvitationParam
 		
 		json.putPOJO("identities", getIdentities());
 		json.putPOJO("groupSelections", getGroupSelections());
+		json.putPOJO("allowedGroups", getAllowedGroups());
 		json.putPOJO("attributes", getAttributes());
 		json.putPOJO("messageParams", getMessageParams());
 		return json;
@@ -150,6 +157,9 @@ public class InvitationParam
 		n = json.get("groupSelections");
 		fill((ObjectNode) n, getGroupSelections(), GroupSelection.class);
 
+		n = json.get("allowedGroups");
+		fill((ObjectNode) n, getAllowedGroups());
+		
 		n = json.get("attributes");
 		fill((ObjectNode) n, getAttributes(), Attribute.class);
 		
@@ -171,6 +181,23 @@ public class InvitationParam
 		n = json.get("expectedIdentity");
 		if (n != null)
 			expectedIdentity = Constants.MAPPER.convertValue(n, ExpectedIdentity.class);
+	}
+
+	private void fill(ObjectNode root, Map<Integer, GroupSelection> allowedGroups)
+	{
+		root.fields().forEachRemaining(field ->
+		{
+			try
+			{
+				allowedGroups.put(Integer.parseInt(field.getKey()), 
+						Constants.MAPPER.treeToValue(field.getValue(), GroupSelection.class));
+			} catch (Exception e)
+			{
+				log.warn("Ignoring unparsable prefilled invitation entry", e);
+				return;
+			}
+		});
+		
 	}
 
 	protected <T> void fill(ObjectNode root, Map<Integer, PrefilledEntry<T>> map, Class<T> clazz)
@@ -215,6 +242,7 @@ public class InvitationParam
 				&& Objects.equals(contactAddress, castOther.contactAddress)
 				&& Objects.equals(identities, castOther.identities)
 				&& Objects.equals(groupSelections, castOther.groupSelections)
+				&& Objects.equals(allowedGroups, castOther.allowedGroups)
 				&& Objects.equals(attributes, castOther.attributes)
 				&& Objects.equals(messageParams, castOther.messageParams)
 				&& Objects.equals(expectedIdentity, castOther.expectedIdentity);
@@ -223,7 +251,7 @@ public class InvitationParam
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, attributes,
+		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, allowedGroups, attributes,
 				messageParams, expectedIdentity);
 	}
 	
@@ -272,6 +300,12 @@ public class InvitationParam
 		{
 			int idx = instance.groupSelections.size();
 			instance.groupSelections.put(idx, new PrefilledEntry<>(new GroupSelection(groups), mode));
+			return this;
+		}
+		public Builder withAllowedGroups(List<String> groups)
+		{
+			int idx = instance.allowedGroups.size();
+			instance.allowedGroups.put(idx, new GroupSelection(groups));
 			return this;
 		}
 		public Builder withIdentity(IdentityParam identity, PrefilledEntryMode mode)

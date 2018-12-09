@@ -5,6 +5,7 @@
 
 package io.imunity.upman.invitations;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.HashMap;
@@ -150,7 +151,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 		private TextField email;
 		private ChipsWithDropdown<NamedGroup> groups;
 		private DateTimeField lifeTime;
-		private Binder<ProjectInvitationParam> binder;
+		private Binder<ProjectInvitationParams> binder;
 
 		public NewInvitationDialog(UnityMessageSource msg, Consumer<ProjectInvitationParam> selectionConsumer)
 		{
@@ -182,7 +183,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 			lifeTime = new DateTimeField(msg.getMessage("NewInvitationDialog.invitationLivetime"));
 			lifeTime.setResolution(DateTimeResolution.MINUTE);
 
-			binder = new Binder<>(ProjectInvitationParam.class);
+			binder = new Binder<>(ProjectInvitationParams.class);
 			binder.forField(email).asRequired(msg.getMessage("fieldRequired"))
 					.withValidator(v -> EmailUtils.validate(v) == null,
 							msg.getMessage("NewInvitationDialog.incorrectEmail"))
@@ -192,7 +193,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 							d -> LocalDateTime.ofInstant(d, ZoneId.systemDefault()))
 					.bind("expiration");
 
-			ProjectInvitationParam bean = new ProjectInvitationParam();
+			ProjectInvitationParams bean = new ProjectInvitationParams();
 			bean.setExpiration(LocalDateTime.now(ZoneId.systemDefault()).plusDays(DEFAULT_TTL_DAYS)
 					.atZone(ZoneId.systemDefault()).toInstant());
 			binder.setBean(bean);
@@ -208,10 +209,13 @@ public class InvitationsView extends CustomComponent implements UpManView
 		{
 			if (!binder.validate().isOk())
 				return;
-			ProjectInvitationParam param = binder.getBean();
-			param.setGroupPaths(groups.getSelectedItems().stream().map(g -> g.path)
-					.collect(Collectors.toList()));
-			param.setProject(project);
+			ProjectInvitationParams inv = binder.getBean();
+
+			ProjectInvitationParam param = new ProjectInvitationParam(
+					project, inv.getContactAddress(), groups.getSelectedItems().stream()
+							.map(g -> g.path).collect(Collectors.toList()),
+					inv.getExpiration());
+
 			selectionConsumer.accept(param);
 			close();
 		}
@@ -229,4 +233,35 @@ public class InvitationsView extends CustomComponent implements UpManView
 		}
 	}
 
+	// for binder only
+	public static class ProjectInvitationParams
+	{
+		private String contactAddress;
+		private Instant expiration;
+
+		public ProjectInvitationParams()
+		{
+
+		}
+
+		public Instant getExpiration()
+		{
+			return expiration;
+		}
+
+		public void setExpiration(Instant expiration)
+		{
+			this.expiration = expiration;
+		}
+
+		public String getContactAddress()
+		{
+			return contactAddress;
+		}
+
+		public void setContactAddress(String contactAddress)
+		{
+			this.contactAddress = contactAddress;
+		}
+	}
 }

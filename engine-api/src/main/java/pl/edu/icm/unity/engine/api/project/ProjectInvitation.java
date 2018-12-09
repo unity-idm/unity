@@ -19,45 +19,18 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
  */
 public class ProjectInvitation extends ProjectInvitationParam
 {
-	private String registrationCode;
-	private Instant lastSentTime;
-	private int numberOfSends;
-	private String link;
+	public final String registrationCode;
+	public final Instant lastSentTime;
+	public final int numberOfSends;
+	public final String link;
 
-	public ProjectInvitation(String project, InvitationWithCode org)
+	public ProjectInvitation(String project, InvitationWithCode org, String link)
 	{
+		
+		super(project, org.getContactAddress(), org.getAllowedGroups().get(0).getSelectedGroups(), org.getExpiration());
 		this.registrationCode = org.getRegistrationCode();
 		this.lastSentTime = org.getLastSentTime();
 		this.numberOfSends = org.getNumberOfSends();
-		setContactAddress(org.getContactAddress());
-		setExpiration(org.getExpiration());
-		// TODO
-		// setGroupPaths(groupPaths);
-		setProject(project);
-	}
-
-	public String getRegistrationCode()
-	{
-		return registrationCode;
-	}
-
-	public Instant getLastSentTime()
-	{
-		return lastSentTime;
-	}
-
-	public int getNumberOfSends()
-	{
-		return numberOfSends;
-	}
-
-	public String getLink()
-	{
-		return link;
-	}
-
-	public void setLink(String link)
-	{
 		this.link = link;
 	}
 

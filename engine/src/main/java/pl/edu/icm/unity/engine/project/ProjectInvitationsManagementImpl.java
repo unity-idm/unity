@@ -27,6 +27,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -63,14 +64,20 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	@Override
 	public String addInvitation(ProjectInvitationParam param) throws EngineException
 	{
-		String projectPath = param.getProject();
+		String projectPath = param.project;
 		authz.checkManagerAuthorization(projectPath);
 
 		InvitationParam invitationParam = new InvitationParam(getRegistrationFormForProject(projectPath),
-				param.getExpiration(), param.getContactAddress());
-
+				param.expiration, param.contactAddress);	
+		invitationParam.getAllowedGroups().put(0, new GroupSelection(param.allowedGroup));
 		return invitationMan.addInvitation(invitationParam);
 
+	}
+
+	private Map<String, RegistrationForm> getAllFormsAsMap() throws EngineException
+	{
+		return registrationMan.getForms().stream()
+				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()));
 	}
 
 	@Override
@@ -87,18 +94,16 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			return ret;
 		}
 
-		Map<String, RegistrationForm> allFormsMap = registrationMan.getForms().stream()
-				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()));
+		Map<String, RegistrationForm> allFormsMap = getAllFormsAsMap();
 
 		for (InvitationWithCode inv : invitationMan.getInvitations())
 		{
 			if (inv.getFormId().equals(registrationFormId))
 			{
-				ProjectInvitation pinv = new ProjectInvitation(projectPath, inv);
-				pinv.setLink(PublicRegistrationURLSupport.getPublicRegistrationLink(
-						allFormsMap.get(inv.getFormId()), inv.getRegistrationCode(),
-						sharedEndpointMan));
-				ret.add(pinv);
+				ret.add(new ProjectInvitation(projectPath, inv,
+						PublicRegistrationURLSupport.getPublicRegistrationLink(
+								allFormsMap.get(inv.getFormId()),
+								inv.getRegistrationCode(), sharedEndpointMan)));
 			}
 		}
 
