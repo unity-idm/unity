@@ -879,7 +879,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 			throws EngineException
 	{
 		Entity e = idsMan.getEntityNoContext(entity, "/test");
-		return e.getIdentities().get(0);
+		return getIdentitiesByType(e.getIdentities(), EmailIdentity.ID).iterator().next();
 	}
 
 	private VerifiableElement getFirstEmailAttributeValueFromEntity(EntityParam entity,
