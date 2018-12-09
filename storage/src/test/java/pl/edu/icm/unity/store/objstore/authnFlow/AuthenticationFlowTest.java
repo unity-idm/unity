@@ -16,12 +16,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
 
 public class AuthenticationFlowTest extends AbstractNamedWithTSTest<AuthenticationFlowDefinition>
 {
@@ -29,7 +29,7 @@ public class AuthenticationFlowTest extends AbstractNamedWithTSTest<Authenticati
 	private AuthenticationFlowDB dao;
 	
 	@Autowired
-	private AuthenticatorInstanceDB authDB;
+	private AuthenticatorConfigurationDB authDB;
 	
 	@Override
 	protected NamedCRUDDAOWithTS<AuthenticationFlowDefinition> getDAO()
@@ -42,10 +42,7 @@ public class AuthenticationFlowTest extends AbstractNamedWithTSTest<Authenticati
 	{
 		tx.runInTransaction(() -> {
 			
-			AuthenticatorInstance ret = new AuthenticatorInstance();
-			ret.setId("pass");
-			ret.setLocalCredentialName("pass");
-			ret.setRetrievalConfiguration("");
+			AuthenticatorConfiguration ret = new AuthenticatorConfiguration("pass", "", "", "", 1);
 			authDB.create(ret);
 			
 			AuthenticationFlowDefinition obj = getObject("name1");
@@ -59,7 +56,6 @@ public class AuthenticationFlowTest extends AbstractNamedWithTSTest<Authenticati
 	@Override
 	protected AuthenticationFlowDefinition getObject(String id)
 	{
-
 		return new AuthenticationFlowDefinition(
 				id , Policy.REQUIRE,
 				Sets.newHashSet("pass"), Lists.newArrayList("cert"));

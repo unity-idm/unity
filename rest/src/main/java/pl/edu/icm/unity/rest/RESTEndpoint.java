@@ -36,7 +36,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
@@ -199,7 +199,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 		Set<String> added = new HashSet<>();
 		for (AuthenticationFlow authenticatorFlow: authenticatorFlows)
 		{
-			for (Authenticator authenticator : authenticatorFlow.getAllAuthenticators())
+			for (AuthenticatorInstance authenticator : authenticatorFlow.getAllAuthenticators())
 			{	
 				installAuthnInterceptor(authenticator.getRetrieval(), interceptors, added);
 			}

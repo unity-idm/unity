@@ -14,7 +14,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -46,7 +46,7 @@ public class RequestEditorCreator
 	private GroupsManagement groupsMan;
 	private CredentialManagement credMan;
 	private SignUpAuthNController signUpAuthNController;
-	private AuthenticatorSupportManagement authnSupport;
+	private AuthenticatorSupportService authnSupport;
 	private String registrationCode;
 	private InvitationManagement invitationMan;
 
@@ -59,7 +59,7 @@ public class RequestEditorCreator
 			@Qualifier("insecure") GroupsManagement groupsMan, 
 			@Qualifier("insecure") CredentialManagement credMan,
 			@Qualifier("insecure") InvitationManagement invitationMan,
-			AuthenticatorSupportManagement authnSupport)
+			AuthenticatorSupportService authnSupport)
 	{
 		this.msg = msg;
 		this.identityEditorRegistry = identityEditorRegistry;

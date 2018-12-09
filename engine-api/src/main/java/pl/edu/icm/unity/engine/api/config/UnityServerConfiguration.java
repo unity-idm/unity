@@ -119,8 +119,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
 	public static final String AUTHENTICATOR_TYPE = "authenticatorType";
 	public static final String AUTHENTICATOR_CREDENTIAL = "localCredential";
-	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "verificatorConfigurationFile";
-	public static final String AUTHENTICATOR_RETRIEVAL_CONFIG = "retrievalConfigurationFile";
+	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "configurationFile";
+	private static final String AUTHENTICATOR_RETRIEVAL_CONFIG = "retrievalConfigurationFile";
 	
 	public static final String AUTHENTICATION_FLOW = "authenticationFlow.";
 	public static final String AUTHENTICATION_FLOW_NAME = "authenticationFlowName";
@@ -327,8 +327,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("For local authenticator the name of the local credential associated with it."));
 		defaults.put(AUTHENTICATOR_VERIFICATOR_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
 				setDescription("Authenticator configuration file of the verificator"));
-		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
-				setDescription("Authenticator configuration file of the retrieval"));
+		defaults.put(AUTHENTICATOR_RETRIEVAL_CONFIG, new PropertyMD().setDeprecated().setStructuredListEntry(AUTHENTICATORS).setCategory(initAuthnCat).
+				setDescription("Do not use, former retrieval configuration is now part of authenticator configuration"));
 
 		defaults.put(AUTHENTICATION_FLOW, new PropertyMD().setStructuredList(false).setCategory(initAuthnCat).
 				setDescription("List of initially enabled authentication flows"));

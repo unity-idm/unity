@@ -21,7 +21,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 	public void registrationTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
-		waitForPageLoad(By.className("u-idpAuthentication-samlWeb-single-5")).click();
+		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		
 		waitForPageLoadByURL("/saml-idp/saml2idp-web-entry");
 		waitForElement(By.className("u-passwordUsernameField")).clear();
@@ -41,7 +41,7 @@ public class TestRegistrationForm extends SeleniumTestBase
 
 		waitForPageLoad(By.className("v-Notification")).click();	
 				
-		waitForPageLoad(By.className("u-idpAuthentication-samlWeb-single-5")).click();
+		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
 		
 		assertTrue(waitForElement(By.id("MainHeader.loggedAs")) != null);

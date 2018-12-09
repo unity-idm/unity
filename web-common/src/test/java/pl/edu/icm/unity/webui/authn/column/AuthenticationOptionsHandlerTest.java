@@ -18,7 +18,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
@@ -99,8 +99,8 @@ public class AuthenticationOptionsHandlerTest
 	private AuthenticationFlow getMock2FAuthnOption(String authenticator, 
 			String authenticator2, String secondFAEntry, String... entries)
 	{
-		Authenticator vauthenticator1 = getMockVaadinAuthentication(authenticator, entries);
-		Authenticator vauthenticator2 = getMockVaadinAuthentication(authenticator2, secondFAEntry);
+		AuthenticatorInstance vauthenticator1 = getMockVaadinAuthentication(authenticator, entries);
+		AuthenticatorInstance vauthenticator2 = getMockVaadinAuthentication(authenticator2, secondFAEntry);
 		return new AuthenticationFlow("", Policy.REQUIRE, Sets.newHashSet(vauthenticator1), 
 				Lists.newArrayList(vauthenticator2), 1);
 	}
@@ -111,7 +111,7 @@ public class AuthenticationOptionsHandlerTest
 				getMockVaadinAuthentication(authenticator, entries)), Lists.newArrayList(), 1);
 	}
 	
-	private Authenticator getMockVaadinAuthentication(String authenticator, String... entries)
+	private AuthenticatorInstance getMockVaadinAuthentication(String authenticator, String... entries)
 	{
 		VaadinCredRet vauthenticator = mock(VaadinCredRet.class);
 		when(vauthenticator.getAuthenticatorId()).thenReturn(authenticator);
@@ -124,7 +124,7 @@ public class AuthenticationOptionsHandlerTest
 			uis.add(ui);
 		}
 		when(vauthenticator.createUIInstance(Context.LOGIN)).thenReturn(uis);
-		Authenticator ret = mock(Authenticator.class);
+		AuthenticatorInstance ret = mock(AuthenticatorInstance.class);
 		when(ret.getRetrieval()).thenReturn(vauthenticator);
 		return ret;
 	}

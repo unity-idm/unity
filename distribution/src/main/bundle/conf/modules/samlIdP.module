@@ -6,11 +6,11 @@ unityServer.core.endpoints.samlWebIdp.endpointConfigurationFile=${CONF}/modules/
 unityServer.core.endpoints.samlWebIdp.contextPath=/saml-idp
 unityServer.core.endpoints.samlWebIdp.endpointRealm=defaultRealm
 unityServer.core.endpoints.samlWebIdp.endpointName=UNITY SAML web authentication
-unityServer.core.endpoints.samlWebIdp.endpointAuthenticators=pwdWeb;certWeb
+unityServer.core.endpoints.samlWebIdp.endpointAuthenticators=pwd;cert
 
 unityServer.core.endpoints.samlSOAPIdp.endpointType=SAMLSoapIdP
 unityServer.core.endpoints.samlSOAPIdp.endpointConfigurationFile=${CONF}/modules/saml/saml-webidp.properties
 unityServer.core.endpoints.samlSOAPIdp.contextPath=/soapidp
 unityServer.core.endpoints.samlSOAPIdp.endpointRealm=defaultRealm
 unityServer.core.endpoints.samlSOAPIdp.endpointName=UNITY SOAP SAML service
-unityServer.core.endpoints.samlSOAPIdp.endpointAuthenticators=pwdWS
+unityServer.core.endpoints.samlSOAPIdp.endpointAuthenticators=pwd

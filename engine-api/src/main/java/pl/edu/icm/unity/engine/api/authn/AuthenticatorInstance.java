@@ -5,34 +5,31 @@
 
 package pl.edu.icm.unity.engine.api.authn;
 
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 
 /**
- * Representation of an authenticator, which is a composition of {@link CredentialRetrieval} and
- * {@link CredentialVerificator}, configured.
+ * Representation of an authenticator instance, which is a composition of {@link CredentialRetrieval} and
+ * {@link CredentialVerificator}, configured. It is based on authenticator definition which is created by user,
+ * but is a blueprint for instances with potentially different retrievals and thus different supported bindings.
  * <p>
- * Authenticator can be local or remote, depending on the associated verificator type (local or remote).
+ * Authenticator instance can be local or remote, depending on the associated verificator type (local or remote).
  * <p>
  * Local authenticator is special as it has an associated local credential. Its verificator uses the associated 
  * credential's configuration internally, but it is not advertised to the outside world, via the
- * {@link AuthenticatorInstance} interface.
+ * {@link AuthenticatorInstanceMetadata} interface.
  * <p>
  * @author K. Benedyczak
  */
-public interface Authenticator
+public interface AuthenticatorInstance
 {
 
 	/**
 	 * Updates the current configuration of the authenticator. For local
 	 * verificators the verificator configuration is only set for the
 	 * underlying verificator, it is not exposed in the instanceDescription.
-	 * 
-	 * @param rConfiguration
-	 * @param vConfiguration
 	 */
-	void updateConfiguration(String rConfiguration, String vConfiguration,
-			String localCredential);
+	void updateConfiguration(String vConfiguration, String localCredential);
 
 	/**
 	 * Get authenticator retrieval
@@ -46,7 +43,7 @@ public interface Authenticator
 	 * 
 	 * @return
 	 */
-	AuthenticatorInstance getAuthenticatorInstance();
+	AuthenticatorInstanceMetadata getMetadata();
 
 	/**
 	 * Set authenticator revision

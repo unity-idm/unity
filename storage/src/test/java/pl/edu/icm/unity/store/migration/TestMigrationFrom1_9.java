@@ -34,7 +34,7 @@ import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.ac.AttributeClassHandler;
-import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceHandler;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationHandler;
 import pl.edu.icm.unity.store.objstore.bulk.ProcessingRuleHandler;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.credreq.CredentialRequirementHandler;
@@ -120,7 +120,7 @@ public class TestMigrationFrom1_9
 					AttributeClassHandler.ATTRIBUTE_CLASS_OBJECT_TYPE).size(), 
 					is(3)); 
 			assertThat(genericDao.getObjectsOfType(
-					AuthenticatorInstanceHandler.AUTHENTICATOR_OBJECT_TYPE ).size(), 
+					AuthenticatorConfigurationHandler.AUTHENTICATOR_OBJECT_TYPE ).size(), 
 					is(8)); 
 			assertThat(genericDao.getObjectsOfType(
 					CredentialHandler.CREDENTIAL_OBJECT_TYPE).size(), 

@@ -7,7 +7,6 @@ package pl.edu.icm.unity.types.endpoint;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
@@ -17,7 +16,7 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
  */
 public class EndpointTypeDescription extends DescribedObjectImpl
 {
-	private Set<String> supportedBindings;
+	private String supportedBinding;
 	private Map<String,String> paths;
 	private Properties features;
 	
@@ -26,27 +25,27 @@ public class EndpointTypeDescription extends DescribedObjectImpl
 		features = new Properties();
 	}
 
-	public EndpointTypeDescription(String name, String description, Set<String> supportedBindings, 
+	public EndpointTypeDescription(String name, String description, String supportedBinding, 
 			Map<String,String> paths)
 	{
 		super(name, description);
-		setSupportedBindings(supportedBindings);
+		setSupportedBinding(supportedBinding);
 		setPaths(paths);
 		features = new Properties();
 	}
 
-	public EndpointTypeDescription(String name, String description, Set<String> supportedBindings, 
+	public EndpointTypeDescription(String name, String description, String supportedBinding, 
 			Map<String,String> paths, Properties features)
 	{
 		super(name, description);
-		setSupportedBindings(supportedBindings);
+		setSupportedBinding(supportedBinding);
 		setPaths(paths);
 		this.features = features;
 	}
 	
-	public void setSupportedBindings(Set<String> supportedBindings)
+	public void setSupportedBinding(String supportedBinding)
 	{
-		this.supportedBindings = Collections.unmodifiableSet(supportedBindings);
+		this.supportedBinding = supportedBinding;
 	}
 	
 	public void setPaths(Map<String,String> paths)
@@ -57,9 +56,9 @@ public class EndpointTypeDescription extends DescribedObjectImpl
 	/**
 	 * @return supported binding ids as CXF(WS) or Vaadin(WWW)
 	 */
-	public Set<String> getSupportedBindings()
+	public String getSupportedBinding()
 	{
-		return supportedBindings;
+		return supportedBinding;
 	}
 	
 	public Map<String,String> getPaths()
