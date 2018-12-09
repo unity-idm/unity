@@ -26,7 +26,7 @@ public class PasswordRetrievalProperties extends UnityPropertiesHelper
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
 
-	public static final String NAME = "i18nName";
+	public static final String NAME = "name";
 	public static final String REGISTRATION_FORM_FOR_UNKNOWN = "registrationFormForUnknown";
 	public static final String ENABLE_ASSOCIATION = "enableAssociation";
 	

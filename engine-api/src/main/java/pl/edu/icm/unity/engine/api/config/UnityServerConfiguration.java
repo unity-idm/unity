@@ -119,7 +119,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String AUTHENTICATOR_NAME = "authenticatorName";
 	public static final String AUTHENTICATOR_TYPE = "authenticatorType";
 	public static final String AUTHENTICATOR_CREDENTIAL = "localCredential";
-	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "verificatorConfigurationFile";
+	public static final String AUTHENTICATOR_VERIFICATOR_CONFIG = "configurationFile";
 	private static final String AUTHENTICATOR_RETRIEVAL_CONFIG = "retrievalConfigurationFile";
 	
 	public static final String AUTHENTICATION_FLOW = "authenticationFlow.";
