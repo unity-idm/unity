@@ -158,7 +158,8 @@ public class InvitationParam
 		fill((ObjectNode) n, getGroupSelections(), GroupSelection.class);
 
 		n = json.get("allowedGroups");
-		fill((ObjectNode) n, getAllowedGroups());
+		if (n != null && !n.isNull())
+			fill((ObjectNode) n, getAllowedGroups());
 		
 		n = json.get("attributes");
 		fill((ObjectNode) n, getAttributes(), Attribute.class);
