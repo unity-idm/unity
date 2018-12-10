@@ -14,7 +14,7 @@ import com.google.common.base.Objects;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest.RequestOperation;
 
 /***
- * Data object behind a row in {@link UpdateRequestsGrid}. Stores invitation
+ * Data object behind a row in {@link UpdateRequestsGrid}. Stores request
  * information
  * 
  * @author P.Piernik
@@ -43,8 +43,7 @@ class UpdateRequestEntry
 	@Override
 	public int hashCode()
 	{
-		return Objects.hashCode(id, operation, name, email, groupsDisplayedNames, requestedTime,
-				groupsDisplayedNames);
+		return Objects.hashCode(id, operation, name, email, requestedTime, groupsDisplayedNames);
 	}
 
 	@Override

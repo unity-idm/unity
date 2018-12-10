@@ -34,7 +34,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 
 /**
- * 
+ *  Implementation of {@link ProjectRequestManagement}
  * @author P.Piernik
  *
  */
@@ -158,15 +158,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	private void proccessRegistationRequest(String projectPath, String id, RegistrationRequestAction action)
 			throws EngineException
 	{
-
 		RegistrationRequestState registrationRequest = registrationMan.getRegistrationRequest(id);
-
-		if (getProjectDelegationConfig(projectPath).registrationForm
-				.equals(registrationRequest.getRequest().getFormId()))
-		{
-
-		}
-
 		if (registrationRequest != null)
 		{
 			registrationMan.processRegistrationRequest(registrationRequest.getRequestId(),

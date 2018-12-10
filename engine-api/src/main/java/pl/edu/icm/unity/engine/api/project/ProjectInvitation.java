@@ -12,7 +12,7 @@ import com.google.common.base.Objects;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
- * Complete project invitation as stored in the system.
+ * Holds information about project invitation.
  * 
  * @author P.Piernik
  *
