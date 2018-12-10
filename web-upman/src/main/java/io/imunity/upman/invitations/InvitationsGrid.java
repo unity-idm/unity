@@ -5,6 +5,7 @@
 
 package io.imunity.upman.invitations;
 
+import java.time.Instant;
 import java.util.List;
 
 import com.vaadin.server.Page;
@@ -42,6 +43,12 @@ class InvitationsGrid extends UpManGrid<InvitationEntry>
 	{
 		super(msg, (InvitationEntry e) -> e.code);
 		createColumns(rowActionHandlers);
+		setStyleGenerator(e -> {
+			if (e.expirationTime.isBefore(Instant.now()))
+				return "warn";
+
+			return null;
+		});
 
 	}
 

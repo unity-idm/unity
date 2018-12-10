@@ -7,6 +7,7 @@ package io.imunity.upman.members;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,11 +17,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.upman.common.ServerFaultException;
-import io.imunity.upman.utils.GroupIndentHelper;
+import io.imunity.upman.utils.DelegatedGroupsHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -41,15 +42,18 @@ public class GroupMembersController
 	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupMembersController.class);
 
 	private DelegatedGroupManagement delGroupMan;
+	private DelegatedGroupsHelper delGroupHelper;
 	private CachedAttributeHandlers cachedAttrHandlerRegistry;
 	private UnityMessageSource msg;
 
 	@Autowired
 	public GroupMembersController(UnityMessageSource msg, GroupsManagement groupMan,
-			AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan)
+			AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan,
+			DelegatedGroupsHelper delGroupHelper)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;
+		this.delGroupHelper = delGroupHelper;
 		this.cachedAttrHandlerRegistry = new CachedAttributeHandlers(attrHandlerRegistry);
 	}
 
@@ -88,18 +92,50 @@ public class GroupMembersController
 		return ret;
 	}
 
-	public Map<String, String> getProjectIndentGroupsMap(String projectPath) throws ControllerException
+	/**
+	 * 
+	 * @param projectPath
+	 * @return map which attribute name as key and attribute displayed name
+	 *         as value
+	 * @throws ControllerException
+	 */
+	public Map<String, String> getAdditionalAttributeNamesForProject(String projectPath) throws ControllerException
 	{
-		Map<String, DelegatedGroupContents> groupAndSubgroups;
+
+		Map<String, String> attrs = new LinkedHashMap<>();
 		try
 		{
-			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(projectPath, projectPath);
+			DelegatedGroup group = delGroupMan.getContents(projectPath, projectPath).group;
+			if (group == null)
+				return attrs;
+
+			List<String> groupAttrs = group.delegationConfiguration.attributes;
+
+			if (groupAttrs == null || groupAttrs.isEmpty())
+				return attrs;
+
+			for (String attr : groupAttrs)
+			{
+				attrs.put(attr, delGroupMan.getAttributeDisplayedName(projectPath, attr));
+			}
+		} catch (Exception e)
+		{
+			log.debug("Can not get attribute names for project " + projectPath, e);
+			throw new ServerFaultException(msg);
+		}
+		return attrs;
+	}
+
+	public Map<String, String> getProjectIndentGroupsMap(String projectPath) throws ControllerException
+	{
+		try
+		{
+			return delGroupHelper.getProjectIndentGroupsMap(projectPath);
 		} catch (Exception e)
 		{
 			log.debug("Can not get group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
-		return GroupIndentHelper.getProjectIndentGroupsMap(projectPath, groupAndSubgroups);
 	}
 
 	public void addToGroup(String projectPath, String groupPath, Set<GroupMemberEntry> items)

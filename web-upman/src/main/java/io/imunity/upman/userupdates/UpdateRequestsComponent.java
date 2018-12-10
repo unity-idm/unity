@@ -7,7 +7,6 @@ package io.imunity.upman.userupdates;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import com.vaadin.ui.CustomComponent;
@@ -16,7 +15,6 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.upman.common.ProjectAttributeController;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
@@ -39,14 +37,12 @@ public class UpdateRequestsComponent extends CustomComponent
 	private UpdateRequestsGrid updateRequestGrid;
 	private String project;
 
-	public UpdateRequestsComponent(UnityMessageSource msg, UpdateRequestsController controller,
-			ProjectAttributeController attrController, String project) throws ControllerException
+	public UpdateRequestsComponent(UnityMessageSource msg, UpdateRequestsController controller, String project)
+			throws ControllerException
 	{
 		this.msg = msg;
 		this.controller = controller;
 		this.project = project;
-		Map<String, String> additionalProjectAttributes = attrController
-				.getAdditionalAttributeNamesForProject(project);
 
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
@@ -57,7 +53,7 @@ public class UpdateRequestsComponent extends CustomComponent
 		commonActions.add(getAcceptRequestAction());
 		commonActions.add(getDeclineRequestAction());
 
-		updateRequestGrid = new UpdateRequestsGrid(msg, commonActions, additionalProjectAttributes);
+		updateRequestGrid = new UpdateRequestsGrid(msg, commonActions);
 
 		HamburgerMenu<UpdateRequestEntry> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
@@ -67,13 +63,13 @@ public class UpdateRequestsComponent extends CustomComponent
 		hamburgerMenu.addActionHandlers(commonActions);
 
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
-		
-		Link selfSingUpForm = new Link(msg.getMessage("UpdateRequestsComponent.selfSignUpForm"), null);	
+
+		Link selfSingUpForm = new Link(msg.getMessage("UpdateRequestsComponent.selfSignUpForm"), null);
 		Link updateForm = new Link(msg.getMessage("UpdateRequestsComponent.updateForm"), null);
-	
+
 		Label space = new Label();
-		
-		main.addComponents(selfSingUpForm, updateForm, space , menuBar, updateRequestGrid);
+
+		main.addComponents(selfSingUpForm, updateForm, space, menuBar, updateRequestGrid);
 		reloadRequestsGrid();
 
 	}
@@ -88,7 +84,14 @@ public class UpdateRequestsComponent extends CustomComponent
 
 	public void acceptRequest(Set<UpdateRequestEntry> items)
 	{
-
+		try
+		{
+			controller.accept(project, items);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		reloadRequestsGrid();
 	}
 
 	private SingleActionHandler<UpdateRequestEntry> getDeclineRequestAction()
@@ -101,7 +104,14 @@ public class UpdateRequestsComponent extends CustomComponent
 
 	public void declineRequest(Set<UpdateRequestEntry> items)
 	{
-
+		try
+		{
+			controller.decline(project, items);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		reloadRequestsGrid();
 	}
 
 	private void reloadRequestsGrid()

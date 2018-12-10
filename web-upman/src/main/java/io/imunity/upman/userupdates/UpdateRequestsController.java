@@ -5,13 +5,21 @@
 
 package io.imunity.upman.userupdates;
 
-import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
+import io.imunity.upman.common.ServerFaultException;
+import io.imunity.upman.utils.DelegatedGroupsHelper;
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.ProjectRequest;
+import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -23,16 +31,94 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @Component
 public class UpdateRequestsController
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, UpdateRequestsController.class);
 
-	public List<UpdateRequestEntry> getUpdateRequests(String project) throws ControllerException
+	private ProjectRequestManagement requestMan;
+	private DelegatedGroupsHelper delGroupHelper;
+	private UnityMessageSource msg;
+
+	public UpdateRequestsController(UnityMessageSource msg, ProjectRequestManagement requestMan,
+			DelegatedGroupsHelper delGroupHelper)
 	{
-
-		UpdateRequestEntry entry1 = new UpdateRequestEntry("Id1", "Update", "demo@demo.com", "Demo name",
-				Arrays.asList("X Files", "Security division"), Instant.now(), new HashMap<>());
-
-		UpdateRequestEntry entry2 = new UpdateRequestEntry("Id2", "Self sing up", "demo2@demo.com",
-				"Demo2 name", Arrays.asList("Security division"), Instant.now(), new HashMap<>());
-
-		return Arrays.asList(entry1, entry2);
+		this.requestMan = requestMan;
+		this.delGroupHelper = delGroupHelper;
+		this.msg = msg;
 	}
+
+	public List<UpdateRequestEntry> getUpdateRequests(String projectPath) throws ControllerException
+	{
+		List<ProjectRequest> requests;
+		try
+		{
+			requests = requestMan.getRequests(projectPath);
+			return requests.stream()
+					.map(r -> new UpdateRequestEntry(r.id, r.operation, r.email, r.name,
+							delGroupHelper.getGroupsDisplayedNames(projectPath, r.groups),
+							r.requestedTime))
+					.collect(Collectors.toList());
+		} catch (EngineException e)
+		{
+			log.debug("Can not get request of group " + projectPath, e);
+			throw new ServerFaultException(msg);
+		}
+	}
+
+	public void accept(String projectPath, Set<UpdateRequestEntry> items) throws ControllerException
+	{
+		List<String> accepted = new ArrayList<>();
+		try
+		{
+			for (UpdateRequestEntry request : items)
+			{
+				requestMan.accept(projectPath, request.id, request.operation);
+				accepted.add(request.email);
+
+			}
+		} catch (Exception e)
+		{
+			log.debug("Can not accept request ", e);
+			if (accepted.isEmpty())
+			{
+				throw new ControllerException(
+						msg.getMessage("UpdateRequestsController.acceptRequestError"),
+						msg.getMessage("UpdateRequestsController.notAccepted"), null);
+			} else
+			{
+				throw new ControllerException(
+						msg.getMessage("UpdateRequestsController.removeFromGroupError"),
+						msg.getMessage("UpdateRequestsController.partiallyAccepted", accepted),
+						null);
+			}
+		}
+	}
+
+	public void decline(String projectPath, Set<UpdateRequestEntry> items) throws ControllerException
+	{
+		List<String> declined = new ArrayList<>();
+		try
+		{
+			for (UpdateRequestEntry request : items)
+			{
+				requestMan.decline(projectPath, request.id, request.operation);
+				declined.add(request.email);
+
+			}
+		} catch (Exception e)
+		{
+			log.debug("Can not reject request ", e);
+			if (declined.isEmpty())
+			{
+				throw new ControllerException(
+						msg.getMessage("UpdateRequestsController.declineRequestError"),
+						msg.getMessage("UpdateRequestsController.notDeclined"), null);
+			} else
+			{
+				throw new ControllerException(
+						msg.getMessage("UpdateRequestsController.declineRequestError"),
+						msg.getMessage("UpdateRequestsController.partiallyDeclined", declined),
+						null);
+			}
+		}
+	}
+
 }

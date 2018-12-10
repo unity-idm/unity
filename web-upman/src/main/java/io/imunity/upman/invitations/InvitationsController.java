@@ -9,21 +9,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.upman.common.ServerFaultException;
-import io.imunity.upman.utils.GroupIndentHelper;
+import io.imunity.upman.utils.DelegatedGroupsHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
-import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -38,15 +36,15 @@ public class InvitationsController
 	private static final Logger log = Log.getLogger(Log.U_SERVER, InvitationsController.class);
 
 	private ProjectInvitationsManagement invitationMan;
-	private DelegatedGroupManagement delGroupMan;
+	private DelegatedGroupsHelper delGroupHelper;
 	private UnityMessageSource msg;
 
 	@Autowired
 	public InvitationsController(UnityMessageSource msg, ProjectInvitationsManagement invitationMan,
-			DelegatedGroupManagement delGroupMan)
+			DelegatedGroupsHelper delGroupHelper)
 	{
 		this.invitationMan = invitationMan;
-		this.delGroupMan = delGroupMan;
+		this.delGroupHelper = delGroupHelper;
 		this.msg = msg;
 	}
 
@@ -118,33 +116,11 @@ public class InvitationsController
 			throw new ServerFaultException(msg);
 		}
 
-		List<InvitationEntry> ret = new ArrayList<>();
-		for (ProjectInvitation pinv : invitations)
-		{
-			try
-			{
-				ret.add(new InvitationEntry(pinv.registrationCode, pinv.contactAddress,
-						getGroupsDisplayedNames(projectPath, pinv.allowedGroup), pinv.lastSentTime,
-						pinv.expiration, pinv.link));
-			} catch (EngineException e)
-			{
-				log.debug("Can not get groups displayed names", e);
-				throw new ServerFaultException(msg);
-			}
-		}
-
-		return ret;
-	}
-
-	private List<String> getGroupsDisplayedNames(String project, List<String> groupPaths) throws EngineException
-	{
-		List<String> groups = new ArrayList<>();
-		for (String path : groupPaths)
-		{
-			DelegatedGroupContents con = delGroupMan.getContents(project, path);
-			groups.add(con.group.displayedName);
-		}
-		return groups;
+		return invitations.stream()
+				.map(pinv -> new InvitationEntry(pinv.registrationCode, pinv.contactAddress,
+						delGroupHelper.getGroupsDisplayedNames(projectPath, pinv.allowedGroup),
+						pinv.lastSentTime, pinv.expiration, pinv.link))
+				.collect(Collectors.toList());
 	}
 
 	public void addInvitation(ProjectInvitationParam invitation) throws ControllerException
@@ -173,15 +149,13 @@ public class InvitationsController
 
 	public Map<String, String> getAllowedIndentGroupsMap(String projectPath) throws ControllerException
 	{
-		Map<String, DelegatedGroupContents> groupAndSubgroups;
 		try
 		{
-			groupAndSubgroups = delGroupMan.getGroupAndSubgroups(projectPath, projectPath);
+			return delGroupHelper.getProjectIndentGroupsMap(projectPath);
 		} catch (Exception e)
 		{
 			log.debug("Can not get group " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
-		return GroupIndentHelper.getProjectIndentGroupsMap(projectPath, groupAndSubgroups);
 	}
 }

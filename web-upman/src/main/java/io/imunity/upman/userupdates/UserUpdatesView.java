@@ -18,7 +18,6 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
-import io.imunity.upman.common.ProjectAttributeController;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -42,16 +41,13 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 	public static final String VIEW_NAME = "UserUpdates";
 
 	private UpdateRequestsController controller;
-	private ProjectAttributeController attrController;
 	private UnityMessageSource msg;
 
 	@Autowired
-	public UserUpdatesView(UnityMessageSource msg, UpdateRequestsController controller,
-			ProjectAttributeController attrController)
+	public UserUpdatesView(UnityMessageSource msg, UpdateRequestsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.attrController = attrController;
 	}
 
 	@Override
@@ -66,7 +62,7 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 		UpdateRequestsComponent updateRequestsComponent;
 		try
 		{
-			updateRequestsComponent = new UpdateRequestsComponent(msg, controller, attrController, project);
+			updateRequestsComponent = new UpdateRequestsComponent(msg, controller, project);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

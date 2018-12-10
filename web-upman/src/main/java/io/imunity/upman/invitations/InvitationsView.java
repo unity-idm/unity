@@ -34,7 +34,7 @@ import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
-import io.imunity.upman.utils.GroupIndentHelper;
+import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -174,7 +174,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 			}
 
 			groups = new ChipsWithDropdown<>(g -> g.name, g -> {
-				return new String(g.name).replace(GroupIndentHelper.GROUPS_TREE_INDENT_CHAR, "");
+				return new String(g.name).replace(DelegatedGroupsHelper.GROUPS_TREE_INDENT_CHAR, "");
 			}, true);
 			groups.setCaption(msg.getMessage("NewInvitationDialog.allowedGroups"));
 			groups.setItems(groupsMap.entrySet().stream().map(e -> new NamedGroup(e.getKey(), e.getValue()))

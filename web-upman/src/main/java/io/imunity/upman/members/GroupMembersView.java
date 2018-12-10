@@ -21,7 +21,6 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
-import io.imunity.upman.common.ProjectAttributeController;
 import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -46,14 +45,12 @@ public class GroupMembersView extends CustomComponent implements UpManView
 
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
-	private ProjectAttributeController attrController;
 
 	@Autowired
-	public GroupMembersView(UnityMessageSource msg, GroupMembersController controller, ProjectAttributeController attrController)
+	public GroupMembersView(UnityMessageSource msg, GroupMembersController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.attrController = attrController;
 	}
 
 	@Override
@@ -63,7 +60,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		setCompositionRoot(main);
-		
+
 		Map<String, String> groups;
 		try
 		{
@@ -74,26 +71,24 @@ public class GroupMembersView extends CustomComponent implements UpManView
 			return;
 		}
 
-		groups.put(project,
-				groups.get(project) + " (" + msg.getMessage("AllMemebers") + ")");
+		groups.put(project, groups.get(project) + " (" + msg.getMessage("AllMemebers") + ")");
 		GroupIndentCombo subGroupCombo = new GroupIndentCombo(
 				msg.getMessage("GroupMemberView.subGroupComboCaption"), groups);
 		main.addComponent(new FormLayout(subGroupCombo));
 		GroupMembersComponent groupMembersComponent;
 		try
 		{
-			groupMembersComponent = new GroupMembersComponent(msg, controller, attrController, project);
+			groupMembersComponent = new GroupMembersComponent(msg, controller, project);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
 			return;
 		}
 		main.addComponent(groupMembersComponent);
-		subGroupCombo.addValueChangeListener(
-				e -> groupMembersComponent.setGroup(e.getValue()));
-		
+		subGroupCombo.addValueChangeListener(e -> groupMembersComponent.setGroup(e.getValue()));
+
 		groupMembersComponent.setGroup(project);
-		
+
 	}
 
 	@Override
@@ -123,16 +118,13 @@ public class GroupMembersView extends CustomComponent implements UpManView
 	public class MembersNavigationInfoProvider extends UpManNavigationInfoProviderBase
 	{
 		@Autowired
-		public MembersNavigationInfoProvider(UnityMessageSource msg,
-				UpManRootNavigationInfoProvider parent,
+		public MembersNavigationInfoProvider(UnityMessageSource msg, UpManRootNavigationInfoProvider parent,
 				ObjectFactory<GroupMembersView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
-					.withParent(parent.getNavigationInfo())
-					.withObjectFactory(factory)
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("UpManMenu.members"))
-					.withIcon(Images.family.getResource()).withPosition(0)
-					.build());
+					.withIcon(Images.family.getResource()).withPosition(0).build());
 
 		}
 	}

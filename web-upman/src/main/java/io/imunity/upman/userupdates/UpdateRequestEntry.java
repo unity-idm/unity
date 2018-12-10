@@ -7,11 +7,11 @@ package io.imunity.upman.userupdates;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.base.Objects;
+
+import pl.edu.icm.unity.engine.api.project.ProjectRequest.RequestOperation;
 
 /***
  * Data object behind a row in {@link UpdateRequestsGrid}. Stores invitation
@@ -23,15 +23,14 @@ import com.google.common.base.Objects;
 class UpdateRequestEntry
 {
 	public final String id;
-	public final String operation;
+	public final RequestOperation operation;
 	public final String name;
 	public final String email;
 	public final List<String> groupsDisplayedNames;
 	public final Instant requestedTime;
-	public final Map<String, String> attributes;
 
-	public UpdateRequestEntry(String id, String operation, String email, String name,
-			List<String> groupsDisplayedNames, Instant requestedTime, Map<String, String> attributes)
+	public UpdateRequestEntry(String id, RequestOperation operation, String email, String name,
+			List<String> groupsDisplayedNames, Instant requestedTime)
 	{
 		this.id = id;
 		this.operation = operation;
@@ -39,14 +38,13 @@ class UpdateRequestEntry
 		this.email = email;
 		this.groupsDisplayedNames = new ArrayList<>(groupsDisplayedNames);
 		this.requestedTime = requestedTime;
-		this.attributes = new HashMap<>(attributes);
 	}
 
 	@Override
 	public int hashCode()
 	{
 		return Objects.hashCode(id, operation, name, email, groupsDisplayedNames, requestedTime,
-				groupsDisplayedNames, attributes);
+				groupsDisplayedNames);
 	}
 
 	@Override
@@ -64,8 +62,7 @@ class UpdateRequestEntry
 		return Objects.equal(this.id, other.id) && Objects.equal(this.operation, other.operation)
 				&& Objects.equal(this.email, other.email) && Objects.equal(this.name, other.name)
 				&& Objects.equal(this.groupsDisplayedNames, other.groupsDisplayedNames)
-				&& Objects.equal(this.requestedTime, other.requestedTime)
-				&& Objects.equal(this.attributes, other.attributes);
+				&& Objects.equal(this.requestedTime, other.requestedTime);
 
 	}
 
