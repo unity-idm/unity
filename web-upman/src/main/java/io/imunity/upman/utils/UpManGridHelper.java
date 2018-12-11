@@ -11,12 +11,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.TextField;
 
+import io.imunity.upman.common.FilterableEntry;
+import io.imunity.upman.common.UpManGrid;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * A collection of methods useful for creating UpMan grids
@@ -45,8 +51,8 @@ public class UpManGridHelper
 
 	public static <T> void createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider, String caption)
 	{
-		grid.addColumn(t -> timeProvider.apply(t) != null ? TimeUtil.formatMediumInstant(timeProvider.apply(t)) : "")
-				.setCaption(caption).setExpandRatio(3);
+		grid.addColumn(t -> timeProvider.apply(t) != null ? TimeUtil.formatMediumInstant(timeProvider.apply(t))
+				: "").setCaption(caption).setExpandRatio(3);
 	}
 
 	public static <T> void createAttrsColumns(Grid<T> grid, Function<T, Map<String, String>> attributesProvider,
@@ -54,8 +60,9 @@ public class UpManGridHelper
 	{
 		for (Map.Entry<String, String> attribute : additionalAttributes.entrySet())
 		{
-			grid.addColumn(r -> attributesProvider.apply(r).get(attribute.getKey())).setCaption(attribute.getValue())
-					.setExpandRatio(3).setId(ATTR_COL_PREFIX + attribute.getKey());
+			grid.addColumn(r -> attributesProvider.apply(r).get(attribute.getKey()))
+					.setCaption(attribute.getValue()).setExpandRatio(3)
+					.setId(ATTR_COL_PREFIX + attribute.getKey());
 		}
 	}
 
@@ -64,5 +71,23 @@ public class UpManGridHelper
 		grid.addColumn(r -> {
 			return (groups.apply(r) != null) ? String.join(", ", groups.apply(r)) : "";
 		}).setCaption(caption).setExpandRatio(3);
+	}
+
+	public static TextField generateSearchField(UpManGrid<? extends FilterableEntry> grid, UnityMessageSource msg)
+	{
+		TextField searchText = new TextField();
+		searchText.addStyleName(Styles.vSmall.toString());
+		searchText.setWidth(10, Unit.EM);
+		searchText.setPlaceholder(msg.getMessage("UpManGrid.search"));
+		searchText.addValueChangeListener(event -> {
+			String searched = event.getValue();
+			grid.clearFilters();
+			if (event.getValue() == null || event.getValue().isEmpty())
+			{
+				return;
+			}
+			grid.addFilter(e -> e.anyFieldContains(searched, msg));
+		});
+		return searchText;
 	}
 }

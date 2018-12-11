@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Grid;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -30,7 +31,7 @@ public abstract class UpManGrid<T> extends Grid<T>
 	private List<T> entries;
 	private ListDataProvider<T> dataProvider;
 	private Function<T, String> idProvider;
-
+	
 	public UpManGrid(UnityMessageSource msg, Function<T, String> idProvider)
 	{
 		this.msg = msg;
@@ -68,5 +69,14 @@ public abstract class UpManGrid<T> extends Grid<T>
 	{
 		return entries;
 	}
+	
+	public void addFilter(SerializablePredicate<T> filter)
+	{
+		dataProvider.addFilter(filter);
+	}
 
+	public void clearFilters()
+	{
+		dataProvider.clearFilters();
+	}
 }

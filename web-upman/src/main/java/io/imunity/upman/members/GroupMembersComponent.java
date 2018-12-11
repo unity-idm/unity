@@ -13,13 +13,17 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.vaadin.server.SerializablePredicate;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManUI;
+import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
@@ -44,13 +48,13 @@ class GroupMembersComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
-	
+
 	private GroupMemebersGrid groupMemebersGrid;
 	private String group;
 	private String project;
 
-	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller,
-			String project) throws ControllerException
+	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller, String project)
+			throws ControllerException
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -73,8 +77,7 @@ class GroupMembersComponent extends CustomComponent
 		rawActions.add(getAddManagerPrivilegesAction(true));
 		rawActions.add(getRevokeManagerPrivilegesAction(true, s -> false));
 
-		groupMemebersGrid = new GroupMemebersGrid(msg, rawActions,
-				additionalProjectAttributes);
+		groupMemebersGrid = new GroupMemebersGrid(msg, rawActions, additionalProjectAttributes);
 
 		HamburgerMenu<GroupMemberEntry> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
@@ -83,18 +86,20 @@ class GroupMembersComponent extends CustomComponent
 
 		hamburgerMenu.addActionHandlers(commonActions);
 		hamburgerMenu.addActionHandler(getAddManagerPrivilegesAction(false));
-		hamburgerMenu.addActionHandler(getRevokeManagerPrivilegesAction(false,
-				s -> checkIfAllManagersSelected(s)));
-
-		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
+		hamburgerMenu.addActionHandler(
+				getRevokeManagerPrivilegesAction(false, s -> checkIfAllManagersSelected(s)));
+		TextField search = UpManGridHelper.generateSearchField(groupMemebersGrid, msg);
+		
+		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu, search);
+		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
+		menuBar.setWidth(100, Unit.PERCENTAGE);
 		main.addComponents(menuBar, groupMemebersGrid);
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getRemoveFromProjectAction()
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
-				.withCaption(msg.getMessage(
-						"GroupMembersComponent.removeFromProjectAction"))
+				.withCaption(msg.getMessage("GroupMembersComponent.removeFromProjectAction"))
 				.withIcon(Images.removeFromGroup.getResource()).multiTarget()
 				.withHandler(this::removeFromProject).build();
 	}
@@ -107,8 +112,7 @@ class GroupMembersComponent extends CustomComponent
 	private SingleActionHandler<GroupMemberEntry> getRemoveFromGroupAction()
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
-				.withCaption(msg.getMessage(
-						"GroupMembersComponent.removeFromGroupAction"))
+				.withCaption(msg.getMessage("GroupMembersComponent.removeFromGroupAction"))
 				.withIcon(Images.deleteFolder.getResource()).multiTarget()
 				.withHandler(this::removeFromGroup).build();
 	}
@@ -122,8 +126,7 @@ class GroupMembersComponent extends CustomComponent
 	{
 		if (checkIfSelfProjectOperation(groupFrom, items))
 		{
-			new ConfirmDialog(msg, msg.getMessage(
-					"GroupMembersComponent.confirmSelfRemoveFromProject",
+			new ConfirmDialog(msg, msg.getMessage("GroupMembersComponent.confirmSelfRemoveFromProject",
 					getProjectDisplayedNameSafe(project)), () -> {
 						confirmedRemoveFromGroup(groupFrom, items);
 						UpManUI.reloadProjects();
@@ -150,23 +153,18 @@ class GroupMembersComponent extends CustomComponent
 	private SingleActionHandler<GroupMemberEntry> getAddToGroupAction()
 	{
 		return SingleActionHandler.builder(GroupMemberEntry.class)
-				.withCaption(msg.getMessage(
-						"GroupMembersComponent.addToGroupAction"))
+				.withCaption(msg.getMessage("GroupMembersComponent.addToGroupAction"))
 				.withIcon(Images.add.getResource()).multiTarget()
 				.withHandler(this::showAddToGroupDialog).build();
 	}
 
-	private SingleActionHandler<GroupMemberEntry> getAddManagerPrivilegesAction(
-			boolean hideIfInactive)
+	private SingleActionHandler<GroupMemberEntry> getAddManagerPrivilegesAction(boolean hideIfInactive)
 	{
-		SingleActionHandler<GroupMemberEntry> handler = SingleActionHandler
-				.builder(GroupMemberEntry.class)
-				.withCaption(msg.getMessage(
-						"GroupMembersComponent.addManagerPrivilegesAction"))
+		SingleActionHandler<GroupMemberEntry> handler = SingleActionHandler.builder(GroupMemberEntry.class)
+				.withCaption(msg.getMessage("GroupMembersComponent.addManagerPrivilegesAction"))
 				.withIcon(Images.trending_up.getResource()).multiTarget()
 				.withHandler(this::addManagerPrivileges)
-				.withDisabledPredicate(e -> !e.getRole()
-						.equals(GroupAuthorizationRole.regular))
+				.withDisabledPredicate(e -> !e.getRole().equals(GroupAuthorizationRole.regular))
 				.build();
 		handler.setHideIfInactive(hideIfInactive);
 		return handler;
@@ -184,18 +182,14 @@ class GroupMembersComponent extends CustomComponent
 		reloadMemebersGrid();
 	}
 
-	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction(
-			boolean hideIfInactive,
+	private SingleActionHandler<GroupMemberEntry> getRevokeManagerPrivilegesAction(boolean hideIfInactive,
 			Predicate<Set<GroupMemberEntry>> disabledCompositePredicate)
 	{
-		SingleActionHandler<GroupMemberEntry> handler = SingleActionHandler
-				.builder(GroupMemberEntry.class)
-				.withCaption(msg.getMessage(
-						"GroupMembersComponent.revokeManagerPrivilegesAction"))
+		SingleActionHandler<GroupMemberEntry> handler = SingleActionHandler.builder(GroupMemberEntry.class)
+				.withCaption(msg.getMessage("GroupMembersComponent.revokeManagerPrivilegesAction"))
 				.withIcon(Images.trending_down.getResource()).multiTarget()
 				.withHandler(this::revokeManagerPrivileges)
-				.withDisabledPredicate(e -> !e.getRole()
-						.equals(GroupAuthorizationRole.manager)
+				.withDisabledPredicate(e -> !e.getRole().equals(GroupAuthorizationRole.manager)
 						|| groupMemebersGrid.getManagersCount() < 2)
 				.withDisabledCompositePredicate(disabledCompositePredicate).build();
 		handler.setHideIfInactive(hideIfInactive);
@@ -223,9 +217,10 @@ class GroupMembersComponent extends CustomComponent
 	{
 		if (checkIfSelfProjectOperation(project, items))
 		{
-			new ConfirmDialog(msg, msg.getMessage(
-					"GroupMembersComponent.confirmSelfRevokeManagerPrivileges",
-					getProjectDisplayedNameSafe(project)), () -> {
+			new ConfirmDialog(msg,
+					msg.getMessage("GroupMembersComponent.confirmSelfRevokeManagerPrivileges",
+							getProjectDisplayedNameSafe(project)),
+					() -> {
 
 						confirmedRevokeManagerPrivileges(items);
 						UpManUI.reloadProjects();
@@ -274,8 +269,7 @@ class GroupMembersComponent extends CustomComponent
 		boolean selfOperation = false;
 		if (project.equals(group))
 		{
-			long managerId = InvocationContext.getCurrent().getLoginSession()
-					.getEntityId();
+			long managerId = InvocationContext.getCurrent().getLoginSession().getEntityId();
 
 			for (GroupMemberEntry e : items)
 			{
@@ -321,8 +315,7 @@ class GroupMembersComponent extends CustomComponent
 		private Consumer<String> selectionConsumer;
 		private GroupIndentCombo groupSelection;
 
-		public TargetGroupSelectionDialog(UnityMessageSource msg,
-				Consumer<String> selectionConsumer)
+		public TargetGroupSelectionDialog(UnityMessageSource msg, Consumer<String> selectionConsumer)
 		{
 			super(msg, msg.getMessage("AddToGroupDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
@@ -344,8 +337,8 @@ class GroupMembersComponent extends CustomComponent
 				NotificationPopup.showError(e);
 			}
 
-			groupSelection = new GroupIndentCombo(
-					msg.getMessage("AddToGroupDialog.selectGroup"), groupsMap);
+			groupSelection = new GroupIndentCombo(msg.getMessage("AddToGroupDialog.selectGroup"),
+					groupsMap);
 			groupSelection.setWidth(100, Unit.PERCENTAGE);
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupSelection);
@@ -360,4 +353,9 @@ class GroupMembersComponent extends CustomComponent
 			close();
 		}
 	}
+
+	public static interface MemberFilter extends SerializablePredicate<GroupMemberEntry>
+	{
+	}
+
 }

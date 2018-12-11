@@ -9,12 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
@@ -62,7 +65,10 @@ public class UpdateRequestsComponent extends CustomComponent
 
 		hamburgerMenu.addActionHandlers(commonActions);
 
-		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
+		TextField search = UpManGridHelper.generateSearchField(updateRequestGrid, msg);
+		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu, search);
+		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
+		menuBar.setWidth(100, Unit.PERCENTAGE);
 
 		Link selfSingUpForm = new Link(msg.getMessage("UpdateRequestsComponent.selfSignUpForm"), null);
 		Link updateForm = new Link(msg.getMessage("UpdateRequestsComponent.updateForm"), null);

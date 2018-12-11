@@ -11,6 +11,10 @@ import java.util.List;
 
 import com.google.common.base.Objects;
 
+import io.imunity.upman.common.FilterableEntry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.TimeUtil;
+
 /***
  * Data object behind a row in {@link InvitationsGrid}. Stores invitation
  * information
@@ -18,7 +22,7 @@ import com.google.common.base.Objects;
  * @author P.Piernik
  *
  */
-class InvitationEntry
+class InvitationEntry implements FilterableEntry
 {
 	public final String email;
 	public final List<String> groupsDisplayedNames;
@@ -63,4 +67,28 @@ class InvitationEntry
 				&& Objects.equal(this.link, other.link);
 	}
 
+	@Override
+	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	{
+		String textLower = searched.toLowerCase();
+
+		if (email != null && email.toLowerCase().contains(textLower))
+			return true;
+
+		if (requestedTime != null && TimeUtil.formatMediumInstant(requestedTime).toString().toLowerCase()
+				.contains(textLower))
+			return true;
+
+		if (expirationTime != null && TimeUtil.formatMediumInstant(expirationTime).toString().toLowerCase()
+				.contains(textLower))
+			return true;
+
+		for (String group : groupsDisplayedNames)
+		{
+			if (group != null && group.toLowerCase().contains(textLower))
+				return true;
+		}
+
+		return false;
+	}
 }

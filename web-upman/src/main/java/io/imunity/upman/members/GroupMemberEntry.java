@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import io.imunity.upman.common.FilterableEntry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 
@@ -19,7 +21,7 @@ import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
  * @author P.Piernik
  *
  */
-class GroupMemberEntry
+class GroupMemberEntry implements FilterableEntry
 {
 	private Map<String, String> attributes;
 	private DelegatedGroupMember member;
@@ -29,7 +31,6 @@ class GroupMemberEntry
 
 		this.member = member;
 		this.attributes = new HashMap<>(attributes);
-
 	}
 
 	@Override
@@ -53,7 +54,7 @@ class GroupMemberEntry
 	{
 		return attributes;
 	}
-	
+
 	public long getEntityId()
 	{
 		return member.entityId;
@@ -72,5 +73,26 @@ class GroupMemberEntry
 	public String getEmail()
 	{
 		return member.email;
+	}
+
+	@Override
+	public boolean anyFieldContains(String searched, UnityMessageSource msg)
+	{
+		String textLower = searched.toLowerCase();
+
+		if (getRole() != null && msg.getMessage("Role." + getRole().toString().toLowerCase()).toLowerCase()
+				.contains(textLower))
+			return true;
+
+		if (getName() != null && getName().toString().toLowerCase().contains(textLower))
+			return true;
+		if (getEmail() != null && getEmail().toString().toLowerCase().contains(textLower))
+			return true;
+
+		for (Map.Entry<String, String> value : attributes.entrySet())
+
+			if (value != null && value.getValue().toLowerCase().contains(textLower))
+				return true;
+		return false;
 	}
 }

@@ -64,12 +64,14 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 	{
 
 		addComponentColumn(ie -> {
-			if (ie.getRole().equals(GroupAuthorizationRole.manager))
+			if (ie.getRole() != null)
 			{
-				return getRoleLabel(msg.getMessage("Role.admin"), Images.star);
+				return getRoleLabel(msg.getMessage("Role." + ie.getRole().toString().toLowerCase()),
+						ie.getRole().equals(GroupAuthorizationRole.manager) ? Images.star
+								: Images.user);
 			} else
 			{
-				return getRoleLabel(msg.getMessage("Role.regularUser"), Images.user);
+				return null;
 			}
 
 		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(2).setResizable(false);
@@ -85,6 +87,7 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 		createBaseColumns();
 		UpManGridHelper.createAttrsColumns(this, (GroupMemberEntry e) -> e.getAttributes(),
 				additionalAttributesName);
-		UpManGridHelper.createActionColumn(this, rowActionHandlers, msg.getMessage(BaseColumn.action.captionKey));
+		UpManGridHelper.createActionColumn(this, rowActionHandlers,
+				msg.getMessage(BaseColumn.action.captionKey));
 	}
 }

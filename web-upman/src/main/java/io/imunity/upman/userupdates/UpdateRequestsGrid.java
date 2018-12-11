@@ -10,7 +10,6 @@ import java.util.List;
 import io.imunity.upman.common.UpManGrid;
 import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.project.ProjectRequest.RequestOperation;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 
 /**
@@ -47,9 +46,9 @@ public class UpdateRequestsGrid extends UpManGrid<UpdateRequestEntry>
 	private void createBaseColumns()
 	{
 
-		addColumn(r -> r.operation.equals(RequestOperation.SelfSignUp)
-				? msg.getMessage("UpdateRequest.selfSignUp") : msg.getMessage("UpdateRequest.update") ).setCaption(msg.getMessage(BaseColumn.operation.captionKey))
-				.setExpandRatio(3);
+		addColumn(r -> r.operation != null
+				? msg.getMessage("UpdateRequest." + r.operation.toString().toLowerCase())
+				: null).setCaption(msg.getMessage(BaseColumn.operation.captionKey)).setExpandRatio(3);
 		addColumn(r -> r.name).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(3);
 		addColumn(r -> r.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(3);
 
@@ -64,7 +63,8 @@ public class UpdateRequestsGrid extends UpManGrid<UpdateRequestEntry>
 	private void createColumns(List<SingleActionHandler<UpdateRequestEntry>> rowActionHandlers)
 	{
 		createBaseColumns();
-		UpManGridHelper.createActionColumn(this, rowActionHandlers, msg.getMessage(BaseColumn.action.captionKey));
+		UpManGridHelper.createActionColumn(this, rowActionHandlers,
+				msg.getMessage(BaseColumn.action.captionKey));
 	}
 
 }
