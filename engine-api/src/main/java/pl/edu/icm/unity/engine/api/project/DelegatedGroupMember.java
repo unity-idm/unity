@@ -36,7 +36,12 @@ public class DelegatedGroupMember
 		this.role = role;
 		this.name = name;
 		this.email = email;
-		this.attributes = new ArrayList<>(attributes);
+		this.attributes = new ArrayList<>();
+		if (attributes != null)
+		{
+			this.attributes.addAll(attributes);
+
+		}
 	}
 
 	@Override

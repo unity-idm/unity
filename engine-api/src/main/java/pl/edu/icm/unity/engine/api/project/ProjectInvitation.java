@@ -19,6 +19,8 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
  */
 public class ProjectInvitation extends ProjectInvitationParam
 {
+	public static final long DEFAULT_TTL_DAYS = 3;
+
 	public final String registrationCode;
 	public final Instant lastSentTime;
 	public final int numberOfSends;
@@ -26,8 +28,12 @@ public class ProjectInvitation extends ProjectInvitationParam
 
 	public ProjectInvitation(String project, InvitationWithCode org, String link)
 	{
-		
-		super(project, org.getContactAddress(), org.getAllowedGroups().get(0).getSelectedGroups(), org.getExpiration());
+
+		super(project, org.getContactAddress(),
+				org.getAllowedGroups() != null && !org.getAllowedGroups().isEmpty()
+						? org.getAllowedGroups().get(0).getSelectedGroups()
+						: null,
+				org.getExpiration());
 		this.registrationCode = org.getRegistrationCode();
 		this.lastSentTime = org.getLastSentTime();
 		this.numberOfSends = org.getNumberOfSends();

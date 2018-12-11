@@ -74,7 +74,7 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 				return null;
 			}
 
-		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(2).setResizable(false);
+		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(3).setResizable(false);
 
 		addColumn(ie -> ie.getName()).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(3);
 		addColumn(ie -> ie.getEmail()).setCaption(msg.getMessage(BaseColumn.email.captionKey))

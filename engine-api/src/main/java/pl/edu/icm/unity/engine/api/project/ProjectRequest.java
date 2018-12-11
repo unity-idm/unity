@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.api.project;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Objects;
@@ -38,7 +39,11 @@ public class ProjectRequest
 		this.project = project;
 		this.name = name;
 		this.email = email;
-		this.groups = groups;
+		this.groups = new ArrayList<>();
+		if (groups != null)
+		{
+			this.groups.addAll(groups);
+		}
 		this.requestedTime = requestedTime;
 	}
 

@@ -48,15 +48,15 @@ public class UpdateRequestsGrid extends UpManGrid<UpdateRequestEntry>
 
 		addColumn(r -> r.operation != null
 				? msg.getMessage("UpdateRequest." + r.operation.toString().toLowerCase())
-				: null).setCaption(msg.getMessage(BaseColumn.operation.captionKey)).setExpandRatio(3);
-		addColumn(r -> r.name).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(3);
-		addColumn(r -> r.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(3);
+				: null).setCaption(msg.getMessage(BaseColumn.operation.captionKey)).setExpandRatio(2);
+		addColumn(r -> r.name).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(2);
+		addColumn(r -> r.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(2);
 
 		UpManGridHelper.createGroupsColumn(this, (UpdateRequestEntry e) -> e.groupsDisplayedNames,
-				msg.getMessage(BaseColumn.groups.captionKey));
+				msg.getMessage(BaseColumn.groups.captionKey)).setExpandRatio(4);
 
 		UpManGridHelper.createDateTimeColumn(this, (UpdateRequestEntry e) -> e.requestedTime,
-				msg.getMessage(BaseColumn.requested.captionKey));
+				msg.getMessage(BaseColumn.requested.captionKey)).setExpandRatio(2);
 
 	}
 

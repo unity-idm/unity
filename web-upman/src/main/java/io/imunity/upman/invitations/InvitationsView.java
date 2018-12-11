@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.Alignment;
@@ -38,6 +39,7 @@ import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
@@ -145,8 +147,6 @@ public class InvitationsView extends CustomComponent implements UpManView
 
 	private class NewInvitationDialog extends AbstractDialog
 	{
-		private static final long DEFAULT_TTL_DAYS = 3;
-
 		private Consumer<ProjectInvitationParam> selectionConsumer;
 		private TextField email;
 		private ChipsWithDropdown<NamedGroup> groups;
@@ -191,11 +191,16 @@ public class InvitationsView extends CustomComponent implements UpManView
 			binder.forField(lifeTime).asRequired(msg.getMessage("fieldRequired"))
 					.withConverter(d -> d.atZone(ZoneId.systemDefault()).toInstant(),
 							d -> LocalDateTime.ofInstant(d, ZoneId.systemDefault()))
-					.bind("expiration");
+
+					.withValidator((v, c) -> {
+						return v.isAfter(Instant.now()) ? ValidationResult.ok()
+								: ValidationResult.error(msg.getMessage("NewInvitationDialog.invalidLifeTime"));
+					}).bind("expiration");
 
 			ProjectInvitationParams bean = new ProjectInvitationParams();
-			bean.setExpiration(LocalDateTime.now(ZoneId.systemDefault()).plusDays(DEFAULT_TTL_DAYS)
-					.atZone(ZoneId.systemDefault()).toInstant());
+			bean.setExpiration(LocalDateTime.now(ZoneId.systemDefault())
+					.plusDays(ProjectInvitation.DEFAULT_TTL_DAYS).atZone(ZoneId.systemDefault())
+					.toInstant());
 			binder.setBean(bean);
 
 			FormLayout main = new CompactFormLayout();

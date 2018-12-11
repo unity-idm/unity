@@ -125,24 +125,13 @@ public class InvitationsController
 
 	public void addInvitation(ProjectInvitationParam invitation) throws ControllerException
 	{
-		String code;
 		try
 		{
-			code = invitationMan.addInvitation(invitation);
+			invitationMan.addInvitation(invitation);
 
 		} catch (Exception e)
 		{
 			log.debug("Can not add invitation", e);
-			throw new ServerFaultException(msg);
-		}
-
-		try
-		{
-			invitationMan.sendInvitation(invitation.project, code);
-
-		} catch (Exception e)
-		{
-			log.debug("Can not send invitation", e);
 			throw new ServerFaultException(msg);
 		}
 	}

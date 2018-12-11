@@ -28,7 +28,7 @@ class InvitationsGrid extends UpManGrid<InvitationEntry>
 
 	enum BaseColumn
 	{
-		email("Invitation.email"), groups("Invitation.groups"), requested("Invitation.requested"), expiration(
+		email("Invitation.email"), groups("Invitation.groups"), requested("Invitation.lastSent"), expiration(
 				"Invitation.expiration"), link("Invitation.link"), action("Invitation.action");
 
 		private String captionKey;
@@ -54,14 +54,14 @@ class InvitationsGrid extends UpManGrid<InvitationEntry>
 
 	private void createBaseColumns()
 	{
-		addColumn(ie -> ie.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(3);
+		addColumn(ie -> ie.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(2);
 		UpManGridHelper.createGroupsColumn(this, (InvitationEntry e) -> e.groupsDisplayedNames,
-				msg.getMessage(BaseColumn.groups.captionKey));
+				msg.getMessage(BaseColumn.groups.captionKey)).setExpandRatio(2);
 
 		UpManGridHelper.createDateTimeColumn(this, (InvitationEntry e) -> e.requestedTime,
-				msg.getMessage(BaseColumn.requested.captionKey));
+				msg.getMessage(BaseColumn.requested.captionKey)).setExpandRatio(2);
 		UpManGridHelper.createDateTimeColumn(this, (InvitationEntry e) -> e.expirationTime,
-				msg.getMessage(BaseColumn.expiration.captionKey));
+				msg.getMessage(BaseColumn.expiration.captionKey)).setExpandRatio(2);
 
 		addComponentColumn(ie -> {
 			Button link = new Button(Images.external_link.getResource());

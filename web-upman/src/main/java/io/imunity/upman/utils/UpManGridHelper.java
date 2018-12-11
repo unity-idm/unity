@@ -13,6 +13,7 @@ import java.util.function.Function;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.TextField;
 
 import io.imunity.upman.common.FilterableEntry;
@@ -49,9 +50,9 @@ public class UpManGridHelper
 		}).setCaption(caption).setWidth(80).setResizable(false);
 	}
 
-	public static <T> void createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider, String caption)
+	public static <T> Column<T, String> createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider, String caption)
 	{
-		grid.addColumn(t -> timeProvider.apply(t) != null ? TimeUtil.formatMediumInstant(timeProvider.apply(t))
+		return grid.addColumn(t -> timeProvider.apply(t) != null ? TimeUtil.formatMediumInstant(timeProvider.apply(t))
 				: "").setCaption(caption).setExpandRatio(3);
 	}
 
@@ -66,9 +67,9 @@ public class UpManGridHelper
 		}
 	}
 
-	public static <T> void createGroupsColumn(Grid<T> grid, Function<T, List<String>> groups, String caption)
+	public static <T> Column<T, String> createGroupsColumn(Grid<T> grid, Function<T, List<String>> groups, String caption)
 	{
-		grid.addColumn(r -> {
+		return grid.addColumn(r -> {
 			return (groups.apply(r) != null) ? String.join(", ", groups.apply(r)) : "";
 		}).setCaption(caption).setExpandRatio(3);
 	}

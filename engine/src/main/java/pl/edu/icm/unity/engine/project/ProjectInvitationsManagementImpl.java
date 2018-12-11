@@ -5,9 +5,13 @@
 
 package pl.edu.icm.unity.engine.project;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -70,7 +74,9 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		InvitationParam invitationParam = new InvitationParam(getRegistrationFormForProject(projectPath),
 				param.expiration, param.contactAddress);	
 		invitationParam.getAllowedGroups().put(0, new GroupSelection(param.allowedGroup));
-		return invitationMan.addInvitation(invitationParam);
+		String code = invitationMan.addInvitation(invitationParam);
+		invitationMan.sendInvitation(code);
+		return code;
 
 	}
 
@@ -135,8 +141,42 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		authz.checkManagerAuthorization(projectPath);
 		assertIfIsProjectInvitation(projectPath, code);
-		invitationMan.sendInvitation(code);
 
+		Optional<InvitationWithCode> invO = invitationMan.getInvitations().stream()
+				.filter(i -> i.getRegistrationCode().equals(code)).findFirst();
+		if (!invO.isPresent())
+			throw new IllegalInvitationException(code);
+		InvitationWithCode orgInvitation = invO.get();
+		if (orgInvitation.isExpired())
+		{
+			Instant creationTime = orgInvitation.getCreationTime();
+			Instant newExpiration = Instant.now();
+			if (creationTime != null)
+			{
+				Duration between = Duration.between(creationTime, orgInvitation.getExpiration());
+				newExpiration = newExpiration.plus(between);
+			} else
+			{
+				newExpiration = newExpiration.plus(ProjectInvitation.DEFAULT_TTL_DAYS, ChronoUnit.DAYS);
+			}
+
+			InvitationParam newInvitation = new InvitationParam(orgInvitation.getFormId(), newExpiration,
+					orgInvitation.getContactAddress());
+			newInvitation.setExpectedIdentity(orgInvitation.getExpectedIdentity());
+			newInvitation.getGroupSelections().putAll(orgInvitation.getGroupSelections());
+			newInvitation.getAllowedGroups().putAll(orgInvitation.getAllowedGroups());
+			newInvitation.getAttributes().putAll(orgInvitation.getAttributes());
+			newInvitation.getIdentities().putAll(orgInvitation.getIdentities());
+			newInvitation.getMessageParams().putAll(orgInvitation.getMessageParams());
+			
+			String newCode = invitationMan.addInvitation(newInvitation);
+			invitationMan.sendInvitation(newCode);
+			invitationMan.removeInvitation(orgInvitation.getRegistrationCode());
+		} else
+		{
+
+			invitationMan.sendInvitation(orgInvitation.getRegistrationCode());
+		}
 	}
 
 	private void assertIfIsProjectInvitation(String projectPath, String code) throws EngineException
@@ -154,6 +194,14 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		public NotProjectInvitation(String projectPath, String code)
 		{
 			super("Invitation with code " + code + " is not related with project group " + projectPath);
+		}
+	}
+	
+	private static class IllegalInvitationException extends InternalException
+	{
+		public IllegalInvitationException(String code)
+		{
+			super("Invitation with code " + code + " does not exists");
 		}
 	}
 }

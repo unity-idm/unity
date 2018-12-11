@@ -30,7 +30,11 @@ class GroupMemberEntry implements FilterableEntry
 	{
 
 		this.member = member;
-		this.attributes = new HashMap<>(attributes);
+		this.attributes = new HashMap<>();
+		if (attributes != null)
+		{
+			this.attributes.putAll(attributes);
+		}
 	}
 
 	@Override

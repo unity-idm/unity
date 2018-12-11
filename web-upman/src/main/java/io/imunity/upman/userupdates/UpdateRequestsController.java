@@ -7,6 +7,7 @@ package io.imunity.upman.userupdates;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,6 +44,19 @@ public class UpdateRequestsController
 		this.requestMan = requestMan;
 		this.delGroupHelper = delGroupHelper;
 		this.msg = msg;
+	}
+
+	public Optional<String> getProjectRegistrationFormLink(String projectPath) throws ControllerException
+	{
+		try
+		{
+			return requestMan.getProjectRegistrationFormLink(projectPath);
+		} catch (EngineException e)
+		{
+			log.debug("Can not get project registration form link " + projectPath, e);
+			throw new ServerFaultException(msg);
+		}
+
 	}
 
 	public List<UpdateRequestEntry> getUpdateRequests(String projectPath) throws ControllerException

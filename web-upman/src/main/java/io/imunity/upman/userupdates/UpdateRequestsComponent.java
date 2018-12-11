@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -70,11 +71,20 @@ public class UpdateRequestsComponent extends CustomComponent
 		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
 		menuBar.setWidth(100, Unit.PERCENTAGE);
 
-		Link selfSingUpForm = new Link(msg.getMessage("UpdateRequestsComponent.selfSignUpForm"), null);
+		Link selfSingUpForm = new Link();
+		selfSingUpForm.setCaption(msg.getMessage("UpdateRequestsComponent.selfSignUpForm"));
+		selfSingUpForm.setTargetName("_blank");
+		if (controller.getProjectRegistrationFormLink(project).isPresent())
+		{
+			selfSingUpForm.setResource(
+					new ExternalResource(controller.getProjectRegistrationFormLink(project).get()));
+		} else
+		{
+			selfSingUpForm.setVisible(false);
+		}
+
 		Link updateForm = new Link(msg.getMessage("UpdateRequestsComponent.updateForm"), null);
-
 		Label space = new Label();
-
 		main.addComponents(selfSingUpForm, updateForm, space, menuBar, updateRequestGrid);
 		reloadRequestsGrid();
 

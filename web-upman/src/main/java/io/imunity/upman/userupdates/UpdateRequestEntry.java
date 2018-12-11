@@ -39,7 +39,11 @@ class UpdateRequestEntry implements FilterableEntry
 		this.operation = operation;
 		this.name = name;
 		this.email = email;
-		this.groupsDisplayedNames = new ArrayList<>(groupsDisplayedNames);
+		this.groupsDisplayedNames = new ArrayList<>();
+		if (groupsDisplayedNames != null)
+		{
+			this.groupsDisplayedNames.addAll(groupsDisplayedNames);
+		}
 		this.requestedTime = requestedTime;
 	}
 

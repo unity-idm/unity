@@ -7,6 +7,8 @@ package pl.edu.icm.unity.engine.project;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -14,8 +16,10 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest.RequestOperation;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,13 +32,15 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 
 /**
- *  Implementation of {@link ProjectRequestManagement}
+ * Implementation of {@link ProjectRequestManagement}
+ * 
  * @author P.Piernik
  *
  */
@@ -45,15 +51,18 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	private RegistrationsManagement registrationMan;
 	private GroupsManagement groupMan;
 	private AttributesHelper attrHelper;
+	private SharedEndpointManagement sharedEndpointMan;
 
 	public ProjectRequestManagementImpl(ProjectAuthorizationManager authz,
 			@Qualifier("insecure") RegistrationsManagement registrationMan,
-			@Qualifier("insecure") GroupsManagement groupMan, AttributesHelper attrHelper)
+			@Qualifier("insecure") GroupsManagement groupMan, AttributesHelper attrHelper,
+			SharedEndpointManagement sharedEndpointMan)
 	{
 		this.authz = authz;
 		this.registrationMan = registrationMan;
 		this.groupMan = groupMan;
 		this.attrHelper = attrHelper;
+		this.sharedEndpointMan = sharedEndpointMan;
 	}
 
 	@Transactional
@@ -91,13 +100,31 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 	}
 
+	public Optional<String> getProjectRegistrationFormLink(String projectPath) throws EngineException
+	{
+
+		authz.checkManagerAuthorization(projectPath);
+		String registrationFormId = getProjectDelegationConfig(projectPath).registrationForm;
+
+		if (registrationFormId == null)
+			return Optional.empty();
+
+		RegistrationForm registrationForm = registrationMan.getForms().stream()
+				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()))
+				.get(registrationFormId);
+
+		return Optional.ofNullable(PublicRegistrationURLSupport.getPublicRegistrationLink(registrationForm,
+				sharedEndpointMan));
+	}
+
 	private List<ProjectRequest> getReqistrationRequest(String projectPath, String registrationForm)
 			throws EngineException
 	{
 		List<ProjectRequest> requests = new ArrayList<>();
 		List<RegistrationRequestState> registrationRequests = registrationMan.getRegistrationRequests();
 		for (RegistrationRequestState state : registrationRequests.stream()
-				.filter(s -> s.getStatus().equals(RegistrationRequestStatus.pending)).collect(Collectors.toList()))
+				.filter(s -> s.getStatus().equals(RegistrationRequestStatus.pending))
+				.collect(Collectors.toList()))
 		{
 			RegistrationRequest request = state.getRequest();
 			if (request.getFormId().equals(registrationForm))

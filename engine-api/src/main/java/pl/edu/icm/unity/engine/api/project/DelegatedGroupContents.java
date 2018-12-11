@@ -23,7 +23,12 @@ public class DelegatedGroupContents
 	public DelegatedGroupContents(DelegatedGroup group, List<String> subGroups)
 	{
 		this.group = group;
-		this.subGroups = new ArrayList<>(subGroups);
+		this.subGroups = new ArrayList<>();
+		if (subGroups != null)
+		{
+			this.subGroups.addAll(subGroups);
+		}
+
 	}
 
 	@Override

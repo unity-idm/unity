@@ -36,7 +36,11 @@ class InvitationEntry implements FilterableEntry
 	{
 		this.code = code;
 		this.email = email;
-		this.groupsDisplayedNames = new ArrayList<>(groupsDisplayedNames);
+		this.groupsDisplayedNames = new ArrayList<>();
+		if (groupsDisplayedNames != null)
+		{
+			this.groupsDisplayedNames.addAll(groupsDisplayedNames);
+		}
 		this.requestedTime = requestedTime;
 		this.expirationTime = expirationTime;
 		this.link = link;

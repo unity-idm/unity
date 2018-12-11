@@ -30,7 +30,9 @@ public class ProjectInvitationParam
 	{
 		this.project = project;
 		this.contactAddress = contactAddress;
-		this.allowedGroup = new ArrayList<>(allowedGroup);
+		this.allowedGroup = new ArrayList<>();
+		if (allowedGroup != null)
+			this.allowedGroup.addAll(allowedGroup);
 		this.expiration = expiration;
 	}
 
