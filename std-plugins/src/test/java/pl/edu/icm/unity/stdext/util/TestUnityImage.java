@@ -6,33 +6,25 @@ package pl.edu.icm.unity.stdext.util;
 
 import org.junit.Assert;
 import org.junit.Test;
-import pl.edu.icm.unity.base.utils.Escaper;
 import pl.edu.icm.unity.stdext.utils.UnityImage;
-import sun.misc.IOUtils;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.WritableRaster;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.Buffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class TestUnityImage
 {
-	private static final String JPG_SRC = "src/test/resources/img/test-image.jpg";
-	private static final String PNG_SRC = "src/test/resources/img/test-image.png";
-	private static final String GIF_SRC = "src/test/resources/img/test-image.gif";
+	private static final String JPG_SRC = "src/test/resources/img/test-image_100x100.jpg";
+	private static final String PNG_SRC = "src/test/resources/img/test-image_100x100.png";
+	private static final String GIF_SRC = "src/test/resources/img/test-image_100x100.gif";
 
 	@Test
-	public void testSerialize() throws IOException {
-		byte[] bytes = Files.readAllBytes(Paths.get(JPG_SRC));
+	public void shouldSerializeAndDeserializeWithoutModification() throws IOException {
+		UnityImage image = new UnityImage(Paths.get(PNG_SRC));
 
-		UnityImage image = new UnityImage(bytes, UnityImage.ImageType.PNG);
-
+		// serialize
 		String str = image.serialize();
+		// deserialize
 		UnityImage image2 = new UnityImage(str);
 
 		Assert.assertEquals(image.getType(), image2.getType());
@@ -40,27 +32,25 @@ public class TestUnityImage
 	}
 
 	@Test
-	public void testNoQualityImpactPng() throws IOException {
-		testNoQualityImpact(PNG_SRC, UnityImage.ImageType.PNG);
+	public void conversionShouldNotImpactQualityPng() throws IOException {
+		conversionShouldNotImpactQuality(PNG_SRC, UnityImage.ImageType.PNG);
 	}
 
 	@Test
-	public void testNoQualityImpactGif() throws IOException {
-		testNoQualityImpact(GIF_SRC, UnityImage.ImageType.GIF);
+	public void conversionShouldNotImpactQualityGif() throws IOException {
+		conversionShouldNotImpactQuality(GIF_SRC, UnityImage.ImageType.GIF);
 	}
 
 	// This is not true for jpg - something that require further investigation.
 	// At this moment it is not main concern. Note: the raw image length go up and down, not only down....
 	// @Test
-	// public void testNoQualityImpactJpg() throws IOException {
+	// public void conversionShouldNotImpactQualityJpg() throws IOException {
 	// 	testNoQualityImpact("src/test/resources/img/test-image.jpg", UnityImage.ImageType.JPG);
 	// }
 
+	public void conversionShouldNotImpactQuality(String fileName, UnityImage.ImageType type) throws IOException {
+		UnityImage original = new UnityImage(Paths.get(fileName));
 
-	public void testNoQualityImpact(String fileName, UnityImage.ImageType type) throws IOException {
-		byte[] bytes = Files.readAllBytes(Paths.get(fileName));
-
-		UnityImage original = new UnityImage(bytes,type);
 		// Creating image based on BufferedImage
 		UnityImage image1 = new UnityImage(original.getBufferedImage(), original.getType());
 		// Creating second image based on byte[] buffer (BufferedImage recreated)
@@ -73,38 +63,69 @@ public class TestUnityImage
 	}
 
 	@Test
-	public void testScaleDown() throws IOException
-	{
+	public void shouldNotScaleDownIfMatchingSize() throws IOException {
 		byte[] bytes = Files.readAllBytes(Paths.get(JPG_SRC));
 		UnityImage image = new UnityImage(bytes, UnityImage.ImageType.JPG);
-
-		int initialW = image.getWidth();
-		int initialH = image.getWidth();
+		Assert.assertEquals(100, image.getWidth());
+		Assert.assertEquals(100, image.getHeight());
 
 		// no action expected
 		image.scaleDown(100, 100);
-		Assert.assertEquals(initialH, image.getHeight());
-		Assert.assertEquals(initialW, image.getWidth());
+		Assert.assertEquals(100, image.getHeight());
+		Assert.assertEquals(100, image.getWidth());
 		Assert.assertArrayEquals(bytes, image.getImage());
+	}
+
+	@Test
+	public void shouldNotScaleDownWithConversionIfMatchingSize() throws IOException
+	{
+		byte[] bytes = Files.readAllBytes(Paths.get(JPG_SRC));
+		UnityImage image = new UnityImage(bytes, UnityImage.ImageType.JPG);
+		Assert.assertEquals(100, image.getWidth());
+		Assert.assertEquals(100, image.getHeight());
 
 		// no action expected
 		byte[] ba = image.getScaledDownImage(100, 100);
 		UnityImage image2 = new UnityImage(ba, UnityImage.ImageType.JPG);
-		Assert.assertEquals(initialH, image2.getHeight());
-		Assert.assertEquals(initialW, image2.getWidth());
+		Assert.assertEquals(100, image2.getHeight());
+		Assert.assertEquals(100, image2.getWidth());
 		Assert.assertArrayEquals(bytes, image2.getImage());
+	}
 
-		// changed only image2
-		ba = image.getScaledDownImage(50, 50);
-		image2 = new UnityImage(ba, UnityImage.ImageType.JPG);
-		Assert.assertEquals(50, image2.getHeight());
-		Assert.assertEquals(50, image2.getWidth());
-		Assert.assertEquals(initialH, image.getHeight());
-		Assert.assertEquals(initialW, image.getWidth());
+	@Test
+	public void shouldScaleDown() throws IOException
+	{
+		byte[] bytes = Files.readAllBytes(Paths.get(JPG_SRC));
+		UnityImage image = new UnityImage(bytes, UnityImage.ImageType.JPG);
+		Assert.assertEquals(100, image.getWidth());
+		Assert.assertEquals(100, image.getHeight());
 
 		// change main image
 		image.scaleDown(50, 50);
 		Assert.assertEquals(50, image.getHeight());
 		Assert.assertEquals(50, image.getWidth());
+
+		// Compare with previously saved file
+		byte[] bytes2 = Files.readAllBytes(Paths.get("src/test/resources/img/test-image_50x50.jpg"));
+		Assert.assertArrayEquals(image.getImage(), bytes2);
+	}
+
+	@Test
+	public void shouldScaleDownWithoutOriginalObjectChange() throws IOException
+	{
+		UnityImage image = new UnityImage(Paths.get(JPG_SRC));
+		Assert.assertEquals(100, image.getWidth());
+		Assert.assertEquals(100, image.getHeight());
+
+		byte[] ba = image.getScaledDownImage(50, 50);
+		UnityImage image2 = new UnityImage(ba, UnityImage.ImageType.JPG);
+		Assert.assertEquals(50, image2.getWidth());
+		Assert.assertEquals(50, image2.getHeight());
+		Assert.assertEquals(100, image.getWidth());
+		Assert.assertEquals(100, image.getHeight());
+
+		// Compare with previously saved file
+		byte[] bytes2 = Files.readAllBytes(Paths.get("src/test/resources/img/test-image_50x50.jpg"));
+		Assert.assertArrayEquals(image2.getImage(), bytes2);
 	}
 }

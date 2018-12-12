@@ -14,6 +14,8 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.stream.Collectors;
@@ -30,7 +32,6 @@ public class UnityImage
 	private static final String JSON_VALUE_NAME = "value";
 
 	private byte[] image;
-	private BufferedImage bufferedImage;
 	private ImageType type;
 
 	/**
@@ -66,6 +67,11 @@ public class UnityImage
 			return toString().toLowerCase();
 		}
 
+		public static ImageType fromExt(String ext)
+		{
+			return valueOf(ext.toUpperCase());
+		}
+
 		public static ImageType fromMimeType(String mimeType)
 		{
 			for (ImageType type : values())
@@ -89,7 +95,34 @@ public class UnityImage
 
 	public UnityImage(BufferedImage bufferedImage, ImageType type)
 	{
-		setBufferedImage(bufferedImage, type);
+ 		ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
+		BufferedImage bi;
+		try
+		{
+			// Make sure BufferedImage is supported - convert if required
+			bi = convertType(bufferedImage);
+			/* Default ImageIO configuration should not introduce any compression or quality impact.
+			Translation from BufferedImage to byte[] and back to BufferedImage gives the same same byte[] for gif and
+			png formats. There are some variations for jpg - at this moment it doesn't seems to be high issue and
+			current solution should fit the purpose.
+			*/
+			ImageIO.write(bi, type.toExt(), bos);
+		} catch (IOException e)
+		{
+			throw new InternalException("Image can not be encoded as " + type, e);
+		}
+
+		this.image = bos.toByteArray();
+		this.type = type;
+	}
+
+	public UnityImage(Path path) throws IOException
+	{
+		this.image = Files.readAllBytes(path);
+		int dotIdx = path.toString().lastIndexOf('.');
+		if (dotIdx == -1)
+			throw new IllegalArgumentException("Cannot extract extension from path: '" + path.toString() + "'");
+		this.type = ImageType.fromExt(path.toString().substring(dotIdx + 1));
 	}
 
 	public byte[] getImage()
@@ -108,6 +141,7 @@ public class UnityImage
 	 */
 	public byte[] getScaledDownImage(int maxWidth, int maxHeight)
 	{
+		BufferedImage bufferedImage = getBufferedImage();
 		int w = bufferedImage.getWidth();
 		int h = bufferedImage.getHeight();
 
@@ -133,77 +167,8 @@ public class UnityImage
 		BufferedImage bi;
 		try
 		{
-			bi = convertType(resized);
-			ImageIO.write(bi, type.toExt(), bos);
-		} catch (IOException e)
-		{
-			throw new InternalException("Image can not be encoded as " + type, e);
-		}
-		return bos.toByteArray();
-	}
-
-	public BufferedImage getBufferedImage()
-	{
-		return bufferedImage;
-	}
-
-	public ImageType getType()
-	{
-		return type;
-	}
-
-	public int getWidth()
-	{
-		return bufferedImage.getWidth();
-	}
-
-	public int getHeight()
-	{
-		return bufferedImage.getHeight();
-	}
-
-	/**
-	 * Updates object's fields, if given buffer contains data that may be converted to image.
-	 * If not possible to convert object remains unchanged.
-	 *
-	 * @param image Byte array containing image data.
-	 */
-	public void setImage(byte[] image, ImageType type)
-	{
-
-		BufferedImage bi;
-		ByteArrayInputStream bis = new ByteArrayInputStream(image);
-		try
-		{
-			bi = ImageIO.read(bis);
-		} catch (IOException e)
-		{
-			throw new InternalException("Image can not be decoded", e);
-		}
-		this.image = image;
-		this.bufferedImage = bi;
-		this.type = type;
-	}
-
-	private void setBufferedImage(BufferedImage bufferedImage)
-	{
-		setBufferedImage(bufferedImage, this.type);
-	}
-
-	/**
-	 * Updates object's fields, if given buffer contains data that may be converted to image.
-	 * If not possible to convert object remains unchanged.
-	 *
-	 * @param bufferedImage
-	 */
-	public void setBufferedImage(BufferedImage bufferedImage, ImageType type)
-	{
-		ByteArrayOutputStream bos = new ByteArrayOutputStream(100000);
-		BufferedImage bi;
-		try
-		{
 			// Make sure BufferedImage is supported - convert if required
-			bi = convertType(bufferedImage);
+			bi = convertType(resized);
 			/* Default ImageIO configuration should not introduce any compression or quality impact.
 			Translation from BufferedImage to byte[] and back to BufferedImage gives the same same byte[] for gif and
 			png formats. There are some variations for jpg - at this moment it doesn't seems to be high issue and
@@ -214,9 +179,47 @@ public class UnityImage
 		{
 			throw new InternalException("Image can not be encoded as " + type, e);
 		}
+		return bos.toByteArray();
+	}
 
-		this.image = bos.toByteArray();
-		this.bufferedImage = bi;
+	public BufferedImage getBufferedImage()
+	{
+		BufferedImage bi;
+		ByteArrayInputStream bis = new ByteArrayInputStream(image);
+		try
+		{
+			bi = ImageIO.read(bis);
+		} catch (IOException e)
+		{
+			throw new InternalException("Image can not be decoded", e);
+		}
+		return bi;
+	}
+
+	public ImageType getType()
+	{
+		return type;
+	}
+
+	public int getWidth()
+	{
+		return getBufferedImage().getWidth();
+	}
+
+	public int getHeight()
+	{
+		return getBufferedImage().getHeight();
+	}
+
+	/**
+	 * Updates object's fields, if given buffer contains data that may be converted to image.
+	 * If not possible to convert object remains unchanged.
+	 *
+	 * @param image Byte array containing image data.
+	 */
+	public void setImage(byte[] image, ImageType type)
+	{
+		this.image = image;
 		this.type = type;
 	}
 
@@ -228,7 +231,7 @@ public class UnityImage
 	 * @param src
 	 * @return
 	 */
-	private BufferedImage convertType(BufferedImage src)
+	public static BufferedImage convertType(BufferedImage src)
 	{
 		int srcType = src.getType();
 		if (srcType != BufferedImage.TYPE_INT_ARGB
