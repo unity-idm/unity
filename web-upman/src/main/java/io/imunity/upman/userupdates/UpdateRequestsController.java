@@ -59,6 +59,19 @@ public class UpdateRequestsController
 
 	}
 
+	public Optional<String> getProjectEnquiryFormLink(String projectPath) throws ControllerException
+	{
+		try
+		{
+			return requestMan.getProjectEnquiryFormLink(projectPath);
+		} catch (EngineException e)
+		{
+			log.debug("Can not get project enquiry form link " + projectPath, e);
+			throw new ServerFaultException(msg);
+		}
+
+	}
+
 	public List<UpdateRequestEntry> getUpdateRequests(String projectPath) throws ControllerException
 	{
 		List<ProjectRequest> requests;

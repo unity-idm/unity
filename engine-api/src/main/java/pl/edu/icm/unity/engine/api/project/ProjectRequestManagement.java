@@ -48,4 +48,12 @@ public interface ProjectRequestManagement
 	 */
 	Optional<String> getProjectRegistrationFormLink(String projectPath) throws EngineException;
 
+	/**
+	 * 
+	 * @param projectPath
+	 * @return
+	 * @throws EngineException
+	 */
+	Optional<String> getProjectEnquiryFormLink(String projectPath) throws EngineException;
+
 }

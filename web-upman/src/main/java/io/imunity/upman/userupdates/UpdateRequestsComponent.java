@@ -7,6 +7,7 @@ package io.imunity.upman.userupdates;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import com.vaadin.server.ExternalResource;
@@ -74,16 +75,27 @@ public class UpdateRequestsComponent extends CustomComponent
 		Link selfSingUpForm = new Link();
 		selfSingUpForm.setCaption(msg.getMessage("UpdateRequestsComponent.selfSignUpForm"));
 		selfSingUpForm.setTargetName("_blank");
-		if (controller.getProjectRegistrationFormLink(project).isPresent())
+		Optional<String> projectRegistrationFormLink = controller.getProjectRegistrationFormLink(project);
+		if (projectRegistrationFormLink.isPresent())
 		{
-			selfSingUpForm.setResource(
-					new ExternalResource(controller.getProjectRegistrationFormLink(project).get()));
+			selfSingUpForm.setResource(new ExternalResource(projectRegistrationFormLink.get()));
 		} else
 		{
 			selfSingUpForm.setVisible(false);
 		}
 
-		Link updateForm = new Link(msg.getMessage("UpdateRequestsComponent.updateForm"), null);
+		Link updateForm = new Link();
+		updateForm.setCaption(msg.getMessage("UpdateRequestsComponent.updateForm"));
+		updateForm.setTargetName("_blank");
+		Optional<String> projectEnquiryFormLink = controller.getProjectEnquiryFormLink(project);
+		if (projectEnquiryFormLink.isPresent())
+		{
+			updateForm.setResource(new ExternalResource(projectEnquiryFormLink.get()));
+		} else
+		{
+			updateForm.setVisible(false);
+		}
+
 		Label space = new Label();
 		main.addComponents(selfSingUpForm, updateForm, space, menuBar, updateRequestGrid);
 		reloadRequestsGrid();
