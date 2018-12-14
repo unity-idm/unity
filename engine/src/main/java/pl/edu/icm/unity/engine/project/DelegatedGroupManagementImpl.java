@@ -20,10 +20,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -33,7 +31,6 @@ import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
-import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -42,13 +39,10 @@ import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
-import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
 
 /**
  * Implementation of {@link DelegatedGroupManagement}
@@ -64,30 +58,28 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 	private GroupsManagement groupMan;
 	private BulkGroupQueryService bulkQueryService;
 	private ProjectAuthorizationManager authz;
-	private AttributesManagement attrMan;
 	private AttributeTypeManagement attrTypeMan;
 	private UnityMessageSource msg;
 	private AttributesHelper attrHelper;
-	private AttributeTypeHelper atHelper;
 	private EntityManagement identitiesMan;
+	private ProjectAttributeHelper projectAttrHelper;
 
 	@Autowired
 	public DelegatedGroupManagementImpl(UnityMessageSource msg, @Qualifier("insecure") GroupsManagement groupMan,
 			@Qualifier("insecure") BulkGroupQueryService bulkQueryService,
-			@Qualifier("insecure") AttributesManagement attrMan,
 			@Qualifier("insecure") AttributeTypeManagement attrTypeMan,
 			@Qualifier("insecure") EntityManagement identitiesMan, AttributesHelper attrHelper,
-			AttributeTypeHelper atHelper, ProjectAuthorizationManager authz)
+			ProjectAttributeHelper projectAttrHelper, ProjectAuthorizationManager authz)
 	{
+		
 		this.msg = msg;
-		this.groupMan = groupMan;
-		this.bulkQueryService = bulkQueryService;
 		this.authz = authz;
-		this.attrMan = attrMan;
+		this.groupMan = groupMan;
+		this.identitiesMan = identitiesMan;
+		this.bulkQueryService = bulkQueryService;	
 		this.attrTypeMan = attrTypeMan;
 		this.attrHelper = attrHelper;
-		this.atHelper = atHelper;
-		this.identitiesMan = identitiesMan;
+		this.projectAttrHelper = projectAttrHelper;
 	}
 
 	@Override
@@ -256,7 +248,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			Group gr = getGroupInternal(group);
 			if (gr.getDelegationConfiguration().enabled)
 			{
-				Optional<String> val = getAttributeValue(entityId, gr.getName(),
+				Optional<String> val = projectAttrHelper.getAttributeValue(entityId, gr.getName(),
 						ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE);
 				if (val.isPresent() && val.get().equals(GroupAuthorizationRole.manager.toString()))
 				{
@@ -302,9 +294,9 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 				long entity = member.getEntityId();
 				DelegatedGroupMember entry = new DelegatedGroupMember(member.getEntityId(), projectPath,
 						member.getGroup(), getGroupAuthRoleAttr(entity, projectPath),
-						getAttributeFromMeta(entity, projectPath,
+						projectAttrHelper.getAttributeFromMeta(entity, projectPath,
 								EntityNameMetadataProvider.NAME),
-						getAttributeFromMeta(entity, projectPath,
+						projectAttrHelper.getAttributeFromMeta(entity, projectPath,
 								ContactEmailMetadataProvider.NAME),
 						getProjectMemberAttributes(entity, projectPath, projectAttrs));
 				members.add(entry);
@@ -372,7 +364,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			return ret;
 		for (String attr : attributes)
 		{
-			Optional<Attribute> oattr = getAttribute(entity, projectPath, attr);
+			Optional<Attribute> oattr = projectAttrHelper.getAttribute(entity, projectPath, attr);
 			if (oattr.isPresent())
 				ret.add(oattr.get());
 
@@ -386,34 +378,9 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		return projectGroup.getDelegationConfiguration().attributes;
 	}
 
-	private Optional<Attribute> getAttribute(long entityId, String path, String attribute) throws EngineException
-	{
-		Collection<AttributeExt> attributes = attrMan.getAttributes(new EntityParam(entityId), path, attribute);
-
-		if (!attributes.isEmpty())
-		{
-			return Optional.ofNullable(attributes.iterator().next());
-		}
-		return Optional.empty();
-	}
-
-	private Optional<String> getAttributeValue(long entityId, String path, String attribute) throws EngineException
-	{
-
-		Optional<Attribute> attr = getAttribute(entityId, path, attribute);
-		if (attr.isPresent())
-		{
-			if (!attr.get().getValues().isEmpty())
-			{
-				return Optional.ofNullable(attr.get().getValues().iterator().next());
-			}
-		}
-		return Optional.empty();
-	}
-
 	private GroupAuthorizationRole getGroupAuthRoleAttr(long entityId, String path) throws EngineException
 	{
-		Optional<String> attrVal = getAttributeValue(entityId, path,
+		Optional<String> attrVal = projectAttrHelper.getAttributeValue(entityId, path,
 				ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE);
 
 		if (attrVal.isPresent())
@@ -421,30 +388,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		return GroupAuthorizationRole.regular;
 
-	}
-
-	private String getAttributeFromMeta(long entityId, String path, String metadata) throws EngineException
-	{
-		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);
-		if (attrType == null)
-			return null;
-
-		Optional<String> value = getAttributeValue(entityId, path, attrType.getName());
-
-		AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntaxForAttributeName(attrType.getName());
-
-		if (value.isPresent())
-		{
-			if (syntax != null && syntax.isEmailVerifiable() && value.isPresent())
-			{
-				VerifiableEmail email = (VerifiableEmail) syntax.convertFromString(value.get());
-				return email.getValue();
-			}
-			return value.get();
-		} else
-		{
-			return null;
-		}
 	}
 
 	private Deque<String> getMissingEntityGroups(String finalGroup, long entityId) throws EngineException

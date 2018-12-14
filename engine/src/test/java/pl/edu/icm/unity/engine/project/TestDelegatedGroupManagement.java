@@ -23,6 +23,7 @@ import java.util.Map;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Lists;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -93,12 +94,18 @@ public class TestDelegatedGroupManagement
 	@Mock
 	EntityManagement idMan;
 
+	private DelegatedGroupManagementImpl dGroupMan;
+
+	@Before
+	public void initDelegatedGroupMan()
+	{
+		dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService, attrTypeMan,
+				idMan, attrHelper, new ProjectAttributeHelper(attrMan, attrHelper, atHelper), mockAuthz);
+	}
+
 	@Test
 	public void shouldForwardGroupAddToCoreManager() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
-
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project"));
 
 		I18nString groupName = new I18nString("GroupName");
@@ -108,12 +115,10 @@ public class TestDelegatedGroupManagement
 		verify(mockGroupMan).addGroup(argument.capture());
 		assertThat(argument.getValue().getDisplayedName(), is(groupName));
 	}
-	
+
 	@Test
 	public void shoudForbidToAddGroupWithIllegalName() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project1"));
 
@@ -125,8 +130,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForbidRemoveOfProjectGroup() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 
 		Throwable exception = catchThrowable(() -> dGroupMan.removeGroup("/project1", "/project1"));
 		assertExceptionType(exception, RemovalOfProjectGroupException.class);
@@ -135,9 +138,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForwardGroupRemoveToCoreManager() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(null, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
-
 		dGroupMan.removeGroup("/project1", "/project1/group1");
 
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
@@ -148,8 +148,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldReturnGroupAndSubgroups() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, null,
-				mockBulkQueryService, null, null, null, null, null, mockAuthz);
 
 		when(mockBulkQueryService.getBulkStructuralData(anyString())).thenReturn(null);
 		Map<String, GroupContents> groupsWithSubgroups = new HashMap<>();
@@ -167,9 +165,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldGetGroupContents() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
-
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project/subGroup"));
 
 		DelegatedGroupContents contents = dGroupMan.getContents("/project", "/project/subGroup");
@@ -180,8 +175,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldGetGroupMembersWithExtraAttrs() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				attrMan, attrTypeMan, null, attrHelper, atHelper, mockAuthz);
 
 		GroupContents con = getEnabledGroupContentsWithDefaultMember("/project");
 		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, null, null, null, null,
@@ -231,8 +224,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForbidGetDisplayNameOfNonProjectAttribute() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 		GroupContents contents = getGroupContent("/project");
 		contents.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, null, null, null,
 				null, Arrays.asList("extraAttr")));
@@ -245,8 +236,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForbidRenameProjectGroup()
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 
 		Throwable exception = catchThrowable(
 				() -> dGroupMan.setGroupDisplayedName("/project", "/project", null));
@@ -256,8 +245,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForwardRenameGroupToCoreManager() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getGroupContent("/project"));
 
@@ -272,8 +259,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForbidChangeAccessModeToCloseWhenChildGroupIsOpen() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 
 		when(mockGroupMan.getContents(eq("/project/subgroup"), anyInt())).thenReturn(
 				getGroupContent("/project/subgroup", Arrays.asList("/project/subgroup/subgroup2")));
@@ -291,8 +276,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForbidChangeAccessModeToOpenWhenParentGroupIsClose() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 
 		GroupContents content = getGroupContent("/project",
 				Arrays.asList("/project/subgroup", "/project/subgroup/subgroup2"));
@@ -310,8 +293,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForwardUpdateGroupAccessModeToCoreManager() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 		GroupContents content = getGroupContent("/project",
 				Arrays.asList("/project/subgroup", "/project/subgroup/subgroup2"));
 		content.getGroup().setOpen(true);
@@ -331,8 +312,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForwardSetGroupAuthAttributeToCoreManager() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, attrHelper, null, mockAuthz);
 
 		dGroupMan.setGroupAuthorizationRole("/project", 1L, GroupAuthorizationRole.manager);
 
@@ -346,8 +325,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForbidRemoveLastManagerInProjectGroup() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				attrMan, attrTypeMan, null, attrHelper, atHelper, mockAuthz);
 
 		when(mockGroupMan.getContents(eq("/project"), anyInt()))
 				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project"));
@@ -365,8 +342,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldGetOneProjectForEntity() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				attrMan, null, idMan, null, null, mockAuthz);
 
 		Map<String, GroupMembership> groups = new HashMap<>();
 		groups.put("/project", null);
@@ -390,8 +365,6 @@ public class TestDelegatedGroupManagement
 	public void shouldForwardAddMemberToCoreManager() throws EngineException
 	{
 
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, idMan, null, null, mockAuthz);
 		Map<String, GroupMembership> groups = new HashMap<>();
 		groups.put("/project", null);
 		when(idMan.getGroups(any())).thenReturn(groups);
@@ -404,8 +377,6 @@ public class TestDelegatedGroupManagement
 	@Test
 	public void shouldForwardRemoveMemberToCoreManager() throws EngineException
 	{
-		DelegatedGroupManagementImpl dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, null,
-				null, null, null, null, null, mockAuthz);
 
 		dGroupMan.removeMemberFromGroup("/project", "/project/destination", 1L);
 		verify(mockGroupMan).removeMember(eq("/project/destination"), any());
