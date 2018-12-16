@@ -21,6 +21,9 @@ class UpdateHelperFrom2_7
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, UpdateHelperFrom2_7.class);
 	
+	private static final String TRIGGER_MODE_OLD_NAME = "afterRemoteLogin";
+	private static final String TRIGGER_MODE_NEW_NAME = "afterRemoteLoginWhenUnknownUser";
+	
 	static ObjectNode updateAuthenticator(ObjectNode authenticator)
 	{
 		log.info("Updating authenticator from: \n{}", JsonUtil.toJsonString(authenticator));
@@ -44,5 +47,28 @@ class UpdateHelperFrom2_7
 		
 		log.info("Updated authenticator to: \n{}", JsonUtil.toJsonString(authenticatorConfig));
 		return authenticatorConfig;
+	}
+	
+	static ObjectNode updateRegistrationRequest(ObjectNode registrationRequest)
+	{
+		return updateContext("Registration Reqeust", registrationRequest);
+	}
+	
+	static ObjectNode updateEnquiryResponse(ObjectNode registrationRequest)
+	{
+		return updateContext("Enquiry Response", registrationRequest);
+	}
+	
+	private static ObjectNode updateContext(String source, ObjectNode request)
+	{
+		ObjectNode context = (ObjectNode) request.get("Context");
+		String triggeringMode = context.get("triggeringMode").asText();
+		if (TRIGGER_MODE_OLD_NAME.equals(triggeringMode))
+		{
+			log.info("Updating {} triggerMode from {} to {}\n{}", source, 
+					TRIGGER_MODE_OLD_NAME, TRIGGER_MODE_NEW_NAME, request);
+			context.put("triggeringMode", TRIGGER_MODE_NEW_NAME);
+		}
+		return request;
 	}
 }
