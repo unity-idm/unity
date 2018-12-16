@@ -63,7 +63,14 @@ public class RegistrationContext
 	public RegistrationContext(JsonNode object)
 	{
 		isOnIdpEndpoint = object.get("isOnIdpEndpoint").asBoolean();
-		triggeringMode = TriggeringMode.valueOf(object.get("triggeringMode").asText());
+		
+		String triggeringModeString = object.get("triggeringMode").asText();
+		// runtime workaround for missing migration: UY-833
+		if ("afterRemoteLogin".equals(triggeringModeString))
+		{
+			triggeringModeString = "afterRemoteLoginWhenUnknownUser";
+		}
+		triggeringMode = TriggeringMode.valueOf(triggeringModeString);
 	}
 	
 	@JsonValue
