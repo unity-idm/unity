@@ -61,13 +61,16 @@ class UpdateHelperFrom2_7
 	
 	private static ObjectNode updateContext(String source, ObjectNode request)
 	{
-		ObjectNode context = (ObjectNode) request.get("Context");
-		String triggeringMode = context.get("triggeringMode").asText();
-		if (TRIGGER_MODE_OLD_NAME.equals(triggeringMode))
+		if (JsonUtil.notNull(request, "Context"))
 		{
-			log.info("Updating {} triggerMode from {} to {}\n{}", source, 
-					TRIGGER_MODE_OLD_NAME, TRIGGER_MODE_NEW_NAME, request);
-			context.put("triggeringMode", TRIGGER_MODE_NEW_NAME);
+			ObjectNode context = (ObjectNode) request.get("Context");
+			String triggeringMode = context.get("triggeringMode").asText();
+			if (TRIGGER_MODE_OLD_NAME.equals(triggeringMode))
+			{
+				log.info("Updating {} triggerMode from {} to {}\n{}", source, 
+						TRIGGER_MODE_OLD_NAME, TRIGGER_MODE_NEW_NAME, request);
+				context.put("triggeringMode", TRIGGER_MODE_NEW_NAME);
+			}
 		}
 		return request;
 	}
