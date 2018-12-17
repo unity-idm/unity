@@ -230,6 +230,7 @@ class OAuthConsentScreen extends CustomComponent
 		
 		if (settings.isDoNotAsk())
 		{
+			setCompositionRoot(new VerticalLayout());
 			if (settings.isDefaultAccept())
 				confirm();
 			else

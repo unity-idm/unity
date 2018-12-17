@@ -199,6 +199,7 @@ public class SamlConsentScreen extends CustomComponent
 
 		if (settings.isDoNotAsk())
 		{
+			setCompositionRoot(new VerticalLayout());
 			if (settings.isDefaultAccept())
 				confirm(samlCtx);
 			else
