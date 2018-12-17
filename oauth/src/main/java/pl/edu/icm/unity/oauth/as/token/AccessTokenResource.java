@@ -650,7 +650,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		cl.setTime(now);
 		if (refreshTokenValidity == 0)
 		{
-			cl.add(Calendar.YEAR, 1);
+			return null;
 		} else if (refreshTokenValidity > 0)
 		{
 			cl.add(Calendar.SECOND, refreshTokenValidity);

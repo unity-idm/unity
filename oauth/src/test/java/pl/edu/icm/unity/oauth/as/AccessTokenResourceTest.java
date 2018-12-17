@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThat;
@@ -31,6 +32,7 @@ import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.JSONValue;
+import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -219,6 +221,35 @@ public class AccessTokenResourceTest
 		httpResp.setContentType("application/json");
 		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
 		assertNotNull(parsed.getTokens().getRefreshToken());	
+	}
+	
+	@Test
+	public void refreshTokenHasUnlimitedLifetimeIfConfiguredToZero() throws Exception
+	{
+		TokensManagement tokensManagement = new MockTokensMan();
+		OAuthASProperties config = OAuthTestUtils.getConfig();
+		config.setProperty(OAuthASProperties.REFRESH_TOKEN_VALIDITY, "0");
+		
+		AccessTokenResource tested = new AccessTokenResource(tokensManagement, config, null, null, null, tx);
+		setupInvocationContext(100);
+		OAuthAuthzContext ctx = OAuthTestUtils.createOIDCContext(config, 
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, 100, "nonce");
+		AuthorizationSuccessResponse step1Resp = OAuthTestUtils.initOAuthFlowAccessCode(tokensManagement, ctx);
+		
+		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
+				null, null, null, null, null);
+
+		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
+		httpResp.setContent(resp.getEntity().toString());
+		httpResp.setContentType("application/json");
+		OIDCTokenResponse parsed = OIDCTokenResponse.parse(httpResp);
+		assertNotNull(parsed.getTokens().getRefreshToken());
+		
+		Token refreshTokenInternal = tokensManagement.getTokenById(OAuthProcessor.INTERNAL_REFRESH_TOKEN, 
+				parsed.getTokens().getRefreshToken().getValue());
+		assertThat(refreshTokenInternal.getExpires(), is(nullValue()));
 	}
 	
 	private void setupInvocationContext(long entityId)
