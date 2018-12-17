@@ -69,6 +69,22 @@ public class RefreshTokenTest extends TokenTestBase
 		assertThat(bearerToken.getScope(), is(new Scope("foo", "bar")));
 		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
 	}
+
+	@Test
+	public void shouldAssumeOriginalScopesWhenNoScopesAreRequestedUponRefresh() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+
+		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca);
+		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
+		
+		assertThat(bearerToken.getLifetime(), is(3600l));
+		assertThat(bearerToken.getScope(), is(new Scope("foo", "bar")));
+		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+	}
 	
 	@Test
 	public void refreshedTokenCanBeUsedToObtainUserInfo() throws Exception
