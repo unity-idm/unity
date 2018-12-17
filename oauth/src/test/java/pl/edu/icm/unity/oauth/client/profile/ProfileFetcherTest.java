@@ -5,8 +5,8 @@
 
 package pl.edu.icm.unity.oauth.client.profile;
 
-import static org.junit.Assert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -20,7 +20,6 @@ import com.nimbusds.jose.util.JSONObjectUtils;
 
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
-import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 
 public class ProfileFetcherTest
 {

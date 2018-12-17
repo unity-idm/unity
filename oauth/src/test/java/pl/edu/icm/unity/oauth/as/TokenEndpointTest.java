@@ -30,6 +30,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
@@ -53,9 +54,37 @@ import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
  */
 public class TokenEndpointTest extends TokenTestBase
 {
-
 	@Test
-	public void testCodeFlow() throws Exception
+	public void shouldReturnCompleteBearerTokenAfterCodeFlow() throws Exception
+	{
+		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getConfig(),
+				new ResponseType(ResponseType.Value.CODE),
+				GrantFlow.authorizationCode, clientId1.getEntityId());
+		AuthorizationSuccessResponse resp1 = OAuthTestUtils
+				.initOAuthFlowAccessCode(tokensMan, ctx);
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		TokenRequest request = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca,
+				new AuthorizationCodeGrant(resp1.getAuthorizationCode(),
+						new URI("https://return.host.com/foo")));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
+				ServerHostnameCheckingMode.NONE);
+
+		HTTPResponse resp2 = wrapped.send();
+
+		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
+		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
+		
+		assertThat((int)bearerToken.getLifetime(), is(OAuthTestUtils.DEFAULT_ACCESS_TOKEN_VALIDITY));
+		assertThat(bearerToken.getScope(), is(new Scope("sc1")));
+		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+	}
+	
+	
+	@Test
+	public void shouldReturnUserInfoAfterCompleteCodeFlow() throws Exception
 	{
 		OAuthAuthzContext ctx = OAuthTestUtils.createContext(OAuthTestUtils.getConfig(),
 				new ResponseType(ResponseType.Value.CODE),
@@ -119,7 +148,30 @@ public class TokenEndpointTest extends TokenTestBase
 	}
 
 	@Test
-	public void accessTokenIsReturnedWithClientCredentialFlow() throws Exception
+	public void shouldReturnAccessTokenAfterClientCredentialsFlow() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+		TokenRequest request = new TokenRequest(
+				new URI("https://localhost:52443/oauth/token"), ca,
+				new ClientCredentialsGrant(), new Scope("foo"));
+		HTTPRequest bare = request.toHTTPRequest();
+		HTTPRequest wrapped = new CustomHTTPSRequest(bare, pkiMan.getValidator("MAIN"),
+				ServerHostnameCheckingMode.NONE);
+
+		HTTPResponse resp2 = wrapped.send();
+
+		AccessTokenResponse parsedResp = AccessTokenResponse.parse(resp2);
+		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
+		
+		assertThat(bearerToken.getLifetime(), is(3600l));
+		assertThat(bearerToken.getScope(), is(new Scope("foo")));
+		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+	}
+
+	
+	@Test
+	public void shouldReturnUserInfoAfterCompleteClientCredentialsFlow() throws Exception
 	{
 		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
 				new Secret("clientPass"));

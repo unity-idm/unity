@@ -9,11 +9,8 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.bouncycastle.util.Arrays;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
@@ -270,16 +267,8 @@ public class OAuthProcessor
 	 */
 	public static AccessToken createAccessToken(OAuthAuthzContext ctx)
 	{
-		Set<String> effectiveScopes = Sets.newHashSet(ctx.getEffectiveRequestedScopesList());
-		if (!ctx.getRequestedScopes().equals(effectiveScopes))
-		{
-			return new BearerAccessToken(0, 
-					new Scope(ctx.getEffectiveRequestedScopesList()));
-			
-		} else
-		{
-			return new BearerAccessToken();
-		}
+		int tokenValidity = ctx.getConfig().getAccessTokenValidity();
+		return new BearerAccessToken(tokenValidity, new Scope(ctx.getEffectiveRequestedScopesList()));
 	}
 	
 	/**
@@ -290,13 +279,7 @@ public class OAuthProcessor
 	 */
 	public static AccessToken createAccessToken(OAuthToken token)
 	{
-		if (!Arrays.areEqual(token.getEffectiveScope(), token.getRequestedScope()))
-		{
-			return new BearerAccessToken(0, new Scope(token.getEffectiveScope()));
-			
-		} else
-		{
-			return new BearerAccessToken();
-		}
+		int tokenValidity = token.getTokenValidity();
+		return new BearerAccessToken(tokenValidity, new Scope(token.getEffectiveScope()));
 	}
 }
