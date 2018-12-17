@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
@@ -181,7 +182,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	 * @return Parsed access token response
 	 * @throws Exception
 	 */
-	protected AccessTokenResponse init(List<String> scope, ClientAuthentication ca)
+	protected AccessTokenResponse init(List<String> scopes, ClientAuthentication ca)
 			throws Exception
 	{
 		IdentityParam identity = initUser("userA");
@@ -189,7 +190,9 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 
-		ctx.setRequestedScopes(new HashSet<>(scope));
+		ctx.setRequestedScopes(new HashSet<>(scopes));
+		for (String scope: scopes)
+			ctx.addEffectiveScopeInfo(new ScopeInfo(scope, scope, Lists.newArrayList(scope + " attr")));
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(tokensMan, ctx, identity);
