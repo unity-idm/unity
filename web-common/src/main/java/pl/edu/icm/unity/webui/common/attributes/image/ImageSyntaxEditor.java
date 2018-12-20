@@ -101,13 +101,13 @@ class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
 
 	}
 
-	private static class ImageSyntaxBindingValue
+	public static class ImageSyntaxBindingValue
 	{
 		private Integer maxSize;
 		private Integer maxWidth;
 		private Integer maxHeight;
 
-		private ImageSyntaxBindingValue()
+		public ImageSyntaxBindingValue()
 		{
 
 		}
