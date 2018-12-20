@@ -23,7 +23,7 @@ class SimpleImageSource implements StreamResource.StreamSource
 	private final byte[] isData;
 	private final UnityImage.ImageType type;
 
-	public SimpleImageSource(byte[] value, UnityImage.ImageType type)
+	SimpleImageSource(byte[] value, UnityImage.ImageType type)
 	{
 		this.isData = value;
 		this.type = type;

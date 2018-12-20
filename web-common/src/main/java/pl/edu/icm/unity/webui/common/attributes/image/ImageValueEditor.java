@@ -39,7 +39,7 @@ class ImageValueEditor implements AttributeValueEditor
 	private UnityMessageSource msg;
 	private ImageAttributeSyntax syntax;
 
-	public ImageValueEditor(String valueRaw, String label, UnityMessageSource msg, ImageAttributeSyntax syntax)
+	ImageValueEditor(String valueRaw, String label, UnityMessageSource msg, ImageAttributeSyntax syntax)
 	{
 		this.value = valueRaw == null ? null : syntax.convertFromString(valueRaw);
 		this.label = label;

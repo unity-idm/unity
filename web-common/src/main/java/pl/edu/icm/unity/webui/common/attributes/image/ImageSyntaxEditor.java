@@ -29,7 +29,7 @@ class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
 	private UnityMessageSource msg;
 	private Binder<ImageSyntaxBindingValue> binder;
 
-	public ImageSyntaxEditor(ImageAttributeSyntax initial, UnityMessageSource msg)
+	ImageSyntaxEditor(ImageAttributeSyntax initial, UnityMessageSource msg)
 	{
 		this.initial = initial;
 		this.msg = msg;
@@ -101,13 +101,13 @@ class ImageSyntaxEditor implements AttributeSyntaxEditor<UnityImage>
 
 	}
 
-	public class ImageSyntaxBindingValue
+	private static class ImageSyntaxBindingValue
 	{
 		private Integer maxSize;
 		private Integer maxWidth;
 		private Integer maxHeight;
 
-		public ImageSyntaxBindingValue()
+		private ImageSyntaxBindingValue()
 		{
 
 		}
