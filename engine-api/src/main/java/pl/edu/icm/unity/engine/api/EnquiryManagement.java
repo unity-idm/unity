@@ -119,4 +119,20 @@ public interface EnquiryManagement
 	 */
 	FormAutomationSupport getFormAutomationSupport(EnquiryForm form);
 
+	/**
+	 * 
+	 * @param entity
+	 * @return
+	 * @throws EngineException
+	 */
+	List<EnquiryForm> getStickyEnquires(EntityParam entity) throws EngineException;
+
+	/**
+	 * 
+	 * @param form
+	 * @param entity
+	 * @throws EngineException 
+	 */
+	void removePendingStickyRequest(String form, EntityParam entity) throws EngineException;
+
 }

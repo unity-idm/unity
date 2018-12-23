@@ -29,8 +29,7 @@ public enum SidebarStyles
 	tooltip("u-toolTip"),
 	breadcrumbs("u-breadcrumbs"),
 	indentSmall("u-indentSmall"),
-	viewHeader("u-viewHeader"),
-	indentComboBox("u-indentComboBox");
+	viewHeader("u-viewHeader");
 	
 	private String value;
 

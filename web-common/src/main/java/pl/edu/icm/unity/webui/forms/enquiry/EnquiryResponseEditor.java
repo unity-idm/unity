@@ -18,6 +18,7 @@ import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
+import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 
 /**
@@ -27,6 +28,7 @@ import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 {
 	private EnquiryForm enquiryForm;
+	private PrefilledSet prefilled;
 	
 	public EnquiryResponseEditor(UnityMessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
@@ -34,11 +36,12 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan) throws Exception
+			GroupsManagement groupsMan, PrefilledSet prefilled) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, atMan, credMan, groupsMan);
 		this.enquiryForm = form;
+		this.prefilled = prefilled;
 		initUI();
 	}
 	
@@ -60,7 +63,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	{
 		RegistrationLayoutsContainer layoutContainer = createLayouts();
 		
-		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), null);
+		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), prefilled);
 	}
 	
 	String getPageTitle()
@@ -68,10 +71,12 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 		return enquiryForm.getPageTitle() == null ? null : enquiryForm.getPageTitle().getValue(msg);
 	}
 	
-	boolean isManadtory()
+	boolean isOptional()
 	{
-		return enquiryForm.getType() == EnquiryType.REQUESTED_MANDATORY;
+		return enquiryForm.getType() == EnquiryType.REQUESTED_OPTIONAL;
 	}
+	
+	
 }
 
 

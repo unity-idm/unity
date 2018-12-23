@@ -30,7 +30,7 @@ import pl.edu.icm.unity.types.registration.layout.FormLayout;
  */
 public class EnquiryForm extends BaseForm
 {
-	public enum EnquiryType {REQUESTED_MANDATORY, REQUESTED_OPTIONAL}
+	public enum EnquiryType {REQUESTED_MANDATORY, REQUESTED_OPTIONAL, STICKY}
 	
 	private EnquiryType type;
 	private String[] targetGroups;

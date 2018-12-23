@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.BaseRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RegistrationWithCommentsTemplateDef;
@@ -23,7 +24,6 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
-import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.group.GroupHelper;
@@ -77,9 +77,9 @@ public class BaseSharedRegistrationSupport
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
-			Collection<GroupParam> requestedGroups) throws EngineException
+			Collection<GroupParam> requestedGroups, List<Group> actualGroups) throws EngineException
 	{
-		Map<String, GroupParam> sortedGroups = establishSortedGroups(requestedGroups);
+		Map<String, GroupParam> sortedGroups = establishSortedGroups(requestedGroups, actualGroups);
 		
 		EntityParam entity = new EntityParam(entityId);
 		for (Map.Entry<String, GroupParam> entry : sortedGroups.entrySet())
@@ -96,12 +96,17 @@ public class BaseSharedRegistrationSupport
 		}
 	}
 
-	private Map<String, GroupParam> establishSortedGroups(Collection<GroupParam> requestedGroups)
+	private Map<String, GroupParam> establishSortedGroups(Collection<GroupParam> requestedGroups, List<Group> actualGroups)
 	{
 		Map<String, GroupParam> sortedGroups = new TreeMap<>();
 		Set<String> allGroups = new HashSet<>();
-		allGroups.add("/");
-		
+		if (actualGroups != null && !actualGroups.isEmpty())
+		{
+			allGroups.addAll(actualGroups.stream().map(g -> g.toString()).collect(Collectors.toList()));
+		} else
+		{
+			allGroups.add("/");
+		}
 		for (GroupParam group : requestedGroups)
 		{
 			Deque<String> missingGroups = Group.getMissingGroups(group.getGroup(), allGroups);
@@ -115,14 +120,15 @@ public class BaseSharedRegistrationSupport
 		return sortedGroups;
 	}
 	
-	protected void applyRequestedAttributeClasses(TranslatedRegistrationRequest translatedRequest,
+	protected void applyRequestedAttributeClasses(Map<String, Set<String>> attributeClasses,
 			long entityId) throws EngineException
 	{
-		Map<String, Set<String>> attributeClasses = translatedRequest.getAttributeClasses();
 		for (Map.Entry<String, Set<String>> groupAcs: attributeClasses.entrySet())
 		{
-			attributesHelper.setAttributeClasses(entityId, groupAcs.getKey(), 
-					groupAcs.getValue());
+			if (groupHelper.isMember(entityId, groupAcs.getKey()))
+			{
+				attributesHelper.setAttributeClasses(entityId, groupAcs.getKey(), groupAcs.getValue());
+			}
 		}
 	}
 	

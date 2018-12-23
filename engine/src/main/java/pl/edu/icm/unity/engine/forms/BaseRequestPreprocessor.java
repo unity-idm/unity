@@ -5,8 +5,10 @@
 package pl.edu.icm.unity.engine.forms;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -118,11 +120,25 @@ public class BaseRequestPreprocessor
 	private void validateRequestedGroup(GroupRegistrationParam groupRegistrationParam,
 			GroupSelection groupSelection) throws IllegalFormContentsException
 	{
-		if (!groupRegistrationParam.isMultiSelect() && groupSelection.getSelectedGroups().size() > 1)
-			throw new IllegalFormContentsException(
-					"Wrong amount of selected groups, must be at most one, but " 
-							+ groupSelection.getSelectedGroups().size() + 
-							" groups are selected");
+		if (!groupRegistrationParam.isMultiSelect() && !groupSelection.getSelectedGroups().isEmpty())
+		{
+			List<String> sortedGroups = groupSelection.getSelectedGroups().stream().sorted(
+					(g1, g2) -> new Group(g2).getPath().length - new Group(g1).getPath().length)
+					.collect(Collectors.toList());
+
+			Iterator<String> it = sortedGroups.iterator();
+			Group oldestChild = new Group(it.next());
+			while (it.hasNext())
+			{
+				if (!oldestChild.isChild(new Group(it.next())))
+				{
+					throw new IllegalFormContentsException(
+							"Incorrect selected groups, all selected group should have parent -> child relation");
+				}
+			}
+
+		}
+			
 		for (String group: groupSelection.getSelectedGroups())
 			if (!GroupPatternMatcher.matches(group, groupRegistrationParam.getGroupPath()))
 				throw new IllegalFormContentsException(

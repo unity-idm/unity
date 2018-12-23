@@ -5,8 +5,12 @@
 package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,30 +19,44 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
+import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
 /**
  * Logic behind {@link EnquiryResponseEditor}. Provides a simple method to create editor instance and to handle 
@@ -73,7 +91,13 @@ public class EnquiryResponseEditorController
 	private CredentialManagement credMan;
 	
 	@Autowired @Qualifier("insecure") 
-	private GroupsManagement groupsMan;	
+	private GroupsManagement groupsMan;
+	
+	@Autowired @Qualifier("insecure") 
+	private EntityManagement idMan;	
+	
+	@Autowired @Qualifier("insecure") 
+	private AttributesManagement attrMan;
 	
 	@Autowired
 	private IdPLoginController idpLoginController;
@@ -84,12 +108,92 @@ public class EnquiryResponseEditorController
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, getPreffiledForSticky(form));
+	}
+	
+	public EnquiryResponseEditor getEditorInstance(String form, 
+			RemotelyAuthenticatedContext remoteContext) throws Exception
+	{
+		return getEditorInstance(getForm(form), remoteContext);
 	}
 
+	public PrefilledSet getPreffiledForSticky(EnquiryForm form) throws EngineException
+	{
+		EntityParam entity = getLoggedEntity();
+		if (form.getType().equals(EnquiryType.STICKY))
+		{	
+			return new PrefilledSet(null, getPreffiledGroup(entity, form), getPrefilledAttribute(entity, form), null);
+		
+		}else
+		{
+			return new PrefilledSet();
+		}
+		
+	}
+
+	private Map<Integer, PrefilledEntry<GroupSelection>> getPreffiledGroup(EntityParam entity, EnquiryForm form)
+			throws EngineException
+	{
+		Map<String, GroupMembership> allGroups = idMan.getGroups(entity);
+
+		Map<Integer, PrefilledEntry<GroupSelection>> prefilledGroupSelections = new HashMap<>();
+		for (int i = 0; i < form.getGroupParams().size(); i++)
+		{
+
+			GroupRegistrationParam groupParam = form.getGroupParams().get(i);
+			List<Group> allMatchingGroups = groupsMan.getGroupsByWildcard(groupParam.getGroupPath());
+			List<Group> filterMatching = GroupPatternMatcher.filterMatching(allMatchingGroups,
+					allGroups.keySet());
+
+			PrefilledEntry<GroupSelection> pe = new PrefilledEntry<GroupSelection>(new GroupSelection(
+					filterMatching.stream().map(g -> g.getName()).collect(Collectors.toList())),
+					PrefilledEntryMode.DEFAULT);
+
+			prefilledGroupSelections.put(i, pe);
+		}
+		return prefilledGroupSelections;
+	}
+
+	private Map<Integer, PrefilledEntry<Attribute>> getPrefilledAttribute(EntityParam entity, EnquiryForm form)
+			throws EngineException
+	{
+		Map<Integer, PrefilledEntry<Attribute>> prefilledAttributes = new HashMap<>();
+
+		for (int i = 0; i < form.getAttributeParams().size(); i++)
+		{
+			AttributeRegistrationParam attrParam = form.getAttributeParams().get(i);
+			Collection<AttributeExt> attributes = null;
+			try
+			{
+				attributes = attrMan.getAttributes(entity, attrParam.getGroup(),
+						attrParam.getAttributeType());
+			} catch (IllegalGroupValueException e)
+			{
+				// ok, user is not in group
+			}
+			if (attributes != null && !attributes.isEmpty())
+			{
+				prefilledAttributes.put(i,
+						new PrefilledEntry<>(attributes.iterator().next(), PrefilledEntryMode.DEFAULT));
+			}
+		}
+
+		return prefilledAttributes;
+	}
+	
 	public boolean isFormApplicable(String formName)
 	{
-		List<EnquiryForm> formsToFill = getFormsToFill();
+		return isFormApplicable(formName,  getFormsToFill());
+	}
+	
+	public boolean isStickyFormApplicable(String formName)
+	{
+		return isFormApplicable(formName,  getStickyForms());
+	}
+	
+	private boolean isFormApplicable(String formName,
+		List<EnquiryForm> formsToFill)
+	{
 		Optional<String> found = formsToFill.stream()
 				.map(form -> form.getName())
 				.filter(name -> name.equals(formName))
@@ -97,18 +201,42 @@ public class EnquiryResponseEditorController
 		return found.isPresent();
 	}
 	
+	private EntityParam getLoggedEntity()
+	{
+		return  new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
+	}
+	
 	public List<EnquiryForm> getFormsToFill()
 	{
-		EntityParam entity = new EntityParam(InvocationContext.getCurrent().getLoginSession().getEntityId());
+		EntityParam entity = getLoggedEntity();
+		List<EnquiryForm> ret = new ArrayList<>();
+
 		try
 		{
-			return enquiryManagement.getPendingEnquires(entity);
+			ret.addAll(enquiryManagement.getPendingEnquires(entity));
 		} catch (EngineException e)
 		{
 			log.error("Can't load pending enquiry forms", e);
-			return new ArrayList<>();
 		}
+		return ret;
+
 	}
+	
+	public List<EnquiryForm> getStickyForms()
+	{
+		EntityParam entity = getLoggedEntity();
+		List<EnquiryForm> ret = new ArrayList<>();
+		try
+		{
+			ret.addAll(enquiryManagement.getStickyEnquires(entity));
+		} catch (EngineException e)
+		{
+			log.error("Can't load sticky enquiry forms", e);
+		}
+		return ret;
+	}
+	
+	
 	
 	public void markFormAsIgnored(String formId)
 	{
@@ -178,7 +306,7 @@ public class EnquiryResponseEditorController
 	public WorkflowFinalizationConfiguration cancelled(EnquiryForm form, TriggeringMode mode,
 			boolean markFormAsIgnored)
 	{
-		if (form.getType() != EnquiryType.REQUESTED_MANDATORY)
+		if (form.getType() == EnquiryType.REQUESTED_OPTIONAL)
 		{
 			if (markFormAsIgnored)
 				markFormAsIgnored(form.getName());
@@ -196,5 +324,19 @@ public class EnquiryResponseEditorController
 		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
 		return new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
 				pageTitle, form.getLayoutSettings().getLogoURL(), false);
+	}
+
+	public boolean checkIfRequestExists(String name) throws EngineException
+	{
+		return !enquiryManagement.getEnquiryResponses().stream()
+				.filter(r -> r.getRequest().getFormId().equals(name)
+						&& r.getStatus().equals(RegistrationRequestStatus.pending))
+				.collect(Collectors.toList()).isEmpty();
+	}
+	
+	public void removePendingRequest(String form) throws EngineException
+	{
+	
+		enquiryManagement.removePendingStickyRequest(form, getLoggedEntity());	
 	}
 }

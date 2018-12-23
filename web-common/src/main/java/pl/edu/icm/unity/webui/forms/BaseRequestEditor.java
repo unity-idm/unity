@@ -63,7 +63,6 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.Selection;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
@@ -456,7 +455,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
-	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 
+	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, PrefilledSet prefilled) 
 	{
 		identityParamEditors = new HashMap<>();
 		attributeEditor = new HashMap<>();
@@ -475,7 +474,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		{
 			FormElement element = elements.get(i);
 			FormElement nextElement = i + 1 < elements.size() ? elements.get(i+1) : null;
-			if (createControlFor(layoutContainer, element, previousInserted, nextElement, invitation))
+			if (createControlFor(layoutContainer, element, previousInserted, nextElement, prefilled))
 				previousInserted = element;
 		}
 		// we don't allow for empty sections
@@ -521,23 +520,23 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
-			FormElement previousInserted, FormElement next, InvitationWithCode invitation)
+			FormElement previousInserted, FormElement next, PrefilledSet prefilled)
 	{
 		switch (element.getType())
 		{
 		case IDENTITY:
 			return createIdentityControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					invitation != null ? invitation.getIdentities() : new HashMap<>());
+					prefilled.identities);
 			
 		case ATTRIBUTE:
 			return createAttributeControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					invitation != null ? invitation.getAttributes() : new HashMap<>());
+					prefilled.attributes);
 			
 		case GROUP:
 			return createGroupControl(layoutContainer.registrationFormLayout,
 					(FormParameterElement) element,
-					invitation != null ? invitation.getGroupSelections() : new HashMap<>(),
-					invitation != null ? invitation.getAllowedGroups() : new HashMap<>());
+					prefilled.groupSelections,
+					prefilled.allowedGroups);
 			
 		case CAPTION:
 			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, 
@@ -775,7 +774,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				&& hasRemoteGroup; 
 
 		GroupsSelection selection = GroupsSelection.getGroupsSelection(msg, groupParam.isMultiSelect(), 
-				isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
+			isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
 		selection.setWidth(formWidth(), formWidthUnit());
 

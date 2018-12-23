@@ -46,7 +46,7 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	protected AbstractOrderedLayout getButtonsBar()
 	{
 		AbstractOrderedLayout ret = super.getButtonsBar();
-		if (type != EnquiryType.REQUESTED_MANDATORY)
+		if (type == EnquiryType.REQUESTED_OPTIONAL)
 		{
 			Button ignore = new Button(msg.getMessage("EnquiryFormFillDialog.ignore"), 
 					event-> {

@@ -88,7 +88,8 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
-
+	private TabSheet tabOfLists;
+	
 	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan)
@@ -179,7 +180,7 @@ public class BaseFormEditor extends VerticalLayout
 	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval)
 	{
 		this.groups = groups;
-		TabSheet tabOfLists = new TabSheet();
+		tabOfLists = new TabSheet();
 		tabOfLists.setStyleName(Styles.vTabsheetMinimal.toString());
 		
 		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
@@ -251,7 +252,27 @@ public class BaseFormEditor extends VerticalLayout
 		credentialParams.setCaption(msg.getMessage("RegistrationFormEditor.localSignupMethods"));
 		return credentialParams;
 	}
-
+	
+	protected void setCredentialsTabVisible(boolean visible)
+	{
+		tabOfLists.getTab(credentialParams).setVisible(visible);
+	}
+	
+	protected void setIdentitiesTabVisible(boolean visible)
+	{
+		tabOfLists.getTab(identityParams).setVisible(visible);
+	}
+	
+	protected void resetCredentialTab()
+	{
+		credentialParams.resetContents();
+	}
+	
+	protected void resetIdentitiesTab()
+	{
+		identityParams.resetContents();
+	}
+	
 	private class AgreementEditorAndProvider implements EditorProvider<AgreementRegistrationParam>,
 		Editor<AgreementRegistrationParam>
 	{

@@ -6,6 +6,7 @@ package pl.edu.icm.unity.home;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -46,6 +47,7 @@ import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
@@ -61,6 +63,8 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
+import pl.edu.icm.unity.webui.forms.enquiry.SingleStickyEnquiryUpdater;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
@@ -96,6 +100,7 @@ public class UserAccountComponent extends VerticalLayout
 	private AuthenticationFlowManagement authnFlowMan;
 	private TokensManagement tokenMan;
 	private AdditionalAuthnHandler additionalAuthnHandler;
+	private EnquiryResponseEditorController enquiryResController;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -111,7 +116,8 @@ public class UserAccountComponent extends VerticalLayout
 			IdentityTypeSupport idTypeSupport,
 			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan,
 			TokensManagement tokenMan,
-			AdditionalAuthnHandler additionalAuthnHandler)
+			AdditionalAuthnHandler additionalAuthnHandler,
+			EnquiryResponseEditorController enquiryResController)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -134,6 +140,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.authnFlowMan = authnFlowMan;
 		this.tokenMan = tokenMan;
 		this.additionalAuthnHandler = additionalAuthnHandler;
+		this.enquiryResController = enquiryResController;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -163,15 +170,49 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
 		
+		if (!disabled.contains(HomeEndpointProperties.Components.enquriesTab.toString()))
+			addEnquiries(tabPanel, config.getEnabledEnquiries());
+		
 		if (!disabled.contains(tabProvider.getId().toString()))
 			addExtraTab(tabPanel);
 		
 		if (tabPanel.getTabsCount() > 0)
 			tabPanel.select(0);
-		
-		
 	}
 	
+	private void addEnquiries(BigTabPanel tabPanel, List<String> enquiries)
+	{
+		try
+		{
+			VerticalLayout main = new VerticalLayout();
+			main.setSpacing(false);
+			main.setMargin(false);
+			
+			//only first applicable
+			boolean added = false;
+			for (String enquiryForm : enquiries)
+			{
+				if (!added && enquiryResController.isStickyFormApplicable(enquiryForm))
+				{
+					EnquiryForm form = enquiryResController.getForm(enquiryForm);
+					main.addComponent(new SingleStickyEnquiryUpdater(msg, enquiryResController, form));
+					added = true;
+				}
+			}
+
+			tabPanel.addTab("UserHomeUI.enquiryLabel", "UserHomeUI.enquiryDesc", Images.records,
+					main);
+
+		} catch (Exception e)
+		{
+			log.error("Error when creating enquiries view", e);
+			ErrorComponent errorC = new ErrorComponent();
+			errorC.setError(msg.getMessage("error") + ": " + NotificationPopup.getHumanMessage(e));
+			tabPanel.addTab("UserHomeUI.enquiryLabel", "UserHomeUI.enquiryDesc", Images.records, errorC);
+		}
+
+	}
+
 	private void addUserInfo(BigTabPanel tabPanel, LoginSession theUser, HomeEndpointProperties config, 
 			Set<String> disabled)
 	{
@@ -263,8 +304,6 @@ public class UserAccountComponent extends VerticalLayout
 		tabPanel.addTab(tabProvider.getLabelKey(), tabProvider.getDescriptionKey(), 
 				tabProvider.getIcon(), tabProvider.getUI());
 	}
-	
-	
 	
 	private UserDetailsPanel getUserInfoComponent(long entityId, EntityManagement idsMan, 
 			AttributeSupport attrMan) throws EngineException

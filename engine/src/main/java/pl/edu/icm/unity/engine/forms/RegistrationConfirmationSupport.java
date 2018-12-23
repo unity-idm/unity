@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdent
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
+import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.engine.translation.form.FormAutomationSupportExt;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
@@ -71,6 +72,8 @@ public class RegistrationConfirmationSupport
 	private AttributeTypeHelper atHelper;
 	@Autowired
 	private ObjectFactory<FormAutomationSupportExt> formAutomationSupportFactory;
+	@Autowired
+	private GroupHelper groupHelper;
 	
 	public void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
 			Long entityId, RegistrationForm form, Phase phase) throws InternalException, EngineException
@@ -108,6 +111,12 @@ public class RegistrationConfirmationSupport
 				continue;
 			if (phase.supportedMode != form.getAttributeParams().get(i).getConfirmationMode())
 				continue;
+			if (entityId != null)
+			{
+				if (groupHelper.isMember(entityId, attr.getGroupPath()))
+					continue;
+			}
+			
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (syntax.isEmailVerifiable())
 			{

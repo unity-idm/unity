@@ -29,11 +29,11 @@ import pl.edu.icm.unity.webui.finalization.WorkflowCompletedWithLogoutComponent;
  */
 class StandaloneEnquiryView extends CustomComponent implements View
 {
-	private VerticalLayout main;
-	private EnquiryResponseEditor editor;
+	protected EnquiryResponseEditor editor;
 	private Callback callback;
-	private UnityMessageSource msg;
+	protected UnityMessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
+	
 	
 	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor,
 			UnityMessageSource msg,	Callback callback)
@@ -49,12 +49,12 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	{
 		if (editor.getPageTitle() != null)
 			Page.getCurrent().setTitle(editor.getPageTitle());
-		placeEditor(editor);
+		placeEditor();
 	}
 
-	private void placeEditor(EnquiryResponseEditor editor)
+	protected void placeEditor()
 	{
-		main = new VerticalLayout();
+		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
 		main.setMargin(true);
 		addStyleName("u-standalone-public-form");
@@ -72,7 +72,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		main.addComponent(editor);
 		editor.setWidth(100, Unit.PERCENTAGE);
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
-		
+	
 		Component buttons = createButtonsBar();
 		main.addComponent(buttons);
 		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
@@ -88,7 +88,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		return logout;
 	}
 
-	private Component createButtonsBar()
+	protected Component createButtonsBar()
 	{
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setWidth(editor.formWidth(), editor.formWidthUnit());
@@ -101,7 +101,15 @@ class StandaloneEnquiryView extends CustomComponent implements View
 			gotoFinalStep(config);
 		});
 		
-		String exitMessage = editor.isManadtory() ? msg.getMessage("cancel") 
+		buttons.addComponents(getCancellButton(), ok);
+		buttons.setSpacing(true);
+		buttons.setMargin(false);
+		return buttons;
+	}
+	
+	protected Button getCancellButton()
+	{
+		String exitMessage = !editor.isOptional() ? msg.getMessage("cancel") 
 				: msg.getMessage("EnquiryFormFillDialog.ignore");
 		Button ignore = new Button(exitMessage);
 		ignore.setWidth(100, Unit.PERCENTAGE);
@@ -109,11 +117,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 			WorkflowFinalizationConfiguration config = callback.cancelled();
 			gotoFinalStep(config);
 		});
-		
-		buttons.addComponents(ignore, ok);
-		buttons.setSpacing(true);
-		buttons.setMargin(false);
-		return buttons;
+		return ignore;
 	}
 	
 	private void gotoFinalStep(WorkflowFinalizationConfiguration config)

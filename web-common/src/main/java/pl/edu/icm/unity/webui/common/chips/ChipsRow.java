@@ -76,6 +76,12 @@ public class ChipsRow<T> extends CustomComponent
 		}
 	}
 	
+	public void removeAll()
+	{
+		chips.clear();
+		wrapper.removeAllComponents();
+	}
+	
 	private void removeChip(Chip<T> chip)
 	{
 		chips.remove(chip);

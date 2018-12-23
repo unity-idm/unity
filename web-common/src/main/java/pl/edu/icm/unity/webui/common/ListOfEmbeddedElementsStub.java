@@ -158,6 +158,12 @@ public class ListOfEmbeddedElementsStub<T>
 			valueChangeListener.run();
 	}
 	
+	public void resetContents()
+	{
+		clearContents();
+		lonelyBar.setVisible(true);
+	}
+	
 	public List<T> getElements() throws FormValidationException
 	{
 		List<T> ret = new ArrayList<>(components.size());

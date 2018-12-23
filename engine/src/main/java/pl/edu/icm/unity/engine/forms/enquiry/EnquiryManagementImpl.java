@@ -257,9 +257,18 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId());
 			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), 
 					new InvitationPrefillInfo(), true);
+			
+			boolean isSticky = form.getType().equals(EnquiryType.STICKY);
+			if (isSticky)
+			{
+				internalRemovePendingStickyEnquiryRequest(form.getName(), new EntityParam(responseFull.getEntityId()));
+			}
 			requestDB.create(responseFull);
-			addToAttribute(responseFull.getEntityId(), EnquiryAttributeTypesProvider.FILLED_ENQUIRES, 
-					form.getName());
+			if (!isSticky)
+			{
+				addToAttribute(responseFull.getEntityId(),
+						EnquiryAttributeTypesProvider.FILLED_ENQUIRES, form.getName());
+			}
 			return form;
 		});
 	}
@@ -351,12 +360,33 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		{
 			if (ignored.contains(form.getName()))
 				continue;
+			if (form.getType().equals(EnquiryType.STICKY))
+				continue;
 			if (isInTargetGroups(allGroups, form.getTargetGroups()))
 				ret.add(form);
 		}
 		return ret;
 	}
+	
+	@Transactional
+	@Override
+	public List<EnquiryForm> getStickyEnquires(EntityParam entity) throws EngineException
+	{
+		long entityId = identitiesResolver.getEntityId(entity);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		List<EnquiryForm> allForms = enquiryFormDB.getAll();
+		Set<String> allGroups = dbShared.getEntityMembershipSimple(entityId);
 
+		List<EnquiryForm> ret = new ArrayList<>();
+		for (EnquiryForm form : allForms)
+		{
+			if (form.getType().equals(EnquiryType.STICKY)
+					&& isInTargetGroups(allGroups, form.getTargetGroups()))
+				ret.add(form);
+		}
+		return ret;
+	}
+	
 	private boolean isInTargetGroups(Set<String> groups, String[] targetGroups)
 	{
 		for (String targetGroup: targetGroups)
@@ -386,6 +416,22 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		dbAttributes.addAttribute(entityId, attribute, true, false);
 	}
 	
+	private void internalRemovePendingStickyEnquiryRequest(String enquiryId, EntityParam entity)
+	{
+		tx.runInTransaction(() -> {
+			for (EnquiryResponseState en : requestDB.getAll())
+			{
+				if (!en.getStatus().equals(RegistrationRequestStatus.pending))
+					continue;
+				EnquiryResponse res = en.getRequest();
+				if (res.getFormId().equals(enquiryId))
+				{
+					requestDB.delete(en.getRequestId());
+				}
+			}
+		});
+	}
+	
 	@Transactional
 	@Override
 	public void ignoreEnquiry(String enquiryId, EntityParam entity) throws EngineException
@@ -393,9 +439,15 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		long entityId = identitiesResolver.getEntityId(entity);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
 		EnquiryForm form = enquiryFormDB.get(enquiryId);
-		if (form.getType() == EnquiryType.REQUESTED_MANDATORY)
-			throw new WrongArgumentException("The mandatory enquiry can not be marked as ignored");
-		addToAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES, enquiryId);
+		if (form.getType().equals(EnquiryType.STICKY))
+		{
+			internalRemovePendingStickyEnquiryRequest(enquiryId, entity);
+		} else
+		{
+			if (form.getType() == EnquiryType.REQUESTED_MANDATORY)
+				throw new WrongArgumentException("The mandatory enquiry can not be marked as ignored");
+			addToAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES, enquiryId);
+		}
 	}
 
 	@Transactional
@@ -403,5 +455,17 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public FormAutomationSupport getFormAutomationSupport(EnquiryForm form)
 	{
 		return confirmationsSupport.getEnquiryFormAutomationSupport(form);
+	}
+
+	@Transactional
+	@Override
+	public void removePendingStickyRequest(String form, EntityParam entity) throws EngineException
+	{
+		long entityId = identitiesResolver.getEntityId(entity);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		EnquiryForm eform = enquiryFormDB.get(form);
+		if (!eform.getType().equals(EnquiryType.STICKY))
+			throw new WrongArgumentException("Only sticky enquiry request can be removed");
+		internalRemovePendingStickyEnquiryRequest(form, entity);		
 	}
 }

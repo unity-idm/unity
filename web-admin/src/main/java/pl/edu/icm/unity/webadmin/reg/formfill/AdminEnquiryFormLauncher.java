@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditor;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 
 
@@ -61,6 +62,7 @@ public class AdminEnquiryFormLauncher
 	private AttributeTypeManagement attrsMan;
 	private CredentialManagement authnMan;
 	private GroupsManagement groupsMan;
+	private EnquiryResponseEditorController responseController;
 	
 	private EventsBus bus;
 	private IdPLoginController idpLoginController;
@@ -72,7 +74,8 @@ public class AdminEnquiryFormLauncher
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement attrsMan, CredentialManagement authnMan,
-			GroupsManagement groupsMan, IdPLoginController idpLoginController)
+			GroupsManagement groupsMan, IdPLoginController idpLoginController,
+			EnquiryResponseEditorController responseController)
 	{
 		super();
 		this.msg = msg;
@@ -84,6 +87,7 @@ public class AdminEnquiryFormLauncher
 		this.authnMan = authnMan;
 		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
+		this.responseController = responseController;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -166,10 +170,9 @@ public class AdminEnquiryFormLauncher
 		EnquiryResponseEditor editor;
 		try
 		{
-			editor = new EnquiryResponseEditor(msg, form, 
-					remoteContext, identityEditorRegistry, 
-					credentialEditorRegistry, attributeHandlerRegistry, 
-					attrsMan, authnMan, groupsMan);
+			editor = new EnquiryResponseEditor(msg, form, remoteContext, identityEditorRegistry,
+					credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan,
+					groupsMan, responseController.getPreffiledForSticky(form));
 		} catch (Exception e)
 		{
 			errorHandler.onError(e);

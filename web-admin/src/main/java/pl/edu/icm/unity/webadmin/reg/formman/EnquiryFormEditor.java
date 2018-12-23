@@ -189,6 +189,19 @@ public class EnquiryFormEditor extends BaseFormEditor
 				msg, "EnquiryType.", EnquiryType.class, 
 				EnquiryType.REQUESTED_OPTIONAL);
 		enquiryType.setWidth(20, Unit.EM);
+		enquiryType.addValueChangeListener(e -> {
+
+			boolean enable = !e.getValue().equals(EnquiryType.STICKY);
+			setCredentialsTabVisible(enable);
+			setIdentitiesTabVisible(enable);
+			if (!enable)
+			{
+				resetCredentialTab();
+				resetIdentitiesTab();
+			}
+
+		});
+		
 		
 		targetGroups = new GroupsSelectionList(msg.getMessage("EnquiryFormViewer.targetGroups"), 
 				notificationsEditor.getGroups());

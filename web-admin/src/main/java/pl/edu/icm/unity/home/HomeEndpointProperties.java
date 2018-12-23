@@ -4,9 +4,11 @@
  */
 package pl.edu.icm.unity.home;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
@@ -29,7 +31,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, HomeEndpointProperties.class);
 
-	public enum Components {credentialTab, preferencesTab, userDetailsTab, 
+	public enum Components {credentialTab, preferencesTab, userDetailsTab, enquriesTab, 
 		accountRemoval, attributesManagement, userInfo, identitiesManagement,
 		accountLinking};
 
@@ -43,6 +45,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 
 	public static final String DISABLED_COMPONENTS = "disabledComponents.";
 	public static final String ATTRIBUTES = "attributes.";
+	public static final String ENQUIRIES = "enquiries.";
 	public static final String GWA_ATTRIBUTE = "attribute";
 	public static final String GWA_GROUP = "group";
 	public static final String GWA_SHOW_GROUP = "showGroup";
@@ -78,6 +81,9 @@ public class HomeEndpointProperties extends PropertiesHelper
 				+ "read only mode."));
 		META.put(GWA_SHOW_GROUP, new PropertyMD("false").setStructuredListEntry(ATTRIBUTES).
 				setDescription("If true then the group is shown next to the attribute."));
+		META.put(ENQUIRIES, new PropertyMD().setList(false).
+				setDescription("Prefix under which it is possible to define enquries "
+				+ "which should be presented on the User Home UI."));	
 	}
 	
 	public HomeEndpointProperties(Properties properties) throws ConfigurationException
@@ -88,5 +94,10 @@ public class HomeEndpointProperties extends PropertiesHelper
 	public Set<String> getDisabledComponents()
 	{
 		return new HashSet<>(getListOfValues(DISABLED_COMPONENTS));
+	}
+	
+	public List<String> getEnabledEnquiries()
+	{
+		return new ArrayList<>(getListOfValues(ENQUIRIES));
 	}
 }

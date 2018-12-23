@@ -156,8 +156,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			identityHelper.insertIdentity(idParam, initial.getEntityId(), false);
 		}
 
-		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, groupParamByPath.values());
-		applyRequestedAttributeClasses(translatedRequest, initial.getEntityId());		
+		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, groupParamByPath.values(), null);
+		applyRequestedAttributeClasses(translatedRequest.getAttributeClasses(), initial.getEntityId());		
 		applyRequestedCredentials(currentRequest, initial.getEntityId());
 		
 		RegistrationFormNotifications notificationsCfg = form.getNotificationsConfiguration();

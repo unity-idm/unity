@@ -145,7 +145,9 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 		authz.checkManagerAuthorization(projectPath);
 		String enquiryFormId = getProjectDelegationConfig(projectPath).signupEnquiryForm;
-
+		if (enquiryFormId == null)
+			return Optional.empty();
+		
 		return Optional.ofNullable(
 				PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryFormId, sharedEndpointMan));
 	}

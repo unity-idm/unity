@@ -4,13 +4,19 @@
  */
 package pl.edu.icm.unity.webui.common.groups;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.util.StringUtils;
 
 import com.google.common.collect.Lists;
 import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.groups.GroupSelectionHelper.GroupNameComparator;
 
 /**
  * Allows to select a single group out of multiple, with assumption that a choice is mandatory.
@@ -18,19 +24,47 @@ import pl.edu.icm.unity.types.basic.Group;
  * 
  * @author K. Benedyczak
  */
-public class MandatoryGroupSelection extends ComboBox<Group> implements GroupsSelection
+public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> implements GroupsSelection
 {
+	private UnityMessageSource msg;
+	private List<Group> items;
+	
 	public MandatoryGroupSelection(UnityMessageSource msg)
 	{
-		setItemCaptionGenerator(group -> group.getDisplayedName().getValue(msg));
+		this.msg = msg;
+		setItemCaptionGenerator(g -> g.group.getDisplayedName().getValue(msg));
 		setEmptySelectionAllowed(false);
 		setRequiredIndicatorVisible(true);
+		setStyleName(Styles.indentComboBox.toString());
+		addValueChangeListener(e -> {
+			if (e.getValue().indent)
+				setValue(new GroupWithIndentIndicator(e.getValue().group, false));
+		});
+		items = new ArrayList<>();
 	}
-	
+
 	@Override
 	public List<String> getSelectedGroups()
 	{
-		return Lists.newArrayList(getValue().toString());
+		Group selected = getValue().group;
+		if (selected == null)
+			return Lists.newArrayList();
+
+		List<Group> realSelected = new ArrayList<>();
+		realSelected.add(selected);
+		for (Group g : items)
+		{
+			if (selected.isChild(g) && !realSelected.contains(g))
+			{
+				realSelected.add(g);
+			}
+		}
+		return realSelected.stream().map(group -> group.toString()).collect(Collectors.toList());
+	}
+	
+	public String getSelectedGroup()
+	{
+		return this.getValue() == null ? null : this.getValue().group.toString();
 	}
 	
 	@Override
@@ -41,16 +75,25 @@ public class MandatoryGroupSelection extends ComboBox<Group> implements GroupsSe
 		if (items.isEmpty())
 			throw new IllegalArgumentException("Can not remove mandatory group selection");
 		Group group = items.get(0);
-		setSelectedItem(group);
+		setSelectedItem(new GroupWithIndentIndicator(group, true));
 	}
 
 	@Override
 	public void setItems(List<Group> items)
 	{
 		if (items.isEmpty())
-			throw new IllegalArgumentException("At least one group is required as a choice");		
-		super.setItems(items);
-		setSelectedItem(items.get(0));
+			throw new IllegalArgumentException("At least one group is required as a choice");
+		final int min = GroupSelectionHelper.getMinIndent(items);
+		setItemCaptionGenerator(g -> g.indent
+				? GroupSelectionHelper.generateIndent(
+						StringUtils.countOccurrencesOf(g.group.toString(), "/") - min)
+						+ g.group.getDisplayedName().getValue(msg)
+				: g.group.getDisplayedName().getValue(msg));
+		GroupSelectionHelper.sort(items, new GroupNameComparator(msg));
+		this.items.clear();
+		this.items.addAll(items);
+		super.setItems(this.items.stream().map(g -> new GroupWithIndentIndicator(g, true)));
+		setSelectedItem(new GroupWithIndentIndicator(this.items.get(0), true));
 	}
 
 	@Override

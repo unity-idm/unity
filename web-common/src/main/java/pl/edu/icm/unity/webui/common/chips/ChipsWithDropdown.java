@@ -14,7 +14,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import com.vaadin.event.selection.SingleSelectionEvent;
+import com.vaadin.event.selection.SingleSelectionListener;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
@@ -64,6 +66,22 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		setCompositionRoot(main);
 	}
 	
+	public void updateComboRenderer(Function<T, String> comboRenderer)
+	{
+		this.comboRenderer = comboRenderer;
+		this.combo.setItemCaptionGenerator(item -> comboRenderer.apply(item));
+	}
+	
+	public void addChipRemovalListener(ClickListener listner)
+	{
+		chipsRow.addChipRemovalListener(listner);
+	}
+	
+	public void addSelectionListener(SingleSelectionListener<T> listener)
+	{
+		combo.addSelectionListener(listener);
+	}
+	
 	public void setMultiSelectable(boolean multiSelectable)
 	{
 		this.multiSelectable = multiSelectable;
@@ -76,8 +94,14 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		updateItemsAvailableToSelect();
 	}
 	
+	public Set<T> getItems()
+	{
+		return allItems;
+	}
+	
 	public void setSelectedItems(List<T> items)
 	{
+		chipsRow.removeAll();
 		if (!multiSelectable && items.size() > 1)
 			throw new IllegalArgumentException("Can not select more then one element in single-selectable chips");
 		items.forEach(this::selectGroup);
@@ -130,13 +154,19 @@ public class ChipsWithDropdown<T> extends CustomComponent
 				.filter(i -> !selected.contains(i))
 				.collect(Collectors.toList());
 		
-		Collections.sort(available, this::compareItems);
+		sortItems(available);
+		
 		combo.setItems(available);
 		if (selected.isEmpty())
 			combo.removeStyleName("u-chipsCombo");
 		else
 			combo.addStyleName("u-chipsCombo");
 		updateComboVisibility(selected, available);
+	}
+	
+	protected void sortItems(List<T> items)
+	{
+		Collections.sort(items, this::compareItems);
 	}
 	
 	private int compareItems(T a, T b)
@@ -167,7 +197,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 	private void verifySelectionLimit()
 	{
 		if (maxSelection > 0)
-			combo.setEnabled(getSelectedItems().size() < maxSelection);
+			combo.setVisible(getSelectedItems().size() < maxSelection);
 	}
 	
 	@Override

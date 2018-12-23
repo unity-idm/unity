@@ -61,6 +61,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 import pl.edu.icm.unity.webui.forms.BaseRequestEditor;
+import pl.edu.icm.unity.webui.forms.PrefilledSet;
 import pl.edu.icm.unity.webui.forms.RegistrationLayoutsContainer;
 
 /**
@@ -203,8 +204,13 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		layoutContainer = createLayouts();
 		
 		resolveRemoteSignupOptions();
-		
-		createControls(layoutContainer, effectiveLayout, invitation);
+		PrefilledSet prefilled = new PrefilledSet();
+		if (invitation != null)
+		{ 
+			prefilled = new PrefilledSet(invitation.getIdentities(), invitation.getGroupSelections(),
+				invitation.getAttributes(), invitation.getAllowedGroups());
+		}
+		createControls(layoutContainer, effectiveLayout, prefilled);
 	}
 	
 	@Override
@@ -292,7 +298,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	
 	@Override
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
-			FormElement previousAdded, FormElement next, InvitationWithCode invitation)
+			FormElement previousAdded, FormElement next, PrefilledSet prefilled)
 	{
 		switch (element.getType())
 		{
@@ -305,7 +311,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		case LOCAL_SIGNUP:
 			return createLocalSignupButton(layoutContainer.registrationFormLayout, (FormLocalSignupButtonElement) element);
 		default:
-			return super.createControlFor(layoutContainer, element, previousAdded, next, invitation);
+			return super.createControlFor(layoutContainer, element, previousAdded, next, prefilled);
 		}
 	}
 

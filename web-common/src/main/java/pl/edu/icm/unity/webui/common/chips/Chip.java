@@ -38,6 +38,7 @@ public class Chip<T> extends CustomComponent
 		remove = new Button();
 		remove.addStyleName(Styles.vButtonLink.toString());
 		remove.setIcon(Images.close_small.getResource());
+		remove.setData(value);
 		wrapper.addComponent(remove);
 		
 		addStyleName("u-chip");

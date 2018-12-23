@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -65,7 +66,7 @@ public class RequestReviewPanelBase extends CustomComponent
 		this.idFormatter = idFormatter;
 	}
 	
-	protected void addStandardComponents(Layout main)
+	protected void addStandardComponents(Layout main, String groupsTitle)
 	{
 		identities = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
 		{
@@ -88,7 +89,7 @@ public class RequestReviewPanelBase extends CustomComponent
 		groups = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), 
 				DisableMode.WHEN_SELECTED);
-		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), 
+		groupsPanel = new SafePanel(groupsTitle, 
 				new VerticalLayout(groups));
 		
 		agreements = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
@@ -194,18 +195,16 @@ public class RequestReviewPanelBase extends CustomComponent
 			attributes.addEntry(rep, false);
 		}
 		attributesPanel.setVisible(!attributes.isEmpty());
-
+	}
+	
+	protected void setGroupEntries(List<Component> list)
+	{
 		groups.clearEntries();
-		for (int i=0; i<request.getGroupSelections().size(); i++)
+		for (Component c : list)
 		{
-			GroupSelection selection = request.getGroupSelections().get(i);
-			if (form.getGroupParams().size() <= i)
-				break;
-			String groupEntry = selection.getExternalIdp() == null ? 
-					selection.getSelectedGroups().toString() :
-					"[from: " + selection.getExternalIdp() + "] " + selection.getSelectedGroups();
-			groups.addEntry(new Label(groupEntry), false);
+			groups.addEntry(c, false);
 		}
 		groupsPanel.setVisible(!groups.isEmpty());
 	}
+	
 }
