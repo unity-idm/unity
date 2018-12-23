@@ -122,7 +122,8 @@ public class AccessTokenResource extends BaseOAuthResource
 	@Path("/")
 	@POST
 	public Response getToken(@FormParam("grant_type") String grantType,
-			@FormParam("code") String code, @FormParam("scope") String scope,
+			@FormParam("code") String code, 
+			@FormParam("scope") String scope,
 			@FormParam("redirect_uri") String redirectUri,
 			@FormParam("refresh_token") String refreshToken,
 			@FormParam("audience") String audience,
@@ -253,7 +254,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
-		}		
+		}
 		
 		OAuthToken newToken = null;
 		try
@@ -302,7 +303,6 @@ public class AccessTokenResource extends BaseOAuthResource
 	private Response handleRefreshToken(String refToken, String scope)
 			throws EngineException, JsonProcessingException
 	{
-
 		Token refreshToken = null;
 		OAuthToken parsedRefreshToken = null;
 		try
@@ -329,6 +329,11 @@ public class AccessTokenResource extends BaseOAuthResource
 		List<String> oldRequestedScopesList = Arrays
 				.asList(parsedRefreshToken.getRequestedScope());
 		OAuthToken newToken = null;
+		
+		//When no scopes are requested RFC mandates to assign all originally assigned
+		if (scope == null)
+			scope = String.join(" ", oldRequestedScopesList);
+
 		try
 		{
 			newToken = prepareNewToken(parsedRefreshToken, scope,
@@ -648,7 +653,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		cl.setTime(now);
 		if (refreshTokenValidity == 0)
 		{
-			cl.add(Calendar.YEAR, 1);
+			return null;
 		} else if (refreshTokenValidity > 0)
 		{
 			cl.add(Calendar.SECOND, refreshTokenValidity);

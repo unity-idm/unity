@@ -31,17 +31,35 @@ public class InDBUpdateFromSchema2_5 implements InDBSchemaUpdater
 	public void update() throws IOException
 	{
 		updateAuthenticators();
+		updateRegistrationRequest();
+		updateEnquiryResponse();
 	}
-	
+
 	private void updateAuthenticators()
 	{
-		List<GenericObjectBean> authenticators = genericObjectsDAO.getObjectsOfType("authenticator");
-		for (GenericObjectBean authenticator : authenticators)
+		updateGenericObjects("authenticator", UpdateHelperFrom2_7::updateAuthenticator);
+	}
+	
+	private void updateRegistrationRequest()
+	{
+		updateGenericObjects("registrationRequest", UpdateHelperFrom2_7::updateRegistrationRequest);
+	}
+
+	private void updateEnquiryResponse()
+	{
+		updateGenericObjects("enquiryResponse", UpdateHelperFrom2_7::updateEnquiryResponse);
+	}
+	
+	
+	private void updateGenericObjects(String type, GenericObjectDataUpdater updater)
+	{
+		List<GenericObjectBean> genereicObjects = genericObjectsDAO.getObjectsOfType(type);
+		for (GenericObjectBean genericObject : genereicObjects)
 		{
-			ObjectNode objContent = JsonUtil.parse(authenticator.getContents());
-			ObjectNode updated = UpdateHelperFrom2_7.updateAuthenticator(objContent);
-			authenticator.setContents(JsonUtil.serialize2Bytes(updated));
-			genericObjectsDAO.updateByKey(authenticator.getId(), authenticator);
+			ObjectNode objContent = JsonUtil.parse(genericObject.getContents());
+			ObjectNode updated = updater.update(objContent);
+			genericObject.setContents(JsonUtil.serialize2Bytes(updated));
+			genericObjectsDAO.updateByKey(genericObject.getId(), genericObject);
 		}
 	}
 }

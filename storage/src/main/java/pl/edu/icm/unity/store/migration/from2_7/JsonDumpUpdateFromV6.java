@@ -35,12 +35,29 @@ public class JsonDumpUpdateFromV6 implements Update
 		ObjectNode root = (ObjectNode) objectMapper.readTree(is);
 		ObjectNode contents = (ObjectNode) root.get("contents");
 		updateAuthenticators(contents);
+		updateRegistrationRequest(contents);
+		updateEnquiryResponse(contents);
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
 	}
 
 	private void updateAuthenticators(ObjectNode contents)
 	{
-		ArrayNode generics = (ArrayNode) contents.get("authenticator");
+		genericObjectUpdate("authenticator", contents, UpdateHelperFrom2_7::updateAuthenticator);
+	}
+	
+	private void updateRegistrationRequest(ObjectNode contents)
+	{
+		genericObjectUpdate("registrationRequest", contents, UpdateHelperFrom2_7::updateRegistrationRequest);
+	}
+
+	private void updateEnquiryResponse(ObjectNode contents)
+	{
+		genericObjectUpdate("enquiryResponse", contents, UpdateHelperFrom2_7::updateEnquiryResponse);
+	}
+	
+	private void genericObjectUpdate(String type, ObjectNode contents, GenericObjectDataUpdater updater)
+	{
+		ArrayNode generics = (ArrayNode) contents.get(type);
 		if (generics == null)
 			return;
 		
@@ -49,8 +66,8 @@ public class JsonDumpUpdateFromV6 implements Update
 		while (elements.hasNext())
 		{
 			ObjectNode next = (ObjectNode) elements.next();
-			ObjectNode authenticator = (ObjectNode)next.get("obj");
-			ObjectNode updated = UpdateHelperFrom2_7.updateAuthenticator(authenticator);
+			ObjectNode genericObject = (ObjectNode)next.get("obj");
+			ObjectNode updated = updater.update(genericObject);
 			next.set("obj", updated);
 		}
 	}

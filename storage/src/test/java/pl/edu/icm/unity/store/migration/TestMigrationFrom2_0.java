@@ -68,8 +68,6 @@ public class TestMigrationFrom2_0
 		dbCleaner.reset();
 	}
 
-	
-		
 	@Test
 	public void testImportFrom2_0_0()
 	{
