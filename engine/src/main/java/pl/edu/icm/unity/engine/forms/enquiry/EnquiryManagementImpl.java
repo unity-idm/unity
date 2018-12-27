@@ -322,6 +322,18 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			throw new WrongArgumentException("Target groups must be set in the form.");
 		if (form.getType() == null)
 			throw new WrongArgumentException("Form type must be set.");
+		if (form.getType().equals(EnquiryType.STICKY))
+		{
+			if (!form.getIdentityParams().isEmpty())
+			{
+				throw new WrongArgumentException("Identity params in sticky enquiry forms must be empty");
+			}
+			
+			if (!form.getCredentialParams().isEmpty())
+			{
+				throw new WrongArgumentException("Credential params in sticky enquiry forms must be empty");
+			}
+		}	
 	}
 	
 	@Transactional

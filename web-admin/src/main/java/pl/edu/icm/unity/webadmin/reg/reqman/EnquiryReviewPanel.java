@@ -130,7 +130,7 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 							form.getGroupParams().get(i)),
 					form.getType().equals(EnquiryType.STICKY)));
 			groupEntries.add(wrapper);
-		}
+		}		
 		return groupEntries;
 	}
 

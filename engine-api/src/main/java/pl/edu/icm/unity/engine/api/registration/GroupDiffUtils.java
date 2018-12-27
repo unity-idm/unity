@@ -51,12 +51,34 @@ public class GroupDiffUtils
 
 		for (String groupSelected : selectedGroups)
 		{
-			if (!usersGroup.contains(groupSelected))
+			if (!usersGroup.contains(groupSelected) && !remain.contains(groupSelected))
 			{
 				toAdd.add(groupSelected);
 			}
 		}
-		return new RequestedGroupDiff(toAdd, toRemove, remain);
+
+		Set<String> toRemoveFiltered = new HashSet<>();
+		for (String rgroup : toRemove)
+		{
+			if (!isParent(rgroup, toAdd))
+			{
+				toRemoveFiltered.add(rgroup);
+			}
+		}
+
+		return new RequestedGroupDiff(toAdd, toRemoveFiltered, remain);
+	}
+
+	private static boolean isParent(String group, Set<String> potentialChild)
+	{
+		for (String cgroup : potentialChild)
+		{
+			if (Group.isChildOrSame(cgroup, group))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static RequestedGroupDiff getGlobalDiff(List<Group> allUserGroup, List<GroupSelection> groupSelections,
@@ -98,14 +120,15 @@ public class GroupDiffUtils
 			}
 		}
 
-		for (String groupToAdd : allAdd)
+		Set<String> toRemoveFiltered = new HashSet<>();
+		for (String rgroup : allRemove)
 		{
-			if (allRemove.contains(groupToAdd))
+			if (!isParent(rgroup, allAdd))
 			{
-				allRemove.remove(groupToAdd);
+				toRemoveFiltered.add(rgroup);
 			}
 		}
 
-		return new RequestedGroupDiff(allAdd, allRemove, allRemain);
+		return new RequestedGroupDiff(allAdd, toRemoveFiltered, allRemain);
 	}
 }
