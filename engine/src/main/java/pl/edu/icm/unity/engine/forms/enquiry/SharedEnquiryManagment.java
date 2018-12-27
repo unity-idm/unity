@@ -208,25 +208,31 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	}
 	
 	/**
-	 * Remove from group 
+	 * Remove from group
+	 * 
 	 * @param entityId
 	 * @param toRemove
 	 */
 	private void applyRemovedGroup(long entityId, Set<String> toRemove)
 	{
 		Set<String> entityMembership = membershipDAO.getEntityMembershipSimple(entityId);
+		Set<String> removed = new HashSet<>();
 		for (String groupToRemove : toRemove)
 		{
-			if (groupToRemove.equals("/"))
+			if (groupDAO.get(groupToRemove).isTopLevel())
 				continue;
-			
+
+			if (removed.contains(groupToRemove))
+				continue;
+
 			for (String group : entityMembership)
 			{
-				if (Group.isChildOrSame(group, groupToRemove))
+				if (Group.isChildOrSame(group, groupToRemove) && !removed.contains(group))
 				{
 					membershipDAO.deleteByKey(entityId, group);
 					dbAttributes.deleteAttributesInGroup(entityId, group);
-					log.debug("Removing entity " + entityId + " from group " + group);	
+					removed.add(group);
+					log.debug("Removed entity " + entityId + " from group " + group);
 				}
 			}
 		}

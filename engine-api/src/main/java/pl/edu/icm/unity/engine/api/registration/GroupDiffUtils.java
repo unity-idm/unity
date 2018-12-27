@@ -28,18 +28,18 @@ public class GroupDiffUtils
 			GroupRegistrationParam formGroup)
 	{
 
-		List<String> usersGroup = GroupPatternMatcher.filterMatching(allUserGroups, formGroup.getGroupPath())
-				.stream().filter(g -> !g.isTopLevel()).map(g -> g.toString())
+		List<Group> usersGroup = GroupPatternMatcher.filterMatching(allUserGroups, formGroup.getGroupPath());
+		List<String> usersGroupWithoutRoot = usersGroup.stream().filter(g -> !g.isTopLevel()).map(g -> g.toString())
 				.collect(Collectors.toList());
-
+		
 		List<String> selectedGroups = selected.getSelectedGroups();
 		Set<String> toAdd = new HashSet<>();
 		Set<String> toRemove = new HashSet<>();
-		Set<String> remain = new HashSet<>();
-		remain.add("/");
+		Set<String> remain = usersGroup.stream().filter(g -> g.isTopLevel()).map(g -> g.toString())
+				.collect(Collectors.toSet());
 
-		for (String group : usersGroup)
-		{
+		for (String group : usersGroupWithoutRoot)
+		{			
 			if (selectedGroups.contains(group))
 			{
 				remain.add(group);
@@ -51,7 +51,7 @@ public class GroupDiffUtils
 
 		for (String groupSelected : selectedGroups)
 		{
-			if (!usersGroup.contains(groupSelected) && !remain.contains(groupSelected))
+			if (!usersGroupWithoutRoot.contains(groupSelected) && !remain.contains(groupSelected))
 			{
 				toAdd.add(groupSelected);
 			}
@@ -65,7 +65,12 @@ public class GroupDiffUtils
 				toRemoveFiltered.add(rgroup);
 			}
 		}
-
+		//should not happend, 
+		if (toRemoveFiltered.contains("/"))
+		{
+			toRemoveFiltered.remove("/");
+		}
+		
 		return new RequestedGroupDiff(toAdd, toRemoveFiltered, remain);
 	}
 

@@ -20,6 +20,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -49,14 +51,16 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryReviewPanel.class);
 	private Label entity;
 	private EntityManagement identitiesManagement;
+	private GroupsManagement groupMan;
 	
 	@Autowired
 	public EnquiryReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, EntityManagement identitiesManagement, 
-			IdentityFormatter idFormatter)
+			IdentityFormatter idFormatter, GroupsManagement groupMan)
 	{
 		super(msg, handlersRegistry, idTypesRegistry, idFormatter);
 		this.identitiesManagement = identitiesManagement;
+		this.groupMan = groupMan;
 		initUI();
 	}
 	
@@ -156,9 +160,21 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 	{
 		if (value == null || value.isEmpty())
 			return;
-		Label l = new Label(value.stream().sorted().collect(Collectors.toList()).toString());
+		Label l = new Label(value.stream().sorted().map(g-> getGroupDisplayedName(g)).collect(Collectors.toList()).toString());
 		l.setStyleName(style);
 		layout.addComponent(l);
+	}
+	
+	private String getGroupDisplayedName(String path)
+	{
+		try
+		{
+			return groupMan.getContents(path, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
+		} catch (EngineException e)
+		{
+			log.error("Can not get group displayed name for grouo " + path);
+			return path;
+		}
 	}
 }
 
