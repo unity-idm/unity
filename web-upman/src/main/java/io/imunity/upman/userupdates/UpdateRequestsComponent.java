@@ -95,9 +95,15 @@ public class UpdateRequestsComponent extends CustomComponent
 		{
 			updateForm.setVisible(false);
 		}
-
-		Label space = new Label();
-		main.addComponents(selfSingUpForm, updateForm, space, menuBar, updateRequestGrid);
+		
+		main.addComponents(selfSingUpForm, updateForm);
+		if (selfSingUpForm.isVisible() || updateForm.isVisible())
+		{
+			Label space = new Label();
+			main.addComponent(space);
+		}
+		main.addComponents(menuBar, updateRequestGrid);
+		
 		reloadRequestsGrid();
 
 	}

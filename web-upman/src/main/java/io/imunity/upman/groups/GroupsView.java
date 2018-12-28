@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -89,6 +90,7 @@ public class GroupsView extends CustomComponent implements UpManView
 		Label name = new Label(getDisplayedName());
 		name.addStyleName(SidebarStyles.viewHeader.toString());
 		header.addComponents(name);
+		header.setComponentAlignment(name, Alignment.MIDDLE_CENTER);
 		return header;
 	}
 

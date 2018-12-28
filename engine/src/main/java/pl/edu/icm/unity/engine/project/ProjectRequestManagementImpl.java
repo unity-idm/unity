@@ -133,7 +133,11 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		RegistrationForm registrationForm = registrationMan.getForms().stream()
 				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()))
 				.get(registrationFormId);
-
+		
+		if(registrationForm.isByInvitationOnly())
+			return Optional.empty();
+		
+		
 		return Optional.ofNullable(PublicRegistrationURLSupport.getPublicRegistrationLink(registrationForm,
 				sharedEndpointMan));
 	}
@@ -178,7 +182,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	{
 		long entityId = enquiryResponseState.getEntityId();
 
-		String name = projectAttrHelper.getAttributeFromMeta(entityId, projectPath,
+		String name = projectAttrHelper.getAttributeFromMeta(entityId, "/",
 				EntityNameMetadataProvider.NAME);
 
 		String email = null;
@@ -193,7 +197,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 		if (email == null)
 		{
-			email = projectAttrHelper.getAttributeFromMeta(entityId, projectPath,
+			email = projectAttrHelper.getAttributeFromMeta(entityId, "/",
 					ContactEmailMetadataProvider.NAME);
 		}
 

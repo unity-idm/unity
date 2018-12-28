@@ -173,7 +173,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 		{
 			super(msg, msg.getMessage("NewInvitationDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
-			setSizeEm(30, 18);
+			setSizeEm(35, 24);
 		}
 
 		@Override

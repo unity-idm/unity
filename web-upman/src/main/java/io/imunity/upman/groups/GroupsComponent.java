@@ -62,6 +62,8 @@ class GroupsComponent extends CustomComponent
 		groupBrowser = new GroupsTree(msg, controller, rawActions, projectPath);
 		HamburgerMenu<GroupNode> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());
+		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
+		
 		groupBrowser.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		hamburgerMenu.addActionHandler(getExpandAllAction());
@@ -70,6 +72,7 @@ class GroupsComponent extends CustomComponent
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu);
 		VerticalLayout vl = new VerticalLayout();
 		vl.setMargin(false);
+		vl.setSpacing(false);
 		vl.addComponents(menuBar, groupBrowser);
 		setCompositionRoot(vl);
 	}
@@ -139,7 +142,7 @@ class GroupsComponent extends CustomComponent
 	{
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.expandAllAction"))
-				.withIcon(Images.expand.getResource()).dontRequireTarget()
+				.withIcon(Images.file_tree_sub.getResource()).dontRequireTarget()
 				.withHandler(e -> groupBrowser.expandAll()).build();
 	}
 
@@ -147,7 +150,7 @@ class GroupsComponent extends CustomComponent
 	{
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.collapseAllAction"))
-				.withIcon(Images.expand.getResource()).dontRequireTarget()
+				.withIcon(Images.file_tree_small.getResource()).dontRequireTarget()
 				.withHandler(e -> groupBrowser.collapseAll()).build();
 	}
 
@@ -244,7 +247,7 @@ class GroupsComponent extends CustomComponent
 			isOpen = new CheckBox(msg.getMessage("AddGroupDialog.public"));
 
 			isOpen.setEnabled(parentGroup.isOpen());
-			isOpen.setValue(!parentGroup.isOpen());
+			isOpen.setValue(parentGroup.isOpen());
 
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupNameField, isOpen);

@@ -29,12 +29,17 @@ import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
+import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 /**
  * Implementation of {@link ProjectInvitationsManagement}
@@ -74,6 +79,11 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		InvitationParam invitationParam = new InvitationParam(getRegistrationFormForProject(projectPath),
 				param.expiration, param.contactAddress);	
 		invitationParam.getAllowedGroups().put(0, new GroupSelection(param.allowedGroup));
+		
+		IdentityParam emailId = new IdentityParam(EmailIdentity.ID, param.contactAddress);
+		emailId.setConfirmationInfo(new ConfirmationInfo(true));
+		invitationParam.getIdentities().put(0, new PrefilledEntry<>(emailId, PrefilledEntryMode.HIDDEN));
+		
 		String code = invitationMan.addInvitation(invitationParam);
 		invitationMan.sendInvitation(code);
 		return code;

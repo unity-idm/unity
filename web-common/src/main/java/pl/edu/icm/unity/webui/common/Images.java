@@ -95,6 +95,8 @@ public enum Images
 	globe		(VaadinIcons.GLOBE),
 	family		(VaadinIcons.FAMILY),
 	file_tree 	(VaadinIcons.FILE_TREE),
+	file_tree_small (VaadinIcons.FILE_TREE_SMALL),
+	file_tree_sub 	(VaadinIcons.FILE_TREE_SUB),
 	envelope_open	(VaadinIcons.ENVELOPE_OPEN),
 	user_check	(VaadinIcons.USER_CHECK),
 	star 		(VaadinIcons.STAR),

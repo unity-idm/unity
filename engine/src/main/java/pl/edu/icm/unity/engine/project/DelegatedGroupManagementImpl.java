@@ -34,15 +34,18 @@ import pl.edu.icm.unity.engine.api.utils.CodeGenerator;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
+import pl.edu.icm.unity.types.basic.IdentityParam;
 
 /**
  * Implementation of {@link DelegatedGroupManagement}
@@ -103,6 +106,12 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		Group toAdd = new Group(new Group(parentPath), name);
 		toAdd.setOpen(isOpen);
 		toAdd.setDisplayedName(groupName);
+		
+		if (toAdd.isOpen())
+		{	
+			assertIfParentIsClose(toAdd);
+		}
+		
 		groupMan.addGroup(toAdd);
 	}
 
@@ -289,19 +298,21 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		{
 
 			List<String> projectAttrs = getProjectAttrs(projectPath);
-			for (GroupMembership member : orgGroupContents.getMembers())
+			for (GroupMembership member : orgMembers)
 			{
 				long entity = member.getEntityId();
+				String emailId = getEmailIdentity(entity);
 				DelegatedGroupMember entry = new DelegatedGroupMember(member.getEntityId(), projectPath,
 						member.getGroup(), getGroupAuthRoleAttr(entity, projectPath),
-						projectAttrHelper.getAttributeFromMeta(entity, projectPath,
+						projectAttrHelper.getAttributeFromMeta(entity, "/",
 								EntityNameMetadataProvider.NAME),
-						projectAttrHelper.getAttributeFromMeta(entity, projectPath,
+						emailId != null ? emailId : projectAttrHelper.getAttributeFromMeta(entity, "/",
 								ContactEmailMetadataProvider.NAME),
 						getProjectMemberAttributes(entity, projectPath, projectAttrs));
 				members.add(entry);
 			}
 		}
+		members.sort((m1,m2) -> Long.compare(m1.entityId, m2.entityId));
 		return members;
 	}
 
@@ -418,6 +429,17 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		}
 
 		return displayName;
+	}
+	
+	private String getEmailIdentity(long entityId) throws EngineException
+	{
+		Entity entity = identitiesMan.getEntity(new EntityParam(entityId));
+		for (IdentityParam id : entity.getIdentities())
+		{
+			if (id != null && id.getTypeId().equals(EmailIdentity.ID))
+				return id.getValue();
+		}
+		return null;
 	}
 
 	public static class OpenChildGroupException extends InternalException
