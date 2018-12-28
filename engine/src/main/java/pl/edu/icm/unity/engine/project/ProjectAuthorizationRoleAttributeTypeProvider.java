@@ -22,13 +22,11 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 /**
  * Defines group authorization role attribute
  * @author P.Piernik
- *
  */
-
 @Component
 public class ProjectAuthorizationRoleAttributeTypeProvider extends AbstractAttributeTypeProvider
 {
-	public static final String PROJECT_MANAGEMENT_AUTHORIZATION_ROLE = "sys:ProjectManagementAuthorizationRole";
+	public static final String PROJECT_MANAGEMENT_AUTHORIZATION_ROLE = "sys:ProjectManagementRole";
 
 	@Autowired
 	public ProjectAuthorizationRoleAttributeTypeProvider(UnityMessageSource msg)
