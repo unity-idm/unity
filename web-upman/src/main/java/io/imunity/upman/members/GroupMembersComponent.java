@@ -6,12 +6,12 @@
 package io.imunity.upman.members;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Alignment;
@@ -26,7 +26,10 @@ import io.imunity.upman.UpManUI;
 import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -35,6 +38,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -48,7 +52,7 @@ class GroupMembersComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private GroupMembersController controller;
-
+	
 	private GroupMemebersGrid groupMemebersGrid;
 	private String group;
 	private String project;
@@ -283,11 +287,10 @@ class GroupMembersComponent extends CustomComponent
 	private String getProjectDisplayedNameSafe(String projectPath)
 	{
 		String name = "";
-
 		try
 		{
-			name = controller.getProjectIndentGroupsMap(projectPath).get(projectPath);
-		} catch (ControllerException e)
+			name = controller.getProjectDisplayedName(projectPath);
+		} catch (Exception e)
 		{
 			// ok
 		}
@@ -313,7 +316,7 @@ class GroupMembersComponent extends CustomComponent
 	private class TargetGroupSelectionDialog extends AbstractDialog
 	{
 		private Consumer<String> selectionConsumer;
-		private GroupIndentCombo groupSelection;
+		private MandatoryGroupSelection groupSelection;
 
 		public TargetGroupSelectionDialog(UnityMessageSource msg, Consumer<String> selectionConsumer)
 		{
@@ -328,18 +331,23 @@ class GroupMembersComponent extends CustomComponent
 			Label info = new Label(msg.getMessage("AddToGroupDialog.info"));
 			info.setWidth(100, Unit.PERCENTAGE);
 
-			Map<String, String> groupsMap = new HashMap<>();
+			List<DelegatedGroup> groups = new ArrayList<>();
 			try
 			{
-				groupsMap.putAll(controller.getProjectIndentGroupsMap(project));
+				groups.addAll(controller.getProjectGroups(project));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);
 			}
 
-			groupSelection = new GroupIndentCombo(msg.getMessage("AddToGroupDialog.selectGroup"),
-					groupsMap);
-			groupSelection.setWidth(100, Unit.PERCENTAGE);
+			groupSelection = new MandatoryGroupSelection(msg);
+			groupSelection.setCaption(msg.getMessage("AddToGroupDialog.selectGroup"));
+			groupSelection.setItems(groups.stream().map(dg -> {
+				Group g = new Group(dg.path);
+				g.setDisplayedName(new I18nString(dg.displayedName));
+				return g;
+			}).collect(Collectors.toList()));
+			
 			FormLayout main = new CompactFormLayout();
 			main.addComponents(info, groupSelection);
 			main.setSizeFull();
@@ -349,7 +357,7 @@ class GroupMembersComponent extends CustomComponent
 		@Override
 		protected void onConfirm()
 		{
-			selectionConsumer.accept(groupSelection.getValue());
+			selectionConsumer.accept(groupSelection.getValue().group.toString());
 			close();
 		}
 	}

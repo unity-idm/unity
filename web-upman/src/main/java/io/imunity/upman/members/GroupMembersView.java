@@ -5,7 +5,8 @@
 
 package io.imunity.upman.members;
 
-import java.util.Map;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,14 @@ import io.imunity.upman.common.UpManView;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -61,19 +66,31 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		main.setMargin(false);
 		setCompositionRoot(main);
 
-		Map<String, String> groups;
+		List<DelegatedGroup> groups;
 		try
 		{
-			groups = controller.getProjectIndentGroupsMap(project);
+			groups = controller.getProjectGroups(project);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
 			return;
 		}
-
-		groups.put(project, groups.get(project) + " (" + msg.getMessage("AllMemebers") + ")");
-		GroupIndentCombo subGroupCombo = new GroupIndentCombo(
-				msg.getMessage("GroupMemberView.subGroupComboCaption"), groups);
+		
+		MandatoryGroupSelection subGroupCombo = new MandatoryGroupSelection(msg);
+		subGroupCombo.setWidth(30, Unit.EM);
+		subGroupCombo.setCaption(msg.getMessage("GroupMemberView.subGroupComboCaption"));
+		subGroupCombo.setItems(groups.stream().map(dg -> {
+			Group g = new Group(dg.path);
+			if (dg.path.equals(project))
+			{
+				g.setDisplayedName(new I18nString(dg.displayedName + " (" + msg.getMessage("AllMemebers") + ")"));
+			}else
+			{
+				g.setDisplayedName(new I18nString(dg.displayedName));
+			}
+			return g;
+		}).collect(Collectors.toList()));
+		
 		main.addComponent(new FormLayout(subGroupCombo));
 		GroupMembersComponent groupMembersComponent;
 		try
@@ -85,7 +102,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 			return;
 		}
 		main.addComponent(groupMembersComponent);
-		subGroupCombo.addValueChangeListener(e -> groupMembersComponent.setGroup(e.getValue()));
+		subGroupCombo.addValueChangeListener(e -> groupMembersComponent.setGroup(subGroupCombo.getSelectedGroup()));
 
 		groupMembersComponent.setGroup(project);
 

@@ -8,8 +8,9 @@ package io.imunity.upman.invitations;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
@@ -35,20 +36,22 @@ import io.imunity.upman.UpManNavigationInfoProviderBase;
 import io.imunity.upman.UpManRootNavigationInfoProvider;
 import io.imunity.upman.UpManUI;
 import io.imunity.upman.common.UpManView;
-import io.imunity.upman.utils.DelegatedGroupsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.stdext.utils.EmailUtils;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
-import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.common.groups.OptionalGroupsSelection;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -123,7 +126,20 @@ public class InvitationsView extends CustomComponent implements UpManView
 			}).show();
 
 		});
+		
+		try
+		{
+			Optional<DelegatedGroup> findFirst = controller.getProjectGroups(project).stream()
+					.filter(dg -> dg.path.equals(project)).findFirst();
+			//TODO add support to enquiry inv
+			addInvitationButton.setVisible(findFirst.isPresent()
+					&& findFirst.get().delegationConfiguration.registrationForm != null);
 
+		} catch (ControllerException er)
+		{
+			NotificationPopup.showError(er);
+		}
+		
 		header.addComponents(name, addInvitationButton);
 		header.setComponentAlignment(name, Alignment.MIDDLE_CENTER);
 		header.setComponentAlignment(addInvitationButton, Alignment.MIDDLE_CENTER);
@@ -149,7 +165,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 	{
 		private Consumer<ProjectInvitationParam> selectionConsumer;
 		private TextField email;
-		private ChipsWithDropdown<NamedGroup> groups;
+		private OptionalGroupsSelection groups;
 		private DateTimeField lifeTime;
 		private Binder<ProjectInvitationParams> binder;
 
@@ -164,22 +180,23 @@ public class InvitationsView extends CustomComponent implements UpManView
 		protected FormLayout getContents()
 		{
 			email = new TextField(msg.getMessage("NewInvitationDialog.email"));
-			Map<String, String> groupsMap = new HashMap<>();
+			List<DelegatedGroup> allowedGroups = new ArrayList<>();
 			try
 			{
-				groupsMap.putAll(controller.getAllowedIndentGroupsMap(project));
+				allowedGroups.addAll(controller.getProjectGroups(project));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);
 			}
-
-			groups = new ChipsWithDropdown<>(g -> g.name, g -> {
-				return new String(g.name).replace(DelegatedGroupsHelper.GROUPS_TREE_INDENT_CHAR, "");
-			}, true);
+			
+			groups = new OptionalGroupsSelection(msg, true);
 			groups.setCaption(msg.getMessage("NewInvitationDialog.allowedGroups"));
-			groups.setItems(groupsMap.entrySet().stream().map(e -> new NamedGroup(e.getKey(), e.getValue()))
-					.collect(Collectors.toList()));
-
+			groups.setItems(allowedGroups.stream().map(dg -> {
+				Group g = new Group(dg.path);
+				g.setDisplayedName(new I18nString(dg.displayedName));
+				return g;
+			}).collect(Collectors.toList()));
+			
 			lifeTime = new DateTimeField(msg.getMessage("NewInvitationDialog.invitationLivetime"));
 			lifeTime.setResolution(DateTimeResolution.MINUTE);
 
@@ -209,6 +226,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 			return main;
 		}
 
+
 		@Override
 		protected void onConfirm()
 		{
@@ -218,23 +236,11 @@ public class InvitationsView extends CustomComponent implements UpManView
 
 			ProjectInvitationParam param = new ProjectInvitationParam(
 					project, inv.getContactAddress(), groups.getSelectedItems().stream()
-							.map(g -> g.path).collect(Collectors.toList()),
+							.map(g -> g.toString()).collect(Collectors.toList()),
 					inv.getExpiration());
 
 			selectionConsumer.accept(param);
 			close();
-		}
-
-		private class NamedGroup
-		{
-			public final String path;
-			public final String name;
-
-			public NamedGroup(String path, String name)
-			{
-				this.path = path;
-				this.name = name;
-			}
 		}
 	}
 

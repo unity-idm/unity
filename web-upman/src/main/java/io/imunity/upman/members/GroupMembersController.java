@@ -6,6 +6,7 @@
 package io.imunity.upman.members;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -126,11 +127,11 @@ public class GroupMembersController
 		return attrs;
 	}
 
-	public Map<String, String> getProjectIndentGroupsMap(String projectPath) throws ControllerException
+	public List<DelegatedGroup> getProjectGroups(String projectPath) throws ControllerException
 	{
 		try
 		{
-			return delGroupHelper.getProjectIndentGroupsMap(projectPath);
+			return delGroupHelper.getProjectGroups(projectPath);
 		} catch (Exception e)
 		{
 			log.debug("Can not get group " + projectPath, e);
@@ -234,5 +235,10 @@ public class GroupMembersController
 						null);
 			}
 		}
+	}
+
+	public String getProjectDisplayedName(String project)
+	{
+		return delGroupHelper.getGroupsDisplayedNames(project, Arrays.asList(project)).get(0);
 	}
 }

@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 
 import com.vaadin.ui.ComboBox;
 
-import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Group combobox - respects space in item captions
@@ -25,7 +25,7 @@ class GroupIndentCombo extends ComboBox<String>
 	public GroupIndentCombo(String caption, Map<String, String> groups)
 	{	
 		setCaption(caption);
-		setStyleName(SidebarStyles.indentComboBox.toString());
+		setStyleName(Styles.indentComboBox.toString());
 		List<String> sortedGroups = groups.keySet().stream().sorted()
 				.collect(Collectors.toList());
 		setItems(sortedGroups);

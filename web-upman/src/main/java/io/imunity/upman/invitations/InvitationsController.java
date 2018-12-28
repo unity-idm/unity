@@ -7,7 +7,6 @@ package io.imunity.upman.invitations;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,6 +18,7 @@ import io.imunity.upman.common.ServerFaultException;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement;
@@ -47,7 +47,7 @@ public class InvitationsController
 		this.delGroupHelper = delGroupHelper;
 		this.msg = msg;
 	}
-
+	
 	public void resendInvitations(String projectPath, Set<InvitationEntry> items) throws ControllerException
 	{
 		List<String> sent = new ArrayList<>();
@@ -136,11 +136,11 @@ public class InvitationsController
 		}
 	}
 
-	public Map<String, String> getAllowedIndentGroupsMap(String projectPath) throws ControllerException
+	public List<DelegatedGroup> getProjectGroups(String projectPath) throws ControllerException
 	{
 		try
 		{
-			return delGroupHelper.getProjectIndentGroupsMap(projectPath);
+			return delGroupHelper.getProjectGroups(projectPath);
 		} catch (Exception e)
 		{
 			log.debug("Can not get group " + projectPath, e);
