@@ -134,7 +134,7 @@ public class BaseSharedRegistrationSupport
 		{
 			for (CredentialParamValue c : originalRequest.getCredentials())
 			{
-				credentialHelper.setPreviouslyPreparedEntityCredentialInternal(
+				credentialHelper.setPreviouslyPreparedEntityCredential(
 						entityId, c.getSecrets(),
 						c.getCredentialId());
 			}

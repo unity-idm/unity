@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.engine.credential;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static pl.edu.icm.unity.stdext.credential.pass.ScryptParams.MIN_WORK_FACTOR;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -20,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
@@ -30,8 +34,12 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
+import pl.edu.icm.unity.exceptions.CredentialRecentlyUsedException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordCredential;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
+import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
+import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
@@ -295,4 +303,195 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
 	}
+	
+
+	@Test
+	public void shouldFailToSetCurrentPasswordFromHistory() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(1);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		
+		assertThat(error).isInstanceOf(CredentialRecentlyUsedException.class);
+	}
+
+	@Test
+	public void shouldFailToSetOldPasswordFromHistory() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(2);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		
+		assertThat(error).isInstanceOf(CredentialRecentlyUsedException.class);
+	}
+	
+	@Test
+	public void shouldSetOldPasswordPushedOutFromHistory() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(1);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		
+		assertThat(error).isNull();
+	}
+	
+	@Test
+	public void shouldClearAllHistoricalPasswordsAfterStorageSchemeReconfiguration() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(2);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
+		
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR+1));
+		updatePassCredential("credential1", passConfig);
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		assertThat(error).isNull();
+	}
+
+	@Test
+	public void shouldNotTrimHistoricalPasswordsAfterNotAffectingReconfiguration() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(2);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
+		
+		passConfig.setMinScore(2);
+		updatePassCredential("credential1", passConfig);
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		assertThat(error).isInstanceOf(CredentialRecentlyUsedException.class);
+	}
+
+	@Test
+	public void shouldTrimHistoricalPasswordsAfterHistoryDecrease() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(3);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty3").toJson());
+		
+		passConfig.setHistorySize(2);
+		updatePassCredential("credential1", passConfig);
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		assertThat(error).isNull();
+	}
+
+	//bit tricky test: set limit to have 3 in history and fill it. Then reduce it to 2 and go back to 3.
+	//we expect that the reduction to 2 should trim history by one.
+	@Test
+	public void shouldNotStoreHistoryBeyondChangedLimit() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(3);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty2").toJson());
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty3").toJson());
+		
+		passConfig.setHistorySize(2);
+		updatePassCredential("credential1", passConfig);
+		
+		passConfig.setHistorySize(3);
+		updatePassCredential("credential1", passConfig);
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		assertThat(error).isNull();
+		Throwable error2 = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty2").toJson()));
+		assertThat(error2).isInstanceOf(CredentialRecentlyUsedException.class);
+	}
+
+	private void createPassCredentialAndCR(String credential, PasswordCredential passConfig) throws Exception
+	{
+		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificator.NAME, credential);
+		credDef.setConfiguration(JsonUtil.serialize(passConfig.getSerializedConfiguration()));
+		credMan.addCredentialDefinition(credDef);
+		
+		CredentialRequirements cr = new CredentialRequirements(CRED_REQ_PASS, "", 
+				Collections.singleton(credDef.getName()));
+		credReqMan.addCredentialRequirement(cr);
+	}
+	
+	private void updatePassCredential(String credential, PasswordCredential passConfig) throws Exception
+	{
+		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificator.NAME, credential);
+		credDef.setConfiguration(JsonUtil.serialize(passConfig.getSerializedConfiguration()));
+		credMan.updateCredentialDefinition(credDef, LocalCredentialState.outdated);
+	}
 }
+
+
+
+
+
+
+

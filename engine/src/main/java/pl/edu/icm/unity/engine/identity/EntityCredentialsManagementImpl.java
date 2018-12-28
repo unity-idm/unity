@@ -95,7 +95,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 		if (requireAdditionalAuthn)
 			repeatedAuthnService.checkAdditionalAuthenticationRequirements(credentialId);
 		
-		credHelper.setEntityCredentialInternal(entityId, credentialId, rawCredential);
+		credHelper.setEntityCredential(entityId, credentialId, rawCredential);
 	}
 
 	/**
