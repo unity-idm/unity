@@ -470,6 +470,30 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 		assertThat(error2).isInstanceOf(CredentialRecentlyUsedException.class);
 	}
 
+	@Test
+	public void shouldNeverTrimCurrentPassword() throws Exception
+	{
+		PasswordCredential passConfig = new PasswordCredential();
+		passConfig.setHistorySize(1);
+		passConfig.setScryptParams(new ScryptParams(MIN_WORK_FACTOR));
+		passConfig.setMinScore(1);
+		createPassCredentialAndCR("credential1", passConfig);
+		
+		EntityParam user = new EntityParam(idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user"), 
+				CRED_REQ_PASS, EntityState.valid, false));
+		
+		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty1").toJson());
+		
+		passConfig.setHistorySize(0);
+		updatePassCredential("credential1", passConfig);
+		passConfig.setHistorySize(1);
+		updatePassCredential("credential1", passConfig);
+		
+		Throwable error = catchThrowable(() -> eCredMan.setEntityCredential(
+				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
+		assertThat(error).isInstanceOf(CredentialRecentlyUsedException.class);
+	}
+	
 	private void createPassCredentialAndCR(String credential, PasswordCredential passConfig) throws Exception
 	{
 		CredentialDefinition credDef = new CredentialDefinition(PasswordVerificator.NAME, credential);
