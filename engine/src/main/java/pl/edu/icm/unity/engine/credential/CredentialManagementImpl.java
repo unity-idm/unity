@@ -21,6 +21,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -63,6 +64,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	private SystemCredentialProvider sysProvider;
 	private AttributeTypeHelper attrTypeHelper;
 	private EntityCredentialsHelper entityCredentialsHelper;
+	private AuthenticatorSupportService authenticatorsService;
 	
 	@Autowired
 	public CredentialManagementImpl(LocalCredentialsRegistry localCredReg,
@@ -70,7 +72,8 @@ public class CredentialManagementImpl implements CredentialManagement
 			IdentityHelper identityHelper, AttributeTypeDAO attributeTypeDAO,
 			AttributeDAO attributeDAO, AuthorizationManager authz,
 			SystemCredentialProvider sysProvider, CredentialRepository credentialRepository, 
-			AttributeTypeHelper attrTypeHelper, EntityCredentialsHelper entityCredentialsHelper)
+			AttributeTypeHelper attrTypeHelper, EntityCredentialsHelper entityCredentialsHelper,
+			AuthenticatorSupportService authenticatorsService)
 	{
 		this.localCredReg = localCredReg;
 		this.credentialDB = credentialDB;
@@ -83,6 +86,7 @@ public class CredentialManagementImpl implements CredentialManagement
 		this.credentialRepository = credentialRepository;
 		this.attrTypeHelper = attrTypeHelper;
 		this.entityCredentialsHelper = entityCredentialsHelper;
+		this.authenticatorsService = authenticatorsService;
 	}
 
 	@Override
@@ -141,6 +145,8 @@ public class CredentialManagementImpl implements CredentialManagement
 					helper, desiredAuthnState);
 		
 		credentialDB.update(updated);
+		
+		authenticatorsService.refreshAuthenticatorsOfCredential(updated.getName());
 	}
 
 

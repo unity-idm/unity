@@ -6,7 +6,9 @@ package pl.edu.icm.unity.engine.credential;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static pl.edu.icm.unity.stdext.credential.pass.ScryptParams.MIN_WORK_FACTOR;
@@ -42,6 +44,9 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
@@ -64,7 +69,13 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 	private AuthenticatorManagement authnMan;
 	
 	@Autowired
+	private AuthenticatorConfigurationDB authenticatorDB;
+	
+	@Autowired
 	private AuthenticatorsRegistry authenticatorsReg;
+	
+	@Autowired
+	private TransactionalRunner tx;
 		
 	@Test
 	public void shouldReturnAllCredTypes() throws Exception
@@ -493,6 +504,30 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 				user, "credential1", new PasswordToken("qw!Erty1").toJson()));
 		assertThat(error).isInstanceOf(CredentialRecentlyUsedException.class);
 	}
+
+	@Test
+	public void shouldRefreshAuthenticatorAfterItsCredentialChange() throws Exception
+	{
+		addDefaultCredentialDef();
+		
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypesByBinding("web");
+		AuthenticatorTypeDescription authType = authTypes.iterator().next();
+		authnMan.createAuthenticator("auth1", authType.getVerificationMethod(), "bbb", "credential1");
+		AuthenticatorConfiguration authenticatorInitial = tx.runInTransactionRet(
+				() -> authenticatorDB.get("auth1"));
+		
+		CredentialDefinition credDef = new CredentialDefinition(
+				MockPasswordVerificatorFactory.ID, "credential1", 
+				new I18nString("cred disp name"),
+				new I18nString("cred req desc"));
+		credDef.setConfiguration("888");
+		credMan.updateCredentialDefinition(credDef, LocalCredentialState.outdated);
+
+		AuthenticatorConfiguration authenticatorUpdated = tx.runInTransactionRet(
+				() -> authenticatorDB.get("auth1"));
+		assertThat(authenticatorUpdated.getRevision(), is(authenticatorInitial.getRevision()+1));
+	}
+
 	
 	private void createPassCredentialAndCR(String credential, PasswordCredential passConfig) throws Exception
 	{

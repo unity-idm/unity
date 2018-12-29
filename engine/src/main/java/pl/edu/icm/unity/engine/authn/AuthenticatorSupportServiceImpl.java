@@ -8,12 +8,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
@@ -21,8 +23,12 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
@@ -34,17 +40,26 @@ import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 @Component
 public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportService
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, AuthenticatorSupportServiceImpl.class);
 	private AuthenticatorLoader authnLoader;
 	private AuthenticatorsRegistry authnRegistry;
 	private AuthenticatorManagement authenticationManagement;
+	private AuthenticatorConfigurationDB authenticatorDB;
+	private EndpointsUpdater endpointsUpdater;
+	private TransactionalRunner tx;
 	
 	@Autowired
 	public AuthenticatorSupportServiceImpl(AuthenticatorLoader authnLoader, 
-			AuthenticatorsRegistry authnRegistry, AuthenticatorManagement authenticationManagement)
+			AuthenticatorsRegistry authnRegistry, AuthenticatorManagement authenticationManagement,
+			AuthenticatorConfigurationDB authenticatorDB,
+			EndpointsUpdater endpointsUpdater, TransactionalRunner tx)
 	{
 		this.authnLoader = authnLoader;
 		this.authnRegistry = authnRegistry;
 		this.authenticationManagement = authenticationManagement;
+		this.authenticatorDB = authenticatorDB;
+		this.endpointsUpdater = endpointsUpdater;
+		this.tx = tx;
 	}
 
 
@@ -94,5 +109,35 @@ public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportServ
 			}
 		}
 		return ret;
+	}
+
+
+	@Override
+	public void refreshAuthenticatorsOfCredential(String credential) throws EngineException
+	{
+		tx.runInTransaction(() -> 
+		{
+			List<AuthenticatorConfiguration> authenticators = authenticatorDB.getAll();
+			for (AuthenticatorConfiguration authenticator: authenticators)
+			{
+				if (credential.equals(authenticator.getLocalCredentialName()))
+					refreshAuthenticator(authenticator);
+			}
+			
+		});
+		endpointsUpdater.updateManual();
+	}
+	
+	private void refreshAuthenticator(AuthenticatorConfiguration authenticator)
+	{
+		log.info("Updating authenticator {} as its local credential configuration has changed", 
+				authenticator.getName());
+		AuthenticatorConfiguration updatedConfiguration = new AuthenticatorConfiguration(
+				authenticator.getName(), 
+				authenticator.getVerificationMethod(), 
+				authenticator.getConfiguration(), 
+				authenticator.getLocalCredentialName(), 
+				authenticator.getRevision() + 1);
+		authenticatorDB.update(updatedConfiguration);
 	}
 }

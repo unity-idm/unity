@@ -21,4 +21,10 @@ public interface AuthenticatorSupportService
 	List<AuthenticationFlow> getRemoteAuthenticatorsAsFlows(String bindingId) throws EngineException;
 
 	List<AuthenticationFlow> resolveAuthenticationFlows(List<String> authnOptions, String bindingId);
+	
+	/**
+	 * All authenticators using the provided credential are refreshed. Their endpoints have the authenticators 
+	 * updated too.
+	 */
+	void refreshAuthenticatorsOfCredential(String credential) throws EngineException;
 }

@@ -335,6 +335,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			verifyPasswordStrength(password);
 		} catch (IllegalCredentialException e)
 		{
+			log.info("User with id {} logged in with password not matching current credential requirements, "
+					+ "invalidating the password", resolved.getEntityId());
 			String invalidated = invalidate(resolved.getCredentialValue());
 			try
 			{
