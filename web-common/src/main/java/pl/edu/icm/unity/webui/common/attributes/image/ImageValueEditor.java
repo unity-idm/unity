@@ -81,7 +81,7 @@ class ImageValueEditor implements AttributeValueEditor
 		field.addClickListener(event ->
 				{
 					if (value != null)
-						new ShowImageDialog(syntax, value).show();
+						new ShowImageDialog(value).show();
 				}
 		);
 
@@ -238,15 +238,13 @@ class ImageValueEditor implements AttributeValueEditor
 	 */
 	private class ShowImageDialog extends AbstractDialog
 	{
-		private ImageAttributeSyntax syntax;
 		private UnityImage image;
 
-		public ShowImageDialog(ImageAttributeSyntax syntax, UnityImage image)
+		public ShowImageDialog(UnityImage image)
 		{
 			super(ImageValueEditor.this.msg,
 					ImageValueEditor.this.msg.getMessage("ImageAttributeHandler.image"),
 					ImageValueEditor.this.msg.getMessage("close"));
-			this.syntax = syntax;
 			this.image = image;
 			setSizeMode(SizeMode.LARGE);
 		}
