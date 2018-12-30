@@ -26,7 +26,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam
-
+import org.springframework.util.StringUtils;
 
 @Field final String NAME_ATTR = "name"
 @Field final String FIRSTNAME_ATTR = "firstname"
@@ -82,6 +82,7 @@ AttributeRegistrationParam getAttributeParam(String type, String group, boolean 
 	param.setGroup(group);
 	param.setRetrievalSettings(ParameterRetrievalSettings.interactive);
 	param.setOptional(optional);
+	param.setLabel(StringUtils.capitalize(type) + ":");
 	return param;    
 }
 
@@ -92,11 +93,11 @@ void addRegistrationForm(String name, String groupPath, List<AttributeRegistrati
 	
 	RegistrationFormNotifications not = new RegistrationFormNotifications();
 	not.setSubmittedTemplate("registrationRequestSubmitted");
+	not.setInvitationTemplate("invitationWithCode");
 	
 	RegistrationForm form = new RegistrationFormBuilder()
 				.withName(name)
 				.withNotificationsConfiguration(not)
-				.withDescription("desc")
 				.withDefaultCredentialRequirement(
 						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
 				.withPubliclyAvailable(true)
@@ -107,12 +108,14 @@ void addRegistrationForm(String name, String groupPath, List<AttributeRegistrati
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.endIdentityParam()
 				.withAddedAttributeParam()
+			    	.withLabel(StringUtils.capitalize(NAME_ATTR) + ":")
 			    	.withAttributeType(NAME_ATTR).withGroup("/")
 					.withOptional(false)
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 					.withShowGroups(false)
 				.endAttributeParam()
 				.withAddedGroupParam()
+					.withLabel("Select group:")
 					.withGroupPath(groupPath)
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 					.withMultiselect(true)
@@ -140,12 +143,14 @@ void addEnquiryForm(EnquiryType type, String name, String groupPath, String targ
 				.withTargetGroups(target)
 				.withType(type)
 				.withAddedAttributeParam()
+					.withLabel(StringUtils.capitalize(NAME_ATTR) + ":")
 	    			.withAttributeType(NAME_ATTR).withGroup("/")
 					.withOptional(false)
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 					.withShowGroups(false)
 				.endAttributeParam()
 				.withAddedGroupParam()
+					.withLabel("Select group:")
 					.withMultiselect(true)
 					.withGroupPath(groupPath)
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
