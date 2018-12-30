@@ -110,6 +110,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 		name.addStyleName(SidebarStyles.viewHeader.toString());
 		Button addInvitationButton = new Button(msg.getMessage("Invitations.newInvite"),
 				Images.add.getResource());
+		addInvitationButton.addStyleName(SidebarStyles.buttonAction.toString());
 		addInvitationButton.addClickListener(e -> {
 
 			new NewInvitationDialog(msg, invitation -> {
@@ -174,6 +175,14 @@ public class InvitationsView extends CustomComponent implements UpManView
 			super(msg, msg.getMessage("NewInvitationDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
 			setSizeEm(35, 24);
+		}
+		
+		@Override
+		protected Button createConfirmButton()
+		{
+			Button ok = super.createConfirmButton();
+			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			return ok;
 		}
 
 		@Override

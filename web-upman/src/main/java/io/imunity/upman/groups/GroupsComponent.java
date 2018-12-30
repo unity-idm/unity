@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 import com.vaadin.server.UserError;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -237,6 +238,14 @@ class GroupsComponent extends CustomComponent
 		}
 
 		@Override
+		protected Button createConfirmButton()
+		{
+			Button ok = super.createConfirmButton();
+			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			return ok;
+		}
+		
+		@Override
 		protected FormLayout getContents()
 		{
 			Label info = new Label(msg.getMessage("AddGroupDialog.info", parentGroup));
@@ -306,6 +315,14 @@ class GroupsComponent extends CustomComponent
 			super(msg, msg.getMessage("RenameGroupDialog.caption"));
 			this.groupNameConsumer = groupNameConsumer;
 			setSizeEm(30, 18);
+		}
+		
+		@Override
+		protected Button createConfirmButton()
+		{
+			Button ok = super.createConfirmButton();
+			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			return ok;
 		}
 
 		@Override

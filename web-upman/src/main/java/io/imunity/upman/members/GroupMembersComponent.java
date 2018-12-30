@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
@@ -322,9 +323,17 @@ class GroupMembersComponent extends CustomComponent
 		{
 			super(msg, msg.getMessage("AddToGroupDialog.caption"));
 			this.selectionConsumer = selectionConsumer;
-			setSizeEm(30, 18);
+			setSizeEm(38, 18);
 		}
 
+		@Override
+		protected Button createConfirmButton()
+		{
+			Button ok = super.createConfirmButton();
+			ok.addStyleName(SidebarStyles.buttonAction.toString());
+			return ok;
+		}
+		
 		@Override
 		protected FormLayout getContents()
 		{
