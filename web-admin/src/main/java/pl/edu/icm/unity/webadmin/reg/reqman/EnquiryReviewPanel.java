@@ -29,7 +29,6 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -162,21 +161,9 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 	{
 		if (value == null || value.isEmpty())
 			return;
-		Label l = new Label(value.stream().sorted().map(g-> getGroupDisplayedName(g)).collect(Collectors.toList()).toString());
+		Label l = new Label(value.stream().sorted().map(g-> getGroupDisplayedName(groupMan, g)).collect(Collectors.toList()).toString());
 		l.setStyleName(style);
 		layout.addComponent(l);
-	}
-	
-	private String getGroupDisplayedName(String path)
-	{
-		try
-		{
-			return groupMan.getContents(path, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
-		} catch (EngineException e)
-		{
-			log.error("Can not get group displayed name for group " + path);
-			return path;
-		}
 	}
 }
 

@@ -7,6 +7,8 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
@@ -14,9 +16,12 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -40,6 +45,8 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class RequestReviewPanelBase extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RequestReviewPanelBase.class);
+			
 	protected UnityMessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
 	private UserRequestState<?> requestState;
@@ -205,6 +212,18 @@ public class RequestReviewPanelBase extends CustomComponent
 			groups.addEntry(c, false);
 		}
 		groupsPanel.setVisible(!groups.isEmpty());
+	}
+	
+	protected String getGroupDisplayedName(GroupsManagement groupMan, String path)
+	{
+		try
+		{
+			return groupMan.getContents(path, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
+		} catch (Exception e)
+		{
+			log.warn("Can not get group displayed name for group " + path);
+			return path;
+		}
 	}
 	
 }
