@@ -194,9 +194,6 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 		CredentialRequirements cr = new CredentialRequirements(CRED_REQ_PASS, "", 
 				Collections.singleton(credDef.getName()));
 		credReqMan.addCredentialRequirement(cr);
-
-		Set<String> creds = new HashSet<String>();
-		Collections.addAll(creds, credDef.getName());
 	}
 	
 	

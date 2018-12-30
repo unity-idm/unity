@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn.local;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -66,6 +68,13 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 */
 	CredentialPublicInformation checkCredentialState(String currentCredential) throws InternalException;
 
+	/**
+	 * Returns optionally changed argument credential, which can be transformed after the change of
+	 * configuration. It can be assumed that argument credential was created with some old configuration
+	 * and that the current object is configured with the new one. 
+	 */
+	Optional<String> updateCredentialAfterConfigurationChange(String currentCredential);
+	
 	/**
 	 * @return If the instances can be put into the {@link LocalCredentialState#outdated} state.
 	 */

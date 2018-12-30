@@ -4,22 +4,20 @@
  */
 package pl.edu.icm.unity.stdext.attr;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.springframework.stereotype.Component;
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
-import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
-import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.stdext.utils.UnityImage;
-
-import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
+
+import javax.imageio.ImageIO;
+
+import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.engine.api.attributes.AbstractAttributeValueSyntaxFactory;
+import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
+import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.stdext.utils.UnityImage;
 
 
 /**
