@@ -4,11 +4,19 @@
  */
 package pl.edu.icm.unity.engine.group;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -16,6 +24,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
@@ -34,22 +43,26 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 @Component
 public class GroupHelper
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER, GroupHelper.class);
+	
 	private MembershipDAO membershipDAO;
 	private EntityResolver entityResolver;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributesHelper attributesHelper;
 	private GroupDAO groupDAO;
+	private AttributeDAO dbAttributes;
 	
 	@Autowired
 	public GroupHelper(MembershipDAO membershipDAO, EntityResolver entityResolver,
 			AttributeTypeDAO attributeTypeDAO, AttributesHelper attributesHelper,
-			GroupDAO groupDAO)
+			GroupDAO groupDAO, AttributeDAO dbAttributes)
 	{
 		this.membershipDAO = membershipDAO;
 		this.entityResolver = entityResolver;
 		this.attributeTypeDAO = attributeTypeDAO;
 		this.attributesHelper = attributesHelper;
 		this.groupDAO = groupDAO;
+		this.dbAttributes = dbAttributes;
 	}
 
 	/**
@@ -132,4 +145,61 @@ public class GroupHelper
 					" does not exist");
 	}
 
+	
+	public List<Group> getEntityGroups(long entity)
+	{
+		List<Group> ret = new ArrayList<>();
+		Map<String, Group> allAsMap = groupDAO.getAllAsMap();
+		List<GroupMembership> entityMembership = membershipDAO.getEntityMembership(entity);
+		for (GroupMembership memberhip: entityMembership)
+			ret.add(allAsMap.get(memberhip.getGroup()));
+		return ret;
+	}
+	
+	
+	/**
+	 * Remove from group
+	 * 
+	 * @param entityId
+	 * @param toRemove
+	 */
+	public void removeFromGroups(long entityId, Set<String> toRemove)
+	{
+		Set<String> entityMembership = membershipDAO.getEntityMembershipSimple(entityId);
+		Set<String> topLevelGroups = groupDAO.getAll().stream().filter(g -> g.isTopLevel())
+				.map(g -> g.toString()).collect(Collectors.toSet());
+		
+		Set<String> toRemoveOnlyParents = establishOnlyParentGroups(toRemove);
+		toRemoveOnlyParents.removeAll(topLevelGroups);
+
+		for (String groupToRemove : toRemoveOnlyParents)
+		{
+			for (String group : entityMembership)
+			{
+				if (Group.isChildOrSame(group, groupToRemove))
+				{
+					membershipDAO.deleteByKey(entityId, group);
+					dbAttributes.deleteAttributesInGroup(entityId, group);
+					log.debug("Removed entity " + entityId + " from group " + group);
+				}
+			}
+		}
+	}
+	
+	private Set<String> establishOnlyParentGroups(Set<String> source)
+	{
+		Set<String> onlyParents = new HashSet<>(source);
+
+		for (String g1 : source)
+		{
+			for (String g2 : source)
+			{
+				if (Group.isChild(g2, g1) && onlyParents.contains(g2))
+				{
+					onlyParents.remove(g2);
+				}
+			}
+		}
+		return onlyParents;
+	}
 }

@@ -33,7 +33,6 @@ import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IdentityExistsException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -68,47 +67,50 @@ import pl.edu.icm.unity.webui.forms.PrefilledSet;
 public class EnquiryResponseEditorController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EnquiryResponseEditorController.class);
-
-	@Autowired
+	
 	private UnityMessageSource msg;
-	
-	@Autowired @Qualifier("insecure") 
 	private EnquiryManagement enquiryManagement;
-	
-	@Autowired
 	private IdentityEditorRegistry identityEditorRegistry;
-	
-	@Autowired
 	private CredentialEditorRegistry credentialEditorRegistry;
-	
-	@Autowired
 	private AttributeHandlerRegistry attributeHandlerRegistry;
-	
-	@Autowired @Qualifier("insecure") 
-	private AttributeTypeManagement atMan;
-	
-	@Autowired @Qualifier("insecure") 
+	private AttributeTypeManagement atMan;	
 	private CredentialManagement credMan;
-	
-	@Autowired @Qualifier("insecure") 
 	private GroupsManagement groupsMan;
-	
-	@Autowired @Qualifier("insecure") 
 	private EntityManagement idMan;	
-	
-	@Autowired @Qualifier("insecure") 
 	private AttributesManagement attrMan;
-	
-	@Autowired
 	private IdPLoginController idpLoginController;
 
-	
+	@Autowired
+	public EnquiryResponseEditorController(UnityMessageSource msg,
+			@Qualifier("insecure") EnquiryManagement enquiryManagement,
+			IdentityEditorRegistry identityEditorRegistry,
+			CredentialEditorRegistry credentialEditorRegistry,
+			AttributeHandlerRegistry attributeHandlerRegistry,
+			@Qualifier("insecure") AttributeTypeManagement atMan,
+			@Qualifier("insecure") CredentialManagement credMan,
+			@Qualifier("insecure") GroupsManagement groupsMan,
+			@Qualifier("insecure") EntityManagement idMan,
+			@Qualifier("insecure") AttributesManagement attrMan, IdPLoginController idpLoginController)
+	{
+		this.msg = msg;
+		this.enquiryManagement = enquiryManagement;
+		this.identityEditorRegistry = identityEditorRegistry;
+		this.credentialEditorRegistry = credentialEditorRegistry;
+		this.attributeHandlerRegistry = attributeHandlerRegistry;
+		this.atMan = atMan;
+		this.credMan = credMan;
+		this.groupsMan = groupsMan;
+		this.idMan = idMan;
+		this.attrMan = attrMan;
+		this.idpLoginController = idpLoginController;
+	}
+
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
 			RemotelyAuthenticatedContext remoteContext) throws Exception
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, getPreffiledForSticky(form));
+				attributeHandlerRegistry, atMan, credMan, groupsMan, getPrefilledForSticky(form));
 	}
 	
 	public EnquiryResponseEditor getEditorInstance(String form, 
@@ -117,7 +119,7 @@ public class EnquiryResponseEditorController
 		return getEditorInstance(getForm(form), remoteContext);
 	}
 
-	public PrefilledSet getPreffiledForSticky(EnquiryForm form) throws EngineException
+	public PrefilledSet getPrefilledForSticky(EnquiryForm form) throws EngineException
 	{
 		EntityParam entity = getLoggedEntity();
 		if (form.getType().equals(EnquiryType.STICKY))
@@ -143,7 +145,7 @@ public class EnquiryResponseEditorController
 			GroupRegistrationParam groupParam = form.getGroupParams().get(i);
 			List<Group> allMatchingGroups = groupsMan.getGroupsByWildcard(groupParam.getGroupPath());
 			List<Group> filterMatching = GroupPatternMatcher.filterMatching(allMatchingGroups,
-					allGroups.keySet());
+					allGroups.keySet().stream().sorted().collect(Collectors.toList()));
 
 			PrefilledEntry<GroupSelection> pe = new PrefilledEntry<GroupSelection>(new GroupSelection(
 					filterMatching.stream().map(g -> g.getName()).collect(Collectors.toList())),
@@ -159,19 +161,19 @@ public class EnquiryResponseEditorController
 	{
 		Map<Integer, PrefilledEntry<Attribute>> prefilledAttributes = new HashMap<>();
 
+		Collection<AttributeExt> allAttributes =   attrMan.getAttributes(entity, null, null);
+		
+		
+		
 		for (int i = 0; i < form.getAttributeParams().size(); i++)
 		{
 			AttributeRegistrationParam attrParam = form.getAttributeParams().get(i);
-			Collection<AttributeExt> attributes = null;
-			try
-			{
-				attributes = attrMan.getAttributes(entity, attrParam.getGroup(),
-						attrParam.getAttributeType());
-			} catch (IllegalGroupValueException e)
-			{
-				// ok, user is not in group
-			}
-			if (attributes != null && !attributes.isEmpty())
+			Collection<AttributeExt> attributes = allAttributes.stream()
+					.filter(a -> a.getGroupPath().equals(attrParam.getGroup())
+							&& a.getName().equals(attrParam.getAttributeType()))
+					.collect(Collectors.toList());
+
+			if (!attributes.isEmpty())
 			{
 				prefilledAttributes.put(i,
 						new PrefilledEntry<>(attributes.iterator().next(), PrefilledEntryMode.DEFAULT));
@@ -235,8 +237,6 @@ public class EnquiryResponseEditorController
 		}
 		return ret;
 	}
-	
-	
 	
 	public void markFormAsIgnored(String formId)
 	{

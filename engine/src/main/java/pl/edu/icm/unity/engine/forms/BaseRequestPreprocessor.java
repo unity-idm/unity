@@ -122,21 +122,7 @@ public class BaseRequestPreprocessor
 	{
 		if (!groupRegistrationParam.isMultiSelect() && !groupSelection.getSelectedGroups().isEmpty())
 		{
-			List<String> sortedGroups = groupSelection.getSelectedGroups().stream().sorted(
-					(g1, g2) -> new Group(g2).getPath().length - new Group(g1).getPath().length)
-					.collect(Collectors.toList());
-
-			Iterator<String> it = sortedGroups.iterator();
-			Group oldestChild = new Group(it.next());
-			while (it.hasNext())
-			{
-				if (!oldestChild.isChild(new Group(it.next())))
-				{
-					throw new IllegalFormContentsException(
-							"Incorrect selected groups, all selected group should have parent -> child relation");
-				}
-			}
-
+			assertGroupsParentChildRelation(groupSelection.getSelectedGroups());
 		}
 			
 		for (String group: groupSelection.getSelectedGroups())
@@ -144,6 +130,25 @@ public class BaseRequestPreprocessor
 				throw new IllegalFormContentsException(
 						"Requested group " + group + " is not matching allowed groups spec " 
 								+ groupRegistrationParam.getGroupPath());
+	}
+	
+	
+	private void assertGroupsParentChildRelation(List<String> groups) throws IllegalFormContentsException
+	{
+		List<String> sortedGroups = groups.stream().sorted(
+				(g1, g2) -> new Group(g2).getPath().length - new Group(g1).getPath().length)
+				.collect(Collectors.toList());
+
+		Iterator<String> it = sortedGroups.iterator();
+		Group oldestChild = new Group(it.next());
+		while (it.hasNext())
+		{
+			if (!oldestChild.isChild(new Group(it.next())))
+			{
+				throw new IllegalFormContentsException(
+						"Incorrect selected groups, all selected group should have parent -> child relation");
+			}
+		}	
 	}
 
 	private void validateRequestAgreements(BaseForm form, BaseRegistrationInput request)

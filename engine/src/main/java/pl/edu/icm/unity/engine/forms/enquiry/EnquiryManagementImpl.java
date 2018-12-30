@@ -261,7 +261,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			boolean isSticky = form.getType().equals(EnquiryType.STICKY);
 			if (isSticky)
 			{
-				internalRemovePendingStickyEnquiryRequest(form.getName(), new EntityParam(responseFull.getEntityId()));
+				removeAllPendingRequestsOfForm(form.getName(), new EntityParam(responseFull.getEntityId()));
 			}
 			requestDB.create(responseFull);
 			if (!isSticky)
@@ -428,20 +428,18 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		dbAttributes.addAttribute(entityId, attribute, true, false);
 	}
 	
-	private void internalRemovePendingStickyEnquiryRequest(String enquiryId, EntityParam entity)
+	private void removeAllPendingRequestsOfForm(String enquiryId, EntityParam entity)
 	{
-		tx.runInTransaction(() -> {
-			for (EnquiryResponseState en : requestDB.getAll())
+		for (EnquiryResponseState en : requestDB.getAll())
+		{
+			if (!en.getStatus().equals(RegistrationRequestStatus.pending))
+				continue;
+			EnquiryResponse res = en.getRequest();
+			if (res.getFormId().equals(enquiryId))
 			{
-				if (!en.getStatus().equals(RegistrationRequestStatus.pending))
-					continue;
-				EnquiryResponse res = en.getRequest();
-				if (res.getFormId().equals(enquiryId))
-				{
-					requestDB.delete(en.getRequestId());
-				}
+				requestDB.delete(en.getRequestId());
 			}
-		});
+		}
 	}
 	
 	@Transactional
@@ -453,7 +451,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		EnquiryForm form = enquiryFormDB.get(enquiryId);
 		if (form.getType().equals(EnquiryType.STICKY))
 		{
-			internalRemovePendingStickyEnquiryRequest(enquiryId, entity);
+			removeAllPendingRequestsOfForm(enquiryId, entity);
 		} else
 		{
 			if (form.getType() == EnquiryType.REQUESTED_MANDATORY)
@@ -478,6 +476,6 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		EnquiryForm eform = enquiryFormDB.get(form);
 		if (!eform.getType().equals(EnquiryType.STICKY))
 			throw new WrongArgumentException("Only sticky enquiry request can be removed");
-		internalRemovePendingStickyEnquiryRequest(form, entity);		
+		removeAllPendingRequestsOfForm(form, entity);		
 	}
 }

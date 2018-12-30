@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.webui.forms;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +16,7 @@ import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 
 /**
  * Used by {@link BaseRequestEditor} to create UI controls. Contains
- * informations about admin preffiled invitation entries.
+ * informations that should be set as initial state for a request.
  * 
  * @author P.Piernik
  *
@@ -31,21 +32,14 @@ public class PrefilledSet
 			Map<Integer, PrefilledEntry<GroupSelection>> groupSelections,
 			Map<Integer, PrefilledEntry<Attribute>> attributes, Map<Integer, GroupSelection> allowedGroups)
 	{
-		this.identities = new HashMap<>();
-
-		if (identities != null)
-			this.identities.putAll(identities);
-		this.groupSelections = new HashMap<>();
-		if (groupSelections != null)
-			this.groupSelections.putAll(groupSelections);
-		this.attributes = new HashMap<>();
-		if (attributes != null)
-			this.attributes.putAll(attributes);
-		this.allowedGroups = new HashMap<>();
-		if (allowedGroups != null)
-			this.allowedGroups.putAll(allowedGroups);
+		this.identities = Collections.unmodifiableMap(identities != null ? identities : new HashMap<>());
+		this.groupSelections = Collections
+				.unmodifiableMap(groupSelections != null ? groupSelections : new HashMap<>());
+		this.attributes = Collections.unmodifiableMap(attributes != null ? attributes : new HashMap<>());
+		this.allowedGroups = Collections
+				.unmodifiableMap(allowedGroups != null ? allowedGroups : new HashMap<>());
 	}
-	
+
 	public PrefilledSet()
 	{
 		this(null, null, null, null);

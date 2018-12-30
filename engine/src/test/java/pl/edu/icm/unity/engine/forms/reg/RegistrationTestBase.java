@@ -2,7 +2,7 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.form;
+package pl.edu.icm.unity.engine.forms.reg;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;

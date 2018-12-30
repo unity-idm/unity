@@ -172,7 +172,7 @@ public class AdminEnquiryFormLauncher
 		{
 			editor = new EnquiryResponseEditor(msg, form, remoteContext, identityEditorRegistry,
 					credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan,
-					groupsMan, responseController.getPreffiledForSticky(form));
+					groupsMan, responseController.getPrefilledForSticky(form));
 		} catch (Exception e)
 		{
 			errorHandler.onError(e);

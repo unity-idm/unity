@@ -82,8 +82,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 		META.put(GWA_SHOW_GROUP, new PropertyMD("false").setStructuredListEntry(ATTRIBUTES).
 				setDescription("If true then the group is shown next to the attribute."));
 		META.put(ENQUIRIES, new PropertyMD().setList(false).
-				setDescription("Prefix under which it is possible to define enquries "
-				+ "which should be presented on the User Home UI."));	
+				setDescription("List of enquiries to be presented on User Home UI."));	
 	}
 	
 	public HomeEndpointProperties(Properties properties) throws ConfigurationException

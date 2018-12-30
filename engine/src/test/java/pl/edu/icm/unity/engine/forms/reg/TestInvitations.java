@@ -2,7 +2,7 @@
  * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.form;
+package pl.edu.icm.unity.engine.forms.reg;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;

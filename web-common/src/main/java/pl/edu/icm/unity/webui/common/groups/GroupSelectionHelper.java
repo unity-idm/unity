@@ -30,29 +30,29 @@ public class GroupSelectionHelper
 
 	public static int getMinIndent(List<Group> items)
 	{
-		int min = 100;
-		for (Group group : items)
+		if (items.isEmpty())
 		{
-			int indent = StringUtils.countOccurrencesOf(group.toString(), "/");
-			if (indent < min)
-			{
-				min = indent;
-			}
+			return 0;
 		}
-		return min;
+
+		List<String> sorted = items.stream()
+				.sorted((g1, g2) -> StringUtils.countOccurrencesOf(g1.toString(), "/")
+						- StringUtils.countOccurrencesOf(g2.toString(), "/"))
+				.map(g -> g.toString()).collect(Collectors.toList());
+
+		return StringUtils.countOccurrencesOf(sorted.get(0), "/");
 	}
 
 	public static String generateIndent(int i)
 	{
-		if (i > 0)
-		{
-			return String.join("", Collections.nCopies(i, GROUPS_TREE_INDENT_CHAR));
-		} else
-		{
-			return "";
-		}
+		return i > 0 ? String.join("", Collections.nCopies(i, GROUPS_TREE_INDENT_CHAR)) : "";
 	}
 
+	/**
+	 * Sort groups by displayed names - according to the hierarchy
+	 * @param source
+	 * @param comparator
+	 */
 	public static void sort(List<Group> source, Comparator<Group> comparator)
 	{
 		if (source.isEmpty())
@@ -67,15 +67,15 @@ public class GroupSelectionHelper
 						Collectors.toList()));
 
 		List<Group> ordered = new ArrayList<>();
-		Deque<Group> processor = new LinkedList<>();
+		Deque<Group> groupDeque = new LinkedList<>();
 
-		byParent.get(sortRoot).stream().sorted(comparator).forEach(processor::add);
+		byParent.get(sortRoot).stream().sorted(comparator).forEach(groupDeque::add);
 
-		while (!processor.isEmpty())
+		while (!groupDeque.isEmpty())
 		{
-			Group tmp = processor.pollLast();
+			Group tmp = groupDeque.pollLast();
 			byParent.getOrDefault(tmp, Collections.emptyList()).stream().sorted(comparator)
-					.forEach(processor::add);
+					.forEach(groupDeque::add);
 			ordered.add(tmp);
 		}
 		source.clear();

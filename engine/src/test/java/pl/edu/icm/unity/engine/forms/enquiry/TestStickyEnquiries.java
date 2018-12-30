@@ -3,19 +3,23 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.form;
+package pl.edu.icm.unity.engine.forms.enquiry;
 
-import static com.googlecode.catchexception.CatchException.catchException;
-import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.hasItems;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +33,7 @@ import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationReques
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
@@ -48,6 +53,8 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseBuilder;
+import pl.edu.icm.unity.types.registration.EnquiryResponseState;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -75,6 +82,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/B"));
 		groupsMan.addGroup(new Group("/B/C"));
 		groupsMan.addGroup(new Group("/B/C/D"));
+		groupsMan.addGroup(new Group("/C"));
 	}
 
 	@Test
@@ -93,8 +101,8 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				.endIdentityParam()
 				.build();
 
-		catchException(enquiryManagement).addEnquiry(form);
-		assertThat(caughtException(), isA(WrongArgumentException.class));
+		Throwable exception = catchThrowable(() -> enquiryManagement.addEnquiry(form));
+		assertExceptionType(exception , WrongArgumentException.class);
 	}
 	
 	@Test
@@ -109,21 +117,103 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				.endAttributeParam()
 				.withAddedCredentialParam(new CredentialRegistrationParam(EngineInitialization.DEFAULT_CREDENTIAL))
 				.build();
+		
+		Throwable exception = catchThrowable(() -> enquiryManagement.addEnquiry(form));
+		assertExceptionType(exception , WrongArgumentException.class);
+	}
 
-		catchException(enquiryManagement).addEnquiry(form);
-		assertThat(caughtException(), isA(WrongArgumentException.class));
+	@Test
+	public void shouldOverwriteSubmitedRequest() throws Exception
+	{
+		
+		initAndCreateEnquiry("false");
+		EnquiryResponse response = new EnquiryResponseBuilder()
+			.withFormId("sticky")
+			.withAddedGroupSelection()
+			.withGroup("/")
+			.withGroup("/A")
+			.endGroupSelection()
+			.withAddedGroupSelection()
+			.withGroup("/B")
+			.endGroupSelection()
+			.withAddedAttribute(null)
+			.build();
+		
+		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		
+		setupUserContext("tuser", null);
+
+		enquiryManagement.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
+
+		setupAdmin();
+
+		Set<EnquiryResponseState> responses = enquiryManagement.getEnquiryResponses().stream()
+				.filter(e -> e.getRequest().getFormId().equals("sticky")).collect(Collectors.toSet());
+		assertThat(responses.size(), is(1));
+		EnquiryResponseState res = responses.iterator().next();
+		assertThat(res, notNullValue());
+		assertThat(res.getRequest().getGroupSelections().size(), is(2));
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0), is("/"));
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(1), is("/A"));
+		assertThat(res.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0), is("/B"));
+
+		response.setGroupSelections(Arrays.asList(new GroupSelection(Arrays.asList("/")), new GroupSelection(Arrays.asList("/B"))));
+		setupUserContext("tuser", null);
+
+		enquiryManagement.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
+
+		setupAdmin();
+		responses = enquiryManagement.getEnquiryResponses().stream()
+				.filter(e -> e.getRequest().getFormId().equals("sticky")).collect(Collectors.toSet());
+		assertThat(responses.size(), is(1));
+
+		res = responses.iterator().next();
+
+		assertThat(res, notNullValue());
+		assertThat(res.getRequest().getGroupSelections().size(), is(2));
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().size(), is(1));
+		assertThat(res.getRequest().getGroupSelections().get(0).getSelectedGroups().get(0), is("/"));	
+		assertThat(res.getRequest().getGroupSelections().get(1).getSelectedGroups().get(0), is("/B"));
+	}
+	
+	@Test
+	public void shouldBlockMultiSelectGroupInSingleSelectGroupParam() throws Exception
+	{
+		initAndCreateEnquiry("true");
+		EnquiryResponse response = new EnquiryResponseBuilder()
+				.withFormId("sticky")
+				.withAddedGroupSelection()
+				.withGroup("/")
+				.endGroupSelection()
+				.withAddedGroupSelection()
+				.withGroup("/B")
+				.withGroup("/C")
+				.endGroupSelection()
+				.withAddedAttribute(null)
+				.build();
+
+		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS, EntityState.valid,
+				false);
+		setupUserContext("tuser", null);
+		Throwable exception = catchThrowable(() -> enquiryManagement.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone)));
+		assertExceptionType(exception, IllegalFormContentsException.class);
 	}
 
 	@Test
 	public void shouldUpdateUsersGroup() throws Exception
 	{
-		initAndCreateEnquiry();
+		initAndCreateEnquiry("true");
 		EnquiryResponse response = new EnquiryResponseBuilder()
 			.withFormId("sticky")
 			.withAddedGroupSelection()
 			.withGroup("/")
 			.withGroup("/A")
 			.withGroup("/A/AA")
+			.withGroup("/C")
 			.endGroupSelection()
 			.withAddedGroupSelection()
 			.withGroup("/B")
@@ -139,7 +229,6 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/B/C", new EntityParam(identity));
 		
 		Map<String, GroupMembership> groups = idsMan.getGroups(new EntityParam(identity));
-		System.out.println("FFFFF" + groups.keySet());
 		assertThat(groups.size(), is(3));
 		assertThat(groups.keySet().contains("/B/C"), is(true));
 		assertThat(groups.keySet().contains("/A/AA"), is(false));
@@ -150,15 +239,15 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 
 		setupAdmin();
 		groups = idsMan.getGroups(new EntityParam(identity));
-		assertThat(groups.size(), is(4));
-		assertThat(groups.keySet().contains("/A/AA"), is(true));
-		assertThat(groups.keySet().contains("/B/C"), is(false));	
+		assertThat(groups.size(), is(5));
+		assertThat(groups.keySet(), hasItems("/A/AA", "/C"));
+		assertThat(groups.keySet(), not(hasItems("/B/C")));	
 	}
 
 	@Test
 	public void shouldUpdateUsersAttribute() throws Exception
 	{
-		initAndCreateEnquiry();
+		initAndCreateEnquiry("true");
 		EnquiryResponse response = new EnquiryResponseBuilder()
 			.withFormId("sticky")
 			.withAddedGroupSelection()
@@ -193,9 +282,48 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 	}
 	
 	@Test
+	public void shouldRemoveGroups() throws Exception
+	{
+		initAndCreateEnquiry("true");
+		EnquiryResponse response = new EnquiryResponseBuilder()
+			.withFormId("sticky")
+			.withAddedGroupSelection()
+			.withGroup("/")
+			.endGroupSelection()
+			.withAddedGroupSelection()
+			.withGroup("/B")
+			.endGroupSelection()
+			.withAddedAttribute(null)
+			.build();
+
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
+				EntityState.valid, false);
+
+		groupsMan.addMemberFromParent("/A", new EntityParam(identity));
+		groupsMan.addMemberFromParent("/B", new EntityParam(identity));
+		groupsMan.addMemberFromParent("/B/C", new EntityParam(identity));
+
+		setupAdmin();
+		Map<String, GroupMembership> groups = idsMan.getGroups(new EntityParam(identity));
+		assertThat(groups.size(), is(4));
+		assertThat(groups.keySet(), hasItems("/", "/A", "/B", "/B/C"));
+		
+		setupUserContext("tuser", null);
+		enquiryManagement.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
+
+		setupAdmin();
+		groups = idsMan.getGroups(new EntityParam(identity));
+		assertThat(groups.size(), is(2));
+		assertThat(groups.keySet(), hasItems("/", "/B"));
+	}
+	
+	
+	
+	@Test
 	public void shouldNotAddUsersAttributeFromRemovedGroups() throws Exception
 	{
-		initAndCreateEnquiry();
+		initAndCreateEnquiry("true");
 		EnquiryResponse response = new EnquiryResponseBuilder()
 			.withFormId("sticky")
 			.withAddedGroupSelection()
@@ -220,19 +348,20 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				new RegistrationContext(false, TriggeringMode.manualStandalone));
 
 		setupAdmin();
-		catchException(attrsMan).getAllAttributes(new EntityParam(identity), false, "/A",
-				InitializerCommon.EMAIL_ATTR, false);
-		assertThat(caughtException(), isA(IllegalGroupValueException.class));
-
+		
+		Throwable exception = catchThrowable(() -> attrsMan.getAllAttributes(new EntityParam(identity), false,
+				"/A", InitializerCommon.EMAIL_ATTR, false));
+		assertExceptionType(exception, IllegalGroupValueException.class);
 	}
 	
-	private EnquiryFormBuilder getFormBuilder()
+	private EnquiryFormBuilder getFormBuilder(String autoAcceptCondition)
 	{
 		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
 				new String[] {AutomaticRequestAction.accept.toString()});
-	
 		
-		List<TranslationRule> rules = Lists.newArrayList(new TranslationRule("true", a1));
+		String autoAcceptCnd = autoAcceptCondition == null ? "false" : autoAcceptCondition;
+		
+		List<TranslationRule> rules = Lists.newArrayList(new TranslationRule(autoAcceptCnd, a1));
 		
 		TranslationProfile translationProfile = new TranslationProfile("form", "", 
 				ProfileType.REGISTRATION, rules);
@@ -249,6 +378,7 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.withShowGroups(true).endAttributeParam()
 				.withAddedGroupParam()
+				.withMultiselect(true)
 				.withGroupPath("/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.endGroupParam()
@@ -258,10 +388,15 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 				.endGroupParam();
 	}
 	
-	private EnquiryForm initAndCreateEnquiry() throws EngineException
+	private EnquiryForm initAndCreateEnquiry(String autoAcceptCondition) throws EngineException
 	{
-		EnquiryForm form = getFormBuilder().build();
+		EnquiryForm form = getFormBuilder(autoAcceptCondition).build();
 		enquiryManagement.addEnquiry(form);
 		return form;
+	}
+	
+	private void assertExceptionType(Throwable exception, Class<?> type)
+	{
+		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
 	}
 }

@@ -279,6 +279,13 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 			return this;
 		}
 
+		public GroupRegistrationParamBuilder withMultiselect(boolean aValue)
+		{
+			instance.setMultiSelect(aValue);
+
+			return this;
+		}
+		
 		public T endGroupParam()
 		{
 			return parent;

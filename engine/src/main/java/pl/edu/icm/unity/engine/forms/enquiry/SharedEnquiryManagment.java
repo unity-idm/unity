@@ -44,14 +44,10 @@ import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.store.api.AttributeDAO;
-import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -75,9 +71,6 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 
 	private EnquiryResponseDB enquiryResponseDB;
 	private IdentityHelper dbIdentities;
-        private MembershipDAO membershipDAO;
-        private GroupDAO groupDAO;
-        private AttributeDAO dbAttributes;
 	private RegistrationConfirmationRewriteSupport confirmationsRewriteSupport;
 	private RegistrationConfirmationSupport confirmationsSupport;
 	private RegistrationActionsRegistry registrationTranslationActionsRegistry;
@@ -87,7 +80,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 
 	@Autowired
 	public SharedEnquiryManagment(UnityMessageSource msg, NotificationProducer notificationProducer,
-			AttributesHelper attributesHelper, GroupHelper groupHelper,MembershipDAO membershipDAO,GroupDAO groupDAO,AttributeDAO dbAttributes,
+			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper, EnquiryResponseDB enquiryResponseDB,
 			IdentityHelper dbIdentities, RegistrationConfirmationRewriteSupport confirmationsRewriteSupport,
 			InternalFacilitiesManagement facilitiesManagement,
@@ -104,9 +97,6 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		this.responseValidator = responseValidator;
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
-		this.membershipDAO = membershipDAO;
-		this.groupDAO = groupDAO;
-		this.dbAttributes = dbAttributes;
 	}
 
 	/**
@@ -151,7 +141,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 
 		attributesHelper.addAttributesList(rootAttributes, entityId, true);
 
-		List<Group> allUserGroups = getEntityGroups(entityId);
+		List<Group> allUserGroups = groupHelper.getEntityGroups(entityId);
 		if (!form.getType().equals(EnquiryType.STICKY))
 		{
 			applyGroupAndAttributesFromEnquiry(entityId, allUserGroups, remainingAttributesByGroup,
@@ -196,7 +186,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			EnquiryForm form, EnquiryResponse response) throws EngineException
 	{
 
-		RequestedGroupDiff diff = GroupDiffUtils.getGlobalDiff(allUserGroups, response.getGroupSelections(),
+		RequestedGroupDiff diff = GroupDiffUtils.getAllRequestedGroupsDiff(allUserGroups, response.getGroupSelections(),
 				form.getGroupParams());
 
 		List<GroupParam> toAdd = requestedGroup.stream().filter(p -> diff.toAdd.contains(p.getGroup()))
@@ -215,27 +205,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 	 */
 	private void applyRemovedGroup(long entityId, Set<String> toRemove)
 	{
-		Set<String> entityMembership = membershipDAO.getEntityMembershipSimple(entityId);
-		Set<String> removed = new HashSet<>();
-		for (String groupToRemove : toRemove)
-		{
-			if (groupDAO.get(groupToRemove).isTopLevel())
-				continue;
-
-			if (removed.contains(groupToRemove))
-				continue;
-
-			for (String group : entityMembership)
-			{
-				if (Group.isChildOrSame(group, groupToRemove) && !removed.contains(group))
-				{
-					membershipDAO.deleteByKey(entityId, group);
-					dbAttributes.deleteAttributesInGroup(entityId, group);
-					removed.add(group);
-					log.debug("Removed entity " + entityId + " from group " + group);
-				}
-			}
-		}
+		groupHelper.removeFromGroups(entityId, toRemove);
 	}
 
 	/**
@@ -249,7 +219,7 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			Map<String, List<Attribute>> remainingAttributesByGroup, Collection<GroupParam> requestedGroups, List<Group> actualGroups)
 			throws EngineException
 	{
-		Set<String> groupsAlreadyProcessed = establishGroups(requestedGroups, actualGroups);
+		Set<String> groupsAlreadyProcessed = establishMissingGroups(requestedGroups, actualGroups);
 		for (Map.Entry<String, List<Attribute>> entry : remainingAttributesByGroup.entrySet())
 		{
 			String attributeGroup = entry.getKey();
@@ -263,7 +233,12 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		}
 	}
 
-	private Set<String> establishGroups(Collection<GroupParam> requestedGroups, List<Group> actualGroups)
+	/**
+	 * @param requestedGroups
+	 * @param actualGroups
+	 * @return
+	 */
+	private Set<String> establishMissingGroups(Collection<GroupParam> requestedGroups, List<Group> actualGroups)
 	{
 		Set<String> allGroups = new HashSet<>();
 		if (actualGroups != null && !actualGroups.isEmpty())
@@ -282,16 +257,6 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			missing.addAll(missingGroups);
 		}
 		return missing;
-	}
-	
-	private List<Group> getEntityGroups(long entity)
-	{
-		List<Group> ret = new ArrayList<>();
-		Map<String, Group> allAsMap = groupDAO.getAllAsMap();
-		List<GroupMembership> entityMembership = membershipDAO.getEntityMembership(entity);
-		for (GroupMembership memberhip: entityMembership)
-			ret.add(allAsMap.get(memberhip.getGroup()));
-		return ret;
 	}
 
 	public void dropEnquiryResponse(String id) throws EngineException

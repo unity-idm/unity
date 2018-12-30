@@ -189,14 +189,13 @@ public class UserAccountComponent extends VerticalLayout
 			main.setMargin(false);
 			
 			//only first applicable
-			boolean added = false;
 			for (String enquiryForm : enquiries)
 			{
-				if (!added && enquiryResController.isStickyFormApplicable(enquiryForm))
+				if (enquiryResController.isStickyFormApplicable(enquiryForm))
 				{
 					EnquiryForm form = enquiryResController.getForm(enquiryForm);
 					main.addComponent(new SingleStickyEnquiryUpdater(msg, enquiryResController, form));
-					added = true;
+					break;
 				}
 			}
 

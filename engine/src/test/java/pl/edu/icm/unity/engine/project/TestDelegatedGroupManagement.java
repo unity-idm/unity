@@ -51,18 +51,19 @@ import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RemovalOfPro
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RenameProjectGroupException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
-import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
-import pl.edu.icm.unity.stdext.utils.ContactEmailMetadataProvider;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupMembership;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.types.basic.Identity;
 
 @RunWith(MockitoJUnitRunner.class)
 public class TestDelegatedGroupManagement
@@ -80,27 +81,27 @@ public class TestDelegatedGroupManagement
 	UnityMessageSource mockMsg;
 
 	@Mock
-	AttributesManagement attrMan;
+	AttributesManagement mockAttrMan;
 
 	@Mock
-	AttributeTypeManagement attrTypeMan;
+	AttributeTypeManagement mockAttrTypeMan;
 
 	@Mock
-	AttributesHelper attrHelper;
+	AttributesHelper mockAttrHelper;
 
 	@Mock
-	AttributeTypeHelper atHelper;
+	AttributeTypeHelper mockAtHelper;
 
 	@Mock
-	EntityManagement idMan;
+	EntityManagement mockIdMan;
 
 	private DelegatedGroupManagementImpl dGroupMan;
 
 	@Before
 	public void initDelegatedGroupMan()
 	{
-		dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService, attrTypeMan,
-				idMan, attrHelper, new ProjectAttributeHelper(attrMan, attrHelper, atHelper), mockAuthz);
+		dGroupMan = new DelegatedGroupManagementImpl(mockMsg, mockGroupMan, mockBulkQueryService, mockAttrTypeMan,
+				mockIdMan, mockAttrHelper, new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper), mockAuthz);
 	}
 
 	@Test
@@ -180,32 +181,30 @@ public class TestDelegatedGroupManagement
 		con.getGroup().setDelegationConfiguration(new GroupDelegationConfiguration(true, null, null, null, null,
 				Arrays.asList("extraAttr")));
 
+		when(mockIdMan.getEntity(any()))
+				.thenReturn(new Entity(
+						Arrays.asList(new Identity(EmailIdentity.ID, "demo@demo.com", 1,
+								new UsernameIdentity().getComparableValue("", "", ""))),
+						null, null));
+
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(con);
 
-		when(attrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
+		when(mockAttrHelper.getAttributeTypeWithSingeltonMetadata(eq(EntityNameMetadataProvider.NAME)))
 				.thenReturn(new AttributeType("name", null));
-		when(attrHelper.getAttributeTypeWithSingeltonMetadata(eq(ContactEmailMetadataProvider.NAME)))
-				.thenReturn(new AttributeType("email", null));
-
-		when(atHelper.getUnconfiguredSyntaxForAttributeName(eq("name")))
+		
+		when(mockAtHelper.getUnconfiguredSyntaxForAttributeName(eq("name")))
 				.thenAnswer(x -> new StringAttributeSyntax());
 
-		when(atHelper.getUnconfiguredSyntaxForAttributeName(eq("email")))
-				.thenAnswer(x -> new VerifiableEmailAttributeSyntax());
-
-		when(attrMan.getAttributes(any(), eq("/project"), eq(
+		when(mockAttrMan.getAttributes(any(), eq("/project"), eq(
 				ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE)))
 						.thenReturn(Arrays.asList(getAttributeExt(
 								GroupAuthorizationRole.manager.toString())));
 
-		when(attrMan.getAttributes(any(), eq("/project"), eq("email"))).thenReturn(
-				Arrays.asList(getAttributeExt(new VerifiableEmail("demo@demo.com").toJsonString())));
-
-		when(attrMan.getAttributes(any(), eq("/project"), eq("name")))
+		when(mockAttrMan.getAttributes(any(), eq("/"), eq("name")))
 				.thenReturn(Arrays.asList(getAttributeExt("demo")));
 
-		when(attrMan.getAttributes(any(), eq("/project"), eq("extraAttr")))
+		when(mockAttrMan.getAttributes(any(), eq("/project"), eq("extraAttr")))
 				.thenReturn(Arrays.asList(getAttributeExt("extraValue")));
 
 		List<DelegatedGroupMember> delegatedGroupMemebers = dGroupMan.getDelegatedGroupMemebers("/project",
@@ -316,7 +315,7 @@ public class TestDelegatedGroupManagement
 		dGroupMan.setGroupAuthorizationRole("/project", 1L, GroupAuthorizationRole.manager);
 
 		ArgumentCaptor<Attribute> argument = ArgumentCaptor.forClass(Attribute.class);
-		verify(attrHelper).addSystemAttribute(eq(1L), argument.capture(), eq(true));
+		verify(mockAttrHelper).addSystemAttribute(eq(1L), argument.capture(), eq(true));
 
 		assertThat(argument.getValue().getValues().iterator().next(),
 				is(GroupAuthorizationRole.manager.toString()));
@@ -326,10 +325,16 @@ public class TestDelegatedGroupManagement
 	public void shouldForbidRemoveLastManagerInProjectGroup() throws EngineException
 	{
 
+		when(mockIdMan.getEntity(any()))
+		.thenReturn(new Entity(
+				Arrays.asList(new Identity(UsernameIdentity.ID, "xx", 1,
+						new UsernameIdentity().getComparableValue("", "", ""))),
+				null, null));
+		
 		when(mockGroupMan.getContents(eq("/project"), anyInt()))
 				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project"));
 
-		when(attrMan.getAttributes(any(), eq("/project"), eq(
+		when(mockAttrMan.getAttributes(any(), eq("/project"), eq(
 				ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE)))
 						.thenReturn(Arrays.asList(getAttributeExt(
 								GroupAuthorizationRole.manager.toString())));
@@ -345,12 +350,12 @@ public class TestDelegatedGroupManagement
 
 		Map<String, GroupMembership> groups = new HashMap<>();
 		groups.put("/project", null);
-		when(idMan.getGroups(any())).thenReturn(groups);
+		when(mockIdMan.getGroups(any())).thenReturn(groups);
 
 		when(mockGroupMan.getContents(eq("/project"), anyInt()))
 				.thenReturn(getEnabledGroupContentsWithDefaultMember("/project"));
 
-		when(attrMan.getAttributes(any(), eq("/project"), eq(
+		when(mockAttrMan.getAttributes(any(), eq("/project"), eq(
 				ProjectAuthorizationRoleAttributeTypeProvider.PROJECT_MANAGEMENT_AUTHORIZATION_ROLE)))
 						.thenReturn(Arrays.asList(getAttributeExt(
 								GroupAuthorizationRole.manager.toString())));
@@ -367,7 +372,7 @@ public class TestDelegatedGroupManagement
 
 		Map<String, GroupMembership> groups = new HashMap<>();
 		groups.put("/project", null);
-		when(idMan.getGroups(any())).thenReturn(groups);
+		when(mockIdMan.getGroups(any())).thenReturn(groups);
 
 		dGroupMan.addMemberToGroup("/project", "/project/destination", 1L);
 

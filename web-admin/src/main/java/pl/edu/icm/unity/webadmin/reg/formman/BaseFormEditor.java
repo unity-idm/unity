@@ -88,7 +88,7 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
-	private TabSheet tabOfLists;
+	private TabSheet collectedParamsTabSheet;
 	
 	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
@@ -180,8 +180,8 @@ public class BaseFormEditor extends VerticalLayout
 	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval)
 	{
 		this.groups = groups;
-		tabOfLists = new TabSheet();
-		tabOfLists.setStyleName(Styles.vTabsheetMinimal.toString());
+		collectedParamsTabSheet = new TabSheet();
+		collectedParamsTabSheet.setStyleName(Styles.vTabsheetMinimal.toString());
 		
 		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
@@ -209,8 +209,8 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
 				
-		tabOfLists.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
-		return tabOfLists;
+		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
+		return collectedParamsTabSheet;
 	}
 
 	protected Component getWrapUpComponent(Predicate<TriggeringState> filter) throws EngineException
@@ -255,12 +255,12 @@ public class BaseFormEditor extends VerticalLayout
 	
 	protected void setCredentialsTabVisible(boolean visible)
 	{
-		tabOfLists.getTab(credentialParams).setVisible(visible);
+		collectedParamsTabSheet.getTab(credentialParams).setVisible(visible);
 	}
 	
 	protected void setIdentitiesTabVisible(boolean visible)
 	{
-		tabOfLists.getTab(identityParams).setVisible(visible);
+		collectedParamsTabSheet.getTab(identityParams).setVisible(visible);
 	}
 	
 	protected void resetCredentialTab()

@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.GroupSelection;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
@@ -113,7 +114,8 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 					.getGroupsForPresentation(new EntityParam(requestState.getEntityId())));
 		} catch (EngineException e)
 		{
-			log.warn("Can not get entities groups", e);
+			log.error("Can not establish entities groups", e);
+			NotificationPopup.showError(msg, msg.getMessage("EnquiryReviewPanel.errorEstablishGroups"), e);
 		}
 
 		List<Component> groupEntries = new ArrayList<>();
@@ -130,7 +132,7 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 			if (selection.getExternalIdp() != null)
 				wrapper.addComponent(new Label("[from: " + selection.getExternalIdp() + "]"));
 			wrapper.addComponent(getSingleGroupEntryComponent(
-					GroupDiffUtils.getGroupDiff(allUserGroups, selection,
+					GroupDiffUtils.getSingleGroupDiff(allUserGroups, selection,
 							form.getGroupParams().get(i)),
 					form.getType().equals(EnquiryType.STICKY)));
 			groupEntries.add(wrapper);
@@ -172,7 +174,7 @@ public class EnquiryReviewPanel extends RequestReviewPanelBase
 			return groupMan.getContents(path, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
 		} catch (EngineException e)
 		{
-			log.error("Can not get group displayed name for grouo " + path);
+			log.error("Can not get group displayed name for group " + path);
 			return path;
 		}
 	}

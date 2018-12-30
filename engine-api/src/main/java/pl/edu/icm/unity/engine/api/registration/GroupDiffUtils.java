@@ -16,78 +16,60 @@ import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 
 /**
- * Creates group diff based on actual users group, group selected by user and
- * form registration params.
+ * Breaks group membership change request into three groups: unchanged groups,
+ * added groups and removed groups
  * 
  * @author P.Piernik
  *
  */
 public class GroupDiffUtils
 {
-	public static RequestedGroupDiff getGroupDiff(List<Group> allUserGroups, GroupSelection selected,
+	/**
+	 * Generate group diff based on single GroupRegistration param and
+	 * single GroupSelection
+	 * 
+	 * @param allUserGroups
+	 * @param selected
+	 * @param formGroup
+	 * @return
+	 */
+	public static RequestedGroupDiff getSingleGroupDiff(List<Group> allUserGroups, GroupSelection selected,
 			GroupRegistrationParam formGroup)
 	{
 
 		List<Group> usersGroup = GroupPatternMatcher.filterMatching(allUserGroups, formGroup.getGroupPath());
-		List<String> usersGroupWithoutRoot = usersGroup.stream().filter(g -> !g.isTopLevel()).map(g -> g.toString())
-				.collect(Collectors.toList());
-		
+
 		List<String> selectedGroups = selected.getSelectedGroups();
 		Set<String> toAdd = new HashSet<>();
 		Set<String> toRemove = new HashSet<>();
-		Set<String> remain = usersGroup.stream().filter(g -> g.isTopLevel()).map(g -> g.toString())
-				.collect(Collectors.toSet());
+		Set<String> remain = new HashSet<>();
 
-		for (String group : usersGroupWithoutRoot)
-		{			
-			if (selectedGroups.contains(group))
-			{
-				remain.add(group);
-			} else
-			{
-				toRemove.add(group);
-			}
-		}
+		remain.addAll(usersGroup.stream().map(g -> g.toString()).collect(Collectors.toSet()));
+		remain.retainAll(selectedGroups);
+		remain.addAll(usersGroup.stream().filter(g -> g.isTopLevel()).map(g -> g.toString())
+				.collect(Collectors.toSet()));
 
-		for (String groupSelected : selectedGroups)
-		{
-			if (!usersGroupWithoutRoot.contains(groupSelected) && !remain.contains(groupSelected))
-			{
-				toAdd.add(groupSelected);
-			}
-		}
+		toRemove.addAll(usersGroup.stream().filter(g -> !g.isTopLevel()).map(g -> g.toString())
+				.collect(Collectors.toSet()));
+		toRemove.removeAll(remain);
 
-		Set<String> toRemoveFiltered = new HashSet<>();
-		for (String rgroup : toRemove)
-		{
-			if (!isParent(rgroup, toAdd))
-			{
-				toRemoveFiltered.add(rgroup);
-			}
-		}
-		//should not happend, 
-		if (toRemoveFiltered.contains("/"))
-		{
-			toRemoveFiltered.remove("/");
-		}
-		
-		return new RequestedGroupDiff(toAdd, toRemoveFiltered, remain);
+		toAdd.addAll(selectedGroups);
+		toAdd.removeAll(remain);
+
+		return new RequestedGroupDiff(toAdd, filterGroupsForAddFromGroupsToRemove(toAdd, toRemove), remain);
 	}
 
-	private static boolean isParent(String group, Set<String> potentialChild)
-	{
-		for (String cgroup : potentialChild)
-		{
-			if (Group.isChildOrSame(cgroup, group))
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public static RequestedGroupDiff getGlobalDiff(List<Group> allUserGroup, List<GroupSelection> groupSelections,
-			List<GroupRegistrationParam> formGroupParams)
+	/**
+	 * Generate group diff based on all form group params and all users
+	 * group selections
+	 * 
+	 * @param allUserGroup
+	 * @param groupSelections
+	 * @param formGroupParams
+	 * @return
+	 */
+	public static RequestedGroupDiff getAllRequestedGroupsDiff(List<Group> allUserGroup,
+			List<GroupSelection> groupSelections, List<GroupRegistrationParam> formGroupParams)
 	{
 
 		List<RequestedGroupDiff> diffs = new ArrayList<>();
@@ -96,7 +78,8 @@ public class GroupDiffUtils
 		{
 			if (groupSelections.get(i) != null)
 			{
-				diffs.add(getGroupDiff(allUserGroup, groupSelections.get(i), formGroupParams.get(i)));
+				diffs.add(getSingleGroupDiff(allUserGroup, groupSelections.get(i),
+						formGroupParams.get(i)));
 			}
 		}
 
@@ -111,29 +94,35 @@ public class GroupDiffUtils
 			allRemove.addAll(diff.toRemove);
 		}
 
-		for (String remainGroup : allRemain)
-		{
-			if (allAdd.contains(remainGroup))
-			{
-				allAdd.remove(remainGroup);
+		allAdd.removeAll(allRemain);
+		allRemove.removeAll(allRemain);
 
-			}
+		return new RequestedGroupDiff(allAdd, filterGroupsForAddFromGroupsToRemove(allAdd, allRemove),
+				allRemain);
+	}
 
-			if (allRemove.contains(remainGroup))
-			{
-				allRemove.remove(remainGroup);
-			}
-		}
-
+	private static Set<String> filterGroupsForAddFromGroupsToRemove(Set<String> toAdd, Set<String> toRemove)
+	{
 		Set<String> toRemoveFiltered = new HashSet<>();
-		for (String rgroup : allRemove)
+		for (String rgroup : toRemove)
 		{
-			if (!isParent(rgroup, allAdd))
+			if (!isParent(rgroup, toAdd))
 			{
 				toRemoveFiltered.add(rgroup);
 			}
 		}
+		return toRemoveFiltered;
+	}
 
-		return new RequestedGroupDiff(allAdd, toRemoveFiltered, allRemain);
+	private static boolean isParent(String group, Set<String> potentialChild)
+	{
+		for (String cgroup : potentialChild)
+		{
+			if (Group.isChildOrSame(cgroup, group))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }
