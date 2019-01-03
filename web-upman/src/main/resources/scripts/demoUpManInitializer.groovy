@@ -62,7 +62,8 @@ addDemoUserAsManager();
 
 
 List<AttributeRegistrationParam> FBIAttrs = Arrays.asList(getAttributeParam(TEAMNAME_ATTR, FBI_GROUP, true));
-List<AttributeRegistrationParam> UnivAttrs = Arrays.asList(getAttributeParam(FIRSTNAME_ATTR, UNIV_GROUP, true), getAttributeParam(SURNAME_ATTR, UNIV_GROUP, true));
+List<AttributeRegistrationParam> UnivAttrs = Arrays.asList(getAttributeParam(FIRSTNAME_ATTR, UNIV_GROUP, true), 
+	getAttributeParam(SURNAME_ATTR, UNIV_GROUP, true));
 
 addRegistrationForm(FBI_REG_FORM, FBI_GROUP + "/**", FBIAttrs);
 addRegistrationForm(UNIV_REG_FORM, UNIV_GROUP + "/**", UnivAttrs);
@@ -170,11 +171,11 @@ void createGroupsStructure()
 
 	addGroup(FBI_GROUP, "FBI");
 	setGroupDelegationConfig(FBI_GROUP,
-							 "https://upload.wikimedia.org/wikipedia/commons/5/59/Seal_of_the_FBI.svg",
-							  FBI_REG_FORM,
-							  FBI_ENQ_FORM,
-							  FBI_STICKY_ENQ_FORM,
-							  Arrays.asList(TEAMNAME_ATTR));
+				"https://upload.wikimedia.org/wikipedia/commons/5/59/Seal_of_the_FBI.svg",
+				FBI_REG_FORM,
+				FBI_ENQ_FORM,
+				FBI_STICKY_ENQ_FORM,
+				Arrays.asList(TEAMNAME_ATTR));
 
 	addGroup(FBI_GROUP + "/AJA8O", "Cyber division");
 	addGroup(FBI_GROUP + "/HSK3F", "HR division");
@@ -184,11 +185,11 @@ void createGroupsStructure()
 
 	addGroup(UNIV_GROUP, "University");
 	setGroupDelegationConfig(UNIV_GROUP,
-							 "https://cdn4.vectorstock.com/i/1000x1000/27/93/book-education-university-logo-vector-19952793.jpg",
-							  UNIV_REG_FORM,
-							  UNIV_ENQ_FORM,
-							  UNIV_STICKY_ENQ_FORM,
-							  Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR));
+				"https://upload.wikimedia.org/wikipedia/commons/5/58/Oxford_University_Coat_Of_Arms.svg",
+				UNIV_REG_FORM,
+				UNIV_ENQ_FORM,
+				UNIV_STICKY_ENQ_FORM,
+				Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR));
 
 	addGroup(UNIV_GROUP + "/XHWFO", "Students");
 	addGroup(UNIV_GROUP + "/XHWFO/MWC3X", "First year");

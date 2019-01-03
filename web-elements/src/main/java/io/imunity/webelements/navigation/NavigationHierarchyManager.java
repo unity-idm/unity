@@ -15,21 +15,17 @@ import java.util.stream.Collectors;
 
 /**
  * Unity navigation structure manager. Contains map of
- * {@link NavigationInfoProvider}. Initializes the default view
+ * {@link NavigationInfoProvider}. Initializes the default view.
  * 
  * @author P.Piernik
- *
  */
-
 public class NavigationHierarchyManager
 {
-
 	private Map<String, NavigationInfo> navigationMap;
 	private Map<String, List<NavigationInfo>> navigationChildren;
 
 	public NavigationHierarchyManager(Collection<? extends NavigationInfoProvider> providers)
 	{
-
 		navigationMap = providers.stream().collect(Collectors
 				.toMap(p -> p.getNavigationInfo().id, p -> p.getNavigationInfo()));
 		initChildren();
@@ -56,7 +52,6 @@ public class NavigationHierarchyManager
 
 		for (NavigationInfo view : navigationMap.values())
 		{
-
 			if (view.parent == null)
 			{
 				initChildren(view);

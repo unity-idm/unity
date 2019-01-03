@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
-import com.vaadin.navigator.PushStateNavigation;
 import com.vaadin.navigator.View;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
@@ -50,9 +49,7 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
  * The main entry point of the group management UI.
  * 
  * @author P.Piernik
- *
  */
-@PushStateNavigation
 @Component("UpManUI")
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("sidebarThemeValo")
@@ -153,6 +150,7 @@ public class UpManUI extends UnityEndpointUIBase implements UnityWebUI
 		navigator.setErrorView((UnityView) navigationMan.getNavigationInfoMap()
 				.get(UpManErrorView.VIEW_NAME).objectFactory.getObject());
 		navigator.addProvider(new AppContextViewProvider(navigationMan));
+
 		ViewHeader viewHedear = new ViewHeader();
 		navigator.addViewChangeListener(viewHedear);
 

@@ -83,7 +83,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			enableEdit(e.getValue());
 		});
 		logoUrl = new TextField(msg.getMessage("GroupDelegationEditConfigDialog.logoUrlCaption"));
-
+		logoUrl.setWidth(100, Unit.PERCENTAGE);
 		registrationFormCombo = new ComboBox<String>(
 				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"));
 

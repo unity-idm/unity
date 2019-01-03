@@ -22,12 +22,9 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
  * Displays a grid with group members
  * 
  * @author P.Piernik
- *
  */
-
 class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 {
-
 	enum BaseColumn
 	{
 		role("GroupMember.role"), name("GroupMember.name"), email("GroupMember.email"), action(
@@ -40,12 +37,11 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 		}
 	};
 
-	public GroupMemebersGrid(UnityMessageSource msg, List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
+	GroupMemebersGrid(UnityMessageSource msg, List<SingleActionHandler<GroupMemberEntry>> rowActionHandlers,
 			Map<String, String> additionalAttributesName)
 	{
 		super(msg, (GroupMemberEntry e) -> String.valueOf(e.getEntityId()));
 		createColumns(rowActionHandlers, additionalAttributesName);
-
 	}
 
 	public long getManagersCount()
@@ -62,8 +58,8 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 
 	private void createBaseColumns()
 	{
-
-		addComponentColumn(ie -> {
+		addComponentColumn(ie -> 
+		{
 			if (ie.getRole() != null)
 			{
 				return getRoleLabel(msg.getMessage("Role." + ie.getRole().toString().toLowerCase()),
@@ -74,7 +70,7 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 				return null;
 			}
 
-		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(2);
+		}).setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(0);
 
 		addColumn(ie -> ie.getName()).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(3);
 		addColumn(ie -> ie.getEmail()).setCaption(msg.getMessage(BaseColumn.email.captionKey))
