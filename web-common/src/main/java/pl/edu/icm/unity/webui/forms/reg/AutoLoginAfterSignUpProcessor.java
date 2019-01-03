@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.vaadin.server.VaadinService;
 
@@ -68,7 +69,7 @@ class AutoLoginAfterSignUpProcessor
 		}
 		
 		RegistrationForm form = editor.getForm();
-		if (form.getAutoLoginToRealm() == null)
+		if (Strings.isNullOrEmpty(form.getAutoLoginToRealm()))
 		{
 			LOG.debug("Automatic login for registration form {} disabled, skipping "
 					+ "sign in for registration request {}", form.getName(), requestState.getRequestId());
