@@ -21,7 +21,6 @@ import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.AuthorizationExceptionRT;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Group;
@@ -52,11 +51,11 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 			
 	@Autowired
 	public AuthorizationManagerImpl(AttributesHelper dbAttributes, UnityServerConfiguration config, 
-			MembershipDAO membershipDAO, GroupDAO groupDAO)
+			GroupDAO groupDAO)
 	{
 		setupRoleCapabilities();
 		rolesResolver = new CachingRolesResolver(roles, dbAttributes, 
-				config.getLongValue(UnityServerConfiguration.AUTHZ_CACHE_MS), membershipDAO, groupDAO);
+				config.getLongValue(UnityServerConfiguration.AUTHZ_CACHE_MS), groupDAO);
 	}
 	
 	/**

@@ -21,7 +21,6 @@ import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.GroupDAO;
-import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Group;
@@ -37,16 +36,14 @@ class CachingRolesResolver
 	private final AttributesHelper dbAttributes;
 	private final Cache<CacheKey, Set<AuthzRole>> rolesCache;
 	private final long cacheTTL;
-	private final MembershipDAO membershipDAO;
 	private final GroupDAO groupsDAO;
 	
-	CachingRolesResolver(Map<String, AuthzRole> roles, AttributesHelper dbAttributes, long cacheTTL,
-			MembershipDAO membershipDAO, GroupDAO groupsDAO)
+	CachingRolesResolver(Map<String, AuthzRole> roles, AttributesHelper dbAttributes, long cacheTTL, 
+			GroupDAO groupsDAO)
 	{
 		this.roles = roles;
 		this.dbAttributes = dbAttributes;
 		this.cacheTTL = cacheTTL;
-		this.membershipDAO = membershipDAO;
 		this.groupsDAO = groupsDAO;
 		this.rolesCache = CacheBuilder.newBuilder()
 				.expireAfterWrite(cacheTTL, TimeUnit.MILLISECONDS)
@@ -80,7 +77,7 @@ class CachingRolesResolver
 			Set<AuthzRole> ret = new HashSet<>();
 			do
 			{
-				Map<String, Map<String, AttributeExt>> allAttributes = getAllAttributes(entityId, current);
+				Map<String, Map<String, AttributeExt>> allAttributes = getAuthzRoleAttributes(entityId, current);
 				Map<String, AttributeExt> inCurrent = allAttributes.get(current.toString());
 				if (inCurrent != null)
 				{
@@ -115,11 +112,14 @@ class CachingRolesResolver
 		return ret;
 	}
 	
-	private Map<String, Map<String, AttributeExt>> getAllAttributes(long entityId, Group group) throws EngineException 
+	/**
+	 * Retrieves the authz role for given entity in give group.
+	 */
+	private Map<String, Map<String, AttributeExt>> getAuthzRoleAttributes(long entityId, Group group) throws EngineException 
 	{
 		String groupPath = group.getName();
 		
-		if (!groupsDAO.exists(groupPath) || !membershipDAO.isMember(entityId, groupPath))
+		if (!groupsDAO.exists(groupPath))
 			return Maps.newHashMap();
 		
 		try

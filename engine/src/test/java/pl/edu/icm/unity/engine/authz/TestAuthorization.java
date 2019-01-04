@@ -13,6 +13,7 @@ import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -30,6 +31,23 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 
 public class TestAuthorization extends DBIntegrationTestBase
 {
+	@Autowired
+	private AuthorizationManager underTest;
+	
+	@Test
+	public void shouldNotComplainWhenCheckingAgainstUnknownGroup() throws Exception
+	{
+		// given
+		addRegularUser();
+		setupUserContext("user1", null);
+		
+		// when
+		catchException(underTest).checkAuthorization("/unknown", AuthzCapability.readInfo);
+		
+		// then
+		assertThat(caughtException(), is(nullValue()));
+	}
+	
 	private void setAdminsRole(String role) throws Exception
 	{
 		Attribute roleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
