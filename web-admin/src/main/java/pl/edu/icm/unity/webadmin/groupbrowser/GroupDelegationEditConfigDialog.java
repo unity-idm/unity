@@ -161,7 +161,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			setLogoUrl(org.logoUrl);
 			setRegistrationForm(org.registrationForm);
 			setSignupEnquiryForm(org.signupEnquiryForm);
-			setStickyEnquiryForm(org.signupEnquiryForm);
+			setStickyEnquiryForm(org.stickyEnquiryForm);
 		}
 
 		public boolean isEnabled()
