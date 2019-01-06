@@ -6,11 +6,8 @@ package pl.edu.icm.unity.types.authn;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Describes a configured authenticator instance in implementation agnostic way.
@@ -18,7 +15,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * Uses default JSON serialization.  
  * @author K. Benedyczak
  */
-public class AuthenticatorInstanceMetadata implements NamedObject
+public class AuthenticatorInstanceMetadata
 {
 	private String id;
 	private AuthenticatorTypeDescription typeDescription;
@@ -46,12 +43,6 @@ public class AuthenticatorInstanceMetadata implements NamedObject
 		return mapper.convertValue(json, AuthenticatorInstanceMetadata.class);
 	}
 	
-	@JsonIgnore
-	@Override
-	public String getName()
-	{
-		return getId();
-	}
 	public String getId()
 	{
 		return id;

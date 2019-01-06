@@ -9,10 +9,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
-import pl.edu.icm.unity.types.NamedObject;
-
 /**
  * Describes authenticator configuration. The configuration is binding agnostic and multiple instances 
  * of authenticators (binding specific) may be created from it.
@@ -20,7 +16,7 @@ import pl.edu.icm.unity.types.NamedObject;
  * Uses default JSON serialization.  
  * @author K. Benedyczak
  */
-public class AuthenticatorInfo implements NamedObject
+public class AuthenticatorInfo
 {
 	private String id;
 	private AuthenticatorTypeDescription typeDescription;
@@ -49,12 +45,6 @@ public class AuthenticatorInfo implements NamedObject
 		return localCredentialName;
 	}
 	
-	@JsonIgnore
-	@Override
-	public String getName()
-	{
-		return getId();
-	}
 	public String getId()
 	{
 		return id;

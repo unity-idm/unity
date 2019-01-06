@@ -104,7 +104,7 @@ public class AuthenticatorSupportServiceImpl implements AuthenticatorSupportServ
 		{
 			if (authenticator.getMetadata().getLocalCredentialName() == null)
 			{
-				ret.add(authnLoader.getAuthenticator(authenticator.getMetadata().getName(), 
+				ret.add(authnLoader.getAuthenticator(authenticator.getMetadata().getId(), 
 						bindingId));
 			}
 		}
