@@ -193,7 +193,7 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 		
 		// noneLabel
 		noneLabel = new Label();
-		noneLabel.setWidth("-1px");
+		noneLabel.setWidth(100, Unit.PERCENTAGE);
 		noneLabel.setHeight("-1px");
 		noneLabel.setValue("Label");
 		titleWrap.addComponent(noneLabel);
@@ -229,7 +229,7 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 	
 		// idsTitleLabel
 		idsTitleLabel = new Label();
-		idsTitleLabel.setWidth("-1px");
+		idsTitleLabel.setWidth(100, Unit.PERCENTAGE);
 		idsTitleLabel.setHeight("-1px");
 		idsTitleLabel.setValue("Label");
 		idsWrap.addComponent(idsTitleLabel);
@@ -252,7 +252,7 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 		
 		// attrsTitleLabel
 		attrsTitleLabel = new Label();
-		attrsTitleLabel.setWidth("-1px");
+		attrsTitleLabel.setWidth(100, Unit.PERCENTAGE);
 		attrsTitleLabel.setHeight("-1px");
 		attrsTitleLabel.setValue("Label");
 		attrsWrap.addComponent(attrsTitleLabel);
@@ -276,14 +276,14 @@ public class RemotelyAuthenticatedInputComponent extends CustomComponent
 		
 		// groupsTitleLabel
 		groupsTitleLabel = new Label();
-		groupsTitleLabel.setWidth("-1px");
+		groupsTitleLabel.setWidth(100, Unit.PERCENTAGE);
 		groupsTitleLabel.setHeight("-1px");
 		groupsTitleLabel.setValue("Label");
 		groupsWrap.addComponent(groupsTitleLabel);
 		
 		// groupsLabel
 		groupsLabel = new Label();
-		groupsLabel.setWidth("-1px");
+		groupsLabel.setWidth(100, Unit.PERCENTAGE);
 		groupsLabel.setHeight("-1px");
 		groupsLabel.setValue("Label");
 		groupsWrap.addComponent(groupsLabel);

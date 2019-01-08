@@ -24,6 +24,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.store.AppDataSchemaVersion;
 import pl.edu.icm.unity.store.impl.groups.GroupBean;
 import pl.edu.icm.unity.store.impl.groups.GroupJsonSerializer;
 import pl.edu.icm.unity.store.impl.groups.GroupsMapper;
@@ -44,7 +45,7 @@ public class InitDB
 	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
 	 * when bumping it please make sure any required SQL schema updates were implemented.  
 	 */
-	private static final String SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_3_0";
+	private static final String SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_6_0";
 
 	
 	private long dbVersionAtServerStarup;
@@ -83,7 +84,7 @@ public class InitDB
 		{
 			session.close();
 			initDB();
-			dbVersionAtServerStarup = dbVersion2Long(AppDataSchemaVersion.DB_VERSION);
+			dbVersionAtServerStarup = dbVersion2Long(AppDataSchemaVersion.CURRENT.getDbVersion());
 			return;
 		}
 		
@@ -95,7 +96,7 @@ public class InitDB
 		}
 
 		dbVersionAtServerStarup = dbVersion2Long(dbVersion);
-		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.DB_VERSION);
+		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.CURRENT.getDbVersion());
 		assertMigrationsAreMatchingApp();
 		if (dbVersionAtServerStarup > dbVersionOfSoftware)
 		{
@@ -115,7 +116,7 @@ public class InitDB
 	
 	private void assertMigrationsAreMatchingApp()
 	{
-		if (!SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION.equals(AppDataSchemaVersion.DB_VERSION))
+		if (!SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION.equals(AppDataSchemaVersion.CURRENT.getDbVersion()))
 		{
 			throw new InternalException("The SQL migration code was not updated "
 					+ "to the latest version of data schema. "
@@ -129,7 +130,7 @@ public class InitDB
 	 */
 	public void deleteEverything(SqlSession session)
 	{
-		Collection<String> ops = new TreeSet<String>(db.getMyBatisConfiguration().getMappedStatementNames());
+		Collection<String> ops = new TreeSet<>(db.getMyBatisConfiguration().getMappedStatementNames());
 		for (String name: ops)
 			if (name.startsWith("deletedb-"))
 				session.update(name);
@@ -220,18 +221,18 @@ public class InitDB
 		{
 			session.close();
 		}
-		log.info("Updated DB schema to the actual version " + AppDataSchemaVersion.DB_VERSION);
+		log.info("Updated DB schema to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
 	}
 
 	
 	public void updateContents() throws IOException, EngineException
 	{
-		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.DB_VERSION);
+		long dbVersionOfSoftware = dbVersion2Long(AppDataSchemaVersion.CURRENT.getDbVersion());
 		if (dbVersionAtServerStarup < dbVersionOfSoftware)
 		{
 			log.info("Updating DB contents to the actual version");
 			contentsUpdater.update(dbVersionAtServerStarup);
-			log.info("Updated DB contents to the actual version " + AppDataSchemaVersion.DB_VERSION);
+			log.info("Updated DB contents to the actual version " + AppDataSchemaVersion.CURRENT.getDbVersion());
 		}
 	}
 }

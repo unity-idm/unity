@@ -215,7 +215,7 @@ public class FormsChooserComponent extends CustomComponent
 		{
 			enquiryFormLauncher.showDialog(form, 
 					RemotelyAuthenticatedContext.getLocalContext(), 
-					TriggeringMode.manualAdmin, FormsChooserComponent.this::handleError);
+					FormsChooserComponent.this::handleError);
 		}
 	}
 	

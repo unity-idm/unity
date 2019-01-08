@@ -24,14 +24,7 @@ public enum Styles
 	negativeTopMargin("u-negativeTopMargin"),
 	verticalPaddingSmall("u-verticalPaddingSmall"),
 	smallMargins("u-smallMargins"),
-	imageWidthTiny("u-imageWidthTiny"),
-	imageHeightTiny("u-imageHeightTiny"),
-	imageWidthSmall("u-imageWidthSmall"),
-	imageHeightSmall("u-imageHeightSmall"),
 	iconError("u-error-icon"),
-	maxHeightMedium("u-imageMaxHeightMedium"),
-	maxHeightSmall("u-imageMaxHeightSmall"),
-	maxHeightTiny("u-imageMaxHeightTiny"),
 	maxWidthColumn("u-maxWidthColumn"),
 	
 	bigTabs("u-bigTabs"),
@@ -42,10 +35,10 @@ public enum Styles
 	messageBox("u-messageBox"),
 	error("u-error"),
 	success("u-success"),
+	textTitle("u-textTitle"),
 	textLarge("u-textLarge"),
 	textXLarge("u-textXLarge"),
 	textEndpointName("u-textEndpointHeading"),
-	textSubHeading("u-textHeading2"),
 	toolbarButton("u-toolbarButton"),
 	verticalBar("u-verticalBar"),
 	horizontalBar("u-horizontalBar"),
@@ -64,6 +57,10 @@ public enum Styles
 	floatRight("u-floatRight"),
 	horizontalMarginSmall("u-hMarginSmall"),
 	rightMargin("u-rightMargin"),
+	leftMargin("u-leftMargin"),
+	leftMarginSmall("u-leftMarginSmall"),
+	passwordQuality("u-passwordQuality"),
+	nonCompactTopMargin("u-passwordQuality-nonCompactTopMargin"),
 	bottomMargin("u-bottomMargin"),
 	margin("u-margin"),
 	idpTile("u-idptile"),
@@ -74,6 +71,14 @@ public enum Styles
 	uDenseTreeGrid("u-denseTreeGrid"),
 	largeIcon("u-largeIcon"),
 	veryLargeIcon("u-veryLargeIcon"),
+	signInButton("u-signInButton"),
+	signUpButton("u-signUpButton"),
+	externalSignInButton("u-externalSignInButton"),
+	externalGridSignInButton("u-externalGridSignInButton"),
+	greenProgressBar("u-greenProgressBar"),
+	redProgressBar("u-redProgressBar"),
+	RegistrationLink("registrationLink"),
+	indentComboBox("u-indentComboBox"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -91,7 +96,7 @@ public enum Styles
 	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
-	vDropLayout("drop-layout"),
+	vDropLayout("drop-layout"),	
 	vGroupBrowser("v-tree8");
 	
 	
@@ -107,6 +112,7 @@ public enum Styles
 		this.value = value;
 	}
 	
+	@Override
 	public String toString()
 	{
 		return value;
@@ -119,6 +125,7 @@ public enum Styles
 		case "en":
 		case "pl":
 		case "de":
+		case "nb":
 			return "u-flag-bg-" + localeCode;
 		}
 		return null;

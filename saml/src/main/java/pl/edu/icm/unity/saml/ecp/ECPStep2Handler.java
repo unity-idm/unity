@@ -6,6 +6,7 @@ package pl.edu.icm.unity.saml.ecp;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -30,6 +31,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -160,7 +162,7 @@ public class ECPStep2Handler
 		AuthenticatedEntity ae = authenticationResult.getAuthenticatedEntity();
 		Long entityId = ae.getEntityId();
 		
-		InvocationContext iCtx = new InvocationContext(null, realm);
+		InvocationContext iCtx = new InvocationContext(null, realm, Collections.emptyList());
 		authnSuccess(ae, iCtx);
 		InvocationContext.setCurrent(iCtx);
 		
@@ -183,7 +185,7 @@ public class ECPStep2Handler
 			log.debug("Client was successfully authenticated: [" + 
 					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
 		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), null);
+				"", client.getOutdatedCredentialId(), new RememberMeInfo(false, false), null, null);
 		ctx.setLoginSession(ls);
 		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
 		ls.setRemoteIdP(client.getRemoteIdP());

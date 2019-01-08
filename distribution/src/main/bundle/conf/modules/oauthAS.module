@@ -10,12 +10,12 @@ unityServer.core.endpoints.oauthAuthz.endpointConfigurationFile=${CONF}/modules/
 unityServer.core.endpoints.oauthAuthz.contextPath=/oauth2-as
 unityServer.core.endpoints.oauthAuthz.endpointName=UNITY OAuth2 Authorization Server
 unityServer.core.endpoints.oauthAuthz.endpointRealm=defaultRealm
-unityServer.core.endpoints.oauthAuthz.endpointAuthenticators=pwdWeb
+unityServer.core.endpoints.oauthAuthz.endpointAuthenticators=pwd
 
 unityServer.core.endpoints.oauthToken.endpointType=OAuth2Token
 unityServer.core.endpoints.oauthToken.endpointConfigurationFile=${CONF}/modules/oauth/oauth2-as.properties
 unityServer.core.endpoints.oauthToken.contextPath=/oauth2
 unityServer.core.endpoints.oauthToken.endpointName=UNITY OAuth2 Token endpoint
 unityServer.core.endpoints.oauthToken.endpointRealm=defaultRealm
-unityServer.core.endpoints.oauthToken.endpointAuthenticators=pwdRest
+unityServer.core.endpoints.oauthToken.endpointAuthenticators=pwd
 

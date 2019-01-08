@@ -11,10 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
-import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.confirmation.states.EmailAttribiuteConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.EmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttribiuteConfirmationState;
@@ -22,7 +21,7 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdent
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.translation.form.BaseFormTranslationProfile;
+import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.engine.translation.form.FormAutomationSupportExt;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
@@ -73,38 +72,36 @@ public class RegistrationConfirmationSupport
 	private AttributeTypeHelper atHelper;
 	@Autowired
 	private ObjectFactory<FormAutomationSupportExt> formAutomationSupportFactory;
+	@Autowired
+	private GroupHelper groupHelper;
 	
 	public void sendAttributeConfirmationRequest(RegistrationRequestState requestState,
 			Long entityId, RegistrationForm form, Phase phase) throws InternalException, EngineException
 	{
-		sendAttributeConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form,
-				getRegistrationProfile(form), phase);
+		sendAttributeConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form, phase);
 	}
 
 	public void sendAttributeConfirmationRequest(EnquiryResponseState requestState,
 			EnquiryForm form, Long entityId, Phase phase) throws InternalException, EngineException
 	{
-		sendAttributeConfirmationRequest(RequestType.ENQUIRY, requestState, entityId, form,
-				getEnquiryProfile(form), phase);
+		sendAttributeConfirmationRequest(RequestType.ENQUIRY, requestState, entityId, form, phase);
 	}
 
 	public void sendIdentityConfirmationRequest(RegistrationRequestState requestState,
 			Long entityId, RegistrationForm form, Phase phase) throws InternalException, EngineException
 	{
-		sendIdentityConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form,
-				getRegistrationProfile(form), phase);
+		sendIdentityConfirmationRequest(RequestType.REGISTRATION, requestState, entityId, form, phase);
 	}
 
 	public void sendIdentityConfirmationRequest(EnquiryResponseState requestState,
 			EnquiryForm form, Long entityId, Phase phase) throws InternalException, EngineException
 	{
-		sendIdentityConfirmationRequest(RequestType.ENQUIRY, requestState, entityId, form,
-				getEnquiryProfile(form), phase);
+		sendIdentityConfirmationRequest(RequestType.ENQUIRY, requestState, entityId, form, phase);
 	}
 	
 	
 	private void sendAttributeConfirmationRequest(RequestType type, UserRequestState<?> requestState,
-			Long entityId, BaseForm form, BaseFormTranslationProfile profile, Phase phase) throws EngineException
+			Long entityId, BaseForm form, Phase phase) throws EngineException
 	{
 		List<Attribute> attributes = requestState.getRequest().getAttributes();
 		for (int i=0; i<attributes.size(); i++)
@@ -114,6 +111,12 @@ public class RegistrationConfirmationSupport
 				continue;
 			if (phase.supportedMode != form.getAttributeParams().get(i).getConfirmationMode())
 				continue;
+			if (entityId != null)
+			{
+				if (groupHelper.isMember(entityId, attr.getGroupPath()))
+					continue;
+			}
+			
 			AttributeValueSyntax<?> syntax = atHelper.getUnconfiguredSyntax(attr.getValueSyntax());
 			if (syntax.isEmailVerifiable())
 			{
@@ -130,8 +133,7 @@ public class RegistrationConfirmationSupport
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							attr.getGroupPath(), 
-							getRedirectUrlForAttribute(requestState, form, attr, profile),
+							attr.getGroupPath(),
 							type);
 					} else
 					{
@@ -140,8 +142,7 @@ public class RegistrationConfirmationSupport
 							attr.getName(), 
 							val.getValue(), 
 							requestState.getRequest().getUserLocale(), 
-							attr.getGroupPath(), 
-							getRedirectUrlForAttribute(requestState, form, attr, profile));
+							attr.getGroupPath());
 					}
 					confirmationManager.sendConfirmationRequest(state);
 				}
@@ -150,7 +151,7 @@ public class RegistrationConfirmationSupport
 	}
 	
 	private void sendIdentityConfirmationRequest(RequestType requestType, UserRequestState<?> requestState,
-			Long entityId, BaseForm form, BaseFormTranslationProfile profile, Phase phase) throws EngineException
+			Long entityId, BaseForm form, Phase phase) throws EngineException
 	{
 		List<IdentityParam> identities = requestState.getRequest().getIdentities();
 		for (int i=0; i<identities.size(); i++)
@@ -169,28 +170,19 @@ public class RegistrationConfirmationSupport
 							requestState.getRequestId(),
 							id.getTypeId(), id.getValue(), 
 							requestState.getRequest().getUserLocale(),
-							getRedirectUrlForIdentity(requestState, id, profile),
 							requestType);
 				} else
 				{
 					state = new EmailIdentityConfirmationState(entityId, 
 							id.getTypeId(), id.getValue(), 
-							requestState.getRequest().getUserLocale(),
-							getRedirectUrlForIdentity(requestState, id, profile));
+							requestState.getRequest().getUserLocale());
 				}
 				confirmationManager.sendConfirmationRequest(state);
 			}
 		}
 	}
 
-	private String getRedirectUrlForIdentity(UserRequestState<?> requestState, 
-			IdentityParam identity, BaseFormTranslationProfile profile)
-	{
-		return profile.getPostConfirmationRedirectURL(requestState, identity, 
-				requestState.getRequestId());
-	}
-	
-	public RegistrationTranslationProfile getRegistrationProfile(RegistrationForm form)
+	private RegistrationTranslationProfile getRegistrationProfile(RegistrationForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
 		return new RegistrationTranslationProfile(translationProfile, registrationTranslationActionsRegistry,
@@ -211,22 +203,10 @@ public class RegistrationConfirmationSupport
 		return automationSupport;
 	}
 	
-	public EnquiryTranslationProfile getEnquiryProfile(EnquiryForm form)
+	private EnquiryTranslationProfile getEnquiryProfile(EnquiryForm form)
 	{
 		TranslationProfile translationProfile = form.getTranslationProfile();
 		return new EnquiryTranslationProfile(translationProfile, registrationTranslationActionsRegistry,
 				atHelper, form);
 	}	
-	
-	private String getRedirectUrlForAttribute(UserRequestState<?> requestState, BaseForm form,
-			Attribute attr, BaseFormTranslationProfile profile)
-	{
-		String current = null;
-		if (InvocationContext.getCurrent().getCurrentURLUsed() != null
-				&& InvocationContext.getCurrent().getLoginSession() == null)
-			current = InvocationContext.getCurrent().getCurrentURLUsed();
-		String configured = profile.getPostConfirmationRedirectURL(requestState, attr,
-				requestState.getRequestId());
-		return configured != null ? configured : current;
-	}
 }

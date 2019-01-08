@@ -6,6 +6,8 @@ package pl.edu.icm.unity.engine.identity;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
@@ -66,6 +68,41 @@ public class TestIdentities extends DBIntegrationTestBase
 	@Autowired
 	private EntitiesScheduledUpdater entitiesUpdater;
 	private EntityParam entityParam;
+
+	
+	@Test
+	public void shouldUpdateIdentityConfirmation() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "test@example.com");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+
+		//verify
+		Entity retrieved = idsMan.getEntity(new EntityParam(idParam));
+		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed(), is(false));
+		
+		Identity updated = id.clone();
+		updated.setConfirmationInfo(new ConfirmationInfo(true));
+		idsMan.updateIdentity(idParam, updated);
+		
+		retrieved = idsMan.getEntity(new EntityParam(idParam));
+		assertThat(getByType(retrieved, EmailIdentity.ID).getConfirmationInfo().isConfirmed(), is(true));
+	}
+
+	@Test
+	public void shouldDisallowUpdatingIdentityComparableValue() throws Exception
+	{
+		setupMockAuthn();
+		IdentityParam idParam = new IdentityParam(EmailIdentity.ID, "test@example.com");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		
+		Identity updated = id.clone();
+		updated.setValue("other@example.com");
+		
+		Throwable error = catchThrowable(() -> idsMan.updateIdentity(idParam, updated));
+		
+		assertThat(error).isInstanceOf(IllegalArgumentException.class);
+	}
 	
 	@Test
 	public void scheduledDisableWork() throws Exception
@@ -610,21 +647,6 @@ public class TestIdentities extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void dynamicIdentitiesNotAddedWhenNotRequested() throws Exception
-	{
-		setupMockAuthn();
-		setupAdmin();
-		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
-		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
-		EntityParam entityParam = new EntityParam(id.getEntityId());
-		
-		Entity e1 = idsMan.getEntity(entityParam, null, false, "/");
-	
-		assertEquals(1, e1.getIdentities().size());
-		assertEquals(X500Identity.ID, e1.getIdentities().get(0).getTypeId());
-	}
-
-	@Test
 	public void onlyPersistentAddedWhenAllowedWithoutTarget() throws Exception
 	{
 		setupMockAuthn();
@@ -632,6 +654,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
 		EntityParam entityParam = new EntityParam(id.getEntityId());
+		idsMan.resetIdentity(entityParam, PersistentIdentity.ID, null, null);
 		
 		Entity e2 = idsMan.getEntity(entityParam, null, true, "/");
 		
@@ -640,6 +663,23 @@ public class TestIdentities extends DBIntegrationTestBase
 		assertTrue(getByType(e2, PersistentIdentity.ID).getValue().length() > 0);
 	}
 
+	@Test
+	public void shouldCreatePersistentIdentityWithEntity() throws Exception
+	{
+		setupMockAuthn();
+		setupAdmin();
+		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
+		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(id.getEntityId());
+		
+		Entity e2 = idsMan.getEntity(entityParam, null, false, "/");
+		
+		assertEquals(2, e2.getIdentities().size());
+		assertNotNull(getByType(e2, X500Identity.ID));
+		assertTrue(getByType(e2, PersistentIdentity.ID).getValue().length() > 0);
+	}
+
+	
 	@Test
 	public void allAddedWhenAllowedWithTarget() throws Exception
 	{
@@ -737,7 +777,7 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		Entity ret = idsMan.getEntity(new EntityParam(id.getEntityId()), null, false, "/");
 		
-		assertThat(ret.getIdentities().size(), is(2));
+		assertThat(ret.getIdentities().size(), is(3));
 		assertThat(getIdentityByType(ret.getIdentities(), UsernameIdentity.ID).getValue(), is("id"));
 		assertThat(getIdentityByType(ret.getIdentities(), IdentifierIdentity.ID).getValue(), is("id"));
 	}
@@ -840,11 +880,12 @@ public class TestIdentities extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void removeingLastIdentityIsProhibited() throws Exception
+	public void removingLastIdentityIsProhibited() throws Exception
 	{
 		setupMockAuthn();
 		IdentityParam idParam = new IdentityParam(X500Identity.ID, "CN=golbi");
 		Identity id = idsMan.addEntity(idParam, "crMock", EntityState.valid, false);
+		idsMan.resetIdentity(new EntityParam(id.getEntityId()), PersistentIdentity.ID, null, null);
 		
 		catchException(idsMan).removeIdentity(id);
 

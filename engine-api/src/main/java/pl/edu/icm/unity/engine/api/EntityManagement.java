@@ -98,6 +98,14 @@ public interface EntityManagement
 			throws EngineException;
 
 	/**
+	 * Updates a given identity. Useful to change details of an identity like confirmation status.
+	 * Note that updated identity must have the same comparable representation as the original one,
+	 * i.e. must have the same type and value parts which are part of comparable representation must be unchanged.
+	 * Operation only available with full permissions.
+	 */
+	void updateIdentity(IdentityTaV original, IdentityParam updated) throws EngineException;
+	
+	/**
 	 * Reset a possibly targeted value of a dynamic identity. For the identities which are fixed this method 
 	 * throws an exception. 
 	 * <p>

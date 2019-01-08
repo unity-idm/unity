@@ -56,6 +56,7 @@ public class UnknownUserDialog extends AbstractDialog
 			InputTranslationEngine inputTranslationEngine, String sandboxURL)
 	{
 		super(msg, msg.getMessage("UnknownUserDialog.caption"), msg.getMessage("cancel"));
+		setSizeEm(50, 25);
 		this.authNResult = authNResult;
 		this.formLauncher = formLauncher;
 		this.sandboxAuthnNotifier = sandboxAuthnNotifier;
@@ -150,14 +151,14 @@ public class UnknownUserDialog extends AbstractDialog
 	{
 		try
 		{
-			formLauncher.showRegistrationDialog(form, ctx, TriggeringMode.afterRemoteLogin,
+			formLauncher.showRegistrationDialog(form, ctx, TriggeringMode.afterRemoteLoginWhenUnknownUser,
 					this::handleRegistrationError);
 			close();
 		} catch (Exception e)
 		{
 			log.error("Can't show a registration form for the remotely authenticated user as configured. " +
 					"Probably the form name is wrong.", e);
-			NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+			NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 					msg.getMessage("AuthenticationUI.problemWithRegistration"));
 		}
 	}
@@ -166,7 +167,7 @@ public class UnknownUserDialog extends AbstractDialog
 	{
 		log.debug("Can't show a registration form for the remotely authenticated user - "
 				+ "user does not meet form requirements.", error);
-		NotificationPopup.showError(msg, msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+		NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
 				msg.getMessage("AuthenticationUI.infufficientRegistrationInput"));
 	}
 	

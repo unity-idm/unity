@@ -19,7 +19,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
 import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.SmallGrid;
@@ -117,13 +116,7 @@ public class EffectiveAttrClassViewer extends HorizontalSplitPanel
 	{
 		right.setVisible(true);
 		AttributeClassHelper helper;
-		try
-		{
-			helper = new AttributeClassHelper(allClasses, Collections.singleton(ac));
-		} catch (IllegalTypeException e)
-		{
-			throw new IllegalStateException("Got AC which is undefined", e);
-		}
+		helper = new AttributeClassHelper(allClasses, Collections.singleton(ac));
 		if (helper.isEffectiveAllowArbitrary())
 		{
 			allAllowed.setVisible(true);

@@ -8,6 +8,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
+import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 
 /**
  * Allows to setup certificate credential. Currently no input needed.
@@ -21,8 +22,7 @@ public class CertificateCredentialEditor implements CredentialEditor
 	}
 
 	@Override
-	public ComponentsContainer getEditor(boolean askAboutCurrent, 
-			String credentialConfiguration, boolean required, Long entityId, boolean adminMode)
+	public ComponentsContainer getEditor(CredentialEditorContext context)
 	{
 		return new ComponentsContainer();
 	}
@@ -37,12 +37,6 @@ public class CertificateCredentialEditor implements CredentialEditor
 	public ComponentsContainer getViewer(String credentialConfiguration)
 	{
 		return new ComponentsContainer();
-	}
-
-	@Override
-	public String getCurrentValue() throws IllegalCredentialException
-	{
-		return "";
 	}
 
 	@Override

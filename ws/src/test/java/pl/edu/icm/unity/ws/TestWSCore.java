@@ -7,7 +7,6 @@ package pl.edu.icm.unity.ws;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.ws.soap.SOAPFaultException;
@@ -15,15 +14,22 @@ import javax.xml.ws.soap.SOAPFaultException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import eu.unicore.security.wsutil.client.WSClientFactory;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
+import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
+import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.ws.mock.MockWSEndpointFactory;
@@ -35,9 +41,15 @@ public class TestWSCore extends DBIntegrationTestBase
 {
 	public static final String AUTHENTICATOR_WS_PASS = "ApassWS";
 	public static final String AUTHENTICATOR_WS_CERT = "AcertWS";
+	public static final String AUTHENTICATION_FLOW = "flow1";
+	public static final String AUTHENTICATION_FLOW_CERT_SECOND_FACTOR = "flow2";
+	public static final String AUTHENTICATION_FLOW_OPTIN = "flow3";
 	
 	@Autowired
 	private AuthenticatorManagement authnMan;
+	
+	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
 	
 	@Test
 	public void testBlockAccess() throws Exception
@@ -45,22 +57,18 @@ public class TestWSCore extends DBIntegrationTestBase
 		setupAuth();
 		createUsers();
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				5, 1, -1, 600);
+				5, 1, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_PASS));
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", authnCfg, "", realm.getName());
+				"desc", Lists.newArrayList(AUTHENTICATION_FLOW), "", realm.getName());
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
 
 		httpServer.start();
 		
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 
 		clientCfg.setHttpUser(DEF_USER);
@@ -122,20 +130,67 @@ public class TestWSCore extends DBIntegrationTestBase
 	}
 	
 	@Test
+	public void shouldRespectUserOptinAttr() throws Exception
+	{
+		setupAuth();
+		createUsers();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				10, 100, RememberMePolicy.disallow , 1, 600);
+		realmsMan.addRealm(realm);
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", Lists.newArrayList(AUTHENTICATION_FLOW_OPTIN), "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		assertEquals(1, endpoints.size());
+
+		httpServer.start();
+		
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
+		clientCfg.setSslEnabled(true);
+		clientCfg.setHttpUser(DEF_USER);
+		clientCfg.setHttpPassword(DEF_PASSWORD);
+		WSClientFactory factory = new WSClientFactory(clientCfg);
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+				MockWSEndpointFactory.SERVLET_PATH);
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
+		EntityWithCredential entity = identityResolver.resolveIdentity(DEF_USER, new String[] {UsernameIdentity.ID}, 
+				MockPasswordVerificatorFactory.ID);
+		authnFlowMan.setUserMFAOptIn(entity.getEntityId(), true);
+		
+		try
+		{
+			factory = new WSClientFactory(clientCfg);
+			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+					MockWSEndpointFactory.SERVLET_PATH);
+			wsProxy.getAuthenticatedUser();
+			fail("Managed to authenticate with sigle cred when USER_OPTIN flow policy is used, userOptin attr is set and second credential is not given");
+		} catch (SOAPFaultException e)
+		{
+			//ok
+		}
+		
+		authnFlowMan.setUserMFAOptIn(entity.getEntityId(), false);
+		
+		NameIDDocument ret = wsProxy.getAuthenticatedUser();
+		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());	
+	}
+	
+	
+	@Test
 	public void test() throws Exception
 	{
 		setupAuth();
 		createUsers();
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 100, -1, 600);
+				10, 100, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
 		
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_PASS));
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_CERT));
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", authnCfg, "", realm.getName());
+				"desc", Lists.newArrayList(AUTHENTICATION_FLOW), "", realm.getName());
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
@@ -144,10 +199,8 @@ public class TestWSCore extends DBIntegrationTestBase
 		
 		
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 
 		clientCfg.setHttpUser(DEF_USER);
@@ -179,7 +232,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
 
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
@@ -188,9 +241,9 @@ public class TestWSCore extends DBIntegrationTestBase
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
 
-		clientCfg.setSslAuthn(true);
+		clientCfg.setSslAuthn(false);
 		clientCfg.setHttpAuthn(true);
 		clientCfg.setHttpPassword(DEF_PASSWORD);
 		factory = new WSClientFactory(clientCfg);
@@ -200,10 +253,9 @@ public class TestWSCore extends DBIntegrationTestBase
 		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());
 		
 
-		List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg2.add(new AuthenticationOptionDescription(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT));
+		
 		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint2"),
-				"desc", authnCfg2, "", realm.getName());
+				"desc", Lists.newArrayList(AUTHENTICATION_FLOW_CERT_SECOND_FACTOR), "", realm.getName());
 		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", "/mock2", cfg2);
 		
 		clientCfg.setSslAuthn(true);
@@ -214,7 +266,7 @@ public class TestWSCore extends DBIntegrationTestBase
 		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
 				MockWSEndpointFactory.SERVLET_PATH);
 		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[CN=Test UVOS,O=UNICORE,C=EU, user2]", ret.getNameID().getStringValue());
+		assertEquals("[" + DEMO_SERVER_DN + ", user2]", ret.getNameID().getStringValue());
 
 		try
 		{
@@ -255,9 +307,20 @@ public class TestWSCore extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
-		authnMan.createAuthenticator(AUTHENTICATOR_WS_CERT, "certificate with cxf-certificate", 
-				null, "", "credential2");
-		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password with cxf-httpbasic", 
-				null, "", "credential1");
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_CERT, "certificate", "", "credential2");
+		authnMan.createAuthenticator(AUTHENTICATOR_WS_PASS, "password", "", "credential1");
+		
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				AUTHENTICATION_FLOW, Policy.NEVER,
+				Sets.newHashSet(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT)));
+		
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				AUTHENTICATION_FLOW_CERT_SECOND_FACTOR, Policy.REQUIRE,
+				Sets.newHashSet(AUTHENTICATOR_WS_PASS), Lists.newArrayList(AUTHENTICATOR_WS_CERT)));
+
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				AUTHENTICATION_FLOW_OPTIN, Policy.USER_OPTIN,
+				Sets.newHashSet(AUTHENTICATOR_WS_PASS, AUTHENTICATOR_WS_CERT)));
+		
 	}
 }

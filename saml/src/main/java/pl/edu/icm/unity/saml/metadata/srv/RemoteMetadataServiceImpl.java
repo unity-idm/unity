@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.saml.metadata.srv;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 import org.apache.logging.log4j.Logger;
@@ -19,9 +21,7 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
 /**
- * Handles registration of metadata consumers and manages workers handling 
- * individual metadata retrievals.
- *  
+ * See {@link RemoteMetadataService}  
  * @author K. Benedyczak
  */
 @Component
@@ -53,10 +53,22 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 		this.downloader = downloader;
 	}
 	
+
 	@Override
-	public synchronized String registerConsumer(String url, long refreshIntervalMs,
+	public synchronized String preregisterConsumer(String url)
+	{
+		String key = String.valueOf(nextConsumerId++);
+		consumers2URL.put(key, url);
+		return key;
+	}
+	
+	@Override
+	public synchronized void registerConsumer(String key, long refreshIntervalMs,
 			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer)
 	{
+		String url = consumers2URL.get(key);
+		if (url == null)
+			throw new IllegalArgumentException("Key " + key + " is unknown");
 		MetadataSourceHandler handler = metadataHandlersByURL.get(url);
 		if (handler == null)
 		{
@@ -66,13 +78,10 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 			metadataHandlersByURL.put(url, handler);
 		}
 		checkTruststoresConsistency(handler, customTruststore);
-		String key = String.valueOf(nextConsumerId++);
 		handler.addConsumer(new MetadataConsumer(refreshIntervalMs, consumer, key));
-		consumers2URL.put(key, url);
 		log.info("Registered consumer {} of metadata from {}", key, url);
-		return key;
 	}
-	
+
 	private void checkTruststoresConsistency(MetadataSourceHandler handler, String addedTruststore)
 	{
 		String current = handler.getSource().truststore;
@@ -98,5 +107,14 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 			log.debug("Unregistered the last consumer, handler is removed for {}", url);
 		}
 		log.info("Unregistered consumer {} of metadata from {}", id, url);
+	}
+
+	@Override
+	public synchronized void reset()
+	{
+		Set<String> ids = new HashSet<>(consumers2URL.keySet());
+		for (String id : ids)
+			unregisterConsumer(id);
+		nextConsumerId = 0;
 	}
 }

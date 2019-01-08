@@ -28,6 +28,12 @@ public class ScheduledProcessingRuleParam extends TranslationRule
 		this.cronExpression = cronExpression;
 	}
 
+	public ScheduledProcessingRuleParam(ScheduledProcessingRule src)
+	{
+		super(src);
+		this.cronExpression = src.cronExpression;
+	}
+
 	@JsonCreator
 	public ScheduledProcessingRuleParam(ObjectNode root)
 	{

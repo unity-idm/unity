@@ -20,7 +20,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 public class AttributeClassDBImpl extends GenericObjectsDAOImpl<AttributesClass> implements AttributeClassDB 
 {
 	@Autowired
-	public AttributeClassDBImpl(AttributeClassHandler handler,
+	AttributeClassDBImpl(AttributeClassHandler handler,
 			ObjectStoreDAO dbGeneric)
 	{
 		super(handler, dbGeneric, AttributesClass.class, "attributes class");

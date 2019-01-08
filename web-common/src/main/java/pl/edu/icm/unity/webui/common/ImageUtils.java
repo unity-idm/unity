@@ -9,11 +9,9 @@ import java.net.URL;
 
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import eu.unicore.util.configuration.ConfigurationException;
 
 public class ImageUtils
 {
@@ -41,37 +39,15 @@ public class ImageUtils
 		}
 		throw new MalformedURLException("Unsupported logo URI scheme: " + uri);
 	}
-	
-	public static void setScaleStyling(ScaleMode scaleMode, Component component)
+
+	public static Resource getConfiguredImageResource(String uri)
 	{
-		switch (scaleMode)
+		try
 		{
-		case widthSmall:
-			component.addStyleName(Styles.imageWidthSmall.toString());
-			break;
-		case heightSmall:
-			component.addStyleName(Styles.imageHeightSmall.toString());
-			break;
-		case widthTiny:
-			component.addStyleName(Styles.imageWidthTiny.toString());
-			break;
-		case heightTiny:
-			component.addStyleName(Styles.imageHeightTiny.toString());
-			break;
-		case none:
-			component.setHeight(100, Unit.PERCENTAGE);
-			break;
-		case maxHeightSmall:
-			component.addStyleName(Styles.maxHeightSmall.toString());
-			break;
-		case maxHeightMedium:
-			component.addStyleName(Styles.maxHeightMedium.toString());
-			break;
-		case maxHeightTiny:
-			component.addStyleName(Styles.maxHeightTiny.toString());
-			break;
-		default:
-			break;
+			return getLogoResource(uri);
+		} catch (MalformedURLException e)
+		{
+			throw new ConfigurationException("Can not load configured image " + uri, e);
 		}
 	}
 }

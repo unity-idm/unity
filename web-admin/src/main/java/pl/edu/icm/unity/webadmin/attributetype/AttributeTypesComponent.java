@@ -23,9 +23,9 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -238,7 +238,7 @@ public class AttributeTypesComponent extends VerticalLayout
 	{
 		return SingleActionHandler.builder4Edit(msg, AttributeType.class)
 				.withHandler(this::showEditDialog)
-				.withDisabledPredicate(at -> at.isTypeImmutable())
+				.withDisabledPredicate(at -> (at.isTypeImmutable() && at.isInstanceImmutable()))
 				.build();
 	}
 
@@ -249,8 +249,8 @@ public class AttributeTypesComponent extends VerticalLayout
 		at = at.clone();
 		AttributeTypeEditor editor = at.isTypeImmutable() ? 
 				new ImmutableAttributeTypeEditor(msg, at) : 
-					new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
-							attrMetaHandlerRegistry, atSupport);
+				new RegularAttributeTypeEditor(msg, attrHandlerRegistry, at, 
+						attrMetaHandlerRegistry, atSupport);
 				AttributeTypeEditDialog dialog = new AttributeTypeEditDialog(msg, 
 						msg.getMessage("AttributeTypes.editAction"), 
 						newAttributeType -> updateType(newAttributeType), 

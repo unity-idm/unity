@@ -11,16 +11,23 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
+import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
@@ -29,11 +36,16 @@ public class TestEndpoints extends DBIntegrationTestBase
 {
 	private static final String REALM_NAME = "testr";
 	
+	@Autowired
+	private AuthenticatorManagement authnMan;
+	@Autowired
+	private AuthenticatorsRegistry authenticatorsReg;
+	
 	@Before
 	public void addRealm() throws Exception
 	{
 		AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
-				10, 10, -1, 600);
+				10, 10, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 	}
 	
@@ -51,7 +63,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void deployedEndpointIsReturned() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -68,7 +80,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void updatedEndpointIsReturned() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -88,7 +100,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void removedEndpointIsNotReturned() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -103,7 +115,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void duplicatedEndpointIsNotDeployed() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "",
+				"desc", new ArrayList<String>(), "",
 				REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg);
 		
@@ -124,7 +136,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void endpointWithWrongConfigurationIsNotDeployed() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), 
+				"desc", new ArrayList<String>(), 
 				MockEndpoint.WRONG_CONFIG, REALM_NAME);
 		try
 		{
@@ -143,7 +155,7 @@ public class TestEndpoints extends DBIntegrationTestBase
 	public void endpointWithWrongPathIsNotDeployed() throws Exception
 	{
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), 
+				"desc", new ArrayList<String>(), 
 				"", REALM_NAME);
 		try
 		{
@@ -179,10 +191,10 @@ public class TestEndpoints extends DBIntegrationTestBase
 	{
 		//test initial loading from DB: create, remove from the server, load
 		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "", REALM_NAME);
+				"desc", new ArrayList<String>(), "", REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/foo", cfg2);
 		EndpointConfiguration cfg3 = new EndpointConfiguration(new I18nString("endpoint2"), 
-				"desc", new ArrayList<AuthenticationOptionDescription>(), "", REALM_NAME);
+				"desc", new ArrayList<String>(), "", REALM_NAME);
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint2", "/foo2", cfg3);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
@@ -221,5 +233,28 @@ public class TestEndpoints extends DBIntegrationTestBase
 		internalEndpointMan.loadPersistedEndpoints();
 		endpoints = endpointMan.getEndpoints();
 		assertEquals(0, endpoints.size());
+	}
+	
+	@Test
+	public void shouldInitializeEndpointWithAutheticators() throws Exception
+	{
+		super.setupMockAuthn();
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypes();
+		AuthenticatorTypeDescription authType = authTypes.iterator().next();
+		
+		authnMan.createAuthenticator("auth1", authType.getVerificationMethod(), "config", "credential1");
+		
+		authnMan.createAuthenticator("auth2", "mockpassword", "config", CRED_MOCK);
+		
+		
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", Arrays.asList("auth1", "auth2"), "", REALM_NAME);
+		
+		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/xxx", cfg);
+		List<EndpointInstance> deployedEndpoints = internalEndpointMan.getDeployedEndpoints();
+	
+		assertThat(deployedEndpoints.size() , is(1));
+		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(0).getId() , is("auth1"));
+		assertThat(deployedEndpoints.get(0).getAuthenticationFlows().get(1).getId() , is("auth2"));
 	}
 }

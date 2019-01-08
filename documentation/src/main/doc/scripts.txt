@@ -24,7 +24,8 @@ pre-init:: Triggered before configured contents (endpoints, authenticators, cred
 post-init:: Triggered after configured contents (endpoints, authenticators, credentials, ...) is loaded to database.
 methodInvocation.METHOD-NAME:: Triggered after internal Unity platform API method is invoked. The actual event name has
 the method name added to the given prefix after dot, for instance +methodInvocation.addEntity+ is event name 
-triggered after +addEntity+ operation is invoked.
+triggered after +addEntity+ operation is invoked. Note that you have to explicitly enable generation of those events 
+with +unityServer.core.enableLowLevelEvents=true+ in the main config file. 
 
 
 By enabling the following logger level it is possible to observe in the log file all produced events together with their 

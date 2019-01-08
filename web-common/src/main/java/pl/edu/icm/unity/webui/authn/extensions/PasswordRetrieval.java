@@ -4,26 +4,23 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
-import java.net.MalformedURLException;
+import java.io.StringReader;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
@@ -32,7 +29,6 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
@@ -43,19 +39,19 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
+import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialReset1Dialog;
-import pl.edu.icm.unity.webui.common.ImageUtils;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.authn.credreset.password.PasswordCredentialResetController;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -74,10 +70,10 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	private Logger log = Log.getLogger(Log.U_SERVER_WEB, PasswordRetrieval.class);
 	private UnityMessageSource msg;
 	private I18nString name;
-	private String logoURL;
 	private String registrationFormForUnknown;
 	private boolean enableAssociation;
 	private CredentialEditorRegistry credEditorReg;
+	private String configuration;
 
 	@Autowired
 	public PasswordRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
@@ -90,43 +86,24 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	@Override
 	public String getSerializedConfiguration()
 	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.set("i18nName", I18nStringJsonUtil.toJson(name));
-		root.put("registrationFormForUnknown", registrationFormForUnknown);
-		root.put("enableAssociation", enableAssociation);
-		if (logoURL != null)
-			root.put("logoURL", logoURL);			
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize web-based password retrieval configuration to JSON", e);
-		}
+		return configuration;
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String configuration)
 	{
+		this.configuration = configuration;
 		try
 		{
-			JsonNode root = Constants.MAPPER.readTree(json);
-			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
+			Properties properties = new Properties();
+			properties.load(new StringReader(configuration));
+			PasswordRetrievalProperties config = new PasswordRetrievalProperties(properties);
+			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebPasswordRetrieval.password", msg);
-			JsonNode formNode = root.get("registrationFormForUnknown");
-			if (formNode != null && !formNode.isNull())
-				registrationFormForUnknown = formNode.asText();
-			
-			JsonNode logoNode = root.get("logoURL");
-			if (logoNode != null && !logoNode.isNull())
-				logoURL = logoNode.asText();
-			if (logoURL != null && !logoURL.isEmpty())
-				ImageUtils.getLogoResource(logoURL);
-			
-			JsonNode enableANode = root.get("enableAssociation");
-			if (enableANode != null && !enableANode.isNull())
-				enableAssociation = enableANode.asBoolean();
+			registrationFormForUnknown = config.getValue(
+					PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN);
+			enableAssociation = config.getBooleanValue(PasswordRetrievalProperties.ENABLE_ASSOCIATION);
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -135,23 +112,30 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 	}
 
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
 				new PasswordRetrievalUI(credEditorReg.getEditor(PasswordVerificator.NAME)));
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return false;
+	}
 
 	private class PasswordRetrievalComponent extends CustomComponent implements Focusable
 	{
 		private CredentialEditor credEditor;
-		private AuthenticationResultCallback callback;
+		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		private String presetAuthenticatedIdentity;
 		
 		private TextField usernameField;
 		private PasswordField passwordField;
 		private int tabIndex;
+		private Button reset;
+		private CredentialResetLauncher credResetLauncher;
 
 		public PasswordRetrievalComponent(CredentialEditor credEditor)
 		{
@@ -164,56 +148,78 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			VerticalLayout ret = new VerticalLayout();
 			ret.setMargin(false);
 			
-			usernameField = new TextField(msg.getMessage("AuthenticationUI.username"));
-			usernameField.setId("AuthenticationUI.username");
+			usernameField = new TextField();
+			usernameField.setWidth(100, Unit.PERCENTAGE);
+			usernameField.setPlaceholder(msg.getMessage("AuthenticationUI.username"));
+			usernameField.addStyleName("u-authnTextField");
+			usernameField.addStyleName("u-passwordUsernameField");
 			ret.addComponent(usernameField);
 			
 			String label = name.getValue(msg);
-			passwordField = new PasswordField(label + ":");
-			passwordField.setId("WebPasswordRetrieval.password");
+			passwordField = new PasswordField();
+			passwordField.setWidth(100, Unit.PERCENTAGE);
+			passwordField.setPlaceholder(label);
+			passwordField.addStyleName("u-authnTextField");
+			passwordField.addStyleName("u-passwordField");
 			ret.addComponent(passwordField);
 			
+			
+			Button authenticateButton = new Button(msg.getMessage("AuthenticationUI.authnenticateButton"));
+			authenticateButton.addStyleName(Styles.signInButton.toString());
+			authenticateButton.addStyleName("u-passwordSignInButton");
+			authenticateButton.addClickListener(event -> triggerAuthentication());
+			ret.addComponent(authenticateButton);
+
+			passwordField.addFocusListener(e -> authenticateButton.setClickShortcut(KeyCode.ENTER));
+			passwordField.addBlurListener(e -> authenticateButton.removeClickShortcut());
+
 			PasswordCredentialResetSettings settings = new PasswordCredentialResetSettings(
 					JsonUtil.parse(credentialExchange
 							.getCredentialResetBackend()
 							.getSettings()));
 			if (settings.isEnabled())
 			{
-				Button reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
+				reset = new Button(msg.getMessage("WebPasswordRetrieval.forgottenPassword"));
 				reset.setStyleName(Styles.vButtonLink.toString());
-				ret.addComponent(reset);
-				ret.setComponentAlignment(reset, Alignment.TOP_RIGHT);
-				reset.addClickListener(new ClickListener()
-				{
-					@Override
-					public void buttonClick(ClickEvent event)
-					{
-						showResetDialog();
-					}
-				});
+				AuthNGridTextWrapper resetWrapper = new AuthNGridTextWrapper(reset, Alignment.TOP_RIGHT);
+				resetWrapper.addStyleName("u-authn-forgotPassword");
+				ret.addComponent(resetWrapper);
+				reset.addClickListener(event -> showResetDialog());
 			}
+			
 			setCompositionRoot(ret);
 		}
 
-		public void triggerAuthentication()
+		private void triggerAuthentication()
 		{
 			String username = presetAuthenticatedIdentity == null ? usernameField.getValue() : 
 				presetAuthenticatedIdentity;
 			String password = passwordField.getValue();
+
 			if (password.equals(""))
 			{
-				passwordField.setComponentError(new UserError(
-						msg.getMessage("WebPasswordRetrieval.noPassword")));
-			}
-			if (username.equals(""))
+				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+						msg.getMessage("WebPasswordRetrieval.noPassword"));
+			} else if (username.equals(""))
 			{
-				usernameField.setComponentError(new UserError(
-						msg.getMessage("WebPasswordRetrieval.noUser")));
-			}			
-			callback.setAuthenticationResult(getAuthenticationResult(username, password));
+				NotificationPopup.showError(msg.getMessage("AuthenticationUI.authnErrorTitle"), 
+						msg.getMessage("WebPasswordRetrieval.noUser"));
+			} else 
+			{
+				callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
+				AuthenticationResult authenticationResult = getAuthenticationResult(username, password);
+				if (authenticationResult.getStatus() == Status.deny)
+				{
+					callback.onFailedAuthentication(authenticationResult, 
+							msg.getMessage("WebPasswordRetrieval.wrongPassword"), 
+							Optional.empty());
+				} else
+				{
+					setEnabled(false);
+					callback.onCompletedAuthentication(authenticationResult);
+				}
+			}
 		}
-		
-
 		
 		private AuthenticationResult getAuthenticationResult(String username, String password)
 		{
@@ -253,18 +259,16 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		
 		private void setError()
 		{
-			String msgErr = msg.getMessage("WebPasswordRetrieval.wrongPassword");
-			passwordField.setComponentError(new UserError(msgErr));
 			passwordField.setValue("");
-			usernameField.setComponentError(new UserError(msgErr));
 			usernameField.setValue("");
 		}
 		
 		private void showResetDialog()
 		{
-			PasswordCredentialReset1Dialog dialog = new PasswordCredentialReset1Dialog(msg, 
-					credentialExchange.getCredentialResetBackend(), credEditor);
-			dialog.show();
+			PasswordCredentialResetController passReset = new PasswordCredentialResetController(msg, 
+					credentialExchange.getCredentialResetBackend(), credEditor, 
+					credResetLauncher.getConfiguration());
+			credResetLauncher.startCredentialReset(passReset.getInitialUI());
 		}
 
 		@Override
@@ -288,7 +292,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 			this.tabIndex = tabIndex;
 		}
 
-		public void setCallback(AuthenticationResultCallback callback)
+		public void setCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
 		}
@@ -308,8 +312,17 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			passwordField.setValue("");
 			usernameField.setValue("");
-			passwordField.setComponentError(null);
-			usernameField.setComponentError(null);
+		}
+
+		public void disablePasswordReset()
+		{
+			if (reset!= null)
+				reset.setVisible(false);
+		}
+
+		public void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
+		{
+			this.credResetLauncher = credResetLauncher;
 		}
 	}
 	
@@ -324,7 +337,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			theComponent.setCallback(callback);
 		}
@@ -336,48 +349,15 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void triggerAuthentication()
-		{
-			theComponent.triggerAuthentication();
-		}
-		
-
-		/**
-		 * {@inheritDoc}
-		 */
-		@Override
 		public String getLabel()
 		{
 			return name.getValue(msg);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public Resource getImage()
 		{
-			if (logoURL == null)
-				return null;
-			if ("".equals(logoURL))
-				return Images.password.getResource();
-			else
-			{
-				try
-				{
-					return ImageUtils.getLogoResource(logoURL);
-				} catch (MalformedURLException e)
-				{
-					log.error("Can't load logo", e);
-					return null;
-				}
-			}
-		}
-
-		@Override
-		public void cancelAuthentication()
-		{
-			//do nothing
+			return null;
 		}
 
 		@Override
@@ -393,7 +373,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 		{
 			theComponent.setSandboxCallback(callback);
 		}
@@ -412,7 +392,8 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		{
 			List<Identity> ids = authenticatedEntity.getIdentities();
 			for (Identity id: ids)
-				if (id.getTypeId().equals(UsernameIdentity.ID))
+				if (id.getTypeId().equals(UsernameIdentity.ID) || 
+						id.getTypeId().equals(EmailIdentity.ID))
 				{
 					theComponent.setAuthenticatedIdentity(id.getValue());
 					return;
@@ -423,6 +404,18 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		public Set<String> getTags()
 		{
 			return Collections.emptySet();
+		}
+
+		@Override
+		public void disableCredentialReset()
+		{
+			theComponent.disablePasswordReset();
+		}
+
+		@Override
+		public void setCredentialResetLauncher(CredentialResetLauncher credResetLauncher)
+		{
+			theComponent.setCredentialResetLauncher(credResetLauncher);
 		}
 	}
 	
@@ -437,13 +430,5 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		}
 	}
 }
-
-
-
-
-
-
-
-
 
 

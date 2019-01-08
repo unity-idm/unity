@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -15,13 +16,11 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -31,17 +30,18 @@ import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
-import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.saml.sp.SamlContextManagement;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
-import pl.edu.icm.unity.webui.authn.IdPROComponent;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
+import pl.edu.icm.unity.webui.UrlHelper;
+import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
+import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP, implements 
@@ -55,32 +55,34 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private UnityMessageSource msg;
 	private SAMLExchange credentialExchange;
-	private AuthenticationResultCallback callback;
+	private AuthenticationCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 	
 	private String configKey;
 	private String idpKey;
-	private SAMLSPProperties samlProperties;
-	private Label messageLabel;
-	private HtmlSimplifiedLabel errorDetailLabel;
+	private IdPVisalSettings configuration;
 	private SamlContextManagement samlContextManagement;
 	private Set<String> tags;
 	
-	
 	private Component main;
+	private String authenticatorName;
+	private Context context;
 
-	
+	private IdPAuthNComponent idpComponent;
+
 	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
 			SamlContextManagement samlContextManagement, String idpKey, 
-			SAMLSPProperties configurationSnapshot, String configKey)
+			String configKey, String authenticatorName, Context context)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
 		this.idpKey = idpKey;
 		this.configKey = configKey;
-		this.samlProperties = configurationSnapshot;
+		this.authenticatorName = authenticatorName;
+		this.configuration = credentialExchange.getVisualSettings(configKey, msg.getLocale());
+		this.context = context;
 		initUI();
 	}
 
@@ -90,36 +92,47 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		return main;
 	}
 	
+	@Override
+	public Component getGridCompatibleComponent()
+	{
+		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), 
+				configuration.name);
+		idpComponent.addClickListener(event -> startLogin());
+		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		return idpComponent;
+	}
+	
 	private void initUI()
 	{
 		redirectParam = installRequestHandler();
 		
-		VerticalLayout ret = new VerticalLayout();
-
-		ScaleMode scaleMode = samlProperties.getEnumValue(SAMLSPProperties.SELECTED_PROVDER_ICON_SCALE, 
-				ScaleMode.class); 
-		String name = getName();
-		String logoUrl = samlProperties.getLocalizedValue(configKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
-		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
-
-		this.tags = new HashSet<>(samlProperties.getListOfValues(configKey + SAMLSPProperties.IDP_NAME + "."));
-		this.tags.remove(name);
-
-		messageLabel = new Label();
-		messageLabel.addStyleName(Styles.error.toString());
-		errorDetailLabel = new HtmlSimplifiedLabel();
-		errorDetailLabel.addStyleName(Styles.emphasized.toString());
-		errorDetailLabel.setVisible(false);
-		ret.setSpacing(false);
-		ret.setMargin(false);
-		ret.addComponents(idpComponent, messageLabel, errorDetailLabel);
-		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);
-		this.main = ret;
+		String logoUrl = configuration.logoUrl;
+		
+		Resource logo;
+		try
+		{
+			logo = logoUrl == null ? Images.empty.getResource() : ImageUtils.getLogoResource(logoUrl);
+		} catch (MalformedURLException e)
+		{
+			log.warn("Can't load logo from " + logoUrl, e);
+			logo = null;
+		}
+		String signInLabel;
+		if (context == Context.LOGIN)
+			signInLabel = msg.getMessage("AuthenticationUI.signInWith", configuration.name);
+		else
+			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", configuration.name);
+		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
+		idpComponent.addClickListener(event -> startLogin());
+		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		this.tags = new HashSet<>(configuration.tags);
+		this.tags.remove(configuration.name);
+		this.main = idpComponent;
 	}
 
-	private String getName()
+	private String getRetrievalClassName()
 	{
-		return samlProperties.getLocalizedName(configKey, msg.getLocale());
+		return authenticatorName + "." + idpKey;
 	}
 	
 	private String installRequestHandler()
@@ -138,8 +151,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		session.addRequestHandler(rh);
 		return rh.getTriggeringParam();
 	}
-	
-	private void breakLogin(boolean invokeCancel)
+
+	private void breakLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
@@ -149,31 +162,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 			samlContextManagement.removeAuthnContext(context.getRelayState());
 		}
-		if (invokeCancel)
-			this.callback.cancelAuthentication();
-	}
-	
-	private void showError(String message)
-	{
-		if (message == null)
-		{
-			messageLabel.setValue("");
-			showErrorDetail(null);
-			return;
-		}
-		messageLabel.setValue(message);
-	}
-
-	private void showErrorDetail(String message, Object... args)
-	{
-		if (message == null)
-		{
-			errorDetailLabel.setVisible(false);
-			errorDetailLabel.setValue("");
-			return;
-		}
-		errorDetailLabel.setVisible(true);
-		errorDetailLabel.setValue(msg.getMessage(message, args));
 	}
 	
 	private void startLogin()
@@ -183,14 +171,11 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
 			return;
 		}
-		URI requestURI = Page.getCurrent().getLocation();
-		String servletPath = requestURI.getPath();
-		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
-		String currentRelativeURI = servletPath + query;
+		String currentRelativeURI = UrlHelper.getCurrentRelativeURI(); 
 		try
 		{
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI);
@@ -199,12 +184,17 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		{
 			NotificationPopup.showError(msg, msg.getMessage("WebSAMLRetrieval.configurationError"), e);
 			log.error("Can not create SAML request", e);
-			breakLogin(true);
+			clear();
 			return;
-		}		
+		}
+		log.debug("Starting remote SAML authn, current relative URI is {}", currentRelativeURI);
+		idpComponent.setEnabled(false);
+		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
 		
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
@@ -215,7 +205,6 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private void onSamlAnswer(RemoteAuthnContext authnContext)
 	{
 		AuthenticationResult authnResult;
-		showError(null);
 		String reason = null;
 		Exception savedException = null;
 		
@@ -241,47 +230,34 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		authnResult.setEnableAssociation(authnContext.isEnableAssociation());
 		
 		
-		if (authnResult.getStatus() == Status.success || 
-				authnResult.getStatus() == Status.unknownRemotePrincipal)
+		if (authnResult.getStatus() == Status.success)
 		{
-			showError(null);
-			breakLogin(false);
+			breakLogin();
+			callback.onCompletedAuthentication(authnResult);
+		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal)
+		{
+			clear();
+			callback.onCompletedAuthentication(authnResult);
 		} else
 		{
 			if (savedException != null)
 				log.warn("SAML response verification or processing failed", savedException);
 			else
 				log.warn("SAML response verification or processing failed");
-			if (reason != null)
-				showErrorDetail("WebSAMLRetrieval.authnFailedDetailInfo", reason);
-			showError(msg.getMessage("WebSAMLRetrieval.authnFailedError"));
-			breakLogin(false);
+			clear();
+			Optional<String> errorDetail = reason == null ? Optional.empty() : 
+				Optional.of(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
+			String error = msg.getMessage("WebSAMLRetrieval.authnFailedError");
+			callback.onFailedAuthentication(authnResult, error, errorDetail);
 		}
-
-		callback.setAuthenticationResult(authnResult);
 	}
 	
 	@Override
-	public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+	public void setAuthenticationCallback(AuthenticationCallback callback)
 	{
 		this.callback = callback;
 	}
 
-	@Override
-	public void triggerAuthentication()
-	{
-		startLogin();
-	}
-
-	@Override
-	public void cancelAuthentication()
-	{
-		breakLogin(false);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
@@ -300,30 +276,23 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		}
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public String getLabel()
 	{	
-		return getName();
+		return configuration.name;
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public Resource getImage()
 	{
-		String url = samlProperties.getLocalizedValue(configKey + SAMLSPProperties.IDP_LOGO, msg.getLocale());
-		if (url == null)
+		if (configuration.logoUrl == null)
 			return null;
 		try
 		{
-			return ImageUtils.getLogoResource(url);
+			return ImageUtils.getLogoResource(configuration.logoUrl);
 		} catch (MalformedURLException e)
 		{
-			log.error("Invalid logo URL " + url, e);
+			log.error("Invalid logo URL " + configuration.logoUrl, e);
 			return null;
 		}
 	}
@@ -331,11 +300,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void clear()
 	{
-		//nop
+		breakLogin();
+		idpComponent.setEnabled(true);
 	}
 
 	@Override
-	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 	{
 		sandboxCallback = callback;
 	}

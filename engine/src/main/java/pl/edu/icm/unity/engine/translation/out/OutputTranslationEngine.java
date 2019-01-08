@@ -14,13 +14,18 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
+import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -39,14 +44,20 @@ public class OutputTranslationEngine
 	private EntityManagement idsMan;
 	private AttributesManagement attrMan;
 	private IdentityTypesRegistry idTypesReg;
+	private AttributeTypeSupport atSupport;
+	private UnityMessageSource msg;
 	
 	@Autowired
 	public OutputTranslationEngine(@Qualifier("insecure") EntityManagement idsMan, 
-			@Qualifier("insecure") AttributesManagement attrMan, IdentityTypesRegistry idTypesReg)
+			@Qualifier("insecure") AttributesManagement attrMan, IdentityTypesRegistry idTypesReg,
+			AttributeTypeSupport atSupport,
+			UnityMessageSource msg)
 	{
 		this.idsMan = idsMan;
 		this.attrMan = attrMan;
 		this.idTypesReg = idTypesReg;
+		this.atSupport = atSupport;
+		this.msg = msg;
 	}
 
 	
@@ -57,11 +68,12 @@ public class OutputTranslationEngine
 	 */
 	public void process(TranslationInput input, TranslationResult result) throws EngineException
 	{
-		processIdentities(input, result);
-		processAttributes(input, result);
+		persistIdentities(input, result);
+		persistAttributes(input, result);
+		resolveDynamicAttributes(result);
 	}
 	
-	private void processIdentities(TranslationInput input, TranslationResult result)
+	private void persistIdentities(TranslationInput input, TranslationResult result)
 			throws EngineException
 	{
 		EntityParam parent = new EntityParam(input.getEntity().getId());
@@ -104,7 +116,7 @@ public class OutputTranslationEngine
 		return false;
 	}
 	
-	private void processAttributes(TranslationInput input, TranslationResult result) throws EngineException
+	private void persistAttributes(TranslationInput input, TranslationResult result) throws EngineException
 	{
 		EntityParam parent = new EntityParam(input.getEntity().getId());
 		
@@ -113,5 +125,59 @@ public class OutputTranslationEngine
 			log.debug("Adding attribute: " + a + " for " + parent);
 			attrMan.setAttribute(parent, a);
 		}
+	}
+	
+	private void resolveDynamicAttributes(TranslationResult result)
+	{
+		for (DynamicAttribute attr: result.getAttributes())
+			resolveAttribute(attr);
+	}
+	
+	private void resolveAttribute(DynamicAttribute dat)
+	{
+		Attribute at = dat.getAttribute();
+		AttributeType attributeType = dat.getAttributeType();
+		if (attributeType == null)
+		{
+			try
+			{
+				attributeType = atSupport.getType(at);
+			} catch (IllegalArgumentException e)
+			{
+				// can happen for dynamic attributes from output translation profile
+				attributeType = new AttributeType(at.getName(), StringAttributeSyntax.ID);
+			}
+		}
+		String name = getAttributeDisplayedName(dat, attributeType);
+		String desc = getAttributeDescription(dat, attributeType);
+		dat.setDescription(desc);
+		dat.setDisplayedName(name);
+		dat.setAttributeType(attributeType);
+	}
+
+	private String getAttributeDescription(DynamicAttribute dat, AttributeType attributeType)
+	{
+		String attrDescription = dat.getDescription();
+		if (attrDescription == null || attrDescription.isEmpty())
+		{
+			attrDescription = attributeType.getDescription() != null
+					? attributeType.getDescription().getValue(msg)
+					: dat.getAttribute().getName();
+		}
+		
+		return attrDescription;
+	}
+
+	private String getAttributeDisplayedName(DynamicAttribute dat, AttributeType attributeType)
+	{
+		String attrDisplayedName = dat.getDisplayedName();
+		if (attrDisplayedName == null || attrDisplayedName.isEmpty())
+		{
+			attrDisplayedName = attributeType.getDisplayedName() != null
+					? attributeType.getDisplayedName().getValue(msg)
+					: dat.getAttribute().getName();
+		}
+		
+		return attrDisplayedName;
 	}
 }

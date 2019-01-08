@@ -6,11 +6,11 @@ package pl.edu.icm.unity.types.registration.invite;
 
 import java.time.Instant;
 
-import pl.edu.icm.unity.types.NamedObject;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.types.NamedObject;
 
 /**
  * Complete invitation as stored in the system. 
@@ -22,6 +22,7 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 {
 	private String registrationCode;
 	private Instant lastSentTime;
+	private Instant creationTime;
 	private int numberOfSends;
 
 	public InvitationWithCode(String formId, Instant expiration, String contactAddress,
@@ -39,8 +40,11 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 		this.lastSentTime = lastSentTime;
 		this.numberOfSends = numberOfSends;
 		this.getIdentities().putAll(base.getIdentities());
+		this.getAllowedGroups().putAll(base.getAllowedGroups());
 		this.getGroupSelections().putAll(base.getGroupSelections());
 		this.getAttributes().putAll(base.getAttributes());
+		this.getMessageParams().putAll(base.getMessageParams());
+		this.setExpectedIdentity(base.getExpectedIdentity());
 	}
 
 	@JsonCreator
@@ -75,6 +79,16 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 		this.numberOfSends = numberOfSends;
 	}
 
+	public Instant getCreationTime()
+	{
+		return creationTime;
+	}
+
+	public void setCreationTime(Instant creationTime)
+	{
+		this.creationTime = creationTime;
+	}
+	
 	@JsonValue
 	@Override
 	public ObjectNode toJson()
@@ -84,6 +98,8 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 		json.put("registrationCode", getRegistrationCode());
 		if (getLastSentTime() != null)
 			json.put("lastSentTime", getLastSentTime().toEpochMilli());
+		if (getCreationTime() != null)
+			json.put("creationTime", getCreationTime().toEpochMilli());
 		json.put("numberOfSends", getNumberOfSends());
 		return json;
 	}
@@ -96,6 +112,13 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 			Instant lastSent = Instant.ofEpochMilli(json.get("lastSentTime").asLong());
 			setLastSentTime(lastSent);
 		}
+		
+		if (json.has("creationTime"))
+		{
+			Instant creationTime = Instant.ofEpochMilli(json.get("creationTime").asLong());
+			setCreationTime(creationTime);
+		}
+		
 		setNumberOfSends(json.get("numberOfSends").asInt());
 	}
 
@@ -116,6 +139,7 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 	{
 		final int prime = 31;
 		int result = super.hashCode();
+		result = prime * result + ((creationTime == null) ? 0 : creationTime.hashCode());
 		result = prime * result + ((lastSentTime == null) ? 0 : lastSentTime.hashCode());
 		result = prime * result + numberOfSends;
 		result = prime * result
@@ -139,6 +163,13 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 				return false;
 		} else if (!lastSentTime.equals(other.lastSentTime))
 			return false;
+		if (creationTime == null)
+		{
+			if (other.creationTime != null)
+				return false;
+		} else if (!creationTime.equals(other.creationTime))
+			return false;
+		
 		if (numberOfSends != other.numberOfSends)
 			return false;
 		if (registrationCode == null)

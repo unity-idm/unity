@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.webui.authn.credreset;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import com.google.common.collect.Sets;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 
@@ -16,32 +20,28 @@ import com.vaadin.server.WrappedSession;
  */
 public class CredentialResetStateVariable
 {
-	private static final String SES_NAME = CredentialResetStateVariable.class.getName(); 
-	/**
-	 * @return returns a current state of the variable. In case no variable is defined 0 is returned.
-	 */
-	public static int get()
-	{
-		VaadinSession session = VaadinSession.getCurrent();
-		Object var = session.getSession().getAttribute(SES_NAME);
-		if (var == null)
-			return 0;
-		return (Integer) var;
-	}
+	private static final String SES_NAME = CredentialResetStateVariable.class.getName();
+	public enum ResetPrerequisite {CAPTCHA_PROVIDED, STATIC_CHECK_PASSED, CODE_PROVIDED}
 	
-	/**
-	 * Increases the variable value. If the variable is not set, it is set to 1.
-	 */
-	public static void inc()
+	public static Set<ResetPrerequisite> get()
 	{
-		VaadinSession vSession = VaadinSession.getCurrent();
-		WrappedSession session = vSession.getSession();
-		Integer var = (Integer) session.getAttribute(SES_NAME);
-		if (var == null)
-			var = Integer.valueOf(1);
-		else
-			var = Integer.valueOf(var+1);
-		session.setAttribute(SES_NAME, var);
+		CredentialResetSessionData var = getSessionState();
+		return var == null ? new HashSet<>() : new HashSet<>(var.fullfilledChecks);
+	}
+
+	public static void assertFullfilled(ResetPrerequisite... required)
+	{
+		CredentialResetSessionData var = getSessionState();
+		if (var == null || !var.fullfilledChecks.containsAll(Sets.newHashSet(required)))
+			throw new IllegalStateException("Wrong application security state in credential reset!" +
+						" This should never happen.");
+	}
+
+	
+	public static void record(ResetPrerequisite fullfilled)
+	{
+		CredentialResetSessionData var = getOrCreateSessionState();
+		var.fullfilledChecks.add(fullfilled);
 	}
 	
 	public static void reset()
@@ -49,5 +49,31 @@ public class CredentialResetStateVariable
 		VaadinSession vSession = VaadinSession.getCurrent();
 		WrappedSession session = vSession.getSession();
 		session.removeAttribute(SES_NAME);
+	}
+	
+	private static CredentialResetSessionData getOrCreateSessionState()
+	{
+		CredentialResetSessionData var = getSessionState();
+		if (var == null)
+		{
+			var = new CredentialResetSessionData();
+			VaadinSession vSession = VaadinSession.getCurrent();
+			WrappedSession session = vSession.getSession();
+			session.setAttribute(SES_NAME, var);
+		}
+		return var;
+	}
+
+	private static CredentialResetSessionData getSessionState()
+	{
+		VaadinSession vSession = VaadinSession.getCurrent();
+		WrappedSession session = vSession.getSession();
+		return (CredentialResetSessionData) session.getAttribute(SES_NAME);
+	}
+
+	
+	private static class CredentialResetSessionData
+	{
+		private Set<ResetPrerequisite> fullfilledChecks = new HashSet<>();
 	}
 }

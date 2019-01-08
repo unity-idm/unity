@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -73,7 +72,7 @@ public class LdapEndpointFactory implements EndpointFactory
 		Map<String, String> paths = new HashMap<>();
 		endpointDescription = new EndpointTypeDescription(NAME,
 				"Limited LDAP server interface",
-				Collections.singleton(LdapServerAuthentication.NAME), paths);
+				LdapServerAuthentication.NAME, paths);
 
 	}
 

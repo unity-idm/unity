@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.Logger;
@@ -45,7 +46,7 @@ import pl.edu.icm.unity.engine.server.JettyServer;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
-@TestPropertySource(properties = { "unityConfig: src/test/resources/unityServerSelenium.conf" })
+@TestPropertySource(properties = { "unityConfig: src/test/resources/selenium/unityServer.conf" })
 public abstract class SeleniumTestBase
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, SeleniumTestBase.class);
@@ -65,7 +66,7 @@ public abstract class SeleniumTestBase
 	{
 		httpServer.start();
 		ChromeOptions chromeOptions = new ChromeOptions();
-		chromeOptions.addArguments("window-size=1024,768", "--no-sandbox");
+		chromeOptions.addArguments("window-size=1280,1024", "no-sandbox", "force-device-scale-factor=1");
 		String seleniumOpts = System.getProperty("unity.selenium.opts");
 		if (seleniumOpts != null && !seleniumOpts.isEmpty())
 		{
@@ -125,15 +126,20 @@ public abstract class SeleniumTestBase
 	
 	protected WebElement waitForElement(By by)
 	{
+		waitFor(() -> isElementPresent(by) != null);
+		return isElementPresent(by);
+	}
+	
+	protected void waitFor(Supplier<Boolean> awaited)
+	{
 		for (int i = 0;; i++)
 		{
 			if (i >= WAIT_TIME_S*1000/SLEEP_TIME_MS)
 				Assert.fail("timeout");
 			try
 			{
-				WebElement elementPresent = isElementPresent(by);
-				if (elementPresent != null)
-					return elementPresent;
+				if (awaited.get())
+					return;
 				Thread.sleep(SLEEP_TIME_MS);
 			} catch (InterruptedException e)
 			{
@@ -161,6 +167,12 @@ public abstract class SeleniumTestBase
 		WebElement ret = waitForElement(someElement);
 		simpleWait();
 		return ret;
+	}
+
+	protected void waitForPageLoadByURL(String urlSuffix)
+	{
+		waitFor(() -> driver.getCurrentUrl().endsWith(urlSuffix)); 
+		simpleWait();
 	}
 	
 	private void simpleWait()

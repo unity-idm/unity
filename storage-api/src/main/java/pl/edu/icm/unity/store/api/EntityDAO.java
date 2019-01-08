@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.api;
 
+import java.util.List;
+
 import pl.edu.icm.unity.types.basic.EntityInformation;
 
 /**
@@ -14,4 +16,6 @@ public interface EntityDAO extends BasicCRUDDAO<EntityInformation>
 {
 	String DAO_ID = "EntityDAO";
 	String NAME = "entity";
+	
+	List<EntityInformation> getByGroup(String group);
 }

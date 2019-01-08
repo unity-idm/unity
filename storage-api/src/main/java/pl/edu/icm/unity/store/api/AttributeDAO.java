@@ -20,10 +20,6 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 
 	/**
 	 * Retrieves attributes with given criteria. Any of the arguments can be null, meaning no restriction. 
-	 * @param attribute
-	 * @param entityId
-	 * @param group
-	 * @return
 	 */
 	List<StoredAttribute> getAttributes(String attribute, Long entityId, String group);
 
@@ -32,22 +28,17 @@ public interface AttributeDAO extends BasicCRUDDAO<StoredAttribute>
 	 * Retrieves attributes with given criteria where attribute name and group can be given or not (then 
 	 * use null as argument). Entity must be always given. Returned list is unwrapped, as attribute owning 
 	 * entity is anyway known.
-	 *    
-	 * @param attribute
-	 * @param entityId
-	 * @param group
-	 * @return
 	 */
 	List<AttributeExt> getEntityAttributes(long entity, String attribute, String group);
 	
 	/**
+	 * @return all attributes (in any group) of members of the given group
+	 */
+	List<StoredAttribute> getAttributesOfGroupMembers(String group);
+	
+	/**
 	 * Simplified version of {@link #getEntityAttributes(long, String, String)}. 
 	 * Retrieves all attributes of a given entity.
-	 *    
-	 * @param attribute
-	 * @param entityId
-	 * @param group
-	 * @return
 	 */
 	default List<AttributeExt> getAllEntityAttributes(long entity)
 	{

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.authn.remote;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -188,6 +189,7 @@ public class RemoteAuthnResultProcessorImpl implements RemoteAuthnResultProcesso
 		ret.setMappingResult(result);
 		ret.setAuthnInput(input);
 		ret.setSessionParticipants(input.getSessionParticipants());
+		ret.setCreationTime(Instant.now());
 		return ret;
 	}
 	

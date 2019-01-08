@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.google.common.collect.Lists;
 import com.nimbusds.jwt.JWTClaimsSet;
 
 import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
@@ -62,7 +63,6 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.Envelope;
 import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.translation.ProfileType;
@@ -94,15 +94,16 @@ public class TestECP extends AbstractTestIdpBase
 	public void setup() throws Exception
 	{
 		super.setup();
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
+		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointECP"),
-					"desc",	authnCfg, ECP_ENDP_CFG, REALM_NAME);
+					"desc",	Lists.newArrayList(), ECP_ENDP_CFG, REALM_NAME);
+		
 		endpointMan.deploy(ECPEndpointFactory.NAME, "endpointECP", "/ecp", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(2, endpoints.size());
 		log.info("Deployed endpoints: {}", endpoints);
 		
-		List<InputTranslationRule> rules = new ArrayList<InputTranslationRule>();
+		List<InputTranslationRule> rules = new ArrayList<>();
 		MapIdentityActionFactory factory = new MapIdentityActionFactory(idTypesReg);
 			
 		InputTranslationRule mapId = new InputTranslationRule(

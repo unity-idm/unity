@@ -7,16 +7,15 @@ package pl.edu.icm.unity.types.endpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-import pl.edu.icm.unity.Constants;
-import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
+import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.I18nStringJsonUtil;
 
 /**
  * Base endpoint configuration. Useful when deploying a new endpoint and when updating it. 
@@ -26,18 +25,18 @@ public class EndpointConfiguration
 {
 	private I18nString displayedName;
 	private String description;
-	private List<AuthenticationOptionDescription> authenticationOptions;
+	private List<String> authenticationOptions;
 	private String configuration;
 	private String realm;
 	
 	public EndpointConfiguration(I18nString displayedName, String description,
-			List<AuthenticationOptionDescription> authn, String configuration,
+			List<String> authnOptions, String configuration,
 			String realm)
 	{
 		super();
 		this.displayedName = displayedName;
 		this.description = description;
-		this.authenticationOptions = authn;
+		this.authenticationOptions = authnOptions;
 		this.configuration = configuration;
 		this.realm = realm;
 	}
@@ -55,10 +54,11 @@ public class EndpointConfiguration
 			realm = json.get("realm").asText();
 		if (json.has("authenticationOptions"))
 		{
-			ArrayNode aopts = (ArrayNode) json.get("authenticationOptions");
 			authenticationOptions = new ArrayList<>();
+			ArrayNode aopts = (ArrayNode) json.get("authenticationOptions");
 			for (JsonNode node: aopts)
-				authenticationOptions.add(new AuthenticationOptionDescription((ObjectNode) node));
+				authenticationOptions.add(node.asText());
+			
 		}
 	}
 	
@@ -71,8 +71,8 @@ public class EndpointConfiguration
 		root.put("configuration", configuration);
 		root.put("realm", realm);
 		ArrayNode aopts = root.withArray("authenticationOptions");
-		for (AuthenticationOptionDescription aod: authenticationOptions)
-			aopts.add(aod.toJson());
+		for (String aod : authenticationOptions)
+			aopts.add(aod);
 		return root;
 	}
 	
@@ -86,7 +86,7 @@ public class EndpointConfiguration
 		return description;
 	}
 
-	public List<AuthenticationOptionDescription> getAuthenticationOptions()
+	public List<String> getAuthenticationOptions()
 	{
 		return authenticationOptions;
 	}
@@ -105,7 +105,7 @@ public class EndpointConfiguration
 	public String toString()
 	{
 		return "EndpointConfiguration [displayedName=" + displayedName + ", description="
-				+ description + ", authenticationOptions=" + authenticationOptions
+				+ description + ", authnOptions=" + authenticationOptions
 				+ ", configuration=" + configuration + ", realm=" + realm + "]";
 	}
 

@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
+import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
@@ -26,25 +28,29 @@ import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
-import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
+import pl.edu.icm.unity.types.registration.RegistrationFormLayouts;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
-import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor;
-import pl.edu.icm.unity.webadmin.reg.formman.layout.FormLayoutEditor.FormProvider;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webadmin.tprofile.RegistrationTranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
 /**
  * Allows to edit a registration form. Can be configured to edit an existing form (name is fixed)
@@ -61,6 +67,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
 	private CredentialRequirementManagement credReqMan;
+	private AuthenticatorSupportService authenticatorSupport;
+	private RealmsManagement realmsManagement;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequests;
@@ -70,13 +78,21 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private RegistrationFormNotificationsEditor notificationsEditor;
 	private Slider captcha;
 	
+	private I18nTextField title2ndStage;
+	private CheckBox showGotoSignin;
+	private TextField signInUrl;
 	private TextField registrationCode;
+	private RemoteAuthnProvidersSelection remoteAuthnSelections;
 
 	private NotNullComboBox<String> credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
-	private FormLayoutEditor layoutEditor;
+	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
+	private RegistrationFormLayoutEditor layoutEditor;
 	private ActionParameterComponentProvider actionComponentFactory;
+	private CheckBox showCancel;
+	private CheckBox localSignupEmbeddedAsButton;
+	private ComboBox<String> realmNames;
 	
 	@Autowired
 	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -85,7 +101,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 			AttributeTypeManagement attributeMan,
 			CredentialManagement credMan, RegistrationActionsRegistry actionsRegistry,
 			CredentialRequirementManagement credReqMan,
-			ActionParameterComponentProvider actionComponentFactory)
+			ActionParameterComponentProvider actionComponentFactory,
+			AuthenticatorSupportService authenticatorSupport,
+			RealmsManagement realmsManagement)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, credMan);
@@ -97,6 +115,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.credReqMan = credReqMan;
 		this.actionComponentFactory = actionComponentFactory;
 		this.actionComponentFactory.init();
+		this.authenticatorSupport = authenticatorSupport;
+		this.realmsManagement = realmsManagement;
 	}
 	
 	public RegistrationFormEditor init(boolean copyMode)
@@ -115,7 +135,9 @@ public class RegistrationFormEditor extends BaseFormEditor
 		tabs = new TabSheet();
 		initMainTab();
 		initCollectedTab();
+		initDisplaySettingsTab();
 		initLayoutTab();
+		initWrapUpTab();
 		initAssignedTab();
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
 		addComponent(ignoreRequests);
@@ -125,15 +147,27 @@ public class RegistrationFormEditor extends BaseFormEditor
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
 	}
-	
+
 	public RegistrationForm getForm() throws FormValidationException
 	{
 		RegistrationFormBuilder builder = getFormBuilderBasic();
 		builder.withTranslationProfile(profileEditor.getProfile());
 		RegistrationFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
-		builder.withLayout(layoutEditor.getLayout());
-		return builder.build();
+		RegistrationFormLayouts layouts = layoutEditor.getLayouts();
+		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
+		builder.withLayouts(layouts);
+		builder.withAutoLoginToRealm(realmNames.getSelectedItem().orElse(null));
+		
+		RegistrationForm form = builder.build();
+		try
+		{
+			form.validateLayouts();
+		} catch (Exception e)
+		{
+			throw new FormValidationException(e);
+		}
+		return form;
 	}
 	
 	private RegistrationFormBuilder getFormBuilderBasic() throws FormValidationException
@@ -145,11 +179,18 @@ public class RegistrationFormEditor extends BaseFormEditor
 		builder.withCaptchaLength(captcha.getValue().intValue());
 		builder.withPubliclyAvailable(publiclyAvailable.getValue());
 		builder.withByInvitationOnly(byInvitationOnly.getValue());
-		
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);
-		
+		builder.withExternalSignupSpec(new ExternalSignupSpec(remoteAuthnSelections.getSelectedItems()));
+		FormLayoutSettings settings = layoutSettingsEditor.getSettings();
+		settings.setShowCancel(showCancel.getValue());
+		builder.withFormLayoutSettings(settings);
+		builder.withTitle2ndStage(title2ndStage.getValue());
+		builder.withShowGotoSignIn(showGotoSignin.getValue(), signInUrl.getValue());
+		RegistrationFormLayouts layouts = new RegistrationFormLayouts(); //FIXME
+		layouts.setLocalSignupEmbeddedAsButton(localSignupEmbeddedAsButton.getValue());
+		builder.withLayouts(layouts);
 		return builder;
 	}
 	
@@ -163,15 +204,25 @@ public class RegistrationFormEditor extends BaseFormEditor
 		captcha.setValue(Double.valueOf(toEdit.getCaptchaLength()));
 		if (toEdit.getRegistrationCode() != null)
 			registrationCode.setValue(toEdit.getRegistrationCode());
+		if (toEdit.getTitle2ndStage() != null)
+			title2ndStage.setValue(toEdit.getTitle2ndStage());
 		credentialRequirementAssignment.setValue(toEdit.getDefaultCredentialRequirement());
 		TranslationProfile profile = new TranslationProfile(
 				toEdit.getTranslationProfile().getName(), "",
 				ProfileType.REGISTRATION,
 				toEdit.getTranslationProfile().getRules());
 		profileEditor.setValue(profile);
-		layoutEditor.setInitialForm(toEdit);
+		layoutSettingsEditor.setSettings(toEdit.getLayoutSettings());
+		layoutEditor.setFormLayouts(toEdit.getFormLayouts());
+		showGotoSignin.setValue(toEdit.isShowSignInLink());
+		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
+		signInUrl.setEnabled(showGotoSignin.getValue());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
+		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
+		showCancel.setValue(toEdit.getLayoutSettings().isShowCancel());
+		localSignupEmbeddedAsButton.setValue(toEdit.getFormLayouts().isLocalSignupEmbeddedAsButton());
+		realmNames.setValue(toEdit.getAutoLoginToRealm() == null ? "" : toEdit.getAutoLoginToRealm());
 	}
 	
 	private void initMainTab() throws EngineException
@@ -201,6 +252,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 				notificationsMan, msgTempMan);
 		notificationsEditor.addToLayout(main);
 		
+		realmNames = new ComboBox<>(msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm"));
+		realmNames.setDescription(msg.getMessage("RegistrationFormEditor.autoLoginAutoAcceptedToRealm.description"));
+		realmNames.setItems(realmsManagement.getRealms().stream().map(AuthenticationRealm::getName));
+		main.addComponent(realmNames);
+		
 		captcha = new Slider(msg.getMessage("RegistrationFormViewer.captcha"), 0, 
 				RegistrationForm.MAX_CAPTCHA_LENGTH);
 		captcha.setWidth(10, Unit.EM);
@@ -209,30 +265,91 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addComponents(captcha);
 	}
 	
-	private void initCollectedTab()
+	private void initWrapUpTab() throws EngineException
+	{
+		tabs.addTab(getWrapUpComponent(t -> t.isSuitableForRegistration()), 
+				msg.getMessage("RegistrationFormEditor.wrapUpTab"));
+	}
+	
+	private void initCollectedTab() throws EngineException
 	{
 		FormLayout main = new CompactFormLayout();
-		VerticalLayout wrapper = new VerticalLayout(main);
-		wrapper.setMargin(true);
-		wrapper.setSpacing(false);
+		collectComments = new CheckBox(msg.getMessage("RegistrationFormEditor.collectComments"));
+		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));		
+		main.addComponents(registrationCode, collectComments);
+
+		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
+		Component remoteSignUpMetnodsTab = createRemoteSignupMethodsTab();
+		tabOfLists.addTab(remoteSignUpMetnodsTab, 1);
+		tabOfLists.setSelectedTab(0);
+
+		VerticalLayout wrapper = new VerticalLayout(main, tabOfLists);
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.collectedTab"));
+	}
+
+	private void initDisplaySettingsTab() throws EngineException
+	{
+		FormLayout main = new CompactFormLayout();
 		
 		initCommonDisplayedFields();
-		registrationCode = new TextField(msg.getMessage("RegistrationFormViewer.registrationCode"));
+		title2ndStage = new I18nTextField(msg, msg.getMessage("RegistrationFormViewer.title2ndStage"));
+		showGotoSignin = new CheckBox(msg.getMessage("RegistrationFormViewer.showGotoSignin"));
+		showGotoSignin.addValueChangeListener(v -> signInUrl.setEnabled(showGotoSignin.getValue()));
+		signInUrl = new TextField(msg.getMessage("RegistrationFormEditor.signinURL"));
+		signInUrl.setWidth(100, Unit.PERCENTAGE);
+		signInUrl.setEnabled(false);
+		showCancel = new CheckBox(msg.getMessage("FormLayoutEditor.showCancel"));
+		localSignupEmbeddedAsButton = new CheckBox(msg.getMessage("FormLayoutEditor.localSignupEmbeddedAsButton"));
 		
-		TabSheet tabOfLists = createCollectedParamsTabs(notificationsEditor.getGroups(), false);
-		main.addComponents(displayedName, formInformation, registrationCode, collectComments, tabOfLists);
+		main.addComponents(displayedName, title2ndStage, formInformation, pageTitle, 
+				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton);
+
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg);
+		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
+		wrapper.setMargin(true);
+		wrapper.setSpacing(false);
+		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.displayTab"));
+	}
+	
+	private Component createRemoteSignupMethodsTab() throws EngineException
+	{
+		remoteAuthnSelections = new RemoteAuthnProvidersSelection(authenticatorSupport, 
+				msg.getMessage("RegistrationFormEditor.availableRemoteAuthnOptions"), 
+				msg.getMessage("RegistrationFormEditor.selectedRemoteAuthnOptions"), 
+				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"),
+				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions.description"));
+		
+		FormLayout main = new CompactFormLayout();
+		main.setWidth(60, Unit.PERCENTAGE);
+		main.addComponents(remoteAuthnSelections);
+		
+		VerticalLayout remoteSignupLayout = new VerticalLayout(main);
+		remoteSignupLayout.setSizeFull();
+		remoteSignupLayout.setSpacing(false);
+		remoteSignupLayout.setMargin(true);
+		remoteSignupLayout.setCaption(msg.getMessage("RegistrationFormEditor.remoteSignupMethods"));
+		return remoteSignupLayout;
 	}
 	
 	private void initLayoutTab()
 	{
 		VerticalLayout wrapper = new VerticalLayout();
-		layoutEditor = new FormLayoutEditor(msg, new FormProviderImpl());
-		wrapper.setMargin(true);
-		wrapper.setSpacing(false);
+		layoutEditor = new RegistrationFormLayoutEditor(msg, this::formProvider);
 		wrapper.addComponent(layoutEditor);
 		tabs.addSelectedTabChangeListener(event -> layoutEditor.updateFromForm());
 		tabs.addTab(wrapper, msg.getMessage("RegistrationFormViewer.layoutTab"));
+	}
+	
+	private RegistrationForm formProvider()
+	{
+		try
+		{
+			return getFormBuilderBasic().build();
+		} catch (Exception e)
+		{
+			log.debug("Ignoring layout update, form is invalid", e);
+			return null;
+		}
 	}
 	
 	private void initAssignedTab() throws EngineException
@@ -260,21 +377,5 @@ public class RegistrationFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
-	}
-	
-	private class FormProviderImpl implements FormProvider
-	{
-		@Override
-		public BaseForm getForm()
-		{
-			try
-			{
-				return getFormBuilderBasic().build();
-			} catch (Exception e)
-			{
-				log.debug("Ignoring layout update, form is invalid", e);
-				return null;
-			}
-		}
 	}
 }

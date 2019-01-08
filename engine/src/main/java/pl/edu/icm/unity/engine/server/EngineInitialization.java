@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
@@ -40,6 +42,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
@@ -65,7 +68,7 @@ import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
-import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
+import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
 import pl.edu.icm.unity.engine.endpoint.SharedEndpointManagementImpl;
@@ -73,6 +76,7 @@ import pl.edu.icm.unity.engine.events.EventProcessor;
 import pl.edu.icm.unity.engine.group.AttributeStatementsCleaner;
 import pl.edu.icm.unity.engine.identity.EntitiesScheduledUpdater;
 import pl.edu.icm.unity.engine.identity.IdentityCleaner;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateInitializatior;
 import pl.edu.icm.unity.engine.scripts.ScriptTriggeringEventListener;
 import pl.edu.icm.unity.engine.translation.TranslationProfileChecker;
 import pl.edu.icm.unity.engine.translation.in.SystemInputTranslationProfileProvider;
@@ -88,15 +92,18 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -123,7 +130,7 @@ public class EngineInitialization extends LifecycleBase
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, UnityServerConfiguration.class);
 	public static final int ENGINE_INITIALIZATION_MOMENT = 0;
 	public static final String DEFAULT_CREDENTIAL = "sys:password";
-	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemCredentialRequirements.NAME;
+	public static final String DEFAULT_CREDENTIAL_REQUIREMENT = SystemAllCredentialRequirements.NAME;
 
 	@Autowired
 	private UnityMessageSource msg;
@@ -163,7 +170,9 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AuthenticatorManagement authnManagement;
 	@Autowired
-	private AuthenticatorInstanceDB authenticatorDAO;
+	private AuthenticatorConfigurationDB authenticatorDAO;
+	@Autowired
+	private AuthenticationFlowDB authenticationFlowDAO;
 	@Autowired
 	@Qualifier("insecure")
 	private AttributesManagement attrManagement;
@@ -184,7 +193,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	private NotificationChannelsLoader notificationChannelLoader;
 	@Autowired
-	private MessageTemplateLoader msgTemplateLoader;
+	private MessageTemplateInitializatior msgTemplateLoader;
 	@Autowired
 	private Optional<List<ServerInitializer>> initializers;
 	@Autowired
@@ -213,6 +222,9 @@ public class EngineInitialization extends LifecycleBase
 	private CredentialRepository credRepo;
 	@Autowired
 	private EntityCredentialsHelper entityCredHelper;
+	@Autowired
+	@Qualifier("insecure")
+	private AuthenticationFlowManagement authnFlowManagement;
 	
 	private long endpointsLoadTime;
 	
@@ -247,7 +259,7 @@ public class EngineInitialization extends LifecycleBase
 		executors.getService().scheduleWithFixedDelay(endpointsUpdater, interval+interval/10, 
 				interval, TimeUnit.SECONDS);
 
-		executors.getService().scheduleWithFixedDelay(bulkOperationsUpdater, 2500, 
+		executors.getService().scheduleWithFixedDelay(bulkOperationsUpdater, interval+10, 
 				interval, TimeUnit.SECONDS);
 		
 		Runnable attributeStatementsUpdater = new Runnable()
@@ -330,8 +342,7 @@ public class EngineInitialization extends LifecycleBase
 	
 		notificationChannelLoader.initialize();
 		
-		File file = config.getFileValue(UnityServerConfiguration.TEMPLATES_CONF, false);
-		msgTemplateLoader.initializeMsgTemplates(file);
+		msgTemplateLoader.initializeMsgTemplates();
 		
 		runInitializers();
 		
@@ -344,12 +355,13 @@ public class EngineInitialization extends LifecycleBase
 		if (eraClean)
 			removeERA();
 		initializeAuthenticators();
+		initializeAuthenticationFlows();
 		initializeRealms();
 		initializeEndpoints();
 
 		eventsProcessor.fireEvent(new Event(EventCategory.POST_INIT, isColdStart.toString()));
 	}
-	
+
 	private boolean determineIfColdStart()
 	{
 		try
@@ -479,9 +491,7 @@ public class EngineInitialization extends LifecycleBase
 			{
 				log.info("Database contains no admin user, creating the configured admin user");
 				CredentialDefinition credDef = credRepo.get(DEFAULT_CREDENTIAL);
-				CredentialRequirements crDef = new SystemCredentialRequirements(credRepo, msg);
-				
-				Identity adminId = createAdminSafe(admin, crDef);
+				Identity adminId = createAdminSafe(admin, SystemAllCredentialRequirements.NAME);
 				
 				EntityParam adminEntity = new EntityParam(adminId.getEntityId());
 				PasswordToken ptoken = new PasswordToken(adminP);
@@ -491,7 +501,7 @@ public class EngineInitialization extends LifecycleBase
 					entityCredHelper.setEntityCredentialInternalWithoutVerify(
 									adminEntity.getEntityId(),
 									credDef.getName(),
-									ptoken.toJson(), null);					
+									ptoken.toJson());					
 				});
 				
 				if (config.getBooleanValue(UnityServerConfiguration.INITIAL_ADMIN_USER_OUTDATED))
@@ -515,11 +525,11 @@ public class EngineInitialization extends LifecycleBase
 		}
 	}
 	
-	private Identity createAdminSafe(IdentityParam admin, CredentialRequirements crDef) throws EngineException
+	private Identity createAdminSafe(IdentityParam admin, String crDef) throws EngineException
 	{
 		try
 		{
-			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
 		} catch (SchemaConsistencyException e)
 		{
 			//most probably '/' group attribute class forbids to insert admin. As we need the admin
@@ -528,9 +538,9 @@ public class EngineInitialization extends LifecycleBase
 					+ "attribute classes of the '/' group will be removed. Error: " + e.toString());
 			GroupContents root = groupManagement.getContents("/", GroupContents.METADATA);
 			log.info("Removing ACs: " + root.getGroup().getAttributesClasses());
-			root.getGroup().setAttributesClasses(new HashSet<String>());
+			root.getGroup().setAttributesClasses(new HashSet<>());
 			groupManagement.updateGroup("/", root.getGroup());
-			return idManagement.addEntity(admin, crDef.getName(), EntityState.valid, false);
+			return idManagement.addEntity(admin, crDef, EntityState.valid, false);
 		}
 	}
 	
@@ -565,6 +575,12 @@ public class EngineInitialization extends LifecycleBase
 		tx.runInTransaction(() -> {
 			authenticatorDAO.deleteAll();	
 		});
+		log.info("Removing all persisted authentication flows");
+		tx.runInTransaction(() -> {
+			authenticationFlowDAO.deleteAll();	
+		});
+		
+		
 	}
 	
 	private void initializeRealms()
@@ -582,13 +598,15 @@ public class EngineInitialization extends LifecycleBase
 				int blockAfter = config.getIntValue(realmKey+
 						UnityServerConfiguration.REALM_BLOCK_AFTER_UNSUCCESSFUL);
 				int blockFor = config.getIntValue(realmKey+UnityServerConfiguration.REALM_BLOCK_FOR);
-				int remeberMe = config.getIntValue(realmKey+
-						UnityServerConfiguration.REALM_REMEMBER_ME);
+				RememberMePolicy remeberMePolicy = config.getEnumValue(realmKey+
+						UnityServerConfiguration.REALM_REMEMBER_ME_POLICY, RememberMePolicy.class);
+				int remeberMeFor = config.getIntValue(realmKey+
+						UnityServerConfiguration.REALM_REMEMBER_ME_FOR);
 				int maxInactive = config.getIntValue(realmKey+
 						UnityServerConfiguration.REALM_MAX_INACTIVITY);
 				
 				AuthenticationRealm realm = new AuthenticationRealm(name, description, blockAfter, 
-						blockFor, remeberMe, maxInactive);
+						blockFor, remeberMePolicy, remeberMeFor, maxInactive);
 				
 				if (realms.stream().filter(r -> r.getName().equals(name)).findAny().isPresent())
 					realmManagement.updateRealm(realm);
@@ -598,7 +616,8 @@ public class EngineInitialization extends LifecycleBase
 				description = description == null ? "" : description;
 				log.info(" - " + name + ": " + description + " [blockAfter " + 
 						blockAfter + ", blockFor " + blockFor + 
-						", rememberMe " + remeberMe + ", maxInactive " + maxInactive);
+						", rememberMePolicy " + remeberMePolicy.toString() + 
+						", rememberMeFor " + remeberMeFor + ", maxInactive " + maxInactive);
 			}
 		} catch (EngineException e)
 		{
@@ -665,7 +684,7 @@ public class EngineInitialization extends LifecycleBase
 				displayedName.setDefaultValue(name);
 			String realmName = config.getValue(endpointKey+UnityServerConfiguration.ENDPOINT_REALM);
 			
-			List<AuthenticationOptionDescription> endpointAuthn = config.getEndpointAuth(endpointKey);
+			List<String> endpointAuthn = config.getEndpointAuth(endpointKey);
 			String jsonConfiguration = FileUtils.readFileToString(configFile);
 
 			log.info(" - " + name + ": " + type + " " + description);
@@ -674,7 +693,82 @@ public class EngineInitialization extends LifecycleBase
 			endpointManager.deploy(type, name, address, endpointConfiguration);
 		}
 	}
+	
+	private void initializeAuthenticationFlows()
+	{
+		try
+		{
+			loadAuthenticationFlowsFromConfiguration();
+		} catch(Exception e)
+		{
+			log.fatal("Can't load authentication flows which are configured", e);
+			throw new InternalException("Can't load authentication flows which are configured", e);
+		}
+	}
+	
+	
+	private void loadAuthenticationFlowsFromConfiguration() throws EngineException
 
+	{
+		log.info("Loading all configured authentication flows");
+		Collection<AuthenticatorInfo> authenticators = authnManagement.getAuthenticators(null);
+		Set<String> existinguthenticators = authenticators.stream().map(a -> a.getId()).collect(Collectors.toSet());		
+		Collection<AuthenticationFlowDefinition> authenticationFlows = authnFlowManagement
+				.getAuthenticationFlows();
+		Map<String, AuthenticationFlowDefinition> existing = new HashMap<>();
+		for (AuthenticationFlowDefinition af : authenticationFlows)
+			existing.put(af.getName(), af);
+
+		Set<String> authenticationFlowList = config.getStructuredListKeys(
+				UnityServerConfiguration.AUTHENTICATION_FLOW);
+		for (String authenticationFlowKey : authenticationFlowList)
+		{
+			String name = config.getValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_NAME);
+			
+			if (existinguthenticators.contains(name))
+				throw new InternalException(
+						"Can't add authentication flow which are defined in configuration. The authentication flow name: "
+								+ name
+								+ " is the same as one of authenticator name");
+
+			Policy policy = config.getEnumValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_POLICY,
+					Policy.class);
+			String firstFactorSpec = config.getValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_FIRST_FACTOR_AUTHENTICATORS);
+			String[] firstFactorAuthn = firstFactorSpec.split(",");
+			Set<String> firstFactorAuthnSet = new HashSet<>(
+					Arrays.asList(firstFactorAuthn));
+
+			String secondFactorSpec = config.getValue(authenticationFlowKey
+					+ UnityServerConfiguration.AUTHENTICATION_FLOW_SECOND_FACTOR_AUTHENTICATORS);
+			
+			
+			
+			List<String> secondFactorAuthnList = new ArrayList<>();
+			if (secondFactorSpec != null && !secondFactorSpec.isEmpty())
+			{
+				String[] secondFactorAuthn = secondFactorSpec.split(",");
+				secondFactorAuthnList = Arrays.asList(secondFactorAuthn);
+			}
+		
+			AuthenticationFlowDefinition authFlowdef = new AuthenticationFlowDefinition(
+					name, policy, firstFactorAuthnSet, secondFactorAuthnList);
+
+			if (!existing.containsKey(name))
+			{
+				authnFlowManagement.addAuthenticationFlow(authFlowdef);
+				log.info(" - " + name + " [" + policy.toString() + "]");
+			} else
+			{
+				authnFlowManagement.updateAuthenticationFlow(authFlowdef);
+				log.info(" - " + name + " [" + policy.toString() + "] (updated)");
+			}
+		}
+
+	}
+	
 	private void initializeAuthenticators()
 	{
 		try
@@ -690,9 +784,9 @@ public class EngineInitialization extends LifecycleBase
 	private void loadAuthenticatorsFromConfiguration() throws IOException, EngineException
 	{
 		log.info("Loading all configured authenticators");
-		Collection<AuthenticatorInstance> authenticators = authnManagement.getAuthenticators(null);
-		Map<String, AuthenticatorInstance> existing = new HashMap<>();
-		for (AuthenticatorInstance ai: authenticators)
+		Collection<AuthenticatorInfo> authenticators = authnManagement.getAuthenticators(null);
+		Map<String, AuthenticatorInfo> existing = new HashMap<>();
+		for (AuthenticatorInfo ai: authenticators)
 			existing.put(ai.getId(), ai);
 		
 		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
@@ -700,27 +794,21 @@ public class EngineInitialization extends LifecycleBase
 		{
 			String name = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_NAME);
 			String type = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_TYPE);
-			File vConfigFile = config.getFileValue(authenticatorKey+
+			File configFile = config.getFileValue(authenticatorKey+
 					UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG, false);
-			File rConfigFile = config.getFileValue(authenticatorKey+
-					UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG, false);
 			String credential = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
 
 			
-			String vJsonConfiguration = vConfigFile == null ? null : FileUtils.readFileToString(vConfigFile,
-					StandardCharsets.UTF_8);
-			String rJsonConfiguration = rConfigFile == null ? null : FileUtils.readFileToString(rConfigFile,
+			String configuration = configFile == null ? null : FileUtils.readFileToString(configFile,
 					StandardCharsets.UTF_8);
 			
 			if (!existing.containsKey(name))
 			{
-				authnManagement.createAuthenticator(name, type, vJsonConfiguration, 
-						rJsonConfiguration, credential);
+				authnManagement.createAuthenticator(name, type, configuration, credential);
 				log.info(" - " + name + " [" + type + "]");
 			} else
 			{
-				authnManagement.updateAuthenticator(name, vJsonConfiguration, 
-						rJsonConfiguration, credential);
+				authnManagement.updateAuthenticator(name, configuration, credential);
 				log.info(" - " + name + " [" + type + "] (updated)");
 			}
 		}
@@ -744,7 +832,7 @@ public class EngineInitialization extends LifecycleBase
 		Collection<CredentialDefinition> definitions = credMan.getCredentialDefinitions();
 		Map<String, CredentialDefinition> existing = new HashMap<>();
 		for (CredentialDefinition cd: definitions)
-			existing.put(cd.getName(), cd);
+			existing.put(cd.getName().toLowerCase(), cd);
 		
 		Set<String> credentialsList = config.getStructuredListKeys(UnityServerConfiguration.CREDENTIALS);
 		for (String credentialKey: credentialsList)
@@ -760,7 +848,7 @@ public class EngineInitialization extends LifecycleBase
 					new I18nString(description));
 			credentialDefinition.setConfiguration(jsonConfiguration);
 			
-			if (!existing.containsKey(name))
+			if (!existing.containsKey(name.toLowerCase()))
 			{
 				credMan.addCredentialDefinition(credentialDefinition);
 				log.info(" - " + name + " [" + typeId + "]");

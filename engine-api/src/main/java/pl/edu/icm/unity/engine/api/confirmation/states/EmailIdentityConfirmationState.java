@@ -21,12 +21,6 @@ public class EmailIdentityConfirmationState extends UserEmailConfirmationState
 		setSerializedConfiguration(serializedState);
 	}
 
-	public EmailIdentityConfirmationState(long owner, String type, String value, String locale,
-			String redirectUrl)
-	{
-		super(FACILITY_ID, type, value, locale, redirectUrl, owner);
-	}
-	
 	public EmailIdentityConfirmationState(long owner, String type, String value, String locale)
 	{
 		super(FACILITY_ID, type, value, locale, owner);

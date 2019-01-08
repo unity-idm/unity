@@ -23,7 +23,7 @@ import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
@@ -41,7 +41,7 @@ public class ScheduledEntityRemovalDialog extends AbstractDialog
 	private final static String SCHEDULE = "sched";
 			
 	private long entity;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	private EntityManagement identitiesMan;
 	private RadioButtonGroup<String> nowOrLater;
 	private TextField daysField;
@@ -49,7 +49,7 @@ public class ScheduledEntityRemovalDialog extends AbstractDialog
 	private Binder<Integer> daysBinder;
 	
 	public ScheduledEntityRemovalDialog(UnityMessageSource msg, long entityId, 
-			EntityManagement identitiesManagement, WebAuthenticationProcessor authnProcessor)
+			EntityManagement identitiesManagement, StandardWebAuthenticationProcessor authnProcessor)
 	{
 		super(msg, msg.getMessage("RemoveEntityDialog.caption"));
 		this.entity = entityId;

@@ -4,16 +4,20 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 
 /**
  * Dialog allowing to fill a registration form. It takes an editor component as argument.
@@ -25,14 +29,20 @@ public class RegistrationFormFillDialog extends AbstractDialog
 {
 	private RegistrationRequestEditor editor;
 	private Callback callback;
+	private boolean onFinalScreen;
+	private IdPLoginController idpLoginController;
+	private boolean withSimplifiedFinalization;
 	
 	public RegistrationFormFillDialog(UnityMessageSource msg, String caption, 
-			RegistrationRequestEditor editor, Callback callback)
+			RegistrationRequestEditor editor, Callback callback, IdPLoginController idpLoginController,
+			boolean withSimplifiedFinalization)
 	{
 		super(msg, caption, msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), 
 				msg.getMessage("cancel"));
 		this.editor = editor;
 		this.callback = callback;
+		this.idpLoginController = idpLoginController;
+		this.withSimplifiedFinalization = withSimplifiedFinalization;
 		setSizeMode(SizeMode.LARGE);
 	}
 
@@ -55,26 +65,72 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		super.onCancel();
 	}
 	
+	private void gotoFinalScreen(WorkflowFinalizationConfiguration config)
+	{
+		cancel.setVisible(false);
+		onFinalScreen = true;
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setSpacing(false);
+		wrapper.setMargin(false);
+		wrapper.setSizeFull();
+		setSizeFull();
+		setContent(wrapper);
+
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
+			url -> redirect(url, idpLoginController));
+		wrapper.addComponent(finalScreen);
+		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
+	}
+	
+	private static void redirect(String redirectUrl, IdPLoginController loginController)
+	{
+		loginController.breakLogin();
+		Page.getCurrent().open(redirectUrl, null);
+	}
+	
 	@Override
 	protected void onConfirm()
 	{
+		if (onFinalScreen)
+			close();
+		else
+			submitRequest();
+	}
+	
+	private void submitRequest()
+	{
+		RegistrationRequest request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
+		if (request == null)
+			return;
 		try
 		{
-			RegistrationRequest request = editor.getRequest();
-			if (callback.newRequest(request))
-				close();
+			WorkflowFinalizationConfiguration config = callback.newRequest(request);
+			if (withSimplifiedFinalization)
+			{
+				closeDialogAndShowInfo(config.mainInformation);
+				if (config.isAutoLoginAfterSignUp())
+					Page.getCurrent().reload();
+			} else
+			{
+				gotoFinalScreen(config);
+			}
 		} catch (Exception e) 
 		{
 			if (e instanceof IllegalFormContentsException)
 				editor.markErrorsFromException((IllegalFormContentsException) e);
 			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-			return;
 		}
 	}
 	
+	private void closeDialogAndShowInfo(String mainInformation)
+	{
+		close();
+		NotificationPopup.showNotice(mainInformation, mainInformation);
+	}
+
 	public interface Callback
 	{
-		boolean newRequest(RegistrationRequest request) throws WrongArgumentException;
+		WorkflowFinalizationConfiguration newRequest(RegistrationRequest request) throws WrongArgumentException;
 		void cancelled();
 	}
 }

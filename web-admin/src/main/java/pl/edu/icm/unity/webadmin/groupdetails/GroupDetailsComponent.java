@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.groupdetails;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -54,7 +55,8 @@ public class GroupDetailsComponent extends SafePanel
 	private VerticalLayout main;
 	private Label displayedName;
 	private Label description;
-	private GroupAttributesClassesTable acPanel;
+	private Label membersCount;
+	private Label subgroupsCount;
 	private AttributeStatementsTable attrStatements;
 	
 	@Autowired
@@ -74,15 +76,11 @@ public class GroupDetailsComponent extends SafePanel
 		displayedName.setCaption(msg.getMessage("displayedNameF"));
 		description = new Label();
 		description.setCaption(msg.getMessage("GroupDetails.description"));
-		topLayout.addComponents(displayedName, description);
-		topLayout.setSizeFull();
-		
-		acPanel = new GroupAttributesClassesTable(msg, groupsManagement, acMan);
-		Toolbar<String> acToolbar = new Toolbar<String>(Orientation.VERTICAL);
-		acToolbar.addActionHandlers(acPanel.getActionHandlers());
-		acPanel.addSelectionListener(acToolbar.getSelectionListener());
-		ComponentWithToolbar acWithToolbar = new ComponentWithToolbar(acPanel, acToolbar);
-		acWithToolbar.setSizeFull();
+		membersCount = new Label();
+		membersCount.setCaption(msg.getMessage("GroupDetails.membersCount"));
+		subgroupsCount = new Label();
+		subgroupsCount.setCaption(msg.getMessage("GroupDetails.subgroupsCount"));
+		topLayout.addComponents(displayedName, description, membersCount, subgroupsCount);
 		
 		attrStatements = new AttributeStatementsTable(msg, groupsManagement, 
 				atMan, attributeHandlersReg);
@@ -92,9 +90,8 @@ public class GroupDetailsComponent extends SafePanel
 		ComponentWithToolbar asWithToolbar = new ComponentWithToolbar(attrStatements, asToolbar);
 		asWithToolbar.setSizeFull();
 		
-		main.addComponents(topLayout, acWithToolbar, asWithToolbar);
-		main.setExpandRatio(acWithToolbar, 0.5f);
-		main.setExpandRatio(asWithToolbar, 0.5f);
+		main.addComponents(topLayout, asWithToolbar);
+		main.setExpandRatio(asWithToolbar, 1f);
 				
 		setSizeFull();
 		setContent(main);
@@ -124,14 +121,17 @@ public class GroupDetailsComponent extends SafePanel
 		
 		try
 		{
-			GroupContents contents = groupsManagement.getContents(group, GroupContents.METADATA);
+			GroupContents contents = groupsManagement.getContents(group, GroupContents.EVERYTHING);
 			Group rGroup = contents.getGroup();
 			displayedName.setValue(rGroup.getDisplayedName().getValue(msg));
 			String desc = rGroup.getDescription().getValue(msg);
 			description.setValue(desc == null ? "" : desc);
-			description.setVisible(desc != null && !desc.isEmpty());
+			description.setVisible(!Strings.isEmpty(desc));
+			
+			membersCount.setValue(String.valueOf(contents.getMembers().size()));
+			subgroupsCount.setValue(String.valueOf(contents.getSubGroups().size()));
+			
 			attrStatements.setInput(rGroup);
-			acPanel.setInput(rGroup);
 			setContent(main);
 		} catch (AuthorizationException e)
 		{

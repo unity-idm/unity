@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeHzStore;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
 import pl.edu.icm.unity.store.impl.groups.GroupHzStore;
+import pl.edu.icm.unity.store.impl.membership.MembershipHzStore;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -38,12 +40,14 @@ import pl.edu.icm.unity.types.basic.Group;
 public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implements AttributeDAO
 {
 	public static final String STORE_ID = DAO_ID + "hz";
+	private MembershipHzStore membershipDAO;
 
 	@Autowired
 	public AttributeHzStore(AttributeRDBMSStore rdbmsDAO, AttributeTypeHzStore atDAO, EntityHzStore entityDAO,
-			GroupHzStore groupDAO)
+			GroupHzStore groupDAO, MembershipHzStore membershipDAO)
 	{
 		super(STORE_ID, NAME, AttributeRDBMSStore.BEAN, rdbmsDAO);
+		this.membershipDAO = membershipDAO;
 		atDAO.addRemovalHandler(this::cascadeAttributeTypeRemoval);
 		atDAO.addUpdateHandler(this::cascadeAttributeTypeUpdate);
 		entityDAO.addRemovalHandler(this::cascadeEntityRemoval);
@@ -200,5 +204,17 @@ public class AttributeHzStore extends GenericBasicHzCRUD<StoredAttribute> implem
 	private PredicateBuilder safeAdd(PredicateBuilder existing, PredicateBuilder condition)
 	{
 		return existing == null ? condition : existing.and(condition);
+	}
+
+	@Override
+	public List<StoredAttribute> getAttributesOfGroupMembers(String group)
+	{
+		Set<Long> members = membershipDAO.getMembers(group).stream()
+				.map(mem -> mem.getEntityId())
+				.collect(Collectors.toSet());
+		TransactionalMap<Long, StoredAttribute> hMap = getMap();
+		return hMap.values().stream()
+				.filter(sa -> members.contains(sa.getEntityId()))
+				.collect(Collectors.toList());
 	}
 }

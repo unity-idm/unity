@@ -21,6 +21,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.Logger;
+import org.springframework.util.AntPathMatcher;
 
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
@@ -253,10 +254,8 @@ public class OAuthParseServlet extends HttpServlet
 		validateFlowAndMode(authzRequest, allowedFlows, client, context);
 		
 		URI redirectionURI = authzRequest.getRedirectionURI();
-		if (redirectionURI != null && !allowedUris.contains(redirectionURI.toString()))
-			throw new OAuthValidationException("The '" + client + 
-					"' requested to use a not registered response redirection URI: " + 
-					redirectionURI);
+		
+		validateReturnURI(redirectionURI, allowedUris, client);
 		
 		if (redirectionURI != null)
 			context.setReturnURI(redirectionURI);
@@ -298,6 +297,31 @@ public class OAuthParseServlet extends HttpServlet
 		}
 	}
 
+	private void validateReturnURI(URI redirectionURI, Set<String> allowedUris, String client) throws OAuthValidationException
+	{
+		if (redirectionURI == null)
+			return;
+		String redirect = redirectionURI.toString();
+		boolean supportWildcards = oauthConfig.getBooleanValue(OAuthASProperties.ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI);
+		
+		if (!supportWildcards)
+		{
+			if (allowedUris.contains(redirect))
+				return;
+		} else
+		{
+			AntPathMatcher matcher = new AntPathMatcher();
+			for (String allowed: allowedUris)
+			{
+				if (matcher.match(allowed, redirect))
+					return;
+			}
+		}
+		throw new OAuthValidationException("The '" + client + 
+				"' requested to use a not registered response redirection URI: " + 
+				redirectionURI);
+	}
+	
 	/**
 	 * Checks if the response type(s) are understood and in proper combination. Also openid connect mode
 	 * is set and checked for consistency with the flow. It is checked if the client can use the requested flow. 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
@@ -42,11 +42,11 @@ public class SecuredNavigationUI extends GenericNavigationUI<SecuredViewProvider
 	
 	@Override
 	public void configure(ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticationFlow,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
 	{
-		super.configure(description, authenticators, registrationConfiguration, genericEndpointConfiguration);
+		super.configure(description, authenticationFlow, registrationConfiguration, genericEndpointConfiguration);
 		this.configuration = genericEndpointConfiguration;
 	}
 	

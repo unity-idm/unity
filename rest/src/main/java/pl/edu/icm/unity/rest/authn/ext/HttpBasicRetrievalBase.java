@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.rest.authn.ext;
 
-import java.nio.charset.StandardCharsets;
+import java.util.Properties;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -13,7 +13,6 @@ import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.apache.logging.log4j.Logger;
-import org.apache.xmlbeans.impl.util.Base64;
 
 import eu.unicore.security.HTTPAuthNTokens;
 import pl.edu.icm.unity.base.utils.Log;
@@ -33,6 +32,11 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
 public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval<PasswordExchange> 
 		implements CredentialRetrieval, CXFAuthentication
 {
+	/**
+	 * When this feature is set on the endpoint then the username and password are supposed to be URL encoded
+	 */
+	public static String FEATURE_HTTP_BASIC_URLENCODED = "HTTP_BASIC_URLENCODED";
+	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, HttpBasicRetrievalBase.class);
 	
 	public HttpBasicRetrievalBase(String bindingName)
@@ -58,9 +62,9 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 	}
 
 	@Override
-	public AuthenticationResult getAuthenticationResult()
+	public AuthenticationResult getAuthenticationResult(Properties endpointFeatures)
 	{
-		HTTPAuthNTokens authnTokens = getHTTPCredentials(log);
+		HTTPAuthNTokens authnTokens = getHTTPCredentials(log, isUrlEncoded(endpointFeatures));
 		if (authnTokens == null)
 		{
 			log.trace("No HTTP BASIC auth header was found");
@@ -79,7 +83,7 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 
 	}
 	
-	protected HTTPAuthNTokens getHTTPCredentials(Logger log)
+	private static HTTPAuthNTokens getHTTPCredentials(Logger log, boolean urlEncoded)
 	{
 		Message message = PhaseInterceptorChain.getCurrentMessage();
 		if (message == null)
@@ -87,31 +91,13 @@ public abstract class HttpBasicRetrievalBase extends AbstractCredentialRetrieval
 		HttpServletRequest req =(HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
 		if (req == null)
 			return null; 
-		String aa = req.getHeader("Authorization");
-		if (aa == null)
-			return null;
-		if (!aa.startsWith("Basic "))
-			return null;
-		
-		String encoded = aa.substring(6);
-		String decoded = new String(Base64.decode(encoded.getBytes(StandardCharsets.US_ASCII)),
-				StandardCharsets.US_ASCII);
-		String []split = decoded.split(":");
-		if (split.length > 2)
-		{
-			log.warn("Ignoring malformed Authorization HTTP header element" +
-					" (to many ':' after decode: " + decoded + ")");
-			return null;
-		}
-		if (split.length == 2)
-			return new HTTPAuthNTokens(split[0], split[1]);
-		else if (split.length == 1)
-			return new HTTPAuthNTokens(split[0], null);
-		else
-		{
-			log.warn("Ignoring malformed Authorization HTTP header element" +
-			" (empty string after decode)");
-			return null;
-		}
+		String authorizationHeader = req.getHeader("Authorization");
+		return HttpBasicParser.getHTTPCredentials(authorizationHeader, log, urlEncoded);
 	}
+	
+	private boolean isUrlEncoded(Properties endpointFeatures)
+	{
+		return endpointFeatures.containsKey(FEATURE_HTTP_BASIC_URLENCODED);
+	}
+	
 }

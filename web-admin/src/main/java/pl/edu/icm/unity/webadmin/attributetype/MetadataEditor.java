@@ -154,6 +154,7 @@ public class MetadataEditor extends VerticalLayout
 			});
 			
 			Component current = handler.getRepresentation(value);
+			current.setWidth(100, Unit.PERCENTAGE);
 			addComponents(edit, remove, current);
 		}
 		
@@ -196,6 +197,7 @@ public class MetadataEditor extends VerticalLayout
 		{
 			FormLayout main = new CompactFormLayout();
 			editorPanel = new SafePanel();
+			editorPanel.setWidth(100, Unit.PERCENTAGE);
 			editorPanel.setStyleName(Styles.vPanelLight.toString());
 			if (initialKey != null)
 			{
@@ -203,7 +205,9 @@ public class MetadataEditor extends VerticalLayout
 				info.setCaption(msg.getMessage("MetadataEditor.metaName"));
 				main.addComponent(info);
 				editor = attrMetaHandlerReg.getHandler(initialKey).getEditorComponent(initialValue);
-				editorPanel.setContent(editor.getEditor());
+				Component editor2 = editor.getEditor();
+				editor2.setWidth(100, Unit.PERCENTAGE);
+				editorPanel.setContent(editor2);
 				key = initialKey;
 			} else
 			{
@@ -214,7 +218,7 @@ public class MetadataEditor extends VerticalLayout
 				supported.removeAll(entries.keySet());
 				if (supported.isEmpty())
 				{
-					NotificationPopup.showNotice(msg, msg.getMessage("notice"), 
+					NotificationPopup.showNotice(msg.getMessage("notice"), 
 							msg.getMessage("MetadataEditor.noMoreMetadataAvailable"));
 					throw new FormValidationException();
 				}
@@ -223,7 +227,9 @@ public class MetadataEditor extends VerticalLayout
 				{
 					key = metaChoice.getValue();
 					editor = attrMetaHandlerReg.getHandler(key).getEditorComponent(null);
-					editorPanel.setContent(editor.getEditor());
+					Component editor2 = editor.getEditor();
+					editor2.setWidth(100, Unit.PERCENTAGE);
+					editorPanel.setContent(editor2);
 				});
 				main.addComponent(metaChoice);
 				metaChoice.setSelectedItem(supported.iterator().next());

@@ -5,19 +5,17 @@
 package pl.edu.icm.unity.webui.confirmations;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
-import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Page;
+import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -26,15 +24,14 @@ import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.common.ConfirmationComponent;
+import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.TopHeaderLight;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 
 /**
  * Shows confirmation status
@@ -50,7 +47,6 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailConfirmationUI.class);
 
 	private EmailConfirmationManager confirmationMan;
-	private boolean autoRedirect;
 	private String defaultRedirect;
 
 	@Autowired
@@ -59,87 +55,43 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 	{
 		super(msg);
 		this.confirmationMan = confirmationMan;
-		this.autoRedirect = serverConfig.getBooleanValue(UnityServerConfiguration.CONFIRMATION_AUTO_REDIRECT);
 		this.defaultRedirect = serverConfig.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
-	public void initUI(EmailConfirmationStatus status)
+	private void initUI(WorkflowFinalizationConfiguration status)
 	{
-		final String returnUrl = status.getReturnUrl();
-		
-		if (autoRedirect && returnUrl != null)
+		if (status.autoRedirect && !Strings.isEmpty(status.redirectURL))
 		{
-			Page.getCurrent().open(returnUrl, null);
+			Page.getCurrent().open(status.redirectURL, null);
 			return;
 		}
 		
-		VerticalLayout contents = new VerticalLayout();
-		contents.setMargin(false);
-		contents.setSpacing(false);
-		VerticalLayout mainWrapper = new VerticalLayout();
-		mainWrapper.setSpacing(false);
-		mainWrapper.setMargin(false);
-		mainWrapper.setSizeFull();
-		mainWrapper.addComponent(new TopHeaderLight(msg.getMessage("ConfirmationUI.title"),
-				msg));
-		HorizontalLayout infoWrapper = new HorizontalLayout();
-		infoWrapper.setSpacing(false);
-		infoWrapper.setMargin(false);
-		infoWrapper.setWidth(50, Unit.PERCENTAGE);
-		String infoKey = status.getUserMessageKey();
-		String[] infoArgs = status.getUserMessageArgs();
-
-		infoWrapper.addComponent(status.isSuccess() == true ? 
-				getSuccessfullStatus(msg.getMessage(infoKey, (Object[])infoArgs))
-				: getUnsuccessfullStatus(msg.getMessage(infoKey, (Object[])infoArgs)));
-		Label spacerB = new Label();
-		Label spacerU = new Label();
+		if (status.pageTitle != null)
+			Page.getCurrent().setTitle(status.pageTitle);
 		
-		mainWrapper.addComponent(spacerU);
-		mainWrapper.addComponent(infoWrapper);
-		mainWrapper.setComponentAlignment(infoWrapper, Alignment.TOP_CENTER);
-	
-		if (returnUrl != null && !returnUrl.equals(""))
-		{	
-			Link returnUrlLink =  new Link(msg.getMessage("ConfirmationUI.returnUrl"),
-					new ExternalResource(returnUrl));
-			returnUrlLink.addStyleName(Styles.textLarge.toString());
-			Label spacerR = new Label();
-			mainWrapper.addComponent(spacerR);
-			mainWrapper.addComponent(returnUrlLink);
-			mainWrapper.setComponentAlignment(returnUrlLink, Alignment.TOP_CENTER);
-			mainWrapper.setExpandRatio(spacerR, 0.1f);
-		}
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setSpacing(false);
+		wrapper.setMargin(false);
+		wrapper.setSizeFull();
+		setSizeFull();
 		
-		
-		mainWrapper.addComponent(spacerB);
-		mainWrapper.setExpandRatio(spacerU, 0.2f);
-		mainWrapper.setExpandRatio(infoWrapper, 0);
-		mainWrapper.setExpandRatio(spacerB, 0.7f);
-
-		contents.addComponent(mainWrapper);
-		contents.setExpandRatio(mainWrapper, 1.0f);
-		contents.setComponentAlignment(mainWrapper, Alignment.TOP_LEFT);
-		contents.setSizeFull();
-		setContent(contents);
-	}
-
-	private com.vaadin.ui.Component getSuccessfullStatus(String info)
-	{
-		return new ConfirmationComponent(Images.ok, 
-				msg.getMessage("ConfirmationStatus.successful"), info);
-	}
-
-	private com.vaadin.ui.Component getUnsuccessfullStatus(String info)
-	{
-		return new ConfirmationComponent(Images.error, 
-				msg.getMessage("ConfirmationStatus.unsuccessful"), info);
+		Resource logo = null;
+		if (!Strings.isEmpty(status.logoURL))
+			logo = ImageUtils.getConfiguredImageResource(status.logoURL);
+		if (logo == null)
+			logo = status.success ? Images.ok.getResource() : Images.error.getResource();
+		WorkflowCompletedComponent contents = new WorkflowCompletedComponent(status, 
+				logo,
+				url -> Page.getCurrent().open(status.redirectURL, null));
+		wrapper.addComponent(contents);
+		wrapper.setComponentAlignment(contents, Alignment.MIDDLE_CENTER);
+		setContent(wrapper);
 	}
 
 	@Override
 	protected void appInit(VaadinRequest request)
 	{
-		EmailConfirmationStatus status = null;
+		WorkflowFinalizationConfiguration status = null;
 		String token = request.getParameter(EmailConfirmationServletProvider.CONFIRMATION_TOKEN_ARG);
 		try
 		{
@@ -150,7 +102,10 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 			String redirectURL = new EmailConfirmationRedirectURLBuilder(defaultRedirect, 
 					Status.elementConfirmationError).
 				setErrorCode(e.toString()).build();
-			status = new EmailConfirmationStatus(false, redirectURL, "ConfirmationStatus.internalError");
+			status = WorkflowFinalizationConfiguration.builder()
+					.setRedirectURL(redirectURL)
+					.setMainInformation(msg.getMessage("ConfirmationStatus.internalError"))
+					.build();
 		}
 		initUI(status);
 	}

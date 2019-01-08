@@ -1,0 +1,35 @@
+[[authn-flows]]
+=== Authentication flows
+
+Authentication flows are used to configure the authentication process as a whole, in the first place controlling 
+the policy used to trigger multi factor authentication. Additionally flows can be used to define reusable groups of 
+authenticators commonly used together.
+
+An authentication flow consists of 3 sections: mandatory set of first factor authenticators, policy to trigger 2nd factor, 
+and an optional list of 2nd factor authenticators.
+
+Example configuration of an authentication flow:
+
+-----
+unityServer.core.authenticationFlow.passAndSMSWeb.authenticationFlowName=passAndSMSWeb
+unityServer.core.authenticationFlow.passAndSMSWeb.authenticationFlowPolicy=USER_OPTIN
+unityServer.core.authenticationFlow.passAndSMSWeb.firstFactorAuthenticators=passwordWeb
+unityServer.core.authenticationFlow.passAndSMSWeb.secondFactorAuthenticators=smsWeb,certWeb
+-----  
+ 
+In this example all users has to authenticate with password first. Then 2nd factor may kick in, but only if the user
+has opted to use 2nd factor (for others the 2nd factor will be skipped). User who preferrs to have their 
+account secured, is either authenticated with SMS code sent to her phone or with X.509 certificate. 
+Alwyas the first authenticator is used, for which a user has credential set. 
+
+Note that an endpoint may have more then one flow configured. Then the user can choose, and the selection of the first factor 
+authentication option determines the flow to be used.
+
+There are the following policies available:
+
+ * REQUIRE - the 2nd factor authentication is mandatory
+ * USER_OPTIN - 2nd factor authentication is only performed if user opted in for it (what can be set on HomeUI in credentials tab)
+ * NEVER - only 1st factor is used
+ * STEP_UP_IF_AVAILABLE - only the 1st factor is used for authentication, but when a security sensitive operation is
+ invoked then 2nd factor must be provided, if set for the user. If user has none of the 2nd factor credentials of the flow
+ then this policy is the same as NEVER. 

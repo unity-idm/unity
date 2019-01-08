@@ -4,33 +4,33 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.VaadinRequest;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorsRegistry;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
+import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
+import pl.edu.icm.unity.webui.UnityUIBase;
+import pl.edu.icm.unity.webui.UnityWebUI;
+import pl.edu.icm.unity.webui.authn.AuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.authn.OutdatedCredentialDialog;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
-import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
-import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 
 /**
  * Vaadin UI of the sandbox application. This UI is using the same authenticators as those configured for
- * the wrapping endpoint. Suitable for account association.
+ * the wrapping endpoint. Suitable for account association of not existing account with an existing one.
  *  
  * @author K. Benedyczak
  */
@@ -38,33 +38,63 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormsChooserComponent;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 @Theme("unityThemeValo")
 @PreserveOnRefresh
-public class AccountAssociationSandboxUI extends SandboxUIBase 
+public class AccountAssociationSandboxUI extends UnityUIBase implements UnityWebUI
 {
+	private LocaleChoiceComponent localeChoice;
+	private SandboxAuthenticationProcessor authnProcessor;
+	private ExecutorsService execService;
+	private EntityManagement idsMan;
+	private List<AuthenticationFlow> authnFlows;
+	private AuthenticationScreen ui;
+	
 	@Autowired
-	public AccountAssociationSandboxUI(UnityMessageSource msg,
+	public AccountAssociationSandboxUI(UnityMessageSource msg, 
 			LocaleChoiceComponent localeChoice,
-			WebAuthenticationProcessor authnProcessor,
-			RegistrationFormsChooserComponent formsChooser,
-			InsecureRegistrationFormLauncher formLauncher,
+			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
-			AuthenticatorSupportManagement authenticatorsManagement,
-			AuthenticatorsRegistry authnRegistry, EntityManagement idsMan,
-			ObjectFactory<OutdatedCredentialDialog> outdatedCredentialDialogFactory)
+			@Qualifier("insecure") EntityManagement idsMan,
+			AuthenticatorSupportService authenticatorSupport)
 	{
-		super(msg, localeChoice, authnProcessor, formsChooser, formLauncher, execService, 
-				authenticatorsManagement, idsMan, outdatedCredentialDialogFactory);
+		super(msg);
+		this.localeChoice = localeChoice;
+		this.authnProcessor = authnProcessor;
+		this.execService = execService;
+		this.idsMan = idsMan;
 	}
-
+	
 	@Override
-	protected List<AuthenticationOptionDescription> getAllVaadinAuthenticators(
-			List<AuthenticationOption> endpointAuthenticators)
+	public void configure(ResolvedEndpoint description,
+			List<AuthenticationFlow> authnFlows,
+			EndpointRegistrationConfiguration registrationConfiguration,
+			Properties genericEndpointConfiguration)
 	{
-		ArrayList<AuthenticationOptionDescription> vaadinAuthenticators = new ArrayList<>();
-		for (AuthenticationOption ao: endpointAuthenticators)
-			vaadinAuthenticators.add(new AuthenticationOptionDescription(
-					ao.getPrimaryAuthenticator().getAuthenticatorId(), 
-					ao.getMandatory2ndAuthenticator() == null ? null :
-						ao.getMandatory2ndAuthenticator().getAuthenticatorId()));
-		return vaadinAuthenticators;
+		this.authnFlows = authnFlows;
+		super.configure(description, authnFlows, registrationConfiguration, genericEndpointConfiguration);
+	}
+	
+	@Override
+	protected void appInit(final VaadinRequest request)
+	{
+		String title = msg.getMessage("SandboxUI.authenticateToAssociateAccounts");
+		this.authnProcessor.setSandboxRouter(sandboxRouter);
+		ui = new SandboxAuthenticationScreen(msg, 
+				config, 
+				endpointDescription, 
+				cancelHandler, 
+				idsMan, 
+				execService, 
+				authnProcessor, 
+				localeChoice, 
+				authnFlows,
+				title,
+				sandboxRouter);
+		setContent(ui);
+		setSizeFull();
+	}
+	
+	@Override
+	protected void refresh(VaadinRequest request) 
+	{
+		ui.refresh(request);
 	}
 }

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -24,12 +25,14 @@ import org.apache.logging.log4j.Logger;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
+import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -48,21 +51,24 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	private static final Logger log = Log.getLogger(Log.U_SERVER_REST, AuthenticationInterceptor.class);
 	private UnityMessageSource msg;
 	private AuthenticationProcessor authenticationProcessor;
-	protected List<AuthenticationOption> authenticators;
+	protected List<AuthenticationFlow> authenticators;
 	protected UnsuccessfulAuthenticationCounter unsuccessfulAuthenticationCounter;
 	protected SessionManagement sessionMan;
 	protected AuthenticationRealm realm;
 	protected Set<String> notProtectedPaths = new HashSet<String>();
+	private Properties endpointProperties;
 	
 	public AuthenticationInterceptor(UnityMessageSource msg, AuthenticationProcessor authenticationProcessor, 
-			List<AuthenticationOption> authenticators,
-			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths)
+			List<AuthenticationFlow> authenticators,
+			AuthenticationRealm realm, SessionManagement sessionManagement, Set<String> notProtectedPaths,
+			Properties endpointProperties)
 	{
 		super(Phase.PRE_INVOKE);
 		this.msg = msg;
 		this.authenticationProcessor = authenticationProcessor;
 		this.realm = realm;
 		this.authenticators = authenticators;
+		this.endpointProperties = endpointProperties;
 		this.unsuccessfulAuthenticationCounter = new UnsuccessfulAuthenticationCounter(
 				realm.getBlockAfterUnsuccessfulLogins(), realm.getBlockFor()*1000);
 		this.sessionMan = sessionManagement;
@@ -83,24 +89,25 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		X509Certificate[] clientCert = TLSRetrieval.getTLSCertificates();
 		IdentityTaV tlsId = (clientCert == null) ? null : new IdentityTaV(X500Identity.ID, 
 				clientCert[0].getSubjectX500Principal().getName());
-		InvocationContext ctx = new InvocationContext(tlsId, realm); 
+		InvocationContext ctx = new InvocationContext(tlsId, realm, authenticators); 
 		InvocationContext.setCurrent(ctx);
 		AuthenticationException firstError = null;
-		AuthenticatedEntity client = null;
+		EntityWithAuthenticators client = null;
 		
 		if (isToNotProtected(message))
 			return;
 		
-		for (AuthenticationOption authenticatorSet: authenticators)
+		for (AuthenticationFlow authenticatorFlow: authenticators)
 		{
 			try
 			{
-				client = processAuthnSet(authnCache, authenticatorSet);
+				client = processAuthnFlow(authnCache, authenticatorFlow);
 			} catch (AuthenticationException e)
 			{
 				if (log.isDebugEnabled())
-					log.debug("Authentication set failed to authenticate the client, " +
-							"will try another: " + e);
+					log.debug("Authentication set failed to authenticate the client using flow "
+							+ authenticatorFlow.getId() + ", "
+							+ "will try another: " + e);
 				if (firstError == null)
 					firstError = new AuthenticationException(msg.getMessage(e.getMessage()));
 				continue;
@@ -137,36 +144,62 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		return false;
 	}
 	
-	private void authnSuccess(AuthenticatedEntity client, String ip, InvocationContext ctx)
+	private void authnSuccess(EntityWithAuthenticators client, String ip, InvocationContext ctx)
 	{
 		if (log.isDebugEnabled())
 			log.debug("Client was successfully authenticated: [" + 
-					client.getEntityId() + "] " + client.getAuthenticatedWith().toString());
+					client.entity.getEntityId() + "] " + client.entity.getAuthenticatedWith().toString());
 		unsuccessfulAuthenticationCounter.successfulAttempt(ip);
 		
-		LoginSession ls = sessionMan.getCreateSession(client.getEntityId(), realm, 
-				"", client.getOutdatedCredentialId(), null);
+		LoginSession ls = sessionMan.getCreateSession(client.entity.getEntityId(), realm, 
+				"", client.entity.getOutdatedCredentialId(), new RememberMeInfo(false, false), 
+				client.firstFactor, client.secondFactor);
 		ctx.setLoginSession(ls);
-		ls.addAuthenticatedIdentities(client.getAuthenticatedWith());
-		ls.setRemoteIdP(client.getRemoteIdP());
+		ls.addAuthenticatedIdentities(client.entity.getAuthenticatedWith());
+		ls.setRemoteIdP(client.entity.getRemoteIdP());
 	}
 	
-	private AuthenticatedEntity processAuthnSet(Map<String, AuthenticationResult> authnCache,
-			AuthenticationOption authenticationOption) throws AuthenticationException
+	private EntityWithAuthenticators processAuthnFlow(Map<String, AuthenticationResult> authnCache,
+			AuthenticationFlow authenticationFlow) throws AuthenticationException
 	{
-		AuthenticationResult result = processAuthenticator(authnCache, 
-					(CXFAuthentication) authenticationOption.getPrimaryAuthenticator());
-		
-		PartialAuthnState state = authenticationProcessor.processPrimaryAuthnResult(result, 
-				authenticationOption);
+		PartialAuthnState state = null;
+		AuthenticationException firstError = null;
+		for (AuthenticatorInstance authn : authenticationFlow.getFirstFactorAuthenticators())
+		{
+			try
+			{
+				AuthenticationResult result = processAuthenticator(authnCache,
+						(CXFAuthentication) authn.getRetrieval());
+				state = authenticationProcessor.processPrimaryAuthnResult(result,
+						authenticationFlow, authn.getRetrieval().getAuthenticatorId());
+			} catch (AuthenticationException e)
+			{
+				if (firstError == null)
+					firstError = new AuthenticationException(e.getMessage());
+				continue;
+			}
+			break;
+		}
+
+		if (state == null)
+		{
+			throw firstError == null
+					? new AuthenticationException("Authentication failed")
+					: firstError;
+		}
+
 		if (state.isSecondaryAuthenticationRequired())
 		{
-			AuthenticationResult result2 = processAuthenticator(authnCache, 
-					(CXFAuthentication) state.getSecondaryAuthenticator()); 
-			return authenticationProcessor.finalizeAfterSecondaryAuthentication(state, result2);
+			CXFAuthentication secondFactorAuthn = (CXFAuthentication) state.getSecondaryAuthenticator();
+			AuthenticationResult result2 = processAuthenticator(authnCache, secondFactorAuthn);
+			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterSecondaryAuthentication(state,
+					result2);
+			return new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), 
+					secondFactorAuthn.getAuthenticatorId());			
 		} else
 		{
-			return authenticationProcessor.finalizeAfterPrimaryAuthentication(state);
+			AuthenticatedEntity entity = authenticationProcessor.finalizeAfterPrimaryAuthentication(state, false);
+			return new EntityWithAuthenticators(entity, state.getFirstFactorOptionId(), null);
 		}
 	}
 
@@ -178,7 +211,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		if (result == null)
 		{
 			log.trace("Processing authenticator " + authId);
-			result = myAuth.getAuthenticationResult();
+			result = myAuth.getAuthenticationResult(endpointProperties);
 			authnCache.put(authId, result);
 			log.trace("Authenticator " + authId + " returned " + result);
 		} else
@@ -193,5 +226,20 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 		Message message = PhaseInterceptorChain.getCurrentMessage();
 		HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
 		return request.getRemoteAddr();
+	}
+	
+	private static class EntityWithAuthenticators
+	{
+		private final AuthenticatedEntity entity;
+		private final String firstFactor;
+		private final String secondFactor;
+
+		EntityWithAuthenticators(AuthenticatedEntity entity, String firstFactor,
+				String secondFactor)
+		{
+			this.entity = entity;
+			this.firstFactor = firstFactor;
+			this.secondFactor = secondFactor;
+		}
 	}
 }

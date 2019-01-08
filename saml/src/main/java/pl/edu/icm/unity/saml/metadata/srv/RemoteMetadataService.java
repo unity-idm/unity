@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.saml.metadata.srv;
@@ -16,8 +16,12 @@ import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
  */
 public interface RemoteMetadataService
 {
-	public String registerConsumer(String url, long refreshIntervalMs,
+	String preregisterConsumer(String url);
+	
+	void registerConsumer(String key, long refreshIntervalMs,
 			String customTruststore, BiConsumer<EntitiesDescriptorDocument, String> consumer);
 	
-	public void unregisterConsumer(String id);
+	void unregisterConsumer(String id);
+	
+	void reset();
 }

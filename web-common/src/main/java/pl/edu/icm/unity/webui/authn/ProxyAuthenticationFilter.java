@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.authn;
@@ -16,16 +16,19 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
+import pl.edu.icm.unity.webui.VaadinRequestMatcher;
 
 /**
  * Non UI code which is invoked as a part of authentication pipeline for unauthenticated clients.
@@ -45,11 +48,18 @@ public class ProxyAuthenticationFilter implements Filter
 			ProxyAuthenticationFilter.class);
 	private static final String TRIGGERING_PARAM = "uy_auto_login";
 	
+	/**
+	 * Presence of this attribute in session signals that automated login was triggered for the session 
+	 * and should not be started again. This must be set and cleaned by {@link ProxyAuthenticationCapable} 
+	 * authenticators 
+	 */
+	public static final String AUTOMATED_LOGIN_FIRED = "automaticLoginWasTriggered";
+	
 	private Map<String, BindingAuthn> authenticators;
 	private String endpointPath;
 	private boolean triggerByDefault;
 	
-	public ProxyAuthenticationFilter(List<AuthenticationOption> authenticators, 
+	public ProxyAuthenticationFilter(List<AuthenticationFlow> authenticators, 
 			String endpointPath, boolean triggerByDefault)
 	{
 		this.endpointPath = endpointPath;
@@ -57,12 +67,18 @@ public class ProxyAuthenticationFilter implements Filter
 		updateAuthenticators(authenticators);
 	}
 
-	public void updateAuthenticators(List<AuthenticationOption> authenticators)
+	public void updateAuthenticators(List<AuthenticationFlow> authenticators)
 	{
 		Map<String, BindingAuthn> newMap = new HashMap<>();
-		for (AuthenticationOption ao: authenticators)
-			newMap.put(ao.getPrimaryAuthenticator().getAuthenticatorId(), 
-					ao.getPrimaryAuthenticator());
+		for (AuthenticationFlow ao : authenticators)
+		{
+
+			for (AuthenticatorInstance authn : ao.getFirstFactorAuthenticators())
+			{
+				newMap.put(authn.getRetrieval().getAuthenticatorId(), authn.getRetrieval());
+			}
+
+		}
 		this.authenticators = newMap;
 	}
 	
@@ -78,7 +94,7 @@ public class ProxyAuthenticationFilter implements Filter
 		URIBuilder uriBuilder = new URIBuilder();
 		for (Map.Entry<String, String[]> entry: parameterMap.entrySet())
 			if (!entry.getKey().equals(ProxyAuthenticationFilter.TRIGGERING_PARAM) &&
-					!entry.getKey().equals(AuthenticationUI.IDP_SELECT_PARAM))
+					!entry.getKey().equals(PreferredAuthenticationHelper.IDP_SELECT_PARAM))
 			{
 				for (String value: entry.getValue())
 					uriBuilder.addParameter(entry.getKey(), value);
@@ -111,12 +127,12 @@ public class ProxyAuthenticationFilter implements Filter
 	{
 		if (isAutomatedAuthenticationDesired(httpRequest))
 		{
-			String selectedAuthn = httpRequest.getParameter(AuthenticationUI.IDP_SELECT_PARAM);
+			String selectedAuthn = httpRequest.getParameter(PreferredAuthenticationHelper.IDP_SELECT_PARAM);
 			if (selectedAuthn == null && authenticators.size() > 1)
 			{
 				log.error("There are more multiple authenticators installed, "
 						+ "and automated login was requested without specifying (with " 
-						+ AuthenticationUI.IDP_SELECT_PARAM + ") which one should be used. "
+						+ PreferredAuthenticationHelper.IDP_SELECT_PARAM + ") which one should be used. "
 						+ "Automatic login is skipped.");
 				return false;
 			}
@@ -140,12 +156,32 @@ public class ProxyAuthenticationFilter implements Filter
 	
 	private boolean isAutomatedAuthenticationDesired(HttpServletRequest httpRequest)
 	{
+		if (VaadinRequestMatcher.isVaadinRequest(httpRequest))
+		{
+			log.trace("Ignoring request to Vaadin internal address/Unity initiated {}", httpRequest.getRequestURI());
+			return false;
+		}
+		if (autoLoginWasAlreadyTriggered(httpRequest))
+		{
+			log.trace("Ignoring request as auto login was already triggered");
+			return false;
+		}
+		
+		
 		if (triggerByDefault)
 			return true;
 		String autoLogin = httpRequest.getParameter(TRIGGERING_PARAM);
 		if (autoLogin != null && Boolean.parseBoolean(autoLogin))
 			return true;
 		return false;
+	}
+
+	private boolean autoLoginWasAlreadyTriggered(HttpServletRequest httpRequest)
+	{
+		HttpSession session = httpRequest.getSession(false);
+		if (session == null)
+			return false;
+		return session.getAttribute(AUTOMATED_LOGIN_FIRED) != null;
 	}
 	
 	private boolean triggerProxyAuthenticator(BindingAuthn authenticatorParam,
@@ -161,14 +197,9 @@ public class ProxyAuthenticationFilter implements Filter
 			{
 				log.debug("Invoking automated proxy authentication handler of {}",
 						authenticator.getAuthenticatorId());
-				if (selectedAuthn != null)
-				{
-					Cookie lastIdpCookie = AuthenticationUI.createLastIdpCookie(
-							endpointPath, selectedAuthn);
-					httpResponse.addCookie(lastIdpCookie);
-				}
+				
 				boolean result = authenticator.triggerAutomatedAuthentication(
-						httpRequest, httpResponse);
+						httpRequest, httpResponse, endpointPath);
 				if (result)
 				{
 					log.debug("Automated proxy authentication of {} handled the request",

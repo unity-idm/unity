@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.store.impl.entities;
 
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -14,6 +18,7 @@ import pl.edu.icm.unity.store.hz.GenericBasicHzCRUD;
 import pl.edu.icm.unity.store.hz.rdbmsflush.RDBMSMutationEvent;
 import pl.edu.icm.unity.store.hz.tx.HzTransactionTL;
 import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 
 /**
@@ -67,5 +72,21 @@ public class EntityHzStore extends GenericBasicHzCRUD<EntityInformation> impleme
 		createNoPropagateToRDBMS(obj);
 		HzTransactionTL.enqueueRDBMSMutation(new RDBMSMutationEvent(rdbmsCounterpartDaoName, 
 				"createWithId", key, obj));
+	}
+
+	@Override
+	public List<EntityInformation> getByGroup(String group)
+	{
+		TransactionalMap<String, Map<Long, GroupMembership>> byGroupMap = getByGroupMap();
+		Map<Long, GroupMembership> groupMembers = byGroupMap.get(group);
+		TransactionalMap<Long, EntityInformation> hMap = getMap();
+		return hMap.values().stream()
+				.filter(ei -> groupMembers.containsKey(ei.getId()))
+				.collect(Collectors.toList());
+	}
+	
+	private TransactionalMap<String, Map<Long, GroupMembership>> getByGroupMap()
+	{
+		return HzTransactionTL.getHzContext().getMap(STORE_ID + "_byGroup");
 	}
 }

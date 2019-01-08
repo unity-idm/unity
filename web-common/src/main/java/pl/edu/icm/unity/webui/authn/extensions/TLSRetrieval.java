@@ -4,10 +4,12 @@
  */
 package pl.edu.icm.unity.webui.authn.extensions;
 
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.security.cert.X509Certificate;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,20 +20,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.vaadin.server.Resource;
-import com.vaadin.server.UserError;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
+import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
@@ -39,10 +36,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.I18nStringJsonUtil;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.ImageUtils;
@@ -66,6 +61,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	private UnityMessageSource msg;
 	private I18nString name;
 	private String logoURL;
+	private String configuration;
 	
 	@Autowired
 	public TLSRetrieval(UnityMessageSource msg)
@@ -77,31 +73,22 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	@Override
 	public String getSerializedConfiguration()
 	{
-		ObjectNode root = Constants.MAPPER.createObjectNode();
-		root.set("i18nName", I18nStringJsonUtil.toJson(name));
-		if (logoURL != null)
-			root.put("logoURL", logoURL);
-		try
-		{
-			return Constants.MAPPER.writeValueAsString(root);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't serialize web-based TLS retrieval configuration to JSON", e);
-		}
+		return configuration;
 	}
 
 	@Override
-	public void setSerializedConfiguration(String json)
+	public void setSerializedConfiguration(String configuration)
 	{
+		this.configuration = configuration;
 		try
 		{
-			JsonNode root = Constants.MAPPER.readTree(json);
-			name = I18nStringJsonUtil.fromJson(root.get("i18nName"), root.get("name"));
+			Properties properties = new Properties();
+			properties.load(new StringReader(configuration));
+			SMSRetrievalProperties config = new SMSRetrievalProperties(properties);
+			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebTLSRetrieval.title", msg);
-			JsonNode logoNode = root.get("logoURL");
-			if (logoNode != null && !logoNode.isNull())
-				logoURL = logoNode.asText();
+			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);
 			if (logoURL != null && !logoURL.isEmpty())
 				ImageUtils.getLogoResource(logoURL);
 		} catch (Exception e)
@@ -112,11 +99,16 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	}
 
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI());
 	}
 
+	@Override
+	public boolean supportsGrid()
+	{
+		return false; //TODO this component can support grid
+	}
 	
 	public static X509Certificate[] getTLSCertificate()
 	{
@@ -129,8 +121,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
-		private TLSAuthnComponent component = new TLSAuthnComponent();
-		private AuthenticationResultCallback callback;
+		private Component component = new TLSAuthnComponent();
+		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
 		@Override
@@ -140,17 +132,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		}
 
 		@Override
-		public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+		public void setAuthenticationCallback(AuthenticationCallback callback)
 		{
 			this.callback = callback;
 		}
 
-		@Override
-		public void triggerAuthentication()
-		{
-			callback.setAuthenticationResult(getAuthenticationResult());
-		}
-		
 		private AuthenticationResult getAuthenticationResult()
 		{
 			X509Certificate[] clientCert = getTLSCertificate();
@@ -158,24 +144,15 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (clientCert == null)
 				return new AuthenticationResult(Status.notApplicable, null);
 
-			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(
-					clientCert, sandboxCallback);
-			component.setError(authenticationResult.getStatus() != Status.success);
-			return authenticationResult;
+			return credentialExchange.checkCertificate(clientCert, sandboxCallback);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public String getLabel()
 		{
 			return name.getValue(msg);
 		}
 
-		/**
-		 * {@inheritDoc}
-		 */
 		@Override
 		public Resource getImage()
 		{
@@ -197,44 +174,44 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 
 		}
 
-		@SuppressWarnings("serial")
 		private class TLSAuthnComponent extends VerticalLayout
 		{
-			private Label info;
+			private Button authenticateButton;
 
 			public TLSAuthnComponent()
 			{
 				setMargin(false);
-				setSpacing(false);
-				Label title = new Label(name.getValue(msg));
-				title.addStyleName(Styles.vLabelLarge.toString());
-				addComponent(title);
-				info = new Label();
-				addComponent(info);
+				setSpacing(true);
 				X509Certificate[] clientCert = getTLSCertificate();
-				if (clientCert == null)
-				{
-					info.setValue(msg.getMessage("WebTLSRetrieval.noCert"));
-				} else
-				{
-					info.setValue(msg.getMessage("WebTLSRetrieval.certInfo", 
-							X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal())));
-				}
-			}
-
-			public void setError(boolean how)
-			{
-				info.setComponentError(how ? new UserError(
-						msg.getMessage("WebTLSRetrieval.unknownUser")) : null);
+				String info = clientCert == null ? "" : msg.getMessage("WebTLSRetrieval.certInfo", 
+						X500NameUtils.getReadableForm(clientCert[0].getSubjectX500Principal()));
+				authenticateButton = new Button(msg.getMessage("WebTLSRetrieval.signInButton"));
+				authenticateButton.addClickListener(event -> triggerAuthentication());
+				authenticateButton.setIcon(getImage());
+				authenticateButton.addStyleName(Styles.signInButton.toString());
+				authenticateButton.addStyleName("u-x509SignInButton");
+				authenticateButton.setWidth(100, Unit.PERCENTAGE);
+				authenticateButton.setDescription(info);
+				addComponent(authenticateButton);
 			}
 		}
-
-		@Override
-		public void cancelAuthentication()
+		
+		private void triggerAuthentication()
 		{
-			//nop
+			callback.onStartedAuthentication(AuthenticationStyle.IMMEDIATE);
+			AuthenticationResult authenticationResult = getAuthenticationResult();
+			if (authenticationResult.getStatus() == Status.success)
+				component.setEnabled(false);
+			
+			callback.onCompletedAuthentication(authenticationResult);
 		}
-
+		
+		@Override
+		public boolean isAvailable()
+		{
+			return getTLSCertificate() != null;
+		}
+		
 		@Override
 		public void clear()
 		{
@@ -248,7 +225,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		}
 
 		@Override
-		public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+		public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 		{
 			sandboxCallback = callback;
 		}

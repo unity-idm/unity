@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.authz;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -17,15 +16,13 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.exceptions.AuthorizationExceptionRT;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.Group;
 
 
@@ -48,16 +45,17 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	public static final String USER_ROLE = "Regular User";
 	public static final String ANONYMOUS_ROLE = "Anonymous User";
 
-	private Map<String, AuthzRole> roles = new LinkedHashMap<String, AuthzRole>(); 
+	private Map<String, AuthzRole> roles = new LinkedHashMap<>(); 
 
-	private AttributesHelper dbAttributes;
-	
+	private CachingRolesResolver rolesResolver;
 			
 	@Autowired
-	public AuthorizationManagerImpl(AttributesHelper dbAttributes)
+	public AuthorizationManagerImpl(AttributesHelper dbAttributes, UnityServerConfiguration config, 
+			GroupDAO groupDAO)
 	{
-		this.dbAttributes = dbAttributes;
 		setupRoleCapabilities();
+		rolesResolver = new CachingRolesResolver(roles, dbAttributes, 
+				config.getLongValue(UnityServerConfiguration.AUTHZ_CACHE_MS), groupDAO);
 	}
 	
 	/**
@@ -187,10 +185,44 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 
 	@Override
 	@Transactional
+	public void checkAuthorizationRT(String group, AuthzCapability... requiredCapabilities)
+			throws AuthorizationExceptionRT
+	{
+		try
+		{
+			checkAuthorizationInternal(getCallerMethodName(2), false, group, requiredCapabilities);
+		} catch (AuthorizationException e)
+		{
+			throw new AuthorizationExceptionRT(e.getMessage(), e.getCause());
+		}
+	}
+
+	@Override
+	@Transactional
 	public void checkAuthorization(boolean selfAccess, String groupPath, AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
 		checkAuthorizationInternal(getCallerMethodName(2), selfAccess, groupPath, requiredCapabilities);
 	}
+
+	@Override
+	@Transactional
+	public void checkAuthZAttributeChangeAuthorization(boolean selfAccess, Attribute attribute) throws AuthorizationException
+	{
+		String callerMethod = getCallerMethodName(2);
+		LoginSession client = getVerifiedClient(AuthzCapability.attributeModify);
+		long entityId = client.getEntityId();
+		Set<AuthzRole> currentRoles = rolesResolver.establishRoles(entityId, new Group(attribute.getGroupPath()));
+		Set<AuthzCapability> currentCapabilities = getRoleCapabilities(currentRoles, selfAccess);
+		Set<AuthzRole> requestedRoles = rolesResolver.getRolesFromAttribute(attribute);
+		Set<AuthzCapability> requestedCapabilities = getRoleCapabilities(requestedRoles, selfAccess);
+		if (!currentCapabilities.containsAll(requestedCapabilities))
+			throw new AuthorizationException("Access is denied. It is not allowed to set roles " + 
+					"with higher privileges then those already possessed");
+		if (!currentCapabilities.contains(AuthzCapability.attributeModify))
+			throw new AuthorizationException("Access is denied. The operation " + 
+					callerMethod + " requires '" + AuthzCapability.attributeModify + "' capability");
+	}
+	
 
 	@Override
 	@Transactional
@@ -204,15 +236,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 			LoginSession client) throws AuthorizationException
 	{
 		Group group = groupPath == null ? new Group("/") : new Group(groupPath);
-
-		Set<AuthzRole> roles;
-		try
-		{
-			roles = establishRoles(client.getEntityId(), group);
-		} catch (EngineException e)
-		{
-			throw new InternalException("Can't establish caller's roles", e);
-		}
+		Set<AuthzRole> roles = rolesResolver.establishRoles(client.getEntityId(), group);
 		return getRoleCapabilities(roles, selfAccess);
 	}
 	
@@ -259,8 +283,6 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return authnCtx.getLoginSession().getEntityId() == subject;
 	}
 	
-	
-	
 	private Set<AuthzCapability> getRoleCapabilities(Set<AuthzRole> roles, boolean selfAccess)
 	{
 		Set<AuthzCapability> ret = new HashSet<AuthzCapability>();
@@ -269,54 +291,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return ret;
 	}
 	
-	private Set<AuthzRole> establishRoles(long entityId, Group group) throws EngineException
-	{
-		Map<String, Map<String, AttributeExt>> allAttributes = getAllAttributes(entityId);
-		Group current = group;
-		Set<AuthzRole> ret = new HashSet<AuthzRole>();
-		do
-		{
-			Map<String, AttributeExt> inCurrent = allAttributes.get(current.toString());
-			if (inCurrent != null)
-				addRolesFromAttribute(inCurrent, ret);
-			String parent = current.getParentPath();
-			current = parent == null ? null : new Group(parent);
-		} while (current != null);
-		return ret;
-	}
 
-	private void addRolesFromAttribute(Map<String, AttributeExt> inCurrent, Set<AuthzRole> ret)
-	{
-		Attribute role = inCurrent.get(RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
-		if (role != null)
-		{
-			List<?> roles = role.getValues();
-			for (Object r: roles)
-			{
-				AuthzRole rr = this.roles.get(r.toString());
-				if (rr == null)
-					throw new InternalException("Authorization attribute has " +
-							"unsupported role value: " + r);
-				ret.add(rr);
-			}
-		}
-	}
-	
-	private Map<String, Map<String, AttributeExt>> getAllAttributes(long entityId) throws EngineException 
-	{
-		try
-		{
-			Map<String, Map<String, AttributeExt>> allAttributes = 
-					dbAttributes.getAllAttributesAsMap(entityId, null, true, null);
-			return allAttributes;
-		} catch (IllegalTypeException e)
-		{
-			throw new InternalException("Can't establish attributes for authorization pipeline", e);
-		} catch (IllegalGroupValueException e)
-		{
-			throw new InternalException("Can't establish attributes for authorization pipeline - group problem", e);
-		}
-	}
 	
 	private String getCallerMethodName(int toSkipBackwards)
 	{
@@ -331,4 +306,9 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 		return stackTrace[i].getMethodName();
 	}
 
+	@Override
+	public void clearCache()
+	{
+		rolesResolver.clearCache();
+	}
 }

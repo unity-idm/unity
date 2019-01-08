@@ -6,6 +6,7 @@ package pl.edu.icm.unity.store.impl.identities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import com.hazelcast.query.PredicateBuilder;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.hz.GenericNamedHzCRUD;
 import pl.edu.icm.unity.store.impl.entities.EntityHzStore;
+import pl.edu.icm.unity.store.impl.membership.MembershipHzStore;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -31,11 +33,13 @@ import pl.edu.icm.unity.types.basic.Identity;
 public class IdentityHzStore extends GenericNamedHzCRUD<StoredIdentity> implements IdentityDAO
 {
 	public static final String STORE_ID = DAO_ID + "hz";
+	private MembershipHzStore membershipStore;
 
 	@Autowired
-	public IdentityHzStore(IdentityRDBMSStore rdbmsStore, EntityHzStore entityDAO)
+	public IdentityHzStore(IdentityRDBMSStore rdbmsStore, EntityHzStore entityDAO, MembershipHzStore membershipStore)
 	{
 		super(STORE_ID, NAME, IdentityRDBMSStore.BEAN, rdbmsStore);
+		this.membershipStore = membershipStore;
 		entityDAO.addRemovalHandler(this::cascadeEntityRemoval);
 	}
 
@@ -76,5 +80,16 @@ public class IdentityHzStore extends GenericNamedHzCRUD<StoredIdentity> implemen
 			throw new IllegalArgumentException("Can not change identity value from " + 
 					old.getComparableValue() + " to " + updated.getComparableValue());
 		
+	}
+
+	@Override
+	public List<StoredIdentity> getByGroup(String group)
+	{
+		Set<Long> members = membershipStore.getMembers(group).stream()
+				.map(member -> member.getEntityId())
+				.collect(Collectors.toSet());
+		return getAll().stream()
+				.filter(si -> members.contains(si.getEntityId()))
+				.collect(Collectors.toList());
 	}
 }

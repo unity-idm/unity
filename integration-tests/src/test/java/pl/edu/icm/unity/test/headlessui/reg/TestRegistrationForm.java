@@ -21,13 +21,14 @@ public class TestRegistrationForm extends SeleniumTestBase
 	public void registrationTest() throws Exception
 	{
 		driver.get(baseUrl + "/admin/admin");
-		waitForPageLoad(By.className("idpentry_samlWeb-single.5")).click();
-		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
-		waitForElement(By.id("AuthenticationUI.username")).clear();
-		waitForElement(By.id("AuthenticationUI.username")).sendKeys("demo-user");
-		waitForElement(By.id("WebPasswordRetrieval.password")).clear();
-		waitForElement(By.id("WebPasswordRetrieval.password")).sendKeys("the!test12");
-		waitForElement(By.id("AuthenticationUI.authnenticateButton")).click();
+		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
+		
+		waitForPageLoadByURL("/saml-idp/saml2idp-web-entry");
+		waitForElement(By.className("u-passwordUsernameField")).clear();
+		waitForElement(By.className("u-passwordUsernameField")).sendKeys("demo-user");
+		waitForElement(By.className("u-passwordField")).clear();
+		waitForElement(By.className("u-passwordField")).sendKeys("the!test12");
+		waitForElement(By.className("u-passwordSignInButton")).click();
 		
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
 		
@@ -39,10 +40,10 @@ public class TestRegistrationForm extends SeleniumTestBase
 		waitForElement(By.id("AbstractDialog.confirm")).click();	
 
 		waitForPageLoad(By.className("v-Notification")).click();	
-		
-		waitForPageLoad(By.id("AuthenticationUI.authnenticateButton")).click();
-		
+				
+		waitForPageLoad(By.className("u-idpAuthentication-saml-single-5")).click();
 		waitForPageLoad(By.id("IdpButtonsBar.confirmButton")).click();
+		
 		assertTrue(waitForElement(By.id("MainHeader.loggedAs")) != null);
 		waitForElement(By.id("MainHeader.logout"));			
 	}	

@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.rest.authn;
 
+import java.util.Properties;
+
 import org.apache.cxf.interceptor.Interceptor;
 import org.apache.cxf.message.Message;
 
@@ -32,7 +34,8 @@ public interface CXFAuthentication extends BindingAuthn
 	 * {@link CredentialRetrieval} stored in the context.
 	 * The implementation need not to cache the result - it is guaranteed that endpoint will call
 	 * this method only once per request.
+	 * @param endpointFeatures properties with special features of the wrapping endpoint that may influence the authentication
 	 * @return
 	 */
-	public AuthenticationResult getAuthenticationResult();
+	public AuthenticationResult getAuthenticationResult(Properties endpointFeatures);
 }

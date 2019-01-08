@@ -19,9 +19,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
@@ -140,7 +140,7 @@ public class CredentialDefinitionsComponent extends VerticalLayout
 			refresh();
 			bus.fireEvent(new CredentialDefinitionChangedEvent(true, cd.getName()));
 			if (desiredCredState == LocalCredentialState.outdated)
-				NotificationPopup.showNotice(msg, msg.getMessage("notice"), 
+				NotificationPopup.showNotice(msg.getMessage("notice"), 
 						msg.getMessage("CredentialDefinitions.outdatedUpdateInfo"));
 			return true;
 		} catch (Exception e)

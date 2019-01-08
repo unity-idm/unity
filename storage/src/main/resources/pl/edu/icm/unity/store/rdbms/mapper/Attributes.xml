@@ -71,4 +71,16 @@
 			</if>
 		</where>
 	</select>
+	
+	<select id="getGroupMembersAttributes" parameterType="string" resultMap="attributeResult">
+		select A.*, AT.NAME, AT.VALUE_SYNTAX_ID, G.NAME AS GROUP_PATH 
+		from ATTRIBUTES A, ATTRIBUTE_TYPES AT, GROUPS G
+		where 
+			A.ENTITY_ID IN (
+					SELECT S_E.ID FROM ENTITIES S_E, GROUP_ENTITIES S_GE, GROUPS S_G 
+					WHERE S_G.NAME = #{value} AND S_GE.GROUP_ID = S_G.ID AND S_GE.ENTITY_ID = S_E.ID
+			)
+			AND A.TYPE_ID = AT.ID 
+			AND G.ID = A.GROUP_ID
+	</select>
 </mapper>

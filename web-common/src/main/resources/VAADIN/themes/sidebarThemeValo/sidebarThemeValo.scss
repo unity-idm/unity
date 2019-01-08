@@ -1,0 +1,17 @@
+@import "../valo/valo.scss";
+@import "../../addons/stepper/stepper.scss";
+@import "../common/common.scss";
+@import "sidebar.scss";
+
+@mixin sidebarThemeValo {
+
+	@include valo;
+	
+	@include stepper;
+	
+	@include vaadin-icons;	
+	
+	@include unityCommon;
+
+	@include sidebar;
+}

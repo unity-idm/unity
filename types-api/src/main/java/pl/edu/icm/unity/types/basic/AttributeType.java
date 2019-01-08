@@ -306,6 +306,7 @@ public class AttributeType extends I18nDescribedObject implements Initialization
 		fromJsonBase(main);
 	}
 
+	@Override
 	public AttributeType clone()
 	{
 		ObjectNode json = toJson();

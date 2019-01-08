@@ -13,13 +13,15 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.annotations.Push;
 import com.vaadin.server.DefaultErrorHandler;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -61,7 +63,7 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	 */
 	@Override
 	public void configure(ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticators,
 			EndpointRegistrationConfiguration registrationConfiguration,
 			Properties genericEndpointConfiguration)
 	{
@@ -74,8 +76,22 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 	protected final void init(VaadinRequest request)
 	{
 		setErrorHandler(new ErrorHandlerImpl());
+		initializeDefaultPageTitle();
 		appInit(request);
-		initExtensions();
+	}
+
+	private void initializeDefaultPageTitle()
+	{
+		if (endpointDescription == null 
+				|| endpointDescription.getEndpoint() == null 
+				|| endpointDescription.getEndpoint().getConfiguration() == null)
+			return;
+		EndpointConfiguration endpointConfiguration = endpointDescription.getEndpoint().getConfiguration();
+		if (endpointConfiguration.getDisplayedName() != null)
+		{
+			String pageTitle = endpointConfiguration.getDisplayedName().getValue(msg);
+			Page.getCurrent().setTitle(pageTitle);
+		}
 	}
 
 	@Override
@@ -90,11 +106,6 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 		this.sandboxRouter = sandboxRouter;
 	}
 	
-	/**
-	 * @return sandbox servlet URL which can be used for account association login. 
-	 * Note that this URL is always fine but the servlet might not be deployed
-	 * under it, if your wrapping endpoint does not extend {@link VaadinEndpointWithSandbox}.  
-	 */
 	public String getSandboxServletURLForAssociation()
 	{
 		return endpointDescription.getEndpoint().getContextAddress() + VaadinEndpoint.SANDBOX_PATH_ASSOCIATION;
@@ -102,8 +113,6 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 
 	/**
 	 * @return sandbox servlet URL which can be used for translation profile wizards. 
-	 * Note that this URL is always fine but the servlet might not be deployed
-	 * under it, if your wrapping endpoint does not extend {@link VaadinEndpointWithSandbox}.  
 	 */
 	public String getSandboxServletURLForTranslation()
 	{
@@ -157,15 +166,8 @@ public abstract class UnityUIBase extends UI implements UnityWebUI
 			log.error("UI code got an unchecked and not handled properly exception: " 
 					+ event.getThrowable(), event.getThrowable());
 			
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("UnityUIBase.unhandledError"));
 		} 
-	}
-
-	/**
-	 * Extensions can overwrite this method to provide additional initialization logic.
-	 */
-	protected void initExtensions()
-	{
 	}
 }

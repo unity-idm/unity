@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.session.SessionParticipant;
@@ -82,38 +85,46 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	@Transactional
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-				String outdatedCredentialId, Date absoluteExpiration)
+				String outdatedCredentialId, RememberMeInfo rememberMeInfo,
+				String firstFactorOptionId, String secondFactorOptionId)
 	{
 		try
 		{
+
 			try
 			{
-				LoginSession ret = getOwnedSessionInternal(new EntityParam(loggedEntity), 
-						realm.getName());
+				LoginSession ret = getOwnedSessionInternal(
+						new EntityParam(loggedEntity), realm.getName());
 				if (ret != null)
 				{
-					ret.setLastUsed(new Date());
+					Date now = new Date();
+					ret.setLastUsed(now);
+					ret.setRememberMeInfo(rememberMeInfo);
+					ret.setOutdatedCredentialId(outdatedCredentialId);
+					ret.setLogin1stFactor(new AuthNInfo(firstFactorOptionId, now));
+					ret.setLogin2ndFactor(new AuthNInfo(secondFactorOptionId, now));
 					byte[] contents = ret.getTokenContents();
-					tokensManagement.updateToken(SESSION_TOKEN_TYPE, ret.getId(), null, 
-							contents);
-					
+					tokensManagement.updateToken(SESSION_TOKEN_TYPE,
+							ret.getId(), null, contents);
+
 					if (log.isDebugEnabled())
-						log.debug("Using existing session " + ret.getId() + " for logged entity "
-							+ ret.getEntityId() + " in realm " + realm.getName());
+						log.debug("Using existing session " + ret.getId()
+								+ " for logged entity "
+								+ ret.getEntityId() + " in realm "
+								+ realm.getName());
 					return ret;
 				}
 			} catch (EngineException e)
 			{
-				throw new InternalException("Can't retrieve current sessions of the "
-						+ "authenticated user", e);
+				throw new InternalException(
+						"Can't retrieve current sessions of the "
+								+ "authenticated user",
+						e);
 			}
-			
-			LoginSession ret = createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
-					absoluteExpiration);
-			if (log.isDebugEnabled())
-				log.debug("Created a new session " + ret.getId() + " for logged entity "
-					+ ret.getEntityId() + " in realm " + realm.getName());
-			return ret;
+
+			return createSession(loggedEntity, realm, entityLabel, outdatedCredentialId,
+					rememberMeInfo, firstFactorOptionId, secondFactorOptionId);
+
 		} finally
 		{
 			clearScheduledRemovalStatus(loggedEntity);
@@ -138,14 +149,20 @@ public class SessionManagementImpl implements SessionManagement
 		entityDAO.updateByKey(entityId, info);
 	}
 	
-	private LoginSession createSession(long loggedEntity, AuthenticationRealm realm, String entityLabel, 
-				String outdatedCredentialId, Date absoluteExpiration)
+	@Override
+	@Transactional
+	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm,
+			String entityLabel, String outdatedCredentialId, 
+			RememberMeInfo rememberMeInfo, String firstFactorOptionId,
+			String secondFactorOptionId)
 	{
 		UUID randomid = UUID.randomUUID();
 		String id = randomid.toString();
-		LoginSession ls = new LoginSession(id, new Date(), absoluteExpiration,
+		Date now = new Date();
+		LoginSession ls = new LoginSession(id, now, 
 				realm.getMaxInactivity()*1000, loggedEntity, 
-				realm.getName());
+				realm.getName(), rememberMeInfo, new AuthNInfo(firstFactorOptionId, now), 
+				new AuthNInfo(secondFactorOptionId, now));
 		ls.setOutdatedCredentialId(outdatedCredentialId);
 		ls.setEntityLabel(entityLabel);
 		try
@@ -157,6 +174,8 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can't create a new session", e);
 		}
+		log.debug("Created a new session {} for logged entity {} in realm {}", 
+				ls.getId(), ls.getEntityId(), realm.getName());
 		return ls;
 	}
 
@@ -164,15 +183,17 @@ public class SessionManagementImpl implements SessionManagement
 	@Override
 	public void updateSessionAttributes(String id, AttributeUpdater updater) 
 	{
-		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
-		LoginSession session = token2session(token);
-		
-		updater.updateAttributes(session.getSessionData());
-
-		byte[] contents = session.getTokenContents();
-		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+		updateSession(id, session -> updater.updateAttributes(session.getSessionData()));
 	}
 
+	@Transactional
+	@Override
+	public void recordAdditionalAuthentication(String id, String optionId)
+	{
+		updateSession(id, session -> session.setAdditionalAuthn(new AuthNInfo(optionId, new Date())));
+		log.debug("Recorded additional authentication with {} for session {}", optionId, id);	
+	}
+	
 	@Override
 	public void removeSession(String id, boolean soft)
 	{
@@ -192,7 +213,12 @@ public class SessionManagementImpl implements SessionManagement
 	public LoginSession getSession(String id)
 	{
 		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
-		return token2session(token);
+		LoginSession session = token2session(token);
+		if (session.isExpiredAt(System.currentTimeMillis()))
+			throw new SessionExpiredException();
+		log.trace("Returning session {} last used at {} maxInactivity {}", id, session.getLastUsed(), 
+				session.getMaxInactivity());
+		return session;
 	}
 
 	
@@ -203,7 +229,7 @@ public class SessionManagementImpl implements SessionManagement
 		for (Token token: tokens)
 		{
 			LoginSession ls = token2session(token);
-			if (realm.equals(ls.getRealm()))
+			if (realm.equals(ls.getRealm()) && !ls.isExpiredAt(System.currentTimeMillis()))
 				return ls;
 		}
 		return null;
@@ -231,11 +257,9 @@ public class SessionManagementImpl implements SessionManagement
 				return;
 		}
 		
-		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
-		LoginSession session = token2session(token);
-		session.setLastUsed(new Date());
-		byte[] contents = session.getTokenContents();
-		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+		if (!updateSession(id, session -> session.setLastUsed(new Date())))
+			throw new SessionExpiredException();
+
 		log.trace("Updated in db session activity timestamp for " + id);
 		recentUsageUpdates.put(id, System.currentTimeMillis());
 	}
@@ -255,6 +279,35 @@ public class SessionManagementImpl implements SessionManagement
 		{
 			throw new InternalException("Can not add session participant to the existing session?", e);
 		}
+	}
+	
+	private boolean updateSession(String id, Consumer<LoginSession> updater) 
+	{
+		Token token = tokensManagement.getTokenById(SESSION_TOKEN_TYPE, id);
+		LoginSession session = token2session(token);
+		
+		if (session.isExpiredAt(System.currentTimeMillis()))
+			return false;
+		
+		updater.accept(session);
+		updateCurrentSessionIfMatching(session);
+		
+		byte[] contents = session.getTokenContents();
+		tokensManagement.updateToken(SESSION_TOKEN_TYPE, id, null, contents);
+		return true;
+	}
+	
+	private void updateCurrentSessionIfMatching(LoginSession changed)
+	{
+		if (!InvocationContext.hasCurrent())
+			return;
+		LoginSession current = InvocationContext.getCurrent().getLoginSession();
+		if (current == null)
+			return;
+		if (!changed.getId().equals(current.getId()))
+			return;
+		
+		InvocationContext.getCurrent().setLoginSession(changed);
 	}
 	
 	private LoginSession token2session(Token token)
@@ -283,23 +336,36 @@ public class SessionManagementImpl implements SessionManagement
 			long now = System.currentTimeMillis();
 			for (Token t: tokens)
 			{
-				if (t.getExpires() != null)
-					continue;
-				LoginSession session = token2session(t);
-				long inactiveFor = now - session.getLastUsed().getTime(); 
-				if (inactiveFor > session.getMaxInactivity())
+				try
 				{
-					log.debug("Expiring login session " + session + " inactive for: " + 
-							inactiveFor);
-					try
-					{
-						removeSession(session.getId(), false);
-					} catch (Exception e)
-					{
-						log.error("Can't expire the session " + session, e);
-					}
+					removeSessionIfExpired(now, t);
+				} catch (Exception e)
+				{
+					log.warn("Removing expired session " + t.getValue() + " failed", e);
 				}
 			}
 		}
+		
+		private void removeSessionIfExpired(long now, Token t)
+		{
+			LoginSession session = token2session(t);
+			long inactiveFor = now - session.getLastUsed().getTime(); 
+			if (inactiveFor > session.getMaxInactivity())
+			{
+				log.debug("Expiring login session " + session + " inactive for: " + 
+						inactiveFor);
+				try
+				{
+					removeSession(session.getId(), false);
+				} catch (Exception e)
+				{
+					log.error("Can't expire the session " + session, e);
+				}
+			}
+		}
+	}
+	
+	public static class SessionExpiredException extends IllegalArgumentException
+	{
 	}
 }

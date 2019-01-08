@@ -23,6 +23,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 {
 	protected Map<String, AttributeType> attributeTypesByName;
+	private boolean filterImmutable = true;
 
 	public AttributeSelectionComboBox(String caption, AttributeTypeManagement aTypeMan) throws EngineException
 	{
@@ -30,9 +31,16 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 		initContents(caption, attributeTypes);		
 	}
 	
+	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes, 
+			boolean filterImmutable)
+	{
+		this.filterImmutable = filterImmutable;
+		initContents(caption, attributeTypes);
+	}
+
 	public AttributeSelectionComboBox(String caption, Collection<AttributeType> attributeTypes)
 	{
-		initContents(caption, attributeTypes);
+		this(caption, attributeTypes, true);
 	}
 	
 	private void initContents(String caption, Collection<AttributeType> attributeTypes)
@@ -45,7 +53,7 @@ public class AttributeSelectionComboBox extends ComboBox<AttributeType>
 		setCaption(caption);
 		
 		List<AttributeType> items = attributeTypes.stream()
-			.filter(attrType -> !attrType.isInstanceImmutable())
+			.filter(attrType -> !(filterImmutable && attrType.isInstanceImmutable()))
 			.sorted((attrType1, attrType2) -> attrType1.getName().compareTo(attrType2.getName()))
 			.collect(Collectors.toList());
 			

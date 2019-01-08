@@ -13,7 +13,7 @@ import pl.edu.icm.unity.store.rdbms.GenericNamedRDBMSCRUD;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
 /**
- * Implementation of {@link IdentityTypeDAO}.
+ * Caching implementation of {@link IdentityTypeDAO}.
  * 
  * @author K. Benedyczak
  */

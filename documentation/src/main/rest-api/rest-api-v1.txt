@@ -1,7 +1,8 @@
 RESTful Administration API
 ==========================
 Unity Team <unity-idm-discuss@lists.sourceforge.net>
-:revnumber: 2.5.0
+//Set to override automated version, which is the project version
+//:revnumber: 9.9.9-FIXED
 :numbered:
 :toc: left
 :linkcss:
@@ -201,6 +202,32 @@ Example output:
 }
 ----
 
+
+=== Get group members with attributes
+
++@Path("/group-members/{groupPath}")+ +
++@GET+ +
+
+Returns all resolved members of a given group: for each member a complete identity information and attributes in the
+group are returned.
+
+Example output: 
+----
+[
+    {
+        "group": "/",
+        "entity": {
+            // the same as result to resolve identity operation
+        },
+        "attributes": [
+			// the same syntax as in get entity attributes case
+        ]
+    },
+    // ... subsequent group members 
+]
+----
+
+
 === Create group
 
 +@Path("/group/{groupPath}")+ +
@@ -391,18 +418,20 @@ is carried in the JSON body. No content is returned. For the password credential
 +@PUT+ +
 +@Consumes(MediaType.APPLICATION_JSON)+ +
 
-Sets a new credential secret for the given entity. The caller is assumed to change his/her own credential and 
-must provide its current value (assuming the credential was already set).  
-Credential name is given as the path parameter, while the new and current secrets are carried in the JSON body. 
-No content is returned. The body must be a JSON array with one (only when the credential was not yet set) 
-or (typically) two elements. IMPORTANT: the values of the array must be JSON strings, not JSON objects.  
+Sets a new credential secret for the given entity. The caller is assumed to change his/her own credential.  
+Credential name is given as the path parameter, while the new secret is carried in the JSON body. 
+No content is returned. The body must be a JSON array with one element. 
+
+IMPORTANT: the value of the array must be JSON string, not JSON object.
+
+IMPORTANT: the additional authentication policy of the site must evaluate to the changed credential (typically 
+with the +CURRENT+ entry). Currently it is possible to change only the credential used for authenticating the client.   
 
 For the password credential the complete value could be (with a selected security question and its answer):  
 
 ----
 [ 
-  "{\"password\":\"newpass\",\"answer\":\"Some answer2\",\"question\":0}", 
-  "{\"password\":\"currentpass\",\"answer\":\"Some answer\",\"question\":1}" 
+  "{\"password\":\"newpass\",\"answer\":\"Some answer2\",\"question\":0}" 
 ]
 ----
 
@@ -746,6 +775,18 @@ Syntax of prefilled parameters, can be seen in the result of retrieving an Admin
 via the REST GET methods.
 
 
+=== Update invitation
+
++@Path("invitation/{code}")+ +
++@PUT+ +
++@Consumes(MediaType.APPLICATION_JSON)+ +
+
+Updates an existing invitation - preserving its code, but changing metadata and prefilled information. 
+The registration form to which invitation was originally issued can not be modified as 
+well as the original contact address. 
+
+Body conforms to the same syntax as when creating a new invitation.
+
 === Identity bulk processing
 
 +@Path("bulkProcessing/instant")+ +
@@ -816,3 +857,14 @@ The optional +owner+, +ownerType+ and +type+ query parameters can be used to fil
 Removes a requested token. No content is returned. If a caller has administrative privileges 
 then any token can be removed, otherwise it is allowed for removing owned tokens only.
 
+
+=== Send user notification
+
++@Path("/userNotification-trigger/entity/{identityValue}/template/{templateId}")+ +
++@POST+ +
++@QueryParam("identityType")+ +
+
+Triggers sending user notification of the given message template. Request may use additional, variable, query parameters
+which are used as template parameters. All such parameters should have the +custom.+ prefix (which is mandatory
+in message template for custom properties).
+ 

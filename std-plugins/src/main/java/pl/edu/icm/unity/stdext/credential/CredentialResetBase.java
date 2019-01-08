@@ -140,7 +140,7 @@ public abstract class CredentialResetBase implements CredentialReset
 	public void sendCode(String msgTemplate, boolean onlyNumberCode) throws EngineException
 	{
 		if (!checkSubject())
-			throw new IllegalIdentityValueException("Identity was not resolved.");
+			throw new IllegalIdentityValueException("Identity was not resolved or has no credential set");
 		if (codeSendingAttempts >= MAX_RESENDS)
 			throw new TooManyAttempts();
 		codeSendingAttempts++;

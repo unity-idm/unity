@@ -1,11 +1,7 @@
-/**********************************************************************
- *                     Copyright (c) 2015, Jirav
- *                        All Rights Reserved
- *
- *         This is unpublished proprietary source code of Jirav.
- *    Reproduction or distribution, in whole or in part, is forbidden
- *          except by express written permission of Jirav, Inc.
- **********************************************************************/
+/*
+ * Copyright (c) 2016 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.types.registration.layout;
 
 import pl.edu.icm.unity.MessageSource;
@@ -18,7 +14,7 @@ public class FormSeparatorElement extends FormElement
 {
 	public FormSeparatorElement()
 	{
-		super(FormLayout.SEPARATOR, false);
+		super(FormLayoutElement.SEPARATOR, false);
 	}
 
 	@Override

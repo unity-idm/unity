@@ -14,7 +14,7 @@ import com.vaadin.server.UICreateEvent;
 import com.vaadin.server.UIProvider;
 import com.vaadin.ui.UI;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.CancelHandler;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
@@ -29,7 +29,7 @@ public class VaadinUIProvider extends UIProvider
 	private transient ApplicationContext applicationContext;
 	private transient String uiBeanName;
 	private transient ResolvedEndpoint description;
-	private transient List<AuthenticationOption> authenticators;
+	private transient List<AuthenticationFlow> authenticationFlows;
 	private transient CancelHandler cancelHandler;
 	private transient SandboxAuthnRouter sandboxRouter;
 	private transient EndpointRegistrationConfiguration registrationConfiguraiton;
@@ -37,7 +37,7 @@ public class VaadinUIProvider extends UIProvider
 	private transient String themeConfigKey;
 
 	public VaadinUIProvider(ApplicationContext applicationContext, String uiBeanName,
-			ResolvedEndpoint description, List<AuthenticationOption> authenticators,
+			ResolvedEndpoint description, List<AuthenticationFlow> authenticationFlows,
 			EndpointRegistrationConfiguration registrationConfiguraiton,
 			Properties properties, String themeConfigKey)
 	{
@@ -45,7 +45,7 @@ public class VaadinUIProvider extends UIProvider
 		this.applicationContext = applicationContext;
 		this.uiBeanName = uiBeanName;
 		this.description = description;
-		this.authenticators = authenticators;
+		this.authenticationFlows = authenticationFlows;
 		this.registrationConfiguraiton = registrationConfiguraiton;
 		this.endpointProperties = properties;
 		this.themeConfigKey = themeConfigKey;
@@ -92,7 +92,7 @@ public class VaadinUIProvider extends UIProvider
 		{
 			if (sandboxRouter != null) 
 				((UnityWebUI)ui).setSandboxRouter(sandboxRouter);
-			((UnityWebUI)ui).configure(description, authenticators, registrationConfiguraiton,
+			((UnityWebUI)ui).configure(description, authenticationFlows, registrationConfiguraiton,
 					endpointProperties);
 			if (cancelHandler != null)
 			{

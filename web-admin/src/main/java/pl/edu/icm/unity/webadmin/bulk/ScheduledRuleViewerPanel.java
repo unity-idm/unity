@@ -12,7 +12,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationActionPresenter;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
  * Shows details of a processing rule
@@ -47,8 +46,9 @@ public class ScheduledRuleViewerPanel extends CustomComponent
 		schedule.setCaption(msg.getMessage("ScheduledRuleViewerPanel.schedule"));
 		main.addComponent(schedule);
 		
-		Label condition = new HtmlLabel(msg, "preformatted", rule.getCondition());
+		Label condition = new Label(rule.getCondition());
 		condition.setCaption(msg.getMessage("ScheduledRuleViewerPanel.condition"));
+		condition.setWidth(100, Unit.PERCENTAGE);
 		main.addComponent(condition);
 		
 		TranslationActionPresenter action = new TranslationActionPresenter(

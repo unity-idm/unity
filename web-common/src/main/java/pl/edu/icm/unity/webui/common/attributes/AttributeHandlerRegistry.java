@@ -13,6 +13,7 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -153,7 +154,11 @@ public class AttributeHandlerRegistry
 		indentedValues.setSpacing(true);
 		WebAttributeHandler handler = getHandler(syntax);
 		for (String value: attribute.getValues())
-			indentedValues.addComponent(handler.getRepresentation(value));
+		{
+			com.vaadin.ui.Component valueRep = handler.getRepresentation(value, AttributeViewerContext.EMPTY);
+			valueRep.setWidth(100, Unit.PERCENTAGE);
+			indentedValues.addComponent(valueRep);
+		}
 		vl.addComponent(indentedValues);
 		return vl;
 	}
@@ -179,7 +184,7 @@ public class AttributeHandlerRegistry
 	 * @param attribute
 	 * @return
 	 */
-	public String getSimplifiedAttributeRepresentation(Attribute attribute, String displayedName)
+	private String getSimplifiedAttributeRepresentation(Attribute attribute, String displayedName)
 	{
 		StringBuilder sb = new StringBuilder();
 		sb.append(displayedName);
@@ -197,12 +202,16 @@ public class AttributeHandlerRegistry
 	 * @param attribute
 	 * @return
 	 */
-	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute)
+	private String getSimplifiedAttributeValuesRepresentation(Attribute attribute)
+	{
+		WebAttributeHandler handler = getHandlerWithStringFallback(attribute);
+		return getSimplifiedAttributeValuesRepresentation(attribute, handler);
+	}
+	
+	public String getSimplifiedAttributeValuesRepresentation(Attribute attribute, WebAttributeHandler handler)
 	{
 		StringBuilder sb = new StringBuilder();
 		List<String> values = attribute.getValues();
-		AttributeValueSyntax<?> syntax = getSyntaxWithStringFallback(attribute);
-		WebAttributeHandler handler = getHandler(syntax);
 		for (int i=0; i<values.size(); i++)
 		{
 			String val = handler.getValueAsString(values.get(i));

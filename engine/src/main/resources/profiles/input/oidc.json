@@ -223,7 +223,7 @@
 				"parameters": [
 					"address",
 					"/",
-					"attr['address.formatted']",
+					"attrObj.?address.?formatted",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -237,7 +237,7 @@
 				"parameters": [
 					"street",
 					"/",
-					"attr['address.street_address']",
+					"attrObj.?address.?street_address",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -251,7 +251,7 @@
 				"parameters": [
 					"locality",
 					"/",
-					"attr['address.locality']",
+					"attrObj.?address.?locality",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -265,7 +265,7 @@
 				"parameters": [
 					"provinceName",
 					"/",
-					"attr['address.region']",
+					"attrObj.?address.?region",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -279,7 +279,7 @@
 				"parameters": [
 					"postalCode",
 					"/",
-					"attr['address.postal_code']",
+					"attrObj.?address.?postal_code",
 					"CREATE_OR_UPDATE"
 				]
 			}
@@ -293,21 +293,21 @@
 				"parameters": [
 					"country",
 					"/",
-					"attr['address.country']",
+					"attrObj.?address.?country",
 					"CREATE_OR_UPDATE"
 				]
 			}
 		},
 		{
 			"condition": {
-				"conditionValue": "(!(attr contains 'address.formatted')) && (attr contains 'address.street_address') && (attr contains 'address.locality') && (attr contains 'address.region') && (attr contains 'address.postal_code') && (attr contains 'address.country')  "
+				"conditionValue": "(attrObj contains 'address') && (!(attrObj['address'] contains 'formatted')) && (attrObj['address'] contains 'street_address') && (attrObj['address'] contains 'locality') && (attrObj['address'] contains 'region') && (attrObj['address'] contains 'postal_code') && (attrObj['address'] contains 'country')  "
 			},
 			"action": {
 				"name": "mapAttribute",
 				"parameters": [
 					"address",
 					"/",
-					"attr['address.street_address'] + ', ' + attr['address.locality'] + ', ' + attr['address.region'] + ', ' + attr['address.postal_code'] + ', ' + attr['address.country']",
+					"attrObj.?address.?street_address + ', ' + attrObj.?address.?locality + ', ' + attrObj.?address.?region + ', ' + attrObj.?address.?postal_code + ', ' + attrObj.?address.?country",
 					"CREATE_OR_UPDATE"
 				]
 			}

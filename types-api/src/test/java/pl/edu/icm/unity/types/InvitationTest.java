@@ -10,6 +10,7 @@ import static org.junit.Assert.assertThat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Test;
@@ -17,15 +18,11 @@ import org.junit.Test;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.Selection;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
-/**
- * Unit tests of RESTInvitation* classes
- * @author Krzysztof Benedyczak
- */
 public class InvitationTest
 {
 	@Test
@@ -52,8 +49,9 @@ public class InvitationTest
 		complete.getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
 		complete.getIdentities().put(0, new PrefilledEntry<>(new IdentityParam("idType", 
 				"user-id"), PrefilledEntryMode.READ_ONLY));
-		complete.getGroupSelections().put(0, new PrefilledEntry<>(new Selection(true), 
+		complete.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/foo"), 
 				PrefilledEntryMode.READ_ONLY));
+		complete.getAllowedGroups().put(0, new GroupSelection(Arrays.asList("/foo","/bar")));
 		
 		String jsonStr = JsonUtil.toJsonString(complete);
 		

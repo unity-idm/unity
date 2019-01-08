@@ -16,6 +16,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 
 /**
@@ -28,30 +29,54 @@ public class NotificationPopup
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, NotificationPopup.class);
 	
-	public static void showSuccess(UnityMessageSource msg, String caption, String description)
+	
+	public static void showSuccess(String caption, String description)
 	{
 		showGeneric(caption, description, Type.HUMANIZED_MESSAGE, Images.info.getResource(), 
 				ValoTheme.NOTIFICATION_SUCCESS, 
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 
-	public static void showNotice(UnityMessageSource msg, String caption, String description)
+	public static void showNotice(String caption, String description)
 	{
 		showGeneric(caption, description, Type.WARNING_MESSAGE, Images.warn.getResource(),
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
 
-	public static void showError(UnityMessageSource msg, String caption, String description)
+	public static void showError(String caption, String description)
 	{
 		showGeneric(caption, description, Type.ERROR_MESSAGE, Images.error.getResource(),
 				ValoTheme.NOTIFICATION_CLOSABLE);
 	}
+	
+	public static void showError(ControllerException exception)
+	{
+		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.Error)
+		{
+			showError(exception.getCaption(), exception.getDetails());
+		}else
+		{
+			showNotice(exception.getCaption(), exception.getDetails());
+		}
+	}
 
 	public static void showFormError(UnityMessageSource msg)
 	{
-		showError(msg, msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
+		showError(msg.getMessage("Generic.formError"), msg.getMessage("Generic.formErrorHint"));
 	}
 
+	public static Notification getNoticeNotification(String caption, String description)
+	{
+		return createGeneric(caption, description, Type.WARNING_MESSAGE, Images.warn.getResource(),
+				ValoTheme.NOTIFICATION_CLOSABLE);
+	}
+	
+	public static Notification getErrorNotification(String caption, String description)
+	{
+		return createGeneric(caption, description, Type.ERROR_MESSAGE, Images.error.getResource(),
+				ValoTheme.NOTIFICATION_CLOSABLE);
+	}
+	
 	public static void showError(UnityMessageSource msg, String message, Exception e)
 	{
 		String description = getHumanMessage(e);
@@ -63,7 +88,7 @@ public class NotificationPopup
 			log.debug("Error popup showed an error to the user: " + message);
 			log.debug("What's more there was an exception attached which caused an error:", e);
 		}
-		showError(msg, message, description);
+		showError(message, description);
 	}
 
 	public static String getHumanMessage(Throwable e)
@@ -97,8 +122,7 @@ public class NotificationPopup
 		return sb.toString();
 	}
 	
-	
-	private static void showGeneric(String caption, String description, Type type, 
+	private static Notification createGeneric(String caption, String description, Type type, 
 			Resource icon, String... styles)
 	{
 		Notification notification = new Notification(caption, description, type);
@@ -109,6 +133,12 @@ public class NotificationPopup
 		notification.setStyleName(sb.toString());
 		notification.setIcon(icon);
 		notification.setDelayMsec(-1);
-		notification.show(Page.getCurrent());
+		return notification;
+	}
+	
+	private static void showGeneric(String caption, String description, Type type, 
+			Resource icon, String... styles)
+	{
+		createGeneric(caption, description, type, icon, styles).show(Page.getCurrent());
 	}
 }

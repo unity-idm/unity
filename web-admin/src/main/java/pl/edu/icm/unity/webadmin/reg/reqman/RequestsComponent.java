@@ -15,6 +15,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListener;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
@@ -31,7 +32,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class RequestsComponent extends CustomComponent
+public class RequestsComponent extends CustomComponent implements ActivationListener
 {
 	private RegistrationsManagement registrationsManagement;
 	private UnityMessageSource msg;
@@ -87,5 +88,12 @@ public class RequestsComponent extends CustomComponent
 		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, requestsTable, requestPanel, 40);
 		setCompositionRoot(hl);
 		setCaption(msg.getMessage("RequestsComponent.caption"));
+	}
+
+	@Override
+	public void stateChanged(boolean enabled)
+	{
+		if (enabled)
+			requestsTable.refresh();
 	}
 }

@@ -12,9 +12,9 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.store.api.generic.EndpointDB;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
 import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
-import pl.edu.icm.unity.store.objstore.authn.AuthenticatorInstanceDBImpl;
+import pl.edu.icm.unity.store.objstore.authn.AuthenticatorConfigurationDBImpl;
+import pl.edu.icm.unity.store.objstore.authnFlow.AuthenticationFlowDBImpl;
 import pl.edu.icm.unity.store.objstore.realm.RealmDBImpl;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 
 /**
@@ -28,25 +28,38 @@ public class EndpointDBImpl extends GenericObjectsDAOImpl<Endpoint> implements E
 {
 	@Autowired
 	public EndpointDBImpl(EndpointHandler handler, ObjectStoreDAO dbGeneric,
-			AuthenticatorInstanceDBImpl authnDAO, RealmDBImpl realmDAO)
+			AuthenticationFlowDBImpl authnFlowDAO, AuthenticatorConfigurationDBImpl authnDAO, RealmDBImpl realmDAO)
 	{
 		super(handler, dbGeneric, Endpoint.class, "endpoint");
-		
 		authnDAO.addRemovalHandler(this::restrictAuthenticatorRemoval);
+		authnFlowDAO.addRemovalHandler(this::restrictAuthenticationFlowRemoval);
 		realmDAO.addRemovalHandler(this::restrictRealmRemoval);
 	}
 	
+	
+	private void restrictAuthenticationFlowRemoval(long removedId, String removedName)
+	{
+		List<Endpoint> endpoints = getAll();
+		for (Endpoint endpoint: endpoints)
+		{
+			List<String> authnOpts = endpoint.getConfiguration()
+					.getAuthenticationOptions();
+			for (String ao: authnOpts)
+				if (removedName.equals(ao))
+					throw new IllegalArgumentException("The authentication flow is used by an endpoint " 
+						+ endpoint.getName());
+		}
+	}	
 	
 	private void restrictAuthenticatorRemoval(long removedId, String removedName)
 	{
 		List<Endpoint> endpoints = getAll();
 		for (Endpoint endpoint: endpoints)
 		{
-			List<AuthenticationOptionDescription> authnOpts = endpoint.getConfiguration()
+			List<String> authnOpts = endpoint.getConfiguration()
 					.getAuthenticationOptions();
-			for (AuthenticationOptionDescription ao: authnOpts)
-				if (removedName.equals(ao.getPrimaryAuthenticator()) || 
-						removedName.equals(ao.getMandatory2ndAuthenticator()))
+			for (String ao: authnOpts)
+				if (removedName.equals(ao))
 					throw new IllegalArgumentException("The authenticator is used by an endpoint " 
 						+ endpoint.getName());
 		}

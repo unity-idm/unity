@@ -12,9 +12,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import javax.ws.rs.core.MediaType;
@@ -31,10 +29,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.TestPropertySource;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.rest.authn.AuthenticationInterceptor;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 
 /**
@@ -55,11 +58,12 @@ public class TestRESTCore extends TestRESTBase
 		setupPasswordAuthn();
 		createUsernameUserWithRole("Regular User");
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 100, -1, 600);
+				10, 100, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
+		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER,
+				Sets.newHashSet(AUTHENTICATOR_REST_PASS)));
 		
 		Properties config = new Properties();
 		config.setProperty(RESTEndpointProperties.PREFIX+RESTEndpointProperties.ENABLED_CORS_ORIGINS + "1", 
@@ -72,7 +76,7 @@ public class TestRESTCore extends TestRESTBase
 		config.store(writer, "");
 		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"),
-				"desc", authnCfg, writer.toString(), realm.getName());
+				"desc", Lists.newArrayList("flow1"), writer.toString(), realm.getName());
 		endpointMan.deploy(MockRESTEndpoint.NAME, "endpoint1", "/mock", cfg);
 		httpServer.start();
 	}
@@ -83,7 +87,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1");
 		HttpResponse response = client.execute(host, get, localcontext);
@@ -110,7 +114,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		
 		HttpGet get = new HttpGet("/mock/mock-rest/test/r1/exception");
 		HttpResponse response = client.execute(host, get, localcontext);
@@ -126,7 +130,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
 		preflight.addHeader("Access-Control-Request-Method", "PUT");
@@ -141,7 +145,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
 		preflight.addHeader("Access-Control-Request-Method", "PUT");
@@ -173,7 +177,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", "http://notAllowedOrigin.com");
 		
@@ -192,7 +196,7 @@ public class TestRESTCore extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		HttpOptions preflight = new HttpOptions("/mock/mock-rest/test/r1");
 		preflight.addHeader("Origin", ALLOWED_ORIGIN2);
 		preflight.addHeader("Access-Control-Request-Method", "PUT");

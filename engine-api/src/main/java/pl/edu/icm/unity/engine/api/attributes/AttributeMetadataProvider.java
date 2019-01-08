@@ -29,4 +29,9 @@ public interface AttributeMetadataProvider extends DescribedObject
 	 */
 	boolean isSingleton();
 	
+	/**
+	 * @return true if the attribute annotated with this attribute is security sensitive
+	 */
+	boolean isSecuritySensitive();
+	
 }

@@ -49,8 +49,6 @@ public class AuthenticatedEntity
 		this.remoteIdP = remoteIdP;
 	}
 
-
-
 	public Long getEntityId()
 	{
 		return entityId;

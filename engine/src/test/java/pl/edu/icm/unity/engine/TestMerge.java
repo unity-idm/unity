@@ -75,7 +75,7 @@ public class TestMerge extends DBIntegrationTestBase
 		Identity target = createUsernameUser("target", AuthorizationManagerImpl.USER_ROLE, "p1", CRED_REQ_PASS);
 		Identity merged = createUsernameUser("merged", AuthorizationManagerImpl.USER_ROLE, "p2", CRED_REQ_PASS);
 		Entity mergedFull = idsMan.getEntity(new EntityParam(merged), "tt", true, "/");
-		Entity targetFull = idsMan.getEntity(new EntityParam(merged), null, true, "/");
+		Entity targetFull = idsMan.getEntity(new EntityParam(target), null, true, "/");
 		idsMan.addIdentity(new IdentityParam(IdentifierIdentity.ID, "id"), new EntityParam(merged), false);
 		
 
@@ -236,14 +236,34 @@ public class TestMerge extends DBIntegrationTestBase
 		assertEquals(LocalCredentialState.correct, credentialsState.get("credential1").getState());
 		assertEquals(LocalCredentialState.correct, credentialsState.get("credential2").getState());
 	}
-	
+
+	@Test
+	public void identityConflictsDetectedInSafeMode() throws Exception
+	{
+		Identity target = createUsernameUser("target", null, "p1", CRED_REQ_PASS);
+		Identity merged = createUsernameUser("merged", null, "p2", CRED_REQ_PASS);
+		eCredMan.setEntityCredentialStatus(new EntityParam(target), "credential1", LocalCredentialState.notSet);
+		
+		try
+		{
+			idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), true);
+			fail("No error");
+		} catch (MergeConflictException e)
+		{
+			//ok
+		}
+
+		idsMan.resetIdentity(new EntityParam(merged.getEntityId()), PersistentIdentity.ID, null, null);
+		idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), true);
+	}
 	
 	@Test
 	public void credentialConflictsDetectedInSafeMode() throws Exception
 	{
 		Identity target = createUsernameUser("target", null, "p1", CRED_REQ_PASS);
 		Identity merged = createUsernameUser("merged", null, "p2", CRED_REQ_PASS);
-
+		idsMan.resetIdentity(new EntityParam(merged.getEntityId()), PersistentIdentity.ID, null, null);
+		
 		try
 		{
 			idsMan.mergeEntities(new EntityParam(target), new EntityParam(merged), true);
@@ -262,6 +282,7 @@ public class TestMerge extends DBIntegrationTestBase
 	{
 		Identity target = createUsernameUser("target", null, "p1", CRED_REQ_PASS);
 		Identity merged = createUsernameUser("merged", null, "p2", CRED_REQ_PASS);
+		idsMan.resetIdentity(new EntityParam(merged.getEntityId()), PersistentIdentity.ID, null, null);
 		eCredMan.setEntityCredentialStatus(new EntityParam(target), "credential1", LocalCredentialState.notSet);
 		aTypeMan.addAttributeType(new AttributeType("a", StringAttributeSyntax.ID));
 		attrsMan.createAttribute(new EntityParam(target), StringAttribute.of("a", "/", "v1"));

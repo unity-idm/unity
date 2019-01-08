@@ -58,9 +58,11 @@ public class OAuthTestUtils
 	public static final String ISSUER = "https://localhost:233/foo/token";
 	public static final String BASE_ADDR = "https://localhost:233/foo";
 	
+	public static final int DEFAULT_ACCESS_TOKEN_VALIDITY = 100;
+	
 	public static OAuthASProperties getConfig()
 	{
-		return getConfig(100, 0);
+		return getConfig(DEFAULT_ACCESS_TOKEN_VALIDITY, 0);
 	}
 	
 	public static OAuthASProperties getConfig(int accessTokenValidity, int maxValidity)

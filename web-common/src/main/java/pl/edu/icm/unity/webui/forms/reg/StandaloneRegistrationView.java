@@ -4,36 +4,52 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.Optional;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.server.Page;
+import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IdentityExistsException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.webui.authn.LocaleChoiceComponent;
-import pl.edu.icm.unity.webui.common.ConfirmationComponent;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.forms.PostFormFillingHandler;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor.Stage;
+import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.ErrorCause;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 /**
@@ -44,6 +60,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
 @PrototypeComponent
 public class StandaloneRegistrationView extends CustomComponent implements View
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneRegistrationView.class);
 	private RegistrationForm form;
 	private RegistrationsManagement regMan;
 	private UnityMessageSource msg;
@@ -51,139 +68,280 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	private IdPLoginController idpLoginController;
 	private VerticalLayout main;
 	private RequestEditorCreator editorCreator;
+	private RegistrationRequestEditor currentRegistrationFormEditor;
+	private SignUpAuthNController signUpAuthNController;
+	private SignUpTopHeaderComponent header;
+	private HorizontalLayout formButtons;
+	private PostFillingHandler postFillHandler;
+	private Runnable customCancelHandler;
+	private Runnable completedRegistrationHandler;
+	private Runnable gotoSignInRedirector;
+	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
 			@Qualifier("insecure") RegistrationsManagement regMan,
 			UnityServerConfiguration cfg, 
 			IdPLoginController idpLoginController,
-			RequestEditorCreator editorCreator)
+			RequestEditorCreator editorCreator,
+			AuthenticationProcessor authnProcessor,
+			AutoLoginAfterSignUpProcessor autoLogin)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
 		this.cfg = cfg;
 		this.idpLoginController = idpLoginController;
 		this.editorCreator = editorCreator;
+		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
+		this.autoLoginProcessor = autoLogin;
+	}
+	
+	String getFormName()
+	{
+		if (form == null)
+			return null;
+		return form.getName();
 	}
 	
 	public StandaloneRegistrationView init(RegistrationForm form)
 	{
 		this.form = form;
+		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
+		this.postFillHandler = new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,
+				pageTitle, form.getLayoutSettings().getLogoURL(), true);
 		return this;
 	}
 	
 	@Override
 	public void enter(ViewChangeEvent changeEvent)
-	{		
+	{	
+		enter(TriggeringMode.manualStandalone, null, null, null);
+	}
+	
+	/**
+	 * @param customCancelHandler
+	 *            Used only in case where registration form is displayed from
+	 *            authentication screen.
+	 * 
+	 *            The custom cancel handler is used when there is no explicit
+	 *            TriggeringState.CANCELLED finalization configured in the form. 
+	 *            It is supposed to handle the UI changes.
+	 * @param completedRegistrationHandler run when registration is completed. It is notification which should
+	 * cause reset of the UI during the *subsequent* request in scope of the current session 
+	 */
+	public void enter(TriggeringMode mode, Runnable customCancelHandler, Runnable completedRegistrationHandler,
+			Runnable gotoSignInRedirector)
+	{
+		this.customCancelHandler = customCancelHandler;
+		this.completedRegistrationHandler = completedRegistrationHandler;
+		this.gotoSignInRedirector = gotoSignInRedirector;
+		showFirstStage(RemotelyAuthenticatedContext.getLocalContext(), mode);
+	}
+	
+	private void showFirstStage(RemotelyAuthenticatedContext context, TriggeringMode mode)
+	{
 		initUIBase();
 		
-		editorCreator.init(form, RemotelyAuthenticatedContext.getLocalContext());
-		editorCreator.invoke(new RequestEditorCreatedCallback()
-		{
-			@Override
-			public void onCreationError(Exception e)
-			{
-				handleError(e);
-			}
-			
-			@Override
-			public void onCreated(RegistrationRequestEditor editor)
-			{
-				editorCreated(editor);
-			}
+		editorCreator.init(form, signUpAuthNController, context);
+		editorCreator.createFirstStage(new EditorCreatedCallback(mode), this::onLocalSignupClickHandler);
+	}
 
-			@Override
-			public void onCancel()
-			{
-				//nop
-			}
-		});
+	private void showSecondStage(RemotelyAuthenticatedContext context, TriggeringMode mode, 
+			boolean withCredentials)
+	{
+		initUIBase();
+
+		editorCreator.init(form, signUpAuthNController, context);
+		editorCreator.createSecondStage(new EditorCreatedCallback(mode), withCredentials);
 	}
 
 	private void initUIBase()
 	{
+		if (form.getPageTitle() != null)
+			Page.getCurrent().setTitle(form.getPageTitle().getValue(msg));
 		main = new VerticalLayout();
-	
 		addStyleName("u-standalone-public-form");
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
 	}
 	
-	private void editorCreated(RegistrationRequestEditor editor)
+	private void editorCreated(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		LocaleChoiceComponent localeChoice = new LocaleChoiceComponent(cfg, msg);
-		
-		main.addComponent(localeChoice);
-		main.setComponentAlignment(localeChoice, Alignment.TOP_RIGHT);
+		this.currentRegistrationFormEditor = editor;
+		if (isAutoSubmitPossible(editor, mode))
+		{
+			onSubmit(editor, mode);
+		} else
+		{
+			showEditorContent(editor, mode);
+		}
+	}
+	
+	private void showEditorContent(RegistrationRequestEditor editor, TriggeringMode mode)
+	{
+		header = new SignUpTopHeaderComponent(cfg, msg, this::onUserAuthnCancel, 
+				getGoToSignInRedirector(editor));
+		main.addComponent(header);
+		main.setComponentAlignment(header, Alignment.TOP_RIGHT);
 
 		main.addComponent(editor);
 		editor.setWidth(100, Unit.PERCENTAGE);
 		main.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
-
-		HorizontalLayout buttons = new HorizontalLayout();
 		
-		Button ok = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
-		ok.addStyleName(Styles.vButtonPrimary.toString());
-		ok.addClickListener(event -> {
-			accept(editor);
-		});
-		
-		Button cancel = new Button(msg.getMessage("cancel"));
-		cancel.addClickListener(event -> {
-			RegistrationContext context = new RegistrationContext(false, 
-					idpLoginController.isLoginInProgress(), 
-					TriggeringMode.manualStandalone);
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					regMan.getFormAutomationSupport(form))
-				.cancelled(true, context);
-			showConfirm(Images.error,
-					msg.getMessage("StandalonePublicFormView.requestCancelled"));
-		});
-		buttons.addComponents(cancel, ok);
-		buttons.setMargin(false);
-		main.addComponent(buttons);
-		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
-	}
-	
-	private void handleError(Exception e)
-	{
-		if (e instanceof IllegalArgumentException)
+		Button okButton = null;
+		Button cancelButton = null;
+		if (editor.isSubmissionPossible())
 		{
-			ErrorComponent ec = new ErrorComponent();
-			ec.setError(e.getMessage());
-			setCompositionRoot(ec);
+			okButton = createOKButton(editor, mode);
+			
+			if (form.getLayoutSettings().isShowCancel())
+			{
+				cancelButton = createCancelButton();
+			}
+		} else if (isStanaloneModeFromAuthNScreen() && form.getLayoutSettings().isShowCancel())
+		{
+			cancelButton = createCancelButton();
+		}
+		
+		if (okButton != null)
+		{
+			formButtons = new HorizontalLayout();
+			formButtons.setWidth(editor.formWidth(), editor.formWidthUnit());
+			formButtons.addComponent(okButton);
+			formButtons.setMargin(false);
+			main.addComponent(formButtons);
+			main.setComponentAlignment(formButtons, Alignment.MIDDLE_CENTER);	
 		} else
 		{
-			ErrorComponent ec = new ErrorComponent();
-			ec.setError("Can not open registration editor", e);
-			setCompositionRoot(ec);
+			/*
+			 * The editor does not contain any registration form, the local sign up
+			 * button instead.
+			 */
+			formButtons = null;
+		}
+		
+		if (cancelButton != null)
+		{
+			main.addComponent(cancelButton);
+			main.setComponentAlignment(cancelButton, Alignment.MIDDLE_CENTER);
 		}
 	}
 	
-	private void accept(RegistrationRequestEditor editor)
+	private Button createOKButton(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		RegistrationContext context = new RegistrationContext(true, 
-				idpLoginController.isLoginInProgress(), 
-				TriggeringMode.manualStandalone);
-		RegistrationRequest request;
-		try
+		Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
+		okButton.addStyleName(Styles.vButtonPrimary.toString());
+		okButton.addStyleName("u-reg-submit");
+		okButton.addClickListener(event -> onSubmit(editor, mode));
+		okButton.setWidth(100f, Unit.PERCENTAGE);
+		okButton.setClickShortcut(KeyCode.ENTER);
+		return okButton;
+	}
+
+	private Button createCancelButton()
+	{
+		Button cancelButton = new Button(msg.getMessage("cancel"));
+		cancelButton.addClickListener(event -> onCancel());
+		cancelButton.setStyleName(Styles.vButtonLink.toString());
+		cancelButton.addStyleName("u-reg-cancel");
+		return cancelButton;
+	}
+	
+	private Optional<Runnable> getGoToSignInRedirector(RegistrationRequestEditor editor)
+	{
+		if (!form.isShowSignInLink() || editor.getStage() != Stage.FIRST)
+			return Optional.empty();
+
+		if (gotoSignInRedirector != null)
+			return Optional.of(gotoSignInRedirector);
+		
+		if (Strings.isEmpty(form.getSignInLink()))
+			return Optional.empty();
+		
+		Runnable signinRedirector = () -> 
 		{
-			request = editor.getRequest();
-		} catch (Exception e) 
+			if (completedRegistrationHandler != null)
+				completedRegistrationHandler.run();
+			Page.getCurrent().open(form.getSignInLink(), null);
+		};
+		return Optional.of(signinRedirector);
+	}
+	
+	private boolean isAutoSubmitPossible(RegistrationRequestEditor editor, TriggeringMode mode)
+	{
+		return mode == TriggeringMode.afterRemoteLoginFromRegistrationForm
+				&& !editor.isUserInteractionRequired();
+	}
+
+	private void handleError(Exception e, ErrorCause cause)
+	{
+		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
+				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
+		gotoFinalStep(finalScreenConfig);
+	}
+	
+	private void onLocalSignupClickHandler()
+	{
+		showSecondStage(RemotelyAuthenticatedContext.getLocalContext(), TriggeringMode.manualStandalone,
+				true);
+	}
+	
+	private void onCancel()
+	{
+		if (isCustomCancelHandlerEnabled())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-			return;
+			customCancelHandler.run();
 		}
-		
-		
+		else
+		{
+			WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
+					.getFinalRegistrationConfigurationOnError(TriggeringState.CANCELLED);
+			gotoFinalStep(finalScreenConfig);
+		}
+	}
+	
+	private boolean isCustomCancelHandlerEnabled()
+	{
+		if (isStanaloneModeFromAuthNScreen()
+				&& !postFillHandler.hasConfiguredFinalizationFor(TriggeringState.CANCELLED))
+		{
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isStanaloneModeFromAuthNScreen()
+	{
+		return customCancelHandler != null;
+	}
+
+	private void onSubmit(RegistrationRequestEditor editor, TriggeringMode mode)
+	{
+		RegistrationContext context = new RegistrationContext(idpLoginController.isLoginInProgress(), mode);
+		RegistrationRequest request = editor.getRequestWithStandardErrorHandling(isWithCredentials(mode))
+				.orElse(null);
+		if (request == null)
+			return;
 		try
 		{
 			String requestId = regMan.submitRegistrationRequest(request, context);
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					regMan.getFormAutomationSupport(form))
-				.submittedRegistrationRequest(requestId, regMan, request, context);
-			showConfirm(Images.ok,
-					msg.getMessage("StandalonePublicFormView.requestSubmitted"));
+			RegistrationRequestState requestState = getRequestStatus(requestId);
+			
+			autoLoginProcessor.signInIfPossible(editor, requestState);
+			
+			RegistrationRequestStatus effectiveStateForFinalization = requestState == null 
+					? RegistrationRequestStatus.rejected 
+					: requestState.getStatus();
+			WorkflowFinalizationConfiguration finalScreenConfig = 
+					postFillHandler.getFinalRegistrationConfigurationPostSubmit(requestId,
+							effectiveStateForFinalization);
+			gotoFinalStep(finalScreenConfig);
+		} catch (IdentityExistsException e)
+		{
+			WorkflowFinalizationConfiguration finalScreenConfig = 
+					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
+			gotoFinalStep(finalScreenConfig);
+			
 		} catch (WrongArgumentException e)
 		{
 			if (e instanceof IllegalFormContentsException)
@@ -192,24 +350,165 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 			return;
 		} catch (Exception e)
 		{
-			new PostFormFillingHandler(idpLoginController, form, msg, 
-					regMan.getFormAutomationSupport(form))
-				.submissionError(e, context);
-			showConfirm(Images.error,
-					msg.getMessage("StandalonePublicFormView.submissionFailed"));
+			log.warn("Registration request submision failed", e);
+			WorkflowFinalizationConfiguration finalScreenConfig = 
+					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.GENERAL_ERROR);
+			gotoFinalStep(finalScreenConfig);
 		}
 	}
 
-	private void showConfirm(Images icon, String message)
+	private boolean isWithCredentials(TriggeringMode mode)
+	{
+		return mode != TriggeringMode.afterRemoteLoginFromRegistrationForm;
+	}
+
+	private void gotoFinalStep(WorkflowFinalizationConfiguration config)
+	{
+		if (completedRegistrationHandler != null)
+			completedRegistrationHandler.run();
+		if (config.autoRedirect)
+			redirect(config.redirectURL, idpLoginController);
+		else
+			showFinalScreen(config);
+	}
+	
+	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);
-		ConfirmationComponent confirmation = new ConfirmationComponent(icon, message);
-		wrapper.addComponent(confirmation);
-		wrapper.setComponentAlignment(confirmation, Alignment.MIDDLE_CENTER);
 		wrapper.setSizeFull();
 		setSizeFull();
 		setCompositionRoot(wrapper);
+
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
+			url -> redirect(url, idpLoginController));
+		wrapper.addComponent(finalScreen);
+		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
+	}
+	
+	public void refresh(VaadinRequest request)
+	{
+		signUpAuthNController.refresh(request);
+		if (currentRegistrationFormEditor != null)
+			currentRegistrationFormEditor.focusFirst();
+	}
+	
+	/**
+	 * When user clicks cancel button on unity side.
+	 */
+	private void onUserAuthnCancel()
+	{
+		signUpAuthNController.manualCancel();
+		enableSharedComponentsAndHideAuthnProgress();
+	}
+	
+	private void enableSharedComponentsAndHideAuthnProgress()
+	{
+		enableSharedWidgets(true);
+		header.setAuthNProgressVisibility(false);
+	}
+	
+	private void enableSharedWidgets(boolean isEnabled)
+	{
+		if (currentRegistrationFormEditor != null)
+			currentRegistrationFormEditor.setEnabled(isEnabled);
+		if (formButtons != null)
+			formButtons.setEnabled(isEnabled);
+		header.setInteractionsEnabled(isEnabled);
+	}
+
+	private void switchTo2ndStagePostAuthn(AuthenticationResult result)
+	{
+		enableSharedComponentsAndHideAuthnProgress();
+		showSecondStage(result.getRemoteAuthnContext(), TriggeringMode.afterRemoteLoginFromRegistrationForm,
+				false);
+	}
+	
+	private static void redirect(String redirectUrl, IdPLoginController loginController)
+	{
+		loginController.breakLogin();
+		Page.getCurrent().open(redirectUrl, null);
+	}
+	
+	
+	private RegistrationRequestState getRequestStatus(String requestId) 
+	{
+		try
+		{
+			return regMan.getRegistrationRequest(requestId);
+		} catch (EngineException e)
+		{
+			log.error("Shouldn't happen: can't get request status, assuming rejected", e);
+		}
+		return null;
+	}
+	
+	private class EditorCreatedCallback implements RequestEditorCreatedCallback
+	{
+		private final TriggeringMode mode;
+		
+		public EditorCreatedCallback(TriggeringMode mode)
+		{
+			this.mode = mode;
+		}
+
+		@Override
+		public void onCreationError(Exception e, ErrorCause cause)
+		{
+			handleError(e, cause);
+		}
+		
+		@Override
+		public void onCreated(RegistrationRequestEditor editor)
+		{
+			editorCreated(editor, mode);
+		}
+
+		@Override
+		public void onCancel()
+		{
+			//nop
+		}
+	}
+	
+	private class SignUpAuthListener implements SignUpAuthNControllerListener
+	{
+		@Override
+		public void onUnknownUser(AuthenticationResult result)
+		{
+			switchTo2ndStagePostAuthn(result);
+		}
+
+		@Override
+		public void onUserExists(AuthenticationResult result)
+		{
+			enableSharedComponentsAndHideAuthnProgress();
+			WorkflowFinalizationConfiguration finalScreenConfig = 
+					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
+			gotoFinalStep(finalScreenConfig);
+		}
+
+		@Override
+		public void onAuthnError(AuthenticationException e, String authenticatorError)
+		{
+			enableSharedComponentsAndHideAuthnProgress();
+			String genericError = msg.getMessage(e.getMessage());
+			String errorToShow = authenticatorError == null ? genericError : authenticatorError;
+			NotificationPopup.showError(errorToShow, "");
+		}
+
+		@Override
+		public void onAuthnCancelled()
+		{
+			enableSharedComponentsAndHideAuthnProgress();
+		}
+
+		@Override
+		public void onAuthnStarted(boolean showProgress)
+		{
+			enableSharedWidgets(false);
+			header.setAuthNProgressVisibility(showProgress);
+		}
 	}
 }

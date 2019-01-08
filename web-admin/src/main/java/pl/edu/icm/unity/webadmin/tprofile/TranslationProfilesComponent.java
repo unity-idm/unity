@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
@@ -39,7 +40,6 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.WebAdminEndpointFactory;
 import pl.edu.icm.unity.webadmin.tprofile.dryrun.DryRunWizardProvider;
 import pl.edu.icm.unity.webadmin.tprofile.wizard.ProfileWizardProvider;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
@@ -98,7 +98,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		{
 			actionComponentFactory.init();
 			establishSandboxURL(endpointMan);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			ErrorComponent error = new ErrorComponent();
 			error.setError(msg.getMessage(
@@ -169,7 +169,7 @@ public class TranslationProfilesComponent extends VerticalLayout
 		HorizontalLayout hl = new HorizontalLayout();
 		table = createTable();
 
-		profileType = new RadioButtonGroup<ProfileType>();
+		profileType = new RadioButtonGroup<>();
 		profileType.setItems(ProfileType.INPUT, ProfileType.OUTPUT);
 		Map<ProfileType, String> captions = new HashMap<>();
 		captions.put(ProfileType.INPUT,

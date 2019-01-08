@@ -25,11 +25,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import eu.unicore.util.httpclient.HttpClientProperties;
 import eu.unicore.util.httpclient.HttpUtils;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -101,11 +100,8 @@ public class TestJettyServer
 
 	private HttpClient createClient(String url) throws Exception
 	{
-		X509Credential cred = new KeystoreCredential("src/test/resources/demoKeystore.p12",
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), null, "PKCS12");
-		X509CertChainValidatorExt validator = new KeystoreCertChainValidator(
-				"src/test/resources/demoTruststore.jks",
-				"unicore".toCharArray(), "JKS", -1);
+		X509Credential cred = DBIntegrationTestBase.getDemoCredential();
+		X509CertChainValidatorExt validator = DBIntegrationTestBase.getDemoValidator();
 		DefaultClientConfiguration secCfg = new DefaultClientConfiguration(validator, cred);
 		secCfg.getHttpClientProperties().setProperty(HttpClientProperties.CONNECT_TIMEOUT, "2000");
 		secCfg.getHttpClientProperties().setProperty(HttpClientProperties.SO_TIMEOUT, "2000");

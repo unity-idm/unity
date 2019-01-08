@@ -18,25 +18,27 @@ endpoint.
 Authentication of an endpoint is controlled using two main elements:
 
 * Authentication realm - controls settings which may be shared by multiple endpoints with similar security
-requirements. Endpoints in the same realm share login sessions and all their settings. See <<realms>>.
-* Assigned authenticators - each authenticator defines a unique authentication option as authentication
-with locally stored password or remote authentication with a help of a configured remote OAuth AS. 
-See <<cfg-authenticators>>.   
+requirements. Those settings include in the first place session configuration. 
+Endpoints in the same realm share login sessions and all their settings, therefore Single-Sign-On (SSO)
+is configured by assigning endpoints to the same realm. See <<realms>>.
+* Authentication flows - flow defines an authentication process. It is used to configure what 1st factor authentication
+should be used, what is the policy to trigger two factor authentication (2FA/MFA) and what are the 2nd factor 
+authentication options. For simplicity an endpoint may have also an individual authentication options directly assigned.
+This is a shortcut for configuring an authentication flow with only the 1st factor enabled. See <<authn-flows>>.
 
-Each endpoint can have many alternative authentication options. Options are provided by 
-all enabled authenticators. Each authenticator can provide a single option (as the password authenticator)
-or many of them (as the remote SAML authenticator allowing to use all federation IdPs).
+That said access to an endpoint may be protected by alternative authentication options: e.g. remote OAuth login or
+a local password with additional 2nd factor using SMS code. Those individual authentication options are provided by 
+components which are called authenticators. See <<cfg-authenticators>>. Authenticator can provide a single 
+authentication option (as the password authenticator) or many of them (as the remote SAML authenticator allowing
+to use all federation IdPs).
 
 Authentication screen can be configured to organize the authentication options in a desired way. This
 is especially important if there is many of them. See <<endpoints-authn>> for details.
 
-Unity can be configured to support MFA, however this feature is simplistic as of now. It will be enhanced
-in upcoming versions, the only currently available option is discussed in <<endpoints>>. 
-
 === Local authentication 
 
 Local authenticators use a locally stored credential to verify the client's identity. Local authentication
-is simple in the sense that it can result only in two states: valid or invalid. Local authenticators
+is simple in that sense that it can result only in two states: valid or invalid. Local authenticators
 have a very simple configuration (usually limited to a displayed name of the authenticator) as are
 using the configuration of an associated local credential. 
 
@@ -50,8 +52,7 @@ The lost password reset feature can be configured in password credential configu
 
 === Remote authentication
 
-Remote authentication is more complicated then the local authentication. 
-In remote authentication an external authentication server
+Remote authentication is more complicated then the local one. In remote authentication an external authentication server
 is contacted and asked to authenticate the client. The details are dependent on actual authenticator: some redirect
 the user's browser, some are contacting the remote server directly as in LDAP case.
 
@@ -87,5 +88,44 @@ to automatically create identities missing locally. In such case neither registr
 will be used as authentication will always complete. 
 
 
-	
-	
+=== Step-up and repeated authentication
+
+For certain sensitive operations Unity may be configured (and by default is) to require additional or step-up
+authentication. When this happens Unity asks an already logged user, to provide a single credential before operation
+is performed.
+
+Operation may be classified as sensitive -- and be subject to additional authentication -- only when it is 
+invoked by a user with ordinary permissions. Operations invoked by admins are always treated specially and 
+additional authentication is alwyas skipped. There are two classes of sensitive operations:
+
+ * Credential change by credential owner. This applies only to the change of existing credential, initial 
+ setup of a credential is not treated as sensitive operation.
+ * Sensitive attribute change by owner. Attribute is assumed to be sensitive basing on its type metadata. Attribute 
+ types with _contact email_, _contact mobile_, _sensitive_ metadata have their attributes protected. Note that sensitive
+ attribute must also have "Self modify" flag set to be exposed for modification by its owner, which can trigger 
+ additional authentication.
+ 
+Administrator can configure the additional authentication policy in the main server configuration file. 
+Configuration is composed from three elements. The main one governs which authenticator is used for 
+additional authentication. It must be always an authenticator which does not require web browser redirection 
+(as remote OAuth) and it must be available on the endpoint. Typically policy is configured with constants which 
+are resolved at runtime. The default policy is as follows:
+
+----
+unityServer.core.reAuthenticationPolicy=SESSION_2F CURRENT SESSION_1F ENDPOINT_2F
+unityServer.core.reAuthenticationBlockOnNoOption=true
+unityServer.core.reAuthenticationGraceTime=60
+----
+
+According to the default policy, for each sensitive operation server will check in order:
+
+. if user was logged with 2 factors, then 2nd factor is used for additional authentication
+. if user is changing credential then this credential (before change) is used (if its authenticator is on the endpoint)
+. the first factor credential of the user's session is used, if it is available on the endpoint
+. the 2nf factor credential configured for the endpoint is used if it is available for the user
+
+The remaining option can be used to control for how long additional authentication is valid (i.e. after setting it
+to 600s then user won't need to perform additional authentication for one minute) and whether to block operation
+if there is no applicable additional authentication authenticator for the user (what typically means that system
+is misconfigured).    
+

@@ -17,7 +17,7 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.home.HomeEndpointProperties;
 import pl.edu.icm.unity.home.UserAccountComponent;
@@ -27,7 +27,7 @@ import pl.edu.icm.unity.webadmin.AdminTopHeader.ViewSwitchCallback;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
@@ -47,7 +47,7 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	private SchemaManagementTab schemaManagement;
 	private ServerManagementTab serverManagement;
 	private UserAccountComponent userAccount;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	
 	private MainTabPanel tabPanel;
 	private HomeEndpointProperties config;
@@ -58,7 +58,7 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	public WebAdminUI(UnityMessageSource msg, ContentsManagementTab contentsManagement,
 			SchemaManagementTab schemaManagement, RegistrationsManagementTab registrationsManagement,
 			UserAccountComponent userAccount, ServerManagementTab serverManagement,
-			WebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher)
+			StandardWebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.contentsManagement = contentsManagement;
@@ -71,15 +71,15 @@ public class WebAdminUI extends UnityEndpointUIBase implements UnityWebUI
 	
 	@Override
 	public void configure(ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticationFlows,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
-		super.configure(description, authenticators, regCfg, endpointProperties);
+		super.configure(description, authenticationFlows, regCfg, endpointProperties);
 		this.config = new HomeEndpointProperties(endpointProperties);
 	}
 	
 	@Override
-	protected void appInit(VaadinRequest request)
+	protected void enter(VaadinRequest request)
 	{
 		contents = new VerticalLayout();
 		contents.setMargin(false);

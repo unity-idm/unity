@@ -46,6 +46,7 @@ public class TranslatedRegistrationRequest
 	private String credentialRequirement;
 	private String redirectURL = null;
 	private I18nMessage postSubmitMessage;
+	private AutomaticInvitationProcessingParam invitationProcessing;
 	
 	public TranslatedRegistrationRequest(String credentialRequirement)
 	{
@@ -169,5 +170,15 @@ public class TranslatedRegistrationRequest
 	public void setPostSubmitMessage(I18nMessage message)
 	{
 		this.postSubmitMessage = message;
+	}
+
+	public AutomaticInvitationProcessingParam getInvitationProcessing()
+	{
+		return invitationProcessing;
+	}
+
+	public void setInvitationProcessing(AutomaticInvitationProcessingParam invitationProcessing)
+	{
+		this.invitationProcessing = invitationProcessing;
 	}
 }

@@ -17,14 +17,14 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.TopHeader;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
@@ -39,12 +39,12 @@ import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 {
 	private UserAccountComponent userAccount;
-	private WebAuthenticationProcessor authnProcessor;
+	private StandardWebAuthenticationProcessor authnProcessor;
 	private HomeEndpointProperties config;
 
 	@Autowired
 	public UserHomeUI(UnityMessageSource msg, UserAccountComponent userAccountComponent,
-			WebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher)
+			StandardWebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.userAccount = userAccountComponent;
@@ -53,7 +53,7 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 
 	@Override
 	public void configure(ResolvedEndpoint description,
-			List<AuthenticationOption> authenticators,
+			List<AuthenticationFlow> authenticators,
 			EndpointRegistrationConfiguration regCfg, Properties endpointProperties)
 	{
 		super.configure(description, authenticators, regCfg, endpointProperties);
@@ -61,7 +61,7 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 	}
 
 	@Override
-	protected void appInit(VaadinRequest request)
+	protected void enter(VaadinRequest request)
 	{
 		VerticalLayout contents = new VerticalLayout();
 		contents.setMargin(false);

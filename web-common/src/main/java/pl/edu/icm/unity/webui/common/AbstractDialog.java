@@ -44,6 +44,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public abstract class AbstractDialog extends Window implements Button.ClickListener 
 {
+	//TODO remove percentage sizeing
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AbstractDialog.class);
 
 	public enum SizeMode {LARGE, MEDIUM, SMALL}
@@ -57,6 +58,10 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected boolean lightweightWrapperPanel = false;
 	private int width = 50;
 	private int height = 50;
+	private float widthEm;
+	private float heightEm;
+	private String confirmMessage;
+	private String cancelMessage;
 	
 	/**
 	 * With only one, confirm button, which usually should be labelled as 'close'. 
@@ -73,10 +78,11 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		super(caption);
 		this.msg = msg;
-		confirm = new Button(confirmM, this);
-		confirm.setId("AbstractDialog.confirm");
+		this.cancelMessage = cancelM;
+		this.confirmMessage = confirmM;
 		if (cancelM != null)
-			cancel = new Button(cancelM, this);		
+			cancel = createCancelButton();
+		confirm = createConfirmButton();
 	}
 	
 	/**
@@ -88,8 +94,8 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		super(caption);
 		this.msg = msg;
-		confirm = new Button(msg.getMessage("ok"), this);
-		cancel = new Button(msg.getMessage("cancel"), this);
+		cancel = createCancelButton();
+		confirm = createConfirmButton();
 	}	
 	
 	protected abstract Component getContents() throws Exception;
@@ -99,6 +105,27 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	{
 		this.width = widthPercentage;
 		this.height = heightPercentage;
+	}
+	
+	protected void setSizeEm(float widthEm, float heightEm)
+	{
+		this.widthEm = widthEm;
+		this.heightEm = heightEm;
+	}
+	
+	protected Button createConfirmButton()
+	{
+		Button confirm = new Button(confirmMessage == null ? msg.getMessage("ok") : confirmMessage, this);
+		confirm.setId("AbstractDialog.confirm");
+		confirm.addStyleName("u-dialog-confirm");
+		return confirm;
+	}
+
+	protected Button createCancelButton()
+	{
+		Button confirm = new Button(cancelMessage == null ? msg.getMessage("cancel") : cancelMessage, this);
+		confirm.addStyleName("u-dialog-cancel");
+		return confirm;
 	}
 	
 	/**
@@ -117,7 +144,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 			setSize(50, 60);
 			break;
 		case SMALL:
-			setSize(35, 30);
+			setSizeEm(32, 16);
 			break;
 		default:
 			break;
@@ -190,6 +217,7 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSizeFull();
+		vl.addStyleName("u-dialog-contents");
 		
 		Panel contentsPanel = new SafePanel();
 		contentsPanel.setSizeFull();
@@ -211,8 +239,16 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 		
 		vl.setExpandRatio(contentsPanel, 4.0f);
 		setContent(vl);
-		setWidth(width, Unit.PERCENTAGE);
-		setHeight(height, Unit.PERCENTAGE);
+		
+		if (widthEm == 0)
+		{
+			setWidth(width, Unit.PERCENTAGE);
+			setHeight(height, Unit.PERCENTAGE);
+		} else
+		{
+			setWidth(widthEm, Unit.EM);
+			setHeight(heightEm, Unit.EM);
+		}
 		enterButton = getDefaultOKButton();
 		if (enterButton != null)
 		{
@@ -227,9 +263,9 @@ public abstract class AbstractDialog extends Window implements Button.ClickListe
 	protected AbstractOrderedLayout getButtonsBar()
 	{
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.addComponent(confirm);
 		if (cancel != null)
 			hl.addComponent(cancel);
+		hl.addComponent(confirm);
 		return hl;
 	}
 	

@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.common.LimitedOuputStream;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -94,12 +95,15 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	}
 
 	@Override
-	public Component getRepresentation(String valueRaw)
+	public Component getRepresentation(String valueRaw, AttributeViewerContext context)
 	{
 		BufferedImage value = syntax.convertFromString(valueRaw);
+		if (value == null)
+			return  getErrorImage();
+		
 		int width = value.getWidth();
 		int height = value.getHeight();
-		Resource resValue = getValueAsImage(value, (JpegImageAttributeSyntax) syntax, width,
+		Resource resValue = getValueAsImage(value, syntax, width,
 				height);
 		if (resValue != null)
 		{
@@ -171,7 +175,9 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 			error = new Label();
 			error.setStyleName(Styles.error.toString());
 			error.setVisible(false);
-				
+			
+			required = context.isRequired();
+			
 			Label errorImage = getErrorImage();
 			errorImage.setVisible(false);
 			
@@ -274,7 +280,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 				
 				if (fos.isOverflow())
 				{
-					NotificationPopup.showError(msg, 
+					NotificationPopup.showError(
 							msg.getMessage("JpegAttributeHandler.uploadFailed"),
 							msg.getMessage("JpegAttributeHandler.imageSizeTooBig"));
 					fos = null;
@@ -294,7 +300,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 							getResource());
 				} catch (Exception e)
 				{
-					NotificationPopup.showError(msg, msg.getMessage("JpegAttributeHandler.uploadInvalid"),
+					NotificationPopup.showError(msg.getMessage("JpegAttributeHandler.uploadInvalid"),
 							"");
 					fos = null;
 				}
@@ -346,7 +352,7 @@ public class JpegImageAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getSyntaxViewer()
 	{
-		return new CompactFormLayout(getHints((JpegImageAttributeSyntax)syntax));
+		return new CompactFormLayout(getHints(syntax));
 	}
 
 	

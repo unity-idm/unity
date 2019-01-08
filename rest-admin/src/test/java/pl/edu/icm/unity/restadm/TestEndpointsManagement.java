@@ -29,7 +29,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
@@ -53,7 +52,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		assertThat(returnedL.size(), is(1));
 		ResolvedEndpoint returned = returnedL.get(0);
 		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(),
-			is(Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
+			is(Lists.newArrayList(AUTHENTICATION_FLOW_PASS)));
 		assertThat(returned.getEndpoint().getContextAddress(), is("/restadm"));
 		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc"));
 		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
@@ -74,7 +73,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		ResolvedEndpoint returned = m.readValue(contents, ResolvedEndpoint.class);
 
 		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
-				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
+				Lists.newArrayList("ApassRESTFlow")));
 		assertThat(returned.getEndpoint().getContextAddress(), is("/contextA"));
 		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc"));
 		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
@@ -126,7 +125,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		ResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
 		
 		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
-				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
+				Lists.newArrayList("ApassRESTFlow")));
 		assertThat(returned.getEndpoint().getContextAddress(), is("/contextA"));
 		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc2"));
 		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
@@ -159,7 +158,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 
 		ResolvedEndpoint returned = getEndpointById(returnedL, "newEndpoint");
 		assertThat(returned.getEndpoint().getConfiguration().getAuthenticationOptions(), is(
-				Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"))));
+				Lists.newArrayList("ApassRESTFlow")));
 		assertThat(returned.getEndpoint().getContextAddress(), is("/contextA"));
 		assertThat(returned.getEndpoint().getConfiguration().getDescription(), is("desc"));
 		assertThat(returned.getEndpoint().getConfiguration().getDisplayedName(), 
@@ -188,7 +187,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 
 	private HttpPost getDeployRequest() throws UnsupportedEncodingException, JsonProcessingException
 	{
-		return getDeployRequest("ApassREST");
+		return getDeployRequest(AUTHENTICATION_FLOW_PASS);
 	}
 
 	private HttpPost getDeployRequestWithInvalidAuthn() throws UnsupportedEncodingException, JsonProcessingException
@@ -196,11 +195,11 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 		return getDeployRequest("Invalid authn");
 	}
 
-	private HttpPost getDeployRequest(String authnDescription) throws UnsupportedEncodingException, JsonProcessingException
+	private HttpPost getDeployRequest(String authnFlow) throws UnsupportedEncodingException, JsonProcessingException
 	{
 		HttpPost deploy = new HttpPost("/restadm/v1/endpoint/newEndpoint?typeId=" + RESTAdminEndpoint.NAME
 				+ "&address=/contextA");
-		List<AuthenticationOptionDescription> authn = Lists.newArrayList(new AuthenticationOptionDescription(authnDescription));
+		List<String> authn = Lists.newArrayList(authnFlow);
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpoint"),
 				"desc",
 				authn,
@@ -215,7 +214,7 @@ public class TestEndpointsManagement extends RESTAdminTestBase
 	private HttpPut getUpdateRequest() throws UnsupportedEncodingException, JsonProcessingException
 	{
 		HttpPut update = new HttpPut("/restadm/v1/endpoint/newEndpoint");
-		List<AuthenticationOptionDescription> authn = Lists.newArrayList(new AuthenticationOptionDescription("ApassREST"));
+		List<String> authn = Lists.newArrayList(AUTHENTICATION_FLOW_PASS);
 		EndpointConfiguration config = new EndpointConfiguration(new I18nString("endpoint2"),
 				"desc2",
 				authn,

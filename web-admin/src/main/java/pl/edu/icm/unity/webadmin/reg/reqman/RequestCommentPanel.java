@@ -62,7 +62,7 @@ public class RequestCommentPanel extends CustomComponent
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(true);
-		main.setMargin(true);
+		main.setMargin(false);
 		
 		contentP = new VerticalLayout();
 		contentP.setSpacing(true);

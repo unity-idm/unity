@@ -47,14 +47,14 @@ public class EnquiryResponseTest extends BaseRequestTest<EnquiryResponseState>
 				.withAddedCredential()
 				.withCredentialId("cred")
 				.withSecrets("sec").endCredential()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().withGroup("/some/group").endGroupSelection()
 				.withAddedIdentity("x500", "CN=registration test")
 				.endIdentity()
 				.build();
 		
 		EnquiryResponseState state = new EnquiryResponseState();
 		state.setAdminComments(Lists.newArrayList(new AdminComment("contents", 3, true)));
-		state.setRegistrationContext(new RegistrationContext(true, true, TriggeringMode.afterRemoteLogin));
+		state.setRegistrationContext(new RegistrationContext(true, TriggeringMode.manualAtLogin));
 		state.setRequest(req);
 		state.setRequestId(id);
 		state.setStatus(RegistrationRequestStatus.pending);
@@ -78,15 +78,15 @@ public class EnquiryResponseTest extends BaseRequestTest<EnquiryResponseState>
 				.withAddedCredential()
 				.withCredentialId("cred2")
 				.withSecrets("sec2").endCredential()
-				.withAddedGroupSelection().withSelected(false).endGroupSelection()
-				.withAddedGroupSelection().withSelected(true).endGroupSelection()
+				.withAddedGroupSelection().endGroupSelection()
+				.withAddedGroupSelection().withGroup("/other").withGroup("/another").endGroupSelection()
 				.withAddedIdentity("username", "ss")
 				.endIdentity()
 				.build();
 
 		
 		state.setAdminComments(Lists.newArrayList(new AdminComment("contents2", 4, false)));
-		state.setRegistrationContext(new RegistrationContext(false, true, TriggeringMode.manualAtLogin));
+		state.setRegistrationContext(new RegistrationContext(true, TriggeringMode.manualAtLogin));
 		state.setRequest(req);
 		state.setRequestId("requestId2");
 		state.setStatus(RegistrationRequestStatus.accepted);

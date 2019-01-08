@@ -13,7 +13,7 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 
 /**
  * Top bar with header. Allows to logout.
@@ -22,9 +22,9 @@ import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 public class TopHeader extends TopHeaderLight
 {
 	protected UnityMessageSource msg;
-	protected WebAuthenticationProcessor authnProcessor;
+	protected StandardWebAuthenticationProcessor authnProcessor;
 	
-	public TopHeader(String title, WebAuthenticationProcessor authnProcessor, UnityMessageSource msg)
+	public TopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, UnityMessageSource msg)
 	{
 		super(title, msg);
 		this.msg = msg;

@@ -25,10 +25,12 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
+import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
@@ -108,10 +110,13 @@ public class IdentityCreationDialog extends AbstractDialog
 		
 		identityType.addValueChangeListener(event -> 
 		{
-			String type = (String) identityType.getValue();
+			String type = identityType.getValue();
 			IdentityEditor editor = identityEditorReg.getEditor(type);
 			idLayout.removeAllComponents();
-			idLayout.addComponents(editor.getEditor(true, true).getComponents());
+			ComponentsContainer container = editor.getEditor(IdentityEditorContext.builder()
+					.withRequired(true)
+					.withAdminMode(true).build());
+			idLayout.addComponents(container.getComponents());
 			identityEditor = editor;
 		});
 		identityType.setSelectedItem(supportedTypes.iterator().next());

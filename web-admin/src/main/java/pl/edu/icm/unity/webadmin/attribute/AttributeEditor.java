@@ -61,8 +61,9 @@ public class AttributeEditor extends CustomComponent
 				.withAttributeOwner(owner).build();
 
 		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
-				false, null, null, attrValuesContainer);
-
+				false, null, null);
+		valuesPanel.placeOnLayout(attrValuesContainer);
+		
 		attrTypePanel.setCallback(new TypeChangeCallback()
 		{
 			@Override
@@ -77,7 +78,8 @@ public class AttributeEditor extends CustomComponent
 						.withAttributeOwner(owner).build();
 
 				valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, newEditContext, 
-						false, null, null, attrValuesContainer);
+						false, null, null);
+				valuesPanel.placeOnLayout(attrValuesContainer);
 			}
 		});
 		initCommon();
@@ -114,8 +116,8 @@ public class AttributeEditor extends CustomComponent
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner).build();
 		
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
-				false, null, null, attrValuesContainer);
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);
+		valuesPanel.placeOnLayout(attrValuesContainer);
 		valuesPanel.setAttributeValues(attribute.getValues());
 		initCommon();
 	}
@@ -140,8 +142,8 @@ public class AttributeEditor extends CustomComponent
 				.withAttributeGroup(AttributeEditor.this.groupPath)
 				.withAttributeOwner(owner).build();
 
-		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, 
-				false, null, null, attrValuesContainer);
+		valuesPanel = new FixedAttributeEditor(msg, handlerRegistry, editContext, false, null, null);
+		valuesPanel.placeOnLayout(attrValuesContainer);
 		typeFixed = true;
 		initCommon();
 	}
@@ -149,8 +151,10 @@ public class AttributeEditor extends CustomComponent
 	private void initCommon()
 	{
 		HorizontalSplitPanel split = new HorizontalSplitPanel(attrTypePanel, attrValuesContainer);
+		split.setSplitPosition(45);
 		attrValuesContainer.setMargin(new MarginInfo(true, true, true, true));
 		attrValuesContainer.setSizeUndefined();
+		attrTypePanel.setMargin(new MarginInfo(false, true, false, false));
 		setCompositionRoot(split);
 		split.addStyleName(Styles.visibleScroll.toString());
 	}

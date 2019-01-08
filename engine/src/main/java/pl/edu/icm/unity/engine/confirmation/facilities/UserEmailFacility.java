@@ -11,8 +11,9 @@ import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.UserEmailConfirmationState;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.EntityDAO;
@@ -28,27 +29,30 @@ public abstract class UserEmailFacility <T extends UserEmailConfirmationState> e
 {
 	protected final ObjectMapper mapper = Constants.MAPPER;
 	protected EntityDAO entityDAO;
+	protected UnityMessageSource msg;
+	private String defaultRedirectURL;
 
-	protected UserEmailFacility(EntityDAO entityDAO)
+	protected UserEmailFacility(EntityDAO entityDAO, UnityMessageSource msg, String defaultRedirectURL)
 	{
 		this.entityDAO = entityDAO;
+		this.msg = msg;
+		this.defaultRedirectURL = defaultRedirectURL;
 	}
 
-	protected abstract EmailConfirmationStatus confirmElements(T state) throws EngineException;
+	protected abstract WorkflowFinalizationConfiguration confirmElements(T state) throws EngineException;
 	
 	protected abstract ConfirmedElementType getConfirmedElementType(T state);
 	
 	protected String getSuccessRedirect(T state)
 	{
-		return new EmailConfirmationRedirectURLBuilder(state.getRedirectUrl(), 
-				Status.elementConfirmed).
+		return new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, Status.elementConfirmed).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 			build();
 	}
 	
 	protected String getErrorRedirect(T state)
 	{
-		return new EmailConfirmationRedirectURLBuilder(state.getRedirectUrl(), Status.elementConfirmationError).
+		return new EmailConfirmationRedirectURLBuilder(defaultRedirectURL, Status.elementConfirmationError).
 			setConfirmationInfo(getConfirmedElementType(state), state.getType(), state.getValue()).
 			build();
 	}
@@ -72,7 +76,7 @@ public abstract class UserEmailFacility <T extends UserEmailConfirmationState> e
 	}
 	
 	@Override
-	public EmailConfirmationStatus processConfirmation(String state) throws EngineException
+	public WorkflowFinalizationConfiguration processConfirmation(String state) throws EngineException
 	{
 		T idState = parseState(state);
 		EntityState entityState = null;
@@ -81,14 +85,16 @@ public abstract class UserEmailFacility <T extends UserEmailConfirmationState> e
 			entityState = entityDAO.getByKey(idState.getOwnerEntityId()).getEntityState();
 		} catch (Exception e)
 		{
-			return new EmailConfirmationStatus(false, idState.getRedirectUrl(), 
-					"ConfirmationStatus.entityRemoved");
+			return WorkflowFinalizationConfiguration.basicError(
+					msg.getMessage("ConfirmationStatus.entityRemoved"),
+					defaultRedirectURL);
 		}
 
 		if (!entityState.equals(EntityState.valid))
 		{
-			return new EmailConfirmationStatus(false, idState.getRedirectUrl(), 
-					"ConfirmationStatus.entityInvalid");
+			return WorkflowFinalizationConfiguration.basicError(
+					msg.getMessage("ConfirmationStatus.entityInvalid"),
+					defaultRedirectURL);
 		}
 			
 		return confirmElements(idState);

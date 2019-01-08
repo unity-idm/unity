@@ -32,7 +32,7 @@ import com.vaadin.server.VaadinServlet;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
@@ -45,6 +45,7 @@ import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
 import pl.edu.icm.unity.webui.authn.AuthenticationFilter;
 import pl.edu.icm.unity.webui.authn.InvocationContextSetupFilter;
 import pl.edu.icm.unity.webui.authn.ProxyAuthenticationFilter;
+import pl.edu.icm.unity.webui.authn.RememberMeProcessor;
 import pl.edu.icm.unity.webui.sandbox.AccountAssociationSandboxUI;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouterImpl;
@@ -126,32 +127,34 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		SessionManagement sessionMan = applicationContext.getBean(SessionManagement.class);
 		LoginToHttpSessionBinder sessionBinder = applicationContext.getBean(LoginToHttpSessionBinder.class);
+		RememberMeProcessor remeberMeProcessor = applicationContext.getBean(RememberMeProcessor.class);
+		
 		
 		context.addFilter(new FilterHolder(new HiddenResourcesFilter(
 				Collections.unmodifiableList(Arrays.asList(AUTHENTICATION_PATH)))), 
 				"/*", EnumSet.of(DispatcherType.REQUEST));
 		authnFilter = new AuthenticationFilter(
-				new ArrayList<String>(Arrays.asList(uiServletPath)), 
-				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder);
+				new ArrayList<>(Arrays.asList(uiServletPath)), 
+				AUTHENTICATION_PATH, description.getRealm(), sessionMan, sessionBinder, remeberMeProcessor);
 		context.addFilter(new FilterHolder(authnFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
-		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticators, 
+		proxyAuthnFilter = new ProxyAuthenticationFilter(authenticationFlows, 
 				description.getEndpoint().getContextAddress(),
 				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.AUTO_LOGIN));
 		context.addFilter(new FilterHolder(proxyAuthnFilter), AUTHENTICATION_PATH + "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 		
 		contextSetupFilter = new InvocationContextSetupFilter(serverConfig, description.getRealm(),
-				getServletUrl(uiServletPath));
+				getServletUrl(uiServletPath), getAuthenticationFlows());
 		context.addFilter(new FilterHolder(contextSetupFilter), "/*", 
 				EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
 
-		EndpointRegistrationConfiguration registrationConfiguration = getRegistrationConfiguration();
+		EndpointRegistrationConfiguration registrationConfiguration = genericEndpointProperties.getRegistrationConfiguration();
 		
 		UnityBootstrapHandler handler4Authn = getBootstrapHandler4Authn(uiServletPath);
 		authenticationServlet = new AuthenticationVaadinServlet(applicationContext, 
-				description, authenticators, 
+				description, authenticationFlows, 
 				registrationConfiguration, properties, handler4Authn);
 		ServletHolder authnServletHolder = createVaadinServletHolder(authenticationServlet, true);
 		context.addServlet(authnServletHolder, AUTHENTICATION_PATH+"/*");
@@ -159,7 +162,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		
 		UnityBootstrapHandler handler4Main = getBootstrapHandler(uiServletPath);
 		theServlet = new UnityVaadinServlet(applicationContext, uiBeanName,
-				description, authenticators, registrationConfiguration, properties,
+				description, authenticationFlows, registrationConfiguration, properties,
 				handler4Main);
 		context.addServlet(createVaadinServletHolder(theServlet, false), uiServletPath + "/*");
 		context.addServlet(new ServletHolder(new ForwadSerlvet()), "/");
@@ -227,9 +230,10 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	
 	protected int getHeartbeatInterval(int sessionTimeout)
 	{
-		if (sessionTimeout >= 2*DEFAULT_HEARTBEAT) 
+		if (sessionTimeout >= 3*DEFAULT_HEARTBEAT) 
 			return DEFAULT_HEARTBEAT;
-		return sessionTimeout/2;
+		int ret = sessionTimeout/3;
+		return ret < 2 ? 2 : ret;
 	}
 	
 	/**
@@ -252,7 +256,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		{
 			int sessionTimeout = description.getRealm().getMaxInactivity();
 			int heartBeat = getHeartbeatInterval(sessionTimeout);
-			sessionTimeout = sessionTimeout - heartBeat - heartBeat/2;
+			sessionTimeout = sessionTimeout - heartBeat;
 			if (sessionTimeout < 2)
 				sessionTimeout = 2;
 			holder.setInitParameter(SESSION_TIMEOUT_PARAM, String.valueOf(sessionTimeout));
@@ -269,6 +273,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(heartBeat));
+		holder.setInitParameter("sendUrlsAsParameters", "false"); //theoreticly needed for push state navi, but adding this causes NPEs
 		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
 		holder.setInitParameter("org.atmosphere.cpr.broadcasterCacheClass", 
 				"org.atmosphere.cache.UUIDBroadcasterCache");
@@ -277,18 +282,11 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 		return holder;
 	}
 
-	protected EndpointRegistrationConfiguration getRegistrationConfiguration()
-	{
-		return new EndpointRegistrationConfiguration(genericEndpointProperties.getListOfValues(
-				VaadinEndpointProperties.ENABLED_REGISTRATION_FORMS),
-				genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.ENABLE_REGISTRATION));
-	}
-
 	private void addSandboxUI(String path, String uiBeanName, SandboxAuthnRouter sandboxRouter)
 	{
 		UnityBootstrapHandler bootstrapHanlder = getBootstrapHandler(path);
 		UnityVaadinServlet sandboxServlet = new UnityVaadinServlet(applicationContext, 
-				uiBeanName, description, authenticators, null, properties, bootstrapHanlder);
+				uiBeanName, description, authenticationFlows, null, properties, bootstrapHanlder);
 		sandboxServlet.setSandboxRouter(sandboxRouter);
 		ServletHolder sandboxServletHolder = createVaadinServletHolder(sandboxServlet, true);
 		sandboxServletHolder.setInitParameter("closeIdleSessions", "true");
@@ -302,13 +300,13 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 	}
 	
 	@Override
-	public final synchronized void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
+	public final synchronized void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 	{
 		setAuthenticators(authenticators);
 		if (authenticationServlet != null)
 		{
-			authenticationServlet.updateAuthenticators(authenticators);
-			theServlet.updateAuthenticators(authenticators);
+			authenticationServlet.updateAuthenticationFlows(authenticators);
+			theServlet.updateAuthenticationFlows(authenticators);
 			proxyAuthnFilter.updateAuthenticators(authenticators);
 		}
 	}

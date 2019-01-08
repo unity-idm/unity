@@ -4,15 +4,14 @@
  */
 package pl.edu.icm.unity.oauth.rp.verificator;
 
-import java.util.Date;
+import java.time.Duration;
+import java.time.Instant;
 
 import org.apache.logging.log4j.Logger;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.PersistenceConfiguration;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.oauth.client.AttributeFetchResult;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
@@ -26,8 +25,8 @@ import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 public class ResultsCache
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, ResultsCache.class);
-	private static final String CACHE_ID = ResultsCache.class.getName();
-	private Ehcache resultsCache;
+	private static final Duration MAX_CACHE = Duration.ofHours(1); 
+	private Cache<String, CacheEntry> resultsCache;
 	private boolean perEntryTtl;
 	private int globalTtl;
 	private boolean disable = false;
@@ -38,41 +37,32 @@ public class ResultsCache
 	 * @param ttl positive value sets a global TTL. Negative orders to use per entry TTL. 
 	 * Zero value disables caching.
 	 */
-	public ResultsCache(CacheManager cacheManager, int ttl)
+	public ResultsCache(int ttl)
 	{
-		resultsCache = cacheManager.addCacheIfAbsent(CACHE_ID);
-		CacheConfiguration config = resultsCache.getCacheConfiguration();
+		resultsCache = CacheBuilder.newBuilder().expireAfterWrite(MAX_CACHE).build();
 		if (ttl < 0)
 		{
-			config.setTimeToIdleSeconds(180);
-			config.setTimeToLiveSeconds(180);
 			perEntryTtl = true;
 		} else if (ttl > 0)
 		{
-			config.setTimeToIdleSeconds(ttl);
-			config.setTimeToLiveSeconds(ttl);
 			perEntryTtl = false;
 			globalTtl = ttl;
 		} else
 		{
 			disable = true;
 		}
-		PersistenceConfiguration persistCfg = new PersistenceConfiguration();
-		persistCfg.setStrategy("none");
-		config.persistence(persistCfg);
 	}
 		
 	public CacheEntry getCached(String id)
 	{
 		if (disable)
 			return null;
-		Element entry = resultsCache.get(id);
+		CacheEntry entry = resultsCache.getIfPresent(id);
 		if (entry == null || entry.isExpired())
 			return null;
-		CacheEntry ret = (CacheEntry) entry.getObjectValue();
-		log.debug("Using cached token validation result for " + ret.getTokenStatus().getSubject() + ": " + 
-				ret.getTokenStatus().isValid() + " " + new Date(entry.getExpirationTime()));
-		return ret;
+		log.debug("Using cached token validation result for " + entry.getTokenStatus().getSubject() + ": " + 
+				entry.getTokenStatus().isValid() + " " + entry.getExpirationTime());
+		return entry;
 	}
 	
 	public void cache(String id, TokenStatus status, AttributeFetchResult attrs)
@@ -80,64 +70,81 @@ public class ResultsCache
 		if (disable)
 			return;
 		CacheEntry entry = new CacheEntry(status, attrs);
-		int ttl = getCacheTtl(status);
-		Element element = new Element(id, entry, ttl, ttl);
-		log.debug("Caching token validation result for " + status.getSubject() + ": " + status.isValid() + 
-				" expiry: " + new Date(element.getExpirationTime()));
-		resultsCache.put(element);
+		log.debug("Caching token validation result for {} status: {} token expiries {} cache expires {}",
+				status.getSubject(), status.isValid(), status.getExpirationTime(), 
+				entry.getExpirationTime());
+		resultsCache.put(id, entry);
 	}
 	
-	private int getCacheTtl(TokenStatus status)
-	{
-		if (perEntryTtl)
-		{
-			if (status.getExpirationTime() != null)
-			{
-				long diff = status.getExpirationTime().getTime() - System.currentTimeMillis();
-				int ttl = (int) (diff/1000);
-				if (ttl > 3600)
-					ttl = 3600;
-				return ttl;
-			} else
-			{
-				return OAuthRPProperties.DEFAULT_CACHE_TTL;
-			}
-		} else
-		{
-			return globalTtl;
-		}
-	}
 	
-	public static class CacheEntry
+	class CacheEntry
 	{
 		private TokenStatus tokenStatus;
 		private AttributeFetchResult attributes;
+		private Instant createTS;
 		
 		public CacheEntry(TokenStatus tokenStatus, AttributeFetchResult attributes)
 		{
-			super();
 			this.tokenStatus = tokenStatus;
 			this.attributes = attributes;
+			this.createTS = Instant.now();
 		}
 
-		public TokenStatus getTokenStatus()
+		TokenStatus getTokenStatus()
 		{
 			return tokenStatus;
 		}
 
-		public void setTokenStatus(TokenStatus tokenStatus)
+		void setTokenStatus(TokenStatus tokenStatus)
 		{
 			this.tokenStatus = tokenStatus;
 		}
 
-		public AttributeFetchResult getAttributes()
+		AttributeFetchResult getAttributes()
 		{
 			return attributes;
 		}
 
-		public void setAttributes(AttributeFetchResult attributes)
+		void setAttributes(AttributeFetchResult attributes)
 		{
 			this.attributes = attributes;
+		}
+		
+		private Instant getExpirationTime()
+		{
+			Instant tokenExpiration = getTokenExpiration();
+			if (perEntryTtl)
+			{
+				if (tokenExpiration != null)
+				{
+					return tokenExpiration;
+				} else
+				{
+					return createTS.plusSeconds(OAuthRPProperties.DEFAULT_CACHE_TTL);
+				}
+			} else
+			{
+				Instant globalExpiry = createTS.plusSeconds(globalTtl);
+				if (tokenExpiration == null)
+					return globalExpiry;
+				return tokenExpiration.isBefore(globalExpiry) ? tokenExpiration : globalExpiry;
+			}
+		}
+		
+		private boolean isExpired()
+		{
+			return getExpirationTime().isBefore(Instant.now()); 
+		}
+		
+		private Instant getTokenExpiration()
+		{
+			if (tokenStatus.getExpirationTime() != null)
+			{
+				return Instant.ofEpochMilli(tokenStatus.getExpirationTime().getTime());
+			} else
+			{
+				return null;
+			}
 		}
 	}
 }

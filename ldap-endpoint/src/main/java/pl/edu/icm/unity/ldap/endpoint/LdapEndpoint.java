@@ -17,7 +17,8 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractEndpoint;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -77,13 +78,14 @@ public class LdapEndpoint extends AbstractEndpoint
 	@Override
 	public void start() throws EngineException
 	{
-		LdapSimpleBindRetrieval rpr = (LdapSimpleBindRetrieval) (authenticators.get(0)
-				.getPrimaryAuthenticator());
+		AuthenticatorInstance firstFactorAuthenticator = authenticationFlows.get(0)
+				.getFirstFactorAuthenticators().iterator().next();
+		LdapSimpleBindRetrieval rpr = (LdapSimpleBindRetrieval) firstFactorAuthenticator.getRetrieval();
 		startLdapEmbeddedServer(rpr);
 	}
 
 	@Override
-	public void updateAuthenticationOptions(List<AuthenticationOption> authenticationOptions)
+	public void updateAuthenticationFlows(List<AuthenticationFlow> authenticationFlows)
 			throws UnsupportedOperationException
 	{
 	}
@@ -124,7 +126,7 @@ public class LdapEndpoint extends AbstractEndpoint
 				workDirectory);
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(rpr, sessionMan,
 				this.description.getRealm(), attributesMan, identitiesMan,
-				configuration, userMapper, ldapServerFacade);
+				configuration, userMapper, ldapServerFacade, rpr.getAuthenticatorId());
 
 		try
 		{

@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.ldap.endpoint;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -53,6 +54,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
@@ -79,7 +81,7 @@ class LdapApacheDSInterceptor extends BaseInterceptor
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_LDAP_ENDPOINT,
 			LdapApacheDSInterceptor.class);
-
+	
 	private final LdapServerAuthentication auth;
 	private final UserMapper userMapper;
 	private final LdapServerFacade lsf;
@@ -88,11 +90,12 @@ class LdapApacheDSInterceptor extends BaseInterceptor
 	private final EntityManagement identitiesMan;
 	private final LdapServerProperties configuration;
 	private final LdapSearch ldapSearch;
+	private final String authenticatorId;
 
 	LdapApacheDSInterceptor(LdapServerAuthentication auth, SessionManagement sessionMan,
 			AuthenticationRealm realm, AttributesManagement attributesMan,
 			EntityManagement identitiesMan, LdapServerProperties configuration,
-			UserMapper userMapper, LdapServerFacade lsf)
+			UserMapper userMapper, LdapServerFacade lsf, String authenticatorId)
 	{
 		this.userMapper = userMapper;
 		this.auth = auth;
@@ -101,6 +104,7 @@ class LdapApacheDSInterceptor extends BaseInterceptor
 		this.identitiesMan = identitiesMan;
 		this.configuration = configuration;
 		this.lsf = lsf;
+		this.authenticatorId = authenticatorId;
 		LdapAttributeUtils attributeUtils = new LdapAttributeUtils(lsf, identitiesMan, configuration);
 		this.ldapSearch = new LdapSearch(configuration, identitiesMan, realm, 
 				userMapper, dnFactory, schemaManager, attributesMan, attributeUtils);
@@ -236,7 +240,8 @@ class LdapApacheDSInterceptor extends BaseInterceptor
 			policyConfig.setUserPassword(new byte[][] { new byte[] {} });
 			LoginSession ls = sessionMan.getCreateSession(
 					authnResult.getAuthenticatedEntity().getEntityId(), realm,
-					"", null, null);
+					"", null, new RememberMeInfo(false, false), 
+					authenticatorId, null);
 			CoreSessionExt mods = new CoreSessionExt(policyConfig, directoryService,
 					ls);
 			bindContext.setSession(mods);
@@ -249,7 +254,7 @@ class LdapApacheDSInterceptor extends BaseInterceptor
 
 	private InvocationContext setUnityInvocationContext(LoginSession ls)
 	{
-		InvocationContext ctx = new InvocationContext(null, realm);
+		InvocationContext ctx = new InvocationContext(null, realm, Collections.emptyList());
 		ctx.setLoginSession(ls);
 		InvocationContext.setCurrent(ctx);
 		return ctx;

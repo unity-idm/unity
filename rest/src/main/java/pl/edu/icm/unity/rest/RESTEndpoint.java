@@ -34,8 +34,9 @@ import org.eclipse.jetty.servlets.CrossOriginFilter;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.BindingAuthn;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
@@ -176,7 +177,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	}
 	
 	@Override
-	public void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
+	public void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 			throws UnsupportedOperationException
 	{
 		throw new UnsupportedOperationException();
@@ -187,21 +188,21 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 	{
 		AuthenticationRealm realm = description.getRealm();
 		inInterceptors.add(new AuthenticationInterceptor(msg, authenticationProcessor, 
-				authenticators, realm, sessionMan, notProtectedPaths));
-		installAuthnInterceptors(authenticators, inInterceptors);
+				authenticationFlows, realm, sessionMan, notProtectedPaths,
+				getEndpointDescription().getType().getFeatures()));
+		installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 
-	public static void installAuthnInterceptors(List<AuthenticationOption> authenticators,
+	public static void installAuthnInterceptors(List<AuthenticationFlow> authenticatorFlows,
 			List<Interceptor<? extends Message>> interceptors)
 	{
-		Set<String> added = new HashSet<String>();
-		for (AuthenticationOption authenticatorSet: authenticators)
+		Set<String> added = new HashSet<>();
+		for (AuthenticationFlow authenticatorFlow: authenticatorFlows)
 		{
-			BindingAuthn authenticator = authenticatorSet.getPrimaryAuthenticator();
-			installAuthnInterceptor(authenticator, interceptors, added);
-			BindingAuthn authenticator2 = authenticatorSet.getMandatory2ndAuthenticator();
-			if (authenticator2 != null)
-				installAuthnInterceptor(authenticator2, interceptors, added);
+			for (AuthenticatorInstance authenticator : authenticatorFlow.getAllAuthenticators())
+			{	
+				installAuthnInterceptor(authenticator.getRetrieval(), interceptors, added);
+			}
 		}
 	}
 

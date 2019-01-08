@@ -13,14 +13,14 @@ import pl.edu.icm.unity.store.objstore.GenericObjectsDAOImpl;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
 /**
- * Easy access to {@link CredentialDefinition} storage.
+ * Easy access to {@link CredentialDefinition} storage with caching
  * @author K. Benedyczak
  */
 @Component
 public class CredentialDBImpl extends GenericObjectsDAOImpl<CredentialDefinition> implements CredentialDB
 {
 	@Autowired
-	public CredentialDBImpl(CredentialHandler handler, ObjectStoreDAO dbGeneric)
+	CredentialDBImpl(CredentialHandler handler, ObjectStoreDAO dbGeneric)
 	{
 		super(handler, dbGeneric, CredentialDefinition.class, "credential");
 	}

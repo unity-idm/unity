@@ -8,6 +8,7 @@ import org.vaadin.teemu.wizards.Wizard;
 
 import com.vaadin.ui.UI;
 
+import pl.edu.icm.unity.engine.api.authn.AuthenticatedEntity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -47,22 +48,26 @@ public class ConnectIdAtLoginWizardProvider extends AbstractSandboxWizardProvide
 		final SandboxStep sandboxStep = new SandboxStep(msg, sandboxURL, wizard);
 		wizard.addStep(sandboxStep);
 		final MergeUnknownWithExistingConfirmationStep confirmationStep = 
-				new MergeUnknownWithExistingConfirmationStep(msg, translationEngine, wizard, 
-						unknownUser);
+				new MergeUnknownWithExistingConfirmationStep(msg, unknownUser, translationEngine, wizard);
 		wizard.addStep(confirmationStep);
 		
 		openSandboxPopupOnNextButton(wizard);
 		showSandboxPopupAfterGivenStep(wizard, IntroStep.class);
-		addSandboxListener(new HandlerCallback()
+		addSandboxListener(new SandboxAuthnNotifier.AuthnResultListener()
 		{
 			@Override
-			public void handle(SandboxAuthnEvent event)
+			public void onPartialAuthnResult(SandboxAuthnEvent event)
+			{
+			}
+
+			@Override
+			public void onCompleteAuthnResult(AuthenticatedEntity authenticatedEntity)
 			{
 				sandboxStep.enableNext();
-				confirmationStep.setAuthnData(event);
+				confirmationStep.setAuthenticatedUser(authenticatedEntity);
 				wizard.next();						
 			}
-		}, wizard, UI.getCurrent());
+		}, wizard, UI.getCurrent(), true);
 		return wizard;
 	}
 

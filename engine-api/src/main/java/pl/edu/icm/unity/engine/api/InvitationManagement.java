@@ -25,6 +25,11 @@ public interface InvitationManagement
 	String addInvitation(InvitationParam invitation) throws EngineException;
 
 	/**
+	 * Updates existing invitation. The email address and registration form can not be changed.
+	 */
+	void updateInvitation(String code, InvitationParam invitation) throws EngineException;
+	
+	/**
 	 * Sends an invitation message to the invitation specified by the code. In case when there is 
 	 * no such invitation, it has missing or invalid contact address or when the associated form has no message
 	 * template for invitation this method throws exception. 

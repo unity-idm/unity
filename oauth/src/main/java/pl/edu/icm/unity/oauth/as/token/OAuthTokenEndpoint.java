@@ -6,6 +6,7 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.ws.rs.ApplicationPath;
@@ -33,6 +34,7 @@ import pl.edu.icm.unity.oauth.as.OAuthEndpointsCoordinator;
 import pl.edu.icm.unity.oauth.as.OAuthRequestValidator;
 import pl.edu.icm.unity.rest.RESTEndpoint;
 import pl.edu.icm.unity.rest.authn.JAXRSAuthentication;
+import pl.edu.icm.unity.rest.authn.ext.HttpBasicRetrievalBase;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 
@@ -48,8 +50,9 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public static final String PATH = "";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "A RESTful endpoint exposing OAuth and OIDC related, client-focused endpoints.", 
-			Collections.singleton(JAXRSAuthentication.NAME),
-			Collections.singletonMap(PATH, "The OAuth base path"));
+			JAXRSAuthentication.NAME,
+			Collections.singletonMap(PATH, "The OAuth base path"),
+			getEndpointFeatures());
 	
 	public static final String TOKEN_PATH = "/token";
 	public static final String USER_INFO_PATH = "/userinfo";
@@ -142,5 +145,12 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 		{
 			return factory.getObject();
 		}
+	}
+	
+	private static Properties getEndpointFeatures()
+	{
+		Properties ret = new Properties();
+		ret.setProperty(HttpBasicRetrievalBase.FEATURE_HTTP_BASIC_URLENCODED, "true");
+		return ret;
 	}
 }

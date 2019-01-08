@@ -121,6 +121,8 @@ public class EnumAttributeSyntax extends AbstractStringAttributeSyntax
 	@Override
 	public void validate(String value) throws IllegalAttributeValueException
 	{
+		if (allowed == null)
+			throw new IllegalAttributeValueException("Trying to validate enum attribute value on not configured syntax");
 		if (!allowed.contains(value))
 			throw new IllegalAttributeValueException("The value is not a valid enumeration element");
 	}

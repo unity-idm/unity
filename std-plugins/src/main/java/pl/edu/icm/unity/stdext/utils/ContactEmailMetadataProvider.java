@@ -53,4 +53,10 @@ public class ContactEmailMetadataProvider implements AttributeMetadataProvider
 	{
 		return true;
 	}
+
+	@Override
+	public boolean isSecuritySensitive()
+	{
+		return true;
+	}
 }

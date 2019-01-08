@@ -8,14 +8,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -34,12 +31,16 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
+import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -51,11 +52,8 @@ import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.identities.EntityCreationHandler;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesGrid;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
-import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ConfirmDialog.Callback;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.DnDGridUtils;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -69,81 +67,93 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 
 /**
  * Tree with groups obtained dynamically from the engine.
+ * 
  * @author K. Benedyczak
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class GroupsTree extends TreeGrid<TreeNode>
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, GroupsTree.class);
 	private GroupsManagement groupsMan;
 	private EntityManagement identitiesMan;
 	private UnityMessageSource msg;
-	private GroupManagementHelper groupManagementHelper;
 	private EventsBus bus;
 	private AttributeClassManagement acMan;
 	private TreeData<TreeNode> treeData;
 	private GridContextMenuSupport<TreeNode> contextMenuSupp;
 	private EntityCreationHandler entityCreationDialogHandler;
 	private Toolbar<TreeNode> toolbar;
-	
-	@SuppressWarnings("unchecked")
+	private BulkGroupQueryService bulkQueryService;
+	private RegistrationsManagement registrationMan;
+	private EnquiryManagement enquiryMan;
+	private AttributeTypeManagement attrTypeMan;
+
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
 			UnityMessageSource msg, AttributeClassManagement acMan,
 			EntityCreationHandler entityCreationDialogHandler,
-			GroupManagementHelper groupManagementHelper)
+			GroupManagementHelper groupManagementHelper,
+			BulkGroupQueryService bulkQueryService, 
+			RegistrationsManagement registrationMan,
+			EnquiryManagement enquiryMan,
+			AttributeTypeManagement attrTypeMan)
 	{
 		this.groupsMan = groupsMan;
 		this.identitiesMan = identitiesMan;
 		this.msg = msg;
 		this.acMan = acMan;
 		this.entityCreationDialogHandler = entityCreationDialogHandler;
-		this.groupManagementHelper = groupManagementHelper;
-		
+		this.bulkQueryService = bulkQueryService;
+		this.registrationMan = registrationMan;
+		this.enquiryMan = enquiryMan;
+		this.attrTypeMan = attrTypeMan;
+
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 		addExpandListener(new GroupExpandListener());
 		addSelectionListener(e -> {
 			final TreeNode node = getSelection();
 			bus.fireEvent(new GroupChangedEvent(node == null ? null : node.getPath()));
 		});
-		
-		SingleSelectionModel<TreeNode> singleSelect =
-				      (SingleSelectionModel<TreeNode>) getSelectionModel();
-			
+
+		SingleSelectionModel<TreeNode> singleSelect = (SingleSelectionModel<TreeNode>) getSelectionModel();
+
 		singleSelect.setDeselectAllowed(false);
-	
-		
+
 		toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		addSelectionListener(toolbar.getSelectionListener());
-		
-		HamburgerMenu<TreeNode> hamburgerMenu= new HamburgerMenu<>();
+
+		HamburgerMenu<TreeNode> hamburgerMenu = new HamburgerMenu<>();
 		addSelectionListener(hamburgerMenu.getSelectionListener());
-		
-		
+
 		SingleActionHandler<TreeNode> refreshAction = getRefreshAction();
 		addActionHandler(refreshAction);
-		
+
 		SingleActionHandler<TreeNode> expandAllAction = getExpandAllAction();
 		addActionHandler(expandAllAction);
-		
+
 		SingleActionHandler<TreeNode> collapseAllAction = getCollapseAllAction();
 		addActionHandler(collapseAllAction);
-		
+
 		SingleActionHandler<TreeNode> addAction = getAddAction();
 		addActionHandler(addAction);
-		
+
 		SingleActionHandler<TreeNode> editAction = getEditAction();
 		addActionHandler(editAction);
-		
+
 		SingleActionHandler<TreeNode> editACAction = getEditACsAction();
 		addActionHandler(editACAction);
+
+		//TODO remove this. Temporarily for 2.8.0 
+		boolean addDelegationConfig = System.getProperty("enableGroupDelegation") != null;
+		SingleActionHandler<TreeNode> editDelegationConfigAction = getEditDelegationConfigAction();
+		if (addDelegationConfig) addActionHandler(editDelegationConfigAction);		
 		
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
 		addActionHandler(deleteAction);
 
 		SingleActionHandler<TreeNode> addEntityAction = getAddEntityAction();
 		addActionHandler(addEntityAction);
+
 		
 		toolbar.addActionHandler(addAction);
 		toolbar.addActionHandler(deleteAction);
@@ -152,44 +162,24 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(collapseAllAction);
 		hamburgerMenu.addActionHandler(editAction);
 		hamburgerMenu.addActionHandler(editACAction);
+		if (addDelegationConfig) hamburgerMenu.addActionHandler(editDelegationConfigAction);
 		hamburgerMenu.addActionHandler(addEntityAction);
 		toolbar.addHamburger(hamburgerMenu);
-		
+
 		this.bus = WebSession.getCurrent().getEventBus();
 
 		treeData = new TreeData<>();
 		setDataProvider(new GroupsDataProvider(treeData));
 
-		addColumn(n -> n.getIcon() + " " + n.toString(), 
-				new HtmlRenderer());
+		addColumn(n -> n.getIcon() + " " + n.toString(), new HtmlRenderer());
 		setHeaderVisible(false);
 		setPrimaryStyleName(Styles.vGroupBrowser.toString());
-	        setRowHeight(34);
-	        
+		setRowHeight(34);
+
 		setSizeFull();
-		
-		
-		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this,
-				DropMode.ON_TOP);
-		dropTarget.setDropEffect(DropEffect.MOVE);
-		dropTarget.setDropCriteriaScript(DnDGridUtils.getTypedCriteriaScript(
-				IdentitiesGrid.ENTITY_DND_TYPE));
-		dropTarget.addGridDropListener(e -> 
-		{
-			e.getDragSourceExtension().ifPresent(source -> 
-			{
-				if (source instanceof GridDragSource 
-						&& e.getDropTargetRow().isPresent()
-						&& source.getDragData() != null)
-				{
-					Set<EntityWithLabel> dragData = (Set<EntityWithLabel>) source
-							.getDragData();
-					addToGroupVerification(e.getDropTargetRow().get().getPath(),
-							dragData);
-				}
-			});
-		});
-		
+
+		setupDragNDrop(groupManagementHelper);
+
 		try
 		{
 			setupRoot();
@@ -203,6 +193,30 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			expand(parent);
 		}
 
+	}
+
+	@SuppressWarnings("unchecked")
+	private void setupDragNDrop(GroupManagementHelper groupManagementHelper)
+	{
+		TreeGridDropTarget<TreeNode> dropTarget = new TreeGridDropTarget<>(this,
+				DropMode.ON_TOP);
+		dropTarget.setDropEffect(DropEffect.MOVE);
+		dropTarget.setDropCriteriaScript(DnDGridUtils
+				.getTypedCriteriaScript(IdentitiesGrid.ENTITY_DND_TYPE));
+		dropTarget.addGridDropListener(e -> {
+			e.getDragSourceExtension().ifPresent(source -> {
+				if (source instanceof GridDragSource
+						&& e.getDropTargetRow().isPresent()
+						&& source.getDragData() != null)
+				{
+					Set<EntityWithLabel> dragData = (Set<EntityWithLabel>) source
+							.getDragData();
+					groupManagementHelper.bulkAddToGroup(
+							e.getDropTargetRow().get().getPath(),
+							dragData, true);
+				}
+			});
+		});
 	}
 
 	private void addActionHandler(SingleActionHandler<TreeNode> actionHandler)
@@ -220,7 +234,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	{
 		return toolbar;
 	}
-	
+
 	/**
 	 * We can have two cases: either we can read '/' or not. In the latter
 	 * case we take groups where the logged user is the member, and we put
@@ -313,10 +327,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		}
 		node.setContentsFetched(false);
 		getDataProvider().refreshAll();
-		collapse(node);		
+		collapse(node);
 		expand(node);
 	}
-
 
 	private void removeGroup(TreeNode parent, String path, boolean recursive)
 	{
@@ -355,82 +368,6 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		}
 	}
 
-	
-	private Deque<String> checkEntityGroup(String finalGroup, EntityWithLabel entity)
-	{
-		 EntityParam entityParam = new EntityParam(entity.getEntity().getId());
-		Collection<String> existingGroups;
-		try
-		{
-			existingGroups = identitiesMan.getGroups(entityParam).keySet();
-		} catch (EngineException e1)
-		{
-			NotificationPopup.showError(msg,
-					msg.getMessage("GroupsTree.getMembershipError", entity),
-					e1);
-			return null;
-		}
-		final Deque<String> notMember = Group.getMissingGroups(finalGroup, existingGroups);
-		
-		return notMember;
-	}
-	
-	
-	private void addToGroupVerification(String finalGroup, Set<EntityWithLabel> entities)
-	{
-
-		Map<EntityWithLabel, Deque<String>> toAdd = new HashMap<>();
-
-		for (EntityWithLabel en : entities)
-		{
-			Deque<String> groups = checkEntityGroup(finalGroup, en);
-			if (groups == null)
-				return;
-			toAdd.put(en, groups);
-		}
-
-		int missingSize = 0;
-		for (Deque<String> notMember : toAdd.values())
-			missingSize += notMember.size();
-		if (missingSize == 0)
-		{
-			NotificationPopup.showNotice(msg,
-					msg.getMessage("GroupsTree.alreadyMember", MessageUtils
-							.createConfirmFromStrings(msg, entities),
-							finalGroup),
-					"");
-			return;
-		}
-
-		ConfirmDialog confirm = new ConfirmDialog(msg,
-				msg.getMessage("GroupsTree.confirmAddToGroup",
-						MessageUtils.createConfirmFromStrings(msg,
-								entities),
-						finalGroup),
-				new Callback()
-				{
-					@Override
-					public void onConfirm()
-					{
-
-						for (Map.Entry<EntityWithLabel, Deque<String>> entry : toAdd
-								.entrySet())
-						{
-
-							groupManagementHelper.addToGroup(
-									entry.getValue(),
-									entry.getKey().getEntity()
-											.getId(),
-									s -> {
-									});
-						}
-
-					}
-				});
-		confirm.show();
-
-	}
-	
 	private SingleActionHandler<TreeNode> getAddAction()
 	{
 		return SingleActionHandler.builder(TreeNode.class)
@@ -466,6 +403,21 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		dialog.show();
 
 	}
+	
+	private Group resolveGroup(TreeNode node)
+	{
+		Group group = null;
+		try
+		{
+			group = groupsMan.getContents(node.getPath(), GroupContents.METADATA)
+					.getGroup();
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupsTree.resolveGroupError"), e);
+		}
+		return group;
+	}
 
 	private SingleActionHandler<TreeNode> getEditAction()
 	{
@@ -476,17 +428,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private void showEditDialog(Collection<TreeNode> target)
 	{
 		TreeNode node = target.iterator().next();
-		Group group;
-		try
-		{
-			group = groupsMan.getContents(node.getPath(), GroupContents.METADATA)
-					.getGroup();
-		} catch (Exception e)
-		{
-			NotificationPopup.showError(msg,
-					msg.getMessage("GroupsTree.resolveGroupError"), e);
+		Group group = resolveGroup(node);
+		if (group == null)
 			return;
-		}
 
 		new GroupEditDialog(msg, group, true, g -> {
 			updateGroup(node.getPath(), g);
@@ -494,6 +438,29 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			if (node.equals(getSelection()))
 				bus.fireEvent(new GroupChangedEvent(node.getPath()));
 		}).show();
+
+	}
+
+	private SingleActionHandler<TreeNode> getEditDelegationConfigAction()
+	{
+		return SingleActionHandler.builder(TreeNode.class)
+				.withCaption(msg.getMessage("GroupsTree.editDelegationConfigAction"))
+				.withIcon(Images.forward.getResource())
+				.withHandler(this::showEditDelegationCondigDialog).build();
+	}
+
+	private void showEditDelegationCondigDialog(Collection<TreeNode> target)
+	{
+		TreeNode node = target.iterator().next();
+		Group group = resolveGroup(node);
+		if (group == null)
+			return;
+		
+		new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan,
+				group.getDelegationConfiguration(), delConfig -> {
+					group.setDelegationConfiguration(delConfig);
+					updateGroup(node.getPath(), group);
+				}).show();
 
 	}
 
@@ -519,7 +486,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private void showAddEntityDialog(Collection<TreeNode> target)
 	{
 		final TreeNode node = target.iterator().next();
-		entityCreationDialogHandler.showAddEntityDialog(() -> node.getPath(), 
+		entityCreationDialogHandler.showAddEntityDialog(() -> node.getPath(),
 				i -> onCreatedIdentity(node, i));
 	}
 
@@ -588,7 +555,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 				collapseItemsRecursively(Arrays.asList(child));
 		}
 	}
-	
+
 	private class GroupExpandListener implements ExpandListener<TreeNode>
 	{
 		private void removeAllChildren(TreeNode item)
@@ -617,12 +584,12 @@ public class GroupsTree extends TreeGrid<TreeNode>
 
 			// in case of refresh
 			removeAllChildren(expandedNode);
-			
-			GroupContents contents;
+
+			GroupStructuralData bulkData;
 			try
 			{
-				contents = groupsMan.getContents(expandedNode.getPath(),
-						GroupContents.GROUPS | GroupContents.METADATA);
+				bulkData = bulkQueryService
+						.getBulkStructuralData(expandedNode.getPath());
 			} catch (Exception e)
 			{
 				expandedNode.setIcon(Images.noAuthzGrp.getHtml());
@@ -630,48 +597,43 @@ public class GroupsTree extends TreeGrid<TreeNode>
 				expand(expandedNode);
 				return;
 			}
+			Map<String, GroupContents> groupAndSubgroups = bulkQueryService
+					.getGroupAndSubgroups(bulkData);
+
 			expandedNode.setIcon(Images.folder.getHtml());
+			GroupContents contents = groupAndSubgroups.get(expandedNode.getPath());
 			expandedNode.setGroupMetadata(contents.getGroup());
 
 			List<String> subgroups = contents.getSubGroups();
 			Collections.sort(subgroups);
 			for (String subgroup : subgroups)
 			{
-				GroupContents contents2;
-				try
-				{
-					contents2 = groupsMan.getContents(subgroup,
-							GroupContents.METADATA);
-					TreeNode node = new TreeNode(msg, contents2.getGroup(),
-							Images.folder.getHtml(),
-							expandedNode);
-					treeData.addItem(node.getParentNode(), node);
-				} catch (EngineException e)
-				{
-					log.debug("Group " + subgroup
-							+ " won't be shown - metadata not readable.");
-				}
+				GroupContents contents2 = groupAndSubgroups.get(subgroup);
+				TreeNode node = new TreeNode(msg, contents2.getGroup(),
+						Images.folder.getHtml(), expandedNode);
+				treeData.addItem(node.getParentNode(), node);
 			}
-			
+
 			expandedNode.setContentsFetched(true);
 			getDataProvider().refreshAll();
-			//we expand empty node before, we have to expand one more time to reload
+			// we expand empty node before, we have to expand one
+			// more time to reload
 			expand(expandedNode);
 		}
 	}
-	
+
 	private class GroupsDataProvider extends TreeDataProvider<TreeNode>
 	{
 		public GroupsDataProvider(TreeData<TreeNode> treeData)
 		{
 			super(treeData);
 		}
-		
+
 		@Override
 		public boolean hasChildren(TreeNode item)
 		{
 			if (!item.isContentsFetched())
-					return true;
+				return true;
 			return super.hasChildren(item);
 		}
 	}

@@ -14,7 +14,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -22,6 +21,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
 import com.unboundid.ldap.sdk.CompareRequest;
 import com.unboundid.ldap.sdk.CompareResult;
 import com.unboundid.ldap.sdk.DereferencePolicy;
@@ -50,7 +50,6 @@ import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -140,13 +139,11 @@ public class LdapEndpointTests extends DBIntegrationTestBase
 		// do the magic initialisation
 		//
 		setupPasswordAuthn();
-		String ldap_typeId = "password with ldap-simple";
+		String ldap_typeId = "password";
 
 		final String AUTHENTICATOR_PASS = "ApassLDAPT";
-		authnMan.createAuthenticator(AUTHENTICATOR_PASS, ldap_typeId, null, "",
-				credentialId);
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_PASS));
+		authnMan.createAuthenticator(AUTHENTICATOR_PASS, ldap_typeId, "", credentialId);
+		List<String> authnCfg = Lists.newArrayList(AUTHENTICATOR_PASS);
 
 		// create a simple test user
 		setUpUser(username1, apass1, email1);

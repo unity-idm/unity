@@ -81,7 +81,7 @@ public class SMSCredentialRecoverySettingsEditor
 		enable.setValue(initial.isEnabled());
 		emailCodeMessageTemplate.setValue(initial.getEmailSecurityCodeMsgTemplate());
 		codeLength.setValue(initial.getCodeLength());
-		capcha.setValue(initial.isCapchaRequire());
+		capcha.setValue(initial.isCapchaRequired());
 		setEnabled(initial.isEnabled());
 	}
 

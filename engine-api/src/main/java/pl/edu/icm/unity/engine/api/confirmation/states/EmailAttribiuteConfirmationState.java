@@ -27,14 +27,6 @@ public class EmailAttribiuteConfirmationState extends UserEmailConfirmationState
 		this.group = group;
 	}
 	
-	
-	public EmailAttribiuteConfirmationState(long owner, String type,
-			String value, String locale, String group, String redirectUrl)
-	{
-		super(FACILITY_ID, type, value, locale, redirectUrl, owner);
-		this.group = group;
-	}
-
 	public EmailAttribiuteConfirmationState(String serializedState)
 	{
 		super();

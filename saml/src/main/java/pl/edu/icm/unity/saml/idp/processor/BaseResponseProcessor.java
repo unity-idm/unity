@@ -89,7 +89,7 @@ public abstract class BaseResponseProcessor<T extends XmlObject, C extends Reque
 		return getErrorResponse(convert2SAMLError(e, message, false));
 	}	
 
-	private String getRequestIssuer()
+	public String getRequestIssuer()
 	{
 		NameIDType requestIssuer = getContext().getRequest().getIssuer();
 		return requestIssuer.getStringValue();

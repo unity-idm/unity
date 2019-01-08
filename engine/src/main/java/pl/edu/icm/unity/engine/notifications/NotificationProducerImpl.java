@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.api.utils.CacheProvider;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateProcessor;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -51,6 +52,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 	private MessageTemplateDB mtDB;
 	private UnityMessageSource msg;
 	private TxManager txManager;
+	private final MessageTemplateProcessor messageTemplateProcessor = new MessageTemplateProcessor();
 	
 	@Autowired
 	public NotificationProducerImpl(
@@ -209,6 +211,7 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		Map<String, MessageTemplate> genericTemplates = allTemplates.entrySet().stream()
 			.filter(e -> e.getValue().getConsumer().equals(GenericMessageTemplateDef.NAME))
 			.collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
-		return requested.getMessage(locale, msg.getDefaultLocaleCode(), params, genericTemplates);
+		return messageTemplateProcessor.getMessage(requested, locale, msg.getDefaultLocaleCode(), 
+				params, genericTemplates);
 	}
 }

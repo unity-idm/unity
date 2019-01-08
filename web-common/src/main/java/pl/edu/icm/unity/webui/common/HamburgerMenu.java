@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common;
@@ -87,5 +87,10 @@ public class HamburgerMenu<T> extends MenuBar
 		{
 			item.setVisible(false);
 		}
+	}
+	
+	public void setTarget(Set<T> target)
+	{
+		this.target = target;
 	}
 }

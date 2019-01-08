@@ -4,10 +4,10 @@
  */
 package pl.edu.icm.unity.engine.api.session;
 
-import java.util.Date;
 import java.util.Map;
 
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -25,12 +25,27 @@ public interface SessionManagement
 	 * @param realm
 	 * @param label used only when a new session is created
 	 * @param outdatedCredential used only if a new session is created
-	 * @param absoluteExpiration can be null or absolute expiration time (then session is not closed after 
+	 * @param rememberMeInfo information about remember me steps
 	 * inactive timeout).
 	 * @return
 	 */
 	public LoginSession getCreateSession(long loggedEntity, AuthenticationRealm realm, 
-			String label, String outdatedCredentialId, Date absoluteExpiration);
+			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
+			String firstFactorOptionId, String secondFactorOptionId);
+	
+	
+	/**
+	 * Creates new session
+	 * @param loggedEntity
+	 * @param realm
+	 * @param label used only when a new session is created
+	 * @param outdatedCredential used only if a new session is created
+	 * @param rememberMeInfo information about remember me steps
+	 * @return
+	 */
+	public LoginSession createSession(long loggedEntity, AuthenticationRealm realm, 
+			String label, String outdatedCredentialId, RememberMeInfo rememberMeInfo,
+			String firstFactorOptionId, String secondFactorOptionId);
 	
 	/**
 	 * Updates the extra attributes of the session. Update is done via callback to enable transactional access.
@@ -45,6 +60,13 @@ public interface SessionManagement
 	 */
 	void updateSessionActivity(String id);
 
+	/**
+	 * Records additional re-authentication fact to the session
+	 * @param id
+	 * @param optionId
+	 */
+	void recordAdditionalAuthentication(String id, String optionId);
+	
 	/**
 	 * Removes a given session. Missing session is silently ignored.
 	 * @param id

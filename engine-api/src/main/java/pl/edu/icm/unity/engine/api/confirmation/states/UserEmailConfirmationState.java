@@ -25,15 +25,6 @@ public class UserEmailConfirmationState extends BaseEmailConfirmationState
 		this.ownerEntityId = ownerEntityId;
 	}
 
-
-	public UserEmailConfirmationState(String facilityId, String type, String value, String locale,
-			String redirectUrl, long ownerEntityId)
-	{
-		super(facilityId, type, value, locale, redirectUrl);
-		this.ownerEntityId = ownerEntityId;
-	}
-
-
 	public UserEmailConfirmationState(String serializedState) throws WrongArgumentException
 	{
 		super();

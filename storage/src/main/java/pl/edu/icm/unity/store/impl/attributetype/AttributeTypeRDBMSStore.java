@@ -17,12 +17,12 @@ import pl.edu.icm.unity.types.basic.AttributeType;
  */
 @Repository(AttributeTypeRDBMSStore.BEAN)
 public class AttributeTypeRDBMSStore extends GenericNamedRDBMSCRUD<AttributeType, AttributeTypeBean> 
-					implements AttributeTypeDAOInternal
+		implements AttributeTypeDAOInternal
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 
 	@Autowired
-	public AttributeTypeRDBMSStore(AttributeTypeRDBMSSerializer jsonSerializer)
+	AttributeTypeRDBMSStore(AttributeTypeRDBMSSerializer jsonSerializer)
 	{
 		super(AttributeTypesMapper.class, jsonSerializer, "attribute type");
 	}

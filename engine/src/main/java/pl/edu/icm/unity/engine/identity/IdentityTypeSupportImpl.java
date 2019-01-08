@@ -56,7 +56,7 @@ public class IdentityTypeSupportImpl implements IdentityTypeSupport
 	public Map<String, IdentityTypeDefinition> getTypeDefinitionsMap()
 	{
 		Collection<IdentityType> identityTypes = getIdentityTypes();
-		return identityTypes.stream().map(idType -> getTypeDefinition(idType.getName()))
+		return identityTypes.stream().map(idType -> helper.getTypeDefinition(idType))
 			.collect(Collectors.toMap(idDef -> idDef.getId(), idDef -> idDef));
 	}
 }

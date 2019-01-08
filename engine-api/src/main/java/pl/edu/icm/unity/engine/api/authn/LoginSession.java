@@ -14,13 +14,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.exceptions.InternalException;
 
 /**
  * Represents login session. Session expiration can be stored in two ways: either
@@ -46,8 +47,12 @@ public class LoginSession
 	private String entityLabel;
 	private Set<String> authenticatedIdentities = new LinkedHashSet<>();
 	private String remoteIdP;
+	private RememberMeInfo rememberMeInfo;
+	private AuthNInfo login1stFactor;
+	private AuthNInfo login2ndFactor;
+	private AuthNInfo additionalAuthn;
 	
-	private Map<String, String> sessionData = new HashMap<String, String>();
+	private Map<String, String> sessionData = new HashMap<>();
 
 	public LoginSession()
 	{
@@ -62,15 +67,20 @@ public class LoginSession
 	 * @param entityId
 	 * @param realm
 	 */
-	public LoginSession(String id, Date started, Date expires, long maxInactivity, long entityId, String realm)
+	public LoginSession(String id, Date started, Date expires, long maxInactivity,
+			long entityId, String realm, RememberMeInfo rememberMeInfo,
+			AuthNInfo login1stFactor, AuthNInfo login2ndFactor)
 	{
 		this.id = id;
 		this.started = started;
 		this.entityId = entityId;
 		this.realm = realm;
+		this.login1stFactor = login1stFactor;
+		this.login2ndFactor = login2ndFactor;
 		this.lastUsed = new Date();
 		this.expires = expires;
 		this.maxInactivity = maxInactivity;
+		this.rememberMeInfo = rememberMeInfo;
 	}
 
 	/**
@@ -81,9 +91,11 @@ public class LoginSession
 	 * @param entityId
 	 * @param realm
 	 */
-	public LoginSession(String id, Date started, long maxInactivity, long entityId, String realm)
+	public LoginSession(String id, Date started, long maxInactivity, long entityId,
+			String realm, RememberMeInfo rememberMeInfo, 
+			AuthNInfo login1stFactor, AuthNInfo login2ndFactor)
 	{
-		this(id, started, null, maxInactivity, entityId, realm);
+		this(id, started, null, maxInactivity, entityId, realm, rememberMeInfo, login1stFactor, login2ndFactor);
 	}
 
 	
@@ -200,26 +212,73 @@ public class LoginSession
 	{
 		this.outdatedCredentialId = outdatedCredentialId;
 	}
+	
+	public RememberMeInfo getRememberMeInfo()
+	{
+		return rememberMeInfo;
+	}
 
+	public void setRememberMeInfo(RememberMeInfo rememberMeInfo)
+	{
+		this.rememberMeInfo = rememberMeInfo;
+	}
+
+	public AuthNInfo getLogin1stFactor()
+	{
+		return login1stFactor;
+	}
+
+	public String getLogin1stFactorOptionId()
+	{
+		return login1stFactor == null ? null : login1stFactor.optionId;
+	}
+
+	public void setLogin1stFactor(AuthNInfo login1stFactor)
+	{
+		this.login1stFactor = login1stFactor;
+	}
+
+	public AuthNInfo getLogin2ndFactor()
+	{
+		return login2ndFactor;
+	}
+
+	public String getLogin2ndFactorOptionId()
+	{
+		return login2ndFactor == null ? null : login2ndFactor.optionId;
+	}
+
+	public void setLogin2ndFactor(AuthNInfo login2ndFactor)
+	{
+		this.login2ndFactor = login2ndFactor;
+	}
+
+	public AuthNInfo getAdditionalAuthn()
+	{
+		return additionalAuthn;
+	}
+
+	public void setAdditionalAuthn(AuthNInfo additionalAuthn)
+	{
+		this.additionalAuthn = additionalAuthn;
+	}
+
+	public boolean isExpiredAt(long timestamp)
+	{
+		long inactiveFor = timestamp - getLastUsed().getTime();
+		return inactiveFor > getMaxInactivity();
+	}
+	
 	public void deserialize(Token token)
 	{
-		ObjectNode main;
-		try
-		{
-			main = Constants.MAPPER.readValue(token.getContents(), ObjectNode.class);
-		} catch (Exception e)
-		{
-			throw new InternalException("Can't perform JSON deserialization", e);
-		}
-
+		ObjectNode main = JsonUtil.parse(token.getContents());
 		String realm = main.get("realm").asText();
 		long maxInactive = main.get("maxInactivity").asLong();
 		long lastUsed = main.get("lastUsed").asLong();
 		String entityLabel = main.get("entityLabel").asText();
 		String credentialId = null;
-		if (main.has("outdatedCredentialId")) {
+		if (main.has("outdatedCredentialId"))
 			credentialId = main.get("outdatedCredentialId").asText();
-		}
 		if (main.has("authenticatedIdentities"))
 		{
 			List<String> ai = new ArrayList<>(2);
@@ -231,6 +290,18 @@ public class LoginSession
 
 		if (main.has("remoteIdP"))
 			setRemoteIdP(main.get("remoteIdP").asText());
+		
+		if (main.has("login1stFactor")) 
+			login1stFactor = Constants.MAPPER.convertValue(main.get("login1stFactor"), AuthNInfo.class);
+		
+		if (main.has("login2ndFactor"))
+			login2ndFactor = Constants.MAPPER.convertValue(main.get("login2ndFactor"), AuthNInfo.class);
+
+		if (main.has("additionalAuthn"))
+			additionalAuthn = Constants.MAPPER.convertValue(main.get("additionalAuthn"), AuthNInfo.class);
+		
+		if (main.has("rememberMeInfo"))
+			rememberMeInfo = Constants.MAPPER.convertValue(main.get("rememberMeInfo"), RememberMeInfo.class);
 		
 		setId(token.getValue());
 		setStarted(token.getCreated());
@@ -271,13 +342,19 @@ public class LoginSession
 		for (Map.Entry<String, String> a: getSessionData().entrySet())
 			attrsJson.put(a.getKey(), a.getValue());
 
-		try
-		{
-			return Constants.MAPPER.writeValueAsBytes(main);
-		} catch (JsonProcessingException e)
-		{
-			throw new InternalException("Can't perform JSON serialization", e);
-		}
+		if (login1stFactor != null)
+			main.putPOJO("login1stFactor", login1stFactor);
+		
+		if (login2ndFactor != null)
+			main.putPOJO("login2ndFactor", login2ndFactor);
+
+		if (additionalAuthn != null)
+			main.putPOJO("additionalAuthn", additionalAuthn);
+		
+		if (rememberMeInfo != null)
+			main.putPOJO("rememberMeInfo", rememberMeInfo);
+		
+		return JsonUtil.serialize2Bytes(main);
 	}
 	
 	@Override
@@ -285,4 +362,38 @@ public class LoginSession
 	{
 		return id + "@" + realm + " of entity " + entityId;
 	}
+
+	public static class RememberMeInfo
+	{
+		public final boolean firstFactorSkipped;
+		public final boolean secondFactorSkipped;
+		
+		@JsonCreator
+		public RememberMeInfo(@JsonProperty("firstFactorSkipped") boolean firstFactorSkipped, 
+				@JsonProperty("secondFactorSkipped") boolean secondFactorSkipped)
+		{
+			this.firstFactorSkipped = firstFactorSkipped;
+			this.secondFactorSkipped = secondFactorSkipped;
+		}
+	}
+	
+	public static class AuthNInfo
+	{
+		public final String optionId;
+		public final Date time;
+
+		@JsonCreator
+		public AuthNInfo(@JsonProperty("optionId") String optionId, 
+				@JsonProperty("time") Date time)
+		{
+			this.optionId = optionId;
+			this.time = time;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "AuthNInfo [optionId=" + optionId + ", time=" + time.getTime() + "]";
+		}
+	}	
 }

@@ -6,4 +6,16 @@
 	<update id="updateSchema-20300-00">
 		UPDATE UVOS_FLAG SET VAL = '2_3_0'
 	</update>
+	
+	<update id="updateSchema-20400-00">
+		UPDATE UVOS_FLAG SET VAL = '2_4_0'
+	</update>
+	
+	<update id="updateSchema-20500-00">
+		UPDATE UVOS_FLAG SET VAL = '2_5_0'
+	</update>
+	
+	<update id="updateSchema-20600-00">
+		UPDATE UVOS_FLAG SET VAL = '2_6_0'
+	</update>
 </mapper>

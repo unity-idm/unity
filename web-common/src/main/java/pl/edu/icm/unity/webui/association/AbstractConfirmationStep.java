@@ -16,14 +16,10 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
-import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
-import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 
 /**
  * Shows confirmation of the account association and invokes the operation. 
@@ -40,7 +36,7 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 	protected ErrorComponent errorComponent;
 	
 	public AbstractConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
-			final Wizard wizard)
+			Wizard wizard)
 	{
 		this.msg = msg;
 		this.translationEngine = translationEngine;
@@ -76,24 +72,7 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 		});
 	}
 
-	/**
-	 * Performs the merge assuming that the all the settings are all right.
-	 */
 	protected abstract void merge();
-
-	/**
-	 * invoked when sandbox returns a remotely authenticated user 
-	 * @param ctx
-	 */
-	protected abstract void setRemoteAuthnData(RemoteSandboxAuthnContext ctx);
-
-	/**
-	 * invoked when sandbox callback returns a locally authenticated user.
-	 * @param ctx
-	 */
-	protected abstract void setLocalAuthnData(LocalSandboxAuthnContext ctx);
-
-
 	
 	private VerticalLayout buildMainLayout() 
 	{
@@ -103,6 +82,7 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 		setSizeFull();
 		
 		introLabel = new HtmlLabel(msg);
+		introLabel.setWidth(100, Unit.PERCENTAGE);
 		mainLayout.addComponent(introLabel);
 		
 		errorComponent = new ErrorComponent();
@@ -112,15 +92,6 @@ public abstract class AbstractConfirmationStep extends CustomComponent implement
 		return mainLayout;
 	}
 
-	public void setAuthnData(SandboxAuthnEvent event)
-	{
-		SandboxAuthnContext ctx = event.getCtx();
-		if (ctx instanceof RemoteSandboxAuthnContext)
-			setRemoteAuthnData((RemoteSandboxAuthnContext) ctx);
-		else
-			setLocalAuthnData((LocalSandboxAuthnContext) ctx);
-	}
-	
 	protected void setError(String message)
 	{
 		introLabel.setVisible(false);

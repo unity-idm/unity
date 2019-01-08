@@ -107,9 +107,32 @@ public interface EnquiryManagement
 	 * @throws EngineException
 	 */
 	List<EnquiryResponseState> getEnquiryResponses() throws EngineException;
+
+	/**
+	 * @return a specific enquiry response
+	 */
+	EnquiryResponseState getEnquiryResponse(String requestId);
+
 	
 	/**
 	 * @return form automation support for a given form
 	 */
 	FormAutomationSupport getFormAutomationSupport(EnquiryForm form);
+
+	/**
+	 * 
+	 * @param entity
+	 * @return
+	 * @throws EngineException
+	 */
+	List<EnquiryForm> getStickyEnquires(EntityParam entity) throws EngineException;
+
+	/**
+	 * 
+	 * @param form
+	 * @param entity
+	 * @throws EngineException 
+	 */
+	void removePendingStickyRequest(String form, EntityParam entity) throws EngineException;
+
 }

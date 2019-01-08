@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webadmin.identities;
@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.data.TreeData;
@@ -26,6 +27,7 @@ import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
@@ -33,7 +35,9 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
@@ -47,6 +51,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.CachedAttributeHandlers;
 
 /**
  * Displays a tree grid with identities. Can present contents in two modes: 
@@ -64,6 +69,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
 	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
 	public static final int ATTR_COL_RATIO = 180;
+	private static final String CRED_STATUS_COL_PREFIX = "credStatus::";
+	private static final int CRED_STATUS_COL_RATIO = 100;
 	
 	enum BaseColumn {
 		entity("Identities.entity", false, false, 200), 
@@ -95,6 +102,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	};
 
 	private final AttributeSupport attributeSupport;
+	private final CredentialManagement credentialManagement;
 	private final IdentityTypeSupport idTypeSupport;
 	private final UnityMessageSource msg;
 	private final EntitiesLoader entitiesLoader;
@@ -105,6 +113,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private String group;
 	private String entityNameAttribute = null;
 	private Map<String, IdentityTypeDefinition> typeDefinitionsMap;
+	private Map<String, CredentialDefinition> credentialDefinitions;
 	private List<ResolvedEntity> cachedEntitites;
 	private TreeData<IdentityEntry> treeData;
 	private TreeDataProvider<IdentityEntry> dataProvider;
@@ -119,7 +128,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	@Autowired
 	public IdentitiesGrid(UnityMessageSource msg, AttributeSupport attributeSupport,
 			IdentityTypeSupport idTypeSupport, EntitiesLoader entitiesLoader,
-			AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan)
+			AttributeHandlerRegistry attrHandlerRegistry, PreferencesManagement preferencesMan,
+			CredentialManagement credentialManagement)
 
 	{
 		this.msg = msg;
@@ -128,6 +138,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		this.entitiesLoader = entitiesLoader;
 		this.attrHandlerRegistry = attrHandlerRegistry;
 		this.preferencesMan = preferencesMan;
+		this.credentialManagement = credentialManagement;
 		createBaseColumns();
 		cachedEntitites = new ArrayList<>(200);
 		dataProvider = (TreeDataProvider<IdentityEntry>) getDataProvider();
@@ -144,6 +155,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		setSizeFull();
 		setColumnReorderingAllowed(true);
 		setStyleName(Styles.uDenseTreeGrid.toString());
+		
+		updateCredentialStatusColumns();
 		
 		loadPreferences();
 		
@@ -211,6 +224,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 				EntityNameMetadataProvider.NAME);
 		this.entityNameAttribute = nameAt == null ? null : nameAt.getName();
 		typeDefinitionsMap = idTypeSupport.getTypeDefinitionsMap();
+		updateCredentialStatusColumns();
 		updateAttributeColumnHeaders();
 
 		Set<IdentityEntry> selected = getSelectedItems();
@@ -242,31 +256,31 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private void addResolvedEntities(List<ResolvedEntity> entities, Set<IdentityEntry> selected,
 			float progress)
 	{
+		CachedAttributeHandlers attributeHandlers = new CachedAttributeHandlers(attrHandlerRegistry);
 		for (ResolvedEntity entity: entities)
 		{
 			if (groupByEntity)
-				addGroupedEntriesToTable(entity, selected);
+				addGroupedEntriesToTable(entity, selected, attributeHandlers);
 			else
-				addFlatEntriesToTable(entity, selected);
+				addFlatEntriesToTable(entity, selected, attributeHandlers);
 		}
 		dataProvider.refreshAll();
 	}
 	
 	private void addGroupedEntriesToTable(ResolvedEntity resolvedEntity, 
-			Set<IdentityEntry> savedSelection)
+			Set<IdentityEntry> savedSelection, CachedAttributeHandlers attributeHandlers)
 	{
 		Entity entity = resolvedEntity.getEntity();
 		IdentityEntry parentEntry = createEntry(null, entity, 
 				resolvedEntity.getRootAttributes(), 
-				resolvedEntity.getCurrentAttributes());
-		
+				resolvedEntity.getCurrentAttributes(), attributeHandlers);
 		treeData.addItem(null, parentEntry);
 		restoreSelectionIfMatching(savedSelection, parentEntry);
 		for (Identity id: resolvedEntity.getIdentities())
 		{
 			IdentityEntry childEntry = createEntry(id, entity, 
 					resolvedEntity.getRootAttributes(), 
-					resolvedEntity.getCurrentAttributes());
+					resolvedEntity.getCurrentAttributes(), attributeHandlers);
 			treeData.addItem(parentEntry, childEntry);
 			restoreSelectionIfMatching(savedSelection, childEntry);
 		}
@@ -279,20 +293,20 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	}
 	
 	private void addFlatEntriesToTable(ResolvedEntity resolvedEntity, 
-			Set<IdentityEntry> savedSelection)
+			Set<IdentityEntry> savedSelection, CachedAttributeHandlers attributeHandlers)
 	{
 		for (Identity id: resolvedEntity.getIdentities())
 		{
 			IdentityEntry idEntry = createEntry(id, resolvedEntity.getEntity(), 
 					resolvedEntity.getRootAttributes(), 
-					resolvedEntity.getCurrentAttributes());
+					resolvedEntity.getCurrentAttributes(), attributeHandlers);
 			treeData.addItem(null, idEntry);
 			restoreSelectionIfMatching(savedSelection, idEntry);
 		}
 	}
 	
-	private IdentityEntry createEntry(Identity id, Entity ent, Map<String, Attribute> rootAttributes,
-			Map<String, Attribute> curAttributes)
+	private IdentityEntry createEntry(Identity id, Entity ent, Map<String, ? extends Attribute> rootAttributes,
+			Map<String, ? extends Attribute> curAttributes, CachedAttributeHandlers attributeHandlers)
 	{
 		String label = null;
 		if (entityNameAttribute != null && rootAttributes.containsKey(entityNameAttribute))
@@ -311,7 +325,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			if (attribute == null)
 				val = msg.getMessage("Identities.attributeUndefined");
 			else
-				val = attrHandlerRegistry.getSimplifiedAttributeValuesRepresentation(attribute);
+				val = attributeHandlers.getSimplifiedAttributeValuesRepresentation(attribute);
 			attributesByColumnId.put(columnId, val);
 		}
 		
@@ -321,6 +335,38 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 						typeDefinitionsMap.get(id.getTypeId()), msg);
 	}
 
+	
+	private void updateCredentialStatusColumns()
+	{
+		try
+		{
+			credentialDefinitions = credentialManagement.getCredentialDefinitions().stream()
+				.collect(Collectors.toMap(credDef -> credDef.getName(), cd -> cd));
+		} catch (EngineException e)
+		{
+			throw new InternalException("Can not load credentials", e);
+		}
+		for (Map.Entry<String, CredentialDefinition> cd: credentialDefinitions.entrySet())
+		{
+			String colKey = CRED_STATUS_COL_PREFIX + cd.getKey();
+			if (getColumn(colKey) == null)
+			{
+				addColumn(ie -> ie.getCredentialStatus(cd.getKey()))
+					.setId(colKey)
+					.setCaption(cd.getValue().getName())
+					.setExpandRatio(CRED_STATUS_COL_RATIO)
+					.setHidable(true)
+					.setHidden(true);
+			}
+		}
+		
+		getColumnIds().stream()
+			.filter(colId -> colId.startsWith(CRED_STATUS_COL_PREFIX))
+			.map(colId -> colId.substring(CRED_STATUS_COL_PREFIX.length()))
+			.filter(credId -> !credentialDefinitions.containsKey(credId))
+			.forEach(credId -> removeColumn(CRED_STATUS_COL_PREFIX + credId));
+	}
+	
 	/**
 	 * Adds a new attribute column.
 	 * 
@@ -329,10 +375,16 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	 * group is used. Otherwise root group is assumed (in future other 'fixed' groups might be supported, 
 	 * but it isn't implemented yet)
 	 */
-	public void addAttributeColumn(String attribute, String group)
+	void addAttributeColumn(String attribute, String group)
 	{
 		String key = (group == null) ? ATTR_CURRENT_COL_PREFIX + attribute 
 				: ATTR_ROOT_COL_PREFIX + attribute;
+		if (getColumn(key) != null)
+		{
+			NotificationPopup.showError(msg.getMessage("Identities.customColumnExists"), "");
+			return;
+		}
+		
 		addColumn(ie -> ie.getAttribute(key))
 			.setCaption(attribute + (group == null ? "@" + this.group : "@/"))
 			.setExpandRatio(ATTR_COL_RATIO)
@@ -351,20 +403,17 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		}
 	}
 
-	public void removeAttributeColumn(String group, String... attributes)
+	void removeAttributeColumn(String group, String attribute)
 	{
-		for (String attribute: attributes)
-		{
-			if (group.equals("/"))
-				removeColumn(ATTR_ROOT_COL_PREFIX + attribute);
-			else if (group.equals(this.group))
-				removeColumn(ATTR_CURRENT_COL_PREFIX + attribute);
-		}
+		if (Strings.isEmpty(group))
+			removeColumn(ATTR_ROOT_COL_PREFIX + attribute);
+		else if (group.equals(this.group))
+			removeColumn(ATTR_CURRENT_COL_PREFIX + attribute);
 		reloadTableContentsFromData();
 		savePreferences();
 	}
 
-	public Set<String> getAttributeColumns(boolean root)
+	Set<String> getAttributeColumns(boolean root)
 	{
 		List<Column<IdentityEntry, ?>> columns = getColumns();
 		Set<String> ret = new HashSet<String>();
@@ -398,8 +447,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		}
 	}
 		
-	private Attribute getAttributeForColumnProperty(String propId, Map<String, Attribute> rootAttributes, 
-			Map<String, Attribute> curAttributes)
+	private Attribute getAttributeForColumnProperty(String propId, Map<String, ? extends Attribute> rootAttributes, 
+			Map<String, ? extends Attribute> curAttributes)
 	{
 		if (propId.startsWith(ATTR_CURRENT_COL_PREFIX))
 		{
@@ -565,7 +614,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			preferences.savePreferences(preferencesMan);
 		} catch (EngineException e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("Identities.cannotSavePrefernces"));
 			return;
 
@@ -575,7 +624,6 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 
 	private void loadPreferences()
 	{
-
 		IdentitiesTablePreferences preferences = null;
 		try
 		{
@@ -588,12 +636,12 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		groupByEntity = preferences.getGroupByEntitiesSetting();
 		showTargeted = preferences.getShowTargetedSetting();
 
-		Set<String> columns = new HashSet<String>();
+		Set<String> columns = new HashSet<>();
 		columns.addAll(getColumnIds());
 
 		if (preferences != null && preferences.getColumnSettings().size() > 0)
 		{
-			String[] scol = new String[preferences.getColumnSettings().size()];
+			Map<String, Integer> columnsOrder = new HashMap<>();
 
 			for (Map.Entry<String, IdentitiesTablePreferences.ColumnSettings> entry : preferences
 					.getColumnSettings().entrySet())
@@ -601,13 +649,19 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 				if (!columns.contains(entry.getKey().toString()))
 				{
 					if (entry.getKey().startsWith(ATTR_ROOT_COL_PREFIX))
+					{
 						addAttributeColumn(entry.getKey().substring(
 								ATTR_ROOT_COL_PREFIX.length()),
 								"/");
-					if (entry.getKey().startsWith(ATTR_CURRENT_COL_PREFIX))
+					} else if (entry.getKey().startsWith(ATTR_CURRENT_COL_PREFIX))
+					{
 						addAttributeColumn(entry.getKey().substring(
 								ATTR_CURRENT_COL_PREFIX.length()),
 								null);
+					} else
+					{
+						continue;
+					}
 
 					getColumn(entry.getKey())
 							.setHidden(entry.getValue().isCollapsed());
@@ -628,21 +682,15 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 								entry.getValue().getWidth());
 				}
 
-				scol[entry.getValue().getOrder()] = entry.getKey();
+				columnsOrder.put(entry.getKey(), entry.getValue().getOrder());
 			}
 
-			// get all which are not in prefs and add them at the
-			// end. Important for prefs from older version.
-			HashSet<String> missing = new HashSet<String>(columns);
-			missing.removeAll(preferences.getColumnSettings().keySet());
-			String[] scolComplete = new String[scol.length + missing.size()];
-			int i = 0;
-			for (; i < scol.length; i++)
-				scolComplete[i] = scol[i];
-			for (String miss : missing)
-				scolComplete[i++] = miss;
-
-			setColumnOrder(scolComplete);
+			//all which are not in prefs land at the end. Important for prefs from older version.
+			List<String> orderedColumns = new ArrayList<>(columns);
+			orderedColumns.sort((a, b) -> 
+					Integer.compare(columnsOrder.getOrDefault(a, Integer.MAX_VALUE), 
+							columnsOrder.getOrDefault(b, Integer.MAX_VALUE)));
+			setColumnOrder(orderedColumns.toArray(new String[orderedColumns.size()]));
 		}
 	}
 }

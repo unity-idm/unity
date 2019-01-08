@@ -97,6 +97,7 @@ public class AttributeMetaEditorPanel extends CompactFormLayout
 		} else
 		{
 			addComponent(this.attributeTypes);
+			this.attributeTypes.setWidth(100, Unit.PERCENTAGE);
 			this.attributeTypes.addSelectionListener(event -> changeAttribute());
 		}
 	}

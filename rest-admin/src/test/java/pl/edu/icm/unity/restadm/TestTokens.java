@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -94,10 +94,10 @@ public class TestTokens extends RESTAdminTestBase
 	@Test
 	public void shouldReturnOnlyOwnedTokenWithType() throws Exception
 	{
-		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
+		HttpContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
 		List<JsonNode> tokens = getTokensFromRESTAPI(u1, "type1");
 		assertThat(tokens.size(), is(1));
-		HttpContext u2 = getClientContext(client, host, "u2", DEF_PASSWORD);
+		HttpContext u2 = getClientContext(host, "u2", DEF_PASSWORD);
 		tokens = getTokensFromRESTAPI(u2, "type1");
 		assertThat(tokens.size(), is(2));
 		tokens = getTokensFromRESTAPI(u2, "type2");
@@ -108,7 +108,7 @@ public class TestTokens extends RESTAdminTestBase
 	public void shouldRemoveToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
-		HttpContext u2 = getClientContext(client, host, "u2", DEF_PASSWORD);
+		HttpContext u2 = getClientContext(host, "u2", DEF_PASSWORD);
 		HttpResponse responseDel = client.execute(host, del, u2);
 
 		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.NO_CONTENT.getStatusCode()));
@@ -120,7 +120,7 @@ public class TestTokens extends RESTAdminTestBase
 	public void shouldDeniedRemoveNotOwnedToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v4");
-		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
+		HttpContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
 		HttpResponse responseDel = client.execute(host, del, u1);
 
 		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.BAD_REQUEST.getStatusCode()));
@@ -130,7 +130,7 @@ public class TestTokens extends RESTAdminTestBase
 	public void shouldReturnErrorWhenRemoveMissingToken() throws Exception
 	{
 		HttpDelete del = new HttpDelete("/restadm/v1/token/type2/v5");
-		HttpContext u1 = getClientContext(client, host, "u1", DEF_PASSWORD);
+		HttpContext u1 = getClientContext(host, "u1", DEF_PASSWORD);
 		HttpResponse responseDel = client.execute(host, del, u1);
 		
 		assertThat(responseDel.getStatusLine().getStatusCode(), is(Status.BAD_REQUEST.getStatusCode()));

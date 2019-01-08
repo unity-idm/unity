@@ -21,14 +21,16 @@ public class Endpoint implements NamedObject
 	private String typeId; 
 	private String contextAddress;
 	private EndpointConfiguration configuration;
+	private long revision;
 
 	public Endpoint(String name, String typeId, String contextAddress,
-			EndpointConfiguration configuration)
+			EndpointConfiguration configuration, long revision)
 	{
 		this.name = name;
 		this.typeId = typeId;
 		this.contextAddress = contextAddress;
 		this.configuration = configuration;
+		this.revision = revision;
 	}
 
 	@JsonCreator
@@ -54,12 +56,16 @@ public class Endpoint implements NamedObject
 	{
 		return contextAddress;
 	}
-	
+	public long getRevision()
+	{
+		return revision;
+	}
+
 	@Override
 	public String toString()
 	{
 		return "Endpoint [typeId=" + typeId + ", name="
-				+ name + ", contextAddress=" + contextAddress + "]";
+				+ name + ", contextAddress=" + contextAddress + "revision=" + revision + "]";
 	}
 	
 	@JsonValue
@@ -70,6 +76,7 @@ public class Endpoint implements NamedObject
 		root.put("typeId", typeId);
 		root.put("contextAddress", contextAddress);
 		root.set("configuration", configuration.toJson());
+		root.put("revision", revision);
 		return root;
 	}
 
@@ -79,9 +86,10 @@ public class Endpoint implements NamedObject
 		typeId = root.get("typeId").asText();
 		contextAddress = root.get("contextAddress").asText();
 		configuration = new EndpointConfiguration((ObjectNode) root.get("configuration"));
+		if (root.has("revision"))
+			revision = root.get("revision").asLong();
 	}
 
-	
 	@Override
 	public int hashCode()
 	{
@@ -91,10 +99,11 @@ public class Endpoint implements NamedObject
 		result = prime * result
 				+ ((contextAddress == null) ? 0 : contextAddress.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + (int) (revision ^ (revision >>> 32));
 		result = prime * result + ((typeId == null) ? 0 : typeId.hashCode());
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -122,6 +131,8 @@ public class Endpoint implements NamedObject
 			if (other.name != null)
 				return false;
 		} else if (!name.equals(other.name))
+			return false;
+		if (revision != other.revision)
 			return false;
 		if (typeId == null)
 		{

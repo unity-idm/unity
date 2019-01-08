@@ -28,6 +28,12 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam implem
 		this.id = id;
 	}
 
+	public ScheduledProcessingRule(ScheduledProcessingRule src)
+	{
+		super(src);
+		this.id = src.id;
+	}
+
 	@JsonCreator
 	public ScheduledProcessingRule(ObjectNode json)
 	{
@@ -86,5 +92,12 @@ public class ScheduledProcessingRule extends ScheduledProcessingRuleParam implem
 		} else if (!id.equals(other.id))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString()
+	{
+		return "ScheduledProcessingRule [id=" + id + ", cronExpression=" + cronExpression + ", condition="
+				+ condition + ", action=" + action + "]";
 	}
 }

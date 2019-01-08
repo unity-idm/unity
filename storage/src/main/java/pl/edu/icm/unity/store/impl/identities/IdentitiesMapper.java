@@ -15,4 +15,5 @@ import pl.edu.icm.unity.store.rdbms.NamedCRUDMapper;
 public interface IdentitiesMapper extends NamedCRUDMapper<IdentityBean>
 {
 	List<IdentityBean> getByEntity(long entityId);
+	List<IdentityBean> getByGroup(String group);
 }

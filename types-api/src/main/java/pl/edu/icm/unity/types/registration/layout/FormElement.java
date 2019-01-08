@@ -1,12 +1,10 @@
-/**********************************************************************
- *                     Copyright (c) 2015, Jirav
- *                        All Rights Reserved
- *
- *         This is unpublished proprietary source code of Jirav.
- *    Reproduction or distribution, in whole or in part, is forbidden
- *          except by express written permission of Jirav, Inc.
- **********************************************************************/
+/*
+ * Copyright (c) 2016 Bixbit - Krzysztof Benedyczak All rights reserved.
+ * See LICENCE.txt file for licensing information.
+ */
 package pl.edu.icm.unity.types.registration.layout;
+
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -23,18 +21,17 @@ import pl.edu.icm.unity.MessageSource;
 public abstract class FormElement
 {
 	private String clazz;
-	private String type;
+	private FormLayoutElement type;
 	private boolean formContentsRelated;
 
-	public FormElement(String type, boolean formContentsRelated)
+	public FormElement(FormLayoutElement type, boolean formContentsRelated)
 	{
-		super();
 		this.type = type;
 		this.formContentsRelated = formContentsRelated;
 		this.clazz = getClass().getName();
 	}
 
-	public String getType()
+	public FormLayoutElement getType()
 	{
 		return type;
 	}
@@ -51,42 +48,22 @@ public abstract class FormElement
 
 	@JsonIgnore
 	public abstract String toString(MessageSource msg);
-	
+
 	@Override
-	public int hashCode()
+	public boolean equals(final Object other)
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((clazz == null) ? 0 : clazz.hashCode());
-		result = prime * result + (formContentsRelated ? 1231 : 1237);
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
+		if (this == other)
+			return true;
+		if (!(other instanceof FormElement))
+			return false;
+		FormElement castOther = (FormElement) other;
+		return Objects.equals(clazz, castOther.clazz) && Objects.equals(type, castOther.type)
+				&& Objects.equals(formContentsRelated, castOther.formContentsRelated);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		FormElement other = (FormElement) obj;
-		if (clazz == null)
-		{
-			if (other.clazz != null)
-				return false;
-		} else if (!clazz.equals(other.clazz))
-			return false;
-		if (formContentsRelated != other.formContentsRelated)
-			return false;
-		if (type == null)
-		{
-			if (other.type != null)
-				return false;
-		} else if (!type.equals(other.type))
-			return false;
-		return true;
+		return Objects.hash(clazz, type, formContentsRelated);
 	}
 }

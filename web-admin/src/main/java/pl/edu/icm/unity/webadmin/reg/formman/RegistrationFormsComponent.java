@@ -4,31 +4,40 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Sets;
+import com.vaadin.data.ValueProvider;
+import com.vaadin.server.ExternalResource;
 import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Grid;
+import com.vaadin.ui.Grid.SelectionMode;
+import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
-import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.GenericElementsTable;
+import pl.edu.icm.unity.webui.common.GridContextMenuSupport;
+import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.SmallGrid;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
@@ -38,21 +47,19 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class RegistrationFormsComponent extends VerticalLayout
+public class RegistrationFormsComponent extends VerticalLayout implements ActivationListener
 {
 	private UnityMessageSource msg;
 	private RegistrationsManagement registrationsManagement;
 	private EventsBus bus;
 	
-	private GenericElementsTable<RegistrationForm> table;
+	private Grid<RegistrationForm> table;
 	private com.vaadin.ui.Component main;
 	private ObjectFactory<RegistrationFormEditor> editorFactory;
 	
-	
 	@Autowired
 	public RegistrationFormsComponent(UnityMessageSource msg, RegistrationsManagement registrationsManagement,
-			ObjectFactory<RegistrationFormEditor> editorFactory,
-			RegistrationFormViewer viewer)
+			ObjectFactory<RegistrationFormEditor> editorFactory, SharedEndpointManagement sharedEndpointMan)
 	{
 		this.msg = msg;
 		this.registrationsManagement = registrationsManagement;
@@ -64,41 +71,50 @@ public class RegistrationFormsComponent extends VerticalLayout
 		addStyleName(Styles.visibleScroll.toString());
 		setCaption(msg.getMessage("RegistrationFormsComponent.caption"));
 		
-		viewer.setInput(null);
-		table = new GenericElementsTable<>(
-				msg.getMessage("RegistrationFormsComponent.formsTable"), 
-				form -> form.getName());
-
+		table = new SmallGrid<>();
 		table.setSizeFull();
-		table.setMultiSelect(true);
-		table.addSelectionListener(event ->
-		{
-			Collection<RegistrationForm> items = event.getAllSelectedItems();
-			if (items.size() > 1 || items.isEmpty())
+		table.setSelectionMode(SelectionMode.MULTI);
+		table.addColumn(RegistrationForm::getName, ValueProvider.identity())
+			.setCaption(msg.getMessage("RegistrationFormsComponent.formsTable"))
+			.setId("name");
+		table.addComponentColumn(form -> 
 			{
-				viewer.setInput(null);
-				return;
-			}
-			RegistrationForm item = items.iterator().next();	
-			viewer.setInput(item);
-		});
+				if (!form.isPubliclyAvailable())
+					return null;
+				Link link = new Link();
+				String linkURL = PublicRegistrationURLSupport.getPublicRegistrationLink(form, sharedEndpointMan); 
+				link.setCaption(linkURL);
+				link.setTargetName("_blank");
+				link.setResource(new ExternalResource(linkURL));
+				return link;
+			})
+			.setCaption(msg.getMessage("RegistrationFormsComponent.link"))
+			.setId("link");
 		
-		table.addActionHandler(getRefreshAction());
-		table.addActionHandler(getAddAction());
-		table.addActionHandler(getEditAction());
-		table.addActionHandler(getCopyAction());
-		table.addActionHandler(getDeleteAction());
+		GridContextMenuSupport<RegistrationForm> contextMenu = new GridContextMenuSupport<>(table);
+		contextMenu.addActionHandler(getRefreshAction());
+		contextMenu.addActionHandler(getAddAction());
+		contextMenu.addActionHandler(getEditAction());
+		contextMenu.addActionHandler(getCopyAction());
+		contextMenu.addActionHandler(getDeleteAction());
+		GridSelectionSupport.installClickListener(table);
+		table.addItemClickListener(event -> {
+			if (event.getMouseEventDetails().isDoubleClick()) 
+			{
+				RegistrationForm form = event.getItem();
+				SingleActionHandler<RegistrationForm> editAction = getEditAction();
+				editAction.handle(Sets.newHashSet(form));
+			}
+		});
 				
 		Toolbar<RegistrationForm> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		table.addSelectionListener(toolbar.getSelectionListener());
-		toolbar.addActionHandlers(table.getActionHandlers());
+		toolbar.addActionHandlers(contextMenu.getActionHandlers());
 		
 		ComponentWithToolbar tableWithToolbar = new ComponentWithToolbar(table, toolbar);
 		tableWithToolbar.setSizeFull();
 
-		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, tableWithToolbar, viewer, 25);
-		
-		main = hl;
+		main = tableWithToolbar;
 		refresh();
 	}
 	
@@ -107,7 +123,7 @@ public class RegistrationFormsComponent extends VerticalLayout
 		try
 		{
 			List<RegistrationForm> forms = registrationsManagement.getForms();
-			table.setInput(forms);
+			table.setItems(forms);
 			removeAllComponents();
 			addComponent(main);
 		} catch (Exception e)
@@ -223,11 +239,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 	private void showCopyEditDialog(Set<RegistrationForm> target, boolean isCopyMode, String caption)
 	{
 		RegistrationForm targetForm =  target.iterator().next();
+		RegistrationForm deepCopy = new RegistrationForm(targetForm.toJson());
 		RegistrationFormEditor editor;
 		try
 		{		
 			editor = editorFactory.getObject().init(isCopyMode);
-			editor.setForm(targetForm);
+			editor.setForm(deepCopy);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg, msg.getMessage(
@@ -268,5 +285,12 @@ public class RegistrationFormsComponent extends VerticalLayout
 						}
 			}
 		}).show();
+	}
+
+	@Override
+	public void stateChanged(boolean enabled)
+	{
+		if (enabled)
+			refresh();
 	}
 }

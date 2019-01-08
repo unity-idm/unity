@@ -4,12 +4,15 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * Attribute registration option.
  * @author K. Benedyczak
  */
 public class AttributeRegistrationParam extends OptionalRegistrationParam
 {
+	public static final String DYN_GROUP_PFX = "DYN:";
 	private String attributeType;
 	private String group;
 	private boolean showGroups;
@@ -31,6 +34,16 @@ public class AttributeRegistrationParam extends OptionalRegistrationParam
 	public void setGroup(String group)
 	{
 		this.group = group;
+	}
+	@JsonIgnore
+	public boolean isUsingDynamicGroup()
+	{
+		return group.startsWith(DYN_GROUP_PFX);
+	}
+	@JsonIgnore
+	public String getDynamicGroup()
+	{
+		return group.substring(DYN_GROUP_PFX.length());
 	}
 	public boolean isShowGroups()
 	{

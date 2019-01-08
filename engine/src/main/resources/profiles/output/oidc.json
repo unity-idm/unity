@@ -134,7 +134,8 @@
 					"attrObj['email'][0].getConfirmationInfo().isConfirmed()",
 					"false",
 					"Email verified",
-					"Email verified"
+					"Email verified",
+					"boolean"
 				]
 			}
 		}

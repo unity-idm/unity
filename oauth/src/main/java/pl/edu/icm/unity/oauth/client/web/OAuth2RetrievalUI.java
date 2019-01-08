@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
@@ -19,10 +20,7 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
@@ -34,18 +32,22 @@ import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
 import pl.edu.icm.unity.oauth.client.OAuthContextsManagement;
 import pl.edu.icm.unity.oauth.client.OAuthExchange;
+import pl.edu.icm.unity.oauth.client.UnexpectedIdentityException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Entity;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
+import pl.edu.icm.unity.webui.UrlHelper;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
-import pl.edu.icm.unity.webui.authn.IdPROComponent;
-import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationResultCallback;
+import pl.edu.icm.unity.webui.authn.IdPAuthNComponent;
+import pl.edu.icm.unity.webui.authn.IdPAuthNGridComponent;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
+import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 
 /**
  * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
@@ -61,25 +63,29 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private final String configKey;
 	private final String idpKey;
 	
-	private AuthenticationResultCallback callback;
+	private AuthenticationCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
 
-	private Label messageLabel;
-	private HtmlSimplifiedLabel errorDetailLabel;
-	
 	private Component main;
+	private String authenticatorName;
 
-	
+	private IdPAuthNComponent idpComponent;
+	private Context context;
+
+	private ExpectedIdentity expectedIdentity;
+
 	public OAuth2RetrievalUI(UnityMessageSource msg, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
-			String idpKey, String configKey)
+			String idpKey, String configKey, String authenticatorName, Context context)
 	{
 		this.msg = msg;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
 		this.configKey = configKey;
+		this.authenticatorName = authenticatorName;
+		this.context = context;
 		initUI();
 	}
 
@@ -89,53 +95,57 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		return main;
 	}
 	
+	@Override
+	public Component getGridCompatibleComponent()
+	{
+		OAuthClientProperties clientProperties = credentialExchange.getSettings();
+		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
+		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
+		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), name);
+		idpComponent.addClickListener(event -> startLogin());
+		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		return idpComponent;
+	}
+	
 	private void initUI()
 	{
 		redirectParam = installRequestHandler();
 
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
-		VerticalLayout ret = new VerticalLayout();
-		ret.setMargin(false);
 
-		ScaleMode scaleMode = clientProperties.getEnumValue(OAuthClientProperties.SELECTED_ICON_SCALE, 
-				ScaleMode.class); 
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoUrl = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, 
 				msg.getLocale());
-		IdPROComponent idpComponent = new IdPROComponent(logoUrl, name, scaleMode);
+		Resource logo;
+		try
+		{
+			logo = logoUrl == null ? Images.empty.getResource() : ImageUtils.getLogoResource(logoUrl);
+		} catch (MalformedURLException e)
+		{
+			log.warn("Can't load logo from " + logoUrl, e);
+			logo = null;
+		}
 		
-		ret.addComponent(idpComponent);
-		ret.setComponentAlignment(idpComponent, Alignment.TOP_CENTER);
-		
-		messageLabel = new Label();
-		messageLabel.addStyleName(Styles.error.toString());
-		errorDetailLabel = new HtmlSimplifiedLabel();
-		errorDetailLabel.addStyleName(Styles.emphasized.toString());
-		errorDetailLabel.setVisible(false);
-		errorDetailLabel.setWidth(50, Unit.EM);
-		ret.addComponents(messageLabel, errorDetailLabel);
-		ret.setComponentAlignment(messageLabel, Alignment.TOP_CENTER);
-		ret.setComponentAlignment(errorDetailLabel, Alignment.TOP_CENTER);
-		main = ret;
+		String signInLabel;
+		if (context == Context.LOGIN)
+			signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
+		else
+			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", name);
+		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
+		idpComponent.addClickListener(event -> startLogin());
+		main = idpComponent;
 	}
 
+	private String getRetrievalClassName()
+	{
+		return authenticatorName + "." + idpKey;
+	}
+	
 	@Override
-	public void setAuthenticationResultCallback(AuthenticationResultCallback callback)
+	public void setAuthenticationCallback(AuthenticationCallback callback)
 	{
 		this.callback = callback;
-	}
-
-	@Override
-	public void triggerAuthentication()
-	{
-		startLogin();
-	}
-
-	@Override
-	public void cancelAuthentication()
-	{
-		breakLogin(false);
 	}
 
 	@Override
@@ -169,30 +179,8 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public void clear()
 	{
-		//nop
-	}
-	
-	private void showError(String message)
-	{
-		if (message == null)
-		{
-			messageLabel.setValue("");
-			showErrorDetail(null);
-			return;
-		}
-		messageLabel.setValue(message);
-	}
-
-	private void showErrorDetail(String msgKey, Object... args)
-	{
-		if (msgKey == null)
-		{
-			errorDetailLabel.setVisible(false);
-			errorDetailLabel.setValue("");
-			return;
-		}
-		errorDetailLabel.setVisible(true);
-		errorDetailLabel.setValue(msg.getMessage(msgKey, args));
+		breakLogin();
+		idpComponent.setEnabled(true);
 	}
 	
 	private String installRequestHandler()
@@ -212,7 +200,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		return rh.getTriggeringParam();
 	}
 	
-	private void breakLogin(boolean invokeCancel)
+	private void breakLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
 		OAuthContext context = (OAuthContext) session.getAttribute(
@@ -222,8 +210,6 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			session.removeAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 			contextManagement.removeAuthnContext(context.getRelayState());
 		}
-		if (invokeCancel)
-			this.callback.cancelAuthentication();
 	}
 	
 	private void startLogin()
@@ -233,17 +219,16 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"), 
+			NotificationPopup.showError(msg.getMessage("error"), 
 					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
 			return;
 		}
-		URI requestURI = Page.getCurrent().getLocation();
-		String servletPath = requestURI.getPath();
-		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
-		String currentRelativeURI = servletPath + query;
+		String currentRelativeURI = UrlHelper.getCurrentRelativeURI(); 
 		try
 		{
-			context = credentialExchange.createRequest(configKey);
+			context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity));
+			idpComponent.setEnabled(false);
+			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);
@@ -251,24 +236,26 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		{
 			NotificationPopup.showError(msg, msg.getMessage("OAuth2Retrieval.configurationError"), e);
 			log.error("Can not create OAuth2 request", e);
-			breakLogin(true);
+			clear();
 			return;
 		}
+		
+		URI requestURI = Page.getCurrent().getLocation();
+		String servletPath = requestURI.getPath();
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
 
 	
 	/**
 	 * Called when a OAuth authorization code response is received.
-	 * @param authnContext
 	 */
 	private void onAuthzAnswer(OAuthContext authnContext)
 	{
 		log.debug("RetrievalUI received OAuth response");
 		AuthenticationResult authnResult;
-		showError(null);
 		
 		String reason = null;
+		String error = null;
 		AuthenticationException savedException = null;
 		try
 		{
@@ -278,6 +265,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 			savedException = e;
 			reason = NotificationPopup.getHumanMessage(e, "<br>");
 			authnResult = e.getResult();
+		} catch (UnexpectedIdentityException uie)
+		{
+			error = msg.getMessage("OAuth2Retrieval.unexpectedUser", uie.expectedIdentity);
+			authnResult = new AuthenticationResult(Status.deny, null);
 		} catch (Exception e)
 		{
 			log.error("Runtime error during OAuth2 response processing or principal mapping", e);
@@ -295,11 +286,14 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				clientProperties.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 		authnResult.setEnableAssociation(enableAssociation);
 		
-		if (authnResult.getStatus() == Status.success || 
-				authnResult.getStatus() == Status.unknownRemotePrincipal)
+		if (authnResult.getStatus() == Status.success)
 		{
-			showError(null);
-			breakLogin(false);
+			breakLogin();
+			callback.onCompletedAuthentication(authnResult);
+		} else if (authnResult.getStatus() == Status.unknownRemotePrincipal)
+		{
+			clear();
+			callback.onCompletedAuthentication(authnResult);
 		} else
 		{
 			if (savedException != null)
@@ -307,18 +301,15 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 						savedException);
 			else
 				log.debug("OAuth2 authorization code verification or processing failed");
-			if (reason != null)
-				showErrorDetail("OAuth2Retrieval.authnFailedDetailInfo", reason);
-			showError(msg.getMessage("OAuth2Retrieval.authnFailedError"));
-			breakLogin(false);
+			Optional<String> errorDetail = reason == null ? Optional.empty() : 
+				Optional.of(msg.getMessage("OAuth2Retrieval.authnFailedDetailInfo", reason));
+			if (error == null)
+				error = msg.getMessage("OAuth2Retrieval.authnFailedError");
+			clear();
+			callback.onFailedAuthentication(authnResult, error, errorDetail);
 		}
-
-		callback.setAuthenticationResult(authnResult);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void refresh(VaadinRequest request) 
 	{
@@ -338,7 +329,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public void setSandboxAuthnResultCallback(SandboxAuthnResultCallback callback) 
+	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
 	{
 		this.sandboxCallback = callback;
 	}
@@ -354,6 +345,11 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	{
 	}
 	
+	@Override
+	public void setExpectedIdentity(ExpectedIdentity expectedIdentity)
+	{
+		this.expectedIdentity = expectedIdentity;
+	}
 
 	@Override
 	public Set<String> getTags()

@@ -28,7 +28,7 @@ public class AttributeEditDialog extends AbstractDialog
 		super(msg, caption);
 		this.editor = attributeEditor;
 		this.callback = callback;
-		setSize(60, 50);
+		setSizeEm(64, 30);
 	}
 
 	@Override

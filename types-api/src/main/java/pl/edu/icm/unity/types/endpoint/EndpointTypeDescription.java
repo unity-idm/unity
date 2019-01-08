@@ -6,7 +6,7 @@ package pl.edu.icm.unity.types.endpoint;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
+import java.util.Properties;
 
 import pl.edu.icm.unity.types.DescribedObjectImpl;
 
@@ -16,24 +16,36 @@ import pl.edu.icm.unity.types.DescribedObjectImpl;
  */
 public class EndpointTypeDescription extends DescribedObjectImpl
 {
-	private Set<String> supportedBindings;
+	private String supportedBinding;
 	private Map<String,String> paths;
+	private Properties features;
 	
 	public EndpointTypeDescription()
 	{
+		features = new Properties();
 	}
 
-	public EndpointTypeDescription(String name, String description, Set<String> supportedBindings, 
+	public EndpointTypeDescription(String name, String description, String supportedBinding, 
 			Map<String,String> paths)
 	{
 		super(name, description);
-		setSupportedBindings(supportedBindings);
+		setSupportedBinding(supportedBinding);
 		setPaths(paths);
+		features = new Properties();
 	}
 
-	public void setSupportedBindings(Set<String> supportedBindings)
+	public EndpointTypeDescription(String name, String description, String supportedBinding, 
+			Map<String,String> paths, Properties features)
 	{
-		this.supportedBindings = Collections.unmodifiableSet(supportedBindings);
+		super(name, description);
+		setSupportedBinding(supportedBinding);
+		setPaths(paths);
+		this.features = features;
+	}
+	
+	public void setSupportedBinding(String supportedBinding)
+	{
+		this.supportedBinding = supportedBinding;
 	}
 	
 	public void setPaths(Map<String,String> paths)
@@ -44,14 +56,23 @@ public class EndpointTypeDescription extends DescribedObjectImpl
 	/**
 	 * @return supported binding ids as CXF(WS) or Vaadin(WWW)
 	 */
-	public Set<String> getSupportedBindings()
+	public String getSupportedBinding()
 	{
-		return supportedBindings;
+		return supportedBinding;
 	}
 	
 	public Map<String,String> getPaths()
 	{
 		return paths;
 	}
-	
+
+	public Properties getFeatures()
+	{
+		return features;
+	}
+
+	public void setFeatures(Properties features)
+	{
+		this.features = features;
+	}
 }

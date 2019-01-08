@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common;
@@ -22,7 +22,6 @@ public class GridContextMenuSupport<T>
 {
 	private List<SingleActionHandler<T>> actionHandlers = new ArrayList<>();
 	
-	@SuppressWarnings("unchecked")
 	public GridContextMenuSupport(Grid<T> grid)
 	{
 		GridContextMenu<T> contextMenu = new GridContextMenu<>(grid);

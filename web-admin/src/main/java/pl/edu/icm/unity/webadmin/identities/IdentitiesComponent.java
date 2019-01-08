@@ -29,6 +29,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
@@ -37,7 +38,6 @@ import pl.edu.icm.unity.webadmin.credentials.CredentialDefinitionChangedEvent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
 import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
@@ -74,11 +74,13 @@ public class IdentitiesComponent extends SafePanel
 	public IdentitiesComponent(UnityMessageSource msg, AttributeTypeManagement attrsMan,
 			EntityAttributeClassHandler entityAttributeClassHandler,
 			RemoveFromGroupHandler removeFromGroupHandler,
+			AddToGroupHandler addToGroupHandler,
 			EntityCreationHandler entityCreationDialogHandler,
 			IdentityCreationDialogHandler identityCreationDialogHanlder,
 			DeleteEntityHandler deleteEntityHandler,
 			DeleteIdentityHandler deleteIdentityHandler,
 			IdentityConfirmationResendHandler confirmationResendHandler,
+			IdentityConfirmHandler confirmHandler,
 			ChangeEntityStateHandler changeEntityStateHandler,
 			ChangeCredentialRequirementHandler credentialRequirementHandler,
 			EntityDetailsHandler entityDetailsHandler,
@@ -164,6 +166,9 @@ public class IdentitiesComponent extends SafePanel
 				.getAction(identitiesTable::getGroup, added -> refresh());
 		identitiesTable.addActionHandler(entityCreationAction);
 
+		SingleActionHandler<IdentityEntry> addToGroupAction = addToGroupHandler.getAction();
+		identitiesTable.addActionHandler(addToGroupAction);
+
 		SingleActionHandler<IdentityEntry> removeFromGroupAction = removeFromGroupHandler
 				.getAction(identitiesTable::getGroup, this::refresh);
 		identitiesTable.addActionHandler(removeFromGroupAction);
@@ -204,6 +209,9 @@ public class IdentitiesComponent extends SafePanel
 				.getAction();
 		identitiesTable.addActionHandler(confirmationResendAction);
 
+		SingleActionHandler<IdentityEntry> confirmAction = confirmHandler.getAction(this::refresh);
+		identitiesTable.addActionHandler(confirmAction);
+
 		toolbar.addActionHandler(entityDetailsAction);
 		toolbar.addActionHandler(entityCreationAction);
 		toolbar.addActionHandler(removeFromGroupAction);
@@ -211,6 +219,7 @@ public class IdentitiesComponent extends SafePanel
 		toolbar.addHamburger(hamburgerMenu);
 		hamburgerMenu.addActionHandler(refreshAction);
 		hamburgerMenu.addActionHandler(identityCreationAction);
+		hamburgerMenu.addActionHandler(addToGroupAction);
 		hamburgerMenu.addActionHandler(deleteIdentityAction);
 		hamburgerMenu.addActionHandler(changeEntityStateAction);
 		hamburgerMenu.addActionHandler(changeCredentialAction);
@@ -218,6 +227,7 @@ public class IdentitiesComponent extends SafePanel
 		hamburgerMenu.addActionHandler(entityAttributeAction);
 		hamburgerMenu.addActionHandler(entityMergeAction);
 		hamburgerMenu.addActionHandler(confirmationResendAction);
+		hamburgerMenu.addActionHandler(confirmAction);
 
 		hamburgerMenu.addSeparator();
 

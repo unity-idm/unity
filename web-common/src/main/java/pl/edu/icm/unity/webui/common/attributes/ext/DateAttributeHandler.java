@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
@@ -20,6 +20,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -76,21 +77,21 @@ public class DateAttributeHandler implements WebAttributeHandler
 	@Override
 	public String getValueAsString(String value)
 	{
-		return AttributeHandlerHelper.getValueAsString(value);
+		return value;
 	}
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(value);
+		return AttributeHandlerHelper.getRepresentation(value, context);
 	}
 	
 	private class DateValueEditor implements AttributeValueEditor
 	{
 		private String label;
-		private boolean required;
 		private DateField date;
 		private LocalDate value;
+		private AttributeEditContext context;
 
 		public DateValueEditor(String valueRaw, String label)
 		{
@@ -101,14 +102,16 @@ public class DateAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			this.context = context;
 			date = new DateField();
 			date.setResolution(DateResolution.DAY);
-			date.setCaption(label);	
 			date.setDateFormat("yyyy-MM-dd");
-			date.setRequiredIndicatorVisible(required);
+			date.setRequiredIndicatorVisible(context.isRequired());
+			setLabel(label);
 			if (value != null)
 				date.setValue(value);
+			if (context.isCustomWidth())
+				date.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			ComponentsContainer ret = new ComponentsContainer(date);
 			return ret;
 		}
@@ -117,7 +120,7 @@ public class DateAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 
-			if (!required && date.getValue() == null)
+			if (!context.isRequired() && date.getValue() == null)
 				return null;
 
 			try
@@ -141,8 +144,10 @@ public class DateAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			date.setCaption(label);
-
+			if (context.isShowLabelInline())
+				date.setPlaceholder(label);
+			else
+				date.setCaption(label);	
 		}
 
 	}

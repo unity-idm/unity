@@ -48,6 +48,7 @@ public class OAuthASProperties extends PropertiesHelper
 	public static final String REFRESH_TOKEN_VALIDITY = "refreshTokenValidity";
 	public static final String CREDENTIAL = "signingCredential";
 	public static final String IDENTITY_TYPE_FOR_SUBJECT = "identityTypeForSubject";
+	public static final String ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI = "allowForWildcardsInAllowedURI";
 	
 	public static final String CLIENTS_GROUP = "clientsGroup";
 	public static final String USERS_GROUP = "usersGroup";
@@ -96,6 +97,15 @@ public class OAuthASProperties extends PropertiesHelper
 		defaults.put(USERS_GROUP, new PropertyMD("/").
 				setDescription("Group for resolving attributes of OAuth users. "
 						+ "Only members of this group can authorize with OAuth."));
+		defaults.put(ALLOW_FOR_WILDCARDS_IN_ALLOWED_URI, new PropertyMD("false").
+				setDescription("By enabling this option Unity allows to put Ant-style wildcards as allowed return URIs. "
+						+ "There are three important implications. "
+						+ "(1) this is generally considered as not very secure setting, "
+						+ "rather for development infrastructures. (2) The first allowed URI "
+						+ "should rather be a plain URI as will be used as "
+						+ "a default return URI if client has not provided any. "
+						+ "(3) Ant-style wildcards use single star to match arbitrary characters "
+						+ "in single path segment and two stars to match strings across path segments."));
 		defaults.put(SCOPES, new PropertyMD().setStructuredList(false).
 				setDescription("Under this prefix OAuth scopes can be defined. In general scope"
 						+ " defines a set of attribtues returned when it is requested."));

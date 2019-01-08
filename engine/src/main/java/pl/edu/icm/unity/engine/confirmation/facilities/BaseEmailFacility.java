@@ -13,7 +13,6 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.confirmation.states.BaseEmailConfirmationState;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.confirmation.EmailConfirmationFacility;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
@@ -78,11 +77,9 @@ public abstract class BaseEmailFacility<T extends BaseEmailConfirmationState> im
 	 * @param group
 	 * @param value
 	 * @return
-	 * @throws EngineException
 	 */
 	protected <K extends Attribute> Collection<K> confirmAttributes(Collection<K> attrs,
 			String attrName, String group, String value, AttributeTypeHelper atHelper) 
-					throws EngineException
 	{
 		List<K> confirmed = new ArrayList<>();
 		for (K attr : attrs)
@@ -143,10 +140,9 @@ public abstract class BaseEmailFacility<T extends BaseEmailConfirmationState> im
 	 * @param type
 	 * @param value
 	 * @return
-	 * @throws EngineException
 	 */
 	protected <K extends IdentityParam> Collection<K> confirmIdentity(Collection<K> identities,
-			String type, String value) throws EngineException
+			String type, String value)
 	{
 		ArrayList<K> confirmed = new ArrayList<>();
 		for (K id : identities)

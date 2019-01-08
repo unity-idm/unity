@@ -1,3 +1,3 @@
-unityServer.core.authenticators.samlWeb.authenticatorName=samlWeb
-unityServer.core.authenticators.samlWeb.authenticatorType=saml2 with web-saml2
-unityServer.core.authenticators.samlWeb.verificatorConfigurationFile=${CONF}/modules/saml/samlAuthenticator.properties
+unityServer.core.authenticators.samlWeb.authenticatorName=saml
+unityServer.core.authenticators.samlWeb.authenticatorType=saml2
+unityServer.core.authenticators.samlWeb.configurationFile=${CONF}/modules/saml/samlAuthenticator.properties

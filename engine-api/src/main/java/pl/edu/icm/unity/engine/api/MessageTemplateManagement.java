@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api;
 
 import java.util.Map;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
@@ -44,5 +45,7 @@ public interface MessageTemplateManagement
 	
 	public Map<String, MessageTemplate> getCompatibleTemplates(String templateConsumer)
 			throws EngineException;
+	
+	void reloadFromConfiguration(Set<String> toReload);
 
 }

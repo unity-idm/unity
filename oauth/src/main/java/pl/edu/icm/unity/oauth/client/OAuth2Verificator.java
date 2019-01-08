@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
@@ -49,7 +50,9 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest.Builder;
 import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -74,6 +77,8 @@ import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessToken
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity;
+import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
@@ -160,8 +165,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 	}
 
 	@Override
-	public OAuthContext createRequest(String providerKey) throws URISyntaxException,  
-		ParseException, IOException
+	public OAuthContext createRequest(String providerKey, Optional<ExpectedIdentity> expectedIdentity) 
+			throws URISyntaxException, ParseException, IOException
 	{
 		CustomProviderProperties providerCfg = config.getProvider(providerKey); 
 		String clientId = providerCfg.getValue(CustomProviderProperties.CLIENT_ID);
@@ -184,14 +189,17 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 							+ " it is not available in the discovered OpenID Provider metadata.");
 				authzEndpoint = providerMeta.getAuthorizationEndpointURI().toString();
 			}
-			req = new AuthenticationRequest(
-				new URI(authzEndpoint),
-				new ResponseType(ResponseType.Value.CODE),
-				Scope.parse(scopes),
-				new ClientID(clientId),
-				new URI(responseConsumerAddress),
-				new State(context.getRelayState()),
-				null);
+			Builder builder = new AuthenticationRequest.Builder(new ResponseType(ResponseType.Value.CODE), 
+					Scope.parse(scopes), new ClientID(clientId),
+					new URI(responseConsumerAddress));
+			builder.state(new State(context.getRelayState()))
+				.endpointURI(new URI(authzEndpoint));
+			if (expectedIdentity.isPresent())
+			{
+				builder.loginHint(expectedIdentity.get().getIdentity());
+				context.setExpectedIdentity(expectedIdentity.get());
+			}
+			req = builder.build();
 		} else
 		{
 			Scope scope = scopes == null ? null : Scope.parse(scopes);
@@ -229,6 +237,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		try
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
+			verifyExpectedIdentity(input, context.getExpectedIdentity());
 			String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
 					CommonWebAuthnProperties.TRANSLATION_PROFILE);
 		
@@ -241,6 +250,27 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 	}
 	
+
+	private void verifyExpectedIdentity(RemotelyAuthenticatedInput input, ExpectedIdentity expectedIdentity)
+	{
+		if (expectedIdentity == null)
+			return;
+		if (expectedIdentity.getExpectation() == IdentityExpectation.HINT)
+			return;
+		String identity = expectedIdentity.getIdentity();
+		if (input.getIdentities().values().stream()
+				.filter(ri -> ri.getName().equals(identity))
+				.findAny().isPresent())
+			return;
+		if (input.getAttributes().values().stream()
+				.filter(ra -> ra.getName().equals(UserInfo.EMAIL_CLAIM_NAME))
+				.filter(ra -> ra.getValues().contains(identity))
+				.findAny().isPresent())
+			return;
+		log.debug("Failing OAuth authentication as expected&mandatory identity {} was not found "
+				+ "in received user data: {}", identity, input.getTextDump());
+		throw new UnexpectedIdentityException(identity);
+	}
 
 	private RemotelyAuthenticatedInput getRemotelyAuthenticatedInput(OAuthContext context) 
 			throws AuthenticationException 
@@ -357,11 +387,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		BearerAccessToken accessToken = extractAccessToken(acResponse);
 		
 		JWTClaimsSet accessTokenClaimsSet = acResponse.getOIDCTokens().getIDToken().getJWTClaimsSet();
-		Map<String, List<String>> ret = ProfileFetcherUtils.convertToFlatAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
+		Map<String, List<String>> ret = ProfileFetcherUtils.convertToAttributes(new JSONObject(accessTokenClaimsSet.getClaims()));
 		
-		String userInfoEndpointStr = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
-		String userInfoEndpoint = userInfoEndpointStr == null ? 
-				providerMeta.getUserInfoEndpointURI().toString() : userInfoEndpointStr;
+		String userInfoEndpoint = providerCfg.getValue(CustomProviderProperties.PROFILE_ENDPOINT);
+		if (userInfoEndpoint == null && providerMeta.getUserInfoEndpointURI() != null) 
+			userInfoEndpoint = providerMeta.getUserInfoEndpointURI().toString();
 
 		UserProfileFetcher userAttributesFetcher = providerCfg.getUserAttributesResolver();
 		AttributeFetchResult fetchRet = new AttributeFetchResult();
@@ -370,9 +400,9 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
 					ret);
 		}
-		fetchRet.getFlatAttributes().putAll(ret);
+		fetchRet.getAttributes().putAll(ret);
 		
-		log.debug("Received the following attributes from the OAuth provider: " + ret);
+		log.debug("Received the following attributes from the OAuth provider: " + fetchRet);
 		
 		return fetchRet;
 	}
@@ -461,7 +491,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			fetchRet = userAttributesFetcher.fetchProfile(accessToken, userInfoEndpoint, providerCfg,
 					ret);
 		}
-		fetchRet.getFlatAttributes().putAll(ret);
+		fetchRet.getAttributes().putAll(ret);
 		
 		log.debug("Received the following attributes from the OAuth provider: " + ret);
 		return fetchRet;
@@ -532,7 +562,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 
 		
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput(tokenEndpoint);
-		for (Map.Entry<String, List<String>> attr: attributes.getFlatAttributes().entrySet())
+		for (Map.Entry<String, List<String>> attr: attributes.getAttributes().entrySet())
 		{
 			input.addAttribute(new RemoteAttribute(attr.getKey(), attr.getValue().toArray()));
 			if (attr.getKey().equals("sub") && !attr.getValue().isEmpty())
@@ -543,6 +573,11 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		return input;
 	}
 	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Remote;
+	}
 	
 	@Component
 	public static class Factory extends AbstractCredentialVerificatorFactory
@@ -558,7 +593,7 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 			sharedEndpointManagement.deployInternalEndpointServlet(
 					ResponseConsumerServlet.PATH, servlet, false);
 		}
-	}
+	}	
 }
 
 

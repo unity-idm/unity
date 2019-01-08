@@ -37,6 +37,7 @@ import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Ordinary sms credential verificator.
@@ -73,19 +74,12 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 	}
 
 	@Override
-	public String prepareCredential(String rawCredential, String previousCredential,
+	public String prepareCredential(String rawCredential, 
 			String currentCredential, boolean verifyNew)
 			throws IllegalCredentialException, InternalException
 	{
 		return SMSCredentialDBState.toJson(credential, rawCredential,
 				System.currentTimeMillis());
-	}
-
-	@Override
-	public String prepareCredential(String rawCredential, String currentCredential,
-			boolean verifyNew) throws IllegalCredentialException, InternalException
-	{
-		return prepareCredential(rawCredential, null, currentCredential, verifyNew);
 	}
 
 	@Override
@@ -238,6 +232,20 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 				credential.getRecoverySettings());
 	}
 
+
+	@Override
+	public boolean isAuthSMSLimitExceeded(String username)
+	{
+		
+		return smslimitCache.getValue(username) >= credential.getAuthnSMSLimit();
+	}
+	
+	@Override
+	public boolean isCredentialSet(EntityParam entity) throws EngineException
+	{
+		return credentialHelper.isCredentialSet(entity, credentialName);
+	}
+	
 	@Component
 	public static class Factory extends AbstractLocalCredentialVerificatorFactory
 	{
@@ -246,12 +254,5 @@ public class SMSVerificator extends AbstractLocalVerificator implements SMSExcha
 		{
 			super(NAME, DESC, false, factory);
 		}
-	}
-
-	@Override
-	public boolean isAuthSMSLimitExceeded(String username)
-	{
-		
-		return smslimitCache.getValue(username) >= credential.getAuthnSMSLimit();
 	}
 }

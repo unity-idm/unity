@@ -26,12 +26,11 @@ import pl.edu.icm.unity.types.basic.GroupMembership;
 public class MembershipRDBMSStore implements MembershipDAO, RDBMSDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
-	
 	private MembershipJsonSerializer jsonSerializer;
 	private GroupDAO groupDAO;
 	
 	@Autowired
-	public MembershipRDBMSStore(MembershipJsonSerializer jsonSerializer, GroupDAO groupDAO)
+	MembershipRDBMSStore(MembershipJsonSerializer jsonSerializer, GroupDAO groupDAO)
 	{
 		this.jsonSerializer = jsonSerializer;
 		this.groupDAO = groupDAO;

@@ -17,13 +17,16 @@ import com.vaadin.ui.CustomComponent;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
@@ -35,7 +38,7 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
  */
 @Component
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public class InvitationsComponent extends CustomComponent
+public class InvitationsComponent extends CustomComponent implements ActivationListener
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InvitationsComponent.class);
 
@@ -48,6 +51,12 @@ public class InvitationsComponent extends CustomComponent
 	private AttributeTypeManagement attributesManagement;
 
 	private InvitationManagement invitationManagement;
+
+	private GroupsManagement groupsManagement;
+
+	private SharedEndpointManagement sharedEndpointManagement;
+
+	private InvitationsTable invitationsTable;
 	
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
@@ -56,7 +65,9 @@ public class InvitationsComponent extends CustomComponent
 			InvitationManagement invitationManagement,
 			AttributeHandlerRegistry attrHandlersRegistry,
 			IdentityEditorRegistry identityEditorRegistry,
-			MessageTemplateManagement msgTemplateManagement)
+			MessageTemplateManagement msgTemplateManagement,
+			GroupsManagement groupsManagement,
+			SharedEndpointManagement sharedEndpointManagement)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
@@ -65,18 +76,20 @@ public class InvitationsComponent extends CustomComponent
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.msgTemplateManagement = msgTemplateManagement;
+		this.groupsManagement = groupsManagement;
+		this.sharedEndpointManagement = sharedEndpointManagement;
 		initUI();
 	}
 
 	private void initUI()
 	{
 		addStyleName(Styles.visibleScroll.toString());
-		InvitationsTable invitationsTable = new InvitationsTable(msg,
+		invitationsTable = new InvitationsTable(msg,
 				registrationManagement, invitationManagement, attributesManagement,
 				identityEditorRegistry, attrHandlersRegistry,
-				msgTemplateManagement);
+				msgTemplateManagement, groupsManagement);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry,
-				msgTemplateManagement, registrationManagement);
+				msgTemplateManagement, registrationManagement, sharedEndpointManagement);
 
 		invitationsTable.addValueChangeListener(invitation -> 
 			viewer.setInput(invitation, getForm(invitation))
@@ -105,5 +118,12 @@ public class InvitationsComponent extends CustomComponent
 		if (found.isPresent())
 			return found.get();
 		return null;
+	}
+	
+	@Override
+	public void stateChanged(boolean enabled)
+	{
+		if (enabled)
+			invitationsTable.refresh();
 	}
 }

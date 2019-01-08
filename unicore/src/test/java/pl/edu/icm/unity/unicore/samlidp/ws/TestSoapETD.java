@@ -10,7 +10,6 @@ import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -20,8 +19,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.elements.NameID;
 import eu.unicore.samly2.exceptions.SAMLResponderException;
@@ -30,16 +30,19 @@ import eu.unicore.security.wsutil.samlclient.AuthnResponseAssertions;
 import eu.unicore.security.wsutil.samlclient.SAMLAuthnClient;
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -67,6 +70,9 @@ public class TestSoapETD extends DBIntegrationTestBase
 	@Autowired
 	private AuthenticatorManagement authnMan;
 	
+	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
+	
 	@Before
 	public void setup()
 	{
@@ -75,12 +81,15 @@ public class TestSoapETD extends DBIntegrationTestBase
 			setupMockAuthn();
 			createUsers();
 			AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-					10, 100, -1, 600);
+					10, 100, RememberMePolicy.disallow , 1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-			authnCfg.add(new AuthenticationOptionDescription("Acert"));
+			
+			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+					"flow1", Policy.NEVER,
+					Sets.newHashSet("Acert")));
+	
 			EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), "desc",
-					authnCfg, SAML_ENDP_CFG, realm.getName());
+					 Lists.newArrayList("flow1"), SAML_ENDP_CFG, realm.getName());
 			endpointMan.deploy(SamlUnicoreSoapEndpoint.NAME, "endpoint1", "/saml", cfg);
 			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(1, endpoints.size());
@@ -130,7 +139,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 		assertNotNull(resp.getAuthNAssertions().get(0).getSubjectName());
 		assertEquals(SAMLConstants.NFORMAT_DN, resp.getAuthNAssertions().get(0).getSubjectNameFormat());
 		TrustDelegation delegation = new TrustDelegation(resp.getAttributeAssertions().get(1).getXMLBeanDoc());
-		assertEquals("CN=Test UVOS,O=UNICORE,C=EU", delegation.getCustodianDN());
+		assertEquals(DEMO_SERVER_DN, delegation.getCustodianDN());
 		assertEquals("http://example-saml-idp.org", delegation.getIssuerName());
 		assertEquals("CN=some server", delegation.getSubjectName());
 	}
@@ -138,10 +147,8 @@ public class TestSoapETD extends DBIntegrationTestBase
 	protected DefaultClientConfiguration getClientCfg() throws KeyStoreException, IOException
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 		clientCfg.getHttpClientProperties().setSocketTimeout(3600000);
 		return clientCfg;
@@ -149,7 +156,7 @@ public class TestSoapETD extends DBIntegrationTestBase
 	
 	protected void createUsers() throws Exception
 	{
-		Identity added2 = idsMan.addEntity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
+		Identity added2 = idsMan.addEntity(new IdentityParam(X500Identity.ID, DEMO_SERVER_DN), 
 				"cr-cert", EntityState.valid, false);
 		EntityParam e2 = new EntityParam(added2);
 		eCredMan.setEntityCredential(e2, "credential2", "");
@@ -170,6 +177,6 @@ public class TestSoapETD extends DBIntegrationTestBase
 		CredentialRequirements cr3 = new CredentialRequirements("cr-cert", "", creds);
 		credReqMan.addCredentialRequirement(cr3);
 		
-		authnMan.createAuthenticator("Acert", "certificate with cxf-certificate", null, "", "credential2");
+		authnMan.createAuthenticator("Acert", "certificate", "", "credential2");
 	}
 }

@@ -2,27 +2,26 @@
 == Registration forms
 
 Unity allows its administrators to define and deploy so called _registration forms_. A registration
-form can be used in three cases:
+form can be used in four cases:
 
 . To collect registration information from prospective users. This can be seen as a classic
 registration feature use case. Such forms are called as 'public'.
 . To quickly and conveniently create entities with common characteristics. In this case
 administrator can define what data needs to be entered for the created user and also automate 
 actions which should be performed for newly added users.
-. To collect additional information from users who are authenticated by a remote IdP, so the user can be 
-added to the local database.   
+. To sign up users who authenticated with a remote IdP, but were not have been seen so far.
+. To sign up invited users.   
 
 After creation, a registration form can be tested and also filled (use case no 2 above) directly from 
 the Admin Web UI. If the form is public it can be associated with any Web endpoint.
 Then a link to register a new account will appear on the login screen of the endpoint. Additionally all public
 forms get its own public address which can be used to directly launch a form. This address is constructed
-from the form name and can be seen in the form viewer after selecting an existing form in the AdminUI 
-(Registrations management -> Registration forms). 
+from the form name and can be seen in the forms table (Registrations management -> Registration forms). 
 
 Finally a form can be associated with a remote authenticator as a "handler" for unknown users who were 
-correctly authenticated remotely. For this last case typically the form should not be public. It is also
+correctly authenticated remotely. For this last case the form need not to be public. It is also
 crucial to configure the input translation profile of the authenticator so it _does not_ create a local user 
-automatically. Otherwise the configured form won't be ever launched as the local user will be always present 
+automatically. Otherwise the configured form won't be ever launched, as the local user will be always present 
 after translation profile execution. 
 
 An example of registration form creation:
@@ -33,37 +32,43 @@ A simple registration form in action:
 
 image::./figures/regFormFill1.png[alt="Filling of a registration form in Unity",align="center",scaledwidth="50%"]
 
-Note that the above screenshot is showing the form as activated from the Web Admin UI; the form 
-launched other way will not allow for automatic acceptance.
-
-
 === Defining a registration form
 
-The form definition consists of four parts:
+Unity can produce forms which are completed in a single stage (step) or in two stages. 
+On the first stage it is possible to include external sign up options and (if needed) either a "local" sign-up button
+or just a complete local sign-up form. This latter scenario is useful when the form is small or when there are no
+remote sign-up options: then we have only the first stage.
+
+The second stage shows a form which is contextual: it is used either to ask for additional data after remote sign-up 
+(required information, which is not obtained from remote IdP) or all details in case on the first stage 
+the "local sign-up" button was placed and used.
+
+
+The form definition consists of multiple parts:
 
 . General settings as name, notifications configuration and decision whether the form is publicly available.
-. Collected information settings, which define what needs to be provided to the form. This information
-is usually collected interactively by filling a web form, but some data can be also collected from a
-remote IdP. This latter option is possible only if a form is used for unknown remote users.
+. Collected information settings, which define what needs to be provided to create a final registration request. 
+This information is usually collected interactively by filling a web form, but some data can be also collected from a
+remote IdP or preset by an invitation. This is a complete definition of collected data, which depending on scenario is
+collected in one or two stages as described above. 
 . Form layout, which is by default generated automatically, but can be customized if order of elements, 
 separators or section captions need to be adapted. 
-. Settings which are automatically assigned for each user whose registration request is accepted.
-For instance this feature may be used to add all users to a specified group.    
+. Finalization configuration: includes a list of rules which define handling of different final states after completing 
+registration or running into different kinds of errors. See <<reg-finalization>> below.
+. Form automation: rules which can be used to automatically pre-process the request data or process it (e.g. accept).
+For instance this feature may be used to add all registered users to a specified group, accept all requests 
+or even accept requests but only after their email address is confirmed.    
 
 The most important are the settings of the 2nd point, i.e. the data collected about the user. Each
-of the identities, group memberships and attributes can be collected in different modes. Some of the modes
-are only relevant for a case when a registration form is presented to an unknown user who 
-was authenticated by a remote IdP. The modes are as follows:
+of the identities, group memberships and attributes can be collected in different modes. The modes are as follows:
 
-Collected interactively:: A user interface component is displayed to collect the information from a user.
-Provided by remote IdP only and is shown in the form:: The information must be provided by a remote IdP.
+User input:: A user interface component is displayed to collect the information from a user.
+From remote IdP and shown RO:: The information must be provided by a remote IdP.
 It is then shown to a user in the form, but can not be edited.
-Provided by remote IdP only and is hidden in the form:: As above but the information is 
-not shown on the form filling screen. 
-Can be provided by remote IdP; if not then collected interactively:: In this mode the user can fill the data 
+From remote IdP and hidden:: As above but the information is not shown on the form filling screen. 
+From remote IdP else user input:: In this mode the user can fill the data 
 only if it was not provided by a remote IdP. If it was provided by remote IdP then this data is hidden in the form.
-Can be provided by remote IdP and is editable:: The field is always editable, but if a remote IdP provided a value 
-then it is used as a default.
+From remote IdP and editable:: Same as User input, but if a remote IdP provided a value then it is used as a default.
 
 Additionally all pieces of collected information can be made optional. The other types of collected information:
 agreements and credentials can be only collected interactively, therefore there is no mode selection in their case. 
@@ -84,7 +89,7 @@ This automation is described in the subsequent section.
 
 Unity offers invitations support. Invitations are bound to an existing registration form, which must be public
 and must not possess a fixed (shared) registration code. Typically such forms are marked as 'by invitation only'
-what ensures that only the invited users can fill the form.
+what ensures that only the invited users can fill the form (but this is not a requirement).
 
 Invitations can be created in the AdminUI (Registration management -> Invitations). What is very useful in
 various integration scenarios, the invitations feature can be also fully controlled by the REST API of Unity,
@@ -100,14 +105,16 @@ code manually. For such forms the code must be always provided in the form's pub
 
 The fundamental invitation feature is the most useful for registration requests automatic acceptance: form which is
 'by invitation only' can have auto acceptance rule included, as it is guaranteed that all requests were using a 
-valid invitation. For the forms allowing also not invited users, it is possible to check if a (valid) invitation
+valid invitation. For the forms accepting also not invited users, it is possible to check if a (valid) invitation
 code was provided in form automation rule's condition with the +validCode+ variable.
 
 Additional, powerful feature is request pre-filling from an invitation. If some information about an invited user
-is known when inviting, this information can be associated with the invitation. Precisely speaking all
+is known when inviting (e.g. emial), this information can be associated with the invitation. Precisely speaking all
 attributes, identities and group parameters of a form can be pre-filled. For each element is is possible to define
 how the pre-filled value should be treated: whether the user should be able to change the pre-filled value, 
 only see it or neither see nor change.
+
+Finally invitation can contain custom parameters which can be used in invitation message template.
 
 === Registration request processing automation
 
@@ -148,37 +155,17 @@ Unity is being used by some service as its remote IdP. Especially useful in case
 . +validCode+ +true+ if a valid registration code was provided, +false+ otherwise. Useful for checking if
 a request came by invitation or not (for forms allowing both).
 
-==== Automatic processing
 
-The rules which contain the +autoProcess+ action are used to automatically accept, deny or drop the request.
-Such rules behave in the same way as all regular rules, with one exception. Namely, those rules are consulted
-not only after the request is submitted, but also after each confirmation of request elements 
-(such as email identity confirmation). Therefore it is possible to automatically accept a request only after 
-its email identity is confirmed.  
+[[reg-finalization]]
+==== Finalization and redirection
 
-==== Redirection
+In the Finalization config or registration form one can define title, message, and redirection URL. 
+In case when a more customized final screen is needed, redirection can happen automatically. The details of 
+the status are added as parameters.
 
-Redirection is useful when a custom web page should be presented to a user who was filling 
-a registration form. What is more the redirect URL can contain custom parameters so that custom actions
-can be invoked when a web browser enters the address. This is useful especially in many
-integration scenarios when registration is launched in a part of bigger process. 
-
-The easiest way to check the resulting redirection URL is to play with filling a form directly from the AdminUI. 
-In such case redirection is not performed but a notification message is presented with a full redirection URL included. 
-
-The redirection can be triggered in three different cases, and this is fundamental difference to other actions:
-
-. When a form was filled, but was cancelled or submission finished with an error (the +redirect+ action).
-. When a form was submitted (this is the regular case, the +redirect+ action)
-. When an attribute or identity from the form request is verified (think about confirmed email), 
-with the +confirmationRedirect+ action.
-
-If one want to trigger redirect only in some special cases (e.g. only when a request was being filled
-but cancelled) there is one special variable: +status+. It contains one of the values: +submitted+ or +notSubmitted+, 
-which allows to make the decision.
-
-Finally it must be noted that in the case of not submitted requests all the variables which are related 
-to the request contents are empty - even if the request was partially filled before cancellation. 
+Note that older versions of Unity used a special actions in the form automation rules to control (in a limited way)
+the behavior. Since version 2.7.0 this is not active feature anymore. The actions are still there so that 
+re-configuration to the new Finalization configuration is easier. In future those actions will be completely dropped.
 
 The automatically added query parameters are:
 
@@ -193,9 +180,13 @@ The last two are used after confirming elements as email of the form.
 . +confirmed_element_value+
 
 
+==== Automatic processing
 
-
-==== Example conditions
+The rules which contain the +autoProcess+ action are used to automatically accept, deny or drop the request.
+Such rules behave in the same way as all regular rules, with one exception. Namely, those rules are consulted
+not only after the request is submitted, but also after each confirmation of request elements 
+(such as email identity confirmation). Therefore it is possible to automatically accept a request only after 
+its email identity is confirmed.  
 
 The full MVEL documentation can be found here {mveldoc}
 

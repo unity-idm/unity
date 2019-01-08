@@ -12,6 +12,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.authn.SandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.local.LocalSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteSandboxAuthnContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
@@ -24,27 +25,36 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.association.AbstractConfirmationStep;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 
 /**
  * Shows confirmation of the account association when the sandbox login should return an unknown user.
  * This user is merged with the currently logged one.
  * @author K. Benedyczak
  */
-public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
+class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmationStep
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			MergeCurrentWithUnknownConfirmationStep.class);
 	private RemotelyAuthenticatedContext authnContext;
 	private Exception mergeError;
 	
-	public MergeCurrentWithUnknownConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
-			final Wizard wizard)
+	MergeCurrentWithUnknownConfirmationStep(UnityMessageSource msg, InputTranslationEngine translationEngine, 
+			Wizard wizard)
 	{
 		super(msg, translationEngine, wizard);
 	}
 
-	@Override
-	protected void setRemoteAuthnData(RemoteSandboxAuthnContext ctx)
+	void setAuthnData(SandboxAuthnEvent event)
+	{
+		SandboxAuthnContext ctx = event.getCtx();
+		if (ctx instanceof RemoteSandboxAuthnContext)
+			setRemoteAuthnData((RemoteSandboxAuthnContext) ctx);
+		else
+			setLocalAuthnData((LocalSandboxAuthnContext) ctx);
+	}
+	
+	private void setRemoteAuthnData(RemoteSandboxAuthnContext ctx)
 	{
 		if (ctx.getAuthnException() != null)
 		{
@@ -77,8 +87,7 @@ public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmatio
 		}
 	}
 
-	@Override
-	protected void setLocalAuthnData(LocalSandboxAuthnContext ctx)
+	private void setLocalAuthnData(LocalSandboxAuthnContext ctx)
 	{
 		AuthenticationResult ae = ctx.getAuthenticationResult();
 		if (ae.getStatus() != Status.success)
@@ -101,7 +110,7 @@ public class MergeCurrentWithUnknownConfirmationStep extends AbstractConfirmatio
 		{
 			translationEngine.mergeWithExisting(authnContext.getMappingResult(), 
 					new EntityParam(loginSession.getEntityId()));
-			NotificationPopup.showSuccess(msg, msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"), 
+			NotificationPopup.showSuccess(msg.getMessage("ConnectId.ConfirmStep.mergeSuccessfulCaption"), 
 					msg.getMessage("ConnectId.ConfirmStep.mergeSuccessful"));
 		} catch (EngineException e)
 		{

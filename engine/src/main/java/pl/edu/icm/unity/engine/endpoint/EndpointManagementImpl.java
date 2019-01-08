@@ -8,16 +8,17 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EndpointManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -31,7 +32,6 @@ import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.Endpoint;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -117,11 +117,11 @@ public class EndpointManagementImpl implements EndpointManagement
 		EndpointInstance endpointInstance;
 		try
 		{
-			Endpoint endpoint = new Endpoint(endpointName, typeId, address, configuration);
+			Endpoint endpoint = new Endpoint(endpointName, typeId, address, configuration, 0);
 			endpointInstance = endpointInstanceLoader.createEndpointInstance(endpoint);
 
-			verifyAuthenticators(endpointInstance.getAuthenticationOptions(), 
-					factory.getDescription().getSupportedBindings());
+			verifyAuthenticators(endpointInstance.getAuthenticationFlows(), 
+					factory.getDescription().getSupportedBinding());
 			
 			endpointDB.create(endpoint);
 		} catch (Exception e)
@@ -159,11 +159,10 @@ public class EndpointManagementImpl implements EndpointManagement
 		}
 	}
 	
-	private void verifyAuthenticators(List<AuthenticationOption> authenticators,
-			Set<String> supported) throws WrongArgumentException
+	private void verifyAuthenticators(List<AuthenticationFlow> authenticators, String supported) throws WrongArgumentException
 	{
-		for (AuthenticationOption auths: authenticators)
-			auths.checkIfAuthenticatorsAreAmongSupported(supported);
+		for (AuthenticationFlow auths: authenticators)
+			auths.checkIfAuthenticatorsAreAmongSupported(Sets.newHashSet(supported));
 	}
 
 	@Override
@@ -240,7 +239,7 @@ public class EndpointManagementImpl implements EndpointManagement
 						configuration.getDescription() :
 						existing.getConfiguration().getDescription();
 
-				List<AuthenticationOptionDescription> newAuthn = 
+				List<String> newAuthn = 
 						(configuration.getAuthenticationOptions() != null) ?
 							configuration.getAuthenticationOptions() :
 							existing.getConfiguration().getAuthenticationOptions();
@@ -261,14 +260,15 @@ public class EndpointManagementImpl implements EndpointManagement
 						newAuthn, 
 						jsonConf, 
 						realm.getName());
-						
+				
+				Endpoint current = endpointDB.get(id);
 				Endpoint updatedEndpoint = new Endpoint(id, 
 						endpointTypeId, 
 						existing.getContextAddress(), 
-						newConfiguration);
-
+						newConfiguration,
+						current.getRevision() + 1);
 				endpointDB.update(updatedEndpoint);
-				log.info("Endpoint " + id + " successfully updated");
+				log.info("Endpoint " + id + " successfully updated in DB");
 			} catch (Exception e)
 			{
 				throw new EngineException("Unable to reconfigure an endpoint: " + e.getMessage(), e);

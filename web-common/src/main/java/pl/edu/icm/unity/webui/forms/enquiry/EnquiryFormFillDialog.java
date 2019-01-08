@@ -16,7 +16,6 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
@@ -47,7 +46,7 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	protected AbstractOrderedLayout getButtonsBar()
 	{
 		AbstractOrderedLayout ret = super.getButtonsBar();
-		if (type != EnquiryType.REQUESTED_MANDATORY)
+		if (type == EnquiryType.REQUESTED_OPTIONAL)
 		{
 			Button ignore = new Button(msg.getMessage("EnquiryFormFillDialog.ignore"), 
 					event-> {
@@ -63,12 +62,6 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	public void show()
 	{
 		super.show();
-		
-		String info = (type == EnquiryType.REQUESTED_MANDATORY) ? 
-				msg.getMessage("EnquiryFormFillDialog.mandatoryEnquiryInfo") : 
-				msg.getMessage("EnquiryFormFillDialog.optionalEnquiryInfo");
-		NotificationPopup.showNotice(msg, msg.getMessage("EnquiryFormFillDialog.newEnquiryCaption"), info);
-			
 	}
 	
 	@Override
@@ -93,15 +86,14 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	@Override
 	protected void onConfirm()
 	{
+		EnquiryResponse request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
+		if (request == null)
+			return;
 		try
 		{
-			EnquiryResponse request = editor.getRequest();
-			if (callback.newRequest(request))
-				close();
-		} catch (FormValidationException e) 
-		{
-			NotificationPopup.showError(msg, msg.getMessage("Generic.formError"), e);
-		} catch (WrongArgumentException e)
+			callback.newRequest(request);
+			close();
+		} catch (Exception e)
 		{
 			if (e instanceof IllegalFormContentsException)
 				editor.markErrorsFromException((IllegalFormContentsException) e);
@@ -111,7 +103,7 @@ public class EnquiryFormFillDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		boolean newRequest(EnquiryResponse request) throws WrongArgumentException;
+		void newRequest(EnquiryResponse request) throws WrongArgumentException;
 		void cancelled();
 		void ignored();
 	}

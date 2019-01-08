@@ -39,6 +39,8 @@
 		<!-- OAuth related -->
 		<Logger name="unity.server.oauth" level="TRACE"/>
 
+		<Logger name="unity.server.AdditionalAuthenticationService" level="TRACE"/>
+
 		<!-- LDAP related -->
 		<!-- <Logger name="unity.server.ldap" level="INFO"/> -->
 

@@ -11,10 +11,10 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.ConfirmedElementType;
-import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationStatus;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationEmailConfirmationState.RequestType;
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
@@ -28,7 +28,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.UserRequestState;
 
 /**
- * Identity from registration confirmation facility.
+ * Confirms identities in registration request
  * 
  * @author P. Piernik
  */
@@ -43,9 +43,9 @@ public class RegistrationReqEmailIdentityFacility extends RegistrationEmailFacil
 			RegistrationFormDB formsDB, EnquiryFormDB enquiresDB,
 			ApplicationEventPublisher publisher,
 			IdentityTypesRegistry identityTypesRegistry,
-			TxManager tx)
+			TxManager tx, UnityMessageSource msg)
 	{
-		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, tx);
+		super(requestDB, enquiryResponsesDB, formsDB, enquiresDB, publisher, tx, msg);
 		this.identityTypesRegistry = identityTypesRegistry;
 	}
 
@@ -62,20 +62,14 @@ public class RegistrationReqEmailIdentityFacility extends RegistrationEmailFacil
 	}
 
 	@Override
-	protected EmailConfirmationStatus confirmElements(UserRequestState<?> reqState,
-			RegistrationReqEmailIdentityConfirmationState idState) throws EngineException
+	protected boolean confirmElements(UserRequestState<?> reqState, 
+			RegistrationReqEmailIdentityConfirmationState idState)
 	{
 		if (!(identityTypesRegistry.getByName(idState.getType()).isEmailVerifiable()))
-			return new EmailConfirmationStatus(false, "ConfirmationStatus.identityChanged", idState.getType());
+			return false;
 		Collection<IdentityParam> confirmedList = confirmIdentity(reqState.getRequest().getIdentities(),
 				idState.getType(), idState.getValue());
-		boolean confirmed = (confirmedList.size() > 0);
-		
-		return new EmailConfirmationStatus(confirmed, confirmed ? getSuccessRedirect(idState, reqState)
-				: getErrorRedirect(idState, reqState),
-				confirmed ? "ConfirmationStatus.successIdentity"
-						: "ConfirmationStatus.identityChanged",
-				idState.getType());
+		return (confirmedList.size() > 0);
 	}
 
 	@Override

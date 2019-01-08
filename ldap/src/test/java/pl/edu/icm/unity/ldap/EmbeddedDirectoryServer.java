@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.ldap;
@@ -31,6 +31,7 @@ import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -53,8 +54,7 @@ public class EmbeddedDirectoryServer
 		List<InMemoryListenerConfig> listenerConfigs = new ArrayList<>();
 		
 		BinaryCertChainValidator acceptAll = new BinaryCertChainValidator(true);
-		KeystoreCredential credential = new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12");
+		KeystoreCredential credential = DBIntegrationTestBase.getDemoCredential();
 		SSLServerSocketFactory serverSocketFactory = SocketFactoryCreator.getServerSocketFactory(credential, 
 				acceptAll);
 		SSLSocketFactory clientSocketFactory = SocketFactoryCreator.getSocketFactory(null, acceptAll);
@@ -93,11 +93,9 @@ public class EmbeddedDirectoryServer
 	
 	public PKIManagement getPKIManagement4Client() throws KeyStoreException, IOException
 	{
-		KeystoreCertChainValidator regularValidator = new KeystoreCertChainValidator(
-				"src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1);
+		KeystoreCertChainValidator regularValidator = DBIntegrationTestBase.getDemoValidator();
 		KeystoreCertChainValidator emptyValidator = new KeystoreCertChainValidator(
-				"src/test/resources/empty.jks", 
+				"src/test/resources/pki/empty.jks", 
 				"the!empty".toCharArray(), "JKS", -1);
 		
 		return new PKIManagement()

@@ -58,13 +58,13 @@ public class ChangeCredentialRequirementDialog extends AbstractDialog
 			credReqs = credReqMan.getCredentialRequirements();
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("EntityCreation.cantGetcredReq"));
 			throw new IllegalStateException();
 		}
 		if (credReqs.isEmpty())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("EntityCreation.credReqMissing"));
 			throw new IllegalStateException();
 		}

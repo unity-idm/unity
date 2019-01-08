@@ -122,7 +122,8 @@ public class AccessTokenResource extends BaseOAuthResource
 	@Path("/")
 	@POST
 	public Response getToken(@FormParam("grant_type") String grantType,
-			@FormParam("code") String code, @FormParam("scope") String scope,
+			@FormParam("code") String code, 
+			@FormParam("scope") String scope,
 			@FormParam("redirect_uri") String redirectUri,
 			@FormParam("refresh_token") String refreshToken,
 			@FormParam("audience") String audience,
@@ -134,7 +135,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		if (grantType == null)
 			return makeError(OAuth2Error.INVALID_REQUEST, "grant_type is required");
 
-		log.trace("Handle new token request with " + grantType + "grant");
+		log.trace("Handle new token request with " + grantType + " grant");
 		
 		if (grantType.equals(GrantType.AUTHORIZATION_CODE.getValue()))
 		{
@@ -253,7 +254,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
-		}		
+		}
 		
 		OAuthToken newToken = null;
 		try
@@ -292,7 +293,6 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
 				refreshToken, additionalParams);
-
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(subToken.getOwner()),
 				newToken.getSerialized(), now, accessExpiration);
@@ -303,7 +303,6 @@ public class AccessTokenResource extends BaseOAuthResource
 	private Response handleRefreshToken(String refToken, String scope)
 			throws EngineException, JsonProcessingException
 	{
-
 		Token refreshToken = null;
 		OAuthToken parsedRefreshToken = null;
 		try
@@ -330,6 +329,11 @@ public class AccessTokenResource extends BaseOAuthResource
 		List<String> oldRequestedScopesList = Arrays
 				.asList(parsedRefreshToken.getRequestedScope());
 		OAuthToken newToken = null;
+		
+		//When no scopes are requested RFC mandates to assign all originally assigned
+		if (scope == null)
+			scope = String.join(" ", oldRequestedScopesList);
+
 		try
 		{
 			newToken = prepareNewToken(parsedRefreshToken, scope,
@@ -349,7 +353,8 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
 				null, null);
-
+		log.debug("Refreshed access token {} of entity {}, valid until {}", 
+				tokenToLog(accessToken.getValue()), refreshToken.getOwner(), accessExpiration);
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(refreshToken.getOwner()),
 				newToken.getSerialized(), now, accessExpiration);
@@ -375,7 +380,8 @@ public class AccessTokenResource extends BaseOAuthResource
 		internalToken.setAccessToken(accessToken.getValue());
 		
 		Date expiration = getAccessTokenExpiration(now);
-
+		log.debug("Client cred grant: issuing new access token {}, valid until {}", 
+				tokenToLog(accessToken.getValue()), expiration);
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(
 				new Tokens(accessToken, null));
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
@@ -421,6 +427,8 @@ public class AccessTokenResource extends BaseOAuthResource
 
 		AccessTokenResponse oauthResponse = getAccessTokenResponse(internalToken,
 				accessToken, refreshToken, null);
+		log.debug("Authz code grant: issuing new access token {}, valid until {}", tokenToLog(accessToken.getValue()), 
+				accessExpiration);
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(codeToken.getOwner()),
 				internalToken.getSerialized(), now, accessExpiration);
@@ -645,7 +653,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		cl.setTime(now);
 		if (refreshTokenValidity == 0)
 		{
-			cl.add(Calendar.YEAR, 1);
+			return null;
 		} else if (refreshTokenValidity > 0)
 		{
 			cl.add(Calendar.SECOND, refreshTokenValidity);

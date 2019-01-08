@@ -6,8 +6,6 @@ package pl.edu.icm.unity.webui.common.identities;
 
 import java.util.Collection;
 
-import com.vaadin.ui.AbstractOrderedLayout;
-
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
@@ -19,6 +17,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.EditorProvider;
+import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
 
 /**
  * Editor component allowing to edit identities of a fixed {@link IdentityType}.
@@ -30,18 +29,16 @@ public class SingleTypeIdentityEditor
 	private IdentityType idType;
 	private IdentityEditorRegistry idEdRegistry;
 	private UnityMessageSource msg;
-	private AbstractOrderedLayout parent;
 	private String userFriendlyName;
-	private ListOfEmbeddedElementsStub<IdentityParam> ret;
+	private ListOfEmbeddedElementsStub<IdentityParam> componentsList;
 
 	public SingleTypeIdentityEditor(IdentityType idType, Collection<Identity> initial, 
 			IdentityEditorRegistry idEdRegistry, UnityMessageSource msg, 
-			IdentityTypeSupport idTypeSupport, AbstractOrderedLayout parent)
+			IdentityTypeSupport idTypeSupport)
 	{
 		this.idType = idType;
 		this.idEdRegistry = idEdRegistry;
 		this.msg = msg;
-		this.parent = parent;
 		this.userFriendlyName = idTypeSupport.getTypeDefinition(idType.getIdentityTypeProvider()).
 				getHumanFriendlyName(msg);
 
@@ -51,21 +48,26 @@ public class SingleTypeIdentityEditor
 	private void initUI(Collection<Identity> initial)
 	{
 		int min = Math.min(initial.size(), idType.getMinInstances());
-		ret = new ListOfEmbeddedElementsStub<IdentityParam>(
+		componentsList = new ListOfEmbeddedElementsStub<>(
 				msg, new IdentityEditorProvider(), 
-				min, idType.getMaxInstances(), false, parent);
-		ret.setEntries(initial);
-		ret.setLonelyLabel(userFriendlyName + ":");
+				min, idType.getMaxInstances(), false);
+		componentsList.setEntries(initial);
+		componentsList.setLonelyLabel(userFriendlyName + ":");
+	}
+	
+	public ComponentsGroup getComponentsGroup()
+	{
+		return componentsList.getComponentsGroup();
 	}
 	
 	public void removeAll()
 	{
-		ret.clearContents();
+		componentsList.clearContents();
 	}
 	
 	public Collection<IdentityParam> getIdentities() throws FormValidationException
 	{
-		return ret.getElements();
+		return componentsList.getElements();
 	}
 	
 	public IdentityType getType()
@@ -90,7 +92,8 @@ public class SingleTypeIdentityEditor
 		public ComponentsContainer getEditorComponent(IdentityParam value, int position)
 		{
 			editor = idEdRegistry.getEditor(idType.getIdentityTypeProvider());
-			ComponentsContainer ret = editor.getEditor(true, false);
+			ComponentsContainer ret = editor.getEditor(IdentityEditorContext.builder()
+					.withRequired(true).build());
 			if (value != null)
 				editor.setDefaultValue(value);
 			return ret;

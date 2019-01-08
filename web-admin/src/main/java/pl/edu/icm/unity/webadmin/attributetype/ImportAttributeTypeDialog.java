@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webadmin.attributetype;
@@ -221,7 +221,7 @@ public class ImportAttributeTypeDialog extends AbstractDialog
 
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg,
+			NotificationPopup.showError(
 					msg.getMessage("ImportAttributeTypes.cannotParseFile"),
 					e.getCause() != null ? e.getCause().getMessage()
 							: e.toString());

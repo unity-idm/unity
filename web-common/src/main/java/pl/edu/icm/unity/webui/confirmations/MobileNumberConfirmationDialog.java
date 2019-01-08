@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -68,7 +68,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 		this.captchaComponent.setVisible(false);
 		this.confirmCodeComponent = getConfirmCodeComponent();
 		this.confirmCodeComponent.setVisible(false);
-		setSize(50, 40);
+		setSizeEm(36, 25);
 	}
 
 	
@@ -77,7 +77,7 @@ public class MobileNumberConfirmationDialog extends AbstractDialog
 	{
 		Label infoLabel = new Label(msg.getMessage("MobileNumberConfirmationDialog.capchaInfo"));
 		infoLabel.setSizeFull();	
-		captcha = new CaptchaComponent(msg, 4);		
+		captcha = new CaptchaComponent(msg, 4, false);		
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setMargin(false);
 		wrapper.addComponents(infoLabel, captcha.getAsComponent());

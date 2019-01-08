@@ -12,7 +12,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.MVELExpressionField;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
 /**
  * Edit component of an immediate {@link ProcessingRule}
@@ -50,7 +50,7 @@ public class RuleEditorImpl extends CustomComponent implements RuleEditor<Transl
 				msg.getMessage("MVELExpressionField.conditionDesc"));
 		binder = new Binder<>(TranslationRule.class);
 		condition.configureBinding(binder, "condition", true);
-		binder.setBean(new TranslationRule("status == 'DISABLED'", null));
+		binder.setBean(new TranslationRule("status == 'disabled'", null));
 
 		main.addComponents(condition);
 		actionEditor.addToLayout(main);

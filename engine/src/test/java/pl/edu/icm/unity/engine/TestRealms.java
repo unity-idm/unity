@@ -11,6 +11,7 @@ import java.util.Collection;
 import org.junit.Test;
 
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 public class TestRealms extends DBIntegrationTestBase
 {
@@ -21,7 +22,7 @@ public class TestRealms extends DBIntegrationTestBase
 		assertEquals(0, realms.size());
 		
 		AuthenticationRealm r = new AuthenticationRealm("some realm", "desc", 
-				10, 11, 2, 22);
+				10, 11, RememberMePolicy.disallow , 2, 22);
 		realmsMan.addRealm(r);
 		
 		AuthenticationRealm r2 = realmsMan.getRealm(r.getName());
@@ -35,7 +36,7 @@ public class TestRealms extends DBIntegrationTestBase
 		assertEquals(1, realmsMan.getRealms().size());
 		
 		r = new AuthenticationRealm("some realm", "desc2", 
-				11, 12, 3, 33);
+				11, 12, RememberMePolicy.disallow , 3, 33);
 		
 		realmsMan.updateRealm(r);
 		

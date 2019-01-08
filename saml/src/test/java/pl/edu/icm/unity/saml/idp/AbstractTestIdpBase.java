@@ -17,10 +17,12 @@ import java.util.Set;
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import eu.emi.security.authn.x509.impl.KeystoreCertChainValidator;
-import eu.emi.security.authn.x509.impl.KeystoreCredential;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import eu.unicore.util.httpclient.DefaultClientConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
@@ -45,10 +47,12 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -84,6 +88,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	private TranslationProfileManagement profilesMan;
 	@Autowired
 	private AuthenticatorManagement authnMan;
+	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
 	
 	
 	@Before
@@ -93,13 +99,14 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		createUsers();
 		profilesMan.addProfile(createOutputProfile());
 		AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
-				10, 100, -1, 600);
+				10, 100, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
-		authnCfg.add(new AuthenticationOptionDescription("Apass"));
-		authnCfg.add(new AuthenticationOptionDescription("Acert"));
+		
+		authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER,
+				Sets.newHashSet("Apass", "Acert")));
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
-				authnCfg, SAML_ENDP_CFG, REALM_NAME);
+				Lists.newArrayList("flow1"), SAML_ENDP_CFG, REALM_NAME);
 		endpointMan.deploy(SamlSoapEndpoint.NAME, "endpointIDP", "/saml", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 		assertEquals(1, endpoints.size());
@@ -140,10 +147,8 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 	protected DefaultClientConfiguration getClientCfg() throws KeyStoreException, IOException
 	{
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
-		clientCfg.setCredential(new KeystoreCredential("src/test/resources/demoKeystore.p12", 
-				"the!uvos".toCharArray(), "the!uvos".toCharArray(), "uvos", "PKCS12"));
-		clientCfg.setValidator(new KeystoreCertChainValidator("src/test/resources/demoTruststore.jks", 
-				"unicore".toCharArray(), "JKS", -1));
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
 		clientCfg.setSslEnabled(true);
 		clientCfg.getHttpClientProperties().setSocketTimeout(3600000);
 		return clientCfg;
@@ -159,7 +164,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		Identity added2 = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "user2"), 
 				"cr-certpass", EntityState.valid, false);
 		EntityParam e2 = new EntityParam(added2);
-		idsMan.addIdentity(new IdentityParam(X500Identity.ID, "CN=Test UVOS,O=UNICORE,C=EU"), 
+		idsMan.addIdentity(new IdentityParam(X500Identity.ID, DBIntegrationTestBase.DEMO_SERVER_DN), 
 				e2, false);
 		eCredMan.setEntityCredential(new EntityParam(added2), "credential1", 
 				new PasswordToken("mockPassword2").toJson());
@@ -214,7 +219,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		CredentialRequirements cr3 = new CredentialRequirements("cr-certpass", "", creds);
 		credReqMan.addCredentialRequirement(cr3);
 		
-		authnMan.createAuthenticator("Apass", "password with cxf-httpbasic", null, "", "credential1");
-		authnMan.createAuthenticator("Acert", "certificate with cxf-certificate", null, "", "credential2");
+		authnMan.createAuthenticator("Apass", "password", "", "credential1");
+		authnMan.createAuthenticator("Acert", "certificate", "", "credential2");
 	}
 }

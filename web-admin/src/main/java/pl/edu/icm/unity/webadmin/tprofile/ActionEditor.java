@@ -106,7 +106,10 @@ public class ActionEditor extends LayoutEmbeddable
 	
 	private void setParams(String action, String[] values)
 	{
-		Runnable paramCallback = ()-> { callback.accept(getStringRepresentation()); };
+		Runnable paramCallback = () -> {
+			if (callback != null)
+				callback.accept(getStringRepresentation()); 
+		};
 		removeComponents(paramComponents);
 		paramComponents.clear();
 		

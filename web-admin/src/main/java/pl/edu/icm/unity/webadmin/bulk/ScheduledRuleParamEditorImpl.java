@@ -13,7 +13,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.MVELExpressionField;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionArea;
 
 /**
  * Edit component of a {@link ScheduledProcessingRuleParam}
@@ -23,7 +23,7 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 {
 	protected UnityMessageSource msg;
 
-	protected MVELExpressionField condition;
+	protected MVELExpressionArea condition;
 	protected ActionEditor actionEditor;
 	protected CronExpressionField cronExpression;
 	private Binder<ScheduledProcessingRuleParam> binder;
@@ -51,9 +51,9 @@ public class ScheduledRuleParamEditorImpl extends CustomComponent implements Rul
 
 		cronExpression = new CronExpressionField(msg,
 				msg.getMessage("RuleEditor.cronExpression"));
-		condition = new MVELExpressionField(msg, msg.getMessage("RuleEditor.condition"),
+		condition = new MVELExpressionArea(msg, msg.getMessage("RuleEditor.condition"),
 				msg.getMessage("MVELExpressionField.conditionDesc"));
-
+		condition.setWidth(100, Unit.PERCENTAGE);
 		binder = new Binder<>(ScheduledProcessingRuleParam.class);
 		condition.configureBinding(binder, "condition", true);
 		cronExpression.configureBinding(binder, "cronExpression");

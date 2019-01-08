@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -11,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -22,13 +25,16 @@ import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
+import pl.edu.icm.unity.store.impl.StorageLimits.SizeLimitExceededException;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 
 public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 {
@@ -40,6 +46,8 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 	private EntityDAO entityDAO;
 	@Autowired
 	private AttributeTypeDAO atDao;
+	@Autowired
+	private MembershipDAO membershipDao;
 
 	
 	private long entityId;
@@ -112,6 +120,38 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 			List<StoredAttribute> attributes = dao.getAttributes(null, null, "/C");
 			
 			assertAllAndOnlyAllInSA(Lists.newArrayList(obj2, obj3, obj4), attributes);
+		});
+	}
+
+	@Test
+	public void allAttribtuesOfGroupMembersAreReturned()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getObject("");
+			obj.getAttribute().setGroupPath("/");
+			obj.getAttribute().setName("attr");
+			dao.create(obj);
+			
+			StoredAttribute obj2 = getObject("");
+			obj2.getAttribute().setGroupPath("/C");
+			obj2.getAttribute().setName("attr2");
+			dao.create(obj2);
+
+			StoredAttribute obj4 = getObject("");
+			obj4.getAttribute().setGroupPath("/C");
+			obj4.getAttribute().setName("attr3");
+			obj4 = new StoredAttribute(obj4.getAttribute(), entityId2);
+			dao.create(obj4);
+
+
+			membershipDao.create(new GroupMembership("/C", entityId, new Date(1)));
+			membershipDao.create(new GroupMembership("/", entityId, new Date(1)));
+			membershipDao.create(new GroupMembership("/", entityId2, new Date(1)));
+			
+			List<StoredAttribute> attributes = dao.getAttributesOfGroupMembers("/C");
+			
+			assertAllAndOnlyAllInSA(Lists.newArrayList(obj, obj2), attributes);
 		});
 	}
 	
@@ -489,7 +529,48 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 					attributes);
 		});
 	}
+
+	@Test
+	public void attributeSizeLimitIsInEffect()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getSizedAttr(256001);
+			
+			Throwable error = catchThrowable(() -> dao.create(obj));
+
+			assertThat(error).isInstanceOf(SizeLimitExceededException.class);
+		});
+	}
+
+	@Test
+	public void attributeFittingLimitCanBeAdded()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getSizedAttr(250000);
+			
+			Throwable error = catchThrowable(() -> dao.create(obj));
+
+			assertThat(error).isNull();
+		});
+	}
+
 	
+	private StoredAttribute getSizedAttr(int size)
+	{
+		StringBuilder value = new StringBuilder(size);
+		IntStream.range(0, size).forEach(i -> value.append("."));
+		Attribute attr = new Attribute("attr", 
+				"syntax", 
+				"/A", 
+				Lists.newArrayList(value.toString()), 
+				"remoteIdp", 
+				"translationProfile");
+		AttributeExt a = new AttributeExt(attr, true, new Date(100), new Date(1000));
+		return new StoredAttribute(a, entityId);
+	}
+
 	@Override
 	protected AttributeDAO getDAO()
 	{

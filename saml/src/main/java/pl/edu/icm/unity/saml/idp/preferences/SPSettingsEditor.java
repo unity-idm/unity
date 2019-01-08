@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.google.common.collect.Lists;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
@@ -133,8 +134,13 @@ public class SPSettingsEditor extends FormLayout
 			sp.setDescription(msg.getMessage("SAMLPreferences.SPdesc"));
 			sp.setWidth(100, Unit.PERCENTAGE);
 			sp.setTextInputAllowed(true);
-			sp.setTextInputAllowed(true);
-			sp.setNewItemProvider(s -> Optional.empty());
+			sp.setNewItemProvider(s ->
+			{
+				List<String> items = Lists.newArrayList(s);
+				items.addAll(allSps);
+				sp.setItems(items);
+				return Optional.of(s);
+			});
 			sp.setEmptySelectionAllowed(true);
 			sp.setItems(allSps);
 			addComponent(sp);
@@ -244,7 +250,7 @@ public class SPSettingsEditor extends FormLayout
 				selection.setSelectedItem(available.get(0));
 			} else
 			{
-				NotificationPopup.showNotice(msg, msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
+				NotificationPopup.showNotice(msg.getMessage("notice"), msg.getMessage("SAMLPreferences.allSelected"));
 				throw new FormValidationException();
 			}
 			return selection;

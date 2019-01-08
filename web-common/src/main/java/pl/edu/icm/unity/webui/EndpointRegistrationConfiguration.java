@@ -5,26 +5,32 @@
 package pl.edu.icm.unity.webui;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Stores information about registration options enabled for the endpoint.
+ * 
  * @author K. Benedyczak
  */
 public class EndpointRegistrationConfiguration
 {
 	private List<String> enabledForms;
+	private Optional<String> externalRegistrationURL;
 	private boolean showRegistrationOption;
+	private boolean displayRegistrationFormsInHeader;
 
 	public EndpointRegistrationConfiguration(boolean showRegistrationOption)
 	{
 		this.showRegistrationOption = showRegistrationOption;
 	}
-	
-	public EndpointRegistrationConfiguration(List<String> enabledForms,
-			boolean showRegistrationOption)
+
+	public EndpointRegistrationConfiguration(List<String> enabledForms, boolean showRegistrationOption,
+			boolean displayRegistrationFormsInHeader, Optional<String> externalRegistrationURL)
 	{
 		this.enabledForms = enabledForms;
 		this.showRegistrationOption = showRegistrationOption;
+		this.displayRegistrationFormsInHeader = displayRegistrationFormsInHeader;
+		this.externalRegistrationURL = externalRegistrationURL;
 	}
 
 	public List<String> getEnabledForms()
@@ -32,18 +38,18 @@ public class EndpointRegistrationConfiguration
 		return enabledForms;
 	}
 
-	public void setEnabledForms(List<String> enabledForms)
-	{
-		this.enabledForms = enabledForms;
-	}
-
 	public boolean isShowRegistrationOption()
 	{
 		return showRegistrationOption;
 	}
 
-	public void setShowRegistrationOption(boolean showRegistrationOption)
+	public boolean isDisplayRegistrationFormsInHeader()
 	{
-		this.showRegistrationOption = showRegistrationOption;
+		return displayRegistrationFormsInHeader;
+	}
+
+	public Optional<String> getExternalRegistrationURL()
+	{
+		return externalRegistrationURL;
 	}
 }

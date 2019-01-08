@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.authn;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Locale;
 
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -23,20 +24,22 @@ public class InvocationContext implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 
-	private static ThreadLocal<InvocationContext> threadLocal = new ThreadLocal<InvocationContext>();
+	private static ThreadLocal<InvocationContext> threadLocal = new ThreadLocal<>();
 
 	private LoginSession loginSession;
 	private Locale locale;
 	private IdentityTaV tlsIdentity;
 	private AuthenticationRealm realm;
 	private String currentURLUsed;
+	private List<AuthenticationFlow> endpointFlows;
 
 	/**
 	 * @param tlsIdentity TLS client-authenticated identity (of X500 type) or null if there is no TLS 
 	 * client connection context or it is not client authenticated.
 	 */
-	public InvocationContext(IdentityTaV tlsIdentity, AuthenticationRealm realm)
+	public InvocationContext(IdentityTaV tlsIdentity, AuthenticationRealm realm, List<AuthenticationFlow> endpointFlows)
 	{
+		this.endpointFlows = endpointFlows;
 		setTlsIdentity(tlsIdentity);
 		this.realm = realm;
 	}
@@ -119,6 +122,11 @@ public class InvocationContext implements Serializable
 	public void setTlsIdentity(IdentityTaV tlsIdentity)
 	{
 		this.tlsIdentity = tlsIdentity;
+	}
+
+	public List<AuthenticationFlow> getEndpointFlows()
+	{
+		return endpointFlows;
 	}
 
 	/**

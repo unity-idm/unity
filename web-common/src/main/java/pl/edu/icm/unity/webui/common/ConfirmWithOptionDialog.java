@@ -51,8 +51,11 @@ public class ConfirmWithOptionDialog extends AbstractDialog
 		VerticalLayout vl = new VerticalLayout();
 		vl.setSpacing(true);
 		vl.setMargin(false);
-		vl.addComponent(new Label(question));
+		Label questionL = new Label(question);
+		questionL.setWidth(100, Unit.PERCENTAGE);
+		vl.addComponent(questionL);
 		optionCb = new CheckBox(option);
+		optionCb.setWidth(100, Unit.PERCENTAGE);
 		vl.addComponent(optionCb);
 		return vl;
 	}

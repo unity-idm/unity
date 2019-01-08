@@ -111,6 +111,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		notificationChannels.setRequiredIndicatorVisible(true);
 		
 		subject = new I18nTextField(msg, msg.getMessage("MessageTemplatesEditor.subject"));
+		subject.setWidth(100, Unit.PERCENTAGE);
 		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
 
 		messageType = new MessageTypeComboBox(msg, this::getBodyForPreview);

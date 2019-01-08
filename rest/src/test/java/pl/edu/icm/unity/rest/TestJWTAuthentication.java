@@ -9,7 +9,6 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpHost;
@@ -25,10 +24,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.test.context.TestPropertySource;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 
@@ -48,15 +52,16 @@ public class TestJWTAuthentication extends TestRESTBase
 		setupPasswordAuthn();
 		createUsernameUserWithRole("Regular User");
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 100, -1, 600);
+				10, 100, RememberMePolicy.disallow , 1, 600);
 		realmsMan.addRealm(realm);
 		
-		authnMan.createAuthenticator("Ajwt", "jwt with rest-jwt", JWT_CONFIG, null, null);
+		authnMan.createAuthenticator("Ajwt", "jwt", JWT_CONFIG, null);
 		
-		List<AuthenticationOptionDescription> authnCfg = new ArrayList<AuthenticationOptionDescription>();
-		authnCfg.add(new AuthenticationOptionDescription(AUTHENTICATOR_REST_PASS));
-		authnCfg.add(new AuthenticationOptionDescription("Ajwt"));
-		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("jwtMan"), "desc", authnCfg, 
+		authFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+				"flow1", Policy.NEVER,
+				Sets.newHashSet(AUTHENTICATOR_REST_PASS,"Ajwt")));
+		
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("jwtMan"), "desc", Lists.newArrayList("flow1"), 
 				JWT_CONFIG, realm.getName());
 		endpointMan.deploy(JWTManagementEndpoint.NAME, "jwtMan", "/jwt", cfg);
 		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
@@ -141,7 +146,7 @@ public class TestJWTAuthentication extends TestRESTBase
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		return client.execute(host, request, localcontext);
 	}
 	

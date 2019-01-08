@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webadmin.utils;
@@ -105,20 +105,20 @@ public class FileUploder extends AbstractUploadReceiver
 	{
 		if (isOverflow())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("FileUploader.uploadFileTooBig"));
 			return null;
 		}
 		if (isUploading())
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("FileUploader.uploadInProgress"));
 			return null;
 		}	
 		
 		if (target == null)
 		{
-			NotificationPopup.showError(msg, msg.getMessage("error"),
+			NotificationPopup.showError(msg.getMessage("error"),
 					msg.getMessage("FileUploader.uploadFileFirst"));
 			return null;
 		}

@@ -127,6 +127,8 @@ void assignNameToAdmin() throws EngineException
 {
 	//admin user has no "name" - let's assign one.
 	String adminU = config.getValue(UnityServerConfiguration.INITIAL_ADMIN_USER);
+	if (adminU == null)
+		return;
 	Attribute nameA = StringAttribute.of(NAME_ATTR, "/", "Default Administrator");
 	EntityParam entity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, adminU));
 	try

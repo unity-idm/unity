@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -17,30 +17,30 @@ import java.util.Map;
 public class AttributeFetchResult
 {
 
-	private Map<String, List<String>> flatAttributes;
+	private Map<String, List<String>> attributes;
 	private Map<String, Object> rawAttributes;
 	
-	public AttributeFetchResult(Map<String, List<String>> flatAttributes,
+	public AttributeFetchResult(Map<String, List<String>> attributes,
 			Map<String, Object> rawAttributes)
 	{
-		this.setFlatAttributes(flatAttributes);
+		this.setAttributes(attributes);
 		this.setRawAttributes(rawAttributes);
 	}
 	
 	public AttributeFetchResult()
 	{
-		flatAttributes = new HashMap<>();
+		attributes = new HashMap<>();
 		rawAttributes = new HashMap<>();
 	}
 
-	public Map<String, List<String>> getFlatAttributes()
+	public Map<String, List<String>> getAttributes()
 	{
-		return flatAttributes;
+		return attributes;
 	}
 
-	public void setFlatAttributes(Map<String, List<String>> flatAttributes)
+	public void setAttributes(Map<String, List<String>> flatAttributes)
 	{
-		this.flatAttributes = flatAttributes;
+		this.attributes = flatAttributes;
 	}
 
 	public Map<String, Object> getRawAttributes()
@@ -51,5 +51,11 @@ public class AttributeFetchResult
 	public void setRawAttributes(Map<String, Object> rawAttributes)
 	{
 		this.rawAttributes = rawAttributes;
-	}	
+	}
+
+	@Override
+	public String toString()
+	{
+		return "AttributeFetchResult [attributes=" + attributes + ", rawAttributes=" + rawAttributes + "]";
+	}
 }

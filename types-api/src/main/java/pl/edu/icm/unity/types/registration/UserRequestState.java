@@ -152,8 +152,7 @@ public abstract class UserRequestState<T extends BaseRegistrationInput> implemen
 		if (n != null)
 			setRegistrationContext(new RegistrationContext(n));
 		else
-			setRegistrationContext(new RegistrationContext(true, true, 
-					TriggeringMode.manualAtLogin));
+			setRegistrationContext(new RegistrationContext(true, TriggeringMode.manualAtLogin));
 		
 		setRequest(parseRequestFromJson(root));
 	}

@@ -8,10 +8,10 @@ import pl.edu.icm.unity.engine.api.authn.EntityWithCredential;
 import pl.edu.icm.unity.engine.api.authn.local.AbstractLocalVerificator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 public class MockPasswordVerificator extends AbstractLocalVerificator implements MockExchange
 {
@@ -88,11 +88,17 @@ public class MockPasswordVerificator extends AbstractLocalVerificator implements
 	}
 
 	@Override
-	public String prepareCredential(String rawCredential, String previousCredential,
-			String currentCredential, boolean verify) throws IllegalCredentialException,
-			InternalException
+	public boolean isCredentialSet(EntityParam entity)
+			throws EngineException
 	{
-		return prepareCredential(rawCredential, currentCredential, verify);
+		
+		return true;
+	}
+	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Local;
 	}
 
 }

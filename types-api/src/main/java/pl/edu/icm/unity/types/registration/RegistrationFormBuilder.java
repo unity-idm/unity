@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import pl.edu.icm.unity.types.I18nString;
 
 /**
  * Builder of {@link RegistrationForm}
@@ -23,6 +24,14 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		instance.validate();
 		instance.validateRegistration();
 		return instance;
+	}
+	
+
+	public RegistrationFormBuilder withLayouts(RegistrationFormLayouts formLayouts)
+	{
+		instance.setFormLayouts(formLayouts);
+		
+		return this;
 	}
 
 	public RegistrationFormBuilder withNotificationsConfiguration(RegistrationFormNotifications aValue)
@@ -73,6 +82,32 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 	{
 		instance.setCaptchaLength(aValue);
 
+		return this;
+	}
+	
+	public RegistrationFormBuilder withExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
+	{
+		instance.setExternalSignupSpec(externalSignupSpec);
+		
+		return this;
+	}
+	
+	public RegistrationFormBuilder withTitle2ndStage(I18nString aValue)
+	{
+		instance.setTitle2ndStage(aValue);
+		return this;
+	}
+	
+	public RegistrationFormBuilder withShowGotoSignIn(boolean show, String url)
+	{
+		instance.setShowSignInLink(show);
+		instance.setSignInLink(url);
+		return this;
+	}
+	
+	public RegistrationFormBuilder withAutoLoginToRealm(String name)
+	{
+		instance.setAutoLoginToRealm(name);
 		return this;
 	}
 

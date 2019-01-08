@@ -12,6 +12,7 @@ import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.emi.security.authn.x509.impl.KeystoreCredential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
+import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -23,8 +24,8 @@ public class MockPKIMan implements PKIManagement
 	
 	public MockPKIMan()
 	{
-		keyPath = "src/test/resources/demoKeystore.p12";
-		keyPass = "the!uvos";
+		keyPath = "src/test/resources/pki/demoKeystore.p12";
+		keyPass = DBIntegrationTestBase.DEMO_KS_PASS;
 				
 	}
 	

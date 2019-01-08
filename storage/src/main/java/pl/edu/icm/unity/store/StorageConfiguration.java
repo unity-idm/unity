@@ -43,6 +43,7 @@ public class StorageConfiguration extends PropertiesHelper
 	
 	public static final String ENGINE = "engine";
 	public static final String IGNORE_ALTERNATIVE_DB_CONFIG = "ignoreAlternativeDbConfig";
+	public static final String MAX_ATTRIBUTE_SIZE = "attributeSizeLimit";
 	
 	public static final String WIPE_DB_AT_STARTUP = "wipeDbAtStartup";
 	
@@ -64,7 +65,11 @@ public class StorageConfiguration extends PropertiesHelper
 				setDescription("Storage engine to be used."));
 		META.put(WIPE_DB_AT_STARTUP, new PropertyMD("false").setHidden().
 				setDescription("For testing: if set to true then DB will be fully "
-						+ "cleared at server startup"));		
+						+ "cleared at server startup"));
+		META.put(MAX_ATTRIBUTE_SIZE, new PropertyMD("256000").
+				setDescription("Controls maximum allowed size of an individual attribute as serialized for storage,"
+						+ " including metadata and all values. This limit is not affecting database"
+						+ " performance a lot, but allowing for very big values makes Unity more memory hungry."));
 		META.put(IGNORE_ALTERNATIVE_DB_CONFIG, new PropertyMD("false").setHidden().
 				setDescription("For unity tests: if set in the main configuration then the system "
 						+ "property with alternative DB config is ignored. It is useful "

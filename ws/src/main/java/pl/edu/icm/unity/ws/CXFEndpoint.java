@@ -19,7 +19,7 @@ import org.apache.cxf.message.Message;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.engine.api.authn.AuthenticationOption;
+import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
@@ -85,9 +85,9 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 	{
 		outInterceptors.add(new XmlBeansNsHackOutHandler());
 		AuthenticationRealm realm = description.getRealm();
-		inInterceptors.add(new AuthenticationInterceptor(msg, authnProcessor, authenticators, realm, sessionMan, 
-				new HashSet<String>()));
-		RESTEndpoint.installAuthnInterceptors(authenticators, inInterceptors);
+		inInterceptors.add(new AuthenticationInterceptor(msg, authnProcessor, authenticationFlows, realm, sessionMan, 
+				new HashSet<String>(), getEndpointDescription().getType().getFeatures()));
+		RESTEndpoint.installAuthnInterceptors(authenticationFlows, inInterceptors);
 	}
 	
 	protected abstract void configureServices();
@@ -110,7 +110,7 @@ public abstract class CXFEndpoint extends AbstractWebEndpoint implements WebAppE
 	
 
 	@Override
-	public void updateAuthenticationOptions(List<AuthenticationOption> authenticators)
+	public void updateAuthenticationFlows(List<AuthenticationFlow> authenticators)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -27,16 +27,6 @@ public class RegistrationEmailConfirmationState extends BaseEmailConfirmationSta
 		this.requestType = requestType;
 	}
 
-
-	public RegistrationEmailConfirmationState(String facilityId, String type, String value, String locale,
-			String redirectUrl, String requestId, RequestType requestType)
-	{
-		super(facilityId, type, value, locale, redirectUrl);
-		this.requestId = requestId;
-		this.requestType = requestType;
-	}
-
-
 	public RegistrationEmailConfirmationState(String serializedState)
 	{
 		super();

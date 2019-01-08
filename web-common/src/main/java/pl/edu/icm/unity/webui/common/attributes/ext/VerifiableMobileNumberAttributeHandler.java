@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
@@ -8,6 +8,8 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.data.ValidationResult;
+import com.vaadin.data.ValueContext;
 import com.vaadin.server.UserError;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
@@ -27,12 +29,16 @@ import pl.edu.icm.unity.types.confirmation.MobileNumberConfirmationConfiguration
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
-import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext.ConfirmationMode;
+import pl.edu.icm.unity.webui.common.attributes.edit.AttributeValueEditor;
+import pl.edu.icm.unity.webui.common.binding.SingleStringFieldBinder;
+import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationConfigurationEditor;
 import pl.edu.icm.unity.webui.confirmations.MobileNumberConfirmationDialog;
@@ -166,10 +172,9 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		private String label;
 		private TextFieldWithVerifyButton editor;
 		private ConfirmationInfo confirmationInfo;
-		private boolean required;
 		private boolean forceConfirmed = false;
 		private boolean skipUpdate = false;
-		
+		private SingleStringFieldBinder binder;
 		
 		public VerifiableMobileNumberValueEditor(String valueRaw, String label)
 		{
@@ -180,7 +185,6 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{	
-			this.required = context.isRequired();
 			this.forceConfirmed = context
 					.getConfirmationMode() == ConfirmationMode.FORCE_CONFIRMED;
 			confirmationInfo = value == null ? new ConfirmationInfo()
@@ -189,13 +193,12 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			Optional<MobileNumberConfirmationConfiguration> confirmationConfig = mobileConfirmationMan
 					.getConfirmationConfigurationForAttribute(
 							context.getAttributeType().getName());
-
 			editor = new TextFieldWithVerifyButton(
 					context.getConfirmationMode() == ConfirmationMode.ADMIN,
-					required,
 					msg.getMessage("VerifiableMobileNumberAttributeHandler.verify"),
 					Images.mobile.getResource(),
-					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"));
+					msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmedCheckbox"),
+					context.isShowLabelInline());
 			if (label != null)
 				editor.setTextFieldId("MobileNumberValueEditor." + label);
 
@@ -254,6 +257,15 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 			
 			updateConfirmationStatusIconAndButtons();
 			
+			if (context.isCustomWidth())
+				editor.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+			
+			binder = new SingleStringFieldBinder(msg);
+			binder.forField(editor, context.isRequired())
+				.withValidator(this::validate)
+				.bind("value");
+			binder.setBean(new StringBindingValue(value == null ? "" : value.getValue()));
+			
 			return new ComponentsContainer(editor);
 		}
 		
@@ -261,56 +273,69 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 		{
 			editor.setConfirmationStatusIcon(formatter.getSimpleConfirmationStatusString(
 					confirmationInfo), confirmationInfo.isConfirmed());
-			editor.setVerifyButtonVisiable(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
+			editor.setVerifyButtonVisible(!confirmationInfo.isConfirmed() && !editor.getValue().isEmpty());
 			skipUpdate = true;
 			editor.setAdminCheckBoxValue(confirmationInfo.isConfirmed());	
 			skipUpdate = false;
+			if (confirmationInfo.isConfirmed())
+				editor.setComponentError(null);
 		}
 
-		private String getCurrentValue(boolean forceConfirmation) throws IllegalAttributeValueException
+		private ValidationResult validate(String value, ValueContext context)
 		{
-			if (!required && editor.getValue().isEmpty())
-				return null;
-			
+			if (value.isEmpty())
+				return ValidationResult.ok(); //fall through
 			try
 			{
-				VerifiableMobileNumber mobile = new VerifiableMobileNumber(editor.getValue());
+				VerifiableMobileNumber mobile = new VerifiableMobileNumber(value);
 				mobile.setConfirmationInfo(confirmationInfo);
 				syntax.validate(mobile);
-				if (forceConfirmation && !confirmationInfo.isConfirmed())
-					throw new IllegalAttributeValueException("Value must be confirmed");
-				editor.setComponentError(null);				
-				return syntax.convertToString(mobile);
-			} catch (IllegalAttributeValueException e)
-			{
-				editor.setComponentError(new UserError(e.getMessage()));
-				throw e;
+				return ValidationResult.ok();
 			} catch (Exception e)
 			{
-				editor.setComponentError(new UserError(e.getMessage()));
-				throw new IllegalAttributeValueException(e.getMessage(), e);
-			}		
+				return ValidationResult.error(e.getMessage());
+			}
+		}
+
+		
+		private String getCurrentValue(boolean forceConfirmation) throws IllegalAttributeValueException
+		{
+			binder.ensureValidityCatched(() -> new IllegalAttributeValueException(""));
+			String value = binder.getBean().getValue().trim();
+			if (value.isEmpty())
+				return null;
+			
+			if (forceConfirmation && !confirmationInfo.isConfirmed())
+			{
+				String message = msg.getMessage("VerifiableMobileNumberAttributeHandler.confirmationRequired");
+				editor.setComponentError(new UserError(message));
+				throw new IllegalAttributeValueException("");
+			}
+			VerifiableMobileNumber mobile = new VerifiableMobileNumber(value);
+			mobile.setConfirmationInfo(confirmationInfo);
+			return syntax.convertToString(mobile);
 		}
 		
 		@Override
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
-
 			return getCurrentValue(forceConfirmed);	
 		}
 
 		@Override
 		public void setLabel(String label)
 		{
-			editor.setCaption(label);
-
+			editor.setLabel(label);
 		}
 	}
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return new Label(getValueAsString(value));
+		Component component = new ReadOnlyField(getValueAsString(value));
+		if (context.isCustomWidth())
+			component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
+		return component;
 	}
 
 	@org.springframework.stereotype.Component

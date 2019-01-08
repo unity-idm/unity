@@ -72,11 +72,11 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public void setCredentialExchange(CredentialExchange e, String id)
 	{
 		super.setCredentialExchange(e, id);
-		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e);
+		oAuthProxyAuthnHandler = new OAuthProxyAuthnHandler((OAuthExchange) e, id);
 	}
 	
 	@Override
-	public Collection<VaadinAuthenticationUI> createUIInstance()
+	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		List<VaadinAuthenticationUI> ret = new ArrayList<>();
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
@@ -86,7 +86,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
 					key.length()-1);
 			ret.add(new OAuth2RetrievalUI(msg, credentialExchange, contextManagement, 
-					executorsService, idpKey, key));
+					executorsService, idpKey, key, getAuthenticatorId(), context));
 		}
 		return ret;
 	}
@@ -103,8 +103,20 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 
 	@Override
 	public boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws IOException
+			HttpServletResponse httpResponse, String endpointPath) throws IOException
 	{
-		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse);
+		return oAuthProxyAuthnHandler.triggerAutomatedAuthentication(httpRequest, httpResponse, endpointPath);
+	}
+
+	@Override
+	public boolean supportsGrid()
+	{
+		return true;
+	}
+
+	@Override
+	public boolean requiresRedirect()
+	{
+		return true;
 	}
 }

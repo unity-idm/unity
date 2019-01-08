@@ -12,6 +12,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 
 
@@ -49,7 +50,10 @@ public class MessageTemplateEditDialog extends AbstractDialog
 	{
 		MessageTemplate template = editor.getTemplate();
 		if (template == null)
+		{
+			NotificationPopup.showFormError(msg);
 			return;
+		}
 		if (callback.newTemplate(template))
 			close();
 	}

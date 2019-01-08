@@ -37,7 +37,7 @@ public class MockRESTEndpoint extends RESTEndpoint
 	public static final String NAME = "Mock REST Endpoint";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "This is mock RESTful endpoint for tests", 
-			Collections.singleton(JAXRSAuthentication.NAME),
+			JAXRSAuthentication.NAME,
 			Collections.singletonMap(SERVLET_PATH, "Test endpoint"));
 
 	@Autowired

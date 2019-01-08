@@ -1,0 +1,34 @@
+{
+    "description": "",
+    "mode": "DEFAULT",
+    "name": "sys:microsoftAzure-v2",
+    "rules": [
+        {
+            "action": {
+                "name": "includeInputProfile",
+                "parameters": [
+                    "sys:oidc"
+                ]
+            },
+            "condition": {
+                "conditionValue": "true"
+            }
+        },
+        {
+            "action": {
+                "name": "mapAttribute",
+                "parameters": [
+                    "email",
+                    "/",
+                    "attr['preferred_username']",
+                    "CREATE_OR_UPDATE"
+                ]
+            },
+            "condition": {
+                "conditionValue": "attr contains 'preferred_username' and attr['preferred_username'].contains('@') and !(attr contains 'email')"
+            }
+        }
+    ],
+    "type": "INPUT",
+    "ver": "2"
+}

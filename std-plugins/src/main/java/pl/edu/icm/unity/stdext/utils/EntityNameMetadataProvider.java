@@ -52,4 +52,10 @@ public class EntityNameMetadataProvider implements AttributeMetadataProvider
 	{
 		return true;
 	}
+
+	@Override
+	public boolean isSecuritySensitive()
+	{
+		return false;
+	}
 }

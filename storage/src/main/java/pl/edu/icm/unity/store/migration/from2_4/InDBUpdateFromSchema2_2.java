@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 
@@ -27,6 +27,7 @@ import pl.edu.icm.unity.store.impl.identities.IdentityBean;
 import pl.edu.icm.unity.store.impl.identitytype.IdentityTypesMapper;
 import pl.edu.icm.unity.store.impl.objstore.GenericObjectBean;
 import pl.edu.icm.unity.store.impl.objstore.ObjectStoreDAO;
+import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
 import pl.edu.icm.unity.store.objstore.cred.CredentialHandler;
 import pl.edu.icm.unity.store.objstore.msgtemplate.MessageTemplateHandler;
 import pl.edu.icm.unity.store.objstore.notify.NotificationChannelHandler;
@@ -42,17 +43,18 @@ import pl.edu.icm.unity.types.basic.VerifiableEmail;
 import pl.edu.icm.unity.types.confirmation.EmailConfirmationConfiguration;
 
 /**
- * Update db from to 2.5.0 release version (DB schema version 2.3) from previous versions (schema 2.2)
+ * Update db to 2.5.0 release version (DB schema version 2.3) from previous versions (schema 2.2)
  * @author P.Piernik
  */
 @Component
-public class InDBUpdateFromSchema2_2
+public class InDBUpdateFromSchema2_2 implements InDBSchemaUpdater
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_DB, InDBUpdateFromSchema2_2.class);
 
 	@Autowired
 	private ObjectStoreDAO genericObjectsDAO;
 	
+	@Override
 	public void update() throws IOException
 	{
 		updateEmailIdentitiesCmpValueToLowercase();
@@ -72,7 +74,7 @@ public class InDBUpdateFromSchema2_2
 		for (GenericObjectBean form : forms)
 		{
 			ObjectNode objContent = JsonUtil.parse(form.getContents());
-			if (UpdateHelper.dropChannelFromGenericForm(objContent, objType).isPresent())
+			if (UpdateHelperFrom2_0.dropChannelFromGenericForm(objContent, objType).isPresent())
 			{
 				form.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(form.getId(), form);
@@ -90,7 +92,7 @@ public class InDBUpdateFromSchema2_2
 			
 			ObjectNode objContent = JsonUtil.parse(channel.getContents());
 
-			if (UpdateHelper.updateNotificationChannel(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateNotificationChannel(objContent).isPresent())
 			{	
 				channel.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(channel.getId(), channel);
@@ -197,7 +199,7 @@ public class InDBUpdateFromSchema2_2
 		{
 			ObjectNode objContent = JsonUtil.parse(msg.getContents());
 
-			if (UpdateHelper.updateMessageTemplates(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateMessageTemplates(objContent).isPresent())
 			{
 				msg.setContents(JsonUtil.serialize2Bytes(objContent));
 				log.info("Updating message template {}", msg.getName());
@@ -217,7 +219,7 @@ public class InDBUpdateFromSchema2_2
 		{
 			ObjectNode objContent = JsonUtil.parse(cred.getContents());
 
-			if (UpdateHelper.updateCredentialsDefinition(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateCredentialsDefinition(objContent).isPresent())
 			{
 				cred.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(cred.getId(), cred);
@@ -234,7 +236,7 @@ public class InDBUpdateFromSchema2_2
 		for (GenericObjectBean inv : invs)
 		{
 			ObjectNode objContent = JsonUtil.parse(inv.getContents());
-			if (UpdateHelper.updateInvitationWithCode(objContent).isPresent())
+			if (UpdateHelperFrom2_0.updateInvitationWithCode(objContent).isPresent())
 			{
 				inv.setContents(JsonUtil.serialize2Bytes(objContent));
 				genericObjectsDAO.updateByKey(inv.getId(), inv);

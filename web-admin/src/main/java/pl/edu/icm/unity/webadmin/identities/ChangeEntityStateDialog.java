@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
-import com.google.common.collect.Sets;
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
 import com.vaadin.ui.CheckBox;
@@ -56,7 +55,7 @@ public class ChangeEntityStateDialog extends AbstractDialog
 		Label info = new Label(msg.getMessage("ChangeEntityStateDialog.info", entity));
 		entityState = new EnumComboBox<>(msg.getMessage("ChangeEntityStateDialog.newState"), msg, 
 				"EntityState.", EntityState.class, entity.getEntity().getState(),
-				Sets.newHashSet(EntityState.onlyLoginPermitted));
+				t -> t != EntityState.onlyLoginPermitted);
 		
 		final Panel schedulePanel = new SafePanel();
 		FormLayout schedLay = new CompactFormLayout();

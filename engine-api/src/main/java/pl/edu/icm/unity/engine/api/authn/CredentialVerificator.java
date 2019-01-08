@@ -18,6 +18,11 @@ import pl.edu.icm.unity.types.DescribedObject;
  */
 public interface CredentialVerificator extends CredentialExchange, DescribedObject, StringConfigurable
 {
+	public enum VerificatorType
+	{
+		Local, Remote, Mixed
+	};
+	
 	void setIdentityResolver(IdentityResolver identityResolver);
 	
 	/**
@@ -25,4 +30,10 @@ public interface CredentialVerificator extends CredentialExchange, DescribedObje
 	 * @param name
 	 */
 	void setInstanceName(String name);
+
+	/**
+	 * 
+	 * @return verificator type
+	 */
+	VerificatorType getType();
 }

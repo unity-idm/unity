@@ -15,97 +15,66 @@ authentication settings (e.g. consumer-oriented endpoint may use SAML authentica
 admin-oriented endpoint may use SAML authentication in corporate federation).    
 
 Authenticators and endpoints as of now can be configured only in the configuration file. Endpoints 
-are covered in a separate section <<endpoints>>. This section covers also how to configure authentication screen,
-i.e. the visual composition of authenticators. This section is covering only functional definitions of
-authenticators, which can be used with many endpoints in various configurations. 
+are covered in a separate section <<endpoints>>. The <<endpoints>> section covers also how to configure 
+authentication screen, i.e. the visual composition of authentication options which is defined per endpoint. 
+Here we cover only the functional definitions of authenticators, which can be used with many endpoints 
+in various configurations. 
 
-Authenticator is a pair of two configured elements: _credential verificator_ and _credential retrieval_.
-The credential retrieval collects a credential in a binding specific way, for instance it may
-gather it from a SOAP header (in case of the web service binding) or present a text field and 
-allow a user to enter it (in case of the web binding). The verificator is not binding-specific and 
-is only responsible for validation of a presented credential. For example the passowrd verificator
-can be used with any retrieval which is collecting a password from a client.
+Authenticators are added either directly to endpoints or are tied together in authentication flows, what allows 
+for flexible control of multi-factor authentication. The endpoint must have at least 
+one authenticator or flow associated and can have more when alternative or multi-credential authentication 
+scenarios are implemented. 
 
-Authenticators are added to endpoints and manage endpoint's authentication. The endpoint must have at least 
-one authenticator associated (and can have more when alternative or multi-credential authentication 
-scenarios are implemented). 
-
-Example configuration:
+Example configuration of an authenticator:
 
 -----
-unityServer.core.authenticators.2.authenticatorName=pwdWeb
-unityServer.core.authenticators.2.authenticatorType=password with web-password
-unityServer.core.authenticators.2.localCredential=secured password
-unityServer.core.authenticators.2.retrievalConfigurationFile=conf/passwordRetrieval-config.json
+unityServer.core.authenticators.pass.authenticatorName=securePass
+unityServer.core.authenticators.pass.authenticatorType=password
+unityServer.core.authenticators.pass.localCredential=secured password
+unityServer.core.authenticators.pass.configurationFile=conf/password-config.properties
 -----  
 
 The name of the authenticator is an arbitrary, unique string. The type is the most important part:
-it defines the name of the credential verificator and retrieval, both names must be separated with the string
-+with+. The following table lists allowed credential verificators and retrievals. Any combination can be used,
-assuming the same credential is exchanged.
+it defines the name of the authentication technology to be used. The following table lists supported technologies. 
 
 [cols="m,n,n", options="header"]
 |====
-|Verificator		| Exchanges			| Description 
-|password			| Password 			| Local verificator.
-|ldap				| Password			| External verificator, uses LDAP.
-|ldap-cert			| X.509 certificate	| External verificator, uses LDAP to resolve attributes of a given certificate subject.
-|certificate		| X.509 certificate | Local verificator.
-|saml2				| SAML assertions 	| External verificator, interacts via associated retrieval with a remote SAML IdP.
-|jwt				| JWT			 	| Local verificator, not bound to any local credential. Validated tokens are self contained.
-|oauth2				| OAuth tokens		| External verificator, using OAuth Authorization Server or OpenID Connect provider. 
-|oauth-rp			| OAuth access token| External verificator, using OAuth Authorization Server or OpenID Connect provider.
+|Authn technology	| Works with		| Description 
+|password			| Password 			| Local verification
+|ldap				| Password			| External verification, uses LDAP.
+|ldap-cert			| X.509 certificate	| External verification, uses LDAP to resolve attributes of a given certificate subject.
+|certificate		| X.509 certificate | Local verification
+|saml2				| SAML assertions 	| External verification, interacts via associated retrieval with a remote SAML IdP.
+|oauth2				| OAuth tokens		| External verification, using OAuth Authorization Server or OpenID Connect provider. 
+|oauth-rp			| OAuth access token| External verification, using OAuth Authorization Server or OpenID Connect provider.
+|jwt				| JWT			 	| Local verification, not bound to any local credential. Validated tokens are self contained.
 |==== 
-
-[cols="m,n,n,n", options="header"]
-|====
-|Retrieval			| Exchanges			| Compatible binding 	| Description 
-|web-password		| Password			| Web (Vaadin) 			| Uses textfield to collect a password
-|web-certificate	| X.509 certificate	| Web (Vaadin) 			| Uses client-authenticated TLS/SSL certificate
-|web-saml2			| SAML assertions	| Web (Vaadin) 			| Allows to choose a remote SAML IdP, redirects the user to authenticate there and collects the received authentication data.
-|web-auth2			| OAuth tokens		| Web (Vaadin) 			| Allows to choose a remote OAuth Authorization Server redirects the user to authenticate there and collects the received authentication data.
-|cxf-httpbasic		| Password			| Web Service (CXF stack)| Uses HTTP BASIC submitted password
-|cxf-certificate	| X.509 certificate	| Web Service (CXF stack)| Uses client-authenticated TLS/SSL certificate
-|cxf-jwt			| JWT				| Web Service (CXF stack)| Uses HTTP Bearer JWT tokens 
-|cxf-oauth-bearer	| OAuth access token| Web Service (CXF stack)| Uses OAuth bearer access token from HTTP Authorization header 
-|rest-httpbasic		| Password			| RESTful (CXF stack)	| Uses HTTP BASIC submitted password
-|rest-certificate	| X.509 certificate	| RESTful (CXF stack)	| Uses client-authenticated TLS/SSL certificate
-|rest-jwt			| JWT				| RESTful (CXF stack)	| Uses HTTP Bearer JWT tokens 
-|rest-oauth-bearer	| OAuth access token| RESTful (CXF stack)	| Uses OAuth bearer access token from HTTP Authorization header
-|==== 
-
-Examples of some of the allowed combinations:
  
- password with web-password
- password with cxf-httpbasic
- ldap with cxf-basic
- certificate with web-certificate
- certificate with cxf-certificate
- 
-But for instance the combination +ldap with web-saml2+ is illegal: ldap verificator uses different exchange 
-(Password) then web-saml2. Note that this is logical: LDAP server can not be used to verify a SAML assertion obtained
-from some remote SAML IdP.
+Authenticator typically require a configuration file. In that file details of how to collect and check the credential 
+can be specified. Note that for local authenticators (i.e. checking the credential internally, without help of
+external service) must be associated with an existing local credential, and configuration of authenticator 
+is typically minimal or even empty: verification process is defined by the local credential settings, and the only 
+things that can be configured for authenticator are UI details like a label to be used on password retrieval text field.
 
-Both credential verificator and credential retrieval can require a separate configuration in external files, 
-in the example only the credential retrieval has it configured. Finally all local verificators must be
-associated with the existing local credential (the _secured password_ in the example).
+More complex configuration of external authenticators is covered in the section <<external-idps>>. 
 
-Configuration of external verificators is covered in the section <<external-idps>>. Configuration
-of retrievals and local verificators is either not needed or trivial. The allowed options follow. 
+Configuration of credential retrievals follows. Note that this configuration is universal for all authenticators 
+that use the credential in question, e.g. password retrieval settings below can be used both with
++password+ and +ldap+ authentication technologies.
 
-The +web-password+ retrieval offers two options:
+The password retrieval options:
 
-----
-{
-	"name": "LDAP password",
-	"registrationFormForUnknown": "ldapRegistration"
-}	
-----
+include::../ref-PasswordRetrievalProperties.txt[]
 
-Name is used in the web interface. The registration form parameter is used only for cases when the
-retrieval is used with a remote authenticator: then the given registration form is presented
-automatically to the users who properly authenticated against the upstream IdP but doesn't have 
-a local account. 
+The SMS retrieval options:
+
+include::../ref-SMSRetrievalProperties.txt[]
+
+The X.509 certificate retrieval options:
+
+include::../ref-TLSRetrievalProperties.txt[]
+
+
 
 The +jwt+ verificator must be configured in the very same properties format as the <<endp-rest-jwt>> uses. 
 

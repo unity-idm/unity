@@ -4,12 +4,16 @@
  */
 package pl.edu.icm.unity.engine.api.authn.local;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.CredentialPublicInformation;
 import pl.edu.icm.unity.types.authn.CredentialType;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Verificator of local credentials. Such verificators must have 
@@ -46,9 +50,6 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * Output also. For instance the input can be a password, output a hashed and salted version
 	 * 
 	 * @param rawCredential the new credential value
-	 * @param previousCredential the existing credential value. It is only used to recheck 
-	 * the credential before the sensitive credential check operation. In some cases it can be 
-	 * not needed, then is ignored.
 	 * @param currentCredential the existing credential, encoded in the database specific way. May be empty or 
 	 * null, when there is no existing credential recorded in DB.
 	 * @param verifyNew we can set new credential without its verification
@@ -56,23 +57,10 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @throws IllegalCredentialException if the new credential is not valid
 	 * @throws InternalException 
 	 */
-	String prepareCredential(String rawCredential, String previousCredential, 
+	String prepareCredential(String rawCredential,  
 			String currentCredential, boolean verifyNew) 
 			throws IllegalCredentialException, InternalException;
 
-	/**
-	 * As {@link #prepareCredential(String, String, String)} but called whenever verification 
-	 * of the existing password is not required.
-	 * @param rawCredential
-	 * @param currentCredential
-	 * @param verifyNew we can set new credential without its verification
-	 * @return
-	 * @throws IllegalCredentialException
-	 * @throws InternalException
-	 */
-	String prepareCredential(String rawCredential, String currentCredential, boolean verifyNew) 
-			throws IllegalCredentialException, InternalException;
-	
 	/**
 	 * @param currentCredential current credential as recorded in database
 	 * @return the current state of the credential, wrt the configuration of the verificator
@@ -80,6 +68,13 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 */
 	CredentialPublicInformation checkCredentialState(String currentCredential) throws InternalException;
 
+	/**
+	 * Returns optionally changed argument credential, which can be transformed after the change of
+	 * configuration. It can be assumed that argument credential was created with some old configuration
+	 * and that the current object is configured with the new one. 
+	 */
+	Optional<String> updateCredentialAfterConfigurationChange(String currentCredential);
+	
 	/**
 	 * @return If the instances can be put into the {@link LocalCredentialState#outdated} state.
 	 */
@@ -91,4 +86,14 @@ public interface LocalCredentialVerificator extends CredentialVerificator
 	 * @return the invalidated credential value, to be stored in database.
 	 */
 	String invalidate(String currentCredential);
+	
+	
+	/**
+	 * Check if credential is set 
+	 * @param entity
+	 * @param credentialId
+	 * @return
+	 * @throws EngineException 
+	 */
+	boolean isCredentialSet(EntityParam entity) throws EngineException;
 }

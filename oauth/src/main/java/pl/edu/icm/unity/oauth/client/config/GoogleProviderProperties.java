@@ -25,7 +25,7 @@ public class GoogleProviderProperties extends CustomProviderProperties
 	
 	private static Properties addDefaults(Properties properties, String prefix)
 	{
-		setIfUnset(properties, prefix + PROVIDER_NAME, "Google Account");
+		setIfUnset(properties, prefix + PROVIDER_NAME, "Google");
 		setIfUnset(properties, prefix + OPENID_CONNECT, "true");
 		setIfUnset(properties, prefix + OPENID_DISCOVERY, 
 				"https://accounts.google.com/.well-known/openid-configuration");

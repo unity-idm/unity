@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.IllegalTypeException;
+import pl.edu.icm.unity.exceptions.RuntimeEngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.AttributesClass;
@@ -38,10 +39,9 @@ public class AttributeClassHelper
 	}
 	
 	public AttributeClassHelper(Map<String, AttributesClass> knownClasses, Collection<String> assignedClasses) 
-			throws IllegalTypeException
 	{
 		if (assignedClasses.size() > MAX_CLASSES_PER_ENTITY)
-			throw new IllegalTypeException("Maximum number of attribute classes assigned" +
+			throw new RuntimeEngineException("Maximum number of attribute classes assigned" +
 					" to entity is " + MAX_CLASSES_PER_ENTITY);
 		allClasses = knownClasses;
 		effectiveClass = new AttributesClass();
@@ -49,7 +49,7 @@ public class AttributeClassHelper
 		{
 			AttributesClass existing = allClasses.get(assignedClass);
 			if (existing == null)
-				throw new IllegalTypeException("The attribute class " + assignedClass + 
+				throw new RuntimeEngineException("The attribute class " + assignedClass + 
 						" is not defined");
 			addAllFromClass(existing, effectiveClass);
 		}

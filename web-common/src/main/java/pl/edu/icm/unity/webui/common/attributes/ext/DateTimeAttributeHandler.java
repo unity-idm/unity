@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common.attributes.ext;
@@ -20,6 +20,7 @@ import pl.edu.icm.unity.exceptions.IllegalAttributeValueException;
 import pl.edu.icm.unity.stdext.attr.DateTimeAttributeSyntax;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.attributes.AttributeSyntaxEditor;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandlerFactory;
 import pl.edu.icm.unity.webui.common.attributes.edit.AttributeEditContext;
@@ -47,13 +48,13 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 	@Override
 	public String getValueAsString(String value)
 	{
-		return AttributeHandlerHelper.getValueAsString(value);
+		return value;
 	}
 
 	@Override
-	public Component getRepresentation(String value)
+	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		return AttributeHandlerHelper.getRepresentation(value);
+		return AttributeHandlerHelper.getRepresentation(value, context);
 	}
 
 	@Override
@@ -90,9 +91,9 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 	private class DateTimeValueEditor implements AttributeValueEditor
 	{
 		protected String label;
-		private boolean required;
 		private DateTimeField datetime;
 		private LocalDateTime value;
+		private AttributeEditContext context;
 
 		public DateTimeValueEditor(String valueRaw, String label)
 		{
@@ -103,14 +104,16 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		@Override
 		public ComponentsContainer getEditor(AttributeEditContext context)
 		{
-			this.required = context.isRequired();
+			this.context = context;
 			datetime = new DateTimeField();
 			datetime.setResolution(DateTimeResolution.SECOND);
-			datetime.setCaption(label);
+			setLabel(label);
 			datetime.setDateFormat("yyyy-MM-dd HH:mm:ss");
-			datetime.setRequiredIndicatorVisible(required);
+			datetime.setRequiredIndicatorVisible(context.isRequired());
 			if (value != null)
 				datetime.setValue(value);
+			if (context.isCustomWidth())
+				datetime.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 			ComponentsContainer ret = new ComponentsContainer(datetime);
 			return ret;
 		}
@@ -119,7 +122,7 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		public String getCurrentValue() throws IllegalAttributeValueException
 		{
 
-			if (!required && datetime.getValue() == null)
+			if (!context.isRequired() && datetime.getValue() == null)
 				return null;
 			
 			try
@@ -143,8 +146,10 @@ public class DateTimeAttributeHandler implements WebAttributeHandler
 		@Override
 		public void setLabel(String label)
 		{
-			datetime.setCaption(label);
-
+			if (context.isShowLabelInline())
+				datetime.setPlaceholder(label);
+			else
+				datetime.setCaption(label);
 		}
 
 	}

@@ -18,7 +18,6 @@ import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
-import pl.edu.icm.unity.webui.VaadinEndpointProperties.ScaleMode;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
@@ -29,19 +28,13 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, OAuthClientProperties.class);
 	
-	public enum Providers {custom, google, facebook, dropbox, github, microsoft, orcid, linkedin, unity, intuit};
+	public enum Providers {custom, google, facebook, dropbox, github, microsoft, microsoftAzureV2, orcid, linkedin, unity, intuit};
 	
 	@DocumentationReferencePrefix
 	public static final String P = "unity.oauth2.client.";
 
-	public static final String DISPLAY_NAME = "displayName";
-	public static final String PROVIDERS_IN_ROW = "providersInRow";
-	private static final String ICON_SCALE = "iconScale";
-	public static final String SELECTED_ICON_SCALE = "selectedProviderIconScale";
-	
 	public static final String PROVIDERS = "providers.";
 
-	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 	
@@ -49,20 +42,12 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 	{
 		META.put(PROVIDERS, new PropertyMD().setStructuredList(false).setCanHaveSubkeys().setMandatory().
 				setDescription("Prefix, under which the available oauth providers are defined."));
-		META.put(ICON_SCALE, new PropertyMD().setDescription("Deprecated, please use authentication UI "
-				+ "icon settings or the " + SELECTED_ICON_SCALE));
-		META.put(SELECTED_ICON_SCALE, new PropertyMD(ScaleMode.none).setDescription("Controls whether and how "
-				+ "the icon of a provider should be scalled. Note that this setting"
-				+ " controls only the size of the icon of the currently selected provider."));
 		META.put(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION, new PropertyMD("true").
 				setDescription("Default setting allowing to globally control whether "
 				+ "account association feature is enabled. "
 				+ "Used for those providers, for which the setting is not set explicitly."));
 		META.put(CustomProviderProperties.PROVIDER_TYPE, new PropertyMD(Providers.custom).setHidden().
 				setStructuredListEntry(PROVIDERS));
-		
-		META.put(PROVIDERS_IN_ROW, new PropertyMD().setDeprecated());
-		META.put(DISPLAY_NAME, new PropertyMD().setCanHaveSubkeys().setDeprecated());
 	}
 	
 	private Map<String, CustomProviderProperties> providers = new HashMap<String, CustomProviderProperties>();
@@ -94,7 +79,10 @@ public class OAuthClientProperties extends UnityPropertiesHelper
 			providers.put(key, new GitHubProviderProperties(properties, P+key, pkiManagement));
 			break;
 		case microsoft:
-			providers.put(key, new MicrosoftProviderProperties(properties, P+key, pkiManagement));
+			providers.put(key, new MicrosoftLiveProviderProperties(properties, P+key, pkiManagement));
+			break;
+		case microsoftAzureV2:
+			providers.put(key, new MicrosoftAzureV2ProviderProperties(properties, P+key, pkiManagement));
 			break;
 		case orcid:
 			providers.put(key, new OrcidProviderProperties(properties, P+key, pkiManagement));

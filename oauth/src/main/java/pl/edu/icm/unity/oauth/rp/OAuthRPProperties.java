@@ -51,7 +51,8 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 	public static final String CACHE_TIME = "cacheTime";
 	public static final String VERIFICATION_PROTOCOL = "verificationProtocol";
 	public static final String VERIFICATION_ENDPOINT = "verificationEndpoint";
-	public static final String OPENID_MODE = "opeinidConnectMode";
+	public static final String OPENID_MODE = "openidConnectMode";
+	public static final String OPENID_MODE_WITH_TYPO = "opeinidConnectMode";
 	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String REQUIRED_SCOPES = "requiredScopes.";
 	
@@ -93,6 +94,9 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 				setDescription("If true then the profile is fetched from the profile endpoint"
 						+ " with assumption that the server is working in the OpenID Connect "
 						+ "compatible way."));
+		META.put(OPENID_MODE_WITH_TYPO, new PropertyMD("false").setDeprecated().
+				setDescription("Use the option without type - this one is provided for backwards "
+						+ "compatibility only."));
 		META.put(CLIENT_HOSTNAME_CHECKING, new PropertyMD(ServerHostnameCheckingMode.FAIL).
 				setDescription("Controls how to react on the DNS name mismatch with "
 						+ "the server's certificate. Unless in testing environment "
@@ -152,6 +156,11 @@ public class OAuthRPProperties extends PropertiesHelper implements BaseRemoteASP
 				ClientHttpMethod.class) == ClientHttpMethod.get) ? Method.GET
 						: Method.POST;
 	}	
+	
+	public boolean isSetOpenIdMode()
+	{
+		return isSet(OPENID_MODE) ? getBooleanValue(OPENID_MODE) : getBooleanValue(OPENID_MODE_WITH_TYPO);
+	}
 	
 	public Properties getProperties()
 	{

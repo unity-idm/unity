@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -18,6 +17,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest.Method;
@@ -29,6 +30,7 @@ import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -39,8 +41,10 @@ import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
 import pl.edu.icm.unity.rest.jwt.endpoint.JWTManagementEndpoint;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.EntityState;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
@@ -127,7 +131,9 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 	@Autowired
 	private TranslationProfileManagement profilesMan;
 	@Autowired
-	private AuthenticatorManagement authnMan;
+	private AuthenticatorManagement authnMan;	
+	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
 	
 	@Before
 	public void setup()
@@ -136,13 +142,10 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 		{
 			setupPasswordAuthn();
 			
-			authnMan.createAuthenticator("a-rp", "oauth-rp with rest-oauth-bearer", OAUTH_RP_CFG, 
-					"", null);
-			authnMan.createAuthenticator("a-rp-int", "oauth-rp with rest-oauth-bearer", 
-					OAUTH_RP_CFG_INTERNAL, "", null);
-			authnMan.createAuthenticator("a-rp-mitre", "oauth-rp with rest-oauth-bearer", 
-					OAUTH_RP_CFG_MITRE, "", null);
-			authnMan.createAuthenticator("Apass", "password with rest-httpbasic", null, "", "credential1");
+			authnMan.createAuthenticator("a-rp", "oauth-rp", OAUTH_RP_CFG, null);
+			authnMan.createAuthenticator("a-rp-int", "oauth-rp", OAUTH_RP_CFG_INTERNAL, null);
+			authnMan.createAuthenticator("a-rp-mitre", "oauth-rp", OAUTH_RP_CFG_MITRE, null);
+			authnMan.createAuthenticator("Apass", "password", null, "credential1");
 			
 			idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "userA"), 
 					"cr-pass", EntityState.valid, false);
@@ -151,32 +154,47 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 							new File("src/test/resources/tr-local.json")))));
 			
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
-					10, 100, -1, 600);
+					10, 100, RememberMePolicy.disallow , 1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
-			authnCfg.add(new AuthenticationOptionDescription("Apass"));
-			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth", 
-					new EndpointConfiguration(new I18nString("endpointIDP"), "desc", 
-					authnCfg, OAUTH_ENDP_CFG, REALM_NAME));
 			
-			List<AuthenticationOptionDescription> authnCfg2 = new ArrayList<>();
-			authnCfg2.add(new AuthenticationOptionDescription("a-rp"));
-			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT", "/jwt", 
-					new EndpointConfiguration(new I18nString("endpointJWT"), "desc", 
-					authnCfg2, JWT_ENDP_CFG, REALM_NAME));
-
-			List<AuthenticationOptionDescription> authnCfg3 = new ArrayList<>();
-			authnCfg3.add(new AuthenticationOptionDescription("a-rp-int"));
-			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT-int", "/jwt-int", 
-					new EndpointConfiguration(new I18nString("endpointJWT-int"), "desc", 
-					authnCfg3, JWT_ENDP_CFG, REALM_NAME));
-
-			List<AuthenticationOptionDescription> authnCfg4 = new ArrayList<>();
-			authnCfg4.add(new AuthenticationOptionDescription("a-rp-mitre"));
-			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT-mitre", "/jwt-mitre", 
-					new EndpointConfiguration(new I18nString("endpointJWT-mitre"), "desc", 
-					authnCfg4, JWT_ENDP_CFG, REALM_NAME));
+			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+					"flow1", Policy.NEVER,
+					Sets.newHashSet("Apass")));
 			
+			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth",
+					new EndpointConfiguration(new I18nString("endpointIDP"),
+							"desc", Lists.newArrayList("flow1"),
+							OAUTH_ENDP_CFG, REALM_NAME));
+
+			authnFlowMan.addAuthenticationFlow(
+					new AuthenticationFlowDefinition("flow2", Policy.NEVER,
+							Sets.newHashSet("a-rp")));
+
+			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT", "/jwt",
+					new EndpointConfiguration(new I18nString("endpointJWT"),
+							"desc", Lists.newArrayList("flow2"),
+							JWT_ENDP_CFG, REALM_NAME));
+
+			authnFlowMan.addAuthenticationFlow(
+					new AuthenticationFlowDefinition("flow3", Policy.NEVER,
+							Sets.newHashSet("a-rp-int")));
+
+			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT-int",
+					"/jwt-int",
+					new EndpointConfiguration(new I18nString("endpointJWT-int"),
+							"desc", Lists.newArrayList("flow3"),
+							JWT_ENDP_CFG, REALM_NAME));
+
+			authnFlowMan.addAuthenticationFlow(
+					new AuthenticationFlowDefinition("flow4", Policy.NEVER,
+							Sets.newHashSet("a-rp-mitre")));
+			endpointMan.deploy(JWTManagementEndpoint.NAME, "endpointJWT-mitre",
+					"/jwt-mitre",
+					new EndpointConfiguration(
+							new I18nString("endpointJWT-mitre"), "desc",
+							Lists.newArrayList("flow4"), JWT_ENDP_CFG,
+							REALM_NAME));
+
 			List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
 			assertEquals(4, endpoints.size());
 

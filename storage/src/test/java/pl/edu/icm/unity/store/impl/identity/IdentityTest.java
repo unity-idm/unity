@@ -21,12 +21,16 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.store.api.EntityDAO;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
+import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.NamedCRUDDAO;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityType;
 
@@ -40,7 +44,13 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 
 	@Autowired
 	private EntityDAO entDao;
-
+	
+	@Autowired
+	private MembershipDAO membershipDao;
+	
+	@Autowired
+	private GroupDAO groupDAO;
+	
 	private long entity;
 	private long entity2;
 	
@@ -97,6 +107,40 @@ public class IdentityTest extends AbstractNamedDAOTest<StoredIdentity>
 		});
 	}
 
+	@Test
+	public void shouldReturnByGroupMembership()
+	{
+		tx.runInTransaction(() -> {
+			StoredIdentity obj = getObject("name1");
+			dao.create(obj);
+			StoredIdentity obj2 = getObject("name2");
+			dao.create(obj2);
+			
+			StoredIdentity obj3 = getObject("name3");
+			obj3.getIdentity().setEntityId(entity2);
+			dao.create(obj3);
+			
+			groupDAO.create(new Group("/C"));
+			groupDAO.create(new Group("/A"));
+			membershipDao.create(new GroupMembership("/C", entity, new Date(1)));
+			membershipDao.create(new GroupMembership("/A", entity2, new Date(1)));
+			
+			List<StoredIdentity> ret = dao.getByGroup("/C");
+
+			assertThat(ret, is(notNullValue()));
+			assertThat(ret.size(), is(2));
+			if (ret.get(0).getIdentity().getValue().equals("name2"))
+			{
+				StoredIdentity tmp = ret.get(0);
+				ret.add(0, ret.get(1));
+				ret.add(1, tmp);
+			}
+			
+			assertEquals(obj, ret.get(0));
+			assertEquals(obj2, ret.get(1));
+		});
+	}
+	
 	@Override
 	@Test
 	public void shouldFailOnCreatingWithTooLongName()

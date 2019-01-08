@@ -7,7 +7,6 @@ package pl.edu.icm.unity.home.iddetails;
 import java.util.Collection;
 import java.util.Map;
 
-import com.vaadin.ui.AbstractOrderedLayout;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -17,6 +16,8 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityScheduledOperation;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.webui.common.EntityWithLabel;
+import pl.edu.icm.unity.webui.common.composite.ComponentsGroup;
+import pl.edu.icm.unity.webui.common.composite.CompositeLayoutAdapter.ComposableComponents;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 public class UserDetailsPanel
 {
 	private UnityMessageSource msg;
+	private ComponentsGroup contents;
 	private Label id;
 	private Label scheduledAction;
 	private HtmlLabel credStatus;
@@ -37,6 +39,7 @@ public class UserDetailsPanel
 	public UserDetailsPanel(UnityMessageSource msg)
 	{
 		this.msg = msg;
+		
 		id = new Label();
 		id.setCaption(msg.getMessage("IdentityDetails.id"));
 
@@ -49,12 +52,12 @@ public class UserDetailsPanel
 		groups = new HtmlLabel(msg);
 		groups.setCaption(msg.getMessage("IdentityDetails.groups"));
 		
-		
+		contents = new ComponentsGroup(id, scheduledAction, credStatus, groups);
 	}
 	
-	public void addIntoLayout(AbstractOrderedLayout layout)
+	public ComposableComponents getContents()
 	{
-		layout.addComponents(id, scheduledAction, credStatus, groups);
+		return contents;
 	}
 	
 	public void setInput(EntityWithLabel entityWithLabel, Collection<Group> groups)

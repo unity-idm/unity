@@ -161,3 +161,235 @@ that is changed. Password history of length 1 forbids only the current password 
 automatically. Instead, if this is needed (unlikely), admin needs to manually trigger sending the confirmation request.   
 . For custom Groovy initialization script users only: package +pl.edu.icm.unity.stdext.credential+ was changed to
 +pl.edu.icm.unity.stdext.credential.pass+, update the imports section.
+
+==== From 2.5.0 to 2.6.0
+
+Release 2.6.0 brings the following important changes:
+
+* authentication tiles concept is fully replaced by a new column based authentication screen configuration,
+* introduction of _authentication flows_ which are the only way to configure two factor authentication,
+* refactoring of the _remember me_ functionality.
+
+===== Remember me configuration changes
+
+The +unityServer.core.realms.*.enableRememberMeFor+ option no longer controls whether remember-me feture is 
+enabled or not, only the remember time. Only positive values are accepted.
+
+To control the policy a new option was added: +unityServer.core.realms.*.machineRememberPolicy+, which provides
+more flexibility. Valid options are +disallow+, +allowFor2ndFactor+ (the default) and +allowForWholeAuthn+. 
+The +allowFor2ndFactor+ option is a new feature introduced in Unity 2.6.0.
+
+
+===== Changes in web endpoints configuration (Admin, Home, SAML IdP, OAuth AS)  
+
+There were numerous changes in configuration of endpoints. All but configuration of authentication screen changes 
+(see the last subsection) should be simple to apply or not affecting your deployment.
+
+Options removed from all endpoints:
+
+. +unity.endpoint.web.authenticationTiles.*+ - tiles based organization of the authentication screen was totally dropped.
+Insted use the new column based authentication configuration. 
+
+Options removed from SAML endpoints:
+
+. +unity.saml.requester.selectedProviderIconScale+ - removed with no counterpart - it has no use anymore
+. +unity.saml.requester.iconScale+ - deprecated since a long time and finally dropped
+. +unity.saml.requester.iconScale+ - deprecated since a long time and finally dropped
+. +unity.saml.requester.displayName+ - deprecated since a long time and finally dropped
+. +unity.saml.requester.providersInRow+ - deprecated since a long time and finally dropped
+
+Options removed from OAuth endpoints:
+
+. +unity.oauth2.client.selectedProviderIconScale+ - removed with no counterpart - it has no use anymore
+. +unity.oauth2.client.iconScale+ - deprecated since a long time and finally dropped
+. +unity.oauth2.client.displayName+ - deprecated since a long time and finally dropped
+. +unity.oauth2.client.providersInRow+ - deprecated since a long time and finally dropped
+
+===== Endpoint authentication configuration in unityServer.conf
+
+Those changes most likely won't affect your installation modified options were very rarely used.
+
+Endpoint authentication is now configured using either individul authenticators (as prevously) or authentication flows.
+Authentication flows take over the not supported anymore syntax "authenticator1,authenticator2" and allow for 
+configuring multifactor authentication in a more flexible way. Such option should be converted to use 
+a flow with mandatory 2nd factor policy. For example a former configuration:
+
+----
+...
+unityServer.core.endpoints.myE1.endpointAuthenticators=pwdWeb1,smsWeb1;certWeb
+...
+----
+
+should be converted to:
+
+----
+unityServer.core.authenticationFlow.passAndSMS.authenticationFlowName=passAndSMS
+unityServer.core.authenticationFlow.passAndSMS.authenticationFlowPolicy=REQUIRE
+unityServer.core.authenticationFlow.passAndSMS.firstFactorAuthenticators=pwdWeb1
+unityServer.core.authenticationFlow.passAndSMS.secondFactorAuthenticators=smsWeb1
+
+...
+unityServer.core.endpoints.myE1.endpointAuthenticators=passAndSMS;certWeb
+...
+----
+
+
+Additionally note that endpoint configuration is changed what may affect REST clients or Groovy scripts creating endpoints.
+Former +List<AuthenticationOptionDescription>+ was changed to simple +List<String>+ 
+with contains authenticator of authentication flow name.
+
+
+===== Styling changes 
+
+The default style was significantly changed to track authentication screen changes.
+If using a custom style it needs to be revised. Hopefully styling the authentication screen should be much easier now.
+
+HTML classess assigned to authentication option widgets were slightly changed: 
+former +...AuthenticatorName.optionName+ was changed to +...AuthenticatorName-optionName+ to work around conflicts
+of the dot with CSS class nameing.
+
+===== Converting from tiles to columns
+
+The biggest breaking change introduced in 2.6.0 is new way of configuring appearance of the authentication screen.
+See <<endpoints-authn>> for details on how to configure the authentication screen the new way. 
+Previously the authN screen was organized around 'tiles' were user was only able to select authentication option,
+after its selection it was presented in the top part of the screen and was ready for actual authentication 
+(e.g. providing password). From 2.6.0 all authentication options are _instantly_ ready to be used. What is more those
+are formatted differently and organized in columns. The 'tile' concept was dropped. 
+
+Typically the old tile will be changed into a column. Tiles using the +simple+ mode are simply converted into a column.
+Tiles using the old tile mode +table+ (for showing scrollable list of many authentication options) is converted 
+also to a regular column, having a new +_GRID+ element. The following example shows how to convert a typical tile: 
+
+----
+unity.endpoint.web.authnIconScale=maxHeightSmall
+unity.endpoint.web.authenticationTiles.1.tileContents=pwd cert
+unity.endpoint.web.authenticationTiles.1.tileMode=simple
+unity.endpoint.web.authenticationTiles.1.tileName.pl=Lokalne metody
+unity.endpoint.web.authenticationTiles.1.tileName.en=Local authentication
+unity.endpoint.web.authenticationTiles.1.tileIconSize=maxHeight50
+----
+
+to a column:
+
+----
+unity.endpoint.web.authnScreenColumn.1.columnTitle.pl=Lokalne metody
+unity.endpoint.web.authnScreenColumn.1.columnTitle.en=Local authentication
+unity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb certWeb
+----
+
+Note that in the tiles setup tile contents was using arbitrary prefixes of authenticators 
+(so you could use +pwd+ when authenticator was named +pwdWeb+). It is no longer supported, column's contents 
+is configured with either full names of authenticators or authenticator with its option 
+as +oauthWeb+ for all options of this authenticator or +oauthWeb.google+ for a specific one.
+
+Another common case is that when converting simple tile to a column separators may come handy:
+
+----
+unity.endpoint.web.authnScreenOptionsLabel.OR.text=OR
+
+unity.endpoint.web.authnScreenColumn.1.columnTitle=Local authentication
+unity.endpoint.web.authnScreenColumn.1.columnContents=pwdWeb _SEPARATOR_OR certWeb
+----
+
+
+==== From 2.6.0 to 2.7.0
+
+Update affects users creating registration forms using REST Admin API. 
+Json format of registration form was significantly updated: there is a new syntax of group registration params,
+finalization and many new options.
+
+The registration form automation actions setting redirect URL and post submit message are effectless from now on 
+and will be removed in subsequent versions. Their invocation will print warning in log. Instead use the new 
+finalization feature of registration form, which offers both easier and wider capabilities.
+ 
+
+==== From 2.7.0 to 2.8.0
+
+Version 2.8.0 introduces simplified and unified authenticators configuration. Authenticators are not 
+dependent on endpoint binding (web, REST, ...) - can be used with any supported endpoint type.
+
+The following changes are required in +unityServer.conf+ or in included modules:
+
+. The +...authenticatorType+ option now requires only the checked credential type, i.e. the former trailing 
+part +with ...+ should be removed.
+. The +...retrievalConfigurationFile+ option is obsolete and should be removed.
+. The +...verificatorConfigurationFile+ option should be changed to +...configurationFile+
+. If non-empty configuration of credential retrieval UI was used (in JSON file, was available for password, 
+SMS and certificate credential) then it must be transformed to properties format and merged into 
+a single configuration file of the authenticator. 
+. (Optional) If the same verification method was used for multiple authenticators with different retrievals, 
+a single one can now be used instead. This will simplify the configuration.
+. After update authenticators SHOULD be reloaded from configuration. This is done by default but can be turned off
+in +unityServer.conf+ with option +unityServer.core.fullyRecreateEndpointsAROnStartup=false+. If that option
+was used it is recommended to turn it off (comment or set to true) - of course after performing all the configuration
+updates as described above. Otherwise all authenticators will have their UI settings reset to default values.
+
+   
+
+For example, let's consider former configuration of three authenticators:
+
+----
+unityServer.core.authenticators.passwdForWeb.authenticatorName=pwdWeb
+unityServer.core.authenticators.passwdForWeb.authenticatorType=password with web-password
+unityServer.core.authenticators.passwdForWeb.localCredential=sys:password
+unityServer.core.authenticators.passwdForWeb.retrievalConfigurationFile=passwordRetrieval.json
+
+unityServer.core.authenticators.passwdForRest.authenticatorName=pwdRest
+unityServer.core.authenticators.passwdForRest.authenticatorType=password with rest-httpbasic
+unityServer.core.authenticators.passwdForRest.localCredential=sys:password
+
+unityServer.core.authenticators.ldapPassForWeb.authenticatorName=ldapWeb
+unityServer.core.authenticators.ldapPassForWeb.authenticatorType=ldap with web-password
+unityServer.core.authenticators.ldapPassForWeb.verificatorConfigurationFile=ldap.properties
+unityServer.core.authenticators.ldapPassForWeb.retrievalConfigurationFile=passwordRetrieval-ldap.json
+----
+
+Now this configuration can be simplified to two authenticators, as follows:
+----
+unityServer.core.authenticators.passwd.authenticatorName=passwordAuthn
+unityServer.core.authenticators.passwd.authenticatorType=password
+unityServer.core.authenticators.passwd.localCredential=sys:password
+unityServer.core.authenticators.passwd.configurationFile=passwordRetrieval.properties
+
+unityServer.core.authenticators.ldap.authenticatorName=ldapAuthn
+unityServer.core.authenticators.ldap.authenticatorType=ldap
+unityServer.core.authenticators.ldap.configurationFile=ldap.properties
+----
+
+In this example +passwordAuth+ authenticator can be used instead of former +passwdForWeb+ and +passwdForRest+.
+
+With this release Unity uses a single file to configure authenticator, in properties format. This replaces 
+former properties file configuring credential verificator and JSON file configuring retrieval. The former verificator
+configuration hasn't changed and (if was already used) is a perfect start for the new unified config. 
+If verificator configuration was not used (typical for authenticators using local credential) 
+then a new properties file has to be created.
+ 
+Former JSON configuration of credential retrieval must be manually transformed into the new unified
+authenticator's properties config. The process should be rather easy as there are only few available
+options for retrievals (or are optional so chances are you have used defaults and so have nothing to do), 
+and only for the web password, certificate and SMS ones. 
+
+The example below provides a complete list of all available properties for all configurable
+so far web retrievals. Of course all are optional, and you should use only those that are matching your authenticator
+and are needed. 
+
+----
+retrieval.password.name=Password
+retrieval.password.name.pl=Hasło
+# other language variants can go here
+retrieval.password.registrationFormForUnknown=unknownLDAPUsersReg
+retrieval.password.enableAssociation=true
+
+retrieval.tls.name=Certificate
+# other language variants can go here as in password case
+retrieval.sms.logoURL=https://example.com/mylogo.png
+
+retrieval.sms.name=SMS
+# other language variants can go here as in password case
+retrieval.sms.logoURL=
+---- 
+
+
+
+

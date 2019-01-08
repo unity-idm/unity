@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2018 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.common.attributes.edit;
@@ -88,7 +88,10 @@ class InternalAttributeValueEditor implements Editor<LabelledValue>
 		{
 			String base = (baseLabel.endsWith(":")) ? baseLabel.substring(0, baseLabel.length()-1) 
 					: baseLabel;
-			return base +" (" + (position+1) +"):";
+			base = base +" (" + (position+1) +")";
+			if (!editContext.isShowLabelInline())
+				base = base + ":";
+			return base;
 		} else
 			return baseLabel;
 	}

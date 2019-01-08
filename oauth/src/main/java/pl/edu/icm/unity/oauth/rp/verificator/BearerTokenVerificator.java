@@ -34,7 +34,6 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.api.utils.CacheProvider;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -65,17 +64,15 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private PKIManagement pkiMan;
 	private TokensManagement tokensMan;
 	private String translationProfile;
-	private CacheProvider cacheProvider;
 	private ResultsCache cache;
 	
 	@Autowired
 	public BearerTokenVerificator(PKIManagement pkiMan, TokensManagement tokensMan, 
-			CacheProvider cacheProvider, RemoteAuthnResultProcessor processor)
+			RemoteAuthnResultProcessor processor)
 	{
 		super(NAME, DESC, AccessTokenExchange.ID, processor);
 		this.pkiMan = pkiMan;
 		this.tokensMan = tokensMan;
-		this.cacheProvider = cacheProvider;
 	}
 
 	@Override
@@ -105,7 +102,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			int ttl = -1;
 			if (verificatorProperties.isSet(OAuthRPProperties.CACHE_TIME))
 				ttl = verificatorProperties.getIntValue(OAuthRPProperties.CACHE_TIME);
-			cache = new ResultsCache(cacheProvider.getManager(), ttl);
+			cache = new ResultsCache(ttl);
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth RP verificator", e);
@@ -199,7 +196,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	
 	private AttributeFetchResult getUserProfileInformation(BearerAccessToken accessToken) throws AuthenticationException
 	{
-		boolean openIdMode = verificatorProperties.getBooleanValue(OAuthRPProperties.OPENID_MODE);
+		boolean openIdMode = verificatorProperties.isSetOpenIdMode();
 		String profileEndpoint = verificatorProperties.getValue(OAuthRPProperties.PROFILE_ENDPOINT);
 		AttributeFetchResult ret = new AttributeFetchResult();
 		if (profileEndpoint == null)
@@ -226,14 +223,14 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	{
 		RemotelyAuthenticatedInput ret = new RemotelyAuthenticatedInput(idpName);
 		
-		Map<String, List<String>> flatAttributes = attrs.getFlatAttributes();
-		for (Entry<String, List<String>> a: flatAttributes.entrySet())
+		Map<String, List<String>> attributes = attrs.getAttributes();
+		for (Entry<String, List<String>> a: attributes.entrySet())
 		{
 			ret.addAttribute(new RemoteAttribute(a.getKey(), a.getValue().toArray()));
 		}
 		
-		if (flatAttributes.containsKey("sub"))
-			ret.addIdentity(new RemoteIdentity(flatAttributes.get("sub").get(0), IdentifierIdentity.ID));
+		if (attributes.containsKey("sub"))
+			ret.addIdentity(new RemoteIdentity(attributes.get("sub").get(0), IdentifierIdentity.ID));
 		if (tokenStatus.getSubject() != null)
 		{
 			ret.addIdentity(new RemoteIdentity(tokenStatus.getSubject(), IdentifierIdentity.ID));
@@ -241,15 +238,21 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 		if (tokenStatus.getScope() != null)
 			ret.addAttribute(new RemoteAttribute("scope", 
 					tokenStatus.getScope().toStringList().toArray()));
-		if (flatAttributes.containsKey("sub") && tokenStatus.getSubject() != null && 
-				!tokenStatus.getSubject().equals(flatAttributes.get("sub").get(0)))
+		if (attributes.containsKey("sub") && tokenStatus.getSubject() != null && 
+				!tokenStatus.getSubject().equals(attributes.get("sub").get(0)))
 			log.warn("Received subject from the profile endpoint differs from the subject "
 					+ "established during access token verification. "
 					+ "Will use subject from verification: " + tokenStatus.getSubject() + 
-					" ignored: " + flatAttributes.get("sub").get(0));
+					" ignored: " + attributes.get("sub").get(0));
 			
 		ret.setRawAttributes(attrs.getRawAttributes());
 		return ret;
+	}
+	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Remote;
 	}
 	
 	@Component

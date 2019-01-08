@@ -19,7 +19,7 @@ import pl.edu.icm.unity.types.basic.Identity;
 
 
 /**
- * RDBMS storage of {@link Identity}
+ * RDBMS storage of {@link Identity} with caching
  * @author K. Benedyczak
  */
 @Repository(IdentityRDBMSStore.BEAN)
@@ -62,5 +62,16 @@ public class IdentityRDBMSStore extends GenericNamedRDBMSCRUD<StoredIdentity, Id
 	public List<Identity> getByEntity(long entityId)
 	{
 		return getByEntityFull(entityId).stream().map(si -> si.getIdentity()).collect(Collectors.toList());
+	}
+
+	@Override
+	public List<StoredIdentity> getByGroup(String group)
+	{
+		IdentitiesMapper mapper = SQLTransactionTL.getSql().getMapper(IdentitiesMapper.class);
+		List<IdentityBean> allInDB = mapper.getByGroup(group);
+		List<StoredIdentity> ret = new ArrayList<>(allInDB.size());
+		for (IdentityBean bean: allInDB)
+			ret.add(jsonSerializer.fromDB(bean));
+		return ret;
 	}
 }

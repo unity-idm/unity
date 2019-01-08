@@ -4,7 +4,11 @@
  */
 package pl.edu.icm.unity.engine.api.authn.local;
 
+import java.util.Map;
+
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.basic.EntityParam;
 
 /**
  * Allows for performing various credential related operations which needs to be handled internally,
@@ -46,4 +50,21 @@ public interface CredentialHelper
 	 */
 	void setCredential(long entityId, String credentialName, String value,
 			LocalCredentialVerificator handler) throws EngineException; 
+	
+	/**
+	 * Check if credential is set 
+	 * @param entity
+	 * @param credentialId
+	 * @return
+	 * @throws EngineException
+	 */
+	boolean isCredentialSet(EntityParam entity, String credentialId)
+			throws EngineException;
+
+	/**
+	 * Get credential definitions as map
+	 * @return
+	 * @throws EngineException
+	 */
+	Map<String, CredentialDefinition> getCredentialDefinitions() throws EngineException;
 }

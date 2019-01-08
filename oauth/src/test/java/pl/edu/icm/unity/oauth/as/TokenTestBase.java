@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.oauth.as;
@@ -9,13 +9,14 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
@@ -31,9 +32,11 @@ import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import net.minidev.json.JSONObject;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
+import pl.edu.icm.unity.oauth.as.OAuthAuthzContext.ScopeInfo;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.OAuthTokenEndpoint;
 import pl.edu.icm.unity.oauth.client.CustomHTTPSRequest;
@@ -41,8 +44,10 @@ import pl.edu.icm.unity.stdext.attr.StringAttribute;
 import pl.edu.icm.unity.stdext.attr.StringAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticationOptionDescription;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -81,6 +86,9 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	protected PKIManagement pkiMan;
 	@Autowired
 	protected AuthenticatorManagement authnMan;
+	@Autowired
+	private AuthenticationFlowManagement authnFlowMan;
+	
 	protected Identity clientId1;
 	
 	protected IdentityParam initUser(String username) throws Exception
@@ -126,8 +134,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 
-		authnMan.createAuthenticator("Apass", "password with rest-httpbasic", null, "",
-				"credential1");
+		authnMan.createAuthenticator("Apass", "password", "", "credential1");
 	}
 	
 	@Before
@@ -143,12 +150,14 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 
 			createUser();
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 10, 100,
-					-1, 600);
+					RememberMePolicy.disallow , 1, 600);
 			realmsMan.addRealm(realm);
-			List<AuthenticationOptionDescription> authnCfg = new ArrayList<>();
-			authnCfg.add(new AuthenticationOptionDescription("Apass"));
+			authnFlowMan.addAuthenticationFlow(new AuthenticationFlowDefinition(
+					"flow1", Policy.NEVER,
+					Sets.newHashSet("Apass")));
+			
 			EndpointConfiguration config = new EndpointConfiguration(
-					new I18nString("endpointIDP"), "desc", authnCfg,
+					new I18nString("endpointIDP"), "desc", Lists.newArrayList("flow1"),
 					OAUTH_ENDP_CFG, REALM_NAME);
 			endpointMan.deploy(OAuthTokenEndpoint.NAME, "endpointIDP", "/oauth",
 					config);
@@ -173,7 +182,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	 * @return Parsed access token response
 	 * @throws Exception
 	 */
-	protected AccessTokenResponse init(List<String> scope, ClientAuthentication ca)
+	protected AccessTokenResponse init(List<String> scopes, ClientAuthentication ca)
 			throws Exception
 	{
 		IdentityParam identity = initUser("userA");
@@ -181,7 +190,9 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 				new ResponseType(ResponseType.Value.CODE),
 				GrantFlow.authorizationCode, clientId1.getEntityId());
 
-		ctx.setRequestedScopes(new HashSet<>(scope));
+		ctx.setRequestedScopes(new HashSet<>(scopes));
+		for (String scope: scopes)
+			ctx.addEffectiveScopeInfo(new ScopeInfo(scope, scope, Lists.newArrayList(scope + " attr")));
 		ctx.setOpenIdMode(true);
 		AuthorizationSuccessResponse resp1 = OAuthTestUtils
 				.initOAuthFlowAccessCode(tokensMan, ctx, identity);

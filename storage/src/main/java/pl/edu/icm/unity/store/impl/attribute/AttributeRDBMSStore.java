@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import pl.edu.icm.unity.store.StorageConfiguration;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.impl.StorageLimits;
@@ -25,18 +26,19 @@ import pl.edu.icm.unity.types.basic.AttributeExt;
  * @author K. Benedyczak
  */
 @Repository(AttributeRDBMSStore.BEAN)
-public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, AttributeBean> 
-					implements AttributeDAO
+public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, AttributeBean> implements AttributeDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
-
-	private GroupDAO groupDAO;
+	private final GroupDAO groupDAO;
+	private final Integer attributeSizeLimit;
 	
 	@Autowired
-	public AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer, GroupDAO groupDAO)
+	AttributeRDBMSStore(AttributeRDBMSSerializer dbSerializer, GroupDAO groupDAO, 
+			StorageConfiguration storageConfiguration)
 	{
 		super(AttributesMapper.class, dbSerializer, NAME);
 		this.groupDAO = groupDAO;
+		attributeSizeLimit = storageConfiguration.getIntValue(StorageConfiguration.MAX_ATTRIBUTE_SIZE);
 	}
 
 	@Override
@@ -44,7 +46,7 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 	{
 		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
 		AttributeBean toUpdate = jsonSerializer.toDB(a);
-		StorageLimits.checkContentsLimit(toUpdate.getContents());
+		assertContentsLimit(toUpdate.getContents());
 		List<AttributeBean> old = getAttributesFiltering(a.getAttribute().getName(), a.getEntityId(), 
 				a.getAttribute().getGroupPath());
 		if (old.isEmpty())
@@ -56,6 +58,12 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		mapper.updateByKey(toUpdate);		
 	}
 
+	@Override
+	protected void assertContentsLimit(byte[] contents)
+	{
+		StorageLimits.checkAttributeLimit(contents, attributeSizeLimit);
+	}
+	
 	@Override
 	public void deleteAttribute(String attribute, long entityId, String group)
 	{
@@ -104,5 +112,13 @@ public class AttributeRDBMSStore extends GenericRDBMSCRUD<StoredAttribute, Attri
 		param.setName(attribute);
 		param.setGroup(group);
 		return mapper.getAttributes(param);
+	}
+
+	@Override
+	public List<StoredAttribute> getAttributesOfGroupMembers(String group)
+	{
+		AttributesMapper mapper = SQLTransactionTL.getSql().getMapper(AttributesMapper.class);
+		List<AttributeBean> groupMembersAttributes = mapper.getGroupMembersAttributes(group);
+		return convertList(groupMembersAttributes);
 	}
 }

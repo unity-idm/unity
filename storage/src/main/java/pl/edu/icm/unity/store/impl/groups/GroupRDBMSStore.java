@@ -18,7 +18,7 @@ import pl.edu.icm.unity.types.basic.Group;
 
 
 /**
- * RDBMS storage of {@link Group}
+ * RDBMS storage of {@link Group} with caching
  * @author K. Benedyczak
  */
 @Repository(GroupRDBMSStore.BEAN)

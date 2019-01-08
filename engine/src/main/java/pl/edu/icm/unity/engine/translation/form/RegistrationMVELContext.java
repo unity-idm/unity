@@ -20,9 +20,9 @@ import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.Selection;
 
@@ -54,46 +54,18 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 		validCode;
 	}
 	
-	public enum PostConfirmationContextKey
-	{
-		confirmedElementType,
-		confirmedElementName,
-		confirmedElementValue
-	}
-
 	/**
-	 * Setups a context for {@link EnquiryResponse} processing
-	 * @param form
-	 * @param request
-	 * @param status
-	 * @param triggered
-	 * @param idpEndpoint
-	 * @param requestId
+	 * Setups a full context for {@link EnquiryResponse} or {@link RegistrationRequest} processing
 	 */
 	public RegistrationMVELContext(BaseForm form, BaseRegistrationInput response,
 			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId, 
 			AttributeTypeHelper atHelper)
 	{
 		initCommon(form, response, status, triggered, idpEndpoint, requestId, atHelper);
+		if (response instanceof RegistrationRequest)
+			put(ContextKey.validCode.name(), ((RegistrationRequest)response).getRegistrationCode() != null);
 	}
 	
-	/**
-	 * Setups a full context
-	 * @param form
-	 * @param request
-	 * @param status
-	 * @param triggered
-	 * @param idpEndpoint
-	 * @param requestId
-	 */
-	public RegistrationMVELContext(RegistrationForm form, RegistrationRequest request,
-			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId, 
-			AttributeTypeHelper atHelper)
-	{
-		initCommon(form, request, status, triggered, idpEndpoint, requestId, atHelper);
-		put(ContextKey.validCode.name(), request.getRegistrationCode() != null);
-	}
-
 	private void initCommon(BaseForm form, BaseRegistrationInput request,
 			RequestSubmitStatus status, TriggeringMode triggered, boolean idpEndpoint, String requestId, 
 			AttributeTypeHelper atHelper)
@@ -107,27 +79,6 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 		setupIdentities(form, request);
 		setupGroups(form, request);
 		setupAgreements(request);
-	}
-	
-	/**
-	 * Setups minimal context - useful for post cancellation profile execution.
-	 * @param form
-	 * @param status
-	 * @param triggered
-	 * @param idpEndpoint
-	 */
-	public RegistrationMVELContext(BaseForm form, RequestSubmitStatus status, 
-			TriggeringMode triggered, boolean idpEndpoint)
-	{
-		createBaseMvelContext(form, status, triggered, idpEndpoint);
-	}
-	
-	public void addConfirmationContext(String confirmedElementType, String confirmedElementName, 
-			String confirmedElementValue)
-	{
-		put(PostConfirmationContextKey.confirmedElementName.toString(), confirmedElementName);
-		put(PostConfirmationContextKey.confirmedElementValue.toString(), confirmedElementValue);
-		put(PostConfirmationContextKey.confirmedElementType.toString(), confirmedElementType);
 	}
 	
 	private void setupAttributes(BaseForm form, BaseRegistrationInput request, AttributeTypeHelper atHelper)
@@ -234,14 +185,12 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 		for (int i=0; i<request.getGroupSelections().size(); i++)
 		{
 			GroupRegistrationParam groupRegistrationParam = form.getGroupParams().get(i);
-			Selection selection = request.getGroupSelections().get(i);
-				
-			if (selection != null && selection.isSelected())
-			{
-				groups.add(groupRegistrationParam.getGroupPath());
-				if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())
-					rgroups.add(groupRegistrationParam.getGroupPath());
-			}
+			GroupSelection selection = request.getGroupSelections().get(i);
+			if (selection == null)
+				continue;
+			groups.addAll(selection.getSelectedGroups());
+			if (groupRegistrationParam.getRetrievalSettings().isAutomaticOnly())
+				rgroups.addAll(selection.getSelectedGroups());
 		}
 		put(ContextKey.groups.name(), groups);
 		put(ContextKey.rgroups.name(), rgroups);

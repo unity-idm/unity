@@ -12,29 +12,34 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 
+import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
-import pl.edu.icm.unity.engine.api.authn.InvocationContext;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
+import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
-import pl.edu.icm.unity.engine.credential.SystemCredentialRequirements;
+import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -81,6 +86,7 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 @InvocationEventProducer
 public class EntityManagementImpl implements EntityManagement
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER,	EntityManagementImpl.class);
 	private IdentityTypeDAO idTypeDAO;
 	private IdentityTypeHelper idTypeHelper;
 	private IdentityDAO idDAO;
@@ -99,6 +105,8 @@ public class EntityManagementImpl implements EntityManagement
 	private EmailConfirmationManager confirmationManager;
 	private AttributeClassUtil acUtil;
 	private TransactionalRunner tx;
+	private UnityServerConfiguration cfg;
+	private NotificationProducer notificationProducer;
 	
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
@@ -110,7 +118,8 @@ public class EntityManagementImpl implements EntityManagement
 			EntityResolver idResolver, AuthorizationManager authz,
 			IdentityTypesRegistry idTypesRegistry,
 			EmailConfirmationManager confirmationManager, AttributeClassUtil acUtil,
-			TransactionalRunner tx)
+			TransactionalRunner tx,
+			UnityServerConfiguration cfg, NotificationProducer notificationProducer)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -130,6 +139,8 @@ public class EntityManagementImpl implements EntityManagement
 		this.confirmationManager = confirmationManager;
 		this.acUtil = acUtil;
 		this.tx = tx;
+		this.cfg = cfg;
+		this.notificationProducer = notificationProducer;
 	}
 
 	@Override
@@ -143,7 +154,7 @@ public class EntityManagementImpl implements EntityManagement
 	public Identity addEntity(IdentityParam toAdd, EntityState initialState,
 			boolean extractAttributes) throws EngineException
 	{
-		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, null);
+		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, null);
 	}
 
 	@Override
@@ -166,7 +177,7 @@ public class EntityManagementImpl implements EntityManagement
 			EntityState initialState, boolean extractAttributes,
 			List<Attribute> attributesP) throws EngineException
 	{
-		return addEntity(toAdd, SystemCredentialRequirements.NAME, initialState, extractAttributes, attributesP);
+		return addEntity(toAdd, SystemAllCredentialRequirements.NAME, initialState, extractAttributes, attributesP);
 	}
 	
 	private static class IdentityWithAuthzInfo
@@ -277,7 +288,7 @@ public class EntityManagementImpl implements EntityManagement
 		IdentityType identityType = idTypeDAO.get(toRemove.getTypeId());
 		List<Identity> identities = idDAO.getByEntity(entityId);
 		String type = identityType.getIdentityTypeProvider();
-		boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<IdentityParam>(), 
+		boolean fullAuthz = authorizeIdentityChange(entityId, new ArrayList<>(), 
 				identityType.isSelfModificable());
 
 		if (identities.size() == 1)
@@ -298,6 +309,29 @@ public class EntityManagementImpl implements EntityManagement
 		idDAO.delete(StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue));
 	}
 
+	@Override
+	@Transactional
+	public void updateIdentity(IdentityTaV original, IdentityParam updated) throws EngineException
+	{
+		if (!Objects.equals(updated.getTypeId(), original.getTypeId()))
+			throw new IllegalArgumentException("Identity type can not be changed");
+		authz.checkAuthorization(AuthzCapability.identityModify);
+		
+		IdentityType identityType = idTypeDAO.get(original.getTypeId());
+		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identityType);
+		String cmpValue = typeDefinition.getComparableValue(original.getValue(), original.getRealm(), 
+				original.getTarget());
+		String updatedCmpValue = typeDefinition.getComparableValue(updated.getValue(), updated.getRealm(), 
+				updated.getTarget());
+		if (!Objects.equals(cmpValue, updatedCmpValue))
+			throw new IllegalArgumentException("Identity change can not effect in comparable "
+					+ "value change of existing identity");
+		
+		String inDBKey = StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue);
+		long entityId = idResolver.getEntityId(new EntityParam(original));
+		Identity updatedFull = idTypeHelper.upcastIdentityParam(updated, entityId);
+		idDAO.updateByName(inDBKey, new StoredIdentity(updatedFull));
+	}
 
 	@Override
 	@Transactional
@@ -436,7 +470,7 @@ public class EntityManagementImpl implements EntityManagement
 	{
 		Map<String, Set<IdentityParam>> ret = new HashMap<>();
 		for (String type: updatedTypes)
-			ret.put(type, new HashSet<IdentityParam>());
+			ret.put(type, new HashSet<>());
 		for (IdentityParam id: identities)
 		{
 			ret.get(id.getTypeId()).add(id);
@@ -449,7 +483,7 @@ public class EntityManagementImpl implements EntityManagement
 	{
 		Map<String, Set<Identity>> ret = new HashMap<>();
 		for (String type: updatedTypes)
-			ret.put(type, new HashSet<Identity>());
+			ret.put(type, new HashSet<>());
 		for (Identity id: identities)
 		{
 			if (!updatedTypes.contains(id.getTypeId()))
@@ -524,9 +558,10 @@ public class EntityManagementImpl implements EntityManagement
 		toRemove.validateInitialization();
 		long entityId = idResolver.getEntityId(toRemove);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+		sendNotification(entityId, cfg.getValue(UnityServerConfiguration.ACCOUNT_REMOVED_NOTIFICATION));
 		entityDAO.deleteByKey(entityId);
 	}
-
+	
 	@Override
 	@Transactional
 	public void setEntityStatus(EntityParam toChange, EntityState status)
@@ -540,8 +575,22 @@ public class EntityManagementImpl implements EntityManagement
 		long entityId = idResolver.getEntityId(toChange);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
 		EntityInformation current = entityDAO.getByKey(entityId);
+		if (current.getEntityState() == status)
+			return;
+		
+		String notificationToSend = null;
+		if (current.getEntityState() == EntityState.valid 
+				&& (status == EntityState.authenticationDisabled 
+				|| status == EntityState.disabled))
+			notificationToSend = cfg.getValue(UnityServerConfiguration.ACCOUNT_DISABLED_NOTIFICATION);
+		if (status == EntityState.valid 
+				&& (current.getEntityState() == EntityState.authenticationDisabled 
+				|| current.getEntityState() == EntityState.disabled))
+			notificationToSend = cfg.getValue(UnityServerConfiguration.ACCOUNT_ACTIVATED_NOTIFICATION);
+		
 		current.setEntityState(status);
 		entityDAO.updateByKey(entityId, current);
+		sendNotification(entityId, notificationToSend);
 	}
 
 	@Transactional
@@ -870,38 +919,30 @@ public class EntityManagementImpl implements EntityManagement
 		for (Identity id: all)
 			if (id.getTarget() == null || id.getTarget().equals(target))
 				ret.add(id);
-		Set<String> presentTypes = new HashSet<String>();
+		Set<String> presentTypes = new HashSet<>();
 		for (Identity id: ret)
 			presentTypes.add(id.getTypeId());
 		if (allowCreate)
-			addDynamic(entityId, presentTypes, ret, target);
+			identityHelper.addDynamic(entityId, presentTypes, ret, target);
 		return ret;
 	}
 
-	/**
-	 * Creates dynamic identities which are currently absent for the entity.
-	 */
-	private void addDynamic(long entityId, Set<String> presentTypes, List<Identity> ret, String target)
+	private void sendNotification(long entityId, String templateId)
 	{
-		for (IdentityTypeDefinition idType: idTypesRegistry.getDynamic())
+		if (templateId == null)
+			return;
+		try
 		{
-			if (presentTypes.contains(idType.getId()))
-				continue;
-			if (idType.isTargeted() && target == null)
-				continue;
-			Identity added = createDynamicIdentity(idType, entityId, target);
-			if (added != null)
-				ret.add(added);
+			EntityParam recipient = new EntityParam(entityId);
+			String entityName = getEntityLabel(recipient);
+			Map<String, String> params = new HashMap<>();
+			params.put(UserNotificationTemplateDef.USER, entityName == null ? "" : entityName);
+			notificationProducer.sendNotification(recipient, templateId, 
+					params, cfg.getDefaultLocale().toString(), null, false);
+		} catch (Exception e)
+		{
+			log.warn("Unable to send notification using template " + templateId 
+					+ " to entity " + entityId, e);
 		}
-	}
-	
-	private Identity createDynamicIdentity(IdentityTypeDefinition idTypeImpl, long entityId, String target)
-	{
-		String realm = InvocationContext.safeGetRealm();
-		if (idTypeImpl.isTargeted() && (realm == null || target == null))
-			return null;
-		Identity newId = idTypeImpl.createNewIdentity(realm, target, entityId);
-		idDAO.create(new StoredIdentity(newId));
-		return newId;
 	}
 }

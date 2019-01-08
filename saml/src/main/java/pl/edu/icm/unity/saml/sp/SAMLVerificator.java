@@ -11,6 +11,7 @@ import java.net.URL;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Properties;
 
@@ -53,6 +54,7 @@ import pl.edu.icm.unity.saml.metadata.cfg.RemoteMetaManager;
 import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
+import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -318,6 +320,18 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	public SAMLSPProperties getSamlValidatorSettings()
 	{
 		return (SAMLSPProperties) myMetadataManager.getVirtualConfiguration();
+	}
+	
+	@Override
+	public IdPVisalSettings getVisualSettings(String configKey, Locale locale)
+	{
+		return myMetadataManager.getVisualSettings(configKey, locale);
+	}
+	
+	@Override
+	public VerificatorType getType()
+	{
+		return VerificatorType.Remote;
 	}
 	
 	@Component

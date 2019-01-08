@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.webui.authn;
@@ -28,5 +28,5 @@ public interface ProxyAuthenticationCapable extends BindingAuthn
 	 * should be processed in regular way 
 	 */
 	boolean triggerAutomatedAuthentication(HttpServletRequest httpRequest,
-			HttpServletResponse httpResponse) throws IOException;
+			HttpServletResponse httpResponse, String endpointPath) throws IOException;
 }

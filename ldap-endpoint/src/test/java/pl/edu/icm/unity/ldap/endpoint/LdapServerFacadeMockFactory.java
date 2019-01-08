@@ -29,7 +29,7 @@ public class LdapServerFacadeMockFactory
 		cfg.setProperty("unity.ldapServer.credential", "MAIN");
 		LdapServerProperties props = new LdapServerProperties(cfg);
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(null, null, null, null,
-				null, props, null, null);
+				null, props, null, null, "authenticator");
 		LdapServerFacade facade = create();
 		facade.init(true, ladi, null);
 		return facade;
@@ -39,7 +39,7 @@ public class LdapServerFacadeMockFactory
 			throws Exception
 	{
 		LdapApacheDSInterceptor ladi = new LdapApacheDSInterceptor(null, null, null, null,
-				null, props, null, null);
+				null, props, null, null, "authenticator");
 		LdapServerFacade facade = create();
 		facade.init(true, ladi, null);
 		return facade;

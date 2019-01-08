@@ -14,6 +14,8 @@ public class TstServer
 {
 	public static void main(String... args) throws IOException 
 	{
+		//TODO remove this. Temporarily for 2.8.0 
+		System.setProperty("enableGroupDelegation", "true");
 		UnityApplication theServer = new UnityApplication(UnityMessageSource.PROFILE_FAIL_ON_MISSING);
 		theServer.run(new String[] {"src/test/resources/unityServer.conf"});
 	}

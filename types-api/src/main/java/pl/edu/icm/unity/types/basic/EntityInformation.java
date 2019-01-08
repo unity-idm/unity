@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import java.util.Objects;
 
 /**
  * Stores information about entity, besides its identities, credentials and basic information as id.
@@ -104,11 +105,19 @@ public class EntityInformation
 	{
 		return "EntityInformation [id=" + id + ", entityState=" + entityState + "]";
 	}
-
+	
+	@Override
+	public EntityInformation clone()
+	{
+		ObjectNode json = toJson();
+		return new EntityInformation(json);
+	}
+	
 	private void fromJson(ObjectNode src)
 	{
 		fromJsonBase(src);
-		id = src.get("entityId").asLong();
+		
+		id = src.hasNonNull("entityId") ? src.get("entityId").asLong() : null;
 	}
 
 	@JsonValue
@@ -147,49 +156,20 @@ public class EntityInformation
 	}
 
 	@Override
-	public int hashCode()
+	public boolean equals(final Object other)
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((entityState == null) ? 0 : entityState.hashCode());
-		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result
-				+ ((removalByUserTime == null) ? 0 : removalByUserTime.hashCode());
-		result = prime * result + ((scheduledOperation == null) ? 0
-				: scheduledOperation.hashCode());
-		result = prime * result + ((scheduledOperationTime == null) ? 0
-				: scheduledOperationTime.hashCode());
-		return result;
+		if (!(other instanceof EntityInformation))
+			return false;
+		EntityInformation castOther = (EntityInformation) other;
+		return Objects.equals(id, castOther.id) && Objects.equals(entityState, castOther.entityState)
+				&& Objects.equals(scheduledOperationTime, castOther.scheduledOperationTime)
+				&& Objects.equals(scheduledOperation, castOther.scheduledOperation)
+				&& Objects.equals(removalByUserTime, castOther.removalByUserTime);
 	}
 
 	@Override
-	public boolean equals(Object obj)
+	public int hashCode()
 	{
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EntityInformation other = (EntityInformation) obj;
-		if (entityState != other.entityState)
-			return false;
-		if (id != other.id)
-			return false;
-		if (removalByUserTime == null)
-		{
-			if (other.removalByUserTime != null)
-				return false;
-		} else if (!removalByUserTime.equals(other.removalByUserTime))
-			return false;
-		if (scheduledOperation != other.scheduledOperation)
-			return false;
-		if (scheduledOperationTime == null)
-		{
-			if (other.scheduledOperationTime != null)
-				return false;
-		} else if (!scheduledOperationTime.equals(other.scheduledOperationTime))
-			return false;
-		return true;
+		return Objects.hash(id, entityState, scheduledOperationTime, scheduledOperation, removalByUserTime);
 	}
 }

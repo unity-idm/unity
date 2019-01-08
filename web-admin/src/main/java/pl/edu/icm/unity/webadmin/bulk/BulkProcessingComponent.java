@@ -183,9 +183,7 @@ public class BulkProcessingComponent extends CustomComponent
 		try
 		{
 			bulkManagement.applyRule(rule);
-			NotificationPopup.showSuccess(msg,
-					msg.getMessage("BulkProcessingComponent.actionInvoked"),
-					"");
+			NotificationPopup.showSuccess(msg.getMessage("BulkProcessingComponent.actionInvoked"), "");
 			refresh();
 		} catch (Exception e)
 		{
@@ -265,14 +263,15 @@ public class BulkProcessingComponent extends CustomComponent
 		}
 		ScheduledRuleParamEditorImpl editor = new ScheduledRuleParamEditorImpl(msg,
 				actionEditor);
-		final ScheduledProcessingRule selected = target.iterator().next();
+		final ScheduledProcessingRule selected = new ScheduledProcessingRule(target.iterator().next());
 		editor.setInput(selected);
 
 		RuleEditDialog<ScheduledProcessingRuleParam> dialog = new RuleEditDialog<>(msg,
 				msg.getMessage("BulkProcessingComponent.editAction"), editor,
-				rule -> {
-					schedule(rule);
+				rule -> 
+				{
 					delete(Sets.newHashSet(selected.getId()));
+					schedule(rule);
 				});
 		dialog.show();
 
@@ -289,7 +288,7 @@ public class BulkProcessingComponent extends CustomComponent
 
 	private void runScheduledHandler(Collection<ScheduledProcessingRule> items)
 	{
-		ScheduledProcessingRule rule = items.iterator().next();
+		ScheduledProcessingRule rule = new ScheduledProcessingRule(items.iterator().next());
 		showImmediateProcessingDialog(rule);
 	}
 

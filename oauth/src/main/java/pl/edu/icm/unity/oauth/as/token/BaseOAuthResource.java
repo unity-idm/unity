@@ -108,4 +108,9 @@ public class BaseOAuthResource
 	{
 		return respBuilder.header("Pragma", "no-cache").header("Cache-Control", "no-store").build();
 	}
+	
+	public static String tokenToLog(String token)
+	{
+		return "..." + token.substring(6);
+	}
 }

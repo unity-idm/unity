@@ -64,7 +64,6 @@ public class IdentityTypeHelper
 	 * @param typeDef
 	 * @return {@link IdentityTypeDefinition} for the given IdentityType.
 	 */
-	@Transactional
 	public IdentityTypeDefinition getTypeDefinition(IdentityType idType)
 	{
 		return idImplRegistry.getByName(idType.getIdentityTypeProvider());

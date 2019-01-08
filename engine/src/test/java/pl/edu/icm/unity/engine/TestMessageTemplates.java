@@ -17,6 +17,7 @@ import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
+import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateProcessor;
 import pl.edu.icm.unity.engine.notifications.sms.SMSFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -60,9 +61,9 @@ public class TestMessageTemplates extends DBIntegrationTestBase
 		Map<String, String> params = new HashMap<>();
 		params.put("code", "svalue");
 		added = msgTempMan.getTemplate("tName");
-		assertEquals("stestsvalue", added.getMessage("pl", "en", params, 
+		assertEquals("stestsvalue", new MessageTemplateProcessor().getMessage(added, "pl", "en", params, 
 				Collections.emptyMap()).getSubject());
-		assertEquals("btestsvalue", added.getMessage(null, "en", params, 
+		assertEquals("btestsvalue", new MessageTemplateProcessor().getMessage(added, null, "en", params, 
 				Collections.emptyMap()).getBody());
 		
 		msgTempMan.removeTemplate("tName");

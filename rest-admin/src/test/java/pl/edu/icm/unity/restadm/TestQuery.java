@@ -27,7 +27,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.rest.TestRESTBase;
 import pl.edu.icm.unity.stdext.attr.EnumAttribute;
 import pl.edu.icm.unity.stdext.attr.EnumAttributeSyntax;
@@ -44,6 +47,8 @@ import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.identity.PersistentIdentity;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
+import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -79,7 +84,7 @@ public class TestQuery extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/email/a+foo@ex.com");
 		HttpResponse response = client.execute(host, resolve, localcontext);
@@ -95,7 +100,7 @@ public class TestQuery extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		HttpGet resolve = new HttpGet("/restadm/v1/resolve/userName/admin");
 		HttpResponse response = client.execute(host, resolve, localcontext);
@@ -144,7 +149,7 @@ public class TestQuery extends TestRESTBase
 		
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 
 		Entity entity = idsMan.getEntity(new EntityParam(entityId));
 		Identity persistent = entity.getIdentities().stream().
@@ -161,42 +166,36 @@ public class TestQuery extends TestRESTBase
 	}
 
 	@Test
-	public void queryWithExplicitIdTypeWorks() throws Exception
+	public void completeGroupContentsIsReturned() throws Exception
 	{
 		createTestContents();
 		
-		HttpClient client = getClient();
-		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
-
-		HttpGet getGroups = new HttpGet("/restadm/v1/entity/tested/groups?identityType=" 
-				+ UsernameIdentity.ID);
-		HttpResponse response = client.execute(host, getGroups, localcontext);
+		HttpGet getEntity = new HttpGet("/restadm/v1/group-members/example");
+		HttpResponse response = executeQuery(getEntity);
+		
 		String contents = EntityUtils.toString(response.getEntity());
 		assertEquals(contents, Status.OK.getStatusCode(), response.getStatusLine().getStatusCode());
-		System.out.println("User's groups:\n" + contents);
+		System.out.println("Group's /example contents:\n" + formatJson(contents));
+		ArrayNode parsed = JsonUtil.parse(contents, ArrayNode.class);
+		
+		assertThat(parsed.size(), is(1));
+		ObjectNode entityData = (ObjectNode) parsed.get(0);
+		ArrayNode attributes = (ArrayNode) entityData.get("attributes");
+		assertThat(attributes.size(), is(6));
 	}
-	
+
 	
 	private HttpResponse executeQuery(HttpRequest request) throws Exception
 	{
 		HttpClient client = getClient();
 		HttpHost host = new HttpHost("localhost", 53456, "https");
-		HttpContext localcontext = getClientContext(client, host);
+		HttpContext localcontext = getClientContext(host);
 		return client.execute(host, request, localcontext);
 	}
 	
 	
 	protected long createTestContents() throws Exception
 	{
-		groupsMan.addGroup(new Group("/example"));
-		groupsMan.addGroup(new Group("/example/sub"));
-		Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tested"), "cr-pass", 
-				EntityState.valid, false);
-		EntityParam e = new EntityParam(id);
-		groupsMan.addMemberFromParent("/example", e);
-		groupsMan.addMemberFromParent("/example/sub", e);
-		
 		aTypeMan.addAttributeType(new AttributeType("stringA", StringAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("intA", IntegerAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("floatA", FloatingPointAttributeSyntax.ID));
@@ -207,6 +206,18 @@ public class TestQuery extends TestRESTBase
 		aTypeMan.addAttributeType(new AttributeType("jpegA", JpegImageAttributeSyntax.ID));
 		aTypeMan.addAttributeType(new AttributeType("emailA", VerifiableEmailAttributeSyntax.ID));
 		
+		Group example = new Group("/example");
+		AttributeStatement addAttr = new AttributeStatement("eattr contains 'emailA'", "/", ConflictResolution.skip, 
+				"emailA", "eattr['emailA']");
+		example.setAttributeStatements(new AttributeStatement[] {addAttr});
+		groupsMan.addGroup(example);
+		groupsMan.addGroup(new Group("/example/sub"));
+		Identity id = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tested"), "cr-pass", 
+				EntityState.valid, false);
+		EntityParam e = new EntityParam(id);
+		groupsMan.addMemberFromParent("/example", e);
+		groupsMan.addMemberFromParent("/example/sub", e);
+				
 		attrsMan.createAttribute(e, StringAttribute.of("stringA", "/example", 
 				"value"));
 		attrsMan.createAttribute(e, IntegerAttribute.of("intA", "/example", 
@@ -217,7 +228,7 @@ public class TestQuery extends TestRESTBase
 				new BufferedImage(100, 50, BufferedImage.TYPE_INT_ARGB)));
 		attrsMan.createAttribute(e, EnumAttribute.of("enumA", "/example", 
 				"V1"));
-		attrsMan.createAttribute(e, VerifiableEmailAttribute.of("emailA", "/example", 
+		attrsMan.createAttribute(e, VerifiableEmailAttribute.of("emailA", "/", 
 				new VerifiableEmail("some@example.com")));
 		return id.getEntityId();
 	}

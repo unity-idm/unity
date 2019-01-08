@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.attributes.WebAttributeHandler;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -102,7 +103,7 @@ public class ValuesRendererPanel extends VerticalLayout
 			WebAttributeHandler handler, AttributeValueSyntax<T> syntax, 
 			String value)
 	{
-		Component c = handler.getRepresentation(value);
+		Component c = handler.getRepresentation(value, AttributeViewerContext.EMPTY);
 		c.setSizeUndefined();
 		c.setWidth(100, Unit.PERCENTAGE);
 		contents.addComponent(c);

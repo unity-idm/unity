@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.api.authn.remote;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -25,6 +26,8 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
  */
 public class RemotelyAuthenticatedContext
 {
+	private static final String NONE = "--none--";
+	
 	private String remoteIdPName;
 	private String inputTranslationProfile;
 	private Set<SessionParticipant> sessionParticipants;
@@ -34,6 +37,7 @@ public class RemotelyAuthenticatedContext
 	private Collection<String> groups = new ArrayList<>();
 	private MappingResult mappingResult;
 	private RemotelyAuthenticatedInput input;
+	private Instant creationTime;
 
 	/**
 	 * @return pseudo remote authn context, which is empty. Used as we don't want to pass null reference
@@ -41,7 +45,12 @@ public class RemotelyAuthenticatedContext
 	 */
 	public static RemotelyAuthenticatedContext getLocalContext()
 	{
-		return new RemotelyAuthenticatedContext("--none--", "--none--");
+		return new RemotelyAuthenticatedContext(NONE, NONE);
+	}
+	
+	public static boolean isLocalContext(RemotelyAuthenticatedContext ctx)
+	{
+		return NONE.equals(ctx.getRemoteIdPName()) && NONE.equalsIgnoreCase(ctx.getInputTranslationProfile());
 	}
 	
 	public RemotelyAuthenticatedContext(String remoteIdPName, String inputTranslationProfile)
@@ -118,9 +127,17 @@ public class RemotelyAuthenticatedContext
 	{
 		return sessionParticipants;
 	}
+	public Instant getCreationTime()
+	{
+		return creationTime;
+	}
+	public void setCreationTime(Instant creationTime)
+	{
+		this.creationTime = creationTime;
+	}
 	public void setSessionParticipants(Set<SessionParticipant> sessionParticipants)
 	{
-		this.sessionParticipants = new HashSet<SessionParticipant>();
+		this.sessionParticipants = new HashSet<>();
 		this.sessionParticipants.addAll(sessionParticipants);
 	}
 }

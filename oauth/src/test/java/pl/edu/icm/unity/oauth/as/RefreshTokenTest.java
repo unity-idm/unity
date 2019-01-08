@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.oauth.as;
@@ -26,6 +26,7 @@ import com.nimbusds.oauth2.sdk.http.HTTPRequest;
 import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.AccessTokenType;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
@@ -61,7 +62,39 @@ public class RefreshTokenTest extends TokenTestBase
 
 		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
 
-		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, "foo bar", ca);
+		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca, "foo", "bar");
+		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
+		
+		assertThat(bearerToken.getLifetime(), is(3600l));
+		assertThat(bearerToken.getScope(), is(new Scope("foo", "bar")));
+		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+	}
+
+	@Test
+	public void shouldAssumeOriginalScopesWhenNoScopesAreRequestedUponRefresh() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+
+		AccessTokenResponse parsedResp = getRefreshedAccessToken(refreshToken, ca);
+		BearerAccessToken bearerToken = (BearerAccessToken) parsedResp.getTokens().getAccessToken();
+		
+		assertThat(bearerToken.getLifetime(), is(3600l));
+		assertThat(bearerToken.getScope(), is(new Scope("foo", "bar")));
+		assertThat(bearerToken.getType(), is(AccessTokenType.BEARER));
+	}
+	
+	@Test
+	public void refreshedTokenCanBeUsedToObtainUserInfo() throws Exception
+	{
+		ClientAuthentication ca = new ClientSecretBasic(new ClientID("client1"),
+				new Secret("clientPass"));
+
+		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
+
+		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
 
 		assertThat(claimSet.getClaim("c"), is("PL"));
 		assertThat(claimSet.getClaim("email"), is("example@example.com"));
@@ -143,7 +176,7 @@ public class RefreshTokenTest extends TokenTestBase
 
 		RefreshToken refreshToken = initRefresh(Arrays.asList("foo", "bar"), ca);
 
-		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, "foo bar", ca);	
+		JWTClaimsSet claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");	
 		
 		assertThat(claimSet.getClaim("c"), is("PL"));
 		
@@ -151,13 +184,13 @@ public class RefreshTokenTest extends TokenTestBase
 		attrsMan.setAttribute(new EntityParam(identity),
 				StringAttribute.of("c", "/oauth-users", "new"));
 		
-		claimSet = refreshAndGetUserInfo(refreshToken, "foo bar", ca);
+		claimSet = refreshAndGetUserInfo(refreshToken, ca, "foo", "bar");
 		assertThat(claimSet.getClaim("c"), is("new"));	
 		
 	}
 
-	private JWTClaimsSet refreshAndGetUserInfo(RefreshToken token, String scopes,
-			ClientAuthentication ca) throws Exception
+	private AccessTokenResponse getRefreshedAccessToken(RefreshToken token, 
+			ClientAuthentication ca, String... scopes) throws Exception
 	{
 		TokenRequest refreshRequest = new TokenRequest(
 				new URI("https://localhost:52443/oauth/token"), ca,
@@ -167,7 +200,13 @@ public class RefreshTokenTest extends TokenTestBase
 		CustomHTTPSRequest wrapped = new CustomHTTPSRequest(bare,
 				pkiMan.getValidator("MAIN"), ServerHostnameCheckingMode.NONE);
 		HTTPResponse refreshResp = wrapped.send();
-		AccessTokenResponse refreshParsedResp = AccessTokenResponse.parse(refreshResp);
+		return AccessTokenResponse.parse(refreshResp);
+	}
+	
+	private JWTClaimsSet refreshAndGetUserInfo(RefreshToken token, 
+			ClientAuthentication ca, String... scopes) throws Exception
+	{
+		AccessTokenResponse refreshParsedResp = getRefreshedAccessToken(token, ca, scopes);
 		assertThat(refreshParsedResp.getTokens().getAccessToken(), notNullValue());
 		
 		return getUserInfo(refreshParsedResp.getTokens().getAccessToken());

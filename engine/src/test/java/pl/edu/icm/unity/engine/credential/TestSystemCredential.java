@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
+ * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
 package pl.edu.icm.unity.engine.credential;
@@ -71,7 +71,7 @@ public class TestSystemCredential extends DBIntegrationTestBase
 		Collection<CredentialRequirements> credentialRequirements = credReqMan.getCredentialRequirements();	
 		for (CredentialRequirements req : credentialRequirements)
 		{
-			if (req.getName().equals(SystemCredentialRequirements.NAME))
+			if (req.getName().equals(SystemAllCredentialRequirements.NAME))
 			{
 				assertThat(req.getRequiredCredentials().contains("new cred"), is(true));
 			}			

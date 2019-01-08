@@ -38,7 +38,7 @@ abstract class GenericNavigationUI<T extends ViewProvider> extends UnityUIBase i
 	protected void appInit(VaadinRequest request)
 	{
 		navigator = new Navigator(this, this);
-		for (T viewProvider: viewProviders)
+		for (T viewProvider : viewProviders)
 			navigator.addProvider(viewProvider);
 		navigator.setErrorView(new ErrorView());
 	}

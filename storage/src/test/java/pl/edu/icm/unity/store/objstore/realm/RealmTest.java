@@ -10,6 +10,7 @@ import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.api.generic.RealmDB;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
+import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 public class RealmTest extends AbstractNamedWithTSTest<AuthenticationRealm>
 {
@@ -27,13 +28,14 @@ public class RealmTest extends AbstractNamedWithTSTest<AuthenticationRealm>
 	{
 		return new AuthenticationRealm(id, 
 				"description", 
-				3, 222, 3, 555);
+				3, 222, RememberMePolicy.disallow , 1, 555);
 	}
 
 	@Override
 	protected AuthenticationRealm mutateObject(AuthenticationRealm src)
 	{
 		src.setName("name-Changed");
+		src.setRememberMePolicy(RememberMePolicy.allowForWholeAuthn);
 		src.setAllowForRememberMeDays(67);
 		src.setBlockAfterUnsuccessfulLogins(1);
 		src.setBlockFor(777);

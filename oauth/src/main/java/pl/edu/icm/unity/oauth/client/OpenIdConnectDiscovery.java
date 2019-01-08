@@ -54,7 +54,12 @@ public class OpenIdConnectDiscovery
 		HTTPResponse response = request.send();
 		String cacheControl = response.getCacheControl();
 		expiresAt = getExpiresOn(cacheControl);
-		providerMeta = OIDCProviderMetadata.parse(response.getContent());
+		String content = response.getContent();
+		final String MS_ENDPOINT = "https://login.microsoftonline.com/common/v2.0/.well-known/openid-configuration"; 
+		if (MS_ENDPOINT.equals(providerMetadataEndpoint.toExternalForm()))
+			content = content.replace("https://login.microsoftonline.com/{tenantid}/v2.0", 
+					"https://login.microsoftonline.com/tenantid/v2.0");
+		providerMeta = OIDCProviderMetadata.parse(content);
 	}
 	
 	private long getExpiresOn(String cacheControl)
