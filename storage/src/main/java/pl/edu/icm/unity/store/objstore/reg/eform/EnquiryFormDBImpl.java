@@ -111,6 +111,13 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 					notCfg.setSubmittedTemplate(newValue.getName());
 					needUpdate = true;
 				}
+				
+				if (modifiedName.equals(notCfg.getInvitationTemplate()))
+				{
+					notCfg.setInvitationTemplate(newValue.getName());
+					needUpdate = true;
+				}
+				
 				if (needUpdate)
 					update(form);
 			}

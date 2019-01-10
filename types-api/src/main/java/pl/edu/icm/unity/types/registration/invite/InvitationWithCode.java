@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.types.NamedObject;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
 /**
  * Complete invitation as stored in the system. 
@@ -18,40 +19,61 @@ import pl.edu.icm.unity.types.NamedObject;
  *   
  * @author Krzysztof Benedyczak
  */
-public class InvitationWithCode extends InvitationParam implements NamedObject
+public class InvitationWithCode implements NamedObject
 {
 	private String registrationCode;
 	private Instant lastSentTime;
 	private Instant creationTime;
 	private int numberOfSends;
+	private InvitationParam invitation;
 
-	public InvitationWithCode(String formId, Instant expiration, String contactAddress,
+	public InvitationWithCode(InvitationParam base,
 			String registrationCode)
 	{
-		super(formId, expiration, contactAddress);
+		this.invitation = base;
 		this.registrationCode = registrationCode;
 	}
 
 	public InvitationWithCode(InvitationParam base, String registrationCode,
 			Instant lastSentTime, int numberOfSends)
 	{
-		super(base.getFormId(), base.getExpiration(), base.getContactAddress());
+//		super(base.getFormId(), base.getExpiration(), base.getContactAddress());
 		this.registrationCode = registrationCode;
 		this.lastSentTime = lastSentTime;
 		this.numberOfSends = numberOfSends;
-		this.getIdentities().putAll(base.getIdentities());
-		this.getAllowedGroups().putAll(base.getAllowedGroups());
-		this.getGroupSelections().putAll(base.getGroupSelections());
-		this.getAttributes().putAll(base.getAttributes());
-		this.getMessageParams().putAll(base.getMessageParams());
-		this.setExpectedIdentity(base.getExpectedIdentity());
+//		this.getIdentities().putAll(base.getIdentities());
+//		this.getAllowedGroups().putAll(base.getAllowedGroups());
+//		this.getGroupSelections().putAll(base.getGroupSelections());
+//		this.getAttributes().putAll(base.getAttributes());
+//		this.getMessageParams().putAll(base.getMessageParams());
+//		this.setExpectedIdentity(base.getExpectedIdentity());
+		invitation = base;
+		
 	}
 
 	@JsonCreator
 	public InvitationWithCode(ObjectNode json)
 	{
-		super(json);
+		InvitationType type = InvitationType.valueOf(json.get("type").asText());
+		if (type.equals(InvitationType.REGISTRATION))
+		{
+			invitation = new RegistrationInvitationParam(json);
+		}
+		else
+		{
+			invitation = new EnquiryInvitationParam(json);
+		}	
 		fromJson(json);
+	}
+	
+	public InvitationParam getInvitation()
+	{
+		return invitation;
+	}
+
+	public void setInvitation(InvitationParam invitation)
+	{
+		this.invitation = invitation;
 	}
 	
 	public String getRegistrationCode()
@@ -90,10 +112,9 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 	}
 	
 	@JsonValue
-	@Override
 	public ObjectNode toJson()
 	{
-		ObjectNode json = super.toJson();
+		ObjectNode json = invitation.toJson();
 		
 		json.put("registrationCode", getRegistrationCode());
 		if (getLastSentTime() != null)
@@ -152,11 +173,16 @@ public class InvitationWithCode extends InvitationParam implements NamedObject
 	{
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
-			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		
 		InvitationWithCode other = (InvitationWithCode) obj;
+		if (invitation == null)
+		{
+			if (other.invitation != null)
+				return false;
+		} else if (!invitation.equals(other.invitation))
+			return false;
 		if (lastSentTime == null)
 		{
 			if (other.lastSentTime != null)

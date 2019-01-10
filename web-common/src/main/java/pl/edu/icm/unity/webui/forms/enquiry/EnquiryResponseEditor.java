@@ -29,6 +29,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 {
 	private EnquiryForm enquiryForm;
 	private PrefilledSet prefilled;
+	private RegistrationLayoutsContainer layoutContainer;
 	
 	public EnquiryResponseEditor(UnityMessageSource msg, EnquiryForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
@@ -75,8 +76,11 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	{
 		return enquiryForm.getType() == EnquiryType.REQUESTED_OPTIONAL;
 	}
-	
-	
+
+	void focusFirst()
+	{
+		focusFirst(layoutContainer.registrationFormLayout);
+	}	
 }
 
 

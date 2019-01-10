@@ -35,7 +35,6 @@ import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
-import pl.edu.icm.unity.engine.forms.InvitationPrefillInfo;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport;
 import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -82,7 +81,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private SharedEnquiryManagment internalManagment;
 	private EntityResolver identitiesResolver;
 	private AttributesHelper dbAttributes;
-	private MembershipDAO dbShared;
+	private MembershipDAO dbShared;	
 	
 	@Autowired
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
@@ -184,7 +183,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		responseFull.setRequestId(UUID.randomUUID().toString());
 		responseFull.setTimestamp(new Date());
 		responseFull.setRegistrationContext(context);
-		responseFull.setEntityId(InvocationContext.getCurrent().getLoginSession().getEntityId());
+		responseFull.setEntityId(getEntity(response.getFormId(), response.getRegistrationCode()));
 		
 		EnquiryForm form = recordRequestAndReturnForm(responseFull);
 		sendNotificationOnNewResponse(form, response);
@@ -200,8 +199,39 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		
 		return responseFull.getRequestId();
 	}
+
+	private long getEntity(String formId, String code) throws EngineException
+	{
+		if (code == null)
+		{
+			return getLoggedEntity();
+		} else
+		{
+			return getEntityFromInvitation(formId, code);
+		}
+	}
+
+	private Long getLoggedEntity()
+	{
+		Long entityId = null;
+		try
+		{
+			entityId = InvocationContext.getCurrent().getLoginSession().getEntityId();
+		} catch (Exception e)
+		{
+			throw new IllegalStateException("Can not get currently logged user");
+		}
+		return entityId;
+	}
 	
-	
+	private Long getEntityFromInvitation(String formId, String code) throws EngineException
+	{
+
+		return tx.runInTransactionRetThrowing(() -> {
+			return enquiryResponseValidator.getEntityFromInvitationAndValidateCode(formId, code);
+		});
+	}
+
 	@Override
 	@Transactional
 	public void processEnquiryResponse(String id, EnquiryResponse finalRequest,
@@ -243,8 +273,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			AdminComment publicComment, AdminComment internalComment) 
 			throws EngineException
 	{
-		enquiryResponseValidator.validateSubmittedRequest(form, currentRequest.getRequest(), 
-				new InvitationPrefillInfo(), false);
+		enquiryResponseValidator.validateSubmittedResponse(form, currentRequest.getRequest(), false);
 		requestDB.update(currentRequest);
 		internalManagment.sendProcessingNotification(form, 
 				form.getNotificationsConfiguration().getUpdatedTemplate(),
@@ -255,8 +284,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	{
 		return tx.runInTransactionRetThrowing(() -> {
 			EnquiryForm form = enquiryFormDB.get(responseFull.getRequest().getFormId());
-			enquiryResponseValidator.validateSubmittedRequest(form, responseFull.getRequest(), 
-					new InvitationPrefillInfo(), true);
+			enquiryResponseValidator.validateSubmittedResponse(form, responseFull.getRequest(), true);
 			
 			boolean isSticky = form.getType().equals(EnquiryType.STICKY);
 			if (isSticky)
@@ -374,6 +402,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				continue;
 			if (form.getType().equals(EnquiryType.STICKY))
 				continue;
+			if (form.isByInvitationOnly())
+				continue;
 			if (isInTargetGroups(allGroups, form.getTargetGroups()))
 				ret.add(form);
 		}
@@ -382,7 +412,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public List<EnquiryForm> getStickyEnquires(EntityParam entity) throws EngineException
+	public List<EnquiryForm> getAvailableStickyEnquires(EntityParam entity) throws EngineException
 	{
 		long entityId = identitiesResolver.getEntityId(entity);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
@@ -392,6 +422,9 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		List<EnquiryForm> ret = new ArrayList<>();
 		for (EnquiryForm form : allForms)
 		{
+			if (form.isByInvitationOnly())
+				continue;
+			
 			if (form.getType().equals(EnquiryType.STICKY)
 					&& isInTargetGroups(allGroups, form.getTargetGroups()))
 				ret.add(form);

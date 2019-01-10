@@ -37,7 +37,14 @@ public class JsonDumpUpdateFromV6 implements Update
 		updateAuthenticators(contents);
 		updateRegistrationRequest(contents);
 		updateEnquiryResponse(contents);
+		updateInvitationWithCode(contents);
+		
 		return new ByteArrayInputStream(objectMapper.writeValueAsBytes(root));
+	}
+	
+	private void updateInvitationWithCode(ObjectNode contents)
+	{
+		genericObjectUpdate("invitationWithCode", contents, UpdateHelperFrom2_7::updateInvitationWithCode);
 	}
 
 	private void updateAuthenticators(ObjectNode contents)

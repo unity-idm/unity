@@ -4,11 +4,15 @@
  */
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +22,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.vaadin.server.UserError;
 import com.vaadin.shared.ui.datefield.DateTimeResolution;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.DateTimeField;
@@ -30,7 +35,9 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -38,21 +45,27 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
 import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElements;
 import pl.edu.icm.unity.webui.common.ListOfEmbeddedElementsStub.Editor;
-import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -76,15 +89,21 @@ public class InvitationEditor extends CustomComponent
 	private UnityMessageSource msg;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private AttributeHandlerRegistry attrHandlersRegistry;
+	private NotificationProducer notificationProducer;
+	
 	private Map<String, MessageTemplate> msgTemplates;
-	private Map<String, RegistrationForm> formsByName;
+	private Map<String, BaseForm> formsByName;
 	private Map<String, AttributeType> attrTypes;
-
-	private NotNullComboBox<String> forms;
+	
+	private ComboBox<InvitationType> type;
+	
+	private ComboBox<Long> entity;
+	private ComboBox<String> forms;
 	private DateTimeField expiration;
 	private TextField contactAddress;
 	private EnumComboBox<RemoteIdentityExpectation> remoteIdentityExpectation;
 	private List<TextField> messageParams;
+	private Label channel;
 
 	private TabSheet tabs;
 	private ListOfEmbeddedElements<PrefilledEntry<IdentityParam>> presetIdentities;
@@ -93,10 +112,18 @@ public class InvitationEditor extends CustomComponent
 	private List<Group> allGroups;
 	private FormLayout top;
 	private MessageTemplateManagement msgTemplateMan;
-
+	
+	private Collection<RegistrationForm> availableRegistrationForms;
+	private Collection<EnquiryForm> availableEnquiryForms;
+	private Map<Long, GroupMembershipInfo> allEntities;
+	private Map<Long, String> availableEntities;
+	private String entityNameAttr;
+	
 	public InvitationEditor(UnityMessageSource msg, IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry, Map<String, MessageTemplate> msgTemplates,
-			Collection<RegistrationForm> availableForms, Map<String, AttributeType> attrTypes,
+			Collection<RegistrationForm> availableRegistrationForms,
+			Collection<EnquiryForm> availableEnquiryForms, Map<String, AttributeType> attrTypes,
+			NotificationProducer notificationsProducer, Map<Long, GroupMembershipInfo> allEntities, String entityNameAttr,
 			List<Group> allGroups, MessageTemplateManagement msgTemplateMan) throws WrongArgumentException
 	{
 		this.msg = msg;
@@ -106,20 +133,38 @@ public class InvitationEditor extends CustomComponent
 		this.msgTemplates = msgTemplates;
 		this.allGroups = allGroups;
 		this.msgTemplateMan = msgTemplateMan;
-		initUI(availableForms);
+		this.availableRegistrationForms = availableRegistrationForms;
+		this.availableEnquiryForms = availableEnquiryForms;
+		this.availableEntities = new HashMap<>();
+		this.allEntities = allEntities;
+		this.notificationProducer = notificationsProducer;
+		this.entityNameAttr = entityNameAttr;
+		initUI();
 	}
 
-	private void initUI(Collection<RegistrationForm> availableForms) throws WrongArgumentException
+	private void initUI() throws WrongArgumentException
 	{
 		messageParams = new ArrayList<>();
 
-		formsByName = availableForms.stream()
-				.filter(form -> form.getRegistrationCode() == null && form.isPubliclyAvailable())
-				.collect(Collectors.toMap(RegistrationForm::getName, form -> form));
-		if (formsByName.keySet().isEmpty())
-			throw new WrongArgumentException(
-					"There are no public registration forms to create an invitation for.");
-
+		entity = new ComboBox<>(msg.getMessage("InvitationEditor.entity"));
+		entity.setEmptySelectionAllowed(false);
+		entity.setItemCaptionGenerator(i -> availableEntities.get(i) + " [" + i + "]");
+		entity.setWidth(15, Unit.EM);
+		entity.addSelectionListener(e -> reloadContactAddress());
+		
+		type = new ComboBox<>(msg.getMessage("InvitationEditor.type"));
+		type.setItemCaptionGenerator(i -> msg.getMessage("InvitationType." + i.toString().toLowerCase()));
+		type.setItems(InvitationType.values());
+		type.setEmptySelectionAllowed(false);
+		type.addValueChangeListener(e -> {
+			
+			boolean isEnquiry = e.getValue().equals(InvitationType.ENQUIRY);
+			remoteIdentityExpectation.setVisible(!isEnquiry);
+			entity.setVisible(isEnquiry);
+			contactAddress.clear();		
+			reloadForms();
+		});
+		
 		expiration = new DateTimeField(msg.getMessage("InvitationViewer.expiration"));
 		expiration.setRequiredIndicatorVisible(true);
 		expiration.setResolution(DateTimeResolution.MINUTE);
@@ -135,24 +180,37 @@ public class InvitationEditor extends CustomComponent
 
 		tabs = new TabSheet();
 
-		Label channel = new Label();
+		channel = new Label();
 		channel.setCaption(msg.getMessage("InvitationViewer.channelId"));
 
-		forms = new NotNullComboBox<>(msg.getMessage("InvitationViewer.formId"));
+		forms = new ComboBox<>(msg.getMessage("InvitationEditor.RegistrationFormId"));
+		forms.setRequiredIndicatorVisible(true);
 		forms.addValueChangeListener(event -> {
-			RegistrationForm registrationForm = formsByName.get(forms.getValue());
-			setPerFormUI(registrationForm);
-
-			String invTemplate = registrationForm.getNotificationsConfiguration().getInvitationTemplate();
+			BaseForm form = formsByName.get(forms.getValue());
+			setPerFormUI(form);
+			channel.setValue("");
+			if (form == null)
+			{
+				return;
+			}
+		
+			String invTemplate = form.getNotificationsConfiguration().getInvitationTemplate();
 			if (invTemplate != null && msgTemplates.get(invTemplate) != null)
 				channel.setValue(msgTemplates.get(invTemplate).getNotificationChannel());
 			else
 				channel.setValue("");
+			
+			if (type.getValue().equals(InvitationType.ENQUIRY))
+			{
+				reloadEntities();
+			}
 		});
+		forms.setEmptySelectionAllowed(false);
+		
 		top = new FormLayout();
-		top.addComponents(forms, channel, expiration, contactAddress, remoteIdentityExpectation);
+		top.addComponents(type, forms, channel, expiration, entity, contactAddress, remoteIdentityExpectation);
 
-		forms.setItems(formsByName.keySet());
+		type.setSelectedItem(InvitationType.REGISTRATION);
 
 		VerticalLayout main = new VerticalLayout(top, prefillInfo, tabs);
 		main.setSpacing(true);
@@ -160,12 +218,108 @@ public class InvitationEditor extends CustomComponent
 		setCompositionRoot(main);
 	}
 
-	private void setPerFormUI(RegistrationForm form)
+	private void reloadContactAddress()
+	{
+		Long entityVal = entity.getValue();
+		contactAddress.setValue("");
+		if (entityVal == null)
+			return;
+		BaseForm form = formsByName.get(forms.getValue());
+
+		if (form == null)
+		{
+			return;
+		}
+
+		String invTemplate = form.getNotificationsConfiguration().getInvitationTemplate();
+		if (invTemplate == null)
+			return;
+		
+		try
+		{
+			contactAddress.setValue(notificationProducer.getAddressForEntity(new EntityParam(entityVal),
+					invTemplate, false));
+		} catch (EngineException e1)
+		{
+			log.error("Can not get address for entity " + entityVal);
+		}
+	}
+
+	
+	private void reloadForms()
+	{
+		if (type.getValue().equals(InvitationType.REGISTRATION))
+		{
+			formsByName = availableRegistrationForms.stream().filter(
+					form -> form.getRegistrationCode() == null && form.isPubliclyAvailable())
+					.collect(Collectors.toMap(RegistrationForm::getName, form -> form));
+			forms.setCaption(msg.getMessage("InvitationEditor.RegistrationFormId"));
+		} else
+		{
+			formsByName = availableEnquiryForms.stream()
+					.collect(Collectors.toMap(EnquiryForm::getName, form -> form));
+			forms.setCaption(msg.getMessage("InvitationEditor.EnquiryFormId"));
+
+		}
+		
+		forms.setItems(formsByName.keySet());
+		if (!formsByName.keySet().isEmpty())
+		{
+			forms.setSelectedItem(formsByName.keySet().iterator().next());
+		}else
+		{
+			forms.setSelectedItem(null);
+		}
+	}
+	
+	private void reloadEntities()
+	{
+		availableEntities.clear();
+		EnquiryForm form = availableEnquiryForms.stream().filter(f -> f.getName().equals(forms.getValue()))
+				.findFirst().orElse(null);
+		if (form == null)
+		{
+			entity.setItems(Collections.emptyList());
+			return;
+		}
+		Set<String> formGroups = new HashSet<>(Arrays.asList(form.getTargetGroups()));
+
+		allEntities.entrySet().stream().filter(e -> e.getValue().groups.stream().anyMatch(formGroups::contains))
+				.forEach(e -> {
+					if (!availableEntities.containsKey(e.getKey()))
+						availableEntities.put(e.getKey(), getLabel(e.getValue()));
+				});
+
+		List<Long> sortedEntities = availableEntities.keySet().stream().sorted().collect(Collectors.toList());
+		entity.setItems(sortedEntities);
+		if (!sortedEntities.isEmpty())
+		{
+			entity.setSelectedItem(sortedEntities.iterator().next());
+		}
+	}
+
+	String getLabel(GroupMembershipInfo info)
+	{
+		if (entityNameAttr != null && info.attributes.containsKey("/"))
+		{
+			AttributeExt name = info.attributes.get("/").get(entityNameAttr);
+			if (name != null && !name.getValues().isEmpty())
+			{
+				return name.getValues().get(0);
+			}
+		}
+
+		return "";
+	}
+	
+	private void setPerFormUI(BaseForm form)
 	{
 		for (Component mparam : messageParams)
 			top.removeComponent(mparam);
 		tabs.removeAllComponents();
-
+		if (form == null)
+			return;
+		
 		int idParamsNum = form.getIdentityParams() == null ? 0 : form.getIdentityParams().size();
 		presetIdentities = new ListOfEmbeddedElements<>(msg, () -> {
 			return new PresetIdentityEditor(identityEditorRegistry, form.getIdentityParams(), msg);
@@ -196,7 +350,7 @@ public class InvitationEditor extends CustomComponent
 			top.addComponent(mparam);
 	}
 
-	private List<TextField> getMessageParams(RegistrationForm form)
+	private List<TextField> getMessageParams(BaseForm form)
 	{
 		String invitationTemplate = form.getNotificationsConfiguration().getInvitationTemplate();
 		if (invitationTemplate == null)
@@ -239,8 +393,46 @@ public class InvitationEditor extends CustomComponent
 		src.setCaption("");
 	}
 
+	private InvitationParam getInvitationParam(String form, Instant expiration, String addr)
+	{
+		if (type.getValue().equals(InvitationType.REGISTRATION))
+		{
+			return getRegistrationInvitationParam(form, expiration, addr);
+
+		} else
+		{
+			return getEnquiryInvitationParam(form, expiration, addr);
+		}
+	}
+
+	private EnquiryInvitationParam getEnquiryInvitationParam(String form, Instant expiration, String addr)
+	{
+		EnquiryInvitationParam param = new EnquiryInvitationParam(form, expiration, addr);
+		param.setEntity(entity.getValue());
+		return param;
+	}
+
+	private RegistrationInvitationParam getRegistrationInvitationParam(String form, Instant expiration, String addr)
+	{
+		RegistrationInvitationParam param = new RegistrationInvitationParam(form, expiration, addr);
+		if (addr != null && remoteIdentityExpectation.getValue() != RemoteIdentityExpectation.NONE)
+		{
+			IdentityExpectation expectation = remoteIdentityExpectation
+					.getValue() == RemoteIdentityExpectation.HINT ? IdentityExpectation.HINT
+							: IdentityExpectation.MANDATORY;
+			param.setExpectedIdentity(new ExpectedIdentity(addr, expectation));
+		}
+		return param;
+	}
+	
 	public InvitationParam getInvitation() throws FormValidationException
 	{
+		if (forms.getValue() == null)
+		{
+			forms.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			throw new FormValidationException();
+		
+		}
 		String addr = contactAddress.isEmpty() ? null : contactAddress.getValue();
 		if (expiration.getValue() == null)
 		{
@@ -248,7 +440,7 @@ public class InvitationEditor extends CustomComponent
 			throw new FormValidationException();
 		}
 			
-		InvitationParam ret = new InvitationParam(forms.getValue(),
+		InvitationParam ret = getInvitationParam(forms.getValue(),
 				expiration.getValue().atZone(DEFAULT_ZONE_ID).toInstant(), addr);
 
 		prefill(presetIdentities.getElements(), ret.getIdentities());
@@ -257,18 +449,11 @@ public class InvitationEditor extends CustomComponent
 				.map(v -> v.groupSelection).collect(Collectors.toList()), ret.getGroupSelections());
 		prefill(presetGroups.getElements().stream().map(v -> v.allowedGroupSelection)
 				.collect(Collectors.toList()), ret.getAllowedGroups());
-
 		Map<String, String> customParams = messageParams.stream().collect(Collectors.toMap(
 				paramField -> (String) paramField.getData(), paramField -> paramField.getValue()));
 		ret.getMessageParams().putAll(customParams);
 
-		if (addr != null && remoteIdentityExpectation.getValue() != RemoteIdentityExpectation.NONE)
-		{
-			IdentityExpectation expectation = remoteIdentityExpectation
-					.getValue() == RemoteIdentityExpectation.HINT ? IdentityExpectation.HINT
-							: IdentityExpectation.MANDATORY;
-			ret.setExpectedIdentity(new ExpectedIdentity(addr, expectation));
-		}
+		
 		return ret;
 	}
 

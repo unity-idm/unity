@@ -53,7 +53,6 @@ public class RegistrationForm extends BaseForm
 	private RegistrationFormNotifications notificationsConfiguration = new RegistrationFormNotifications();
 	private int captchaLength;
 	private String registrationCode;
-	private boolean byInvitationOnly;
 	private String defaultCredentialRequirement;
 	private I18nString title2ndStage = new I18nString();
 	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
@@ -95,16 +94,6 @@ public class RegistrationForm extends BaseForm
 	void setNotificationsConfiguration(RegistrationFormNotifications notificationsConfiguration)
 	{
 		this.notificationsConfiguration = notificationsConfiguration;
-	}
-
-	public boolean isByInvitationOnly()
-	{
-		return byInvitationOnly;
-	}
-
-	public void setByInvitationOnly(boolean byInvitationOnly)
-	{
-		this.byInvitationOnly = byInvitationOnly;
 	}
 
 	public String getRegistrationCode()
@@ -329,7 +318,6 @@ public class RegistrationForm extends BaseForm
 		root.put("PubliclyAvailable", isPubliclyAvailable());
 		root.put("RegistrationCode", getRegistrationCode());
 		root.put("CaptchaLength", getCaptchaLength());
-		root.put("ByInvitationOnly", isByInvitationOnly());
 		root.set("ExternalSignupSpec", jsonMapper.valueToTree(getExternalSignupSpec()));
 		root.set("RegistrationFormLayouts", jsonMapper.valueToTree(getFormLayouts()));
 		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
@@ -365,10 +353,6 @@ public class RegistrationForm extends BaseForm
 			{
 				setCaptchaLength(0);
 			}
-
-			n = root.get("ByInvitationOnly");
-			if (n != null && !n.isNull())
-				setByInvitationOnly(n.asBoolean());
 
 			n = root.get("ExternalSignupSpec");
 			if (n != null)
@@ -412,7 +396,6 @@ public class RegistrationForm extends BaseForm
 				&& Objects.equals(notificationsConfiguration, castOther.notificationsConfiguration)
 				&& Objects.equals(captchaLength, castOther.captchaLength)
 				&& Objects.equals(registrationCode, castOther.registrationCode)
-				&& Objects.equals(byInvitationOnly, castOther.byInvitationOnly)
 				&& Objects.equals(defaultCredentialRequirement, castOther.defaultCredentialRequirement)
 				&& Objects.equals(title2ndStage, castOther.title2ndStage)
 				&& Objects.equals(externalSignupSpec, castOther.externalSignupSpec)
@@ -426,7 +409,7 @@ public class RegistrationForm extends BaseForm
 	public int hashCode()
 	{
 		return Objects.hash(super.hashCode(), name, description, publiclyAvailable, notificationsConfiguration,
-				captchaLength, registrationCode, byInvitationOnly, defaultCredentialRequirement,
+				captchaLength, registrationCode, defaultCredentialRequirement,
 				title2ndStage, externalSignupSpec, formLayouts, showSignInLink, signInLink, 
 				autoLoginToRealm);
 	}

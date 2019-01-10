@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
 /**
  * Shared code updating authenticators. 
@@ -73,5 +74,14 @@ class UpdateHelperFrom2_7
 			}
 		}
 		return request;
+	}
+	
+	static ObjectNode updateInvitationWithCode(ObjectNode invitationWithCode)
+	{
+		log.info("Updating invitationWithCode from: \n{}", JsonUtil.toJsonString(invitationWithCode));
+		invitationWithCode.put("type", InvitationType.REGISTRATION.toString());
+		
+		log.info("Updated authenticator to: \n{}", JsonUtil.toJsonString(invitationWithCode));
+		return invitationWithCode;
 	}
 }

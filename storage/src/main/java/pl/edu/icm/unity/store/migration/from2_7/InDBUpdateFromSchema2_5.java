@@ -33,8 +33,15 @@ public class InDBUpdateFromSchema2_5 implements InDBSchemaUpdater
 		updateAuthenticators();
 		updateRegistrationRequest();
 		updateEnquiryResponse();
+		updateInvitationWithCode();
 	}
 
+	private void updateInvitationWithCode()
+	{
+		updateGenericObjects("invitationWithCode", UpdateHelperFrom2_7::updateInvitationWithCode);
+	}
+	
+	
 	private void updateAuthenticators()
 	{
 		updateGenericObjects("authenticator", UpdateHelperFrom2_7::updateAuthenticator);

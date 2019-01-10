@@ -49,13 +49,6 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 
 		return new RegistrationFormNotificationsBuilder(obj, this);
 	}
-
-	public RegistrationFormBuilder withByInvitationOnly(boolean aValue)
-	{
-		instance.setByInvitationOnly(aValue);
-
-		return this;
-	}
 	
 	public RegistrationFormBuilder withRegistrationCode(String aValue)
 	{

@@ -111,6 +111,12 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 			return this;
 		}
 
+		public EnquiryFormNotificationsBuilder withInvitationTemplate(String aValue)
+		{
+			instance.setInvitationTemplate(aValue);
+			return this;
+		}
+		
 		public EnquiryFormNotificationsBuilder withAdminsNotificationGroup(String aValue)
 		{
 			instance.setAdminsNotificationGroup(aValue);

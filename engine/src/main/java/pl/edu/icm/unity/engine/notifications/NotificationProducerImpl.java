@@ -214,4 +214,14 @@ public class NotificationProducerImpl implements NotificationProducer, InternalF
 		return messageTemplateProcessor.getMessage(requested, locale, msg.getDefaultLocaleCode(), 
 				params, genericTemplates);
 	}
+
+	@Override
+	@Transactional
+	public String getAddressForEntity(EntityParam recipient, String templateId, boolean onlyConfirmed) throws EngineException
+	{
+		Map<String, MessageTemplate> allTemplates = mtDB.getAllAsMap();
+		NotificationChannelInstance channel = loadChannel(getChannelFromTemplate(allTemplates, templateId));
+		NotificationFacility facility = facilitiesRegistry.getByName(channel.getFacilityId());
+		return facility.getAddressForEntity(recipient, null, onlyConfirmed);
+	}
 }

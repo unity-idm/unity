@@ -7,6 +7,7 @@ package pl.edu.icm.unity.types.registration;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -34,6 +35,7 @@ public class BaseRegistrationInput
 	private List<Selection> agreements = new ArrayList<>();
 	private String comments;
 	private String userLocale;
+	private String registrationCode;
 	
 	public BaseRegistrationInput()
 	{
@@ -139,6 +141,16 @@ public class BaseRegistrationInput
 	{
 		this.userLocale = userLocale;
 	}
+	
+	public String getRegistrationCode()
+	{
+		return registrationCode;
+	}
+
+	public void setRegistrationCode(String registrationCode)
+	{
+		this.registrationCode = registrationCode;
+	}
 
 	@Override
 	public String toString()
@@ -160,6 +172,7 @@ public class BaseRegistrationInput
 		root.set("GroupSelections", jsonMapper.valueToTree(getGroupSelections()));
 		root.set("Identities", jsonMapper.valueToTree(getIdentities()));
 		root.put("UserLocale", getUserLocale());
+		root.put("RegistrationCode", registrationCode);
 		return root;
 	}
 
@@ -183,8 +196,7 @@ public class BaseRegistrationInput
 					new TypeReference<List<Attribute>>(){});
 			setAttributes(r);	
 		}
-		
-
+	
 		n = root.get("Comments");
 		if (n != null && !n.isNull())
 			setComments(n.asText());
@@ -222,23 +234,17 @@ public class BaseRegistrationInput
 		n = root.get("UserLocale");
 		if (n != null && !n.isNull())
 			setUserLocale(n.asText());
+		
+		n = root.get("RegistrationCode");
+		if (n != null && !n.isNull())
+			setRegistrationCode(n.asText());
 	}
-	
+
 	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((agreements == null) ? 0 : agreements.hashCode());
-		result = prime * result + ((attributes == null) ? 0 : attributes.hashCode());
-		result = prime * result + ((comments == null) ? 0 : comments.hashCode());
-		result = prime * result + ((credentials == null) ? 0 : credentials.hashCode());
-		result = prime * result + ((formId == null) ? 0 : formId.hashCode());
-		result = prime * result
-				+ ((groupSelections == null) ? 0 : groupSelections.hashCode());
-		result = prime * result + ((identities == null) ? 0 : identities.hashCode());
-		result = prime * result + ((userLocale == null) ? 0 : userLocale.hashCode());
-		return result;
+		return Objects.hash(agreements, attributes, comments, credentials, formId, groupSelections, identities,
+				userLocale, registrationCode);
 	}
 
 	@Override
@@ -251,54 +257,15 @@ public class BaseRegistrationInput
 		if (getClass() != obj.getClass())
 			return false;
 		BaseRegistrationInput other = (BaseRegistrationInput) obj;
-		if (agreements == null)
-		{
-			if (other.agreements != null)
-				return false;
-		} else if (!agreements.equals(other.agreements))
-			return false;
-		if (attributes == null)
-		{
-			if (other.attributes != null)
-				return false;
-		} else if (!attributes.equals(other.attributes))
-			return false;
-		if (comments == null)
-		{
-			if (other.comments != null)
-				return false;
-		} else if (!comments.equals(other.comments))
-			return false;
-		if (credentials == null)
-		{
-			if (other.credentials != null)
-				return false;
-		} else if (!credentials.equals(other.credentials))
-			return false;
-		if (formId == null)
-		{
-			if (other.formId != null)
-				return false;
-		} else if (!formId.equals(other.formId))
-			return false;
-		if (groupSelections == null)
-		{
-			if (other.groupSelections != null)
-				return false;
-		} else if (!groupSelections.equals(other.groupSelections))
-			return false;
-		if (identities == null)
-		{
-			if (other.identities != null)
-				return false;
-		} else if (!identities.equals(other.identities))
-			return false;
-		if (userLocale == null)
-		{
-			if (other.userLocale != null)
-				return false;
-		} else if (!userLocale.equals(other.userLocale))
-			return false;
-		return true;
+		return Objects.equals(this.agreements, other.agreements)
+				&& Objects.equals(this.attributes, other.attributes)
+				&& Objects.equals(this.comments, other.comments)
+				&& Objects.equals(this.credentials, other.credentials)
+				&& Objects.equals(this.formId, other.formId)
+				&& Objects.equals(this.groupSelections, other.groupSelections)
+				&& Objects.equals(this.identities, other.identities)
+				&& Objects.equals(this.userLocale, other.userLocale)
+				&& Objects.equals(this.registrationCode, other.registrationCode);
+
 	}
 }

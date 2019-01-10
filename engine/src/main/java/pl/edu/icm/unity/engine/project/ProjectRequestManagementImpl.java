@@ -35,6 +35,7 @@ import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -150,6 +151,14 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		authz.checkManagerAuthorization(projectPath);
 		String enquiryFormId = getProjectDelegationConfig(projectPath).signupEnquiryForm;
 		if (enquiryFormId == null)
+			return Optional.empty();
+		
+		
+		EnquiryForm enquiryForm = enquiryMan.getEnquires().stream()
+				.collect(Collectors.toMap(EnquiryForm::getName, Function.identity()))
+				.get(enquiryFormId);
+		
+		if(enquiryForm.isByInvitationOnly())
 			return Optional.empty();
 		
 		return Optional.ofNullable(

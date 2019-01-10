@@ -22,14 +22,15 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class InvitationTest
 {
 	@Test
 	public void mnimalFormSerializationIsIdempotent()
 	{
-		InvitationWithCode minimal = new InvitationWithCode(
-				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), null, "registrationCode");
+		InvitationWithCode minimal = new InvitationWithCode(new RegistrationInvitationParam(
+				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), null), "registrationCode");
 		
 		String jsonStr = JsonUtil.toJsonString(minimal);
 		InvitationWithCode minimalParsed = JsonUtil.parse(jsonStr, 
@@ -41,17 +42,17 @@ public class InvitationTest
 	@Test
 	public void completeFormSerializationIsIdempotent()
 	{
-		InvitationWithCode complete = new InvitationWithCode(
-				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), "add", "registrationCode");
+		InvitationWithCode complete = new InvitationWithCode(new RegistrationInvitationParam(
+				"formId", Instant.now().truncatedTo(ChronoUnit.SECONDS), "add"), "registrationCode");
 		List<String> vals = new ArrayList<>();
 		vals.add("value");
 		Attribute attrP = new Attribute("attr", "string", "/", vals);
-		complete.getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
-		complete.getIdentities().put(0, new PrefilledEntry<>(new IdentityParam("idType", 
+		complete.getInvitation().getAttributes().put(0, new PrefilledEntry<>(attrP, PrefilledEntryMode.READ_ONLY));
+		complete.getInvitation().getIdentities().put(0, new PrefilledEntry<>(new IdentityParam("idType", 
 				"user-id"), PrefilledEntryMode.READ_ONLY));
-		complete.getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/foo"), 
+		complete.getInvitation().getGroupSelections().put(0, new PrefilledEntry<>(new GroupSelection("/foo"), 
 				PrefilledEntryMode.READ_ONLY));
-		complete.getAllowedGroups().put(0, new GroupSelection(Arrays.asList("/foo","/bar")));
+		complete.getInvitation().getAllowedGroups().put(0, new GroupSelection(Arrays.asList("/foo","/bar")));
 		
 		String jsonStr = JsonUtil.toJsonString(complete);
 		

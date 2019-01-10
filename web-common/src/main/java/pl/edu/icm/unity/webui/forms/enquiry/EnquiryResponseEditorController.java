@@ -106,11 +106,17 @@ public class EnquiryResponseEditorController
 	}
 
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
-			RemotelyAuthenticatedContext remoteContext) throws Exception
+			RemotelyAuthenticatedContext remoteContext, PrefilledSet set) throws Exception
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, getPrefilledForSticky(form));
+				attributeHandlerRegistry, atMan, credMan, groupsMan, set);
+	}
+	
+	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
+			RemotelyAuthenticatedContext remoteContext) throws Exception
+	{
+		return getEditorInstance(form, remoteContext, getPrefilledForSticky(form));
 	}
 	
 	public EnquiryResponseEditor getEditorInstance(String form, 
@@ -230,7 +236,7 @@ public class EnquiryResponseEditorController
 		List<EnquiryForm> ret = new ArrayList<>();
 		try
 		{
-			ret.addAll(enquiryManagement.getStickyEnquires(entity));
+			ret.addAll(enquiryManagement.getAvailableStickyEnquires(entity));
 		} catch (EngineException e)
 		{
 			log.error("Can't load sticky enquiry forms", e);

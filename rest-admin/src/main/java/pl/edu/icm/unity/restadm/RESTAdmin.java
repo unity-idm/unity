@@ -94,8 +94,11 @@ import pl.edu.icm.unity.types.endpoint.EndpointConfiguration;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**
@@ -791,8 +794,8 @@ public class RESTAdmin
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String addInvitation(String jsonInvitation) throws EngineException, IOException
-	{
-		InvitationParam invitationParam = JsonUtil.parse(jsonInvitation, InvitationParam.class);
+	{	
+		InvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
 		return invitationMan.addInvitation(invitationParam);
 	}
 	
@@ -801,9 +804,29 @@ public class RESTAdmin
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateInvitation(@PathParam("code") String code, String jsonInvitation) throws EngineException, IOException
 	{
-		InvitationParam invitationParam = JsonUtil.parse(jsonInvitation, InvitationParam.class);
+		InvitationParam invitationParam = getInvitationFromJson(jsonInvitation);
 		invitationMan.updateInvitation(code, invitationParam);
 	}	
+	
+	private InvitationParam getInvitationFromJson(String jsonInvitation) throws WrongArgumentException
+	{
+		ObjectNode invNode = JsonUtil.parse(jsonInvitation);
+		JsonNode itype = invNode.get("type");
+		if (itype == null)
+		{
+			throw new WrongArgumentException("Invitation param does not have defined type");
+		}
+
+		InvitationType type = InvitationType.valueOf(invNode.get("type").asText());
+	
+		if (type.equals(InvitationType.REGISTRATION))
+		{
+			return new RegistrationInvitationParam(invNode);
+		} else
+		{
+			return new EnquiryInvitationParam(invNode);
+		}
+	}
 	
 	@Path("/bulkProcessing/instant")
 	@POST

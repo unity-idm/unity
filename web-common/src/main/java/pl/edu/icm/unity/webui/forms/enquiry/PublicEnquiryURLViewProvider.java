@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webui.forms.reg;
+package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.List;
 import java.util.Objects;
@@ -20,10 +20,12 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
 
 /**
@@ -31,25 +33,20 @@ import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
  * @author K. Benedyczak
  */
 @Component
-public class PublicRegistrationURLProvider implements PublicViewProvider
+public class PublicEnquiryURLViewProvider implements PublicViewProvider
 {
-	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, PublicRegistrationURLProvider.class);
-	private RegistrationsManagement regMan;
-	private ObjectFactory<StandaloneRegistrationView> viewFactory;
-	
-	/**
-	 * @implNote: due to changes in the enquiry links, below format was kept for
-	 *            backwards compatibility reasons.
-	 */
-	@Deprecated
-	private static final String REGISTRATION_FRAGMENT_PREFIX = "registration-";
+	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, PublicEnquiryURLViewProvider.class);
+	private EnquiryManagement enqMan;
+
+	private ObjectFactory<StandalonePublicEnquiryView> viewFactory;
 	
 	@Autowired
-	public PublicRegistrationURLProvider(
-			@Qualifier("insecure") RegistrationsManagement regMan,
-			ObjectFactory<StandaloneRegistrationView> viewFactory)
+	public PublicEnquiryURLViewProvider(
+			@Qualifier("insecure") EnquiryManagement enqMan,
+			ObjectFactory<StandalonePublicEnquiryView> viewFactory, UnityMessageSource msg)
+		
 	{
-		this.regMan = regMan;
+		this.enqMan = enqMan;
 		this.viewFactory = viewFactory;
 	}
 
@@ -60,7 +57,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		if (formName == null)
 			return null;
 		
-		RegistrationForm form = getForm(formName);
+		EnquiryForm form = getForm(formName);
 		if (form == null)
 			return null;
 		
@@ -71,40 +68,38 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	public View getView(String viewName)
 	{
 		String formName = getFormName(viewName);
-		RegistrationForm form = getForm(formName);
+		EnquiryForm form = getForm(formName);
 		if (form == null)
-			return null;
-		StandaloneRegistrationView view = viewFactory.getObject().init(form);
+			return null;		
+		
+		StandalonePublicEnquiryView view = viewFactory.getObject().init(form);
+	
 		VaadinSession vaadinSession = VaadinSession.getCurrent();
 		if (vaadinSession != null)
 		{
-			vaadinSession.setAttribute(StandaloneRegistrationView.class, view);
+			vaadinSession.setAttribute(StandalonePublicEnquiryView.class, view);
 		}
 		return view;
 	}
 
 	private String getFormName(String viewAndParameters)
 	{
-		if (PublicRegistrationURLSupport.REGISTRATION_VIEW.equals(viewAndParameters))
+		if (PublicRegistrationURLSupport.ENQUIRY_VIEW.equals(viewAndParameters))
 			return RegistrationFormDialogProvider.getFormFromURL();
-		
-		if (viewAndParameters.startsWith(REGISTRATION_FRAGMENT_PREFIX))
-			return viewAndParameters.substring(REGISTRATION_FRAGMENT_PREFIX.length());
-		
 		return null;
 	}
 	
-	private RegistrationForm getForm(String name)
+	private EnquiryForm getForm(String name)
 	{
 		try
 		{
-			List<RegistrationForm> forms = regMan.getForms();
-			for (RegistrationForm regForm: forms)
-				if (regForm.isPubliclyAvailable() && regForm.getName().equals(name))
-					return regForm;
+			List<EnquiryForm> forms = enqMan.getEnquires();
+			for (EnquiryForm enqForm: forms)
+				if (enqForm.getName().equals(name))
+					return enqForm;
 		} catch (EngineException e)
 		{
-			LOG.error("Can't load registration forms", e);
+			LOG.error("Can't load enquiry forms", e);
 		}
 		return null;
 	}
@@ -116,10 +111,10 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		VaadinSession vaadinSession = VaadinSession.getCurrent();
 		if (vaadinSession != null)
 		{
-			StandaloneRegistrationView view = vaadinSession.getAttribute(StandaloneRegistrationView.class);
+			StandalonePublicEnquiryView view = vaadinSession.getAttribute(StandalonePublicEnquiryView.class);
 			if (view != null)
 			{
-				LOG.debug("Registration form refreshed");
+				LOG.debug("Enquiry form refreshed");
 				String viewName = getCurrentViewName();
 				String requestedFormName = getFormName(getCurrentViewName());
 				String cachedFormName = view.getFormName();
@@ -127,7 +122,6 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 				{
 					view.refresh(request);
 				}
-				
 				else
 				{
 					navigator.navigateTo(viewName);
@@ -143,4 +137,6 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 			viewName = viewName.substring(1);
 		return viewName;
 	}
+	
+	
 }

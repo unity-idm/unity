@@ -67,6 +67,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private GroupsSelectionList targetGroups;
 	private EnquiryFormNotificationsEditor notificationsEditor;
 	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
+	private CheckBox byInvitationOnly;
 	
 	private RegistrationActionsRegistry actionsRegistry;
 	private ActionParameterComponentProvider actionComponentProvider;
@@ -132,6 +133,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withFormLayoutSettings(settings);
 		
 		builder.withLayout(layoutEditor.getLayout());
+		builder.withByInvitationOnly(byInvitationOnly.getValue());
 		
 		EnquiryForm form = builder.build();
 		try
@@ -170,6 +172,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		layoutEditor.setLayout(toEdit.getLayout());
 		if (!copyMode)
 			ignoreRequests.setVisible(true);
+		byInvitationOnly.setValue(toEdit.isByInvitationOnly());	
 	}
 	
 	private void initMainTab() throws EngineException
@@ -208,7 +211,9 @@ public class EnquiryFormEditor extends BaseFormEditor
 		targetGroups.setInput("/", true);
 		targetGroups.setRequiredIndicatorVisible(true);
 		
-		main.addComponents(enquiryType, targetGroups);
+		byInvitationOnly = new CheckBox(msg.getMessage("RegistrationFormEditor.byInvitationOnly"));
+		
+		main.addComponents(enquiryType, byInvitationOnly, targetGroups);
 		
 		notificationsEditor.addToLayout(main);
 	}

@@ -20,13 +20,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.collect.Lists;
+
 import pl.edu.icm.unity.store.StorageCleanerImpl;
 import pl.edu.icm.unity.store.api.ImportExport;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
+import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -47,6 +53,9 @@ public class TestMigrationFrom2_7
 	
 	@Autowired
 	private EnquiryResponseDB enquiryResponseDB;
+	
+	@Autowired
+	private InvitationDB invitationDB;
 	
 	@Before
 	public void cleanDB()
@@ -75,6 +84,27 @@ public class TestMigrationFrom2_7
 		});
 	}
 	
+	@Test
+	public void testImportFrom2_7_5()
+	{
+		tx.runInTransaction(() -> {
+			try
+			{
+				ie.load(new BufferedInputStream(new FileInputStream(
+						"src/test/resources/updateData/from2.7.x/"
+						+ "testbed-from-2.7.5-withInvitation.json")));
+				ie.store(new FileOutputStream("target/afterImport.json"));
+			} catch (Exception e)
+			{
+				e.printStackTrace();
+				fail("Import failed " + e);
+			}
+
+			checkInvitations();
+		});
+	}
+	
+	
 	private void checkRequests()
 	{
 		List<RegistrationRequestState> all = regRequestDB.getAll();
@@ -93,4 +123,19 @@ public class TestMigrationFrom2_7
 		EnquiryResponseState req1 = all.get(0);
 		assertThat(req1.getRegistrationContext().triggeringMode, is(TriggeringMode.afterRemoteLoginWhenUnknownUser));
 	}
+	
+	private void checkInvitations()
+	{
+		List<InvitationWithCode> all = invitationDB.getAll();
+		assertThat(all.size(), is(1));
+		
+		InvitationWithCode i = all.get(0);
+		InvitationParam i1 = i.getInvitation();
+		assertThat(i1.getType(), is(InvitationType.REGISTRATION));
+		assertThat(i1.getGroupSelections().size(), is(2));
+		assertThat(i1.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
+		assertThat(i1.getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B")));
+
+	}
+	
 }

@@ -125,7 +125,7 @@ public interface EnquiryManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	List<EnquiryForm> getStickyEnquires(EntityParam entity) throws EngineException;
+	List<EnquiryForm> getAvailableStickyEnquires(EntityParam entity) throws EngineException;
 
 	/**
 	 * 

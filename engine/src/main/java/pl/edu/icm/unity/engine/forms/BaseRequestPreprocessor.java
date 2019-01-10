@@ -5,13 +5,17 @@
 package pl.edu.icm.unity.engine.forms;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
@@ -32,6 +36,7 @@ import pl.edu.icm.unity.exceptions.IllegalFormContentsException.Category;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
+import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -51,6 +56,9 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.RegistrationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 /**
  * Helper component with methods to validate {@link BaseRegistrationInput}. 
@@ -58,6 +66,9 @@ import pl.edu.icm.unity.types.registration.RegistrationParam;
  */
 public class BaseRequestPreprocessor
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER,
+			BaseRequestPreprocessor.class);
+	
 	@Autowired
 	private CredentialRepository credentialRepository;
 	@Autowired
@@ -74,6 +85,8 @@ public class BaseRequestPreprocessor
 	protected IdentityTypesRegistry identityTypesRegistry;
 	@Autowired
 	private LocalCredentialsRegistry authnRegistry;
+	@Autowired
+	private InvitationDB invitationDB;
 	
 	public void validateSubmittedRequest(BaseForm form, BaseRegistrationInput request, 
 			InvitationPrefillInfo prefillInfo,
@@ -377,4 +390,60 @@ public class BaseRequestPreprocessor
 				throw new IllegalFormContentsException("The parameter nr " + (i + 1)
 						+ " of " + info + " is required", i, category);
 	}
+	
+	protected InvitationWithCode getInvitation(String codeFromRequest) throws IllegalFormContentsException
+	{
+		try
+		{
+			return invitationDB.get(codeFromRequest);
+		} catch (Exception e)
+		{
+			throw new IllegalFormContentsException("The provided registration code is invalid", e);
+		}
+	}
+	
+	protected void removeInvitation(String codeFromRequest)
+	{	
+		 invitationDB.delete(codeFromRequest);	
+	}
+	
+	protected <T> void processInvitationElements(List<? extends RegistrationParam> paramDef,
+			List<T> requested, Map<Integer, PrefilledEntry<T>> fromInvitation, String elementName,
+			Comparator<T> entryComparator,
+			Consumer<Integer> prefilledRecorder) 
+					throws IllegalFormContentsException
+	{
+		validateParamsCount(paramDef, requested, elementName);
+		for (Map.Entry<Integer, PrefilledEntry<T>> invitationPrefilledEntry : fromInvitation.entrySet())
+		{
+			if (invitationPrefilledEntry.getKey() >= requested.size())
+			{
+				log.warn("Invitation has " + elementName + 
+						" parameter beyond form limit, skipping it: " + invitationPrefilledEntry.getKey());
+				continue;
+			}
+			
+			T invitationEntity = invitationPrefilledEntry.getValue().getEntry();
+			if (invitationPrefilledEntry.getValue().getMode() == PrefilledEntryMode.DEFAULT)
+			{
+				if (requested.get(invitationPrefilledEntry.getKey()) == null)
+					requested.set(invitationPrefilledEntry.getKey(), invitationEntity);
+			} else
+			{
+				T requestedEntity = requested.get(invitationPrefilledEntry.getKey());
+				if (requestedEntity != null)
+				{
+					if (entryComparator != null && entryComparator.compare(invitationEntity, requestedEntity) == 0)
+						continue;
+					
+					throw new IllegalFormContentsException("Registration request can not override " 
+							+ elementName +	" " + invitationPrefilledEntry.getKey() + 
+							" specified in invitation");
+				}
+				requested.set(invitationPrefilledEntry.getKey(), invitationEntity);
+				prefilledRecorder.accept(invitationPrefilledEntry.getKey());
+			}
+		}
+	}
+	
 }

@@ -39,6 +39,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class TestInvitations extends DBIntegrationTestBase
 {
@@ -143,7 +144,9 @@ public class TestInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldReturnUpdatedInvitation() throws EngineException
 	{
-		InvitationParam invitation = getAttributeInvitation();
+		InvitationWithCode invitationWithCode = getAttributeInvitation();
+		InvitationParam invitation = invitationWithCode.getInvitation();
+		
 		registrationsMan.addForm(new RegistrationFormBuilder()
 				.withName("form")
 				.withPubliclyAvailable(true)
@@ -156,7 +159,7 @@ public class TestInvitations extends DBIntegrationTestBase
 		invitationMan.updateInvitation(code, invitation);
 		
 		InvitationWithCode returnedInvitation = invitationMan.getInvitation(code);
-		assertThat(returnedInvitation.getMessageParams().get("added"), is("param"));
+		assertThat(returnedInvitation.getInvitation().getMessageParams().get("added"), is("param"));
 	}
 	
 	private RegistrationForm getIdentityForm(ConfirmationMode confirmationMode)
@@ -178,7 +181,7 @@ public class TestInvitations extends DBIntegrationTestBase
 		IdentityParam identity = new IdentityParam(EmailIdentity.ID, "test@example.com");
 		identity.setConfirmationInfo(new ConfirmationInfo(true));
 		String invitationCode = "code";
-		InvitationParam invitation = InvitationParam.builder()
+		InvitationParam invitation = RegistrationInvitationParam.builder()
 			.withForm("form")
 			.withIdentity(identity, PrefilledEntryMode.HIDDEN)
 			.withExpiration(Instant.now().plusSeconds(1000))
@@ -205,7 +208,7 @@ public class TestInvitations extends DBIntegrationTestBase
 		Attribute email = VerifiableEmailAttribute.of("email", "/", 
 				new VerifiableEmail("test@example.com", new ConfirmationInfo(true)));
 		String invitationCode = "code";
-		InvitationParam invitation = InvitationParam.builder()
+		InvitationParam invitation = RegistrationInvitationParam.builder()
 			.withForm("form")
 			.withAttribute(email, PrefilledEntryMode.HIDDEN)
 			.withExpiration(Instant.now().plusSeconds(1000))

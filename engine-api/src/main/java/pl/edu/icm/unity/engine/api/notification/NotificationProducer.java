@@ -62,4 +62,15 @@ public interface NotificationProducer
 	 */
 	void sendNotificationToGroup(String group, String templateId, Map<String, String> params,
 			String locale) throws EngineException;
+	
+	
+	/**
+	 * 
+	 * @param recipient
+	 * @param templateId
+	 * @param onlyConfirmed
+	 * @return
+	 * @throws EngineException 
+	 */
+	String getAddressForEntity(EntityParam recipient, String templateId, boolean onlyConfirmed) throws EngineException;
 }

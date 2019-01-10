@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
@@ -73,6 +74,7 @@ public class ProjectAttributeHelper
 		return Optional.empty();
 	}
 
+	@Transactional
 	public String searchAttributeValueByMeta(String metadata, Collection<Attribute> list) throws EngineException
 	{
 		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);
@@ -104,6 +106,7 @@ public class ProjectAttributeHelper
 		return value;
 	}
 
+	@Transactional
 	private AttributeValueSyntax<?> getAttributeSyntaxSafe(String attributeName)
 	{
 		try
@@ -117,6 +120,7 @@ public class ProjectAttributeHelper
 		}
 	}
 
+	@Transactional
 	public String getAttributeFromMeta(long entityId, String path, String metadata) throws EngineException
 	{
 		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);

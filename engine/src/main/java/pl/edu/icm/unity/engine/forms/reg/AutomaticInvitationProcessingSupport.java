@@ -34,6 +34,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 /**
@@ -128,13 +129,15 @@ class AutomaticInvitationProcessingSupport
 		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
 		List<InvitationWithCode> invitationsToProcess = invitationManagement.getInvitations().stream()
 			.filter(byGivenFormOrAllIfEmpty(invitationProcessing.getFormName()))
-			.filter(invitation -> contactAddress.equals(invitation.getContactAddress()))
+			.filter(invitation -> contactAddress.equals(invitation.getInvitation().getContactAddress()))
 			.collect(Collectors.toList());
 		Map<String, RegistrationForm> registrationFormById = Maps.newHashMap();
 		
 		CollectedFromInvitationsContainer collected = new CollectedFromInvitationsContainer();
-		for (InvitationWithCode invitation : invitationsToProcess)
+		for (InvitationWithCode invitationWithCode : invitationsToProcess)
 		{
+			InvitationParam invitation = invitationWithCode.getInvitation();
+			
 			RegistrationForm invitationRegistrationForm = registrationFormById.get(invitation.getFormId());
 			if (invitationRegistrationForm == null)
 			{
@@ -145,7 +148,7 @@ class AutomaticInvitationProcessingSupport
 			collected.attributes.addAll(prefilledAttrs);
 			List<GroupParam> prefilledGroups = RegistrationUtil.getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm);
 			collected.groups.addAll(prefilledGroups);
-			collected.registrationCodes.add(invitation.getRegistrationCode());
+			collected.registrationCodes.add(invitationWithCode.getRegistrationCode());
 		}
 		return collected;
 	}
@@ -164,7 +167,7 @@ class AutomaticInvitationProcessingSupport
 		{
 			if (Strings.isNullOrEmpty(formName))
 				return true;
-			return formName.equals(invitation.getFormId());
+			return formName.equals(invitation.getInvitation().getFormId());
 		};
 	}
 }

@@ -42,7 +42,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
 import pl.edu.icm.unity.types.registration.layout.FormLayout;
@@ -82,7 +82,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private TextField registrationCode;
 	private CaptchaComponent captcha;
 	private String regCodeProvided;
-	private InvitationWithCode invitation;
+	private RegistrationInvitationParam invitation;
 	private AuthenticatorSupportService authnSupport;
 	private SignUpAuthNController signUpAuthNController;
 	private Map<AuthenticationOptionKey, SignUpAuthNOption> signupOptions;
@@ -102,7 +102,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
 			GroupsManagement groupsMan, 
-			String registrationCode, InvitationWithCode invitation, 
+			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
 			SignUpAuthNController signUpAuthNController) throws AuthenticationException
 	{
@@ -110,7 +110,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
-		this.invitation = invitation;
+		this.invitation = invitation2;
 		this.signUpAuthNController = signUpAuthNController;
 		this.authnSupport = authnSupport;
 	}
@@ -202,13 +202,15 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	private void initUI()
 	{
 		layoutContainer = createLayouts();
-		
+
 		resolveRemoteSignupOptions();
 		PrefilledSet prefilled = new PrefilledSet();
 		if (invitation != null)
-		{ 
-			prefilled = new PrefilledSet(invitation.getIdentities(), invitation.getGroupSelections(),
-				invitation.getAttributes(), invitation.getAllowedGroups());
+		{
+			prefilled = new PrefilledSet(invitation.getIdentities(),
+					invitation.getGroupSelections(),
+					invitation.getAttributes(),
+					invitation.getAllowedGroups());
 		}
 		createControls(layoutContainer, effectiveLayout, prefilled);
 	}
@@ -292,7 +294,9 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 
 	private void setupExpectedIdentity(VaadinAuthenticationUI vaadinAuthenticationUI)
 	{
-		if (invitation != null && invitation.getExpectedIdentity() != null)
+		if (invitation == null)
+			return;
+		if (invitation.getExpectedIdentity() != null)
 			vaadinAuthenticationUI.setExpectedIdentity(invitation.getExpectedIdentity());
 	}
 	

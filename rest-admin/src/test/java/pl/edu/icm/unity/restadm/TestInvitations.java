@@ -49,6 +49,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 /**
  * Invitations management test
@@ -175,7 +176,7 @@ public class TestInvitations extends RESTAdminTestBase
 	
 	private InvitationParam createInvitation()
 	{
-		InvitationParam ret = new InvitationParam("exForm", 
+		InvitationParam ret = new RegistrationInvitationParam("exForm", 
 				Instant.now().plusSeconds(200).truncatedTo(ChronoUnit.SECONDS), 
 				"someAddr@example.com");
 		Attribute attrP = StringAttribute.of("cn", "/", "value");

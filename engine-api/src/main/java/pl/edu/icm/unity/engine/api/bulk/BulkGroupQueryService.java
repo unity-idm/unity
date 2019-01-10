@@ -35,4 +35,6 @@ public interface BulkGroupQueryService
 	 * objects with group's metadata and subgroups (but without members)
 	 */
 	Map<String, GroupContents> getGroupAndSubgroups(GroupStructuralData dataO);
+	
+	Map<Long, GroupMembershipInfo> getMembershipInfo(GroupMembershipData dataO);
 }

@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.reg.invitation;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -18,14 +19,23 @@ import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
@@ -52,30 +62,43 @@ public class InvitationsTable extends CustomComponent
 	private UnityMessageSource msg;
 	private Grid<TableInvitationBean> invitationsTable;
 	private RegistrationsManagement registrationManagement;
+	private EnquiryManagement enquiryManagement;
 	private InvitationManagement invitationManagement;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private AttributeTypeManagement attributesManagement;
 	private MessageTemplateManagement msgTemplateManagement;
 	private GroupsManagement groupsManagement;
+	private NotificationProducer notificationsProducer;
+	private BulkGroupQueryService bulkQuery;
+	private AttributeSupport attributeSupport;
+	
 	
 	public InvitationsTable(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
+			EnquiryManagement enquiryManagement,
 			InvitationManagement invitationManagement,
 			AttributeTypeManagement attributesManagement,
 			IdentityEditorRegistry identityEditorRegistry,
 			AttributeHandlerRegistry attrHandlersRegistry,
 			MessageTemplateManagement msgTemplateManagement,
-			GroupsManagement groupsManagement)
+			GroupsManagement groupsManagement,
+			NotificationProducer notificationsProducer,
+			BulkGroupQueryService bulkQuery,
+			AttributeSupport attributeSupport)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
+		this.enquiryManagement = enquiryManagement;
 		this.invitationManagement = invitationManagement;
 		this.attributesManagement = attributesManagement;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.msgTemplateManagement = msgTemplateManagement;
 		this.groupsManagement = groupsManagement;
+		this.notificationsProducer = notificationsProducer;
+		this.bulkQuery = bulkQuery;
+		this.attributeSupport = attributeSupport;
 		initUI();
 	}
 
@@ -84,6 +107,10 @@ public class InvitationsTable extends CustomComponent
 		invitationsTable = new SmallGrid<>();
 		invitationsTable.setSizeFull();
 		invitationsTable.setSelectionMode(SelectionMode.MULTI);
+		
+		invitationsTable.addColumn(TableInvitationBean::getType, ValueProvider.identity())
+		.setCaption(msg.getMessage("InvitationsTable.type"))
+		.setId("type");
 		
 		invitationsTable.addColumn(TableInvitationBean::getForm, ValueProvider.identity())
 			.setCaption(msg.getMessage("InvitationsTable.form"))
@@ -124,7 +151,7 @@ public class InvitationsTable extends CustomComponent
 		invitationsTable.addSelectionListener(event ->
 		{
 			TableInvitationBean selected = getOnlyOneSelected();
-			listener.invitationChanged(selected == null ? null : selected.invitation);
+			listener.invitationChanged(selected == null ? null : selected.invitationWithCode);
 		});
 	}
 	
@@ -205,7 +232,12 @@ public class InvitationsTable extends CustomComponent
 		}
 	}
 	
-	private Collection<RegistrationForm> getForms() throws EngineException
+	private Collection<EnquiryForm> getEnquiryForms() throws EngineException
+	{
+		return enquiryManagement.getEnquires();
+	}
+	
+	private Collection<RegistrationForm> getRegistrationForms() throws EngineException
 	{
 		return registrationManagement.getForms();
 	}
@@ -225,7 +257,7 @@ public class InvitationsTable extends CustomComponent
 			TableInvitationBean selected = getOnlyOneSelected();
 			List<TableInvitationBean> invitations = invitationManagement.getInvitations()
 					.stream()
-					.map(invitation -> new TableInvitationBean(invitation))
+					.map(invitation -> new TableInvitationBean(msg, invitation))
 					.collect(Collectors.toList());
 			invitationsTable.setItems(invitations);
 			if (selected != null)
@@ -259,10 +291,10 @@ public class InvitationsTable extends CustomComponent
 		InvitationEditor editor;
 		try
 		{
-			editor = new InvitationEditor(msg, identityEditorRegistry,
-					attrHandlersRegistry, msgTemplateManagement.listTemplates(),
-					getForms(), attributesManagement.getAttributeTypesAsMap(),
-					groupsManagement.getGroupsByWildcard("/**"),
+			editor = new InvitationEditor(msg, identityEditorRegistry, attrHandlersRegistry,
+					msgTemplateManagement.listTemplates(), getRegistrationForms(),
+					getEnquiryForms(), attributesManagement.getAttributeTypesAsMap(),
+					notificationsProducer, getEntities(), getNameAttribute(), groupsManagement.getGroupsByWildcard("/**"),
 					msgTemplateManagement);
 		} catch (WrongArgumentException e)
 		{
@@ -278,6 +310,21 @@ public class InvitationsTable extends CustomComponent
 				msg.getMessage("InvitationsTable.addInvitationAction"), editor, 
 				(invitation, sendInvitation) -> addInvitation(invitation, sendInvitation));
 		dialog.show();
+	}
+
+	
+	private Map<Long, GroupMembershipInfo> getEntities() throws EngineException
+	{
+		GroupMembershipData bulkMembershipData = bulkQuery.getBulkMembershipData("/");
+		return bulkQuery.getMembershipInfo(bulkMembershipData);
+	}
+	
+	private String getNameAttribute() throws EngineException
+	{
+		AttributeType type = attributeSupport.getAttributeTypeWithSingeltonMetadata(EntityNameMetadataProvider.NAME);
+		if (type == null)
+			return null;
+		return type.getName();
 	}
 	
 	private SingleActionHandler<TableInvitationBean> getDeleteAction()
@@ -303,13 +350,23 @@ public class InvitationsTable extends CustomComponent
 
 	public static class TableInvitationBean
 	{
-		private InvitationWithCode invitation;
+		private UnityMessageSource msg;
+		private InvitationWithCode invitationWithCode;
+		private InvitationParam invitation;
 		
-		public TableInvitationBean(InvitationWithCode invitation)
+		public TableInvitationBean(UnityMessageSource msg, InvitationWithCode invitationWithCode)
 		{
-			this.invitation = invitation;
+			this.invitationWithCode = invitationWithCode;
+			this.invitation = invitationWithCode.getInvitation();
+			this.msg = msg;
 		}
 
+		
+		public String getType()
+		{
+			return msg.getMessage("InvitationType." + invitation.getType().toString().toLowerCase());
+		}
+		
 		public String getForm()
 		{
 			return invitation.getFormId();
@@ -317,7 +374,7 @@ public class InvitationsTable extends CustomComponent
 		
 		public String getCode()
 		{
-			return invitation.getRegistrationCode();
+			return invitationWithCode.getRegistrationCode();
 		}
 		
 		public String getExpiration()
@@ -340,5 +397,4 @@ public class InvitationsTable extends CustomComponent
 	{
 		void invitationChanged(InvitationWithCode invitation);
 	}
-
 }

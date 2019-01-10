@@ -29,11 +29,11 @@ public class ProjectInvitation extends ProjectInvitationParam
 	public ProjectInvitation(String project, InvitationWithCode org, String link)
 	{
 
-		super(project, org.getContactAddress(),
-				org.getAllowedGroups() != null && !org.getAllowedGroups().isEmpty()
-						? org.getAllowedGroups().get(0).getSelectedGroups()
+		super(project, org.getInvitation().getContactAddress(), org.getInvitation().getAllowedGroups() != null
+				&& !org.getInvitation().getAllowedGroups().isEmpty()
+						? org.getInvitation().getAllowedGroups().get(0).getSelectedGroups()
 						: null,
-				org.getExpiration());
+				org.getInvitation().getExpiration());
 		this.registrationCode = org.getRegistrationCode();
 		this.lastSentTime = org.getLastSentTime();
 		this.numberOfSends = org.getNumberOfSends();

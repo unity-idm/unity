@@ -49,6 +49,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 
@@ -76,7 +77,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void addedInvitationIsReturned() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100).
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100).
 				truncatedTo(ChronoUnit.SECONDS));
 		String code = invitationMan.addInvitation(invitation);
 		InvitationWithCode invitationEnh = new InvitationWithCode(invitation, code, null, 0);
@@ -90,7 +91,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void removedInvitationIsNotReturned() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		String code = invitationMan.addInvitation(invitation);
 		
 		invitationMan.removeInvitation(code);
@@ -106,7 +107,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 		notMan.removeNotificationChannel(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
 		notMan.addNotificationChannel(new NotificationChannel(UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
 				"", "", MockNotificationFacility.NAME));
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100), 
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100), 
 				"someAddr");
 		String code = invitationMan.addInvitation(invitation);
 		mockNotificationFacility.resetSent();
@@ -127,7 +128,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void invitationIsDisposedAfterRequestSubmission() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
@@ -141,7 +142,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void invalidInvitationCodeIsNotAcceptedInRequest() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest("invalid");
 		
@@ -157,7 +158,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void expiredInvitationCodeIsNotAcceptedInRequest() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().minusMillis(1));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().minusMillis(1));
 		String code = invitationMan.addInvitation(invitation);
 		RegistrationRequest request = getRequest(code);
 		
@@ -173,7 +174,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void overridingMandatoryInvitationAttributeIsProhibited() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getAttributes().put(0, new PrefilledEntry<>(
 				VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 						"enforced@example.com"), PrefilledEntryMode.HIDDEN));
@@ -192,7 +193,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void overridingMandatoryInvitationIdentityIsProhibited() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getIdentities().put(0, new PrefilledEntry<>(
 				new IdentityParam(UsernameIdentity.ID, "some-user"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
@@ -210,7 +211,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void overridingMandatoryInvitationGroupIsProhibited() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getGroupSelections().put(0, new PrefilledEntry<>(
 				new GroupSelection("/A"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
@@ -228,7 +229,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationAttributeIsAdded() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getAttributes().put(0, new PrefilledEntry<>(
 				VerifiableEmailAttribute.of(InitializerCommon.EMAIL_ATTR, "/",
 						"enforced@example.com"), PrefilledEntryMode.HIDDEN));
@@ -249,7 +250,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationIdentityIsAdded() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getIdentities().put(0, new PrefilledEntry<>(
 				new IdentityParam(UsernameIdentity.ID, "some-user"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);
@@ -267,7 +268,7 @@ public class TestInvitations  extends DBIntegrationTestBase
 	public void mandatoryInvitationGroupIsAdded() throws Exception
 	{
 		initAndCreateForm(true);
-		InvitationParam invitation = new InvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
+		InvitationParam invitation = new RegistrationInvitationParam(TEST_FORM, Instant.now().plusSeconds(100));
 		invitation.getGroupSelections().put(0, new PrefilledEntry<>(
 				new GroupSelection("/A"), PrefilledEntryMode.READ_ONLY));
 		String code = invitationMan.addInvitation(invitation);

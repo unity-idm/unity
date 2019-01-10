@@ -21,6 +21,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
@@ -93,6 +94,25 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		for (Long entityId: data.getEntityInfo().keySet())
 			ret.put(entityId, getAllAttributesAsMap(entityId, group, data));
 		log.debug("Bulk attributes assembly: {}", watch.toString());
+		return ret;
+	}
+	
+	@Override
+	public Map<Long, GroupMembershipInfo> getMembershipInfo(GroupMembershipData dataO)
+	{
+		Stopwatch watch = Stopwatch.createStarted();
+		GroupMembershipDataImpl data = (GroupMembershipDataImpl) dataO;
+		Map<Long, Set<String>> memberships = data.getMemberships();
+		Map<Long, List<Identity>> identities = data.getIdentities();
+		Map<Long, Map<String, Map<String, AttributeExt>>> directAttributes = data.getDirectAttributes();
+		Map<Long, GroupMembershipInfo> ret = new HashMap<>();
+		
+		for (Long e : memberships.keySet())
+		{	
+			ret.put(e, new GroupMembershipInfo(e, identities.get(e), memberships.get(e), directAttributes.get(e)));
+		}
+		
+		log.debug("Bulk members with groups: {}", watch.toString());
 		return ret;
 	}
 

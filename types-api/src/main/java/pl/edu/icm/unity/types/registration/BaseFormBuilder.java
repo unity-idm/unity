@@ -29,6 +29,13 @@ public class BaseFormBuilder<T extends BaseFormBuilder<?>>
 	}
 
 	@SuppressWarnings("unchecked")
+	public T withByInvitationOnly(boolean aValue)
+	{
+		instance.setByInvitationOnly(aValue);
+		return (T) this;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public T withTranslationProfile(TranslationProfile profile)
 	{
 		instance.setTranslationProfile(profile);

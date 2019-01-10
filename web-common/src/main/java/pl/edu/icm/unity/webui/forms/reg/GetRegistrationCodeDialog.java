@@ -19,16 +19,21 @@ import pl.edu.icm.unity.webui.common.AbstractDialog;
  *
  * @author Krzysztof Benedyczak
  */
-class GetRegistrationCodeDialog extends AbstractDialog
+public class GetRegistrationCodeDialog extends AbstractDialog
 {
 	private TextField codeTextField;
 	private GetRegistrationCodeDialog.Callback callback;
 	private Binder<CodeBean> binder;
+	private String information;
+	private String codeCaption;
 
-	public GetRegistrationCodeDialog(UnityMessageSource msg, GetRegistrationCodeDialog.Callback callback)
+	public GetRegistrationCodeDialog(UnityMessageSource msg, GetRegistrationCodeDialog.Callback callback,
+			String title, String information, String codeCaption)
 	{
-		super(msg, msg.getMessage("GetRegistrationCodeDialog.title"));
+		super(msg, title);
 		this.callback = callback;
+		this.information = information;
+		this.codeCaption = codeCaption;
 		setSize(65, 40);
 	}
 	
@@ -37,10 +42,10 @@ class GetRegistrationCodeDialog extends AbstractDialog
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		main.addComponent(new Label(msg.getMessage("GetRegistrationCodeDialog.information")));
+		main.addComponent(new Label(information));
 		FormLayout sub = new FormLayout();
 		
-		codeTextField = new TextField(msg.getMessage("GetRegistrationCodeDialog.code"));
+		codeTextField = new TextField(codeCaption);
 		codeTextField.setWidth("70%");
 		binder = new Binder<>(CodeBean.class);
 		binder.forField(codeTextField)

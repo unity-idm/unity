@@ -48,6 +48,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestBuilder;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationAction;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
@@ -101,7 +102,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		createInvitationToAutoAccept(TEST_1_FORM);
 		
 		// invitation for manual submit
-		InvitationParam invitationToSubmit = InvitationParam.builder()
+		InvitationParam invitationToSubmit = RegistrationInvitationParam.builder()
 				.withForm(TEST_1_FORM)
 				.withExpiration(Instant.now().plusSeconds(100))
 				.build();
@@ -126,7 +127,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		createTestFormWithAutoAcceptInvitations(TEST_1_FORM, TEST_1_FORM);
 		
 		// invitation for auto processing
-		InvitationParam invitation = InvitationParam.builder()
+		InvitationParam invitation = RegistrationInvitationParam.builder()
 				.withForm(TEST_1_FORM)
 				.withContactAddress("email1@email.io")
 				.withExpiration(Instant.now().plusSeconds(100))
@@ -142,7 +143,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		invitationMan.addInvitation(invitation);
 		
 		// invitation for manual submit
-		InvitationParam invitationToSubmit = InvitationParam.builder()
+		InvitationParam invitationToSubmit = RegistrationInvitationParam.builder()
 				.withForm(TEST_1_FORM)
 				.withExpiration(Instant.now().plusSeconds(100))
 				.build();
@@ -178,7 +179,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		String codeOfAutoAcceptedInvitation = createInvitationToAutoAccept(TEST_1_FORM);
 		
 		// invitation for manual submit
-		InvitationParam invitationToSubmit = InvitationParam.builder()
+		InvitationParam invitationToSubmit = RegistrationInvitationParam.builder()
 				.withForm(TEST_1_FORM)
 				.withExpiration(Instant.now().plusSeconds(100))
 				.build();
@@ -224,7 +225,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		createInvitationToAutoAccept(TEST_2_FORM);
 		
 		// invitation for manual submit
-		InvitationParam invitationToSubmit = InvitationParam.builder()
+		InvitationParam invitationToSubmit = RegistrationInvitationParam.builder()
 				.withForm(TEST_1_FORM)
 				.withExpiration(Instant.now().plusSeconds(100))
 				.build();
@@ -254,7 +255,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 
 	private String createInvitationToAutoAccept(String form) throws EngineException
 	{
-		InvitationParam invitation = InvitationParam.builder()
+		InvitationParam invitation = RegistrationInvitationParam.builder()
 			.withForm(form)
 			.withContactAddress("email1@email.io")
 			.withExpiration(Instant.now().plusSeconds(100))
@@ -345,7 +346,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 		// given
 		createTestFormWithAutoAcceptInvitationsAndContextGroup(TEST_1_FORM);
 		
-		InvitationParam invitation = InvitationParam.builder()
+		InvitationParam invitation = RegistrationInvitationParam.builder()
 				.withForm(TEST_1_FORM)
 				.withContactAddress("email1@email.io")
 				.withExpiration(Instant.now().plusSeconds(100))
@@ -359,7 +360,7 @@ public class TestAutoProcessInvitations extends DBIntegrationTestBase
 				.build();
 		invitationMan.addInvitation(invitation);
 		
-		InvitationParam invitationToSubmit = InvitationParam.builder()
+		InvitationParam invitationToSubmit = RegistrationInvitationParam.builder()
 				.withForm(TEST_1_FORM)
 				.withExpiration(Instant.now().plusSeconds(100))
 				.withContactAddress("email1@email.io")

@@ -21,7 +21,9 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
@@ -114,7 +116,7 @@ public class RequestEditorCreator
 
 	private void doCreateFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)
 	{
-		InvitationWithCode invitation;
+		RegistrationInvitationParam invitation;
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -138,7 +140,7 @@ public class RequestEditorCreator
 	
 	private void doCreateSecondStage(RequestEditorCreatedCallback callback, boolean withCredentials)
 	{
-		InvitationWithCode invitation;
+		RegistrationInvitationParam invitation;
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -175,12 +177,14 @@ public class RequestEditorCreator
 			{
 				callback.onCancel();
 			}
-		});
+		}, msg.getMessage("GetRegistrationCodeDialog.title"),
+		msg.getMessage("GetRegistrationCodeDialog.information"),
+		msg.getMessage("GetRegistrationCodeDialog.code"));
 		askForCodeDialog.show();
 	}
 
 	private RegistrationRequestEditor doCreateEditor(String registrationCode, 
-			InvitationWithCode invitation) 
+			RegistrationInvitationParam invitation) 
 			throws AuthenticationException
 	{
 		return new RegistrationRequestEditor(msg, form, 
@@ -190,7 +194,7 @@ public class RequestEditorCreator
 				registrationCode, invitation, authnSupport, signUpAuthNController);
 	}
 	
-	private InvitationWithCode getInvitationByCode(String registrationCode) throws RegCodeException
+	private RegistrationInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
 	{
 		if (form.isByInvitationOnly() && registrationCode == null)
 			throw new RegCodeException(ErrorCause.MISSING_CODE);
@@ -198,8 +202,16 @@ public class RequestEditorCreator
 		if (registrationCode == null)
 			return null;
 		
-		InvitationWithCode invitation = getInvitationInternal(registrationCode);
-
+		InvitationWithCode inv = getInvitationInternal(registrationCode);
+		RegistrationInvitationParam invitation = null;
+		if (inv != null && inv.getInvitation() != null)
+		{
+			if (inv.getInvitation().getType().equals(InvitationType.REGISTRATION))
+			{
+				invitation = (RegistrationInvitationParam) inv.getInvitation();
+			}
+		}
+		
 		if (invitation != null && !invitation.getFormId().equals(form.getName()))
 			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
 		if (form.isByInvitationOnly() &&  invitation == null)
@@ -253,9 +265,9 @@ public class RequestEditorCreator
 		void onCancel();
 	}
 	
-	private static class RegCodeException extends Exception
+	public static class RegCodeException extends Exception
 	{
-		final ErrorCause cause;
+		public final ErrorCause cause;
 
 		public RegCodeException(ErrorCause cause)
 		{
