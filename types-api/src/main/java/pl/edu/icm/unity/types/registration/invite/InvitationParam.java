@@ -271,13 +271,6 @@ public abstract class InvitationParam
 		}
 		
 		@SuppressWarnings("unchecked")
-		public T withForm(InvitationType type)
-		{
-			instance.setType(type);
-			return (T) this;
-		}
-		
-		@SuppressWarnings("unchecked")
 		public T withForm(String formId)
 		{
 			instance.formId = formId;

@@ -62,7 +62,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 	
 	private void initUI() throws EngineException
 	{
-		RegistrationLayoutsContainer layoutContainer = createLayouts();
+		layoutContainer = createLayouts();
 		
 		createControls(layoutContainer, enquiryForm.getEffectiveFormLayout(msg), prefilled);
 	}

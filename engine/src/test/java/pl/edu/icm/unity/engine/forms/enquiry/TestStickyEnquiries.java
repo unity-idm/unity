@@ -121,6 +121,36 @@ public class TestStickyEnquiries extends DBIntegrationTestBase
 		Throwable exception = catchThrowable(() -> enquiryManagement.addEnquiry(form));
 		assertExceptionType(exception , WrongArgumentException.class);
 	}
+	
+	@Test
+	public void byInvitationStickyEnquiryIsNotReturned() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
+				CRED_REQ_PASS, EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(identity);
+		groupsMan.addMemberFromParent("/A", entityParam);
+		EnquiryForm form = new EnquiryFormBuilder()
+			.withTargetGroups(new String[] {"/A"})
+			.withType(EnquiryType.STICKY)
+			.withName("s1enquiry")
+			.withByInvitationOnly(true)
+			.build();
+		enquiryManagement.addEnquiry(form);
+		
+		EnquiryForm form2 = new EnquiryFormBuilder()
+				.withTargetGroups(new String[] {"/A"})
+				.withType(EnquiryType.STICKY)
+				.withName("s2enquiry")
+				.withByInvitationOnly(false)
+				.build();
+			enquiryManagement.addEnquiry(form2);
+		
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getAvailableStickyEnquires(entityParam);
+		
+		assertThat(pendingEnquires.size(), is(1));
+		assertThat(pendingEnquires.get(0), is(form2));
+	}
+
 
 	@Test
 	public void shouldOverwriteSubmitedRequest() throws Exception

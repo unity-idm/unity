@@ -41,6 +41,11 @@ import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
 
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class EnquiryResponseEditorControllerTest
 {

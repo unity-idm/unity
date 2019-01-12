@@ -5,7 +5,6 @@
 package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -13,10 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import com.vaadin.navigator.Navigator;
 import com.vaadin.navigator.View;
-import com.vaadin.server.Page;
-import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -25,15 +21,16 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.webui.forms.PublicFormURLProviderBase;
+import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
-import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
 
 /**
  * Provides access to public registration forms via well-known links
  * @author K. Benedyczak
  */
 @Component
-public class PublicEnquiryURLViewProvider implements PublicViewProvider
+public class PublicEnquiryURLViewProvider extends PublicFormURLProviderBase
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, PublicEnquiryURLViewProvider.class);
 	private EnquiryManagement enqMan;
@@ -81,8 +78,9 @@ public class PublicEnquiryURLViewProvider implements PublicViewProvider
 		}
 		return view;
 	}
-
-	private String getFormName(String viewAndParameters)
+	
+	@Override
+	protected String getFormName(String viewAndParameters)
 	{
 		if (PublicRegistrationURLSupport.ENQUIRY_VIEW.equals(viewAndParameters))
 			return RegistrationFormDialogProvider.getFormFromURL();
@@ -105,38 +103,14 @@ public class PublicEnquiryURLViewProvider implements PublicViewProvider
 	}
 
 	@Override
-	public void refresh(VaadinRequest request, Navigator navigator)
+	protected StandalonePublicView getViewFromSession()
 	{
+		VaadinSession vaadinSession  = VaadinSession.getCurrent();
+		if (vaadinSession == null)
+			return null;
 		
-		VaadinSession vaadinSession = VaadinSession.getCurrent();
-		if (vaadinSession != null)
-		{
 			StandalonePublicEnquiryView view = vaadinSession.getAttribute(StandalonePublicEnquiryView.class);
-			if (view != null)
-			{
-				LOG.debug("Enquiry form refreshed");
-				String viewName = getCurrentViewName();
-				String requestedFormName = getFormName(getCurrentViewName());
-				String cachedFormName = view.getFormName();
-				if (requestedFormName != null && Objects.equals(requestedFormName, cachedFormName))
-				{
-					view.refresh(request);
-				}
-				else
-				{
-					navigator.navigateTo(viewName);
-				}
-			}
-		}
+		return view;
 	}
-	
-	private String getCurrentViewName()
-	{
-		String viewName = Page.getCurrent().getUriFragment();
-		if (viewName.startsWith("!"))
-			viewName = viewName.substring(1);
-		return viewName;
-	}
-	
 	
 }

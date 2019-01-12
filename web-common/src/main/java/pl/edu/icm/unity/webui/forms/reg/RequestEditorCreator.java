@@ -4,11 +4,9 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
@@ -18,15 +16,16 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
+import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
+import pl.edu.icm.unity.webui.forms.RegCodeException;
+import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 
 /**
  * Creates instances of {@link RegistrationRequestEditor}. May ask for a registration/invitation code if needed first
@@ -37,7 +36,6 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 @PrototypeComponent
 public class RequestEditorCreator
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RequestEditorCreator.class);
 	private UnityMessageSource msg;
 	private RegistrationForm form;
 	private RemotelyAuthenticatedContext remotelyAuthenticated;
@@ -50,7 +48,7 @@ public class RequestEditorCreator
 	private SignUpAuthNController signUpAuthNController;
 	private AuthenticatorSupportService authnSupport;
 	private String registrationCode;
-	private InvitationManagement invitationMan;
+	private FormsInvitationHelper invitationHelper;
 
 	@Autowired
 	public RequestEditorCreator(UnityMessageSource msg, 
@@ -70,7 +68,7 @@ public class RequestEditorCreator
 		this.aTypeMan = aTypeMan;
 		this.groupsMan = groupsMan;
 		this.credMan = credMan;
-		this.invitationMan = invitationMan;
+		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.authnSupport = authnSupport;
 	}
 	
@@ -116,7 +114,7 @@ public class RequestEditorCreator
 
 	private void doCreateFirstStage(RequestEditorCreatedCallback callback, Runnable onLocalSignupHandler)
 	{
-		RegistrationInvitationParam invitation;
+		InvitationParam invitation;
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -128,7 +126,7 @@ public class RequestEditorCreator
 		
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation);
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode, (RegistrationInvitationParam) invitation);
 			editor.showFirstStage(onLocalSignupHandler);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -140,7 +138,7 @@ public class RequestEditorCreator
 	
 	private void doCreateSecondStage(RequestEditorCreatedCallback callback, boolean withCredentials)
 	{
-		RegistrationInvitationParam invitation;
+		InvitationParam invitation;
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -151,7 +149,7 @@ public class RequestEditorCreator
 		}
 		try
 		{
-			RegistrationRequestEditor editor = doCreateEditor(registrationCode, invitation);
+			RegistrationRequestEditor editor = doCreateEditor(registrationCode, (RegistrationInvitationParam) invitation);
 			editor.showSecondStage(withCredentials);
 			callback.onCreated(editor);
 		} catch (AuthenticationException e)
@@ -194,23 +192,12 @@ public class RequestEditorCreator
 				registrationCode, invitation, authnSupport, signUpAuthNController);
 	}
 	
-	private RegistrationInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
+	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
 	{
 		if (form.isByInvitationOnly() && registrationCode == null)
 			throw new RegCodeException(ErrorCause.MISSING_CODE);
 
-		if (registrationCode == null)
-			return null;
-		
-		InvitationWithCode inv = getInvitationInternal(registrationCode);
-		RegistrationInvitationParam invitation = null;
-		if (inv != null && inv.getInvitation() != null)
-		{
-			if (inv.getInvitation().getType().equals(InvitationType.REGISTRATION))
-			{
-				invitation = (RegistrationInvitationParam) inv.getInvitation();
-			}
-		}
+		InvitationParam invitation = invitationHelper.getInvitationByCode(registrationCode, InvitationType.REGISTRATION);
 		
 		if (invitation != null && !invitation.getFormId().equals(form.getName()))
 			throw new RegCodeException(ErrorCause.INVITATION_OF_OTHER_FORM);
@@ -221,57 +208,10 @@ public class RequestEditorCreator
 		return invitation;
 	}
 	
-	private InvitationWithCode getInvitationInternal(String code)
-	{
-		try
-		{
-			return invitationMan.getInvitation(code);
-		} catch (IllegalArgumentException e)
-		{
-			//ok
-			return null;
-		} catch (EngineException e)
-		{
-			log.warn("Error trying to check invitation with user provided code", e);
-			return null;
-		}
-	}
-	
-	
-	public enum ErrorCause 
-	{
-		MISSING_CODE(TriggeringState.GENERAL_ERROR), 
-		INVITATION_OF_OTHER_FORM(TriggeringState.GENERAL_ERROR), 
-		UNRESOLVED_INVITATION(TriggeringState.INVITATION_MISSING), 
-		EXPIRED_INVITATION(TriggeringState.INVITATION_EXPIRED), 
-		MISCONFIGURED(TriggeringState.GENERAL_ERROR);
-		
-		TriggeringState triggerState;
-
-		private ErrorCause(TriggeringState triggerState)
-		{
-			this.triggerState = triggerState;
-		}
-
-		public TriggeringState getTriggerState()
-		{
-			return triggerState;
-		}
-	}
 	public interface RequestEditorCreatedCallback
 	{
 		void onCreated(RegistrationRequestEditor editor);
 		void onCreationError(Exception e, ErrorCause cause);
 		void onCancel();
-	}
-	
-	public static class RegCodeException extends Exception
-	{
-		public final ErrorCause cause;
-
-		public RegCodeException(ErrorCause cause)
-		{
-			this.cause = cause;
-		}
 	}
 }

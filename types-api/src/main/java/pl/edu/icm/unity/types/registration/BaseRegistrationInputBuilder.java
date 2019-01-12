@@ -193,6 +193,14 @@ public class BaseRegistrationInputBuilder<T extends BaseRegistrationInput,
 
 		return (GeneratorT) this;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public GeneratorT withRegistrationCode(String aValue)
+	{
+		instance.setRegistrationCode(aValue);
+		
+		return (GeneratorT) this;
+	}
 
 	public class AddedIdentityIdentityParamBuilder extends
 			IdentityParamBuilderBase<AddedIdentityIdentityParamBuilder>

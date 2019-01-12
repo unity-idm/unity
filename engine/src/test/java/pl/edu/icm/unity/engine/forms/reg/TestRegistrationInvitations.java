@@ -41,7 +41,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
-public class TestInvitations extends DBIntegrationTestBase
+public class TestRegistrationInvitations extends DBIntegrationTestBase
 {
 	@Autowired
 	private RegistrationRequestPreprocessor validator;

@@ -149,7 +149,7 @@ public class InvitationEditor extends CustomComponent
 		entity = new ComboBox<>(msg.getMessage("InvitationEditor.entity"));
 		entity.setEmptySelectionAllowed(false);
 		entity.setItemCaptionGenerator(i -> availableEntities.get(i) + " [" + i + "]");
-		entity.setWidth(15, Unit.EM);
+		entity.setWidth(20, Unit.EM);
 		entity.addSelectionListener(e -> reloadContactAddress());
 		
 		type = new ComboBox<>(msg.getMessage("InvitationEditor.type"));
@@ -171,6 +171,7 @@ public class InvitationEditor extends CustomComponent
 		expiration.setValue(LocalDateTime.now(DEFAULT_ZONE_ID).plusDays(DEFAULT_TTL_DAYS));
 
 		contactAddress = new TextField(msg.getMessage("InvitationViewer.contactAddress"));
+		contactAddress.setWidth(20, Unit.EM);
 
 		remoteIdentityExpectation = new EnumComboBox<>(msg.getMessage("InvitationEditor.requireSameEmail"), msg,
 				"InvitationEditor.idExpectation.", RemoteIdentityExpectation.class,
@@ -221,7 +222,7 @@ public class InvitationEditor extends CustomComponent
 	private void reloadContactAddress()
 	{
 		Long entityVal = entity.getValue();
-		contactAddress.setValue("");
+		contactAddress.clear();
 		if (entityVal == null)
 			return;
 		BaseForm form = formsByName.get(forms.getValue());
@@ -292,6 +293,7 @@ public class InvitationEditor extends CustomComponent
 
 		List<Long> sortedEntities = availableEntities.keySet().stream().sorted().collect(Collectors.toList());
 		entity.setItems(sortedEntities);
+		entity.setSelectedItem(null);
 		if (!sortedEntities.isEmpty())
 		{
 			entity.setSelectedItem(sortedEntities.iterator().next());

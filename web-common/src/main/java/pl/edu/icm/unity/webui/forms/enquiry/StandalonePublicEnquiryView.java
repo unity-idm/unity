@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
@@ -27,32 +26,32 @@ import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguratio
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
-import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
+import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
+import pl.edu.icm.unity.webui.forms.FormsUIHelper;
 import pl.edu.icm.unity.webui.forms.PrefilledSet;
+import pl.edu.icm.unity.webui.forms.RegCodeException;
+import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
+import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.ErrorCause;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RegCodeException;
 
 /**
- * 
+ * Provides public enquiry view. Used in enqury invations flow
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class StandalonePublicEnquiryView extends CustomComponent implements View
+public class StandalonePublicEnquiryView extends CustomComponent implements StandalonePublicView
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
 	
@@ -61,7 +60,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements View
 	private VerticalLayout main;
 	private String registrationCode;
 	private EnquiryResponseEditorController editorController;
-	private InvitationManagement invitationMan;
+	private FormsInvitationHelper invitationHelper;
 	private PostFillingHandler postFillHandler;
 	
 	private EnquiryForm form;
@@ -73,11 +72,12 @@ public class StandalonePublicEnquiryView extends CustomComponent implements View
 			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg)
 	{
 		this.editorController = editorController;
-		this.invitationMan = invitationMan;
+		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.msg = msg;
 	}
 
-	String getFormName()
+	@Override
+	public String getFormName()
 	{
 		if (form == null)
 			return null;
@@ -102,16 +102,16 @@ public class StandalonePublicEnquiryView extends CustomComponent implements View
 
 		if (registrationCode == null)
 		{
-			askForCode(() -> doCreateFirstStage());
+			askForCode(() -> doShowEditor());
 		} else
 		{
-			doCreateFirstStage();
+			doShowEditor();
 		}
 	}
 
-	private void doCreateFirstStage()
+	private void doShowEditor()
 	{
-		EnquiryInvitationParam invitation;
+		InvitationParam invitation;
 		try
 		{
 			invitation = getInvitationByCode(registrationCode);
@@ -141,22 +141,13 @@ public class StandalonePublicEnquiryView extends CustomComponent implements View
 		}
 	}
 
-	private EnquiryInvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
+	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
 	{
-
 		if (registrationCode == null)
 			throw new RegCodeException(ErrorCause.MISSING_CODE);
-
-		InvitationWithCode inv = getInvitationInternal(registrationCode);
-		EnquiryInvitationParam invitation = null;
-		if (inv != null && inv.getInvitation() != null)
-		{
-			if (inv.getInvitation().getType().equals(InvitationType.ENQUIRY))
-			{
-				invitation = (EnquiryInvitationParam) inv.getInvitation();
-			}
-		}
-
+		
+		InvitationParam invitation = invitationHelper.getInvitationByCode(registrationCode, InvitationType.ENQUIRY);
+		
 		if (invitation == null)
 			throw new RegCodeException(ErrorCause.UNRESOLVED_INVITATION);
 		if (invitation.isExpired())
@@ -167,21 +158,6 @@ public class StandalonePublicEnquiryView extends CustomComponent implements View
 		return invitation;
 	}
 
-	private InvitationWithCode getInvitationInternal(String code)
-	{
-		try
-		{
-			return invitationMan.getInvitation(code);
-		} catch (IllegalArgumentException e)
-		{
-			// ok
-			return null;
-		} catch (EngineException e)
-		{
-			log.warn("Error trying to check invitation with user provided code", e);
-			return null;
-		}
-	}
 
 	private void showEditorContent(EnquiryResponseEditor editor)
 	{
@@ -191,7 +167,6 @@ public class StandalonePublicEnquiryView extends CustomComponent implements View
 		Component buttonsBar = createButtonsBar();
 		main.addComponent(buttonsBar);
 		main.setComponentAlignment(buttonsBar, Alignment.MIDDLE_CENTER);
-
 	}
 
 	private void askForCode(Runnable uiCreator)
@@ -227,33 +202,28 @@ public class StandalonePublicEnquiryView extends CustomComponent implements View
 		setWidth(100, Unit.PERCENTAGE);
 	}
 
-	protected Component createButtonsBar()
+	private Component createButtonsBar()
 	{
 		HorizontalLayout buttons = new HorizontalLayout();
 		buttons.setWidth(editor.formWidth(), editor.formWidthUnit());
 
-		Button ok = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
-		ok.setWidth(100, Unit.PERCENTAGE);
-		ok.addStyleName(Styles.vButtonPrimary.toString());
-		ok.addClickListener(event -> {
-			 WorkflowFinalizationConfiguration config =
-			 submit(form, editor);
-			 gotoFinalStep(config);
+		Button okButton = FormsUIHelper.createOKButton(
+				msg.getMessage("RegistrationRequestEditorDialog.submitRequest"), event -> {
+					WorkflowFinalizationConfiguration config = submit(form, editor);
+					gotoFinalStep(config);
+				});
+
+		Button cancelButton = FormsUIHelper.createCancelButton(msg.getMessage("cancel"), event -> {
+			WorkflowFinalizationConfiguration config = cancel();
+			gotoFinalStep(config);
 		});
 
-		Button cancel = new Button(msg.getMessage("cancel"));
-		cancel.setWidth(100, Unit.PERCENTAGE);
-		cancel.addClickListener(event -> {
-			 WorkflowFinalizationConfiguration config = cancel();
-			 gotoFinalStep(config);
-		});
-		
-		buttons.addComponents(cancel, ok);
+		buttons.addComponents(cancelButton, okButton);
 		buttons.setSpacing(true);
 		buttons.setMargin(false);
 		return buttons;
 	}
-	
+
 	private void handleError(Exception e, ErrorCause cause)
 	{
 		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
