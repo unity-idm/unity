@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.engine.api.project;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Objects;
@@ -24,15 +24,13 @@ public class ProjectInvitationParam
 	public final List<String> allowedGroup;
 	public final Instant expiration;
 
-
 	public ProjectInvitationParam(String project, String contactAddress, List<String> allowedGroup,
 			Instant expiration)
 	{
 		this.project = project;
 		this.contactAddress = contactAddress;
-		this.allowedGroup = new ArrayList<>();
-		if (allowedGroup != null)
-			this.allowedGroup.addAll(allowedGroup);
+		this.allowedGroup = Collections
+				.unmodifiableList(allowedGroup != null ? allowedGroup : Collections.emptyList());
 		this.expiration = expiration;
 	}
 
@@ -54,7 +52,8 @@ public class ProjectInvitationParam
 		if (!super.equals(obj))
 			return false;
 
-		return Objects.equal(this.project, other.project) && Objects.equal(this.allowedGroup, other.allowedGroup)
+		return Objects.equal(this.project, other.project)
+				&& Objects.equal(this.allowedGroup, other.allowedGroup)
 				&& Objects.equal(this.expiration, other.expiration)
 				&& Objects.equal(this.contactAddress, contactAddress);
 	}

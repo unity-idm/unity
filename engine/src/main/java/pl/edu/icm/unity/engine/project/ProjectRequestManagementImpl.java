@@ -134,11 +134,10 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		RegistrationForm registrationForm = registrationMan.getForms().stream()
 				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()))
 				.get(registrationFormId);
-		
-		if(registrationForm.isByInvitationOnly())
+
+		if (registrationForm == null || registrationForm.isByInvitationOnly())
 			return Optional.empty();
-		
-		
+
 		return Optional.ofNullable(PublicRegistrationURLSupport.getPublicRegistrationLink(registrationForm,
 				sharedEndpointMan));
 	}
@@ -152,15 +151,14 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		String enquiryFormId = getProjectDelegationConfig(projectPath).signupEnquiryForm;
 		if (enquiryFormId == null)
 			return Optional.empty();
-		
-		
+
 		EnquiryForm enquiryForm = enquiryMan.getEnquires().stream()
 				.collect(Collectors.toMap(EnquiryForm::getName, Function.identity()))
 				.get(enquiryFormId);
-		
-		if(enquiryForm.isByInvitationOnly())
+
+		if (enquiryForm == null || enquiryForm.isByInvitationOnly())
 			return Optional.empty();
-		
+
 		return Optional.ofNullable(
 				PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryFormId, sharedEndpointMan));
 	}
@@ -179,6 +177,8 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 				.collect(Collectors.toList()))
 		{
 			EnquiryResponse request = state.getRequest();
+			if (request == null)
+				continue;
 			if ((enquiryId != null && request.getFormId().equals(enquiryId))
 					|| (stickyEnquiryId != null && request.getFormId().equals(stickyEnquiryId)))
 				requests.add(mapToProjectRequest(projectPath, state, request));
@@ -191,8 +191,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	{
 		long entityId = enquiryResponseState.getEntityId();
 
-		String name = projectAttrHelper.getAttributeFromMeta(entityId, "/",
-				EntityNameMetadataProvider.NAME);
+		String name = projectAttrHelper.getAttributeFromMeta(entityId, "/", EntityNameMetadataProvider.NAME);
 
 		String email = null;
 		Entity entity = idMan.getEntity(new EntityParam(entityId));
@@ -227,6 +226,8 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 				.collect(Collectors.toList()))
 		{
 			RegistrationRequest request = state.getRequest();
+			if (request == null)
+				continue;
 			if (request.getFormId().equals(registrationForm))
 				requests.add(mapToProjectRequest(projectPath, state, request));
 		}
@@ -254,10 +255,12 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	{
 
 		return new ProjectRequest(state.getRequestId(), operation, projectPath, name, email,
-				(request.getGroupSelections() != null && request.getGroupSelections().get(0) != null)
-						? request.getGroupSelections().get(0).getSelectedGroups()
-						: null,
-				state.getTimestamp().toInstant());
+				(request.getGroupSelections() != null && !request.getGroupSelections().isEmpty()
+						&& request.getGroupSelections().get(0) != null)
+								? request.getGroupSelections().get(0)
+										.getSelectedGroups()
+								: null,
+				state.getTimestamp() != null ? state.getTimestamp().toInstant() : null);
 	}
 
 	private String getEmailIdentity(List<IdentityParam> identities)
@@ -280,10 +283,14 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			throws EngineException
 	{
 		RegistrationRequestState registrationRequest = registrationMan.getRegistrationRequest(id);
+
 		if (registrationRequest != null)
 		{
 			registrationMan.processRegistrationRequest(registrationRequest.getRequestId(),
 					registrationRequest.getRequest(), action, null, null);
+		} else
+		{
+			throw new IllegalArgumentException("Registration request with id " + id + " does not exists");
 		}
 	}
 
@@ -295,6 +302,9 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		{
 			enquiryMan.processEnquiryResponse(enquiryResponse.getRequestId(), enquiryResponse.getRequest(),
 					action, null, null);
+		} else
+		{
+			throw new IllegalArgumentException("Enquiry response with id " + id + " does not exists");
 		}
 	}
 }

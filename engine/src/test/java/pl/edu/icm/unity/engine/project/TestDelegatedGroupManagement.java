@@ -21,27 +21,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Lists;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
-import pl.edu.icm.unity.engine.api.AttributesManagement;
-import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
-import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupContents;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
-import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.attribute.AttributesHelper;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroupAttributeException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroupNameException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.OneManagerRemainsException;
@@ -65,36 +55,16 @@ import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.Identity;
 
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
 @RunWith(MockitoJUnitRunner.class)
-public class TestDelegatedGroupManagement
+public class TestDelegatedGroupManagement extends TestProjectBase
 {
-	@Mock
-	ProjectAuthorizationManager mockAuthz;
-
-	@Mock
-	GroupsManagement mockGroupMan;
-
-	@Mock
-	BulkGroupQueryService mockBulkQueryService;
-
-	@Mock
-	UnityMessageSource mockMsg;
-
-	@Mock
-	AttributesManagement mockAttrMan;
-
-	@Mock
-	AttributeTypeManagement mockAttrTypeMan;
-
-	@Mock
-	AttributesHelper mockAttrHelper;
-
-	@Mock
-	AttributeTypeHelper mockAtHelper;
-
-	@Mock
-	EntityManagement mockIdMan;
-
+	
+	
 	private DelegatedGroupManagementImpl dGroupMan;
 
 	@Before
@@ -387,11 +357,6 @@ public class TestDelegatedGroupManagement
 		verify(mockGroupMan).removeMember(eq("/project/destination"), any());
 	}
 
-	private void assertExceptionType(Throwable exception, Class<?> type)
-	{
-		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
-	}
-
 	private AttributeExt getAttributeExt(String value)
 	{
 		return new AttributeExt(new Attribute(null, null, null, Arrays.asList(value)), false);
@@ -412,11 +377,9 @@ public class TestDelegatedGroupManagement
 
 	private GroupContents getEnabledGroupContentsWithDefaultMember(String path)
 	{
-		GroupContents content = getGroupContent("/project");
+		GroupContents content = getConfiguredGroupContents(path);
 		GroupMembership member = new GroupMembership("/project", 1L, new Date());
 		content.setMembers(Lists.list(member));
-		content.getGroup().setDelegationConfiguration(
-				new GroupDelegationConfiguration(true, null, null, null, null, Lists.emptyList()));
 		return content;
 	}
 }

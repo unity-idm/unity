@@ -83,10 +83,19 @@ public class InvitationManagementImpl implements InvitationManagement
 	public String addInvitation(InvitationParam invitation) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
+	
+		if (invitation.getFormId() == null)
+		{
+			throw new WrongArgumentException("The invitation has no form configured");
+		}
+		
 		
 		if (invitation.getType().equals(InvitationType.REGISTRATION))
 		{
-			assertRegistrationFormIsForInvitation(invitation);
+			assertRegistrationFormIsForInvitation(invitation.getFormId());
+		}else
+		{
+			assertEnquiryFormIsExists(invitation.getFormId());
 		}
 		
 		String randomUUID = UUID.randomUUID().toString();
@@ -95,9 +104,14 @@ public class InvitationManagementImpl implements InvitationManagement
 		return randomUUID;
 	}
 
-	private void assertRegistrationFormIsForInvitation(InvitationParam param) throws WrongArgumentException
+	private void assertEnquiryFormIsExists(String formId)
 	{
-		RegistrationForm form = registrationDB.get(param.getFormId());
+		enquiryDB.get(formId);		
+	}
+
+	private void assertRegistrationFormIsForInvitation(String formId) throws WrongArgumentException
+	{
+		RegistrationForm form = registrationDB.get(formId);
 		if (!form.isPubliclyAvailable())
 			throw new WrongArgumentException("Invitations can be attached to public forms only");
 		if (form.getRegistrationCode() != null)
