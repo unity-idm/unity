@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.engine.forms.reg;
+package pl.edu.icm.unity.engine.forms.enquiry;
 
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
@@ -174,7 +174,6 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 	{
 		InvitationWithCode invitationWithCode = getAttributeInvitation();
 		InvitationParam invitation = invitationWithCode.getInvitation();
-
 		enquiryMan.addEnquiry(new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("form").build());
 		String code = invitationMan.addInvitation(invitation);
@@ -189,6 +188,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 	@Test
 	public void shouldBlockSendInvitationWithoutEntity() throws EngineException
 	{
+		enquiryMan.addEnquiry(new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
+				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("form").build());
 		EnquiryInvitationParam param = EnquiryInvitationParam.builder().withForm("form")
 				.withExpiration(Instant.now().plusSeconds(1000)).withContactAddress("demo@demo.pl")
 				.build();

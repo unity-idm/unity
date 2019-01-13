@@ -8,9 +8,7 @@ package pl.edu.icm.unity.engine.project;
 
 import org.assertj.core.api.Assertions;
 import org.assertj.core.util.Lists;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.AttributesManagement;
@@ -32,7 +30,6 @@ import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
  * @author P.Piernik
  *
  */
-@RunWith(MockitoJUnitRunner.class)
 public class TestProjectBase
 {
 	@Mock

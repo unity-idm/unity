@@ -23,8 +23,10 @@ import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -51,7 +53,7 @@ import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
  * @author P.Piernik
  *
  */
-
+@RunWith(MockitoJUnitRunner.class)
 public class TestProjectInvitationManagement extends TestProjectBase
 {
 	@Mock
