@@ -1,6 +1,10 @@
 UNITY
 
- This is an access point to the Unity documentation:
+ Here are the principal elements of the version specific Unity documentation:
 
- <<{{{./manual.html}User manual}}>> 
+ <<{{{./manual.html}User manual}}>>
+ 
+ <<{{{./rest-api-v1.html}REST API reference}}>>  
+
+ <<{{{./apidocs/index.html}Java API docs}}>>  
 
