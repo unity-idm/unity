@@ -8,7 +8,7 @@ import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateConsumersRegistry;
+import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 
 /**

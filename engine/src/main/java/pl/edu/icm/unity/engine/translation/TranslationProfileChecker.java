@@ -7,11 +7,11 @@ package pl.edu.icm.unity.engine.translation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfileRepository;
 import pl.edu.icm.unity.types.translation.ProfileType;

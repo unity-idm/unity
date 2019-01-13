@@ -10,7 +10,7 @@ import com.vaadin.ui.Component;
 
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationActionsRegistry;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationActionsRegistry;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnEvent;
 
 /**

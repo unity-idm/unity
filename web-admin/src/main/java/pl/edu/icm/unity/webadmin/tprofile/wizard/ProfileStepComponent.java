@@ -19,7 +19,7 @@ import com.vaadin.ui.components.grid.GridDragSource;
 
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfileEditor;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
@@ -98,7 +98,7 @@ public class ProfileStepComponent extends CustomComponent
 	private Collection<DragDropBean> getTableContent(RemotelyAuthenticatedInput input)
 	{
 		Collection<DragDropBean> items = new ArrayList<>();
-		Map<String, String> exprValMap = InputTranslationProfile.createExpresionValueMap(input);
+		Map<String, String> exprValMap = InputTranslationContextFactory.createExpresionValueMap(input);
 		
 		for (Map.Entry<String, String> exprE : exprValMap.entrySet())
 		{

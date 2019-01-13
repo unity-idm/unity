@@ -5,7 +5,7 @@
 package pl.edu.icm.unity.engine.bulkops;
 
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
-import pl.edu.icm.unity.engine.translation.TranslationCondition;
+import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.translation.TranslationRuleInstance;
 
 /**

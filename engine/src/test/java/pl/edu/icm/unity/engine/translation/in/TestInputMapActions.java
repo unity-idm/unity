@@ -29,6 +29,7 @@ import pl.edu.icm.unity.engine.api.translation.in.EntityChange;
 import pl.edu.icm.unity.engine.api.translation.in.GroupEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.IdentityEffectMode;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
@@ -71,7 +72,7 @@ public class TestInputMapActions
 		input.addAttribute(new RemoteAttribute("attribute", "a1"));
 		input.addAttribute(new RemoteAttribute("other", "a2"));
 		
-		Map<String, Object> ctx = InputTranslationProfile.createMvelContext(input);
+		Map<String, Object> ctx = InputTranslationContextFactory.createMvelContext(input);
 		MappingResult result = mapAction.invoke(input, ctx, "testProf");
 		
 		Attribute a = result.getAttributes().get(0).getAttribute();
@@ -105,7 +106,7 @@ public class TestInputMapActions
 		input.addAttribute(new RemoteAttribute("other", "a2"));
 		
 		MappingResult result = mapAction.invoke(input, 
-				InputTranslationProfile.createMvelContext(input), "testProf");
+				InputTranslationContextFactory.createMvelContext(input), "testProf");
 		
 		Attribute a = result.getAttributes().get(0).getAttribute();
 		assertEquals("stringA", a.getName());
@@ -127,7 +128,8 @@ public class TestInputMapActions
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		input.addAttribute(new RemoteAttribute("attribute", "a1"));
 		
-		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), "testProf");
+		MappingResult result = mapAction.invoke(input, 
+				InputTranslationContextFactory.createMvelContext(input), "testProf");
 		
 		assertEquals(1, result.getGroups().size());
 		MappedGroup mg = result.getGroups().iterator().next();
@@ -150,7 +152,8 @@ public class TestInputMapActions
 		input.addAttribute(new RemoteAttribute("attribute:colon", "a1"));
 		input.addAttribute(new RemoteAttribute("other", "a2"));
 		
-		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), "testProf");
+		MappingResult result = mapAction.invoke(input, 
+				InputTranslationContextFactory.createMvelContext(input), "testProf");
 		
 		MappedIdentity mi = result.getIdentities().get(0);
 		assertEquals("CR", mi.getCredentialRequirement());
@@ -168,7 +171,7 @@ public class TestInputMapActions
 				"1");
 		RemotelyAuthenticatedInput input = new RemotelyAuthenticatedInput("test");
 		
-		MappingResult result = mapAction.invoke(input, InputTranslationProfile.createMvelContext(input), 
+		MappingResult result = mapAction.invoke(input, InputTranslationContextFactory.createMvelContext(input), 
 				"testProf");
 		
 		EntityChange mi = result.getEntityChanges().get(0);

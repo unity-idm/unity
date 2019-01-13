@@ -24,11 +24,11 @@ import com.vaadin.ui.dnd.DragSourceExtension;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationActionFactory;
+import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
+import pl.edu.icm.unity.engine.api.translation.in.InputTranslationContextFactory;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
-import pl.edu.icm.unity.engine.translation.TranslationCondition;
-import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
@@ -233,7 +233,7 @@ public class RuleComponent extends CustomComponent
 			return;
 		}
 		
-		Map<String, Object> mvelCtx = InputTranslationProfile.createMvelContext(remoteAuthnInput);
+		Map<String, Object> mvelCtx = InputTranslationContextFactory.createMvelContext(remoteAuthnInput);
 		TranslationCondition conditionRule = new TranslationCondition(rule.getCondition());
 		try 
 		{
