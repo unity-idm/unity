@@ -154,10 +154,10 @@ public abstract class InvitationParam
 		n=json.get("type");
 		if (n != null && !n.isNull())
 		{
-			type = InvitationType.REGISTRATION;
+			type = InvitationType.valueOf(json.get("type").asText());	
 		}else
 		{
-			type = InvitationType.valueOf(json.get("type").asText());	
+			type = InvitationType.REGISTRATION;	
 		}
 			
 		formId = json.get("formId").asText();

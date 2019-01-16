@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 import io.imunity.upman.common.ServerFaultException;
 import io.imunity.upman.utils.DelegatedGroupsHelper;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
@@ -48,7 +47,7 @@ public class GroupMembersController
 	private UnityMessageSource msg;
 
 	@Autowired
-	public GroupMembersController(UnityMessageSource msg, GroupsManagement groupMan,
+	public GroupMembersController(UnityMessageSource msg,
 			AttributeHandlerRegistry attrHandlerRegistry, DelegatedGroupManagement delGroupMan,
 			DelegatedGroupsHelper delGroupHelper)
 	{

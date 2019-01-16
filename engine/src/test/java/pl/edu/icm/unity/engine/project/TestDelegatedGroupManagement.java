@@ -63,8 +63,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 @RunWith(MockitoJUnitRunner.class)
 public class TestDelegatedGroupManagement extends TestProjectBase
 {
-	
-	
 	private DelegatedGroupManagementImpl dGroupMan;
 
 	@Before

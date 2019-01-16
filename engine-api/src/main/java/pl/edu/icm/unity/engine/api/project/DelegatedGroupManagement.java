@@ -96,12 +96,12 @@ public interface DelegatedGroupManagement
 
 	/**
 	 * Update value of group authorization role attribute 
-	 * @param path group path
+	 * @param projectPath project group path
 	 * @param entityId attribute owner
 	 * @param role value to set
 	 * @throws EngineException
 	 */
-	void setGroupAuthorizationRole(String path, long entityId, GroupAuthorizationRole role)
+	void setGroupAuthorizationRole(String projectPath, long entityId, GroupAuthorizationRole role)
 			throws EngineException;
 
 	/**

@@ -84,7 +84,7 @@ public class InvitationsComponent extends CustomComponent
 	{
 		try
 		{
-			controller.deleteInvitations(project, items);
+			controller.removeInvitations(project, items);
 
 		} catch (ControllerException e)
 		{

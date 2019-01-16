@@ -75,7 +75,7 @@ public class InvitationsController
 		}
 	}
 
-	public void deleteInvitations(String projectPath, Set<InvitationEntry> items) throws ControllerException
+	public void removeInvitations(String projectPath, Set<InvitationEntry> items) throws ControllerException
 	{
 		List<String> removed = new ArrayList<>();
 		try
