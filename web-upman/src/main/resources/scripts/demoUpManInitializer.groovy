@@ -164,6 +164,7 @@ void addEnquiryForm(EnquiryType type, String name, String logo, String groupPath
 	
 	EnquiryFormNotifications not = new EnquiryFormNotifications();
 	not.setSubmittedTemplate("enquiryFilled");
+	not.setInvitationTemplate("invitationWithCode");
 	
 	String[] target = [targetGroup]
 	
