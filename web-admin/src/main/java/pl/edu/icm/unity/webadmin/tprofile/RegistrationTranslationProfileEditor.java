@@ -6,7 +6,7 @@
 package pl.edu.icm.unity.webadmin.tprofile;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ProfileType;
 

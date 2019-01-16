@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE file for licensing information.
  */
-package pl.edu.icm.unity.engine.msgtemplate;
+package pl.edu.icm.unity.engine.api.msgtemplate;
 
 import java.util.List;
 

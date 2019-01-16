@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.translation;
 
 import pl.edu.icm.unity.engine.api.translation.TranslationActionInstance;
+import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.types.translation.TranslationRule;
 
 /**

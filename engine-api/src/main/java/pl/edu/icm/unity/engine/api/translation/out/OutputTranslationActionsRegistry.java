@@ -2,14 +2,13 @@
  * Copyright (c) 2016 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.engine.translation.out;
+package pl.edu.icm.unity.engine.api.translation.out;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionFactory;
 import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 
 /**

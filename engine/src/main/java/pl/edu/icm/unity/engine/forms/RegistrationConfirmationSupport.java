@@ -20,11 +20,11 @@ import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailAttri
 import pl.edu.icm.unity.engine.api.confirmation.states.RegistrationReqEmailIdentityConfirmationState;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
 import pl.edu.icm.unity.engine.group.GroupHelper;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.engine.translation.form.FormAutomationSupportExt;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
