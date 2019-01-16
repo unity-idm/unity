@@ -81,7 +81,7 @@ class UpdateHelperFrom2_7
 		log.info("Updating invitationWithCode from: \n{}", JsonUtil.toJsonString(invitationWithCode));
 		invitationWithCode.put("type", InvitationType.REGISTRATION.toString());
 		
-		log.info("Updated authenticator to: \n{}", JsonUtil.toJsonString(invitationWithCode));
+		log.info("Updated invitationWithCode to: \n{}", JsonUtil.toJsonString(invitationWithCode));
 		return invitationWithCode;
 	}
 }

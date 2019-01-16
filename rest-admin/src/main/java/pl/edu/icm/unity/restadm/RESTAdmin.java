@@ -812,13 +812,16 @@ public class RESTAdmin
 	{
 		ObjectNode invNode = JsonUtil.parse(jsonInvitation);
 		JsonNode itype = invNode.get("type");
+		InvitationType type = null;
 		if (itype == null)
 		{
-			throw new WrongArgumentException("Invitation param does not have defined type");
+			type = InvitationType.REGISTRATION;
+			log.debug("Use default invitation type = " + InvitationType.REGISTRATION.toString());
+		} else
+		{
+			type = InvitationType.valueOf(invNode.get("type").asText());
 		}
 
-		InvitationType type = InvitationType.valueOf(invNode.get("type").asText());
-	
 		if (type.equals(InvitationType.REGISTRATION))
 		{
 			return new RegistrationInvitationParam(invNode);

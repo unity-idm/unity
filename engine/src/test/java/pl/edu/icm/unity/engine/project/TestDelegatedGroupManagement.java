@@ -184,7 +184,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		DelegatedGroupMember firstMember = delegatedGroupMemebers.iterator().next();
 		assertThat(firstMember.entityId, is(1L));
-		assertThat(firstMember.email, is("demo@demo.com"));
+		assertThat(firstMember.email.getValue(), is("demo@demo.com"));
 		assertThat(firstMember.name, is("demo"));
 		assertThat(firstMember.attributes.iterator().next().getValues().iterator().next(), is("extraValue"));
 

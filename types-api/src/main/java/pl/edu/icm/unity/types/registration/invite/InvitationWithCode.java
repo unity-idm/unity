@@ -37,18 +37,10 @@ public class InvitationWithCode implements NamedObject
 	public InvitationWithCode(InvitationParam base, String registrationCode,
 			Instant lastSentTime, int numberOfSends)
 	{
-//		super(base.getFormId(), base.getExpiration(), base.getContactAddress());
 		this.registrationCode = registrationCode;
 		this.lastSentTime = lastSentTime;
 		this.numberOfSends = numberOfSends;
-//		this.getIdentities().putAll(base.getIdentities());
-//		this.getAllowedGroups().putAll(base.getAllowedGroups());
-//		this.getGroupSelections().putAll(base.getGroupSelections());
-//		this.getAttributes().putAll(base.getAttributes());
-//		this.getMessageParams().putAll(base.getMessageParams());
-//		this.setExpectedIdentity(base.getExpectedIdentity());
-		invitation = base;
-		
+		invitation = base;	
 	}
 
 	@JsonCreator

@@ -147,14 +147,22 @@ public abstract class InvitationParam
 		return json;
 	}
 	
-	protected void fromJsonBase(ObjectNode json)
+	private void fromJsonBase(ObjectNode json)
 	{
-		type = InvitationType.valueOf(json.get("type").asText());
+		
+		JsonNode n;
+		n=json.get("type");
+		if (n != null && !n.isNull())
+		{
+			type = InvitationType.REGISTRATION;
+		}else
+		{
+			type = InvitationType.valueOf(json.get("type").asText());	
+		}
+			
 		formId = json.get("formId").asText();
 		expiration = Instant.ofEpochMilli(json.get("expiration").asLong());
 		contactAddress = JsonUtil.getNullable(json, "contactAddress");
-		
-		JsonNode n;
 		
 		n = json.get("identities");
 		fill((ObjectNode) n, getIdentities(), IdentityParam.class);

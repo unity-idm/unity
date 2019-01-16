@@ -26,6 +26,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.forms.enquiry.EnquiryResponsePreprocessor;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
@@ -198,6 +199,57 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 		assertExceptionType(exception, WrongArgumentException.class);
 	}
 
+	@Test
+	public void shouldBlockSubmitResponseRelatedToInvalidInvitation() throws EngineException
+	{
+		EnquiryResponse response = addCompleteInvitationAndGetResponse(-1000);
+
+		Throwable exception = catchThrowable(() -> enquiryMan.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone)));
+		assertExceptionType(exception, IllegalFormContentsException.class);	
+	}
+	
+	@Test
+	public void shouldBlockSubmitResponseWithUsedInvitationCode() throws EngineException
+	{
+		EnquiryResponse response = addCompleteInvitationAndGetResponse(1000);
+
+		enquiryMan.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone));
+		
+		
+		Throwable exception = catchThrowable(() -> enquiryMan.submitEnquiryResponse(response,
+				new RegistrationContext(false, TriggeringMode.manualStandalone)));
+		assertExceptionType(exception, IllegalFormContentsException.class);	
+	}
+
+	private  EnquiryResponse addCompleteInvitationAndGetResponse(int expirationTime) throws EngineException
+	{
+		Identity added = idsMan.addEntity(new IdentityParam(IdentifierIdentity.ID, "1"), EntityState.valid,
+				false);
+
+		enquiryMan.addEnquiry(new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
+				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("form").withAddedIdentityParam()
+				.withIdentityType(EmailIdentity.ID)
+				.withRetrievalSettings(ParameterRetrievalSettings.automaticOrInteractive)
+				.withConfirmationMode(ConfirmationMode.CONFIRMED).endIdentityParam()
+				.withAddedGroupParam().withGroupPath("/**").endGroupParam().build());
+
+		IdentityParam newIdentity = new IdentityParam(EmailIdentity.ID, "test@example.com");
+		newIdentity.setConfirmationInfo(new ConfirmationInfo(true));
+		InvitationParam invitation = EnquiryInvitationParam.builder().withForm("form")
+				.withExpiration(Instant.now().plusSeconds(expirationTime))
+				.withIdentity(newIdentity, PrefilledEntryMode.HIDDEN).withEntity(added.getEntityId())
+				.withContactAddress("demo@demo.com").build();
+
+		String code = invitationMan.addInvitation(invitation);
+		assertThat(invitationMan.getInvitations().size(), is(1));
+
+		return new EnquiryResponseBuilder().withRegistrationCode(code).withFormId("form")
+				.withIdentities(Lists.newArrayList(newIdentity))
+				.withGroupSelections(Arrays.asList(new GroupSelection(Arrays.asList("/")))).build();
+	}
+	
 	@Test
 	public void testFullInvitationFlow() throws EngineException
 	{

@@ -65,10 +65,10 @@ public interface NotificationProducer
 	
 	
 	/**
-	 * 
-	 * @param recipient
-	 * @param templateId
-	 * @param onlyConfirmed
+	 * Get address for entity. Address is relevant for channel configured in message template. 
+	 * @param recipient 
+	 * @param templateId message template of message
+	 * @param onlyConfirmed get only confirmed address
 	 * @return
 	 * @throws EngineException 
 	 */
