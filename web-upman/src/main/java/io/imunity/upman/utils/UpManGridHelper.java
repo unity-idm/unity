@@ -15,15 +15,19 @@ import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.renderers.HtmlRenderer;
 
 import io.imunity.upman.common.FilterableEntry;
 import io.imunity.upman.common.UpManGrid;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 /**
  * A collection of methods useful for creating UpMan grids
@@ -50,10 +54,13 @@ public class UpManGridHelper
 		}).setCaption(caption).setWidth(80).setResizable(false);
 	}
 
-	public static <T> Column<T, String> createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider, String caption)
+	public static <T> Column<T, String> createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider,
+			String caption)
 	{
-		return grid.addColumn(t -> timeProvider.apply(t) != null ? TimeUtil.formatMediumInstant(timeProvider.apply(t))
-				: "").setCaption(caption).setExpandRatio(3);
+		return grid.addColumn(
+				t -> timeProvider.apply(t) != null ? TimeUtil.formatMediumInstant(timeProvider.apply(t))
+						: "")
+				.setCaption(caption).setExpandRatio(3);
 	}
 
 	public static <T> void createAttrsColumns(Grid<T> grid, Function<T, Map<String, String>> attributesProvider,
@@ -67,7 +74,8 @@ public class UpManGridHelper
 		}
 	}
 
-	public static <T> Column<T, String> createGroupsColumn(Grid<T> grid, Function<T, List<String>> groups, String caption)
+	public static <T> Column<T, String> createGroupsColumn(Grid<T> grid, Function<T, List<String>> groups,
+			String caption)
 	{
 		return grid.addColumn(r -> {
 			return (groups.apply(r) != null) ? String.join(", ", groups.apply(r)) : "";
@@ -90,5 +98,20 @@ public class UpManGridHelper
 			grid.addFilter(e -> e.anyFieldContains(searched, msg));
 		});
 		return searchText;
+	}
+
+	public static <T> Column<T, String> createEmailColumn(Grid<T> grid,
+			Function<T, VerifiableElementBase> emailProvider, String caption,
+			ConfirmationInfoFormatter formatter)
+	{
+
+		Column<T, String> emailColumn = grid.addColumn(
+				t -> (emailProvider.apply(t).getConfirmationInfo().isConfirmed() ? Images.ok.getHtml()
+						: Images.warn.getHtml()) + " " + emailProvider.apply(t).getValue(),
+				new HtmlRenderer());
+		emailColumn.setDescriptionGenerator(t -> formatter
+				.getSimpleConfirmationStatusString(emailProvider.apply(t).getConfirmationInfo()));
+		emailColumn.setCaption(caption);
+		return emailColumn;
 	}
 }

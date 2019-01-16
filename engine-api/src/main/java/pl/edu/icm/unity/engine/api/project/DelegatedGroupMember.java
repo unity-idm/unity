@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 /**
  * Holds information about delegated group member.
@@ -24,11 +25,11 @@ public class DelegatedGroupMember
 	public final String group;
 	public final GroupAuthorizationRole role;
 	public final String name;
-	public final String email;
+	public final VerifiableElementBase email;
 	public final List<Attribute> attributes;
 
 	public DelegatedGroupMember(long entityId, String project, String group, GroupAuthorizationRole role,
-			String name, String email, List<Attribute> attributes)
+			String name, VerifiableElementBase email, List<Attribute> attributes)
 	{
 		this.entityId = entityId;
 		this.project = project;

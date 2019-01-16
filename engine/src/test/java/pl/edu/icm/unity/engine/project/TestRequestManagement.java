@@ -26,7 +26,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
-import pl.edu.icm.unity.engine.api.project.ProjectRequest.RequestOperation;
+import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
+import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
+import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestType;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -47,7 +49,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TestRequestManagement extends TestProjectBase
-{	
+{
 	@Mock
 	SharedEndpointManagement mockSharedEndpointMan;
 
@@ -95,7 +97,8 @@ public class TestRequestManagement extends TestProjectBase
 		state.setRequestId(id);
 		when(mockRegistrationMan.getRegistrationRequest(eq(id))).thenReturn(state);
 
-		projectRequestMan.accept("/project", id, RequestOperation.SelfSignUp);
+		projectRequestMan.accept(new ProjectRequestParam("/project", id, RequestOperation.SignUp,
+				RequestType.Registration));
 
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockRegistrationMan).processRegistrationRequest(argument.capture(), any(),
@@ -111,7 +114,8 @@ public class TestRequestManagement extends TestProjectBase
 		state.setRequestId(id);
 		when(mockEnquiryMan.getEnquiryResponse(eq(id))).thenReturn(state);
 
-		projectRequestMan.accept("/project", id, RequestOperation.Update);
+		projectRequestMan.accept(
+				new ProjectRequestParam("/project", id, RequestOperation.SignUp, RequestType.Enquiry));
 
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockEnquiryMan).processEnquiryResponse(argument.capture(), any(),
@@ -127,7 +131,8 @@ public class TestRequestManagement extends TestProjectBase
 		state.setRequestId(id);
 		when(mockRegistrationMan.getRegistrationRequest(eq(id))).thenReturn(state);
 
-		projectRequestMan.decline("/project", id, RequestOperation.SelfSignUp);
+		projectRequestMan.decline(new ProjectRequestParam("/project", id, RequestOperation.SignUp,
+				RequestType.Registration));
 
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockRegistrationMan).processRegistrationRequest(argument.capture(), any(),
@@ -143,7 +148,8 @@ public class TestRequestManagement extends TestProjectBase
 		state.setRequestId(id);
 		when(mockEnquiryMan.getEnquiryResponse(eq(id))).thenReturn(state);
 
-		projectRequestMan.decline("/project", id, RequestOperation.Update);
+		projectRequestMan.decline(
+				new ProjectRequestParam("/project", id, RequestOperation.Update, RequestType.Enquiry));
 
 		ArgumentCaptor<String> argument = ArgumentCaptor.forClass(String.class);
 		verify(mockEnquiryMan).processEnquiryResponse(argument.capture(), any(),
@@ -173,7 +179,7 @@ public class TestRequestManagement extends TestProjectBase
 				.build();
 		when(mockEnquiryMan.getEnquires()).thenReturn(Arrays.asList(form));
 
-		Optional<String> projectEnquiryFormLink = projectRequestMan.getProjectEnquiryFormLink("/project");
+		Optional<String> projectEnquiryFormLink = projectRequestMan.getProjectSignUpEnquiryFormLink("/project");
 		assertThat(projectEnquiryFormLink.isPresent(), is(true));
 	}
 }

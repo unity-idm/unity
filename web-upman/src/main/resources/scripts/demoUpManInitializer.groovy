@@ -24,9 +24,17 @@ import pl.edu.icm.unity.types.registration.RegistrationFormNotifications
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder
 import pl.edu.icm.unity.types.registration.EnquiryForm
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType
-import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.types.registration.EnquiryFormNotifications
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam
-import org.springframework.util.StringUtils;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings
+import pl.edu.icm.unity.types.translation.ProfileType
+import pl.edu.icm.unity.types.translation.TranslationAction
+import pl.edu.icm.unity.types.translation.TranslationProfile
+import pl.edu.icm.unity.types.translation.TranslationRule
+import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory
+import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction
+import com.google.common.collect.Lists
+import org.springframework.util.StringUtils
 
 @Field final String NAME_ATTR = "name"
 @Field final String FIRSTNAME_ATTR = "firstname"
@@ -38,14 +46,20 @@ import org.springframework.util.StringUtils;
 @Field final String FBI_GROUP = "/projects/FBI"
 @Field final String UNIV_GROUP = "/projects/univ"
 
+@Field final String UNIV_LOGO_SMALL = "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/University_of_London.svg/150px-University_of_London.svg.png"
+@Field final String UNIV_LOGO = "https://upload.wikimedia.org/wikipedia/commons/5/58/Oxford_University_Coat_Of_Arms.svg"
+
+@Field final String FBI_LOGO_SMALL = "http://media.nola.com/crime_impact/photo/11230665-small.gif"
+@Field final String FBI_LOGO = "https://upload.wikimedia.org/wikipedia/commons/5/59/Seal_of_the_FBI.svg"
+
 @Field final String FBI_REG_FORM = "FBIRegistration"
 @Field final String UNIV_REG_FORM = "UnivRegistration"
 
-@Field final String FBI_ENQ_FORM = "FBIEnquiry"
-@Field final String UNIV_ENQ_FORM = "UnivEnquiry"
+@Field final String FBI_JOINING_ENQ_FORM = "FBIJoiningEnquiry"
+@Field final String UNIV_JOINING_ENQ_FORM = "UnivJoiningEnquiry"
 
-@Field final String FBI_STICKY_ENQ_FORM = "FBIStickyEnquiry"
-@Field final String UNIV_STICKY_ENQ_FORM = "UnivStickyEnquiry"
+@Field final String FBI_UPDATE_ENQ_FORM = "FBIUpdateEnquiry"
+@Field final String UNIV_UPDATE_ENQ_FORM = "UnivUpdateEnquiry"
 
 if (!isColdStart)
 {
@@ -65,14 +79,14 @@ List<AttributeRegistrationParam> FBIAttrs = Arrays.asList(getAttributeParam(TEAM
 List<AttributeRegistrationParam> UnivAttrs = Arrays.asList(getAttributeParam(FIRSTNAME_ATTR, UNIV_GROUP, true), 
 	getAttributeParam(SURNAME_ATTR, UNIV_GROUP, true));
 
-addRegistrationForm(FBI_REG_FORM, FBI_GROUP + "/**", FBIAttrs);
-addRegistrationForm(UNIV_REG_FORM, UNIV_GROUP + "/**", UnivAttrs);
+addRegistrationForm(FBI_REG_FORM, FBI_LOGO_SMALL, FBI_GROUP + "/**", FBIAttrs);
+addRegistrationForm(UNIV_REG_FORM, UNIV_LOGO_SMALL, UNIV_GROUP + "/**", UnivAttrs);
 
-addEnquiryForm(EnquiryType.STICKY, FBI_STICKY_ENQ_FORM,  FBI_GROUP + "/**", FBI_GROUP, FBIAttrs);
-addEnquiryForm(EnquiryType.STICKY, UNIV_STICKY_ENQ_FORM, UNIV_GROUP + "/**", UNIV_GROUP, UnivAttrs);
+addEnquiryForm(EnquiryType.STICKY, FBI_UPDATE_ENQ_FORM, "",  FBI_GROUP + "/**", FBI_GROUP, FBIAttrs);
+addEnquiryForm(EnquiryType.STICKY, UNIV_UPDATE_ENQ_FORM, "", UNIV_GROUP + "/**", UNIV_GROUP, UnivAttrs);
 
-addEnquiryForm(EnquiryType.REQUESTED_OPTIONAL, FBI_ENQ_FORM,  FBI_GROUP + "/**", FBI_GROUP, FBIAttrs);
-addEnquiryForm(EnquiryType.REQUESTED_OPTIONAL, UNIV_ENQ_FORM, UNIV_GROUP + "/**", UNIV_GROUP, UnivAttrs);
+addEnquiryForm(EnquiryType.STICKY, FBI_JOINING_ENQ_FORM, FBI_LOGO_SMALL, FBI_GROUP + "/**", FBI_GROUP, FBIAttrs);
+addEnquiryForm(EnquiryType.STICKY, UNIV_JOINING_ENQ_FORM, UNIV_LOGO_SMALL, UNIV_GROUP + "/**", UNIV_GROUP, UnivAttrs);
 
 
 
@@ -88,13 +102,24 @@ AttributeRegistrationParam getAttributeParam(String type, String group, boolean 
 }
 
 
-void addRegistrationForm(String name, String groupPath, List<AttributeRegistrationParam> extraAttrs)
+void addRegistrationForm(String name, String logo, String groupPath, List<AttributeRegistrationParam> extraAttrs)
 {
 	log.info("Creating registration form " + name);
 	
 	RegistrationFormNotifications not = new RegistrationFormNotifications();
 	not.setSubmittedTemplate("registrationRequestSubmitted");
 	not.setInvitationTemplate("invitationWithCode");
+	
+	String[] action = [AutomaticRequestAction.accept.toString()]
+	TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME, 
+				action);
+	List<TranslationRule> rules = Lists.newArrayList(new TranslationRule("validCode == true", a1))
+	TranslationProfile tp = new TranslationProfile("form", "", ProfileType.REGISTRATION, rules);
+	
+	FormLayoutSettings lsettings = new FormLayoutSettings();
+	lsettings.setLogoURL(logo);
+	lsettings.setColumnWidth(21);
+	lsettings.setColumnWidthUnit("em");
 	
 	RegistrationForm form = new RegistrationFormBuilder()
 				.withName(name)
@@ -121,6 +146,10 @@ void addRegistrationForm(String name, String groupPath, List<AttributeRegistrati
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 					.withMultiselect(true)
 				.endGroupParam()
+				.withFormLayoutSettings(lsettings)
+				.withDisplayedName(new I18nString(msgSrc.getLocaleCode(), "Create new account"))
+				.withTitle2ndStage(new I18nString(msgSrc.getLocaleCode(), "Provide your details"))
+				.withTranslationProfile(tp)
 				.build();
 		
 	if (extraAttrs != null)
@@ -129,7 +158,7 @@ void addRegistrationForm(String name, String groupPath, List<AttributeRegistrati
 	registrationsManagement.addForm(form);  
 }
 
-void addEnquiryForm(EnquiryType type, String name, String groupPath, String targetGroup, List<AttributeRegistrationParam> extraAttrs)
+void addEnquiryForm(EnquiryType type, String name, String logo, String groupPath, String targetGroup, List<AttributeRegistrationParam> extraAttrs)
 {
 	log.info("Creating enquiry form " + name);
 	
@@ -137,6 +166,11 @@ void addEnquiryForm(EnquiryType type, String name, String groupPath, String targ
 	not.setSubmittedTemplate("enquiryFilled");
 	
 	String[] target = [targetGroup]
+	
+	FormLayoutSettings lsettings = new FormLayoutSettings();
+	lsettings.setLogoURL(logo);
+	lsettings.setColumnWidth(21);
+	lsettings.setColumnWidthUnit("em");
 	
 	EnquiryForm form = new EnquiryFormBuilder()
 				.withName(name)
@@ -156,6 +190,8 @@ void addEnquiryForm(EnquiryType type, String name, String groupPath, String targ
 					.withGroupPath(groupPath)
 					.withRetrievalSettings(ParameterRetrievalSettings.interactive)
 				.endGroupParam()
+				.withDisplayedName(new I18nString(msgSrc.getLocaleCode(), "Update your account"))
+				.withFormLayoutSettings(lsettings)
 				.build()
 				
 	if (extraAttrs != null)
@@ -171,10 +207,10 @@ void createGroupsStructure()
 
 	addGroup(FBI_GROUP, "FBI");
 	setGroupDelegationConfig(FBI_GROUP,
-				"https://upload.wikimedia.org/wikipedia/commons/5/59/Seal_of_the_FBI.svg",
+				FBI_LOGO,
 				FBI_REG_FORM,
-				FBI_ENQ_FORM,
-				FBI_STICKY_ENQ_FORM,
+				FBI_JOINING_ENQ_FORM,
+				FBI_UPDATE_ENQ_FORM,
 				Arrays.asList(TEAMNAME_ATTR));
 
 	addGroup(FBI_GROUP + "/AJA8O", "Cyber division");
@@ -185,10 +221,10 @@ void createGroupsStructure()
 
 	addGroup(UNIV_GROUP, "University");
 	setGroupDelegationConfig(UNIV_GROUP,
-				"https://upload.wikimedia.org/wikipedia/commons/5/58/Oxford_University_Coat_Of_Arms.svg",
+				UNIV_LOGO,
 				UNIV_REG_FORM,
-				UNIV_ENQ_FORM,
-				UNIV_STICKY_ENQ_FORM,
+				UNIV_JOINING_ENQ_FORM,
+				UNIV_UPDATE_ENQ_FORM,
 				Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR));
 
 	addGroup(UNIV_GROUP + "/XHWFO", "Students");

@@ -108,6 +108,12 @@ class GroupsTree extends TreeGrid<GroupNode>
 		expandItemsRecursively(treeData.getRootItems());
 
 	}
+	
+	public void expandRoot()
+	{
+		expand(treeData.getRootItems());;
+
+	}
 
 	private void collapseItemsRecursively(Collection<GroupNode> items)
 	{
@@ -121,7 +127,7 @@ class GroupsTree extends TreeGrid<GroupNode>
 
 	public void collapseAll()
 	{
-		collapseItemsRecursively(treeData.getChildren(null));
+		collapseItemsRecursively(treeData.getChildren(null));		
 	}
 
 }

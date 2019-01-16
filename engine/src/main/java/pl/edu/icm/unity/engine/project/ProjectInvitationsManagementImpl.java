@@ -247,12 +247,18 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	private String getRegistrationFormForProject(String projectPath) throws EngineException
 	{
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);
+		if (config.registrationForm == null || config.registrationForm.isEmpty())
+			throw new ProjectMisconfiguredException(projectPath);
+		
 		return config.registrationForm;
 	}
 
 	private String getEnquiryFormForProject(String projectPath) throws EngineException
 	{
 		GroupDelegationConfiguration config = getDelegationConfiguration(projectPath);
+		if (config.signupEnquiryForm == null || config.signupEnquiryForm.isEmpty())
+				throw new ProjectMisconfiguredException(projectPath);
+
 		return config.signupEnquiryForm;
 	}
 
@@ -344,6 +350,14 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 		public IllegalInvitationException(String code)
 		{
 			super("Invitation with code " + code + " does not exists");
+		}
+	}
+	
+	public static class ProjectMisconfiguredException extends InternalException
+	{
+		public ProjectMisconfiguredException(String projectPath)
+		{
+			super("Misconfigured project group " + projectPath);
 		}
 	}
 }

@@ -13,6 +13,7 @@ import io.imunity.upman.common.FilterableEntry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 /**
  * Data object behind a row in {@link GroupMemebersGrid}. Stores group member
@@ -74,7 +75,7 @@ class GroupMemberEntry implements FilterableEntry
 		return member.name;
 	}
 
-	public String getEmail()
+	public VerifiableElementBase getEmail()
 	{
 		return member.email;
 	}
@@ -90,7 +91,7 @@ class GroupMemberEntry implements FilterableEntry
 
 		if (getName() != null && getName().toString().toLowerCase().contains(textLower))
 			return true;
-		if (getEmail() != null && getEmail().toString().toLowerCase().contains(textLower))
+		if (getEmail() != null && getEmail().getValue().toLowerCase().contains(textLower))
 			return true;
 
 		for (Map.Entry<String, String> value : attributes.entrySet())

@@ -26,6 +26,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -42,7 +43,7 @@ public class UpdateRequestsComponent extends CustomComponent
 	private UpdateRequestsGrid updateRequestGrid;
 	private String project;
 
-	public UpdateRequestsComponent(UnityMessageSource msg, UpdateRequestsController controller, String project)
+	public UpdateRequestsComponent(UnityMessageSource msg, UpdateRequestsController controller, String project, ConfirmationInfoFormatter formatter)
 			throws ControllerException
 	{
 		this.msg = msg;
@@ -58,7 +59,7 @@ public class UpdateRequestsComponent extends CustomComponent
 		commonActions.add(getAcceptRequestAction());
 		commonActions.add(getDeclineRequestAction());
 
-		updateRequestGrid = new UpdateRequestsGrid(msg, commonActions);
+		updateRequestGrid = new UpdateRequestsGrid(msg, commonActions, formatter);
 
 		HamburgerMenu<UpdateRequestEntry> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());

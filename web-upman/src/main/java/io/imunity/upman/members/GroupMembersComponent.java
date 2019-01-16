@@ -40,6 +40,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.groups.MandatoryGroupSelection;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -58,7 +59,7 @@ class GroupMembersComponent extends CustomComponent
 	private String group;
 	private String project;
 
-	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller, String project)
+	public GroupMembersComponent(UnityMessageSource msg, GroupMembersController controller, String project, ConfirmationInfoFormatter formatter)
 			throws ControllerException
 	{
 		this.msg = msg;
@@ -82,7 +83,7 @@ class GroupMembersComponent extends CustomComponent
 		rawActions.add(getAddManagerPrivilegesAction(true));
 		rawActions.add(getRevokeManagerPrivilegesAction(true, s -> false));
 
-		groupMemebersGrid = new GroupMemebersGrid(msg, rawActions, additionalProjectAttributes);
+		groupMemebersGrid = new GroupMemebersGrid(msg, rawActions, additionalProjectAttributes, formatter);
 
 		HamburgerMenu<GroupMemberEntry> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleNames(SidebarStyles.indentSmall.toString());

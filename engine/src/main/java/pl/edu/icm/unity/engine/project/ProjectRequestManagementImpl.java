@@ -20,8 +20,10 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectRequest;
-import pl.edu.icm.unity.engine.api.project.ProjectRequest.RequestOperation;
 import pl.edu.icm.unity.engine.api.project.ProjectRequestManagement;
+import pl.edu.icm.unity.engine.api.project.ProjectRequestParam;
+import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestOperation;
+import pl.edu.icm.unity.engine.api.project.ProjectRequestParam.RequestType;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -34,6 +36,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
@@ -90,34 +93,27 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		allRequests.addAll(getReqistrationRequests(projectPath, projectDelegationConfig.registrationForm));
 
 		allRequests.addAll(getEnquiryRequests(projectPath, projectDelegationConfig.signupEnquiryForm,
-				projectDelegationConfig.stickyEnquiryForm));
+				RequestOperation.SignUp, RequestType.Enquiry));
+		allRequests.addAll(getEnquiryRequests(projectPath, projectDelegationConfig.stickyEnquiryForm,
+				RequestOperation.Update, RequestType.Enquiry));
 
 		return allRequests;
 	}
 
 	@Transactional
 	@Override
-	public void accept(String projectPath, String id, RequestOperation operation) throws EngineException
+	public void accept(ProjectRequestParam request) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
-
-		if (operation.equals(RequestOperation.SelfSignUp))
-			proccessRegistationRequest(projectPath, id, RegistrationRequestAction.accept);
-		else if (operation.equals(RequestOperation.Update))
-			proccessEnquiryResponse(projectPath, id, RegistrationRequestAction.accept);
+		authz.checkManagerAuthorization(request.project);
+		proccessRequest(request, RegistrationRequestAction.accept);
 	}
 
 	@Transactional
 	@Override
-	public void decline(String projectPath, String id, RequestOperation operation) throws EngineException
+	public void decline(ProjectRequestParam request) throws EngineException
 	{
-		authz.checkManagerAuthorization(projectPath);
-
-		if (operation.equals(RequestOperation.SelfSignUp))
-			proccessRegistationRequest(projectPath, id, RegistrationRequestAction.reject);
-		else if (operation.equals(RequestOperation.Update))
-			proccessEnquiryResponse(projectPath, id, RegistrationRequestAction.reject);
-
+		authz.checkManagerAuthorization(request.project);
+		proccessRequest(request, RegistrationRequestAction.reject);
 	}
 
 	@Transactional
@@ -144,7 +140,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 	@Transactional
 	@Override
-	public Optional<String> getProjectEnquiryFormLink(String projectPath) throws EngineException
+	public Optional<String> getProjectSignUpEnquiryFormLink(String projectPath) throws EngineException
 	{
 
 		authz.checkManagerAuthorization(projectPath);
@@ -163,11 +159,72 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 				PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryFormId, sharedEndpointMan));
 	}
 
-	private List<ProjectRequest> getEnquiryRequests(String projectPath, String enquiryId, String stickyEnquiryId)
+	private void proccessRequest(ProjectRequestParam request, RegistrationRequestAction action)
 			throws EngineException
 	{
+		validateRequestParam(request);
+
+		if (request.operation.equals(RequestOperation.SignUp))
+		{
+			if (request.type.equals(RequestType.Registration))
+			{
+				proccessRegistationRequest(request.project, request.id, action);
+			} else
+			{
+				proccessEnquiryResponse(request.project, request.id, action);
+			}
+		}
+
+		else if (request.operation.equals(RequestOperation.Update))
+		{
+			proccessEnquiryResponse(request.project, request.id, action);
+		}
+	}
+
+	private void validateRequestParam(ProjectRequestParam request)
+	{
+		if (request.operation == null)
+			throw new IllegalArgumentException("Can not process request of unknown operation");
+		if (request.type == null)
+			throw new IllegalArgumentException("Can not process request of unknown type");
+		if (request.id == null || request.id.isEmpty())
+			throw new IllegalArgumentException("Can not process request of unknown id");
+	}
+
+	private void proccessRegistationRequest(String projectPath, String id, RegistrationRequestAction action)
+			throws EngineException
+	{
+		RegistrationRequestState registrationRequest = registrationMan.getRegistrationRequest(id);
+
+		if (registrationRequest != null)
+		{
+			registrationMan.processRegistrationRequest(registrationRequest.getRequestId(),
+					registrationRequest.getRequest(), action, null, null);
+		} else
+		{
+			throw new IllegalArgumentException("Registration request with id " + id + " does not exists");
+		}
+	}
+
+	private void proccessEnquiryResponse(String projectPath, String id, RegistrationRequestAction action)
+			throws EngineException
+	{
+		EnquiryResponseState enquiryResponse = enquiryMan.getEnquiryResponse(id);
+		if (enquiryResponse != null)
+		{
+			enquiryMan.processEnquiryResponse(enquiryResponse.getRequestId(), enquiryResponse.getRequest(),
+					action, null, null);
+		} else
+		{
+			throw new IllegalArgumentException("Enquiry response with id " + id + " does not exists");
+		}
+	}
+
+	private List<ProjectRequest> getEnquiryRequests(String projectPath, String enquiryId,
+			RequestOperation operation, RequestType type) throws EngineException
+	{
 		List<ProjectRequest> requests = new ArrayList<>();
-		if (enquiryId == null && stickyEnquiryId == null)
+		if (enquiryId == null)
 			return requests;
 
 		List<EnquiryResponseState> enquires = enquiryMan.getEnquiryResponses();
@@ -179,21 +236,21 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			EnquiryResponse request = state.getRequest();
 			if (request == null)
 				continue;
-			if ((enquiryId != null && request.getFormId().equals(enquiryId))
-					|| (stickyEnquiryId != null && request.getFormId().equals(stickyEnquiryId)))
-				requests.add(mapToProjectRequest(projectPath, state, request));
+			if (request.getFormId().equals(enquiryId))
+				requests.add(mapToProjectRequest(projectPath, state, request, operation, type));
 		}
 		return requests;
 	}
 
 	private ProjectRequest mapToProjectRequest(String projectPath, EnquiryResponseState enquiryResponseState,
-			EnquiryResponse enquiryResponse) throws EngineException
+			EnquiryResponse enquiryResponse, RequestOperation operation, RequestType type)
+			throws EngineException
 	{
 		long entityId = enquiryResponseState.getEntityId();
 
 		String name = projectAttrHelper.getAttributeFromMeta(entityId, "/", EntityNameMetadataProvider.NAME);
 
-		String email = null;
+		VerifiableElementBase email = null;
 		Entity entity = idMan.getEntity(new EntityParam(entityId));
 		if (entity != null)
 		{
@@ -205,12 +262,12 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 		if (email == null)
 		{
-			email = projectAttrHelper.getAttributeFromMeta(entityId, "/",
+			email = projectAttrHelper.getVerifiableAttributeFromMeta(entityId, "/",
 					ContactEmailMetadataProvider.NAME);
 		}
 
-		return mapToProjectRequest(projectPath, enquiryResponseState, enquiryResponse, name, email,
-				RequestOperation.Update);
+		return mapToProjectRequest(projectPath, enquiryResponseState, enquiryResponse, name, email, operation,
+				type);
 	}
 
 	private List<ProjectRequest> getReqistrationRequests(String projectPath, String registrationForm)
@@ -241,20 +298,21 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 		String name = projectAttrHelper.searchAttributeValueByMeta(EntityNameMetadataProvider.NAME,
 				registrationRequest.getAttributes());
-		String email = getEmailIdentity(registrationRequest.getIdentities());
+		VerifiableElementBase email = getEmailIdentity(registrationRequest.getIdentities());
 		if (email == null)
-			email = projectAttrHelper.searchAttributeValueByMeta(ContactEmailMetadataProvider.NAME,
-					registrationRequest.getAttributes());
+			email = projectAttrHelper.searchVerifiableAttributeValueByMeta(
+					ContactEmailMetadataProvider.NAME, registrationRequest.getAttributes());
 
 		return mapToProjectRequest(projectPath, registrationRequestState, registrationRequest, name, email,
-				RequestOperation.SelfSignUp);
+				RequestOperation.SignUp, RequestType.Registration);
 	}
 
 	private ProjectRequest mapToProjectRequest(String projectPath, UserRequestState<?> state,
-			BaseRegistrationInput request, String name, String email, RequestOperation operation)
+			BaseRegistrationInput request, String name, VerifiableElementBase email,
+			RequestOperation operation, RequestType type)
 	{
 
-		return new ProjectRequest(state.getRequestId(), operation, projectPath, name, email,
+		return new ProjectRequest(state.getRequestId(), operation, type, projectPath, name, email,
 				(request.getGroupSelections() != null && !request.getGroupSelections().isEmpty()
 						&& request.getGroupSelections().get(0) != null)
 								? request.getGroupSelections().get(0)
@@ -263,12 +321,12 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 				state.getTimestamp() != null ? state.getTimestamp().toInstant() : null);
 	}
 
-	private String getEmailIdentity(List<IdentityParam> identities)
+	private VerifiableElementBase getEmailIdentity(List<IdentityParam> identities)
 	{
 		for (IdentityParam id : identities)
 		{
 			if (id != null && id.getTypeId().equals(EmailIdentity.ID))
-				return id.getValue();
+				return new VerifiableElementBase(id.getValue(), id.getConfirmationInfo());
 		}
 		return null;
 	}
@@ -277,34 +335,5 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	{
 		GroupContents groupCon = groupMan.getContents(projectPath, GroupContents.METADATA);
 		return groupCon.getGroup().getDelegationConfiguration();
-	}
-
-	private void proccessRegistationRequest(String projectPath, String id, RegistrationRequestAction action)
-			throws EngineException
-	{
-		RegistrationRequestState registrationRequest = registrationMan.getRegistrationRequest(id);
-
-		if (registrationRequest != null)
-		{
-			registrationMan.processRegistrationRequest(registrationRequest.getRequestId(),
-					registrationRequest.getRequest(), action, null, null);
-		} else
-		{
-			throw new IllegalArgumentException("Registration request with id " + id + " does not exists");
-		}
-	}
-
-	private void proccessEnquiryResponse(String projectPath, String id, RegistrationRequestAction action)
-			throws EngineException
-	{
-		EnquiryResponseState enquiryResponse = enquiryMan.getEnquiryResponse(id);
-		if (enquiryResponse != null)
-		{
-			enquiryMan.processEnquiryResponse(enquiryResponse.getRequestId(), enquiryResponse.getRequest(),
-					action, null, null);
-		} else
-		{
-			throw new IllegalArgumentException("Enquiry response with id " + id + " does not exists");
-		}
 	}
 }

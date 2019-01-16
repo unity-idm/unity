@@ -24,7 +24,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.VerifiableEmail;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 /**
  * A collection of methods useful in projects management impl
@@ -77,33 +77,59 @@ public class ProjectAttributeHelper
 	@Transactional
 	public String searchAttributeValueByMeta(String metadata, Collection<Attribute> list) throws EngineException
 	{
-		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);
-		if (attrType == null)
+		String attrName = getAttributeName(metadata);
+		if (attrName == null)
 			return null;
 
-		String attrName = attrType.getName();
-
+		return searchAttributeValueByName(attrName, list);
+	}
+	
+	private String searchAttributeValueByName(String attrName, Collection<Attribute> list) throws EngineException
+	{
 		for (Attribute attr : list)
 		{
 			if (attr.getName().equals(attrName) && attr.getValues() != null && !attr.getValues().isEmpty())
 			{
-
-				return getVerifiableAttributeValue(getAttributeSyntaxSafe(attrName),
-						attr.getValues().get(0));
+				return attr.getValues().get(0);
 			}
 		}
 		return null;
+		
+	}
+	
+	@Transactional
+	public VerifiableElementBase searchVerifiableAttributeValueByMeta(String metadata, Collection<Attribute> list) throws EngineException
+	{
+		String attrName = getAttributeName(metadata);
+		if (attrName == null)
+			return null;
+		return getVerifiableAttributeValue(attrName,
+				searchAttributeValueByName(attrName, list));
+	}
+	
+	private String getAttributeName(String metadata) throws EngineException
+	{
+		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);
+		if (attrType == null)
+			return null;
+
+		return attrType.getName();
 	}
 
-	private String getVerifiableAttributeValue(AttributeValueSyntax<?> attributeSyntax, String value)
+	private VerifiableElementBase getVerifiableAttributeValue(String attributeName, String value)
 	{
-
-		if (attributeSyntax != null && attributeSyntax.isEmailVerifiable() && value != null)
+		if (value == null)
+			return null;
+		
+		AttributeValueSyntax<?> attributeSyntax = getAttributeSyntaxSafe(attributeName);
+		
+		if (attributeSyntax != null && attributeSyntax.isEmailVerifiable())
 		{
-			VerifiableEmail email = (VerifiableEmail) attributeSyntax.convertFromString(value);
-			return email.getValue();
+			return (VerifiableElementBase) attributeSyntax.convertFromString(value);
+		}else
+		{
+			return new VerifiableElementBase(value);
 		}
-		return value;
 	}
 
 	@Transactional
@@ -123,6 +149,15 @@ public class ProjectAttributeHelper
 	@Transactional
 	public String getAttributeFromMeta(long entityId, String path, String metadata) throws EngineException
 	{
+		VerifiableElementBase verValue = getVerifiableAttributeFromMeta(entityId, path, metadata);
+		if (verValue == null)
+			return null;
+		return verValue.getValue();
+	}
+	
+	@Transactional
+	public VerifiableElementBase getVerifiableAttributeFromMeta(long entityId, String path, String metadata) throws EngineException
+	{
 		AttributeType attrType = attrHelper.getAttributeTypeWithSingeltonMetadata(metadata);
 		if (attrType == null)
 			return null;
@@ -132,8 +167,7 @@ public class ProjectAttributeHelper
 		if (!value.isPresent())
 			return null;
 
-		AttributeValueSyntax<?> syntax = getAttributeSyntaxSafe(attrType.getName());
-		return getVerifiableAttributeValue(syntax, value.get());
+		return getVerifiableAttributeValue(attrType.getName(), value.get());
 	}
 
 }

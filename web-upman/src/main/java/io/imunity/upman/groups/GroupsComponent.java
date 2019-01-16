@@ -151,8 +151,10 @@ class GroupsComponent extends CustomComponent
 	{
 		return SingleActionHandler.builder(GroupNode.class)
 				.withCaption(msg.getMessage("GroupsComponent.collapseAllAction"))
-				.withIcon(Images.file_tree_small.getResource()).dontRequireTarget()
-				.withHandler(e -> groupBrowser.collapseAll()).build();
+				.withIcon(Images.file_tree_small.getResource()).dontRequireTarget().withHandler(e -> {
+					groupBrowser.collapseAll();
+					groupBrowser.expandRoot();
+				}).build();
 	}
 
 	private SingleActionHandler<GroupNode> getDeleteGroupAction()

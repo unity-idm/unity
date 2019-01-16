@@ -46,6 +46,7 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupMembership;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 /**
  * Implementation of {@link DelegatedGroupManagement}
@@ -301,12 +302,12 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 			for (GroupMembership member : orgMembers)
 			{
 				long entity = member.getEntityId();
-				String emailId = getEmailIdentity(entity);
+				VerifiableElementBase emailId = getEmailIdentity(entity);
 				DelegatedGroupMember entry = new DelegatedGroupMember(member.getEntityId(), projectPath,
 						member.getGroup(), getGroupAuthRoleAttr(entity, projectPath),
 						projectAttrHelper.getAttributeFromMeta(entity, "/",
 								EntityNameMetadataProvider.NAME),
-						emailId != null ? emailId : projectAttrHelper.getAttributeFromMeta(entity, "/",
+						emailId != null ? emailId : projectAttrHelper.getVerifiableAttributeFromMeta(entity, "/",
 								ContactEmailMetadataProvider.NAME),
 						getProjectMemberAttributes(entity, projectPath, projectAttrs));
 				members.add(entry);
@@ -431,13 +432,14 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		return displayName;
 	}
 	
-	private String getEmailIdentity(long entityId) throws EngineException
+	private VerifiableElementBase getEmailIdentity(long entityId) throws EngineException
 	{
 		Entity entity = identitiesMan.getEntity(new EntityParam(entityId));
 		for (IdentityParam id : entity.getIdentities())
 		{
 			if (id != null && id.getTypeId().equals(EmailIdentity.ID))
-				return id.getValue();
+				return new VerifiableElementBase(id.getValue(), id.getConfirmationInfo());
+
 		}
 		return null;
 	}

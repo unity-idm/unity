@@ -8,7 +8,6 @@ package pl.edu.icm.unity.engine.api.project;
 import java.util.List;
 import java.util.Optional;
 
-import pl.edu.icm.unity.engine.api.project.ProjectRequest.RequestOperation;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -31,13 +30,13 @@ public interface ProjectRequestManagement
 	 * 
 	 * @param id
 	 */
-	void accept(String projectPath, String id, RequestOperation operation) throws EngineException;
+	void accept(ProjectRequestParam request) throws EngineException;
 
 	/**
 	 * 
 	 * @param id
 	 */
-	void decline(String projectPath, String id, RequestOperation operation) throws EngineException;
+	void decline(ProjectRequestParam request) throws EngineException;
 	
 	
 	/**
@@ -54,6 +53,6 @@ public interface ProjectRequestManagement
 	 * @return
 	 * @throws EngineException
 	 */
-	Optional<String> getProjectEnquiryFormLink(String projectPath) throws EngineException;
+	Optional<String> getProjectSignUpEnquiryFormLink(String projectPath) throws EngineException;
 
 }

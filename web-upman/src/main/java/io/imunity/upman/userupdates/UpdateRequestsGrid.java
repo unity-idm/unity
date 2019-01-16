@@ -11,6 +11,7 @@ import io.imunity.upman.common.UpManGrid;
 import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.confirmations.ConfirmationInfoFormatter;
 
 /**
  * Displays a grid with update requests
@@ -37,20 +38,22 @@ public class UpdateRequestsGrid extends UpManGrid<UpdateRequestEntry>
 	};
 
 	public UpdateRequestsGrid(UnityMessageSource msg,
-			List<SingleActionHandler<UpdateRequestEntry>> rowActionHandlers)
+			List<SingleActionHandler<UpdateRequestEntry>> rowActionHandlers, ConfirmationInfoFormatter formatter)
 	{
 		super(msg, (UpdateRequestEntry e) -> e.id);
-		createColumns(rowActionHandlers);
+		createColumns(rowActionHandlers, formatter);
 	}
 
-	private void createBaseColumns()
+	private void createBaseColumns(ConfirmationInfoFormatter formatter)
 	{
 
 		addColumn(r -> r.operation != null
 				? msg.getMessage("UpdateRequest." + r.operation.toString().toLowerCase())
 				: null).setCaption(msg.getMessage(BaseColumn.operation.captionKey)).setExpandRatio(2);
 		addColumn(r -> r.name).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(2);
-		addColumn(r -> r.email).setCaption(msg.getMessage(BaseColumn.email.captionKey)).setExpandRatio(2);
+		
+		UpManGridHelper.createEmailColumn(this, (UpdateRequestEntry e) -> e.email,
+				msg.getMessage(BaseColumn.email.captionKey), formatter);
 
 		UpManGridHelper.createGroupsColumn(this, (UpdateRequestEntry e) -> e.groupsDisplayedNames,
 				msg.getMessage(BaseColumn.groups.captionKey)).setExpandRatio(4);
@@ -60,9 +63,9 @@ public class UpdateRequestsGrid extends UpManGrid<UpdateRequestEntry>
 
 	}
 
-	private void createColumns(List<SingleActionHandler<UpdateRequestEntry>> rowActionHandlers)
+	private void createColumns(List<SingleActionHandler<UpdateRequestEntry>> rowActionHandlers, ConfirmationInfoFormatter formatter)
 	{
-		createBaseColumns();
+		createBaseColumns(formatter);
 		UpManGridHelper.createActionColumn(this, rowActionHandlers,
 				msg.getMessage(BaseColumn.action.captionKey));
 	}
