@@ -21,11 +21,16 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 
@@ -87,7 +92,6 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		registrationFormCombo = new ComboBox<String>(
 				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"));
 
-		// TODO fill all comboBoxes with good values
 		List<RegistrationForm> forms = registrationMan.getForms();
 		registrationFormCombo.setItems(forms.stream().map(f -> f.getName()).collect(Collectors.toList()));
 
@@ -98,7 +102,8 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 
 		stickyEnquiryFormCombo = new ComboBox<String>(
 				msg.getMessage("GroupDelegationEditConfigDialog.stickyEnquiry"));
-		stickyEnquiryFormCombo.setItems(enquires.stream().map(f -> f.getName()).collect(Collectors.toList()));
+		stickyEnquiryFormCombo.setItems(enquires.stream().filter(f -> f.getType().equals(EnquiryType.STICKY))
+				.map(f -> f.getName()).collect(Collectors.toList()));
 
 		attributes = new ChipsWithDropdown<>();
 		attributes.setCaption(msg.getMessage("GroupDelegationEditConfigDialog.attributes"));
@@ -131,7 +136,11 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 	{
 		try
 		{
+
 			DelegationConfiguration groupDelConfig = binder.getBean();
+
+			validateRegistrationForm(groupDelConfig.registrationForm);
+
 			GroupDelegationConfiguration config = new GroupDelegationConfiguration(
 					groupDelConfig.isEnabled(), groupDelConfig.getLogoUrl(),
 					groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
@@ -143,6 +152,40 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		{
 			NotificationPopup.showError(msg, msg.getMessage("GroupDelegationEditConfigDialog.cannotUpdate"),
 					e);
+		}
+	}
+
+	private void validateRegistrationForm(String registrationFormId) throws FormValidationException, EngineException
+	{
+		if (registrationFormId == null)
+			return;
+
+		RegistrationForm form = registrationMan.getForms().stream()
+				.filter(f -> f.getName().equals(registrationFormId)).findFirst().orElse(null);
+		if (form == null)
+		{
+			throw new FormValidationException("Illegal registration form");
+		}
+
+		if (form.getGroupParams() == null || form.getGroupParams().size() != 1)
+		{
+			throw new FormValidationException(
+					"Registration form should have configured one group selection param");
+		}
+
+		if (form.getIdentityParams() == null || form.getIdentityParams().size() != 1
+				|| !form.getIdentityParams().get(0).getIdentityType().equals(EmailIdentity.ID))
+		{
+			throw new FormValidationException(
+					"Registration form should have configured one email identity param");
+		}
+
+		RegistrationFormNotifications notConfig = form.getNotificationsConfiguration();
+		if (notConfig == null || notConfig.getInvitationTemplate() == null
+				|| notConfig.getInvitationTemplate().isEmpty())
+		{
+			throw new FormValidationException(
+					"Registration form should have configured notification invitation template");
 		}
 	}
 
