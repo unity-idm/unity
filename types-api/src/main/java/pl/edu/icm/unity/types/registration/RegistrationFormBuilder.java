@@ -85,6 +85,13 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 		return this;
 	}
 	
+	public RegistrationFormBuilder withExternalGridSignupSpec(ExternalSignupGridSpec externalGridSignupSpec)
+	{
+		instance.setExternalSignupGridSpec(externalGridSignupSpec);
+		
+		return this;
+	}
+	
 	public RegistrationFormBuilder withTitle2ndStage(I18nString aValue)
 	{
 		instance.setTitle2ndStage(aValue);

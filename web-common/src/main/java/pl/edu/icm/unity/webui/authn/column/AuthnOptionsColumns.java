@@ -40,7 +40,6 @@ import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.VaadinEndpointProperties;
 import pl.edu.icm.unity.webui.authn.AuthNGridTextWrapper;
 import pl.edu.icm.unity.webui.authn.PreferredAuthenticationHelper;
-import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.authn.column.AuthnOptionsColumn.ComponentWithId;
 import pl.edu.icm.unity.webui.common.Styles;
 

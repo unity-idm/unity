@@ -13,7 +13,7 @@ public class AuthenticationOptionKeyUtils
 {
 	public static String encode(String authenticatorKey, String optionKey)
 	{
-		return authenticatorKey + "." + optionKey;
+		return optionKey != null ? authenticatorKey + "." + optionKey : authenticatorKey;
 	}
 
 	public static String encodeToCSS(String key)

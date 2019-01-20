@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 
 import com.google.common.collect.Lists;
@@ -26,14 +27,19 @@ import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
  */
 public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<AuthenticationOptionKey>
 {
-	public RemoteAuthnProvidersSelection(AuthenticatorSupportService authenticatorSupport, String leftCaption,
-			String rightCaption, String caption, String description) throws EngineException
+	public RemoteAuthnProvidersSelection(AuthenticatorSupportService authenticatorSupport, String caption,
+			String description) throws EngineException
+	{
+		this(caption, description);
+		init(authenticatorSupport);
+	}
+	
+	public RemoteAuthnProvidersSelection (String caption, String description) throws EngineException
 	{
 		super(AuthenticationOptionKey::toGlobalKey, true);
 		setCaption(caption);
 		setDescription(description);
-		setWidth(100, Unit.PERCENTAGE);
-		init(authenticatorSupport);
+		setWidth(100, Unit.PERCENTAGE);	
 	}
 	
 	private void init(AuthenticatorSupportService authenticatorSupport) throws EngineException
@@ -46,6 +52,13 @@ public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<Authenticat
 		{
 			VaadinAuthentication vaadinRetrieval = (VaadinAuthentication) authenticator.getRetrieval();
 			Collection<VaadinAuthenticationUI> uiInstances = vaadinRetrieval.createUIInstance(Context.REGISTRATION);
+			if (uiInstances.size() > 1)
+			{
+				authnOptions.add(new AuthenticationOptionKey(
+						authenticator.getMetadata().getId(), 
+						AuthenticationOptionKey.ALL_OPTS));
+			}
+			
 			for (VaadinAuthenticationUI uiInstance : uiInstances)
 			{
 				String optionKey = uiInstance.getId();
@@ -54,6 +67,38 @@ public class RemoteAuthnProvidersSelection extends ChipsWithDropdown<Authenticat
 						optionKey));
 			}
 		}
+	
 		setItems(authnOptions);
+	}
+	
+	@Override
+	protected void sortItems(List<AuthenticationOptionKey> items)
+	{
+		items.sort(new AuthnOptionComparator());
+	}
+	
+	public static class AuthnOptionComparator implements Comparator<AuthenticationOptionKey>
+	{
+
+		@Override
+		public int compare(AuthenticationOptionKey o1, AuthenticationOptionKey o2)
+		{
+			if (o1.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS)
+					&& o2.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS))
+			{
+				return o1.getAuthenticatorKey().compareTo(o2.getAuthenticatorKey());
+			} else if (o1.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS)
+					&& !o2.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS))
+			{
+				return -1;
+			} else if (!o1.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS)
+					&& o2.getOptionKey().equals(AuthenticationOptionKey.ALL_OPTS))
+			{
+				return 1;
+			} else
+			{
+				return o1.toGlobalKey().compareTo(o2.toGlobalKey());
+			}
+		}
 	}
 }

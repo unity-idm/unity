@@ -14,7 +14,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 public class SearchComponent extends CustomComponent
 {
-	SearchComponent(UnityMessageSource msg, Consumer<String> filterChangedCallback)
+	public SearchComponent(UnityMessageSource msg, Consumer<String> filterChangedCallback)
 	{
 		TextField search = new TextField();
 		search.setPlaceholder(msg.getMessage("IdpSelectorComponent.filter"));

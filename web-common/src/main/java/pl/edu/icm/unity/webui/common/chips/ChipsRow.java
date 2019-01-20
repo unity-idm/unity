@@ -22,7 +22,7 @@ public class ChipsRow<T> extends CustomComponent
 {
 	private List<Chip<T>> chips;
 	private CssLayout wrapper;
-	private ClickListener externalRemovalListener;
+	private List<ClickListener> externalRemovalListeners;
 	private boolean readOnly;
 	
 	public ChipsRow()
@@ -39,8 +39,12 @@ public class ChipsRow<T> extends CustomComponent
 		chip.setReadOnly(readOnly);
 		wrapper.addComponent(chip);
 		chip.addRemovalListener(c -> removeChip(chip));
-		if (externalRemovalListener != null)
-			chip.addRemovalListener(externalRemovalListener);
+		if (externalRemovalListeners != null)
+		{
+			for (ClickListener l : externalRemovalListeners)
+			chip.addRemovalListener(l);
+		}
+			
 	}
 	
 	public List<T> getChipsData()
@@ -50,7 +54,9 @@ public class ChipsRow<T> extends CustomComponent
 	
 	public void addChipRemovalListener(ClickListener externalRemovalListener)
 	{
-		this.externalRemovalListener = externalRemovalListener;
+		if (externalRemovalListeners == null)
+			externalRemovalListeners = new ArrayList<>();
+		externalRemovalListeners.add(externalRemovalListener);
 		for (Chip<T> chip: chips)
 			chip.addRemovalListener(externalRemovalListener);
 	}

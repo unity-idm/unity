@@ -25,13 +25,12 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
-import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Component showing a group of {@link VaadinAuthenticationUI}s. All of them are presented in Vaadin {@link Grid}.
  */
-class AuthnsGridWidget extends CustomComponent
+public class AuthnsGridWidget extends CustomComponent
 {
 	private final AuthNPanelFactory authNPanelFactory;
 	private final List<AuthNOption> options;
@@ -45,7 +44,7 @@ class AuthnsGridWidget extends CustomComponent
 	private ListDataProvider<AuthenticationOptionGridEntry> dataProvider;
 	private final int height;
 	
-	AuthnsGridWidget(List<AuthNOption> options, UnityMessageSource msg,
+	public AuthnsGridWidget(List<AuthNOption> options, UnityMessageSource msg,
 			AuthNPanelFactory authNPanelFactory, int height)
 	{
 		this.options = options;
@@ -133,7 +132,7 @@ class AuthnsGridWidget extends CustomComponent
 		return authenticatorById.size();
 	}
 	
-	void filter(String filter)
+	public void filter(String filter)
 	{
 		dataProvider.clearFilters();
 		dataProvider.addFilter(v -> v.getNameWithTags().contains(filter));

@@ -56,6 +56,7 @@ public class RegistrationForm extends BaseForm
 	private String defaultCredentialRequirement;
 	private I18nString title2ndStage = new I18nString();
 	private ExternalSignupSpec externalSignupSpec = new ExternalSignupSpec();
+	private ExternalSignupGridSpec externalSignupGridSpec = new ExternalSignupGridSpec();
 	private RegistrationFormLayouts formLayouts = new RegistrationFormLayouts();
 	private boolean showSignInLink;
 	private String signInLink;
@@ -145,6 +146,16 @@ public class RegistrationForm extends BaseForm
 	public void setExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
 	{
 		this.externalSignupSpec = externalSignupSpec;
+	}
+	
+	public ExternalSignupGridSpec getExternalSignupGridSpec()
+	{
+		return externalSignupGridSpec;
+	}
+
+	public void setExternalSignupGridSpec(ExternalSignupGridSpec externalSignupGridSpec)
+	{
+		this.externalSignupGridSpec = externalSignupGridSpec;
 	}
 
 	public RegistrationFormLayouts getFormLayouts()
@@ -266,12 +277,24 @@ public class RegistrationForm extends BaseForm
 	
 	private List<FormElement> getDefaultExternalSignupFormLayoutElements(MessageSource msg)
 	{
+
+		List<AuthenticationOptionKey> remoteSignupGrid = getExternalSignupGridSpec().getSpecs();
 		List<AuthenticationOptionKey> remoteSignup = getExternalSignupSpec().getSpecs();
+
 		List<FormElement> ret = new ArrayList<>();
-		for (int i=0; i<remoteSignup.size(); i++)
+		for (int i = 0; i < remoteSignup.size(); i++)
 		{
-			ret.add(new FormParameterElement(FormLayoutElement.REMOTE_SIGNUP, i));
+			if (!remoteSignupGrid.contains(remoteSignup.get(i)))
+			{
+				ret.add(new FormParameterElement(FormLayoutElement.REMOTE_SIGNUP, i));
+			}
 		}
+		
+		if (!remoteSignupGrid.isEmpty())
+		{
+			ret.add(new FormParameterElement(FormLayoutElement.REMOTE_SIGNUP_GRID, 0));
+		}
+
 		return ret;
 	}
 
@@ -319,6 +342,7 @@ public class RegistrationForm extends BaseForm
 		root.put("RegistrationCode", getRegistrationCode());
 		root.put("CaptchaLength", getCaptchaLength());
 		root.set("ExternalSignupSpec", jsonMapper.valueToTree(getExternalSignupSpec()));
+		root.set("ExternalSignupGridSpec", jsonMapper.valueToTree(getExternalSignupGridSpec()));
 		root.set("RegistrationFormLayouts", jsonMapper.valueToTree(getFormLayouts()));
 		root.set("Title2ndStage", I18nStringJsonUtil.toJson(title2ndStage));
 		root.put("ShowSignInLink", showSignInLink);
@@ -358,6 +382,10 @@ public class RegistrationForm extends BaseForm
 			if (n != null)
 				setExternalSignupSpec(jsonMapper.convertValue(n, new TypeReference<ExternalSignupSpec>(){}));
 			
+			n = root.get("ExternalSignupGridSpec");
+			if (n != null)
+				setExternalSignupGridSpec(jsonMapper.convertValue(n, new TypeReference<ExternalSignupGridSpec>(){}));
+				
 			n = root.get("RegistrationFormLayouts");
 			if (n != null)
 				setFormLayouts(jsonMapper.convertValue(n, new TypeReference<RegistrationFormLayouts>(){}));

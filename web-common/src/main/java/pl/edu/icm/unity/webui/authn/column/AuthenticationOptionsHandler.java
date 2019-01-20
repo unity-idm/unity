@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
  * 
  * @author K. Benedyczak
  */
-class AuthenticationOptionsHandler
+public class AuthenticationOptionsHandler
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, AuthenticationOptionsHandler.class);
 	private final Map<String, AuthenticatorWithFlow> authenticatorsByName = new LinkedHashMap<>();
@@ -144,21 +144,6 @@ class AuthenticationOptionsHandler
 		{
 			this.flow = flow;
 			this.authenticator = authenticator;
-		}
-	}
-	
-	public static class AuthNOption
-	{
-		public final AuthenticationFlow flow;
-		public final VaadinAuthentication authenticator;
-		public final VaadinAuthenticationUI authenticatorUI;
-
-		public AuthNOption(AuthenticationFlow flow, VaadinAuthentication authenticator,
-				VaadinAuthenticationUI authenticatorUI)
-		{
-			this.flow = flow;
-			this.authenticator = authenticator;
-			this.authenticatorUI = authenticatorUI;
 		}
 	}
 }

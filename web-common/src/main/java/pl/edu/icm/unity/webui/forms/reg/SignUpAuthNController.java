@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
+import pl.edu.icm.unity.webui.authn.column.AuthNOption;
 
 /**
  * Controls the sign up authentication flow and notifies the application through
@@ -31,7 +32,7 @@ public class SignUpAuthNController
 	private AuthenticationProcessor authnProcessor;
 	private SignUpAuthNControllerListener listener;
 	
-	private SignUpAuthNOption selectedAuthNOption;
+	private AuthNOption selectedAuthNOption;
 	
 	public SignUpAuthNController(AuthenticationProcessor authnProcessor, SignUpAuthNControllerListener listener)
 	{
@@ -39,9 +40,9 @@ public class SignUpAuthNController
 		this.listener = listener;
 	}
 
-	public AuthenticationCallback buildCallback(SignUpAuthNOption authenticatorUI)
+	public AuthenticationCallback buildCallback(AuthNOption option)
 	{
-		return new SignUpAuthnCallback(authenticatorUI);
+		return new SignUpAuthnCallback(option);
 	}
 	
 	private void processAuthn(AuthenticationResult result, String error)
@@ -87,11 +88,11 @@ public class SignUpAuthNController
 
 	private class SignUpAuthnCallback implements AuthenticationCallback
 	{
-		private final SignUpAuthNOption authNOption;
+		private final AuthNOption authNOption;
 
-		SignUpAuthnCallback(SignUpAuthNOption authNOption)
+		SignUpAuthnCallback(AuthNOption option)
 		{
-			this.authNOption = authNOption;
+			this.authNOption = option;
 		}
 
 		@Override
