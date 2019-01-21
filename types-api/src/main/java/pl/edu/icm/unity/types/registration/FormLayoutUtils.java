@@ -169,7 +169,7 @@ public final class FormLayoutUtils
 					addParameterIfMissing(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, i, definedElements);
 				}else 
 				{
-					removeParametersWithIndex(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, i);
+					removeParametersWithIndexIfPresent(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, i);
 				}
 			}		
 			removeParametersWithIndexLargerThen(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, externalSignUpSize);
@@ -181,7 +181,7 @@ public final class FormLayoutUtils
 						definedElements);
 			} else
 			{
-				removeParametersWithIndex(primaryLayout, FormLayoutElement.REMOTE_SIGNUP_GRID,
+				removeParametersWithIndexIfPresent(primaryLayout, FormLayoutElement.REMOTE_SIGNUP_GRID,
 						0);
 			}		
 		}
@@ -388,7 +388,7 @@ public final class FormLayoutUtils
 		}
 	}
 	
-	private static void removeParametersWithIndex(FormLayout layout, FormLayoutElement type, int index)
+	private static void removeParametersWithIndexIfPresent(FormLayout layout, FormLayoutElement type, int index)
 	{
 		Iterator<FormElement> iterator = layout.getElements().iterator();
 		while (iterator.hasNext())

@@ -41,6 +41,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
 import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSettings;
 import pl.edu.icm.unity.types.registration.FormLayoutUtils;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
@@ -335,6 +336,12 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	{			
 		int index = element.getIndex();
 		ExternalSignupGridSpec externalSignupGridSpec = form.getExternalSignupGridSpec();
+		AuthnGridSettings gridSettings = externalSignupGridSpec.getGridSettings();
+		if (gridSettings == null)
+		{
+			gridSettings = new AuthnGridSettings();
+		}
+		
 		AuthenticationOptionKey spec = externalSignupGridSpec.getSpecs().get(index);
 
 		List<AuthNOption> options = getSignupOptions(spec);
@@ -344,10 +351,10 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			return false;
 		}
 		
-		AuthnsGridWidget grid = new AuthnsGridWidget(options, msg, new AuthnPanelRegFactor(), 7);
+		AuthnsGridWidget grid = new AuthnsGridWidget(options, msg, new RegGridAuthnPanelFactory(), gridSettings.height);
 		grid.setWidth(formWidth(), formWidthUnit());
 		SearchComponent search = new SearchComponent(msg, grid::filter);
-		if (externalSignupGridSpec.isSearchable())
+		if (gridSettings.searchable)
 		{
 			registrationFormLayout.addComponent(search);
 			registrationFormLayout.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
@@ -447,7 +454,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		return remotelyAuthenticated;
 	}
 
-	private class AuthnPanelRegFactor implements AuthNPanelFactory
+	private class RegGridAuthnPanelFactory implements AuthNPanelFactory
 	{
 		@Override
 		public FirstFactorAuthNPanel createRegularAuthnPanel(AuthNOption authnOption)
