@@ -23,6 +23,7 @@ public class TopHeader extends TopHeaderLight
 {
 	protected UnityMessageSource msg;
 	protected StandardWebAuthenticationProcessor authnProcessor;
+	protected HorizontalLayout loggedPanel;
 	
 	public TopHeader(String title, StandardWebAuthenticationProcessor authnProcessor, UnityMessageSource msg)
 	{
@@ -30,18 +31,16 @@ public class TopHeader extends TopHeaderLight
 		this.msg = msg;
 		this.authnProcessor = authnProcessor;
 		
-		HorizontalLayout loggedPanel = new HorizontalLayout();
+		loggedPanel = new HorizontalLayout();
 		loggedPanel.setSizeUndefined();
 		loggedPanel.setSpacing(true);
 		loggedPanel.setMargin(false);
 		addComponent(loggedPanel);
 		setComponentAlignment(loggedPanel, Alignment.MIDDLE_RIGHT);
-		
-		addLoggedInfo(loggedPanel);
-		addButtons(loggedPanel);
+		addLoggedInfo();
 	}
 	
-	protected void addLoggedInfo(HorizontalLayout loggedPanel)
+	protected void addLoggedInfo()
 	{
 		LoginSession entity = InvocationContext.getCurrent().getLoginSession();
 		String label = entity.getEntityLabel() == null ? "" : entity.getEntityLabel();
@@ -51,13 +50,6 @@ public class TopHeader extends TopHeaderLight
 		loggedEntity.setId("MainHeader.loggedAs");
 		loggedPanel.addComponent(loggedEntity);
 		loggedPanel.setComponentAlignment(loggedEntity, Alignment.MIDDLE_RIGHT);
-	}
-	
-	protected void addButtons(HorizontalLayout loggedPanel)
-	{
-		Button logout = createLogoutButton();
-		loggedPanel.addComponent(logout);
-		loggedPanel.setComponentAlignment(logout, Alignment.MIDDLE_RIGHT);
 	}
 	
 	protected Button createLogoutButton()

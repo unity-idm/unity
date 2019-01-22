@@ -62,7 +62,10 @@ class GroupsTree extends TreeGrid<GroupNode>
 
 		groupTree = controller.getGroupTree(projectPath, path);
 
-		for (DelegatedGroup rootGr : groupTree.get(null))
+		List<DelegatedGroup> rootGrs = groupTree.get(null);
+		if (rootGrs == null)
+			return;
+		for (DelegatedGroup rootGr : rootGrs)
 		{
 			GroupNode rootNode = new GroupNode(rootGr, parent);
 			treeData.addItem(parent, rootNode);

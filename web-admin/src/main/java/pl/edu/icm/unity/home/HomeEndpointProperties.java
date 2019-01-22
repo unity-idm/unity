@@ -52,6 +52,8 @@ public class HomeEndpointProperties extends PropertiesHelper
 	public static final String GWA_EDITABLE = "editable";
 	public static final String REMOVAL_MODE = "selfRemovalMode";
 	public static final String DISABLE_REMOVAL_SCHEDULE = "disableSelfRemovalScheduling";
+	public static final String ENABLE_PROJECT_MANAGEMENT_LINK = "enableProjectManagementLink";
+	public static final String PROJECT_MANAGEMENT_ENDPOINT = "projectManagementEndpoint";
 	
 	static
 	{
@@ -83,6 +85,10 @@ public class HomeEndpointProperties extends PropertiesHelper
 				setDescription("If true then the group is shown next to the attribute."));
 		META.put(ENQUIRIES, new PropertyMD().setList(false).
 				setDescription("List of enquiries to be presented on User Home UI."));	
+		META.put(ENABLE_PROJECT_MANAGEMENT_LINK, new PropertyMD("true").setDescription(
+				"If true then the project managament link is shown in header of User Home UI."));
+		META.put(PROJECT_MANAGEMENT_ENDPOINT, new PropertyMD().setDescription(
+				"If project management link is active, then link redirect to this endpoint address. By default first active project management endpoint is used."));
 	}
 	
 	public HomeEndpointProperties(Properties properties) throws ConfigurationException
@@ -98,5 +104,18 @@ public class HomeEndpointProperties extends PropertiesHelper
 	public List<String> getEnabledEnquiries()
 	{
 		return new ArrayList<>(getListOfValues(ENQUIRIES));
+	}
+	
+	public boolean isProjectManLinkIsEnabled()
+	{
+		return getBooleanValue(ENABLE_PROJECT_MANAGEMENT_LINK);
+	}
+	
+	public String getProjectManEndpoint()
+	{
+		if (isSet(PROJECT_MANAGEMENT_ENDPOINT))
+			return getValue(PROJECT_MANAGEMENT_ENDPOINT);
+		
+		return null;
 	}
 }

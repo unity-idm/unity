@@ -8,7 +8,6 @@ import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -32,10 +31,10 @@ public class AdminTopHeader extends TopHeader
 	{
 		super(title, authnProcessor, msg);
 		this.callback = callback;
+		addButtons();
 	}
 
-	@Override
-	protected void addButtons(HorizontalLayout loggedPanel)
+	private void addButtons()
 	{
 		Button supportB = createSupportButton();
 		loggedPanel.addComponent(supportB);

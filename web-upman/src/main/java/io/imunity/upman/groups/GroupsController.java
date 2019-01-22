@@ -69,7 +69,7 @@ public class GroupsController
 			}
 			groupTree.put(group, subGr);
 		}
-		if (groupAndSubgroups.isEmpty() && groupAndSubgroups.get(rootPath) != null)
+		if (!groupAndSubgroups.isEmpty() && groupAndSubgroups.get(rootPath) != null)
 		{
 			groupTree.put(null, Arrays.asList(groupAndSubgroups.get(rootPath).group));
 		}

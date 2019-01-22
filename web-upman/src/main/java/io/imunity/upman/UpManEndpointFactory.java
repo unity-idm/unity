@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.project.ProjectManagementConstants;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.types.endpoint.EndpointTypeDescription;
 import pl.edu.icm.unity.webui.VaadinEndpoint;
@@ -29,7 +30,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 @Component
 public class UpManEndpointFactory implements EndpointFactory
 {
-	public static final String NAME = "UpManUI";
+	public static final String NAME = ProjectManagementConstants.ENDPOINT_NAME;
 	public static final String SERVLET_PATH = "/upman";
 
 	private EndpointTypeDescription description;
