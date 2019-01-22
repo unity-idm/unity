@@ -264,7 +264,6 @@ public final class FormLayoutUtils
 			checkRemoteSignupElements(form, definedElements);
 			checkRemoteSignupGridElements(form, definedElements);
 			
-			
 			if (!definedElements.isEmpty())
 				throw new IllegalStateException("Form layout contains elements "
 						+ "which are not defied in the form: " + definedElements);
@@ -365,6 +364,10 @@ public final class FormLayoutUtils
 			{
 				checkLayoutElement(getIdOfElement(FormLayoutElement.REMOTE_SIGNUP, i), definedElements);
 			}
+		}
+		if (gridSpecs.size() > 0)
+		{
+			checkLayoutElement(getIdOfElement(FormLayoutElement.REMOTE_SIGNUP_GRID, 0), definedElements);		
 		}
 	}
 	
