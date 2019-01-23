@@ -163,7 +163,7 @@ public class TestRequestManagement extends TestProjectBase
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
 		RegistrationForm form = new RegistrationFormBuilder().withByInvitationOnly(false).withName("regForm")
 				.withDefaultCredentialRequirement("").build();
-		when(mockRegistrationMan.getForms()).thenReturn(Arrays.asList(form));
+		when(mockRegistrationMan.getForm(eq("regForm"))).thenReturn(form);
 
 		Optional<String> projectRegistrationFormLink = projectRequestMan
 				.getProjectRegistrationFormLink("/project");
@@ -177,7 +177,7 @@ public class TestRequestManagement extends TestProjectBase
 		EnquiryForm form = new EnquiryFormBuilder().withByInvitationOnly(false).withName("enqForm")
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withTargetGroups(new String[] { "/" })
 				.build();
-		when(mockEnquiryMan.getEnquires()).thenReturn(Arrays.asList(form));
+		when(mockEnquiryMan.getEnquiry("enqForm")).thenReturn(form);
 
 		Optional<String> projectEnquiryFormLink = projectRequestMan.getProjectSignUpEnquiryFormLink("/project");
 		assertThat(projectEnquiryFormLink.isPresent(), is(true));

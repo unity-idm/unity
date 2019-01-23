@@ -10,7 +10,6 @@ import java.util.Optional;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -57,14 +56,7 @@ public class HomeTopHeader extends TopHeader
 		goToProjectMan.setDescription(msg.getMessage("HomeUIHeader.toProjectManagement"));
 		goToProjectMan.addStyleName(Styles.vButtonLink.toString());
 		goToProjectMan.addStyleName(Styles.largeIcon.toString());
-		goToProjectMan.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				Page.getCurrent().open(projectManLink.get(), null);
-			}
-		});
+		goToProjectMan.addClickListener(e -> Page.getCurrent().open(projectManLink.get(), null));
 		return goToProjectMan;
 	}
 }

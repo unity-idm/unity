@@ -113,9 +113,6 @@ public class HomeEndpointProperties extends PropertiesHelper
 	
 	public String getProjectManEndpoint()
 	{
-		if (isSet(PROJECT_MANAGEMENT_ENDPOINT))
-			return getValue(PROJECT_MANAGEMENT_ENDPOINT);
-		
-		return null;
-	}
+		return getValue(PROJECT_MANAGEMENT_ENDPOINT);
+	}	
 }

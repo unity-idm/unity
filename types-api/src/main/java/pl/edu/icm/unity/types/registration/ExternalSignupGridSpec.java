@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 
 /**
- * Configures with remote signUp methods should be shown in grid. 
+ * Configures which remote signUp methods should be shown in grid. 
  * 
  * @author P.Piernik
  *
