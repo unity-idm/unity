@@ -147,7 +147,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 						new DelegatedGroupContents(new DelegatedGroup(orgGroup.toString(),
 								orgGroup.getDelegationConfiguration(),
 								orgGroup.isOpen(), getGroupDisplayName(orgGroup)),
-								content.getSubGroups()));
+								Optional.ofNullable(content.getSubGroups())));
 			}
 		}
 		return ret;
@@ -165,7 +165,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		return new DelegatedGroupContents(
 				new DelegatedGroup(orgGroup.toString(), orgGroup.getDelegationConfiguration(),
 						orgGroup.isOpen(), getGroupDisplayName(orgGroup)),
-				orgGroupContents.getSubGroups());
+				Optional.ofNullable(orgGroupContents.getSubGroups()));
 
 	}
 
@@ -309,7 +309,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 								EntityNameMetadataProvider.NAME),
 						emailId != null ? emailId : projectAttrHelper.getVerifiableAttributeFromMeta(entity, "/",
 								ContactEmailMetadataProvider.NAME),
-						getProjectMemberAttributes(entity, projectPath, projectAttrs));
+						Optional.ofNullable(getProjectMemberAttributes(entity, projectPath, projectAttrs)));
 				members.add(entry);
 			}
 		}

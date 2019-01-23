@@ -6,8 +6,9 @@
 package pl.edu.icm.unity.engine.api.project;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import com.google.common.base.Objects;
 
@@ -27,16 +28,13 @@ public class ProjectRequest extends ProjectRequestParam
 	public final Instant requestedTime;
 
 	public ProjectRequest(String id, RequestOperation operation, RequestType type, String project, String name,
-			VerifiableElementBase email, List<String> groups, Instant requestedTime)
+			VerifiableElementBase email, Optional<List<String>> groups, Instant requestedTime)
 	{
 		super(project, id, operation, type);
 		this.name = name;
 		this.email = email;
-		this.groups = new ArrayList<>();
-		if (groups != null)
-		{
-			this.groups.addAll(groups);
-		}
+		this.groups = !groups.isPresent() ? Collections.unmodifiableList(Collections.emptyList())
+				: Collections.unmodifiableList(groups.get());
 		this.requestedTime = requestedTime;
 	}
 

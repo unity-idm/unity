@@ -329,4 +329,11 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	{
 		return confirmationsSupport.getRegistrationFormAutomationSupport(form);
 	}
+
+	@Override
+	@Transactional
+	public RegistrationForm getForm(String id) throws EngineException
+	{
+		return formsDB.get(id);
+	}
 }

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
-import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeDAOInternal;
 import pl.edu.icm.unity.store.impl.groups.GroupDAOInternal;
@@ -66,7 +65,6 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 		
 		RegistrationFormChangeListener changeListener = new RegistrationFormChangeListener(groupDAO);
 		addRemovalHandler(changeListener);
-		addUpdateHandler(changeListener);
 	}
 	
 	private void restrictCredReqRemoval(long removedId, String removedName)
@@ -144,7 +142,7 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 		}
 	}
 	
-	private class RegistrationFormChangeListener implements ReferenceRemovalHandler, ReferenceUpdateHandler<RegistrationForm>
+	private class RegistrationFormChangeListener implements ReferenceRemovalHandler
 	{
 
 		private GroupDAOInternal groupDAO;
@@ -168,25 +166,5 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 				}		
 			}	
 		}
-
-		@Override
-		public void preUpdateCheck(long modifiedId, String modifiedName, RegistrationForm newValue)
-		{
-			List<Group> all = groupDAO.getAll();
-			for (Group group : all)
-			{
-				GroupDelegationConfiguration config = group.getDelegationConfiguration();
-				if (config.registrationForm != null && config.registrationForm.equals(modifiedName))
-				{
-					GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
-							config.enabled, config.logoUrl, newValue.getName(),
-							config.signupEnquiryForm, config.stickyEnquiryForm,
-							config.attributes);
-					group.setDelegationConfiguration(newConfig);
-					groupDAO.update(group);
-				}
-			}
-
-		}	
 	}
 }

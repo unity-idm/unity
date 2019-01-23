@@ -24,7 +24,7 @@ public class GroupDelegationConfiguration
 	public final String logoUrl;
 	public final String registrationForm;
 	public final String signupEnquiryForm;
-	public final String stickyEnquiryForm;
+	public final String membershipUpdateEnquiryForm;
 	public final List<String> attributes;
 
 	public GroupDelegationConfiguration(boolean enabled)
@@ -37,14 +37,14 @@ public class GroupDelegationConfiguration
 			@JsonProperty("logoUrl") String logoUrl,
 			@JsonProperty("registrationForm") String registrationForm,
 			@JsonProperty("signupEnquiryForm") String signupEnquiryForm,
-			@JsonProperty("stickyEnquiryForm") String stickyEnquiryForm,
+			@JsonProperty("membershipUpdateEnquiryForm") String membershipUpdateEnquiryForm,
 			@JsonProperty("attributes") List<String> attributes)
 	{
 		this.enabled = enabled;
 		this.logoUrl = logoUrl;
 		this.registrationForm = registrationForm;
 		this.signupEnquiryForm = signupEnquiryForm;
-		this.stickyEnquiryForm = stickyEnquiryForm;
+		this.membershipUpdateEnquiryForm = membershipUpdateEnquiryForm;
 		this.attributes = attributes != null ? new ArrayList<>(attributes) : null;
 	}
 
@@ -52,7 +52,7 @@ public class GroupDelegationConfiguration
 	public int hashCode()
 	{
 		return Objects.hash(this.enabled, this.logoUrl, this.registrationForm, this.signupEnquiryForm,
-				this.stickyEnquiryForm, this.attributes);
+				this.membershipUpdateEnquiryForm, this.attributes);
 	}
 
 	@Override
@@ -67,7 +67,7 @@ public class GroupDelegationConfiguration
 				&& Objects.equals(this.registrationForm, other.registrationForm)
 				&& Objects.equals(this.signupEnquiryForm, other.signupEnquiryForm)
 				&& Objects.equals(this.logoUrl, other.logoUrl)
-				&& Objects.equals(this.stickyEnquiryForm, other.stickyEnquiryForm)
+				&& Objects.equals(this.membershipUpdateEnquiryForm, other.membershipUpdateEnquiryForm)
 				&& Objects.equals(this.attributes, other.attributes);
 
 	}

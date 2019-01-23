@@ -5,9 +5,10 @@
 
 package pl.edu.icm.unity.engine.api.project;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Holds information about delegated group and subgroup.
@@ -20,14 +21,11 @@ public class DelegatedGroupContents
 	public final DelegatedGroup group;
 	public final List<String> subGroups;
 
-	public DelegatedGroupContents(DelegatedGroup group, List<String> subGroups)
+	public DelegatedGroupContents(DelegatedGroup group, Optional<List<String>> subGroups)
 	{
 		this.group = group;
-		this.subGroups = new ArrayList<>();
-		if (subGroups != null)
-		{
-			this.subGroups.addAll(subGroups);
-		}
+		this.subGroups = !subGroups.isPresent() ? Collections.unmodifiableList(Collections.emptyList())
+				: Collections.unmodifiableList(subGroups.get());
 
 	}
 

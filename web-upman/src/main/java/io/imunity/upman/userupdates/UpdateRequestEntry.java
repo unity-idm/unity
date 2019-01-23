@@ -6,7 +6,7 @@
 package io.imunity.upman.userupdates;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.base.Objects;
@@ -43,11 +43,8 @@ class UpdateRequestEntry implements FilterableEntry
 		this.type = type;
 		this.name = name;
 		this.email = email;
-		this.groupsDisplayedNames = new ArrayList<>();
-		if (groupsDisplayedNames != null)
-		{
-			this.groupsDisplayedNames.addAll(groupsDisplayedNames);
-		}
+		this.groupsDisplayedNames = groupsDisplayedNames == null ? Collections.unmodifiableList(Collections.emptyList())
+				: Collections.unmodifiableList(groupsDisplayedNames);
 		this.requestedTime = requestedTime;
 	}
 

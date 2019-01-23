@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
-import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeDAOInternal;
 import pl.edu.icm.unity.store.impl.groups.GroupDAOInternal;
@@ -61,7 +60,6 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 		
 		EnquiryFormChangeListener changeListener = new EnquiryFormChangeListener(groupDAO);
 		addRemovalHandler(changeListener);
-		addUpdateHandler(changeListener);
 	}
 	
 	private class MessageTemplateChangeListener extends BaseTemplateChangeListener
@@ -126,7 +124,7 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 		}
 	}
 	
-	private class EnquiryFormChangeListener implements ReferenceRemovalHandler, ReferenceUpdateHandler<EnquiryForm>
+	private class EnquiryFormChangeListener implements ReferenceRemovalHandler
 	{
 
 		private GroupDAOInternal groupDAO;
@@ -149,43 +147,11 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 							+ group.getName() + " delegation config");
 				}
 
-				if (config.stickyEnquiryForm != null && config.stickyEnquiryForm.equals(removedName))
+				if (config.membershipUpdateEnquiryForm != null && config.membershipUpdateEnquiryForm.equals(removedName))
 				{
 					throw new IllegalArgumentException("The enquiry form is used " + "by a group "
 							+ group.getName() + " delegation config");
 				}
-			}
-		}
-
-		@Override
-		public void preUpdateCheck(long modifiedId, String modifiedName, EnquiryForm newValue)
-		{
-			List<Group> all = groupDAO.getAll();
-			for (Group group : all)
-			{
-				boolean needUpdate = false;
-				GroupDelegationConfiguration config = group.getDelegationConfiguration();
-				if (config.signupEnquiryForm != null && config.signupEnquiryForm.equals(modifiedName))
-				{
-					GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
-							config.enabled, config.logoUrl, config.registrationForm,
-							newValue.getName(), config.stickyEnquiryForm,
-							config.attributes);
-					group.setDelegationConfiguration(newConfig);
-
-				}
-
-				if (config.stickyEnquiryForm != null && config.stickyEnquiryForm.equals(modifiedName))
-				{
-					GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
-							config.enabled, config.logoUrl, config.registrationForm,
-							config.signupEnquiryForm, newValue.getName(),
-							config.attributes);
-					group.setDelegationConfiguration(newConfig);
-				}
-
-				if (needUpdate)
-					groupDAO.update(group);
 			}
 		}
 	}

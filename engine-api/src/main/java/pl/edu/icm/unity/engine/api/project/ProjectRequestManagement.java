@@ -20,39 +20,26 @@ import pl.edu.icm.unity.exceptions.EngineException;
 public interface ProjectRequestManagement
 {
 	/**
-	 * 
+	 * Get all project requests
 	 * @param project
 	 * @return
 	 */
 	List<ProjectRequest> getRequests(String projectPath) throws EngineException;
 
 	/**
-	 * 
+	 * Accept project request
 	 * @param id
 	 */
 	void accept(ProjectRequestParam request) throws EngineException;
 
 	/**
-	 * 
+	 * Reject project request
 	 * @param id
 	 */
 	void decline(ProjectRequestParam request) throws EngineException;
 	
-	
-	/**
-	 * 
-	 * @param projectPath
-	 * @return
-	 * @throws EngineException
-	 */
 	Optional<String> getProjectRegistrationFormLink(String projectPath) throws EngineException;
 
-	/**
-	 * 
-	 * @param projectPath
-	 * @return
-	 * @throws EngineException
-	 */
 	Optional<String> getProjectSignUpEnquiryFormLink(String projectPath) throws EngineException;
 
 }

@@ -8,7 +8,6 @@ package pl.edu.icm.unity.engine.project;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -94,7 +93,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 
 		allRequests.addAll(getEnquiryRequests(projectPath, projectDelegationConfig.signupEnquiryForm,
 				RequestOperation.SignUp, RequestType.Enquiry));
-		allRequests.addAll(getEnquiryRequests(projectPath, projectDelegationConfig.stickyEnquiryForm,
+		allRequests.addAll(getEnquiryRequests(projectPath, projectDelegationConfig.membershipUpdateEnquiryForm,
 				RequestOperation.Update, RequestType.Enquiry));
 
 		return allRequests;
@@ -127,11 +126,16 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		if (registrationFormId == null)
 			return Optional.empty();
 
-		RegistrationForm registrationForm = registrationMan.getForms().stream()
-				.collect(Collectors.toMap(RegistrationForm::getName, Function.identity()))
-				.get(registrationFormId);
+		RegistrationForm registrationForm = null;
+		try
+		{
+			registrationForm = registrationMan.getForm(registrationFormId);
+		} catch (EngineException e)
+		{
+			return Optional.empty();
+		}
 
-		if (registrationForm == null || registrationForm.isByInvitationOnly())
+		if (registrationForm.isByInvitationOnly())
 			return Optional.empty();
 
 		return Optional.ofNullable(PublicRegistrationURLSupport.getPublicRegistrationLink(registrationForm,
@@ -148,11 +152,16 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		if (enquiryFormId == null)
 			return Optional.empty();
 
-		EnquiryForm enquiryForm = enquiryMan.getEnquires().stream()
-				.collect(Collectors.toMap(EnquiryForm::getName, Function.identity()))
-				.get(enquiryFormId);
-
-		if (enquiryForm == null || enquiryForm.isByInvitationOnly())
+		EnquiryForm enquiryForm = null;
+		try
+		{
+			enquiryForm = enquiryMan.getEnquiry(enquiryFormId);
+		} catch (EngineException e)
+		{
+			return Optional.empty();
+		}
+			
+		if (enquiryForm.isByInvitationOnly())
 			return Optional.empty();
 
 		return Optional.ofNullable(
@@ -313,11 +322,11 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	{
 
 		return new ProjectRequest(state.getRequestId(), operation, type, projectPath, name, email,
-				(request.getGroupSelections() != null && !request.getGroupSelections().isEmpty()
+				Optional.ofNullable((request.getGroupSelections() != null && !request.getGroupSelections().isEmpty()
 						&& request.getGroupSelections().get(0) != null)
 								? request.getGroupSelections().get(0)
 										.getSelectedGroups()
-								: null,
+								: null),
 				state.getTimestamp() != null ? state.getTimestamp().toInstant() : null);
 	}
 

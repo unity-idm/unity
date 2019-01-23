@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -111,7 +112,7 @@ public class TestGroupMembersController
 		DelegatedGroup delGroup = new DelegatedGroup("/project", new GroupDelegationConfiguration(true, null,
 				null, null, null, Arrays.asList("extraAttr")), true, "name");
 
-		DelegatedGroupContents con = new DelegatedGroupContents(delGroup, null);
+		DelegatedGroupContents con = new DelegatedGroupContents(delGroup, Optional.empty());
 
 		when(mockDelGroupMan.getContents(eq("/project"), eq("/project"))).thenReturn(con);
 		when(mockDelGroupMan.getAttributeDisplayedName(eq("/project"), eq("extraAttr"))).thenReturn("extra");
@@ -132,7 +133,7 @@ public class TestGroupMembersController
 
 	private GroupMemberEntry getMember()
 	{
-		return new GroupMemberEntry(new DelegatedGroupMember(1L, null, null, null, null, null, null), null);
+		return new GroupMemberEntry(new DelegatedGroupMember(1L, null, null, null, null, null, Optional.empty()), null);
 	}
 
 }

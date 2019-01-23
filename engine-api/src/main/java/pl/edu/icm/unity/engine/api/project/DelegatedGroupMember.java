@@ -5,9 +5,10 @@
 
 package pl.edu.icm.unity.engine.api.project;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
@@ -29,7 +30,7 @@ public class DelegatedGroupMember
 	public final List<Attribute> attributes;
 
 	public DelegatedGroupMember(long entityId, String project, String group, GroupAuthorizationRole role,
-			String name, VerifiableElementBase email, List<Attribute> attributes)
+			String name, VerifiableElementBase email, Optional<List<Attribute>> attributes)
 	{
 		this.entityId = entityId;
 		this.project = project;
@@ -37,12 +38,8 @@ public class DelegatedGroupMember
 		this.role = role;
 		this.name = name;
 		this.email = email;
-		this.attributes = new ArrayList<>();
-		if (attributes != null)
-		{
-			this.attributes.addAll(attributes);
-
-		}
+		this.attributes = !attributes.isPresent() ? Collections.unmodifiableList(Collections.emptyList())
+				: Collections.unmodifiableList(attributes.get());
 	}
 
 	@Override

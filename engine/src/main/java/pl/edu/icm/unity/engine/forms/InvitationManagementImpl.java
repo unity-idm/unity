@@ -95,7 +95,7 @@ public class InvitationManagementImpl implements InvitationManagement
 			assertRegistrationFormIsForInvitation(invitation.getFormId());
 		}else
 		{
-			assertEnquiryFormIsExists(invitation.getFormId());
+			assertEnquiryFormIsPresent(invitation.getFormId());
 		}
 		
 		String randomUUID = UUID.randomUUID().toString();
@@ -166,7 +166,7 @@ public class InvitationManagementImpl implements InvitationManagement
 		invitationDB.update(updated);
 	}
 	
-	private void assertEnquiryFormIsExists(String formId)
+	private void assertEnquiryFormIsPresent(String formId)
 	{
 		enquiryDB.get(formId);		
 	}

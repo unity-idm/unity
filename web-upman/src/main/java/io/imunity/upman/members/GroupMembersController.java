@@ -236,8 +236,16 @@ public class GroupMembersController
 		}
 	}
 
-	public String getProjectDisplayedName(String project)
+	public String getProjectDisplayedName(String project) throws ControllerException
 	{
-		return delGroupHelper.getGroupsDisplayedNames(project, Arrays.asList(project)).get(0);
+		try
+		{
+
+			return delGroupHelper.getGroupsDisplayedNames(project, Arrays.asList(project)).get(0);
+		} catch (Exception e)
+		{
+			throw new ControllerException(
+					msg.getMessage("GroupMembersController.getGroupDisplayedNameError"), e);
+		}
 	}
 }

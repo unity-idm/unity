@@ -75,6 +75,13 @@ public interface EnquiryManagement
 	
 	/**
 	 * 
+	 * @return enquiry form with given id.
+	 * @throws EngineException
+	 */
+	EnquiryForm getEnquiry(String id) throws EngineException;
+	
+	/**
+	 * 
 	 * @param entity
 	 * @return list of enquires which are supposed to be filled by a given user. Only active enquires,
 	 * which were not yet filled nor ignored by the user are returned.

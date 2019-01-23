@@ -51,6 +51,14 @@ public interface RegistrationsManagement
 	 * @throws EngineException
 	 */
 	List<RegistrationForm> getForms() throws EngineException;
+	
+	
+	/**
+	 * 
+	 * @return form with given id.
+	 * @throws EngineException
+	 */
+	RegistrationForm getForm(String id) throws EngineException;
 
 	/**
 	 * @return true if form with given name exists

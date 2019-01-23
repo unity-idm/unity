@@ -292,9 +292,9 @@ class GroupMembersComponent extends CustomComponent
 		try
 		{
 			name = controller.getProjectDisplayedName(projectPath);
-		} catch (Exception e)
+		} catch (ControllerException e)
 		{
-			// ok
+			NotificationPopup.showError(e);
 		}
 		return name;
 	}

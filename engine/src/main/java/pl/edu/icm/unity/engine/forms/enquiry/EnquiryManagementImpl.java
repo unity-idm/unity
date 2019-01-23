@@ -511,4 +511,11 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			throw new WrongArgumentException("Only sticky enquiry request can be removed");
 		removeAllPendingRequestsOfForm(form, entity);		
 	}
+
+	@Transactional
+	@Override
+	public EnquiryForm getEnquiry(String id) throws EngineException
+	{
+		return enquiryFormDB.get(id);
+	}
 }

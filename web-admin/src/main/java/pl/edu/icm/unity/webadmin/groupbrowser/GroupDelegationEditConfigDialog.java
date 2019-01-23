@@ -48,7 +48,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 	private CheckBox enableDelegation;
 	private ComboBox<String> registrationFormCombo;
 	private ComboBox<String> signupEnquiryFormCombo;
-	private ComboBox<String> stickyEnquiryFormCombo;
+	private ComboBox<String> membershipUpdateEnquiryFormCombo;
 	private ChipsWithDropdown<String> attributes;
 	private Binder<DelegationConfiguration> binder;
 
@@ -74,7 +74,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		logoUrl.setEnabled(enabled);
 		registrationFormCombo.setEnabled(enabled);
 		signupEnquiryFormCombo.setEnabled(enabled);
-		stickyEnquiryFormCombo.setEnabled(enabled);
+		membershipUpdateEnquiryFormCombo.setEnabled(enabled);
 		attributes.setEnabled(enabled);
 	}
 
@@ -100,9 +100,9 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		List<EnquiryForm> enquires = enquiryMan.getEnquires();
 		signupEnquiryFormCombo.setItems(enquires.stream().map(f -> f.getName()).collect(Collectors.toList()));
 
-		stickyEnquiryFormCombo = new ComboBox<String>(
-				msg.getMessage("GroupDelegationEditConfigDialog.stickyEnquiry"));
-		stickyEnquiryFormCombo.setItems(enquires.stream().filter(f -> f.getType().equals(EnquiryType.STICKY))
+		membershipUpdateEnquiryFormCombo = new ComboBox<String>(
+				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"));
+		membershipUpdateEnquiryFormCombo.setItems(enquires.stream().filter(f -> f.getType().equals(EnquiryType.STICKY))
 				.map(f -> f.getName()).collect(Collectors.toList()));
 
 		attributes = new ChipsWithDropdown<>();
@@ -120,14 +120,14 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		binder.forField(enableDelegation).bind("enabled");
 		binder.forField(logoUrl).bind("logoUrl");
 		binder.forField(registrationFormCombo).bind("registrationForm");
-		binder.forField(stickyEnquiryFormCombo).bind("stickyEnquiryForm");
+		binder.forField(membershipUpdateEnquiryFormCombo).bind("membershipUpdateEnquiryForm");
 		binder.forField(signupEnquiryFormCombo).bind("signupEnquiryForm");
 		binder.setBean(new DelegationConfiguration(toEdit));
 		enableEdit(toEdit.enabled);
 
 		FormLayout main = new FormLayout();
 		main.addComponents(enableDelegation, logoUrl, registrationFormCombo, signupEnquiryFormCombo,
-				stickyEnquiryFormCombo, attributes);
+				membershipUpdateEnquiryFormCombo, attributes);
 		return main;
 	}
 
@@ -144,7 +144,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			GroupDelegationConfiguration config = new GroupDelegationConfiguration(
 					groupDelConfig.isEnabled(), groupDelConfig.getLogoUrl(),
 					groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
-					groupDelConfig.getStickyEnquiryForm(), attributes.getSelectedItems());
+					groupDelConfig.getmembershipUpdateEnquiryForm(), attributes.getSelectedItems());
 
 			callback.accept(config);
 			close();
@@ -196,7 +196,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		private String logoUrl;
 		private String registrationForm;
 		private String signupEnquiryForm;
-		private String stickyEnquiryForm;
+		private String membershipUpdateEnquiryForm;
 
 		public DelegationConfiguration(GroupDelegationConfiguration org)
 		{
@@ -204,7 +204,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			setLogoUrl(org.logoUrl);
 			setRegistrationForm(org.registrationForm);
 			setSignupEnquiryForm(org.signupEnquiryForm);
-			setStickyEnquiryForm(org.stickyEnquiryForm);
+			setmembershipUpdateEnquiryForm(org.membershipUpdateEnquiryForm);
 		}
 
 		public boolean isEnabled()
@@ -247,14 +247,14 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			this.signupEnquiryForm = signupEnquiryForm;
 		}
 
-		public String getStickyEnquiryForm()
+		public String getmembershipUpdateEnquiryForm()
 		{
-			return stickyEnquiryForm;
+			return membershipUpdateEnquiryForm;
 		}
 
-		public void setStickyEnquiryForm(String stickyEnquiryForm)
+		public void setmembershipUpdateEnquiryForm(String stickyEnquiryForm)
 		{
-			this.stickyEnquiryForm = stickyEnquiryForm;
+			this.membershipUpdateEnquiryForm = stickyEnquiryForm;
 		}
 	}
 }

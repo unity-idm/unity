@@ -119,7 +119,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			Identity emailId = info.identities.stream()
 					.filter(id -> id.getTypeId().equals(EmailIdentity.ID)
 							&& id.getValue().equals(contactAddress))
-					.findFirst().orElse(null);
+					.findAny().orElse(null);
 			if (emailId != null)
 			{
 				return info.entityId;
@@ -182,12 +182,12 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 		RegistrationForm registrationForm = (registrationFormId == null || registrationFormId.isEmpty()) ? null
 				: registrationMan.getForms().stream()
-						.filter(f -> f.getName().equals(registrationFormId)).findFirst()
+						.filter(f -> f.getName().equals(registrationFormId)).findAny()
 						.orElse(null);
 
 		EnquiryForm enquiryForm = (enquiryFormId == null || enquiryFormId.isEmpty()) ? null
 				: enquiryMan.getEnquires().stream().filter(f -> f.getName().equals(enquiryFormId))
-						.findFirst().orElse(null);
+						.findAny().orElse(null);
 
 		if (registrationForm == null && enquiryForm == null)
 		{

@@ -6,9 +6,6 @@
 
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
-import java.util.List;
-import java.util.Optional;
-
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Label;
@@ -21,7 +18,6 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.BaseForm;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
@@ -75,18 +71,13 @@ public class RegistrationInvitationViewer extends InvitationViewerBase
 	@Override
 	protected BaseForm getForm(String id)
 	{
-		List<RegistrationForm> forms;
 		try
 		{
-			forms = regMan.getForms();
+			return regMan.getForm(id);
 		} catch (EngineException e)
 		{
 			log.warn("Unable to list registration forms for invitations", e);
 			return null;
 		}
-		Optional<RegistrationForm> found = forms.stream().filter(form -> form.getName().equals(id)).findAny();
-		if (found.isPresent())
-			return found.get();
-		return null;
 	}
 }
