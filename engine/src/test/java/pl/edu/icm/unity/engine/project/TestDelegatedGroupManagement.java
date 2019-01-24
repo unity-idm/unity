@@ -35,8 +35,6 @@ import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroupAttributeException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.IllegalGroupNameException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.OneManagerRemainsException;
-import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.OpenChildGroupException;
-import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.ParentIsCloseGroupException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RemovalOfProjectGroupException;
 import pl.edu.icm.unity.engine.project.DelegatedGroupManagementImpl.RenameProjectGroupException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -221,40 +219,6 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture());
 		assertThat(argument.getValue().getDisplayedName(), is(newName));
-	}
-
-	@Test
-	public void shouldForbidChangeAccessModeToCloseWhenChildGroupIsOpen() throws EngineException
-	{
-
-		when(mockGroupMan.getContents(eq("/project/subgroup"), anyInt())).thenReturn(
-				getGroupContent("/project/subgroup", Arrays.asList("/project/subgroup/subgroup2")));
-
-		GroupContents childCon2 = getGroupContent("/project/subgroup/subgroup2");
-		childCon2.getGroup().setOpen(true);
-
-		when(mockGroupMan.getContents(eq("/project/subgroup/subgroup2"), anyInt())).thenReturn(childCon2);
-
-		Throwable exception = catchThrowable(
-				() -> dGroupMan.setGroupAccessMode("/project", "/project/subgroup", false));
-		assertExceptionType(exception, OpenChildGroupException.class);
-	}
-
-	@Test
-	public void shouldForbidChangeAccessModeToOpenWhenParentGroupIsClose() throws EngineException
-	{
-
-		GroupContents content = getGroupContent("/project",
-				Arrays.asList("/project/subgroup", "/project/subgroup/subgroup2"));
-
-		when(mockGroupMan.getContents(eq("/project"), anyInt())).thenReturn(content);
-
-		when(mockGroupMan.getContents(eq("/project/subgroup"), anyInt())).thenReturn(
-				getGroupContent("/project/subgroup", Arrays.asList("/project/subgroup/subgroup2")));
-
-		Throwable exception = catchThrowable(
-				() -> dGroupMan.setGroupAccessMode("/project", "/project/subgroup", true));
-		assertExceptionType(exception, ParentIsCloseGroupException.class);
 	}
 
 	@Test

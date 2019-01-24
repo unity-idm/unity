@@ -107,12 +107,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		Group toAdd = new Group(new Group(parentPath), name);
 		toAdd.setOpen(isOpen);
 		toAdd.setDisplayedName(groupName);
-		
-		if (toAdd.isOpen())
-		{	
-			assertIfParentIsClose(toAdd);
-		}
-		
 		groupMan.addGroup(toAdd);
 	}
 
@@ -212,16 +206,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		authz.checkManagerAuthorization(projectPath, path);
 		GroupContents groupContent = groupMan.getContents(path, GroupContents.METADATA | GroupContents.GROUPS);
 		Group group = groupContent.getGroup();
-		if (!isOpen)
-		{
-			assertIfChildsAreOpen(groupContent);
-		} else
-		{
-			if (!projectPath.equals(path))
-				assertIfParentIsClose(group);
-
-		}
-
 		group.setOpen(isOpen);
 		groupMan.updateGroup(path, group);
 	}
@@ -322,32 +306,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		return groupMan.getContents(path, GroupContents.METADATA).getGroup();
 	}
 
-	private void assertIfChildsAreOpen(GroupContents group) throws EngineException
-	{
-		for (String child : group.getSubGroups())
-		{
-			Group childGroup = getGroupInternal(child);
-			if (childGroup.isOpen())
-			{
-				throw new OpenChildGroupException(group.getGroup().getDisplayedName().getValue(msg),
-						childGroup.getDisplayedName().getValue(msg));
-
-			}
-		}
-	}
-
-	private void assertIfParentIsClose(Group group) throws EngineException
-	{
-		if (!group.isTopLevel())
-		{
-			Group parent = getGroupInternal(group.getParentPath());
-			if (!parent.isOpen())
-			{
-				throw new ParentIsCloseGroupException(parent.getDisplayedName().getValue(msg),
-						group.getDisplayedName().getValue(msg));
-			}
-		}
-	}
+	
 
 	private void assertIfOneManagerRemain(String projectPath, long entityId) throws EngineException
 	{
@@ -442,22 +401,6 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		}
 		return null;
-	}
-
-	public static class OpenChildGroupException extends InternalException
-	{
-		public OpenChildGroupException(String parent, String child)
-		{
-			super("Cannot set group " + parent + " to close mode, child group " + child + " is open");
-		}
-	}
-
-	public static class ParentIsCloseGroupException extends InternalException
-	{
-		public ParentIsCloseGroupException(String parent, String child)
-		{
-			super("Cannot set group " + child + " to open mode, parent group " + parent + " is close");
-		}
 	}
 
 	public static class IllegalGroupAttributeException extends InternalException

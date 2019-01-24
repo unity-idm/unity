@@ -16,10 +16,13 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 import java.util.Set;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.group.GroupsManagementImpl.OpenChildGroupException;
+import pl.edu.icm.unity.engine.group.GroupsManagementImpl.ParentIsCloseGroupException;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -266,5 +269,57 @@ public class TestGroups extends DBIntegrationTestBase
 		assertThat(groups, hasItems(a, ab));
 		assertThat(groups.size(), is(2));
 	}
+	
+	@Test
+	public void shouldForbidChangeAccessModeToCloseWhenChildGroupIsOpen() throws EngineException
+	{	
+		Group g = new Group("/");
+		g.setOpen(true);
+		groupsMan.updateGroup("/", g);
+		
+		Group parent = new Group("/Parent");
+		parent.setOpen(true);
+		groupsMan.addGroup(parent);
+		
+		Group child1 = new Group("/Parent/Child1");
+		child1.setOpen(true);
+		groupsMan.addGroup(child1);
+		
+		Group child2 = new Group("/Parent/Child2");
+		child2.setOpen(true);
+		groupsMan.addGroup(child2);
+		
+		parent.setOpen(false);
+		
+		Throwable exception = catchThrowable(
+				() -> groupsMan.updateGroup(parent.getName(), parent));
+		assertExceptionType(exception, OpenChildGroupException.class);
+	}
 
+	@Test
+	public void shouldForbidChangeAccessModeToOpenWhenParentGroupIsClose() throws EngineException
+	{
+		Group g = new Group("/");
+		g.setOpen(true);
+		groupsMan.updateGroup("/", g);
+		
+		Group parent = new Group("/Parent");
+		parent.setOpen(false);
+		groupsMan.addGroup(parent);	
+		
+		Group child1 = new Group("/Parent/Child1");
+		child1.setOpen(false);
+		groupsMan.addGroup(child1);	
+		
+		child1.setOpen(true);
+		
+		Throwable exception = catchThrowable(
+				() -> groupsMan.updateGroup(child1.getName(), child1));
+		assertExceptionType(exception, ParentIsCloseGroupException.class);
+	}
+
+	protected void assertExceptionType(Throwable exception, Class<?> type)
+	{
+		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
+	}
 }
