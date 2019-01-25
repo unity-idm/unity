@@ -93,24 +93,6 @@ class GroupsComponent extends CustomComponent
 				}).withHandler(this::makePrivate).hideIfInactive().build();
 	}
 
-	private void updateGroupAccess(Set<GroupNode> items, boolean isOpen)
-	{
-		if (items.isEmpty())
-			return;
-		GroupNode groupNode = items.iterator().next();
-
-		try
-		{
-
-			controller.setGroupAccessMode(projectPath, groupNode.getPath(), isOpen);
-			groupBrowser.reloadNode(groupNode);
-
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(e);
-		}
-	}
-
 	private void makePrivate(Set<GroupNode> items)
 	{
 
@@ -137,6 +119,24 @@ class GroupsComponent extends CustomComponent
 	private void makePublic(Set<GroupNode> items)
 	{
 		updateGroupAccess(items, true);
+	}
+	
+	private void updateGroupAccess(Set<GroupNode> items, boolean isOpen)
+	{
+		if (items.isEmpty())
+			return;
+		GroupNode groupNode = items.iterator().next();
+
+		try
+		{
+
+			controller.setGroupAccessMode(projectPath, groupNode.getPath(), isOpen);
+			groupBrowser.reloadNode(groupNode);
+
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
 	}
 
 	private SingleActionHandler<GroupNode> getExpandAllAction()

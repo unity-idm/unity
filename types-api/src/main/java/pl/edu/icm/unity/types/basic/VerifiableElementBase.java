@@ -106,7 +106,7 @@ public class VerifiableElementBase implements VerifiableElement
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		VerifiableMobileNumber other = (VerifiableMobileNumber) obj;
+		VerifiableElementBase other = (VerifiableElementBase) obj;
 
 		String otherValue = other.getValue();
 		if (getValue() == null)
