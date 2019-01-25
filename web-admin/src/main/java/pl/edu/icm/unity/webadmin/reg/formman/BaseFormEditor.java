@@ -39,6 +39,7 @@ import pl.edu.icm.unity.types.registration.BaseFormBuilder;
 import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
@@ -444,6 +445,7 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		private TextField group;
 		private CheckBox multiSelectable;
+		private EnumComboBox<IncludeGroupsMode> includeGroupsMode;
 		
 		@Override
 		public Editor<GroupRegistrationParam> getEditor()
@@ -461,16 +463,24 @@ public class BaseFormEditor extends VerticalLayout
 			group.addValueChangeListener(nv -> onGroupChanges());
 			multiSelectable = new CheckBox(msg.getMessage("RegistrationFormEditor.paramGroupMulti"));
 			multiSelectable.addValueChangeListener(nv -> onGroupChanges());
-			main.add(group, multiSelectable);
+			
+			includeGroupsMode = new EnumComboBox<>(
+					msg.getMessage("RegistrationFormViewer.paramGroupMode"), msg, 
+					"GroupAccessMode.", IncludeGroupsMode.class, 
+					IncludeGroupsMode.all);
+			
+			main.add(group, multiSelectable, includeGroupsMode);
 
 			if (value != null)
 			{
 				group.setValue(value.getGroupPath());
 				multiSelectable.setValue(value.isMultiSelect());
+				includeGroupsMode.setValue(value.getIncludeGroupsMode());
 			} else
 			{
 				group.setValue("/**");
 				multiSelectable.setValue(true);
+				includeGroupsMode.setValue(IncludeGroupsMode.all);
 			}
 			initEditorComponent(value, Optional.of(msg.getMessage("RegistrationFormEditor.groupMembership")));
 			return main;
@@ -482,6 +492,7 @@ public class BaseFormEditor extends VerticalLayout
 			GroupRegistrationParam ret = new GroupRegistrationParam();
 			ret.setGroupPath(group.getValue());
 			ret.setMultiSelect(multiSelectable.getValue());
+			ret.setIncludeGroupsMode(includeGroupsMode.getValue());
 			ret.setLabel(label.getValue());
 			fill(ret);
 			return ret;

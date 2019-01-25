@@ -485,6 +485,7 @@ public class InvitationEditor extends CustomComponent
 			memberEditor = new PresetMembershipEditor(msg, allGroups, formParams);
 			allowedGroupSelection = GroupsSelection.getGroupsSelection(msg, true, false);
 			allowedGroupSelection.setCaption(msg.getMessage("InvitationEditor.limitTo"));
+			allowedGroupSelection.setDescription(msg.getMessage("InvitationEditor.limitToDescription"));
 		}
 
 		@Override
@@ -492,8 +493,10 @@ public class InvitationEditor extends CustomComponent
 		{
 			memberEditor.setEditedComponentPosition(position);
 			GroupRegistrationParam groupRegistrationParam = formParams.get(position);
-			List<Group> items = GroupPatternMatcher.filterMatching(allGroups,
-					groupRegistrationParam.getGroupPath());
+			List<Group> items = GroupPatternMatcher.filterByIncludeGroupsMode(
+					GroupPatternMatcher.filterMatching(allGroups,
+							groupRegistrationParam.getGroupPath()),
+					groupRegistrationParam.getIncludeGroupsMode());
 			allowedGroupSelection.setItems(items);
 		}
 

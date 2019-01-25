@@ -274,22 +274,22 @@ public class TestGroups extends DBIntegrationTestBase
 	public void shouldForbidChangeAccessModeToCloseWhenChildGroupIsOpen() throws EngineException
 	{	
 		Group g = new Group("/");
-		g.setOpen(true);
+		g.setPublic(true);
 		groupsMan.updateGroup("/", g);
 		
 		Group parent = new Group("/Parent");
-		parent.setOpen(true);
+		parent.setPublic(true);
 		groupsMan.addGroup(parent);
 		
 		Group child1 = new Group("/Parent/Child1");
-		child1.setOpen(true);
+		child1.setPublic(true);
 		groupsMan.addGroup(child1);
 		
 		Group child2 = new Group("/Parent/Child2");
-		child2.setOpen(true);
+		child2.setPublic(true);
 		groupsMan.addGroup(child2);
 		
-		parent.setOpen(false);
+		parent.setPublic(false);
 		
 		Throwable exception = catchThrowable(
 				() -> groupsMan.updateGroup(parent.getName(), parent));
@@ -300,18 +300,18 @@ public class TestGroups extends DBIntegrationTestBase
 	public void shouldForbidChangeAccessModeToOpenWhenParentGroupIsClose() throws EngineException
 	{
 		Group g = new Group("/");
-		g.setOpen(true);
+		g.setPublic(true);
 		groupsMan.updateGroup("/", g);
 		
 		Group parent = new Group("/Parent");
-		parent.setOpen(false);
+		parent.setPublic(false);
 		groupsMan.addGroup(parent);	
 		
 		Group child1 = new Group("/Parent/Child1");
-		child1.setOpen(false);
+		child1.setPublic(false);
 		groupsMan.addGroup(child1);	
 		
-		child1.setOpen(true);
+		child1.setPublic(true);
 		
 		Throwable exception = catchThrowable(
 				() -> groupsMan.updateGroup(child1.getName(), child1));

@@ -48,8 +48,8 @@ public class PresetMembershipEditor extends PresetEditorBase<GroupSelection>
 		GroupRegistrationParam groupRegistrationParam = formParams.get(position);
 		selection.setCaption(groupRegistrationParam.getGroupPath());
 		selection.setMultiSelectable(groupRegistrationParam.isMultiSelect());
-		List<Group> items = GroupPatternMatcher.filterMatching(allGroups, 
-				groupRegistrationParam.getGroupPath());
+		List<Group> items = GroupPatternMatcher.filterByIncludeGroupsMode(GroupPatternMatcher.filterMatching(allGroups, 
+				groupRegistrationParam.getGroupPath()), groupRegistrationParam.getIncludeGroupsMode());
 		selection.setItems(items);
 	}
 	

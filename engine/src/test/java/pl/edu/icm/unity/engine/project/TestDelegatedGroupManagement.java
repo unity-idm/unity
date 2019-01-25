@@ -226,7 +226,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 	{
 		GroupContents content = getGroupContent("/project",
 				Arrays.asList("/project/subgroup", "/project/subgroup/subgroup2"));
-		content.getGroup().setOpen(true);
+		content.getGroup().setPublic(true);
 		
 		when(mockGroupMan.getContents(eq("/project/subgroup"), anyInt())).thenReturn(
 				getGroupContent("/project/subgroup", Arrays.asList("/project/subgroup/subgroup2")));
@@ -235,7 +235,7 @@ public class TestDelegatedGroupManagement extends TestProjectBase
 
 		ArgumentCaptor<Group> argument = ArgumentCaptor.forClass(Group.class);
 		verify(mockGroupMan).updateGroup(eq("/project/subgroup"), argument.capture());
-		assertThat(argument.getValue().isOpen(), is(true));
+		assertThat(argument.getValue().isPublic(), is(true));
 	}
 
 	@Test

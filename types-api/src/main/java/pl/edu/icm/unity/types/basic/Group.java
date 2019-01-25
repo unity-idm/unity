@@ -50,7 +50,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 	private AttributeStatement[] attributeStatements = new AttributeStatement[0];
 	private Set<String> attributesClasses = new HashSet<String>();
 	private GroupDelegationConfiguration delegationConfiguration;
-	private boolean open = false;
+	private boolean publicGroup = false;
 
 	public Group(Group parent, String name)
 	{
@@ -65,7 +65,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 		displayedName = new I18nString(toString());
 		description = new I18nString();
 		delegationConfiguration = new GroupDelegationConfiguration(false);
-		open = false;
+		publicGroup = false;
 	}
 
 	public Group(String path)
@@ -74,7 +74,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 		displayedName = new I18nString(toString());
 		description = new I18nString();
 		delegationConfiguration = new GroupDelegationConfiguration(false);
-		open = false;
+		publicGroup = false;
 	}
 
 	@JsonCreator
@@ -93,7 +93,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 		target.setAttributesClasses(acClone);
 		target.setAttributeStatements(attributeStatements.clone());
 		target.setDelegationConfiguration(delegationConfiguration);
-		target.setOpen(open);
+		target.setPublic(publicGroup);
 		return target;
 	}
 
@@ -263,14 +263,14 @@ public class Group extends I18nDescribedObject implements NamedObject
 		this.delegationConfiguration = delegationConfiguration;
 	}
 
-	public boolean isOpen()
+	public boolean isPublic()
 	{
-		return open;
+		return publicGroup;
 	}
 
-	public void setOpen(boolean open)
+	public void setPublic(boolean publicGroup)
 	{
-		this.open = open;
+		this.publicGroup = publicGroup;
 	}
 
 	/**
@@ -325,7 +325,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 			delegationConfig = new GroupDelegationConfiguration(false);
 		}
 		main.set("delegationConfiguration",  Constants.MAPPER.valueToTree(delegationConfig));
-		main.put("open", isOpen());
+		main.put("publicGroup", isPublic());
 
 		return main;
 	}
@@ -376,12 +376,12 @@ public class Group extends I18nDescribedObject implements NamedObject
 			setDelegationConfiguration(new GroupDelegationConfiguration(false));
 		}
 
-		if (JsonUtil.notNull(main, "open"))
+		if (JsonUtil.notNull(main, "publicGroup"))
 		{
-			setOpen(main.get("open").asBoolean());
+			setPublic(main.get("publicGroup").asBoolean());
 		} else
 		{
-			setOpen(false);
+			setPublic(false);
 		}
 	}
 
@@ -421,7 +421,7 @@ public class Group extends I18nDescribedObject implements NamedObject
 				return false;
 		} else if (!delegationConfiguration.equals(other.delegationConfiguration))
 			return false;
-		if (open != other.open)
+		if (publicGroup != other.publicGroup)
 			return false;
 		if (!Arrays.equals(path, other.path))
 			return false;

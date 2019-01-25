@@ -777,12 +777,14 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
 		selection.setWidth(formWidth(), formWidthUnit());
-
+	
 		if (hasPrefilledROSelected)
 		{
 			selection.setReadOnly(true);
-			List<Group> prefilled = GroupPatternMatcher.filterMatching(allMatchingGroups, 
-					prefilledEntry.getEntry().getSelectedGroups());
+			List<Group> prefilled = GroupPatternMatcher.filterByIncludeGroupsMode(
+					GroupPatternMatcher.filterMatching(allMatchingGroups,
+							prefilledEntry.getEntry().getSelectedGroups()),
+					groupParam.getIncludeGroupsMode());
 			selection.setItems(prefilled);
 			selection.setSelectedItems(prefilled);
 			layout.addComponent(selection);
@@ -807,12 +809,14 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				allowedGroup = GroupPatternMatcher.filterMatching(allMatchingGroups,
 						allowedFromInvitation.get(index).getSelectedGroups());
 			}
-			selection.setItems(allowedGroup);
-
+			
+			List<Group> allowedFilteredByMode = GroupPatternMatcher.filterByIncludeGroupsMode(allowedGroup, groupParam.getIncludeGroupsMode());
+			selection.setItems(allowedFilteredByMode);
+			
 			if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
 					&& hasRemoteGroup)
 			{
-				List<Group> remotelySelectedLimited = GroupPatternMatcher.filterMatching(allowedGroup,
+				List<Group> remotelySelectedLimited = GroupPatternMatcher.filterMatching(allowedFilteredByMode,
 						remotelySelected.stream().map(g -> g.getName()).collect(Collectors.toList()));
 				selection.setSelectedItems(remotelySelectedLimited);
 			}
@@ -820,16 +824,21 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
 			{
 
-				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allowedGroup,
+				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allowedFilteredByMode,
 						prefilledEntry.getEntry().getSelectedGroups()));
 
 			}
+			
 			groupSelectors.put(index, selection);
-			layout.addComponent(selection);
+			if (!allowedFilteredByMode.isEmpty())
+			{
+				layout.addComponent(selection);
+				return false;
+			}
 		}
+		
 		return true;
 	}
-	
 	
 	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element)
 	{

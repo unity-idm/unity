@@ -108,7 +108,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		if (!dbGroups.exists(toAdd.getParentPath()))
 			throw new IllegalArgumentException("Parent group " + toAdd.getParentPath() + " does not exist");
 		
-		if (toAdd.isOpen())
+		if (toAdd.isPublic())
 		{	
 			assertIfParentIsClose(toAdd);
 		}
@@ -292,10 +292,10 @@ public class GroupsManagementImpl implements GroupsManagement
 		}
 		
 		Group actual = dbGroups.get(path);
-		boolean changingAccessMode = actual.isOpen() != group.isOpen();
+		boolean changingAccessMode = actual.isPublic() != group.isPublic();
 		if (changingAccessMode)
 		{
-			if (!group.isOpen())
+			if (!group.isPublic())
 			{
 				assertIfChildsAreOpen(actual, getDirectSubGroups(path));
 			} else
@@ -372,7 +372,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		for (String child : childs)
 		{
 			Group childGroup = dbGroups.get(child);
-			if (childGroup.isOpen())
+			if (childGroup.isPublic())
 			{
 				throw new OpenChildGroupException(group.getDisplayedName().getValue(msg),
 						childGroup.getDisplayedName().getValue(msg));
@@ -386,7 +386,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		if (!group.isTopLevel())
 		{
 			Group parent = dbGroups.get(group.getParentPath());
-			if (!parent.isOpen())
+			if (!parent.isPublic())
 			{
 				throw new ParentIsCloseGroupException(parent.getDisplayedName().getValue(msg),
 						group.getDisplayedName().getValue(msg));

@@ -88,7 +88,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 	@Override
 	@Transactional
-	public void addGroup(String projectPath, String parentPath, I18nString groupName, boolean isOpen)
+	public void addGroup(String projectPath, String parentPath, I18nString groupName, boolean isPublic)
 			throws EngineException
 	{
 		authz.checkManagerAuthorization(projectPath, parentPath);
@@ -105,7 +105,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 		} while (subGroups.contains(name));
 
 		Group toAdd = new Group(new Group(parentPath), name);
-		toAdd.setOpen(isOpen);
+		toAdd.setPublic(isPublic);
 		toAdd.setDisplayedName(groupName);
 		groupMan.addGroup(toAdd);
 	}
@@ -140,7 +140,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 				ret.put(entry.getKey(),
 						new DelegatedGroupContents(new DelegatedGroup(orgGroup.toString(),
 								orgGroup.getDelegationConfiguration(),
-								orgGroup.isOpen(), getGroupDisplayName(orgGroup)),
+								orgGroup.isPublic(), getGroupDisplayName(orgGroup)),
 								Optional.ofNullable(content.getSubGroups())));
 			}
 		}
@@ -158,7 +158,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 		return new DelegatedGroupContents(
 				new DelegatedGroup(orgGroup.toString(), orgGroup.getDelegationConfiguration(),
-						orgGroup.isOpen(), getGroupDisplayName(orgGroup)),
+						orgGroup.isPublic(), getGroupDisplayName(orgGroup)),
 				Optional.ofNullable(orgGroupContents.getSubGroups()));
 
 	}
@@ -201,12 +201,12 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 
 	@Override
 	@Transactional
-	public void setGroupAccessMode(String projectPath, String path, boolean isOpen) throws EngineException
+	public void setGroupAccessMode(String projectPath, String path, boolean isPublic) throws EngineException
 	{
 		authz.checkManagerAuthorization(projectPath, path);
 		GroupContents groupContent = groupMan.getContents(path, GroupContents.METADATA | GroupContents.GROUPS);
 		Group group = groupContent.getGroup();
-		group.setOpen(isOpen);
+		group.setPublic(isPublic);
 		groupMan.updateGroup(path, group);
 	}
 
@@ -247,7 +247,7 @@ public class DelegatedGroupManagementImpl implements DelegatedGroupManagement
 				if (val.isPresent() && val.get().equals(GroupAuthorizationRole.manager.toString()))
 				{
 					projects.add(new DelegatedGroup(gr.toString(), gr.getDelegationConfiguration(),
-							gr.isOpen(), getGroupDisplayName(gr)));
+							gr.isPublic(), getGroupDisplayName(gr)));
 
 				}
 			}

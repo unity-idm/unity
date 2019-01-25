@@ -37,7 +37,9 @@ public class GroupDiffUtils
 			GroupRegistrationParam formGroup)
 	{
 
-		List<Group> usersGroup = GroupPatternMatcher.filterMatching(allUserGroups, formGroup.getGroupPath());
+		List<Group> usersGroup = GroupPatternMatcher.filterByIncludeGroupsMode(
+				GroupPatternMatcher.filterMatching(allUserGroups, formGroup.getGroupPath()),
+				formGroup.getIncludeGroupsMode());
 
 		List<String> selectedGroups = selected.getSelectedGroups();
 		Set<String> toAdd = new HashSet<>();

@@ -228,7 +228,7 @@ class GroupsComponent extends CustomComponent
 		private BiConsumer<I18nString, Boolean> groupConsumer;
 		private I18nTextField groupNameField;
 		private GroupNode parentGroup;
-		private CheckBox isOpen;
+		private CheckBox isPublic;
 
 		public AddGroupDialog(UnityMessageSource msg, GroupNode parentGroup,
 				BiConsumer<I18nString, Boolean> groupConsumer)
@@ -255,13 +255,13 @@ class GroupsComponent extends CustomComponent
 
 			groupNameField = new I18nTextField(msg,
 					msg.getMessage("AddGroupDialog.groupName"));
-			isOpen = new CheckBox(msg.getMessage("AddGroupDialog.public"));
+			isPublic = new CheckBox(msg.getMessage("AddGroupDialog.public"));
 
-			isOpen.setEnabled(parentGroup.isOpen());
-			isOpen.setValue(parentGroup.isOpen());
+			isPublic.setEnabled(parentGroup.isOpen());
+			isPublic.setValue(parentGroup.isOpen());
 
 			FormLayout main = new CompactFormLayout();
-			main.addComponents(info, groupNameField, isOpen);
+			main.addComponents(info, groupNameField, isPublic);
 			main.setSizeFull();
 			return main;
 		}
@@ -276,7 +276,7 @@ class GroupsComponent extends CustomComponent
 				return;
 			}
 
-			groupConsumer.accept(groupNameField.getValue(), isOpen.getValue());
+			groupConsumer.accept(groupNameField.getValue(), isPublic.getValue());
 			close();
 		}
 	}

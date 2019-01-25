@@ -29,13 +29,13 @@ public class GroupEditDialog extends AbstractDialog
 	private TextField name;
 	private I18nTextField displayedName;
 	private I18nTextArea description;
-	private CheckBox isOpen;
+	private CheckBox isPublic;
 	private String parent;
 	private String originalName;
 	private Group originalGroup;
 	private I18nString originalDispName;
 	private I18nString originalDesc;
-	private boolean originalIsOpen;
+	private boolean originalIsPublic;
 	
 
 	public GroupEditDialog(UnityMessageSource msg, Group group, boolean edit, Callback callback) 
@@ -48,7 +48,7 @@ public class GroupEditDialog extends AbstractDialog
 		this.originalName = edit ? group.getName() : "";
 		this.originalDesc = edit ? group.getDescription() : new I18nString();
 		this.originalDispName = edit ? group.getDisplayedName() : new I18nString();
-		this.originalIsOpen = edit ? group.isOpen() : false;
+		this.originalIsPublic = edit ? group.isPublic() : false;
 		this.originalGroup = edit ? group : null;
 		this.callback = callback;
 		setSizeMode(SizeMode.MEDIUM);
@@ -73,10 +73,10 @@ public class GroupEditDialog extends AbstractDialog
 		description = new I18nTextArea(msg, msg.getMessage("GroupEditDialog.groupDesc"));
 		description.setValue(originalDesc);
 		
-		isOpen = new CheckBox(msg.getMessage("GroupEditDialog.public"));
-		isOpen.setValue(originalIsOpen);
+		isPublic = new CheckBox(msg.getMessage("GroupEditDialog.public"));
+		isPublic.setValue(originalIsPublic);
 		
-		fl.addComponents(displayedName, description, isOpen);
+		fl.addComponents(displayedName, description, isPublic);
 		if (name.isReadOnly())
 			description.focus();
 		else
@@ -100,7 +100,7 @@ public class GroupEditDialog extends AbstractDialog
 			I18nString dispName = displayedName.getValue();
 			dispName.setDefaultValue(group.toString());
 			group.setDisplayedName(dispName);
-			group.setOpen(isOpen.getValue());
+			group.setPublic(isPublic.getValue());
 			close();
 			callback.onConfirm(group);
 		}
