@@ -52,6 +52,7 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 		this.msg = msg;
 		this.controller = controller;
 		this.formatter = formatter;
+		setSizeFull();
 	}
 
 	@Override
@@ -60,6 +61,7 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 		String project = UpManUI.getProjectGroup();
 
 		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		main.setMargin(false);
 		setCompositionRoot(main);
 
@@ -72,7 +74,7 @@ public class UserUpdatesView extends CustomComponent implements UpManView
 			NotificationPopup.showError(e);
 			return;
 		}
-		main.addComponent(updateRequestsComponent);
+		main.addComponent(updateRequestsComponent);	
 	}
 
 	@Override

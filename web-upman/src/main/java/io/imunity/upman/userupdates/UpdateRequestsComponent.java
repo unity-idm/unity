@@ -50,7 +50,9 @@ public class UpdateRequestsComponent extends CustomComponent
 		this.controller = controller;
 		this.project = project;
 
+		setSizeFull();
 		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		main.setMargin(false);
 		main.setSpacing(false);
 		setCompositionRoot(main);
@@ -104,9 +106,10 @@ public class UpdateRequestsComponent extends CustomComponent
 			main.addComponent(space);
 		}
 		main.addComponents(menuBar, updateRequestGrid);
-		
-		reloadRequestsGrid();
+		main.setExpandRatio(menuBar, 0);
+		main.setExpandRatio(updateRequestGrid, 2);
 
+		reloadRequestsGrid();
 	}
 
 	private SingleActionHandler<UpdateRequestEntry> getAcceptRequestAction()

@@ -60,6 +60,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 		this.msg = msg;
 		this.controller = controller;
 		this.formatter = formatter;
+		setSizeFull();
 	}
 
 	@Override
@@ -67,6 +68,7 @@ public class GroupMembersView extends CustomComponent implements UpManView
 	{
 		String project = UpManUI.getProjectGroup();
 		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		main.setMargin(false);
 		setCompositionRoot(main);
 
@@ -94,8 +96,11 @@ public class GroupMembersView extends CustomComponent implements UpManView
 			}
 			return g;
 		}).collect(Collectors.toList()));
+		subGroupCombo.setRequiredIndicatorVisible(false);
 		
-		main.addComponent(new FormLayout(subGroupCombo));
+		FormLayout subGroupComboWrapper = new FormLayout(subGroupCombo);
+		main.addComponent(subGroupComboWrapper);
+		main.setExpandRatio(subGroupComboWrapper, 0);
 		GroupMembersComponent groupMembersComponent;
 		try
 		{
@@ -106,9 +111,10 @@ public class GroupMembersView extends CustomComponent implements UpManView
 			return;
 		}
 		main.addComponent(groupMembersComponent);
+		main.setExpandRatio(groupMembersComponent, 2);
 		subGroupCombo.addValueChangeListener(e -> groupMembersComponent.setGroup(subGroupCombo.getSelectedGroup()));
-
 		groupMembersComponent.setGroup(project);
+		
 
 	}
 

@@ -67,8 +67,9 @@ class GroupMembersComponent extends CustomComponent
 		this.project = project;
 		Map<String, String> additionalProjectAttributes = controller
 				.getAdditionalAttributeNamesForProject(project);
-
+		setSizeFull();
 		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		main.setMargin(false);
 		main.setSpacing(false);
 		setCompositionRoot(main);
@@ -100,6 +101,8 @@ class GroupMembersComponent extends CustomComponent
 		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
 		menuBar.setWidth(100, Unit.PERCENTAGE);
 		main.addComponents(menuBar, groupMemebersGrid);
+		main.setExpandRatio(menuBar, 0);
+		main.setExpandRatio(groupMemebersGrid, 2);
 	}
 
 	private SingleActionHandler<GroupMemberEntry> getRemoveFromProjectAction()

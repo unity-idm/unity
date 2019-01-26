@@ -44,7 +44,9 @@ public class InvitationsComponent extends CustomComponent
 		this.controller = controller;
 		this.project = project;
 
+		setSizeFull();
 		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		main.setMargin(false);
 		main.setSpacing(false);
 		setCompositionRoot(main);
@@ -69,7 +71,8 @@ public class InvitationsComponent extends CustomComponent
 		
 		reload();
 		main.addComponents(menuBar, invitationsGrid);
-
+		main.setExpandRatio(menuBar , 0);
+		main.setExpandRatio(invitationsGrid, 2);
 	}
 
 	private SingleActionHandler<InvitationEntry> getDeleteInvitationAction()

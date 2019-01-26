@@ -77,6 +77,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 	{
 		this.msg = msg;
 		this.controller = controller;
+		setSizeFull();
 	}
 
 	@Override
@@ -84,10 +85,11 @@ public class InvitationsView extends CustomComponent implements UpManView
 	{
 		project = UpManUI.getProjectGroup();
 		VerticalLayout main = new VerticalLayout();
+		main.setSizeFull();
 		main.setMargin(false);
 		setCompositionRoot(main);
 		invitationsComponent = new InvitationsComponent(msg, controller, project);
-		main.addComponent(invitationsComponent);
+		main.addComponent(invitationsComponent);	
 	}
 
 	@Override

@@ -65,7 +65,7 @@ class GroupMemebersGrid extends UpManGrid<GroupMemberEntry>
 	private void createBaseColumns(ConfirmationInfoFormatter formatter)
 	{
 		addColumn(ie -> getRoleLabel(ie.getRole()), new HtmlRenderer())
-				.setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(0);
+				.setCaption(msg.getMessage(BaseColumn.role.captionKey)).setExpandRatio(1);
 
 		addColumn(ie -> ie.getName()).setCaption(msg.getMessage(BaseColumn.name.captionKey)).setExpandRatio(3);
 		UpManGridHelper.createEmailColumn(this, (GroupMemberEntry e) -> e.getEmail(),

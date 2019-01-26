@@ -112,6 +112,7 @@ public class UpManGridHelper
 		emailColumn.setDescriptionGenerator(t -> formatter
 				.getSimpleConfirmationStatusString(emailProvider.apply(t).getConfirmationInfo()));
 		emailColumn.setCaption(caption);
+		emailColumn.setExpandRatio(1);
 		return emailColumn;
 	}
 }
