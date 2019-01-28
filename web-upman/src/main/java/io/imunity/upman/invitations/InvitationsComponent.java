@@ -15,6 +15,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.common.NotificationTray;
 import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -52,7 +53,7 @@ public class InvitationsComponent extends CustomComponent
 		setCompositionRoot(main);
 
 		List<SingleActionHandler<InvitationEntry>> commonActions = new ArrayList<>();
-		commonActions.add(getDeleteInvitationAction());
+		commonActions.add(getRemoveInvitationAction());
 		commonActions.add(getResendInvitationAction());
 
 		invitationsGrid = new InvitationsGrid(msg, commonActions);
@@ -75,10 +76,10 @@ public class InvitationsComponent extends CustomComponent
 		main.setExpandRatio(invitationsGrid, 2);
 	}
 
-	private SingleActionHandler<InvitationEntry> getDeleteInvitationAction()
+	private SingleActionHandler<InvitationEntry> getRemoveInvitationAction()
 	{
 		return SingleActionHandler.builder(InvitationEntry.class)
-				.withCaption(msg.getMessage("InvitationsComponent.deleteInvitationAction"))
+				.withCaption(msg.getMessage("InvitationsComponent.removeInvitationAction"))
 				.withIcon(Images.trash.getResource()).multiTarget().withHandler(this::deleteInvitation)
 				.build();
 	}
@@ -88,6 +89,7 @@ public class InvitationsComponent extends CustomComponent
 		try
 		{
 			controller.removeInvitations(project, items);
+			NotificationTray.showSuccess(msg.getMessage("InvitationsComponent.removed"));
 
 		} catch (ControllerException e)
 		{
@@ -109,7 +111,7 @@ public class InvitationsComponent extends CustomComponent
 		try
 		{
 			controller.resendInvitations(project, items);
-
+			NotificationTray.showSuccess(msg.getMessage("InvitationsComponent.sent"));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

@@ -19,6 +19,7 @@ import com.vaadin.ui.Link;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.upman.common.NotificationTray;
 import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -125,6 +126,7 @@ public class UpdateRequestsComponent extends CustomComponent
 		try
 		{
 			controller.accept(project, items);
+			NotificationTray.showSuccess(msg.getMessage("UpdateRequestsComponent.accepted"));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -145,6 +147,7 @@ public class UpdateRequestsComponent extends CustomComponent
 		try
 		{
 			controller.decline(project, items);
+			NotificationTray.showSuccess(msg.getMessage("UpdateRequestsComponent.declined"));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

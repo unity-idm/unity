@@ -24,6 +24,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManUI;
+import io.imunity.upman.common.NotificationTray;
 import io.imunity.upman.utils.UpManGridHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -152,6 +153,7 @@ class GroupMembersComponent extends CustomComponent
 		try
 		{
 			controller.removeFromGroup(project, groupFrom, items);
+			NotificationTray.showSuccess( msg.getMessage("GroupMembersComponent.removed"));
 
 		} catch (ControllerException e)
 		{
@@ -309,6 +311,7 @@ class GroupMembersComponent extends CustomComponent
 			try
 			{
 				controller.addToGroup(project, group, selection);
+				NotificationTray.showSuccess(msg.getMessage("GroupMembersComponent.addedToGroup"));
 			} catch (ControllerException e)
 			{
 				NotificationPopup.showError(e);
