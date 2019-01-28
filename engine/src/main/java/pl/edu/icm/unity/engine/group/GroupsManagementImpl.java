@@ -110,7 +110,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		
 		if (toAdd.isPublic())
 		{	
-			assertIfParentIsClose(toAdd);
+			assertParentIsPrivate(toAdd);
 		}
 		
 		dbGroups.create(toAdd);
@@ -297,10 +297,10 @@ public class GroupsManagementImpl implements GroupsManagement
 		{
 			if (!group.isPublic())
 			{
-				assertIfChildsAreOpen(actual, getDirectSubGroups(path));
+				assertChildrenArePublic(actual, getDirectSubGroups(path));
 			} else
 			{
-				assertIfParentIsClose(group);
+				assertParentIsPrivate(group);
 			}
 		}
 		
@@ -367,46 +367,46 @@ public class GroupsManagementImpl implements GroupsManagement
 				collect(Collectors.toList());
 	}
 	
-	private void assertIfChildsAreOpen(Group group, List<String> childs) throws EngineException
+	private void assertChildrenArePublic(Group group, List<String> childs) throws EngineException
 	{
 		for (String child : childs)
 		{
 			Group childGroup = dbGroups.get(child);
 			if (childGroup.isPublic())
 			{
-				throw new OpenChildGroupException(group.getDisplayedName().getValue(msg),
+				throw new PublicChildGroupException(group.getDisplayedName().getValue(msg),
 						childGroup.getDisplayedName().getValue(msg));
 
 			}
 		}
 	}
 
-	private void assertIfParentIsClose(Group group) throws EngineException
+	private void assertParentIsPrivate(Group group) throws EngineException
 	{
 		if (!group.isTopLevel())
 		{
 			Group parent = dbGroups.get(group.getParentPath());
 			if (!parent.isPublic())
 			{
-				throw new ParentIsCloseGroupException(parent.getDisplayedName().getValue(msg),
+				throw new ParentIsPrivateGroupException(parent.getDisplayedName().getValue(msg),
 						group.getDisplayedName().getValue(msg));
 			}
 		}
 	}
 	
-	public static class OpenChildGroupException extends InternalException
+	public static class PublicChildGroupException extends InternalException
 	{
-		public OpenChildGroupException(String parent, String child)
+		public PublicChildGroupException(String parent, String child)
 		{
-			super("Cannot set group " + parent + " to close mode, child group " + child + " is open");
+			super("Cannot set group " + parent + " to private mode, child group " + child + " is public");
 		}
 	}
 
-	public static class ParentIsCloseGroupException extends InternalException
+	public static class ParentIsPrivateGroupException extends InternalException
 	{
-		public ParentIsCloseGroupException(String parent, String child)
+		public ParentIsPrivateGroupException(String parent, String child)
 		{
-			super("Cannot set group " + child + " to open mode, parent group " + parent + " is close");
+			super("Cannot set group " + child + " to public mode, parent group " + parent + " is private");
 		}
 	}
 }

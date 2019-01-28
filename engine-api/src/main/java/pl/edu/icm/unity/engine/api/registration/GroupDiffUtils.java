@@ -24,15 +24,6 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
  */
 public class GroupDiffUtils
 {
-	/**
-	 * Generate group diff based on single GroupRegistration param and
-	 * single GroupSelection
-	 * 
-	 * @param allUserGroups
-	 * @param selected
-	 * @param formGroup
-	 * @return
-	 */
 	public static RequestedGroupDiff getSingleGroupDiff(List<Group> allUserGroups, GroupSelection selected,
 			GroupRegistrationParam formGroup)
 	{
@@ -61,15 +52,6 @@ public class GroupDiffUtils
 		return new RequestedGroupDiff(toAdd, filterGroupsForAddFromGroupsToRemove(toAdd, toRemove), remain);
 	}
 
-	/**
-	 * Generate group diff based on all form group params and all users
-	 * group selections
-	 * 
-	 * @param allUserGroup
-	 * @param groupSelections
-	 * @param formGroupParams
-	 * @return
-	 */
 	public static RequestedGroupDiff getAllRequestedGroupsDiff(List<Group> allUserGroup,
 			List<GroupSelection> groupSelections, List<GroupRegistrationParam> formGroupParams)
 	{

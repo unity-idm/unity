@@ -21,8 +21,8 @@ import org.junit.Test;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
-import pl.edu.icm.unity.engine.group.GroupsManagementImpl.OpenChildGroupException;
-import pl.edu.icm.unity.engine.group.GroupsManagementImpl.ParentIsCloseGroupException;
+import pl.edu.icm.unity.engine.group.GroupsManagementImpl.PublicChildGroupException;
+import pl.edu.icm.unity.engine.group.GroupsManagementImpl.ParentIsPrivateGroupException;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -293,7 +293,7 @@ public class TestGroups extends DBIntegrationTestBase
 		
 		Throwable exception = catchThrowable(
 				() -> groupsMan.updateGroup(parent.getName(), parent));
-		assertExceptionType(exception, OpenChildGroupException.class);
+		assertExceptionType(exception, PublicChildGroupException.class);
 	}
 
 	@Test
@@ -315,7 +315,7 @@ public class TestGroups extends DBIntegrationTestBase
 		
 		Throwable exception = catchThrowable(
 				() -> groupsMan.updateGroup(child1.getName(), child1));
-		assertExceptionType(exception, ParentIsCloseGroupException.class);
+		assertExceptionType(exception, ParentIsPrivateGroupException.class);
 	}
 
 	protected void assertExceptionType(Throwable exception, Class<?> type)
