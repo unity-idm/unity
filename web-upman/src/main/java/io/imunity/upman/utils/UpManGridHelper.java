@@ -105,12 +105,12 @@ public class UpManGridHelper
 			ConfirmationInfoFormatter formatter)
 	{
 
-		Column<T, String> emailColumn = grid.addColumn(
-				t -> (emailProvider.apply(t).getConfirmationInfo().isConfirmed() ? Images.ok.getHtml()
-						: Images.warn.getHtml()) + " " + emailProvider.apply(t).getValue(),
-				new HtmlRenderer());
-		emailColumn.setDescriptionGenerator(t -> formatter
-				.getSimpleConfirmationStatusString(emailProvider.apply(t).getConfirmationInfo()));
+		Column<T, String> emailColumn = grid.addColumn(t -> emailProvider.apply(t) != null
+				? ((emailProvider.apply(t).getConfirmationInfo().isConfirmed() ? Images.ok.getHtml()
+						: Images.warn.getHtml()) + " " + emailProvider.apply(t).getValue())
+				: "", new HtmlRenderer());
+		emailColumn.setDescriptionGenerator(t -> emailProvider.apply(t) != null ? formatter
+				.getSimpleConfirmationStatusString(emailProvider.apply(t).getConfirmationInfo()) : "");
 		emailColumn.setCaption(caption);
 		emailColumn.setExpandRatio(1);
 		return emailColumn;

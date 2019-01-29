@@ -119,8 +119,7 @@ public class ProjectManagementHelper
 	{
 		if (endpoint == null)
 			return null;
-		String path = endpoint.getType().getPaths().keySet().iterator().next();
-		return networkServer.getAdvertisedAddress() + endpoint.getEndpoint().getContextAddress() + path;
+		return networkServer.getAdvertisedAddress() + endpoint.getEndpoint().getContextAddress();
 	}
 
 	private Set<ResolvedEndpoint> getAllProjectManEndpoints()

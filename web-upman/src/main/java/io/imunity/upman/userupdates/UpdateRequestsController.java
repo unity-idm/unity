@@ -60,14 +60,27 @@ public class UpdateRequestsController
 
 	}
 
-	public Optional<String> getProjectEnquiryFormLink(String projectPath) throws ControllerException
+	public Optional<String> getProjectSingUpEnquiryFormLink(String projectPath) throws ControllerException
 	{
 		try
 		{
 			return requestMan.getProjectSignUpEnquiryFormLink(projectPath);
 		} catch (EngineException e)
 		{
-			log.debug("Can not get project enquiry form link " + projectPath, e);
+			log.debug("Can not get project signup enquiry form link " + projectPath, e);
+			throw new ServerFaultException(msg);
+		}
+
+	}
+	
+	public Optional<String> getProjectUpdateMembershipEnquiryFormLink(String projectPath) throws ControllerException
+	{
+		try
+		{
+			return requestMan.getProjectUpdateMembershipEnquiryFormLink(projectPath);
+		} catch (EngineException e)
+		{
+			log.debug("Can not get project signup enquiry form link " + projectPath, e);
 			throw new ServerFaultException(msg);
 		}
 

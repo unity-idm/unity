@@ -170,8 +170,8 @@ public class UserAccountComponent extends VerticalLayout
 		if (!disabled.contains(HomeEndpointProperties.Components.preferencesTab.toString()))
 			addPreferences(tabPanel);
 		
-		if (!disabled.contains(HomeEndpointProperties.Components.enquriesTab.toString()))
-			addEnquiries(tabPanel, config.getEnabledEnquiries());
+		if (!disabled.contains(HomeEndpointProperties.Components.accountUpdateTab.toString()))
+			addAccountUpdate(tabPanel, config.getEnabledEnquiries());
 		
 		if (!disabled.contains(tabProvider.getId().toString()))
 			addExtraTab(tabPanel);
@@ -180,7 +180,7 @@ public class UserAccountComponent extends VerticalLayout
 			tabPanel.select(0);
 	}
 	
-	private void addEnquiries(BigTabPanel tabPanel, List<String> enquiries)
+	private void addAccountUpdate(BigTabPanel tabPanel, List<String> enquiries)
 	{
 		try
 		{
@@ -195,12 +195,12 @@ public class UserAccountComponent extends VerticalLayout
 				{
 					EnquiryForm form = enquiryResController.getForm(enquiryForm);
 					main.addComponent(new SingleStickyEnquiryUpdater(msg, enquiryResController, form));
+					
+					tabPanel.addTab("UserHomeUI.accountUpdateLabel", "UserHomeUI.accountUpdateDesc", Images.records,
+							main);
 					break;
 				}
 			}
-
-			tabPanel.addTab("UserHomeUI.enquiryLabel", "UserHomeUI.enquiryDesc", Images.records,
-					main);
 
 		} catch (Exception e)
 		{

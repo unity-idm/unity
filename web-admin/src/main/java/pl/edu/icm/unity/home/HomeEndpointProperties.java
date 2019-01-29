@@ -31,7 +31,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, HomeEndpointProperties.class);
 
-	public enum Components {credentialTab, preferencesTab, userDetailsTab, enquriesTab, 
+	public enum Components {credentialTab, preferencesTab, userDetailsTab, accountUpdateTab, 
 		accountRemoval, attributesManagement, userInfo, identitiesManagement,
 		accountLinking};
 
@@ -45,7 +45,7 @@ public class HomeEndpointProperties extends PropertiesHelper
 
 	public static final String DISABLED_COMPONENTS = "disabledComponents.";
 	public static final String ATTRIBUTES = "attributes.";
-	public static final String ENQUIRIES = "enquiries.";
+	public static final String ENQUIRIES = "accountUpdateEnquiries.";
 	public static final String GWA_ATTRIBUTE = "attribute";
 	public static final String GWA_GROUP = "group";
 	public static final String GWA_SHOW_GROUP = "showGroup";

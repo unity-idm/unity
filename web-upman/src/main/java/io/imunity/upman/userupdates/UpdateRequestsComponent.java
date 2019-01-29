@@ -88,20 +88,33 @@ public class UpdateRequestsComponent extends CustomComponent
 			selfSingUpForm.setVisible(false);
 		}
 
+		Link singUpEnquiryForm = new Link();
+		singUpEnquiryForm.setCaption(msg.getMessage("UpdateRequestsComponent.signUpForm"));
+		singUpEnquiryForm.setTargetName("_blank");
+		Optional<String> projectEnquiryFormLink = controller.getProjectSingUpEnquiryFormLink(project);
+		if (projectEnquiryFormLink.isPresent())
+		{
+			singUpEnquiryForm.setResource(new ExternalResource(projectEnquiryFormLink.get()));
+		} else
+		{
+			singUpEnquiryForm.setVisible(false);
+		}
+		
 		Link updateForm = new Link();
 		updateForm.setCaption(msg.getMessage("UpdateRequestsComponent.updateForm"));
 		updateForm.setTargetName("_blank");
-		Optional<String> projectEnquiryFormLink = controller.getProjectEnquiryFormLink(project);
-		if (projectEnquiryFormLink.isPresent())
+		Optional<String> projectUpdateFormLink = controller.getProjectUpdateMembershipEnquiryFormLink(project);
+		if (projectUpdateFormLink.isPresent())
 		{
-			updateForm.setResource(new ExternalResource(projectEnquiryFormLink.get()));
+			updateForm.setResource(new ExternalResource(projectUpdateFormLink.get()));
 		} else
 		{
 			updateForm.setVisible(false);
 		}
 		
-		main.addComponents(selfSingUpForm, updateForm);
-		if (selfSingUpForm.isVisible() || updateForm.isVisible())
+		
+		main.addComponents(selfSingUpForm, singUpEnquiryForm, updateForm);
+		if (selfSingUpForm.isVisible() || singUpEnquiryForm.isVisible())
 		{
 			Label space = new Label();
 			main.addComponent(space);

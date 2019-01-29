@@ -104,7 +104,7 @@ public class TestRequestsController
 	@Test
 	public void shouldForwardGetEnqLinkToCoreManager() throws ControllerException, EngineException
 	{
-		controller.getProjectEnquiryFormLink("/project");
+		controller.getProjectSingUpEnquiryFormLink("/project");
 		verify(mockRequestMan).getProjectSignUpEnquiryFormLink(eq("/project"));
 
 	}

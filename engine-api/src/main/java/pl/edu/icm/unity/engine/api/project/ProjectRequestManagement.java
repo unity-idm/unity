@@ -41,5 +41,7 @@ public interface ProjectRequestManagement
 	Optional<String> getProjectRegistrationFormLink(String projectPath) throws EngineException;
 
 	Optional<String> getProjectSignUpEnquiryFormLink(String projectPath) throws EngineException;
+	
+	Optional<String> getProjectUpdateMembershipEnquiryFormLink(String projectPath) throws EngineException;
 
 }

@@ -146,16 +146,30 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 	@Override
 	public Optional<String> getProjectSignUpEnquiryFormLink(String projectPath) throws EngineException
 	{
-
 		authz.checkManagerAuthorization(projectPath);
 		String enquiryFormId = getProjectDelegationConfig(projectPath).signupEnquiryForm;
-		if (enquiryFormId == null)
-			return Optional.empty();
+		return getEnquiryLink(enquiryFormId);
+	}
+	
 
+	@Transactional
+	@Override
+	public Optional<String> getProjectUpdateMembershipEnquiryFormLink(String projectPath) throws EngineException
+	{
+		authz.checkManagerAuthorization(projectPath);
+		String enquiryFormId = getProjectDelegationConfig(projectPath).membershipUpdateEnquiryForm;
+		return getEnquiryLink(enquiryFormId);
+	}
+	
+	private Optional<String> getEnquiryLink(String formId)
+	{
+		if (formId == null)
+			return Optional.empty();
+		
 		EnquiryForm enquiryForm = null;
 		try
 		{
-			enquiryForm = enquiryMan.getEnquiry(enquiryFormId);
+			enquiryForm = enquiryMan.getEnquiry(formId);
 		} catch (EngineException e)
 		{
 			return Optional.empty();
@@ -165,8 +179,9 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 			return Optional.empty();
 
 		return Optional.ofNullable(
-				PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryFormId, sharedEndpointMan));
+				PublicRegistrationURLSupport.getWellknownEnquiryLink(formId, sharedEndpointMan));
 	}
+	
 
 	private void proccessRequest(ProjectRequestParam request, RegistrationRequestAction action)
 			throws EngineException
