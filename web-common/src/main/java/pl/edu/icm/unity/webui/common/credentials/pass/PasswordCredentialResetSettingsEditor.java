@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.credentials.pass;
 
+import java.util.Arrays;
+
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.server.Sizeable.Unit;
@@ -21,7 +23,9 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.C
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ButtonsPosition;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
@@ -165,26 +169,18 @@ public class PasswordCredentialResetSettingsEditor
 						return true;
 					}
 				});
-		questions = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new Label(value);
-			}
-		});
-		questions.setButtonsPosition(ButtonsPosition.Left);
 		
-		SingleActionHandler<String> remove = SingleActionHandler
-				.builder4Delete(msg, String.class).withHandler(r -> {
+		SingleActionHandler<String> remove = SingleActionHandler.builder4Delete(msg, String.class)
+				.withHandler(r -> {
 
 					questions.removeEntry(r.iterator().next());
 
 				}
 
 				).build();
-		
-		questions.addActionHandler(remove);
+
+		questions = new ListOfElementsWithActions<>(Arrays.asList(new Column<>(null, r -> new Label(r), 1)),
+				new ActionColumn<>(null, Arrays.asList(remove), 0, Position.Left));
 		
 		
 	}

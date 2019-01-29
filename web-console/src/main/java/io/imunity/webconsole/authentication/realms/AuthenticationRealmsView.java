@@ -5,6 +5,7 @@
 
 package io.imunity.webconsole.authentication.realms;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -31,11 +32,14 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -51,7 +55,8 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 
 	private AuthenticationRealmController realmsMan;
 	private UnityMessageSource msg;
-	private ListOfElementsWithActions<AuthenticationRealm> realmsList;
+	private ListOfElementsWithActions<AuthenticationRealmEntry> realmsList;
+	
 
 	@Autowired
 	public AuthenticationRealmsView(UnityMessageSource msg,
@@ -59,6 +64,7 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	{
 		this.realmsMan = realmsMan;
 		this.msg = msg;
+		
 	}
 
 	@Override
@@ -75,34 +81,33 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		buttonsBar.addComponent(newRealm);
 		buttonsBar.setComponentAlignment(newRealm, Alignment.MIDDLE_RIGHT);
 		buttonsBar.setWidth(100, Unit.PERCENTAGE);
-
-		realmsList = new ListOfElementsWithActions<>(r -> new Label(r.getName()));
-
-		SingleActionHandler<AuthenticationRealm> edit = SingleActionHandler
-				.builder4Edit(msg, AuthenticationRealm.class)
-				.withHandler(r -> NavigationHelper.goToView(
-						EditAuthenticationRealmView.VIEW_NAME + "/"
-								+ CommonViewParam.name.toString()
-								+ "="
-								+ r.iterator().next().getName()))
+		
+		SingleActionHandler<AuthenticationRealmEntry> edit = SingleActionHandler
+				.builder4Edit(msg, AuthenticationRealmEntry.class)
+				.withHandler(r -> gotoEdit(r.iterator().next()))
 				.build();
 
-		SingleActionHandler<AuthenticationRealm> remove = SingleActionHandler
-				.builder4Delete(msg, AuthenticationRealm.class).withHandler(r -> {
+		SingleActionHandler<AuthenticationRealmEntry> remove = SingleActionHandler
+				.builder4Delete(msg, AuthenticationRealmEntry.class).withHandler(r -> {
 
 					tryRemove(r.iterator().next());
 
 				}
 
 				).build();
-
-		realmsList.addActionHandler(edit);
-		realmsList.addActionHandler(remove);
+		
+		realmsList = new ListOfElementsWithActions<>(
+				Arrays.asList(new Column<>(msg.getMessage("AuthenticationRealm.nameCaption"),
+						r -> getEditButton(r), 1),
+						new Column<>(msg.getMessage("AuthenticationRealm.endpointsCaption"),
+								r -> new Label(String.join(", ", r.endpoints)), 4)),
+				new ActionColumn<>(msg.getMessage("actions"), Arrays.asList(edit, remove), 0,
+						Position.Right)
+		);
+		
 		realmsList.setAddSeparatorLine(true);
-		realmsList.addHeader(msg.getMessage("AuthenticationRealm.nameCaption"),
-				msg.getMessage("actions"));
 
-		for (AuthenticationRealm realm : getRealms())
+		for (AuthenticationRealmEntry realm : getRealms())
 		{
 			realmsList.addEntry(realm);
 		}
@@ -116,7 +121,33 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		setCompositionRoot(main);
 	}
 
-	private Collection<AuthenticationRealm> getRealms()
+	
+	private void gotoEdit(AuthenticationRealmEntry e)
+	{
+		NavigationHelper.goToView(
+				EditAuthenticationRealmView.VIEW_NAME + "/"
+						+ CommonViewParam.name.toString()
+						+ "="
+						+ e.realm.getName());
+	}
+	
+	private HorizontalLayout getEditButton(AuthenticationRealmEntry e)
+	{
+		HorizontalLayout layout = new HorizontalLayout();
+		layout.setSpacing(false);
+		layout.setMargin(false);
+		layout.setWidth(100, Unit.PERCENTAGE);
+		Button button = new Button();
+		button.setCaption(e.realm.getName());		
+		button.addStyleName(Styles.vButtonLink.toString());
+		button.addStyleName(Styles.vBorderLess.toString());
+		button.addClickListener(ev -> gotoEdit(e));
+		layout.addComponent(button);
+		layout.setComponentAlignment(button, Alignment.TOP_LEFT);
+		return layout;
+	}
+	
+	private Collection<AuthenticationRealmEntry> getRealms()
 	{
 		try
 		{
@@ -128,11 +159,11 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		return Collections.emptyList();
 	}
 
-	private void remove(AuthenticationRealm realm)
+	private void remove(AuthenticationRealmEntry realm)
 	{
 		try
 		{
-			if (realmsMan.removeRealm(realm))
+			if (realmsMan.removeRealm(realm.realm))
 				realmsList.removeEntry(realm);
 		} catch (ControllerException e)
 		{
@@ -140,11 +171,11 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		}
 	}
 
-	private void tryRemove(AuthenticationRealm realm)
+	private void tryRemove(AuthenticationRealmEntry realm)
 	{
 
 		String confirmText = MessageUtils.createConfirmFromStrings(msg,
-				Sets.newHashSet(realm.getName()));
+				Sets.newHashSet(realm.realm.getName()));
 		new ConfirmDialog(msg,
 				msg.getMessage("AuthenticationRealm.confirmDelete", confirmText),
 				() -> remove(realm)).show();

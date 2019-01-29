@@ -62,6 +62,16 @@ $narrow-bar-size: 50px;
        	background-color: $button-hover-bg-color;
        	color: $button-hover-color;
     }
+    
+     .v-button-link {
+       	background-color: transparent;
+       	text-decoration: none;
+    }
+
+    .v-button-link:hover {
+       background-color: transparent;
+       color: $topMenuButton-hover-color
+    }
         
     .v-button:focus::after {
        	border-color: none;

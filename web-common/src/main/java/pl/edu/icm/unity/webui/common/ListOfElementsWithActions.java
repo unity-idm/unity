@@ -6,6 +6,8 @@
 package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,53 +23,51 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
 /**
- * UI Component presenting a list of objects in a single column table.
+ * UI Component presenting a list of objects in a table with multiple colums.
  * Additionally entries may have actions attached, which are displayed as
- * buttons in each line. Also note for close future: this component will need to
- * be enhanced to support multiple columns (although rather only few).
+ * buttons in each line.
  * 
  * @author P.Piernik
  */
 public class ListOfElementsWithActions<T> extends CustomComponent
 {
-	public enum ButtonsPosition
-	{
-		Left, Right
-	};
+	List<Column<T>> columns;
+	ActionColumn<T> actionColumn;
 
 	private List<Entry> components;
-	private LabelConverter<T> labelConverter;
 	private boolean addSeparatorLine;
-	private List<SingleActionHandler<T>> actionHandlers;
 	private VerticalLayout main;
-	private ButtonsPosition buttonsPosition;
 
 	public ListOfElementsWithActions()
 	{
-		this(t -> new Label(t.toString()));
+
+		this(Arrays.asList(new Column<>(null, t -> new Label(t.toString()))), null);
+
 	}
 
 	public ListOfElementsWithActions(LabelConverter<T> labelConverter)
 	{
 
-		this.labelConverter = labelConverter;
+		this(Arrays.asList(new Column<>(null, labelConverter)), null);
+	}
+
+	public ListOfElementsWithActions(List<Column<T>> columns, ActionColumn<T> actionColumn)
+	{
+
+		this.columns = columns;
+		this.actionColumn = actionColumn;
+
 		this.components = new ArrayList<>();
-		this.actionHandlers = new ArrayList<>();
-		this.buttonsPosition = ButtonsPosition.Right;
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
 		main.setId("ListOfElements");
 		setCompositionRoot(main);
-	}
-
-	public ListOfElementsWithActions(UnityMessageSource msg)
-	{
-		this(e -> new Label(e.toString()));
+		addHeader();
 	}
 
 	public void addEntry(T entry)
@@ -124,51 +124,71 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 		this.addSeparatorLine = addSeparatorLine;
 	}
 
-	public void addActionHandler(SingleActionHandler<T> handler)
+	private void addHeader()
 	{
-		actionHandlers.add(handler);
-	}
-
-	public void setButtonsPosition(ButtonsPosition buttonsPosition)
-	{
-		this.buttonsPosition = buttonsPosition;
-	}
-
-	public void addHeader(String labelTitle, String actionTitle)
-	{
-
-		Label labelTitleL = new Label(labelTitle);
-		labelTitleL.setStyleName(Styles.captionBold.toString());
-
-		Label actionTitleL = new Label(actionTitle);
-		actionTitleL.setStyleName(Styles.captionBold.toString());
-
-		main.addComponent(getEntryLine(labelTitleL, actionTitleL), 0);
-
-	}
-
-	private Component getEntryLine(Component comp1, Component buttons)
-	{
-		HorizontalLayout cont = new HorizontalLayout();
-		cont.setMargin(false);
-		cont.setSpacing(true);
-
-		if (buttonsPosition == ButtonsPosition.Right)
+		HorizontalLayout columnsL = new HorizontalLayout(); 
+		columnsL.setWidth(100, Unit.PERCENTAGE);
+		columnsL.setMargin(false);
+		columnsL.setSpacing(false);
+		
+		boolean add = false;
+		for (Column<T> c : columns)
 		{
-			cont.setWidth(100, Unit.PERCENTAGE);
-			cont.addComponents(comp1, buttons);
-			cont.setComponentAlignment(comp1, Alignment.MIDDLE_LEFT);
-			cont.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
-		} else
-		{
-			cont.addComponents(buttons, comp1);
+			Label titleL = new Label();
+			titleL.setStyleName(Styles.captionBold.toString());
+			if (c.headerLabel != null)
+			{
+				add = true;
+				titleL.setValue(c.headerLabel);
+			}
+			columnsL.addComponent(titleL);
+			titleL.setWidth(100, Unit.PERCENTAGE);
+			columnsL.setExpandRatio(titleL, c.expandRatio);
 		}
 
-		VerticalLayout main = new VerticalLayout(cont);
+		HorizontalLayout buttonsL = new HorizontalLayout();
+		buttonsL.setMargin(false);
+		buttonsL.setSpacing(false);
+		
+		Label actionL = new Label();
+		actionL.setStyleName(Styles.captionBold.toString());
+		actionL.setWidth(100, Unit.PERCENTAGE);
+		if (actionColumn != null && actionColumn.headerLabel != null)
+		{
+			actionL.setValue(actionColumn.headerLabel);	
+			add = true;
+		}
+		buttonsL.addComponent(actionL);
+		
+		if (add)
+		{
+			main.addComponent(getEntryLine(columnsL, buttonsL), 0);
+			main.addComponent(HtmlTag.horizontalLine());
+		}
+
+	}
+
+	private Component getEntryLine(HorizontalLayout components, HorizontalLayout buttons)
+	{
+		if (actionColumn != null)
+		{
+			if (actionColumn.position == Position.Right)
+			{
+				components.addComponent(buttons);
+				components.setComponentAlignment(buttons, Alignment.TOP_RIGHT);
+
+			} else
+			{
+				components.addComponent(buttons, 0);
+				components.setComponentAlignment(buttons, Alignment.TOP_LEFT);
+			}
+			components.setExpandRatio(buttons, actionColumn.expandRatio);
+		}
+
+		VerticalLayout main = new VerticalLayout(components);
 		main.setSpacing(false);
 		main.setMargin(false);
 
-		main.addComponent(cont);
 		if (addSeparatorLine)
 		{
 			main.addComponent(HtmlTag.horizontalLine());
@@ -182,12 +202,41 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 
 		public Entry(T elementV)
 		{
-
 			this.element = elementV;
-			HorizontalLayout buttons = new HorizontalLayout();
-			buttons.setMargin(false);
-			buttons.setSpacing(false);
-			for (SingleActionHandler<T> handler : actionHandlers)
+
+			setCompositionRoot(getEntryLine(buildColumnsLayout(element), buildActionColumnLayout(element)));
+		}
+
+		public T getElement()
+		{
+			return element;
+		}
+	}
+
+	private HorizontalLayout buildColumnsLayout(T element)
+	{
+		HorizontalLayout labels = new HorizontalLayout();
+		labels.setWidth(100, Unit.PERCENTAGE);
+		labels.setMargin(false);
+		for (Column<T> column : columns)
+		{
+			Component l = column.labelConverter.toLabel(element);
+			l.setWidth(100, Unit.PERCENTAGE);
+			labels.addComponent(l);
+			labels.setExpandRatio(l, column.expandRatio);
+			labels.setComponentAlignment(l, Alignment.TOP_LEFT);
+		}
+		return labels;
+	}
+
+	private HorizontalLayout buildActionColumnLayout(T element)
+	{
+		HorizontalLayout buttons = new HorizontalLayout();
+		buttons.setMargin(false);
+		buttons.setSpacing(false);
+		if (actionColumn != null)
+		{
+			for (SingleActionHandler<T> handler : actionColumn.actionHandlers)
 			{
 
 				Set<T> elementsSet = new HashSet<>();
@@ -203,27 +252,69 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 						@Override
 						public void buttonClick(ClickEvent event)
 						{
-							handler.handle(Stream.of(elementV).collect(
-									Collectors.toSet()));
+							handler.handle(Stream.of(element).collect(Collectors.toSet()));
 						}
 					});
 					actionButton.setEnabled(handler.isEnabled(elementsSet));
-
 					buttons.addComponent(actionButton);
 				}
 			}
-
-			setCompositionRoot(getEntryLine(labelConverter.toLabel(element), buttons));
 		}
-
-		public T getElement()
-		{
-			return element;
-		}
+		return buttons;
 	}
 
 	public interface LabelConverter<T>
 	{
 		public Component toLabel(T value);
 	}
+
+	private static class BaseColumn
+	{
+		public final String headerLabel;
+		public final int expandRatio;
+
+		public BaseColumn(String headerLabel, int expandRatio)
+		{
+			this.headerLabel = headerLabel;
+			this.expandRatio = expandRatio;
+		}
+	}
+
+	public static class Column<T> extends BaseColumn
+	{
+		public final LabelConverter<T> labelConverter;
+
+		public Column(String headerLabel, LabelConverter<T> labelConverter)
+		{
+			super(headerLabel, 1);
+			this.labelConverter = labelConverter;
+		}
+
+		public Column(String headerLabel, LabelConverter<T> labelConverter, int expandRatio)
+		{
+			super(headerLabel, expandRatio);
+			this.labelConverter = labelConverter;
+		}
+	}
+
+	public static class ActionColumn<T> extends BaseColumn
+	{
+		public enum Position
+		{
+			Left, Right
+		};
+
+		public final List<SingleActionHandler<T>> actionHandlers;
+		public final Position position;
+
+		public ActionColumn(String headerLabel, List<SingleActionHandler<T>> actionHandlers,
+				int expandRatio, Position position)
+		{
+			super(headerLabel, expandRatio);
+			this.actionHandlers = Collections.unmodifiableList(
+					actionHandlers == null ? Collections.emptyList() : actionHandlers);
+			this.position = position;
+		}
+	}
+
 }
