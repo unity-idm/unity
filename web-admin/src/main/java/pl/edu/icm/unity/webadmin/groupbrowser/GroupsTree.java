@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -42,6 +43,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -51,6 +53,8 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.identities.EntityCreationHandler;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesGrid;
+import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditor;
+import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditor;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -86,7 +90,10 @@ public class GroupsTree extends TreeGrid<TreeNode>
 	private BulkGroupQueryService bulkQueryService;
 	private RegistrationsManagement registrationMan;
 	private EnquiryManagement enquiryMan;
-	private AttributeTypeManagement attrTypeMan;
+	private AttributeTypeManagement attrTypeMan;	
+	private ObjectFactory<RegistrationFormEditor> regFormEditorFactory;
+	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
+	private GroupDelegationConfigGenerator delConfigUtils;
 
 	@Autowired
 	public GroupsTree(GroupsManagement groupsMan, EntityManagement identitiesMan,
@@ -96,7 +103,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			BulkGroupQueryService bulkQueryService, 
 			RegistrationsManagement registrationMan,
 			EnquiryManagement enquiryMan,
-			AttributeTypeManagement attrTypeMan)
+			AttributeTypeManagement attrTypeMan, ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
+			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory,
+			GroupDelegationConfigGenerator delConfigGenerator)
 	{
 		this.groupsMan = groupsMan;
 		this.identitiesMan = identitiesMan;
@@ -107,6 +116,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.attrTypeMan = attrTypeMan;
+		this.regFormEditorFactory = regFormEditorFactory;
+		this.enquiryFormEditorFactory = enquiryFormEditorFactory;
+		this.delConfigUtils = delConfigGenerator;
 
 		contextMenuSupp = new GridContextMenuSupport<>(this);
 		addExpandListener(new GroupExpandListener());
@@ -455,9 +467,9 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		Group group = resolveGroup(node);
 		if (group == null)
 			return;
-		
-		new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan,
-				group.getDelegationConfiguration(), delConfig -> {
+
+		new GroupDelegationEditConfigDialog(msg, registrationMan, enquiryMan, attrTypeMan, regFormEditorFactory,
+				enquiryFormEditorFactory, bus, delConfigUtils, group, delConfig -> {
 					group.setDelegationConfiguration(delConfig);
 					updateGroup(node.getPath(), group);
 				}).show();

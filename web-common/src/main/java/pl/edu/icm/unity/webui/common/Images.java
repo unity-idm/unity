@@ -109,8 +109,8 @@ public enum Images
 	external_link 	(VaadinIcons.EXTERNAL_LINK),
 	trash		(VaadinIcons.TRASH),
 	envelope	(VaadinIcons.ENVELOPE),
-	records	        (VaadinIcons.RECORDS);
-	
+	records	        (VaadinIcons.RECORDS),
+	bullet	        (VaadinIcons.CIRCLE);
 	
 	private final Resource resource;
 	

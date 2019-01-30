@@ -40,6 +40,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
+import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -135,10 +136,11 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 	{
 		for (GroupMembershipInfo info : membersWithGroups.values())
 		{
-			String contactEmail = attrHelper.searchAttributeValueByMeta(ContactEmailMetadataProvider.NAME,
+			VerifiableElementBase contactEmail = attrHelper.searchVerifiableAttributeValueByMeta(ContactEmailMetadataProvider.NAME,
 					info.attributes.get("/").values().stream().map(e -> (Attribute) e)
 							.collect(Collectors.toList()));
-			if (contactEmail != null && contactEmail.equals(contactAddress))
+			if (contactEmail != null && contactEmail.getValue() != null
+					&& contactEmail.getValue().equals(contactAddress))
 			{
 				return info.entityId;
 			}

@@ -10,29 +10,45 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.ObjectFactory;
+
 import com.vaadin.data.Binder;
+import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.basic.AttributeType;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
+import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog;
+import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
+import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditor;
+import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog;
+import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditor;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
-import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
+import pl.edu.icm.unity.webui.forms.enquiry.EnquiryFormChangedEvent;
+import pl.edu.icm.unity.webui.forms.reg.RegistrationFormChangedEvent;
 
 /**
  * Edit dialog for {@link GroupDelegationConfiguration}.
@@ -44,37 +60,51 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 {
 	private Consumer<GroupDelegationConfiguration> callback;
 	private GroupDelegationConfiguration toEdit;
+	private Group group;
+
 	private TextField logoUrl;
 	private CheckBox enableDelegation;
-	private ComboBox<String> registrationFormCombo;
-	private ComboBox<String> signupEnquiryFormCombo;
-	private ComboBox<String> membershipUpdateEnquiryFormCombo;
+	private FormComboWithButtons<String> registrationFormComboWithButtons;
+	private FormComboWithButtons<String> signupEnquiryFormComboWithButtons;
+	private FormComboWithButtons<String> membershipUpdateEnquiryFormComboWithButtons;
 	private ChipsWithDropdown<String> attributes;
 	private Binder<DelegationConfiguration> binder;
 
 	private RegistrationsManagement registrationMan;
 	private EnquiryManagement enquiryMan;
 	private AttributeTypeManagement attrTypeMan;
-
+	private ObjectFactory<RegistrationFormEditor> regFormEditorFactory;
+	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
+	private EventsBus bus;
+	private GroupDelegationConfigGenerator configGenerator;
+	
 	public GroupDelegationEditConfigDialog(UnityMessageSource msg, RegistrationsManagement registrationMan,
 			EnquiryManagement enquiryMan, AttributeTypeManagement attrTypeMan,
-			GroupDelegationConfiguration toEdit, Consumer<GroupDelegationConfiguration> callback)
+			ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
+			ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory, EventsBus bus,
+			GroupDelegationConfigGenerator configGenerator, Group group,
+			Consumer<GroupDelegationConfiguration> callback)
 	{
 		super(msg, msg.getMessage("GroupDelegationEditConfigDialog.caption"), msg.getMessage("ok"),
 				msg.getMessage("cancel"));
-		this.toEdit = toEdit;
+		this.toEdit = group.getDelegationConfiguration();
 		this.callback = callback;
 		this.registrationMan = registrationMan;
 		this.enquiryMan = enquiryMan;
 		this.attrTypeMan = attrTypeMan;
+		this.regFormEditorFactory = regFormEditorFactory;
+		this.enquiryFormEditorFactory = enquiryFormEditorFactory;
+		this.bus = bus;
+		this.configGenerator = configGenerator;
+		this.group = group;
 	}
 
 	private void enableEdit(boolean enabled)
 	{
 		logoUrl.setEnabled(enabled);
-		registrationFormCombo.setEnabled(enabled);
-		signupEnquiryFormCombo.setEnabled(enabled);
-		membershipUpdateEnquiryFormCombo.setEnabled(enabled);
+		registrationFormComboWithButtons.setEnabled(enabled);
+		signupEnquiryFormComboWithButtons.setEnabled(enabled);
+		membershipUpdateEnquiryFormComboWithButtons.setEnabled(enabled);
 		attributes.setEnabled(enabled);
 	}
 
@@ -89,21 +119,24 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		});
 		logoUrl = new TextField(msg.getMessage("GroupDelegationEditConfigDialog.logoUrlCaption"));
 		logoUrl.setWidth(100, Unit.PERCENTAGE);
-		registrationFormCombo = new ComboBox<String>(
-				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"));
 
-		List<RegistrationForm> forms = registrationMan.getForms();
-		registrationFormCombo.setItems(forms.stream().map(f -> f.getName()).collect(Collectors.toList()));
+		registrationFormComboWithButtons = new FormComboWithButtons<String>(msg,
+				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"),
+				e -> generateJoinRegistrationForm(),
+				e -> showJoinRegistrationValidation(registrationFormComboWithButtons.getValue()),
+				e -> showRegFormEditDialog(registrationFormComboWithButtons.getValue()));
+		reloadRegistrationForm();
 
-		signupEnquiryFormCombo = new ComboBox<String>(
-				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"));
-		List<EnquiryForm> enquires = enquiryMan.getEnquires();
-		signupEnquiryFormCombo.setItems(enquires.stream().map(f -> f.getName()).collect(Collectors.toList()));
+		signupEnquiryFormComboWithButtons = new FormComboWithButtons<String>(msg,
+				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"),
+				e -> generateJoinEnquiryForm(),
+				e -> showJoinEnquiryValidation(signupEnquiryFormComboWithButtons.getValue()),
+				e -> showEnquiryFormEditDialog(signupEnquiryFormComboWithButtons.getValue()));
 
-		membershipUpdateEnquiryFormCombo = new ComboBox<String>(
-				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"));
-		membershipUpdateEnquiryFormCombo.setItems(enquires.stream().filter(f -> f.getType().equals(EnquiryType.STICKY))
-				.map(f -> f.getName()).collect(Collectors.toList()));
+		membershipUpdateEnquiryFormComboWithButtons = new FormComboWithButtons<String>(msg,
+				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"), null, null,
+				e -> showEnquiryFormEditDialog(membershipUpdateEnquiryFormComboWithButtons.getValue()));
+		reloadEnquiryForms();
 
 		attributes = new ChipsWithDropdown<>();
 		attributes.setCaption(msg.getMessage("GroupDelegationEditConfigDialog.attributes"));
@@ -119,16 +152,88 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		binder = new Binder<>(DelegationConfiguration.class);
 		binder.forField(enableDelegation).bind("enabled");
 		binder.forField(logoUrl).bind("logoUrl");
-		binder.forField(registrationFormCombo).bind("registrationForm");
-		binder.forField(membershipUpdateEnquiryFormCombo).bind("membershipUpdateEnquiryForm");
-		binder.forField(signupEnquiryFormCombo).bind("signupEnquiryForm");
+		binder.forField(registrationFormComboWithButtons).bind("registrationForm");
+		binder.forField(membershipUpdateEnquiryFormComboWithButtons).bind("membershipUpdateEnquiryForm");
+		binder.forField(signupEnquiryFormComboWithButtons).bind("signupEnquiryForm");
 		binder.setBean(new DelegationConfiguration(toEdit));
 		enableEdit(toEdit.enabled);
 
 		FormLayout main = new FormLayout();
-		main.addComponents(enableDelegation, logoUrl, registrationFormCombo, signupEnquiryFormCombo,
-				membershipUpdateEnquiryFormCombo, attributes);
+		main.addComponents(enableDelegation, logoUrl, registrationFormComboWithButtons,
+				signupEnquiryFormComboWithButtons, membershipUpdateEnquiryFormComboWithButtons,
+				attributes);
 		return main;
+	}
+
+	private void reloadEnquiryForms()
+	{
+		List<EnquiryForm> forms;
+		try
+		{
+			forms = enquiryMan.getEnquires();
+			signupEnquiryFormComboWithButtons
+					.setItems(forms.stream().map(f -> f.getName()).collect(Collectors.toList()));
+			membershipUpdateEnquiryFormComboWithButtons
+					.setItems(forms.stream().filter(f -> f.getType().equals(EnquiryType.STICKY))
+							.map(f -> f.getName()).collect(Collectors.toList()));
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.cannotLoadForms"), e);
+		}
+	}
+
+	private void generateJoinEnquiryForm()
+	{
+		EnquiryForm form;
+		try
+		{
+			form = configGenerator.generateJoinEnquiryForm(group, logoUrl.getValue());
+			enquiryMan.addEnquiry(form);
+
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.cannotGenerateForm"), e);
+			return;
+		}
+		reloadEnquiryForms();
+		signupEnquiryFormComboWithButtons.setValue(form.getName());
+	}
+
+	private void reloadRegistrationForm()
+	{
+		List<RegistrationForm> forms;
+		try
+		{
+			forms = registrationMan.getForms();
+			registrationFormComboWithButtons
+					.setItems(forms.stream().map(f -> f.getName()).collect(Collectors.toList()));
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.cannotLoadForms"), e);
+		}
+
+	}
+
+	private void generateJoinRegistrationForm()
+	{
+		RegistrationForm form;
+		try
+		{
+			form = configGenerator.generateRegistrationForm(group, logoUrl.getValue(),
+					attributes.getSelectedItems());
+			registrationMan.addForm(form);
+
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.cannotGenerateForm"), e);
+			return;
+		}
+		reloadRegistrationForm();
+		registrationFormComboWithButtons.setValue(form.getName());
 	}
 
 	@Override
@@ -136,11 +241,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 	{
 		try
 		{
-
 			DelegationConfiguration groupDelConfig = binder.getBean();
-
-			validateRegistrationForm(groupDelConfig.registrationForm);
-
 			GroupDelegationConfiguration config = new GroupDelegationConfiguration(
 					groupDelConfig.isEnabled(), groupDelConfig.getLogoUrl(),
 					groupDelConfig.getRegistrationForm(), groupDelConfig.getSignupEnquiryForm(),
@@ -155,37 +256,124 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		}
 	}
 
-	private void validateRegistrationForm(String registrationFormId) throws FormValidationException, EngineException
+	private void showJoinRegistrationValidation(String formName)
 	{
-		if (registrationFormId == null)
+		List<String> messages = configGenerator.validateRegistrationForm(formName, group.toString());
+		new ValidationResultDialog(msg, messages).show();
+	}
+
+	private void showJoinEnquiryValidation(String formName)
+	{
+		List<String> messages = configGenerator.validateJoinEnquiryForm(formName, group.toString());
+		new ValidationResultDialog(msg, messages).show();
+	}
+
+	private void showRegFormEditDialog(String target)
+	{
+
+		RegistrationForm form;
+		try
+		{
+			form = registrationMan.getForm(target);
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("GroupDelegationEditConfigDialog.errorGetForm"),
+					e);
 			return;
-
-		RegistrationForm form = registrationMan.getForms().stream()
-				.filter(f -> f.getName().equals(registrationFormId)).findFirst().orElse(null);
-		if (form == null)
-		{
-			throw new FormValidationException("Illegal registration form");
 		}
 
-		if (form.getGroupParams() == null || form.getGroupParams().size() != 1)
+		showEditRegFormEditDialog(form,
+				msg.getMessage("GroupDelegationEditConfigDialog.editRegistraionFormAction"));
+	}
+
+	private void showEditRegFormEditDialog(RegistrationForm target, String caption)
+	{
+		RegistrationForm deepCopy = new RegistrationForm(target.toJson());
+		RegistrationFormEditor editor;
+		try
 		{
-			throw new FormValidationException(
-					"Registration form should have configured one group selection param");
+			editor = regFormEditorFactory.getObject().init(false);
+			editor.setForm(deepCopy);
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.errorInFormEdit"), e);
+			return;
+		}
+		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, caption,
+				(form, ignoreRequests) -> {
+					return updateRegistrationForm(form, ignoreRequests);
+				}, editor);
+		dialog.show();
+	}
+
+	private boolean updateRegistrationForm(RegistrationForm updatedForm, boolean ignoreRequests)
+	{
+		try
+		{
+			registrationMan.updateForm(updatedForm, ignoreRequests);
+			bus.fireEvent(new RegistrationFormChangedEvent(updatedForm));
+			return true;
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.errorUpdateForm"), e);
+			return false;
+		}
+	}
+
+	private void showEnquiryFormEditDialog(String target)
+	{
+		EnquiryForm form;
+		try
+		{
+			form = enquiryMan.getEnquiry(target);
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg, msg.getMessage("GroupDelegationEditConfigDialog.errorGetForm"),
+					e);
+			return;
 		}
 
-		if (form.getIdentityParams() == null || form.getIdentityParams().size() != 1
-				|| !form.getIdentityParams().get(0).getIdentityType().equals(EmailIdentity.ID))
-		{
-			throw new FormValidationException(
-					"Registration form should have configured one email identity param");
-		}
+		showEditEnquriyDialog(form, msg.getMessage("GroupDelegationEditConfigDialog.editEnquiryFormAction"));
+	}
 
-		RegistrationFormNotifications notConfig = form.getNotificationsConfiguration();
-		if (notConfig == null || notConfig.getInvitationTemplate() == null
-				|| notConfig.getInvitationTemplate().isEmpty())
+	private void showEditEnquriyDialog(EnquiryForm target, String caption)
+	{
+		EnquiryFormEditor editor;
+		try
 		{
-			throw new FormValidationException(
-					"Registration form should have configured notification invitation template");
+			editor = enquiryFormEditorFactory.getObject().init(false);
+			editor.setForm(target);
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.errorInFormEdit"), e);
+			return;
+		}
+		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, caption, new Callback()
+		{
+			@Override
+			public boolean newForm(EnquiryForm form, boolean ignoreRequests)
+			{
+				return updateEnquiryForm(form, ignoreRequests);
+			}
+		}, editor);
+		dialog.show();
+	}
+
+	private boolean updateEnquiryForm(EnquiryForm updatedForm, boolean ignoreRequests)
+	{
+		try
+		{
+			enquiryMan.updateEnquiry(updatedForm, ignoreRequests);
+			bus.fireEvent(new EnquiryFormChangedEvent(updatedForm));
+			return true;
+		} catch (Exception e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.errorUpdateForm"), e);
+			return false;
 		}
 	}
 
@@ -257,4 +445,149 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			this.membershipUpdateEnquiryForm = stickyEnquiryForm;
 		}
 	}
+
+	private static class FormComboWithButtons<T> extends CustomField<T>
+	{
+
+		private UnityMessageSource msg;
+		private String caption;
+		private ComboBox<T> combo;
+		private ClickListener generateListener;
+		private ClickListener validateListener;
+		private ClickListener editListener;
+
+		private Button validate;
+		private Button edit;
+
+		public FormComboWithButtons(UnityMessageSource msg, String caption, ClickListener generateListener,
+				ClickListener validateListener, ClickListener editListener)
+		{
+			this.msg = msg;
+			this.caption = caption;
+			this.generateListener = generateListener;
+			this.validateListener = validateListener;
+			this.editListener = editListener;
+			this.combo = new ComboBox<T>();
+		}
+
+		@Override
+		public T getValue()
+		{
+			return combo.getValue();
+		}
+
+		@Override
+		protected Component initContent()
+		{
+			HorizontalLayout main = new HorizontalLayout();
+			main.addComponent(combo);
+			setCaption(caption);
+
+			Button generate = new Button();
+			generate.setDescription(msg.getMessage("GroupDelegationEditConfigDialog.generateForm"));
+			generate.addStyleName(Styles.toolbarButton.toString());
+			generate.addStyleName(Styles.vButtonLink.toString());
+			generate.setIcon(Images.wizard.getResource());
+			if (generateListener != null)
+			{
+				generate.addClickListener(generateListener);
+				main.addComponent(generate);
+			}
+
+			validate = new Button();
+			validate.setDescription(msg.getMessage("GroupDelegationEditConfigDialog.validateForm"));
+			validate.addStyleName(Styles.toolbarButton.toString());
+			validate.addStyleName(Styles.vButtonLink.toString());
+			validate.setIcon(Images.handshake.getResource());
+			if (validateListener != null)
+			{
+				validate.addClickListener(validateListener);
+				main.addComponent(validate);
+			}
+
+			edit = new Button();
+			edit.setDescription(msg.getMessage("GroupDelegationEditConfigDialog.editForm"));
+			edit.addStyleName(Styles.toolbarButton.toString());
+			edit.addStyleName(Styles.vButtonLink.toString());
+			edit.setIcon(Images.edit.getResource());
+			if (editListener != null)
+			{
+				edit.addClickListener(editListener);
+				main.addComponent(edit);
+			}
+
+			combo.addValueChangeListener(e -> {
+				refreshButtons();
+			});
+
+			refreshButtons();
+
+			return main;
+		}
+
+		private void refreshButtons()
+		{
+			boolean en = combo.getValue() != null;
+			edit.setEnabled(en);
+			validate.setEnabled(en);
+		}
+
+		@Override
+		protected void doSetValue(T value)
+		{
+			combo.setSelectedItem(value);
+		}
+
+		public void setItems(Collection<T> items)
+		{
+			combo.setItems(items);
+		}
+	}
+
+	private static class ValidationResultDialog extends AbstractDialog
+	{
+
+		private List<String> messages;
+
+		public ValidationResultDialog(UnityMessageSource msg, List<String> messages)
+		{
+			super(msg, msg.getMessage("GroupDelegationEditConfigDialog.validationDialogCaption"),
+					msg.getMessage("ok"));
+			this.messages = messages;
+		}
+
+		@Override
+		protected Component getContents() throws Exception
+		{
+			FormLayout main = new FormLayout();
+
+			if (messages.isEmpty())
+			{
+				Label l = new Label(
+						msg.getMessage("GroupDelegationEditConfigDialog.noneValidationWarns"));
+				l.setStyleName(Styles.success.toString());
+				main.addComponent(l);
+			} else
+			{
+
+				for (String m : messages)
+				{
+					Label l = new Label(m);
+					l.setIcon(Images.bullet.getResource());
+					l.setStyleName(Styles.error.toString());
+					main.addComponent(l);
+				}
+			}
+			return main;
+		}
+
+		@Override
+		protected void onConfirm()
+		{
+			close();
+
+		}
+
+	}
+
 }
