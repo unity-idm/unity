@@ -189,7 +189,9 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 		RequestedGroupDiff diff = GroupDiffUtils.getAllRequestedGroupsDiff(allUserGroups, response.getGroupSelections(),
 				form.getGroupParams());
 
-		List<GroupParam> toAdd = requestedGroup.stream().filter(p -> diff.toAdd.contains(p.getGroup()))
+		Set<String> allUsersGroupsPaths = allUserGroups.stream().map(g -> g.toString()).collect(Collectors.toSet());
+		
+		List<GroupParam> toAdd = requestedGroup.stream().filter(p -> !allUsersGroupsPaths.contains(p.getGroup()))
 				.collect(Collectors.toList());
 		applyRequestedGroups(entityId, remainingAttributesByGroup, toAdd, allUserGroups);
 		applyRemovedGroup(entityId, diff.toRemove);
