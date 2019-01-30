@@ -5,6 +5,13 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,12 +35,18 @@ import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
+import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
@@ -62,7 +75,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private EnquiryResponseEditorController editorController;
 	private FormsInvitationHelper invitationHelper;
 	private PostFillingHandler postFillHandler;
-	
+
 	private EnquiryForm form;
 	private EnquiryResponseEditor editor;
 	
@@ -111,10 +124,10 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void doShowEditor()
 	{
-		InvitationParam invitation;
+		EnquiryInvitationParam invitation;
 		try
 		{
-			invitation = getInvitationByCode(registrationCode);
+			invitation = (EnquiryInvitationParam) getInvitationByCode(registrationCode);
 		} catch (RegCodeException e)
 		{
 			handleError(e, e.cause);
@@ -126,9 +139,16 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			PrefilledSet prefilled = new PrefilledSet();
 			if (invitation != null)
 			{
-				prefilled = new PrefilledSet(invitation.getIdentities(),
-						invitation.getGroupSelections(), invitation.getAttributes(),
-						invitation.getAllowedGroups());
+				if (form.getType().equals(EnquiryType.STICKY))
+				{
+					prefilled = mergePrefilledSets(invitation,
+							editorController.getPrefilledForSticky(form, new EntityParam(invitation.getEntity())));
+				} else
+				{
+					prefilled = new PrefilledSet(invitation.getIdentities(),
+							invitation.getGroupSelections(), invitation.getAttributes(),
+							invitation.getAllowedGroups());
+				}
 			}
 
 			editor = editorController.getEditorInstance(form,
@@ -140,7 +160,56 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			handleError(e, ErrorCause.MISCONFIGURED);
 		}
 	}
+	
+	private PrefilledSet mergePrefilledSets(InvitationParam invitation, PrefilledSet fromUser)
+	{
+		
+		Map<Integer, PrefilledEntry<GroupSelection>> mergedGroups = new HashMap<>();
+		Map<Integer, PrefilledEntry<Attribute>> mergedAttributes = new HashMap<>();
+	
+		for (Map.Entry<Integer, PrefilledEntry<GroupSelection>> entryFromUser :  fromUser.groupSelections.entrySet())
+		{
+			PrefilledEntry<GroupSelection> fromInvitation = invitation.getGroupSelections()
+					.get(entryFromUser.getKey());
+	
+			if (fromInvitation != null)
+			{
+				if (fromInvitation.getMode().isInteractivelyEntered())
+				{
+					Set<String> mergedSet = new LinkedHashSet<>(
+							fromInvitation.getEntry().getSelectedGroups());
+					mergedSet.addAll(entryFromUser.getValue().getEntry().getSelectedGroups());
+					mergedGroups.put(entryFromUser.getKey(),
+							new PrefilledEntry<GroupSelection>(
+									new GroupSelection(mergedSet.stream()
+											.collect(Collectors.toList())),
+									fromInvitation.getMode()));
+				} else
+				{
+					mergedGroups.put(entryFromUser.getKey(), fromInvitation);
+				}
+			} else
+			{
+				mergedGroups.put(entryFromUser.getKey(), entryFromUser.getValue());
+			}
+		}
+		
+		for (Entry<Integer, PrefilledEntry<Attribute>> entryFromUser : fromUser.attributes.entrySet())
+		{
+			PrefilledEntry<Attribute> fromInvitation = invitation.getAttributes()
+					.get(entryFromUser.getKey());
+			if (fromInvitation != null)
+			{
+				mergedAttributes.put(entryFromUser.getKey(), fromInvitation);
+			} else
+			{
+				mergedAttributes.put(entryFromUser.getKey(), entryFromUser.getValue());
+			}
+		}	
 
+		return new PrefilledSet(invitation.getIdentities(), mergedGroups, mergedAttributes, invitation.getAllowedGroups());	
+	}
+	
 	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
 	{
 		if (registrationCode == null)

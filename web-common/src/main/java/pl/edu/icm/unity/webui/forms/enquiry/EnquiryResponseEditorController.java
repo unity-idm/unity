@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +117,7 @@ public class EnquiryResponseEditorController
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
 			RemotelyAuthenticatedContext remoteContext) throws Exception
 	{
-		return getEditorInstance(form, remoteContext, getPrefilledForSticky(form));
+		return getEditorInstance(form, remoteContext, getPrefilledForSticky(form, getLoggedEntity()));
 	}
 	
 	public EnquiryResponseEditor getEditorInstance(String form, 
@@ -124,10 +125,14 @@ public class EnquiryResponseEditorController
 	{
 		return getEditorInstance(getForm(form), remoteContext);
 	}
-
+	
 	public PrefilledSet getPrefilledForSticky(EnquiryForm form) throws EngineException
 	{
-		EntityParam entity = getLoggedEntity();
+		return getPrefilledForSticky(form, getLoggedEntity());
+	}
+
+	public PrefilledSet getPrefilledForSticky(EnquiryForm form, EntityParam entity) throws EngineException
+	{
 		if (form.getType().equals(EnquiryType.STICKY))
 		{	
 			return new PrefilledSet(null, getPreffiledGroup(entity, form), getPrefilledAttribute(entity, form), null);
@@ -135,8 +140,7 @@ public class EnquiryResponseEditorController
 		}else
 		{
 			return new PrefilledSet();
-		}
-		
+		}	
 	}
 
 	private Map<Integer, PrefilledEntry<GroupSelection>> getPreffiledGroup(EntityParam entity, EnquiryForm form)
@@ -150,8 +154,8 @@ public class EnquiryResponseEditorController
 
 			GroupRegistrationParam groupParam = form.getGroupParams().get(i);
 			List<Group> allMatchingGroups = groupsMan.getGroupsByWildcard(groupParam.getGroupPath());
-			List<Group> filterMatching = GroupPatternMatcher.filterMatching(allMatchingGroups,
-					allGroups.keySet().stream().sorted().collect(Collectors.toList()));
+			List<Group> filterMatching = GroupPatternMatcher.filterByIncludeGroupsMode(GroupPatternMatcher.filterMatching(allMatchingGroups,
+					allGroups.keySet().stream().sorted().collect(Collectors.toList())), groupParam.getIncludeGroupsMode());
 
 			PrefilledEntry<GroupSelection> pe = new PrefilledEntry<GroupSelection>(new GroupSelection(
 					filterMatching.stream().map(g -> g.getName()).collect(Collectors.toList())),
@@ -179,11 +183,12 @@ public class EnquiryResponseEditorController
 							&& a.getName().equals(attrParam.getAttributeType()))
 					.collect(Collectors.toList());
 
-			if (!attributes.isEmpty())
-			{
-				prefilledAttributes.put(i,
-						new PrefilledEntry<>(attributes.iterator().next(), PrefilledEntryMode.DEFAULT));
-			}
+			prefilledAttributes.put(i, new PrefilledEntry<>(
+					!attributes.isEmpty() ? attributes.iterator().next()
+							: new Attribute(attrParam.getAttributeType(), null,
+									attrParam.getGroup(), Collections.emptyList()),
+					PrefilledEntryMode.DEFAULT));
+	
 		}
 
 		return prefilledAttributes;
