@@ -98,7 +98,7 @@ public class InvitationsComponent extends CustomComponent implements ActivationL
 				msgTemplateManagement, groupsManagement, notificationProducer, bulkQuery, attributeSupport);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry,
 				msgTemplateManagement, registrationManagement, enquiryMan, sharedEndpointManagement, 
-				entityManagement);
+				entityManagement, groupsManagement);
 
 		invitationsTable.addValueChangeListener(invitation -> 
 			viewer.setInput(invitation)

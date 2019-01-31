@@ -9,6 +9,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -31,12 +32,12 @@ public class InvitationViewer extends CustomComponent
 	public InvitationViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlersRegistry,
 			MessageTemplateManagement msgTemplateMan, RegistrationsManagement regMan,
 			EnquiryManagement enquiryMan, SharedEndpointManagement sharedEndpointMan,
-			EntityManagement entityMan)
+			EntityManagement entityMan, GroupsManagement groupMan)
 	{
 		this.regViewer = new RegistrationInvitationViewer(attrHandlersRegistry, msgTemplateMan, msg,
-				sharedEndpointMan, regMan);
+				sharedEndpointMan, regMan, groupMan);
 		this.enqViewer = new EnquiryInvitationViewer(attrHandlersRegistry, msgTemplateMan, msg,
-				sharedEndpointMan, enquiryMan, entityMan);
+				sharedEndpointMan, enquiryMan, entityMan, groupMan);
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);

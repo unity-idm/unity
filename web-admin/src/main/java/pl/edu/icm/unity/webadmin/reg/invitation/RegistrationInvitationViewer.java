@@ -11,6 +11,7 @@ import org.apache.logging.log4j.Logger;
 import com.vaadin.ui.Label;
 
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
@@ -32,9 +33,11 @@ public class RegistrationInvitationViewer extends InvitationViewerBase
 	private Label expectedIdentity;
 	
 	public RegistrationInvitationViewer(AttributeHandlerRegistry attrHandlersRegistry,
-			MessageTemplateManagement msgTemplateMan, UnityMessageSource msg, SharedEndpointManagement sharedEndpointMan, RegistrationsManagement regMan)
+			MessageTemplateManagement msgTemplateMan, UnityMessageSource msg,
+			SharedEndpointManagement sharedEndpointMan, RegistrationsManagement regMan,
+			GroupsManagement groupsMan)
 	{
-		super(attrHandlersRegistry, msgTemplateMan, msg, sharedEndpointMan);
+		super(attrHandlersRegistry, msgTemplateMan, msg, sharedEndpointMan, groupsMan);
 		this.regMan = regMan;
 	}
 

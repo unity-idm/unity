@@ -6,6 +6,10 @@
 
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -13,10 +17,13 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.TimeUtil;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
@@ -35,10 +42,13 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 public abstract class InvitationViewerBase extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InvitationViewerBase.class);
+	
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private MessageTemplateManagement msgTemplateMan;
 	protected UnityMessageSource msg;
 	protected SharedEndpointManagement sharedEndpointMan;
+	private GroupsManagement groupMan;
 	
 	private Label type;
 	private Label formId;
@@ -62,12 +72,13 @@ public abstract class InvitationViewerBase extends CustomComponent
 	protected BaseForm form;
 	
 	public InvitationViewerBase(AttributeHandlerRegistry attrHandlersRegistry,
-			MessageTemplateManagement msgTemplateMan, UnityMessageSource msg, SharedEndpointManagement sharedEndpointMan)
+			MessageTemplateManagement msgTemplateMan, UnityMessageSource msg, SharedEndpointManagement sharedEndpointMan, GroupsManagement groupMan)
 	{
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.msgTemplateMan = msgTemplateMan;
 		this.msg = msg;
 		this.sharedEndpointMan = sharedEndpointMan;
+		this.groupMan = groupMan;
 		initUI();
 	}
 	
@@ -124,6 +135,7 @@ public abstract class InvitationViewerBase extends CustomComponent
 		groups.setMargin(true);
 
 		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);
+		groupsPanel.setWidth(100, Unit.PERCENTAGE);
 
 		main.addComponents(type, formId, code, link, expiration, channelId);
 		main.addComponents(getAdditionalFields().getComponents());
@@ -210,7 +222,8 @@ public abstract class InvitationViewerBase extends CustomComponent
 			if (selectedGroup != null && !selectedGroup.getEntry().getSelectedGroups().isEmpty())
 			{
 				row.append(" [" + selectedGroup.getMode().name() + "] ");
-				row.append(selectedGroup.getEntry().getSelectedGroups());
+				row.append(selectedGroup.getEntry().getSelectedGroups().stream()
+						.map(g -> getGroupDisplayedName(g)).collect(Collectors.toList()));
 				add = true;
 			}
 
@@ -218,7 +231,8 @@ public abstract class InvitationViewerBase extends CustomComponent
 			if (allowed != null && !allowed.getSelectedGroups().isEmpty())
 			{
 				row.append(" " + msg.getMessage("InvitationViewer.groupLimitedTo") + " ");
-				row.append(allowed.getSelectedGroups());
+				row.append(allowed.getSelectedGroups().stream().map(g -> getGroupDisplayedName(g))
+						.collect(Collectors.toList()));
 				add = true;
 			}
 
@@ -250,6 +264,18 @@ public abstract class InvitationViewerBase extends CustomComponent
 		} catch (Exception e)
 		{
 			return "";
+		}
+	}
+	
+	protected String getGroupDisplayedName(String path)
+	{
+		try
+		{
+			return groupMan.getContents(path, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
+		} catch (Exception e)
+		{
+			log.warn("Can not get group displayed name for group " + path);
+			return path;
 		}
 	}
 }

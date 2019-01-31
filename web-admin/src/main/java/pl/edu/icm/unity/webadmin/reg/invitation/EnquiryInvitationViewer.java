@@ -15,6 +15,7 @@ import com.vaadin.ui.Label;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -39,9 +40,9 @@ public class EnquiryInvitationViewer extends InvitationViewerBase
 	public EnquiryInvitationViewer(AttributeHandlerRegistry attrHandlersRegistry,
 			MessageTemplateManagement msgTemplateMan, UnityMessageSource msg,
 			SharedEndpointManagement sharedEndpointMan, EnquiryManagement enquiryMan,
-			EntityManagement entityMan)
+			EntityManagement entityMan, GroupsManagement groupMan)
 	{
-		super(attrHandlersRegistry, msgTemplateMan, msg, sharedEndpointMan);
+		super(attrHandlersRegistry, msgTemplateMan, msg, sharedEndpointMan, groupMan);
 		this.enquiryMan = enquiryMan;
 		this.entityMan = entityMan;
 	}

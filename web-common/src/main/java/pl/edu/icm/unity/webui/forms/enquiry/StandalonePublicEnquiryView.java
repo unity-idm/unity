@@ -38,7 +38,6 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
@@ -136,21 +135,11 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 		try
 		{
-			PrefilledSet prefilled = new PrefilledSet();
-			if (invitation != null)
-			{
-				if (form.getType().equals(EnquiryType.STICKY))
-				{
-					prefilled = mergePrefilledSets(invitation,
-							editorController.getPrefilledForSticky(form, new EntityParam(invitation.getEntity())));
-				} else
-				{
-					prefilled = new PrefilledSet(invitation.getIdentities(),
-							invitation.getGroupSelections(), invitation.getAttributes(),
-							invitation.getAllowedGroups());
-				}
-			}
-
+			PrefilledSet prefilled = editorController.getPrefilledForSticky(form,
+					new EntityParam(invitation.getEntity()));
+			
+			prefilled = mergePrefilledSets(invitation, prefilled);
+			
 			editor = editorController.getEditorInstance(form,
 					RemotelyAuthenticatedContext.getLocalContext(), prefilled);
 			showEditorContent(editor);
@@ -163,51 +152,74 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 	private PrefilledSet mergePrefilledSets(InvitationParam invitation, PrefilledSet fromUser)
 	{
-		
-		Map<Integer, PrefilledEntry<GroupSelection>> mergedGroups = new HashMap<>();
+
+		return new PrefilledSet(invitation.getIdentities(),
+				mergePreffiledGroups(invitation.getGroupSelections(), fromUser.groupSelections),
+				mergePreffiledAttributes(invitation.getAttributes(), fromUser.attributes),
+				invitation.getAllowedGroups());
+	}
+
+	private Map<Integer, PrefilledEntry<Attribute>> mergePreffiledAttributes(
+			Map<Integer, PrefilledEntry<Attribute>> fromInvitation,
+			Map<Integer, PrefilledEntry<Attribute>> fromUser)
+	{
 		Map<Integer, PrefilledEntry<Attribute>> mergedAttributes = new HashMap<>();
-	
-		for (Map.Entry<Integer, PrefilledEntry<GroupSelection>> entryFromUser :  fromUser.groupSelections.entrySet())
+
+		if (fromUser.isEmpty())
 		{
-			PrefilledEntry<GroupSelection> fromInvitation = invitation.getGroupSelections()
-					.get(entryFromUser.getKey());
-	
-			if (fromInvitation != null)
+			return fromInvitation;
+		}
+
+		for (Entry<Integer, PrefilledEntry<Attribute>> entryFromUser : fromUser.entrySet())
+		{
+			PrefilledEntry<Attribute> fromInvitationAttr = fromInvitation.get(entryFromUser.getKey());
+			if (fromInvitationAttr != null)
 			{
-				if (fromInvitation.getMode().isInteractivelyEntered())
+				mergedAttributes.put(entryFromUser.getKey(), fromInvitationAttr);
+			} else
+			{
+				mergedAttributes.put(entryFromUser.getKey(), entryFromUser.getValue());
+			}
+		}
+		return mergedAttributes;
+	}
+
+	private Map<Integer, PrefilledEntry<GroupSelection>> mergePreffiledGroups(
+			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation,
+			Map<Integer, PrefilledEntry<GroupSelection>> fromUser)
+	{
+		if (fromUser.isEmpty())
+		{
+			return fromInvitation;
+		}
+
+		Map<Integer, PrefilledEntry<GroupSelection>> mergedGroups = new HashMap<>();
+		for (Map.Entry<Integer, PrefilledEntry<GroupSelection>> entryFromUser : fromUser.entrySet())
+		{
+			PrefilledEntry<GroupSelection> fromInvitationG = fromInvitation.get(entryFromUser.getKey());
+
+			if (fromInvitationG != null)
+			{
+				if (fromInvitationG.getMode().isInteractivelyEntered())
 				{
 					Set<String> mergedSet = new LinkedHashSet<>(
-							fromInvitation.getEntry().getSelectedGroups());
+							fromInvitationG.getEntry().getSelectedGroups());
 					mergedSet.addAll(entryFromUser.getValue().getEntry().getSelectedGroups());
 					mergedGroups.put(entryFromUser.getKey(),
 							new PrefilledEntry<GroupSelection>(
 									new GroupSelection(mergedSet.stream()
 											.collect(Collectors.toList())),
-									fromInvitation.getMode()));
+									fromInvitationG.getMode()));
 				} else
 				{
-					mergedGroups.put(entryFromUser.getKey(), fromInvitation);
+					mergedGroups.put(entryFromUser.getKey(), fromInvitationG);
 				}
 			} else
 			{
 				mergedGroups.put(entryFromUser.getKey(), entryFromUser.getValue());
 			}
 		}
-		
-		for (Entry<Integer, PrefilledEntry<Attribute>> entryFromUser : fromUser.attributes.entrySet())
-		{
-			PrefilledEntry<Attribute> fromInvitation = invitation.getAttributes()
-					.get(entryFromUser.getKey());
-			if (fromInvitation != null)
-			{
-				mergedAttributes.put(entryFromUser.getKey(), fromInvitation);
-			} else
-			{
-				mergedAttributes.put(entryFromUser.getKey(), entryFromUser.getValue());
-			}
-		}	
-
-		return new PrefilledSet(invitation.getIdentities(), mergedGroups, mergedAttributes, invitation.getAllowedGroups());	
+		return mergedGroups;
 	}
 	
 	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
@@ -226,7 +238,6 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 		return invitation;
 	}
-
 
 	private void showEditorContent(EnquiryResponseEditor editor)
 	{
