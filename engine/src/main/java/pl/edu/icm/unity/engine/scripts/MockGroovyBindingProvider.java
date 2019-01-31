@@ -37,6 +37,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
 /**
  * Provides a mock Groovy context. The context has the same members as in 
@@ -102,7 +103,9 @@ public class MockGroovyBindingProvider
 				withSettings().verboseLogging());
 		TranslationProfileManagement translationProfileManagement = mock(TranslationProfileManagement.class, 
 				withSettings().verboseLogging());
-				
+		GroupDelegationConfigGenerator groupDelegationConfigGenerator = mock(GroupDelegationConfigGenerator.class, 
+				withSettings().verboseLogging());;
+		
 		Binding binding = new Binding();
 		binding.setVariable("config", config);
 		binding.setVariable("attributeClassManagement", attributeClassManagement);
@@ -129,6 +132,7 @@ public class MockGroovyBindingProvider
 		binding.setVariable("msgSrc", unityMessageSource);
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
+		binding.setVariable("groupDelegationConfigGenerator", groupDelegationConfigGenerator);
 		binding.setVariable("isColdStart", true);
 		binding.setVariable("event", event.getTrigger());
 		binding.setVariable("context", event.getContents());
