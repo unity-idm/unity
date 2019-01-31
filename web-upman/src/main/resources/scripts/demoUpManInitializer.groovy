@@ -48,7 +48,7 @@ import org.springframework.util.StringUtils
 @Field final String UNIV_GROUP = "/projects/univ"
 
 @Field final String UNIV_LOGO_SMALL = "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/University_of_London.svg/150px-University_of_London.svg.png"
-@Field final String FBI_LOGO_SMALL = "http://media.nola.com/crime_impact/photo/11230665-small.gif"
+@Field final String FBI_LOGO_SMALL = "https://pbs.twimg.com/profile_images/1079780911418408961/YXYAye0S_400x400.jpg"
 
 //TODO REMOVE
 @Field final String FBI_UPDATE_ENQ_FORM = "FBIUpdateEnquiry"
