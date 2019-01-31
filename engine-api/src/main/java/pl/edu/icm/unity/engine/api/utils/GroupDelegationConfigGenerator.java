@@ -9,7 +9,6 @@ package pl.edu.icm.unity.engine.api.utils;
 import java.util.List;
 
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 
@@ -20,11 +19,11 @@ import pl.edu.icm.unity.types.registration.RegistrationForm;
  */
 public interface GroupDelegationConfigGenerator
 {
-	RegistrationForm generateRegistrationForm(Group g, String logo, List<String> attributes) throws EngineException;
+	RegistrationForm generateRegistrationForm(String groupPath, String logo, List<String> attributes) throws EngineException;
 
-	EnquiryForm generateJoinEnquiryForm(Group group, String logo) throws EngineException;
+	EnquiryForm generateJoinEnquiryForm(String groupPath, String logo) throws EngineException;
 
-	List<String> validateRegistrationForm(String formName, String groupPath);
+	List<String> validateRegistrationForm(String groupPath, String formName);
 	
-	List<String> validateJoinEnquiryForm(String formName, String groupPath);
+	List<String> validateJoinEnquiryForm(String groupPath, String formName);
 }

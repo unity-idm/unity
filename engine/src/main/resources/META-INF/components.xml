@@ -109,4 +109,8 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
+	<bean class="pl.edu.icm.unity.engine.utils.GroupDelegationConfigGeneratorImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
 </beans>

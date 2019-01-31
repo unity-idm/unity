@@ -48,6 +48,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.engine.api.initializers.ScriptType;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
 
 /**
  * Executes GROOVY scripts given by user in
@@ -132,6 +133,10 @@ public class MainGroovyExecutor
 	@Autowired
 	@Qualifier("insecure")
 	private TranslationProfileManagement translationProfileManagement;
+	@Autowired
+	@Qualifier("insecure")
+	private GroupDelegationConfigGenerator groupDelegationConfigGenerator;
+	
 	
 	@Autowired
 	private ApplicationContext applCtx;
@@ -203,6 +208,7 @@ public class MainGroovyExecutor
 		binding.setVariable("msgSrc", unityMessageSource);
 		binding.setVariable("attributeTypeSupport", attributeTypeSupport);
 		binding.setVariable("identityTypeSupport", identityTypeSupport);
+		binding.setVariable("groupDelegationConfigGenerator", groupDelegationConfigGenerator);
 		boolean coldStart = false;
 		if (event.getTrigger().equals(EventCategory.POST_INIT.toString()) || 
 				event.getTrigger().equals(EventCategory.PRE_INIT.toString()))

@@ -48,17 +48,9 @@ import org.springframework.util.StringUtils
 @Field final String UNIV_GROUP = "/projects/univ"
 
 @Field final String UNIV_LOGO_SMALL = "https://upload.wikimedia.org/wikipedia/en/thumb/3/3d/University_of_London.svg/150px-University_of_London.svg.png"
-@Field final String UNIV_LOGO = "https://upload.wikimedia.org/wikipedia/commons/5/58/Oxford_University_Coat_Of_Arms.svg"
-
 @Field final String FBI_LOGO_SMALL = "http://media.nola.com/crime_impact/photo/11230665-small.gif"
-@Field final String FBI_LOGO = "https://upload.wikimedia.org/wikipedia/commons/5/59/Seal_of_the_FBI.svg"
 
-@Field final String FBI_REG_FORM = "FBIRegistration"
-@Field final String UNIV_REG_FORM = "UnivRegistration"
-
-@Field final String FBI_JOINING_ENQ_FORM = "FBIJoinEnquiry"
-@Field final String UNIV_JOINING_ENQ_FORM = "UnivJoinEnquiry"
-
+//TODO REMOVE
 @Field final String FBI_UPDATE_ENQ_FORM = "FBIUpdateEnquiry"
 @Field final String UNIV_UPDATE_ENQ_FORM = "UnivUpdateEnquiry"
 
@@ -80,16 +72,34 @@ List<AttributeRegistrationParam> FBIAttrs = Arrays.asList(getAttributeParam(TEAM
 List<AttributeRegistrationParam> UnivAttrs = Arrays.asList(getAttributeParam(FIRSTNAME_ATTR, UNIV_GROUP, true), 
 	getAttributeParam(SURNAME_ATTR, UNIV_GROUP, true));
 
-addRegistrationForm(FBI_REG_FORM, FBI_LOGO_SMALL, FBI_GROUP, FBIAttrs);
-addRegistrationForm(UNIV_REG_FORM, UNIV_LOGO_SMALL, UNIV_GROUP, UnivAttrs);
+RegistrationForm fbiRegistrationForm = groupDelegationConfigGenerator.generateRegistrationForm(FBI_GROUP, FBI_LOGO_SMALL, Arrays.asList(TEAMNAME_ATTR))
+RegistrationForm univRegistrationForm = groupDelegationConfigGenerator.generateRegistrationForm(UNIV_GROUP, UNIV_LOGO_SMALL, Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR))
+registrationsManagement.addForm(fbiRegistrationForm);  
+registrationsManagement.addForm(univRegistrationForm);  
 
+EnquiryForm fbiJoinEnquiryForm = groupDelegationConfigGenerator.generateJoinEnquiryForm(FBI_GROUP, FBI_LOGO_SMALL)
+EnquiryForm univJoinEnquiryForm = groupDelegationConfigGenerator.generateJoinEnquiryForm(UNIV_GROUP, UNIV_LOGO_SMALL)
+enquiryManagement.addEnquiry(fbiJoinEnquiryForm);  		 
+enquiryManagement.addEnquiry(univJoinEnquiryForm);  		 
+
+//TODO REMOVE, REPLACE BY GENERATOR
 addEnquiryForm(EnquiryType.STICKY, FBI_UPDATE_ENQ_FORM, "",  FBI_GROUP, FBI_GROUP, FBIAttrs);
 addEnquiryForm(EnquiryType.STICKY, UNIV_UPDATE_ENQ_FORM, "", UNIV_GROUP, UNIV_GROUP, UnivAttrs);
 
-addEnquiryForm(EnquiryType.STICKY, FBI_JOINING_ENQ_FORM, FBI_LOGO_SMALL, FBI_GROUP, "/", FBIAttrs);
-addEnquiryForm(EnquiryType.STICKY, UNIV_JOINING_ENQ_FORM, UNIV_LOGO_SMALL, UNIV_GROUP, "/", UnivAttrs);
 
+setGroupDelegationConfig(UNIV_GROUP,
+				UNIV_LOGO_SMALL,
+				univRegistrationForm.getName(),
+				univJoinEnquiryForm.getName(),
+				UNIV_UPDATE_ENQ_FORM,
+				Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR));
 
+setGroupDelegationConfig(FBI_GROUP,
+				FBI_LOGO_SMALL,
+				fbiRegistrationForm.getName(),
+				fbiJoinEnquiryForm.getName(),
+				FBI_UPDATE_ENQ_FORM,
+				Arrays.asList(TEAMNAME_ATTR));
 
 AttributeRegistrationParam getAttributeParam(String type, String group, boolean optional)
 {
@@ -225,13 +235,7 @@ void createGroupsStructure()
 	addGroup("/projects", "Projects");
 
 	addGroup(FBI_GROUP, "FBI");
-	setGroupDelegationConfig(FBI_GROUP,
-				FBI_LOGO_SMALL,
-				FBI_REG_FORM,
-				FBI_JOINING_ENQ_FORM,
-				FBI_UPDATE_ENQ_FORM,
-				Arrays.asList(TEAMNAME_ATTR));
-
+	
 	addGroup(FBI_GROUP + "/AJA8O", "Cyber division");
 	addGroup(FBI_GROUP + "/HSK3F", "HR division");
 	addGroup(FBI_GROUP + "/KA328", "Security division");
@@ -239,12 +243,6 @@ void createGroupsStructure()
 	addGroup(FBI_GROUP + "/RJG68", "Training division");
 
 	addGroup(UNIV_GROUP, "University");
-	setGroupDelegationConfig(UNIV_GROUP,
-				UNIV_LOGO_SMALL,
-				UNIV_REG_FORM,
-				UNIV_JOINING_ENQ_FORM,
-				UNIV_UPDATE_ENQ_FORM,
-				Arrays.asList(FIRSTNAME_ATTR, SURNAME_ATTR));
 
 	addGroup(UNIV_GROUP + "/XHWFO", "Students");
 	addGroup(UNIV_GROUP + "/XHWFO/MWC3X", "First year");

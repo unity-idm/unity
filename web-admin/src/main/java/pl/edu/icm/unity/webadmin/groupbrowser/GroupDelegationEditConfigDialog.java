@@ -77,7 +77,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 	private ObjectFactory<EnquiryFormEditor> enquiryFormEditorFactory;
 	private EventsBus bus;
 	private GroupDelegationConfigGenerator configGenerator;
-	
+
 	public GroupDelegationEditConfigDialog(UnityMessageSource msg, RegistrationsManagement registrationMan,
 			EnquiryManagement enquiryMan, AttributeTypeManagement attrTypeMan,
 			ObjectFactory<RegistrationFormEditor> regFormEditorFactory,
@@ -188,7 +188,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		EnquiryForm form;
 		try
 		{
-			form = configGenerator.generateJoinEnquiryForm(group, logoUrl.getValue());
+			form = configGenerator.generateJoinEnquiryForm(group.toString(), logoUrl.getValue());
 			enquiryMan.addEnquiry(form);
 
 		} catch (EngineException e)
@@ -222,7 +222,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		RegistrationForm form;
 		try
 		{
-			form = configGenerator.generateRegistrationForm(group, logoUrl.getValue(),
+			form = configGenerator.generateRegistrationForm(group.toString(), logoUrl.getValue(),
 					attributes.getSelectedItems());
 			registrationMan.addForm(form);
 
@@ -258,14 +258,14 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 
 	private void showJoinRegistrationValidation(String formName)
 	{
-		List<String> messages = configGenerator.validateRegistrationForm(formName, group.toString());
-		new ValidationResultDialog(msg, messages).show();
+		List<String> messages = configGenerator.validateRegistrationForm(group.toString(), formName);
+		new ValidationResultDialog(msg, messages, formName).show();
 	}
 
 	private void showJoinEnquiryValidation(String formName)
 	{
-		List<String> messages = configGenerator.validateJoinEnquiryForm(formName, group.toString());
-		new ValidationResultDialog(msg, messages).show();
+		List<String> messages = configGenerator.validateJoinEnquiryForm(group.toString(), formName);
+		new ValidationResultDialog(msg, messages, formName).show();
 	}
 
 	private void showRegFormEditDialog(String target)
@@ -546,14 +546,15 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 
 	private static class ValidationResultDialog extends AbstractDialog
 	{
-
 		private List<String> messages;
+		private String formName;
 
-		public ValidationResultDialog(UnityMessageSource msg, List<String> messages)
+		public ValidationResultDialog(UnityMessageSource msg, List<String> messages, String formName)
 		{
 			super(msg, msg.getMessage("GroupDelegationEditConfigDialog.validationDialogCaption"),
 					msg.getMessage("ok"));
 			this.messages = messages;
+			this.formName = formName;
 		}
 
 		@Override
@@ -564,7 +565,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			if (messages.isEmpty())
 			{
 				Label l = new Label(
-						msg.getMessage("GroupDelegationEditConfigDialog.noneValidationWarns"));
+						msg.getMessage("GroupDelegationEditConfigDialog.noneValidationWarns", formName));
 				l.setStyleName(Styles.success.toString());
 				main.addComponent(l);
 			} else
@@ -587,7 +588,5 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			close();
 
 		}
-
 	}
-
 }

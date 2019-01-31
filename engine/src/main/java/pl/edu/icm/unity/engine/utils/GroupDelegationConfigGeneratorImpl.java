@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
@@ -27,13 +28,13 @@ import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.MessageTemplateDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.AttributeType;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.AttributeRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
 import pl.edu.icm.unity.types.registration.BaseFormNotifications;
@@ -57,19 +58,23 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
  *
  */
 @Component
+@Primary
 public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfigGenerator
 {
 	private static final String REGISTRATION_NAME_SUFFIX = "Registration";
 	private static final String JOIN_ENQUIRY_NAME_SUFFIX = "JoinEnquiry";
+
 	private UnityMessageSource msg;
 	private RegistrationFormDB regFormDB;
 	private MessageTemplateDB messageDB;
 	private EnquiryFormDB enqFormDB;
+	private GroupDAO groupDB;
 	private AttributesHelper attrHelper;
 
 	@Autowired
 	public GroupDelegationConfigGeneratorImpl(UnityMessageSource msg, RegistrationFormDB regFormDB,
-			MessageTemplateDB messageDB, EnquiryFormDB enqFormDB, AttributesHelper attrHelper)
+			MessageTemplateDB messageDB, EnquiryFormDB enqFormDB, AttributesHelper attrHelper,
+			GroupDAO groupDB)
 	{
 
 		this.msg = msg;
@@ -77,11 +82,12 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		this.enqFormDB = enqFormDB;
 		this.attrHelper = attrHelper;
 		this.messageDB = messageDB;
+		this.groupDB = groupDB;
 	}
 
 	@Transactional
 	@Override
-	public List<String> validateJoinEnquiryForm(String formName, String groupPath)
+	public List<String> validateJoinEnquiryForm(String groupPath, String formName)
 	{
 		List<String> ret = new ArrayList<>();
 
@@ -104,7 +110,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 
 	@Transactional
 	@Override
-	public List<String> validateRegistrationForm(String formName, String groupPath)
+	public List<String> validateRegistrationForm(String groupPath, String formName)
 	{
 		List<String> ret = new ArrayList<>();
 
@@ -173,14 +179,14 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 
 	@Transactional
 	@Override
-	public RegistrationForm generateRegistrationForm(Group group, String logo, List<String> attributes)
+	public RegistrationForm generateRegistrationForm(String groupPath, String logo, List<String> attributes)
 			throws EngineException
 	{
 
 		Set<String> actualForms = regFormDB.getAll().stream().map(r -> r.getName()).collect(Collectors.toSet());
 
 		RegistrationForm form = new RegistrationFormBuilder()
-				.withName(generateName(REGISTRATION_NAME_SUFFIX, group, actualForms))
+				.withName(generateName(REGISTRATION_NAME_SUFFIX, groupPath, actualForms))
 				.withNotificationsConfiguration(getDefaultRegistrationNotificationConfig())
 				.withDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
 				.withPubliclyAvailable(true)
@@ -190,14 +196,14 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticOrInteractive)
 				.endIdentityParam().withAddedGroupParam()
 				.withLabel(msg.getMessage("FormGenerator.selectGroups"))
-				.withGroupPath(group.toString() + "/?*/**")
+				.withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).withMultiselect(true)
 				.endGroupParam().withFormLayoutSettings(getDefaultLayoutSettings(logo))
 				.withDisplayedName(new I18nString(msg.getLocaleCode(),
 						msg.getMessage("FormGenerator.createAccount")))
 				.withTitle2ndStage(new I18nString(msg.getLocaleCode(),
 						msg.getMessage("FormGenerator.provideDetails")))
-				.withTranslationProfile(getAutomationProfile(group)).build();
+				.withTranslationProfile(getAutomationProfile(groupPath)).build();
 
 		String nameAttr = getNameAttribute();
 		if (nameAttr != null)
@@ -208,7 +214,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 
 		for (String attribute : attributes)
 		{
-			addAttributeParam(form.getAttributeParams(), attribute, group.toString(), true);
+			addAttributeParam(form.getAttributeParams(), attribute, groupPath, true);
 		}
 
 		return form;
@@ -216,21 +222,21 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 
 	@Transactional
 	@Override
-	public EnquiryForm generateJoinEnquiryForm(Group group, String logo) throws EngineException
+	public EnquiryForm generateJoinEnquiryForm(String groupPath, String logo) throws EngineException
 	{
 
 		Set<String> actualForms = enqFormDB.getAll().stream().map(r -> r.getName()).collect(Collectors.toSet());
 
-		return new EnquiryFormBuilder().withName(generateName(JOIN_ENQUIRY_NAME_SUFFIX, group, actualForms))
+		return new EnquiryFormBuilder().withName(generateName(JOIN_ENQUIRY_NAME_SUFFIX, groupPath, actualForms))
 				.withTargetGroups(new String[] { "/" }).withType(EnquiryForm.EnquiryType.STICKY)
 				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.selectGroups"))
-				.withMultiselect(true).withGroupPath(group.toString() + "/?*/**")
+				.withMultiselect(true).withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).endGroupParam()
 				.withDisplayedName(new I18nString(msg.getLocaleCode(),
 						msg.getMessage("FormGenerator.updateAccount")))
 				.withFormLayoutSettings(getDefaultLayoutSettings(logo))
 				.withNotificationsConfiguration(getDefaultEnquiryNotificationConfig())
-				.withTranslationProfile(getAutomationProfile(group)).build();
+				.withTranslationProfile(getAutomationProfile(groupPath)).build();
 	}
 
 	private RegistrationFormNotifications getDefaultRegistrationNotificationConfig()
@@ -253,13 +259,13 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				.map(m -> m.getName()).findAny().orElse(null);
 	}
 
-	private TranslationProfile getAutomationProfile(Group group)
+	private TranslationProfile getAutomationProfile(String group)
 	{
 		TranslationAction a1 = new TranslationAction(AutoProcessActionFactory.NAME,
 				new String[] { AutomaticRequestAction.accept.toString() });
 
 		TranslationAction a2 = new TranslationAction(AddToGroupActionFactory.NAME,
-				new String[] { "\"" + group.toString() + "\"" });
+				new String[] { "\"" + group + "\"" });
 
 		List<TranslationRule> rules = Lists.newArrayList(
 				new TranslationRule(ContextKey.validCode.toString() + " == true", a1),
@@ -280,10 +286,10 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		return lsettings;
 	}
 
-	private String generateName(String suffix, Group group, Set<String> actualNames)
+	private String generateName(String suffix, String group, Set<String> actualNames)
 	{
 
-		String name = group.getDisplayedName().getValue(msg) + suffix;
+		String name = groupDB.get(group).getDisplayedName().getValue(msg) + suffix;
 		String nextFreeName = new String(name);
 		int i = 1;
 		while (actualNames.contains(nextFreeName))
