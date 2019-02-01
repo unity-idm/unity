@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.EndpointManagement;
+import io.imunity.webconsole.authentication.EndpointController;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,15 +32,15 @@ public class AuthenticationRealmController
 {
 	private RealmsManagement realmMan;
 	private UnityMessageSource msg;
-	private EndpointManagement endpointMan;
+	private EndpointController endpointController;
 
 	@Autowired
 	public AuthenticationRealmController(UnityMessageSource msg, RealmsManagement realmMan,
-			EndpointManagement endpointMan)
+			EndpointController endpointController)
 	{
 		this.realmMan = realmMan;
 		this.msg = msg;
-		this.endpointMan = endpointMan;
+		this.endpointController = endpointController;
 	}
 
 	public boolean addRealm(AuthenticationRealm realm) throws ControllerException
@@ -104,7 +104,7 @@ public class AuthenticationRealmController
 			throw new ControllerException(msg.getMessage("AuthenticationRealmController.getAllError"),
 					e.getMessage(), e);
 		}
-		List<ResolvedEndpoint> endpoints = getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointController.getEndpoints();
 
 		for (AuthenticationRealm realm : realms)
 		{
@@ -117,7 +117,7 @@ public class AuthenticationRealmController
 
 	public AuthenticationRealmEntry getRealm(String realmName) throws ControllerException
 	{
-		List<ResolvedEndpoint> endpoints = getEndpoints();
+		List<ResolvedEndpoint> endpoints =  endpointController.getEndpoints();
 
 		try
 		{
@@ -130,21 +130,6 @@ public class AuthenticationRealmController
 		}
 	}
 
-	private List<ResolvedEndpoint> getEndpoints() throws ControllerException
-	{
-		List<ResolvedEndpoint> endpoints;
-		try
-		{
-			endpoints = endpointMan.getEndpoints();
-		} catch (EngineException e)
-		{
-			throw new ControllerException(
-					msg.getMessage("AuthenticationRealmController.getAllEndpointsError"),
-					e.getMessage(), e);
-		}
-		return endpoints;
-	}
-	
 	private List<String> filterEndpoints(String realmName, List<ResolvedEndpoint> all)
 	{
 		return all.stream().filter(e -> e.getRealm().getName().equals(realmName)).map(e -> e.getName()).sorted()

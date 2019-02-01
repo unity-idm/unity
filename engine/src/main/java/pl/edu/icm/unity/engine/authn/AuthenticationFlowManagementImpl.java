@@ -94,7 +94,13 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		return authnFlowDB.getAll();
 	}
-
+	
+	@Override
+	public AuthenticationFlowDefinition getAuthenticationFlow(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return authnFlowDB.get(name);
+	}
 
 	@Override
 	public void updateAuthenticationFlow(AuthenticationFlowDefinition authFlowdef) throws EngineException
