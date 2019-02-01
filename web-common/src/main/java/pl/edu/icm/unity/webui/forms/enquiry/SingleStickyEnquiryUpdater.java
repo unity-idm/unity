@@ -139,7 +139,7 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 		return editorWrapper;
 	}
 
-	private void reload()
+	public void reload()
 	{
 		VerticalLayout main = new VerticalLayout();
 		main.setSpacing(false);

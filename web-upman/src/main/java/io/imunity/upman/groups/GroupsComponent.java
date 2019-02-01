@@ -121,7 +121,7 @@ class GroupsComponent extends CustomComponent
 		updateGroupAccess(items, true);
 	}
 	
-	private void updateGroupAccess(Set<GroupNode> items, boolean isOpen)
+	private void updateGroupAccess(Set<GroupNode> items, boolean isPublic)
 	{
 		if (items.isEmpty())
 			return;
@@ -130,7 +130,7 @@ class GroupsComponent extends CustomComponent
 		try
 		{
 
-			controller.setGroupAccessMode(projectPath, groupNode.getPath(), isOpen);
+			controller.setGroupAccessMode(projectPath, groupNode.getPath(), isPublic);
 			groupBrowser.reloadNode(groupNode);
 
 		} catch (ControllerException e)

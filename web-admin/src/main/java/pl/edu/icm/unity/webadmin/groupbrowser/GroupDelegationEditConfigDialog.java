@@ -64,9 +64,9 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 
 	private TextField logoUrl;
 	private CheckBox enableDelegation;
-	private FormComboWithButtons<String> registrationFormComboWithButtons;
-	private FormComboWithButtons<String> signupEnquiryFormComboWithButtons;
-	private FormComboWithButtons<String> membershipUpdateEnquiryFormComboWithButtons;
+	private FormComboWithButtons registrationFormComboWithButtons;
+	private FormComboWithButtons signupEnquiryFormComboWithButtons;
+	private FormComboWithButtons membershipUpdateEnquiryFormComboWithButtons;
 	private ChipsWithDropdown<String> attributes;
 	private Binder<DelegationConfiguration> binder;
 
@@ -120,20 +120,20 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		logoUrl = new TextField(msg.getMessage("GroupDelegationEditConfigDialog.logoUrlCaption"));
 		logoUrl.setWidth(100, Unit.PERCENTAGE);
 
-		registrationFormComboWithButtons = new FormComboWithButtons<String>(msg,
+		registrationFormComboWithButtons = new FormComboWithButtons(msg,
 				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"),
 				e -> generateJoinRegistrationForm(),
 				e -> showJoinRegistrationValidation(registrationFormComboWithButtons.getValue()),
 				e -> showRegFormEditDialog(registrationFormComboWithButtons.getValue()));
 		reloadRegistrationForm();
 
-		signupEnquiryFormComboWithButtons = new FormComboWithButtons<String>(msg,
+		signupEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
 				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"),
 				e -> generateJoinEnquiryForm(),
 				e -> showJoinEnquiryValidation(signupEnquiryFormComboWithButtons.getValue()),
 				e -> showEnquiryFormEditDialog(signupEnquiryFormComboWithButtons.getValue()));
 
-		membershipUpdateEnquiryFormComboWithButtons = new FormComboWithButtons<String>(msg,
+		membershipUpdateEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
 				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"), null, null,
 				e -> showEnquiryFormEditDialog(membershipUpdateEnquiryFormComboWithButtons.getValue()));
 		reloadEnquiryForms();
@@ -446,40 +446,18 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		}
 	}
 
-	private static class FormComboWithButtons<T> extends CustomField<T>
+	private static class FormComboWithButtons extends CustomField<String>
 	{
-
-		private UnityMessageSource msg;
-		private String caption;
-		private ComboBox<T> combo;
-		private ClickListener generateListener;
-		private ClickListener validateListener;
-		private ClickListener editListener;
-
+		private ComboBox<String> combo;
 		private Button validate;
 		private Button edit;
+		private HorizontalLayout main;
 
 		public FormComboWithButtons(UnityMessageSource msg, String caption, ClickListener generateListener,
 				ClickListener validateListener, ClickListener editListener)
 		{
-			this.msg = msg;
-			this.caption = caption;
-			this.generateListener = generateListener;
-			this.validateListener = validateListener;
-			this.editListener = editListener;
-			this.combo = new ComboBox<T>();
-		}
-
-		@Override
-		public T getValue()
-		{
-			return combo.getValue();
-		}
-
-		@Override
-		protected Component initContent()
-		{
-			HorizontalLayout main = new HorizontalLayout();
+			combo = new ComboBox<String>();
+			main = new HorizontalLayout();
 			main.addComponent(combo);
 			setCaption(caption);
 
@@ -519,9 +497,20 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			combo.addValueChangeListener(e -> {
 				refreshButtons();
 			});
-
+			combo.addValueChangeListener(e -> fireEvent(e));
+		
 			refreshButtons();
+		}
 
+		@Override
+		public String getValue()
+		{
+			return combo.getValue();
+		}
+
+		@Override
+		protected Component initContent()
+		{
 			return main;
 		}
 
@@ -533,12 +522,12 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		}
 
 		@Override
-		protected void doSetValue(T value)
+		protected void doSetValue(String value)
 		{
-			combo.setSelectedItem(value);
+			combo.setValue(value);
 		}
 
-		public void setItems(Collection<T> items)
+		public void setItems(Collection<String> items)
 		{
 			combo.setItems(items);
 		}

@@ -58,6 +58,8 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.bigtab.BigTab;
+import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
@@ -194,10 +196,22 @@ public class UserAccountComponent extends VerticalLayout
 				if (enquiryResController.isStickyFormApplicable(enquiryForm))
 				{
 					EnquiryForm form = enquiryResController.getForm(enquiryForm);
-					main.addComponent(new SingleStickyEnquiryUpdater(msg, enquiryResController, form));
+					SingleStickyEnquiryUpdater updater = new SingleStickyEnquiryUpdater(msg, enquiryResController, form);
+					main.addComponent(updater);
 					
 					tabPanel.addTab("UserHomeUI.accountUpdateLabel", "UserHomeUI.accountUpdateDesc", Images.records,
-							main);
+							main, new TabCallback()
+							{
+								
+								@Override
+								public void onSelection(BigTab src)
+								{
+									updater.reload();
+									
+								}
+							});
+					
+					
 					break;
 				}
 			}

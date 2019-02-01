@@ -78,11 +78,11 @@ public class GroupsController
 	}
 
 	public void addGroup(String projectPath, String parentPath, I18nString groupName,
-			boolean isOpen) throws ControllerException
+			boolean isPublic) throws ControllerException
 	{
 		try
 		{
-			delGroupMan.addGroup(projectPath, parentPath, groupName, isOpen);
+			delGroupMan.addGroup(projectPath, parentPath, groupName, isPublic);
 		} catch (Exception e)
 		{
 			log.debug("Can not add group " + parentPath, e);
@@ -115,7 +115,17 @@ public class GroupsController
 		} catch (Exception e)
 		{
 			log.debug("Can not set group access mode for " + groupPath, e);
-			throw new ServerFaultException(msg);
+			
+			if (!projectPath.equals(groupPath))
+			{
+				throw new ServerFaultException(msg);
+			}else
+			{
+				throw new ControllerException(
+						msg.getMessage("GroupsController.projectGroupAccessModeChangeError"),
+						msg.getMessage("GroupsController.projectGroupAccessModeChangeErrorDetails"),
+						null);
+			}
 		}
 	}
 

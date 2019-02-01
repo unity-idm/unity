@@ -280,7 +280,7 @@ public class ProjectRequestManagementImpl implements ProjectRequestManagement
 		{
 			List<Identity> identities = entity.getIdentities();
 			email = getEmailIdentity(
-					identities.stream().map(i -> new IdentityParam(i.getTypeId(), i.getValue()))
+					identities.stream().map(i -> (IdentityParam) i)
 							.collect(Collectors.toList()));
 		}
 

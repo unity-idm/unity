@@ -52,6 +52,11 @@ public class BigTabPanel extends HorizontalLayout
 	
 	public void addTab(String labelKey, String descriptionKey, Images image, final Component contents)
 	{
+		addTab(labelKey, descriptionKey, image, contents, null);
+	}
+	
+	public void addTab(String labelKey, String descriptionKey, Images image, final Component contents, final TabCallback callback)
+	{
 		String label = labelKey == null ? null : msg.getMessage(labelKey);
 		String description = descriptionKey == null ? null : msg.getMessage(descriptionKey);
 		tabs.addTab(label, description, image, new TabCallback()
@@ -63,6 +68,8 @@ public class BigTabPanel extends HorizontalLayout
 				main.addComponent(contents);
 				String caption = src.getCaption() == null ? "" : src.getCaption();
 				mainPanel.setCaption(caption);
+				if (callback != null)
+					callback.onSelection(src);
 			}
 		});
 	}
