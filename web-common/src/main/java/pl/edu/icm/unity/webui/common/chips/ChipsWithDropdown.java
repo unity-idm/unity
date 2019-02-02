@@ -19,6 +19,7 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.StyleGenerator;
 import com.vaadin.ui.VerticalLayout;
 
 /**
@@ -72,6 +73,11 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		this.combo.setItemCaptionGenerator(item -> comboRenderer.apply(item));
 	}
 	
+	public void setComboStyleGenerator(StyleGenerator<T> itemStyleGenerator)
+	{
+		this.combo.setStyleGenerator(itemStyleGenerator);
+	}
+	
 	public void addChipRemovalListener(ClickListener listner)
 	{
 		chipsRow.addChipRemovalListener(listner);
@@ -104,7 +110,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		chipsRow.removeAll();
 		if (!multiSelectable && items.size() > 1)
 			throw new IllegalArgumentException("Can not select more then one element in single-selectable chips");
-		items.forEach(this::selectGroup);
+		items.forEach(this::selectItem);
 		updateItemsAvailableToSelect();
 		verifySelectionLimit();
 		chipsRow.setVisible(!items.isEmpty());
@@ -130,11 +136,11 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		if (!selectedItem.isPresent())
 			return;
 		combo.setSelectedItem(null);
-		selectGroup(selectedItem.get());
+		selectItem(selectedItem.get());
 		verifySelectionLimit();
 	}
 
-	private void selectGroup(T selected)
+	protected void selectItem(T selected)
 	{
 		chipsRow.addChip(new Chip<>(chipRenderer.apply(selected), selected));
 		chipsRow.setVisible(true);
@@ -150,9 +156,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 			.filter(item -> !allItems.contains(item))
 			.forEach(item -> chipsRow.removeItem(item));
 		
-		List<T> available = allItems.stream()
-				.filter(i -> !selected.contains(i))
-				.collect(Collectors.toList());
+		List<T> available = checkAvailableItems(allItems, selected);
 		
 		sortItems(available);
 		
@@ -176,6 +180,13 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		return aStr.compareTo(bStr);
 	}
 	
+	protected List<T> checkAvailableItems(Set<T> allItems, Set<T> selected)
+	{
+		return allItems.stream()
+		.filter(i -> !selected.contains(i))
+		.collect(Collectors.toList());
+	}
+		
 	private void updateComboVisibility(Set<T> selected, List<T> available)
 	{
 		if (!readOnly)

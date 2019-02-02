@@ -241,6 +241,14 @@
 	.v-filterselect-u-trueCondition-bg.v-readonly {
 		background: $bgSuccessColor;
 	}
+	
+	.v-filterselect-item-inactive {
+        font-style: italic;
+    }
+
+	.v-filterselect-item-inactive:hover{
+    	 background: transparent;
+    }
 
 	.v-ddwrapper-u-trueCondition-bg {
 		.v-textfield {

@@ -17,6 +17,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -119,16 +121,19 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 			EnquiryResponse request = editor.getRequestWithStandardErrorHandling(false).orElse(null);
 			if (request == null)
 				return;
+
 			try
 			{
-				controller.submitted(request, form, TriggeringMode.manualStandalone);
-
+				WorkflowFinalizationConfiguration workflowConfig = controller.submitted(request, form,
+						TriggeringMode.manualStandalone);
+				showNotificationAfterSubmit(workflowConfig);
 			} catch (Exception e)
 			{
 				log.error("Can not sumbit new request for form " + form.getName(), e);
 				NotificationPopup.showError(msg,
 						msg.getMessage("SingleStickyEnquiryUpdater.cannotSubmitRequest"), e);
 			}
+
 			reload();
 
 		});
@@ -137,6 +142,17 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 		editorWrapper.setComponentAlignment(editor, Alignment.MIDDLE_CENTER);
 		editorWrapper.setComponentAlignment(ok, Alignment.MIDDLE_CENTER);
 		return editorWrapper;
+	}
+
+	private void showNotificationAfterSubmit(WorkflowFinalizationConfiguration workflowConfig)
+	{
+		if (workflowConfig.success)
+		{
+			NotificationTray.showSuccess(workflowConfig.mainInformation, workflowConfig.extraInformation);		
+		}else
+		{
+			NotificationTray.showError(workflowConfig.mainInformation, workflowConfig.extraInformation);		
+		}
 	}
 
 	public void reload()
