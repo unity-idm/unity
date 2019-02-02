@@ -23,7 +23,13 @@ public interface GroupDelegationConfigGenerator
 
 	EnquiryForm generateJoinEnquiryForm(String groupPath, String logo) throws EngineException;
 
+	EnquiryForm generateUpdateEnquiryForm(String groupPath, String logo) throws EngineException;
+	
 	List<String> validateRegistrationForm(String groupPath, String formName);
 	
 	List<String> validateJoinEnquiryForm(String groupPath, String formName);
+
+	List<String> validateUpdateEnquiryForm(String groupPath, String formName);
+
+	
 }

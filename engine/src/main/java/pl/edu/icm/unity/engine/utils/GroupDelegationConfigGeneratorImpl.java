@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.engine.utils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -16,7 +17,11 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Lists;
 
+import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
 import pl.edu.icm.unity.engine.api.utils.GroupDelegationConfigGenerator;
@@ -61,9 +66,6 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 @Primary
 public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfigGenerator
 {
-	private static final String REGISTRATION_NAME_SUFFIX = "Registration";
-	private static final String JOIN_ENQUIRY_NAME_SUFFIX = "JoinEnquiry";
-
 	private UnityMessageSource msg;
 	private RegistrationFormDB regFormDB;
 	private MessageTemplateDB messageDB;
@@ -91,13 +93,8 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	{
 		List<String> ret = new ArrayList<>();
 
-		EnquiryForm form;
-
-		try
-		{
-			form = enqFormDB.get(formName);
-
-		} catch (Exception e)
+		EnquiryForm form = getEnquiryForm(formName);
+		if (form == null)
 		{
 			ret.add(msg.getMessage("FormGenerator.invalidEnquiryForm"));
 			return ret;
@@ -106,6 +103,39 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		ret.addAll(validateAutomationProfile(form, groupPath));
 		ret.addAll(validateNotifications(form));
 		return ret;
+	}
+
+	@Transactional
+	@Override
+	public List<String> validateUpdateEnquiryForm(String groupPath, String formName)
+	{
+		List<String> ret = new ArrayList<>();
+
+		EnquiryForm form = getEnquiryForm(formName);
+		if (form == null)
+		{
+			ret.add(msg.getMessage("FormGenerator.invalidEnquiryForm"));
+			return ret;
+		}
+
+		if (!Arrays.asList(form.getTargetGroups()).contains(groupPath))
+		{
+			ret.add(msg.getMessage("FormGenerator.targetGroupWithoutProject"));
+		}
+
+		return ret;
+	}
+
+	private EnquiryForm getEnquiryForm(String formName)
+	{
+		try
+		{
+			return enqFormDB.get(formName);
+
+		} catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 	@Transactional
@@ -142,11 +172,35 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	{
 		List<String> ret = new ArrayList<>();
 		BaseFormNotifications notConfig = form.getNotificationsConfiguration();
-		if (notConfig == null || notConfig.getInvitationTemplate() == null
-				|| notConfig.getInvitationTemplate().isEmpty())
+		if (notConfig == null)
 		{
 			ret.add(msg.getMessage("FormGenerator.noInvitationTemplate"));
+			ret.add(msg.getMessage("FormGenerator.noAcceptTemplate"));
+			ret.add(msg.getMessage("FormGenerator.noRejectTemplate"));
+			ret.add(msg.getMessage("FormGenerator.noUpdateTemplate"));
+		} else
+		{
+			if (notConfig.getInvitationTemplate() == null || notConfig.getInvitationTemplate().isEmpty())
+			{
+				ret.add(msg.getMessage("FormGenerator.noInvitationTemplate"));
+			}
+
+			if (notConfig.getAcceptedTemplate() == null || notConfig.getInvitationTemplate().isEmpty())
+			{
+				ret.add(msg.getMessage("FormGenerator.noAcceptTemplate"));
+			}
+
+			if (notConfig.getRejectedTemplate() == null || notConfig.getInvitationTemplate().isEmpty())
+			{
+				ret.add(msg.getMessage("FormGenerator.noRejectTemplate"));
+			}
+
+			if (notConfig.getUpdatedTemplate() == null || notConfig.getInvitationTemplate().isEmpty())
+			{
+				ret.add(msg.getMessage("FormGenerator.noUpdateTemplate"));
+			}
 		}
+
 		return ret;
 	}
 
@@ -155,8 +209,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		List<? extends TranslationRule> rules = form.getTranslationProfile().getRules();
 		List<String> ret = new ArrayList<>();
 		if (!rules.stream()
-				.filter(r -> r.getCondition().contains(ContextKey.validCode.toString())
-						&& r.getAction().getName().equals(AutoProcessActionFactory.NAME)
+				.filter(r -> r.getAction().getName().equals(AutoProcessActionFactory.NAME)
 						&& !(r.getAction().getParameters().length == 0)
 						&& r.getAction().getParameters()[0]
 								.equals(AutomaticRequestAction.accept.toString()))
@@ -184,9 +237,11 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	{
 
 		Set<String> actualForms = regFormDB.getAll().stream().map(r -> r.getName()).collect(Collectors.toSet());
+		String groupDisplayedName = getGroupDisplayedName(groupPath);
 
 		RegistrationForm form = new RegistrationFormBuilder()
-				.withName(generateName(REGISTRATION_NAME_SUFFIX, groupPath, actualForms))
+				.withName(generateName(msg.getMessage("FormGenerator.registrationNameSuffix"),
+						groupDisplayedName, actualForms))
 				.withNotificationsConfiguration(getDefaultRegistrationNotificationConfig())
 				.withDefaultCredentialRequirement(EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
 				.withPubliclyAvailable(true)
@@ -200,7 +255,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).withMultiselect(true)
 				.endGroupParam().withFormLayoutSettings(getDefaultLayoutSettings(logo))
 				.withDisplayedName(new I18nString(msg.getLocaleCode(),
-						msg.getMessage("FormGenerator.createAccount")))
+						msg.getMessage("FormGenerator.joinTitle", groupDisplayedName)))
 				.withTitle2ndStage(new I18nString(msg.getLocaleCode(),
 						msg.getMessage("FormGenerator.provideDetails")))
 				.withTranslationProfile(getAutomationProfile(groupPath)).build();
@@ -226,23 +281,52 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	{
 
 		Set<String> actualForms = enqFormDB.getAll().stream().map(r -> r.getName()).collect(Collectors.toSet());
+		String groupDisplayedName = getGroupDisplayedName(groupPath);
 
-		return new EnquiryFormBuilder().withName(generateName(JOIN_ENQUIRY_NAME_SUFFIX, groupPath, actualForms))
+		return new EnquiryFormBuilder()
+				.withName(generateName(msg.getMessage("FormGenerator.joinEnquiryNameSuffix"),
+						groupDisplayedName, actualForms))
 				.withTargetGroups(new String[] { "/" }).withType(EnquiryForm.EnquiryType.STICKY)
 				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.selectGroups"))
 				.withMultiselect(true).withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).endGroupParam()
 				.withDisplayedName(new I18nString(msg.getLocaleCode(),
-						msg.getMessage("FormGenerator.updateAccount")))
+						msg.getMessage("FormGenerator.joinTitle", groupDisplayedName)))
 				.withFormLayoutSettings(getDefaultLayoutSettings(logo))
 				.withNotificationsConfiguration(getDefaultEnquiryNotificationConfig())
 				.withTranslationProfile(getAutomationProfile(groupPath)).build();
+	}
+
+	@Transactional
+	@Override
+	public EnquiryForm generateUpdateEnquiryForm(String groupPath, String logo) throws EngineException
+	{
+
+		Set<String> actualForms = enqFormDB.getAll().stream().map(r -> r.getName()).collect(Collectors.toSet());
+		String groupDisplayedName = getGroupDisplayedName(groupPath);
+
+		return new EnquiryFormBuilder()
+				.withName(generateName(msg.getMessage("FormGenerator.updateEnquiryNameSuffix"),
+						groupDisplayedName, actualForms))
+				.withTargetGroups(new String[] { groupPath }).withType(EnquiryForm.EnquiryType.STICKY)
+				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.selectGroups"))
+				.withMultiselect(true).withGroupPath(groupPath + "/?*/**")
+				.withRetrievalSettings(ParameterRetrievalSettings.interactive).endGroupParam()
+				.withDisplayedName(new I18nString(msg.getLocaleCode(),
+						msg.getMessage("FormGenerator.updateTitle",
+								groupDisplayedName)))
+				.withFormLayoutSettings(getDefaultLayoutSettings(logo))
+				.build();
 	}
 
 	private RegistrationFormNotifications getDefaultRegistrationNotificationConfig()
 	{
 		RegistrationFormNotifications not = new RegistrationFormNotifications();
 		not.setInvitationTemplate(getDefaultInvitationTemplate());
+		not.setInvitationTemplate(getDefaultInvitationTemplate());
+		not.setAcceptedTemplate(getDefaultAcceptTemplate());
+		not.setRejectedTemplate(getDefaultRejectTemplate());
+		not.setUpdatedTemplate(getDefaultUpdateTemplate());
 		return not;
 	}
 
@@ -250,12 +334,42 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 	{
 		EnquiryFormNotifications not = new EnquiryFormNotifications();
 		not.setInvitationTemplate(getDefaultInvitationTemplate());
+		not.setAcceptedTemplate(getDefaultAcceptTemplate());
+		not.setRejectedTemplate(getDefaultRejectTemplate());
+		not.setUpdatedTemplate(getDefaultUpdateTemplate());
+		not.setEnquiryToFillTemplate(getDefaultNewEnquiryTemplate());		
 		return not;
 	}
 
+	
 	private String getDefaultInvitationTemplate()
+	{	
+		return  getDefaultMessageTemplate(InvitationTemplateDef.NAME);
+	}
+	
+	private String getDefaultRejectTemplate()
 	{
-		return messageDB.getAll().stream().filter(m -> m.getConsumer().equals(InvitationTemplateDef.NAME))
+		return  getDefaultMessageTemplate(RejectRegistrationTemplateDef.NAME);
+	}
+	
+	private String getDefaultAcceptTemplate()
+	{
+		return  getDefaultMessageTemplate(AcceptRegistrationTemplateDef.NAME);
+	}
+	
+	private String getDefaultUpdateTemplate()
+	{
+		return  getDefaultMessageTemplate(UpdateRegistrationTemplateDef.NAME);
+	}
+	
+	private String getDefaultNewEnquiryTemplate()
+	{
+		return  getDefaultMessageTemplate(NewEnquiryTemplateDef.NAME);
+	}	
+	
+	private String getDefaultMessageTemplate(String type)
+	{
+		return messageDB.getAll().stream().filter(m -> m.getConsumer().equals(type))
 				.map(m -> m.getName()).findAny().orElse(null);
 	}
 
@@ -271,7 +385,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				new TranslationRule(ContextKey.validCode.toString() + " == true", a1),
 				new TranslationRule("true", a2));
 
-		TranslationProfile tp = new TranslationProfile("form", "", ProfileType.REGISTRATION, rules);
+		TranslationProfile tp = new TranslationProfile("", "", ProfileType.REGISTRATION, rules);
 
 		return tp;
 	}
@@ -286,15 +400,19 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 		return lsettings;
 	}
 
+	private String getGroupDisplayedName(String group)
+	{
+		return groupDB.get(group).getDisplayedName().getValue(msg);
+	}
+
 	private String generateName(String suffix, String group, Set<String> actualNames)
 	{
-
-		String name = groupDB.get(group).getDisplayedName().getValue(msg) + suffix;
-		String nextFreeName = new String(name);
+		String newName = group + suffix;
+		String nextFreeName = newName;
 		int i = 1;
 		while (actualNames.contains(nextFreeName))
 		{
-			nextFreeName = name + i++;
+			nextFreeName = newName + i++;
 		}
 		return nextFreeName;
 	}

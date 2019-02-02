@@ -134,7 +134,9 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 				e -> showEnquiryFormEditDialog(signupEnquiryFormComboWithButtons.getValue()));
 
 		membershipUpdateEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
-				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"), null, null,
+				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"),
+				e -> generateUpdateEnquiryForm(),
+				e -> showUpdateEnquiryValidation(membershipUpdateEnquiryFormComboWithButtons.getValue()),
 				e -> showEnquiryFormEditDialog(membershipUpdateEnquiryFormComboWithButtons.getValue()));
 		reloadEnquiryForms();
 
@@ -159,9 +161,8 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		enableEdit(toEdit.enabled);
 
 		FormLayout main = new FormLayout();
-		main.addComponents(enableDelegation, logoUrl, registrationFormComboWithButtons,
-				signupEnquiryFormComboWithButtons, membershipUpdateEnquiryFormComboWithButtons,
-				attributes);
+		main.addComponents(enableDelegation, logoUrl, attributes, registrationFormComboWithButtons,
+				signupEnquiryFormComboWithButtons, membershipUpdateEnquiryFormComboWithButtons);
 		return main;
 	}
 
@@ -199,6 +200,25 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		}
 		reloadEnquiryForms();
 		signupEnquiryFormComboWithButtons.setValue(form.getName());
+	}
+	
+
+	private void generateUpdateEnquiryForm()
+	{
+		EnquiryForm form;
+		try
+		{
+			form = configGenerator.generateUpdateEnquiryForm(group.toString(), logoUrl.getValue());
+			enquiryMan.addEnquiry(form);
+
+		} catch (EngineException e)
+		{
+			NotificationPopup.showError(msg,
+					msg.getMessage("GroupDelegationEditConfigDialog.cannotGenerateForm"), e);
+			return;
+		}
+		reloadEnquiryForms();
+		membershipUpdateEnquiryFormComboWithButtons.setValue(form.getName());
 	}
 
 	private void reloadRegistrationForm()
@@ -265,6 +285,12 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 	private void showJoinEnquiryValidation(String formName)
 	{
 		List<String> messages = configGenerator.validateJoinEnquiryForm(group.toString(), formName);
+		new ValidationResultDialog(msg, messages, formName).show();
+	}
+	
+	private void showUpdateEnquiryValidation(String formName)
+	{
+		List<String> messages = configGenerator.validateUpdateEnquiryForm(group.toString(), formName);
 		new ValidationResultDialog(msg, messages, formName).show();
 	}
 
@@ -457,6 +483,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 				ClickListener validateListener, ClickListener editListener)
 		{
 			combo = new ComboBox<String>();
+			combo.setWidth(20, Unit.EM);
 			main = new HorizontalLayout();
 			main.addComponent(combo);
 			setCaption(caption);
