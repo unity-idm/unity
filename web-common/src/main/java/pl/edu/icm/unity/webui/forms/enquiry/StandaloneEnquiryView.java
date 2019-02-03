@@ -33,7 +33,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	private Callback callback;
 	protected UnityMessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
-	
+	protected VerticalLayout main;
 	
 	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor,
 			UnityMessageSource msg,	Callback callback)
@@ -42,25 +42,27 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		this.authnProcessor = authnProcessor;
 		this.msg = msg;
 		this.callback = callback;
+		main = new VerticalLayout();
+		main.setSpacing(true);
+		main.setMargin(true);
+		addStyleName("u-standalone-public-form");
+		setCompositionRoot(main);
 	}
 	
 	@Override
 	public void enter(ViewChangeEvent event)
-	{
+	{	
 		if (editor.getPageTitle() != null)
 			Page.getCurrent().setTitle(editor.getPageTitle());
 		placeEditor();
 	}
 
 	protected void placeEditor()
-	{
-		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
-		main.setMargin(true);
-		addStyleName("u-standalone-public-form");
-		setCompositionRoot(main);
-		setWidth(100, Unit.PERCENTAGE);
-
+	{	
+		main.removeAllComponents();
+		main.setHeightUndefined();
+		setHeightUndefined();
+		
 		Component logout = createLogoutComponent();
 		main.addComponent(logout);
 		main.setComponentAlignment(logout, Alignment.TOP_RIGHT);
@@ -75,7 +77,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	
 		Component buttons = createButtonsBar();
 		main.addComponent(buttons);
-		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);		
+		main.setComponentAlignment(buttons, Alignment.MIDDLE_CENTER);	
 	}
 
 	private Component createLogoutComponent()

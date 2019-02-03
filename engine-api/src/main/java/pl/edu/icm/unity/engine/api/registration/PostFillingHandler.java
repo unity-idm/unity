@@ -174,6 +174,9 @@ public class PostFillingHandler
 			break;
 		case IGNORED_ENQUIRY:
 			msgKey = "ignoredEnquiry";
+			break;	
+		case NOT_APPLICABLE_ENQUIRY:
+			msgKey = "notApplicableEnquiry";
 			break;
 		case DEFAULT:
 		default:

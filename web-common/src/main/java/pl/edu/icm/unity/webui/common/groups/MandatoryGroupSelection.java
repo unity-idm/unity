@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webui.common.groups;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.util.StringUtils;
@@ -101,5 +102,11 @@ public class MandatoryGroupSelection extends ComboBox<GroupWithIndentIndicator> 
 	{
 		if (multiSelect)
 			throw new IllegalStateException("Can not change single selected mandatory component to multiselect component.");
+	}
+	
+	@Override
+	public Set<String> getItems()
+	{
+		return items.stream().map(g -> g.toString()).collect(Collectors.toSet());
 	}
 }

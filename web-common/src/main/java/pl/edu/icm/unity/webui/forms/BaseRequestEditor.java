@@ -884,12 +884,13 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		return !identityParamEditors.isEmpty()
 				|| !attributeEditor.isEmpty()
-				|| !groupSelectors.isEmpty()
+				|| !(groupSelectors.values().stream().filter(a -> a != null && !a.getItems().isEmpty())
+				.count() == 0)
 				|| !agreementSelectors.isEmpty()
 				|| !credentialParamEditors.isEmpty()
 				|| form.isCollectComments();
 	}
-
+	
 	protected boolean isEmpty(String str)
 	{
 		return str == null || str.equals("");

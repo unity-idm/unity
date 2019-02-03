@@ -100,7 +100,7 @@ public class ChipsWithDropdown<T> extends CustomComponent
 		updateItemsAvailableToSelect();
 	}
 	
-	public Set<T> getItems()
+	public Set<T> getAllItems()
 	{
 		return allItems;
 	}

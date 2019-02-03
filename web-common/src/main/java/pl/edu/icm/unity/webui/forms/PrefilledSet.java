@@ -13,6 +13,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
+import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 /**
  * Used by {@link BaseRequestEditor} to create UI controls. Contains
@@ -45,4 +46,23 @@ public class PrefilledSet
 		this(null, null, null, null);
 	}
 
+	public boolean isEmpty()
+	{
+		return identities.isEmpty() &&  groupSelections.isEmpty() && attributes.isEmpty();
+	}
+	
+	public boolean containsValuesOnlyWithMode(PrefilledEntryMode mode)
+	{
+		return (attributes.values().stream()
+				.filter(v -> v != null && !v.getMode().equals(mode) && v.getEntry() != null).count() == 0)
+				&& (groupSelections.values().stream()
+						.filter(v -> v != null 
+								&& !v.getMode().equals(mode)
+								&& v.getEntry() != null && !v.getEntry().getSelectedGroups().isEmpty()
+								)
+						.count() == 0)
+				&& (identities.values().stream().filter(
+						v -> v != null && !v.getMode().equals(mode) && v.getEntry() != null)
+						.count() == 0);
+	}
 }

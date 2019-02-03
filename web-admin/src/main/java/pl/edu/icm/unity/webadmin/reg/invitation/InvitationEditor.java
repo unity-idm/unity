@@ -389,7 +389,7 @@ public class InvitationEditor extends CustomComponent
 		src.setCaption("");
 	}
 
-	private InvitationParam getInvitationParam(String form, Instant expiration, String addr)
+	private InvitationParam getInvitationParam(String form, Instant expiration, String addr) throws FormValidationException
 	{
 		if (type.getValue().equals(InvitationType.REGISTRATION))
 		{
@@ -401,9 +401,16 @@ public class InvitationEditor extends CustomComponent
 		}
 	}
 
-	private EnquiryInvitationParam getEnquiryInvitationParam(String form, Instant expiration, String addr)
+	private EnquiryInvitationParam getEnquiryInvitationParam(String form, Instant expiration, String addr) throws FormValidationException
 	{
 		EnquiryInvitationParam param = new EnquiryInvitationParam(form, expiration, addr);
+		
+		if (entity.getValue() == null)
+		{
+			entity.setComponentError(new UserError(msg.getMessage("fieldRequired")));
+			throw new FormValidationException();
+		}
+		
 		param.setEntity(entity.getValue());
 		return param;
 	}

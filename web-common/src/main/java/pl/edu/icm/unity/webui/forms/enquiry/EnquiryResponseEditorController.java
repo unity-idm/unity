@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.forms.enquiry;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -173,8 +172,6 @@ public class EnquiryResponseEditorController
 
 		Collection<AttributeExt> allAttributes =   attrMan.getAttributes(entity, null, null);
 		
-		
-		
 		for (int i = 0; i < form.getAttributeParams().size(); i++)
 		{
 			AttributeRegistrationParam attrParam = form.getAttributeParams().get(i);
@@ -183,11 +180,9 @@ public class EnquiryResponseEditorController
 							&& a.getName().equals(attrParam.getAttributeType()))
 					.collect(Collectors.toList());
 
-			prefilledAttributes.put(i, new PrefilledEntry<>(
-					!attributes.isEmpty() ? attributes.iterator().next()
-							: new Attribute(attrParam.getAttributeType(), null,
-									attrParam.getGroup(), Collections.emptyList()),
-					PrefilledEntryMode.DEFAULT));
+			prefilledAttributes.put(i, !attributes.isEmpty() ? (new PrefilledEntry<>(
+					  attributes.iterator().next(),
+					PrefilledEntryMode.DEFAULT)) : null);
 	
 		}
 
@@ -330,7 +325,7 @@ public class EnquiryResponseEditorController
 		}
 	}
 	
-	private PostFillingHandler getFinalizationHandler(EnquiryForm form)
+	public PostFillingHandler getFinalizationHandler(EnquiryForm form)
 	{
 		String pageTitle = form.getPageTitle() == null ? null : form.getPageTitle().getValue(msg);
 		return new PostFillingHandler(form.getName(), form.getWrapUpConfig(), msg,

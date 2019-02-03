@@ -46,14 +46,9 @@ public class StandaloneStickyEnquiryView extends StandaloneEnquiryView
 
 	private void placeRemoveLastRequestQuestionView()
 	{
-		VerticalLayout main = new VerticalLayout();
-		main.setSpacing(true);
-		main.setMargin(true);
-		addStyleName("u-standalone-public-form");
-		setCompositionRoot(main);
-		setWidth(100, Unit.PERCENTAGE);
-		setHeight(100, Unit.PERCENTAGE);
+		main.removeAllComponents();
 		main.setHeight(100, Unit.PERCENTAGE);
+		setSizeFull();	
 		
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(true);
@@ -72,7 +67,6 @@ public class StandaloneStickyEnquiryView extends StandaloneEnquiryView
 		
 		main.addComponent(wrapper);
 		main.setComponentAlignment(wrapper, Alignment.MIDDLE_CENTER);
-
 	}
 
 	private Component createFirstStepButtonsBar()

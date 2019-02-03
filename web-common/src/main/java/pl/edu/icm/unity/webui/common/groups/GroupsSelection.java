@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webui.common.groups;
 
 import java.util.List;
+import java.util.Set;
 
 import com.vaadin.ui.Component;
 
@@ -35,4 +36,6 @@ public interface GroupsSelection extends Component
 	void setDescription(String description);
 
 	void setMultiSelectable(boolean multiSelect);
+	
+	Set<String> getItems();
 }

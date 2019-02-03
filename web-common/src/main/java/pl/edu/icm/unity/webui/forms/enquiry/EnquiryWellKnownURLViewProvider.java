@@ -27,6 +27,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
@@ -77,10 +78,10 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	public View getView(String viewName)
 	{
 		String formName = getFormName(viewName);
-		if (!editorController.isFormApplicable(formName) && !editorController.isStickyFormApplicable(formName))
-			return new NotApplicableView();
-
 		EnquiryForm form = editorController.getForm(formName);
+		if (!editorController.isFormApplicable(formName) && !editorController.isStickyFormApplicable(formName))
+			return new NotApplicableView(form);
+
 		EnquiryResponseEditor editor;
 		try
 		{
@@ -91,6 +92,12 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			log.error("Can't load enquiry editor", e);
 			return null;
 		}
+		
+		if (!editor.isUserInteractionRequired())
+		{
+			return new NotApplicableView(form);
+		}		
+		
 		boolean overwriteSticky = false;
 		if (form.getType().equals(EnquiryType.STICKY))
 		{
@@ -179,11 +186,20 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	private class NotApplicableView extends CustomComponent implements View
 	{
 
+		private EnquiryForm form;
+		
+		public NotApplicableView(EnquiryForm form)
+		{
+			this.form = form;
+		}
+		
 		@Override
 		public void enter(ViewChangeEvent event)
 		{
-			WorkflowFinalizationConfiguration config = WorkflowFinalizationConfiguration.basicError(
-					msg.getMessage("EnquiryWellKnownURLViewProvider.notApplicableEnquiry"), null);
+			WorkflowFinalizationConfiguration config = editorController.getFinalizationHandler(form)
+					.getFinalRegistrationConfigurationNonSubmit(false, null,
+							TriggeringState.NOT_APPLICABLE_ENQUIRY);
+		
 			
 			VerticalLayout wrapper = new VerticalLayout();
 			wrapper.setSpacing(false);

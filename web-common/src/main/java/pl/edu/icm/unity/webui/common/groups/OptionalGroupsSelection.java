@@ -60,6 +60,12 @@ public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements
 		return getSelectedItems().stream().map(group -> group.toString()).collect(Collectors.toList());
 	}
 	
+	@Override
+	public Set<String> getItems()
+	{
+		return super.getAllItems().stream().map(g -> g.toString()).collect(Collectors.toSet());
+	}
+	
 	private void onMultiGroupRemoval(ClickEvent event)
 	{
 		List<Group> selected = getSelectedItems();
@@ -89,7 +95,7 @@ public class OptionalGroupsSelection extends ChipsWithDropdown<Group> implements
 		
 		List<Group> selected = new ArrayList<>(getSelectedItems());
 		
-		Set<Group> allItems = getItems();
+		Set<Group> allItems = getAllItems();
 
 		for (Group g : allItems)
 		{
