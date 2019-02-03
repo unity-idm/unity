@@ -36,6 +36,7 @@ import pl.edu.icm.unity.engine.project.ProjectInvitationsManagementImpl.IllegalI
 import pl.edu.icm.unity.engine.project.ProjectInvitationsManagementImpl.NotProjectInvitation;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
@@ -97,7 +98,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 		when(mockGroupMan.getContents(any(), anyInt())).thenReturn(getConfiguredGroupContents("/project"));
 
 		Identity emailId = new Identity(EmailIdentity.ID, "demo@demo.com", 1L, "demo@demo.com");
-		GroupMembershipInfo info = new GroupMembershipInfo(1, Arrays.asList(emailId), null, null);
+		GroupMembershipInfo info = new GroupMembershipInfo(new EntityInformation(1), Arrays.asList(emailId), null, null, null, null);
 		Map<Long, GroupMembershipInfo> infoMap = new HashMap<>();
 		infoMap.put(1L, info);
 		when(mockBulkQueryService.getMembershipInfo(any())).thenReturn(infoMap);

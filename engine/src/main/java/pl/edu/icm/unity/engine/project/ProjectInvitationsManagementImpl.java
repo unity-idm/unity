@@ -112,7 +112,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 	private Long getEntityByContactAddress(String contactAddress) throws EngineException
 	{
-		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
+		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Optional.empty());
 		Map<Long, GroupMembershipInfo> members = bulkService.getMembershipInfo(bulkMembershipData);
 
 		for (GroupMembershipInfo info : members.values())
@@ -123,7 +123,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 					.findAny().orElse(null);
 			if (emailId != null)
 			{
-				return info.entityId;
+				return info.entityInfo.getId();
 			}
 
 		}
@@ -142,7 +142,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 			if (contactEmail != null && contactEmail.getValue() != null
 					&& contactEmail.getValue().equals(contactAddress))
 			{
-				return info.entityId;
+				return info.entityInfo.getId();
 			}
 		}
 

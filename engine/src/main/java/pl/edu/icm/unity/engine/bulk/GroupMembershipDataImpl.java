@@ -19,6 +19,7 @@ import pl.edu.icm.unity.types.basic.AttributesClass;
 import pl.edu.icm.unity.types.basic.EntityInformation;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 
 /**
  * Hidden implementation of the data backing bulk operations. Hidden as we do only some minimal checking
@@ -38,6 +39,7 @@ class GroupMembershipDataImpl implements GroupMembershipData
 	private Map<Long, Set<String>> memberships;
 	private Collection<CredentialDefinition> credentials;
 	private Map<String, CredentialRequirements> credentialRequirements;
+	private Map<String, EnquiryForm> enquiryForms;
 	
 	private GroupMembershipDataImpl() 
 	{
@@ -98,7 +100,15 @@ class GroupMembershipDataImpl implements GroupMembershipData
 		return credentials;
 	}
 
+	public Map<String, EnquiryForm> getEnquiryForms()
+	{
+		return enquiryForms;
+	}
 
+	public void setEnquiryForms(Map<String, EnquiryForm> enquiryForms)
+	{
+		this.enquiryForms = enquiryForms;
+	}
 
 	public static class Builder
 	{
@@ -154,6 +164,12 @@ class GroupMembershipDataImpl implements GroupMembershipData
 		public Builder withCredentialRequirements(Map<String, CredentialRequirements> credRequirements)
 		{
 			obj.credentialRequirements = Collections.unmodifiableMap(credRequirements);
+			return this;
+		}
+		
+		public Builder withEnquiryForms(Map<String, EnquiryForm> enquiryForms)
+		{
+			obj.enquiryForms = Collections.unmodifiableMap(enquiryForms);
 			return this;
 		}
 		

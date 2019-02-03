@@ -5,6 +5,8 @@
 package pl.edu.icm.unity.engine.api.bulk;
 
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -20,7 +22,7 @@ import pl.edu.icm.unity.types.basic.GroupContents;
  */
 public interface BulkGroupQueryService
 {
-	GroupMembershipData getBulkMembershipData(String group) throws EngineException;
+	GroupMembershipData getBulkMembershipData(String group, Optional<Set<Long>> filter) throws EngineException;
 
 	GroupStructuralData getBulkStructuralData(String group) throws EngineException;
 	

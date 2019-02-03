@@ -11,6 +11,7 @@ import static org.junit.Assert.assertThat;
 import static pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider.AUTHORIZATION_ROLE;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +55,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A", entity);
 		
 		
-		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A");
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A", Optional.empty());
 		Map<Long, Entity> result = bulkService.getGroupEntitiesNoContextWithTargeted(bulkData);
 		
 		assertThat(result.size(), is(1));
@@ -85,7 +86,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saInA);
 		
 		
-		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A");
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A", Optional.empty());
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/A", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
 		
@@ -120,7 +121,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saRoot);
 		
 		
-		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/example");
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/example", Optional.empty());
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/example", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
 		

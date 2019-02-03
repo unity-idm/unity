@@ -34,6 +34,7 @@ public class EnquiryForm extends BaseForm
 	
 	private EnquiryType type;
 	private String[] targetGroups;
+	private String targetCondition;
 	private EnquiryFormNotifications notificationsConfiguration = new EnquiryFormNotifications();
 	private FormLayout layout;
 	
@@ -74,7 +75,15 @@ public class EnquiryForm extends BaseForm
 			targetGroupsA.add(targetGroup);
 		root.set("NotificationsConfiguration", jsonMapper.valueToTree(getNotificationsConfiguration()));
 		if (layout != null)
+		{
 			root.set("FormLayout", getLayout().toJson());
+		}
+		
+		if (targetCondition != null)
+		{
+			root.put("targetCondition", targetCondition);
+		} 
+		
 		return root;
 	}
 
@@ -102,8 +111,15 @@ public class EnquiryForm extends BaseForm
 			n = root.get("FormLayout");
 			if (n != null)
 			{
-				setLayout(new FormLayout((ObjectNode) root.get("FormLayout")));
+				setLayout(new FormLayout((ObjectNode) n));
 			}
+		
+			n = root.get("targetCondition");
+			if (n != null)
+			{
+				this.targetCondition = n.asText();
+			}
+			
 		} catch (Exception e)
 		{
 			throw new InternalException("Can't deserialize enquiry form from JSON", e);
@@ -140,6 +156,16 @@ public class EnquiryForm extends BaseForm
 	public void setTargetGroups(String[] targetGroups)
 	{
 		this.targetGroups = targetGroups;
+	}
+	
+	public String getTargetCondition()
+	{
+		return targetCondition;
+	}
+
+	public void setTargetCondition(String targetCondition)
+	{
+		this.targetCondition = targetCondition;
 	}
 	
 	public FormLayout getLayout()
@@ -186,12 +212,12 @@ public class EnquiryForm extends BaseForm
 		EnquiryForm castOther = (EnquiryForm) other;
 		return Objects.equals(type, castOther.type) && Arrays.equals(targetGroups, castOther.targetGroups)
 				&& Objects.equals(notificationsConfiguration, castOther.notificationsConfiguration)
-				&& Objects.equals(layout, castOther.layout);
+				&& Objects.equals(layout, castOther.layout)&& Objects.equals(targetCondition, castOther.targetCondition);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(super.hashCode(), type, targetGroups, notificationsConfiguration, layout);
+		return Objects.hash(super.hashCode(), type, targetGroups, notificationsConfiguration, layout, targetCondition);
 	}
 }

@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+import com.vaadin.data.Binder;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
@@ -43,6 +44,7 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
 /**
  * Allows to edit an {@link EnquiryForm}. Can be configured to edit an existing form (name is fixed)
@@ -65,6 +67,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	private EnumComboBox<EnquiryType> enquiryType;
 	private GroupsSelectionList targetGroups;
+	private MVELExpressionField targetCondition;
 	private EnquiryFormNotificationsEditor notificationsEditor;
 	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
 	private CheckBox byInvitationOnly;
@@ -73,6 +76,9 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private ActionParameterComponentProvider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private EnquiryFormLayoutEditorTab layoutEditor;
+	//binder is only for targetCondition validation
+	private Binder<EnquiryForm> binder;
+	
 	
 	@Autowired
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -97,6 +103,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 			throws EngineException
 	{
 		this.copyMode = copyMode;
+		this.binder = new Binder<>(EnquiryForm.class);
 		initUI();
 		return this;
 	}
@@ -143,6 +150,13 @@ public class EnquiryFormEditor extends BaseFormEditor
 		{
 			throw new FormValidationException(e);
 		}
+		
+		if (!binder.isValid())
+		{
+			throw new FormValidationException();
+		}
+		
+		
 		return form;
 	}
 	
@@ -153,6 +167,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		
 		builder.withType(enquiryType.getValue());
 		builder.withTargetGroups(targetGroups.getSelectedGroups().toArray(new String[0]));
+		builder.withTargetCondition(targetCondition.getValue());
 		return builder;
 	}
 	
@@ -162,6 +177,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		notificationsEditor.setValue(toEdit.getNotificationsConfiguration());
 		enquiryType.setValue(toEdit.getType());
 		targetGroups.setSelectedGroups(Lists.newArrayList(toEdit.getTargetGroups()));
+		binder.setBean(toEdit);
 		
 		TranslationProfile profile = new TranslationProfile(
 				toEdit.getTranslationProfile().getName(), "",
@@ -211,9 +227,14 @@ public class EnquiryFormEditor extends BaseFormEditor
 		targetGroups.setInput("/", true);
 		targetGroups.setRequiredIndicatorVisible(true);
 		
+		targetCondition = new MVELExpressionField(msg, msg.getMessage("EnquiryFormEditor.targetCondition"),
+				msg.getMessage("MVELExpressionField.conditionDesc"));
+		
+		targetCondition.configureBinding(binder, "targetCondition", false);
+		
 		byInvitationOnly = new CheckBox(msg.getMessage("RegistrationFormEditor.byInvitationOnly"));
 		
-		main.addComponents(enquiryType, byInvitationOnly, targetGroups);
+		main.addComponents(enquiryType, byInvitationOnly, targetGroups, targetCondition);
 		
 		notificationsEditor.addToLayout(main);
 	}

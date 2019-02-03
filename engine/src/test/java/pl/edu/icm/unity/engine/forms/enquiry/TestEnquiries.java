@@ -213,7 +213,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void matchingEnquiryIsPending() throws Exception
+	public void matchingOnlyByTargetGroupEnquiryIsPending() throws Exception
 	{
 		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
 				CRED_REQ_PASS, EntityState.valid, false);
@@ -228,6 +228,24 @@ public class TestEnquiries extends DBIntegrationTestBase
 		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
 		
+		assertThat(pendingEnquires.size(), is(1));
+		assertThat(pendingEnquires.get(0), is(form));
+	}
+	
+	@Test
+	public void matchingByTargetConditionEnquiryIsPending() throws Exception
+	{
+		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
+				EntityState.valid, false);
+		EntityParam entityParam = new EntityParam(identity);
+		groupsMan.addMemberFromParent("/A", entityParam);
+		EnquiryForm form = new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
+				.withTargetCondition("status == \"valid\" && credReq == \"" + CRED_REQ_PASS + "\"")
+				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("tenquiry").build();
+		enquiryManagement.addEnquiry(form);
+
+		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
+
 		assertThat(pendingEnquires.size(), is(1));
 		assertThat(pendingEnquires.get(0), is(form));
 	}

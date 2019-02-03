@@ -33,6 +33,13 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 
 		return this;
 	}
+	
+	public EnquiryFormBuilder withTargetCondition(String aValue)
+	{
+		instance.setTargetCondition(aValue);
+
+		return this;
+	}
 
 	public EnquiryFormBuilder withType(EnquiryType aValue)
 	{

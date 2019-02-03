@@ -4,9 +4,12 @@
  */
 package pl.edu.icm.unity.engine.bulk;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,9 +26,11 @@ import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
+import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.bulkops.EntityMVELContextBuilder;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -38,6 +43,7 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 
 @Component
 @Primary
@@ -55,7 +61,7 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	public BulkQueryServiceImpl(AttributeStatementProcessor statementsHelper,
 			EntityCredentialsHelper credentialsHelper,
 			LocalCredentialsRegistry localCredReg,
-			CompositeEntitiesInfoProvider dataProvider, AuthorizationManager authz)
+			CompositeEntitiesInfoProvider dataProvider,AuthorizationManager authz)
 	{
 		this.statementsHelper = statementsHelper;
 		this.credentialsHelper = credentialsHelper;
@@ -67,10 +73,10 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 
 	@Transactional
 	@Override
-	public GroupMembershipData getBulkMembershipData(String group) throws EngineException
+	public GroupMembershipData getBulkMembershipData(String group, Optional<Set<Long>> filter) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
-		return dataProvider.getCompositeGroupContents(group);
+		return dataProvider.getCompositeGroupContents(group, filter);
 	}
 	
 
@@ -106,16 +112,57 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 		Map<Long, List<Identity>> identities = data.getIdentities();
 		Map<Long, Map<String, Map<String, AttributeExt>>> directAttributes = data.getDirectAttributes();
 		Map<Long, GroupMembershipInfo> ret = new HashMap<>();
-		
+
 		for (Long e : memberships.keySet())
-		{	
-			ret.put(e, new GroupMembershipInfo(e, identities.get(e), memberships.get(e), directAttributes.get(e)));
+		{
+			CredentialInfo credentialInfo = getCredentialInfo(e, data);
+			ret.put(e, new GroupMembershipInfo(data.getEntityInfo().get(e), identities.get(e),
+					memberships.get(e), directAttributes.get(e),
+					getEnquiryForms(e, data, credentialInfo), getCredentialInfo(e, data)));
 		}
-		
+
 		log.debug("Bulk members with groups: {}", watch.toString());
 		return ret;
 	}
 
+	private Set<String> getEnquiryForms(Long e, GroupMembershipDataImpl data, CredentialInfo credentialInfo)
+	{
+		Set<String> entityGroups = data.getMemberships().get(e);
+		Set<String> forms = new HashSet<>();
+
+		for (EnquiryForm enqForm : data.getEnquiryForms().values())
+		{
+			if (entityGroups.stream().anyMatch(Arrays.asList(enqForm.getTargetGroups())::contains))
+			{
+				Map<String, Object> context = EntityMVELContextBuilder.getContext(
+						data.getIdentities().get(e),
+						data.getEntityInfo().get(e).getEntityState().toString(),
+						credentialInfo.getCredentialRequirementId(),
+						data.getMemberships().get(e),
+						data.getDirectAttributes().get(e).get("/").values());
+				if (enqForm.getTargetCondition() == null || enqForm.getTargetCondition().isEmpty())
+				{
+					forms.add(enqForm.getName());
+					continue;
+				}
+
+				TranslationCondition condition = new TranslationCondition(enqForm.getTargetCondition());
+				try
+				{
+					if (condition.evaluate(context))
+					{
+						forms.add(enqForm.getName());
+					}
+				} catch (EngineException e1)
+				{
+					log.error("Cannot evaluate enquriy form target condition"
+							+ enqForm.getTargetCondition() + " for entity " + e);
+				}
+			}
+		}
+		return forms;
+	}
+	
 	@Override
 	public Map<Long, Entity> getGroupEntitiesNoContextWithTargeted(GroupMembershipData dataO)
 	{

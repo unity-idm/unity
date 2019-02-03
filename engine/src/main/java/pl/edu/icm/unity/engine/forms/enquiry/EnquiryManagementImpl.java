@@ -10,9 +10,11 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -24,6 +26,9 @@ import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
+import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -40,7 +45,6 @@ import pl.edu.icm.unity.engine.forms.RegistrationConfirmationSupport.Phase;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;
-import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
@@ -81,7 +85,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private SharedEnquiryManagment internalManagment;
 	private EntityResolver identitiesResolver;
 	private AttributesHelper dbAttributes;
-	private MembershipDAO dbShared;	
+	private BulkGroupQueryService bulkService;
 	
 	@Autowired
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
@@ -92,7 +96,8 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			EnquiryResponsePreprocessor enquiryResponseValidator,
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
 			SharedEnquiryManagment internalManagment, EntityResolver identitiesResolver,
-			AttributesHelper dbAttributes, MembershipDAO dbShared)
+			AttributesHelper dbAttributes,
+			BulkGroupQueryService bulkService)
 	{
 		this.enquiryFormDB = enquiryFormDB;
 		this.requestDB = requestDB;
@@ -107,7 +112,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		this.internalManagment = internalManagment;
 		this.identitiesResolver = identitiesResolver;
 		this.dbAttributes = dbAttributes;
-		this.dbShared = dbShared;
+		this.bulkService = bulkService;
 	}
 
 	@Transactional
@@ -136,12 +141,19 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			params.put(NewEnquiryTemplateDef.URL, 
 					PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryId, sharedEndpointMan));
 			
-			for (String group: form.getTargetGroups())
-				notificationProducer.sendNotificationToGroup(
-					group, 
-					notificationsCfg.getEnquiryToFillTemplate(),
-					params,
-					msg.getDefaultLocaleCode());
+			
+			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Optional.empty());
+			Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
+			
+			for (GroupMembershipInfo info : membershipInfo.values())
+			{
+				if (info.relevantEnquiryForm.contains(form.getName()))
+				{
+					notificationProducer.sendNotification(new EntityParam(info.entityInfo.getId()),
+							notificationsCfg.getEnquiryToFillTemplate(), params,
+							msg.getDefaultLocaleCode(), null, false);
+				}
+			}
 		}
 	}
 	
@@ -392,11 +404,13 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		Set<String> ignored = getEnquiresFromAttribute(entityId, 
 				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
 		ignored.addAll(getEnquiresFromAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
-		
-		Set<String> allGroups = dbShared.getEntityMembershipSimple(entityId);
-		
+	
+		GroupMembershipInfo entityInfo = getMemeberShipInfo(entityId);
+	
 		List<EnquiryForm> ret = new ArrayList<>();
-		for (EnquiryForm form: allForms)
+		if (entityInfo == null)
+			return ret;
+		for (EnquiryForm form : allForms)
 		{
 			if (ignored.contains(form.getName()))
 				continue;
@@ -404,7 +418,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				continue;
 			if (form.isByInvitationOnly())
 				continue;
-			if (isInTargetGroups(allGroups, form.getTargetGroups()))
+			if (entityInfo.relevantEnquiryForm.contains(form.getName()))
 				ret.add(form);
 		}
 		return ret;
@@ -417,27 +431,27 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		long entityId = identitiesResolver.getEntityId(entity);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
 		List<EnquiryForm> allForms = enquiryFormDB.getAll();
-		Set<String> allGroups = dbShared.getEntityMembershipSimple(entityId);
-
+		GroupMembershipInfo entityInfo = getMemeberShipInfo(entityId);
 		List<EnquiryForm> ret = new ArrayList<>();
+		if (entityInfo == null)
+			return ret;
 		for (EnquiryForm form : allForms)
 		{
 			if (form.isByInvitationOnly())
 				continue;
 			
-			if (form.getType().equals(EnquiryType.STICKY)
-					&& isInTargetGroups(allGroups, form.getTargetGroups()))
+			if (form.getType().equals(EnquiryType.STICKY) &&
+					entityInfo.relevantEnquiryForm.contains(form.getName()))
 				ret.add(form);
 		}
 		return ret;
 	}
-	
-	private boolean isInTargetGroups(Set<String> groups, String[] targetGroups)
+		
+	private GroupMembershipInfo getMemeberShipInfo(Long entity) throws EngineException
 	{
-		for (String targetGroup: targetGroups)
-			if (groups.contains(targetGroup))
-				return true;
-		return false;
+		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Optional.of(Sets.newSet(entity)));
+		Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);	
+		return membershipInfo.get(entity);	
 	}
 	
 	private Set<String> getEnquiresFromAttribute(long entityId, String attributeName) 

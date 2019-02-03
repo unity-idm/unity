@@ -8,11 +8,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -283,13 +281,9 @@ public class InvitationEditor extends CustomComponent
 			entity.setItems(Collections.emptyList());
 			return;
 		}
-		Set<String> formGroups = new HashSet<>(Arrays.asList(form.getTargetGroups()));
-
-		allEntities.entrySet().stream().filter(e -> e.getValue().groups.stream().anyMatch(formGroups::contains))
-				.forEach(e -> {
-					if (!availableEntities.containsKey(e.getKey()))
-						availableEntities.put(e.getKey(), getLabel(e.getValue()));
-				});
+		
+		allEntities.entrySet().stream().filter(e -> e.getValue().relevantEnquiryForm.contains(form.getName()))
+				.forEach(e -> availableEntities.put(e.getKey(), getLabel(e.getValue())));
 
 		List<Long> sortedEntities = availableEntities.keySet().stream().sorted().collect(Collectors.toList());
 		entity.setItems(sortedEntities);

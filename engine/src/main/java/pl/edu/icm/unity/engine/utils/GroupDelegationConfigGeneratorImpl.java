@@ -385,7 +385,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				new TranslationRule(ContextKey.validCode.toString() + " == true", a1),
 				new TranslationRule("true", a2));
 
-		TranslationProfile tp = new TranslationProfile("", "", ProfileType.REGISTRATION, rules);
+		TranslationProfile tp = new TranslationProfile("autoProfile" , "", ProfileType.REGISTRATION, rules);
 
 		return tp;
 	}

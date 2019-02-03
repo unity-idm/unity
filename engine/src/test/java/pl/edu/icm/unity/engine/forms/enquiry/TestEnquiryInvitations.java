@@ -75,10 +75,8 @@ public class TestEnquiryInvitations extends DBIntegrationTestBase
 	private TransactionalRunner txRunner;
 	@Autowired
 	private InvitationManagement invitationMan;
-
 	@Autowired
 	private EnquiryManagement enquiryMan;
-
 	@Autowired
 	private EnquiryResponsePreprocessor validator;
 
