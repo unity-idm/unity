@@ -17,6 +17,7 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
@@ -76,6 +77,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequests;
+	private CheckBox ignoreInvitations;
 	
 	private CheckBox publiclyAvailable;
 	private CheckBox byInvitationOnly;
@@ -147,10 +149,16 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
+		HorizontalLayout checkBoxWrapper = new HorizontalLayout();
+		checkBoxWrapper.setMargin(false);	
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		addComponent(ignoreRequests);
-		setComponentAlignment(ignoreRequests, Alignment.TOP_RIGHT);
+		ignoreInvitations = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreInvitation"));
+		checkBoxWrapper.addComponent(ignoreInvitations);
+		checkBoxWrapper.addComponent(ignoreRequests);
 		ignoreRequests.setVisible(false);
+		ignoreInvitations.setVisible(false);
+		addComponent(checkBoxWrapper);
+		setComponentAlignment(checkBoxWrapper, Alignment.TOP_RIGHT);
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
@@ -229,8 +237,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 		showGotoSignin.setValue(toEdit.isShowSignInLink());
 		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
 		signInUrl.setEnabled(showGotoSignin.getValue());
-		if (!copyMode)
+		if (!copyMode) {
 			ignoreRequests.setVisible(true);
+			ignoreInvitations.setVisible(true);
+		}
+			
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
 		remoteAuthnGridSelections.setItems(toEdit.getExternalSignupSpec().getSpecs());
 		remoteAuthnGridSelections.setSelectedItems(toEdit.getExternalSignupGridSpec().getSpecs());
@@ -429,5 +440,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
+	}
+	
+	public boolean isIgnoreInvitations()
+	{
+		return ignoreInvitations.getValue();
 	}
 }

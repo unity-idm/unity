@@ -26,7 +26,6 @@ import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -142,11 +141,11 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 		
 	}
 	
-	private boolean updateForm(EnquiryForm updatedForm, boolean ignoreRequests)
+	private boolean updateForm(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitations)
 	{
 		try
 		{
-			enquiriesManagement.updateEnquiry(updatedForm, ignoreRequests);
+			enquiriesManagement.updateEnquiry(updatedForm, ignoreRequests, ignoreInvitations);
 			bus.fireEvent(new EnquiryFormChangedEvent(updatedForm));
 			refresh();
 			return true;
@@ -220,22 +219,16 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 			editor = enquiryFormEditorFactory.getObject().init(false);
 		} catch (Exception e)
 		{
-			NotificationPopup.showError(msg, 
-					msg.getMessage("RegistrationFormsComponent.errorInFormEdit"), e);
+			NotificationPopup.showError(msg, msg.getMessage("RegistrationFormsComponent.errorInFormEdit"),
+					e);
 			return;
 		}
-		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, 
-				msg.getMessage("RegistrationFormsComponent.addAction"), new Callback()
-				{
-					@Override
-					public boolean newForm(EnquiryForm form, boolean foo)
-					{
-						return addForm(form);
-					}
-				}, editor);
+		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg,
+				msg.getMessage("RegistrationFormsComponent.addAction"),
+				(eform, foo, bar) -> addForm(eform), editor);
 		dialog.show();
 	}
-	
+
 	private SingleActionHandler<EnquiryForm> getResendAction()
 	{
 		return SingleActionHandler.builder(EnquiryForm.class)
@@ -293,15 +286,9 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 			return;
 		}
 		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, 
-				caption, new Callback()
-				{
-					@Override
-					public boolean newForm(EnquiryForm form, boolean ignoreRequests)
-					{
-						return isCopyMode ? addForm(form) :
-							updateForm(form, ignoreRequests);
-					}
-				}, editor);
+				caption,(eform, ignoreRequests, ignoreInvitations) ->  isCopyMode ? addForm(form)
+						: updateForm(form, ignoreRequests, ignoreInvitations)
+				, editor);
 		dialog.show();		
 	}
 	

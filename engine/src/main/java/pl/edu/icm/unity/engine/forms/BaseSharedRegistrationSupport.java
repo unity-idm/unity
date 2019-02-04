@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -43,6 +44,7 @@ import pl.edu.icm.unity.types.registration.CredentialParamValue;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.types.registration.UserRequestState;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
 /**
  * Implementation of the internal registration management. This is used
@@ -61,12 +63,14 @@ public class BaseSharedRegistrationSupport
 	protected GroupHelper groupHelper;
 	protected EntityCredentialsHelper credentialHelper;
 	protected InternalFacilitiesManagement facilitiesManagement;
+	private InvitationDB invitationDB;
 
 	public BaseSharedRegistrationSupport(UnityMessageSource msg,
 			NotificationProducer notificationProducer,
 			AttributesHelper attributesHelper, GroupHelper groupHelper,
 			EntityCredentialsHelper entityCredentialsHelper,
-			InternalFacilitiesManagement facilitiesManagement)
+			InternalFacilitiesManagement facilitiesManagement,
+			InvitationDB invitationDB)
 	{
 		this.msg = msg;
 		this.notificationProducer = notificationProducer;
@@ -74,6 +78,7 @@ public class BaseSharedRegistrationSupport
 		this.groupHelper = groupHelper;
 		this.credentialHelper = entityCredentialsHelper;
 		this.facilitiesManagement = facilitiesManagement;
+		this.invitationDB =  invitationDB;
 	}
 
 	protected void applyRequestedGroups(long entityId, Map<String, List<Attribute>> remainingAttributesByGroup,
@@ -292,5 +297,13 @@ public class BaseSharedRegistrationSupport
 					req.getStatus() == RegistrationRequestStatus.pending)
 				throw new SchemaConsistencyException("There are requests bound to " +
 						"this form, and it was not chosen to ignore them.");
+	}
+	
+	public void validateIfHasInvitations(String formId, InvitationType type) throws EngineException
+	{
+		if (invitationDB.getAll().stream().filter(i -> i.getInvitation().getType().equals(type)
+				&& i.getInvitation().getFormId().equals(formId)).count() > 0)
+			throw new SchemaConsistencyException("There are invitations created for "
+					+ "this form, and it was not chosen to ignore them.");
 	}
 }

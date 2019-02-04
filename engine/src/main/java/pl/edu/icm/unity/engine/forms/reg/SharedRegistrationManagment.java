@@ -42,6 +42,7 @@ import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.Identity;
@@ -87,11 +88,12 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			IdentityHelper identityHelper,
 			AttributeTypeHelper atHelper,
 			RegistrationConfirmationSupport confirmationsSupport,
-			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport)
+			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport,
+			InvitationDB invitationDB)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
-				entityCredentialsHelper, facilitiesManagement);
+				entityCredentialsHelper, facilitiesManagement, invitationDB);
 		this.requestDB = requestDB;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
 		this.registrationRequestValidator = registrationRequestValidator;

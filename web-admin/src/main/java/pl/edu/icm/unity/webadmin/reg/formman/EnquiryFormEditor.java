@@ -15,6 +15,7 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
@@ -64,6 +65,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequests;
+	private CheckBox ignoreInvitation;
 	
 	private EnumComboBox<EnquiryType> enquiryType;
 	private GroupsSelectionList targetGroups;
@@ -120,10 +122,18 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
+		
+		HorizontalLayout checkBoxWrapper = new HorizontalLayout();
+		checkBoxWrapper.setMargin(false);	
 		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		addComponent(ignoreRequests);
-		setComponentAlignment(ignoreRequests, Alignment.TOP_RIGHT);
+		ignoreInvitation = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreInvitation"));
+		checkBoxWrapper.addComponent(ignoreInvitation);
+		checkBoxWrapper.addComponent(ignoreRequests);
 		ignoreRequests.setVisible(false);
+		ignoreInvitation.setVisible(false);
+		addComponent(checkBoxWrapper);
+		setComponentAlignment(checkBoxWrapper, Alignment.TOP_RIGHT);
+		
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
@@ -187,7 +197,10 @@ public class EnquiryFormEditor extends BaseFormEditor
 		layoutSettingsEditor.setSettings(toEdit.getLayoutSettings());
 		layoutEditor.setLayout(toEdit.getLayout());
 		if (!copyMode)
+		{
 			ignoreRequests.setVisible(true);
+			ignoreInvitation.setVisible(true);
+		}
 		byInvitationOnly.setValue(toEdit.isByInvitationOnly());	
 	}
 	
@@ -316,5 +329,10 @@ public class EnquiryFormEditor extends BaseFormEditor
 	public boolean isIgnoreRequests()
 	{
 		return ignoreRequests.getValue();
+	}
+	
+	public boolean isIgnoreInvitations()
+	{
+		return ignoreInvitation.getValue();
 	}
 }

@@ -729,12 +729,13 @@ public class RESTAdmin
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
 	public void updateForm(@QueryParam("ignoreRequests") Boolean ignoreRequests,
-			String json) throws EngineException, IOException
+			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, String json)
+			throws EngineException, IOException
 	{
 		if (ignoreRequests == null)
 			ignoreRequests = false;
 		RegistrationForm form = new RegistrationForm(JsonUtil.parse(json));
-		registrationManagement.updateForm(form, ignoreRequests);
+		registrationManagement.updateForm(form, ignoreRequests, ignoreInvitations);
 	}
 	
 	@Path("/registrationRequests")

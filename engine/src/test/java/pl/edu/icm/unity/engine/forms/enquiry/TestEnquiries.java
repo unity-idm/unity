@@ -510,7 +510,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		}
 		try
 		{
-			enquiryManagement.updateEnquiry(form, true);
+			enquiryManagement.updateEnquiry(form, true, true);
 			fail("Updated the form with illegal " + msg);
 		} catch (Exception e) 
 		{

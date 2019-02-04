@@ -37,7 +37,6 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog;
-import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog.Callback;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditor;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditor;
@@ -136,7 +135,8 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		membershipUpdateEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
 				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"),
 				e -> generateUpdateEnquiryForm(),
-				e -> showUpdateEnquiryValidation(membershipUpdateEnquiryFormComboWithButtons.getValue()),
+				e -> showUpdateEnquiryValidation(
+						membershipUpdateEnquiryFormComboWithButtons.getValue()),
 				e -> showEnquiryFormEditDialog(membershipUpdateEnquiryFormComboWithButtons.getValue()));
 		reloadEnquiryForms();
 
@@ -201,7 +201,6 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		reloadEnquiryForms();
 		signupEnquiryFormComboWithButtons.setValue(form.getName());
 	}
-	
 
 	private void generateUpdateEnquiryForm()
 	{
@@ -287,7 +286,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		List<String> messages = configGenerator.validateJoinEnquiryForm(group.toString(), formName);
 		new ValidationResultDialog(msg, messages, formName).show();
 	}
-	
+
 	private void showUpdateEnquiryValidation(String formName)
 	{
 		List<String> messages = configGenerator.validateUpdateEnquiryForm(group.toString(), formName);
@@ -327,17 +326,18 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			return;
 		}
 		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, caption,
-				(form, ignoreRequests) -> {
-					return updateRegistrationForm(form, ignoreRequests);
+				(form, ignoreRequests, ignoreInvitations) -> {
+					return updateRegistrationForm(form, ignoreRequests, ignoreInvitations);
 				}, editor);
 		dialog.show();
 	}
 
-	private boolean updateRegistrationForm(RegistrationForm updatedForm, boolean ignoreRequests)
+	private boolean updateRegistrationForm(RegistrationForm updatedForm, boolean ignoreRequests,
+			boolean ignoreInvitations)
 	{
 		try
 		{
-			registrationMan.updateForm(updatedForm, ignoreRequests);
+			registrationMan.updateForm(updatedForm, ignoreRequests, ignoreInvitations);
 			bus.fireEvent(new RegistrationFormChangedEvent(updatedForm));
 			return true;
 		} catch (Exception e)
@@ -377,22 +377,19 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 					msg.getMessage("GroupDelegationEditConfigDialog.errorInFormEdit"), e);
 			return;
 		}
-		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, caption, new Callback()
-		{
-			@Override
-			public boolean newForm(EnquiryForm form, boolean ignoreRequests)
-			{
-				return updateEnquiryForm(form, ignoreRequests);
-			}
-		}, editor);
+		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, caption,
+
+				(form, ignoreRequests, ignoreInvitations) -> {
+					return updateEnquiryForm(form, ignoreRequests, ignoreInvitations);
+				}, editor);
 		dialog.show();
 	}
 
-	private boolean updateEnquiryForm(EnquiryForm updatedForm, boolean ignoreRequests)
+	private boolean updateEnquiryForm(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitations)
 	{
 		try
 		{
-			enquiryMan.updateEnquiry(updatedForm, ignoreRequests);
+			enquiryMan.updateEnquiry(updatedForm, ignoreRequests, ignoreInvitations);
 			bus.fireEvent(new EnquiryFormChangedEvent(updatedForm));
 			return true;
 		} catch (Exception e)
@@ -525,7 +522,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 				refreshButtons();
 			});
 			combo.addValueChangeListener(e -> fireEvent(e));
-		
+
 			refreshButtons();
 		}
 
@@ -580,8 +577,8 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 
 			if (messages.isEmpty())
 			{
-				Label l = new Label(
-						msg.getMessage("GroupDelegationEditConfigDialog.noneValidationWarns", formName));
+				Label l = new Label(msg.getMessage(
+						"GroupDelegationEditConfigDialog.noneValidationWarns", formName));
 				l.setStyleName(Styles.success.toString());
 				main.addComponent(l);
 			} else

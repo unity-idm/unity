@@ -55,6 +55,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
@@ -167,13 +168,16 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests) throws EngineException
+	public void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitation)
+			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		validateFormContents(updatedForm);
 		String formId = updatedForm.getName();
 		if (!ignoreRequests)
 			internalManagment.validateIfHasPendingRequests(formId, requestDB);
+		if (!ignoreInvitation)
+			internalManagment.validateIfHasInvitations(formId, InvitationType.ENQUIRY);
 		enquiryFormDB.update(updatedForm);
 	}
 	

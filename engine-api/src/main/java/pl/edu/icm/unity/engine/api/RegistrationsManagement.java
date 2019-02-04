@@ -43,7 +43,7 @@ public interface RegistrationsManagement
 	 * are any pending requests of the form.
 	 * @throws EngineException
 	 */
-	void updateForm(RegistrationForm updatedForm, boolean ignoreRequests) throws EngineException;
+	void updateForm(RegistrationForm updatedForm, boolean ignoreRequests, boolean ignoreInvitation) throws EngineException;
 	
 	/**
 	 * 

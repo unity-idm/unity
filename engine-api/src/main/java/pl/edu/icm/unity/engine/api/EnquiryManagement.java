@@ -50,7 +50,7 @@ public interface EnquiryManagement
 	 * @param updatedForm
 	 * @throws EngineException
 	 */
-	void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests) throws EngineException;
+	void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitation) throws EngineException;
 	
 	/**
 	 * Accepts, deletes or rejects a given enquiry response. The request can be freely modified at this time

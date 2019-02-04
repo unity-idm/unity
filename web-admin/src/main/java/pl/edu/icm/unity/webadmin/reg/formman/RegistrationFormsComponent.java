@@ -136,11 +136,11 @@ public class RegistrationFormsComponent extends VerticalLayout implements Activa
 		
 	}
 	
-	private boolean updateForm(RegistrationForm updatedForm, boolean ignoreRequests)
+	private boolean updateForm(RegistrationForm updatedForm, boolean ignoreRequests, boolean ignoreInvitations)
 	{
 		try
 		{
-			registrationsManagement.updateForm(updatedForm, ignoreRequests);
+			registrationsManagement.updateForm(updatedForm, ignoreRequests, ignoreInvitations);
 			bus.fireEvent(new RegistrationFormChangedEvent(updatedForm));
 			refresh();
 			return true;
@@ -208,7 +208,7 @@ public class RegistrationFormsComponent extends VerticalLayout implements Activa
 		}
 		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
 				msg.getMessage("RegistrationFormsComponent.addAction"), 
-				(form, isUpdate) -> addForm(form), editor);
+				(form, isIgnoreRequests, isIgnoreInvitations) -> addForm(form), editor);
 		dialog.show();
 	}
 	
@@ -252,9 +252,9 @@ public class RegistrationFormsComponent extends VerticalLayout implements Activa
 			return;
 		}
 		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
-				caption, (form, ignoreRequests) ->
+				caption, (form, ignoreRequests, ignoreInvitations) ->
 				{
-						return isCopyMode ? addForm(form) : updateForm(form, ignoreRequests);
+						return isCopyMode ? addForm(form) : updateForm(form, ignoreRequests, ignoreInvitations);
 				}, editor);
 		dialog.show();	
 	}

@@ -781,10 +781,9 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		if (hasPrefilledROSelected)
 		{
 			selection.setReadOnly(true);
-			List<Group> prefilled = GroupPatternMatcher.filterByIncludeGroupsMode(
-					GroupPatternMatcher.filterMatching(allMatchingGroups,
-							prefilledEntry.getEntry().getSelectedGroups()),
-					groupParam.getIncludeGroupsMode());
+			List<Group> prefilled = GroupPatternMatcher.filterMatching(allMatchingGroups,
+					prefilledEntry.getEntry().getSelectedGroups());
+
 			selection.setItems(prefilled);
 			selection.setSelectedItems(prefilled);
 			layout.addComponent(selection);

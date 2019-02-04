@@ -93,6 +93,7 @@ public class GroupHelper
 
 		GroupMembership param = new GroupMembership(path, entityId, creationTs, translationProfile, idp);
 		membershipDAO.create(param);
+		log.debug("Added entity " + entityId + " to group " + group.toString());
 	}
 	
 	public boolean isMember(long entityId, String path)

@@ -226,54 +226,43 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		
 		if (fromUser.isEmpty())
 		{
-			
-			for (Map.Entry<Integer, PrefilledEntry<GroupSelection>> entryFromInvitiation : fromInvitation.entrySet())
-			{
-				mergedGroups.put(entryFromInvitiation.getKey(),
-						filterByInvitationAndFormParamDef(allowedFromInvitiation, form, entryFromInvitiation.getKey(),
-								entryFromInvitiation.getValue().getEntry().getSelectedGroups(),
-								entryFromInvitiation.getValue().getMode()));
-			}
-			return mergedGroups;
+			return fromInvitation;	
 		}
 	
 		for (Map.Entry<Integer, PrefilledEntry<GroupSelection>> entryFromUser : fromUser.entrySet())
 		{
 			PrefilledEntry<GroupSelection> fromInvitationG = fromInvitation.get(entryFromUser.getKey());
 
-			if (fromInvitationG != null)
-			{
-				if (fromInvitationG.getMode().isInteractivelyEntered())
-				{
-					Set<String> mergedSet = new LinkedHashSet<>(
-							fromInvitationG.getEntry().getSelectedGroups());
-					mergedSet.addAll(entryFromUser.getValue().getEntry().getSelectedGroups());
-					mergedGroups.put(entryFromUser.getKey(),
-							filterByInvitationAndFormParamDef(allowedFromInvitiation, form,
-									entryFromUser.getKey(), mergedSet,
-									fromInvitationG.getMode()));
-
-				} else
-				{
-					mergedGroups.put(entryFromUser.getKey(),
-							filterByInvitationAndFormParamDef(allowedFromInvitiation, form,
-									entryFromUser.getKey(),
-									fromInvitationG.getEntry().getSelectedGroups(),
-									fromInvitationG.getMode()));
-				}
-			} else
+			if (fromInvitationG == null)
 			{
 				mergedGroups.put(entryFromUser.getKey(),
-						filterByInvitationAndFormParamDef(allowedFromInvitiation, form, entryFromUser.getKey(),
+						filterGroupByInvitationAllowedAndFormParamDef(allowedFromInvitiation,
+								form, entryFromUser.getKey(),
 								entryFromUser.getValue().getEntry().getSelectedGroups(),
 								entryFromUser.getValue().getMode()));
+				continue;
 			}
+
+			if (fromInvitationG.getMode().isInteractivelyEntered())
+			{
+				Set<String> mergedSet = new LinkedHashSet<>(
+						fromInvitationG.getEntry().getSelectedGroups());
+				mergedSet.addAll(entryFromUser.getValue().getEntry().getSelectedGroups());
+				mergedGroups.put(entryFromUser.getKey(),
+						filterGroupByInvitationAllowedAndFormParamDef(allowedFromInvitiation,
+								form, entryFromUser.getKey(), mergedSet,
+								fromInvitationG.getMode()));
+
+			} else
+			{
+				mergedGroups.put(entryFromUser.getKey(), fromInvitationG);
+			}
+
 		}
 		return mergedGroups;
 	}
 	
-	
-	private PrefilledEntry<GroupSelection> filterByInvitationAndFormParamDef(Map<Integer, GroupSelection> allowedFromInvitiation,
+	private PrefilledEntry<GroupSelection> filterGroupByInvitationAllowedAndFormParamDef(Map<Integer, GroupSelection> allowedFromInvitiation,
 			EnquiryForm form, int index, Collection<String> mergedGroups, PrefilledEntryMode targedMode)
 	{
 		GroupRegistrationParam param = form.getGroupParams().get(index);

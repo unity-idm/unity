@@ -45,6 +45,7 @@ import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.EnquiryTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.store.api.generic.EnquiryResponseDB;
+import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
@@ -86,10 +87,10 @@ public class SharedEnquiryManagment extends BaseSharedRegistrationSupport
 			InternalFacilitiesManagement facilitiesManagement,
 			RegistrationActionsRegistry registrationTranslationActionsRegistry,
 			EnquiryResponsePreprocessor responseValidator, AttributeTypeHelper atHelper,
-			RegistrationConfirmationSupport confirmationsSupport)
+			RegistrationConfirmationSupport confirmationsSupport, InvitationDB invitationDB)
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper, entityCredentialsHelper,
-				facilitiesManagement);
+				facilitiesManagement, invitationDB);
 		this.enquiryResponseDB = enquiryResponseDB;
 		this.dbIdentities = dbIdentities;
 		this.confirmationsRewriteSupport = confirmationsRewriteSupport;
