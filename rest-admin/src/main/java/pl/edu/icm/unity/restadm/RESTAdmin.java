@@ -734,6 +734,8 @@ public class RESTAdmin
 	{
 		if (ignoreRequests == null)
 			ignoreRequests = false;
+		if (ignoreInvitations == null)
+			ignoreInvitations = false;
 		RegistrationForm form = new RegistrationForm(JsonUtil.parse(json));
 		registrationManagement.updateForm(form, ignoreRequests, ignoreInvitations);
 	}

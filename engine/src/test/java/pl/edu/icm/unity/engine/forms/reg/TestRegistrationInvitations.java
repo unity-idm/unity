@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.engine.forms.reg;
 
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
 import java.time.Instant;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -17,9 +19,9 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
-import pl.edu.icm.unity.engine.forms.reg.RegistrationRequestPreprocessor;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.SchemaConsistencyException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
@@ -160,6 +162,24 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 		
 		InvitationWithCode returnedInvitation = invitationMan.getInvitation(code);
 		assertThat(returnedInvitation.getInvitation().getMessageParams().get("added"), is("param"));
+	}
+	
+	@Test
+	public void formWithnvitationCantBeUpdated() throws Exception
+	{
+		InvitationWithCode invitationWithCode = getAttributeInvitation();
+		InvitationParam invitation = invitationWithCode.getInvitation();
+		
+		RegistrationForm form = new RegistrationFormBuilder()
+				.withName("form")
+				.withPubliclyAvailable(true)
+				.withDefaultCredentialRequirement(
+						EngineInitialization.DEFAULT_CREDENTIAL_REQUIREMENT)
+				.build();
+		registrationsMan.addForm(form);
+		invitationMan.addInvitation(invitation);
+		Throwable exception = catchThrowable(() -> registrationsMan.updateForm(form, true, false));
+		Assertions.assertThat(exception).isNotNull().isInstanceOf(SchemaConsistencyException.class);	
 	}
 	
 	private RegistrationForm getIdentityForm(ConfirmationMode confirmationMode)
