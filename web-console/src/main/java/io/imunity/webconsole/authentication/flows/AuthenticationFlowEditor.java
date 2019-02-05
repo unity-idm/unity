@@ -5,6 +5,7 @@
 
 package io.imunity.webconsole.authentication.flows;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,23 +39,15 @@ class AuthenticationFlowEditor extends CustomComponent
 	{
 		name = new TextField(msg.getMessage("AuthenticationFlow.name"));
 		name.setWidth(100, Unit.PERCENTAGE);
-		
 		name.setValue(toEdit.flow.getName());
-	
+		
 		firstFactorAuthenticators = new ChipsWithDropdown<>(s -> s, true);
 		firstFactorAuthenticators.setCaption(msg.getMessage("AuthenticationFlow.firstFactorAuthenticators"));
 		firstFactorAuthenticators.setItems(authenticators);
-		if (toEdit.flow.getFirstFactorAuthenticators() != null) 
-		{
-			firstFactorAuthenticators.setSelectedItems(toEdit.flow.getFirstFactorAuthenticators().stream().collect(Collectors.toList()));
-		}
+		
 		secondFactorAuthenticators = new ChipsWithDropdown<>(s -> s, true);
 		secondFactorAuthenticators.setCaption(msg.getMessage("AuthenticationFlow.secondFactorAuthenticators"));
 		secondFactorAuthenticators.setItems(authenticators);
-		if (toEdit.flow.getSecondFactorAuthenticators() != null) 
-		{
-			secondFactorAuthenticators.setSelectedItems(toEdit.flow.getSecondFactorAuthenticators().stream().collect(Collectors.toList()));
-		}
 		
 		policy = new ComboBox<>(
 				msg.getMessage("AuthenticationFlow.policy"));
@@ -64,6 +57,11 @@ class AuthenticationFlowEditor extends CustomComponent
 			
 		binder = new Binder<>(AuthenticationFlowDefinition.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
+		binder.forField(firstFactorAuthenticators).withNullRepresentation(Collections.emptyList()).withConverter(
+				l -> l != null ? l.stream().collect(Collectors.toSet()) : null ,
+				s -> s != null ? s.stream().collect(Collectors.toList()) : null
+				).bind("firstFactorAuthenticators");
+		binder.forField(secondFactorAuthenticators).bind("secondFactorAuthenticators");
 		binder.forField(policy).bind("policy");
 		binder.setBean(toEdit.flow);
 	
@@ -98,9 +96,6 @@ class AuthenticationFlowEditor extends CustomComponent
 
 	public AuthenticationFlowDefinition getAuthenticationFlow()
 	{		
-		AuthenticationFlowDefinition def = binder.getBean();
-		def.setFirstFactorAuthenticators(firstFactorAuthenticators.getSelectedItems().stream().collect(Collectors.toSet()));
-		def.setSecondFactorAuthenticators(secondFactorAuthenticators.getSelectedItems());
-		return def;
+		return binder.getBean();
 	}
 }
