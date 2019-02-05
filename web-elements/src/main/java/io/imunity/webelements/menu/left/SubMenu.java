@@ -62,12 +62,13 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 				.withClickListener(e -> toggle());
 
 		content = new VerticalLayout();
+		content.setStyleName("menucontent");
 		content.setMargin(false);
 		content.setSpacing(false);
 		main.setMargin(false);
 		main.setSpacing(false);
 		main.addComponents(button, content);
-		main.setStyleName(SidebarStyles.subMenu.toString());
+		setStyleName(SidebarStyles.subMenu.toString());
 		menuElements = new HashMap<>();
 		setCompositionRoot(main);
 	}
@@ -109,19 +110,19 @@ public class SubMenu extends CustomComponent implements MenuElementContainer
 
 	public SubMenu open()
 	{
-		main.addStyleName(SidebarStyles.subMenuOpen.toString());
+		addStyleName(SidebarStyles.subMenuOpen.toString());
 		return this;
 	}
 
 	public SubMenu close()
 	{
-		main.removeStyleName(SidebarStyles.subMenuOpen.toString());
+		removeStyleName(SidebarStyles.subMenuOpen.toString());
 		return this;
 	}
 
 	public boolean isOpen()
 	{
-		return main.getStyleName().contains(SidebarStyles.subMenuOpen.toString());
+		return getStyleName().contains(SidebarStyles.subMenuOpen.toString());
 	}
 
 	@Override

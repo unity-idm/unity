@@ -39,12 +39,12 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 	{
 		this.navMan = navMan;
 		main = new HorizontalLayout();
-		main.setStyleName(SidebarStyles.breadcrumbs.toString());
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setHeightUndefined();
 		main.setMargin(false);
 		main.setSpacing(true);
 		setCompositionRoot(main);
+		setStyleName(SidebarStyles.breadcrumbs.toString());
 	}
 
 	public void adapt(ViewChangeEvent e, List<NavigationInfo> path)
