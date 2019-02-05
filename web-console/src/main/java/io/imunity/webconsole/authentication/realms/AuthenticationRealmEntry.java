@@ -15,7 +15,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  * @author P.Piernik
  *
  */
-public class AuthenticationRealmEntry
+class AuthenticationRealmEntry
 {
 	public final AuthenticationRealm realm;
 	public final List<String> endpoints;

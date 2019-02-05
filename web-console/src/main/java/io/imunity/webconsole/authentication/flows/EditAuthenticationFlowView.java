@@ -3,7 +3,9 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.authentication.realms;
+package io.imunity.webconsole.authentication.flows;
+
+import java.util.List;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +17,7 @@ import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.realms.AuthenticationRealmsView.RealmsNavigationInfoProvider;
+import io.imunity.webconsole.authentication.flows.AuthenticationFlowsView.FlowsNavigationInfoProvider;
 import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
@@ -28,24 +30,24 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Edit realm view
+ * Edit flow view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class EditAuthenticationRealmView extends CustomComponent implements UnityView
+public class EditAuthenticationFlowView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "EditAuthenticationRealm";
+	public static final String VIEW_NAME = "EditAuthenticationFlow";
 
-	private AuthenticationRealmController controller;
-	private AuthenticationRealmEditor editor;
+	private AuthenticationFlowsController controller;
+	private AuthenticationFlowEditor editor;
 	private UnityMessageSource msg;
-	private String realmName;
+	private String flowName;
 
 	@Autowired
-	public EditAuthenticationRealmView(UnityMessageSource msg,
-			AuthenticationRealmController controller)
+	public EditAuthenticationFlowView(UnityMessageSource msg,
+			AuthenticationFlowsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -60,7 +62,7 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 
 		try
 		{
-			if (!controller.updateRealm(editor.getAuthenticationRealm()))
+			if (!controller.updateFlow(editor.getAuthenticationFlow()))
 				return;
 		} catch (ControllerException e)
 		{
@@ -69,32 +71,43 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 			return;
 		}
 
-		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
 
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		realmName = NavigationHelper.getParam(event, CommonViewParam.name.toString());
-		AuthenticationRealmEntry realm;
+		flowName = NavigationHelper.getParam(event, CommonViewParam.name.toString());
+		AuthenticationFlowEntry flow;
 		try
 		{
-			realm = controller.getRealm(realmName);
+			flow = controller.getFlow(flowName);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+			return;
+		}
+		
+		List<String> allAuthenticators;
+		try
+		{
+			allAuthenticators = controller.getAllAuthenticators();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+			NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
 			return;
 		}
 
-		editor = new AuthenticationRealmEditor(msg, realm);
+		editor = new AuthenticationFlowEditor(msg, flow, allAuthenticators);
 		editor.editMode();
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
@@ -110,7 +123,7 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 	@Override
 	public String getDisplayedName()
 	{
-		return realmName;
+		return flowName;
 	}
 	
 	@Override
@@ -120,12 +133,12 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 	}
 
 	@org.springframework.stereotype.Component
-	public static class EditRealmViewInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class EditFlowViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public EditRealmViewInfoProvider(RealmsNavigationInfoProvider parent,
-				ObjectFactory<EditAuthenticationRealmView> factory)
+		public EditFlowViewInfoProvider(FlowsNavigationInfoProvider parent,
+				ObjectFactory<EditAuthenticationFlowView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)

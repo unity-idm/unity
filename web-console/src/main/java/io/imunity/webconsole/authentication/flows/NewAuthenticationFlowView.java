@@ -3,49 +3,51 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.authentication.realms;
+package io.imunity.webconsole.authentication.flows;
+
+import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.realms.AuthenticationRealmsView.RealmsNavigationInfoProvider;
+import io.imunity.webconsole.authentication.flows.AuthenticationFlowsView.FlowsNavigationInfoProvider;
 import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
+import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Edit realm view
+ * Add flow view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class EditAuthenticationRealmView extends CustomComponent implements UnityView
+public class NewAuthenticationFlowView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "EditAuthenticationRealm";
+	public static final String VIEW_NAME = "NewAuthenticationFlow";
 
-	private AuthenticationRealmController controller;
-	private AuthenticationRealmEditor editor;
+	private AuthenticationFlowsController controller;
+	private AuthenticationFlowEditor editor;
 	private UnityMessageSource msg;
-	private String realmName;
 
 	@Autowired
-	public EditAuthenticationRealmView(UnityMessageSource msg,
-			AuthenticationRealmController controller)
+	public NewAuthenticationFlowView(UnityMessageSource msg,
+			AuthenticationFlowsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -60,7 +62,7 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 
 		try
 		{
-			if (!controller.updateRealm(editor.getAuthenticationRealm()))
+			if (!controller.addFlow(editor.getAuthenticationFlow()))
 				return;
 		} catch (ControllerException e)
 		{
@@ -69,63 +71,68 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 			return;
 		}
 
-		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
 
+	}
+
+	private AuthenticationFlowEntry getDefaultAuthenticationFlow()
+	{
+		AuthenticationFlowDefinition bean = new AuthenticationFlowDefinition();
+		bean.setName(msg.getMessage("AuthenticationFlow.defaultName"));
+		bean.setPolicy(Policy.REQUIRE);
+		return new AuthenticationFlowEntry(bean, Collections.emptyList());
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		realmName = NavigationHelper.getParam(event, CommonViewParam.name.toString());
-		AuthenticationRealmEntry realm;
+		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		List<String> allAuthenticators;
 		try
 		{
-			realm = controller.getRealm(realmName);
+			allAuthenticators = controller.getAllAuthenticators();
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
 			return;
 		}
 
-		editor = new AuthenticationRealmEditor(msg, realm);
-		editor.editMode();
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
+		editor = new AuthenticationFlowEditor(msg, getDefaultAuthenticationFlow(), allAuthenticators);
 		main.addComponent(editor);
-		main.setWidth(44, Unit.EM);
-		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
-				msg.getMessage("close"), () -> onConfirm(), () -> onCancel());
+		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
+				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());
 		main.addComponent(hl);
-		main.setComponentAlignment(hl, Alignment.BOTTOM_CENTER);
 		setCompositionRoot(main);
+
 	}
 
 	@Override
 	public String getDisplayedName()
 	{
-		return realmName;
+		return msg.getMessage("new");
 	}
-	
+
 	@Override
 	public String getViewName()
 	{
 		return VIEW_NAME;
 	}
-
+	
 	@org.springframework.stereotype.Component
-	public static class EditRealmViewInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class NewRealmNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public EditRealmViewInfoProvider(RealmsNavigationInfoProvider parent,
-				ObjectFactory<EditAuthenticationRealmView> factory)
+		public NewRealmNavigationInfoProvider(FlowsNavigationInfoProvider parent,
+				ObjectFactory<NewAuthenticationFlowView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
 					Type.ParameterizedView)

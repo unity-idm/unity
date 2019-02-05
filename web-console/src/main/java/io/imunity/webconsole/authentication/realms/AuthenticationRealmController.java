@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @Component
-public class AuthenticationRealmController
+class AuthenticationRealmController
 {
 	private RealmsManagement realmMan;
 	private UnityMessageSource msg;

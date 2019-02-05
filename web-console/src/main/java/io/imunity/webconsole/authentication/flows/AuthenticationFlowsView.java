@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.authentication.realms;
+package io.imunity.webconsole.authentication.flows;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -43,27 +43,26 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Lists all realms
+ * Lists all flows
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class AuthenticationRealmsView extends CustomComponent implements UnityView
+public class AuthenticationFlowsView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "AuthenticationRealms";
+	public static final String VIEW_NAME = "Flows";
 
-	private AuthenticationRealmController realmsMan;
+	private AuthenticationFlowsController flowsMan;
 	private UnityMessageSource msg;
-	private ListOfElementsWithActions<AuthenticationRealmEntry> realmsList;
+	private ListOfElementsWithActions<AuthenticationFlowEntry> flowsList;
+	
 	
 	@Autowired
-	public AuthenticationRealmsView(UnityMessageSource msg,
-			AuthenticationRealmController realmsMan)
+	public AuthenticationFlowsView(UnityMessageSource msg, AuthenticationFlowsController flowsMan)
 	{
-		this.realmsMan = realmsMan;
 		this.msg = msg;
-		
+		this.flowsMan = flowsMan;
 	}
 
 	@Override
@@ -75,19 +74,19 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		newRealm.setCaption(msg.getMessage("add"));
 		newRealm.addStyleName("u-button-action");
 		newRealm.addClickListener(e -> {
-			getUI().getNavigator().navigateTo(NewAuthenticationRealmView.VIEW_NAME);
+			getUI().getNavigator().navigateTo(NewAuthenticationFlowView.VIEW_NAME);
 		});
 		buttonsBar.addComponent(newRealm);
 		buttonsBar.setComponentAlignment(newRealm, Alignment.MIDDLE_RIGHT);
 		buttonsBar.setWidth(100, Unit.PERCENTAGE);
 		
-		SingleActionHandler<AuthenticationRealmEntry> edit = SingleActionHandler
-				.builder4Edit(msg, AuthenticationRealmEntry.class)
+		SingleActionHandler<AuthenticationFlowEntry> edit = SingleActionHandler
+				.builder4Edit(msg, AuthenticationFlowEntry.class)
 				.withHandler(r -> gotoEdit(r.iterator().next()))
 				.build();
 
-		SingleActionHandler<AuthenticationRealmEntry> remove = SingleActionHandler
-				.builder4Delete(msg, AuthenticationRealmEntry.class).withHandler(r -> {
+		SingleActionHandler<AuthenticationFlowEntry> remove = SingleActionHandler
+				.builder4Delete(msg, AuthenticationFlowEntry.class).withHandler(r -> {
 
 					tryRemove(r.iterator().next());
 
@@ -95,25 +94,25 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 
 				).build();
 		
-		realmsList = new ListOfElementsWithActions<>(
-				Arrays.asList(new Column<>(msg.getMessage("AuthenticationRealm.nameCaption"),
+		flowsList = new ListOfElementsWithActions<>(
+				Arrays.asList(new Column<>(msg.getMessage("AuthenticationFlow.nameCaption"),
 						r -> getEditButton(r), 1),
-						new Column<>(msg.getMessage("AuthenticationRealm.endpointsCaption"),
+						new Column<>(msg.getMessage("AuthenticationFlow.endpointsCaption"),
 								r -> new Label(String.join(", ", r.endpoints)), 4)),
 				new ActionColumn<>(msg.getMessage("actions"), Arrays.asList(edit, remove), 0,
 						Position.Right)
 		);
 		
-		realmsList.setAddSeparatorLine(true);
+		flowsList.setAddSeparatorLine(true);
 
-		for (AuthenticationRealmEntry realm : getRealms())
+		for (AuthenticationFlowEntry flow : getFlows())
 		{
-			realmsList.addEntry(realm);
+			flowsList.addEntry(flow);
 		}
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
-		main.addComponent(realmsList);
+		main.addComponent(flowsList);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 
@@ -121,23 +120,23 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	}
 
 	
-	private void gotoEdit(AuthenticationRealmEntry e)
+	private void gotoEdit(AuthenticationFlowEntry e)
 	{
 		NavigationHelper.goToView(
-				EditAuthenticationRealmView.VIEW_NAME + "/"
+				EditAuthenticationFlowView.VIEW_NAME + "/"
 						+ CommonViewParam.name.toString()
 						+ "="
-						+ e.realm.getName());
+						+ e.flow.getName());
 	}
 	
-	private HorizontalLayout getEditButton(AuthenticationRealmEntry e)
+	private HorizontalLayout getEditButton(AuthenticationFlowEntry e)
 	{
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setSpacing(false);
 		layout.setMargin(false);
 		layout.setWidth(100, Unit.PERCENTAGE);
 		Button button = new Button();
-		button.setCaption(e.realm.getName());		
+		button.setCaption(e.flow.getName());		
 		button.addStyleName(Styles.vButtonLink.toString());
 		button.addStyleName(Styles.vBorderLess.toString());
 		button.addClickListener(ev -> gotoEdit(e));
@@ -146,11 +145,11 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		return layout;
 	}
 	
-	private Collection<AuthenticationRealmEntry> getRealms()
+	private Collection<AuthenticationFlowEntry> getFlows()
 	{
 		try
 		{
-			return realmsMan.getRealms();
+			return flowsMan.getFlows();
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -158,33 +157,33 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		return Collections.emptyList();
 	}
 
-	private void remove(AuthenticationRealmEntry realm)
+	private void remove(AuthenticationFlowEntry flow)
 	{
 		try
 		{
-			if (realmsMan.removeRealm(realm.realm))
-				realmsList.removeEntry(realm);
+			if (flowsMan.removeFlow(flow.flow))
+				flowsList.removeEntry(flow);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
 		}
 	}
 
-	private void tryRemove(AuthenticationRealmEntry realm)
+	private void tryRemove(AuthenticationFlowEntry flow)
 	{
 
 		String confirmText = MessageUtils.createConfirmFromStrings(msg,
-				Sets.newHashSet(realm.realm.getName()));
+				Sets.newHashSet(flow.flow.getName()));
 		new ConfirmDialog(msg,
-				msg.getMessage("AuthenticationRealmsView.confirmDelete", confirmText),
-				() -> remove(realm)).show();
-
+				msg.getMessage("AuthenticationFlowsView.confirmDelete", confirmText),
+				() -> remove(flow)).show();
 	}
+
 
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.authentication.realms");
+		return msg.getMessage("WebConsoleMenu.authentication.flows");
 	}
 	
 	@Override
@@ -194,22 +193,22 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	}
 
 	@Component
-	public static class RealmsNavigationInfoProvider
-			extends WebConsoleNavigationInfoProviderBase
+	public static class FlowsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public RealmsNavigationInfoProvider(UnityMessageSource msg,
+		public FlowsNavigationInfoProvider(UnityMessageSource msg,
 				AuthenticationNavigationInfoProvider parent,
-				ObjectFactory<AuthenticationRealmsView> factory)
+				ObjectFactory<AuthenticationFlowsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
 					.withCaption(msg.getMessage(
-							"WebConsoleMenu.authentication.realms"))
+							"WebConsoleMenu.authentication.flows"))
 					.build());
 
 		}
 	}
+
 }

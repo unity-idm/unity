@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.authentication.EndpointController;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
+import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
@@ -23,23 +24,56 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Controller for all authentication flow view
+ * 
  * @author P.Piernik
  *
  */
 @Component
-public class AuthenticationFlowsController
+class AuthenticationFlowsController
 {
 	private AuthenticationFlowManagement flowMan;
+	private AuthenticatorManagement authMan;
 	private UnityMessageSource msg;
 	private EndpointController endpointController;
 
 	@Autowired
-	public AuthenticationFlowsController(AuthenticationFlowManagement flowMan, UnityMessageSource msg,
+	public AuthenticationFlowsController(AuthenticationFlowManagement flowMan, AuthenticatorManagement authMan, UnityMessageSource msg,
 			EndpointController endpointController)
 	{
 		this.flowMan = flowMan;
+		this.authMan = authMan;
 		this.msg = msg;
 		this.endpointController = endpointController;
+	}
+	
+	public List<String> getAllAuthenticators() throws ControllerException
+	{
+		try
+		{
+			return authMan.getAuthenticators(null).stream().map(i -> i.getId())
+					.collect(Collectors.toList());
+		} catch (EngineException e)
+		{
+			throw new ControllerException(
+					msg.getMessage("AuthenticationFlowsController.getAuthenticatorsError"),
+					e.getMessage(), e);
+		}
+	}
+
+	public boolean addFlow(AuthenticationFlowDefinition flow) throws ControllerException
+
+	{
+		try
+		{
+			flowMan.addAuthenticationFlow(flow);
+		} catch (Exception e)
+		{
+			throw new ControllerException(
+					msg.getMessage("AuthenticationFlowsController.addError", flow.getName()),
+					e.getMessage(), e);
+		}
+
+		return true;
 	}
 
 	public boolean updateFlow(AuthenticationFlowDefinition flow) throws ControllerException
@@ -74,7 +108,7 @@ public class AuthenticationFlowsController
 		return true;
 	}
 
-	public Collection<AuthenticationFlowEntry> getRealms() throws ControllerException
+	public Collection<AuthenticationFlowEntry> getFlows() throws ControllerException
 	{
 
 		List<AuthenticationFlowEntry> ret = new ArrayList<>();
@@ -87,7 +121,7 @@ public class AuthenticationFlowsController
 			throw new ControllerException(msg.getMessage("AuthenticationFlowsController.getAllError"),
 					e.getMessage(), e);
 		}
-		List<ResolvedEndpoint> endpoints =endpointController.getEndpoints();
+		List<ResolvedEndpoint> endpoints = endpointController.getEndpoints();
 
 		for (AuthenticationFlowDefinition flow : flows)
 		{

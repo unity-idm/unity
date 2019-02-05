@@ -38,7 +38,6 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 @PrototypeComponent
 public class NewAuthenticationRealmView extends CustomComponent implements UnityView
 {
-
 	public static final String VIEW_NAME = "NewAuthenticationRealm";
 
 	private AuthenticationRealmController controller;
@@ -104,7 +103,6 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());
 		main.addComponent(hl);
 		setCompositionRoot(main);
-
 	}
 
 	@Override

@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.common.DescriptionTextArea;
  * @author P.Piernik
  *
  */
-public class AuthenticationRealmEditor extends CustomComponent
+class AuthenticationRealmEditor extends CustomComponent
 {
 
 	private Binder<AuthenticationRealm> binder;
@@ -37,7 +37,6 @@ public class AuthenticationRealmEditor extends CustomComponent
 	private IntStepper maxInactivity;
 	private IntStepper allowForRememberMeDays;
 	private ComboBox<RememberMePolicy> rememberMePolicy;
-	private Label endpoints;
 
 	public AuthenticationRealmEditor(UnityMessageSource msg, AuthenticationRealmEntry toEdit)
 	{
@@ -75,7 +74,7 @@ public class AuthenticationRealmEditor extends CustomComponent
 		maxInactivity.setMaxValue(99999);
 		maxInactivity.setWidth(5, Unit.EM);
 
-		endpoints = new Label();
+		Label endpoints = new Label();
 		endpoints.setCaption(msg.getMessage("AuthenticationRealm.endpoints"));
 		endpoints.setWidth(100, Unit.PERCENTAGE);
 		endpoints.setValue(String.join(", ", toEdit.endpoints));
@@ -103,7 +102,11 @@ public class AuthenticationRealmEditor extends CustomComponent
 		mainLayout.setMargin(false);
 
 		mainLayout.addComponents(name, description, blockAfterUnsuccessfulLogins, blockFor, 
-				rememberMePolicy, allowForRememberMeDays, maxInactivity, endpoints);
+				rememberMePolicy, allowForRememberMeDays, maxInactivity);
+		if (!toEdit.endpoints.isEmpty())
+		{
+			mainLayout.addComponent(endpoints);
+		}
 		setCompositionRoot(mainLayout);
 		setWidth(100, Unit.PERCENTAGE);
 	}

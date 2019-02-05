@@ -15,7 +15,7 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
  * @author P.Piernik
  *
  */
-public class AuthenticationFlowEntry
+class AuthenticationFlowEntry
 {
 	public final AuthenticationFlowDefinition flow;
 	public final List<String> endpoints;
