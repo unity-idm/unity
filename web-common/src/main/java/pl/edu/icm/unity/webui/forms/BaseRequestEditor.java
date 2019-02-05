@@ -124,6 +124,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private TextArea comment;
 	private Map<String, AttributeType> atTypes;
 	private Map<String, CredentialDefinition> credentials;
+	private boolean containReadOnlyValues = false;
+	private boolean containHiddenValues = false;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -633,25 +635,35 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		PrefilledEntry<IdentityParam> prefilledEntry = fromInvitation.get(index);
 
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
 		{
 			ReadOnlyField readOnlyField = new ReadOnlyField(prefilledEntry.getEntry().getValue(), 
 					formWidth(), formWidthUnit());
 			layout.addComponent(readOnlyField);
+			containReadOnlyValues = true;
 		} else if (!idParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 		{
 			if (!idParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
+			{
 				return false;
+			}
 			IdentityTaV id = remoteIdentitiesByType.get(idParam.getIdentityType());
 			if (id == null)
 				return false;
 			
 			ReadOnlyField readOnlyField = new ReadOnlyField(id.getValue(), formWidth(), formWidthUnit());
 			layout.addComponent(readOnlyField);
+			containReadOnlyValues = true;
 		} else
 		{
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
@@ -692,12 +704,22 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		AttributeType aType = atTypes.get(aParam.getAttributeType());
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
+		{
+			containHiddenValues = true;
 			return false;
+		}
+			
 		if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive &&
 				rattr != null)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		
 		CompositeLayoutAdapter layoutAdapter = new CompositeLayoutAdapter(layout);
 		layoutAdapter.setOffset(layout.getComponentCount());
@@ -712,6 +734,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					aType, readOnlyAttribute, false, context);
 			ComponentsGroup componentsGroup = viewer.getComponentsGroup();
 			layoutAdapter.addContainer(componentsGroup);
+			containReadOnlyValues = true;
 		} else
 		{
 			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 
@@ -764,9 +787,15 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		PrefilledEntry<GroupSelection> prefilledEntry = prefillFromInvitation.get(index);
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		
 		boolean hasPrefilledROSelected = prefilledEntry != null && 
 				prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY;
@@ -787,12 +816,14 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			selection.setItems(prefilled);
 			selection.setSelectedItems(prefilled);
 			layout.addComponent(selection);
+			containReadOnlyValues = true;
 		} else if (hasAutomaticRO)
 		{
 			selection.setReadOnly(true);
 			selection.setItems(remotelySelected);
 			selection.setSelectedItems(remotelySelected);
 			layout.addComponent(selection);
+			containReadOnlyValues = true;
 		} else
 		{
 			if (groupParam.getDescription() != null)
@@ -888,6 +919,16 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				|| !agreementSelectors.isEmpty()
 				|| !credentialParamEditors.isEmpty()
 				|| form.isCollectComments();
+	}
+	
+	public boolean hasReadOnlyValues()
+	{
+		return containReadOnlyValues;
+	}
+	
+	public boolean hasHiddenValues()
+	{
+		return containHiddenValues;
 	}
 	
 	protected boolean isEmpty(String str)

@@ -286,8 +286,8 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 			return;
 		}
 		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, 
-				caption,(eform, ignoreRequests, ignoreInvitations) ->  isCopyMode ? addForm(form)
-						: updateForm(form, ignoreRequests, ignoreInvitations)
+				caption,(eform, ignoreRequests, ignoreInvitations) ->  isCopyMode ? addForm(eform)
+						: updateForm(eform, ignoreRequests, ignoreInvitations)
 				, editor);
 		dialog.show();		
 	}

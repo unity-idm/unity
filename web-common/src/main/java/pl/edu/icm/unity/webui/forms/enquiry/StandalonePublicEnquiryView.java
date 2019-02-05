@@ -5,11 +5,8 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -30,22 +27,18 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
-import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
@@ -53,7 +46,6 @@ import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 import pl.edu.icm.unity.webui.forms.FormsInvitationHelper;
@@ -85,16 +77,14 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private EnquiryForm form;
 	private EnquiryResponseEditor editor;
-	private GroupsManagement groupMan;
 	
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg,@Qualifier("insecure") GroupsManagement groupMan)
+			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg)
 	{
 		this.editorController = editorController;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
-		this.groupMan = groupMan;
 		this.msg = msg;
 	}
 
@@ -160,23 +150,27 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 		if (!editor.isUserInteractionRequired())
 		{
-			if (prefilled.isEmpty())
+			//auto submit, we have only hidden values
+			if (editor.hasHiddenValues() && !editor.hasReadOnlyValues())
 			{
+				
+					WorkflowFinalizationConfiguration config = submit(form, editor);
+					gotoFinalStep(config);
+					return;
+				
+			}
+			
+			//empty form, not applicable
+			if (!editor.hasHiddenValues() && !editor.hasReadOnlyValues())
+			{
+				
 				WorkflowFinalizationConfiguration config = editorController
 						.getFinalizationHandler(form)
 						.getFinalRegistrationConfigurationNonSubmit(false, null,
 								TriggeringState.NOT_APPLICABLE_ENQUIRY);
 				gotoFinalStep(config);
-				return;
-			}
-			//Auto submit, we have only hidden preffiled  values
-			else if (prefilled.containsValuesOnlyWithMode(PrefilledEntryMode.HIDDEN))
-			{	
-				WorkflowFinalizationConfiguration config = submit(form, editor);
-				gotoFinalStep(config);
-				return;
-			}
-
+				
+			}		
 		}
 		//user interaction or invitation read only values
 		showEditorContent(editor);
@@ -235,11 +229,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 			if (fromInvitationG == null)
 			{
-				mergedGroups.put(entryFromUser.getKey(),
-						filterGroupByInvitationAllowedAndFormParamDef(allowedFromInvitiation,
-								form, entryFromUser.getKey(),
-								entryFromUser.getValue().getEntry().getSelectedGroups(),
-								entryFromUser.getValue().getMode()));
+				mergedGroups.put(entryFromUser.getKey(),entryFromUser.getValue());
 				continue;
 			}
 
@@ -248,11 +238,9 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 				Set<String> mergedSet = new LinkedHashSet<>(
 						fromInvitationG.getEntry().getSelectedGroups());
 				mergedSet.addAll(entryFromUser.getValue().getEntry().getSelectedGroups());
-				mergedGroups.put(entryFromUser.getKey(),
-						filterGroupByInvitationAllowedAndFormParamDef(allowedFromInvitiation,
-								form, entryFromUser.getKey(), mergedSet,
-								fromInvitationG.getMode()));
-
+				mergedGroups.put(entryFromUser.getKey(), new PrefilledEntry<GroupSelection>(new GroupSelection(
+						mergedSet.stream().collect(Collectors.toList())),
+						entryFromUser.getValue().getMode()));
 			} else
 			{
 				mergedGroups.put(entryFromUser.getKey(), fromInvitationG);
@@ -262,33 +250,6 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		return mergedGroups;
 	}
 	
-	private PrefilledEntry<GroupSelection> filterGroupByInvitationAllowedAndFormParamDef(Map<Integer, GroupSelection> allowedFromInvitiation,
-			EnquiryForm form, int index, Collection<String> mergedGroups, PrefilledEntryMode targedMode)
-	{
-		GroupRegistrationParam param = form.getGroupParams().get(index);
-		if (param == null)
-		{
-			return new PrefilledEntry<GroupSelection>(new GroupSelection(
-					Collections.emptyList()),
-					targedMode);
-		}
-		
-		List<Group> allMatchingGroups = groupMan.getGroupsByWildcard(param.getGroupPath());
-		List<Group> filterMergedMatching = GroupPatternMatcher.filterByIncludeGroupsMode(
-				GroupPatternMatcher.filterMatching(allMatchingGroups, mergedGroups),
-				param.getIncludeGroupsMode());
-
-		GroupSelection allowedGroup = allowedFromInvitiation.get(index);
-		if (allowedGroup != null && !allowedGroup.getSelectedGroups().isEmpty())
-		{
-			filterMergedMatching = GroupPatternMatcher.filterMatching(filterMergedMatching,
-					allowedGroup.getSelectedGroups());
-		}
-		return new PrefilledEntry<GroupSelection>(new GroupSelection(
-				filterMergedMatching.stream().map(g -> g.toString()).collect(Collectors.toList())),
-				targedMode);
-	}
-
 	private InvitationParam getInvitationByCode(String registrationCode) throws RegCodeException
 	{
 		if (registrationCode == null)
