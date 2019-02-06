@@ -81,7 +81,8 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	@Override
 	public GroupMembershipData getBulkMembershipData(String group) throws EngineException
 	{
-		return getBulkMembershipData(group);
+		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
+		return dataProvider.getCompositeGroupContents(group, Optional.empty());
 	}
 	
 	@Transactional
