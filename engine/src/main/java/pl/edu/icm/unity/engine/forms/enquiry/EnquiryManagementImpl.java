@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import org.mockito.internal.util.collections.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -97,6 +98,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,
 			SharedEnquiryManagment internalManagment, EntityResolver identitiesResolver,
 			AttributesHelper dbAttributes,
+			@Qualifier("insecure")
 			BulkGroupQueryService bulkService)
 	{
 		this.enquiryFormDB = enquiryFormDB;
