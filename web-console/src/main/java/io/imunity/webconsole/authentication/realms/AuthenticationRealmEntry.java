@@ -17,10 +17,10 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
  */
 class AuthenticationRealmEntry
 {
-	public final AuthenticationRealm realm;
-	public final List<String> endpoints;
+	final AuthenticationRealm realm;
+	final List<String> endpoints;
 
-	public AuthenticationRealmEntry(AuthenticationRealm realm, List<String> endpoints)
+	AuthenticationRealmEntry(AuthenticationRealm realm, List<String> endpoints)
 	{
 		this.realm = realm;
 		this.endpoints = Collections.unmodifiableList(endpoints == null ? Collections.emptyList() : endpoints);

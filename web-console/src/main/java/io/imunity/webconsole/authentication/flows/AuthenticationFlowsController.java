@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.authentication.EndpointController;
+import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -37,7 +37,7 @@ class AuthenticationFlowsController
 	private EndpointController endpointController;
 
 	@Autowired
-	public AuthenticationFlowsController(AuthenticationFlowManagement flowMan, AuthenticatorManagement authMan, UnityMessageSource msg,
+	AuthenticationFlowsController(AuthenticationFlowManagement flowMan, AuthenticatorManagement authMan, UnityMessageSource msg,
 			EndpointController endpointController)
 	{
 		this.flowMan = flowMan;
@@ -46,7 +46,7 @@ class AuthenticationFlowsController
 		this.endpointController = endpointController;
 	}
 	
-	public List<String> getAllAuthenticators() throws ControllerException
+	List<String> getAllAuthenticators() throws ControllerException
 	{
 		try
 		{
@@ -60,7 +60,7 @@ class AuthenticationFlowsController
 		}
 	}
 
-	public boolean addFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	boolean addFlow(AuthenticationFlowDefinition flow) throws ControllerException
 
 	{
 		try
@@ -76,7 +76,7 @@ class AuthenticationFlowsController
 		return true;
 	}
 
-	public boolean updateFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	boolean updateFlow(AuthenticationFlowDefinition flow) throws ControllerException
 
 	{
 		try
@@ -92,7 +92,7 @@ class AuthenticationFlowsController
 		return true;
 	}
 
-	public boolean removeFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	boolean removeFlow(AuthenticationFlowDefinition flow) throws ControllerException
 	{
 		try
 		{
@@ -108,7 +108,7 @@ class AuthenticationFlowsController
 		return true;
 	}
 
-	public Collection<AuthenticationFlowEntry> getFlows() throws ControllerException
+	Collection<AuthenticationFlowEntry> getFlows() throws ControllerException
 	{
 
 		List<AuthenticationFlowEntry> ret = new ArrayList<>();
@@ -132,7 +132,7 @@ class AuthenticationFlowsController
 
 	}
 
-	public AuthenticationFlowEntry getFlow(String flowName) throws ControllerException
+	AuthenticationFlowEntry getFlow(String flowName) throws ControllerException
 	{
 		List<ResolvedEndpoint> endpoints = endpointController.getEndpoints();
 

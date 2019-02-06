@@ -17,10 +17,10 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
  */
 class AuthenticationFlowEntry
 {
-	public final AuthenticationFlowDefinition flow;
-	public final List<String> endpoints;
+	final AuthenticationFlowDefinition flow;
+	final List<String> endpoints;
 
-	public AuthenticationFlowEntry(AuthenticationFlowDefinition flow, List<String> endpoints)
+	AuthenticationFlowEntry(AuthenticationFlowDefinition flow, List<String> endpoints)
 	{
 		this.flow = flow;
 		this.endpoints = Collections.unmodifiableList(endpoints == null ? Collections.emptyList() : endpoints);

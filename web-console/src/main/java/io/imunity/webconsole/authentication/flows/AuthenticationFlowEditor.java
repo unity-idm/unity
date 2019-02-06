@@ -35,7 +35,7 @@ class AuthenticationFlowEditor extends CustomComponent
 	private Binder<AuthenticationFlowDefinition> binder;
 	private ComboBox<Policy> policy;
 	
-	public AuthenticationFlowEditor(UnityMessageSource msg, AuthenticationFlowEntry toEdit, List<String> authenticators)
+	AuthenticationFlowEditor(UnityMessageSource msg, AuthenticationFlowEntry toEdit, List<String> authenticators)
 	{
 		name = new TextField(msg.getMessage("AuthenticationFlow.name"));
 		name.setWidth(100, Unit.PERCENTAGE);
@@ -84,17 +84,17 @@ class AuthenticationFlowEditor extends CustomComponent
 		setWidth(100, Unit.PERCENTAGE);
 	}
 
-	public void editMode()
+	void editMode()
 	{
 		name.setReadOnly(true);
 	}
 
-	public boolean hasErrors()
+	boolean hasErrors()
 	{
 		return binder.validate().hasErrors();
 	}
 
-	public AuthenticationFlowDefinition getAuthenticationFlow()
+	AuthenticationFlowDefinition getAuthenticationFlow()
 	{		
 		return binder.getBean();
 	}

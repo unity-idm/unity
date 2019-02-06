@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.authentication.EndpointController;
+import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -35,7 +35,7 @@ class AuthenticationRealmController
 	private EndpointController endpointController;
 
 	@Autowired
-	public AuthenticationRealmController(UnityMessageSource msg, RealmsManagement realmMan,
+	AuthenticationRealmController(UnityMessageSource msg, RealmsManagement realmMan,
 			EndpointController endpointController)
 	{
 		this.realmMan = realmMan;
@@ -43,8 +43,7 @@ class AuthenticationRealmController
 		this.endpointController = endpointController;
 	}
 
-	public boolean addRealm(AuthenticationRealm realm) throws ControllerException
-
+	boolean addRealm(AuthenticationRealm realm) throws ControllerException
 	{
 		try
 		{
@@ -59,7 +58,7 @@ class AuthenticationRealmController
 		return true;
 	}
 
-	public boolean updateRealm(AuthenticationRealm realm) throws ControllerException
+	boolean updateRealm(AuthenticationRealm realm) throws ControllerException
 
 	{
 		try
@@ -75,7 +74,7 @@ class AuthenticationRealmController
 		return true;
 	}
 
-	public boolean removeRealm(AuthenticationRealm realm) throws ControllerException
+	boolean removeRealm(AuthenticationRealm realm) throws ControllerException
 	{
 		try
 		{
@@ -91,7 +90,7 @@ class AuthenticationRealmController
 		return true;
 	}
 
-	public Collection<AuthenticationRealmEntry> getRealms() throws ControllerException
+	Collection<AuthenticationRealmEntry> getRealms() throws ControllerException
 	{
 
 		List<AuthenticationRealmEntry> ret = new ArrayList<>();
@@ -115,7 +114,7 @@ class AuthenticationRealmController
 
 	}
 
-	public AuthenticationRealmEntry getRealm(String realmName) throws ControllerException
+	AuthenticationRealmEntry getRealm(String realmName) throws ControllerException
 	{
 		List<ResolvedEndpoint> endpoints =  endpointController.getEndpoints();
 

@@ -4,7 +4,7 @@
  */
 
 
-package io.imunity.webconsole.authentication;
+package io.imunity.webconsole.common;
 
 import java.util.List;
 

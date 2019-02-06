@@ -38,7 +38,7 @@ class AuthenticationRealmEditor extends CustomComponent
 	private IntStepper allowForRememberMeDays;
 	private ComboBox<RememberMePolicy> rememberMePolicy;
 
-	public AuthenticationRealmEditor(UnityMessageSource msg, AuthenticationRealmEntry toEdit)
+	AuthenticationRealmEditor(UnityMessageSource msg, AuthenticationRealmEntry toEdit)
 	{
 		name = new TextField(msg.getMessage("AuthenticationRealm.name"));
 		name.setWidth(100, Unit.PERCENTAGE);
@@ -111,17 +111,17 @@ class AuthenticationRealmEditor extends CustomComponent
 		setWidth(100, Unit.PERCENTAGE);
 	}
 
-	public void editMode()
+	void editMode()
 	{
 		name.setReadOnly(true);
 	}
 
-	public boolean hasErrors()
+	boolean hasErrors()
 	{
 		return binder.validate().hasErrors();
 	}
 
-	public AuthenticationRealm getAuthenticationRealm()
+	AuthenticationRealm getAuthenticationRealm()
 	{
 		return binder.getBean();
 	}
