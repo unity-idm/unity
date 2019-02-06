@@ -6,11 +6,14 @@ package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
@@ -20,7 +23,10 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
+import pl.edu.icm.unity.engine.api.registration.RequestedGroupDiff;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
@@ -51,6 +57,7 @@ public class RequestReviewPanelBase extends CustomComponent
 	private AttributeHandlerRegistry handlersRegistry;
 	private UserRequestState<?> requestState;
 	private IdentityTypesRegistry idTypesRegistry;
+	private GroupsManagement groupMan;
 	
 	private ListOfSelectableElements attributes;
 	private ListOfSelectableElements groups;
@@ -64,13 +71,15 @@ public class RequestReviewPanelBase extends CustomComponent
 	private Panel identitiesP;
 	private IdentityFormatter idFormatter;
 	
+	
 	public RequestReviewPanelBase(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter)
+			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		this.idTypesRegistry = idTypesRegistry;
 		this.idFormatter = idFormatter;
+		this.groupMan = groupMan;
 	}
 	
 	protected void addStandardComponents(Layout main, String groupsTitle)
@@ -214,7 +223,7 @@ public class RequestReviewPanelBase extends CustomComponent
 		groupsPanel.setVisible(!groups.isEmpty());
 	}
 	
-	protected String getGroupDisplayedName(GroupsManagement groupMan, String path)
+	private String getGroupDisplayedName(GroupsManagement groupMan, String path)
 	{
 		try
 		{
@@ -224,6 +233,58 @@ public class RequestReviewPanelBase extends CustomComponent
 			log.warn("Can not get group displayed name for group " + path);
 			return path;
 		}
+	}
+	
+	protected List<Component> getGroupEntries(UserRequestState<?> requestState, BaseForm form,
+			List<Group> allUserGroups, boolean showRemoved)
+	{
+		List<Component> groupEntries = new ArrayList<>();
+		BaseRegistrationInput request = requestState.getRequest();
+
+		for (int i = 0; i < request.getGroupSelections().size(); i++)
+		{
+			GroupSelection selection = request.getGroupSelections().get(i);
+			if (form.getGroupParams().size() <= i)
+				break;
+			HorizontalLayout wrapper = new HorizontalLayout();
+			wrapper.setSpacing(false);
+			wrapper.setMargin(false);
+			if (selection.getExternalIdp() != null)
+				wrapper.addComponent(new Label("[from: " + selection.getExternalIdp() + "]"));
+			wrapper.addComponent(getSingleGroupEntryComponent(
+					GroupDiffUtils.getSingleGroupDiff(groupMan.getGroupsByWildcard("/**"),
+							allUserGroups, selection, form.getGroupParams().get(i)),
+					showRemoved));
+			groupEntries.add(wrapper);
+		}
+		return groupEntries;
+	}
+
+	private Component getSingleGroupEntryComponent(RequestedGroupDiff diff, boolean showRemoved)
+	{
+		HorizontalLayout main = new HorizontalLayout();
+		main.setSpacing(true);
+		main.setMargin(false);
+
+		addGroupLabel(main, diff.toAdd, Styles.success.toString());
+
+		if (showRemoved)
+		{
+			addGroupLabel(main, diff.toRemove, Styles.error.toString());
+		}
+
+		addGroupLabel(main, diff.remain, Styles.bold.toString());
+
+		return main;
+	}
+
+	private void addGroupLabel(HorizontalLayout layout, Set<String> value, String style)
+	{
+		if (value == null || value.isEmpty())
+			return;
+		Label l = new Label(value.stream().sorted().map(g-> getGroupDisplayedName(groupMan, g)).collect(Collectors.toList()).toString());
+		l.setStyleName(style);
+		layout.addComponent(l);
 	}
 	
 }

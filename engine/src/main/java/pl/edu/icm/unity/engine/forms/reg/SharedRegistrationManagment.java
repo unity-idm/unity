@@ -7,6 +7,7 @@ package pl.edu.icm.unity.engine.forms.reg;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +25,9 @@ import com.google.common.collect.Lists;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
+import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
 import pl.edu.icm.unity.engine.api.registration.RequestSubmitStatus;
+import pl.edu.icm.unity.engine.api.registration.RequestedGroupDiff;
 import pl.edu.icm.unity.engine.api.translation.form.GroupParam;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest;
@@ -42,6 +45,7 @@ import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.engine.translation.form.RegistrationTranslationProfile;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.RuntimeEngineException;
+import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationRequestDB;
 import pl.edu.icm.unity.types.basic.Attribute;
@@ -74,6 +78,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 	private AttributeTypeHelper atHelper;
 	private RegistrationConfirmationSupport confirmationsSupport;
 	private AutomaticInvitationProcessingSupport autoInvitationProcessingSupport;
+	private GroupDAO groupDB;
 
 	@Autowired
 	public SharedRegistrationManagment(UnityMessageSource msg,
@@ -89,7 +94,8 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			AttributeTypeHelper atHelper,
 			RegistrationConfirmationSupport confirmationsSupport,
 			AutomaticInvitationProcessingSupport autoInvitationProcessingSupport,
-			InvitationDB invitationDB)
+			InvitationDB invitationDB,
+			GroupDAO groupDB)
 			
 	{
 		super(msg, notificationProducer, attributesHelper, groupHelper,
@@ -102,6 +108,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		this.atHelper = atHelper;
 		this.confirmationsSupport = confirmationsSupport;
 		this.autoInvitationProcessingSupport = autoInvitationProcessingSupport;
+		this.groupDB = groupDB;
 	}
 
 	/**
@@ -134,7 +141,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		List<Attribute> requestedAttributes = Lists.newArrayList(translatedRequest.getAttributes());
 		
 		autoInvitationProcessingSupport.autoProcessInvitationsAndCollectData(
-				currentRequest, translatedRequest, groupParamByPath, requestedAttributes);
+				currentRequest, translatedRequest, groupParamByPath, requestedAttributes, form.getTranslationProfile().getName());
 		
 		List<Attribute> rootAttributes = new ArrayList<>(translatedRequest.getAttributes().size());
 		Map<String, List<Attribute>> remainingAttributesByGroup = new HashMap<>();
@@ -157,8 +164,17 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 			IdentityParam idParam = identitiesIterator.next();
 			identityHelper.insertIdentity(idParam, initial.getEntityId(), false);
 		}
+		
+		RequestedGroupDiff diff = GroupDiffUtils.getAllRequestedGroupsDiff(groupDB.getAll(),
+				Collections.emptyList(), currentRequest.getRequest().getGroupSelections(),
+				form.getGroupParams());
 
-		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, groupParamByPath.values(), null);
+		List<GroupParam> toAdd = groupParamByPath.values().stream()
+				.filter(p -> diff.toAdd.contains(p.getGroup()))
+				.collect(Collectors.toList());
+		toAdd.addAll(groupParamByPath.values().stream().filter(g -> g.getTranslationProfile() != null).collect(Collectors.toList()));
+		
+		applyRequestedGroups(initial.getEntityId(), remainingAttributesByGroup, toAdd, null);
 		applyRequestedAttributeClasses(translatedRequest.getAttributeClasses(), initial.getEntityId());		
 		applyRequestedCredentials(currentRequest, initial.getEntityId());
 		
@@ -175,6 +191,7 @@ public class SharedRegistrationManagment extends BaseSharedRegistrationSupport
 		
 		return initial.getEntityId();
 	}
+	
 
 	public void dropRequest(String id) throws EngineException
 	{

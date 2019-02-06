@@ -69,14 +69,14 @@ class AutomaticInvitationProcessingSupport
 
 	void autoProcessInvitationsAndCollectData(RegistrationRequestState currentRequest,
 			TranslatedRegistrationRequest translatedRequest, Map<String, GroupParam> groupParamByPath,
-			List<Attribute> requestedAttributes) throws EngineException
+			List<Attribute> requestedAttributes, String profileName) throws EngineException
 	{
 		AutomaticInvitationProcessingParam invitationProcessing = translatedRequest.getInvitationProcessing();
 		if (invitationProcessing == null)
 			return;
 		
 		CollectedFromInvitationsContainer collectedFromInvitations = collectAttributesAndGroupsFromInvitations(
-				currentRequest, translatedRequest);
+				currentRequest, translatedRequest, profileName);
 		
 		Set<String> groupsAdded = Sets.newHashSet();
 		for (GroupParam group : collectedFromInvitations.groups)
@@ -118,7 +118,7 @@ class AutomaticInvitationProcessingSupport
 	}
 
 	private CollectedFromInvitationsContainer collectAttributesAndGroupsFromInvitations(RegistrationRequestState currentRequest, 
-			TranslatedRegistrationRequest translatedRequest) throws EngineException
+			TranslatedRegistrationRequest translatedRequest, String profileName) throws EngineException
 	{
 		NotificationFacility facility = facilitiesManagement.getNotificationFacilityForChannel(
 				UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL);
@@ -146,7 +146,7 @@ class AutomaticInvitationProcessingSupport
 			}
 			List<Attribute> prefilledAttrs = RegistrationUtil.getPrefilledAndHiddenAttributes(invitation, invitationRegistrationForm);
 			collected.attributes.addAll(prefilledAttrs);
-			List<GroupParam> prefilledGroups = RegistrationUtil.getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm);
+			List<GroupParam> prefilledGroups = RegistrationUtil.getPrefilledAndHiddenGroups(invitation, invitationRegistrationForm, profileName);
 			collected.groups.addAll(prefilledGroups);
 			collected.registrationCodes.add(invitationWithCode.getRegistrationCode());
 		}

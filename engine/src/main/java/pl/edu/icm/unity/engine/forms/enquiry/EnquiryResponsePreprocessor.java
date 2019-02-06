@@ -111,9 +111,8 @@ public class EnquiryResponsePreprocessor extends BaseRequestPreprocessor
 				invitation.getAttributes(), "attribute", null,
 				invitationInfo::setPrefilledAttribute);
 		processInvitationElements(form.getGroupParams(), response.getGroupSelections(), 
-				invitation.getGroupSelections(), "group", null,
+				filterValueReadOnlyAndHiddenGroupFromInvitation(invitation.getGroupSelections(), form.getGroupParams()), "group", null,
 				i -> {});
 		return invitationInfo;
 	}
-
 }

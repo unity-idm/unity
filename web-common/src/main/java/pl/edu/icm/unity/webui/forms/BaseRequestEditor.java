@@ -810,20 +810,31 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		if (hasPrefilledROSelected)
 		{
 			selection.setReadOnly(true);
-			List<Group> prefilled = GroupPatternMatcher.filterMatching(allMatchingGroups,
-					prefilledEntry.getEntry().getSelectedGroups());
-
-			selection.setItems(prefilled);
-			selection.setSelectedItems(prefilled);
-			layout.addComponent(selection);
-			containReadOnlyValues = true;
+			List<Group> prefilled = GroupPatternMatcher.filterByIncludeGroupsMode(
+					GroupPatternMatcher.filterMatching(allMatchingGroups,
+							prefilledEntry.getEntry().getSelectedGroups()),
+					groupParam.getIncludeGroupsMode());
+			
+			if (!prefilled.isEmpty())
+			{
+				selection.setItems(prefilled);
+				selection.setSelectedItems(prefilled);
+				layout.addComponent(selection);
+				containReadOnlyValues = true;
+			}
 		} else if (hasAutomaticRO)
 		{
-			selection.setReadOnly(true);
-			selection.setItems(remotelySelected);
-			selection.setSelectedItems(remotelySelected);
-			layout.addComponent(selection);
-			containReadOnlyValues = true;
+			List<Group> remotelySelectedFiltered = GroupPatternMatcher
+					.filterByIncludeGroupsMode(remotelySelected, groupParam.getIncludeGroupsMode());
+			if (!remotelySelectedFiltered.isEmpty())
+			{
+				selection.setReadOnly(true);
+				selection.setItems(remotelySelectedFiltered);
+				selection.setSelectedItems(remotelySelectedFiltered);
+				layout.addComponent(selection);
+				containReadOnlyValues = true;
+			}
+
 		} else
 		{
 			if (groupParam.getDescription() != null)

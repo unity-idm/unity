@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.forms;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class BaseRequestPreprocessor
 	@Autowired
 	private AttributeTypeDAO dbAttributes;
 	@Autowired
-	private GroupDAO dbGroups;
+	protected GroupDAO dbGroups;
 	@Autowired
 	private AttributesHelper attributesHelper;
 	@Autowired
@@ -444,6 +445,38 @@ public class BaseRequestPreprocessor
 				prefilledRecorder.accept(invitationPrefilledEntry.getKey());
 			}
 		}
+	}
+	
+	public Map<Integer, PrefilledEntry<GroupSelection>> filterValueReadOnlyAndHiddenGroupFromInvitation(
+			Map<Integer, PrefilledEntry<GroupSelection>> org, List<GroupRegistrationParam> formGroupParams)
+	{
+		List<Group> all = dbGroups.getAll();
+
+		Map<Integer, PrefilledEntry<GroupSelection>> ret = new HashMap<>();
+		for (Map.Entry<Integer, PrefilledEntry<GroupSelection>> fromInvintation : org.entrySet())
+		{
+			GroupRegistrationParam formGroupParam = formGroupParams.get(fromInvintation.getKey());
+			if (fromInvintation.getValue().getMode().equals(PrefilledEntryMode.DEFAULT)
+					|| formGroupParam == null)
+			{
+				ret.put(fromInvintation.getKey(), fromInvintation.getValue());
+			}
+
+			List<String> allowedFilteredByMode = GroupPatternMatcher
+					.filterByIncludeGroupsMode(GroupPatternMatcher.filterMatching(GroupPatternMatcher.filterMatching(all,
+							formGroupParam.getGroupPath()),
+							fromInvintation.getValue().getEntry().getSelectedGroups()),
+							formGroupParam.getIncludeGroupsMode())
+					.stream().map(g -> g.toString()).collect(Collectors.toList());
+			log.debug("Filter hidden/readOnly group values from invitation:"
+					+ fromInvintation.getValue().getEntry().getSelectedGroups() + " -> "
+					+ allowedFilteredByMode);
+			ret.put(fromInvintation.getKey(),
+					new PrefilledEntry<GroupSelection>(new GroupSelection(allowedFilteredByMode),
+							fromInvintation.getValue().getMode()));
+		}
+
+		return ret;
 	}
 	
 }

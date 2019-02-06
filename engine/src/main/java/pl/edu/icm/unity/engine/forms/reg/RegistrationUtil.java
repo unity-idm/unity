@@ -69,7 +69,7 @@ class RegistrationUtil
 	}
 
 	static List<GroupParam> getPrefilledAndHiddenGroups(InvitationParam invitation,
-			RegistrationForm invitationRegistrationForm)
+			RegistrationForm invitationRegistrationForm, String profileName)
 	{
 		List<GroupParam> prefilledGroups = Lists.newArrayList();
 		
@@ -83,7 +83,7 @@ class RegistrationUtil
 					&& !prefilled.getEntry().getSelectedGroups().isEmpty())
 			{
 				for (String group: prefilled.getEntry().getSelectedGroups())
-					prefilledGroups.add(new GroupParam(group, null, null));
+					prefilledGroups.add(new GroupParam(group, null, profileName));
 			}
 		}
 		return prefilledGroups;

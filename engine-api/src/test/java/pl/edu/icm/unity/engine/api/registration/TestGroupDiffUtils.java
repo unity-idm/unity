@@ -31,7 +31,7 @@ public class TestGroupDiffUtils
 		GroupRegistrationParam param = new GroupRegistrationParam();
 		param.setGroupPath("/**");
 
-		RequestedGroupDiff diff = GroupDiffUtils.getSingleGroupDiff(getUsersGroup(),
+		RequestedGroupDiff diff = GroupDiffUtils.getSingleGroupDiff(getAllGroups(), getUsersGroup(),
 				new GroupSelection(Lists.newArrayList()), param);
 
 		assertThat(diff.remain.size(), is(1));
@@ -47,7 +47,7 @@ public class TestGroupDiffUtils
 		GroupRegistrationParam param = new GroupRegistrationParam();
 		param.setGroupPath("/A/**");
 
-		RequestedGroupDiff diff = GroupDiffUtils.getSingleGroupDiff(getUsersGroup(),
+		RequestedGroupDiff diff = GroupDiffUtils.getSingleGroupDiff(getAllGroups() ,getUsersGroup(),
 				new GroupSelection(Lists.newArrayList("/A", "/A/AA")), param);
 
 		assertThat(diff.remain.size(), is(1));
@@ -79,7 +79,7 @@ public class TestGroupDiffUtils
 		userGroups.add(new Group("/B"));
 		userGroups.add(new Group("/B/CC"));
 
-		RequestedGroupDiff diff = GroupDiffUtils.getAllRequestedGroupsDiff(userGroups, groupSelections,
+		RequestedGroupDiff diff = GroupDiffUtils.getAllRequestedGroupsDiff(getAllGroups(),userGroups, groupSelections,
 				Arrays.asList(param1, param2));
 
 		assertThat(diff.remain.size(), is(2));
@@ -95,5 +95,11 @@ public class TestGroupDiffUtils
 	private List<Group> getUsersGroup()
 	{
 		return Arrays.asList(new Group("/"), new Group("/A"), new Group("/A/B"));
+	}
+	
+	private List<Group> getAllGroups()
+	{
+		return Arrays.asList(new Group("/"), new Group("/A"), new Group("/B"), new Group("/A/B"), new Group("/A/AA"),
+				new Group("/A/AB"), new Group("/B/BB"), new Group("/B/CC"));
 	}
 }

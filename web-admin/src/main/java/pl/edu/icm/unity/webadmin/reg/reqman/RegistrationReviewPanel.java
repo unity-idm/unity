@@ -4,9 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,7 +18,6 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
@@ -37,14 +35,13 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 {
 	private RegistrationRequestState requestState;
 	private Label code;
-	private GroupsManagement groupMan;
 	
 	@Autowired
 	public RegistrationReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
 			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan)
 	{
-		super(msg, handlersRegistry, idTypesRegistry, idFormatter);
-		this.groupMan = groupMan;
+		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan);
+		
 		initUI();
 	}
 	
@@ -81,20 +78,6 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 
 	private List<Component> getGroupEntries(RegistrationRequestState requestState, RegistrationForm form)
 	{
-		List<Component> groupEntries = new ArrayList<>();
-		RegistrationRequest request = requestState.getRequest();
-		for (int i = 0; i < request.getGroupSelections().size(); i++)
-		{
-			GroupSelection selection = request.getGroupSelections().get(i);
-			if (form.getGroupParams().size() <= i)
-				break;
-			String selGroups = selection.getSelectedGroups().stream().sorted()
-					.map(g -> getGroupDisplayedName(groupMan, g)).collect(Collectors.toList())
-					.toString();
-			String groupEntry = selection.getExternalIdp() == null ? selGroups
-					: "[from: " + selection.getExternalIdp() + "] " + selGroups;
-			groupEntries.add(new Label(groupEntry));
-		}
-		return groupEntries;
+		return super.getGroupEntries(requestState, form, Arrays.asList(), false);
 	}
 }
