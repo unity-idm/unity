@@ -440,7 +440,7 @@ public class RESTAdmin
 		log.debug("getGroupMembersResolved query for " + group);
 		if (!group.startsWith("/"))
 			group = "/" + group;
-		GroupMembershipData bulkMembershipData = bulkQueryService.getBulkMembershipData(group, Optional.empty());
+		GroupMembershipData bulkMembershipData = bulkQueryService.getBulkMembershipData(group);
 		Map<Long, Map<String, AttributeExt>> userAttributes = 
 				bulkQueryService.getGroupUsersAttributes(group, bulkMembershipData);
 		Map<Long, Entity> entitiesData = bulkQueryService.getGroupEntitiesNoContextWithoutTargeted(bulkMembershipData);

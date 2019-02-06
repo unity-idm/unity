@@ -112,7 +112,7 @@ public class ProjectInvitationsManagementImpl implements ProjectInvitationsManag
 
 	private Long getEntityByContactAddress(String contactAddress) throws EngineException
 	{
-		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Optional.empty());
+		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
 		Map<Long, GroupMembershipInfo> members = bulkService.getMembershipInfo(bulkMembershipData);
 
 		for (GroupMembershipInfo info : members.values())

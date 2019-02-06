@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -55,13 +54,13 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.registration.AdminComment;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationContext;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
 /**
  * Implementation of the enquiry management API.
@@ -143,7 +142,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 					PublicRegistrationURLSupport.getWellknownEnquiryLink(enquiryId, sharedEndpointMan));
 			
 			
-			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Optional.empty());
+			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
 			Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
 			
 			for (GroupMembershipInfo info : membershipInfo.values())
@@ -409,7 +408,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 				EnquiryAttributeTypesProvider.FILLED_ENQUIRES);
 		ignored.addAll(getEnquiresFromAttribute(entityId, EnquiryAttributeTypesProvider.IGNORED_ENQUIRES));
 	
-		GroupMembershipInfo entityInfo = getMemeberShipInfo(entityId);
+		GroupMembershipInfo entityInfo = getMemebershipInfo(entityId);
 	
 		List<EnquiryForm> ret = new ArrayList<>();
 		if (entityInfo == null)
@@ -435,7 +434,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		long entityId = identitiesResolver.getEntityId(entity);
 		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
 		List<EnquiryForm> allForms = enquiryFormDB.getAll();
-		GroupMembershipInfo entityInfo = getMemeberShipInfo(entityId);
+		GroupMembershipInfo entityInfo = getMemebershipInfo(entityId);
 		List<EnquiryForm> ret = new ArrayList<>();
 		if (entityInfo == null)
 			return ret;
@@ -451,9 +450,9 @@ public class EnquiryManagementImpl implements EnquiryManagement
 		return ret;
 	}
 		
-	private GroupMembershipInfo getMemeberShipInfo(Long entity) throws EngineException
+	private GroupMembershipInfo getMemebershipInfo(Long entity) throws EngineException
 	{
-		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Optional.of(Sets.newSet(entity)));
+		GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Sets.newSet(entity));
 		Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);	
 		return membershipInfo.get(entity);	
 	}

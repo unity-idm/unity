@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -316,7 +315,7 @@ public class InvitationsTable extends CustomComponent
 	
 	private Map<Long, GroupMembershipInfo> getEntities() throws EngineException
 	{
-		GroupMembershipData bulkMembershipData = bulkQuery.getBulkMembershipData("/", Optional.empty());
+		GroupMembershipData bulkMembershipData = bulkQuery.getBulkMembershipData("/");
 		return bulkQuery.getMembershipInfo(bulkMembershipData);
 	}
 	

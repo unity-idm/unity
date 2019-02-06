@@ -11,7 +11,6 @@ import static org.junit.Assert.assertThat;
 import static pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider.AUTHORIZATION_ROLE;
 
 import java.util.Map;
-import java.util.Optional;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
+import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -36,7 +36,6 @@ import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.basic.AttributeStatement.ConflictResolution;
 
 public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 {
@@ -55,7 +54,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A", entity);
 		
 		
-		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A", Optional.empty());
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A");
 		Map<Long, Entity> result = bulkService.getGroupEntitiesNoContextWithTargeted(bulkData);
 		
 		assertThat(result.size(), is(1));
@@ -86,7 +85,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saInA);
 		
 		
-		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A", Optional.empty());
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/A");
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/A", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
 		
@@ -121,7 +120,7 @@ public class BulkGroupQueryServiceImplTest extends DBIntegrationTestBase
 		attrsMan.createAttribute(entity, saRoot);
 		
 		
-		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/example", Optional.empty());
+		GroupMembershipData bulkData = bulkService.getBulkMembershipData("/example");
 		Map<Long, Map<String, AttributeExt>> resultInA = bulkService.getGroupUsersAttributes("/example", bulkData);
 		Map<Long, Map<String, AttributeExt>> resultInRoot = bulkService.getGroupUsersAttributes("/", bulkData);
 		

@@ -7,7 +7,6 @@ package pl.edu.icm.unity.webadmin.identities;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +46,7 @@ class EntitiesLoader
 	{
 		Stopwatch watch = Stopwatch.createStarted();
 		
-		GroupMembershipData bulkData = bulkQueryService.getBulkMembershipData(group, Optional.empty());
+		GroupMembershipData bulkData = bulkQueryService.getBulkMembershipData(group);
 		Map<Long, Entity> groupEntities = includeTargeted ? 
 				bulkQueryService.getGroupEntitiesNoContextWithTargeted(bulkData) : 
 				bulkQueryService.getGroupEntitiesNoContextWithoutTargeted(bulkData);

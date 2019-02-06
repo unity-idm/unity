@@ -7,7 +7,6 @@ package pl.edu.icm.unity.engine.bulkops;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
-import java.util.Optional;
 
 import org.apache.log4j.NDC;
 import org.apache.logging.log4j.Logger;
@@ -50,7 +49,7 @@ public class BulkProcessingExecutor
 		{
 			log.info("Starting bulk entities processing rule");
 			Instant start = Instant.now();
-			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/", Optional.empty());
+			GroupMembershipData bulkMembershipData = bulkService.getBulkMembershipData("/");
 			Map<Long, GroupMembershipInfo> membershipInfo = bulkService.getMembershipInfo(bulkMembershipData);
 		
 			for (GroupMembershipInfo membership: membershipInfo.values())

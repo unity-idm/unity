@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.engine.bulk;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -26,13 +25,12 @@ import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
-import pl.edu.icm.unity.engine.api.translation.TranslationCondition;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
 import pl.edu.icm.unity.engine.authz.AuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
-import pl.edu.icm.unity.engine.bulkops.EntityMVELContextBuilder;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
+import pl.edu.icm.unity.engine.forms.enquiry.EnquiryTargetCondEvaluator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -73,13 +71,19 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 
 	@Transactional
 	@Override
-	public GroupMembershipData getBulkMembershipData(String group, Optional<Set<Long>> filter) throws EngineException
+	public GroupMembershipData getBulkMembershipData(String group, Set<Long> filter) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.readHidden, AuthzCapability.read);
-		return dataProvider.getCompositeGroupContents(group, filter);
+		return dataProvider.getCompositeGroupContents(group, Optional.ofNullable(filter));
 	}
 	
-
+	@Transactional
+	@Override
+	public GroupMembershipData getBulkMembershipData(String group) throws EngineException
+	{
+		return getBulkMembershipData(group);
+	}
+	
 	@Transactional
 	@Override
 	public GroupStructuralData getBulkStructuralData(String group) throws EngineException
@@ -127,38 +131,17 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 
 	private Set<String> getEnquiryForms(Long e, GroupMembershipDataImpl data, CredentialInfo credentialInfo)
 	{
-		Set<String> entityGroups = data.getMemberships().get(e);
 		Set<String> forms = new HashSet<>();
 
 		for (EnquiryForm enqForm : data.getEnquiryForms().values())
 		{
-			if (entityGroups.stream().anyMatch(Arrays.asList(enqForm.getTargetGroups())::contains))
-			{
-				Map<String, Object> context = EntityMVELContextBuilder.getContext(
-						data.getIdentities().get(e),
-						data.getEntityInfo().get(e).getEntityState().toString(),
-						credentialInfo.getCredentialRequirementId(),
-						data.getMemberships().get(e),
-						data.getDirectAttributes().get(e).get("/").values());
-				if (enqForm.getTargetCondition() == null || enqForm.getTargetCondition().isEmpty())
-				{
-					forms.add(enqForm.getName());
-					continue;
-				}
-
-				TranslationCondition condition = new TranslationCondition(enqForm.getTargetCondition());
-				try
-				{
-					if (condition.evaluate(context))
-					{
-						forms.add(enqForm.getName());
-					}
-				} catch (EngineException e1)
-				{
-					log.error("Cannot evaluate enquriy form target condition"
-							+ enqForm.getTargetCondition() + " for entity " + e);
-				}
-			}
+			if (EnquiryTargetCondEvaluator.evaluateTargetCondition(enqForm,
+							data.getIdentities().get(e),
+							data.getEntityInfo().get(e).getEntityState().toString(),
+							credentialInfo.getCredentialRequirementId(),
+							data.getMemberships().get(e),
+							data.getDirectAttributes().get(e).get("/").values()))
+				forms.add(enqForm.getName());
 		}
 		return forms;
 	}
