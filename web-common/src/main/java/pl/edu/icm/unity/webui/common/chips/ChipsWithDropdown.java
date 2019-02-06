@@ -54,12 +54,7 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	{
 		this.comboRenderer = comboRenderer;
 		this.chipRenderer = chipRenderer;
-		this.multiSelectable = multiSelectable;		
-	}
-	
-	@Override
-	protected Component initContent()
-	{
+		this.multiSelectable = multiSelectable;
 		chipsRow = new ChipsRow<>();
 		chipsRow.addChipRemovalListener(e -> fireEvent(new ValueChangeEvent<List<T>>(this, getSelectedItems(), true)));
 		chipsRow.addChipRemovalListener(this::onChipRemoval);
@@ -73,7 +68,12 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		main = new VerticalLayout();
 		main.setMargin(false);
 		main.setSpacing(false);
-		main.addComponents(chipsRow, combo);	
+		main.addComponents(chipsRow, combo);		
+	}
+	
+	@Override
+	protected Component initContent()
+	{
 		return main;
 	}
 	
