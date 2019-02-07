@@ -43,20 +43,6 @@ public class PKCETest
 {
 	private TransactionalRunner tx = new TestTxRunner();
 
-	/*
-	 * TODO
-	 * 1. attribute controlling whether client is public or confidential
-	 * 2. if client is public then:
-	 * 2.1. PKCE becomes mandatory (testcase)
-	 * 2.2. IP (v4&v6) based loopback redirections to any port are available but still checking the path (testcases)
-	 * 2.3. Allow for http scheme in case of loopback redirect.
-	 * 2.4. Disallow private-use URIs without '.'
-	 * 2.5. Allow for password-less operation (? - optional)
-	 * 2.6. It should not be possible to save consent for public clients.
-	 * 3. testcase if private-use URI scheme URL can be registered and used
-	 * 
-	 */
-
 	@Test
 	public void shouldFailToGetAccessTokenWithoutCodeVerifierWhenClientIsPublic() throws Exception
 	{
