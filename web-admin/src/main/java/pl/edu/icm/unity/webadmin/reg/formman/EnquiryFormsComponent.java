@@ -141,11 +141,11 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 		
 	}
 	
-	private boolean updateForm(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitations)
+	private boolean updateForm(EnquiryForm updatedForm, boolean ignoreRequestsAndInvitations)
 	{
 		try
 		{
-			enquiriesManagement.updateEnquiry(updatedForm, ignoreRequests, ignoreInvitations);
+			enquiriesManagement.updateEnquiry(updatedForm, ignoreRequestsAndInvitations);
 			bus.fireEvent(new EnquiryFormChangedEvent(updatedForm));
 			refresh();
 			return true;
@@ -225,7 +225,7 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 		}
 		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg,
 				msg.getMessage("RegistrationFormsComponent.addAction"),
-				(eform, foo, bar) -> addForm(eform), editor);
+				(eform, foo) -> addForm(eform), editor);
 		dialog.show();
 	}
 
@@ -286,8 +286,8 @@ public class EnquiryFormsComponent extends VerticalLayout implements ActivationL
 			return;
 		}
 		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, 
-				caption,(eform, ignoreRequests, ignoreInvitations) ->  isCopyMode ? addForm(eform)
-						: updateForm(eform, ignoreRequests, ignoreInvitations)
+				caption,(eform, ignoreRequestsAndInvitations) ->  isCopyMode ? addForm(eform)
+						: updateForm(eform, ignoreRequestsAndInvitations)
 				, editor);
 		dialog.show();		
 	}

@@ -287,6 +287,7 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 				.withName(generateName(msg.getMessage("FormGenerator.joinEnquiryNameSuffix"),
 						groupDisplayedName, actualForms))
 				.withTargetGroups(new String[] { "/" }).withType(EnquiryForm.EnquiryType.STICKY)
+				.withTargetCondition("!(groups contains '" + groupPath + "')")
 				.withAddedGroupParam().withLabel(msg.getMessage("FormGenerator.selectGroups"))
 				.withMultiselect(true).withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).endGroupParam()

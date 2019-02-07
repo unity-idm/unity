@@ -178,7 +178,7 @@ public class TestRegistrationInvitations extends DBIntegrationTestBase
 				.build();
 		registrationsMan.addForm(form);
 		invitationMan.addInvitation(invitation);
-		Throwable exception = catchThrowable(() -> registrationsMan.updateForm(form, true, false));
+		Throwable exception = catchThrowable(() -> registrationsMan.updateForm(form, false));
 		Assertions.assertThat(exception).isNotNull().isInstanceOf(SchemaConsistencyException.class);	
 	}
 	

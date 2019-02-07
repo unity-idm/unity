@@ -5,6 +5,8 @@
 
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import java.util.List;
+
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.shared.ui.ContentMode;
@@ -22,12 +24,13 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 
 /**
  * Component allows update requests for sticky enquiry. If request already
@@ -44,20 +47,20 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 
 	private UnityMessageSource msg;
 	private EnquiryResponseEditorController controller;
-	private EnquiryForm form;
+	private List<String> forms;
+	private boolean showNotAppFormsInfo;
 
 	public SingleStickyEnquiryUpdater(UnityMessageSource msg, EnquiryResponseEditorController controller,
-			EnquiryForm form) throws WrongArgumentException
+			List<String> forms, boolean showNotAppFormsInfo) throws WrongArgumentException
 	{
 		this.msg = msg;
 		this.controller = controller;
-		this.form = form;
-		if (!form.getType().equals(EnquiryType.STICKY))
-			throw new WrongArgumentException("Form " + form.getName() + " is not sticky form");
+		this.forms = forms;
+		this.showNotAppFormsInfo = showNotAppFormsInfo;
 		reload();
 	}
 
-	private Component getRemoveLastComponent()
+	private Component getRemoveLastComponent(EnquiryForm form)
 	{
 
 		VerticalLayout wrapper = new VerticalLayout();
@@ -97,7 +100,7 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 		return wrapper;
 	}
 
-	private Component getEditorComponent()
+	private Component getEditorComponent(EnquiryForm form)
 	{
 		VerticalLayout editorWrapper = new VerticalLayout();
 		editorWrapper.setMargin(false);
@@ -114,7 +117,20 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 					"SingleStickyEnquiryUpdater.cannotSubmitRequest", form.getName()), e);
 			return editorWrapper;
 		}
-
+		if (!editor.isUserInteractionRequired())
+		{
+			WorkflowFinalizationConfiguration config = controller
+					.getFinalizationHandler(form)
+					.getFinalRegistrationConfigurationNonSubmit(false, null,
+							TriggeringState.NOT_APPLICABLE_ENQUIRY);
+			
+			
+			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {});
+			editorWrapper.addComponent(finalScreen);
+			editorWrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
+			return editorWrapper;	
+		}
+		
 		Button ok = new Button(msg.getMessage("SingleStickyEnquiryUpdater.submitRequest"));
 		ok.addStyleName(Styles.vButtonPrimary.toString());
 		ok.addClickListener(event -> {
@@ -161,6 +177,26 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 		main.setSpacing(false);
 		main.setMargin(false);
 		setCompositionRoot(main);
+		
+		EnquiryForm form = null;
+		for (String enquiryForm : forms)
+		{
+			if (controller.isStickyFormApplicable(enquiryForm))
+			{
+				form = controller.getForm(enquiryForm);
+				break;
+			}
+		}
+		if (form == null)
+		{
+			if (showNotAppFormsInfo)
+			{
+				main.addComponent(new Label(msg.getMessage("SingleStickyEnquiryUpdater.notApplicableForms")));
+			}
+		
+			return;
+		}
+			
 
 		boolean requestExist = true;
 		try
@@ -175,13 +211,25 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 
 		if (requestExist)
 		{
-			main.addComponent(getRemoveLastComponent());
+			main.addComponent(getRemoveLastComponent(form));
 		}
 
 		else
 		{
-			main.addComponent(getEditorComponent());
+			main.addComponent(getEditorComponent(form));
 
 		}
+	}
+	
+	public boolean isFormsAreApplicable() 
+	{
+		for (String enquiryForm : forms)
+		{
+			if (controller.isStickyFormApplicable(enquiryForm))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 }

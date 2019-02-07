@@ -15,7 +15,6 @@ import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.VerticalLayout;
@@ -33,9 +32,9 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
@@ -64,8 +63,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private MessageTemplateManagement msgTempMan;
 	
 	private TabSheet tabs;
-	private CheckBox ignoreRequests;
-	private CheckBox ignoreInvitation;
+	private CheckBox ignoreRequestsAndInvitation;
 	
 	private EnumComboBox<EnquiryType> enquiryType;
 	private GroupsSelectionList targetGroups;
@@ -122,18 +120,11 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
-		
-		HorizontalLayout checkBoxWrapper = new HorizontalLayout();
-		checkBoxWrapper.setMargin(false);	
-		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		ignoreInvitation = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreInvitation"));
-		checkBoxWrapper.addComponent(ignoreInvitation);
-		checkBoxWrapper.addComponent(ignoreRequests);
-		ignoreRequests.setVisible(false);
-		ignoreInvitation.setVisible(false);
-		addComponent(checkBoxWrapper);
-		setComponentAlignment(checkBoxWrapper, Alignment.TOP_RIGHT);
-		
+		ignoreRequestsAndInvitation = new CheckBox(
+				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
+		addComponent(ignoreRequestsAndInvitation);
+		setComponentAlignment(ignoreRequestsAndInvitation, Alignment.TOP_RIGHT);
+
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
@@ -198,8 +189,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		layoutEditor.setLayout(toEdit.getLayout());
 		if (!copyMode)
 		{
-			ignoreRequests.setVisible(true);
-			ignoreInvitation.setVisible(true);
+			ignoreRequestsAndInvitation.setVisible(true);
 		}
 		byInvitationOnly.setValue(toEdit.isByInvitationOnly());	
 	}
@@ -241,7 +231,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		targetGroups.setRequiredIndicatorVisible(true);
 		
 		targetCondition = new MVELExpressionField(msg, msg.getMessage("EnquiryFormEditor.targetCondition"),
-				msg.getMessage("MVELExpressionField.conditionDesc"));
+				msg.getMessage("EnquiryFormEditor.targetConditionDesc"));
 		
 		targetCondition.configureBinding(binder, "targetCondition", false);
 		
@@ -326,13 +316,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 		}
 	}
 
-	public boolean isIgnoreRequests()
+	public boolean isIgnoreRequestsAndInvitations()
 	{
-		return ignoreRequests.getValue();
-	}
-	
-	public boolean isIgnoreInvitations()
-	{
-		return ignoreInvitation.getValue();
+		return ignoreRequestsAndInvitation.getValue();
 	}
 }

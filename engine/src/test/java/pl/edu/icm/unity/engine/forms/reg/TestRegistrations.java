@@ -162,7 +162,7 @@ public class TestRegistrations extends RegistrationTestBase
 		
 		try
 		{
-			registrationsMan.updateForm(getFormBuilder(false, null, true).build(), false, false);
+			registrationsMan.updateForm(getFormBuilder(false, null, true).build(), false);
 		} catch (SchemaConsistencyException e)
 		{
 			//OK
@@ -177,7 +177,7 @@ public class TestRegistrations extends RegistrationTestBase
 		registrationsMan.submitRegistrationRequest(getRequest(), 
 				new RegistrationContext(false, TriggeringMode.manualAtLogin));
 		
-		registrationsMan.updateForm(getFormBuilder(false, null, true).build(), true, true);
+		registrationsMan.updateForm(getFormBuilder(false, null, true).build(), true);
 	}
 
 	@Test

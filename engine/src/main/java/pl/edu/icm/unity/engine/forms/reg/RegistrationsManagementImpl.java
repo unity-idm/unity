@@ -111,16 +111,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	@Override
 	@Transactional
-	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequests, boolean ignoreInvitation)
+	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations)
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		validateFormContents(updatedForm);
 		String formId = updatedForm.getName();
-		if (!ignoreRequests)
+		if (!ignoreRequestsAndInvitations)
+		{
 			internalManagment.validateIfHasPendingRequests(formId, requestDB);
-		if (!ignoreInvitation)
 			internalManagment.validateIfHasInvitations(formId, InvitationType.REGISTRATION);
+		}
 		formsDB.update(updatedForm);
 	}
 

@@ -76,8 +76,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private RealmsManagement realmsManagement;
 	
 	private TabSheet tabs;
-	private CheckBox ignoreRequests;
-	private CheckBox ignoreInvitations;
+	private CheckBox ignoreRequestsAndInvitation;
 	
 	private CheckBox publiclyAvailable;
 	private CheckBox byInvitationOnly;
@@ -150,14 +149,10 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initWrapUpTab();
 		initAssignedTab();
 		HorizontalLayout checkBoxWrapper = new HorizontalLayout();
-		checkBoxWrapper.setMargin(false);	
-		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		ignoreInvitations = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreInvitation"));
-		checkBoxWrapper.addComponent(ignoreInvitations);
-		checkBoxWrapper.addComponent(ignoreRequests);
-		ignoreRequests.setVisible(false);
-		ignoreInvitations.setVisible(false);
-		addComponent(checkBoxWrapper);
+		checkBoxWrapper.setMargin(false);
+		ignoreRequestsAndInvitation = new CheckBox(
+				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
+		addComponent(ignoreRequestsAndInvitation);
 		setComponentAlignment(checkBoxWrapper, Alignment.TOP_RIGHT);
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
@@ -238,8 +233,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
 		signInUrl.setEnabled(showGotoSignin.getValue());
 		if (!copyMode) {
-			ignoreRequests.setVisible(true);
-			ignoreInvitations.setVisible(true);
+			ignoreRequestsAndInvitation.setVisible(true);
 		}
 			
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
@@ -437,13 +431,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		wrapper.addComponent(profileEditor);
 	}
 
-	public boolean isIgnoreRequests()
+	public boolean isIgnoreRequestsAndInvitations()
 	{
-		return ignoreRequests.getValue();
-	}
-	
-	public boolean isIgnoreInvitations()
-	{
-		return ignoreInvitations.getValue();
+		return ignoreRequestsAndInvitation.getValue();
 	}
 }

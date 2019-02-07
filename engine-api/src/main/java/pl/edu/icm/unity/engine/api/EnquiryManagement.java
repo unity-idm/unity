@@ -48,9 +48,13 @@ public interface EnquiryManagement
 	 * Updates an existing enquiry form. Will be applicable only to those users who has not yet filled the 
 	 * original enquiry.
 	 * @param updatedForm
+	 * @param ignoreRequestsAndInvitations
+	 *                if true then operation will ignore form requests and
+	 *                invitations. If false then it will fail if there are
+	 *                any pending requests of the form.
 	 * @throws EngineException
 	 */
-	void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitation) throws EngineException;
+	void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequestsAndInvitations) throws EngineException;
 	
 	/**
 	 * Accepts, deletes or rejects a given enquiry response. The request can be freely modified at this time

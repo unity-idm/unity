@@ -728,16 +728,14 @@ public class RESTAdmin
 	@Path("/registrationForm")
 	@PUT
 	@Consumes(MediaType.APPLICATION_JSON)
-	public void updateForm(@QueryParam("ignoreRequests") Boolean ignoreRequests,
+	public void updateForm(@QueryParam("ignoreRequestsAndInvitations") Boolean ignoreRequestsAndInvitations,
 			@QueryParam("ignoreInvitations") Boolean ignoreInvitations, String json)
 			throws EngineException, IOException
 	{
-		if (ignoreRequests == null)
-			ignoreRequests = false;
-		if (ignoreInvitations == null)
-			ignoreInvitations = false;
+		if (ignoreRequestsAndInvitations == null)
+			ignoreRequestsAndInvitations = false;
 		RegistrationForm form = new RegistrationForm(JsonUtil.parse(json));
-		registrationManagement.updateForm(form, ignoreRequests, ignoreInvitations);
+		registrationManagement.updateForm(form, ignoreRequestsAndInvitations);
 	}
 	
 	@Path("/registrationRequests")

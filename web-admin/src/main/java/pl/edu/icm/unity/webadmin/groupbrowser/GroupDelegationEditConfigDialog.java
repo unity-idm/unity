@@ -121,6 +121,7 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 
 		registrationFormComboWithButtons = new FormComboWithButtons(msg,
 				msg.getMessage("GroupDelegationEditConfigDialog.registrationForm"),
+				msg.getMessage("GroupDelegationEditConfigDialog.registrationFormDesc"),	
 				e -> generateJoinRegistrationForm(),
 				e -> showJoinRegistrationValidation(registrationFormComboWithButtons.getValue()),
 				e -> showRegFormEditDialog(registrationFormComboWithButtons.getValue()));
@@ -128,12 +129,14 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 
 		signupEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
 				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiry"),
+				msg.getMessage("GroupDelegationEditConfigDialog.signupEnquiryDesc"),
 				e -> generateJoinEnquiryForm(),
 				e -> showJoinEnquiryValidation(signupEnquiryFormComboWithButtons.getValue()),
 				e -> showEnquiryFormEditDialog(signupEnquiryFormComboWithButtons.getValue()));
 
 		membershipUpdateEnquiryFormComboWithButtons = new FormComboWithButtons(msg,
 				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiry"),
+				msg.getMessage("GroupDelegationEditConfigDialog.membershipUpdateEnquiryDesc"),
 				e -> generateUpdateEnquiryForm(),
 				e -> showUpdateEnquiryValidation(
 						membershipUpdateEnquiryFormComboWithButtons.getValue()),
@@ -326,18 +329,17 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			return;
 		}
 		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, caption,
-				(form, ignoreRequests, ignoreInvitations) -> {
-					return updateRegistrationForm(form, ignoreRequests, ignoreInvitations);
-				}, editor);
+				(form, ignoreRequestsAndInvitations) -> 
+					updateRegistrationForm(form, ignoreRequestsAndInvitations)
+				, editor);
 		dialog.show();
 	}
 
-	private boolean updateRegistrationForm(RegistrationForm updatedForm, boolean ignoreRequests,
-			boolean ignoreInvitations)
+	private boolean updateRegistrationForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations)
 	{
 		try
 		{
-			registrationMan.updateForm(updatedForm, ignoreRequests, ignoreInvitations);
+			registrationMan.updateForm(updatedForm, ignoreRequestsAndInvitations);
 			bus.fireEvent(new RegistrationFormChangedEvent(updatedForm));
 			return true;
 		} catch (Exception e)
@@ -378,18 +380,17 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 			return;
 		}
 		EnquiryFormEditDialog dialog = new EnquiryFormEditDialog(msg, caption,
-
-				(form, ignoreRequests, ignoreInvitations) -> {
-					return updateEnquiryForm(form, ignoreRequests, ignoreInvitations);
-				}, editor);
+				(form, ignoreRequestsAndInvitations) -> 
+					 updateEnquiryForm(form, ignoreRequestsAndInvitations)
+				, editor);
 		dialog.show();
 	}
 
-	private boolean updateEnquiryForm(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitations)
+	private boolean updateEnquiryForm(EnquiryForm updatedForm, boolean ignoreRequestsAndInvitations)
 	{
 		try
 		{
-			enquiryMan.updateEnquiry(updatedForm, ignoreRequests, ignoreInvitations);
+			enquiryMan.updateEnquiry(updatedForm, ignoreRequestsAndInvitations);
 			bus.fireEvent(new EnquiryFormChangedEvent(updatedForm));
 			return true;
 		} catch (Exception e)
@@ -476,14 +477,15 @@ public class GroupDelegationEditConfigDialog extends AbstractDialog
 		private Button edit;
 		private HorizontalLayout main;
 
-		public FormComboWithButtons(UnityMessageSource msg, String caption, ClickListener generateListener,
+		public FormComboWithButtons(UnityMessageSource msg, String caption, String description, ClickListener generateListener,
 				ClickListener validateListener, ClickListener editListener)
 		{
+			setCaption(caption);
 			combo = new ComboBox<String>();
 			combo.setWidth(20, Unit.EM);
+			combo.setDescription(description);
 			main = new HorizontalLayout();
-			main.addComponent(combo);
-			setCaption(caption);
+			main.addComponent(combo);	
 
 			Button generate = new Button();
 			generate.setDescription(msg.getMessage("GroupDelegationEditConfigDialog.generateForm"));

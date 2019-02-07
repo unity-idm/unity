@@ -47,7 +47,6 @@ import pl.edu.icm.unity.home.iddetails.UserIdentitiesPanel;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.webadmin.preferences.PreferencesComponent;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider;
 import pl.edu.icm.unity.webui.association.afterlogin.ConnectIdWizardProvider.WizardFinishedCallback;
@@ -58,8 +57,6 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.bigtab.BigTab;
-import pl.edu.icm.unity.webui.common.bigtab.BigTab.TabCallback;
 import pl.edu.icm.unity.webui.common.bigtab.BigTabPanel;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
@@ -189,31 +186,13 @@ public class UserAccountComponent extends VerticalLayout
 			VerticalLayout main = new VerticalLayout();
 			main.setSpacing(false);
 			main.setMargin(false);
-			
-			//only first applicable
-			for (String enquiryForm : enquiries)
+			SingleStickyEnquiryUpdater updater = new SingleStickyEnquiryUpdater(msg, enquiryResController,
+					enquiries, true);
+			if (updater.isFormsAreApplicable())
 			{
-				if (enquiryResController.isStickyFormApplicable(enquiryForm))
-				{
-					EnquiryForm form = enquiryResController.getForm(enquiryForm);
-					SingleStickyEnquiryUpdater updater = new SingleStickyEnquiryUpdater(msg, enquiryResController, form);
-					main.addComponent(updater);
-					
-					tabPanel.addTab("UserHomeUI.accountUpdateLabel", "UserHomeUI.accountUpdateDesc", Images.records,
-							main, new TabCallback()
-							{
-								
-								@Override
-								public void onSelection(BigTab src)
-								{
-									updater.reload();
-									
-								}
-							});
-					
-					
-					break;
-				}
+				main.addComponent(updater);
+				tabPanel.addTab("UserHomeUI.accountUpdateLabel", "UserHomeUI.accountUpdateDesc",
+						Images.records, main, t -> updater.reload());
 			}
 
 		} catch (Exception e)

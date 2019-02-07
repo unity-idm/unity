@@ -242,7 +242,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.withTargetCondition("status == \"valid\" && credReq == \"" + CRED_REQ_PASS + "\"")
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("tenquiry").build();
 		enquiryManagement.addEnquiry(form);
-
+		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
 
 		assertThat(pendingEnquires.size(), is(1));
@@ -525,7 +525,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 		}
 		try
 		{
-			enquiryManagement.updateEnquiry(form, true, true);
+			enquiryManagement.updateEnquiry(form, true);
 			fail("Updated the form with illegal " + msg);
 		} catch (Exception e) 
 		{

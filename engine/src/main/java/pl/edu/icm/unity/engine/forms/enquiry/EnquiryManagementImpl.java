@@ -169,16 +169,17 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	
 	@Transactional
 	@Override
-	public void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests, boolean ignoreInvitation)
+	public void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequestsAndInvitations)
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		validateFormContents(updatedForm);
 		String formId = updatedForm.getName();
-		if (!ignoreRequests)
+		if (!ignoreRequestsAndInvitations)
+		{
 			internalManagment.validateIfHasPendingRequests(formId, requestDB);
-		if (!ignoreInvitation)
 			internalManagment.validateIfHasInvitations(formId, InvitationType.ENQUIRY);
+		}
 		enquiryFormDB.update(updatedForm);
 	}
 	

@@ -164,7 +164,7 @@ public abstract class RegistrationTestBase extends DBIntegrationTestBase
 		}
 		try
 		{
-			registrationsMan.updateForm(form, false, true);
+			registrationsMan.updateForm(form, false);
 			fail("Updated the form with illegal " + msg);
 		} catch (Exception e) 
 		{
