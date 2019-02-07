@@ -12,6 +12,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import com.nimbusds.oauth2.sdk.AuthorizationRequest;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
@@ -40,6 +41,7 @@ public class OAuthAuthzContext
 	private Set<String> requestedScopes = new HashSet<>();
 	private Set<String> effectiveRequestedAttrs = new HashSet<>();
 	private GrantFlow flow;
+	private ClientType clientType;
 	private boolean openIdMode;
 	
 
@@ -199,6 +201,18 @@ public class OAuthAuthzContext
 	{
 		requestedScopes.add(scope);
 	}
+
+	public ClientType getClientType()
+	{
+		return clientType;
+	}
+
+	public void setClientType(ClientType clientType)
+	{
+		this.clientType = clientType;
+	}
+
+
 
 	public static class ScopeInfo
 	{

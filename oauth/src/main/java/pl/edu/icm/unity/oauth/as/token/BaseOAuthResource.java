@@ -35,7 +35,7 @@ public class BaseOAuthResource
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, BaseOAuthResource.class);
 	
-	protected String getResponseContent(com.nimbusds.oauth2.sdk.Response oauthResponse)
+	static String getResponseContent(com.nimbusds.oauth2.sdk.Response oauthResponse)
 	{
 		try
 		{
@@ -69,7 +69,7 @@ public class BaseOAuthResource
 		}
 	}
 	
-	protected OAuthToken parseInternalToken(Token token)
+	static OAuthToken parseInternalToken(Token token)
 	{
 		try
 		{
@@ -80,7 +80,7 @@ public class BaseOAuthResource
 		}
 	}
 	
-	protected Response makeError(ErrorObject baseError, String description)
+	static Response makeError(ErrorObject baseError, String description)
 	{
 		if (description != null)
 			baseError = baseError.appendDescription("; " + description);
@@ -104,7 +104,7 @@ public class BaseOAuthResource
 		return makeBearerError(error);
 	}
 
-	protected Response toResponse(ResponseBuilder respBuilder)
+	static Response toResponse(ResponseBuilder respBuilder)
 	{
 		return respBuilder.header("Pragma", "no-cache").header("Cache-Control", "no-store").build();
 	}

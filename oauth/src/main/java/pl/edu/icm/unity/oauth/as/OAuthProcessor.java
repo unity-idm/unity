@@ -98,6 +98,11 @@ public class OAuthProcessor
 		internalToken.setTokenValidity(config.getAccessTokenValidity()); 
 		internalToken.setAudience(ctx.getClientUsername());
 		internalToken.setIssuerUri(config.getIssuerName());
+		internalToken.setCodeChallenge(ctx.getRequest().getCodeChallenge() == null ? 
+				null : ctx.getRequest().getCodeChallenge().getValue());
+		internalToken.setCodeChallengeMethod(ctx.getRequest().getCodeChallengeMethod() == null ? 
+				null : ctx.getRequest().getCodeChallengeMethod().getValue());
+		internalToken.setClientType(ctx.getClientType());
 	
 		Date now = new Date();
 		

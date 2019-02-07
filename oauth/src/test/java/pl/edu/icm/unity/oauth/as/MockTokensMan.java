@@ -80,14 +80,11 @@ public class MockTokensMan implements TokensManagement
 	public void addToken(String type, String value, byte[] contents, Date created, Date expires)
 			throws IllegalTypeException
 	{
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public List<Token> getAllTokens()
 	{
-		// TODO Auto-generated method stub
 		return null;
 	}
 }

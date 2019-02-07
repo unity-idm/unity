@@ -14,6 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.nimbusds.oauth2.sdk.GrantType;
 import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -83,6 +84,13 @@ public class ClientCredentialsProcessor
 		internalToken.setClientId(loginSession.getEntityId());
 		internalToken.setClientUsername(client);
 		internalToken.setSubject(client);
+		
+		AttributeExt clientTypeA = attributes.get(OAuthSystemAttributesProvider.CLIENT_TYPE);
+		if (clientTypeA != null)
+			internalToken.setClientType(ClientType.valueOf(clientTypeA.getValues().get(0)));
+		else
+			internalToken.setClientType(ClientType.CONFIDENTIAL);
+		
 		internalToken.setTokenValidity(config.getIntValue(OAuthASProperties.ACCESS_TOKEN_VALIDITY));
 		int maxExtendedValidity = config.isSet(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) ?
 				config.getIntValue(OAuthASProperties.MAX_EXTEND_ACCESS_TOKEN_VALIDITY) : 0;

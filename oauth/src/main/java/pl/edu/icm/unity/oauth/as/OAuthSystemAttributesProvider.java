@@ -12,6 +12,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+import com.nimbusds.oauth2.sdk.client.ClientType;
+
 import pl.edu.icm.unity.engine.api.attributes.SystemAttributesProvider;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -34,6 +37,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	public static final String PER_CLIENT_GROUP = "sys:oauth:groupForClient";
 	public static final String CLIENT_NAME = "sys:oauth:clientName";
 	public static final String CLIENT_LOGO = "sys:oauth:clientLogo";
+	public static final String CLIENT_TYPE = "sys:oauth:clientType";
 	
 	public static final int MAXIMUM_ALLOWED_URIS = 512;
 	
@@ -46,6 +50,7 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 	{
 		this.msg = msg;
 		oauthAttributes.add(getAllowedGrantFlowsAT());
+		oauthAttributes.add(getClientTypeAT());
 		oauthAttributes.add(getAllowedURIsAT());
 		oauthAttributes.add(getLogoAT());
 		oauthAttributes.add(getNameAT());
@@ -64,6 +69,19 @@ public class OAuthSystemAttributesProvider implements SystemAttributesProvider
 		allowedGrantsAt.setMinElements(1);
 		allowedGrantsAt.setMaxElements(5);
 		allowedGrantsAt.setUniqueValues(true);
+		allowedGrantsAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
+		return allowedGrantsAt;
+	}
+	
+	private AttributeType getClientTypeAT()
+	{
+		Set<String> allowed = Sets.newHashSet(ClientType.CONFIDENTIAL.toString(), ClientType.PUBLIC.toString());
+		EnumAttributeSyntax syntax = new EnumAttributeSyntax(allowed);
+		AttributeType allowedGrantsAt = new AttributeType(CLIENT_TYPE, 
+				EnumAttributeSyntax.ID, msg);
+		allowedGrantsAt.setFlags(AttributeType.TYPE_IMMUTABLE_FLAG);
+		allowedGrantsAt.setMinElements(1);
+		allowedGrantsAt.setMaxElements(1);
 		allowedGrantsAt.setValueSyntaxConfiguration(syntax.getSerializedConfiguration());
 		return allowedGrantsAt;
 	}

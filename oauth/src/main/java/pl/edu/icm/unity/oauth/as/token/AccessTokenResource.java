@@ -6,7 +6,6 @@ package pl.edu.icm.unity.oauth.as.token;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,10 +40,8 @@ import com.nimbusds.oauth2.sdk.token.RefreshToken;
 import com.nimbusds.oauth2.sdk.token.Tokens;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
 import com.nimbusds.openid.connect.sdk.OIDCScopeValue;
-import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
 import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
-import com.nimbusds.openid.connect.sdk.token.OIDCTokens;
 
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
@@ -98,11 +95,11 @@ public class AccessTokenResource extends BaseOAuthResource
 	
 	private TokensManagement tokensManagement;
 	private OAuthASProperties config;
-	private TransactionalRunner tx;
 	private ClientCredentialsProcessor clientGrantProcessor;
 	private OAuthIdPEngine notAuthorizedOauthIdpEngine;
 	private OAuthRequestValidator requestValidator;
 	private EntityManagement idMan;
+	private AuthzCodeHandler authzCodeHandler;
 
 	public AccessTokenResource(TokensManagement tokensManagement, OAuthASProperties config,
 			OAuthRequestValidator requestValidator, 
@@ -111,12 +108,12 @@ public class AccessTokenResource extends BaseOAuthResource
 	{
 		this.tokensManagement = tokensManagement;
 		this.config = config;
-		this.tx = tx;
 		this.clientGrantProcessor = new ClientCredentialsProcessor(requestValidator,
 				idpEngineInsecure, config);
 		this.notAuthorizedOauthIdpEngine = new OAuthIdPEngine(idpEngineInsecure);
 		this.requestValidator = requestValidator;
 		this.idMan = idMan;
+		this.authzCodeHandler = new AuthzCodeHandler(tokensManagement, config, tx);
 	}
 
 	@Path("/")
@@ -129,7 +126,8 @@ public class AccessTokenResource extends BaseOAuthResource
 			@FormParam("audience") String audience,
 			@FormParam("requested_token_type") String requestedTokenType,
 			@FormParam("subject_token") String subjectToken,
-			@FormParam("subject_token_type") String subjectTokenType)
+			@FormParam("subject_token_type") String subjectTokenType,
+			@FormParam("code_verifier") String codeVerifier)
 			throws EngineException, JsonProcessingException
 	{
 		if (grantType == null)
@@ -141,7 +139,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		{
 			if (code == null)
 				return makeError(OAuth2Error.INVALID_REQUEST, "code is required");
-			return handleAuthzCodeFlow(code, redirectUri);
+			return authzCodeHandler.handleAuthzCodeFlow(code, redirectUri, codeVerifier);
 		} else if (grantType.equals(GrantType.CLIENT_CREDENTIALS.getValue()))
 		{
 			return handleClientCredentialFlow(scope);
@@ -272,6 +270,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		newToken.setClientId(callerEntityId);
 		newToken.setAudience(audience);
 		newToken.setClientUsername(audience);
+		newToken.setClientType(parsedSubjectToken.getClientType());
 
 		try
 		{
@@ -285,13 +284,14 @@ public class AccessTokenResource extends BaseOAuthResource
 		AccessToken accessToken = OAuthProcessor.createAccessToken(newToken);
 		newToken.setAccessToken(accessToken.getValue());
 		
-		RefreshToken refreshToken = addRefreshToken(now, newToken, subToken.getOwner());
-		Date accessExpiration = getAccessTokenExpiration(now);
+		RefreshToken refreshToken = TokenUtils.addRefreshToken(config, tokensManagement, now, 
+				newToken, subToken.getOwner());
+		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		Map<String, Object> additionalParams = new HashMap<>();
 		additionalParams.put("issued_token_type", ACCESS_TOKEN_TYPE_ID);
 
-		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
+		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken,
 				refreshToken, additionalParams);
 		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
 				accessToken.getValue(), new EntityParam(subToken.getOwner()),
@@ -346,12 +346,12 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 
 		Date now = new Date();
-		Date accessExpiration = getAccessTokenExpiration(now);
+		Date accessExpiration = TokenUtils.getAccessTokenExpiration(config, now);
 
 		AccessToken accessToken = OAuthProcessor.createAccessToken(newToken);
 		newToken.setAccessToken(accessToken.getValue());
 
-		AccessTokenResponse oauthResponse = getAccessTokenResponse(newToken, accessToken,
+		AccessTokenResponse oauthResponse = TokenUtils.getAccessTokenResponse(newToken, accessToken,
 				null, null);
 		log.debug("Refreshed access token {} of entity {}, valid until {}", 
 				tokenToLog(accessToken.getValue()), refreshToken.getOwner(), accessExpiration);
@@ -379,7 +379,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		AccessToken accessToken = OAuthProcessor.createAccessToken(internalToken);
 		internalToken.setAccessToken(accessToken.getValue());
 		
-		Date expiration = getAccessTokenExpiration(now);
+		Date expiration = TokenUtils.getAccessTokenExpiration(config, now);
 		log.debug("Client cred grant: issuing new access token {}, valid until {}", 
 				tokenToLog(accessToken.getValue()), expiration);
 		AccessTokenResponse oauthResponse = new AccessTokenResponse(
@@ -392,50 +392,6 @@ public class AccessTokenResource extends BaseOAuthResource
 		return toResponse(Response.ok(getResponseContent(oauthResponse)));
 	}
 
-	private Response handleAuthzCodeFlow(String code, String redirectUri)
-			throws EngineException, JsonProcessingException
-	{
-		TokensPair tokensPair;
-		try
-		{
-			tokensPair = loadAndRemoveAuthzCodeToken(code);
-		} catch (OAuthErrorException e)
-		{
-			return e.response;
-		}
-
-		Token codeToken = tokensPair.codeToken;
-		OAuthToken parsedAuthzCodeToken = tokensPair.parsedAuthzCodeToken;
-
-		if (parsedAuthzCodeToken.getRedirectUri() != null)
-		{
-			if (redirectUri == null)
-				return makeError(OAuth2Error.INVALID_GRANT,
-						"redirect_uri is required");
-			if (!redirectUri.equals(parsedAuthzCodeToken.getRedirectUri()))
-				return makeError(OAuth2Error.INVALID_GRANT,
-						"redirect_uri is wrong");
-		}
-
-		OAuthToken internalToken = new OAuthToken(parsedAuthzCodeToken);
-		AccessToken accessToken = OAuthProcessor.createAccessToken(internalToken);
-		internalToken.setAccessToken(accessToken.getValue());
-
-		Date now = new Date();
-		RefreshToken refreshToken = addRefreshToken(now, internalToken, codeToken.getOwner());
-		Date accessExpiration = getAccessTokenExpiration(now);
-
-		AccessTokenResponse oauthResponse = getAccessTokenResponse(internalToken,
-				accessToken, refreshToken, null);
-		log.debug("Authz code grant: issuing new access token {}, valid until {}", tokenToLog(accessToken.getValue()), 
-				accessExpiration);
-		tokensManagement.addToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN,
-				accessToken.getValue(), new EntityParam(codeToken.getOwner()),
-				internalToken.getSerialized(), now, accessExpiration);
-
-		return toResponse(Response.ok(getResponseContent(oauthResponse)));
-	}
-	
 	private String getClientName(EntityParam entity) throws OAuthErrorException
 	{
 		try
@@ -455,21 +411,6 @@ public class AccessTokenResource extends BaseOAuthResource
 		
 	}
 	
-	private RefreshToken addRefreshToken(Date now, OAuthToken newToken, Long owner) throws EngineException, JsonProcessingException
-	{
-		RefreshToken refreshToken = getRefreshToken();
-		if (refreshToken != null)
-		{
-			newToken.setRefreshToken(refreshToken.getValue());
-			Date refreshExpiration = getRefreshTokenExpiration(now);
-			tokensManagement.addToken(OAuthProcessor.INTERNAL_REFRESH_TOKEN,
-					refreshToken.getValue(),
-					new EntityParam(owner),
-					newToken.getSerialized(), now, refreshExpiration);
-		}
-		return refreshToken;
-	}
-
 	private OAuthToken prepareNewToken(OAuthToken oldToken, String scope,
 			List<String> oldRequestedScopesList, long ownerId, long clientId,
 			String clientUserName, boolean createIdToken, String grant)
@@ -601,7 +542,7 @@ public class AccessTokenResource extends BaseOAuthResource
 		}
 		IDTokenClaimsSet newClaims = new IDTokenClaimsSet(
 				new Issuer(config.getIssuerName()), new Subject(token.getSubject()),
-				audience, getAccessTokenExpiration(now), now);
+				audience, TokenUtils.getAccessTokenExpiration(config, now), now);
 		newClaims.setNonce(oldClaims.getNonce());
 
 		ResponseType responseType = null;
@@ -616,103 +557,13 @@ public class AccessTokenResource extends BaseOAuthResource
 		return config.getTokenSigner().sign(newClaims).serialize();
 	}
 
-	private AccessTokenResponse getAccessTokenResponse(OAuthToken internalToken,
-			AccessToken accessToken, RefreshToken refreshToken,
-			Map<String, Object> additionalParams)
-	{
-		JWT signedJWT = decodeIDToken(internalToken);
-		AccessTokenResponse oauthResponse = signedJWT == null
-				? new AccessTokenResponse(new Tokens(accessToken, refreshToken),
-						additionalParams)
-				: new OIDCTokenResponse(new OIDCTokens(signedJWT, accessToken,
-						refreshToken), additionalParams);
-		return oauthResponse;
-	}
-
-	private Date getAccessTokenExpiration(Date now)
-	{
-		int accessTokenValidity = config.getAccessTokenValidity();
-		
-		return new Date(now.getTime() + accessTokenValidity * 1000);
-	}
-
-	private RefreshToken getRefreshToken()
-	{
-		RefreshToken refreshToken = null;
-		if (config.getRefreshTokenValidity() >= 0)
-		{
-			refreshToken = new RefreshToken();
-		}
-		return refreshToken;
-	}
-	
-	private Date getRefreshTokenExpiration(Date now)
-	{
-		int refreshTokenValidity = config.getRefreshTokenValidity();
-		Calendar cl = Calendar.getInstance();
-		cl.setTime(now);
-		if (refreshTokenValidity == 0)
-		{
-			return null;
-		} else if (refreshTokenValidity > 0)
-		{
-			cl.add(Calendar.SECOND, refreshTokenValidity);
-		}
-		return cl.getTime();	
-	}
-
-	private TokensPair loadAndRemoveAuthzCodeToken(String code)
-			throws OAuthErrorException, EngineException
-	{
-		return tx.runInTransactionRetThrowing(() -> {
-			try
-			{
-				Token codeToken = tokensManagement.getTokenById(
-						OAuthProcessor.INTERNAL_CODE_TOKEN, code);
-				OAuthToken parsedAuthzCodeToken = parseInternalToken(codeToken);
-
-				long callerEntityId = InvocationContext.getCurrent()
-						.getLoginSession().getEntityId();
-				if (parsedAuthzCodeToken.getClientId() != callerEntityId)
-				{
-					log.warn("Client with id " + callerEntityId
-							+ " presented authorization code issued "
-							+ "for client "
-							+ parsedAuthzCodeToken.getClientId());
-					// intended - we mask the reason
-					throw new OAuthErrorException(makeError(
-							OAuth2Error.INVALID_GRANT, "wrong code"));
-				}
-				tokensManagement.removeToken(OAuthProcessor.INTERNAL_CODE_TOKEN,
-						code);
-				return new TokensPair(codeToken, parsedAuthzCodeToken);
-			} catch (IllegalArgumentException e)
-			{
-				throw new OAuthErrorException(
-						makeError(OAuth2Error.INVALID_GRANT, "wrong code"));
-			}
-		});
-	}
-
 	public static class OAuthErrorException extends EngineException
 	{
-		private Response response;
+		Response response;
 
 		public OAuthErrorException(Response response)
 		{
 			this.response = response;
-		}
-	}
-
-	private static class TokensPair
-	{
-		Token codeToken;
-		OAuthToken parsedAuthzCodeToken;
-
-		public TokensPair(Token codeToken, OAuthToken parsedAuthzCodeToken)
-		{
-			this.codeToken = codeToken;
-			this.parsedAuthzCodeToken = parsedAuthzCodeToken;
 		}
 	}
 }
