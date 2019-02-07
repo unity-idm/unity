@@ -6,7 +6,6 @@ package pl.edu.icm.unity.webui.common;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 
@@ -60,14 +59,7 @@ public class TopHeader extends TopHeaderLight
 		logout.setId("MainHeader.logout");
 		logout.addStyleName(Styles.vButtonLink.toString());
 		logout.addStyleName(Styles.largeIcon.toString());
-		logout.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				authnProcessor.logout();
-			}
-		});
+		logout.addClickListener((e) -> authnProcessor.logout());
 		return logout;
 	}
 }

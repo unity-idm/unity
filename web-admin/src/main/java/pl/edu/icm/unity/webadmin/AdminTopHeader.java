@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.common.TopHeader;
  */
 public class AdminTopHeader extends TopHeader
 {
-	private boolean adminView = true;
+	private boolean adminView = false;
 	private Button switchView;
 	private ViewSwitchCallback callback;
 	
