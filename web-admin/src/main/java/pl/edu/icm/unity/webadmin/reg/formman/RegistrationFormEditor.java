@@ -17,7 +17,6 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Slider;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
@@ -148,12 +147,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
-		HorizontalLayout checkBoxWrapper = new HorizontalLayout();
-		checkBoxWrapper.setMargin(false);
 		ignoreRequestsAndInvitation = new CheckBox(
 				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
 		addComponent(ignoreRequestsAndInvitation);
-		setComponentAlignment(checkBoxWrapper, Alignment.TOP_RIGHT);
+		setComponentAlignment(ignoreRequestsAndInvitation, Alignment.TOP_RIGHT);
+		ignoreRequestsAndInvitation.setVisible(false);
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
