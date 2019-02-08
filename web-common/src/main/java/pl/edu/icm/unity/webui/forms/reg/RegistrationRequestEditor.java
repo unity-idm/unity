@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -334,7 +335,6 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 
 	private boolean createRemoteSignupGrid(VerticalLayout registrationFormLayout, FormParameterElement element)
 	{			
-		int index = element.getIndex();
 		ExternalSignupGridSpec externalSignupGridSpec = form.getExternalSignupGridSpec();
 		AuthnGridSettings gridSettings = externalSignupGridSpec.getGridSettings();
 		if (gridSettings == null)
@@ -342,12 +342,21 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			gridSettings = new AuthnGridSettings();
 		}
 		
-		AuthenticationOptionKey spec = externalSignupGridSpec.getSpecs().get(index);
-
-		List<AuthNOption> options = getSignupOptions(spec);
+		List<AuthNOption> options = new ArrayList<>();
+		for (AuthenticationOptionKey spec : externalSignupGridSpec.getSpecs())
+		{
+			List<AuthNOption> signupOptions = getSignupOptions(spec);
+			if (signupOptions.isEmpty())
+			{
+				log.debug("Ignoring not available remote sign up options: {}", spec.toGlobalKey());
+			}
+			
+			options.addAll(signupOptions);
+		}
+		
 		if (options.isEmpty())
 		{
-			log.debug("Ignoring not available remote sign up option {}", spec.toGlobalKey());
+			log.debug("All signup options are not available, skipping add remote sigup grid");
 			return false;
 		}
 		

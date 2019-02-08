@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AutoProcessActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
+import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
 import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
@@ -249,7 +250,12 @@ public class GroupDelegationConfigGeneratorImpl implements GroupDelegationConfig
 						EngineInitialization.DEFAULT_CREDENTIAL, null, null))
 				.withAddedIdentityParam().withIdentityType(EmailIdentity.ID)
 				.withRetrievalSettings(ParameterRetrievalSettings.automaticOrInteractive)
-				.endIdentityParam().withAddedGroupParam()
+				.endIdentityParam()
+				.withAddedIdentityParam().withIdentityType(IdentifierIdentity.ID)
+				.withRetrievalSettings(ParameterRetrievalSettings.automaticHidden)
+				.withOptional(true)
+				.endIdentityParam()
+				.withAddedGroupParam()
 				.withLabel(msg.getMessage("FormGenerator.selectGroups"))
 				.withGroupPath(groupPath + "/?*/**")
 				.withRetrievalSettings(ParameterRetrievalSettings.interactive).withMultiselect(true)

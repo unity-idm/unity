@@ -146,7 +146,7 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 	{
 
 		private GroupDAOInternal groupDAO;
-		
+
 		public RegistrationFormChangeListener(GroupDAOInternal groupDAO)
 		{
 			this.groupDAO = groupDAO;
@@ -159,12 +159,27 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 			for (Group group : all)
 			{
 				GroupDelegationConfiguration config = group.getDelegationConfiguration();
+
 				if (config.registrationForm != null && config.registrationForm.equals(removedName))
 				{
-					throw new IllegalArgumentException("The registration form is used "
-							+ "by a group " + group.getName() + " delegation config");
-				}		
-			}	
+					if (config.enabled)
+					{
+						throw new IllegalArgumentException("The registration form is used "
+								+ "by a group " + group.getName()
+								+ " delegation config");
+
+					} else
+					{
+						GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
+								config.enabled, config.logoUrl, "",
+								config.signupEnquiryForm,
+								config.membershipUpdateEnquiryForm, config.attributes);
+						group.setDelegationConfiguration(newConfig);
+						groupDAO.update(group);
+					}
+				}
+			}
 		}
+
 	}
 }

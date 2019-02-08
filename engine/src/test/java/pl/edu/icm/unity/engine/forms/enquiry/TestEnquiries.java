@@ -213,10 +213,9 @@ public class TestEnquiries extends DBIntegrationTestBase
 	}
 
 	@Test
-	public void matchingOnlyByTargetGroupEnquiryIsPending() throws Exception
+	public void matchingOnlyByTargetGroupEnquiryIsPendingForRegularUser() throws Exception
 	{
-		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), 
-				CRED_REQ_PASS, EntityState.valid, false);
+		Identity identity = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam entityParam = new EntityParam(identity);
 		groupsMan.addMemberFromParent("/A", entityParam);
 		EnquiryForm form = new EnquiryFormBuilder()
@@ -226,6 +225,8 @@ public class TestEnquiries extends DBIntegrationTestBase
 			.build();
 		enquiryManagement.addEnquiry(form);
 		
+		setupUserContext(DEF_USER, null);
+		
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
 		
 		assertThat(pendingEnquires.size(), is(1));
@@ -233,16 +234,16 @@ public class TestEnquiries extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void matchingByTargetConditionEnquiryIsPending() throws Exception
+	public void matchingByTargetConditionEnquiryIsPendingForRegularUser() throws Exception
 	{
-		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid, false);
+		Identity identity = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam entityParam = new EntityParam(identity);
 		EnquiryForm form = new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
 				.withTargetCondition("status == \"valid\" && credReq == \"" + CRED_REQ_PASS + "\"")
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("tenquiry").build();
 		enquiryManagement.addEnquiry(form);
 		
+		setupUserContext(DEF_USER, null);
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
 
 		assertThat(pendingEnquires.size(), is(1));
@@ -250,17 +251,17 @@ public class TestEnquiries extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void notMatchingByTargetConditionEnquiryIsNotReturned() throws Exception
+	public void notMatchingByTargetConditionEnquiryIsNotReturnedForRegularUser() throws Exception
 	{
-		Identity identity = idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
-				EntityState.valid, false);
+		Identity identity = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
 		EntityParam entityParam = new EntityParam(identity);
 		groupsMan.addMemberFromParent("/A", entityParam);	
 		EnquiryForm form = new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
 				.withTargetCondition("!(groups contains \"/A\")")
 				.withType(EnquiryType.REQUESTED_OPTIONAL).withName("tenquiry").build();
 		enquiryManagement.addEnquiry(form);
-
+	
+		setupUserContext(DEF_USER, null);
 		List<EnquiryForm> pendingEnquires = enquiryManagement.getPendingEnquires(entityParam);
 		assertThat(pendingEnquires.size(), is(0));	
 	}

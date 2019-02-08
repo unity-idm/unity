@@ -403,7 +403,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public List<EnquiryForm> getPendingEnquires(EntityParam entity) throws EngineException
 	{
 		long entityId = identitiesResolver.getEntityId(entity);
-		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readInfo);
 		
 		List<EnquiryForm> allForms = enquiryFormDB.getAll();
 		
@@ -435,7 +435,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public List<EnquiryForm> getAvailableStickyEnquires(EntityParam entity) throws EngineException
 	{
 		long entityId = identitiesResolver.getEntityId(entity);
-		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.read);
+		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.readInfo);
 		List<EnquiryForm> allForms = enquiryFormDB.getAll();
 		GroupMembershipInfo entityInfo = getMemebershipInfo(entityId);
 		List<EnquiryForm> ret = new ArrayList<>();

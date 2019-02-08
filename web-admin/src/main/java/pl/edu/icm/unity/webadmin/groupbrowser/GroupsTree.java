@@ -349,6 +349,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		{
 			groupsMan.removeGroup(path, recursive);
 			refreshNode(parent);
+			select(parent);
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg,
