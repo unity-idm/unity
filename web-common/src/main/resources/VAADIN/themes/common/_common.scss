@@ -654,5 +654,9 @@
 		white-space: nowrap;
 	}
 	
+	.v-label-wrap-line {
+		word-wrap: break-word; /* IE  */
+		white-space: pre-wrap;
+	}
 
 }

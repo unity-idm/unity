@@ -22,6 +22,7 @@ public class HtmlConfigurableLabel extends Label
 	public HtmlConfigurableLabel()
 	{
 		setContentMode(ContentMode.HTML);
+		addStyleName("wrap-line");
 	}
 
 	public HtmlConfigurableLabel(String value)
