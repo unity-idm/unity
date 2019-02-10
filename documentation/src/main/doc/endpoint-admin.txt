@@ -1,7 +1,7 @@
 === Web Admin UI endpoint
 
 Endpoint type:: +WebAdminUI+
-Binding:: Web (Vaadin)
+Binding:: Web
 Exposed paths:: +/admin+
 Default path:: +/admin+
 

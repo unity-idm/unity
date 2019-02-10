@@ -312,7 +312,7 @@ Both identity types works out of the box with the password credential.
 
 The only difference is that a user can not authenticate with e-mail identity if it was not confirmed.
  
-
+[[bulk-entity]]
 === Bulk entity operations
 
 It is possible to invoke or schedule for recurring invocations conditional actions on entities database.

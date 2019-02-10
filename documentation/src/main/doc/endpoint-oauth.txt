@@ -2,7 +2,7 @@
 === OAuth 2 Authorization Server and OpenId Connect endpoints
 
 Endpoint 1 type:: +OAuth2Authz+
-Binding :: Web (Vaadin)
+Binding :: Web
 Exposed paths:: +/oauth2-authz+
 
 Endpoint 2 type:: +OAuth2Token+

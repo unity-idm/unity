@@ -2,7 +2,7 @@
 === Web SAML SSO endpoint
 
 Endpoint type:: +SAMLWebIdP+
-Binding:: Web (Vaadin)
+Binding:: Web
 Exposed paths:: +/saml2idp-web+, +/metadata+, +/SLO-WEB+, +/SLO-SOAP+
 
 This endpoint exposes the SAML 2 authentication interface, implementing the SSO profile with the support for 

@@ -155,10 +155,8 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		SingleActionHandler<TreeNode> editACAction = getEditACsAction();
 		addActionHandler(editACAction);
 
-		//TODO remove this. Temporarily for 2.8.0 
-		boolean addDelegationConfig = System.getProperty("enableGroupDelegation") != null;
 		SingleActionHandler<TreeNode> editDelegationConfigAction = getEditDelegationConfigAction();
-		if (addDelegationConfig) addActionHandler(editDelegationConfigAction);		
+		addActionHandler(editDelegationConfigAction);		
 		
 		SingleActionHandler<TreeNode> deleteAction = getDeleteAction();
 		addActionHandler(deleteAction);
@@ -174,7 +172,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		hamburgerMenu.addActionHandler(collapseAllAction);
 		hamburgerMenu.addActionHandler(editAction);
 		hamburgerMenu.addActionHandler(editACAction);
-		if (addDelegationConfig) hamburgerMenu.addActionHandler(editDelegationConfigAction);
+		hamburgerMenu.addActionHandler(editDelegationConfigAction);
 		hamburgerMenu.addActionHandler(addEntityAction);
 		toolbar.addHamburger(hamburgerMenu);
 

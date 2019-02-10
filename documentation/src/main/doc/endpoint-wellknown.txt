@@ -1,7 +1,7 @@
 === Access with well-known URLs
 
 Endpoint type:: +WellKnownLinksHandler+
-Binding:: Web (Vaadin)
+Binding:: Web
 Exposed paths:: +/sec+
 
 This endpoint is providing access to various Unity functions which are accessible via well known URLs and,

@@ -2,7 +2,7 @@
 === JWT management endpoint
 
 Endpoint type:: +JWTMan+
-Binding:: RESTful (CXF)
+Binding:: RESTful
 Exposed paths:: +/*+
 
 This endpoint exposes a simple JWT (JSON Web Token) management endpoint. It is possible to obtain, refresh
