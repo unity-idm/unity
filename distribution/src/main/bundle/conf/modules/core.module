@@ -24,6 +24,13 @@ unityServer.core.endpoints.userHome.endpointRealm=defaultRealm
 unityServer.core.endpoints.userHome.endpointName=UNITY user's account
 unityServer.core.endpoints.userHome.endpointAuthenticators=pwd
 
+unityServer.core.endpoints.upman.endpointType=UpManUI
+unityServer.core.endpoints.upman.endpointConfigurationFile=${CONF}/modules/core/upman.properties
+unityServer.core.endpoints.upman.contextPath=/upman
+unityServer.core.endpoints.upman.endpointRealm=defaultRealm
+unityServer.core.endpoints.upman.endpointName=UNITY project management
+unityServer.core.endpoints.upman.endpointAuthenticators=pwd
+
 unityServer.core.endpoints.restAdmin.endpointType=RESTAdmin
 unityServer.core.endpoints.restAdmin.endpointConfigurationFile=${CONF}/samples/empty
 unityServer.core.endpoints.restAdmin.contextPath=/rest-admin
