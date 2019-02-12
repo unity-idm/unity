@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
@@ -164,7 +164,7 @@ public class AuthenticationInterceptor extends AbstractPhaseInterceptor<Message>
 	{
 		PartialAuthnState state = null;
 		AuthenticationException firstError = null;
-		for (Authenticator authn : authenticationFlow.getFirstFactorAuthenticators())
+		for (AuthenticatorInstance authn : authenticationFlow.getFirstFactorAuthenticators())
 		{
 			try
 			{

@@ -4,226 +4,67 @@
  */
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
-import java.util.AbstractMap;
-import java.util.List;
-import java.util.Map;
-
-import com.vaadin.server.ExternalResource;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
-import com.vaadin.ui.Link;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.engine.api.utils.TimeUtil;
-import pl.edu.icm.unity.types.basic.IdentityParam;
-import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
-import pl.edu.icm.unity.types.registration.GroupSelection;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
-import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
-import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.ErrorComponent;
-import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
-import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
 
 /**
  * Presents an {@link InvitationWithCode}
+ * 
  * @author Krzysztof Benedyczak
  */
 public class InvitationViewer extends CustomComponent
 {
-	private UnityMessageSource msg;
-	private AttributeHandlerRegistry attrHandlersRegistry;
-	private MessageTemplateManagement msgTemplateMan;
-	private RegistrationsManagement regMan;
-	private SharedEndpointManagement sharedEndpointMan;
-	
-	private Label formId;
-	private Label code;
-	private Label expiration;
-	private Label contactAddress;
-	private Label channelId;
-	private Label lastSentTime;
-	private Label notificationsSent;
-	private Label messageParams;
-	private Label expectedIdentity;
-	private Link link;
-	private ListOfElements<PrefilledEntry<IdentityParam>> identities;
-	private VerticalLayout attributes;
-	private ListOfElements<Map.Entry<String, PrefilledEntry<GroupSelection>>> groups;
+	private RegistrationInvitationViewer regViewer;
+	private EnquiryInvitationViewer enqViewer;
 
-	private SafePanel identitiesPanel;
-	private SafePanel attributesPanel;
-	private SafePanel groupsPanel;
-	private FormLayout main;
-
-	
-	public InvitationViewer(UnityMessageSource msg,
-			AttributeHandlerRegistry attrHandlersRegistry,
+	public InvitationViewer(UnityMessageSource msg, AttributeHandlerRegistry attrHandlersRegistry,
 			MessageTemplateManagement msgTemplateMan, RegistrationsManagement regMan,
-			SharedEndpointManagement sharedEndpointMan)
+			EnquiryManagement enquiryMan, SharedEndpointManagement sharedEndpointMan,
+			EntityManagement entityMan, GroupsManagement groupMan)
 	{
-		this.msg = msg;
-		this.attrHandlersRegistry = attrHandlersRegistry;
-		this.msgTemplateMan = msgTemplateMan;
-		this.regMan = regMan;
-		this.sharedEndpointMan = sharedEndpointMan;
-		initUI();
-	}
-
-	private void initUI()
-	{
-		main = new CompactFormLayout();
+		this.regViewer = new RegistrationInvitationViewer(attrHandlersRegistry, msgTemplateMan, msg,
+				sharedEndpointMan, regMan, groupMan);
+		this.enqViewer = new EnquiryInvitationViewer(attrHandlersRegistry, msgTemplateMan, msg,
+				sharedEndpointMan, enquiryMan, entityMan, groupMan);
+		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		main.setSpacing(false);
 		setCompositionRoot(main);
-		
-		formId = new Label();
-		formId.setCaption(msg.getMessage("InvitationViewer.formId"));
-		
-		code = new Label();
-		code.setCaption(msg.getMessage("InvitationViewer.code"));
-
-		link = new Link();
-		link.setCaption(msg.getMessage("InvitationViewer.link"));
-		
-		expiration = new Label();
-		expiration.setCaption(msg.getMessage("InvitationViewer.expiration"));
-
-		channelId = new Label();
-		channelId.setCaption(msg.getMessage("InvitationViewer.channelId"));
-
-		contactAddress = new Label();
-		contactAddress.setCaption(msg.getMessage("InvitationViewer.contactAddress"));
-		
-		lastSentTime = new Label();
-		lastSentTime.setCaption(msg.getMessage("InvitationViewer.lastSentTime"));
-
-		notificationsSent = new Label();
-		notificationsSent.setCaption(msg.getMessage("InvitationViewer.notificationsSent"));
-		
-		messageParams = new Label();
-		messageParams.setWidth(100, Unit.PERCENTAGE);
-		messageParams.setCaption(msg.getMessage("InvitationViewer.messageParams"));
-		
-		expectedIdentity = new Label();
-		expectedIdentity.setWidth(100, Unit.PERCENTAGE);
-		expectedIdentity.setCaption(msg.getMessage("InvitationViewer.expectedIdentity"));
-		
-		identities = new ListOfElements<>(msg);
-		identities.setMargin(true);
-		identitiesPanel = new SafePanel(msg.getMessage("InvitationViewer.identities"), identities);
-		
-		attributes = new VerticalLayout();
-		attributes.setSpacing(true);
-		attributes.addStyleName(Styles.tinySpacing.toString());
-
-		attributes.setMargin(true);
-		attributesPanel = new SafePanel(msg.getMessage("InvitationViewer.attributes"), attributes);
-
-		groups = new ListOfElements<>(msg, entry -> {
-			PrefilledEntryMode mode = entry.getValue().getMode();
-			List<String> selectedGroups = entry.getValue().getEntry().getSelectedGroups();
-			return new Label("[" + mode.name() + "] " + selectedGroups);
-		});
-		groups.setMargin(true);
-		groupsPanel = new SafePanel(msg.getMessage("InvitationViewer.groups"), groups);
-		
-		main.addComponents(formId, code, link, expiration, channelId, contactAddress, lastSentTime, notificationsSent,
-				expectedIdentity, messageParams, identitiesPanel, attributesPanel, groupsPanel);
-		setInput(null, null);
+		main.addComponents(regViewer, enqViewer);
 	}
-	
-	public void setInput(InvitationWithCode invitation, RegistrationForm form)
+
+	public void setInput(InvitationWithCode invitationWithCode)
 	{
-		if (invitation == null)
+		enqViewer.setInput(null);
+		regViewer.setInput(null);
+
+		if (invitationWithCode == null)
 		{
-			setVisible(false);
 			return;
+		}
+
+		InvitationParam invitation = invitationWithCode.getInvitation();
+		InvitationType itype = invitation.getType();
+
+		if (itype.equals(InvitationType.REGISTRATION))
+		{
+			regViewer.setInput(invitationWithCode);
+
 		} else
 		{
-			setVisible(true);
-		}
-		if (form == null)
-		{
-			ErrorComponent error = new ErrorComponent();
-			error.setError(msg.getMessage("InvitationViewer.errorMissingForm"));
-			setCompositionRoot(error);
-			return;
-		} else
-		{
-			setCompositionRoot(main);
-		}
-		
-		formId.setValue(invitation.getFormId());
-		code.setValue(invitation.getRegistrationCode());
-		expiration.setValue(TimeUtil.formatMediumInstant(invitation.getExpiration()));
-		contactAddress.setValue(invitation.getContactAddress());
-		channelId.setValue(getChannel(invitation.getFormId()));
-		notificationsSent.setValue(String.valueOf(invitation.getNumberOfSends()));
-		lastSentTime.setValue(invitation.getLastSentTime() != null ? 
-				TimeUtil.formatMediumInstant(invitation.getLastSentTime()) : "-");
-		
-		String linkURL = PublicRegistrationURLSupport.getPublicRegistrationLink(form, 
-				invitation.getRegistrationCode(), sharedEndpointMan);
-		link.setTargetName("_blank");
-		link.setResource(new ExternalResource(linkURL));
-		
-		expectedIdentity.setVisible(invitation.getExpectedIdentity() != null);
-		if (invitation.getExpectedIdentity() != null)
-			expectedIdentity.setValue(invitation.getExpectedIdentity().toString());
-		
-		messageParams.setVisible(!invitation.getMessageParams().isEmpty());
-		messageParams.setValue(invitation.getMessageParams().toString());
-		
-		identitiesPanel.setVisible(!invitation.getIdentities().isEmpty());
-		identities.clearContents();
-		invitation.getIdentities().values().forEach(e -> identities.addEntry(e));
-		
-		attributesPanel.setVisible(!invitation.getAttributes().isEmpty());
-		attributes.removeAllComponents();
-		invitation.getAttributes().values().forEach(entry -> {
-			String attr = attrHandlersRegistry.getSimplifiedAttributeRepresentation(entry.getEntry());
-			Label l = new Label("[" + entry.getMode().name() + "] " + attr);
-			attributes.addComponent(l);
-		});
-
-		groupsPanel.setVisible(!invitation.getGroupSelections().isEmpty());
-		groups.clearContents();
-		invitation.getGroupSelections().entrySet().forEach(e -> {
-			if (form.getGroupParams().size() <= e.getKey())
-				return;
-			GroupRegistrationParam gp = form.getGroupParams().get(e.getKey());
-			if (gp == null)
-				return;
-			groups.addEntry(new AbstractMap.SimpleEntry<>(
-					gp.getGroupPath(), 
-					e.getValue()));
-		});
-	}
-	
-	private String getChannel(String formId)
-	{
-		try
-		{
-			RegistrationForm form = regMan.getForms().stream()
-					.filter(r -> r.getName().equals(formId)).findFirst().get();
-			return msgTemplateMan
-					.getTemplate(form.getNotificationsConfiguration()
-							.getInvitationTemplate())
-					.getNotificationChannel();
-
-		} catch (Exception e)
-		{
-			return "";
+			enqViewer.setInput(invitationWithCode);
 		}
 	}
-
 }

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.IdentityDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.api.generic.AttributeClassDB;
+import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.store.types.StoredIdentity;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
@@ -61,12 +63,18 @@ class CompositeEntitiesInfoProvider
 	private CredentialRepository credentialRepository;
 	@Autowired
 	private CredentialReqRepository credentialReqRepository;
+	@Autowired
+	private EnquiryFormDB enquiryDB;
 
 	
-	public GroupMembershipData getCompositeGroupContents(String group) throws EngineException
+	public GroupMembershipData getCompositeGroupContents(String group, Optional<Set<Long>> filter) throws EngineException
 	{
 		Stopwatch watch = Stopwatch.createStarted();
-		Set<Long> members = getMembers(group);
+		Set<Long> filterSet = (filter == null || !filter.isPresent() ? null : filter.get());
+		Set<Long> members = (filterSet == null ? getMembers(group)
+				: getMembers(group).stream().filter(i -> filterSet.contains(i))
+						.collect(Collectors.toSet()));
+
 		GroupMembershipDataImpl ret = GroupMembershipDataImpl.builder(group)
 			.withAttributeTypes(attributeTypeDAO.getAllAsMap())
 			.withAttributeClasses(acDB.getAllAsMap())
@@ -77,11 +85,12 @@ class CompositeEntitiesInfoProvider
 			.withIdentities(getIdentities(members, group))
 			.withDirectAttributes(getAttributes(members, group))
 			.withCredentialRequirements(getCredentialRequirements())
+			.withEnquiryForms(enquiryDB.getAllAsMap())
 			.build();
 		log.debug("Bulk group membership data retrieval: {}", watch.toString());
 		return ret;
 	}
-	
+
 	public GroupStructuralData getGroupStructuralContents(String group) throws EngineException
 	{
 		Stopwatch watch = Stopwatch.createStarted();
@@ -107,7 +116,7 @@ class CompositeEntitiesInfoProvider
 		Map<Long, Map<String, Map<String, AttributeExt>>> ret = new HashMap<>();
 		for (Long member: entities)
 			ret.put(member, new HashMap<>());
-		all.stream() 
+		all.stream().filter(a -> ret.containsKey(a.getEntityId())) 
 			.forEach(sa -> 
 			{
 				Map<String, Map<String, AttributeExt>> entityAttrs = ret.get(sa.getEntityId());
@@ -136,7 +145,7 @@ class CompositeEntitiesInfoProvider
 		Map<Long, List<Identity>> ret = new HashMap<>();
 		for (Long member: entities)
 			ret.put(member, new ArrayList<>());
-		all.stream() 
+		all.stream().filter(e -> ret.containsKey(e.getEntityId()))
 			.forEach(storedIdentity -> ret.get(storedIdentity.getEntityId()).add(storedIdentity.getIdentity()));
 		return ret;
 	}

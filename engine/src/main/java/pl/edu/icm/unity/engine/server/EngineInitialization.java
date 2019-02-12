@@ -93,13 +93,13 @@ import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.IdentityTypeDAO;
 import pl.edu.icm.unity.store.api.generic.AuthenticationFlowDB;
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.types.authn.LocalCredentialState;
@@ -170,7 +170,7 @@ public class EngineInitialization extends LifecycleBase
 	@Qualifier("insecure")
 	private AuthenticatorManagement authnManagement;
 	@Autowired
-	private AuthenticatorInstanceDB authenticatorDAO;
+	private AuthenticatorConfigurationDB authenticatorDAO;
 	@Autowired
 	private AuthenticationFlowDB authenticationFlowDAO;
 	@Autowired
@@ -711,7 +711,7 @@ public class EngineInitialization extends LifecycleBase
 
 	{
 		log.info("Loading all configured authentication flows");
-		Collection<AuthenticatorInstance> authenticators = authnManagement.getAuthenticators(null);
+		Collection<AuthenticatorInfo> authenticators = authnManagement.getAuthenticators(null);
 		Set<String> existinguthenticators = authenticators.stream().map(a -> a.getId()).collect(Collectors.toSet());		
 		Collection<AuthenticationFlowDefinition> authenticationFlows = authnFlowManagement
 				.getAuthenticationFlows();
@@ -784,9 +784,9 @@ public class EngineInitialization extends LifecycleBase
 	private void loadAuthenticatorsFromConfiguration() throws IOException, EngineException
 	{
 		log.info("Loading all configured authenticators");
-		Collection<AuthenticatorInstance> authenticators = authnManagement.getAuthenticators(null);
-		Map<String, AuthenticatorInstance> existing = new HashMap<>();
-		for (AuthenticatorInstance ai: authenticators)
+		Collection<AuthenticatorInfo> authenticators = authnManagement.getAuthenticators(null);
+		Map<String, AuthenticatorInfo> existing = new HashMap<>();
+		for (AuthenticatorInfo ai: authenticators)
 			existing.put(ai.getId(), ai);
 		
 		Set<String> authenticatorsList = config.getStructuredListKeys(UnityServerConfiguration.AUTHENTICATORS);
@@ -794,27 +794,21 @@ public class EngineInitialization extends LifecycleBase
 		{
 			String name = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_NAME);
 			String type = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_TYPE);
-			File vConfigFile = config.getFileValue(authenticatorKey+
+			File configFile = config.getFileValue(authenticatorKey+
 					UnityServerConfiguration.AUTHENTICATOR_VERIFICATOR_CONFIG, false);
-			File rConfigFile = config.getFileValue(authenticatorKey+
-					UnityServerConfiguration.AUTHENTICATOR_RETRIEVAL_CONFIG, false);
 			String credential = config.getValue(authenticatorKey+UnityServerConfiguration.AUTHENTICATOR_CREDENTIAL);
 
 			
-			String vJsonConfiguration = vConfigFile == null ? null : FileUtils.readFileToString(vConfigFile,
-					StandardCharsets.UTF_8);
-			String rJsonConfiguration = rConfigFile == null ? null : FileUtils.readFileToString(rConfigFile,
+			String configuration = configFile == null ? null : FileUtils.readFileToString(configFile,
 					StandardCharsets.UTF_8);
 			
 			if (!existing.containsKey(name))
 			{
-				authnManagement.createAuthenticator(name, type, vJsonConfiguration, 
-						rJsonConfiguration, credential);
+				authnManagement.createAuthenticator(name, type, configuration, credential);
 				log.info(" - " + name + " [" + type + "]");
 			} else
 			{
-				authnManagement.updateAuthenticator(name, vJsonConfiguration, 
-						rJsonConfiguration, credential);
+				authnManagement.updateAuthenticator(name, configuration, credential);
 				log.info(" - " + name + " [" + type + "] (updated)");
 			}
 		}

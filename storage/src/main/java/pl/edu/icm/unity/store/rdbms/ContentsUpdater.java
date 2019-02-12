@@ -17,6 +17,7 @@ import pl.edu.icm.unity.store.migration.InDBSchemaUpdater;
 import pl.edu.icm.unity.store.migration.from2_4.InDBUpdateFromSchema2_2;
 import pl.edu.icm.unity.store.migration.from2_5.InDBUpdateFromSchema2_3;
 import pl.edu.icm.unity.store.migration.from2_6.InDBUpdateFromSchema2_4;
+import pl.edu.icm.unity.store.migration.from2_7.InDBUpdateFromSchema2_5;
 
 /**
  * Updates DB contents. Note that this class is not updating DB schema (it is done in {@link InitDB}).
@@ -30,7 +31,7 @@ public class ContentsUpdater
 	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
 	 * when bumping it please make sure any required data migrations were implemented here.  
 	 */
-	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_5_0";
+	private static final String DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_6_0";
 	
 	@Autowired
 	private TransactionalRunner txManager;
@@ -40,6 +41,8 @@ public class ContentsUpdater
 	private InDBUpdateFromSchema2_3 from2_5;
 	@Autowired
 	private InDBUpdateFromSchema2_4 from2_6;
+	@Autowired
+	private InDBUpdateFromSchema2_5 from2_7;
 	
 	public void update(long oldDbVersion) throws IOException, EngineException
 	{
@@ -53,6 +56,9 @@ public class ContentsUpdater
 
 		if (oldDbVersion < 20500)
 			migrateFromSchemaVersion(from2_6);
+
+		if (oldDbVersion < 20600)
+			migrateFromSchemaVersion(from2_7);
 	}
 	
 	private void assertMigrationsAreMatchingApp() throws IOException

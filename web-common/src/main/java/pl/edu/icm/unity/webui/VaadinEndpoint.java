@@ -273,6 +273,7 @@ public class VaadinEndpoint extends AbstractWebEndpoint implements WebAppEndpoin
 			
 		boolean productionMode = genericEndpointProperties.getBooleanValue(VaadinEndpointProperties.PRODUCTION_MODE);
 		holder.setInitParameter("heartbeatInterval", String.valueOf(heartBeat));
+		holder.setInitParameter("sendUrlsAsParameters", "false"); //theoreticly needed for push state navi, but adding this causes NPEs
 		holder.setInitParameter(PRODUCTION_MODE_PARAM, String.valueOf(productionMode));
 		holder.setInitParameter("org.atmosphere.cpr.broadcasterCacheClass", 
 				"org.atmosphere.cache.UUIDBroadcasterCache");

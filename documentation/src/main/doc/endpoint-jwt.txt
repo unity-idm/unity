@@ -2,14 +2,95 @@
 === JWT management endpoint
 
 Endpoint type:: +JWTMan+
-Binding:: RESTful (CXF)
+Binding:: RESTful
 Exposed paths:: +/*+
 
 This endpoint exposes a simple JWT (JSON Web Token) management endpoint. It is possible to obtain, refresh
-and invalidate JWT with simple API calls. The usage of this endpoint is documented on the Unity Wiki.
+and invalidate JWT with simple API calls. 
+
+JSON Web Token authentication is a simple and lightweight authentication option, useful for non-web browser clients. 
+The purpose is to authenticate the client to Unity using some sort of authentication which involves user-obtained 
+credentials (as password) or heavy weight authN (as SAML ECP) ONCE, and then continue to use a simple JWT mechanism 
+for the duration of the session.
+
+Note that this is a fairly limited (or simple if you prefer) interface, not conforming to any web standards. Therefore
+for more important production use cases usage of e.g. an appropriate OAuth flow (like client credentials grant) 
+is advised instead. The JWT authentication mechanism is on other hand good for testing, or more internal solutions. 
 
 The options of the endpoint are:
 
 include::ref-JWTManProperties.txt[]
 
 
+
+==== JWT token contents
+
+iss:: Address of the Unity endpoint that issued the token or a configured value.
+sub:: Authenticated user (token bearer) identity which is always persistent (not targeted) identity.
+aud:: the public address of unity instance with '#' authenticationRealmName appended.
+exp:: Expiration time
+iat:: Issue time
+jti:: id of the token
+
+The token is always signed with JWT and is not encrypted.
+
+==== JWT management API
+
+JWT can be obtained in two ways:
+
+* The client can contact the JWT-enabled endpoint
+* The client can go through SAML ECP authentication using the SAML ECP endpoint
+
+Here we describe the first option. 
+
+The jwtMan endpoint is configured as a regular Unity endpoint. Its configuration includes the validity time of a token. 
+Its authenticators are used to authenticate the client which can get its own token, i.e. the token for the 
+currently authenticated user.
+
+----
+GET /token
+----
+
+Returns JWT token
+
+----
+POST /refreshToken
+----
+
+HTTP Entity: a valid JWT Token
+
+Returns a refreshed Token
+
+Note: to make the refresh feature working, the token endpoint must have the JWT authentication enabled by itself. 
+Otherwise refreshing would require authentication with regular credential, what is equivalent to obtaining a new token.
+
+----
+POST /invalidateToken
+----
+
+HTTP Entity: a valid JWT Token
+
+After invalidation the invalidated token can be used until expired. But since invalidation it can not be refreshed.
+How JWT is used to authenticate the client
+
+==== Authenticating with JWT token
+
+To authenticate with any Unity endpoint with JWT authentication enabled, the JWT token must be  
+Base 64 encoded and inserted as a value of the HTTP Authorization header. 
+The token MUST be provided conforming to the rules of RFC 6750, section 2.1:
+
+----
+"Bearer" 1*SP b64token
+---- 
+
+As always in Unity, an endpoint which should support such authentication must have an appropriate authenticator assigned.
+
+Note that each token is valid for authentication only on those endpoints which are in the same 
+authentication realm in which the token was obtained.
+
+
+==== Configuring JWT authentication on endpoint
+
+The JWT authenticator is named +jwt+. Its configuration should follow the same syntax as the endpoint, 
+however only the credential configuration is relevant. 
+Typically the same configuration file should be used for both endpoint and authenticator.

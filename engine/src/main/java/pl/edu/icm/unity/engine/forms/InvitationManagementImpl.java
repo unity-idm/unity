@@ -31,12 +31,18 @@ import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
+import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.api.generic.InvitationDB;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
+import pl.edu.icm.unity.types.registration.BaseForm;
+import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
+import pl.edu.icm.unity.types.registration.invite.EnquiryInvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 /**
  * Implementation of {@link InvitationManagement}
@@ -49,7 +55,8 @@ import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 @Transactional
 public class InvitationManagementImpl implements InvitationManagement
 {
-	private RegistrationFormDB formsDB;
+	private RegistrationFormDB registrationDB;
+	private EnquiryFormDB enquiryDB;
 	private AuthorizationManager authz;
 	private NotificationProducer notificationProducer;
 
@@ -58,11 +65,13 @@ public class InvitationManagementImpl implements InvitationManagement
 	private SharedEndpointManagement sharedEndpointMan;
 
 	@Autowired
-	public InvitationManagementImpl(RegistrationFormDB formsDB, AuthorizationManager authz,
+	public InvitationManagementImpl(RegistrationFormDB registrationDB, EnquiryFormDB  enquiryDB,
+			AuthorizationManager authz,
 			NotificationProducer notificationProducer, UnityMessageSource msg,
 			InvitationDB invitationDB, SharedEndpointManagement sharedEndpointMan)
 	{
-		this.formsDB = formsDB;
+		this.registrationDB = registrationDB;
+		this.enquiryDB = enquiryDB;
 		this.authz = authz;
 		this.notificationProducer = notificationProducer;
 		this.msg = msg;
@@ -74,55 +83,52 @@ public class InvitationManagementImpl implements InvitationManagement
 	public String addInvitation(InvitationParam invitation) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		RegistrationForm form = formsDB.get(invitation.getFormId());
-		if (!form.isPubliclyAvailable())
-			throw new WrongArgumentException("Invitations can be attached to public forms only");
-		if (form.getRegistrationCode() != null)
-			throw new WrongArgumentException("Invitations can not be attached to forms with a fixed registration code");
+	
+		if (invitation.getFormId() == null)
+		{
+			throw new WrongArgumentException("The invitation has no form configured");
+		}
+		
+		
+		if (invitation.getType().equals(InvitationType.REGISTRATION))
+		{
+			assertRegistrationFormIsForInvitation(invitation.getFormId());
+		}else
+		{
+			assertEnquiryFormIsPresent(invitation.getFormId());
+		}
+		
 		String randomUUID = UUID.randomUUID().toString();
 		InvitationWithCode withCode = new InvitationWithCode(invitation, randomUUID, null, 0);
 		invitationDB.create(withCode);
 		return randomUUID;
 	}
-
+	
 	@Override
 	public void sendInvitation(String code) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		String userLocale = msg.getDefaultLocaleCode();
-		
-		InvitationWithCode invitation = invitationDB.get(code);
-		if (invitation.getContactAddress() == null)
-			throw new WrongArgumentException("The invitation has no contact address configured");
+
+		InvitationWithCode invitationWithCode = invitationDB.get(code);
+		InvitationParam invitation = invitationWithCode.getInvitation();
 		if (invitation.getExpiration().isBefore(Instant.now()))
 			throw new WrongArgumentException("The invitation is expired");
-		
-		RegistrationForm form = formsDB.get(invitation.getFormId());
-		if (form.getNotificationsConfiguration().getInvitationTemplate() == null)
-			throw new WrongArgumentException("The form of the invitation has no invitation message "
-					+ "template configured");
-		
-		Map<String, String> notifyParams = new HashMap<>();
-		notifyParams.put(BaseRegistrationTemplateDef.FORM_NAME, form.getDisplayedName().getValue(
-				userLocale, msg.getDefaultLocaleCode()));
-		notifyParams.put(InvitationTemplateDef.CODE, invitation.getRegistrationCode());
-		notifyParams.put(InvitationTemplateDef.URL, 
-				PublicRegistrationURLSupport.getPublicRegistrationLink(form, code, 
-						sharedEndpointMan));
-		ZonedDateTime expiry = invitation.getExpiration().atZone(ZoneId.systemDefault());
-		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
-		notifyParams.putAll(invitation.getMessageParams());
-		
-		Instant sentTime = Instant.now();
-		notificationProducer.sendNotification(invitation.getContactAddress(),
-				form.getNotificationsConfiguration().getInvitationTemplate(),
-				notifyParams, userLocale);
-		
-		invitation.setLastSentTime(sentTime);
-		invitation.setNumberOfSends(invitation.getNumberOfSends() + 1);
-		invitationDB.update(invitation);
-	}
 
+		if (invitation.getType().equals(InvitationType.REGISTRATION))
+		{
+			sendRegistrationInvitation((RegistrationInvitationParam) invitation, code);
+
+		} else
+		{
+			sendEnquiryInvitation((EnquiryInvitationParam) invitation, code);
+		}
+
+		Instant sentTime = Instant.now();
+		invitationWithCode.setLastSentTime(sentTime);
+		invitationWithCode.setNumberOfSends(invitationWithCode.getNumberOfSends() + 1);
+		invitationDB.update(invitationWithCode);
+	}
+	
 	@Override
 	public void removeInvitation(String code) throws EngineException
 	{
@@ -148,13 +154,73 @@ public class InvitationManagementImpl implements InvitationManagement
 	public void updateInvitation(String code, InvitationParam invitation) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		InvitationWithCode current = invitationDB.get(code);
+		InvitationWithCode currentWithCode = invitationDB.get(code);
+		InvitationParam current = currentWithCode.getInvitation();
+		
 		if (!Objects.equal(current.getFormId(), invitation.getFormId()))
 			throw new WrongArgumentException("Can not update form of an invitation");
 		if (!Objects.equal(current.getContactAddress(), invitation.getContactAddress()))
 			throw new WrongArgumentException("Can not update contact address of an invitation");
-		InvitationWithCode updated = new InvitationWithCode(invitation, current.getRegistrationCode(), 
-				current.getLastSentTime(), current.getNumberOfSends());
+		InvitationWithCode updated = new InvitationWithCode(invitation, currentWithCode.getRegistrationCode(), 
+				currentWithCode.getLastSentTime(), currentWithCode.getNumberOfSends());
 		invitationDB.update(updated);
 	}
+	
+	private void assertEnquiryFormIsPresent(String formId)
+	{
+		enquiryDB.get(formId);		
+	}
+
+	private void assertRegistrationFormIsForInvitation(String formId) throws WrongArgumentException
+	{
+		RegistrationForm form = registrationDB.get(formId);
+		if (!form.isPubliclyAvailable())
+			throw new WrongArgumentException("Invitations can be attached to public forms only");
+		if (form.getRegistrationCode() != null)
+			throw new WrongArgumentException("Invitations can not be attached to forms with a fixed registration code");
+	}
+	
+	private void sendRegistrationInvitation(RegistrationInvitationParam invitation, String code)
+			throws EngineException
+	{	
+		RegistrationForm form = registrationDB.get(invitation.getFormId());
+		sendInvitation(form, invitation.getExpiration(), invitation.getMessageParams(),
+				invitation.getContactAddress(),
+				PublicRegistrationURLSupport.getPublicRegistrationLink(form, code, sharedEndpointMan),
+				code);
+	}
+
+	private void sendEnquiryInvitation(EnquiryInvitationParam invitation, String code) throws EngineException
+	{
+		if (invitation.getEntity() == null)
+			throw new WrongArgumentException("The invitation has no entity configured");
+		
+		EnquiryForm form = enquiryDB.get(invitation.getFormId());
+		sendInvitation(form, invitation.getExpiration(), invitation.getMessageParams(), invitation.getContactAddress(),
+				PublicRegistrationURLSupport.getPublicEnquiryLink(form, code, sharedEndpointMan), code);
+	}
+
+	private void sendInvitation(BaseForm form, Instant expiration, Map<String, String> messageParams,
+			String contactAdress, String url, String code) throws EngineException
+	{
+		if (contactAdress == null)
+			throw new WrongArgumentException("The invitation has no contact address configured");
+		if (form.getNotificationsConfiguration().getInvitationTemplate() == null)
+			throw new WrongArgumentException("The form of the invitation has no invitation message "
+					+ "template configured");
+		
+		String userLocale = msg.getDefaultLocaleCode();
+		Map<String, String> notifyParams = new HashMap<>();
+		notifyParams.put(BaseRegistrationTemplateDef.FORM_NAME,
+				form.getDisplayedName().getValue(userLocale, msg.getDefaultLocaleCode()));
+		notifyParams.put(InvitationTemplateDef.CODE, code);
+		notifyParams.put(InvitationTemplateDef.URL, url);
+		ZonedDateTime expiry = expiration.atZone(ZoneId.systemDefault());
+		notifyParams.put(InvitationTemplateDef.EXPIRES, expiry.format(DateTimeFormatter.RFC_1123_DATE_TIME));
+		notifyParams.putAll(messageParams);
+
+		notificationProducer.sendNotification(contactAdress,
+				form.getNotificationsConfiguration().getInvitationTemplate(), notifyParams, userLocale);
+	}
+	
 }

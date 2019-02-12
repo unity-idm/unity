@@ -15,25 +15,32 @@ unityServer.core.endpoints.adminUI.endpointConfigurationFile=${CONF}/modules/cor
 unityServer.core.endpoints.adminUI.contextPath=/admin
 unityServer.core.endpoints.adminUI.endpointRealm=adminRealm
 unityServer.core.endpoints.adminUI.endpointName=UNITY administration interface
-unityServer.core.endpoints.adminUI.endpointAuthenticators=pwdWeb;certWeb
+unityServer.core.endpoints.adminUI.endpointAuthenticators=pwd;cert
 
 unityServer.core.endpoints.userHome.endpointType=UserHomeUI
 unityServer.core.endpoints.userHome.endpointConfigurationFile=${CONF}/modules/core/userhome.properties
 unityServer.core.endpoints.userHome.contextPath=/home
 unityServer.core.endpoints.userHome.endpointRealm=defaultRealm
 unityServer.core.endpoints.userHome.endpointName=UNITY user's account
-unityServer.core.endpoints.userHome.endpointAuthenticators=pwdWeb
+unityServer.core.endpoints.userHome.endpointAuthenticators=pwd
+
+unityServer.core.endpoints.upman.endpointType=UpManUI
+unityServer.core.endpoints.upman.endpointConfigurationFile=${CONF}/modules/core/upman.properties
+unityServer.core.endpoints.upman.contextPath=/upman
+unityServer.core.endpoints.upman.endpointRealm=defaultRealm
+unityServer.core.endpoints.upman.endpointName=UNITY project management
+unityServer.core.endpoints.upman.endpointAuthenticators=pwd
 
 unityServer.core.endpoints.restAdmin.endpointType=RESTAdmin
-unityServer.core.endpoints.restAdmin.endpointConfigurationFile=${CONF}/authenticators/empty.json
+unityServer.core.endpoints.restAdmin.endpointConfigurationFile=${CONF}/samples/empty
 unityServer.core.endpoints.restAdmin.contextPath=/rest-admin
 unityServer.core.endpoints.restAdmin.endpointName=RESTful administration API
 unityServer.core.endpoints.restAdmin.endpointRealm=defaultRealm
-unityServer.core.endpoints.restAdmin.endpointAuthenticators=pwdRest
+unityServer.core.endpoints.restAdmin.endpointAuthenticators=pwd
 
 unityServer.core.endpoints.wellKnown.endpointType=WellKnownLinksHandler
-unityServer.core.endpoints.wellKnown.endpointConfigurationFile=${CONF}/authenticators/empty.json
+unityServer.core.endpoints.wellKnown.endpointConfigurationFile=${CONF}/samples/empty
 unityServer.core.endpoints.wellKnown.contextPath=/well-known
 unityServer.core.endpoints.wellKnown.endpointName=Account service
 unityServer.core.endpoints.wellKnown.endpointRealm=defaultRealm
-unityServer.core.endpoints.wellKnown.endpointAuthenticators=pwdWeb
+unityServer.core.endpoints.wellKnown.endpointAuthenticators=pwd

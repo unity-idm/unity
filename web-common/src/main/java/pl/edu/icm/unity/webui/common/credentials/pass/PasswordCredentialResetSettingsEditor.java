@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.common.credentials.pass;
 
+import java.util.Arrays;
+
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.server.Sizeable.Unit;
@@ -20,8 +22,11 @@ import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
 import pl.edu.icm.unity.webui.common.Images;
-import pl.edu.icm.unity.webui.common.ListOfElements;
-import pl.edu.icm.unity.webui.common.ListOfElements.RemoveHandler;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton;
 import pl.edu.icm.unity.webui.common.TextFieldWithButton.ButtonHandler;
 
@@ -39,7 +44,7 @@ public class PasswordCredentialResetSettingsEditor
 	private TextFieldWithButton questionAdder;
 	private CompatibleTemplatesComboBox emailCodeMessageTemplate;
 	private CompatibleTemplatesComboBox mobileCodeMessageTemplate;
-	private ListOfElements<String> questions;
+	private ListOfElementsWithActions<String> questions;
 	private MessageTemplateManagement msgTplMan;
 	private ComboBox<ConfirmationMode> confirmationMode;
 	
@@ -164,22 +169,20 @@ public class PasswordCredentialResetSettingsEditor
 						return true;
 					}
 				});
-		questions = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
-		{
-			@Override
-			public Label toLabel(String value)
-			{
-				return new Label(value);
-			}
-		});
-		questions.setRemoveHandler(new RemoveHandler<String>()
-		{
-			@Override
-			public boolean remove(String value)
-			{
-				return true;
-			}
-		});
+		
+		SingleActionHandler<String> remove = SingleActionHandler.builder4Delete(msg, String.class)
+				.withHandler(r -> {
+
+					questions.removeEntry(r.iterator().next());
+
+				}
+
+				).build();
+
+		questions = new ListOfElementsWithActions<>(Arrays.asList(new Column<>(null, r -> new Label(r), 1)),
+				new ActionColumn<>(null, Arrays.asList(remove), 0, Position.Left));
+		
+		
 	}
 	
 	public boolean getEmailMessageTemplateState()

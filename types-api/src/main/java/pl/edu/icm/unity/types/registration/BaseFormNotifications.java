@@ -14,6 +14,7 @@ public class BaseFormNotifications
 	private String rejectedTemplate;
 	private String acceptedTemplate;
 	private String updatedTemplate;
+	private String invitationTemplate;
 	
 	private String adminsNotificationGroup;
 	private boolean sendUserNotificationCopyToAdmin;
@@ -58,6 +59,15 @@ public class BaseFormNotifications
 	{
 		this.sendUserNotificationCopyToAdmin = sendUserNotificationCopyToAdmin;
 	}
+	public String getInvitationTemplate()
+	{
+		return invitationTemplate;
+	}
+	public void setInvitationTemplate(String invitationTemplate)
+	{
+		this.invitationTemplate = invitationTemplate;
+	}
+	
 	@Override
 	public int hashCode()
 	{
@@ -72,6 +82,8 @@ public class BaseFormNotifications
 		result = prime * result + (sendUserNotificationCopyToAdmin ? 1231 : 1237);
 		result = prime * result
 				+ ((updatedTemplate == null) ? 0 : updatedTemplate.hashCode());
+		result = prime * result
+				+ ((invitationTemplate == null) ? 0 : invitationTemplate.hashCode());
 		return result;
 	}
 	@Override
@@ -110,6 +122,13 @@ public class BaseFormNotifications
 				return false;
 		} else if (!updatedTemplate.equals(other.updatedTemplate))
 			return false;
+		if (invitationTemplate == null)
+		{
+			if (other.invitationTemplate != null)
+				return false;
+		} else if (!invitationTemplate.equals(other.invitationTemplate))
+			return false;
+		
 		return true;
 	}
 }

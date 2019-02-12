@@ -42,7 +42,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 	{
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT toAdd = jsonSerializer.toDB(obj);
-		StorageLimits.checkContentsLimit(toAdd.getContents());
+		assertContentsLimit(toAdd.getContents());
 		mapper.create(toAdd);
 		return toAdd.getId();
 	}
@@ -53,7 +53,7 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
 		DBT toAdd = jsonSerializer.toDB(obj);
 		toAdd.setId(key);
-		StorageLimits.checkContentsLimit(toAdd.getContents());
+		assertContentsLimit(toAdd.getContents());
 		mapper.createWithKey(toAdd);
 	}
 	
@@ -68,11 +68,16 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		preUpdateCheck(old, obj);
 		firePreUpdate(key, null, obj, old);
 		DBT toUpdate = jsonSerializer.toDB(obj);
-		StorageLimits.checkContentsLimit(toUpdate.getContents());
+		assertContentsLimit(toUpdate.getContents());
 		toUpdate.setId(key);
 		mapper.updateByKey(toUpdate);		
 	}
 
+	protected void assertContentsLimit(byte[] contents)
+	{
+		StorageLimits.checkContentsLimit(contents);
+	}
+	
 	/**
 	 * For extensions
 	 * @param old

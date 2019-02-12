@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.engine.api.authn.local;
 
+import java.util.Optional;
+
 import pl.edu.icm.unity.engine.api.authn.AbstractVerificator;
 
 /**
@@ -46,5 +48,11 @@ public abstract class AbstractLocalVerificator extends AbstractVerificator imple
 	public VerificatorType getType()
 	{
 		return VerificatorType.Local;
+	}
+	
+	@Override
+	public Optional<String> updateCredentialAfterConfigurationChange(String currentCredential)
+	{
+		return Optional.empty();
 	}
 }

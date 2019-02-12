@@ -134,8 +134,7 @@ public abstract class TokenTestBase extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 
-		authnMan.createAuthenticator("Apass", "password with rest-httpbasic", null, "",
-				"credential1");
+		authnMan.createAuthenticator("Apass", "password", "", "credential1");
 	}
 	
 	@Before

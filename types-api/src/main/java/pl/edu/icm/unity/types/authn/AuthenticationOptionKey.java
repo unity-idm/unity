@@ -13,6 +13,8 @@ import java.util.Objects;
  */
 public class AuthenticationOptionKey
 {
+	public static final String ALL_OPTS = "*";
+	
 	private String authenticatorKey;
 	private String optionKey;
 
@@ -36,9 +38,10 @@ public class AuthenticationOptionKey
 	
 	public String toGlobalKey()
 	{
-		return AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey);
+		return !optionKey.equals(ALL_OPTS) ? AuthenticationOptionKeyUtils.encode(authenticatorKey, optionKey)
+				: AuthenticationOptionKeyUtils.encode(authenticatorKey, null);
 	}
-	
+
 	public String getAuthenticatorKey()
 	{
 		return authenticatorKey;

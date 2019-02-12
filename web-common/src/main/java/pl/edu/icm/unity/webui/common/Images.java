@@ -16,6 +16,7 @@ import com.vaadin.server.ThemeResource;
 public enum Images
 {
 	logo		(I.PB + "logo.png"),
+	logoSmall	(I.PB + "logo-hand.png"),
 	loader		(I.PB + "loader.gif"),
 	password	(I.PB + "password.png"),
 	mobile_sms	(I.PB + "mobile-sms.png"),
@@ -71,6 +72,9 @@ public enum Images
 	topArrow	(VaadinIcons.ANGLE_DOUBLE_UP),
 	downArrow	(VaadinIcons.ANGLE_DOWN),
 	bottomArrow	(VaadinIcons.ANGLE_DOUBLE_DOWN),
+	rightArrow 	(VaadinIcons.ANGLE_RIGHT),
+	rightDoubleArrow (VaadinIcons.ANGLE_DOUBLE_RIGHT),
+	leftDoubleArrow (VaadinIcons.ANGLE_DOUBLE_LEFT),
 	wizard		(VaadinIcons.MAGIC),
 	dryrun		(VaadinIcons.COG_O),
 	play		(VaadinIcons.PLAY),
@@ -84,8 +88,29 @@ public enum Images
 	remove		(VaadinIcons.CLOSE_CIRCLE_O),
 	close_small	(VaadinIcons.CLOSE_SMALL),
 	resize		(VaadinIcons.RESIZE_H),
-	mobile		(VaadinIcons.MOBILE_RETRO);
-	
+	mobile		(VaadinIcons.MOBILE_RETRO),
+	dashboard 	(VaadinIcons.DASHBOARD),
+	user		(VaadinIcons.USER),
+	question	(VaadinIcons.QUESTION_CIRCLE_O),
+	globe		(VaadinIcons.GLOBE),
+	family		(VaadinIcons.FAMILY),
+	file_tree 	(VaadinIcons.FILE_TREE),
+	file_tree_small (VaadinIcons.FILE_TREE_SMALL),
+	file_tree_sub 	(VaadinIcons.FILE_TREE_SUB),
+	envelope_open	(VaadinIcons.ENVELOPE_OPEN),
+	user_check	(VaadinIcons.USER_CHECK),
+	star 		(VaadinIcons.STAR),
+	trending_down 	(VaadinIcons.TRENDIND_DOWN),
+	trending_up 	(VaadinIcons.TRENDING_UP),
+	padlock_lock	(VaadinIcons.LOCK),
+	padlock_unlock	(VaadinIcons.UNLOCK),
+	pencil		(VaadinIcons.PENCIL),
+	forward		(VaadinIcons.FORWARD),
+	external_link 	(VaadinIcons.EXTERNAL_LINK),
+	trash		(VaadinIcons.TRASH),
+	envelope	(VaadinIcons.ENVELOPE),
+	records	        (VaadinIcons.RECORDS),
+	bullet	        (VaadinIcons.CIRCLE);
 	
 	private final Resource resource;
 	

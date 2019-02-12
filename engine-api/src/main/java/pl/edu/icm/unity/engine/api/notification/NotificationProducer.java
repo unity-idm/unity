@@ -62,4 +62,15 @@ public interface NotificationProducer
 	 */
 	void sendNotificationToGroup(String group, String templateId, Map<String, String> params,
 			String locale) throws EngineException;
+	
+	
+	/**
+	 * Get address for entity. Address is relevant for channel configured in message template. 
+	 * @param recipient 
+	 * @param templateId message template of message
+	 * @param onlyConfirmed get only confirmed address
+	 * @return
+	 * @throws EngineException 
+	 */
+	String getAddressForEntity(EntityParam recipient, String templateId, boolean onlyConfirmed) throws EngineException;
 }

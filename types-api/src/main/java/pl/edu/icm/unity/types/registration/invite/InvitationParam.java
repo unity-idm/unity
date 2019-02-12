@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
@@ -32,39 +31,57 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
  * one simple for JSON API and one with resolved Attribute for the backend.
  * @author Krzysztof Benedyczak
  */
-public class InvitationParam
+public abstract class InvitationParam
 {
+	public static enum InvitationType { ENQUIRY, REGISTRATION};
+	
 	private static final Logger log = LogManager.getLogger(InvitationParam.class);
 	
+	private InvitationType type;
 	private String formId;
 	private Instant expiration;
 	private String contactAddress;
 	
 	private Map<Integer, PrefilledEntry<IdentityParam>> identities = new HashMap<>();
 	private Map<Integer, PrefilledEntry<GroupSelection>> groupSelections = new HashMap<>();
+	private Map<Integer, GroupSelection> allowedGroups = new HashMap<>();
 	private Map<Integer, PrefilledEntry<Attribute>> attributes = new HashMap<>();
 	private Map<String, String> messageParams = new HashMap<>();
-	private ExpectedIdentity expectedIdentity;
 
-	private InvitationParam() {}
-	
-	public InvitationParam(String formId, Instant expiration, String contactAddress)
+	protected InvitationParam(InvitationType type) 
 	{
-		this(formId, expiration);
+		this.type = type;
+	}
+	
+	public InvitationParam(InvitationType type, String formId, Instant expiration, String contactAddress)
+	{
+		this(type, formId, expiration);
 		this.contactAddress = contactAddress;
 	}
 
-	public InvitationParam(String formId, Instant expiration)
+	public InvitationParam(InvitationType type, String formId, Instant expiration)
 	{
+		this.type = type;
 		this.formId = formId;
-		this.expiration = expiration;
+		this.expiration = expiration;		
 	}
 
 	@JsonCreator
 	public InvitationParam(ObjectNode json)
 	{
-		fromJson(json);
+		fromJsonBase(json);
 	}
+	
+	public InvitationType getType()
+	{
+		return type;
+	}
+
+	public void setType(InvitationType type)
+	{
+		this.type = type;
+	}
+
 	
 	public String getFormId()
 	{
@@ -90,6 +107,11 @@ public class InvitationParam
 	{
 		return groupSelections;
 	}
+	
+	public Map<Integer, GroupSelection> getAllowedGroups()
+	{
+		return allowedGroups;
+	}
 
 	public Map<Integer, PrefilledEntry<Attribute>> getAttributes()
 	{
@@ -99,16 +121,6 @@ public class InvitationParam
 	public Map<String, String> getMessageParams()
 	{
 		return messageParams;
-	}
-
-	public ExpectedIdentity getExpectedIdentity()
-	{
-		return expectedIdentity;
-	}
-
-	public void setExpectedIdentity(ExpectedIdentity expectedIdentity)
-	{
-		this.expectedIdentity = expectedIdentity;
 	}
 
 	@JsonIgnore
@@ -122,27 +134,35 @@ public class InvitationParam
 	{
 		ObjectNode json = Constants.MAPPER.createObjectNode();
 		
+		json.put("type", getType().toString());
 		json.put("formId", getFormId());
 		json.put("expiration", getExpiration().toEpochMilli());
 		if (getContactAddress() != null)
 			json.put("contactAddress", getContactAddress());
-		if (getExpectedIdentity() != null)
-			json.putPOJO("expectedIdentity", expectedIdentity);
-		
 		json.putPOJO("identities", getIdentities());
 		json.putPOJO("groupSelections", getGroupSelections());
+		json.putPOJO("allowedGroups", getAllowedGroups());
 		json.putPOJO("attributes", getAttributes());
 		json.putPOJO("messageParams", getMessageParams());
 		return json;
 	}
 	
-	private void fromJson(ObjectNode json)
+	private void fromJsonBase(ObjectNode json)
 	{
+		
+		JsonNode n;
+		n=json.get("type");
+		if (n != null && !n.isNull())
+		{
+			type = InvitationType.valueOf(json.get("type").asText());	
+		}else
+		{
+			type = InvitationType.REGISTRATION;	
+		}
+			
 		formId = json.get("formId").asText();
 		expiration = Instant.ofEpochMilli(json.get("expiration").asLong());
 		contactAddress = JsonUtil.getNullable(json, "contactAddress");
-		
-		JsonNode n;
 		
 		n = json.get("identities");
 		fill((ObjectNode) n, getIdentities(), IdentityParam.class);
@@ -150,6 +170,10 @@ public class InvitationParam
 		n = json.get("groupSelections");
 		fill((ObjectNode) n, getGroupSelections(), GroupSelection.class);
 
+		n = json.get("allowedGroups");
+		if (n != null && !n.isNull())
+			fill((ObjectNode) n, getAllowedGroups());
+		
 		n = json.get("attributes");
 		fill((ObjectNode) n, getAttributes(), Attribute.class);
 		
@@ -167,10 +191,23 @@ public class InvitationParam
 				}
 			});
 		}
+	}
+
+	private void fill(ObjectNode root, Map<Integer, GroupSelection> allowedGroups)
+	{
+		root.fields().forEachRemaining(field ->
+		{
+			try
+			{
+				allowedGroups.put(Integer.parseInt(field.getKey()), 
+						Constants.MAPPER.treeToValue(field.getValue(), GroupSelection.class));
+			} catch (Exception e)
+			{
+				log.warn("Ignoring unparsable prefilled invitation entry", e);
+				return;
+			}
+		});
 		
-		n = json.get("expectedIdentity");
-		if (n != null)
-			expectedIdentity = Constants.MAPPER.convertValue(n, ExpectedIdentity.class);
 	}
 
 	protected <T> void fill(ObjectNode root, Map<Integer, PrefilledEntry<T>> map, Class<T> clazz)
@@ -215,70 +252,91 @@ public class InvitationParam
 				&& Objects.equals(contactAddress, castOther.contactAddress)
 				&& Objects.equals(identities, castOther.identities)
 				&& Objects.equals(groupSelections, castOther.groupSelections)
+				&& Objects.equals(allowedGroups, castOther.allowedGroups)
 				&& Objects.equals(attributes, castOther.attributes)
-				&& Objects.equals(messageParams, castOther.messageParams)
-				&& Objects.equals(expectedIdentity, castOther.expectedIdentity);
+				&& Objects.equals(messageParams, castOther.messageParams);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, attributes,
-				messageParams, expectedIdentity);
+		return Objects.hash(formId, expiration, contactAddress, identities, groupSelections, allowedGroups, attributes,
+				messageParams);
 	}
+
+	protected static class Builder<T extends Builder<?>> {
 	
-	public static Builder builder()
-	{
-		return new Builder();
-	}
-	
-	public static class Builder
-	{
-		private InvitationParam instance = new InvitationParam();
-		
-		public Builder withForm(String formId)
+		private InvitationParam instance;
+
+		protected Builder(InvitationParam aInstance)
 		{
-			instance.formId = formId;
-			return this;
+			instance = aInstance;
 		}
-		public Builder withExpiration(Instant expiration)
-		{
-			instance.expiration = expiration;
-			return this;
-		}
-		public Builder withContactAddress(String contactAddress)
-		{
-			instance.contactAddress = contactAddress;
-			return this;
-		}
-		
-		public InvitationParam build()
+
+		protected InvitationParam getInstance()
 		{
 			return instance;
 		}
-		public Builder withAttribute(Attribute attribute, PrefilledEntryMode mode)
+		
+		@SuppressWarnings("unchecked")
+		public T withForm(String formId)
+		{
+			instance.formId = formId;
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public  T  withExpiration(Instant expiration)
+		{
+			instance.expiration = expiration;
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public  T  withContactAddress(String contactAddress)
+		{
+			instance.contactAddress = contactAddress;
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public  T  withAttribute(Attribute attribute, PrefilledEntryMode mode)
 		{
 			int idx = instance.attributes.size();
 			instance.attributes.put(idx, new PrefilledEntry<>(attribute, mode));
-			return this;
+			return (T) this;
 		}
-		public Builder withGroup(String group, PrefilledEntryMode mode)
+		
+		@SuppressWarnings("unchecked")
+		public  T  withGroup(String group, PrefilledEntryMode mode)
 		{
 			int idx = instance.groupSelections.size();
 			instance.groupSelections.put(idx, new PrefilledEntry<>(new GroupSelection(group), mode));
-			return this;
+			return (T) this;
 		}
-		public Builder withGroups(List<String> groups, PrefilledEntryMode mode)
+		
+		@SuppressWarnings("unchecked")
+		public  T  withGroups(List<String> groups, PrefilledEntryMode mode)
 		{
 			int idx = instance.groupSelections.size();
 			instance.groupSelections.put(idx, new PrefilledEntry<>(new GroupSelection(groups), mode));
-			return this;
+			return (T) this;
 		}
-		public Builder withIdentity(IdentityParam identity, PrefilledEntryMode mode)
+		
+		@SuppressWarnings("unchecked")
+		public  T  withAllowedGroups(List<String> groups)
+		{
+			int idx = instance.allowedGroups.size();
+			instance.allowedGroups.put(idx, new GroupSelection(groups));
+			return (T) this;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public  T  withIdentity(IdentityParam identity, PrefilledEntryMode mode)
 		{
 			int idx = instance.identities.size();
 			instance.identities.put(idx, new PrefilledEntry<>(identity, mode));
-			return this;
+			return (T) this;
 		}
 	}
 }

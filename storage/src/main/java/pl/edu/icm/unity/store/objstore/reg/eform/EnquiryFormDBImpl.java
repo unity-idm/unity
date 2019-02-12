@@ -11,6 +11,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.EnquiryFilledTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.NewEnquiryTemplateDef;
+import pl.edu.icm.unity.store.ReferenceRemovalHandler;
+import pl.edu.icm.unity.store.ReferenceUpdateHandler;
 import pl.edu.icm.unity.store.api.generic.EnquiryFormDB;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeDAOInternal;
 import pl.edu.icm.unity.store.impl.groups.GroupDAOInternal;
@@ -25,9 +27,12 @@ import pl.edu.icm.unity.store.objstore.reg.CredentialChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.CredentialRenameListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupRenameListener;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 
 /**
  * Easy access to {@link EnquiryForm} storage.
@@ -54,6 +59,10 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 		MessageTemplateChangeListener mtListener = new MessageTemplateChangeListener();
 		msgTemplateDB.addRemovalHandler(mtListener);
 		msgTemplateDB.addUpdateHandler(mtListener);
+		
+		EnquiryFormChangeListener changeListener = new EnquiryFormChangeListener(groupDAO);
+		addRemovalHandler(changeListener);
+		addUpdateHandler(changeListener);
 	}
 	
 	private class MessageTemplateChangeListener extends BaseTemplateChangeListener
@@ -111,8 +120,112 @@ public class EnquiryFormDBImpl extends GenericObjectsDAOImpl<EnquiryForm> implem
 					notCfg.setSubmittedTemplate(newValue.getName());
 					needUpdate = true;
 				}
+				
 				if (needUpdate)
 					update(form);
+			}
+		}
+	}
+	
+	private class EnquiryFormChangeListener implements ReferenceRemovalHandler, ReferenceUpdateHandler<EnquiryForm>
+	{
+
+		private GroupDAOInternal groupDAO;
+
+		public EnquiryFormChangeListener(GroupDAOInternal groupDAO)
+		{
+			this.groupDAO = groupDAO;
+		}
+
+		@Override
+		public void preRemoveCheck(long removedId, String removedName)
+		{
+			List<Group> all = groupDAO.getAll();
+			for (Group group : all)
+			{
+				GroupDelegationConfiguration config = group.getDelegationConfiguration();
+				if (config.enabled)
+				{
+					assertIfGroupDelConfigContainForm(config, group.getName(), removedName);
+				}else
+				{
+					clearGroupDelConfigEnquiryFormIfNeeded(group, config, removedName);
+				}
+			}
+		}
+		
+		private void clearGroupDelConfigEnquiryFormIfNeeded(Group group, GroupDelegationConfiguration config,
+				String removedName)
+		{
+
+			boolean needSignUpFormUpdate = false;
+			boolean needMembershipFormUpdate = false;
+
+			if (config.signupEnquiryForm != null && config.signupEnquiryForm.equals(removedName))
+			{
+				needSignUpFormUpdate = true;
+
+			}
+
+			if (config.membershipUpdateEnquiryForm != null
+					&& config.membershipUpdateEnquiryForm.equals(removedName))
+			{
+				needMembershipFormUpdate = true;
+			}
+
+			if (needMembershipFormUpdate || needSignUpFormUpdate)
+			{
+				GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
+						config.enabled, config.logoUrl, config.registrationForm,
+						needSignUpFormUpdate ? "" : config.signupEnquiryForm,
+						needMembershipFormUpdate ? "" : config.membershipUpdateEnquiryForm,
+						config.attributes);
+				group.setDelegationConfiguration(newConfig);
+				groupDAO.update(group);
+			}
+
+		}
+
+		private void assertIfGroupDelConfigContainForm(GroupDelegationConfiguration config, String groupName, String removedName)
+		{
+
+			if (config.signupEnquiryForm != null && config.signupEnquiryForm.equals(removedName))
+			{
+				
+				throw new IllegalArgumentException("The enquiry form is used " + "by a group "
+						+ groupName + " delegation config");
+				
+			}
+
+			if (config.membershipUpdateEnquiryForm != null && config.membershipUpdateEnquiryForm.equals(removedName))
+			{
+				throw new IllegalArgumentException("The enquiry form is used " + "by a group "
+						+ groupName + " delegation config");
+			}	
+		}
+		
+		@Override
+		public void preUpdateCheck(long modifiedId, String modifiedName, EnquiryForm newValue)
+		{
+			List<Group> all = groupDAO.getAll();
+			for (Group group : all)
+			{
+				boolean needUpdate = false;
+				GroupDelegationConfiguration config = group.getDelegationConfiguration();
+
+				if (config.membershipUpdateEnquiryForm != null
+						&& config.membershipUpdateEnquiryForm.equals(modifiedName)
+						&& !newValue.getType().equals(EnquiryType.STICKY))
+				{
+					GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
+							config.enabled, config.logoUrl, config.registrationForm,
+							config.signupEnquiryForm, "", config.attributes);
+					group.setDelegationConfiguration(newConfig);
+					needUpdate = true;
+				}
+
+				if (needUpdate)
+					groupDAO.update(group);
 			}
 		}
 	}

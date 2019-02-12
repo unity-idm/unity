@@ -151,8 +151,10 @@ public class AttributeEditor extends CustomComponent
 	private void initCommon()
 	{
 		HorizontalSplitPanel split = new HorizontalSplitPanel(attrTypePanel, attrValuesContainer);
+		split.setSplitPosition(45);
 		attrValuesContainer.setMargin(new MarginInfo(true, true, true, true));
 		attrValuesContainer.setSizeUndefined();
+		attrTypePanel.setMargin(new MarginInfo(false, true, false, false));
 		setCompositionRoot(split);
 		split.addStyleName(Styles.visibleScroll.toString());
 	}

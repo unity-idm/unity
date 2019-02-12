@@ -1,7 +1,7 @@
 === User home endpoint
 
 Endpoint type:: +UserHomeUI+
-Binding:: Web (Vaadin)
+Binding:: Web
 Exposed paths:: +/home+
 Default path:: +/home+
 

@@ -9,6 +9,7 @@ import java.util.Date;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
@@ -195,6 +196,55 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 		return new CredentialPublicInformation(LocalCredentialState.correct, extraInfo);
 	}
 
+	@Override
+	public Optional<String> updateCredentialAfterConfigurationChange(String currentCredential)
+	{
+		PasswordCredentialDBState parsedCred = PasswordCredentialDBState.fromJson(currentCredential);
+		Deque<PasswordInfo> passwords = parsedCred.getPasswords();
+		
+		boolean changed = removeHistoricalPasswordsStoredWithOutdatedMechanism(passwords);
+		changed |= removeExcessHistoricalPasswords(passwords, credential.getHistorySize());
+		
+		if (changed)
+		{
+			String updatedCredential = JsonUtil.toJsonString(parsedCred);
+			return Optional.of(updatedCredential);
+		} else
+		{
+			return Optional.empty();
+		}
+		
+	}
+
+	private boolean removeHistoricalPasswordsStoredWithOutdatedMechanism(Deque<PasswordInfo> passwords)
+	{
+		boolean changed = false;
+
+		Iterator<PasswordInfo> iterator = passwords.iterator();
+		iterator.next();
+		while (iterator.hasNext())
+		{
+			PasswordInfo passwordInfo = iterator.next();
+			if (!passwordEngine.checkParamsUpToDate(credential, passwordInfo))
+			{
+				iterator.remove();
+				changed = true;
+			}
+		}
+		return changed;
+	}
+	
+	private boolean removeExcessHistoricalPasswords(Deque<PasswordInfo> passwords, int historySize)
+	{
+		boolean changed = false;
+		while ((historySize == 0 && passwords.size() > 1) || (historySize > 0 && passwords.size() > historySize))
+		{
+			passwords.removeLast();
+			changed = true;
+		}
+		return changed;
+	}
+	
 	/**
 	 * Checks if the provided password is valid. If it is then it is checked if it is still 
 	 * fulfilling all actual rules of the credential's configuration. If not then it is returned that 
@@ -285,6 +335,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 			verifyPasswordStrength(password);
 		} catch (IllegalCredentialException e)
 		{
+			log.info("User with id {} logged in with password not matching current credential requirements, "
+					+ "invalidating the password", resolved.getEntityId());
 			String invalidated = invalidate(resolved.getCredentialValue());
 			try
 			{
@@ -369,8 +421,8 @@ public class PasswordVerificator extends AbstractLocalVerificator implements Pas
 	 */
 	private boolean storedPasswordRequiresRehash(PasswordCredentialDBState credState)
 	{
-		PasswordInfo current = credState.getPasswords().getFirst();
-		if (!passwordEngine.checkParamsUpToDate(credential, current))
+		PasswordInfo password = credState.getPasswords().getFirst();
+		if (!passwordEngine.checkParamsUpToDate(credential, password))
 		{
 			log.debug("Password hash is outdated: hashing parameters were changed");
 			return true;

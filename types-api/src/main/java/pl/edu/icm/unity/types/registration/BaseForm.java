@@ -48,7 +48,8 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			new TranslationProfile("registrationProfile", "", ProfileType.REGISTRATION, new ArrayList<>());
 	private FormLayoutSettings layoutSettings = FormLayoutSettings.DEFAULT;
 	private List<RegistrationWrapUpConfig> wrapUpConfig = new ArrayList<>();
-
+	private boolean byInvitationOnly;
+	
 	@JsonCreator
 	BaseForm(ObjectNode json)
 	{
@@ -99,6 +100,7 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		root.set("FormLayoutSettings", jsonMapper.valueToTree(getLayoutSettings()));
 		root.set("PageTitle", jsonMapper.valueToTree(getPageTitle()));
 		root.set("WrapUpConfig", jsonMapper.valueToTree(getWrapUpConfig()));
+		root.put("ByInvitationOnly", isByInvitationOnly());
 		return root;
 	}
 
@@ -184,6 +186,10 @@ public abstract class BaseForm extends DescribedObjectROImpl
 			n = root.get("WrapUpConfig");
 			if (n != null && !n.isNull())
 				setWrapUpConfig(jsonMapper.convertValue(n, new TypeReference<List<RegistrationWrapUpConfig>>(){}));
+			
+			n = root.get("ByInvitationOnly");
+			if (n != null && !n.isNull())
+				setByInvitationOnly(n.asBoolean());
 			
 		} catch (Exception e)
 		{
@@ -390,6 +396,17 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		this.wrapUpConfig = wrapUpConfig;
 	}
 	
+	public boolean isByInvitationOnly()
+	{
+		return byInvitationOnly;
+	}
+
+	public void setByInvitationOnly(boolean byInvitationOnly)
+	{
+		this.byInvitationOnly = byInvitationOnly;
+	}
+
+	
 	public abstract BaseFormNotifications getNotificationsConfiguration();
 	
 	@Override
@@ -412,7 +429,8 @@ public abstract class BaseForm extends DescribedObjectROImpl
 				&& Objects.equals(formInformation, castOther.formInformation)
 				&& Objects.equals(translationProfile, castOther.translationProfile)
 				&& Objects.equals(layoutSettings, castOther.layoutSettings)
-				&& Objects.equals(wrapUpConfig, castOther.wrapUpConfig);
+				&& Objects.equals(wrapUpConfig, castOther.wrapUpConfig)
+				&& Objects.equals(byInvitationOnly, castOther.byInvitationOnly);
 	}
 
 	@Override
@@ -420,6 +438,6 @@ public abstract class BaseForm extends DescribedObjectROImpl
 	{
 		return Objects.hash(super.hashCode(), identityParams, attributeParams, groupParams, credentialParams,
 				agreements, collectComments, displayedName, formInformation, translationProfile, 
-				layoutSettings, wrapUpConfig);
+				layoutSettings, wrapUpConfig, byInvitationOnly);
 	}
 }

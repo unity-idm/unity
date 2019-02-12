@@ -28,8 +28,8 @@ public class RegistrationWrapUpConfig
 		CANCELLED("cancelled", true, true),
 		EMAIL_CONFIRMED("elementConfirmed", true, true),
 		EMAIL_CONFIRMATION_FAILED("elementConfirmationError", true, true),
-		IGNORED_ENQUIRY("ignoredEnquiry", false, true);
-		
+		IGNORED_ENQUIRY("ignoredEnquiry", false, true),
+		NOT_APPLICABLE_ENQUIRY("ignoredEnquiry", false, true);
 		
 		private String urlState;
 		private boolean suitableForEnquiry;

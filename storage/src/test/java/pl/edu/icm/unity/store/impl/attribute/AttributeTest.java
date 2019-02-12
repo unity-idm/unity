@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.store.impl.attribute;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
@@ -11,6 +13,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +27,7 @@ import pl.edu.icm.unity.store.api.EntityDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
 import pl.edu.icm.unity.store.api.MembershipDAO;
 import pl.edu.icm.unity.store.impl.AbstractBasicDAOTest;
+import pl.edu.icm.unity.store.impl.StorageLimits.SizeLimitExceededException;
 import pl.edu.icm.unity.store.types.StoredAttribute;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeExt;
@@ -525,7 +529,48 @@ public class AttributeTest extends AbstractBasicDAOTest<StoredAttribute>
 					attributes);
 		});
 	}
+
+	@Test
+	public void attributeSizeLimitIsInEffect()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getSizedAttr(256001);
+			
+			Throwable error = catchThrowable(() -> dao.create(obj));
+
+			assertThat(error).isInstanceOf(SizeLimitExceededException.class);
+		});
+	}
+
+	@Test
+	public void attributeFittingLimitCanBeAdded()
+	{
+		tx.runInTransaction(() -> {
+			AttributeDAO dao = getDAO();
+			StoredAttribute obj = getSizedAttr(250000);
+			
+			Throwable error = catchThrowable(() -> dao.create(obj));
+
+			assertThat(error).isNull();
+		});
+	}
+
 	
+	private StoredAttribute getSizedAttr(int size)
+	{
+		StringBuilder value = new StringBuilder(size);
+		IntStream.range(0, size).forEach(i -> value.append("."));
+		Attribute attr = new Attribute("attr", 
+				"syntax", 
+				"/A", 
+				Lists.newArrayList(value.toString()), 
+				"remoteIdp", 
+				"translationProfile");
+		AttributeExt a = new AttributeExt(attr, true, new Date(100), new Date(1000));
+		return new StoredAttribute(a, entityId);
+	}
+
 	@Override
 	protected AttributeDAO getDAO()
 	{

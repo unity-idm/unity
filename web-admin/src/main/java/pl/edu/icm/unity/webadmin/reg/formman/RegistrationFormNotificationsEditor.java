@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.reg.formman;
 
-import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
@@ -20,7 +19,6 @@ import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
  */
 public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEditor
 {
-	private CompatibleTemplatesComboBox invitationTemplate;
 	private CompatibleTemplatesComboBox submittedTemplate;
 	
 	public RegistrationFormNotificationsEditor(UnityMessageSource msg,
@@ -35,23 +33,20 @@ public class RegistrationFormNotificationsEditor extends BaseFormNotificationsEd
 	{
 		submittedTemplate = new CompatibleTemplatesComboBox(SubmitRegistrationTemplateDef.NAME, msgTempMan);
 		submittedTemplate.setCaption(msg.getMessage("RegistrationFormViewer.submittedTemplate"));
-		invitationTemplate =  new CompatibleTemplatesComboBox(InvitationTemplateDef.NAME, msgTempMan);
-		invitationTemplate.setCaption(msg.getMessage("RegistrationFormViewer.invitationTemplate"));
-		addComponents(submittedTemplate, invitationTemplate);
+
+		addComponents(submittedTemplate);
 	}
 	
 	public void setValue(RegistrationFormNotifications toEdit)
 	{
 		super.setValue(toEdit);
 		submittedTemplate.setValue(toEdit.getSubmittedTemplate());
-		invitationTemplate.setValue(toEdit.getInvitationTemplate());
 	}
 	
 	public RegistrationFormNotifications getValue()
 	{
 		RegistrationFormNotifications notCfg = new RegistrationFormNotifications();
 		super.fill(notCfg);
-		notCfg.setInvitationTemplate(invitationTemplate.getValue());
 		notCfg.setSubmittedTemplate(submittedTemplate.getValue());
 		return notCfg;
 	}

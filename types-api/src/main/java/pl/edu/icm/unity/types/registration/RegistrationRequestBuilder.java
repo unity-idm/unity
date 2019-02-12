@@ -16,11 +16,4 @@ public class RegistrationRequestBuilder extends BaseRegistrationInputBuilder<Reg
 	{
 		super(new RegistrationRequest());
 	}
-
-	public RegistrationRequestBuilder withRegistrationCode(String aValue)
-	{
-		instance.setRegistrationCode(aValue);
-
-		return this;
-	}
 }

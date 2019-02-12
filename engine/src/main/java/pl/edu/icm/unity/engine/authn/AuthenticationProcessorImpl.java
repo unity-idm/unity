@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.api.authn.remote.UnknownRemoteUserException;
@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.types.basic.EntityParam;
 
@@ -130,7 +130,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	private PartialAuthnState getSecondFactorAuthn(AuthenticationFlow authenticationFlow, 
 			AuthenticationResult result, String firstFactorauthnOptionId)
 	{
-		Authenticator secondFactorAuthenticator = getValidAuthenticatorForEntity(
+		AuthenticatorInstance secondFactorAuthenticator = getValidAuthenticatorForEntity(
 				authenticationFlow.getSecondFactorAuthenticators(), 
 				result.getAuthenticatedEntity().getEntityId());
 		if (secondFactorAuthenticator == null)
@@ -140,11 +140,11 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 	
 	@Override
-	public Authenticator getValidAuthenticatorForEntity(Collection<Authenticator> pool, long entityId)
+	public AuthenticatorInstance getValidAuthenticatorForEntity(Collection<AuthenticatorInstance> pool, long entityId)
 	{
-		for (Authenticator authn : pool)
+		for (AuthenticatorInstance authn : pool)
 		{
-			AuthenticatorInstance authenticator = authn.getAuthenticatorInstance();
+			AuthenticatorInstanceMetadata authenticator = authn.getMetadata();
 			if (authenticator != null)
 			{
 				if (!authenticator.getTypeDescription().isLocal())
@@ -173,7 +173,7 @@ public class AuthenticationProcessorImpl implements AuthenticationProcessor
 	}
 	
 	@Override
-	public boolean checkIfUserHasCredential(AuthenticatorInstance authn, long entityId)
+	public boolean checkIfUserHasCredential(AuthenticatorInstanceMetadata authn, long entityId)
 	{
 		
 		try

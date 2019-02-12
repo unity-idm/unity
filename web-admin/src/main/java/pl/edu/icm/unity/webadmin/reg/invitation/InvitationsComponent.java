@@ -4,10 +4,6 @@
  */
 package pl.edu.icm.unity.webadmin.reg.invitation;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
@@ -15,17 +11,18 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.CustomComponent;
 
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
+import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.bulk.BulkGroupQueryService;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -40,20 +37,21 @@ import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
 public class InvitationsComponent extends CustomComponent implements ActivationListener
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, InvitationsComponent.class);
-
 	private UnityMessageSource msg;
 	private RegistrationsManagement registrationManagement;
+	private EnquiryManagement enquiryMan;
 	private AttributeHandlerRegistry attrHandlersRegistry;
 	private IdentityEditorRegistry identityEditorRegistry;
 	private MessageTemplateManagement msgTemplateManagement;
+	private AttributeSupport attributeSupport;
 
 	private AttributeTypeManagement attributesManagement;
-
 	private InvitationManagement invitationManagement;
-
 	private GroupsManagement groupsManagement;
-
+	private EntityManagement entityManagement;
+	private BulkGroupQueryService bulkQuery;
+	private NotificationProducer notificationProducer;
+	
 	private SharedEndpointManagement sharedEndpointManagement;
 
 	private InvitationsTable invitationsTable;
@@ -61,23 +59,33 @@ public class InvitationsComponent extends CustomComponent implements ActivationL
 	@Autowired
 	public InvitationsComponent(UnityMessageSource msg,
 			RegistrationsManagement registrationManagement,
+			EnquiryManagement enquiryMan,
 			AttributeTypeManagement attributesManagement,
 			InvitationManagement invitationManagement,
 			AttributeHandlerRegistry attrHandlersRegistry,
 			IdentityEditorRegistry identityEditorRegistry,
 			MessageTemplateManagement msgTemplateManagement,
 			GroupsManagement groupsManagement,
-			SharedEndpointManagement sharedEndpointManagement)
+			EntityManagement entityManagement,
+			BulkGroupQueryService bulkQuery,
+			NotificationProducer notificationProducer,
+			SharedEndpointManagement sharedEndpointManagement,
+			AttributeSupport attributeSupport)
 	{
 		this.msg = msg;
 		this.registrationManagement = registrationManagement;
+		this.enquiryMan = enquiryMan;
 		this.attributesManagement = attributesManagement;
 		this.invitationManagement = invitationManagement;
 		this.attrHandlersRegistry = attrHandlersRegistry;
 		this.identityEditorRegistry = identityEditorRegistry;
 		this.msgTemplateManagement = msgTemplateManagement;
 		this.groupsManagement = groupsManagement;
+		this.entityManagement = entityManagement;
+		this.bulkQuery = bulkQuery;
+		this.notificationProducer = notificationProducer;
 		this.sharedEndpointManagement = sharedEndpointManagement;
+		this.attributeSupport = attributeSupport;
 		initUI();
 	}
 
@@ -85,39 +93,20 @@ public class InvitationsComponent extends CustomComponent implements ActivationL
 	{
 		addStyleName(Styles.visibleScroll.toString());
 		invitationsTable = new InvitationsTable(msg,
-				registrationManagement, invitationManagement, attributesManagement,
+				registrationManagement, enquiryMan, invitationManagement, attributesManagement,
 				identityEditorRegistry, attrHandlersRegistry,
-				msgTemplateManagement, groupsManagement);
+				msgTemplateManagement, groupsManagement, notificationProducer, bulkQuery, attributeSupport);
 		InvitationViewer viewer = new InvitationViewer(msg, attrHandlersRegistry,
-				msgTemplateManagement, registrationManagement, sharedEndpointManagement);
+				msgTemplateManagement, registrationManagement, enquiryMan, sharedEndpointManagement, 
+				entityManagement, groupsManagement);
 
 		invitationsTable.addValueChangeListener(invitation -> 
-			viewer.setInput(invitation, getForm(invitation))
+			viewer.setInput(invitation)
 		);
 		
 		CompositeSplitPanel hl = new CompositeSplitPanel(false, true, invitationsTable, viewer, 40);
 		setCompositionRoot(hl);
 		setCaption(msg.getMessage("InvitationsComponent.caption"));
-	}
-
-	private RegistrationForm getForm(InvitationWithCode invitation)
-	{
-		if (invitation == null)
-			return null;
-		List<RegistrationForm> forms;
-		try
-		{
-			forms = registrationManagement.getForms();
-		} catch (EngineException e)
-		{
-			log.warn("Unable to list registration forms for invitations", e);
-			return null;
-		}
-		String id = invitation.getFormId();
-		Optional<RegistrationForm> found = forms.stream().filter(form -> form.getName().equals(id)).findAny();
-		if (found.isPresent())
-			return found.get();
-		return null;
 	}
 	
 	@Override

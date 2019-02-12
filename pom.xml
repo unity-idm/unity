@@ -15,15 +15,14 @@
 		<maven>3.0.5</maven>
 	</prerequisites>
 
-
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<scm.base>scm:git:git@github.com:unity-idm/unity.git</scm.base>
-		<jetty.version>9.4.12.v20180830</jetty.version>
+		<jetty.version>9.4.14.v20181114</jetty.version>
 		<slf4j.version>1.7.25</slf4j.version>
 		<log4j.version>2.11.1</log4j.version>
-		<spring.version>5.1.0.RELEASE</spring.version>
-		<vaadin.version>8.5.2</vaadin.version>
+		<spring.version>5.1.4.RELEASE</spring.version>
+		<vaadin.version>8.6.4</vaadin.version>
 		<groovy-all.version>2.4.8</groovy-all.version>
 		<cxf.version>3.1.10</cxf.version>
 		<apacheds.version>2.0.0-M24</apacheds.version>
@@ -55,7 +54,10 @@
 		<module>std-plugins</module>
 		<module>web-vaadin-widgetset</module>
 		<module>web-common</module>
+		<module>web-elements</module>
 		<module>web-admin</module>
+		<module>web-console</module>
+		<module>web-upman</module>
 		<module>rest</module>
 		<module>rest-admin</module>
 		<module>ws</module>
@@ -73,8 +75,7 @@
 	<developers>
 		<developer>
 			<name>Krzysztof Benedyczak</name>
-			<organization>ICM Warsaw</organization>
-			<organizationUrl>http://www.icm.edu.pl</organizationUrl>
+			<organization>Bixbit</organization>
 		</developer>
 	</developers>
 	<contributors>
@@ -258,13 +259,13 @@
 			<dependency>
 				<groupId>org.mockito</groupId>
 				<artifactId>mockito-core</artifactId>
-				<version>2.22.0</version>
+				<version>2.23.4</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.awaitility</groupId>
 				<artifactId>awaitility</artifactId>
-				<version>3.1.2</version>
+				<version>3.1.5</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
@@ -290,7 +291,7 @@
 			<dependency>
 				<groupId>org.aspectj</groupId>
 				<artifactId>aspectjweaver</artifactId>
-				<version>1.9.1</version>
+				<version>1.9.2</version>
 			</dependency>
 			<dependency>
 				<groupId>org.eclipse.jetty</groupId>
@@ -345,12 +346,12 @@
 			<dependency>
 				<groupId>com.fasterxml.jackson.core</groupId>
 				<artifactId>jackson-databind</artifactId>
-				<version>2.9.7</version>
+				<version>2.9.8</version>
 			</dependency>
 			<dependency>
 				<groupId>eu.unicore.security</groupId>
 				<artifactId>securityLibrary</artifactId>
-				<version>4.5.4</version>
+				<version>4.5.5</version>
 				<exclusions>
 					<exclusion>
 						<groupId>log4j</groupId>
@@ -434,7 +435,7 @@
 			<dependency>
 				<groupId>com.vaadin</groupId>
 				<artifactId>vaadin-context-menu</artifactId>
-				<version>2.0.0</version>
+				<version>3.0.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.vaadin.addons</groupId>
@@ -495,7 +496,7 @@
 			<dependency>
 				<groupId>net.sf.ehcache</groupId>
 				<artifactId>ehcache</artifactId>
-				<version>2.10.5</version>
+				<version>2.10.6</version>
 			</dependency>
 			<dependency>
 				<groupId>nl.simplecaptcha</groupId>
@@ -505,12 +506,12 @@
 			<dependency>
 				<groupId>com.unboundid</groupId>
 				<artifactId>unboundid-ldapsdk</artifactId>
-				<version>4.0.8</version>
+				<version>4.0.9</version>
 			</dependency>
 			<dependency>
 				<groupId>org.mvel</groupId>
 				<artifactId>mvel2</artifactId>
-				<version>2.4.2.Final</version>
+				<version>2.4.3.Final</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.httpcomponents</groupId>
@@ -520,17 +521,17 @@
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>oauth2-oidc-sdk</artifactId>
-				<version>6.0</version>
+				<version>6.5</version>
 			</dependency>
 			<dependency>
 				<groupId>com.nimbusds</groupId>
 				<artifactId>nimbus-jose-jwt</artifactId>
-				<version>6.0.2</version>
+				<version>6.5.1</version>
 			</dependency>
 			<dependency>
 				<groupId>com.google.guava</groupId>
 				<artifactId>guava</artifactId>
-				<version>26.0-jre</version>
+				<version>27.0.1-jre</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.directory.server</groupId>

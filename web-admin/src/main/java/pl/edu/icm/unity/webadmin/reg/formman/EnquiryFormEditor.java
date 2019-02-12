@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.google.common.collect.Lists;
+import com.vaadin.data.Binder;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
@@ -26,14 +27,14 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
-import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.registration.EnquiryFormBuilder;
 import pl.edu.icm.unity.types.registration.EnquiryFormNotifications;
+import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
@@ -43,6 +44,7 @@ import pl.edu.icm.unity.webui.common.EnumComboBox;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GroupsSelectionList;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.mvel.MVELExpressionField;
 
 /**
  * Allows to edit an {@link EnquiryForm}. Can be configured to edit an existing form (name is fixed)
@@ -61,17 +63,22 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private MessageTemplateManagement msgTempMan;
 	
 	private TabSheet tabs;
-	private CheckBox ignoreRequests;
+	private CheckBox ignoreRequestsAndInvitation;
 	
 	private EnumComboBox<EnquiryType> enquiryType;
 	private GroupsSelectionList targetGroups;
+	private MVELExpressionField targetCondition;
 	private EnquiryFormNotificationsEditor notificationsEditor;
 	private RegistrationFormLayoutSettingsEditor layoutSettingsEditor;
+	private CheckBox byInvitationOnly;
 	
 	private RegistrationActionsRegistry actionsRegistry;
 	private ActionParameterComponentProvider actionComponentProvider;
 	private RegistrationTranslationProfileEditor profileEditor;
 	private EnquiryFormLayoutEditorTab layoutEditor;
+	//binder is only for targetCondition validation
+	private Binder<EnquiryForm> binder;
+	
 	
 	@Autowired
 	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
@@ -96,6 +103,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 			throws EngineException
 	{
 		this.copyMode = copyMode;
+		this.binder = new Binder<>(EnquiryForm.class);
 		initUI();
 		return this;
 	}
@@ -112,10 +120,11 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
-		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		addComponent(ignoreRequests);
-		setComponentAlignment(ignoreRequests, Alignment.TOP_RIGHT);
-		ignoreRequests.setVisible(false);
+		ignoreRequestsAndInvitation = new CheckBox(
+				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
+		addComponent(ignoreRequestsAndInvitation);
+		setComponentAlignment(ignoreRequestsAndInvitation, Alignment.TOP_RIGHT);
+
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
@@ -132,6 +141,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withFormLayoutSettings(settings);
 		
 		builder.withLayout(layoutEditor.getLayout());
+		builder.withByInvitationOnly(byInvitationOnly.getValue());
 		
 		EnquiryForm form = builder.build();
 		try
@@ -141,6 +151,13 @@ public class EnquiryFormEditor extends BaseFormEditor
 		{
 			throw new FormValidationException(e);
 		}
+		
+		if (!binder.isValid())
+		{
+			throw new FormValidationException();
+		}
+		
+		
 		return form;
 	}
 	
@@ -151,6 +168,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		
 		builder.withType(enquiryType.getValue());
 		builder.withTargetGroups(targetGroups.getSelectedGroups().toArray(new String[0]));
+		builder.withTargetCondition(targetCondition.getValue());
 		return builder;
 	}
 	
@@ -160,6 +178,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		notificationsEditor.setValue(toEdit.getNotificationsConfiguration());
 		enquiryType.setValue(toEdit.getType());
 		targetGroups.setSelectedGroups(Lists.newArrayList(toEdit.getTargetGroups()));
+		binder.setBean(toEdit);
 		
 		TranslationProfile profile = new TranslationProfile(
 				toEdit.getTranslationProfile().getName(), "",
@@ -169,7 +188,10 @@ public class EnquiryFormEditor extends BaseFormEditor
 		layoutSettingsEditor.setSettings(toEdit.getLayoutSettings());
 		layoutEditor.setLayout(toEdit.getLayout());
 		if (!copyMode)
-			ignoreRequests.setVisible(true);
+		{
+			ignoreRequestsAndInvitation.setVisible(true);
+		}
+		byInvitationOnly.setValue(toEdit.isByInvitationOnly());	
 	}
 	
 	private void initMainTab() throws EngineException
@@ -189,13 +211,33 @@ public class EnquiryFormEditor extends BaseFormEditor
 				msg, "EnquiryType.", EnquiryType.class, 
 				EnquiryType.REQUESTED_OPTIONAL);
 		enquiryType.setWidth(20, Unit.EM);
+		enquiryType.addValueChangeListener(e -> {
+
+			boolean enable = !e.getValue().equals(EnquiryType.STICKY);
+			setCredentialsTabVisible(enable);
+			setIdentitiesTabVisible(enable);
+			if (!enable)
+			{
+				resetCredentialTab();
+				resetIdentitiesTab();
+			}
+
+		});
+		
 		
 		targetGroups = new GroupsSelectionList(msg.getMessage("EnquiryFormViewer.targetGroups"), 
 				notificationsEditor.getGroups());
 		targetGroups.setInput("/", true);
 		targetGroups.setRequiredIndicatorVisible(true);
 		
-		main.addComponents(enquiryType, targetGroups);
+		targetCondition = new MVELExpressionField(msg, msg.getMessage("EnquiryFormEditor.targetCondition"),
+				msg.getMessage("EnquiryFormEditor.targetConditionDesc"));
+		
+		targetCondition.configureBinding(binder, "targetCondition", false);
+		
+		byInvitationOnly = new CheckBox(msg.getMessage("RegistrationFormEditor.byInvitationOnly"));
+		
+		main.addComponents(enquiryType, byInvitationOnly, targetGroups, targetCondition);
 		
 		notificationsEditor.addToLayout(main);
 	}
@@ -274,8 +316,8 @@ public class EnquiryFormEditor extends BaseFormEditor
 		}
 	}
 
-	public boolean isIgnoreRequests()
+	public boolean isIgnoreRequestsAndInvitations()
 	{
-		return ignoreRequests.getValue();
+		return ignoreRequestsAndInvitation.getValue();
 	}
 }

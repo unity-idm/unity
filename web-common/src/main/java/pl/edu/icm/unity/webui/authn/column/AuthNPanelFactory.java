@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn.column;
 
-import pl.edu.icm.unity.webui.authn.column.AuthenticationOptionsHandler.AuthNOption;
-
 /**
  * Helper interface for producing AuthNPanel components. Thanks to it we can have simple creation of authn 
  * panels in various components and a single centralized creation, which is only place bothering with its many dependencies.

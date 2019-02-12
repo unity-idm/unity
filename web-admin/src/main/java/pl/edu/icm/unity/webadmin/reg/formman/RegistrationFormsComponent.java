@@ -23,10 +23,10 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.webadmin.utils.MessageUtils;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -136,11 +136,11 @@ public class RegistrationFormsComponent extends VerticalLayout implements Activa
 		
 	}
 	
-	private boolean updateForm(RegistrationForm updatedForm, boolean ignoreRequests)
+	private boolean updateForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations)
 	{
 		try
 		{
-			registrationsManagement.updateForm(updatedForm, ignoreRequests);
+			registrationsManagement.updateForm(updatedForm, ignoreRequestsAndInvitations);
 			bus.fireEvent(new RegistrationFormChangedEvent(updatedForm));
 			refresh();
 			return true;
@@ -208,7 +208,7 @@ public class RegistrationFormsComponent extends VerticalLayout implements Activa
 		}
 		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
 				msg.getMessage("RegistrationFormsComponent.addAction"), 
-				(form, isUpdate) -> addForm(form), editor);
+				(form, ignoreRequestsAndInvitations) -> addForm(form), editor);
 		dialog.show();
 	}
 	
@@ -251,12 +251,12 @@ public class RegistrationFormsComponent extends VerticalLayout implements Activa
 					"RegistrationFormsComponent.errorInFormEdit"), e);
 			return;
 		}
-		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, 
-				caption, (form, ignoreRequests) ->
-				{
-						return isCopyMode ? addForm(form) : updateForm(form, ignoreRequests);
+		RegistrationFormEditDialog dialog = new RegistrationFormEditDialog(msg, caption,
+				(form, ignoreRequestsAndInvitations) -> {
+					return isCopyMode ? addForm(form)
+							: updateForm(form, ignoreRequestsAndInvitations);
 				}, editor);
-		dialog.show();	
+		dialog.show();
 	}
 	
 	private SingleActionHandler<RegistrationForm> getDeleteAction()

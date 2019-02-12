@@ -26,7 +26,7 @@ public class MockWSEndpointFactory implements EndpointFactory
 	public static final String NAME = "Mock WS Endpoint";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "This is mock web service endpoint for tests", 
-			Collections.singleton(WebServiceAuthentication.NAME),Collections.singletonMap(SERVLET_PATH, "Test endpoint"));
+			WebServiceAuthentication.NAME, Collections.singletonMap(SERVLET_PATH, "Test endpoint"));
 
 	@Autowired
 	private UnityMessageSource msg;

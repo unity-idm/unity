@@ -7,8 +7,6 @@ package pl.edu.icm.unity.webadmin;
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
-import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -23,7 +21,7 @@ import pl.edu.icm.unity.webui.common.TopHeader;
  */
 public class AdminTopHeader extends TopHeader
 {
-	private boolean adminView = true;
+	private boolean adminView = false;
 	private Button switchView;
 	private ViewSwitchCallback callback;
 	
@@ -32,10 +30,10 @@ public class AdminTopHeader extends TopHeader
 	{
 		super(title, authnProcessor, msg);
 		this.callback = callback;
+		addButtons();
 	}
 
-	@Override
-	protected void addButtons(HorizontalLayout loggedPanel)
+	private void addButtons()
 	{
 		Button supportB = createSupportButton();
 		loggedPanel.addComponent(supportB);
@@ -54,14 +52,7 @@ public class AdminTopHeader extends TopHeader
 	{
 		Button support = new Button();
 		support.addStyleName(Styles.vButtonLink.toString());
-		support.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				Page.getCurrent().open("http://unity-idm.eu/site/support", "_blank", false);
-			}
-		});
+		support.addClickListener(e -> Page.getCurrent().open("http://unity-idm.eu/site/support", "_blank", false));
 		support.setDescription(msg.getMessage("AdminTopHeader.toSupport"));
 		support.setIcon(Images.support.getResource());
 		support.addStyleName(Styles.largeIcon.toString());
@@ -73,15 +64,11 @@ public class AdminTopHeader extends TopHeader
 		switchView = new Button();
 		switchView.addStyleName(Styles.vButtonLink.toString());
 		switchView.addStyleName(Styles.largeIcon.toString());
-		switchView.addClickListener(new Button.ClickListener()
-		{
-			@Override
-			public void buttonClick(ClickEvent event)
-			{
-				switchView();
-				callback.showView(adminView);
-			}
+		switchView.addClickListener(e -> {
+			switchView();
+			callback.showView(adminView);
 		});
+
 		switchView();
 		return switchView;
 	}

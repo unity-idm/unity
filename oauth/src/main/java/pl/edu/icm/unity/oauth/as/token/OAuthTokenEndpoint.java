@@ -50,7 +50,7 @@ public class OAuthTokenEndpoint extends RESTEndpoint
 	public static final String PATH = "";
 	public static final EndpointTypeDescription TYPE = new EndpointTypeDescription(
 			NAME, "A RESTful endpoint exposing OAuth and OIDC related, client-focused endpoints.", 
-			Collections.singleton(JAXRSAuthentication.NAME),
+			JAXRSAuthentication.NAME,
 			Collections.singletonMap(PATH, "The OAuth base path"),
 			getEndpointFeatures());
 	

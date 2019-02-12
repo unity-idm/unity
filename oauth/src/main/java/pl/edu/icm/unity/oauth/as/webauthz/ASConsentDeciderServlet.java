@@ -20,6 +20,7 @@ import com.nimbusds.oauth2.sdk.AuthorizationResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
 import com.nimbusds.oauth2.sdk.SerializeException;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -161,7 +162,7 @@ public class ASConsentDeciderServlet extends HttpServlet
 	
 	private boolean isConsentRequired(OAuthClientSettings preferences, OAuthAuthzContext oauthCtx)
 	{
-		if (preferences.isDoNotAsk())
+		if (preferences.isDoNotAsk() && oauthCtx.getClientType() != ClientType.PUBLIC)
 			return false;
 		
 		return !oauthCtx.getConfig().isSkipConsent();

@@ -45,7 +45,15 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
-	<bean class="pl.edu.icm.unity.engine.authn.AuthenticationManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.authn.AuthenticatorManagementImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.authn.AuthenticatorSupportServiceImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.authn.AuthenticationFlowManagementImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>
@@ -97,7 +105,11 @@
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>	
-	<bean class="pl.edu.icm.unity.engine.authn.AuthenticationFlowManagementImpl">
+	<bean class="pl.edu.icm.unity.engine.bulk.BulkQueryServiceImpl">
+		<qualifier value="insecure"/>
+		<constructor-arg name="authz" ref="noauthz"/>
+	</bean>
+	<bean class="pl.edu.icm.unity.engine.utils.GroupDelegationConfigGeneratorImpl">
 		<qualifier value="insecure"/>
 		<constructor-arg name="authz" ref="noauthz"/>
 	</bean>

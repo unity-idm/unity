@@ -48,9 +48,13 @@ public interface EnquiryManagement
 	 * Updates an existing enquiry form. Will be applicable only to those users who has not yet filled the 
 	 * original enquiry.
 	 * @param updatedForm
+	 * @param ignoreRequestsAndInvitations
+	 *                if true then operation will ignore form requests and
+	 *                invitations. If false then it will fail if there are
+	 *                any pending requests of the form.
 	 * @throws EngineException
 	 */
-	void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequests) throws EngineException;
+	void updateEnquiry(EnquiryForm updatedForm, boolean ignoreRequestsAndInvitations) throws EngineException;
 	
 	/**
 	 * Accepts, deletes or rejects a given enquiry response. The request can be freely modified at this time
@@ -72,6 +76,13 @@ public interface EnquiryManagement
 	 * @throws EngineException
 	 */
 	List<EnquiryForm> getEnquires() throws EngineException;
+	
+	/**
+	 * 
+	 * @return enquiry form with given id.
+	 * @throws EngineException
+	 */
+	EnquiryForm getEnquiry(String id) throws EngineException;
 	
 	/**
 	 * 
@@ -118,5 +129,21 @@ public interface EnquiryManagement
 	 * @return form automation support for a given form
 	 */
 	FormAutomationSupport getFormAutomationSupport(EnquiryForm form);
+
+	/**
+	 * 
+	 * @param entity
+	 * @return
+	 * @throws EngineException
+	 */
+	List<EnquiryForm> getAvailableStickyEnquires(EntityParam entity) throws EngineException;
+
+	/**
+	 * 
+	 * @param form
+	 * @param entity
+	 * @throws EngineException 
+	 */
+	void removePendingStickyRequest(String form, EntityParam entity) throws EngineException;
 
 }

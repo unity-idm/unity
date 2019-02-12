@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.webadmin.groupbrowser;
 
 import com.vaadin.server.UserError;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
@@ -28,11 +29,14 @@ public class GroupEditDialog extends AbstractDialog
 	private TextField name;
 	private I18nTextField displayedName;
 	private I18nTextArea description;
+	private CheckBox isPublic;
 	private String parent;
 	private String originalName;
 	private Group originalGroup;
 	private I18nString originalDispName;
 	private I18nString originalDesc;
+	private boolean originalIsPublic;
+	
 
 	public GroupEditDialog(UnityMessageSource msg, Group group, boolean edit, Callback callback) 
 	{
@@ -44,6 +48,7 @@ public class GroupEditDialog extends AbstractDialog
 		this.originalName = edit ? group.getName() : "";
 		this.originalDesc = edit ? group.getDescription() : new I18nString();
 		this.originalDispName = edit ? group.getDisplayedName() : new I18nString();
+		this.originalIsPublic = edit ? group.isPublic() : false;
 		this.originalGroup = edit ? group : null;
 		this.callback = callback;
 		setSizeMode(SizeMode.MEDIUM);
@@ -67,7 +72,11 @@ public class GroupEditDialog extends AbstractDialog
 		
 		description = new I18nTextArea(msg, msg.getMessage("GroupEditDialog.groupDesc"));
 		description.setValue(originalDesc);
-		fl.addComponents(displayedName, description);
+		
+		isPublic = new CheckBox(msg.getMessage("GroupEditDialog.public"));
+		isPublic.setValue(originalIsPublic);
+		
+		fl.addComponents(displayedName, description, isPublic);
 		if (name.isReadOnly())
 			description.focus();
 		else
@@ -91,9 +100,11 @@ public class GroupEditDialog extends AbstractDialog
 			I18nString dispName = displayedName.getValue();
 			dispName.setDefaultValue(group.toString());
 			group.setDisplayedName(dispName);
+			group.setPublic(isPublic.getValue());
 			close();
 			callback.onConfirm(group);
-		} catch (Exception e)
+		}
+		catch (Exception e)
 		{
 			name.setComponentError(new UserError(
 					msg.getMessage("GroupEditDialog.invalidGroup")));

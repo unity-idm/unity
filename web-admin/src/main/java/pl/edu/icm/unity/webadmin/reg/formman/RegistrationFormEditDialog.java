@@ -57,7 +57,7 @@ public class RegistrationFormEditDialog extends AbstractDialog
 			if (!preCheckForm(form))
 				return;
 			
-			if (callback.newForm(form, editor.isIgnoreRequests()))
+			if (callback.newForm(form, editor.isIgnoreRequestsAndInvitations()))
 				close();
 		} catch (FormValidationException e) 
 		{
@@ -73,7 +73,7 @@ public class RegistrationFormEditDialog extends AbstractDialog
 			ConfirmDialog warning = new ConfirmDialog(msg, 
 					msg.getMessage("RegistrationFormEditDialog.publiclAndRemoteWarning"), 
 					() -> {
-						if (callback.newForm(form, editor.isIgnoreRequests()))
+						if (callback.newForm(form, editor.isIgnoreRequestsAndInvitations()))
 							RegistrationFormEditDialog.this.close();
 					});
 			warning.show();
@@ -84,6 +84,6 @@ public class RegistrationFormEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean newForm(RegistrationForm form, boolean update);
+		public boolean newForm(RegistrationForm form, boolean ignoreRequests);
 	}
 }

@@ -198,7 +198,7 @@ public class VaadinEndpointProperties extends PropertiesHelper
 				setDescription("If set then registration links on the authentication screen are not "
 						+ "showing any Unity-provided registration forms, but redirect "
 						+ "straight to the given address."));
-		META.put(SHOW_REGISTRATION_FORMS_IN_HEADER, new PropertyMD("false").
+		META.put(SHOW_REGISTRATION_FORMS_IN_HEADER, new PropertyMD("true").
 				setDescription("Displays the links with registration forms in the top right corner of page, if registration "
 						+ "is configured."));
 		META.put(ENABLED_REGISTRATION_FORMS, new PropertyMD().setList(false).

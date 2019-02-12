@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.webui.sandbox;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
@@ -20,11 +19,10 @@ import com.vaadin.server.VaadinService;
 
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.EndpointRegistrationConfiguration;
 import pl.edu.icm.unity.webui.UnityUIBase;
@@ -47,7 +45,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 {
 	public static final String PROFILE_VALIDATION = "validate";
 	
-	private final AuthenticatorSupportManagement authenticatorSupport;
+	private final AuthenticatorSupportService authenticatorSupport;
 
 	
 	private LocaleChoiceComponent localeChoice;
@@ -63,7 +61,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
-			AuthenticatorSupportManagement authenticatorSupport)
+			AuthenticatorSupportService authenticatorSupport)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -120,20 +118,9 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	
 	private List<AuthenticationFlow> getAllRemoteVaadinAuthenticators() 
 	{
-		List<AuthenticationFlowDefinition> flows = new ArrayList<>();
-		
-		try 
-		{
-			flows = authenticatorSupport.resolveAllRemoteAuthenticatorFlows(VaadinAuthentication.NAME);
-		} catch (EngineException e) 
-		{
-			throw new IllegalStateException("Unable to initialize sandbox servlet: failed to get authenticators: " 
-					+ e.getMessage(), e);
-		}
-		
 		try
 		{
-			return authenticatorSupport.getAuthenticatorUIs(flows);
+			return authenticatorSupport.getRemoteAuthenticatorsAsFlows(VaadinAuthentication.NAME);
 		} catch (EngineException e)
 		{
 			throw new IllegalStateException("Can not initialize sandbox UI", e);

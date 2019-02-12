@@ -66,6 +66,11 @@ public class ListOfEmbeddedElements<T> extends CompactFormLayout
 		stub.clearContents();
 	}
 	
+	public void resetContents()
+	{
+		stub.resetContents();
+	}
+	
 	public List<T> getElements() throws FormValidationException
 	{
 		return stub.getElements();

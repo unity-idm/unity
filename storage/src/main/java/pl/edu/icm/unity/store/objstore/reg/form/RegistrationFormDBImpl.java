@@ -9,8 +9,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.SubmitRegistrationTemplateDef;
+import pl.edu.icm.unity.store.ReferenceRemovalHandler;
 import pl.edu.icm.unity.store.api.generic.RegistrationFormDB;
 import pl.edu.icm.unity.store.impl.attributetype.AttributeTypeDAOInternal;
 import pl.edu.icm.unity.store.impl.groups.GroupDAOInternal;
@@ -27,6 +27,8 @@ import pl.edu.icm.unity.store.objstore.reg.CredentialRenameListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupChangeListener;
 import pl.edu.icm.unity.store.objstore.reg.GroupRenameListener;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormNotifications;
@@ -60,6 +62,9 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 		MessageTemplateChangeListener mtListener = new MessageTemplateChangeListener();
 		msgTemplateDB.addRemovalHandler(mtListener);
 		msgTemplateDB.addUpdateHandler(mtListener);
+		
+		RegistrationFormChangeListener changeListener = new RegistrationFormChangeListener(groupDAO);
+		addRemovalHandler(changeListener);
 	}
 	
 	private void restrictCredReqRemoval(long removedId, String removedName)
@@ -117,14 +122,6 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 			{
 				RegistrationFormNotifications notCfg = form.getNotificationsConfiguration();
 				boolean needUpdate = checkUpdated(notCfg, modifiedName, newValue, form.getName());
-				if (modifiedName.equals(notCfg.getInvitationTemplate()) && 
-						!newValue.getConsumer().equals(InvitationTemplateDef.NAME))
-				{
-					throw new IllegalArgumentException("The message template is used by "
-							+ "a registration form " 
-							+ form.getName() + " and the template's type change "
-							+ "would render the template incompatible with it");
-				}
 				if (modifiedName.equals(notCfg.getSubmittedTemplate()) && 
 						!newValue.getConsumer().equals(SubmitRegistrationTemplateDef.NAME))
 				{
@@ -133,11 +130,7 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 							+ form.getName() + " and the template's type change "
 							+ "would render the template incompatible with it");
 				}
-				if (modifiedName.equals(notCfg.getInvitationTemplate()))
-				{
-					notCfg.setInvitationTemplate(newValue.getName());
-					needUpdate = true;
-				}
+		
 				if (modifiedName.equals(notCfg.getSubmittedTemplate()))
 				{
 					notCfg.setSubmittedTemplate(newValue.getName());
@@ -147,5 +140,46 @@ public class RegistrationFormDBImpl extends GenericObjectsDAOImpl<RegistrationFo
 					update(form);
 			}
 		}
+	}
+	
+	private class RegistrationFormChangeListener implements ReferenceRemovalHandler
+	{
+
+		private GroupDAOInternal groupDAO;
+
+		public RegistrationFormChangeListener(GroupDAOInternal groupDAO)
+		{
+			this.groupDAO = groupDAO;
+		}
+
+		@Override
+		public void preRemoveCheck(long removedId, String removedName)
+		{
+			List<Group> all = groupDAO.getAll();
+			for (Group group : all)
+			{
+				GroupDelegationConfiguration config = group.getDelegationConfiguration();
+
+				if (config.registrationForm != null && config.registrationForm.equals(removedName))
+				{
+					if (config.enabled)
+					{
+						throw new IllegalArgumentException("The registration form is used "
+								+ "by a group " + group.getName()
+								+ " delegation config");
+
+					} else
+					{
+						GroupDelegationConfiguration newConfig = new GroupDelegationConfiguration(
+								config.enabled, config.logoUrl, "",
+								config.signupEnquiryForm,
+								config.membershipUpdateEnquiryForm, config.attributes);
+						group.setDelegationConfiguration(newConfig);
+						groupDAO.update(group);
+					}
+				}
+			}
+		}
+
 	}
 }

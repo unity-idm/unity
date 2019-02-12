@@ -2,7 +2,7 @@
 === RESTful Administration API endpoint
 
 Endpoint type:: +RESTAdmin+
-Binding:: RESTful (CXF)
+Binding:: RESTful
 Exposed paths:: +/v1/*+
 
 This endpoint exposes a RESTful API to Unity features. 

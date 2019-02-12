@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.types.registration;
 
+import java.util.Objects;
+
 /**
  * Configuration of notifications related to enquiry forms.
  * 
@@ -31,41 +33,22 @@ public class EnquiryFormNotifications extends BaseFormNotifications
 	{
 		this.submittedTemplate = submittedTemplate;
 	}
+	
 	@Override
 	public int hashCode()
 	{
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime
-				* result
-				+ ((enquiryToFillTemplate == null) ? 0 : enquiryToFillTemplate
-						.hashCode());
-		result = prime * result
-				+ ((submittedTemplate == null) ? 0 : submittedTemplate.hashCode());
-		return result;
+		return Objects.hash(this.enquiryToFillTemplate, this.submittedTemplate);
 	}
+
 	@Override
 	public boolean equals(Object obj)
 	{
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
-			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		EnquiryFormNotifications other = (EnquiryFormNotifications) obj;
-		if (enquiryToFillTemplate == null)
-		{
-			if (other.enquiryToFillTemplate != null)
-				return false;
-		} else if (!enquiryToFillTemplate.equals(other.enquiryToFillTemplate))
-			return false;
-		if (submittedTemplate == null)
-		{
-			if (other.submittedTemplate != null)
-				return false;
-		} else if (!submittedTemplate.equals(other.submittedTemplate))
-			return false;
-		return true;
+		final EnquiryFormNotifications other = (EnquiryFormNotifications) obj;
+		return Objects.equals(this.enquiryToFillTemplate, other.enquiryToFillTemplate)
+				&& Objects.equals(this.submittedTemplate, other.submittedTemplate);
 	}
 }

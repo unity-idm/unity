@@ -33,6 +33,13 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 
 		return this;
 	}
+	
+	public EnquiryFormBuilder withTargetCondition(String aValue)
+	{
+		instance.setTargetCondition(aValue);
+
+		return this;
+	}
 
 	public EnquiryFormBuilder withType(EnquiryType aValue)
 	{
@@ -111,6 +118,12 @@ public class EnquiryFormBuilder extends BaseFormBuilder<EnquiryFormBuilder>
 			return this;
 		}
 
+		public EnquiryFormNotificationsBuilder withInvitationTemplate(String aValue)
+		{
+			instance.setInvitationTemplate(aValue);
+			return this;
+		}
+		
 		public EnquiryFormNotificationsBuilder withAdminsNotificationGroup(String aValue)
 		{
 			instance.setAdminsNotificationGroup(aValue);

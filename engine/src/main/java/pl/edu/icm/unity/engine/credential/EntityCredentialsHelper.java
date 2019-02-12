@@ -110,8 +110,7 @@ public class EntityCredentialsHelper
 	 * @param sqlMap
 	 * @throws EngineException
 	 */
-	public void setPreviouslyPreparedEntityCredentialInternal(long entityId, String newCred, 
-			String credentialId) throws EngineException
+	public void setPreviouslyPreparedEntityCredential(long entityId, String newCred, String credentialId)
 	{
 		String credentialAttributeName = CredentialAttributeTypeProvider.CREDENTIAL_PREFIX+credentialId;
 		Attribute newCredentialA = StringAttribute.of(credentialAttributeName, 
@@ -127,11 +126,10 @@ public class EntityCredentialsHelper
 	 * @param currentRawCredential
 	 * @throws EngineException
 	 */
-	public void setEntityCredentialInternal(long entityId, String credentialId, 
-			String rawCredential)  throws EngineException
+	public void setEntityCredential(long entityId, String credentialId, String rawCredential) throws EngineException
 	{
-		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, true);
-		setPreviouslyPreparedEntityCredentialInternal(entityId, cred, credentialId);
+		String cred = prepareEntityCredential(entityId, credentialId, rawCredential, true);
+		setPreviouslyPreparedEntityCredential(entityId, cred, credentialId);
 	}
 	
 	/**
@@ -145,8 +143,8 @@ public class EntityCredentialsHelper
 	public void setEntityCredentialInternalWithoutVerify(long entityId, String credentialId, 
 			String rawCredential)  throws EngineException
 	{
-		String cred = prepareEntityCredentialInternal(entityId, credentialId, rawCredential, false);
-		setPreviouslyPreparedEntityCredentialInternal(entityId, cred, credentialId);
+		String cred = prepareEntityCredential(entityId, credentialId, rawCredential, false);
+		setPreviouslyPreparedEntityCredential(entityId, cred, credentialId);
 	}
 	
 	
@@ -159,7 +157,7 @@ public class EntityCredentialsHelper
 	 * @param sqlMap
 	 * @throws EngineException
 	 */
-	private String prepareEntityCredentialInternal(long entityId, String credentialId, 
+	private String prepareEntityCredential(long entityId, String credentialId, 
 			String rawCredential, boolean verify) throws EngineException
 	{
 		Map<String, AttributeExt> attributes = attributesHelper.getAllAttributesAsMapOneGroup(entityId, "/");

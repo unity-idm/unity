@@ -71,13 +71,13 @@ public class CompositePasswordTest extends DBIntegrationTestBase
 		Identity id1 = createUsernameUser("test1", "pass1", "the!test");
 		createUsernameUser("test2", "pass2", "the!test2");
 
-		authnMan.createAuthenticator("pass1", "composite-password with cxf-httpbasic",
+		authnMan.createAuthenticator("pass1", "composite-password",
 				"compositePassword.verificators.1.verificatorType=password\n"
 						+ "compositePassword.verificators.1.verificatorCredential=pass1\n"
 						+ "\n"
 						+ "compositePassword.verificators.2.verificatorType=password\n"
 						+ "compositePassword.verificators.2.verificatorCredential=pass2",
-				"", null);
+				null);
 
 		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 5, 1, RememberMePolicy.disallow ,1, 600);
 		realmsMan.addRealm(realm);

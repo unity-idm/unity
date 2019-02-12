@@ -70,8 +70,9 @@ public class ResultsCache
 		if (disable)
 			return;
 		CacheEntry entry = new CacheEntry(status, attrs);
-		log.debug("Caching token validation result for " + status.getSubject() + ": " + status.isValid() + 
-				" expiry: " + entry.getExpirationTime());
+		log.debug("Caching token validation result for {} status: {} token expiries {} cache expires {}",
+				status.getSubject(), status.isValid(), status.getExpirationTime(), 
+				entry.getExpirationTime());
 		resultsCache.put(id, entry);
 	}
 	

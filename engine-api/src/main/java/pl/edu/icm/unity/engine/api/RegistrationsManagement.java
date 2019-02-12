@@ -38,19 +38,30 @@ public interface RegistrationsManagement
 	
 	/**
 	 * Updates an existing form.
+	 * 
 	 * @param updatedForm
-	 * @param ignoreRequests if true then operation will ignore form requests. If false then it will fail if there 
-	 * are any pending requests of the form.
+	 * @param ignoreRequestsAndInvitations
+	 *                if true then operation will ignore form requests and
+	 *                invitations. If false then it will fail if there are
+	 *                any pending requests of the form.
 	 * @throws EngineException
 	 */
-	void updateForm(RegistrationForm updatedForm, boolean ignoreRequests) throws EngineException;
-	
+	void updateForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations) throws EngineException;
+
 	/**
 	 * 
 	 * @return all available forms.
 	 * @throws EngineException
 	 */
 	List<RegistrationForm> getForms() throws EngineException;
+	
+	
+	/**
+	 * 
+	 * @return form with given id.
+	 * @throws EngineException
+	 */
+	RegistrationForm getForm(String id) throws EngineException;
 
 	/**
 	 * @return true if form with given name exists

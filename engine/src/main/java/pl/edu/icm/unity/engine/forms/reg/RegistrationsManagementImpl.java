@@ -44,6 +44,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequest;
 import pl.edu.icm.unity.types.registration.RegistrationRequestAction;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam.InvitationType;
 
 /**
  * Implementation of registrations subsystem.
@@ -110,14 +111,17 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 
 	@Override
 	@Transactional
-	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequests)
+	public void updateForm(RegistrationForm updatedForm, boolean ignoreRequestsAndInvitations)
 			throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		validateFormContents(updatedForm);
 		String formId = updatedForm.getName();
-		if (!ignoreRequests)
+		if (!ignoreRequestsAndInvitations)
+		{
 			internalManagment.validateIfHasPendingRequests(formId, requestDB);
+			internalManagment.validateIfHasInvitations(formId, InvitationType.REGISTRATION);
+		}
 		formsDB.update(updatedForm);
 	}
 
@@ -328,5 +332,12 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public FormAutomationSupport getFormAutomationSupport(RegistrationForm form)
 	{
 		return confirmationsSupport.getRegistrationFormAutomationSupport(form);
+	}
+
+	@Override
+	@Transactional
+	public RegistrationForm getForm(String id) throws EngineException
+	{
+		return formsDB.get(id);
 	}
 }

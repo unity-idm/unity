@@ -36,7 +36,6 @@ import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
@@ -45,45 +44,7 @@ import pl.edu.icm.unity.types.authn.RememberMePolicy;
 
 public class AccessTokenResourceTest 
 {
-	private TransactionalRunner tx = new TransactionalRunner()
-	{
-		@Override
-		public <T> T runInTransactionRet(TxRunnableRet<T> code)
-		{
-			return code.run();
-		}
-		
-		@Override
-		public void runInTransaction(TxRunnable code)
-		{
-			code.run();
-		}
-
-		@Override
-		public void runInTransactionNoAutoCommit(TxRunnable code)
-		{
-			code.run();
-		}
-
-		@Override
-		public <T> T runInTransactionNoAutoCommitRet(TxRunnableRet<T> code)
-		{
-			return code.run();
-		}
-
-		@Override
-		public void runInTransactionThrowing(TxRunnableThrowing code) throws EngineException
-		{
-			code.run();
-		}
-
-		@Override
-		public <T> T runInTransactionRetThrowing(TxRunnableThrowingRet<T> code)
-				throws EngineException
-		{
-			return code.run();
-		}
-	};
+	private TransactionalRunner tx = new TestTxRunner();
 	
 	@Test
 	public void gettingAccessTokenFailsWithWrongClient() throws Exception
@@ -101,7 +62,7 @@ public class AccessTokenResourceTest
 				step1Resp.getAuthorizationCode().getValue(), 
 				null,
 				"https://return.host.com/foo",
-				null, null, null, null, null);
+				null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -123,7 +84,7 @@ public class AccessTokenResourceTest
 				step1Resp.getAuthorizationCode().getValue(),
 				null,
 				"https://wrong.com",
-				null, null, null, null, null);
+				null, null, null, null, null, null);
 		assertEquals(HTTPResponse.SC_BAD_REQUEST, r.getStatus());
 	}
 	
@@ -136,7 +97,7 @@ public class AccessTokenResourceTest
 		setupInvocationContext(100);
 
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				"1234", null, "https://return.host.com/foo", null, null, null, null, null);
+				"1234", null, "https://return.host.com/foo", null, null, null, null, null, null);
 		assertEquals(400, resp.getStatus());
 		JSONObject ret = (JSONObject) JSONValue.parse(resp.getEntity().toString());
 		assertEquals("invalid_grant", ret.get("error"));
@@ -156,7 +117,8 @@ public class AccessTokenResourceTest
 				ctx);
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null, null, null);
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
+				null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setContent(resp.getEntity().toString());
@@ -186,7 +148,8 @@ public class AccessTokenResourceTest
 				tokensManagement, ctx);
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null, null, null);
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
+				null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setContent(resp.getEntity().toString());
@@ -214,7 +177,8 @@ public class AccessTokenResourceTest
 				ctx);
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
-				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", null, null, null, null, null);
+				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
+				null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setContent(resp.getEntity().toString());
@@ -239,7 +203,7 @@ public class AccessTokenResourceTest
 		
 		Response resp = tested.getToken(GrantType.AUTHORIZATION_CODE.getValue(), 
 				step1Resp.getAuthorizationCode().getValue(), null, "https://return.host.com/foo", 
-				null, null, null, null, null);
+				null, null, null, null, null, null);
 
 		HTTPResponse httpResp = new HTTPResponse(resp.getStatus());
 		httpResp.setContent(resp.getEntity().toString());

@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
  * @author K. Benedyczak
  */
 @Component
-public class EndpointInstanceLoader
+class EndpointInstanceLoader
 {
 	private EndpointFactoriesRegistry endpointFactoriesReg;
 	private RealmDB realmDB;
@@ -43,14 +43,15 @@ public class EndpointInstanceLoader
 	 * @param src
 	 * @return
 	 */
-	public EndpointInstance createEndpointInstance(Endpoint src)
+	EndpointInstance createEndpointInstance(Endpoint src)
 	{
 		EndpointFactory factory = endpointFactoriesReg.getById(src.getTypeId());
 		EndpointInstance instance = factory.newInstance();
 		List<String> authnOptions = src.getConfiguration().getAuthenticationOptions();
 		
 		String endpointConfig = src.getConfiguration().getConfiguration();
-		List<AuthenticationFlow> authenticationFlows = authnLoader.resolveAndGetAuthenticationFlows(authnOptions);
+		List<AuthenticationFlow> authenticationFlows = authnLoader.resolveAuthenticationFlows(
+				authnOptions, factory.getDescription().getSupportedBinding());
 		ResolvedEndpoint fullInfo = resolveEndpoint(src);
 		
 		instance.initialize(fullInfo, authenticationFlows, endpointConfig);

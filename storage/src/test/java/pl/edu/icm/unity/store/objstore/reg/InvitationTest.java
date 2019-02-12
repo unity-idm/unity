@@ -20,6 +20,7 @@ import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
+import pl.edu.icm.unity.types.registration.invite.RegistrationInvitationParam;
 
 public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 {
@@ -35,7 +36,7 @@ public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 	@Override
 	protected InvitationWithCode getObject(String id)
 	{
-		InvitationParam param = new InvitationParam("formId", 
+		InvitationParam param = new RegistrationInvitationParam("formId", 
 				Instant.ofEpochMilli(1000), 
 				"contactAddress");
 		param.getAttributes().put(0, new PrefilledEntry<>(
@@ -54,7 +55,7 @@ public class InvitationTest extends AbstractNamedWithTSTest<InvitationWithCode>
 	@Override
 	protected InvitationWithCode mutateObject(InvitationWithCode src)
 	{
-		InvitationParam param = new InvitationParam("formId2", 
+		InvitationParam param = new RegistrationInvitationParam("formId2", 
 				Instant.ofEpochMilli(1001), 
 				"contactAddress2");
 		param.getAttributes().put(0, new PrefilledEntry<>(

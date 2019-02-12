@@ -16,6 +16,7 @@ import pl.edu.icm.unity.store.migration.from1_9.UpdateFrom1_9_x;
 import pl.edu.icm.unity.store.migration.from2_4.JsonDumpUpdateFromV3;
 import pl.edu.icm.unity.store.migration.from2_5.JsonDumpUpdateFromV4;
 import pl.edu.icm.unity.store.migration.from2_6.JsonDumpUpdateFromV5;
+import pl.edu.icm.unity.store.migration.from2_7.JsonDumpUpdateFromV6;
 
 /**
  * Updates a JSON dump before it is actually imported.
@@ -41,6 +42,9 @@ public class DumpUpdater
 
 	@Autowired
 	private JsonDumpUpdateFromV5 updateFrom2_6_x;
+
+	@Autowired
+	private JsonDumpUpdateFromV6 updateFrom2_7_x;
 	
 	public InputStream update(InputStream is, DumpHeader header) throws IOException
 	{
@@ -51,7 +55,7 @@ public class DumpUpdater
 					+ "which were created with Unity versions older then 1.9.x. "
 					+ "Update from 1.8.0 can work, but is not officially supported.");
 
-		if (header.getVersionMajor() > DumpSchemaVersion.V_SINCE_2_7_0.getJsonDumpVersion())
+		if (header.getVersionMajor() > DumpSchemaVersion.V_SINCE_2_8_0.getJsonDumpVersion())
 				throw new IOException("Import of data can not be performed from dumps "
 						+ "which were created with Unity versions newer "
 						+ "then the current one.");
@@ -67,6 +71,9 @@ public class DumpUpdater
 
 		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_7_0.getJsonDumpVersion())
 			is = performUpdate(is, updateFrom2_6_x, DumpSchemaVersion.V_SINCE_2_7_0);
+
+		if (header.getVersionMajor() < DumpSchemaVersion.V_SINCE_2_8_0.getJsonDumpVersion())
+			is = performUpdate(is, updateFrom2_7_x, DumpSchemaVersion.V_SINCE_2_8_0);
 		
 		return is;
 	}

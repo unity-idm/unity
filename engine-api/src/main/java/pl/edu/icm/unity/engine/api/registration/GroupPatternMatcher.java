@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import org.springframework.util.AntPathMatcher;
 
 import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
 
 /**
  * Matcher of group to ant-style pattern. We support * as arbitrary characters within group name, 
@@ -40,7 +41,16 @@ public class GroupPatternMatcher
 			.filter(grp -> matches(grp.toString(), pattern))
 			.collect(Collectors.toList());
 	}
-
+	
+	/**
+	 * @return list of those Group objects from allGroups which are matching to the given group access mode
+	 */
+	public static List<Group> filterByIncludeGroupsMode(List<Group> allGroups, IncludeGroupsMode mode)
+	{
+		if (mode.equals(IncludeGroupsMode.all))
+			return allGroups;
+		return allGroups.stream().filter(g -> mode.equals(IncludeGroupsMode.publicOnly) ? g.isPublic() : !g.isPublic()).collect(Collectors.toList());
+	}
 	
 	/**
 	 * @return list of those Group objects from allGroups which are in filter list

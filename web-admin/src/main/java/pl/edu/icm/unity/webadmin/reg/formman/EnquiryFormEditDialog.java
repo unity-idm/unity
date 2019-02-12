@@ -51,7 +51,7 @@ public class EnquiryFormEditDialog extends AbstractDialog
 		{
 			EnquiryForm form = editor.getForm();
 			
-			if (callback.newForm(form, editor.isIgnoreRequests()))
+			if (callback.newForm(form, editor.isIgnoreRequestsAndInvitations()))
 				close();
 		} catch (FormValidationException e) 
 		{
@@ -62,6 +62,6 @@ public class EnquiryFormEditDialog extends AbstractDialog
 	
 	public interface Callback
 	{
-		public boolean newForm(EnquiryForm form, boolean update);
+		public boolean newForm(EnquiryForm form, boolean ignoreRequest);
 	}
 }

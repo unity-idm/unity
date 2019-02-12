@@ -11,17 +11,8 @@ package pl.edu.icm.unity.types.registration;
  */
 public class RegistrationFormNotifications extends BaseFormNotifications
 {
-	private String invitationTemplate;
 	private String submittedTemplate;
 	
-	public String getInvitationTemplate()
-	{
-		return invitationTemplate;
-	}
-	public void setInvitationTemplate(String invitationTemplate)
-	{
-		this.invitationTemplate = invitationTemplate;
-	}
 	public String getSubmittedTemplate()
 	{
 		return submittedTemplate;
@@ -38,7 +29,7 @@ public class RegistrationFormNotifications extends BaseFormNotifications
 		int result = super.hashCode();
 		result = prime
 				* result
-				+ ((invitationTemplate == null) ? 0 : invitationTemplate.hashCode());
+				+ ((submittedTemplate == null) ? 0 : submittedTemplate.hashCode());
 		return result;
 	}
 	@Override
@@ -51,11 +42,11 @@ public class RegistrationFormNotifications extends BaseFormNotifications
 		if (getClass() != obj.getClass())
 			return false;
 		RegistrationFormNotifications other = (RegistrationFormNotifications) obj;
-		if (invitationTemplate == null)
+		if (submittedTemplate == null)
 		{
-			if (other.invitationTemplate != null)
+			if (other.submittedTemplate != null)
 				return false;
-		} else if (!invitationTemplate.equals(other.invitationTemplate))
+		} else if (!submittedTemplate.equals(other.submittedTemplate))
 			return false;
 		return true;
 	}

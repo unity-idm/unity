@@ -63,7 +63,6 @@ import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 import pl.edu.icm.unity.types.registration.Selection;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
@@ -125,6 +124,8 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private TextArea comment;
 	private Map<String, AttributeType> atTypes;
 	private Map<String, CredentialDefinition> credentials;
+	private boolean containReadOnlyValues = false;
+	private boolean containHiddenValues = false;
 
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
@@ -456,7 +457,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		}
 	}
 	
-	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, InvitationWithCode invitation) 
+	protected void createControls(RegistrationLayoutsContainer layoutContainer, FormLayout formLayout, PrefilledSet prefilled) 
 	{
 		identityParamEditors = new HashMap<>();
 		attributeEditor = new HashMap<>();
@@ -475,7 +476,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		{
 			FormElement element = elements.get(i);
 			FormElement nextElement = i + 1 < elements.size() ? elements.get(i+1) : null;
-			if (createControlFor(layoutContainer, element, previousInserted, nextElement, invitation))
+			if (createControlFor(layoutContainer, element, previousInserted, nextElement, prefilled))
 				previousInserted = element;
 		}
 		// we don't allow for empty sections
@@ -521,21 +522,23 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}
 	
 	protected boolean createControlFor(RegistrationLayoutsContainer layoutContainer, FormElement element, 
-			FormElement previousInserted, FormElement next, InvitationWithCode invitation)
+			FormElement previousInserted, FormElement next, PrefilledSet prefilled)
 	{
 		switch (element.getType())
 		{
 		case IDENTITY:
 			return createIdentityControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					invitation != null ? invitation.getIdentities() : new HashMap<>());
+					prefilled.identities);
 			
 		case ATTRIBUTE:
 			return createAttributeControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					invitation != null ? invitation.getAttributes() : new HashMap<>());
+					prefilled.attributes);
 			
 		case GROUP:
-			return createGroupControl(layoutContainer.registrationFormLayout, (FormParameterElement) element, 
-					invitation != null ? invitation.getGroupSelections() : new HashMap<>());
+			return createGroupControl(layoutContainer.registrationFormLayout,
+					(FormParameterElement) element,
+					prefilled.groupSelections,
+					prefilled.allowedGroups);
 			
 		case CAPTION:
 			return createLabelControl(layoutContainer.registrationFormLayout, previousInserted, 
@@ -632,25 +635,35 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		PrefilledEntry<IdentityParam> prefilledEntry = fromInvitation.get(index);
 
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		if (idParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY)
 		{
 			ReadOnlyField readOnlyField = new ReadOnlyField(prefilledEntry.getEntry().getValue(), 
 					formWidth(), formWidthUnit());
 			layout.addComponent(readOnlyField);
+			containReadOnlyValues = true;
 		} else if (!idParam.getRetrievalSettings().isInteractivelyEntered(rid != null))
 		{
 			if (!idParam.getRetrievalSettings().isPotentiallyAutomaticAndVisible())
+			{
 				return false;
+			}
 			IdentityTaV id = remoteIdentitiesByType.get(idParam.getIdentityType());
 			if (id == null)
 				return false;
 			
 			ReadOnlyField readOnlyField = new ReadOnlyField(id.getValue(), formWidth(), formWidthUnit());
 			layout.addComponent(readOnlyField);
+			containReadOnlyValues = true;
 		} else
 		{
 			IdentityEditor editor = identityEditorRegistry.getEditor(idParam.getIdentityType());
@@ -691,12 +704,22 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		AttributeType aType = atTypes.get(aParam.getAttributeType());
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
+		{
+			containHiddenValues = true;
 			return false;
+		}
+			
 		if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticOrInteractive &&
 				rattr != null)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		
 		CompositeLayoutAdapter layoutAdapter = new CompositeLayoutAdapter(layout);
 		layoutAdapter.setOffset(layout.getComponentCount());
@@ -711,6 +734,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 					aType, readOnlyAttribute, false, context);
 			ComponentsGroup componentsGroup = viewer.getComponentsGroup();
 			layoutAdapter.addContainer(componentsGroup);
+			containReadOnlyValues = true;
 		} else
 		{
 			String description = (aParam.getDescription() != null && !aParam.getDescription().isEmpty()) ? 
@@ -752,7 +776,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	}	
 	
 	protected boolean createGroupControl(AbstractOrderedLayout layout, FormParameterElement element, 
-			Map<Integer, PrefilledEntry<GroupSelection>> fromInvitation)
+			Map<Integer, PrefilledEntry<GroupSelection>> prefillFromInvitation, Map<Integer, GroupSelection> allowedFromInvitation)
 	{
 		int index = element.getIndex();
 		GroupRegistrationParam groupParam = form.getGroupParams().get(index);
@@ -760,12 +784,18 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		List<Group> remotelySelected = GroupPatternMatcher.filterMatching(allMatchingGroups, 
 				remotelyAuthenticated.getGroups());
 		boolean hasRemoteGroup = !remotelySelected.isEmpty();
-		PrefilledEntry<GroupSelection> prefilledEntry = fromInvitation.get(index);
+		PrefilledEntry<GroupSelection> prefilledEntry = prefillFromInvitation.get(index);
 		
 		if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.HIDDEN)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticHidden)
+		{
+			containHiddenValues = true;
 			return false;
+		}
 		
 		boolean hasPrefilledROSelected = prefilledEntry != null && 
 				prefilledEntry.getMode() == PrefilledEntryMode.READ_ONLY;
@@ -773,43 +803,83 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 				&& hasRemoteGroup; 
 
 		GroupsSelection selection = GroupsSelection.getGroupsSelection(msg, groupParam.isMultiSelect(), 
-				isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
+			isGroupParamUsedAsMandatoryAttributeGroup(form, groupParam));
 		selection.setCaption(isEmpty(groupParam.getLabel()) ? "" : groupParam.getLabel());
 		selection.setWidth(formWidth(), formWidthUnit());
-
+	
 		if (hasPrefilledROSelected)
 		{
 			selection.setReadOnly(true);
-			List<Group> prefilled = GroupPatternMatcher.filterMatching(allMatchingGroups, 
-					prefilledEntry.getEntry().getSelectedGroups());
-			selection.setItems(prefilled);
-			selection.setSelectedItems(prefilled);
-			layout.addComponent(selection);
+			List<Group> prefilled = GroupPatternMatcher.filterByIncludeGroupsMode(
+					GroupPatternMatcher.filterMatching(allMatchingGroups,
+							prefilledEntry.getEntry().getSelectedGroups()),
+					groupParam.getIncludeGroupsMode());
+			
+			if (!prefilled.isEmpty())
+			{
+				selection.setItems(prefilled);
+				selection.setSelectedItems(prefilled);
+				layout.addComponent(selection);
+				containReadOnlyValues = true;
+			}
 		} else if (hasAutomaticRO)
 		{
-			selection.setReadOnly(true);
-			selection.setItems(remotelySelected);
-			selection.setSelectedItems(remotelySelected);
-			layout.addComponent(selection);
+			List<Group> remotelySelectedFiltered = GroupPatternMatcher
+					.filterByIncludeGroupsMode(remotelySelected, groupParam.getIncludeGroupsMode());
+			if (!remotelySelectedFiltered.isEmpty())
+			{
+				selection.setReadOnly(true);
+				selection.setItems(remotelySelectedFiltered);
+				selection.setSelectedItems(remotelySelectedFiltered);
+				layout.addComponent(selection);
+				containReadOnlyValues = true;
+			}
+
 		} else
 		{
 			if (groupParam.getDescription() != null)
-				selection.setDescription(HtmlConfigurableLabel.conditionallyEscape(
-						groupParam.getDescription()));
-			selection.setItems(allMatchingGroups);
+			{
+				selection.setDescription(
+						HtmlConfigurableLabel.conditionallyEscape(groupParam.getDescription()));
+			}
+
+			GroupSelection allowedGroupSel = allowedFromInvitation.get(index);
+			List<Group> allowedGroup = allMatchingGroups;
+			if (allowedGroupSel != null && !allowedGroupSel.getSelectedGroups().isEmpty())
+			{
+				allowedGroup = GroupPatternMatcher.filterMatching(allMatchingGroups,
+						allowedFromInvitation.get(index).getSelectedGroups());
+			}
 			
-			if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive 
+			List<Group> allowedFilteredByMode = GroupPatternMatcher.filterByIncludeGroupsMode(allowedGroup, groupParam.getIncludeGroupsMode());
+			selection.setItems(allowedFilteredByMode);
+			
+			if (groupParam.getRetrievalSettings() == ParameterRetrievalSettings.automaticAndInteractive
 					&& hasRemoteGroup)
-				selection.setSelectedItems(remotelySelected);
+			{
+				List<Group> remotelySelectedLimited = GroupPatternMatcher.filterMatching(allowedFilteredByMode,
+						remotelySelected.stream().map(g -> g.getName()).collect(Collectors.toList()));
+				selection.setSelectedItems(remotelySelectedLimited);
+			}
+			
 			if (prefilledEntry != null && prefilledEntry.getMode() == PrefilledEntryMode.DEFAULT)
-				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allMatchingGroups, 
+			{
+
+				selection.setSelectedItems(GroupPatternMatcher.filterMatching(allowedFilteredByMode,
 						prefilledEntry.getEntry().getSelectedGroups()));
+
+			}
+			
 			groupSelectors.put(index, selection);
-			layout.addComponent(selection);
+			if (!allowedFilteredByMode.isEmpty())
+			{
+				layout.addComponent(selection);
+				return false;
+			}
 		}
+		
 		return true;
 	}
-	
 	
 	protected boolean createCredentialControl(AbstractOrderedLayout layout, FormParameterElement element)
 	{
@@ -855,12 +925,23 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	{
 		return !identityParamEditors.isEmpty()
 				|| !attributeEditor.isEmpty()
-				|| !groupSelectors.isEmpty()
+				|| !(groupSelectors.values().stream().filter(a -> a != null && !a.getItems().isEmpty())
+				.count() == 0)
 				|| !agreementSelectors.isEmpty()
 				|| !credentialParamEditors.isEmpty()
 				|| form.isCollectComments();
 	}
-
+	
+	public boolean hasReadOnlyValues()
+	{
+		return containReadOnlyValues;
+	}
+	
+	public boolean hasHiddenValues()
+	{
+		return containHiddenValues;
+	}
+	
 	protected boolean isEmpty(String str)
 	{
 		return str == null || str.equals("");

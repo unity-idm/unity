@@ -4,12 +4,17 @@
  */
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -33,9 +38,10 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 	
 	@Autowired
 	public RegistrationReviewPanel(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter)
+			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan)
 	{
-		super(msg, handlersRegistry, idTypesRegistry, idFormatter);
+		super(msg, handlersRegistry, idTypesRegistry, idFormatter, groupMan);
+		
 		initUI();
 	}
 	
@@ -49,7 +55,7 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 		code.addStyleName(Styles.bold.toString());
 		
 		main.addComponents(code);
-		super.addStandardComponents(main);
+		super.addStandardComponents(main, msg.getMessage("RequestReviewPanel.requestedGroups"));
 		setCompositionRoot(main);
 	}
 	
@@ -67,5 +73,11 @@ public class RegistrationReviewPanel extends RequestReviewPanelBase
 		this.requestState = requestState;
 		super.setInput(requestState, form);
 		code.setVisible(requestState.getRequest().getRegistrationCode() != null);
+		setGroupEntries(getGroupEntries(requestState, form));	
+	}
+
+	private List<Component> getGroupEntries(RegistrationRequestState requestState, RegistrationForm form)
+	{
+		return super.getGroupEntries(requestState, form, Arrays.asList(), false);
 	}
 }

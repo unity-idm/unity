@@ -38,7 +38,7 @@ is especially important if there is many of them. See <<endpoints-authn>> for de
 === Local authentication 
 
 Local authenticators use a locally stored credential to verify the client's identity. Local authentication
-is simple in the sense that it can result only in two states: valid or invalid. Local authenticators
+is simple in that sense that it can result only in two states: valid or invalid. Local authenticators
 have a very simple configuration (usually limited to a displayed name of the authenticator) as are
 using the configuration of an associated local credential. 
 
@@ -52,8 +52,7 @@ The lost password reset feature can be configured in password credential configu
 
 === Remote authentication
 
-Remote authentication is more complicated then the local authentication. 
-In remote authentication an external authentication server
+Remote authentication is more complicated then the local one. In remote authentication an external authentication server
 is contacted and asked to authenticate the client. The details are dependent on actual authenticator: some redirect
 the user's browser, some are contacting the remote server directly as in LDAP case.
 
@@ -113,9 +112,9 @@ additional authentication. It must be always an authenticator which does not req
 are resolved at runtime. The default policy is as follows:
 
 ----
-unityServer.core .reAuthenticationPolicy=SESSION_2F CURRENT SESSION_1F ENDPOINT_2F
-unityServer.core .reAuthenticationBlockOnNoOption=true
-unityServer.core .reAuthenticationGraceTime=60
+unityServer.core.reAuthenticationPolicy=SESSION_2F CURRENT SESSION_1F ENDPOINT_2F
+unityServer.core.reAuthenticationBlockOnNoOption=true
+unityServer.core.reAuthenticationGraceTime=60
 ----
 
 According to the default policy, for each sensitive operation server will check in order:

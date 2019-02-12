@@ -38,6 +38,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -182,15 +183,17 @@ public class TestMigrationFrom2_6
 		List<InvitationWithCode> all = invitationDB.getAll();
 		assertThat(all.size(), is(2));
 		
-		InvitationWithCode i1 = all.get(0);
+		InvitationWithCode i = all.get(0);
+		InvitationParam i1 = i.getInvitation();
 		assertThat(i1.getGroupSelections().size(), is(2));
 		assertThat(i1.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
 		assertThat(i1.getGroupSelections().get(1).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A/B/C")));
 
-		InvitationWithCode i2 = all.get(1);
+		i = all.get(1);
+		InvitationParam i2 = i.getInvitation();
 		assertThat(i2.getGroupSelections().size(), is(2));
 		assertThat(i2.getGroupSelections().get(0).getEntry().getSelectedGroups(), is(Lists.newArrayList("/A")));
-		assertThat(i2.getGroupSelections().get(1).getEntry().getSelectedGroups().isEmpty(), is(true));
+		assertThat(i2.getGroupSelections().get(1).getEntry().getSelectedGroups().isEmpty(), is(true));	
 	}
 	
 	@Test

@@ -11,8 +11,6 @@ import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import com.vaadin.event.ShortcutAction.KeyCode;
-import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
@@ -48,8 +46,10 @@ import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringSt
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
+import pl.edu.icm.unity.webui.forms.FormsUIHelper;
+import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
+import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestEditor.Stage;
-import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.ErrorCause;
 import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreatedCallback;
 
 /**
@@ -58,7 +58,7 @@ import pl.edu.icm.unity.webui.forms.reg.RequestEditorCreator.RequestEditorCreate
  * @author K. Benedyczak
  */
 @PrototypeComponent
-public class StandaloneRegistrationView extends CustomComponent implements View
+public class StandaloneRegistrationView extends CustomComponent implements StandalonePublicView
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneRegistrationView.class);
 	private RegistrationForm form;
@@ -96,7 +96,8 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 		this.autoLoginProcessor = autoLogin;
 	}
 	
-	String getFormName()
+	@Override
+	public String getFormName()
 	{
 		if (form == null)
 			return null;
@@ -229,21 +230,16 @@ public class StandaloneRegistrationView extends CustomComponent implements View
 	
 	private Button createOKButton(RegistrationRequestEditor editor, TriggeringMode mode)
 	{
-		Button okButton = new Button(msg.getMessage("RegistrationRequestEditorDialog.submitRequest"));
-		okButton.addStyleName(Styles.vButtonPrimary.toString());
-		okButton.addStyleName("u-reg-submit");
-		okButton.addClickListener(event -> onSubmit(editor, mode));
-		okButton.setWidth(100f, Unit.PERCENTAGE);
-		okButton.setClickShortcut(KeyCode.ENTER);
+		Button okButton = FormsUIHelper.createOKButton(
+				msg.getMessage("RegistrationRequestEditorDialog.submitRequest"),
+				event -> onSubmit(editor, mode));
 		return okButton;
 	}
 
 	private Button createCancelButton()
 	{
-		Button cancelButton = new Button(msg.getMessage("cancel"));
-		cancelButton.addClickListener(event -> onCancel());
+		Button cancelButton = FormsUIHelper.createCancelButton(msg.getMessage("cancel"), event -> onCancel());
 		cancelButton.setStyleName(Styles.vButtonLink.toString());
-		cancelButton.addStyleName("u-reg-cancel");
 		return cancelButton;
 	}
 	

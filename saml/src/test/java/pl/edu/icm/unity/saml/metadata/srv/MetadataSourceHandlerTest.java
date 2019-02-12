@@ -199,7 +199,7 @@ public class MetadataSourceHandlerTest
 		MetadataConsumer consumer2 = new MetadataConsumer(15000, (m,id) -> gotEvent2.set(true), "2");
 		handler.addConsumer(consumer2);
 		Awaitility.await().pollDelay(10, TimeUnit.MILLISECONDS)
-				.atMost(Duration.ONE_HUNDRED_MILLISECONDS).until(
+				.atMost(Duration.ONE_SECOND).until(
 				() -> gotEvent2.get());
 	}
 }

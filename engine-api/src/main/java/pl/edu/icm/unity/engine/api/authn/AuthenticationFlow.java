@@ -28,15 +28,15 @@ import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
  */
 public class AuthenticationFlow
 {
-	private Set<Authenticator> firstFactorAuthenticators;
-	private List<Authenticator> secondFactorAuthenticators;
+	private Set<AuthenticatorInstance> firstFactorAuthenticators;
+	private List<AuthenticatorInstance> secondFactorAuthenticators;
 	private Policy policy;
 	private String name;
 	private long revision;
 
 	public AuthenticationFlow(String name, Policy policy,
-			Set<Authenticator> firstFactorAuthenticators,
-			List<Authenticator> secondFactorAuthenticators, long revision)
+			Set<AuthenticatorInstance> firstFactorAuthenticators,
+			List<AuthenticatorInstance> secondFactorAuthenticators, long revision)
 	{
 		this.name = name;
 		this.policy = policy;
@@ -50,7 +50,7 @@ public class AuthenticationFlow
 		return name;
 	}
 	
-	public Set<Authenticator> getFirstFactorAuthenticators()
+	public Set<AuthenticatorInstance> getFirstFactorAuthenticators()
 	{
 		return firstFactorAuthenticators;
 	}
@@ -58,7 +58,7 @@ public class AuthenticationFlow
 	/**
 	 * @return 2ndary (typically 2nd factor) authenticator. Can be null if not defined.
 	 */
-	public List<Authenticator> getSecondFactorAuthenticators()
+	public List<AuthenticatorInstance> getSecondFactorAuthenticators()
 	{
 		return secondFactorAuthenticators;
 	}
@@ -70,15 +70,15 @@ public class AuthenticationFlow
 	
 	public void destroy()
 	{
-		for (Authenticator firstFactor : firstFactorAuthenticators)
+		for (AuthenticatorInstance firstFactor : firstFactorAuthenticators)
 			firstFactor.getRetrieval().destroy();
-		for (Authenticator secondFactor : secondFactorAuthenticators)
+		for (AuthenticatorInstance secondFactor : secondFactorAuthenticators)
 			secondFactor.getRetrieval().destroy();		
 	}
 	
-	public Set<Authenticator> getAllAuthenticators()
+	public Set<AuthenticatorInstance> getAllAuthenticators()
 	{
-		Set<Authenticator> ret = new HashSet<>();
+		Set<AuthenticatorInstance> ret = new HashSet<>();
 		ret.addAll(firstFactorAuthenticators);
 		ret.addAll(secondFactorAuthenticators);
 		return ret;	
@@ -99,11 +99,11 @@ public class AuthenticationFlow
 		checkIfAuthenticatorIsAmongSupported(secondFactorAuthenticators, supportedBindings);
 	}
 
-	private void checkIfAuthenticatorIsAmongSupported(Collection<Authenticator> authenticators,
+	private void checkIfAuthenticatorIsAmongSupported(Collection<AuthenticatorInstance> authenticators,
 			Set<String> supportedBindings) throws WrongArgumentException
 	{
 
-		for (Authenticator authenticator : authenticators)
+		for (AuthenticatorInstance authenticator : authenticators)
 		{
 			BindingAuthn authRet = authenticator.getRetrieval();
 			

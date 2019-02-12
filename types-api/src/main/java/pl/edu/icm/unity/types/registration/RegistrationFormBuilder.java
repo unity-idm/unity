@@ -49,13 +49,6 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 
 		return new RegistrationFormNotificationsBuilder(obj, this);
 	}
-
-	public RegistrationFormBuilder withByInvitationOnly(boolean aValue)
-	{
-		instance.setByInvitationOnly(aValue);
-
-		return this;
-	}
 	
 	public RegistrationFormBuilder withRegistrationCode(String aValue)
 	{
@@ -88,6 +81,13 @@ public class RegistrationFormBuilder extends BaseFormBuilder<RegistrationFormBui
 	public RegistrationFormBuilder withExternalSignupSpec(ExternalSignupSpec externalSignupSpec)
 	{
 		instance.setExternalSignupSpec(externalSignupSpec);
+		
+		return this;
+	}
+	
+	public RegistrationFormBuilder withExternalGridSignupSpec(ExternalSignupGridSpec externalGridSignupSpec)
+	{
+		instance.setExternalSignupGridSpec(externalGridSignupSpec);
 		
 		return this;
 	}

@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import pl.edu.icm.unity.MessageSource;
 import pl.edu.icm.unity.types.I18nString;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.registration.layout.BasicFormElement;
 import pl.edu.icm.unity.types.registration.layout.FormCaptionElement;
 import pl.edu.icm.unity.types.registration.layout.FormElement;
@@ -145,6 +146,7 @@ public final class FormLayoutUtils
 				{
 					if (type == FormLayoutElement.LOCAL_SIGNUP 
 							|| type == FormLayoutElement.REMOTE_SIGNUP
+							|| type == FormLayoutElement.REMOTE_SIGNUP_GRID
 							|| type == FormLayoutElement.CAPTION)
 						continue;
 					removeAllElements(primaryLayout, type);
@@ -158,9 +160,30 @@ public final class FormLayoutUtils
 			}
 			
 			int externalSignUpSize = form.getExternalSignupSpec().getSpecs().size();
+			List<AuthenticationOptionKey> gridSpecs = form.getExternalSignupGridSpec().getSpecs();
+			
 			for (int i = 0; i < externalSignUpSize; i++)
-				addParameterIfMissing(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, i, definedElements);
+			{
+				if (!gridSpecs.contains(form.getExternalSignupSpec().getSpecs().get(i)))
+				{
+					addParameterIfMissing(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, i, definedElements);
+				}else 
+				{
+					removeParametersWithIndexIfPresent(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, i);
+				}
+			}		
 			removeParametersWithIndexLargerThen(primaryLayout, FormLayoutElement.REMOTE_SIGNUP, externalSignUpSize);
+				
+			
+			if (form.getExternalSignupGridSpec().getSpecs().size() > 0)
+			{
+				addParameterIfMissing(primaryLayout, FormLayoutElement.REMOTE_SIGNUP_GRID, 0,
+						definedElements);
+			} else
+			{
+				removeParametersWithIndexIfPresent(primaryLayout, FormLayoutElement.REMOTE_SIGNUP_GRID,
+						0);
+			}		
 		}
 	}
 
@@ -239,6 +262,8 @@ public final class FormLayoutUtils
 			Set<String> definedElements = getDefinedElements(layout);
 			checkLayoutElement(FormLayoutElement.LOCAL_SIGNUP.name(), definedElements);
 			checkRemoteSignupElements(form, definedElements);
+			checkRemoteSignupGridElements(form, definedElements);
+			
 			if (!definedElements.isEmpty())
 				throw new IllegalStateException("Form layout contains elements "
 						+ "which are not defied in the form: " + definedElements);
@@ -331,8 +356,27 @@ public final class FormLayoutUtils
 	
 	private static void checkRemoteSignupElements(RegistrationForm registrationform, Set<String> definedElements)
 	{
+		
+		List<AuthenticationOptionKey> gridSpecs = registrationform.getExternalSignupGridSpec().getSpecs();
 		for (int i = 0; i < registrationform.getExternalSignupSpec().getSpecs().size(); i++)
-			checkLayoutElement(getIdOfElement(FormLayoutElement.REMOTE_SIGNUP, i), definedElements);
+		{
+			if (!gridSpecs.contains(registrationform.getExternalSignupSpec().getSpecs().get(i)))
+			{
+				checkLayoutElement(getIdOfElement(FormLayoutElement.REMOTE_SIGNUP, i), definedElements);
+			}
+		}
+		if (gridSpecs.size() > 0)
+		{
+			checkLayoutElement(getIdOfElement(FormLayoutElement.REMOTE_SIGNUP_GRID, 0), definedElements);		
+		}
+	}
+	
+	private static void checkRemoteSignupGridElements(RegistrationForm registrationform, Set<String> definedElements)
+	{
+		for (int i = 0; i < registrationform.getExternalSignupGridSpec().getSpecs().size(); i++)
+		{
+			checkLayoutElement(getIdOfElement(FormLayoutElement.REMOTE_SIGNUP_GRID, i), definedElements);	
+		}	
 	}
 	
 	private static void removeParametersWithIndexLargerThen(FormLayout layout, FormLayoutElement type, int size)
@@ -343,6 +387,18 @@ public final class FormLayoutUtils
 			FormElement formElement = iterator.next();
 			if (formElement.getType().equals(type) && 
 					((FormParameterElement)formElement).getIndex() >= size)
+				iterator.remove();
+		}
+	}
+	
+	private static void removeParametersWithIndexIfPresent(FormLayout layout, FormLayoutElement type, int index)
+	{
+		Iterator<FormElement> iterator = layout.getElements().iterator();
+		while (iterator.hasNext())
+		{
+			FormElement formElement = iterator.next();
+			if (formElement.getType().equals(type) && 
+					((FormParameterElement)formElement).getIndex() == index)
 				iterator.remove();
 		}
 	}

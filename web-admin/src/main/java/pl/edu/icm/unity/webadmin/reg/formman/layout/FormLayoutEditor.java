@@ -163,6 +163,7 @@ public class FormLayoutEditor extends CustomComponent
 		case ATTRIBUTE:
 		case CREDENTIAL:
 		case REMOTE_SIGNUP:
+		case REMOTE_SIGNUP_GRID:
 		case GROUP:
 		case IDENTITY:
 			return new FormParameterElementEditor((FormParameterElement) formElement);

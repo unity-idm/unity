@@ -22,7 +22,6 @@ public class GridContextMenuSupport<T>
 {
 	private List<SingleActionHandler<T>> actionHandlers = new ArrayList<>();
 	
-	@SuppressWarnings("unchecked")
 	public GridContextMenuSupport(Grid<T> grid)
 	{
 		GridContextMenu<T> contextMenu = new GridContextMenu<>(grid);

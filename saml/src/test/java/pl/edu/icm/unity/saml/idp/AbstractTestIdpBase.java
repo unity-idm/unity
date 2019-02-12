@@ -25,8 +25,8 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
+import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
-import pl.edu.icm.unity.engine.translation.out.OutputTranslationActionsRegistry;
 import pl.edu.icm.unity.engine.translation.out.action.CreateAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.out.action.FilterAttributeActionFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -219,7 +219,7 @@ public abstract class AbstractTestIdpBase extends DBIntegrationTestBase
 		CredentialRequirements cr3 = new CredentialRequirements("cr-certpass", "", creds);
 		credReqMan.addCredentialRequirement(cr3);
 		
-		authnMan.createAuthenticator("Apass", "password with cxf-httpbasic", null, "", "credential1");
-		authnMan.createAuthenticator("Acert", "certificate with cxf-certificate", null, "", "credential2");
+		authnMan.createAuthenticator("Apass", "password", "", "credential1");
+		authnMan.createAuthenticator("Acert", "certificate", "", "credential2");
 	}
 }

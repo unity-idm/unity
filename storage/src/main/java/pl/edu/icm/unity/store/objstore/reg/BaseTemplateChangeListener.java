@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.store.objstore.reg;
 
 import pl.edu.icm.unity.base.msgtemplates.reg.AcceptRegistrationTemplateDef;
+import pl.edu.icm.unity.base.msgtemplates.reg.InvitationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.RejectRegistrationTemplateDef;
 import pl.edu.icm.unity.base.msgtemplates.reg.UpdateRegistrationTemplateDef;
 import pl.edu.icm.unity.store.ReferenceRemovalHandler;
@@ -41,6 +42,14 @@ public abstract class BaseTemplateChangeListener implements ReferenceRemovalHand
 					+ formName + " and the template's type change would render the template incompatible with it");
 		}
 		
+		if (modifiedName.equals(notCfg.getInvitationTemplate())
+				&& !newValue.getConsumer().equals(InvitationTemplateDef.NAME))
+		{
+			throw new IllegalArgumentException("The message template is used by " + "a registration form "
+					+ formName + " and the template's type change "
+					+ "would render the template incompatible with it");
+		}
+		
 		boolean updateNeeded = false;
 		if (modifiedName.equals(newValue.getName()))
 			return updateNeeded;
@@ -60,6 +69,13 @@ public abstract class BaseTemplateChangeListener implements ReferenceRemovalHand
 			notCfg.setUpdatedTemplate(newValue.getName());
 			updateNeeded = true;
 		}
+		
+		if (modifiedName.equals(notCfg.getInvitationTemplate()))
+		{
+			notCfg.setInvitationTemplate(newValue.getName());
+			updateNeeded = true;
+		}
+		
 		return updateNeeded;
 	}
 

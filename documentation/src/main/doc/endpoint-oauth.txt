@@ -2,7 +2,7 @@
 === OAuth 2 Authorization Server and OpenId Connect endpoints
 
 Endpoint 1 type:: +OAuth2Authz+
-Binding :: Web (Vaadin)
+Binding :: Web
 Exposed paths:: +/oauth2-authz+
 
 Endpoint 2 type:: +OAuth2Token+
@@ -19,7 +19,7 @@ exposes the OAuth authorization endpoint functionality. It is a web endpoint. It
 the authentication of this endpoint should be configured so that OAuth users can authenticate themselves.
 
 The second Unity endpoint, +OAuth2Token+, supports all remaining OAuth endpoints, including the most important 
-token endpoint. The authentication settings of this endpoint should allow for authenticating OAuth clients accessing
+_token endpoint_. The authentication settings of this endpoint should allow for authenticating OAuth clients accessing
 the +/token+ path as required by OAuth specification. Note however that some of the operations needs to 
 be authorized/authenticated by providing an OAuth access token only and this fact is handled internally - 
 nothing has to be configured. Also two of the paths require neither 
@@ -51,10 +51,13 @@ OAuth clients are configured as regular Unity entities. To make an ordinary enti
 place it in the configured OAuth clients groups (+/oauth-clients+ in the above example). Additionally the
 client:
 
- - must have a credential so it can authenticate at the token endpoint in the way it was configured,
+ - must have a credential so it can authenticate at the token endpoint in the way it was configured 
+ (typically a password credential),
  - must possess the +sys:oauth:allowedGrantFlows+ attribute (in OAuth clients group) with allowed flows,
- - must possess the +sys:oauth:allowedReturnURI+ attribute (in OAuth clients group) with allowed return URI,
+ - must possess the +sys:oauth:allowedReturnURI+ attribute (in OAuth clients group) with allowed return URI(s),
  - can have logo and/or displayed name OAuth attributes assigned to improve client's presentation during user's consent.
+ - should have an attribute +sys:oauth:clientType+ specifying whether the client is confidential or public. By
+ default client is assumed to be confidential, if the attribute is unset.
  
 OAuth users must belong to a group specified in the configuration file. If no restrictions are required the '/' group
 can be used. In case that there are different groups of users for different OAuth clients, those groups can be 
@@ -208,4 +211,23 @@ is reduced to access token verification.
 To enable this feature set accessToken validity to a proper short time (e.g. 30 minutes) - equal to the intended inactive login session
 time. Additionally set +extendAccessTokenValidityUpTo+ to the intended longest session time (e.g. 12 hours). Then the actively used
 access token can be valid for up to 12 hours, but will automatically expire after 30 minutes without use.
+
+
+==== Public and native clients, PKCE
+
+Unity supports _Proof Key for Code Exchange by OAuth Public Clients OAuth 2.0 for Native Apps_ 
+(PKCE for short, RFC 7636) and _OAuth 2.0 for Native Apps_ profile (RFC 8252). 
+The features are activated for clients marked as +PUBLIC+ by the
+clientType attribute on the client entity. Setting client to PUBLIC causes the following consequences:
+
+* PKCE is mandatory
+* IP (v4&v6) based loopback redirections to any port are available, regardless of the port set in authorized return URI.
+Note that the path must still match exactly.
+* The +http+ scheme can be used in case of IP based loopback redirect, even if +https+ is configured in authorized return URI.
+* Consent screen acceptance can not be saved - it is always presented.
+
+See the aformentioned RFCs for details on how to use PKCE, 
+and what forms of return redirections are available for native clients.
+
+
 

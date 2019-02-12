@@ -42,6 +42,13 @@ public interface AuthenticationFlowManagement
 	Collection<AuthenticationFlowDefinition> getAuthenticationFlows() throws EngineException;
 
 	/**
+	 * Get authentication flow by given name
+	 * @return authentication flow
+	 * @throws EngineException 
+	 */
+	AuthenticationFlowDefinition getAuthenticationFlow(String name) throws EngineException;
+	
+	/**
 	 * Update existing authentication flow
 	 * @param authFlowdef
 	 */

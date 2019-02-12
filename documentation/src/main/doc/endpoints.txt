@@ -190,6 +190,8 @@ include::endpoint-admin.txt[]
 
 include::endpoint-home.txt[]
 
+include::endpoint-upman.txt[]
+
 include::endpoint-saml.txt[]
 
 include::endpoint-oauth.txt[]

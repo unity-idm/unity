@@ -24,14 +24,15 @@ import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.webui.wellknownurl.PublicViewProvider;
+import pl.edu.icm.unity.webui.forms.PublicFormURLProviderBase;
+import pl.edu.icm.unity.webui.forms.StandalonePublicView;
 
 /**
  * Provides access to public registration forms via well-known links
  * @author K. Benedyczak
  */
 @Component
-public class PublicRegistrationURLProvider implements PublicViewProvider
+public class PublicRegistrationURLProvider extends PublicFormURLProviderBase
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, PublicRegistrationURLProvider.class);
 	private RegistrationsManagement regMan;
@@ -83,7 +84,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		return view;
 	}
 
-	private String getFormName(String viewAndParameters)
+	protected String getFormName(String viewAndParameters)
 	{
 		if (PublicRegistrationURLSupport.REGISTRATION_VIEW.equals(viewAndParameters))
 			return RegistrationFormDialogProvider.getFormFromURL();
@@ -112,13 +113,14 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 	@Override
 	public void refresh(VaadinRequest request, Navigator navigator)
 	{
-		LOG.debug("Registration form refreshed");
+		
 		VaadinSession vaadinSession = VaadinSession.getCurrent();
 		if (vaadinSession != null)
 		{
 			StandaloneRegistrationView view = vaadinSession.getAttribute(StandaloneRegistrationView.class);
 			if (view != null)
 			{
+				LOG.debug("Registration form refreshed");
 				String viewName = getCurrentViewName();
 				String requestedFormName = getFormName(getCurrentViewName());
 				String cachedFormName = view.getFormName();
@@ -126,6 +128,7 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 				{
 					view.refresh(request);
 				}
+				
 				else
 				{
 					navigator.navigateTo(viewName);
@@ -140,5 +143,16 @@ public class PublicRegistrationURLProvider implements PublicViewProvider
 		if (viewName.startsWith("!"))
 			viewName = viewName.substring(1);
 		return viewName;
+	}
+
+	@Override
+	protected StandalonePublicView getViewFromSession()
+	{
+		VaadinSession vaadinSession  = VaadinSession.getCurrent();
+		if (vaadinSession == null)
+			return null;
+		
+		StandaloneRegistrationView view = vaadinSession.getAttribute(StandaloneRegistrationView.class);
+		return view;
 	}
 }

@@ -13,6 +13,7 @@ public enum FormLayoutElement
 {
 	LOCAL_SIGNUP(true),
 	REMOTE_SIGNUP(true),
+	REMOTE_SIGNUP_GRID(true),
 	CAPTCHA(true),
 	REG_CODE(true),
 	IDENTITY,

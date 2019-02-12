@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -29,14 +30,17 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportManagement;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.engine.translation.form.RegistrationActionsRegistry;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.types.authn.AuthenticationOptionKey;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;
+import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec;
+import pl.edu.icm.unity.types.registration.ExternalSignupGridSpec.AuthnGridSettings;
 import pl.edu.icm.unity.types.registration.ExternalSignupSpec;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.types.registration.RegistrationFormBuilder;
@@ -67,11 +71,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
 	private CredentialRequirementManagement credReqMan;
-	private AuthenticatorSupportManagement authenticatorSupport;
+	private AuthenticatorSupportService authenticatorSupport;
 	private RealmsManagement realmsManagement;
 	
 	private TabSheet tabs;
-	private CheckBox ignoreRequests;
+	private CheckBox ignoreRequestsAndInvitation;
 	
 	private CheckBox publiclyAvailable;
 	private CheckBox byInvitationOnly;
@@ -83,7 +87,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private TextField signInUrl;
 	private TextField registrationCode;
 	private RemoteAuthnProvidersSelection remoteAuthnSelections;
-
+	
+	private RemoteAuthnProvidersSelection remoteAuthnGridSelections;
+	private IntStepper remoteAuthnGridHeight;
+	private CheckBox remoteAuthnGridSearchable;
+	
 	private NotNullComboBox<String> credentialRequirementAssignment;
 	private RegistrationActionsRegistry actionsRegistry;
 	private RegistrationTranslationProfileEditor profileEditor;
@@ -102,7 +110,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 			CredentialManagement credMan, RegistrationActionsRegistry actionsRegistry,
 			CredentialRequirementManagement credReqMan,
 			ActionParameterComponentProvider actionComponentFactory,
-			AuthenticatorSupportManagement authenticatorSupport,
+			AuthenticatorSupportService authenticatorSupport,
 			RealmsManagement realmsManagement)
 			throws EngineException
 	{
@@ -139,10 +147,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 		initLayoutTab();
 		initWrapUpTab();
 		initAssignedTab();
-		ignoreRequests = new CheckBox(msg.getMessage("RegistrationFormEditDialog.ignoreRequests"));
-		addComponent(ignoreRequests);
-		setComponentAlignment(ignoreRequests, Alignment.TOP_RIGHT);
-		ignoreRequests.setVisible(false);
+		ignoreRequestsAndInvitation = new CheckBox(
+				msg.getMessage("RegistrationFormEditDialog.ignoreRequestsAndInvitations"));
+		addComponent(ignoreRequestsAndInvitation);
+		setComponentAlignment(ignoreRequestsAndInvitation, Alignment.TOP_RIGHT);
+		ignoreRequestsAndInvitation.setVisible(false);
 		addComponent(tabs);
 		setComponentAlignment(tabs, Alignment.TOP_LEFT);
 		setExpandRatio(tabs, 1);
@@ -182,7 +191,11 @@ public class RegistrationFormEditor extends BaseFormEditor
 		String code = registrationCode.getValue();
 		if (code != null && !code.equals(""))
 			builder.withRegistrationCode(code);
-		builder.withExternalSignupSpec(new ExternalSignupSpec(remoteAuthnSelections.getSelectedItems()));
+		builder.withExternalSignupSpec(new ExternalSignupSpec(remoteAuthnSelections.getSelectedItems()));		
+		builder.withExternalGridSignupSpec(
+				new ExternalSignupGridSpec(remoteAuthnGridSelections.getSelectedItems(),
+						new AuthnGridSettings(remoteAuthnGridSearchable.getValue(),
+								remoteAuthnGridHeight.getValue())));
 		FormLayoutSettings settings = layoutSettingsEditor.getSettings();
 		settings.setShowCancel(showCancel.getValue());
 		builder.withFormLayoutSettings(settings);
@@ -217,12 +230,23 @@ public class RegistrationFormEditor extends BaseFormEditor
 		showGotoSignin.setValue(toEdit.isShowSignInLink());
 		signInUrl.setValue(toEdit.getSignInLink() == null ? "" : toEdit.getSignInLink());
 		signInUrl.setEnabled(showGotoSignin.getValue());
-		if (!copyMode)
-			ignoreRequests.setVisible(true);
+		if (!copyMode) {
+			ignoreRequestsAndInvitation.setVisible(true);
+		}
+			
 		remoteAuthnSelections.setSelectedItems(toEdit.getExternalSignupSpec().getSpecs());
+		remoteAuthnGridSelections.setItems(toEdit.getExternalSignupSpec().getSpecs());
+		remoteAuthnGridSelections.setSelectedItems(toEdit.getExternalSignupGridSpec().getSpecs());
 		showCancel.setValue(toEdit.getLayoutSettings().isShowCancel());
 		localSignupEmbeddedAsButton.setValue(toEdit.getFormLayouts().isLocalSignupEmbeddedAsButton());
 		realmNames.setValue(toEdit.getAutoLoginToRealm() == null ? "" : toEdit.getAutoLoginToRealm());
+		AuthnGridSettings gsettings = toEdit.getExternalSignupGridSpec().getGridSettings();
+		if (gsettings == null)
+			gsettings = new AuthnGridSettings();
+		remoteAuthnGridSearchable.setValue(gsettings.searchable);
+		remoteAuthnGridHeight.setValue(gsettings.height);
+		refreshRemoteAuthGridSettingsControls();
+
 	}
 	
 	private void initMainTab() throws EngineException
@@ -313,22 +337,53 @@ public class RegistrationFormEditor extends BaseFormEditor
 	
 	private Component createRemoteSignupMethodsTab() throws EngineException
 	{
-		remoteAuthnSelections = new RemoteAuthnProvidersSelection(authenticatorSupport, 
-				msg.getMessage("RegistrationFormEditor.availableRemoteAuthnOptions"), 
-				msg.getMessage("RegistrationFormEditor.selectedRemoteAuthnOptions"), 
+		remoteAuthnSelections = new RemoteAuthnProvidersSelection(authenticatorSupport,
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions"),
 				msg.getMessage("RegistrationFormEditor.remoteAuthenOptions.description"));
+
+		remoteAuthnGridSelections = new RemoteAuthnProvidersSelection(
+				msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions"),
+				msg.getMessage("RegistrationFormEditor.remoteAuthenGridOptions.description"));
+
+		remoteAuthnSelections.addChipRemovalListener(e -> {
+			AuthenticationOptionKey removed = (AuthenticationOptionKey) e.getButton().getData();
+			remoteAuthnGridSelections.setItems(remoteAuthnSelections.getSelectedItems());
+			remoteAuthnGridSelections.setSelectedItems(remoteAuthnGridSelections.getSelectedItems().stream()
+					.filter(a -> !a.equals(removed)).collect(Collectors.toList()));
+		});
+
+		remoteAuthnSelections.addSelectionListener(
+				e -> remoteAuthnGridSelections.setItems(remoteAuthnSelections.getSelectedItems()));
+		
+		remoteAuthnGridSelections.addChipRemovalListener(e -> refreshRemoteAuthGridSettingsControls());
+		remoteAuthnGridSelections.addSelectionListener(e -> refreshRemoteAuthGridSettingsControls());
+		
+		remoteAuthnGridSearchable = new CheckBox(msg.getMessage("RegistrationFormEditor.remoteAuthEnableGridSearch"));
+		remoteAuthnGridHeight = new IntStepper(msg.getMessage("RegistrationFormEditor.remoteAuthGridHeight"));
+		remoteAuthnGridHeight.setInvalidValuesAllowed(false);
+		remoteAuthnGridHeight.setWidth(5, Unit.EM);
 		
 		FormLayout main = new CompactFormLayout();
 		main.setWidth(60, Unit.PERCENTAGE);
+		main.setSpacing(true);
 		main.addComponents(remoteAuthnSelections);
-		
+		main.addComponent(remoteAuthnGridSelections);
+		main.addComponent(remoteAuthnGridSearchable);
+		main.addComponent(remoteAuthnGridHeight);
+
 		VerticalLayout remoteSignupLayout = new VerticalLayout(main);
 		remoteSignupLayout.setSizeFull();
 		remoteSignupLayout.setSpacing(false);
 		remoteSignupLayout.setMargin(true);
 		remoteSignupLayout.setCaption(msg.getMessage("RegistrationFormEditor.remoteSignupMethods"));
 		return remoteSignupLayout;
+	}
+	
+	private void refreshRemoteAuthGridSettingsControls()
+	{
+		boolean enabled = remoteAuthnGridSelections.getSelectedItems().size() > 0;
+		remoteAuthnGridHeight.setEnabled(enabled);
+		remoteAuthnGridSearchable.setEnabled(enabled);
 	}
 	
 	private void initLayoutTab()
@@ -374,8 +429,8 @@ public class RegistrationFormEditor extends BaseFormEditor
 		wrapper.addComponent(profileEditor);
 	}
 
-	public boolean isIgnoreRequests()
+	public boolean isIgnoreRequestsAndInvitations()
 	{
-		return ignoreRequests.getValue();
+		return ignoreRequestsAndInvitation.getValue();
 	}
 }

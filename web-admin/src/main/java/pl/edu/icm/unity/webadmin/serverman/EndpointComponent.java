@@ -271,14 +271,7 @@ public class EndpointComponent extends DeployableComponentViewBase
 		hp.addComponents(pa, space, pad);
 		content.addComponent(hp);
 
-		StringBuilder bindings = new StringBuilder();
-		for (String s : endpoint.getType().getSupportedBindings())
-		{
-			if (bindings.length() > 0)
-				bindings.append(",");
-			bindings.append(s);
-		}
-		addFieldToContent(msg.getMessage("Endpoints.binding"), bindings.toString());
+		addFieldToContent(msg.getMessage("Endpoints.binding"), endpoint.getType().getSupportedBinding());
 		
 		String description = endpoint.getEndpoint().getConfiguration().getDescription();
 		if (description != null && description.length() > 0)

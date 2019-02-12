@@ -5,17 +5,29 @@
 package pl.edu.icm.unity.webadmin.reg.reqman;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.registration.GroupDiffUtils;
+import pl.edu.icm.unity.engine.api.registration.RequestedGroupDiff;
 import pl.edu.icm.unity.types.basic.Attribute;
+import pl.edu.icm.unity.types.basic.Group;
+import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.registration.AgreementRegistrationParam;
 import pl.edu.icm.unity.types.registration.BaseForm;
@@ -23,7 +35,7 @@ import pl.edu.icm.unity.types.registration.BaseRegistrationInput;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.Selection;
 import pl.edu.icm.unity.types.registration.UserRequestState;
-import pl.edu.icm.unity.webui.common.ListOfElements;
+import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -39,15 +51,18 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  */
 public class RequestReviewPanelBase extends CustomComponent
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RequestReviewPanelBase.class);
+			
 	protected UnityMessageSource msg;
 	private AttributeHandlerRegistry handlersRegistry;
 	private UserRequestState<?> requestState;
 	private IdentityTypesRegistry idTypesRegistry;
+	private GroupsManagement groupMan;
 	
 	private ListOfSelectableElements attributes;
 	private ListOfSelectableElements groups;
-	private ListOfElements<String> identities;
-	private ListOfElements<String> agreements;
+	private ListOfElementsWithActions<String> identities;
+	private ListOfElementsWithActions<String> agreements;
 	private Label comment;
 	private Panel attributesPanel;
 	private Panel groupsPanel;
@@ -56,18 +71,20 @@ public class RequestReviewPanelBase extends CustomComponent
 	private Panel identitiesP;
 	private IdentityFormatter idFormatter;
 	
+	
 	public RequestReviewPanelBase(UnityMessageSource msg, AttributeHandlerRegistry handlersRegistry,
-			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter)
+			IdentityTypesRegistry idTypesRegistry, IdentityFormatter idFormatter, GroupsManagement groupMan)
 	{
 		this.msg = msg;
 		this.handlersRegistry = handlersRegistry;
 		this.idTypesRegistry = idTypesRegistry;
 		this.idFormatter = idFormatter;
+		this.groupMan = groupMan;
 	}
 	
-	protected void addStandardComponents(Layout main)
+	protected void addStandardComponents(Layout main, String groupsTitle)
 	{
-		identities = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		identities = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -76,7 +93,6 @@ public class RequestReviewPanelBase extends CustomComponent
 			}
 		});
 		identities.setAddSeparatorLine(false);
-		identities.setMargin(true);
 		identitiesP = new SafePanel(msg.getMessage("RequestReviewPanel.requestedIdentities"), identities);
 		
 		attributes = new ListOfSelectableElements(null,
@@ -89,10 +105,10 @@ public class RequestReviewPanelBase extends CustomComponent
 		groups = new ListOfSelectableElements(null,
 				new Label(msg.getMessage("RequestReviewPanel.requestedGroupsIgnore")), 
 				DisableMode.WHEN_SELECTED);
-		groupsPanel = new SafePanel(msg.getMessage("RequestReviewPanel.requestedGroups"), 
+		groupsPanel = new SafePanel(groupsTitle, 
 				new VerticalLayout(groups));
 		
-		agreements = new ListOfElements<>(msg, new ListOfElements.LabelConverter<String>()
+		agreements = new ListOfElementsWithActions<>(new ListOfElementsWithActions.LabelConverter<String>()
 		{
 			@Override
 			public Label toLabel(String value)
@@ -101,7 +117,6 @@ public class RequestReviewPanelBase extends CustomComponent
 			}
 		});
 		agreements.setAddSeparatorLine(false);
-		agreements.setMargin(true);
 		agreementsP = new SafePanel(msg.getMessage("RequestReviewPanel.agreements"), agreements);
 		
 		comment = new Label();
@@ -196,18 +211,80 @@ public class RequestReviewPanelBase extends CustomComponent
 			attributes.addEntry(rep, false);
 		}
 		attributesPanel.setVisible(!attributes.isEmpty());
-
+	}
+	
+	protected void setGroupEntries(List<Component> list)
+	{
 		groups.clearEntries();
-		for (int i=0; i<request.getGroupSelections().size(); i++)
+		for (Component c : list)
+		{
+			groups.addEntry(c, false);
+		}
+		groupsPanel.setVisible(!groups.isEmpty());
+	}
+	
+	private String getGroupDisplayedName(GroupsManagement groupMan, String path)
+	{
+		try
+		{
+			return groupMan.getContents(path, GroupContents.METADATA).getGroup().getDisplayedName().getValue(msg);
+		} catch (Exception e)
+		{
+			log.warn("Can not get group displayed name for group " + path);
+			return path;
+		}
+	}
+	
+	protected List<Component> getGroupEntries(UserRequestState<?> requestState, BaseForm form,
+			List<Group> allUserGroups, boolean showRemoved)
+	{
+		List<Component> groupEntries = new ArrayList<>();
+		BaseRegistrationInput request = requestState.getRequest();
+
+		for (int i = 0; i < request.getGroupSelections().size(); i++)
 		{
 			GroupSelection selection = request.getGroupSelections().get(i);
 			if (form.getGroupParams().size() <= i)
 				break;
-			String groupEntry = selection.getExternalIdp() == null ? 
-					selection.getSelectedGroups().toString() :
-					"[from: " + selection.getExternalIdp() + "] " + selection.getSelectedGroups();
-			groups.addEntry(new Label(groupEntry), false);
+			HorizontalLayout wrapper = new HorizontalLayout();
+			wrapper.setSpacing(false);
+			wrapper.setMargin(false);
+			if (selection.getExternalIdp() != null)
+				wrapper.addComponent(new Label("[from: " + selection.getExternalIdp() + "]"));
+			wrapper.addComponent(getSingleGroupEntryComponent(
+					GroupDiffUtils.getSingleGroupDiff(groupMan.getGroupsByWildcard("/**"),
+							allUserGroups, selection, form.getGroupParams().get(i)),
+					showRemoved));
+			groupEntries.add(wrapper);
 		}
-		groupsPanel.setVisible(!groups.isEmpty());
+		return groupEntries;
 	}
+
+	private Component getSingleGroupEntryComponent(RequestedGroupDiff diff, boolean showRemoved)
+	{
+		HorizontalLayout main = new HorizontalLayout();
+		main.setSpacing(true);
+		main.setMargin(false);
+
+		addGroupLabel(main, diff.toAdd, Styles.success.toString());
+
+		if (showRemoved)
+		{
+			addGroupLabel(main, diff.toRemove, Styles.error.toString());
+		}
+
+		addGroupLabel(main, diff.remain, Styles.bold.toString());
+
+		return main;
+	}
+
+	private void addGroupLabel(HorizontalLayout layout, Set<String> value, String style)
+	{
+		if (value == null || value.isEmpty())
+			return;
+		Label l = new Label(value.stream().sorted().map(g-> getGroupDisplayedName(groupMan, g)).collect(Collectors.toList()).toString());
+		l.setStyleName(style);
+		layout.addComponent(l);
+	}
+	
 }

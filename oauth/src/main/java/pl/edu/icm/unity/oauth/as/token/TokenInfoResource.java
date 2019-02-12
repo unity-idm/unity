@@ -13,11 +13,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
+import org.apache.logging.log4j.Logger;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import com.nimbusds.jwt.util.DateUtils;
 
 import net.minidev.json.JSONObject;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 
@@ -45,6 +48,8 @@ import pl.edu.icm.unity.exceptions.EngineException;
 @Path(OAuthTokenEndpoint.TOKEN_INFO_PATH)
 public class TokenInfoResource extends BaseTokenResource
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, TokenInfoResource.class);
+	
 	public static final String SCOPE = "scope";
 	public static final String EXPIRATION = "exp";
 	public static final String SUBJECT = "sub";
@@ -65,8 +70,12 @@ public class TokenInfoResource extends BaseTokenResource
 		try
 		{
 			tokens = super.resolveBearerToken(bearerToken);
+			log.debug("Get token {} info returning status with expiration {}", 
+					tokenToLog(bearerToken), tokens.tokenSrc.getExpires());
 		} catch (OAuthTokenException e)
 		{
+			log.debug("Get token info returning error {} for token {}", 
+					e.getErrorResponse().getStatusInfo(), tokenToLog(bearerToken));
 			return e.getErrorResponse();
 		}
 		

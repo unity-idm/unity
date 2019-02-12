@@ -15,25 +15,24 @@ import java.util.Date;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import pl.edu.icm.unity.store.api.generic.AuthenticatorInstanceDB;
+import pl.edu.icm.unity.store.api.generic.AuthenticatorConfigurationDB;
 import pl.edu.icm.unity.store.api.generic.CredentialDB;
 import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.objstore.AbstractNamedWithTSTest;
+import pl.edu.icm.unity.store.types.AuthenticatorConfiguration;
 import pl.edu.icm.unity.types.I18nString;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
-import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 
-public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<AuthenticatorInstance>
+public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<AuthenticatorConfiguration>
 {
 	@Autowired
-	private AuthenticatorInstanceDB dao;
+	private AuthenticatorConfigurationDB dao;
 	
 	@Autowired
 	private CredentialDB credentialDB;
 	
 	@Override
-	protected NamedCRUDDAOWithTS<AuthenticatorInstance> getDAO()
+	protected NamedCRUDDAOWithTS<AuthenticatorConfiguration> getDAO()
 	{
 		return dao;
 	}
@@ -47,7 +46,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 			cred.setConfiguration("");
 			credentialDB.create(cred);
 			
-			AuthenticatorInstance obj = getObject("name1");
+			AuthenticatorConfiguration obj = getObject("name1");
 			dao.create(obj);
 
 			catchException(credentialDB).delete("localCred");
@@ -64,7 +63,7 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 			cred.setConfiguration("");
 			credentialDB.create(cred);
 			
-			AuthenticatorInstance obj = getObject("name1");
+			AuthenticatorConfiguration obj = getObject("name1");
 			dao.create(obj);
 
 			Date ts = dao.getUpdateTimestamp("name1");
@@ -82,39 +81,14 @@ public class AuthenticatorInstanceTest extends AbstractNamedWithTSTest<Authentic
 		});
 	}	
 	@Override
-	protected AuthenticatorInstance getObject(String id)
+	protected AuthenticatorConfiguration getObject(String id)
 	{
-		AuthenticatorInstance ret = new AuthenticatorInstance();
-		ret.setId(id);
-		ret.setLocalCredentialName("localCred");
-		ret.setRetrievalConfiguration("");
-		AuthenticatorTypeDescription typeDesc = new AuthenticatorTypeDescription();
-		typeDesc.setId(id);
-		typeDesc.setLocal(true);
-		typeDesc.setRetrievalMethod("retrievalMethod");
-		typeDesc.setRetrievalMethodDescription("retrievalMethodDescription");
-		typeDesc.setSupportedBinding("supportedBinding");
-		typeDesc.setVerificationMethod("verificationMethod");
-		typeDesc.setVerificationMethodDescription("vmd");
-		ret.setTypeDescription(typeDesc);
-		ret.setVerificatorConfiguration("");
-		return ret;
+		return new AuthenticatorConfiguration(id, "verificationMethod", "", "localCred", 1);
 	}
 
 	@Override
-	protected AuthenticatorInstance mutateObject(AuthenticatorInstance ret)
+	protected AuthenticatorConfiguration mutateObject(AuthenticatorConfiguration ret)
 	{
-		ret.setLocalCredentialName("localCred2");
-		ret.setRetrievalConfiguration("rCfg");
-		AuthenticatorTypeDescription typeDesc = new AuthenticatorTypeDescription();
-		typeDesc.setLocal(true);
-		typeDesc.setRetrievalMethod("retrievalMethod2");
-		typeDesc.setRetrievalMethodDescription("retrievalMethodDescription2");
-		typeDesc.setSupportedBinding("supportedBinding2");
-		typeDesc.setVerificationMethod("verificationMethod2");
-		typeDesc.setVerificationMethodDescription("vmd2");
-		ret.setTypeDescription(typeDesc);
-		ret.setVerificatorConfiguration("vCfg");
-		return ret;
+		return new AuthenticatorConfiguration(ret.getName(), "verificationMethod2", "sss", "localCred2", 2);
 	}
 }

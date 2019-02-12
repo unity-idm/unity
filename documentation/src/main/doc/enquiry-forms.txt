@@ -2,22 +2,37 @@
 == Enquiry forms
 
 Enquiry forms are a close relative of registration forms, with one principal difference: enquires are targeted 
-at existing users. 
+at existing Unity users. 
 
-Enquiry can be defined to collect additional information from existing users. This information can be anything 
-ranging from acceptance of new terms of use to collection of user's additional attribute which become necessary. 
+Enquiry can be defined to collect additional information from existing users, allow them to apply for changes 
+in their accounts or even automatically change owned account, in a controlled manner.  
+
+There are two general types of enquiries:
+
+* Regular enquiry -- such enquiry is presented to (selected) users as soon as they log into any web endpoint
+or can be filled on dedicated enquiry path. Each regular enquiry can be filled once. Regular enquiries are good
+for collecting consent, terms of use agreements or requesting additional mandatory account information. 
+* Sticky enquiry -- can be included on HomeUI, or on dedicated enquiry path. It is up to the user to fill the form,
+and the form can be filled multiple times. Sticky forms are good for providing persistent account update features:
+option to change membership in groups, or request modification of attributes which requires administrator's approval. 
+
+Both types of enquiries define a subset of system users for whom the form is applicable. This can be done simply by
+selecting groups (form will be applicable to all the members) in form configuration. Additionally an MVEL condition
+may be prepared to dynamically limit the form with nearly arbitrary constraints: users who are not members 
+of a given group, individual members, given attribute holders etc. The context of the MVEL condition is the same 
+as the one used in <<bulk-entity>> configuration.
 
 Enquiry forms are created in a nearly the same way as registration forms. The differences are:
 
 . Enquiry can be filled on a standalone URL (similar to standalone URL of registration form, but requires 
 authentication) or the user is asked to fill the enquiry after log in to Unity.
-. Enquiry is targeted to a group - all members of a group are asked to fill an enquiry.
 . Information on filled enquiry (as well as ignored permanently in case of optional enquires) is recorded in 
-user's attributes.
-. Enquiry form does not work with the invitations subsystem (enquires are filled after authentication so this is 
-typically not needed, but we may remove this limitation in future).
+user's attributes (note hidden one, so to see it on AdminUI one need to enable showing of hidden attrs).
 . Enquiry can contain only manually entered information, it can not be associated with remote login pipeline
 as registration forms (what obviously doesn't make any sense). 
 
 The remaining features are post submission translation profile, redirects, automation of processing etc. is the same
-as in case of registration forms.
+as in case of registration forms. Enquiry form also work with the invitations subsystem the same way
+as registration requests. The only difference is in the way invitation receiver is selected. 
+Note that when filling enquiry after invitation user needs not to authenticate.
+

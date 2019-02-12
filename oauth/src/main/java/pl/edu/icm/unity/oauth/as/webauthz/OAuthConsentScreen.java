@@ -13,6 +13,7 @@ import org.apache.logging.log4j.Logger;
 import com.google.common.collect.Lists;
 import com.nimbusds.oauth2.sdk.AuthorizationErrorResponse;
 import com.nimbusds.oauth2.sdk.OAuth2Error;
+import com.nimbusds.oauth2.sdk.client.ClientType;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CheckBox;
@@ -181,6 +182,9 @@ class OAuthConsentScreen extends CustomComponent
 		
 		rememberCB = new CheckBox(msg.getMessage("OAuthAuthzUI.rememberSettings"));
 		contents.addComponent(rememberCB);
+		
+		if (ctx.getClientType() == ClientType.PUBLIC)
+			rememberCB.setVisible(false);
 	}
 	
 	private void createIdentityPart(IdentityParam validIdentity, VerticalLayout contents)
@@ -208,7 +212,7 @@ class OAuthConsentScreen extends CustomComponent
 		{
 			OAuthPreferences preferences = OAuthPreferences.getPreferences(preferencesMan);
 			OAuthClientSettings settings = preferences.getSPSettings(ctx.getRequest().getClientID().getValue());
-			updateUIFromPreferences(settings);
+			updateUIFromPreferences(settings, ctx);
 		} catch (Exception e)
 		{
 			log.error("Engine problem when processing stored preferences", e);
@@ -220,7 +224,7 @@ class OAuthConsentScreen extends CustomComponent
 		}
 	}
 	
-	private void updateUIFromPreferences(OAuthClientSettings settings) throws EngineException
+	private void updateUIFromPreferences(OAuthClientSettings settings, OAuthAuthzContext ctx) throws EngineException
 	{
 		if (settings == null)
 			return;
@@ -228,7 +232,7 @@ class OAuthConsentScreen extends CustomComponent
 		String selId = settings.getSelectedIdentity();
 		idSelector.setSelected(selId);
 		
-		if (settings.isDoNotAsk())
+		if (settings.isDoNotAsk() && ctx.getClientType() != ClientType.PUBLIC)
 		{
 			setCompositionRoot(new VerticalLayout());
 			if (settings.isDefaultAccept())

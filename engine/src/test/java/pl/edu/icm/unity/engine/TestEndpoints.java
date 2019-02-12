@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
 import pl.edu.icm.unity.engine.mock.MockEndpoint;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nString;
@@ -37,6 +38,8 @@ public class TestEndpoints extends DBIntegrationTestBase
 	
 	@Autowired
 	private AuthenticatorManagement authnMan;
+	@Autowired
+	private AuthenticatorsRegistry authenticatorsReg;
 	
 	@Before
 	public void addRealm() throws Exception
@@ -233,22 +236,19 @@ public class TestEndpoints extends DBIntegrationTestBase
 	}
 	
 	@Test
-	public void testInitializationOfEndpointsWithAutheticators() throws Exception
+	public void shouldInitializeEndpointWithAutheticators() throws Exception
 	{
 		super.setupMockAuthn();
-		Collection<AuthenticatorTypeDescription> authTypes = authnMan.getAuthenticatorTypes("web");
-		authTypes = authnMan.getAuthenticatorTypes(null);
+		Collection<AuthenticatorTypeDescription> authTypes = authenticatorsReg.getAuthenticatorTypes();
 		AuthenticatorTypeDescription authType = authTypes.iterator().next();
 		
-		authnMan.createAuthenticator(
-				"auth1", authType.getId(), "8", "aaa", "credential1");
+		authnMan.createAuthenticator("auth1", authType.getVerificationMethod(), "config", "credential1");
 		
-		authnMan.createAuthenticator("auth2", "mockpassword with mockretrieval", 
-				"8", "aaa", CRED_MOCK);
+		authnMan.createAuthenticator("auth2", "mockpassword", "config", CRED_MOCK);
 		
 		
 		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", Arrays.asList("auth1","auth2"), "", REALM_NAME);
+				"desc", Arrays.asList("auth1", "auth2"), "", REALM_NAME);
 		
 		endpointMan.deploy(MockEndpoint.NAME, "endpoint1", "/xxx", cfg);
 		List<EndpointInstance> deployedEndpoints = internalEndpointMan.getDeployedEndpoints();

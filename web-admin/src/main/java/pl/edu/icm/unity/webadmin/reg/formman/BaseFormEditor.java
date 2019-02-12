@@ -39,6 +39,7 @@ import pl.edu.icm.unity.types.registration.BaseFormBuilder;
 import pl.edu.icm.unity.types.registration.ConfirmationMode;
 import pl.edu.icm.unity.types.registration.CredentialRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
+import pl.edu.icm.unity.types.registration.GroupRegistrationParam.IncludeGroupsMode;
 import pl.edu.icm.unity.types.registration.IdentityRegistrationParam;
 import pl.edu.icm.unity.types.registration.OptionalRegistrationParam;
 import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
@@ -88,7 +89,8 @@ public class BaseFormEditor extends VerticalLayout
 	private ListOfEmbeddedElements<GroupRegistrationParam> groupParams;
 	private ListOfEmbeddedElements<CredentialRegistrationParam> credentialParams;
 	private ListOfEmbeddedElements<RegistrationWrapUpConfig> wrapUpConfig;
-
+	private TabSheet collectedParamsTabSheet;
+	
 	public BaseFormEditor(UnityMessageSource msg, IdentityTypeSupport identityTypeSupport,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan)
@@ -179,8 +181,8 @@ public class BaseFormEditor extends VerticalLayout
 	protected TabSheet createCollectedParamsTabs(List<String> groups, boolean forceInteractiveRetrieval)
 	{
 		this.groups = groups;
-		TabSheet tabOfLists = new TabSheet();
-		tabOfLists.setStyleName(Styles.vTabsheetMinimal.toString());
+		collectedParamsTabSheet = new TabSheet();
+		collectedParamsTabSheet.setStyleName(Styles.vTabsheetMinimal.toString());
 		
 		agreements = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.agreements"), 
 				msg, new AgreementEditorAndProvider(), 0, 20, true);
@@ -208,8 +210,8 @@ public class BaseFormEditor extends VerticalLayout
 		attributeParams = new ListOfEmbeddedElements<>(msg.getMessage("RegistrationFormEditor.attributeParams"),
 				msg, attributeEditorAndProvider, 0, 20, true);
 				
-		tabOfLists.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
-		return tabOfLists;
+		collectedParamsTabSheet.addComponents(identityParams, localSignupMethods, groupParams, attributeParams, agreements);
+		return collectedParamsTabSheet;
 	}
 
 	protected Component getWrapUpComponent(Predicate<TriggeringState> filter) throws EngineException
@@ -251,7 +253,27 @@ public class BaseFormEditor extends VerticalLayout
 		credentialParams.setCaption(msg.getMessage("RegistrationFormEditor.localSignupMethods"));
 		return credentialParams;
 	}
-
+	
+	protected void setCredentialsTabVisible(boolean visible)
+	{
+		collectedParamsTabSheet.getTab(credentialParams).setVisible(visible);
+	}
+	
+	protected void setIdentitiesTabVisible(boolean visible)
+	{
+		collectedParamsTabSheet.getTab(identityParams).setVisible(visible);
+	}
+	
+	protected void resetCredentialTab()
+	{
+		credentialParams.resetContents();
+	}
+	
+	protected void resetIdentitiesTab()
+	{
+		identityParams.resetContents();
+	}
+	
 	private class AgreementEditorAndProvider implements EditorProvider<AgreementRegistrationParam>,
 		Editor<AgreementRegistrationParam>
 	{
@@ -423,6 +445,7 @@ public class BaseFormEditor extends VerticalLayout
 	{
 		private TextField group;
 		private CheckBox multiSelectable;
+		private EnumComboBox<IncludeGroupsMode> includeGroupsMode;
 		
 		@Override
 		public Editor<GroupRegistrationParam> getEditor()
@@ -440,16 +463,24 @@ public class BaseFormEditor extends VerticalLayout
 			group.addValueChangeListener(nv -> onGroupChanges());
 			multiSelectable = new CheckBox(msg.getMessage("RegistrationFormEditor.paramGroupMulti"));
 			multiSelectable.addValueChangeListener(nv -> onGroupChanges());
-			main.add(group, multiSelectable);
+			
+			includeGroupsMode = new EnumComboBox<>(
+					msg.getMessage("RegistrationFormViewer.paramGroupMode"), msg, 
+					"GroupAccessMode.", IncludeGroupsMode.class, 
+					IncludeGroupsMode.all);
+			
+			main.add(group, multiSelectable, includeGroupsMode);
 
 			if (value != null)
 			{
 				group.setValue(value.getGroupPath());
 				multiSelectable.setValue(value.isMultiSelect());
+				includeGroupsMode.setValue(value.getIncludeGroupsMode());
 			} else
 			{
 				group.setValue("/**");
 				multiSelectable.setValue(true);
+				includeGroupsMode.setValue(IncludeGroupsMode.all);
 			}
 			initEditorComponent(value, Optional.of(msg.getMessage("RegistrationFormEditor.groupMembership")));
 			return main;
@@ -461,6 +492,7 @@ public class BaseFormEditor extends VerticalLayout
 			GroupRegistrationParam ret = new GroupRegistrationParam();
 			ret.setGroupPath(group.getValue());
 			ret.setMultiSelect(multiSelectable.getValue());
+			ret.setIncludeGroupsMode(includeGroupsMode.getValue());
 			ret.setLabel(label.getValue());
 			fill(ret);
 			return ret;

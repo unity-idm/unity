@@ -12,8 +12,14 @@ import java.util.Objects;
  */
 public class GroupRegistrationParam extends RegistrationParam
 {
+	public static enum IncludeGroupsMode
+	{
+		publicOnly, privateOnly, all
+	}
+
 	private String groupPath;
 	private boolean multiSelect = false;
+	private IncludeGroupsMode includeGroupsMode = IncludeGroupsMode.all;
 
 	public String getGroupPath()
 	{
@@ -34,6 +40,16 @@ public class GroupRegistrationParam extends RegistrationParam
 	{
 		this.multiSelect = multiSelect;
 	}
+	
+	public IncludeGroupsMode getIncludeGroupsMode()
+	{
+		return includeGroupsMode;
+	}
+
+	public void setIncludeGroupsMode(IncludeGroupsMode includeGroupsMode)
+	{
+		this.includeGroupsMode = includeGroupsMode;
+	}
 
 	@Override
 	public boolean equals(final Object other)
@@ -44,12 +60,13 @@ public class GroupRegistrationParam extends RegistrationParam
 			return false;
 		GroupRegistrationParam castOther = (GroupRegistrationParam) other;
 		return Objects.equals(groupPath, castOther.groupPath)
-				&& Objects.equals(multiSelect, castOther.multiSelect);
+				&& Objects.equals(multiSelect, castOther.multiSelect)
+				&& Objects.equals(includeGroupsMode, castOther.includeGroupsMode);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(super.hashCode(), groupPath, multiSelect);
+		return Objects.hash(super.hashCode(), groupPath, multiSelect, includeGroupsMode);
 	}
 }

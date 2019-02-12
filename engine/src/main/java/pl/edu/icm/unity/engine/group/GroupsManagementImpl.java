@@ -22,6 +22,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
@@ -31,6 +32,7 @@ import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.store.api.AttributeDAO;
 import pl.edu.icm.unity.store.api.AttributeTypeDAO;
 import pl.edu.icm.unity.store.api.GroupDAO;
@@ -70,6 +72,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner tx;
 	private AttributeClassUtil acUtil;
+	private UnityMessageSource msg;
 
 	
 	@Autowired
@@ -78,7 +81,7 @@ public class GroupsManagementImpl implements GroupsManagement
 			AttributeTypeDAO attributeTypeDAO, AttributeClassDB acDB,
 			AuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
-			AttributeClassUtil acUtil, TransactionalRunner tx)
+			AttributeClassUtil acUtil, TransactionalRunner tx, UnityMessageSource msg)
 	{
 		this.dbGroups = dbGroups;
 		this.membershipDAO = membershipDAO;
@@ -92,6 +95,7 @@ public class GroupsManagementImpl implements GroupsManagement
 		this.confirmationManager = confirmationManager;
 		this.acUtil = acUtil;
 		this.tx = tx;
+		this.msg = msg;
 	}
 
 	@Override
@@ -103,6 +107,12 @@ public class GroupsManagementImpl implements GroupsManagement
 		AttributeClassUtil.validateAttributeClasses(toAdd.getAttributesClasses(), acDB);
 		if (!dbGroups.exists(toAdd.getParentPath()))
 			throw new IllegalArgumentException("Parent group " + toAdd.getParentPath() + " does not exist");
+		
+		if (toAdd.isPublic())
+		{	
+			assertParentIsPrivate(toAdd);
+		}
+		
 		dbGroups.create(toAdd);
 	}
 
@@ -273,14 +283,27 @@ public class GroupsManagementImpl implements GroupsManagement
 		List<GroupMembership> gc = membershipDAO.getMembers(path);
 		Map<String, AttributeType> allTypes = attributeTypeDAO.getAllAsMap();
 
-		for (GroupMembership membership: gc)
+		for (GroupMembership membership : gc)
 		{
 			long entity = membership.getEntityId();
-			AttributeClassHelper helper = acUtil.getACHelper(entity, path, 
-					group.getAttributesClasses());
+			AttributeClassHelper helper = acUtil.getACHelper(entity, path, group.getAttributesClasses());
 			Collection<String> attributes = getEntityInGroupAttributeNames(entity, path);
 			helper.checkAttribtues(attributes, allTypes);
 		}
+		
+		Group actual = dbGroups.get(path);
+		boolean changingAccessMode = actual.isPublic() != group.isPublic();
+		if (changingAccessMode)
+		{
+			if (!group.isPublic())
+			{
+				assertChildrenArePublic(actual, getDirectSubGroups(path));
+			} else
+			{
+				assertParentIsPrivate(group);
+			}
+		}
+		
 		dbGroups.updateByName(path, group);
 	}
 	
@@ -342,5 +365,48 @@ public class GroupsManagementImpl implements GroupsManagement
 				filter(g -> Group.isChild(g, root)).
 				filter(g -> !g.substring(prefix).contains("/")).
 				collect(Collectors.toList());
+	}
+	
+	private void assertChildrenArePublic(Group group, List<String> childs) throws EngineException
+	{
+		for (String child : childs)
+		{
+			Group childGroup = dbGroups.get(child);
+			if (childGroup.isPublic())
+			{
+				throw new PublicChildGroupException(group.getDisplayedName().getValue(msg),
+						childGroup.getDisplayedName().getValue(msg));
+
+			}
+		}
+	}
+
+	private void assertParentIsPrivate(Group group) throws EngineException
+	{
+		if (!group.isTopLevel())
+		{
+			Group parent = dbGroups.get(group.getParentPath());
+			if (!parent.isPublic())
+			{
+				throw new ParentIsPrivateGroupException(parent.getDisplayedName().getValue(msg),
+						group.getDisplayedName().getValue(msg));
+			}
+		}
+	}
+	
+	public static class PublicChildGroupException extends InternalException
+	{
+		public PublicChildGroupException(String parent, String child)
+		{
+			super("Cannot set group " + parent + " to private mode, child group " + child + " is public");
+		}
+	}
+
+	public static class ParentIsPrivateGroupException extends InternalException
+	{
+		public ParentIsPrivateGroupException(String parent, String child)
+		{
+			super("Cannot set group " + child + " to public mode, parent group " + parent + " is private");
+		}
 	}
 }

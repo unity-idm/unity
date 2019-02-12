@@ -11,6 +11,7 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 

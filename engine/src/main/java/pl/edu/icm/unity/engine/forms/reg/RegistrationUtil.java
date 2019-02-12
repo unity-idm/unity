@@ -19,13 +19,13 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.registration.GroupRegistrationParam;
 import pl.edu.icm.unity.types.registration.GroupSelection;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
-import pl.edu.icm.unity.types.registration.invite.InvitationWithCode;
+import pl.edu.icm.unity.types.registration.invite.InvitationParam;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntry;
 import pl.edu.icm.unity.types.registration.invite.PrefilledEntryMode;
 
 class RegistrationUtil
 {
-	static List<Attribute> getPrefilledAndHiddenAttributes(InvitationWithCode invitation,
+	static List<Attribute> getPrefilledAndHiddenAttributes(InvitationParam invitation,
 			RegistrationForm invitationRegistrationForm) throws IllegalFormContentsException
 	{
 		List<Attribute> attributes = Lists.newArrayList();
@@ -57,7 +57,7 @@ class RegistrationUtil
 		return attributes;
 	}
 
-	private static Function<Integer, GroupSelection> groupResolver(InvitationWithCode invitation)
+	private static Function<Integer, GroupSelection> groupResolver(InvitationParam invitation)
 	{
 		return idx -> 
 		{
@@ -68,8 +68,8 @@ class RegistrationUtil
 		};
 	}
 
-	static List<GroupParam> getPrefilledAndHiddenGroups(InvitationWithCode invitation,
-			RegistrationForm invitationRegistrationForm)
+	static List<GroupParam> getPrefilledAndHiddenGroups(InvitationParam invitation,
+			RegistrationForm invitationRegistrationForm, String profileName)
 	{
 		List<GroupParam> prefilledGroups = Lists.newArrayList();
 		
@@ -83,7 +83,7 @@ class RegistrationUtil
 					&& !prefilled.getEntry().getSelectedGroups().isEmpty())
 			{
 				for (String group: prefilled.getEntry().getSelectedGroups())
-					prefilledGroups.add(new GroupParam(group, null, null));
+					prefilledGroups.add(new GroupParam(group, null, profileName));
 			}
 		}
 		return prefilledGroups;

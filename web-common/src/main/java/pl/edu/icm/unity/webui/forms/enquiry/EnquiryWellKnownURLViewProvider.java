@@ -25,7 +25,9 @@ import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
+import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
+import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
@@ -76,14 +78,14 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	public View getView(String viewName)
 	{
 		String formName = getFormName(viewName);
-		if (!editorController.isFormApplicable(formName))
-			return new NotApplicableView();
-		
 		EnquiryForm form = editorController.getForm(formName);
+		if (!editorController.isFormApplicable(formName) && !editorController.isStickyFormApplicable(formName))
+			return new NotApplicableView(form);
+
 		EnquiryResponseEditor editor;
 		try
 		{
-			editor = editorController.getEditorInstance(form, 
+			editor = editorController.getEditorInstance(form,
 					RemotelyAuthenticatedContext.getLocalContext());
 		} catch (Exception e)
 		{
@@ -91,22 +93,56 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			return null;
 		}
 		
-		return new StandaloneEnquiryView(editor, authnProcessor, msg, new Callback()
+		if (!editor.isUserInteractionRequired())
+		{
+			return new NotApplicableView(form);
+		}		
+		
+		boolean overwriteSticky = false;
+		if (form.getType().equals(EnquiryType.STICKY))
+		{
+			try
+			{
+				overwriteSticky = editorController.checkIfRequestExists(form.getName());
+			} catch (Exception e)
+			{
+				log.warn("Can't check if enquiry request exists", e);
+			}
+		}
+
+		Callback callback = new Callback()
 		{
 			@Override
 			public WorkflowFinalizationConfiguration submitted()
 			{
 				return onSubmission(form, editor);
 			}
-			
+
 			@Override
 			public WorkflowFinalizationConfiguration cancelled()
 			{
 				return editorController.cancelled(form, TriggeringMode.manualStandalone, true);
 			}
-		});
+		};
+
+		return overwriteSticky
+				? new StandaloneStickyEnquiryView(editor, authnProcessor, msg, callback,
+						() -> removePendingRequestSafe(form.getName()) )
+				: new StandaloneEnquiryView(editor, authnProcessor, msg, callback);
 	}
 	
+	private void removePendingRequestSafe(String formName)
+	{
+		try
+		{
+			editorController.removePendingRequest(formName);
+		} catch (Exception e)
+		{
+			// ok, we remove request before submit
+			log.warn("Can not remove pending request for form " + formName);
+		}
+	}
+
 	private WorkflowFinalizationConfiguration onSubmission(EnquiryForm form, EnquiryResponseEditor editor)
 	{
 		EnquiryResponse request = editor.getRequestWithStandardErrorHandling(true).orElse(null);
@@ -150,11 +186,20 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	private class NotApplicableView extends CustomComponent implements View
 	{
 
+		private EnquiryForm form;
+		
+		public NotApplicableView(EnquiryForm form)
+		{
+			this.form = form;
+		}
+		
 		@Override
 		public void enter(ViewChangeEvent event)
 		{
-			WorkflowFinalizationConfiguration config = WorkflowFinalizationConfiguration.basicError(
-					msg.getMessage("EnquiryWellKnownURLViewProvider.notApplicableEnquiry"), null);
+			WorkflowFinalizationConfiguration config = editorController.getFinalizationHandler(form)
+					.getFinalRegistrationConfigurationNonSubmit(false, null,
+							TriggeringState.NOT_APPLICABLE_ENQUIRY);
+		
 			
 			VerticalLayout wrapper = new VerticalLayout();
 			wrapper.setSpacing(false);

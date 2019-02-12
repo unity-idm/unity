@@ -1,0 +1,87 @@
+@mixin sidebarTransition($settings1, $settings2: null, $settings3: null) {
+    @if ($settings2) {
+        @if ($settings3) {
+            -webkit-transition: $settings1, $settings2, $settings3;
+            -moz-transition: $settings1, $settings2, $settings3;
+            -ms-transition: $settings1, $settings2, $settings3;
+            -o-transition: $settings1, $settings2, $settings3;
+            transition: $settings1, $settings2, $settings3;
+        } @else {
+            -webkit-transition: $settings1, $settings2;
+            -moz-transition: $settings1, $settings2;
+            -ms-transition: $settings1, $settings2;
+            -o-transition: $settings1, $settings2;
+            transition: $settings1, $settings2;
+        }
+    } @else {
+        -webkit-transition: $settings1;
+        -moz-transition: $settings1;
+        -ms-transition: $settings1;
+        -o-transition: $settings1;
+        transition: $settings1;
+    }
+}
+
+@mixin sidebarPos($position: null, $top: null, $right: null, $bottom: null, $left: null, $z-index: null) {
+    @if ($position) {
+        position: $position;
+    }
+    @if ($top) {
+        top: $top;
+    }
+    @if ($right) {
+        right: $right;
+    }
+    @if ($bottom) {
+        bottom: $bottom;
+    }
+    @if ($left) {
+        left: $left;
+    }
+    @if ($z-index) {
+        z-index: $z-index;
+    }
+}
+
+@mixin sidebarSize($width: null, $height: null) {
+    @if ($width) {
+        width: $width;
+    }
+    @if ($height) {
+        height: $height;
+    }
+}
+
+@mixin sidebarTransformTranslate($x: null, $y: null) {
+    @if ($x) {
+        @if ($y) {
+            -webkit-transform: translateX($x) translateY($y);
+            -moz-transform: translateX($x) translateY($y);
+            -ms-transform: translateX($x) translateY($y);
+            -o-transform: translateX($x) translateY($y);
+            transform: translateX($x) translateY($y);
+        } @else {
+            -webkit-transform: translateX($x);
+            -moz-transform: translateX($x);
+            -ms-transform: translateX($x);
+            -o-transform: translateX($x);
+            transform: translateX($x);
+        }
+    } @else {
+        -webkit-transform: translateY($y);
+        -moz-transform: translateY($y);
+        -ms-transform: translateY($y);
+        -o-transform: translateY($y);
+        transform: translateY($y);
+    }
+}
+
+@mixin sidebarTransformRotate($settings1) {
+    -webkit-transform: rotate($settings1);
+    -moz-transform: rotate($settings1);
+    -ms-transform: rotate($settings1);
+    -o-transform: rotate($settings1);
+    transform: rotate($settings1);
+}
+
+

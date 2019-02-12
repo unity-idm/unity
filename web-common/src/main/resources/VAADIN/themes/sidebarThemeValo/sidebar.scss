@@ -1,0 +1,445 @@
+$transition-time: 0.3s;
+$narrow-bar-size: 50px;
+
+@import "color-scheme-celadon";
+
+@import "sidebar-utils";
+
+@mixin sidebar {
+	
+	.v-menubar-menuitem .v-icon {
+		color: $menubar-icon-color !important;
+	}
+        
+	.v-menubar-menuitem {
+		color: $font-color-dark;
+		outline: none;
+	}
+        
+    .v-menubar-menuitem:hover {
+      	background: $hover-bg-color;
+		color: $font-color-dark;
+    }
+        
+    .v-menubar > .v-menubar-menuitem-selected {
+       	background-color: $hover-bg-color;
+       	background-image: none;
+    }
+
+	.v-filterselect-suggestpopup .gwt-MenuItem-selected {
+		color: $font-color-dark;
+		background-color: $hover-bg-color;
+       	background-image: none;
+	}
+	
+	.u-indentSmall {
+		margin-left: 10px;
+	}
+
+	.v-grid-row-stripe > td {
+ 	   background-color: $content-bg-color;
+	}
+	
+	.v-grid-row.warn > td {
+   	   color: red;
+	}
+	
+	.v-button:hover::after {
+      	background-color: transparent;
+    }
+
+    .v-button {
+       	@include sidebarTransition(background $transition-time);
+       	background-image: none;
+       	background-color: $button-bg-color;
+       	color: $button-color;
+       	-webkit-box-shadow: none;
+       	box-shadow: none;
+       	border-color: $button-border-color;
+    }
+
+    .v-button:hover {
+       	background-color: $button-hover-bg-color;
+       	color: $button-hover-color;
+    }
+    
+     .v-button-link {
+       	background-color: transparent;
+       	text-decoration: none;
+    }
+
+    .v-button-link:hover {
+       background-color: transparent;
+       color: $topMenuButton-hover-color
+    }
+        
+    .v-button:focus::after {
+       	border-color: none;
+		-webkit-box-shadow: none;
+		box-shadow: none;
+    }
+	
+	.u-button-action {
+		background-color: $button-action-bg-color;
+		color: $button-action-color;
+
+		&:hover {
+			background-color: $button-action-hover-bg-color;
+			color: $button-action-color;
+		}
+	}
+
+	.u-button-form {
+		width: 9em;
+	}
+
+	.v-button-grid{
+		height: 25px;
+		background-color: $content-bg-color;
+	
+		&:hover {
+			background-color: $hover-bg-color;
+		}
+	}
+	
+	.stepper-updown .v-icon {
+		@include sidebarTransition(color $transition-time);
+		color: $color-dark-grey;
+		
+		&:hover {
+			color: $font-color-dark;
+		}
+	}
+
+    .u-sidebar {
+    
+    
+        position: relative;
+        z-index: 1;
+
+        *:focus {
+ 		   outline:none;
+		}
+        
+        .viewHeader {
+        	font-size: $v-font-size * 1.5;
+        }
+        
+        .v-grid-row-selected > td {
+        	background: $selected-color;
+        	color: $font-color-dark;
+        	border-color: $color-v-table-border;
+        }
+        
+        .v-treegrid-row-selected > td {
+        	background: $selected-color;
+        	color: $font-color-dark;
+        	border-color: $color-v-table-border;
+        }
+        
+        .v-treegrid-row-focused::before {
+        	border: 1px solid $color-v-table-border;
+        }
+        
+        .u-headerBar {
+        	background-color: $menuTop-bg-color;
+        	border-bottom: 1px solid $menuTop-bottom-border;
+        	color: $menuTop-color;
+        }
+        
+        .u-contentBox {
+        	overflow: auto;
+        }
+
+        .v-button-small {
+        	@include sidebarTransition(background $transition-time);
+        	@include sidebarTransition(border-color $transition-time);
+        	padding: 2px 0px 0px 0px;
+        	width: $v-unit-size;
+        	background-image: none;
+        	background-color: $smallButton-bg-color;
+        	color: $smallButton-color;
+        	margin-left: $v-layout-margin-left * 0.25;
+        	border: none;
+        	box-shadow: none;
+        	border-color: transparent;
+        }
+
+        .v-button-small:hover {
+        	background-color: $smallButton-hover-bg-color !important;
+        	color: $smallButton-hover-color;
+        	border: 1px solid;
+        	border-color: $button-border-color;
+        }
+        
+        .u-left-menu-toggle {
+        	bottom: $v-layout-margin-bottom;
+        	right: 8px;
+        	padding: 0px 8px 0px 8px;
+			position: absolute;
+			outline: none;
+			color: $menuLeft-color;
+			background-color: transparent;
+			
+			&:hover, &.active:hover {
+            	background-color: $menuLeft-hoover-bg-color !important;
+                color: $menuLeft-hoover-color !important;
+            }
+			&:focus::after {
+ 				outline: none;
+ 				box-shadow: none;
+ 				-webkit-box-shadow: none;
+			}
+		}
+
+        
+        .u-rootContent {
+        	background: $content-bg-color;
+			color: $content-color;
+        
+            & > .v-expand {
+                padding-left: 250px !important;
+                
+                .v-slot-u-leftMenu {
+                    margin-left: -250px !important;
+                    
+                    .u-leftMenu {
+                        background: $menuLeft-bg-color;
+                        border-right: 1px solid $menuLeft-bg-right-border;
+            			color: $menuLeft-color;
+                        @include sidebarTransition(width $transition-time ease-in-out);
+                        width: 250px !important;
+                        
+                        & > .v-expand > .v-slot {
+                           height: auto !important;
+                        }
+                        
+                        &:not(.minimal) {
+                            overflow: auto;
+                        }
+                        
+                        
+                  
+                        
+                        .v-slot-u-menuLabel > div {
+                            width: 100%;
+                                                        
+                            .v-caption {
+                                text-align: center;
+                                position: relative;
+                                font-size: 20px;
+                                padding: 10px;
+                                
+                                &:after {
+                                    @include sidebarPos(absolute, null, null, 0, 0);
+                                    //border-bottom: 1px solid;
+                                    content: '';
+                                    width: 100%;
+                                }
+                                
+                                .v-icon {
+                                    margin-right: 5px;
+									max-width: 52px;
+                                    width: 100%;
+                                }
+                            }
+                            
+                            .v-label {
+                                display: none;
+                            }
+                        }
+                       
+                        .v-slot-u-menuCombo > div {
+                        	  width: 100%;
+                              text-align: center;
+						}
+	
+                        .u-menuButton {
+                            @include sidebarTransition(background $transition-time);
+                            border-left: 0 solid transparent;
+                            background: transparent;
+                            overflow: hidden;
+                            cursor: pointer;
+                            display: block;
+                            padding: 8px 0;
+                            height: 45px;
+
+                            &.u-active, &.active:hover {
+                        		font-weight: 900;
+                    			background-color: $menuLeft-active-bg-color;
+                            }
+
+                            &:hover {
+                            	background-color: $menuLeft-hoover-bg-color;
+                            	color: $menuLeft-hoover-color;
+                            	//border-top: 1px solid $menuLeft-hoover-color;
+                            	//border-bottom: 1px solid $menuLeft-hoover-color;
+                            }
+                        }
+
+                        .u-menuButton-wrap {
+                            @include sidebarTransition(border 0.3s);
+                            @include sidebarPos(relative);
+                            display: block;
+                            z-index: 1000;
+
+                            .v-icon {
+                                @include sidebarPos(relative);
+                                vertical-align: middle;
+                                display: inline-block;
+                                text-align: center;
+                                margin-left: 10px;
+                                width: 25px;
+                            }
+
+                            .u-menuButton-caption {
+                                font-size: 17px;
+                                vertical-align: middle;
+                            }
+                        }
+                        
+                        .u-subMenu {    
+                               .u-toolTip {
+                                    @include sidebarPos(absolute, 0, 5px);
+                                    @include sidebarSize(30px, 30px);
+
+                                    .v-icon {
+                                        @include sidebarTransition(transform 0.3s ease-in-out);
+                                        @include sidebarTransformRotate(0deg);
+                                        @include sidebarSize(30px, 30px);
+                                        line-height: 27px;
+                                        margin: 0;
+                                    }
+                                }
+
+                              .menucontent {
+                                    @include sidebarTransition(max-height 0.5s ease-in-out);
+                                    width: calc(100% - 24px) !important;
+                                    position: relative;
+                                    margin-left: 24px;
+                                    overflow: hidden;
+                                    display: block;
+                                    max-height: 0;
+                                }
+                            
+                        
+                            &.u-open {
+                               .u-toolTip .v-icon {
+                                    @include sidebarTransformRotate(-180deg);
+                                }
+
+                                .menucontent {
+                                    max-height: 1000px !important;
+                                    overflow: visible;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            .u-breadcrumbs {                
+					&:first-child .v-slot{
+                   		 width: auto !important;
+                     }
+                    .u-menuButton.u-clickable {
+                    	transition: color $transition-time;
+                        cursor: pointer;
+                        &:hover {
+							color: $topMenuButton-hover-color;
+						}
+                    }
+                    
+                    .u-menuLabel {
+                        display: none !important;
+                    }
+                
+            }
+           
+            .u-headerBar {
+				height: $narrow-bar-size !important;
+            }
+           
+            .u-topRightMenu {
+          		.u-menuButton {
+          				color: $topMenuButton-color;
+						border: none;
+						-webkit-box-shadow: none;
+						box-shadow: none;
+						background: $topMenuButton-bg-color;
+						cursor: pointer;
+						text-decoration: underline;
+						-webkit-transition: color $transition-time;
+						-moz-transition: color $transition-time;
+						transition: color $transition-time;
+						font-size : $v-font-size * 1.6;
+						
+						&:hover {
+							color: $topMenuButton-hover-color;
+							background: $topMenuButton-hover-bg-color;
+						}
+				}
+          	}  
+               
+            /* left menu minimal */
+            &.minimal {
+                overflow: inherit;
+                
+                & > .v-expand {
+                    padding-left: $narrow-bar-size !important;
+
+                    .v-slot-u-leftMenu {
+                        margin-left: -1 * $narrow-bar-size !important;
+
+                        .u-leftMenu {
+                            overflow: visible;
+                            width: $narrow-bar-size !important;
+
+                            .v-slot-u-menuLabel > div .v-caption .v-captiontext {
+                                display: none;
+                            }
+                            
+                            .u-toolTip .v-icon {
+                            	display: none;
+                            }
+                            
+                            .u-menuButton {
+                                overflow: visible;
+                                
+                                &:hover .u-menuButton-caption {
+                                    pointer-events: all !important;
+                                    opacity: 0.9 !important;
+                                    z-index: 10000;
+                                    visibility: visible !important;
+                                }
+                                
+                                .u-menuButton-wrap {
+                                    z-index: 100;
+                                    
+                                    .v-icon {
+                                        width: 100%;
+                                        margin: 0;
+                                    }
+                                	
+                                    .u-menuButton-caption {
+                                        @include sidebarTransition(opacity $transition-time ease-in-out);
+                                        padding: 9px 13px 8px;
+                                        top: calc(-50% + 4px);
+                                        pointer-events: none;
+                                        position: absolute;
+                                        white-space: pre;
+                                        height: 28px;
+                                        opacity: 0;
+                                        margin-left: 4px;
+                                        background-color: $menuLeft-active-bg-color;
+                                        visibility: hidden;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

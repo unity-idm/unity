@@ -78,6 +78,7 @@ public enum Styles
 	greenProgressBar("u-greenProgressBar"),
 	redProgressBar("u-redProgressBar"),
 	RegistrationLink("registrationLink"),
+	indentComboBox("u-indentComboBox"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),
@@ -95,7 +96,7 @@ public enum Styles
 	vTiny(ValoTheme.TEXTFIELD_TINY),
 	vTableNoHorizontalLines(ValoTheme.TABLE_NO_HORIZONTAL_LINES),
 	vComboSmall(ValoTheme.COMBOBOX_SMALL),
-	vDropLayout("drop-layout"),
+	vDropLayout("drop-layout"),	
 	vGroupBrowser("v-tree8");
 	
 	

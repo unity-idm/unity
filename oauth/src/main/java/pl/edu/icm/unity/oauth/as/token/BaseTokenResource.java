@@ -75,7 +75,12 @@ public class BaseTokenResource extends BaseOAuthResource
 		{
 			try
 			{
-				tokensManagement.updateToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, rawToken.getValue(), new Date(newExpiry), 
+				Date newExpiryDate = new Date(newExpiry);
+				log.debug("Extending token {} expiration from {} to {}",
+						"..." + parsedAccessToken.getAccessToken().substring(6),
+						new Date(rawToken.getExpires().getTime()), newExpiryDate);
+				tokensManagement.updateToken(OAuthProcessor.INTERNAL_ACCESS_TOKEN, rawToken.getValue(), 
+						newExpiryDate, 
 						rawToken.getContents());
 			} catch (IllegalArgumentException e)
 			{

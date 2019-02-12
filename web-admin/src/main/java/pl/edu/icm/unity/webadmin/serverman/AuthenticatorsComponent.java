@@ -7,6 +7,7 @@ package pl.edu.icm.unity.webadmin.serverman;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -27,7 +28,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
 import pl.edu.icm.unity.webadmin.serverman.DeployableComponentViewBase.Status;
 import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.Images;
@@ -138,7 +139,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 			return;
 		}
 
-		Collection<AuthenticatorInstance> authenticators;
+		Collection<AuthenticatorInfo> authenticators;
 		try
 		{
 			authenticators = authMan.getAuthenticators(null);
@@ -149,7 +150,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 		}
 		Set<String> existing = new HashSet<>();
 
-		for (AuthenticatorInstance ai : authenticators)
+		for (AuthenticatorInfo ai : authenticators)
 		{
 			existing.add(ai.getId());
 			authenticatorComponents.put(ai.getId(), 
@@ -163,8 +164,7 @@ public class AuthenticatorsComponent extends VerticalLayout
 					+ UnityServerConfiguration.AUTHENTICATOR_NAME);
 			if (!existing.contains(name))
 			{
-				AuthenticatorInstance au = new AuthenticatorInstance();
-				au.setId(name);			
+				AuthenticatorInfo au = new AuthenticatorInfo(name, null, null, Optional.empty(), null);
 				authenticatorComponents.put(name, 
 						authenticatorComponentFactory.getObject().init(au, Status.undeployed));
 			}

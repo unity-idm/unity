@@ -1,0 +1,27 @@
+/**
+ * Bright color scheme - alternative, disabled
+ * Exported as sass from http://paletton.com/#uid=23-0u0k8uuK1KQU4GEHd1q4i7l-
+ * Warning - not fully aligned with the rest.
+ */
+$color-primary-0: #788C9F;	// Main Primary color
+$color-primary-1: #D7DDE3;
+$color-primary-2: #A7B4C1;
+$color-primary-3: #546E87;
+$color-primary-4: #355370;
+
+$menuLeft-color: $font-color; 
+$menuLeft-bg-color: $color-primary-1;
+$menuLeft-bg-right-border: $color-primary-2;
+
+$menuLeft-hoover-color: $menuLeft-color; 
+$menuLeft-hoover-bg-color: $color-primary-2;
+$menuLeft-active-bg-color: $color-primary-2;
+
+$menuTop-color: $font-color;
+$menuTop-hoover-color: $color-primary-3;
+$menuTop-bg-color: $menuLeft-bg-color;
+$menuTop-bottom-border: $menuLeft-bg-right-border;
+
+$content-bg-color: #ffffff;
+$content-color: $font-color;
+

@@ -26,7 +26,7 @@ import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
-import pl.edu.icm.unity.engine.api.authn.Authenticator;
+import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
-import pl.edu.icm.unity.types.authn.AuthenticatorInstance;
+import pl.edu.icm.unity.types.authn.AuthenticatorInstanceMetadata;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AdditionalAuthenticationServiceTest
@@ -46,7 +46,7 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldReturnOption_Current()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Collections.emptyList(), 1);
 		setupContext(flow);
@@ -63,7 +63,7 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldNotReturnOptionRequiringRedirect()
 	{
-		Authenticator auth1 = getAuthenticator("remote-authn", "cred-1");
+		AuthenticatorInstance auth1 = getAuthenticator("remote-authn", "cred-1");
 		when(auth1.getRetrieval().requiresRedirect()).thenReturn(true);
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Collections.emptyList(), 1);
@@ -80,7 +80,7 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldNotReturnNotMatching_Current()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Collections.emptyList(), 1);
 		setupContext(flow);
@@ -97,8 +97,8 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldReturnOption_Endpoint()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
-		Authenticator auth2 = getAuthenticator("authn-2", "cred-2");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
 		setupContext(flow);
@@ -115,8 +115,8 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldNotReturnNotMatching_Endpoint()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
-		Authenticator auth2 = getAuthenticator("authn-2", "cred-2");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
 		setupContext(flow);
@@ -133,8 +133,8 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldReturnOption_Session1()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
-		Authenticator auth2 = getAuthenticator("authn-2", "cred-2");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
 		setupContext(flow, "authn-1", null);
@@ -151,8 +151,8 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldReturnOption_Session2()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
-		Authenticator auth2 = getAuthenticator("authn-2", "cred-2");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
 		setupContext(flow, "authn-1", "authn-2");
@@ -169,7 +169,7 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldReturnOption_Direct()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(), 1);
 		setupContext(flow, "authn-1", null);
@@ -187,8 +187,8 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldNotReturnNotMatching_Session1()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
-		Authenticator auth2 = getAuthenticator("authn-2", "cred-2");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
 		setupContext(flow, "authn-1", null);
@@ -205,8 +205,8 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldNotReturnNotMatching_Session2()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
-		Authenticator auth2 = getAuthenticator("authn-2", "cred-2");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
 		setupContext(flow, "authn-1", "authn-2");
@@ -223,7 +223,7 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldNotReturnNotMatching_Direct()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(), 1);
 		setupContext(flow, "authn-1", null);
@@ -240,7 +240,7 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldNotThrowWhenNoMatchAndConfiguredToIgnore()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(), 1);
 		setupContext(flow, "authn-1", null);
@@ -256,8 +256,8 @@ public class AdditionalAuthenticationServiceTest
 	@Test
 	public void shouldReturnWhenSecondIsMatching()
 	{
-		Authenticator auth1 = getAuthenticator("authn-1", "cred-1");
-		Authenticator auth2 = getAuthenticator("authn-2", "cred-2");
+		AuthenticatorInstance auth1 = getAuthenticator("authn-1", "cred-1");
+		AuthenticatorInstance auth2 = getAuthenticator("authn-2", "cred-2");
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, 
 				Sets.newHashSet(auth1), Lists.newArrayList(auth2), 1);
 		setupContext(flow, "authn-1", null);
@@ -273,13 +273,13 @@ public class AdditionalAuthenticationServiceTest
 	
 
 	
-	private Authenticator getAuthenticator(String authenticator, String credential)
+	private AuthenticatorInstance getAuthenticator(String authenticator, String credential)
 	{
-		Authenticator auth1 = mock(Authenticator.class);
-		AuthenticatorInstance instance1 = mock(AuthenticatorInstance.class);
+		AuthenticatorInstance auth1 = mock(AuthenticatorInstance.class);
+		AuthenticatorInstanceMetadata instance1 = mock(AuthenticatorInstanceMetadata.class);
 		when(instance1.getLocalCredentialName()).thenReturn(credential);
 		when(instance1.getId()).thenReturn(authenticator);
-		when(auth1.getAuthenticatorInstance()).thenReturn(instance1);
+		when(auth1.getMetadata()).thenReturn(instance1);
 		CredentialRetrieval retrieval = mock(CredentialRetrieval.class);
 		when(auth1.getRetrieval()).thenReturn(retrieval);
 		return auth1;

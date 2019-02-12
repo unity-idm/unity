@@ -62,8 +62,7 @@ public class RegistrationMVELContext extends HashMap<String, Object>
 			AttributeTypeHelper atHelper)
 	{
 		initCommon(form, response, status, triggered, idpEndpoint, requestId, atHelper);
-		if (response instanceof RegistrationRequest)
-			put(ContextKey.validCode.name(), ((RegistrationRequest)response).getRegistrationCode() != null);
+		put(ContextKey.validCode.name(), response.getRegistrationCode() != null);
 	}
 	
 	private void initCommon(BaseForm form, BaseRegistrationInput request,

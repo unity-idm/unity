@@ -26,14 +26,14 @@ import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
  * 
  * @author K. Benedyczak
  */
-class FirstFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
+public class FirstFactorAuthNPanel extends AuthNPanelBase implements AuthenticationUIController
 {
 	private final UnityMessageSource msg;
 	private final ExecutorsService execService;
 	private final Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider; 
 	private final boolean gridCompatible;
 	
-	FirstFactorAuthNPanel(UnityMessageSource msg, 
+	public FirstFactorAuthNPanel(UnityMessageSource msg, 
 			ExecutorsService execService,
 			CancelHandler cancelHandler,
 			Function<AuthenticationResult, UnknownUserDialog> unknownUserDialogProvider,

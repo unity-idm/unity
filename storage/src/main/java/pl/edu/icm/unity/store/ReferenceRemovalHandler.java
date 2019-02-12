@@ -15,7 +15,7 @@ public interface ReferenceRemovalHandler
 {
 	/**
 	 * @param removedId removed element key
-	 * @param removedName removed name or nulll if element has no name
+	 * @param removedName removed name or null if element has no name
 	 */
 	void preRemoveCheck(long removedId, String removedName);
 }
