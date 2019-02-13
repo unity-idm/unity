@@ -33,7 +33,11 @@
 			<artifactId>unity-server-web-elements</artifactId>
 			<version>${project.version}</version>
 		</dependency>
-		
+		<dependency>
+			<groupId>pl.edu.icm.unity</groupId>
+			<artifactId>unity-server-web-admin-common</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-engine-api</artifactId>

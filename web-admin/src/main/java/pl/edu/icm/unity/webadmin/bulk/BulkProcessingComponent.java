@@ -22,6 +22,8 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.tprofile.ActionEditor;
+import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -29,8 +31,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.types.translation.TranslationRule;
-import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
-import pl.edu.icm.unity.webadmin.tprofile.ActionParameterComponentProvider;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ErrorComponent;

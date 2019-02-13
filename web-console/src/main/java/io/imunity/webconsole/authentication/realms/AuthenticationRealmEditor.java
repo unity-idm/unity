@@ -8,6 +8,7 @@ package io.imunity.webconsole.authentication.realms;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -75,9 +76,10 @@ class AuthenticationRealmEditor extends CustomComponent
 		maxInactivity.setWidth(5, Unit.EM);
 
 		Label endpoints = new Label();
+		endpoints.setContentMode(ContentMode.HTML);
 		endpoints.setCaption(msg.getMessage("AuthenticationRealm.endpoints"));
 		endpoints.setWidth(100, Unit.PERCENTAGE);
-		endpoints.setValue(String.join(", ", toEdit.endpoints));
+		endpoints.setValue(String.join("<br>", toEdit.endpoints));
 		
 		binder = new Binder<>(AuthenticationRealm.class);
 

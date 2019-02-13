@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
@@ -62,8 +61,7 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 
 		try
 		{
-			if (!controller.addFlow(editor.getAuthenticationFlow()))
-				return;
+			controller.addFlow(editor.getAuthenticationFlow());
 		} catch (ControllerException e)
 		{
 
@@ -92,8 +90,6 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
 		List<String> allAuthenticators;
 		try
 		{
@@ -106,10 +102,13 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 		}
 
 		editor = new AuthenticationFlowEditor(msg, getDefaultAuthenticationFlow(), allAuthenticators);
+		
+		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		main.setWidth(45, Unit.EM);
 		main.addComponent(editor);
-		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
-				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());
-		main.addComponent(hl);
+		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
+				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 
 	}

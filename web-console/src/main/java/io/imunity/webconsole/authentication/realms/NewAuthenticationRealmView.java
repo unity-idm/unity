@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
@@ -61,8 +60,7 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 
 		try
 		{
-			if (!controller.addRealm(editor.getAuthenticationRealm()))
-				return;
+			controller.addRealm(editor.getAuthenticationRealm());
 		} catch (ControllerException e)
 		{
 
@@ -95,13 +93,13 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
+		editor = new AuthenticationRealmEditor(msg, getDefaultAuthenticationRealm());	
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		editor = new AuthenticationRealmEditor(msg, getDefaultAuthenticationRealm());
 		main.addComponent(editor);
-		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
-				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel());
-		main.addComponent(hl);
+		main.setWidth(45, Unit.EM);
+		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
+				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}
 

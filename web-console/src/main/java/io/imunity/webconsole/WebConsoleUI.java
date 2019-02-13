@@ -22,7 +22,6 @@ import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.menu.left.LeftMenu;
 import io.imunity.webelements.menu.left.LeftMenuLabel;
 import io.imunity.webelements.menu.top.TopRightMenu;
-import io.imunity.webelements.navigation.AppContextViewProvider;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -96,7 +95,7 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 		navigator.setErrorView((UnityView) navigationMan.getNavigationInfoMap()
 				.get(WebConsoleErrorView.VIEW_NAME).objectFactory
 				.getObject());
-		navigator.addProvider(new AppContextViewProvider(navigationMan));
+		navigator.addProvider(new WebConsoleAppContextViewProvider(navigationMan, sandboxRouter));
 		BreadCrumbs breadCrumbs = new BreadCrumbs(navigationMan);
 		navigator.addViewChangeListener(breadCrumbs);
 		

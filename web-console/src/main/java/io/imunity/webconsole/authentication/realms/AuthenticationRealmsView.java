@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
@@ -73,6 +74,7 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		buttonsBar.setMargin(false);
 		Button newRealm = new Button();
 		newRealm.setCaption(msg.getMessage("add"));
+		newRealm.setIcon(Images.add.getResource());
 		newRealm.addStyleName("u-button-action");
 		newRealm.addClickListener(e -> {
 			getUI().getNavigator().navigateTo(NewAuthenticationRealmView.VIEW_NAME);

@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
@@ -70,14 +71,15 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	{
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		buttonsBar.setMargin(false);
-		Button newRealm = new Button();
-		newRealm.setCaption(msg.getMessage("add"));
-		newRealm.addStyleName("u-button-action");
-		newRealm.addClickListener(e -> {
+		Button newFlow = new Button();
+		newFlow.setCaption(msg.getMessage("add"));
+		newFlow.setIcon(Images.add.getResource());
+		newFlow.addStyleName("u-button-action");
+		newFlow.addClickListener(e -> {
 			getUI().getNavigator().navigateTo(NewAuthenticationFlowView.VIEW_NAME);
 		});
-		buttonsBar.addComponent(newRealm);
-		buttonsBar.setComponentAlignment(newRealm, Alignment.MIDDLE_RIGHT);
+		buttonsBar.addComponent(newFlow);
+		buttonsBar.setComponentAlignment(newFlow, Alignment.MIDDLE_RIGHT);
 		buttonsBar.setWidth(100, Unit.PERCENTAGE);
 		
 		SingleActionHandler<AuthenticationFlowEntry> edit = SingleActionHandler

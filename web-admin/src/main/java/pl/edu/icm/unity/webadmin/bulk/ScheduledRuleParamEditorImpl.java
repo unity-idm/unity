@@ -8,10 +8,10 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 
+import io.imunity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.engine.api.bulkops.EntityAction;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
-import pl.edu.icm.unity.webadmin.tprofile.ActionEditor;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.mvel.MVELExpressionArea;
 

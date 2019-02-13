@@ -43,7 +43,7 @@ class AuthenticationRealmController
 		this.endpointController = endpointController;
 	}
 
-	boolean addRealm(AuthenticationRealm realm) throws ControllerException
+	void addRealm(AuthenticationRealm realm) throws ControllerException
 	{
 		try
 		{
@@ -55,10 +55,9 @@ class AuthenticationRealmController
 					e.getMessage(), e);
 		}
 
-		return true;
 	}
 
-	boolean updateRealm(AuthenticationRealm realm) throws ControllerException
+	void updateRealm(AuthenticationRealm realm) throws ControllerException
 
 	{
 		try
@@ -70,8 +69,6 @@ class AuthenticationRealmController
 					msg.getMessage("AuthenticationRealmController.updateError", realm.getName()),
 					e.getMessage(), e);
 		}
-
-		return true;
 	}
 
 	boolean removeRealm(AuthenticationRealm realm) throws ControllerException

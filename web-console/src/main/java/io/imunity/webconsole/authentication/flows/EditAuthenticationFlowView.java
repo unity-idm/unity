@@ -11,9 +11,7 @@ import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
@@ -62,8 +60,8 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 
 		try
 		{
-			if (!controller.updateFlow(editor.getAuthenticationFlow()))
-				return;
+			controller.updateFlow(editor.getAuthenticationFlow());
+				
 		} catch (ControllerException e)
 		{
 
@@ -111,12 +109,10 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 		editor.editMode();
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
+		main.setWidth(45, Unit.EM);
 		main.addComponent(editor);
-		main.setWidth(44, Unit.EM);
-		Layout hl = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
-				msg.getMessage("close"), () -> onConfirm(), () -> onCancel());
-		main.addComponent(hl);
-		main.setComponentAlignment(hl, Alignment.BOTTOM_CENTER);
+		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
+				msg.getMessage("close"), () -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}
 

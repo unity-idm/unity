@@ -5,7 +5,7 @@
 
 package io.imunity.webelements.helpers;
 
-import com.vaadin.shared.ui.MarginInfo;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 
@@ -20,12 +20,16 @@ public class ConfirmViewHelper
 			String cancelCaption, Runnable onConfirm, Runnable onCancel)
 	{
 
+		HorizontalLayout main = new HorizontalLayout();
+		main.setMargin(false);
+		//hl.setMargin(new MarginInfo(true, false));
 		HorizontalLayout hl = new HorizontalLayout();
-		hl.setMargin(new MarginInfo(true, false));
 		hl.addComponent(createConfirmButton(confirmCaption, onConfirm));
 		if (cancelCaption != null)
 			hl.addComponent(createCancelButton(cancelCaption, onCancel));
-		return hl;
+		main.addComponent(hl);
+		main.setComponentAlignment(hl, Alignment.MIDDLE_LEFT);
+		return main;
 	}
 
 	public static Button createConfirmButton(String confirmCaption, Runnable onConfirm)
