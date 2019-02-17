@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlException;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.emi.security.authn.x509.X509Credential;
@@ -91,7 +92,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	
 	@Autowired
 	public SAMLVerificator(RemoteAuthnResultProcessor processor,
-			PKIManagement pkiMan,
+			@Qualifier("insecure") PKIManagement pkiMan,
 			ReplayAttackChecker replayAttackChecker, ExecutorsService executorsService,
 			RemoteMetadataService metadataService,
 			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -25,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -33,14 +33,12 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -69,18 +67,9 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		HorizontalLayout buttonsBar = new HorizontalLayout();
-		buttonsBar.setMargin(false);
-		Button newFlow = new Button();
-		newFlow.setCaption(msg.getMessage("add"));
-		newFlow.setIcon(Images.add.getResource());
-		newFlow.addStyleName("u-button-action");
-		newFlow.addClickListener(e -> {
-			getUI().getNavigator().navigateTo(NewAuthenticationFlowView.VIEW_NAME);
-		});
-		buttonsBar.addComponent(newFlow);
-		buttonsBar.setComponentAlignment(newFlow, Alignment.MIDDLE_RIGHT);
-		buttonsBar.setWidth(100, Unit.PERCENTAGE);
+		Button newCert = StandardButtonsHelper.build4AddAction(msg, e -> 
+		NavigationHelper.goToView(NewAuthenticationFlowView.VIEW_NAME));
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(newCert);
 		
 		SingleActionHandler<AuthenticationFlowEntry> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationFlowEntry.class)
@@ -98,7 +87,7 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 		
 		flowsList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("AuthenticationFlow.nameCaption"),
-						r -> getEditButton(r), 1),
+						f -> StandardButtonsHelper.getLinkButton(f.flow.getName(), e -> gotoEdit(f)), 1),
 						new Column<>(msg.getMessage("AuthenticationFlow.endpointsCaption"),
 								r -> new Label(String.join(", ", r.endpoints)), 4)),
 				new ActionColumn<>(msg.getMessage("actions"), Arrays.asList(edit, remove), 0,
@@ -131,22 +120,6 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 						+ e.flow.getName());
 	}
 	
-	private HorizontalLayout getEditButton(AuthenticationFlowEntry e)
-	{
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setSpacing(false);
-		layout.setMargin(false);
-		layout.setWidth(100, Unit.PERCENTAGE);
-		Button button = new Button();
-		button.setCaption(e.flow.getName());		
-		button.addStyleName(Styles.vButtonLink.toString());
-		button.addStyleName(Styles.vBorderLess.toString());
-		button.addClickListener(ev -> gotoEdit(e));
-		layout.addComponent(button);
-		layout.setComponentAlignment(button, Alignment.TOP_LEFT);
-		return layout;
-	}
-	
 	private Collection<AuthenticationFlowEntry> getFlows()
 	{
 		try
@@ -163,8 +136,8 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	{
 		try
 		{
-			if (flowsMan.removeFlow(flow.flow))
-				flowsList.removeEntry(flow);
+			flowsMan.removeFlow(flow.flow);
+			flowsList.removeEntry(flow);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

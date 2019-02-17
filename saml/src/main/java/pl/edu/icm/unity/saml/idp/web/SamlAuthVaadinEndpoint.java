@@ -20,6 +20,7 @@ import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Primary;
 
@@ -105,7 +106,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
 			ApplicationContext applicationContext, FreemarkerAppHandler freemarkerHandler,
-			PKIManagement pkiManagement,
+			@Qualifier("insecure") PKIManagement pkiManagement,
 			ExecutorsService executorsService, 
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,

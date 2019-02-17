@@ -18,7 +18,6 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -28,6 +27,7 @@ import io.imunity.webconsole.UnityViewWithSandbox;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -44,7 +44,6 @@ import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Posi
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnRouter;
 import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
@@ -77,7 +76,7 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 	{
 		profileList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("InputTranslationProfilesView.nameCaption"),
-						r -> getEditButton(r), 2)),
+						p -> StandardButtonsHelper.getLinkButton(p.getName(), e -> gotoEdit(p)), 2)),
 				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(),
 						0, Position.Right));
 
@@ -120,40 +119,19 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 	
 	private HorizontalLayout getButtonsBar()
 	{
-		Button newProfile = new Button();
-		newProfile.setIcon(Images.add.getResource());
-		newProfile.setCaption(msg.getMessage("add"));
-		newProfile.addStyleName("u-button-action");
-		newProfile.addClickListener(e -> {
-			NavigationHelper.goToView(NewInputTranslationView.VIEW_NAME);
-		});
-		
-		Button wizard = new Button();
-		wizard.setCaption(msg.getMessage("InputTranslationProfilesView.wizard"));
-		wizard.setIcon(Images.wizard.getResource());
-		wizard.addStyleName("u-button-action");
-		wizard.addClickListener(e -> {
-			showWizardDialog();
-		});
-		
-		Button dryRun = new Button();
-		dryRun.setCaption(msg.getMessage("InputTranslationProfilesView.dryRun"));
-		dryRun.setIcon(Images.dryrun.getResource());
-		dryRun.addStyleName("u-button-action");
-		dryRun.addClickListener(e -> {
-			showDryRunDialog();
-		});
-		
-		HorizontalLayout buttonsWrapper = new HorizontalLayout();
-		buttonsWrapper.addComponents(dryRun, wizard, newProfile);
-		
-		HorizontalLayout buttonsBar = new HorizontalLayout();
-		buttonsBar.setMargin(false);
-		buttonsBar.addComponent(buttonsWrapper);
-		buttonsBar.setComponentAlignment(buttonsWrapper, Alignment.MIDDLE_RIGHT);
-		buttonsBar.setWidth(100, Unit.PERCENTAGE);
-		return buttonsBar;
 
+		Button newProfile = StandardButtonsHelper.build4AddAction(msg,
+				e -> NavigationHelper.goToView(NewInputTranslationView.VIEW_NAME));
+
+		Button wizard = StandardButtonsHelper.buildActionButton(
+				msg.getMessage("InputTranslationProfilesView.wizard"), Images.wizard,
+				e -> showWizardDialog());
+
+		Button dryRun = StandardButtonsHelper.buildActionButton(
+				msg.getMessage("InputTranslationProfilesView.dryRun"), Images.dryrun,
+				e -> showDryRunDialog());
+
+		return StandardButtonsHelper.buildButtonsBar(dryRun, wizard, newProfile);
 	}
 	
 	private void refreshProfileList()
@@ -207,29 +185,13 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 		}
 		return Collections.emptyList();
 	}
-
-	private HorizontalLayout getEditButton(TranslationProfile e)
-	{
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setSpacing(false);
-		layout.setMargin(false);
-		layout.setWidth(100, Unit.PERCENTAGE);
-		Button button = new Button();
-		button.setCaption(e.getName());
-		button.addStyleName(Styles.vButtonLink.toString());
-		button.addStyleName(Styles.vBorderLess.toString());
-		button.addClickListener(ev -> gotoEdit(e));
-		layout.addComponent(button);
-		layout.setComponentAlignment(button, Alignment.TOP_LEFT);
-		return layout;
-	}
-
+	
 	private void remove(TranslationProfile profile)
 	{
 		try
 		{
-			if (controller.removeProfile(profile))
-				profileList.removeEntry(profile);
+			controller.removeProfile(profile);
+			profileList.removeEntry(profile);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

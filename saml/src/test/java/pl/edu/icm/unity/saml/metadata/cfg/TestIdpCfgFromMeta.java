@@ -45,6 +45,7 @@ import org.awaitility.Duration;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
@@ -68,6 +69,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 	private RemoteMetadataService metadataService;
 	
 	@Autowired
+	@Qualifier("insecure")
 	private PKIManagement pkiManagement;
 	
 	@Autowired
@@ -93,7 +95,7 @@ public class TestIdpCfgFromMeta extends DBIntegrationTestBase
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_SIGNATURE, "require");
 		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), 
 				Encoding.PEM);
-		pkiManagement.addCertificate("issuerCert2", cert);
+		pkiManagement.addVolatileCertificate("issuerCert2", cert);
 		p.setProperty(P+SPMETA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert2");
 
 		p.setProperty(P+ALLOWED_SP_PREFIX+"1." + ALLOWED_SP_ENTITY, "https://support.hes-so.ch/shibboleth");

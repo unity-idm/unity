@@ -2,7 +2,7 @@
  * Copyright (c) 2015 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package io.umunity.webadmin.tprofile.dryrun;
+package io.imunity.webadmin.tprofile.dryrun;
 
 import java.net.URISyntaxException;
 

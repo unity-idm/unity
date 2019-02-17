@@ -18,4 +18,8 @@
 	<update id="updateSchema-20600-00">
 		UPDATE UVOS_FLAG SET VAL = '2_6_0'
 	</update>
+	
+	<update id="updateSchema-20700-00">
+		UPDATE UVOS_FLAG SET VAL = '2_7_0'
+	</update>
 </mapper>

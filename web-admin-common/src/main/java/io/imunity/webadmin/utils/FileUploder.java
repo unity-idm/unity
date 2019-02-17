@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.utils;
+package io.imunity.webadmin.utils;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

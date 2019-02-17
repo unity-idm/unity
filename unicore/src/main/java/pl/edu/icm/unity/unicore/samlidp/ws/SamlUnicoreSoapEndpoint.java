@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.samly2.webservice.SAMLAuthnInterface;
@@ -51,7 +52,7 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 	public SamlUnicoreSoapEndpoint(UnityMessageSource msg, NetworkServer server,
 			IdPEngine idpEngine,
 			PreferencesManagement preferencesMan,
-			PKIManagement pkiManagement, 
+			@Qualifier("insecure") PKIManagement pkiManagement, 
 			ExecutorsService executorsService, 
 			SessionManagement sessionMan,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, 

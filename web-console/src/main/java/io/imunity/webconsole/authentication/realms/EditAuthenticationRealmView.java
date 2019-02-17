@@ -36,14 +36,14 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 {
 	public static final String VIEW_NAME = "EditAuthenticationRealm";
 
-	private AuthenticationRealmController controller;
+	private AuthenticationRealmsController controller;
 	private AuthenticationRealmEditor editor;
 	private UnityMessageSource msg;
 	private String realmName;
 
 	@Autowired
 	public EditAuthenticationRealmView(UnityMessageSource msg,
-			AuthenticationRealmController controller)
+			AuthenticationRealmsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -25,6 +24,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -33,14 +33,12 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -54,13 +52,13 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 {
 	public static final String VIEW_NAME = "AuthenticationRealms";
 
-	private AuthenticationRealmController realmsMan;
+	private AuthenticationRealmsController realmsMan;
 	private UnityMessageSource msg;
 	private ListOfElementsWithActions<AuthenticationRealmEntry> realmsList;
 	
 	@Autowired
 	public AuthenticationRealmsView(UnityMessageSource msg,
-			AuthenticationRealmController realmsMan)
+			AuthenticationRealmsController realmsMan)
 	{
 		this.realmsMan = realmsMan;
 		this.msg = msg;
@@ -70,18 +68,9 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		HorizontalLayout buttonsBar = new HorizontalLayout();
-		buttonsBar.setMargin(false);
-		Button newRealm = new Button();
-		newRealm.setCaption(msg.getMessage("add"));
-		newRealm.setIcon(Images.add.getResource());
-		newRealm.addStyleName("u-button-action");
-		newRealm.addClickListener(e -> {
-			getUI().getNavigator().navigateTo(NewAuthenticationRealmView.VIEW_NAME);
-		});
-		buttonsBar.addComponent(newRealm);
-		buttonsBar.setComponentAlignment(newRealm, Alignment.MIDDLE_RIGHT);
-		buttonsBar.setWidth(100, Unit.PERCENTAGE);
+		Button newRealm = StandardButtonsHelper.build4AddAction(msg, e -> 
+		NavigationHelper.goToView(NewAuthenticationRealmView.VIEW_NAME));
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(newRealm);
 		
 		SingleActionHandler<AuthenticationRealmEntry> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationRealmEntry.class)
@@ -99,7 +88,7 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		
 		realmsList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("AuthenticationRealm.nameCaption"),
-						r -> getEditButton(r), 1),
+						r -> StandardButtonsHelper.getLinkButton(r.realm.getName(), e -> gotoEdit(r)), 1),
 						new Column<>(msg.getMessage("AuthenticationRealm.endpointsCaption"),
 								r -> new Label(String.join(", ", r.endpoints)), 4)),
 				new ActionColumn<>(msg.getMessage("actions"), Arrays.asList(edit, remove), 0,
@@ -132,22 +121,6 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 						+ e.realm.getName());
 	}
 	
-	private HorizontalLayout getEditButton(AuthenticationRealmEntry e)
-	{
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setSpacing(false);
-		layout.setMargin(false);
-		layout.setWidth(100, Unit.PERCENTAGE);
-		Button button = new Button();
-		button.setCaption(e.realm.getName());		
-		button.addStyleName(Styles.vButtonLink.toString());
-		button.addStyleName(Styles.vBorderLess.toString());
-		button.addClickListener(ev -> gotoEdit(e));
-		layout.addComponent(button);
-		layout.setComponentAlignment(button, Alignment.TOP_LEFT);
-		return layout;
-	}
-	
 	private Collection<AuthenticationRealmEntry> getRealms()
 	{
 		try
@@ -164,8 +137,8 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	{
 		try
 		{
-			if (realmsMan.removeRealm(realm.realm))
-				realmsList.removeEntry(realm);
+			realmsMan.removeRealm(realm.realm);
+			realmsList.removeEntry(realm);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

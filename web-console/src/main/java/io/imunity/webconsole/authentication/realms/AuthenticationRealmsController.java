@@ -22,20 +22,20 @@ import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Controller for all realms view
+ * Controller for all realms views
  * 
  * @author P.Piernik
  *
  */
 @Component
-class AuthenticationRealmController
+class AuthenticationRealmsController
 {
 	private RealmsManagement realmMan;
 	private UnityMessageSource msg;
 	private EndpointController endpointController;
 
 	@Autowired
-	AuthenticationRealmController(UnityMessageSource msg, RealmsManagement realmMan,
+	AuthenticationRealmsController(UnityMessageSource msg, RealmsManagement realmMan,
 			EndpointController endpointController)
 	{
 		this.realmMan = realmMan;
@@ -71,7 +71,7 @@ class AuthenticationRealmController
 		}
 	}
 
-	boolean removeRealm(AuthenticationRealm realm) throws ControllerException
+	void removeRealm(AuthenticationRealm realm) throws ControllerException
 	{
 		try
 		{
@@ -83,8 +83,6 @@ class AuthenticationRealmController
 					msg.getMessage("AuthenticationRealmController.removeError", realm.getName()),
 					e.getMessage(), e);
 		}
-
-		return true;
 	}
 
 	Collection<AuthenticationRealmEntry> getRealms() throws ControllerException

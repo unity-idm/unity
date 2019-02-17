@@ -87,7 +87,7 @@ class AuthenticationFlowsController
 		}
 	}
 
-	boolean removeFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	void removeFlow(AuthenticationFlowDefinition flow) throws ControllerException
 	{
 		try
 		{
@@ -99,8 +99,6 @@ class AuthenticationFlowsController
 					msg.getMessage("AuthenticationFlowsController.removeError", flow.getName()),
 					e.getMessage(), e);
 		}
-
-		return true;
 	}
 
 	Collection<AuthenticationFlowEntry> getFlows() throws ControllerException

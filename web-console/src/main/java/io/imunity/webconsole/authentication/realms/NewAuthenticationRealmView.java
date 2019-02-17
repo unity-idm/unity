@@ -39,13 +39,13 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 {
 	public static final String VIEW_NAME = "NewAuthenticationRealm";
 
-	private AuthenticationRealmController controller;
+	private AuthenticationRealmsController controller;
 	private AuthenticationRealmEditor editor;
 	private UnityMessageSource msg;
 
 	@Autowired
 	public NewAuthenticationRealmView(UnityMessageSource msg,
-			AuthenticationRealmController controller)
+			AuthenticationRealmsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

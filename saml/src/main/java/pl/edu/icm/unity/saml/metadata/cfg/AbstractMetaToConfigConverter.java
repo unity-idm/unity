@@ -189,14 +189,14 @@ public abstract class AbstractMetaToConfigConverter
 				try
 				{
 					X509Certificate existingCert = pkiManagement
-							.getCertificate(pkiKey);
+							.getCertificate(pkiKey).value;
 					if (!existingCert.equals(cert))
 					{
-						pkiManagement.updateCertificate(pkiKey, cert);
+						pkiManagement.updateVolatileCertificate(pkiKey, cert);
 					}
 				} catch (WrongArgumentException e)
 				{
-					pkiManagement.addCertificate(pkiKey, cert);
+					pkiManagement.addVolatileCertificate(pkiKey, cert);
 				}
 			}
 		}

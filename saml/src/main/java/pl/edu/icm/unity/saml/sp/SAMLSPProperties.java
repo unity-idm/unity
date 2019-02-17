@@ -275,7 +275,7 @@ public class SAMLSPProperties extends SamlProperties
 		Set<String> certs;
 		try
 		{
-			certs = pkiManagement.getCertificateNames();
+			certs = pkiManagement.getAllCertificateNames();
 		} catch (EngineException e)
 		{
 			throw new ConfigurationException("Can't retrieve available certificates", e);
@@ -345,7 +345,7 @@ public class SAMLSPProperties extends SamlProperties
 				X509Certificate idpCert;
 				try
 				{
-					idpCert = pkiManagement.getCertificate(idpCertName);
+					idpCert = pkiManagement.getCertificate(idpCertName).value;
 				} catch (EngineException e)
 				{
 					throw new ConfigurationException("Remote SAML IdP certificate can not be loaded " 

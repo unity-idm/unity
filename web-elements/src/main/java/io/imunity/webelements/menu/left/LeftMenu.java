@@ -184,27 +184,29 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 			if (child.type == Type.ViewGroup)
 			{
 
-				MenuElementContainer subMenu = SubMenu.get(child.id)
-						.withCaption(child.caption).withIcon(child.icon);
+				MenuElementContainer subMenu = SubMenu.get(child.id).withCaption(
+						child.shortCaption != null ? child.shortCaption : child.caption)
+						.withIcon(child.icon);
 				buildSubMenu(navMan.getChildren(child.id), subMenu);
 				addSubContainerElement(subMenu);
 
 			} else if (child.type == Type.View || child.type == Type.DefaultView)
 			{
-				addMenuElement(MenuButton.get(child.id).withCaption(child.caption)
+				addMenuElement(MenuButton.get(child.id)
+						.withCaption(child.shortCaption != null ? child.shortCaption
+								: child.caption)
 						.withNavigateTo(child.id).withIcon(child.icon));
 			}
 		}
 	}
 
-	private void buildSubMenu(List<NavigationInfo> viewChildren,
-			MenuElementContainer menuContainer)
+	private void buildSubMenu(List<NavigationInfo> viewChildren, MenuElementContainer menuContainer)
 	{
 		for (NavigationInfo child : viewChildren)
 		{
 			menuContainer.addMenuElement(MenuButton.get(child.id)
-					.withCaption(child.caption).withNavigateTo(child.id)
-					.withIcon(child.icon));
+					.withCaption(child.shortCaption != null ? child.shortCaption : child.caption)
+					.withNavigateTo(child.id).withIcon(child.icon));
 		}
 	}
 

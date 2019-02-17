@@ -19,10 +19,10 @@ import com.vaadin.server.StreamResource;
 
 import io.imunity.webadmin.tprofile.ActionParameterComponentProvider;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
+import io.imunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
+import io.imunity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import io.imunity.webconsole.WebConsoleEndpointFactory;
 import io.imunity.webconsole.common.EndpointController;
-import io.umunity.webadmin.tprofile.dryrun.DryRunWizardProvider;
-import io.umunity.webadmin.tprofile.wizard.ProfileWizardProvider;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.TranslationProfileManagement;
@@ -106,7 +106,7 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getProfilesError"),
+					msg.getMessage("InputTranslationProfilesController.getAllError"),
 					e.getMessage(), e);
 		}
 	}
@@ -124,7 +124,7 @@ class InputTranslationsController
 		}
 	}
 
-	boolean removeProfile(TranslationProfile profile) throws ControllerException
+	void removeProfile(TranslationProfile profile) throws ControllerException
 	{
 		try
 		{
@@ -135,7 +135,6 @@ class InputTranslationsController
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.removeError",
 					profile.getName()), e.getMessage(), e);
 		}
-		return true;
 	}
 
 	void addProfile(TranslationProfile profile) throws ControllerException

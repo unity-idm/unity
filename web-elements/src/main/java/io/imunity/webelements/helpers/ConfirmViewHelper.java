@@ -22,7 +22,6 @@ public class ConfirmViewHelper
 
 		HorizontalLayout main = new HorizontalLayout();
 		main.setMargin(false);
-		//hl.setMargin(new MarginInfo(true, false));
 		HorizontalLayout hl = new HorizontalLayout();
 		hl.addComponent(createConfirmButton(confirmCaption, onConfirm));
 		if (cancelCaption != null)
