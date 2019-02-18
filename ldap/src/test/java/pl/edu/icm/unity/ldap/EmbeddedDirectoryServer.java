@@ -206,6 +206,12 @@ public class EmbeddedDirectoryServer
 			{
 				
 			}
+
+			@Override
+			public List<Certificate> getVolatileCertificates() throws EngineException
+			{
+				return null;
+			}
 		};
 	}
 }

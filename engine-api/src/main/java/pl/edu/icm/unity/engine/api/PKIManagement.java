@@ -101,6 +101,14 @@ public interface PKIManagement
 	Certificate getVolatileCertificate(String name) throws EngineException;;
 
 	/**
+	 * 
+	 * @return set with available volatile certificates 
+	 * @throws EngineException
+	 */
+	List<Certificate> getVolatileCertificates() throws EngineException;
+	
+	
+	/**
 	 * Adds a new persisted certificate
 	 * @param toAdd
 	 * @throws EngineException
@@ -124,7 +132,7 @@ public interface PKIManagement
 
 	/**
 	 * 
-	 * @return set with available persisted certificate names
+	 * @return set with available persisted certificates 
 	 * @throws EngineException
 	 */
 	List<Certificate> getPersistedCertificates() throws EngineException;

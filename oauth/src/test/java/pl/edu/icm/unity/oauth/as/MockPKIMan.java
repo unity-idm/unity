@@ -146,4 +146,10 @@ public class MockPKIMan implements PKIManagement
 	{
 		
 	}
+
+	@Override
+	public List<Certificate> getVolatileCertificates() throws EngineException
+	{
+		return null;
+	}
 }

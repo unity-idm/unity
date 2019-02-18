@@ -16,11 +16,15 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
+/**
+ * Layout wrapper with collapse/expand button
+ * @author P.Piernik
+ *
+ */
 public class CollapsibleLayout extends CustomComponent
 {
 	private VerticalLayout contentWrapper;
 	private Button modeButton;
-	
 	
 	public CollapsibleLayout(String caption, Layout content)
 	{

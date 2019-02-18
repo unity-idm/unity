@@ -216,6 +216,13 @@ public class PKIManagementImpl implements PKIManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return certificates.get(name);
 	}
+	
+	@Override
+	public List<Certificate> getVolatileCertificates() throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.maintenance);
+		return certificates.values().stream().collect(Collectors.toList());
+	}
 
 	@Override
 	public void updateVolatileCertificate(String name, X509Certificate updated) throws EngineException
