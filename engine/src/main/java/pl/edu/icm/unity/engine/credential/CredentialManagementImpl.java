@@ -24,7 +24,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
@@ -60,7 +60,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	private IdentityHelper identityHelper;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeDAO attributeDAO;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private SystemCredentialProvider sysProvider;
 	private AttributeTypeHelper attrTypeHelper;
 	private EntityCredentialsHelper entityCredentialsHelper;
@@ -70,7 +70,7 @@ public class CredentialManagementImpl implements CredentialManagement
 	public CredentialManagementImpl(LocalCredentialsRegistry localCredReg,
 			CredentialDB credentialDB, CredentialReqRepository credentialRequirementRepository,
 			IdentityHelper identityHelper, AttributeTypeDAO attributeTypeDAO,
-			AttributeDAO attributeDAO, AuthorizationManager authz,
+			AttributeDAO attributeDAO, InternalAuthorizationManager authz,
 			SystemCredentialProvider sysProvider, CredentialRepository credentialRepository, 
 			AttributeTypeHelper attrTypeHelper, EntityCredentialsHelper entityCredentialsHelper,
 			AuthenticatorSupportService authenticatorsService)

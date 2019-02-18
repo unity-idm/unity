@@ -36,7 +36,7 @@ import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.forms.BaseFormValidator;
@@ -78,7 +78,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	private NotificationProducer notificationProducer;
 	private RegistrationConfirmationSupport confirmationsSupport;
 	private UnityMessageSource msg;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private BaseFormValidator baseFormValidator;
 	private EnquiryResponsePreprocessor enquiryResponseValidator;
 	private SharedEndpointManagement sharedEndpointMan;
@@ -92,7 +92,7 @@ public class EnquiryManagementImpl implements EnquiryManagement
 	public EnquiryManagementImpl(EnquiryFormDB enquiryFormDB, EnquiryResponseDB requestDB,
 			NotificationProducer notificationProducer,
 			RegistrationConfirmationSupport confirmationsSupport,
-			UnityMessageSource msg, AuthorizationManager authz,
+			UnityMessageSource msg, InternalAuthorizationManager authz,
 			BaseFormValidator baseFormValidator,
 			EnquiryResponsePreprocessor enquiryResponseValidator,
 			SharedEndpointManagement sharedEndpointMan, TransactionalRunner tx,

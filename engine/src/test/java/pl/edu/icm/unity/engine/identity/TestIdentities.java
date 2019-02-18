@@ -33,7 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
 import pl.edu.icm.unity.exceptions.IllegalGroupValueException;
@@ -162,7 +162,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void scheduledRemovalWorksForUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		
 		setupUserContext(DEF_USER, null);
@@ -186,7 +186,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void scheduledRemovalWorksForUserImmediately() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		
 		setupUserContext(DEF_USER, null);
@@ -206,7 +206,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void scheduledRemovalGraceTimeWorksForUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 
 		setupUserContext(DEF_USER, null);
@@ -222,7 +222,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void setIdentitiesFailsOnIdentitiesOfWrongType() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		try
 		{
 			idsMan.setIdentities(new EntityParam(id.getEntityId()), 
@@ -238,7 +238,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void setIdentitiesUpdatesIdentities() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		IdentityParam dnId = new IdentityParam(X500Identity.ID,  "CN=someCN");
 		idsMan.addIdentity(dnId, new EntityParam(id), false);
 		IdentityParam emailId = new IdentityParam(EmailIdentity.ID,  "email@example.org");
@@ -271,7 +271,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void setIdentitiesRespectTypeLimits() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		
 		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
@@ -340,7 +340,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void userCanImproveLimitsSituation() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		
 		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
@@ -392,7 +392,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void typeLimitsAreIgnoredForAdmin() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		
 		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
@@ -420,7 +420,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void selfModifiableIdentityCanBeControlledByUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);
@@ -458,7 +458,7 @@ public class TestIdentities extends DBIntegrationTestBase
 	public void minMaxIsEnforced() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep1 = new EntityParam(id.getEntityId());
 		IdentityType idType = new IdentityType(EmailIdentity.ID, EmailIdentity.ID);
 		idType.setSelfModificable(true);

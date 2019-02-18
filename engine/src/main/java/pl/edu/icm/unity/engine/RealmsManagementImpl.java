@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.RealmsManagement;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -30,10 +30,10 @@ import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 public class RealmsManagementImpl implements RealmsManagement
 {
 	private RealmDB realmDB;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	
 	@Autowired
-	public RealmsManagementImpl(RealmDB realmDB, AuthorizationManager authz)
+	public RealmsManagementImpl(RealmDB realmDB, InternalAuthorizationManager authz)
 	{
 		super();
 		this.realmDB = realmDB;

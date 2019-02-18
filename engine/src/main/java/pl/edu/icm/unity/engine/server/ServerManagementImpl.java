@@ -25,7 +25,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.ServerManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.bulkops.BulkProcessingInternal;
 import pl.edu.icm.unity.engine.endpoint.InternalEndpointManagement;
@@ -50,7 +50,7 @@ public class ServerManagementImpl implements ServerManagement
 	private ImportExport dbDump;
 	private StorageCleaner initDb;
 	private EngineInitialization engineInit;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private UnityServerConfiguration config;
 	private InternalEndpointManagement endpointMan;
 	private TransactionalRunner tx;
@@ -60,7 +60,7 @@ public class ServerManagementImpl implements ServerManagement
 	@Autowired
 	public ServerManagementImpl(TransactionalRunner tx, ImportExport dbDump, StorageCleaner initDb,
 			EngineInitialization engineInit, InternalEndpointManagement endpointMan,
-			AuthorizationManager authz, ExecutorsService executorsService, 
+			InternalAuthorizationManager authz, ExecutorsService executorsService, 
 			UnityServerConfiguration config,
 			BulkProcessingInternal bulkProcessing)
 	{

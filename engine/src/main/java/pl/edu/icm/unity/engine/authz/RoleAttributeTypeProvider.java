@@ -22,10 +22,10 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 public class RoleAttributeTypeProvider extends AbstractAttributeTypeProvider
 {
 	public static final String AUTHORIZATION_ROLE = "sys:AuthorizationRole";
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	
 	@Autowired
-	public RoleAttributeTypeProvider(UnityMessageSource msg, AuthorizationManager authz)
+	public RoleAttributeTypeProvider(UnityMessageSource msg, InternalAuthorizationManager authz)
 	{
 		super(msg);
 		this.authz = authz;

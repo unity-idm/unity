@@ -23,7 +23,7 @@ import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.FormAutomationSupport;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialReqRepository;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -60,7 +60,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	private RegistrationRequestDB requestDB;
 	private CredentialReqRepository credentialReqRepository;
 	private RegistrationConfirmationSupport confirmationsSupport;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private NotificationProducer notificationProducer;
 
 	private SharedRegistrationManagment internalManagment;
@@ -73,7 +73,7 @@ public class RegistrationsManagementImpl implements RegistrationsManagement
 	public RegistrationsManagementImpl(RegistrationFormDB formsDB,
 			RegistrationRequestDB requestDB, CredentialReqRepository credentialReqDB,
 			RegistrationConfirmationSupport confirmationsSupport,
-			AuthorizationManager authz, NotificationProducer notificationProducer,
+			InternalAuthorizationManager authz, NotificationProducer notificationProducer,
 			SharedRegistrationManagment internalManagment, UnityMessageSource msg,
 			TransactionalRunner tx,
 			RegistrationRequestPreprocessor registrationRequestValidator,

@@ -22,7 +22,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -162,14 +162,14 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 	public void shouldNotSetSystemManagerRoleHoldingContentsManager() throws Exception
 	{
 		Attribute managerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
+				"/", InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
 		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		insecureAttrsMan.setAttribute(adminEntity, managerRoleAt);
 		
 		setupUserContext("admin", null);
 		
 		Attribute systemManagerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
+				"/", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
 		
 		
 		catchException(attrsMan).setAttribute(adminEntity, systemManagerRoleAt);
@@ -181,14 +181,14 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 	public void shouldSetInspectorRoleHoldingContentsManager() throws Exception
 	{
 		Attribute managerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
+				"/", InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
 		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		insecureAttrsMan.setAttribute(adminEntity, managerRoleAt);
 		
 		setupUserContext("admin", null);
 		
 		Attribute inspectorRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.PRIVILEGED_INSPECTOR_ROLE);
+				"/", InternalAuthorizationManagerImpl.PRIVILEGED_INSPECTOR_ROLE);
 		
 		
 		attrsMan.setAttribute(adminEntity, inspectorRoleAt);
@@ -198,14 +198,14 @@ public class AttributesManagementImplTest extends DBIntegrationTestBase
 	public void shouldSetUserRoleHoldingSystemManagerROle() throws Exception
 	{
 		Attribute managerRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
+				"/", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE);
 		EntityParam adminEntity = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "admin"));
 		insecureAttrsMan.setAttribute(adminEntity, managerRoleAt);
 		
 		setupUserContext("admin", null);
 		
 		Attribute inspectorRoleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.USER_ROLE);
+				"/", InternalAuthorizationManagerImpl.USER_ROLE);
 		
 		
 		attrsMan.setAttribute(adminEntity, inspectorRoleAt);

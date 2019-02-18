@@ -31,7 +31,7 @@ import pl.edu.icm.unity.engine.api.translation.out.OutputTranslationActionsRegis
 import pl.edu.icm.unity.engine.api.translation.out.TranslationInput;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.engine.attribute.AttributeValueConverter;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationEngine;
 import pl.edu.icm.unity.engine.translation.out.OutputTranslationProfile;
@@ -632,7 +632,7 @@ public class TestOutputTranslationProfiles extends DBIntegrationTestBase
 	private Entity getUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity user = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity user = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		return idsMan.getEntity(new EntityParam(user));
 	}
 }

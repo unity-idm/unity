@@ -27,12 +27,12 @@ import pl.edu.icm.unity.types.basic.Group;
 
 
 /**
- * Default implementation of the {@link AuthorizationManager}
+ * Default implementation of the {@link InternalAuthorizationManager}
  * @author K. Benedyczak
  */
 @Component
 @Primary
-public class AuthorizationManagerImpl implements AuthorizationManager
+public class InternalAuthorizationManagerImpl implements InternalAuthorizationManager
 {
 	/**
 	 * System manager role with all privileges. Must not be removed or modified.
@@ -50,7 +50,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	private CachingRolesResolver rolesResolver;
 			
 	@Autowired
-	public AuthorizationManagerImpl(AttributesHelper dbAttributes, UnityServerConfiguration config, 
+	public InternalAuthorizationManagerImpl(AttributesHelper dbAttributes, UnityServerConfiguration config, 
 			GroupDAO groupDAO)
 	{
 		setupRoleCapabilities();
@@ -242,11 +242,7 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	
 	private LoginSession getVerifiedClient(AuthzCapability... requiredCapabilities) throws AuthorizationException
 	{
-		InvocationContext authnCtx = InvocationContext.getCurrent();
-		LoginSession client = authnCtx.getLoginSession();
-		
-		if (client == null)
-			throw new AuthorizationException("Access is denied. The client is not authenticated.");
+		LoginSession client = getCallerSession();
 		
 		//special case: if the credential is outdated, the only allowed operation is to update it
 		//or read. Read is needed as to show credential update options it is needed to know the current state.
@@ -310,5 +306,24 @@ public class AuthorizationManagerImpl implements AuthorizationManager
 	public void clearCache()
 	{
 		rolesResolver.clearCache();
+	}
+
+	@Override
+	@Transactional
+	public Set<AuthzRole> getRoles() throws AuthorizationException
+	{
+		LoginSession client = getCallerSession();
+		return rolesResolver.establishRoles(client.getEntityId(), new Group("/"));
+	}
+	
+	private LoginSession getCallerSession() throws AuthorizationException
+	{
+		InvocationContext authnCtx = InvocationContext.getCurrent();
+		LoginSession client = authnCtx.getLoginSession();
+		
+		if (client == null)
+			throw new AuthorizationException("Access is denied. The client is not authenticated.");
+			
+		return client;
 	}
 }

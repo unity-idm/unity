@@ -19,7 +19,7 @@ import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -45,13 +45,13 @@ public class AuthenticationFlowManagementImpl implements AuthenticationFlowManag
 {
 
 	private AuthenticationFlowDB authnFlowDB;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private AuthenticatorConfigurationDB authenticatorDB;
 	private AttributeDAO dbAttributes;
 	
 	@Autowired
 	public AuthenticationFlowManagementImpl(AuthenticationFlowDB authnFlowDB,
-			AuthorizationManager authz, AuthenticatorConfigurationDB authenticatorDB, AttributeDAO dbAttributes)
+			InternalAuthorizationManager authz, AuthenticatorConfigurationDB authenticatorDB, AttributeDAO dbAttributes)
 	{
 		
 		this.authnFlowDB = authnFlowDB;

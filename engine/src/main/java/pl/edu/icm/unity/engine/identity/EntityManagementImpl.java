@@ -35,7 +35,7 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
@@ -100,7 +100,7 @@ public class EntityManagementImpl implements EntityManagement
 	private AttributesHelper attributesHelper;
 	private IdentityHelper identityHelper;
 	private EntityResolver idResolver;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private IdentityTypesRegistry idTypesRegistry;
 	private EmailConfirmationManager confirmationManager;
 	private AttributeClassUtil acUtil;
@@ -115,7 +115,7 @@ public class EntityManagementImpl implements EntityManagement
 			EntityCredentialsHelper credentialsHelper, GroupHelper groupHelper,
 			SheduledOperationHelper scheduledOperationHelper,
 			AttributesHelper attributesHelper, IdentityHelper identityHelper,
-			EntityResolver idResolver, AuthorizationManager authz,
+			EntityResolver idResolver, InternalAuthorizationManager authz,
 			IdentityTypesRegistry idTypesRegistry,
 			EmailConfirmationManager confirmationManager, AttributeClassUtil acUtil,
 			TransactionalRunner tx,

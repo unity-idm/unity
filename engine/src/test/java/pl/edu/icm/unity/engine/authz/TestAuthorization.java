@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 public class TestAuthorization extends DBIntegrationTestBase
 {
 	@Autowired
-	private AuthorizationManager underTest;
+	private InternalAuthorizationManager underTest;
 	
 	@Test
 	public void shouldNotComplainWhenCheckingAgainstUnknownGroup() throws Exception
@@ -63,14 +63,14 @@ public class TestAuthorization extends DBIntegrationTestBase
 				EntityState.valid, false);
 		EntityParam entity = new EntityParam(added.getEntityId());
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.USER_ROLE));
+				"/", InternalAuthorizationManagerImpl.USER_ROLE));
 		return entity;
 	}
 	
 	@Test
 	public void shouldNotAllowContentsManagerToResetDB() throws Exception
 	{
-		setAdminsRole(AuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
+		setAdminsRole(InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE);
 		
 		catchException(serverMan).resetDatabase();
 		
@@ -98,7 +98,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		attrsMan.removeAttribute(entity, "/", RoleAttributeTypeProvider.AUTHORIZATION_ROLE);
 		
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/A", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
+				"/A", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 		setupUserContext("user1", null);
 		
 		catchException(serverMan).resetDatabase();
@@ -137,7 +137,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		setupUserContext("admin", EngineInitialization.DEFAULT_CREDENTIAL);
 		
 		catchException(attrsMan).setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-					"/", AuthorizationManagerImpl.INSPECTOR_ROLE));
+					"/", InternalAuthorizationManagerImpl.INSPECTOR_ROLE));
 		
 		assertThat(caughtException(), isA(AuthorizationException.class));
 	}
@@ -177,7 +177,7 @@ public class TestAuthorization extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A"));
 		groupsMan.addMemberFromParent("/A", entity);
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/A", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
+				"/A", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 		
 		setupUserContext("user1", null);
 		catchException(groupsMan).addGroup(new Group("/A/B"));
@@ -194,9 +194,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 		groupsMan.addGroup(new Group("/A/B"));
 		groupsMan.addMemberFromParent("/A", entity);
 		attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/", AuthorizationManagerImpl.CONTENTS_MANAGER_ROLE));
+				"/", InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE));
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/A", AuthorizationManagerImpl.ANONYMOUS_ROLE));
+				"/A", InternalAuthorizationManagerImpl.ANONYMOUS_ROLE));
 
 		setupUserContext("user1", null);
 		
@@ -215,9 +215,9 @@ public class TestAuthorization extends DBIntegrationTestBase
 		groupsMan.addMemberFromParent("/A", entity);
 		groupsMan.addMemberFromParent("/A/G", entity);
 		attrsMan.setAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/A", AuthorizationManagerImpl.CONTENTS_MANAGER_ROLE));
+				"/A", InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE));
 		attrsMan.createAttribute(entity, EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE,
-				"/A/G", AuthorizationManagerImpl.ANONYMOUS_ROLE));
+				"/A/G", InternalAuthorizationManagerImpl.ANONYMOUS_ROLE));
 
 		setupUserContext("user1", null);
 		catchException(groupsMan).addGroup(new Group("/A/G/Z"));

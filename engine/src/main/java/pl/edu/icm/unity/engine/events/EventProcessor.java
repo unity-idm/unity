@@ -26,7 +26,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.api.event.EventPublisher;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.store.api.EventDAO;
@@ -48,11 +48,11 @@ public class EventProcessor implements EventPublisher
 	private ScheduledExecutorService executorService;
 	private EventDAO dbEvents;
 	private EventsProcessingThread asyncProcessor;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	
 	@Autowired
 	public EventProcessor(ExecutorsService executorsService, EventDAO dbEvents,
-			AuthorizationManager authz,
+			InternalAuthorizationManager authz,
 			TransactionalRunner tx)
 	{
 		this.authz = authz;

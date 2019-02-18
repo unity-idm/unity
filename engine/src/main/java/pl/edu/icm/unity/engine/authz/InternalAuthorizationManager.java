@@ -16,7 +16,7 @@ import pl.edu.icm.unity.types.basic.Group;
  * Authorizes operations on the engine.
  * @author K. Benedyczak
  */
-public interface AuthorizationManager
+public interface InternalAuthorizationManager
 {
 	/**
 	 * @return Set of roles supported by the engine
@@ -88,6 +88,13 @@ public interface AuthorizationManager
 	 * @return
 	 */
 	boolean isSelf(long subject);
+	
+	/**
+	 * Returns the current caller roles.
+	 * @throws AuthorizationException thrown only if the caller is not *authenticated*.
+	 * @return 
+	 */
+	Set<AuthzRole> getRoles() throws AuthorizationException;
 	
 	/**
 	 * Empties authZ cache.

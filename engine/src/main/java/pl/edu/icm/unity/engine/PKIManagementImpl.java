@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.pki.Certificate;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -51,8 +52,8 @@ import pl.edu.icm.unity.store.types.StoredCertificate;
  * Implementation of {@link PKIManagement}. Currently pretty simplistic: all
  * artifacts are resolved wrt the configuration loaded from disk.
  * <p>
- * The certificates can be also set via API, however the changes are recorded in
- * memory only. To be changed in future, it is fine with current applications.
+ * The certificates can be also set via API as persistend - stored in db
+ * or as volatile - stored only in memory.
  * 
  * @author K. Benedyczak
  */
@@ -60,7 +61,7 @@ import pl.edu.icm.unity.store.types.StoredCertificate;
 @Primary
 public class PKIManagementImpl implements PKIManagement
 {
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private UnityPKIConfiguration pkiConf;
 	private Map<String, X509Credential> credentials;
 	private Map<String, X509CertChainValidatorExt> validators;
@@ -69,7 +70,7 @@ public class PKIManagementImpl implements PKIManagement
 	private CertificateDB certDB;
 
 	@Autowired
-	public PKIManagementImpl(UnityServerConfiguration mainConf, CertificateDB certDB, AuthorizationManager authz)
+	public PKIManagementImpl(UnityServerConfiguration mainConf, CertificateDB certDB, InternalAuthorizationManager authz)
 	{
 		this.pkiConf = mainConf.getPKIConfiguration();
 		this.certDB = certDB;
@@ -104,7 +105,7 @@ public class PKIManagementImpl implements PKIManagement
 			throw new ConfigurationException("Can't load the main server credential/truststore", e);
 		}
 
-		certificates = new HashMap<String, Certificate>();
+		certificates = new ConcurrentHashMap<String, Certificate>();
 	}
 
 	@Transactional
@@ -185,14 +186,6 @@ public class PKIManagementImpl implements PKIManagement
 		return getCertificatesNamesInternal();
 	}
 
-	private Set<String> getCertificatesNamesInternal()
-	{
-		Set<String> allNames = new HashSet<>();
-		allNames.addAll(certDB.getAllNames());
-		allNames.addAll(certificates.keySet());
-		return allNames;
-	}
-
 	@Transactional
 	@Override
 	public Certificate getCertificate(String name) throws EngineException
@@ -210,6 +203,14 @@ public class PKIManagementImpl implements PKIManagement
 		return cert;
 	}
 
+	private Set<String> getCertificatesNamesInternal()
+	{
+		Set<String> allNames = new HashSet<>();
+		allNames.addAll(certDB.getAllNames());
+		allNames.addAll(certificates.keySet());
+		return allNames;
+	}
+	
 	@Override
 	public Certificate getVolatileCertificate(String name) throws AuthorizationException
 	{

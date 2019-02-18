@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.bulk.GroupMembershipData;
 import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.bulk.GroupStructuralData;
 import pl.edu.icm.unity.engine.attribute.AttributeStatementProcessor;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
@@ -53,13 +53,13 @@ class BulkQueryServiceImpl implements BulkGroupQueryService
 	private EntityCredentialsHelper credentialsHelper;
 	private LocalCredentialsRegistry localCredReg;
 	private CompositeEntitiesInfoProvider dataProvider;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	
 	@Autowired
 	public BulkQueryServiceImpl(AttributeStatementProcessor statementsHelper,
 			EntityCredentialsHelper credentialsHelper,
 			LocalCredentialsRegistry localCredReg,
-			CompositeEntitiesInfoProvider dataProvider,AuthorizationManager authz)
+			CompositeEntitiesInfoProvider dataProvider,InternalAuthorizationManager authz)
 	{
 		this.statementsHelper = statementsHelper;
 		this.credentialsHelper = credentialsHelper;

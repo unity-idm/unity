@@ -14,7 +14,9 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.annotations.Theme;
 import com.vaadin.navigator.Navigator;
+import com.vaadin.server.Page;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.ui.Notification;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.layout.SidebarLayout;
@@ -29,7 +31,9 @@ import pl.edu.icm.unity.webui.UnityEndpointUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiresDialogLauncher;
 
 /**
@@ -46,15 +50,17 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private SidebarLayout webConsoleLayout;
 	private NavigationHierarchyManager navigationMan;
+	private AuthorizationController authzController;
 
 	@Autowired
 	public WebConsoleUI(UnityMessageSource msg, EnquiresDialogLauncher enquiryDialogLauncher,
-			StandardWebAuthenticationProcessor authnProcessor,
+			StandardWebAuthenticationProcessor authnProcessor, AuthorizationController authzController,
 			Collection<WebConsoleNavigationInfoProvider> providers)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.authnProcessor = authnProcessor;
-
+		this.authzController = authzController;
+		
 		this.navigationMan = new NavigationHierarchyManager(providers);
 	}
 
@@ -86,7 +92,20 @@ public class WebConsoleUI extends UnityEndpointUIBase implements UnityWebUI
 
 	@Override
 	protected void enter(VaadinRequest request)
-	{
+	{	
+		try
+		{
+			authzController.hasAdminAccess();
+		} catch (ControllerException e)
+		{
+			Notification notification = NotificationPopup
+					.getErrorNotification(e.getCaption(), e.getDetails());
+			notification.addCloseListener(l -> logout());
+			notification.show(Page.getCurrent());
+			setContent(new VerticalLayout());
+			return;
+		}
+	
 		VerticalLayout naviContent = new VerticalLayout();
 		naviContent.setSizeFull();
 		naviContent.setStyleName(SidebarStyles.contentBox.toString());

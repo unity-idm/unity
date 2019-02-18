@@ -23,7 +23,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
  */
 @Component("noauthz")
 @Qualifier("insecure")
-public class InternalNoAuthzImpl implements AuthorizationManager
+public class InternalNoAuthzImpl implements InternalAuthorizationManager
 {
 	@Override
 	public Set<String> getRoleNames()
@@ -87,5 +87,12 @@ public class InternalNoAuthzImpl implements AuthorizationManager
 	@Override
 	public void clearCache()
 	{
+	}
+
+	@Override
+	public Set<AuthzRole> getRoles() throws AuthorizationException
+	{
+		Set<AuthzRole> ret = new HashSet<AuthzRole>();
+		return ret;
 	}
 }

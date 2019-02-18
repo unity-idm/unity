@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -66,7 +66,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	private AttributeDAO dbAttributes;
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeClassDB acDB;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private EntityResolver idResolver;
 	private EmailConfirmationManager confirmationManager;
@@ -79,7 +79,7 @@ public class GroupsManagementImpl implements GroupsManagement
 	public GroupsManagementImpl(GroupDAO dbGroups, MembershipDAO membershipDAO,
 			GroupHelper groupHelper, AttributeDAO dbAttributes,
 			AttributeTypeDAO attributeTypeDAO, AttributeClassDB acDB,
-			AuthorizationManager authz, AttributesHelper attributesHelper,
+			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityResolver idResolver, EmailConfirmationManager confirmationManager,
 			AttributeClassUtil acUtil, TransactionalRunner tx, UnityMessageSource msg)
 	{

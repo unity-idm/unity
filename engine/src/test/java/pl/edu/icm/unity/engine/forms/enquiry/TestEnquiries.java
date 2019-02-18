@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.InitializerCommon;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.form.action.AddAttributeActionFactory;
 import pl.edu.icm.unity.engine.translation.form.action.AddToGroupActionFactory;
@@ -215,7 +215,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	@Test
 	public void matchingOnlyByTargetGroupEnquiryIsPendingForRegularUser() throws Exception
 	{
-		Identity identity = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity identity = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam entityParam = new EntityParam(identity);
 		groupsMan.addMemberFromParent("/A", entityParam);
 		EnquiryForm form = new EnquiryFormBuilder()
@@ -236,7 +236,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	@Test
 	public void matchingByTargetConditionEnquiryIsPendingForRegularUser() throws Exception
 	{
-		Identity identity = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity identity = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam entityParam = new EntityParam(identity);
 		EnquiryForm form = new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
 				.withTargetCondition("status == \"valid\" && credReq == \"" + CRED_REQ_PASS + "\"")
@@ -253,7 +253,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 	@Test
 	public void notMatchingByTargetConditionEnquiryIsNotReturnedForRegularUser() throws Exception
 	{
-		Identity identity = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity identity = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam entityParam = new EntityParam(identity);
 		groupsMan.addMemberFromParent("/A", entityParam);	
 		EnquiryForm form = new EnquiryFormBuilder().withTargetGroups(new String[] { "/" })
@@ -492,7 +492,7 @@ public class TestEnquiries extends DBIntegrationTestBase
 				.build();
 		enquiryManagement.addEnquiry(form);
 		
-		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam ep = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER));
 		groupsMan.addMemberFromParent("/A", ep);
 		setupUserContext(DEF_USER, null);

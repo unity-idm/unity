@@ -44,7 +44,7 @@ import pl.edu.icm.unity.engine.api.translation.in.MappedAttribute;
 import pl.edu.icm.unity.engine.api.translation.in.MappedGroup;
 import pl.edu.icm.unity.engine.api.translation.in.MappedIdentity;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfile;
 import pl.edu.icm.unity.engine.translation.in.InputTranslationProfileRepository;
@@ -537,7 +537,7 @@ public class TestInputTranslationProfiles extends DBIntegrationTestBase
 				new IdentityParam(UsernameIdentity.ID, "added"), "dummy"));
 		
 		setupPasswordAuthn();
-		Identity baseUser = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity baseUser = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam baseUserP = new EntityParam(baseUser);
 
 		tx.runInTransactionThrowing(() -> {

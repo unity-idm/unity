@@ -27,7 +27,7 @@ import pl.edu.icm.unity.engine.api.confirmation.states.UserEmailConfirmationStat
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.form.TranslatedRegistrationRequest.AutomaticRequestAction;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
 import pl.edu.icm.unity.engine.confirmation.EmailConfirmationManagerImpl;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
@@ -143,7 +143,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 	public void shouldNotAddConfirmedAttributeIfAddedByUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);
@@ -170,7 +170,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 	public void shouldPreserveOneConfirmationStateIfChangedByUser() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);
@@ -213,7 +213,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 	public void shouldThrowExceptionIfUserRemoveLastConfirmedValue() throws Exception
 	{
 		setupPasswordAuthn();
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);
@@ -799,7 +799,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		
-		Identity id = createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		Identity id = createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam entity = new EntityParam(id.getEntityId());
 		AttributeType atT = new AttributeType(InitializerCommon.EMAIL_ATTR,
 				VerifiableEmailAttributeSyntax.ID);

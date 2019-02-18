@@ -64,7 +64,7 @@ import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
@@ -515,7 +515,7 @@ public class EngineInitialization extends LifecycleBase
 							LocalCredentialState.outdated);
 
 				Attribute roleAt = EnumAttribute.of(RoleAttributeTypeProvider.AUTHORIZATION_ROLE, "/",
-						Lists.newArrayList(AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
+						Lists.newArrayList(InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE));
 				attrManagement.createAttribute(adminEntity, roleAt);
 				log.warn("IMPORTANT:\n"
 						+ "Database was initialized with a default admin user and password."

@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.identity.IdentityResolver;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -61,7 +61,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	public static final String DEF_PASSWORD = "mock~!)(@*#&$^%:?,'.\\|";
 	
 	@Autowired
-	protected AuthorizationManager authzMan;
+	protected InternalAuthorizationManager authzMan;
 	@Autowired
 	protected SessionManagement sessionMan;
 	
