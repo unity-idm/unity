@@ -17,7 +17,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,8 +37,8 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.pki.Certificate;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -105,7 +104,7 @@ public class PKIManagementImpl implements PKIManagement
 			throw new ConfigurationException("Can't load the main server credential/truststore", e);
 		}
 
-		certificates = new ConcurrentHashMap<String, Certificate>();
+		certificates = new HashMap<String, Certificate>();
 	}
 
 	@Transactional
@@ -180,7 +179,7 @@ public class PKIManagementImpl implements PKIManagement
 
 	@Transactional
 	@Override
-	public Set<String> getAllCertificateNames() throws EngineException
+	public synchronized Set<String> getAllCertificateNames() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return getCertificatesNamesInternal();
@@ -188,7 +187,7 @@ public class PKIManagementImpl implements PKIManagement
 
 	@Transactional
 	@Override
-	public Certificate getCertificate(String name) throws EngineException
+	public synchronized Certificate getCertificate(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		if (!getCertificatesNamesInternal().contains(name))
@@ -202,31 +201,23 @@ public class PKIManagementImpl implements PKIManagement
 
 		return cert;
 	}
-
-	private Set<String> getCertificatesNamesInternal()
-	{
-		Set<String> allNames = new HashSet<>();
-		allNames.addAll(certDB.getAllNames());
-		allNames.addAll(certificates.keySet());
-		return allNames;
-	}
 	
 	@Override
-	public Certificate getVolatileCertificate(String name) throws AuthorizationException
+	public synchronized Certificate getVolatileCertificate(String name) throws AuthorizationException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return certificates.get(name);
 	}
 	
 	@Override
-	public List<Certificate> getVolatileCertificates() throws EngineException
+	public synchronized List<Certificate> getVolatileCertificates() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		return certificates.values().stream().collect(Collectors.toList());
 	}
 
 	@Override
-	public void updateVolatileCertificate(String name, X509Certificate updated) throws EngineException
+	public synchronized void updateVolatileCertificate(String name, X509Certificate updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		if (!certificates.containsKey(name))
@@ -237,7 +228,7 @@ public class PKIManagementImpl implements PKIManagement
 	}
 
 	@Override
-	public void removeVolatileCertificate(String name) throws EngineException
+	public synchronized void removeVolatileCertificate(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		if (!certificates.containsKey(name))
@@ -249,7 +240,7 @@ public class PKIManagementImpl implements PKIManagement
 
 	@Transactional
 	@Override
-	public void addVolatileCertificate(String name, X509Certificate updated) throws EngineException
+	public synchronized void addVolatileCertificate(String name, X509Certificate updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		if (getCertificatesNamesInternal().contains(name))
@@ -261,7 +252,7 @@ public class PKIManagementImpl implements PKIManagement
 
 	@Transactional
 	@Override
-	public void addPersistedCertificate(Certificate toAdd) throws EngineException
+	public synchronized void addPersistedCertificate(Certificate toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		if (getCertificatesNamesInternal().contains(toAdd.name))
@@ -304,6 +295,14 @@ public class PKIManagementImpl implements PKIManagement
 		certDB.update(toStoredCert(toUpdate));
 	}
 
+	private Set<String> getCertificatesNamesInternal()
+	{
+		Set<String> allNames = new HashSet<>();
+		allNames.addAll(certDB.getAllNames());
+		allNames.addAll(certificates.keySet());
+		return allNames;
+	}	
+	
 	private StoredCertificate toStoredCert(Certificate cert)
 	{
 		return new StoredCertificate(cert.name, getPemStringFromCert(cert.value));
