@@ -16,7 +16,6 @@ import org.springframework.stereotype.Component;
 import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -93,7 +92,7 @@ class AuthenticationRealmsController
 		try
 		{
 			realms = realmMan.getRealms();
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("AuthenticationRealmController.getAllError"),
 					e.getMessage(), e);
@@ -116,7 +115,7 @@ class AuthenticationRealmsController
 		try
 		{
 			return new AuthenticationRealmEntry(realmMan.getRealm(realmName), filterEndpoints(realmName, endpoints));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("AuthenticationRealmController.getError", realmName),

@@ -181,6 +181,13 @@ public class CredentialManagementImpl implements CredentialManagement
 		return credentialRepository.getCredentialDefinitions();
 	}
 	
+	@Override
+	public CredentialDefinition getCredentialDefinition(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return credentialRepository.get(name);
+	}
+	
 	/**
 	 * @param desiredCredState If value is 'correct', then method checks if there is an existing credential and 
 	 * if it is correct with the given CredentialHolder. If it is set and incorrect, an exception is thrown. 
@@ -235,5 +242,4 @@ public class CredentialManagementImpl implements CredentialManagement
 		if (cred.isReadOnly())
 			throw new IllegalArgumentException("Cannot create read only credentials through this API");
 	}
-
 }

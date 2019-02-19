@@ -10,6 +10,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
@@ -52,33 +53,6 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 		this.controller = controller;
 	}
 
-	private void onConfirm()
-	{
-		if (editor.hasErrors())
-		{
-			return;
-		}
-
-		try
-		{
-			controller.addFlow(editor.getAuthenticationFlow());
-		} catch (ControllerException e)
-		{
-
-			NotificationPopup.showError(e);
-			return;
-		}
-
-		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
-
-	}
-
-	private void onCancel()
-	{
-		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
-
-	}
-
 	private AuthenticationFlowEntry getDefaultAuthenticationFlow()
 	{
 		AuthenticationFlowDefinition bean = new AuthenticationFlowDefinition();
@@ -112,6 +86,33 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 		setCompositionRoot(main);
 
 	}
+	
+	private void onConfirm()
+	{
+		if (editor.hasErrors())
+		{
+			return;
+		}
+
+		try
+		{
+			controller.addFlow(editor.getAuthenticationFlow());
+		} catch (ControllerException e)
+		{
+
+			NotificationPopup.showError(e);
+			return;
+		}
+
+		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+
+	}
+
+	private void onCancel()
+	{
+		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+
+	}
 
 	@Override
 	public String getDisplayedName()
@@ -125,7 +126,7 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 		return VIEW_NAME;
 	}
 	
-	@org.springframework.stereotype.Component
+	@Component
 	public static class NewRealmNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 

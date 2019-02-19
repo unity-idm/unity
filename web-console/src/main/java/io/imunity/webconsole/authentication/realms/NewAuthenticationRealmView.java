@@ -9,6 +9,7 @@ import java.util.Collections;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
@@ -51,6 +52,31 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 		this.controller = controller;
 	}
 
+	@Override
+	public void enter(ViewChangeEvent event)
+	{
+		editor = new AuthenticationRealmEditor(msg, getDefaultAuthenticationRealm());	
+		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		main.addComponent(editor);
+		main.setWidth(45, Unit.EM);
+		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
+				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));
+		setCompositionRoot(main);
+	}
+	
+	private AuthenticationRealmEntry getDefaultAuthenticationRealm()
+	{
+		AuthenticationRealm bean = new AuthenticationRealm();
+		bean.setName(msg.getMessage("AuthenticationRealm.defaultName"));
+		bean.setRememberMePolicy(RememberMePolicy.allowFor2ndFactor);
+		bean.setAllowForRememberMeDays(14);
+		bean.setBlockFor(60);
+		bean.setMaxInactivity(1800);
+		bean.setBlockAfterUnsuccessfulLogins(5);
+		return new AuthenticationRealmEntry(bean, Collections.emptyList());
+	}
+	
 	private void onConfirm()
 	{
 		if (editor.hasErrors())
@@ -78,31 +104,6 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 
 	}
 
-	private AuthenticationRealmEntry getDefaultAuthenticationRealm()
-	{
-		AuthenticationRealm bean = new AuthenticationRealm();
-		bean.setName(msg.getMessage("AuthenticationRealm.defaultName"));
-		bean.setRememberMePolicy(RememberMePolicy.allowFor2ndFactor);
-		bean.setAllowForRememberMeDays(14);
-		bean.setBlockFor(60);
-		bean.setMaxInactivity(1800);
-		bean.setBlockAfterUnsuccessfulLogins(5);
-		return new AuthenticationRealmEntry(bean, Collections.emptyList());
-	}
-
-	@Override
-	public void enter(ViewChangeEvent event)
-	{
-		editor = new AuthenticationRealmEditor(msg, getDefaultAuthenticationRealm());	
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
-		main.addComponent(editor);
-		main.setWidth(45, Unit.EM);
-		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
-				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));
-		setCompositionRoot(main);
-	}
-
 	@Override
 	public String getDisplayedName()
 	{
@@ -115,7 +116,7 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 		return VIEW_NAME;
 	}
 	
-	@org.springframework.stereotype.Component
+	@Component
 	public static class NewRealmNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 

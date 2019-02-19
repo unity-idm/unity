@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
+import java.util.Objects;
 
 import org.apache.commons.io.FileUtils;
 
@@ -48,7 +49,7 @@ class CertificateEditor extends CustomComponent
 {
 	private TextField name;
 	private TextArea value;
-	private Binder<Certificate> binder;
+	private Binder<CertificateForBinder> binder;
 	private UnityMessageSource msg;
 	private FileUploder uploader;
 	private FormLayout certDetails;
@@ -78,7 +79,7 @@ class CertificateEditor extends CustomComponent
 		value.setHeight(30, Unit.EM);
 		value.addValueChangeListener(e -> refreshDetails());
 
-		binder = new Binder<>(Certificate.class);
+		binder = new Binder<>(CertificateForBinder.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
 		binder.forField(value)
 				.withValidator(s -> validateCert(s),
@@ -103,7 +104,7 @@ class CertificateEditor extends CustomComponent
 
 		setCompositionRoot(main);
 		setWidth(100, Unit.PERCENTAGE);
-		binder.setBean(toEdit);
+		binder.setBean(new CertificateForBinder(toEdit.name, toEdit.value));
 
 	}
 
@@ -220,6 +221,60 @@ class CertificateEditor extends CustomComponent
 	Certificate getCertificate()
 	{
 		uploader.clear();
-		return binder.getBean();
+		CertificateForBinder cert = binder.getBean();
+		return new Certificate(cert.getName(), cert.getValue());
+	}
+
+	public class CertificateForBinder
+	{
+		private String name;
+		private X509Certificate value;
+
+		public CertificateForBinder(String name, X509Certificate value)
+		{
+			this.name = name;
+			this.value = value;
+		}
+
+		public String getName()
+		{
+			return name;
+		}
+
+		public void setName(String name)
+		{
+			this.name = name;
+		}
+
+		public X509Certificate getValue()
+		{
+			return value;
+		}
+
+		public void setValue(X509Certificate value)
+		{
+			this.value = value;
+		}
+
+		@Override
+		public int hashCode()
+		{
+			return Objects.hash(name, value);
+		}
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Certificate other = (Certificate) obj;
+
+			return Objects.equals(name, other.name) && Objects.equals(value, other.value);
+		}
+
 	}
 }

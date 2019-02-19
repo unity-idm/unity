@@ -55,8 +55,7 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	private AuthenticationFlowsController flowsMan;
 	private UnityMessageSource msg;
 	private ListOfElementsWithActions<AuthenticationFlowEntry> flowsList;
-	
-	
+
 	@Autowired
 	public AuthenticationFlowsView(UnityMessageSource msg, AuthenticationFlowsController flowsMan)
 	{
@@ -67,33 +66,29 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		Button newCert = StandardButtonsHelper.build4AddAction(msg, e -> 
-		NavigationHelper.goToView(NewAuthenticationFlowView.VIEW_NAME));
+		Button newCert = StandardButtonsHelper.build4AddAction(msg,
+				e -> NavigationHelper.goToView(NewAuthenticationFlowView.VIEW_NAME));
 		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(newCert);
-		
+
 		SingleActionHandler<AuthenticationFlowEntry> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationFlowEntry.class)
-				.withHandler(r -> gotoEdit(r.iterator().next()))
-				.build();
+				.withHandler(r -> gotoEdit(r.iterator().next())).build();
 
 		SingleActionHandler<AuthenticationFlowEntry> remove = SingleActionHandler
-				.builder4Delete(msg, AuthenticationFlowEntry.class).withHandler(r -> {
-
-					tryRemove(r.iterator().next());
-
-				}
-
+				.builder4Delete(msg, AuthenticationFlowEntry.class)
+				.withHandler(r -> tryRemove(r.iterator().next())
 				).build();
-		
+
 		flowsList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("AuthenticationFlow.nameCaption"),
-						f -> StandardButtonsHelper.getLinkButton(f.flow.getName(), e -> gotoEdit(f)), 1),
+						f -> StandardButtonsHelper.getLinkButton(f.flow.getName(),
+								e -> gotoEdit(f)),
+						1),
 						new Column<>(msg.getMessage("AuthenticationFlow.endpointsCaption"),
 								r -> new Label(String.join(", ", r.endpoints)), 4)),
 				new ActionColumn<>(msg.getMessage("actions"), Arrays.asList(edit, remove), 0,
-						Position.Right)
-		);
-		
+						Position.Right));
+
 		flowsList.setAddSeparatorLine(true);
 
 		for (AuthenticationFlowEntry flow : getFlows())
@@ -110,16 +105,12 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 		setCompositionRoot(main);
 	}
 
-	
 	private void gotoEdit(AuthenticationFlowEntry e)
 	{
-		NavigationHelper.goToView(
-				EditAuthenticationFlowView.VIEW_NAME + "/"
-						+ CommonViewParam.name.toString()
-						+ "="
-						+ e.flow.getName());
+		NavigationHelper.goToView(EditAuthenticationFlowView.VIEW_NAME + "/" + CommonViewParam.name.toString()
+				+ "=" + e.flow.getName());
 	}
-	
+
 	private Collection<AuthenticationFlowEntry> getFlows()
 	{
 		try
@@ -147,20 +138,17 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	private void tryRemove(AuthenticationFlowEntry flow)
 	{
 
-		String confirmText = MessageUtils.createConfirmFromStrings(msg,
-				Sets.newHashSet(flow.flow.getName()));
-		new ConfirmDialog(msg,
-				msg.getMessage("AuthenticationFlowsView.confirmDelete", confirmText),
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(flow.flow.getName()));
+		new ConfirmDialog(msg, msg.getMessage("AuthenticationFlowsView.confirmDelete", confirmText),
 				() -> remove(flow)).show();
 	}
-
 
 	@Override
 	public String getDisplayedName()
 	{
 		return msg.getMessage("WebConsoleMenu.authentication.flows");
 	}
-	
+
 	@Override
 	public String getViewName()
 	{
@@ -172,16 +160,12 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	{
 
 		@Autowired
-		public FlowsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent,
+		public FlowsNavigationInfoProvider(UnityMessageSource msg, AuthenticationNavigationInfoProvider parent,
 				ObjectFactory<AuthenticationFlowsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo())
-					.withObjectFactory(factory)
-					.withCaption(msg.getMessage(
-							"WebConsoleMenu.authentication.flows"))
-					.build());
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withCaption(msg.getMessage("WebConsoleMenu.authentication.flows")).build());
 
 		}
 	}

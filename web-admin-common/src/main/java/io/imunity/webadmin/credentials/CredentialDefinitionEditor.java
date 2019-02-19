@@ -2,12 +2,14 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.credentials;
+package io.imunity.webadmin.credentials;
 
 import java.util.Set;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
+import com.vaadin.ui.Component;
+import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -29,7 +31,7 @@ import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
  * 
  * @author K. Benedyczak
  */
-public class CredentialDefinitionEditor extends CompactFormLayout
+public class CredentialDefinitionEditor extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private CredentialEditorRegistry credentialEditorReg;
@@ -40,6 +42,7 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	private ComboBox<String> credentialType;
 	private SafePanel credentialEditorPanel;
 	private pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor cdEd;
+	private Component editor;
 	
 	private Binder<CredentialDefinition> binder;
 	
@@ -59,15 +62,17 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 	private void init(CredentialDefinition initial, final CredentialEditorRegistry credentialEditorReg)
 	{
 		setWidth(100, Unit.PERCENTAGE);
-
+		CompactFormLayout main = new CompactFormLayout();
+		main.setWidth(100, Unit.PERCENTAGE);
+		
 		name = new TextField(msg.getMessage("CredentialDefinition.name"));
-		addComponent(name);
+		main.addComponent(name);
 
 		displayedName = new I18nTextField(msg, msg.getMessage("displayedNameF"));
-		addComponent(displayedName);
+		main.addComponent(displayedName);
 		
 		description = new I18nTextArea(msg, msg.getMessage("descriptionF"));
-		addComponent(description);
+		main.addComponent(description);
 		
 		if (initial != null)
 		{
@@ -75,7 +80,7 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 					msg.getMessage("CredentialDefinition.replacementState"), msg, 
 					"DesiredCredentialStatus.", 
 					LocalCredentialState.class, LocalCredentialState.outdated);
-			addComponent(newCredState);
+			main.addComponent(newCredState);
 		}
 		
 		credentialType = new ComboBox<>(msg.getMessage("CredentialDefinition.type"));
@@ -83,10 +88,10 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 		credentialType.setItems(supportedTypes);
 		credentialType.setEmptySelectionAllowed(false);
 
-		addComponent(credentialType);
+		main.addComponent(credentialType);
 		
 		credentialEditorPanel = new SafePanel();
-		addComponent(credentialEditorPanel);
+		main.addComponent(credentialEditorPanel);
 		
 		String firstType = supportedTypes.iterator().next(); 
 		CredentialDefinition cd = initial == null ? new CredentialDefinition(
@@ -109,13 +114,16 @@ public class CredentialDefinitionEditor extends CompactFormLayout
 		//set listener after setting up the form, so we won't get spurious invocation on initial input.
 		credentialType.addValueChangeListener(event ->
 			setCredentialEditor(null, credentialType.getValue()));
+		
+		setCompositionRoot(main);
 	}
 	
 	private void setCredentialEditor(String state, String type)
 	{
 		CredentialEditorFactory edFact = credentialEditorReg.getFactory(type);
 		cdEd = edFact.creteCredentialDefinitionEditor();
-		credentialEditorPanel.setContent(cdEd.getEditor(state));
+		editor = cdEd.getEditor(state);
+		credentialEditorPanel.setContent(editor);
 	}
 	
 	public CredentialDefinition getCredentialDefinition() throws IllegalCredentialException

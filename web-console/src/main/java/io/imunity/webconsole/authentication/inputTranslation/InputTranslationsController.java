@@ -119,7 +119,7 @@ class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getProfileError", name),
+					msg.getMessage("InputTranslationProfilesController.getError", name),
 					e.getMessage(), e);
 		}
 	}

@@ -17,6 +17,9 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.credentials.CredentialDefinitionChangedEvent;
+import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
+import io.imunity.webadmin.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;

@@ -98,7 +98,6 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 		SingleActionHandler<TranslationProfile> edit = SingleActionHandler
 				.builder4Edit(msg, TranslationProfile.class)
 				.withHandler(r -> gotoEdit(r.iterator().next()))
-
 				.build();
 
 		SingleActionHandler<TranslationProfile> remove = SingleActionHandler

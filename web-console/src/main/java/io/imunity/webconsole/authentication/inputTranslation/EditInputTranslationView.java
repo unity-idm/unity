@@ -7,6 +7,7 @@ package io.imunity.webconsole.authentication.inputTranslation;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
@@ -55,39 +56,6 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 
 	}
 
-	private void onConfirm()
-	{
-
-		TranslationProfile profile;
-		try
-		{
-			profile = editor.getProfile();
-		} catch (FormValidationException e)
-		{
-			return;
-		}
-
-		try
-		{
-			controller.updateProfile(profile);
-
-		} catch (ControllerException e)
-		{
-
-			NotificationPopup.showError(e);
-			return;
-		}
-
-		NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
-
-	}
-
-	private void onCancel()
-	{
-		NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
-
-	}
-
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
@@ -126,6 +94,39 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 		main.addComponent(buttons);
 		setCompositionRoot(main);
 	}
+	
+	private void onConfirm()
+	{
+
+		TranslationProfile profile;
+		try
+		{
+			profile = editor.getProfile();
+		} catch (FormValidationException e)
+		{
+			return;
+		}
+
+		try
+		{
+			controller.updateProfile(profile);
+
+		} catch (ControllerException e)
+		{
+
+			NotificationPopup.showError(e);
+			return;
+		}
+
+		NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
+
+	}
+
+	private void onCancel()
+	{
+		NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
+
+	}
 
 	private TranslationProfileEditor getEditor(String toEdit) throws ControllerException
 	{
@@ -152,7 +153,7 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 		return profileName;
 	}
 
-	@org.springframework.stereotype.Component
+	@Component
 	public static class EditInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 

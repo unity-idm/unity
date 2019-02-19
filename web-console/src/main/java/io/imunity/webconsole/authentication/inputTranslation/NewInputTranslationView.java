@@ -7,6 +7,7 @@ package io.imunity.webconsole.authentication.inputTranslation;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
@@ -61,6 +62,28 @@ public class NewInputTranslationView extends CustomComponent implements UnityVie
 		return msg.getMessage("new");
 	}
 
+	@Override
+	public void enter(ViewChangeEvent event)
+	{
+		String toClone = NavigationHelper.getParam(event, CommonViewParam.name.toString());
+		try
+		{
+			editor = getEditor(toClone);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+			NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
+			return;
+		}
+
+		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
+		main.addComponent(editor);
+		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"), msg.getMessage("cancel"),
+				() -> onConfirm(), () -> onCancel()));
+		setCompositionRoot(main);
+	}
+	
 	private void onConfirm()
 	{
 
@@ -94,28 +117,7 @@ public class NewInputTranslationView extends CustomComponent implements UnityVie
 
 	}
 
-	@Override
-	public void enter(ViewChangeEvent event)
-	{
-		String toClone = NavigationHelper.getParam(event, CommonViewParam.name.toString());
-		try
-		{
-			editor = getEditor(toClone);
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(e);
-			NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
-			return;
-		}
-
-		VerticalLayout main = new VerticalLayout();
-		main.setMargin(false);
-		main.addComponent(editor);
-		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"), msg.getMessage("cancel"),
-				() -> onConfirm(), () -> onCancel()));
-		setCompositionRoot(main);
-	}
-
+	
 	private TranslationProfileEditor getEditor(String toClone) throws ControllerException
 	{
 		TranslationProfileEditor editor = controller.getEditor();
@@ -129,7 +131,7 @@ public class NewInputTranslationView extends CustomComponent implements UnityVie
 		return editor;
 	}
 
-	@org.springframework.stereotype.Component
+	@Component
 	public static class NewInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
