@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webconsole.settings.pki.cert;
 
 import java.util.Arrays;
@@ -12,15 +11,14 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Sets;
-import com.vaadin.ui.Button;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
@@ -46,7 +44,7 @@ public class CertificatesComponent extends CustomComponent
 	private UnityMessageSource msg;
 	private CertificatesController certController;
 	private ListOfElementsWithActions<NamedCertificate> certList;
-	
+
 	public CertificatesComponent(UnityMessageSource msg, CertificatesController controller)
 	{
 		this.msg = msg;
@@ -54,11 +52,12 @@ public class CertificatesComponent extends CustomComponent
 		initUI();
 	}
 
-	private  void initUI()
+	private void initUI()
 	{
 		certList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("PkiView.certificateNameCaption"),
-						c -> StandardButtonsHelper.getLinkButton(c.name, e -> gotoEdit(c)), 2)),
+						c -> StandardButtonsHelper.buildLinkButton(c.name, e -> gotoEdit(c)),
+						2)),
 				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
 
 		certList.setAddSeparatorLine(true);
@@ -72,7 +71,8 @@ public class CertificatesComponent extends CustomComponent
 		Label trustedCertCaption = new Label(msg.getMessage("TrustedCertificates.caption"));
 		trustedCertCaption.setStyleName(Styles.bold.toString());
 		main.addComponent(trustedCertCaption);
-		main.addComponent(getButtonsBar());
+		main.addComponent(StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, StandardButtonsHelper
+				.build4AddAction(msg, e -> NavigationHelper.goToView(NewCertificateView.VIEW_NAME))));
 		main.addComponent(certList);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
@@ -81,19 +81,14 @@ public class CertificatesComponent extends CustomComponent
 
 	private List<SingleActionHandler<NamedCertificate>> getActionsHandlers()
 	{
-		SingleActionHandler<NamedCertificate> edit = SingleActionHandler.builder4Edit(msg, NamedCertificate.class)
+		SingleActionHandler<NamedCertificate> edit = SingleActionHandler
+				.builder4Edit(msg, NamedCertificate.class)
 				.withHandler(r -> gotoEdit(r.iterator().next())).build();
 
-		SingleActionHandler<NamedCertificate> remove = SingleActionHandler.builder4Delete(msg, NamedCertificate.class)
+		SingleActionHandler<NamedCertificate> remove = SingleActionHandler
+				.builder4Delete(msg, NamedCertificate.class)
 				.withHandler(r -> tryRemove(r.iterator().next())).build();
 		return Arrays.asList(edit, remove);
-	}
-
-	private HorizontalLayout getButtonsBar()
-	{
-		Button newCert = StandardButtonsHelper.build4AddAction(msg, e -> 
-			NavigationHelper.goToView(NewCertificateView.VIEW_NAME));
-		return StandardButtonsHelper.buildButtonsBar(newCert);
 	}
 
 	private Collection<NamedCertificate> getCertificates()

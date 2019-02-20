@@ -16,8 +16,8 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.localCredentials.LocalCredentialsView.LocalCredentialsNavigationInfoProvider;
-import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.UnityView;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -61,7 +61,7 @@ public class NewLocalCredentialView extends CustomComponent implements UnityView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"), msg.getMessage("cancel"),
+		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("ok"), msg.getMessage("cancel"),
 				() -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}

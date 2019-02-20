@@ -16,9 +16,9 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView.InputTranslationsNavigationInfoProvider;
-import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -79,7 +79,7 @@ public class NewInputTranslationView extends CustomComponent implements UnityVie
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"), msg.getMessage("cancel"),
+		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("ok"), msg.getMessage("cancel"),
 				() -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}

@@ -18,6 +18,7 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -76,7 +77,7 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 	{
 		profileList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("InputTranslationProfilesView.nameCaption"),
-						p -> StandardButtonsHelper.getLinkButton(p.getName(), e -> gotoEdit(p)), 2)),
+						p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)), 2)),
 				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(),
 						0, Position.Right));
 
@@ -130,7 +131,7 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 				msg.getMessage("InputTranslationProfilesView.dryRun"), Images.dryrun,
 				e -> showDryRunDialog());
 
-		return StandardButtonsHelper.buildButtonsBar(dryRun, wizard, newProfile);
+		return StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, dryRun, wizard, newProfile);
 	}
 	
 	private void refreshProfileList()

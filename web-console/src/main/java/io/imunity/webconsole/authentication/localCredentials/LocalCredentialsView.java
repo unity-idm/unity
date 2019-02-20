@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -74,11 +75,11 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	{
 		Button newRealm = StandardButtonsHelper.build4AddAction(msg,
 				e -> NavigationHelper.goToView(NewLocalCredentialView.VIEW_NAME));
-		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(newRealm);
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, newRealm);
 
 		credList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("LocalCredential.nameCaption"),
-						p -> StandardButtonsHelper.getLinkButton(p.getName(), e -> gotoEdit(p)),
+						p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
 						2)),
 				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
 

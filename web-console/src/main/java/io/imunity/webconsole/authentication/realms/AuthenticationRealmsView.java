@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -70,7 +71,7 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 	{
 		Button newRealm = StandardButtonsHelper.build4AddAction(msg, e -> 
 		NavigationHelper.goToView(NewAuthenticationRealmView.VIEW_NAME));
-		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(newRealm);
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, newRealm);
 		
 		SingleActionHandler<AuthenticationRealmEntry> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationRealmEntry.class)
@@ -88,7 +89,7 @@ public class AuthenticationRealmsView extends CustomComponent implements UnityVi
 		
 		realmsList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("AuthenticationRealm.nameCaption"),
-						r -> StandardButtonsHelper.getLinkButton(r.realm.getName(), e -> gotoEdit(r)), 1),
+						r -> StandardButtonsHelper.buildLinkButton(r.realm.getName(), e -> gotoEdit(r)), 1),
 						new Column<>(msg.getMessage("AuthenticationRealm.endpointsCaption"),
 								r -> new Label(String.join(", ", r.endpoints)), 4)),
 				new ActionColumn<>(msg.getMessage("actions"), Arrays.asList(edit, remove), 0,

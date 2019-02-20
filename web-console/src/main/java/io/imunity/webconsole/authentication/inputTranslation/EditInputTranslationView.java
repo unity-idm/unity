@@ -19,8 +19,8 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView.InputTranslationsNavigationInfoProvider;
-import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -78,13 +78,13 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 		HorizontalLayout buttons = null;
 		if (!editor.isReadOnlyMode())
 		{
-			buttons = ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
+			buttons = StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("save"),
 					msg.getMessage("close"),
 
 					() -> onConfirm(), () -> onCancel());
 		} else
 		{
-			Button cancel = ConfirmViewHelper.createCancelButton(msg.getMessage("close"),
+			Button cancel = StandardButtonsHelper.buildCancelButton(msg.getMessage("close"),
 					() -> onCancel());
 			buttons = new HorizontalLayout();
 			buttons.addComponent(cancel);

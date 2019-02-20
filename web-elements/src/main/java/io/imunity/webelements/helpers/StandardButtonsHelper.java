@@ -18,6 +18,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 
 /**
  * Helper for creating standard actions buttons
+ * 
  * @author P.Piernik
  *
  */
@@ -37,21 +38,21 @@ public class StandardButtonsHelper
 	{
 		return buildActionButton(msg.getMessage("add"), Images.add, clickListener);
 	}
-		
-	public static HorizontalLayout buildButtonsBar(Button... buttons)
+
+	public static HorizontalLayout buildButtonsBar(Alignment position, Button... buttons)
 	{
 		HorizontalLayout buttonsBar = new HorizontalLayout();
 		HorizontalLayout wrapper = new HorizontalLayout();
-		wrapper.setMargin(false);	
+		wrapper.setMargin(false);
 		buttonsBar.setMargin(false);
 		wrapper.addComponents(buttons);
 		buttonsBar.addComponent(wrapper);
-		buttonsBar.setComponentAlignment(wrapper, Alignment.MIDDLE_RIGHT);
+		buttonsBar.setComponentAlignment(wrapper, position);
 		buttonsBar.setWidth(100, Unit.PERCENTAGE);
 		return buttonsBar;
 	}
-	
-	public static Component getLinkButton(String caption, ClickListener clickListener)
+
+	public static Component buildLinkButton(String caption, ClickListener clickListener)
 	{
 		HorizontalLayout layout = new HorizontalLayout();
 		layout.setSpacing(false);
@@ -66,4 +67,40 @@ public class StandardButtonsHelper
 		layout.setComponentAlignment(button, Alignment.TOP_LEFT);
 		return layout;
 	}
+
+	public static Button buildBackButton(UnityMessageSource msg, ClickListener clickListener)
+	{
+		Button back = new Button(msg.getMessage("back"), clickListener);
+		back.addStyleName("u-button-form");
+		return back;
+	}
+
+	public static HorizontalLayout buildConfirmButtonsBar(String confirmCaption, String cancelCaption,
+			Runnable onConfirm, Runnable onCancel)
+	{
+		if (cancelCaption != null)
+		{
+			return buildButtonsBar(Alignment.MIDDLE_LEFT, buildConfirmButton(confirmCaption, onConfirm),
+					buildCancelButton(cancelCaption, onCancel));
+		} else
+		{
+			return buildButtonsBar(Alignment.MIDDLE_LEFT, buildConfirmButton(confirmCaption, onConfirm));
+		}
+	}
+
+	public static Button buildConfirmButton(String confirmCaption, Runnable onConfirm)
+	{
+		Button confirm = new Button(confirmCaption, e -> onConfirm.run());
+		confirm.addStyleName("u-button-form");
+		confirm.addStyleName("u-button-action");
+		return confirm;
+	}
+
+	public static Button buildCancelButton(String cancelCaption, Runnable onCancel)
+	{
+		Button confirm = new Button(cancelCaption, e -> onCancel.run());
+		confirm.addStyleName("u-button-form");
+		return confirm;
+	}
+
 }

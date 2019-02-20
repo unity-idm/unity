@@ -17,9 +17,9 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.flows.AuthenticationFlowsView.FlowsNavigationInfoProvider;
-import io.imunity.webelements.helpers.ConfirmViewHelper;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -83,7 +83,7 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
+		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("save"),
 				msg.getMessage("close"), () -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}

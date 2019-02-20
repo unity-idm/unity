@@ -11,16 +11,15 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.credentials.CredentialDefinitionViewer;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView;
 import io.imunity.webconsole.authentication.localCredentials.LocalCredentialsView.LocalCredentialsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -63,16 +62,14 @@ public class ShowLocalCredentialView extends CustomComponent implements UnityVie
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
+			NavigationHelper.goToView(LocalCredentialsView.VIEW_NAME);
 			return;
 		}
-		Button back = new Button(msg.getMessage("back"), e -> onBack());
-		back.addStyleName("u-button-form");
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(viewer);
-		main.addComponent(back);
-		main.setComponentAlignment(back, Alignment.MIDDLE_LEFT);
+		main.addComponent(StandardButtonsHelper
+				.buildButtonsBar(Alignment.MIDDLE_LEFT, StandardButtonsHelper.buildBackButton(msg, e -> onBack())));
 		setCompositionRoot(main);
 	}
 

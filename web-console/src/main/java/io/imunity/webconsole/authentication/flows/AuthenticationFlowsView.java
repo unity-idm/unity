@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -68,7 +69,7 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	{
 		Button newCert = StandardButtonsHelper.build4AddAction(msg,
 				e -> NavigationHelper.goToView(NewAuthenticationFlowView.VIEW_NAME));
-		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(newCert);
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, newCert);
 
 		SingleActionHandler<AuthenticationFlowEntry> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationFlowEntry.class)
@@ -81,7 +82,7 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 
 		flowsList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("AuthenticationFlow.nameCaption"),
-						f -> StandardButtonsHelper.getLinkButton(f.flow.getName(),
+						f -> StandardButtonsHelper.buildLinkButton(f.flow.getName(),
 								e -> gotoEdit(f)),
 						1),
 						new Column<>(msg.getMessage("AuthenticationFlow.endpointsCaption"),

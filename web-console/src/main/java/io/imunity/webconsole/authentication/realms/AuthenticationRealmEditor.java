@@ -107,7 +107,7 @@ class AuthenticationRealmEditor extends CustomComponent
 			mainLayout.addComponent(endpoints);
 		}
 		setCompositionRoot(mainLayout);
-		setWidth(WebConsoleConstans.MEDIUM_EDITOR_WIDTH, WebConsoleConstans.MEDIUM_EDITOR_WIDTH_UNIT);
+		setWidth(WebConsoleConstans.SMALL_EDITOR_WIDTH, WebConsoleConstans.SMALL_EDITOR_WIDTH_UNIT);
 	}
 
 	void editMode()
