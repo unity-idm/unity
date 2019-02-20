@@ -21,7 +21,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -76,9 +76,9 @@ public class NewCertificateView extends CustomComponent implements UnityView
 
 	}
 
-	private Certificate getDefaultCertificate()
+	private NamedCertificate getDefaultCertificate()
 	{
-		return new Certificate(msg.getMessage("Certificate.defaultName"), null);
+		return new NamedCertificate(msg.getMessage("Certificate.defaultName"), null);
 	}
 
 	@Override

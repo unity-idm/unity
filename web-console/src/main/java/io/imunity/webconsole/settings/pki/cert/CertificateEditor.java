@@ -35,7 +35,7 @@ import io.imunity.webadmin.utils.FileUploder;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 
@@ -54,7 +54,7 @@ class CertificateEditor extends CustomComponent
 	private FileUploder uploader;
 	private FormLayout certDetails;
 
-	CertificateEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, Certificate toEdit)
+	CertificateEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, NamedCertificate toEdit)
 	{
 		this.msg = msg;
 
@@ -218,11 +218,11 @@ class CertificateEditor extends CustomComponent
 		return binder.validate().hasErrors();
 	}
 
-	Certificate getCertificate()
+	NamedCertificate getCertificate()
 	{
 		uploader.clear();
 		CertificateForBinder cert = binder.getBean();
-		return new Certificate(cert.getName(), cert.getValue());
+		return new NamedCertificate(cert.getName(), cert.getValue());
 	}
 
 	public class CertificateForBinder
@@ -271,7 +271,7 @@ class CertificateEditor extends CustomComponent
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			Certificate other = (Certificate) obj;
+			NamedCertificate other = (NamedCertificate) obj;
 
 			return Objects.equals(name, other.name) && Objects.equals(value, other.value);
 		}

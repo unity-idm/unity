@@ -82,7 +82,6 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 		editor.editMode();
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		main.setWidth(45, Unit.EM);
 		main.addComponent(editor);
 		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
 				msg.getMessage("close"), () -> onConfirm(), () -> onCancel()));

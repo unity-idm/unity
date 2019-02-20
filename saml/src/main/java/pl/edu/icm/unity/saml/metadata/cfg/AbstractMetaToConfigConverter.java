@@ -29,6 +29,7 @@ import eu.unicore.samly2.SAMLConstants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -192,7 +193,7 @@ public abstract class AbstractMetaToConfigConverter
 							.getCertificate(pkiKey).value;
 					if (!existingCert.equals(cert))
 					{
-						pkiManagement.updateVolatileCertificate(pkiKey, cert);
+						pkiManagement.updateCertificate(new NamedCertificate(pkiKey, cert));
 					}
 				} catch (WrongArgumentException e)
 				{

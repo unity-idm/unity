@@ -79,7 +79,6 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 		
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
-		main.setWidth(45, Unit.EM);
 		main.addComponent(editor);
 		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
 				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));

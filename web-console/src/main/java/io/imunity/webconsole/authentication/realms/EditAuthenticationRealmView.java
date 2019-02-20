@@ -71,7 +71,6 @@ public class EditAuthenticationRealmView extends CustomComponent implements Unit
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.setWidth(45, Unit.EM);
 		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("save"),
 				msg.getMessage("close"), () -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);

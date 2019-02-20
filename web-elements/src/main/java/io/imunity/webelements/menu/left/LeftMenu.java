@@ -184,17 +184,14 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 			if (child.type == Type.ViewGroup)
 			{
 
-				MenuElementContainer subMenu = SubMenu.get(child.id).withCaption(
-						child.shortCaption != null ? child.shortCaption : child.caption)
+				MenuElementContainer subMenu = SubMenu.get(child.id).withCaption(getCaption(child))
 						.withIcon(child.icon);
 				buildSubMenu(navMan.getChildren(child.id), subMenu);
 				addSubContainerElement(subMenu);
 
 			} else if (child.type == Type.View || child.type == Type.DefaultView)
 			{
-				addMenuElement(MenuButton.get(child.id)
-						.withCaption(child.shortCaption != null ? child.shortCaption
-								: child.caption)
+				addMenuElement(MenuButton.get(child.id).withCaption(getCaption(child))
 						.withNavigateTo(child.id).withIcon(child.icon));
 			}
 		}
@@ -204,12 +201,16 @@ public class LeftMenu extends CustomComponent implements ViewChangeListener, Men
 	{
 		for (NavigationInfo child : viewChildren)
 		{
-			menuContainer.addMenuElement(MenuButton.get(child.id)
-					.withCaption(child.shortCaption != null ? child.shortCaption : child.caption)
+			menuContainer.addMenuElement(MenuButton.get(child.id).withCaption(getCaption(child))
 					.withNavigateTo(child.id).withIcon(child.icon));
 		}
 	}
 
+	String getCaption(NavigationInfo element)
+	{
+		return element.shortCaption != null ? element.shortCaption : element.caption;
+	}
+	
 	@Override
 	public boolean beforeViewChange(ViewChangeEvent event)
 	{

@@ -14,12 +14,12 @@ import java.util.Objects;
  * @author P.Piernik
  *
  */
-public class Certificate 
+public class NamedCertificate 
 {
 	public final String name;
 	public final X509Certificate value;
 
-	public Certificate(String name, X509Certificate value)
+	public NamedCertificate(String name, X509Certificate value)
 	{
 		this.name = name;
 		this.value = value;
@@ -40,7 +40,7 @@ public class Certificate
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Certificate other = (Certificate) obj;
+		NamedCertificate other = (NamedCertificate) obj;
 
 		return Objects.equals(name, other.name) && Objects.equals(value, other.value);
 	}

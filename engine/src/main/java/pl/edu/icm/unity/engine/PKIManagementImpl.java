@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,10 +37,9 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.config.UnityPKIConfiguration;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
-import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -64,7 +64,7 @@ public class PKIManagementImpl implements PKIManagement
 	private UnityPKIConfiguration pkiConf;
 	private Map<String, X509Credential> credentials;
 	private Map<String, X509CertChainValidatorExt> validators;
-	private Map<String, Certificate> certificates;
+	private Map<String, NamedCertificate> certificates;
 	private IAuthnAndTrustConfiguration mainAuthnTrust;
 	private CertificateDB certDB;
 
@@ -104,7 +104,7 @@ public class PKIManagementImpl implements PKIManagement
 			throw new ConfigurationException("Can't load the main server credential/truststore", e);
 		}
 
-		certificates = new HashMap<String, Certificate>();
+		certificates = new HashMap<>();
 	}
 
 	@Transactional
@@ -122,7 +122,7 @@ public class PKIManagementImpl implements PKIManagement
 				FileInputStream fis = new FileInputStream(pkiConf
 						.getFileValue(cert + UnityPKIConfiguration.CERTIFICATE_FILE, false));
 				X509Certificate x509Cert = getX509Certificate(fis);
-				Certificate unityCert = new Certificate(certName, x509Cert);
+				NamedCertificate unityCert = new NamedCertificate(certName, x509Cert);
 				StoredCertificate storedCert = toStoredCert(unityCert);
 				if (allInDB.contains(certName))
 				{
@@ -182,60 +182,30 @@ public class PKIManagementImpl implements PKIManagement
 	public synchronized Set<String> getAllCertificateNames() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return getCertificatesNamesInternal();
+		Set<String> allNames = new HashSet<>();
+		allNames.addAll(certDB.getAllNames());
+		allNames.addAll(certificates.keySet());
+		return allNames;
 	}
 
 	@Transactional
 	@Override
-	public synchronized Certificate getCertificate(String name) throws EngineException
+	public synchronized NamedCertificate getCertificate(String name) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		if (!getCertificatesNamesInternal().contains(name))
-		{
-			throw new WrongArgumentException("There is no certificate labelled " + name);
-		}
-
-		Certificate cert = certificates.get(name);
+		NamedCertificate cert = certificates.get(name);
 		if (cert == null)
-			cert = fromStoredCert(certDB.get(name));
-
+		{ 
+			cert = fromStoredCert(certDB.get(name));	
+		}
 		return cert;
 	}
 	
 	@Override
-	public synchronized Certificate getVolatileCertificate(String name) throws AuthorizationException
+	public synchronized List<NamedCertificate> getVolatileCertificates() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return certificates.get(name);
-	}
-	
-	@Override
-	public synchronized List<Certificate> getVolatileCertificates() throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		return certificates.values().stream().collect(Collectors.toList());
-	}
-
-	@Override
-	public synchronized void updateVolatileCertificate(String name, X509Certificate updated) throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		if (!certificates.containsKey(name))
-		{
-			throw new IllegalArgumentException("There is no volatile certificate labelled " + name);
-		}
-		certificates.put(name, new Certificate(name, updated));
-	}
-
-	@Override
-	public synchronized void removeVolatileCertificate(String name) throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
-		if (!certificates.containsKey(name))
-		{
-			throw new IllegalArgumentException("There is no volatile certificate labelled " + name);
-		}
-		certificates.remove(name);
+		return new ArrayList<>(certificates.values());
 	}
 
 	@Transactional
@@ -243,74 +213,76 @@ public class PKIManagementImpl implements PKIManagement
 	public synchronized void addVolatileCertificate(String name, X509Certificate updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		if (getCertificatesNamesInternal().contains(name))
-		{
-			throw new IllegalArgumentException("The certificate labelled " + name + " already exists");
-		}
-		certificates.put(name, new Certificate(name, updated));
+		assertCertificateExists(name);
+		certificates.put(name, new NamedCertificate(name, updated));
 	}
 
 	@Transactional
 	@Override
-	public synchronized void addPersistedCertificate(Certificate toAdd) throws EngineException
+	public synchronized void addPersistedCertificate(NamedCertificate toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		if (getCertificatesNamesInternal().contains(toAdd.name))
-		{
-			throw new IllegalArgumentException(
-					"The certificate labelled " + toAdd.name + " already exists");
-		}
+		assertCertificateExists(toAdd.name);
 		certDB.create(toStoredCert(toAdd));
 	}
 
 	@Transactional
 	@Override
-	public Certificate getPersistedCertificate(String name) throws EngineException
+	public List<NamedCertificate> getPersistedCertificates() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return fromStoredCert(certDB.get(name));
+		return certDB.getAll().stream().map(this::fromStoredCert).collect(Collectors.toList());
 	}
 
 	@Transactional
 	@Override
-	public List<Certificate> getPersistedCertificates() throws EngineException
+	public synchronized void removeCertificate(String toRemove) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return certDB.getAll().stream().map(c -> fromStoredCert(c)).collect(Collectors.toList());
+		if (certificates.remove(toRemove) == null)
+		{
+			certDB.delete(toRemove);
+		}
 	}
 
 	@Transactional
 	@Override
-	public void removePersistedCertificate(String toRemove) throws EngineException
+	public synchronized void updateCertificate(NamedCertificate toUpdate) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		certDB.delete(toRemove);
-	}
-
-	@Transactional
-	@Override
-	public void updatePersistedCertificate(Certificate toUpdate) throws EngineException
-	{
-		authz.checkAuthorization(AuthzCapability.maintenance);
+		if (certificates.containsKey(toUpdate.name))
+		{
+			certificates.put(toUpdate.name, toUpdate);
+			return;
+		}
 		certDB.update(toStoredCert(toUpdate));
 	}
 
-	private Set<String> getCertificatesNamesInternal()
+	void assertCertificateExists(String name)
 	{
-		Set<String> allNames = new HashSet<>();
-		allNames.addAll(certDB.getAllNames());
-		allNames.addAll(certificates.keySet());
-		return allNames;
+		if (!certificates.containsKey(name))
+		{
+			try
+			{
+				certDB.get(name);
+			} catch (IllegalArgumentException e)
+			{
+				//ok
+				return;
+			}
+		}
+
+		throw new IllegalArgumentException("The certificate labelled " + name + " already exists");
 	}	
 	
-	private StoredCertificate toStoredCert(Certificate cert)
+	private StoredCertificate toStoredCert(NamedCertificate cert)
 	{
 		return new StoredCertificate(cert.name, getPemStringFromCert(cert.value));
 	}
 
-	private Certificate fromStoredCert(StoredCertificate cert)
+	private NamedCertificate fromStoredCert(StoredCertificate cert)
 	{
-		return new Certificate(cert.getName(),
+		return new NamedCertificate(cert.getName(),
 				getX509Certificate(new ByteArrayInputStream(cert.getValue().getBytes())));
 	}
 

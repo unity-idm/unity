@@ -11,7 +11,7 @@ import java.util.Set;
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -69,22 +69,7 @@ public interface PKIManagement
 	 * @return certificate by name
 	 * @throws EngineException
 	 */
-	Certificate getCertificate(String name) throws EngineException;
-	
-	/**
-	 * Updates a given certificate
-	 * @param name
-	 * @param updated
-	 * @throws EngineException
-	 */
-	void updateVolatileCertificate(String name, X509Certificate updated) throws EngineException;
-	
-	/**
-	 * Removes a given volatile certificate
-	 * @param name
-	 * @throws EngineException
-	 */
-	void removeVolatileCertificate(String name) throws EngineException;
+	NamedCertificate getCertificate(String name) throws EngineException;
 	
 	/**
 	 * Adds a new volatile certificate
@@ -95,17 +80,11 @@ public interface PKIManagement
 	void addVolatileCertificate(String name, X509Certificate updated) throws EngineException;
 
 	/**
-	 * @param certificate by name
-	 * @return
-	 */
-	Certificate getVolatileCertificate(String name) throws EngineException;;
-
-	/**
 	 * 
 	 * @return set with available volatile certificates 
 	 * @throws EngineException
 	 */
-	List<Certificate> getVolatileCertificates() throws EngineException;
+	List<NamedCertificate> getVolatileCertificates() throws EngineException;
 	
 	
 	/**
@@ -113,37 +92,30 @@ public interface PKIManagement
 	 * @param toAdd
 	 * @throws EngineException
 	 */
-	void addPersistedCertificate(Certificate toAdd) throws EngineException;
-
-	/**
-	 * Updates a persisted certificate
-	 * @param toAdd
-	 * @throws EngineException
-	 */
-	void updatePersistedCertificate(Certificate toUpdate) throws EngineException;
-		
-	/**
-	 * 
-	 * @param certificate by name
-	 * @return
-	 * @throws EngineException
-	 */
-	Certificate getPersistedCertificate(String name) throws EngineException;
+	void addPersistedCertificate(NamedCertificate toAdd) throws EngineException;
 
 	/**
 	 * 
 	 * @return set with available persisted certificates 
 	 * @throws EngineException
 	 */
-	List<Certificate> getPersistedCertificates() throws EngineException;
+	List<NamedCertificate> getPersistedCertificates() throws EngineException;
 
 	/**
-	 * Removes a given persisted certificate
+	 * Removes a given certificate
 	 * @param toRemove
 	 * @throws EngineException
 	 */
-	void removePersistedCertificate(String toRemove) throws EngineException;
+	void removeCertificate(String toRemove) throws EngineException;
 
+	
+	/**
+	 * Updates a given certificate
+	 * @param toRemove
+	 * @throws EngineException
+	 */
+	void updateCertificate(NamedCertificate toUpdate) throws EngineException;
+	
 	/**
 	 * 
 	 * @param config

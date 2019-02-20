@@ -15,7 +15,7 @@ import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
@@ -70,20 +70,9 @@ public class SimplePKIManagement implements PKIManagement
 	}
 
 	@Override
-	public Certificate getCertificate(String name) throws EngineException
+	public NamedCertificate getCertificate(String name) throws EngineException
 	{
 		return null;
-	}
-
-	@Override
-	public void updateVolatileCertificate(String name, X509Certificate updated)
-			throws EngineException
-	{
-	}
-
-	@Override
-	public void removeVolatileCertificate(String name) throws EngineException
-	{
 	}
 
 	@Override
@@ -93,39 +82,15 @@ public class SimplePKIManagement implements PKIManagement
 	}
 
 	@Override
-	public Certificate getVolatileCertificate(String name)
-	{
-		return null;
-	}
-
-	@Override
-	public void addPersistedCertificate(Certificate toAdd) throws EngineException
+	public void addPersistedCertificate(NamedCertificate toAdd) throws EngineException
 	{
 		
 	}
 
 	@Override
-	public Certificate getPersistedCertificate(String name) throws EngineException
+	public List<NamedCertificate> getPersistedCertificates() throws EngineException
 	{
 		return null;
-	}
-
-	@Override
-	public List<Certificate> getPersistedCertificates() throws EngineException
-	{
-		return null;
-	}
-
-	@Override
-	public void removePersistedCertificate(String toRemove) throws EngineException
-	{
-		
-	}
-
-	@Override
-	public void updatePersistedCertificate(Certificate toUpdate) throws EngineException
-	{
-		
 	}
 
 	@Override
@@ -135,8 +100,21 @@ public class SimplePKIManagement implements PKIManagement
 	}
 
 	@Override
-	public List<Certificate> getVolatileCertificates() throws EngineException
+	public List<NamedCertificate> getVolatileCertificates() throws EngineException
 	{
 		return null;
+	}
+	
+	@Override
+	public void removeCertificate(String toRemove) throws EngineException
+	{
+		
+		
+	}
+
+	@Override
+	public void updateCertificate(NamedCertificate toUpdate) throws EngineException
+	{
+		
 	}
 }

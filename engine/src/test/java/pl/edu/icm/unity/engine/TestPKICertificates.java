@@ -23,7 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.basic.EntityState;
@@ -43,16 +43,16 @@ public class TestPKICertificates extends DBIntegrationTestBase
 	public void clear() throws Exception
 	{
 		insecureServerMan.resetDatabase();
-		for (Certificate cert : pkiMan.getVolatileCertificates())
+		for (NamedCertificate cert : pkiMan.getVolatileCertificates())
 		{
-			pkiMan.removeVolatileCertificate(cert.name);
+			pkiMan.removeCertificate(cert.name);
 		}
 	}
 	
 	@Test
 	public void shouldAddPersistedCert() throws Exception
 	{
-		pkiMan.addPersistedCertificate(new Certificate("cert1", getX509Cert()));
+		pkiMan.addPersistedCertificate(new NamedCertificate("cert1", getX509Cert()));
 		assertThat(pkiMan.getCertificate("cert1"), is(notNullValue()));
 	}
 
@@ -67,9 +67,9 @@ public class TestPKICertificates extends DBIntegrationTestBase
 	public void shouldRemoveCert() throws Exception
 	{
 		pkiMan.addVolatileCertificate("cert1", getX509Cert());		
-		pkiMan.addPersistedCertificate(new Certificate("cert2", getX509Cert()));
-		pkiMan.removeVolatileCertificate("cert1");
-		pkiMan.removePersistedCertificate("cert2");
+		pkiMan.addPersistedCertificate(new NamedCertificate("cert2", getX509Cert()));
+		pkiMan.removeCertificate("cert1");
+		pkiMan.removeCertificate("cert2");
 		assertThat(pkiMan.getAllCertificateNames().size(), is(0));	
 	}
 
@@ -79,7 +79,7 @@ public class TestPKICertificates extends DBIntegrationTestBase
 		pkiMan.addVolatileCertificate("cert1", getX509Cert());
 
 		Throwable exception = catchThrowable(
-				() -> pkiMan.addPersistedCertificate(new Certificate("cert1", getX509Cert())));
+				() -> pkiMan.addPersistedCertificate(new NamedCertificate("cert1", getX509Cert())));
 		assertExceptionType(exception, IllegalArgumentException.class);
 
 		exception = catchThrowable(() -> pkiMan.addVolatileCertificate("cert1", getX509Cert()));
@@ -91,7 +91,7 @@ public class TestPKICertificates extends DBIntegrationTestBase
 	{
 		pkiMan.addVolatileCertificate("cert1", getX509Cert());
 		pkiMan.addVolatileCertificate("cert2", getX509Cert());
-		pkiMan.addPersistedCertificate(new Certificate("cert3", getX509Cert()));
+		pkiMan.addPersistedCertificate(new NamedCertificate("cert3", getX509Cert()));
 		assertThat(pkiMan.getAllCertificateNames().size(), is(3));
 		assertThat(pkiMan.getAllCertificateNames(), hasItems("cert1", "cert2", "cert3"));	
 	}
@@ -103,7 +103,7 @@ public class TestPKICertificates extends DBIntegrationTestBase
 		idsMan.addEntity(new IdentityParam(UsernameIdentity.ID, "tuser"), CRED_REQ_PASS,
 				EntityState.valid, false);
 		setupUserContext("tuser", null);
-		Throwable exception = catchThrowable(() ->  pkiMan.addPersistedCertificate(new Certificate("cert1", getX509Cert())));
+		Throwable exception = catchThrowable(() ->  pkiMan.addPersistedCertificate(new NamedCertificate("cert1", getX509Cert())));
 		assertExceptionType(exception, AuthorizationException.class);
 		
 	}

@@ -10,16 +10,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 
+import io.imunity.webconsole.WebConsoleConstans;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
+import pl.edu.icm.unity.webui.common.ListOfElements;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 
 /**
@@ -67,23 +68,18 @@ class AuthenticationFlowEditor extends CustomComponent
 		binder.setBean(toEdit.flow);
 	
 		FormLayout mainLayout = new FormLayout();
-		mainLayout.setMargin(false);
-
-		Label endpoints = new Label();
-		endpoints.setContentMode(ContentMode.HTML);
-		endpoints.setCaption(msg.getMessage("AuthenticationRealm.endpoints"));
-		endpoints.setWidth(100, Unit.PERCENTAGE);
-		endpoints.setValue(String.join("<br>", toEdit.endpoints));
-		
+		mainLayout.setMargin(false);		
 		
 		mainLayout.addComponents(name, policy, firstFactorAuthenticators, secondFactorAuthenticators);
 		if (!toEdit.endpoints.isEmpty())
 		{
+			ListOfElements<String> endpoints = new ListOfElements<>(toEdit.endpoints, t -> new Label(t));
+			endpoints.setCaption(msg.getMessage("AuthenticationFlow.endpoints"));
 			mainLayout.addComponent(endpoints);
 		}
 		
 		setCompositionRoot(mainLayout);
-		setWidth(100, Unit.PERCENTAGE);
+		setWidth(WebConsoleConstans.MEDIUM_EDITOR_WIDTH, WebConsoleConstans.MEDIUM_EDITOR_WIDTH_UNIT);
 	}
 
 	void editMode()

@@ -8,7 +8,6 @@ package io.imunity.webconsole.authentication.realms;
 import org.vaadin.risto.stepper.IntStepper;
 
 import com.vaadin.data.Binder;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -16,10 +15,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 
+import io.imunity.webconsole.WebConsoleConstans;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.authn.RememberMePolicy;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
+import pl.edu.icm.unity.webui.common.ListOfElements;
 
 /**
  * Authentication realm editor.
@@ -74,12 +75,6 @@ class AuthenticationRealmEditor extends CustomComponent
 		maxInactivity.setMinValue(1);
 		maxInactivity.setMaxValue(99999);
 		maxInactivity.setWidth(5, Unit.EM);
-
-		Label endpoints = new Label();
-		endpoints.setContentMode(ContentMode.HTML);
-		endpoints.setCaption(msg.getMessage("AuthenticationRealm.endpoints"));
-		endpoints.setWidth(100, Unit.PERCENTAGE);
-		endpoints.setValue(String.join("<br>", toEdit.endpoints));
 		
 		binder = new Binder<>(AuthenticationRealm.class);
 
@@ -107,10 +102,12 @@ class AuthenticationRealmEditor extends CustomComponent
 				rememberMePolicy, allowForRememberMeDays, maxInactivity);
 		if (!toEdit.endpoints.isEmpty())
 		{
+			ListOfElements<String> endpoints = new ListOfElements<>(toEdit.endpoints, t -> new Label(t));
+			endpoints.setCaption(msg.getMessage("AuthenticationRealm.endpoints"));
 			mainLayout.addComponent(endpoints);
 		}
 		setCompositionRoot(mainLayout);
-		setWidth(100, Unit.PERCENTAGE);
+		setWidth(WebConsoleConstans.MEDIUM_EDITOR_WIDTH, WebConsoleConstans.MEDIUM_EDITOR_WIDTH_UNIT);
 	}
 
 	void editMode()

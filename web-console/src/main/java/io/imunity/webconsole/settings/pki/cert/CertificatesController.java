@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -32,7 +32,7 @@ public class CertificatesController
 		this.msg = msg;
 	}
 
-	List<Certificate> getCertificates() throws ControllerException
+	List<NamedCertificate> getCertificates() throws ControllerException
 	
 	{
 		try
@@ -46,11 +46,11 @@ public class CertificatesController
 	}
 	
 	
-	Certificate getCertificate(String name) throws ControllerException
+	NamedCertificate getCertificate(String name) throws ControllerException
 	{
 		try
 		{
-			return pkiMan.getPersistedCertificate(name);
+			return pkiMan.getCertificate(name);
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("CertificatesController.getError", name),
@@ -58,7 +58,7 @@ public class CertificatesController
 		}
 	}
 
-	void addCertificate(Certificate certificate) throws ControllerException
+	void addCertificate(NamedCertificate certificate) throws ControllerException
 	{
 		try
 		{
@@ -71,11 +71,11 @@ public class CertificatesController
 		}
 	}
 
-	void updateCertificate(Certificate certificate) throws ControllerException
+	void updateCertificate(NamedCertificate certificate) throws ControllerException
 	{
 		try
 		{
-			pkiMan.updatePersistedCertificate(certificate);
+			pkiMan.updateCertificate(certificate);
 		} catch (Exception e)
 		{
 			throw new ControllerException(
@@ -84,11 +84,11 @@ public class CertificatesController
 		}
 	}
 
-	void removeCertificate(Certificate certificate) throws ControllerException
+	void removeCertificate(NamedCertificate certificate) throws ControllerException
 	{
 		try
 		{
-			pkiMan.removePersistedCertificate(certificate.name);
+			pkiMan.removeCertificate(certificate.name);
 		} catch (Exception e)
 		{
 			throw new ControllerException(

@@ -22,7 +22,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -85,7 +85,7 @@ public class EditCertificateView extends CustomComponent implements UnityView
 	public void enter(ViewChangeEvent event)
 	{
 		certName = NavigationHelper.getParam(event, CommonViewParam.name.toString());
-		Certificate cert;
+		NamedCertificate cert;
 		try
 		{
 			cert = controller.getCertificate(certName);

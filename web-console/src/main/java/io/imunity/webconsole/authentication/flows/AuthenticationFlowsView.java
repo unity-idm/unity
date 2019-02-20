@@ -101,7 +101,6 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 		main.addComponent(flowsList);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
-
 		setCompositionRoot(main);
 	}
 

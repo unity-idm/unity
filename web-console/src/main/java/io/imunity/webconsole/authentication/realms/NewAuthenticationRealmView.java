@@ -59,7 +59,6 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.setWidth(45, Unit.EM);
 		main.addComponent(ConfirmViewHelper.getConfirmButtonsBar(msg.getMessage("ok"),
 				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);

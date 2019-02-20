@@ -22,7 +22,7 @@ import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.pki.Certificate;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
@@ -45,7 +45,7 @@ public class CertificatesComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private CertificatesController certController;
-	private ListOfElementsWithActions<Certificate> certList;
+	private ListOfElementsWithActions<NamedCertificate> certList;
 	
 	public CertificatesComponent(UnityMessageSource msg, CertificatesController controller)
 	{
@@ -63,7 +63,7 @@ public class CertificatesComponent extends CustomComponent
 
 		certList.setAddSeparatorLine(true);
 
-		for (Certificate cert : getCertificates())
+		for (NamedCertificate cert : getCertificates())
 		{
 			certList.addEntry(cert);
 		}
@@ -79,12 +79,12 @@ public class CertificatesComponent extends CustomComponent
 		setCompositionRoot(main);
 	}
 
-	private List<SingleActionHandler<Certificate>> getActionsHandlers()
+	private List<SingleActionHandler<NamedCertificate>> getActionsHandlers()
 	{
-		SingleActionHandler<Certificate> edit = SingleActionHandler.builder4Edit(msg, Certificate.class)
+		SingleActionHandler<NamedCertificate> edit = SingleActionHandler.builder4Edit(msg, NamedCertificate.class)
 				.withHandler(r -> gotoEdit(r.iterator().next())).build();
 
-		SingleActionHandler<Certificate> remove = SingleActionHandler.builder4Delete(msg, Certificate.class)
+		SingleActionHandler<NamedCertificate> remove = SingleActionHandler.builder4Delete(msg, NamedCertificate.class)
 				.withHandler(r -> tryRemove(r.iterator().next())).build();
 		return Arrays.asList(edit, remove);
 	}
@@ -96,7 +96,7 @@ public class CertificatesComponent extends CustomComponent
 		return StandardButtonsHelper.buildButtonsBar(newCert);
 	}
 
-	private Collection<Certificate> getCertificates()
+	private Collection<NamedCertificate> getCertificates()
 	{
 		try
 		{
@@ -108,7 +108,7 @@ public class CertificatesComponent extends CustomComponent
 		return Collections.emptyList();
 	}
 
-	private void remove(Certificate cert)
+	private void remove(NamedCertificate cert)
 	{
 		try
 		{
@@ -120,7 +120,7 @@ public class CertificatesComponent extends CustomComponent
 		}
 	}
 
-	private void tryRemove(Certificate cert)
+	private void tryRemove(NamedCertificate cert)
 	{
 
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(cert.name));
@@ -128,7 +128,7 @@ public class CertificatesComponent extends CustomComponent
 				() -> remove(cert)).show();
 	}
 
-	private void gotoEdit(Certificate cert)
+	private void gotoEdit(NamedCertificate cert)
 	{
 		NavigationHelper.goToView(EditCertificateView.VIEW_NAME + "/" + CommonViewParam.name.toString() + "="
 				+ cert.name);
