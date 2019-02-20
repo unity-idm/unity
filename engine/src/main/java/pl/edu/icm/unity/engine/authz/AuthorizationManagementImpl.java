@@ -23,6 +23,13 @@ import pl.edu.icm.unity.exceptions.AuthorizationException;
 @Component
 public class AuthorizationManagementImpl implements AuthorizationManagement
 {
+
+	public static final Set<String> ADMIN_ROLES = Sets.newHashSet(
+			InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE,
+			InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE,
+			InternalAuthorizationManagerImpl.PRIVILEGED_INSPECTOR_ROLE,
+			InternalAuthorizationManagerImpl.INSPECTOR_ROLE);
+
 	private InternalAuthorizationManager authz;
 
 	public AuthorizationManagementImpl(InternalAuthorizationManager authz)
@@ -33,17 +40,7 @@ public class AuthorizationManagementImpl implements AuthorizationManagement
 	@Override
 	public boolean hasAdminAccess() throws AuthorizationException
 	{
-
 		Set<AuthzRole> roles = authz.getRoles();
-		Set<String> adminRoles = Sets.newHashSet(InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE,
-				InternalAuthorizationManagerImpl.CONTENTS_MANAGER_ROLE,
-				InternalAuthorizationManagerImpl.PRIVILEGED_INSPECTOR_ROLE,
-				InternalAuthorizationManagerImpl.INSPECTOR_ROLE);
-
-		if (roles.stream().map(r -> r.getName()).anyMatch(adminRoles::contains))
-		{
-			return true;
-		}
-		return false;
+		return roles.stream().map(r -> r.getName()).anyMatch(ADMIN_ROLES::contains);
 	}
 }
