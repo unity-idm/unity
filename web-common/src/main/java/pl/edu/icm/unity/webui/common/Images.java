@@ -97,6 +97,7 @@ public enum Images
 	file_tree 	(VaadinIcons.FILE_TREE),
 	file_tree_small (VaadinIcons.FILE_TREE_SMALL),
 	file_tree_sub 	(VaadinIcons.FILE_TREE_SUB),
+	file_zip	(VaadinIcons.FILE_ZIP),
 	envelope_open	(VaadinIcons.ENVELOPE_OPEN),
 	user_check	(VaadinIcons.USER_CHECK),
 	star 		(VaadinIcons.STAR),

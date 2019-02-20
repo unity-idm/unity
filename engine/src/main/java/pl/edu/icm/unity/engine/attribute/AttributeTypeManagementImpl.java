@@ -19,7 +19,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntaxFactory;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -46,7 +46,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 	private AttributeDAO attributeDAO;
 	private IdentityTypeDAO dbIdentities;
 	private AttributeMetadataProvidersRegistry atMetaProvidersRegistry;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private AttributeTypeHelper atHelper;
 	private AttributesHelper aHelper;
 
@@ -56,7 +56,7 @@ public class AttributeTypeManagementImpl implements AttributeTypeManagement
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO attributeDAO,
 			IdentityTypeDAO dbIdentities,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,
-			AuthorizationManager authz, AttributeTypeHelper atHelper,
+			InternalAuthorizationManager authz, AttributeTypeHelper atHelper,
 			AttributesHelper aHelper)
 	{
 		this.attrValueTypesReg = attrValueTypesReg;

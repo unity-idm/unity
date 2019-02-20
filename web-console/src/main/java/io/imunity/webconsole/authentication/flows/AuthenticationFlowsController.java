@@ -17,13 +17,12 @@ import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.engine.api.AuthenticationFlowManagement;
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Controller for all authentication flow view
+ * Controller for all authentication flow views
  * 
  * @author P.Piernik
  *
@@ -52,7 +51,7 @@ class AuthenticationFlowsController
 		{
 			return authMan.getAuthenticators(null).stream().map(i -> i.getId())
 					.collect(Collectors.toList());
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("AuthenticationFlowsController.getAuthenticatorsError"),
@@ -60,7 +59,7 @@ class AuthenticationFlowsController
 		}
 	}
 
-	boolean addFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	void addFlow(AuthenticationFlowDefinition flow) throws ControllerException
 
 	{
 		try
@@ -72,11 +71,9 @@ class AuthenticationFlowsController
 					msg.getMessage("AuthenticationFlowsController.addError", flow.getName()),
 					e.getMessage(), e);
 		}
-
-		return true;
 	}
 
-	boolean updateFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	void updateFlow(AuthenticationFlowDefinition flow) throws ControllerException
 
 	{
 		try
@@ -88,11 +85,9 @@ class AuthenticationFlowsController
 					msg.getMessage("AuthenticationFlowsController.updateError", flow.getName()),
 					e.getMessage(), e);
 		}
-
-		return true;
 	}
 
-	boolean removeFlow(AuthenticationFlowDefinition flow) throws ControllerException
+	void removeFlow(AuthenticationFlowDefinition flow) throws ControllerException
 	{
 		try
 		{
@@ -104,8 +99,6 @@ class AuthenticationFlowsController
 					msg.getMessage("AuthenticationFlowsController.removeError", flow.getName()),
 					e.getMessage(), e);
 		}
-
-		return true;
 	}
 
 	Collection<AuthenticationFlowEntry> getFlows() throws ControllerException
@@ -116,7 +109,7 @@ class AuthenticationFlowsController
 		try
 		{
 			flows = flowMan.getAuthenticationFlows();
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("AuthenticationFlowsController.getAllError"),
 					e.getMessage(), e);
@@ -140,7 +133,7 @@ class AuthenticationFlowsController
 		{
 			return new AuthenticationFlowEntry(flowMan.getAuthenticationFlow(flowName),
 					filterEndpoints(flowName, endpoints));
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("AuthenticationFlowsController.getError", flowName),

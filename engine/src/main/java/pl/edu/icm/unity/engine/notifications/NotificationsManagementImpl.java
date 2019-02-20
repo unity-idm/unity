@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -34,12 +34,12 @@ public class NotificationsManagementImpl implements NotificationsManagement
 {
 	private NotificationChannelDB notificationDB;
 	private NotificationsManagementCore notificationsCore;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	
 	
 	@Autowired
 	public NotificationsManagementImpl(NotificationChannelDB notificationDB,
-			NotificationsManagementCore notificationsCore, AuthorizationManager authz)
+			NotificationsManagementCore notificationsCore, InternalAuthorizationManager authz)
 	{
 		this.notificationDB = notificationDB;
 		this.notificationsCore = notificationsCore;

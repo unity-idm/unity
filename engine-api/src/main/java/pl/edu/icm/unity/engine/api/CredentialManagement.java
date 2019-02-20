@@ -62,4 +62,10 @@ public interface CredentialManagement
 	 * @throws EngineException
 	 */
 	Collection<CredentialDefinition> getCredentialDefinitions() throws EngineException;
+	
+	/**
+	 * @return Credential definition with given name
+	 * @throws EngineException
+	 */
+	CredentialDefinition getCredentialDefinition(String name) throws EngineException;
 }

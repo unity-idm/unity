@@ -29,7 +29,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Identity;
 
@@ -47,11 +47,11 @@ public class TestTokens extends RESTAdminTestBase
 	@Before
 	public void addTokens() throws Exception
 	{
-		Identity id1 = createUsernameUser("u1", AuthorizationManagerImpl.USER_ROLE,
+		Identity id1 = createUsernameUser("u1", InternalAuthorizationManagerImpl.USER_ROLE,
 				DEF_PASSWORD, CRED_REQ_PASS);
-		Identity id2 = createUsernameUser("u2", AuthorizationManagerImpl.USER_ROLE,
+		Identity id2 = createUsernameUser("u2", InternalAuthorizationManagerImpl.USER_ROLE,
 				DEF_PASSWORD, CRED_REQ_PASS);
-		createUsernameUser("admin1", AuthorizationManagerImpl.SYSTEM_MANAGER_ROLE,
+		createUsernameUser("admin1", InternalAuthorizationManagerImpl.SYSTEM_MANAGER_ROLE,
 				DEF_PASSWORD, CRED_REQ_PASS);
 
 		Date now = new Date();

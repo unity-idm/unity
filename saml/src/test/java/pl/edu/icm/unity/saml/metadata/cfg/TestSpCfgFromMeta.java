@@ -43,6 +43,7 @@ import org.awaitility.Duration;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import eu.emi.security.authn.x509.impl.CertificateUtils;
 import eu.emi.security.authn.x509.impl.CertificateUtils.Encoding;
@@ -59,7 +60,8 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 	private RemoteMetadataService metadataService;
 	
 	@Autowired
-	private PKIManagement pkiManagement;
+	@Qualifier("insecure")
+	private  PKIManagement pkiManagement;
 	
 	@Autowired
 	private UnityMessageSource msg;
@@ -83,7 +85,7 @@ public class TestSpCfgFromMeta extends DBIntegrationTestBase
 		p.setProperty(P+IDPMETA_PREFIX+"1." + IDPMETA_REGISTRATION_FORM, "metaRegForm");
 		p.setProperty(P+IDPMETA_PREFIX+"1." + METADATA_SIGNATURE, "require");
 		X509Certificate cert = CertificateUtils.loadCertificate(new ByteArrayInputStream(CERT.getBytes()), Encoding.PEM);
-		pkiManagement.addCertificate("issuerCert", cert);
+		pkiManagement.addVolatileCertificate("issuerCert", cert);
 		p.setProperty(P+IDPMETA_PREFIX+"1." + METADATA_ISSUER_CERT, "issuerCert");
 
 		p.setProperty(P+IDP_PREFIX+"1." + IDP_ADDRESS, "https://aai.unifr.ch/idp/profile/SAML2/Redirect/SSO");

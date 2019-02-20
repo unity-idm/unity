@@ -15,6 +15,7 @@ import java.util.Properties;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import eu.unicore.samly2.SAMLConstants;
 import eu.unicore.samly2.validators.ReplayAttackChecker;
@@ -70,7 +71,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	
 	@Autowired
 	public ECPEndpoint(NetworkServer server, 
-			PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
+			@Qualifier("insecure") PKIManagement pkiManagement, ECPContextManagement samlContextManagement,
 			ReplayAttackChecker replayAttackChecker, 
 			RemoteAuthnResultProcessor remoteAuthnProcessor,
 			TokensManagement tokensMan,

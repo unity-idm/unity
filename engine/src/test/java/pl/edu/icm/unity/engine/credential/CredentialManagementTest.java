@@ -34,7 +34,7 @@ import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.AuthNInfo;
 import pl.edu.icm.unity.engine.authn.AuthenticatorsRegistry;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.mock.MockPasswordVerificatorFactory;
 import pl.edu.icm.unity.exceptions.CredentialRecentlyUsedException;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
@@ -266,7 +266,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 	{
 		setupAdmin();
 		setupPasswordAuthn();
-		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, DEF_USER)); 
 
 		eCredMan.setEntityCredential(user, "credential1", new PasswordToken("qw!Erty").toJson());
@@ -277,7 +277,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
-		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
+		createCertUserNoPassword(InternalAuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
 		AuthenticatorInstance authenticator = getAuthenticator("authn", "credential1"); 
 		AuthenticationFlow flow = new AuthenticationFlow("flow", Policy.NEVER, Sets.newHashSet(authenticator), 
 				Collections.emptyList(), 1);
@@ -308,7 +308,7 @@ public class CredentialManagementTest extends DBIntegrationTestBase
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
-		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
+		createCertUserNoPassword(InternalAuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
 		setupUserContext("user2", null);
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
 

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
@@ -42,13 +42,13 @@ public class CredentialReqManagementImpl implements CredentialRequirementManagem
 	private CredentialRequirementDB credentialRequirementDB;
 	private CredentialReqRepository credReqRepository;
 	private IdentityHelper identityHelper;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private EntityCredentialsHelper entityCredHelper;
 	
 	@Autowired
 	public CredentialReqManagementImpl(LocalCredentialsRegistry localCredReg,
 			CredentialRepository credRepository, CredentialRequirementDB credentialRequirementDB,
-			IdentityHelper identityHelper, AuthorizationManager authz,
+			IdentityHelper identityHelper, InternalAuthorizationManager authz,
 			EntityCredentialsHelper entityCredHelper, CredentialReqRepository credReqRepository)
 	{
 		this.localCredReg = localCredReg;

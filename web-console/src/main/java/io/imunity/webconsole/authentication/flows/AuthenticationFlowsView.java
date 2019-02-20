@@ -25,6 +25,7 @@ import com.vaadin.ui.VerticalLayout;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
@@ -39,7 +40,6 @@ import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Posi
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -56,8 +56,7 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	private AuthenticationFlowsController flowsMan;
 	private UnityMessageSource msg;
 	private ListOfElementsWithActions<AuthenticationFlowEntry> flowsList;
-	
-	
+
 	@Autowired
 	public AuthenticationFlowsView(UnityMessageSource msg, AuthenticationFlowsController flowsMan)
 	{
@@ -68,41 +67,29 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		HorizontalLayout buttonsBar = new HorizontalLayout();
-		buttonsBar.setMargin(false);
-		Button newRealm = new Button();
-		newRealm.setCaption(msg.getMessage("add"));
-		newRealm.addStyleName("u-button-action");
-		newRealm.addClickListener(e -> {
-			getUI().getNavigator().navigateTo(NewAuthenticationFlowView.VIEW_NAME);
-		});
-		buttonsBar.addComponent(newRealm);
-		buttonsBar.setComponentAlignment(newRealm, Alignment.MIDDLE_RIGHT);
-		buttonsBar.setWidth(100, Unit.PERCENTAGE);
-		
+		Button newCert = StandardButtonsHelper.build4AddAction(msg,
+				e -> NavigationHelper.goToView(NewAuthenticationFlowView.VIEW_NAME));
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, newCert);
+
 		SingleActionHandler<AuthenticationFlowEntry> edit = SingleActionHandler
 				.builder4Edit(msg, AuthenticationFlowEntry.class)
-				.withHandler(r -> gotoEdit(r.iterator().next()))
-				.build();
+				.withHandler(r -> gotoEdit(r.iterator().next())).build();
 
 		SingleActionHandler<AuthenticationFlowEntry> remove = SingleActionHandler
-				.builder4Delete(msg, AuthenticationFlowEntry.class).withHandler(r -> {
-
-					tryRemove(r.iterator().next());
-
-				}
-
+				.builder4Delete(msg, AuthenticationFlowEntry.class)
+				.withHandler(r -> tryRemove(r.iterator().next())
 				).build();
-		
+
 		flowsList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("AuthenticationFlow.nameCaption"),
-						r -> getEditButton(r), 1),
+						f -> StandardButtonsHelper.buildLinkButton(f.flow.getName(),
+								e -> gotoEdit(f)),
+						1),
 						new Column<>(msg.getMessage("AuthenticationFlow.endpointsCaption"),
 								r -> new Label(String.join(", ", r.endpoints)), 4)),
 				new ActionColumn<>(msg.getMessage("actions"), Arrays.asList(edit, remove), 0,
-						Position.Right)
-		);
-		
+						Position.Right));
+
 		flowsList.setAddSeparatorLine(true);
 
 		for (AuthenticationFlowEntry flow : getFlows())
@@ -115,36 +102,15 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 		main.addComponent(flowsList);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
-
 		setCompositionRoot(main);
 	}
 
-	
 	private void gotoEdit(AuthenticationFlowEntry e)
 	{
-		NavigationHelper.goToView(
-				EditAuthenticationFlowView.VIEW_NAME + "/"
-						+ CommonViewParam.name.toString()
-						+ "="
-						+ e.flow.getName());
+		NavigationHelper.goToView(EditAuthenticationFlowView.VIEW_NAME + "/" + CommonViewParam.name.toString()
+				+ "=" + e.flow.getName());
 	}
-	
-	private HorizontalLayout getEditButton(AuthenticationFlowEntry e)
-	{
-		HorizontalLayout layout = new HorizontalLayout();
-		layout.setSpacing(false);
-		layout.setMargin(false);
-		layout.setWidth(100, Unit.PERCENTAGE);
-		Button button = new Button();
-		button.setCaption(e.flow.getName());		
-		button.addStyleName(Styles.vButtonLink.toString());
-		button.addStyleName(Styles.vBorderLess.toString());
-		button.addClickListener(ev -> gotoEdit(e));
-		layout.addComponent(button);
-		layout.setComponentAlignment(button, Alignment.TOP_LEFT);
-		return layout;
-	}
-	
+
 	private Collection<AuthenticationFlowEntry> getFlows()
 	{
 		try
@@ -161,8 +127,8 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	{
 		try
 		{
-			if (flowsMan.removeFlow(flow.flow))
-				flowsList.removeEntry(flow);
+			flowsMan.removeFlow(flow.flow);
+			flowsList.removeEntry(flow);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
@@ -172,20 +138,17 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	private void tryRemove(AuthenticationFlowEntry flow)
 	{
 
-		String confirmText = MessageUtils.createConfirmFromStrings(msg,
-				Sets.newHashSet(flow.flow.getName()));
-		new ConfirmDialog(msg,
-				msg.getMessage("AuthenticationFlowsView.confirmDelete", confirmText),
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(flow.flow.getName()));
+		new ConfirmDialog(msg, msg.getMessage("AuthenticationFlowsView.confirmDelete", confirmText),
 				() -> remove(flow)).show();
 	}
-
 
 	@Override
 	public String getDisplayedName()
 	{
 		return msg.getMessage("WebConsoleMenu.authentication.flows");
 	}
-	
+
 	@Override
 	public String getViewName()
 	{
@@ -197,16 +160,12 @@ public class AuthenticationFlowsView extends CustomComponent implements UnityVie
 	{
 
 		@Autowired
-		public FlowsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent,
+		public FlowsNavigationInfoProvider(UnityMessageSource msg, AuthenticationNavigationInfoProvider parent,
 				ObjectFactory<AuthenticationFlowsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo())
-					.withObjectFactory(factory)
-					.withCaption(msg.getMessage(
-							"WebConsoleMenu.authentication.flows"))
-					.build());
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.withCaption(msg.getMessage("WebConsoleMenu.authentication.flows")).build());
 
 		}
 	}

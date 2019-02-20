@@ -222,7 +222,7 @@ public class InternalLogoutProcessor
 		List<PublicKey> trustedKeys = new ArrayList<PublicKey>();
 		for (String certName: validSigningCerts)
 		{
-			X509Certificate cert = pkiManagement.getCertificate(certName);
+			X509Certificate cert = pkiManagement.getCertificate(certName).value;
 			trustedKeys.add(cert.getPublicKey());
 		}
 		checker.addTrustedIssuer(forWhom.getIdentifier(), null, trustedKeys);

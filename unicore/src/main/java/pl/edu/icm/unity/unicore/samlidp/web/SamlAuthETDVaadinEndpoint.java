@@ -7,6 +7,7 @@ package pl.edu.icm.unity.unicore.samlidp.web;
 import javax.servlet.Servlet;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 
 import pl.edu.icm.unity.engine.api.PKIManagement;
@@ -38,7 +39,7 @@ public class SamlAuthETDVaadinEndpoint extends SamlAuthVaadinEndpoint
 	@Autowired
 	public SamlAuthETDVaadinEndpoint(NetworkServer server, ApplicationContext applicationContext,
 			FreemarkerAppHandler freemarkerHandler,
-			PKIManagement pkiManagement, ExecutorsService executorsService,
+			@Qualifier("insecure")  PKIManagement pkiManagement, ExecutorsService executorsService,
 			UnityServerConfiguration mainConfig, SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			SLOReplyInstaller sloReplyInstaller, 
 			UnicoreIdpConsentDeciderServlet.Factory dispatcherServletFactory,

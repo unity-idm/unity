@@ -1,0 +1,3177 @@
+{
+  "versionMajor" : 7,
+  "versionMinor" : 0,
+  "timestamp" : 1550402060362,
+  "contents" : {
+    "attributeTypes" : [ {
+      "flags" : 1,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "allowed" : [ "implicit", "client", "openidHybrid", "authorizationCode" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:allowedGrantFlows",
+        "Map" : {
+          "pl" : "Dozwolone granty OAuth",
+          "en" : "OAuth client allowed grants"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Atrybut klienta OAauth. Definiuje dozwolone granty OAuth dla klienta. Jeśli jest niezdefiniowany tylko Authorization Code grant jest dozwolony.",
+          "en" : "OAuth Client specific attribute. Defines which grants are allowed for the client. If undefined then only the Authorization Code grant is allowed."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:allowedGrantFlows",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "allowed" : [ "PUBLIC", "CONFIDENTIAL" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientType",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientType",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 1,
+      "maxElements" : 512,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:allowedReturnURI",
+        "Map" : {
+          "pl" : "Powrotny adres klienta OAuth",
+          "en" : "OAuth client return URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Atrybut klienta OAauth. Definiuje dozwolone adresu przekierowań powrotnych. Jest to ważne ustawienie bezpieczeństwa dla grantów authorization code i implicit. Jeśli nie jest ustawiony nie będą one działać dla klienta. ",
+          "en" : "OAuth Client specific attribute. Defines which return redirect URIs are allowed for the client. This is important security measure for the authorization code and implicit grants. If undefined then no URI is allowed and both implicit and authorization code grants will be effectively disabled for the client."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:allowedReturnURI",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "maxWidth" : 400,
+        "maxHeight" : 200,
+        "maxSize" : 4000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientLogo",
+        "Map" : {
+          "pl" : "Logo klienta OAuth",
+          "en" : "OAuth client logo"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Atrybut klienta OAauth. Definiuje logo klienta wyświetlane użytkownikom.",
+          "en" : "OAuth Client specific attribute. Defines a logo which is displayed for the client."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientLogo",
+      "syntaxId" : "jpegImage"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:clientName",
+        "Map" : {
+          "pl" : "Nazwa klienta OAuth",
+          "en" : "OAuth client name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Atrybut klienta OAauth. Definiuje nazwę klienta wyświetlaną użytkownikom. ",
+          "en" : "OAuth Client specific attribute. Defines human readable name of the client."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:clientName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:oauth:groupForClient",
+        "Map" : {
+          "pl" : "Grupa użytkowników klienta OAuth",
+          "en" : "OAuth users group"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Atrybut klienta OAauth. Definiuje grupę do której muszą należeć wszyscy użytkownicy których do których ma dostęp klient. Z tej grupy będą również pobierane ich atrybuty dla klienta. Ten atrybut nadpisuje ogólnie ustawioną grupę w konfiguracji endpointu.",
+          "en" : "OAuth Client specific attribute. Defines a group path, where users of this client should be present and where their attributes are resolved. This attribute overrides the default group configured per endpoint."
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:oauth:groupForClient",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:userMFAOptIn",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:userMFAOptIn",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:LastAuthentication",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "en" : "Stores date and time of the last successful authentication. The format is ISO time in UTC time zone with seconds precision, e.g.: 2011-12-03T10:15:30"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:LastAuthentication",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "allowed" : [ "Privileged Inspector", "Anonymous User", "Inspector", "System Manager", "Contents Manager", "Regular User" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:AuthorizationRole",
+        "Map" : {
+          "pl" : "Rola autoryzacyjna",
+          "en" : "Authorization role"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Definiuje jakie operacje są dozwolone dla posiadacza. Wpływa na dostęp do grupy w której atrybut jest przydzielony oraz wszystkich podgrupach, gdzie może być nadpisany. Dostępne role:\n<b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n",
+          "en" : "Defines what operations are allowed for the bearer. The attribute of this type defines the access in the group where it is defined and in all subgroups. In subgroup it can be redefined to grant more access. Roles:\n <b>System Manager</b> - System manager with all privileges.\n<b>Contents Manager</b> - Allows for performing all management operations related to groups, entities and attributes. Also allows for reading information about hidden attributes.\n<b>Privileged Inspector</b> - Allows for reading entities, groups and attributes, including the attributes visible locally only. No modifications are possible\n<b>Inspector</b> - Allows for reading entities, groups and attributes. No modifications are possible\n<b>Regular User</b> - Allows owners for reading of the basic system information, retrieval of information about themselves and also for changing self managed attributes, identities and passwords\n<b>Anonymous User</b> - Allows for minimal access to the system: owners can get basic system information and retrieve information about themselves\n"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:AuthorizationRole",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 1,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "allowed" : [ "manager", "regular" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:ProjectManagementRole",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:ProjectManagementRole",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 3,
+      "maxElements" : 20,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:AttributeClasses",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "en" : "Attribute classes of the user"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:AttributeClasses",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:sys:password",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "en" : "Credential of sys:password"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:sys:password",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:CredentialRequirements",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "en" : "Defines which credential requirements are set for the owner"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:CredentialRequirements",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:FilledEnquires",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:FilledEnquires",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 1,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : true,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:IgnoredEnquires",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sys:IgnoredEnquires",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 10240
+      },
+      "displayedName" : {
+        "DefaultValue" : "sys:Preferences",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "en" : "Preferences of the user"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Preferences",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 3,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : null,
+      "displayedName" : {
+        "DefaultValue" : "sys:Credential:Certificate credential",
+        "Map" : { }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "en" : "Credential of Certificate credential"
+        }
+      },
+      "metadata" : { },
+      "name" : "sys:Credential:Certificate credential",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "name",
+        "Map" : {
+          "pl" : "Nazwa",
+          "en" : "Name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Nazwa",
+          "en" : "Name"
+        }
+      },
+      "metadata" : {
+        "entityDisplayedName" : ""
+      },
+      "name" : "name",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "emailConfirmationConfiguration" : {
+          "messageTemplate" : "emailConfirmation",
+          "validityTime" : 2880
+        }
+      },
+      "displayedName" : {
+        "DefaultValue" : "email",
+        "Map" : {
+          "pl" : "Adres e-mail",
+          "en" : "E-mail address"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Adres e-mail",
+          "en" : "E-mail address"
+        }
+      },
+      "metadata" : {
+        "contactEmail" : ""
+      },
+      "name" : "email",
+      "syntaxId" : "verifiableEmail"
+    }, {
+      "flags" : 0,
+      "maxElements" : 5,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : { },
+      "displayedName" : {
+        "DefaultValue" : "mobile",
+        "Map" : {
+          "de" : "Mobiltelefonnummer",
+          "en" : "Mobile number",
+          "pl" : "Numer tel. komórkowego"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "de" : "Mobiltelefonnummer",
+          "en" : "Mobile number",
+          "pl" : "Numer tel. komórkowego"
+        }
+      },
+      "metadata" : {
+        "contactMobile" : ""
+      },
+      "name" : "mobile",
+      "syntaxId" : "verifiableMobileNumber"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "min" : 4.9E-324,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "height",
+        "Map" : {
+          "pl" : "Wzrost",
+          "en" : "Height"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Informacja o wzroście użytkownika w cm.",
+          "en" : "Height provides information on users height"
+        }
+      },
+      "metadata" : { },
+      "name" : "height",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "min" : 4.9E-324,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "weight",
+        "Map" : {
+          "pl" : "Waga",
+          "en" : "Weight"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Informacja o wadze użytkownika w kg.",
+          "en" : "Weight provides information on users weight"
+        }
+      },
+      "metadata" : { },
+      "name" : "weight",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "address",
+        "Map" : {
+          "pl" : "Adres",
+          "en" : "Address"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "address",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "affiliation",
+        "Map" : {
+          "pl" : "Afiliacja",
+          "en" : "Affiliation"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "affiliation",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "maxWidth" : 100,
+        "maxHeight" : 100,
+        "maxSize" : 1000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "avatar",
+        "Map" : {
+          "en" : "Avatar"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Małe zdjęcie",
+          "en" : "Small picture"
+        }
+      },
+      "metadata" : { },
+      "name" : "avatar",
+      "syntaxId" : "image"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "avatarURL",
+        "Map" : {
+          "en" : "Avatar URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "avatarURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : { },
+      "displayedName" : {
+        "DefaultValue" : "birthday",
+        "Map" : {
+          "pl" : "Data urodzin",
+          "en" : "Birthday"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "birthday",
+      "syntaxId" : "date"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "blog",
+        "Map" : {
+          "pl" : "Blog",
+          "en" : "Blog"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "blog",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "city",
+        "Map" : {
+          "pl" : "Miasto",
+          "en" : "City"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "city",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "company",
+        "Map" : {
+          "pl" : "Firma",
+          "en" : "Company"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "company",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "country",
+        "Map" : {
+          "pl" : "Kraj",
+          "en" : "Country"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "country",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 2
+      },
+      "displayedName" : {
+        "DefaultValue" : "countryCode",
+        "Map" : {
+          "pl" : "Kod kraju",
+          "en" : "Country code"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "countryCode",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 400
+      },
+      "displayedName" : {
+        "DefaultValue" : "description",
+        "Map" : {
+          "pl" : "Opis",
+          "en" : "Description"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "description",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "currency",
+        "Map" : {
+          "pl" : "Waluta",
+          "en" : "Currency"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "currency",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 9,
+        "maxLength" : 20
+      },
+      "displayedName" : {
+        "DefaultValue" : "facsimileTelephoneNumber",
+        "Map" : {
+          "pl" : "Faks",
+          "en" : "Facsimile telephone number"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "facsimileTelephoneNumber",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "firstname",
+        "Map" : {
+          "pl" : "Imię",
+          "en" : "Firstname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "firstname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "gender",
+        "Map" : {
+          "pl" : "Płeć",
+          "en" : "Gender"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "gender",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 50
+      },
+      "displayedName" : {
+        "DefaultValue" : "locale",
+        "Map" : {
+          "en" : "Locale"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "locale",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 20
+      },
+      "displayedName" : {
+        "DefaultValue" : "initials",
+        "Map" : {
+          "pl" : "Inicjały",
+          "en" : "Initials"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "initials",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "middleName",
+        "Map" : {
+          "pl" : "Drugie imię",
+          "en" : "Middle name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "middleName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "nickname",
+        "Map" : {
+          "en" : "Nickname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "nickname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "organization",
+        "Map" : {
+          "pl" : "Organizacja",
+          "en" : "Organization"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organization",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "organizationRole",
+        "Map" : {
+          "pl" : "Rola w organizacji",
+          "en" : "Organization role"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organizationRole",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "organizationUnit",
+        "Map" : {
+          "pl" : "Nazwa jednostki organizacyjnej",
+          "en" : "Organization unit name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "organizationUnit",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 8000
+      },
+      "displayedName" : {
+        "DefaultValue" : "pgpPublicKey",
+        "Map" : {
+          "pl" : "Klucz publiczny PGP",
+          "en" : "PGP public key"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "pgpPublicKey",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "maxWidth" : 1000,
+        "maxHeight" : 1000,
+        "maxSize" : 3000000
+      },
+      "displayedName" : {
+        "DefaultValue" : "picture",
+        "Map" : {
+          "pl" : "Zdjęcie",
+          "en" : "Picture"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "picture",
+      "syntaxId" : "image"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "pictureURL",
+        "Map" : {
+          "pl" : "Adres zdjęcia",
+          "en" : "Picture URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "pictureURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "post",
+        "Map" : {
+          "pl" : "Poczta",
+          "en" : "Post"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "post",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 2147483647,
+      "minElements" : 0,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 6
+      },
+      "displayedName" : {
+        "DefaultValue" : "postalCode",
+        "Map" : {
+          "pl" : "Kod pocztowy",
+          "en" : "Postal code"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "postalCode",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "preferredLanguage",
+        "Map" : {
+          "pl" : "Preferowany język",
+          "en" : "Preferred language"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "preferredLanguage",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "primaryAffiliation",
+        "Map" : {
+          "pl" : "Główna afiliacja",
+          "en" : "Primary affiliation"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "primaryAffiliation",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "profileURL",
+        "Map" : {
+          "pl" : "Adres profilu",
+          "en" : "Profile URL"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "profileURL",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "provinceName",
+        "Map" : {
+          "pl" : "Nazwa prowincji",
+          "en" : "Province name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "provinceName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "Locality",
+        "Map" : {
+          "pl" : "Localizacja",
+          "en" : "Locality"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "locality",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "min" : 0.0,
+        "max" : 1.7976931348623157E308
+      },
+      "displayedName" : {
+        "DefaultValue" : "quota",
+        "Map" : {
+          "en" : "Quota"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "quota",
+      "syntaxId" : "floatingPoint"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "seeAlso",
+        "Map" : {
+          "pl" : "Inne",
+          "en" : "See also"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "seeAlso",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 1000
+      },
+      "displayedName" : {
+        "DefaultValue" : "sshPublicKey",
+        "Map" : {
+          "pl" : "Klucz publiczny SSH",
+          "en" : "SSH public key"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "sshPublicKey",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "street",
+        "Map" : {
+          "pl" : "Ulica",
+          "en" : "Street"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "street",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "surname",
+        "Map" : {
+          "pl" : "Nazwisko",
+          "en" : "Surname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "surname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "teamname",
+        "Map" : {
+          "pl" : "Nazwa zespołu",
+          "en" : "Teamname"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "teamname",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "(\\+)?(\\d){9,12}",
+        "minLength" : 9,
+        "maxLength" : 20
+      },
+      "displayedName" : {
+        "DefaultValue" : "telephoneNumber",
+        "Map" : {
+          "pl" : "Numer telefonu",
+          "en" : "Telephone number"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "telephoneNumber",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 50
+      },
+      "displayedName" : {
+        "DefaultValue" : "timezone",
+        "Map" : {
+          "pl" : "Strefa czasowa",
+          "en" : "Timezone"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "timezone",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 200
+      },
+      "displayedName" : {
+        "DefaultValue" : "title",
+        "Map" : {
+          "pl" : "Tytuł",
+          "en" : "Title"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "title",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 10,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 0,
+        "maxLength" : 20000
+      },
+      "displayedName" : {
+        "DefaultValue" : "certificate",
+        "Map" : {
+          "pl" : "Certyfikat użytkownika",
+          "en" : "User certificate"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "certificate",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "website",
+        "Map" : {
+          "pl" : "Strona internetowa",
+          "en" : "Website"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "website",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "displayName",
+        "Map" : {
+          "pl" : "Wyświetlana nazwa",
+          "en" : "Display name"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "displayName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "userName",
+        "Map" : {
+          "pl" : "Nazwa użytkownika",
+          "en" : "Username"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "userName",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 2,
+        "maxLength" : 300
+      },
+      "displayedName" : {
+        "DefaultValue" : "uid",
+        "Map" : {
+          "pl" : "Identyfikator uzytkownika",
+          "en" : "User id"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "metadata" : { },
+      "name" : "uid",
+      "syntaxId" : "string"
+    }, {
+      "flags" : 0,
+      "maxElements" : 1,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "allowed" : [ "server", "admin", "banned", "user" ]
+      },
+      "displayedName" : {
+        "DefaultValue" : "urn:unicore:attrType:role",
+        "Map" : {
+          "pl" : "Rola UNICORE",
+          "en" : "UNICORE role"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Rola użytkownika lub serwera używana do autoryzacji dostepu do UNICORE. Rola <b>user</b> daje normalny dostęp, <b>admin</b> pełen dostęp, <b>server</b> pozwala na rejestrację w rejestrze UNCORE, użytkownicy z rolą <b>banned</b> są całkowicie zablokowani.",
+          "en" : "User or server role used for UNICORE authorization. The <b>user</b> role provides normal access, <b>admin</b> the full access, <b>server</b> allows for registering in UNICORE registry, <b>banned</b> users have access fully blocked."
+        }
+      },
+      "metadata" : { },
+      "name" : "urn:unicore:attrType:role",
+      "syntaxId" : "enumeration"
+    }, {
+      "flags" : 0,
+      "maxElements" : 16,
+      "minElements" : 1,
+      "selfModificable" : false,
+      "uniqueValues" : false,
+      "syntaxState" : {
+        "regexp" : "",
+        "minLength" : 1,
+        "maxLength" : 100
+      },
+      "displayedName" : {
+        "DefaultValue" : "urn:unicore:attrType:xlogin",
+        "Map" : {
+          "pl" : "Login UNICORE",
+          "en" : "UNICORE login"
+        }
+      },
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : {
+          "pl" : "Nazwa konta UNIX (uid) w infrastrukturze UNICORE",
+          "en" : "UNIX account name (uid) at UNICORE site"
+        }
+      },
+      "metadata" : { },
+      "name" : "urn:unicore:attrType:xlogin",
+      "syntaxId" : "string"
+    } ],
+    "identityTypes" : [ {
+      "identityTypeProvider" : "x500Name",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "x500Name"
+    }, {
+      "identityTypeProvider" : "identifier",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "identifier"
+    }, {
+      "identityTypeProvider" : "transient",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "transient"
+    }, {
+      "identityTypeProvider" : "targetedPersistent",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "targetedPersistent"
+    }, {
+      "identityTypeProvider" : "userName",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "userName"
+    }, {
+      "identityTypeProvider" : "persistent",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "extractedAttributes" : [ ],
+      "name" : "persistent"
+    }, {
+      "identityTypeProvider" : "email",
+      "description" : "",
+      "selfModificable" : false,
+      "minInstances" : 0,
+      "maxInstances" : 2147483647,
+      "minVerifiedInstances" : 0,
+      "identityTypeProviderSettings" : null,
+      "emailConfirmationConfiguration" : {
+        "messageTemplate" : "emailConfirmation",
+        "validityTime" : 2880
+      },
+      "extractedAttributes" : [ ],
+      "name" : "email"
+    } ],
+    "entities" : [ {
+      "state" : "valid",
+      "entityId" : 1
+    }, {
+      "state" : "valid",
+      "entityId" : 2
+    }, {
+      "state" : "valid",
+      "entityId" : 3
+    }, {
+      "state" : "valid",
+      "entityId" : 4
+    }, {
+      "state" : "valid",
+      "entityId" : 5
+    }, {
+      "state" : "valid",
+      "entityId" : 6
+    }, {
+      "state" : "valid",
+      "entityId" : 7
+    } ],
+    "identities" : [ {
+      "value" : "admin",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "admin",
+      "creationTs" : 1550362581448,
+      "updateTs" : 1550362581448,
+      "typeId" : "userName",
+      "entityId" : 1
+    }, {
+      "value" : "7cafb186-edd4-415f-8dcf-a1e5582d3ae1",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "7cafb186-edd4-415f-8dcf-a1e5582d3ae1",
+      "creationTs" : 1550362581513,
+      "updateTs" : 1550362581513,
+      "typeId" : "persistent",
+      "entityId" : 1
+    }, {
+      "value" : "oauth-client",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "oauth-client",
+      "creationTs" : 1550362585190,
+      "updateTs" : 1550362585190,
+      "typeId" : "userName",
+      "entityId" : 2
+    }, {
+      "value" : "0155a88f-7f16-4ff1-8206-f607edad286c",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "0155a88f-7f16-4ff1-8206-f607edad286c",
+      "creationTs" : 1550362585207,
+      "updateTs" : 1550362585207,
+      "typeId" : "persistent",
+      "entityId" : 2
+    }, {
+      "value" : "demo-user",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "demo-user",
+      "creationTs" : 1550362586714,
+      "updateTs" : 1550362586714,
+      "typeId" : "userName",
+      "entityId" : 3
+    }, {
+      "value" : "afdc9812-a616-48e9-ab0d-b436c78ca890",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "afdc9812-a616-48e9-ab0d-b436c78ca890",
+      "creationTs" : 1550362586723,
+      "updateTs" : 1550362586723,
+      "typeId" : "persistent",
+      "entityId" : 3
+    }, {
+      "value" : "CN=Demo user",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "cn=demo user",
+      "creationTs" : 1550362586752,
+      "updateTs" : 1550362586752,
+      "typeId" : "x500Name",
+      "entityId" : 3
+    }, {
+      "value" : "CN=Demo UNICORE/X,O=UNICORE,C=EU",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "cn=demo unicore/x,o=unicore,c=eu",
+      "creationTs" : 1550362588422,
+      "updateTs" : 1550362588422,
+      "typeId" : "x500Name",
+      "entityId" : 4
+    }, {
+      "value" : "0b678e62-06f6-4058-ab9b-991f534e7193",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "0b678e62-06f6-4058-ab9b-991f534e7193",
+      "creationTs" : 1550362588432,
+      "updateTs" : 1550362588432,
+      "typeId" : "persistent",
+      "entityId" : 4
+    }, {
+      "value" : "CN=Demo Registry,O=UNICORE,C=EU",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "cn=demo registry,o=unicore,c=eu",
+      "creationTs" : 1550362588456,
+      "updateTs" : 1550362588456,
+      "typeId" : "x500Name",
+      "entityId" : 5
+    }, {
+      "value" : "47743155-0fbe-4023-8ec5-969a6b992435",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "47743155-0fbe-4023-8ec5-969a6b992435",
+      "creationTs" : 1550362588467,
+      "updateTs" : 1550362588467,
+      "typeId" : "persistent",
+      "entityId" : 5
+    }, {
+      "value" : "CN=Demo Servorch,O=UNICORE,C=EU",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "cn=demo servorch,o=unicore,c=eu",
+      "creationTs" : 1550362588496,
+      "updateTs" : 1550362588496,
+      "typeId" : "x500Name",
+      "entityId" : 6
+    }, {
+      "value" : "d389de85-7aac-4db3-b5c3-772ee3e3508f",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "d389de85-7aac-4db3-b5c3-772ee3e3508f",
+      "creationTs" : 1550362588526,
+      "updateTs" : 1550362588526,
+      "typeId" : "persistent",
+      "entityId" : 6
+    }, {
+      "value" : "CN=Demo Workflow,O=UNICORE,C=EU",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "cn=demo workflow,o=unicore,c=eu",
+      "creationTs" : 1550362588545,
+      "updateTs" : 1550362588545,
+      "typeId" : "x500Name",
+      "entityId" : 7
+    }, {
+      "value" : "1b95124f-e832-4ab9-a125-0b5ba6b7a6ee",
+      "confirmationInfo" : {
+        "confirmed" : false,
+        "confirmationDate" : 0,
+        "sentRequestAmount" : 0
+      },
+      "comparableValue" : "1b95124f-e832-4ab9-a125-0b5ba6b7a6ee",
+      "creationTs" : 1550362588559,
+      "updateTs" : 1550362588559,
+      "typeId" : "persistent",
+      "entityId" : 7
+    } ],
+    "groups" : [ {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/",
+        "Map" : { }
+      },
+      "attributeStatements" : [ {
+        "resolution" : "skip",
+        "condition" : "true",
+        "fixedAttribute" : {
+          "values" : [ "Regular User" ],
+          "name" : "sys:AuthorizationRole",
+          "groupPath" : "/",
+          "valueSyntax" : "enumeration"
+        }
+      }, {
+        "resolution" : "overwrite",
+        "condition" : "groups contains '/unicore/servers'",
+        "fixedAttribute" : {
+          "values" : [ "Inspector" ],
+          "name" : "sys:AuthorizationRole",
+          "groupPath" : "/",
+          "valueSyntax" : "enumeration"
+        }
+      } ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/oauth-clients",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/oauth-clients"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/A",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/A"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/A/B",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/A/B"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/A/B/C",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/A/B/C"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/D"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/E",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/D/E"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/G",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/D/G"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/D/F",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/D/F"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/unicore",
+        "Map" : { }
+      },
+      "attributeStatements" : [ {
+        "resolution" : "skip",
+        "condition" : "groups contains '/unicore/users'",
+        "fixedAttribute" : {
+          "values" : [ "user" ],
+          "name" : "urn:unicore:attrType:role",
+          "groupPath" : "/unicore",
+          "valueSyntax" : "enumeration"
+        }
+      }, {
+        "resolution" : "skip",
+        "condition" : "groups contains '/unicore/servers'",
+        "fixedAttribute" : {
+          "values" : [ "server" ],
+          "name" : "urn:unicore:attrType:role",
+          "groupPath" : "/unicore",
+          "valueSyntax" : "enumeration"
+        }
+      } ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/unicore"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/unicore/servers",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/unicore/servers"
+    }, {
+      "i18nDescription" : {
+        "DefaultValue" : null,
+        "Map" : { }
+      },
+      "displayedName" : {
+        "DefaultValue" : "/unicore/users",
+        "Map" : { }
+      },
+      "attributeStatements" : [ ],
+      "attributesClasses" : [ ],
+      "delegationConfiguration" : {
+        "enabled" : false,
+        "logoUrl" : null,
+        "registrationForm" : null,
+        "signupEnquiryForm" : null,
+        "membershipUpdateEnquiryForm" : null,
+        "attributes" : null
+      },
+      "publicGroup" : false,
+      "path" : "/unicore/users"
+    } ],
+    "groupMembers" : [ {
+      "creationTs" : 1550362581457,
+      "group" : "/",
+      "entityId" : 1
+    }, {
+      "creationTs" : 1550362585191,
+      "group" : "/",
+      "entityId" : 2
+    }, {
+      "creationTs" : 1550362586206,
+      "group" : "/oauth-clients",
+      "entityId" : 2
+    }, {
+      "creationTs" : 1550362586715,
+      "group" : "/",
+      "entityId" : 3
+    }, {
+      "creationTs" : 1550362586757,
+      "group" : "/A",
+      "entityId" : 3
+    }, {
+      "creationTs" : 1550362588425,
+      "group" : "/",
+      "entityId" : 4
+    }, {
+      "creationTs" : 1550362588441,
+      "group" : "/unicore",
+      "entityId" : 4
+    }, {
+      "creationTs" : 1550362588445,
+      "group" : "/unicore/servers",
+      "entityId" : 4
+    }, {
+      "creationTs" : 1550362588457,
+      "group" : "/",
+      "entityId" : 5
+    }, {
+      "creationTs" : 1550362588478,
+      "group" : "/unicore",
+      "entityId" : 5
+    }, {
+      "creationTs" : 1550362588483,
+      "group" : "/unicore/servers",
+      "entityId" : 5
+    }, {
+      "creationTs" : 1550362588498,
+      "group" : "/",
+      "entityId" : 6
+    }, {
+      "creationTs" : 1550362588534,
+      "group" : "/unicore",
+      "entityId" : 6
+    }, {
+      "creationTs" : 1550362588538,
+      "group" : "/unicore/servers",
+      "entityId" : 6
+    }, {
+      "creationTs" : 1550362588546,
+      "group" : "/",
+      "entityId" : 7
+    }, {
+      "creationTs" : 1550362588561,
+      "group" : "/unicore",
+      "entityId" : 7
+    }, {
+      "creationTs" : 1550362588566,
+      "group" : "/unicore/servers",
+      "entityId" : 7
+    } ],
+    "attributes" : [ {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1550362581474,
+      "updateTs" : 1550362581474,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"wx552wB+6rhCJkN8BF/hIBuUtP38BebcTao5VNx2jeSrtgYe0q5p3dIByeIT2YmBzQlizILbE5vK/uXe8r9jSw==\",\"salt\":\"8csiPFNxeSSw5OrkFBsuAqhK0dBj4HoUFDoEGGtUUwE=\",\"time\":1550362582833}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1550362582863,
+      "updateTs" : 1550362582863,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    }, {
+      "values" : [ "System Manager" ],
+      "creationTs" : 1550362582882,
+      "updateTs" : 1550362582882,
+      "direct" : true,
+      "name" : "sys:AuthorizationRole",
+      "groupPath" : "/",
+      "valueSyntax" : "enumeration",
+      "entityId" : 1
+    }, {
+      "values" : [ "Default Administrator" ],
+      "creationTs" : 1550362584662,
+      "updateTs" : 1550362584662,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1550362585200,
+      "updateTs" : 1550362585200,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"kNhDTMDA9UKj37nGIhL9bSTtGmmKIW+kx94wIPuaRpxZV8OHDFUhf2Q4XEZUtCpxen8ujps4o4Eyw0kjlg0PnA==\",\"salt\":\"1ieZNnLihak8X19AOmpTHwEDS9WuJ/ZpjwlCJuCcwr0=\",\"time\":1550362586166}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1550362586166,
+      "updateTs" : 1550362586166,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2
+    }, {
+      "values" : [ "OAuth client" ],
+      "creationTs" : 1550362586176,
+      "updateTs" : 1550362586176,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 2
+    }, {
+      "values" : [ "authorizationCode", "implicit", "openidHybrid" ],
+      "creationTs" : 1550362586443,
+      "updateTs" : 1550362586443,
+      "direct" : true,
+      "name" : "sys:oauth:allowedGrantFlows",
+      "groupPath" : "/oauth-clients",
+      "valueSyntax" : "enumeration",
+      "entityId" : 2
+    }, {
+      "values" : [ "https://localhost:2443/unitygw/oauth2ResponseConsumer" ],
+      "creationTs" : 1550362586451,
+      "updateTs" : 1550362586451,
+      "direct" : true,
+      "name" : "sys:oauth:allowedReturnURI",
+      "groupPath" : "/oauth-clients",
+      "valueSyntax" : "string",
+      "entityId" : 2
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1550362586718,
+      "updateTs" : 1550362586718,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3
+    }, {
+      "values" : [ "Regular User" ],
+      "creationTs" : 1550362586767,
+      "updateTs" : 1550362586767,
+      "direct" : true,
+      "name" : "sys:AuthorizationRole",
+      "groupPath" : "/",
+      "valueSyntax" : "enumeration",
+      "entityId" : 3
+    }, {
+      "values" : [ "{\"value\":\"some@example.com\",\"confirmationData\":{\"confirmed\":true,\"confirmationDate\":1550362586782,\"sentRequestAmount\":0},\"tags\":[]}" ],
+      "creationTs" : 1550362586809,
+      "updateTs" : 1550362586809,
+      "direct" : true,
+      "name" : "email",
+      "groupPath" : "/",
+      "valueSyntax" : "verifiableEmail",
+      "entityId" : 3
+    }, {
+      "values" : [ "Demo user" ],
+      "creationTs" : 1550362586815,
+      "updateTs" : 1550362586815,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3
+    }, {
+      "values" : [ "{\"passwords\":[{\"method\":\"SCRYPT\",\"methodParams\":{\"length\":64,\"workFactor\":17,\"parallelization\":1,\"blockSize\":8},\"hash\":\"MOZOMX1oe1ryzoAKmm06lwtkl88jI+BOVg+3K4Fi7Q5CMNvD3LihI9EkEjJi4hEBZjzcoyUUlVvBx+gcOqxYmA==\",\"salt\":\"mfUCSg8hK7Xh6SbyLrtxar4J6nBPNAqjTU7OkgqyB30=\",\"time\":1550362587578}],\"outdated\":false,\"outdatedReason\":null,\"securityQuestion\":null,\"answer\":null}" ],
+      "creationTs" : 1550362587578,
+      "updateTs" : 1550362587578,
+      "direct" : true,
+      "name" : "sys:Credential:sys:password",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 3
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1550362588428,
+      "updateTs" : 1550362588428,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 4
+    }, {
+      "values" : [ "Demo UNICORE/X" ],
+      "creationTs" : 1550362588453,
+      "updateTs" : 1550362588453,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 4
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1550362588464,
+      "updateTs" : 1550362588464,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 5
+    }, {
+      "values" : [ "Demo UNICORE Registry" ],
+      "creationTs" : 1550362588494,
+      "updateTs" : 1550362588494,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 5
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1550362588523,
+      "updateTs" : 1550362588523,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 6
+    }, {
+      "values" : [ "Demo UNICORE Servorch" ],
+      "creationTs" : 1550362588543,
+      "updateTs" : 1550362588543,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 6
+    }, {
+      "values" : [ "sys:all" ],
+      "creationTs" : 1550362588554,
+      "updateTs" : 1550362588554,
+      "direct" : true,
+      "name" : "sys:CredentialRequirements",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 7
+    }, {
+      "values" : [ "Demo UNICORE Workflow" ],
+      "creationTs" : 1550362588579,
+      "updateTs" : 1550362588579,
+      "direct" : true,
+      "name" : "name",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 7
+    }, {
+      "values" : [ "2019-02-17T12:14:05" ],
+      "creationTs" : 1550362595051,
+      "updateTs" : 1550402045646,
+      "direct" : true,
+      "name" : "sys:LastAuthentication",
+      "groupPath" : "/",
+      "valueSyntax" : "string",
+      "entityId" : 1
+    } ],
+    "attributeClass" : [ {
+      "_updateTS" : 1550362588226,
+      "obj" : {
+        "name" : "Common attributes",
+        "description" : "General purpose attributes, should be enabled for everybody",
+        "allowed" : [ "sys:AuthorizationRole" ],
+        "mandatory" : [ ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ ]
+      }
+    }, {
+      "_updateTS" : 1550362588234,
+      "obj" : {
+        "name" : "Common identification attributes",
+        "description" : "Identification attributes, should be set for everybody to enable common system features",
+        "allowed" : [ "organization", "name", "picture", "email" ],
+        "mandatory" : [ "name", "email" ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ ]
+      }
+    }, {
+      "_updateTS" : 1550362588236,
+      "obj" : {
+        "name" : "UNICORE portal attributes",
+        "description" : "Attributes useful for the UNICORE portal",
+        "allowed" : [ "organization", "name", "picture", "email" ],
+        "mandatory" : [ "name", "email" ],
+        "allowArbitrary" : false,
+        "parentClasses" : [ "Common attributes" ]
+      }
+    } ],
+    "authenticator" : [ {
+      "_updateTS" : 1550362588670,
+      "obj" : {
+        "name" : "cert",
+        "verificationMethod" : "certificate",
+        "configuration" : "",
+        "localCredentialName" : "Certificate credential",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362588705,
+      "obj" : {
+        "name" : "oauth",
+        "verificationMethod" : "oauth2",
+        "configuration" : "ty.oauth2.client.iconScale=maxHeight200\n\nunity.oauth2.client.providers.google.type=google\nunity.oauth2.client.providers.google.clientId=784344014507-ms1tqrm3510bc0t4ju5m0dekm6ll4utg.apps.googleusercontent.com\nunity.oauth2.client.providers.google.clientSecret=kOzOVj5NnBeWHZ5lAG3kOXFN\nunity.oauth2.client.providers.google.scopes=profile openid email\n#unity.oauth2.client.providers.google.translationProfile=sys:oidc2\n\n\nunity.oauth2.client.providers.fb.type=facebook\nunity.oauth2.client.providers.fb.clientId=1802000413432137\nunity.oauth2.client.providers.fb.clientSecret=00dfbaecba94b0889a43c6687b88d418\n#unity.oauth2.client.providers.fb.profileEndpoint=https://graph.facebook.com/me?fields=id,address,birthday,currency,email,first_name,gender,last_name,locale,middle_name,name,public_key,timezone,website\n#unity.oauth2.client.providers.fb.registrationFormForUnknown=fb-form\n#unity.oauth2.client.providers.fb.scopes=email public_profile user_birthday user_hometown user_location user_about_me user_website\n#unity.oauth2.client.providers.fb.translationProfile=facebookProfile\n\nunity.oauth2.client.providers.gh.type=github\nunity.oauth2.client.providers.gh.clientId=Iv1.492376df9796a92e\nunity.oauth2.client.providers.gh.clientSecret=06ba9bd1258a96c44899a0fa86630c1ab02c2d27\nunity.oauth2.client.providers.gh.scopes=read:user user:email\n#unity.oauth2.client.providers.gh.scopes=user public_repo repo repo_deployment repo:status read:repo_hook read:org read:public_key read:gpg_key\n#unity.oauth2.client.providers.gh.translationProfile=sys:github\n\nunity.oauth2.client.providers.microsoftLive.type=microsoft\nunity.oauth2.client.providers.microsoftLive.clientId=3ac0a3a9-351c-41d9-853f-32ae97a700cd\nunity.oauth2.client.providers.microsoftLive.clientSecret=xpkxuxBSO48+)pQIHO520::\n#unity.oauth2.client.providers.microsoftLive.scopes=wl.basic wl.birthday wl.emails wl.phone_numbers wl.photos wl.postal_addresses\nunity.oauth2.client.providers.microsoftLive.translationProfile=sys:microsoftLive2\n\nunity.oauth2.client.providers.linkedin.type=linkedin\nunity.oauth2.client.providers.linkedin.clientId=78l6q04ypj65lx\nunity.oauth2.client.providers.linkedin.clientSecret=RdHzacoRz97JJi4g\n#unity.oauth2.client.providers.linkedin.accessTokenFormat=standard\n#unity.oauth2.client.providers.linkedin.scopes=\n#unity.oauth2.client.providers.linkedin.translationProfile=sys:linkedin\n\nunity.oauth2.client.providers.dropbox.type=dropbox\nunity.oauth2.client.providers.dropbox.clientId=22ltj2wmwx5m60e\nunity.oauth2.client.providers.dropbox.clientSecret=pyh0mvw28czlvm6\n\nunity.oauth2.client.providers.local.type=custom\nunity.oauth2.client.providers.local.name=Local Unity\nunity.oauth2.client.providers.local.authEndpoint=https://dev.unity-idm.eu:9010/oauth2-as/oauth2-authz\nunity.oauth2.client.providers.local.accessTokenEndpoint=https://dev.unity-idm.eu:9010/oauth2/token\nunity.oauth2.client.providers.local.profileEndpoint=https://dev.unity-idm.eu:9010/oauth2/userinfo\nunity.oauth2.client.providers.local.clientId=oauth-client\nunity.oauth2.client.providers.local.clientSecret=oauth-pass1\n#unity.oauth2.client.providers.local.scopes=profile openid email\nunity.oauth2.client.providers.local.scopes=openid foo bar profile\n#unity.oauth2.client.providers.local.openIdConnect=true \n#unity.oauth2.client.providers.local.openIdConnectDiscoveryEndpoint=https://localhost:2443/oauth2/.well-known/openid-configuration\nunity.oauth2.client.providers.local.iconUrl=file:../common/img/other/logo-hand.png\nunity.oauth2.client.providers.local.translationProfile=sys:oidc\nunity.oauth2.client.providers.local.httpClientTruststore=MAIN\nunity.oauth2.client.providers.local.httpClientHostnameChecking=NONE\nunity.oauth2.client.providers.local.registrationFormForUnknown=fb-form\n#unity.oauth2.client.providers.local.enableAccountAssociation=false\n\n\n\n\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362588732,
+      "obj" : {
+        "name" : "pwd",
+        "verificationMethod" : "password",
+        "configuration" : "",
+        "localCredentialName" : "sys:password",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362589936,
+      "obj" : {
+        "name" : "saml",
+        "verificationMethod" : "saml2",
+        "configuration" : "unity.saml.requester.requesterEntityId=http://unity/as/sp\nunity.saml.requester.metadataPath=metadata1\nunity.saml.requester.sloPath=slo1\nunity.saml.requester.sloRealm=adminRealm\nunity.saml.requester.requesterCredential=MAIN\nunity.saml.requester.acceptedNameFormats.1=urn:oasis:names:tc:SAML:2.0:nameid-format:persistent\nunity.saml.requester.acceptedNameFormats.2=urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress\nunity.saml.requester.acceptedNameFormats.3=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n\n#unity.saml.requester.requireSignedAssertion=true\n\n#unity.saml.requester.metadataSource.swiss.url=http://metadata.aai.switch.ch/metadata.switchaai.xml\n#unity.saml.requester.metadataSource.swiss.perMetadataTranslationProfile=samlProfile\n#unity.saml.requester.metadataSource.dfn.url=https://www.aai.dfn.de/fileadmin/metadata/DFN-AAI-metadata.xml\n#unity.saml.requester.metadataSource.dfn.perMetadataTranslationProfile=samlProfile\n#unity.saml.requester.metadataSource.edugain.url=http://mds.edugain.org/\n#unity.saml.requester.metadataSource.edugain.perMetadataTranslationProfile=samlProfile\n\n#unity.saml.requester.metadataSource.unity.url=http://localhost/unity-as-idp-meta.xml\n#unity.saml.requester.metadataSource.unity.refreshInterval=10\n#unity.saml.requester.metadataSource.unity.perMetadataTranslationProfile=localProfile\n\n#unity.saml.requester.remoteIdp.1.name=Simple SAMLPHP with HTTP Redirect\n#unity.saml.requester.remoteIdp.1.address=http://unity-2.icm.edu.pl:9090/simplesaml/saml2/idp/SSOService.php\n#unity.saml.requester.remoteIdp.1.binding=HTTP_REDIRECT\n#unity.saml.requester.remoteIdp.1.samlId=http://centos6-unity1:8080/simplesaml/saml2/idp/metadata.php\n#unity.saml.requester.remoteIdp.1.certificate=SIMPLESAMLPHP1\n#unity.saml.requester.remoteIdp.1.groupMembershipAttribute=urn:oid:1.3.6.1.4.1.5923.1.1.1.1\n#unity.saml.requester.remoteIdp.1.translationProfile=samlProfile\n#unity.saml.requester.remoteIdp.1.registrationFormForUnknown=Form1\n\n#unity.saml.requester.remoteIdp.2.name=Demo Shibboleth IdP\n#unity.saml.requester.remoteIdp.2.address=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/Redirect/SSO\n#unity.saml.requester.remoteIdp.2.binding=HTTP_REDIRECT\n#unity.saml.requester.remoteIdp.2.samlId=https://unity-2.grid.icm.edu.pl/idp/shibboleth\n#unity.saml.requester.remoteIdp.2.certificate=DEMO_SHIB_IDP\n#unity.saml.requester.remoteIdp.2.requestedNameFormat=urn:oasis:names:tc:SAML:2.0:nameid-format:transient\n#unity.saml.requester.remoteIdp.2.translationProfile=samlProfile\n#unity.saml.requester.remoteIdp.2.redirectLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/Redirect/SLO\n#unity.saml.requester.remoteIdp.2.postLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9090/idp/profile/SAML2/POST/SLO\n#unity.saml.requester.remoteIdp.2.soapLogoutEndpoint=https://unity-2.grid.icm.edu.pl:9091/idp/profile/SAML2/SOAP/SLO\n\n#unity.saml.requester.remoteIdp.3.name=Shibboleth 2.4.0 with HTTP POST\n#unity.saml.requester.remoteIdp.3.address=http://centos6-unity1:7070/idp/profile/SAML2/POST/SSO\n#unity.saml.requester.remoteIdp.3.binding=HTTP_POST\n#unity.saml.requester.remoteIdp.3.samlId=https://centos6-unity1/idp/shibboleth\n#unity.saml.requester.remoteIdp.3.certificate=SHIB_IDP\n#unity.saml.requester.remoteIdp.3.translationProfile=samlProfile\n\n#unity.saml.requester.remoteIdp.4.name=Shibboleth 2.4.0 with HTTP POST and request signing\n#unity.saml.requester.remoteIdp.4.address=http://centos6-unity1:7070/idp/profile/SAML2/POST/SSO\n#unity.saml.requester.remoteIdp.4.binding=HTTP_POST\n#unity.saml.requester.remoteIdp.4.samlId=https://centos6-unity1/idp/shibboleth\n#unity.saml.requester.remoteIdp.4.certificate=SHIB_IDP\n#unity.saml.requester.remoteIdp.4.signRequest=true\n#unity.saml.requester.remoteIdp.4.translationProfile=samlProfile\n\nunity.saml.requester.remoteIdp.5.name=Unity (SAML:POST&sign)\nunity.saml.requester.remoteIdp.5.address=https://dev.unity-idm.eu:9010/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.5.binding=HTTP_POST\nunity.saml.requester.remoteIdp.5.redirectLogoutEndpoint=https://dev.unity-idm.eu:9010/saml-idp/SLO-WEB\n#unity.saml.requester.remoteIdp.5.postLogoutEndpoint=https://dev.unity-idm.eu:9010/saml-idp/SLO-WEB\nunity.saml.requester.remoteIdp.5.redirectLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\n#unity.saml.requester.remoteIdp.5.postLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\nunity.saml.requester.remoteIdp.5.soapLogoutEndpoint=https://dev.unity-idm.eu:9010/saml-idp/SLO-SOAP/SingleLogoutService\nunity.saml.requester.remoteIdp.5.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.5.certificate=MAIN\nunity.saml.requester.remoteIdp.5.signRequest=true\nunity.saml.requester.remoteIdp.5.requestedNameFormat=unity:persistent\nunity.saml.requester.remoteIdp.5.translationProfile=sys:eduPerson\n#unity.saml.requester.remoteIdp.5.registrationFormForUnknown=Test\n\nunity.saml.requester.remoteIdp.5.logoURI=file:../common/img/other/logo-hand.png\n\n\nunity.saml.requester.remoteIdp.6.name=Unity (SAML:POST&NOsign)\nunity.saml.requester.remoteIdp.6.address=https://dev.unity-idm.eu:9010/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.6.binding=HTTP_POST\nunity.saml.requester.remoteIdp.6.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.6.certificate=MAIN\nunity.saml.requester.remoteIdp.6.signRequest=false\nunity.saml.requester.remoteIdp.6.requestedNameFormat=unity:persistent\nunity.saml.requester.remoteIdp.6.translationProfile=sys:eduPerson\nunity.saml.requester.remoteIdp.6.enableAccountAssociation=false\nunity.saml.requester.remoteIdp.6.logoURI=file:../common/img/other/logo-hand.png\n\n\n\nunity.saml.requester.remoteIdp.7.name=Unity (SAML:HTTP Redirect)\nunity.saml.requester.remoteIdp.7.address=https://dev.unity-idm.eu:9010/saml-idp/saml2idp-web\nunity.saml.requester.remoteIdp.7.binding=HTTP_REDIRECT\nunity.saml.requester.remoteIdp.7.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.7.certificate=MAIN\nunity.saml.requester.remoteIdp.7.signRequest=false\nunity.saml.requester.remoteIdp.7.requestedNameFormat=unity:persistent\nunity.saml.requester.remoteIdp.7.translationProfile=sys:eduPerson\nunity.saml.requester.remoteIdp.7.redirectLogoutEndpoint=https://dev.unity-idm.eu:9010/saml-idp/SLO-WEB\nunity.saml.requester.remoteIdp.7.redirectLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\nunity.saml.requester.remoteIdp.7.logoURI=file:../common/img/other/logo-hand.png\n\nunity.saml.requester.remoteIdp.8.name=Unity (SAML:UNICORE)\nunity.saml.requester.remoteIdp.8.address=https://dev.unity-idm.eu:9010/unicore-idp/saml2unicoreIdp-web\nunity.saml.requester.remoteIdp.8.binding=HTTP_POST\nunity.saml.requester.remoteIdp.8.samlId=http://example-saml-idp.org\nunity.saml.requester.remoteIdp.8.certificate=MAIN\nunity.saml.requester.remoteIdp.8.signRequest=false\nunity.saml.requester.remoteIdp.8.requestedNameFormat=urn:oasis:names:tc:SAML:1.1:nameid-format:X509SubjectName\nunity.saml.requester.remoteIdp.8.translationProfile=sys:eduPerson\nunity.saml.requester.remoteIdp.8.logoURI=file:../common/img/other/logo-hand.png\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362589948,
+      "obj" : {
+        "name" : "unicoreCert",
+        "verificationMethod" : "certificate",
+        "configuration" : "",
+        "localCredentialName" : "Certificate credential",
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362589954,
+      "obj" : {
+        "name" : "unicorePam",
+        "verificationMethod" : "pam",
+        "configuration" : "# Configuration of the PAM based authenticator that verifies username and password against \n# Pluggable Authentication Modules subsystem of the host operating system.\n\n#PAM facility (typically name of the file in /etc/pam.d)\npam.facility=unity\n\n#Translation profile which will be used to convert user info to Unity representation\n# Define it directly here or use a variable if value should be provided by a configuration module \npam.translationProfile=hostOS2UNICORE\n\nretrieval.password.name=UNIX password\n",
+        "localCredentialName" : null,
+        "revision" : 0
+      }
+    } ],
+    "credential" : [ {
+      "_updateTS" : 1550362582903,
+      "obj" : {
+        "typeId" : "certificate",
+        "name" : "Certificate credential",
+        "readOnly" : false,
+        "configuration" : "",
+        "displayedName" : {
+          "DefaultValue" : "Certificate credential",
+          "Map" : { }
+        },
+        "i18nDescription" : {
+          "DefaultValue" : "Certificate credential.",
+          "Map" : { }
+        }
+      }
+    } ],
+    "credentialRequirement" : [ {
+      "_updateTS" : 1550362582919,
+      "obj" : {
+        "name" : "Password requirement",
+        "description" : "Password requirement.",
+        "requiredCredentials" : [ "sys:password" ],
+        "readOnly" : false
+      }
+    }, {
+      "_updateTS" : 1550362582924,
+      "obj" : {
+        "name" : "Certificate requirement",
+        "description" : "Certificate requirement.",
+        "requiredCredentials" : [ "Certificate credential" ],
+        "readOnly" : false
+      }
+    } ],
+    "messageTemplate" : [ {
+      "_updateTS" : 1550362582985,
+      "obj" : {
+        "name" : "registrationRequestRejected",
+        "description" : "",
+        "consumer" : "RegistrationRequestRejected",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request rejected",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was rejected.</p>\n                        <p>${publicComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362582990,
+      "obj" : {
+        "name" : "enquiryFilled",
+        "description" : "",
+        "consumer" : "EnquiryFilled",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Enquiry response submitted",
+          "body" : "${include:master-header}\n                        <p>Dear Admin,</p>\n                        <p>A new enquiry response was submitted by ${user} to the enquiry form ${formName}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362582995,
+      "obj" : {
+        "name" : "master-header",
+        "description" : "",
+        "consumer" : "Generic",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "<!doctype html>\n<html>\n  <head>\n    <meta name=\"viewport\" content=\"width=device-width\" />\n    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />\n    <style>\n      /* -------------------------------------\n          GLOBAL RESETS\n      ------------------------------------- */\n      img {\n        border: none;\n        -ms-interpolation-mode: bicubic;\n        max-width: 100%; }\n\n      body {\n        background-color: #f6f6f6;\n        font-family: sans-serif;\n        -webkit-font-smoothing: antialiased;\n        font-size: 14px;\n        line-height: 1.4;\n        margin: 0;\n        padding: 0;\n        -ms-text-size-adjust: 100%;\n        -webkit-text-size-adjust: 100%; }\n\n      table {\n        border-collapse: separate;\n        mso-table-lspace: 0pt;\n        mso-table-rspace: 0pt;\n        width: 100%; }\n        table td {\n          font-family: sans-serif;\n          font-size: 14px;\n          vertical-align: top; }\n\n      /* -------------------------------------\n          BODY & CONTAINER\n      ------------------------------------- */\n\n      .body {\n        background-color: #f6f6f6;\n        width: 100%; }\n\n      /* Set a max-width, and make it display as block so it will automatically stretch to that width, but will also shrink down on a phone or something */\n      .container {\n        display: block;\n        Margin: 0 auto !important;\n        /* makes it centered */\n        max-width: 580px;\n        padding: 10px;\n        width: 580px; }\n\n      /* This should also be a block element, so that it will fill 100% of the .container */\n      .content {\n        box-sizing: border-box;\n        display: block;\n        Margin: 0 auto;\n        max-width: 580px;\n        padding: 10px; }\n\n      /* -------------------------------------\n          HEADER, FOOTER, MAIN\n      ------------------------------------- */\n      .main {\n        background: #ffffff;\n        border-radius: 3px;\n        width: 100%; }\n\n      .wrapper {\n        box-sizing: border-box;\n        padding: 20px; }\n\n      .content-block {\n        padding-bottom: 10px;\n        padding-top: 10px;\n      }\n\n      .footer {\n        clear: both;\n        Margin-top: 10px;\n        text-align: center;\n        width: 100%; }\n        .footer td,\n        .footer p,\n        .footer span,\n        .footer a {\n          color: #999999;\n          font-size: 12px;\n          text-align: center; }\n\n      /* -------------------------------------\n          TYPOGRAPHY\n      ------------------------------------- */\n      h1,\n      h2,\n      h3,\n      h4 {\n        color: #000000;\n        font-family: sans-serif;\n        font-weight: 400;\n        line-height: 1.4;\n        margin: 0;\n        Margin-bottom: 30px; }\n\n      h1 {\n        font-size: 35px;\n        font-weight: 300;\n        text-align: center;\n        text-transform: capitalize; }\n\n      p,\n      ul,\n      ol {\n        font-family: sans-serif;\n        font-size: 14px;\n        font-weight: normal;\n        margin: 0;\n        Margin-bottom: 15px; }\n        p li,\n        ul li,\n        ol li {\n          list-style-position: inside;\n          margin-left: 5px; }\n\n      a {\n        color: #3498db;\n        text-decoration: underline; }\n\n      /* -------------------------------------\n          BUTTONS\n      ------------------------------------- */\n      .btn {\n        box-sizing: border-box;\n        width: 100%; }\n        .btn > tbody > tr > td {\n          padding-bottom: 15px; }\n        .btn table {\n          width: auto; }\n        .btn table td {\n          background-color: #ffffff;\n          border-radius: 5px;\n          text-align: center; }\n        .btn a {\n          background-color: #ffffff;\n          border: solid 1px #3498db;\n          border-radius: 5px;\n          box-sizing: border-box;\n          color: #3498db;\n          cursor: pointer;\n          display: inline-block;\n          font-size: 14px;\n          font-weight: bold;\n          margin: 0;\n          padding: 12px 25px;\n          text-decoration: none;\n          text-transform: capitalize; }\n\n      .btn-primary table td {\n        background-color: #3498db; }\n\n      .btn-primary a {\n        background-color: #3498db;\n        border-color: #3498db;\n        color: #ffffff; }\n\n      /* -------------------------------------\n          OTHER STYLES THAT MIGHT BE USEFUL\n      ------------------------------------- */\n      .last {\n        margin-bottom: 0; }\n\n      .first {\n        margin-top: 0; }\n\n      .align-center {\n        text-align: center; }\n\n      .align-right {\n        text-align: right; }\n\n      .align-left {\n        text-align: left; }\n\n      .clear {\n        clear: both; }\n\n      .mt0 {\n        margin-top: 0; }\n\n      .mb0 {\n        margin-bottom: 0; }\n\n      .powered-by a {\n        text-decoration: none; }\n\n      hr {\n        border: 0;\n        border-bottom: 1px solid #f6f6f6;\n        Margin: 20px 0; }\n\n      .logo {\n        padding: 10px 0 10px 0;\n        background-color: #5596c2;\n      }\n\n      /* -------------------------------------\n          RESPONSIVE AND MOBILE FRIENDLY STYLES\n      ------------------------------------- */\n      @media only screen and (max-width: 620px) {\n        table[class=body] h1 {\n          font-size: 28px !important;\n          margin-bottom: 10px !important; }\n        table[class=body] p,\n        table[class=body] ul,\n        table[class=body] ol,\n        table[class=body] td,\n        table[class=body] span,\n        table[class=body] a {\n          font-size: 16px !important; }\n        table[class=body] .wrapper,\n        table[class=body] .article {\n          padding: 10px !important; }\n        table[class=body] .content {\n          padding: 0 !important; }\n        table[class=body] .container {\n          padding: 0 !important;\n          width: 100% !important; }\n        table[class=body] .main {\n          border-left-width: 0 !important;\n          border-radius: 0 !important;\n          border-right-width: 0 !important; }\n        table[class=body] .btn table {\n          width: 100% !important; }\n        table[class=body] .btn a {\n          width: 100% !important; }\n        table[class=body] .img-responsive {\n          height: auto !important;\n          max-width: 100% !important;\n          width: auto !important; }}\n\n      /* -------------------------------------\n          PRESERVE THESE STYLES IN THE HEAD\n      ------------------------------------- */\n      @media all {\n        .ExternalClass {\n          width: 100%; }\n        .ExternalClass,\n        .ExternalClass p,\n        .ExternalClass span,\n        .ExternalClass font,\n        .ExternalClass td,\n        .ExternalClass div {\n          line-height: 100%; }\n        .apple-link a {\n          color: inherit !important;\n          font-family: inherit !important;\n          font-size: inherit !important;\n          font-weight: inherit !important;\n          line-height: inherit !important;\n          text-decoration: none !important; }\n        .btn-primary table td:hover {\n          background-color: #34495e !important; }\n        .btn-primary a:hover {\n          background-color: #34495e !important;\n          border-color: #34495e !important; } }\n\n    </style>\n  </head>\n\n  <body class=\"\">\n    <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"body\">\n      <tr>\n        <td>&nbsp;</td>\n        <td class=\"container\">\n          <div class=\"content\">\n\n            <!-- START CENTERED WHITE CONTAINER -->\n            <table class=\"main\">\n              <td align=\"center\" class=\"logo\">\n               <img src=\"http://www.unity-idm.eu/wp-content/uploads/2016/07/unity_white-1.png\" alt=\"Unity\" style=\"display: block; max-height: 60px; height:40%\" />\n              </td>\n              <!-- START MAIN CONTENT AREA -->\n              <tr>\n                <td class=\"wrapper\">\n                  <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                    <tr>\n                      <td>\n"
+        } ],
+        "notificationChannel" : ""
+      }
+    }, {
+      "_updateTS" : 1550362583004,
+      "obj" : {
+        "name" : "registrationRequestUpdated",
+        "description" : "",
+        "consumer" : "RegistrationRequestUpdated",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request update",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was updated.</p>\n                        <p>${publicComment}</p>\n                        <p>${internalComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362583011,
+      "obj" : {
+        "name" : "newEnquiry",
+        "description" : "",
+        "consumer" : "NewEnquiry",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "User enquiry",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>You are requested to fill an enquiry ${formName}.</p>\n                        <p>The enquiry is available after login into your regular account:</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${url}\" target=\"_blank\">Open enquiry</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362583019,
+      "obj" : {
+        "name" : "invitationWithCode",
+        "description" : "",
+        "consumer" : "InvitationWithCode",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration invitation",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>You are invited to register with the ${formName}.</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${url}\" target=\"_blank\">Register</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n                        <p>If you don't want to register please ignore this message.</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362583028,
+      "obj" : {
+        "name" : "emailPasswordResetCode",
+        "description" : "",
+        "consumer" : "EmailPasswordResetCode",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Credential reset code",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>Somebody, hopefully you, requested to reset your credential in the UNITY service.</p>\n                        <p>If you didn't requested the credential reset simply ignore this message.</p>\n                        <p>If you did, then use the following code in the credential reset window:</p>\n                        <p>${code}</p>\n ${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362583035,
+      "obj" : {
+        "name" : "registrationRequestAccepted",
+        "description" : "",
+        "consumer" : "RegistrationRequestAccepted",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "Registration request accepted",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>The registration request \"${requestId}\" was accepted.</p>\n                        <p>${publicComment}</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362583040,
+      "obj" : {
+        "name" : "emailConfirmation",
+        "description" : "",
+        "consumer" : "EmailConfirmation",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "UNITY e-mail confirmation request",
+          "body" : "${include:master-header}\n                        <p>Dear User,</p>\n                        <p>Your e-mail address was entered in the Unity service and must be validated.</p>\n                        <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"btn btn-primary\">\n                          <tbody>\n                            <tr>\n                              <td align=\"center\">\n                                <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                                  <tbody>\n                                    <tr>\n                                      <td> <a href=\"${confirmationLink}\" target=\"_blank\">Confirm Your e-mail</a> </td>\n                                    </tr>\n                                  </tbody>\n                                </table>\n                              </td>\n                            </tr>\n                          </tbody>\n                        </table>\n                        <p>If you didn't requested e-mail confirmation please ignore this message.</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362583043,
+      "obj" : {
+        "name" : "registrationRequestSubmitted",
+        "description" : "",
+        "consumer" : "RegistrationRequestSubmitted",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "New registration request",
+          "body" : "${include:master-header}\n                        <p>Dear Admin,</p>\n                        <p>A new registration request \"${requestId}\" was submitted to the registration form \"${formName}\".</p>\n${include:master-footer}\n"
+        } ],
+        "notificationChannel" : "default_email"
+      }
+    }, {
+      "_updateTS" : 1550362583045,
+      "obj" : {
+        "name" : "master-footer",
+        "description" : "",
+        "consumer" : "Generic",
+        "type" : "HTML",
+        "messages" : [ {
+          "locale" : "en",
+          "subject" : "",
+          "body" : "                      </td>\n                    </tr>\n                  </table>\n                </td>\n              </tr>\n\n            <!-- END MAIN CONTENT AREA -->\n            </table>\n\n            <!-- START FOOTER -->\n            <div class=\"footer\">\n              <table border=\"0\" cellpadding=\"0\" cellspacing=\"0\">\n                <tr>\n                  <td class=\"content-block powered-by\">\n                    Powered by <a href=\"http://www.unity-idm.eu/\">Unity IdM</a>.\n                  </td>\n                </tr>\n              </table>\n            </div>\n            <!-- END FOOTER -->\n\n          <!-- END CENTERED WHITE CONTAINER -->\n          </div>\n        </td>\n        <td>&nbsp;</td>\n      </tr>\n    </table>\n  </body>\n</html>\n"
+        } ],
+        "notificationChannel" : ""
+      }
+    } ],
+    "notificationChannel" : [ {
+      "_updateTS" : 1550362582941,
+      "obj" : {
+        "description" : "Default email channel",
+        "name" : "default_email",
+        "configuration" : "# User name which will be used for From: field of the email. It is also used  \n# as SMTP envelope return address if not overriden below.\nmail.from=root@localhost\n\n# The SMTP server to connect to.\nmail.smtp.host=localhost\n\n# If true, enables the use of the STARTTLS command (if supported by the server) \n# to switch the connection to a TLS-protected connection before issuing any login commands.\n# \n# IMPORTANT! SMTP server's certificate must be trusted to establish the connection.\n# The software will use the same truststore that is defined in main configuration of the server\n# so add SMTP server's CA certificate to it. Otherwise you can turn off the server's certificate verification\n# below, but you expose yourself for the MITM attacks. \n# Defaults to false.\n#mail.smtp.starttls.enable=true\n\n# Relevant only if starttls is enabled. Turns off SMTP server certificate verification.\n#mailx.smtp.trustAll=true\n\n# Email address to use for SMTP MAIL command. This sets the envelope return address. \n# Defaults to mail.from defined above.\n#mail.smtp.from=\n\n# If true, attempt to authenticate the user using the AUTH command. Defaults to false.\n#mail.smtp.auth=true\n\n# User and password used when authentication is enabled above.\n#mailx.smtp.auth.username=XX\n#mailx.smtp.auth.password=XX\n\n# I/O timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.timeoutSocket=15000\n\n# Socket connection timeout value in milliseconds. Default is infinite timeout.\nmail.smtp.connectiontimeout=15000\n\n# The SMTP server port to connect to. Defaults to 25.\n#mail.smtp.port=587\n\n# Set this property to true if you want to see debug messages (are printed to the\n# stderr). Default is false.\n#mail.debug=true\n\n# For other (less frequently used) properties of email client configuration\n# take a look at  \n# https://javamail.java.net/nonav/docs/api/\n# and other documentation of javax-mail package.\n",
+        "facilityId" : "EMAIL"
+      }
+    } ],
+    "authenticationRealm" : [ {
+      "_updateTS" : 1550362589972,
+      "obj" : {
+        "description" : null,
+        "name" : "defaultRealm",
+        "rememberMePolicy" : "allowFor2ndFactor",
+        "allowForRememberMeDays" : 14,
+        "blockAfterUnsuccessfulLogins" : 4,
+        "blockFor" : 30,
+        "maxInactivity" : 3600
+      }
+    }, {
+      "_updateTS" : 1550362589973,
+      "obj" : {
+        "description" : null,
+        "name" : "adminRealm",
+        "rememberMePolicy" : "allowFor2ndFactor",
+        "allowForRememberMeDays" : 14,
+        "blockAfterUnsuccessfulLogins" : 4,
+        "blockFor" : 30,
+        "maxInactivity" : 1800
+      }
+    } ],
+    "inputTranslationProfile" : [ {
+      "_updateTS" : 1550362588610,
+      "obj" : {
+        "ver" : "2",
+        "name" : "hostOS2UNICORE",
+        "description" : "Converts information retrieved from operating system to form a user who is authorized as regular user to use UNICORE.",
+        "type" : "INPUT",
+        "mode" : "DEFAULT",
+        "rules" : [ {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapIdentity",
+            "parameters" : [ "x500Name", "'UID=' + id + ',DC=unity,DC=unixUser'", "Certificate", "CREATE_OR_MATCH" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapGroup",
+            "parameters" : [ "'/unicore/users'", "REQUIRE_EXISTING_GROUP" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "true"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "urn:unicore:attrType:xlogin", "/unicore", "id", "CREATE_OR_UPDATE" ]
+          }
+        }, {
+          "condition" : {
+            "conditionValue" : "attr contains 'name'"
+          },
+          "action" : {
+            "name" : "mapAttribute",
+            "parameters" : [ "cn", "/", "attr['name']", "CREATE_OR_UPDATE" ]
+          }
+        } ]
+      }
+    } ],
+    "outputTranslationProfile" : [ ],
+    "processingRule" : [ ],
+    "endpointDefinition" : [ {
+      "_updateTS" : 1550362590114,
+      "obj" : {
+        "name" : "UNITY SAML web authentication",
+        "typeId" : "SAMLWebIdP",
+        "contextAddress" : "/saml-idp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY SAML web authentication",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# The credential used to sign assertions\nunity.saml.credential=MAIN\nunity.saml.truststore=MAIN\nunity.saml.translationProfile=sys:eduPerson\n\n#Which group should be used for providing attributes?\nunity.saml.defaultGroup=/\n\n# The fundamental setting: clients acceptance policy.\nunity.saml.spAcceptPolicy=validRequester\n\n# Certain acceptance policies require to enumerate allowed clients.\n#unity.saml.acceptedSP.xx.entity=\n#unity.saml.acceptedSP.xx.certificate=\n\nunity.saml.acceptedSP.1.entity=http://unity/as/sp\nunity.saml.acceptedSP.1.returnURL=https://dev.unity-idm.eu:9010/unitygw/spSAMLResponseConsumer\nunity.saml.acceptedSP.1.certificate=MAIN\nunity.saml.acceptedSP.1.encryptAssertion=false\nunity.saml.acceptedSP.1.redirectLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/WEB/slo1\n#unity.saml.acceptedSP.1.postLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\nunity.saml.acceptedSP.1.redirectLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\n#unity.saml.acceptedSP.1.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.acceptedSP.1.soapLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/SOAP/slo1/SingleLogoutService\n\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=20\n\n\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd", "cert", "oauth" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362590366,
+      "obj" : {
+        "name" : "UNITY SOAP SAML service",
+        "typeId" : "SAMLSoapIdP",
+        "contextAddress" : "/soapidp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY SOAP SAML service",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "#######################################\n# SAML web IdP SAML endpoint settings\n#######################################\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server. \nunity.saml.issuerURI=http://example-saml-idp.org\n\n# The credential used to sign assertions\nunity.saml.credential=MAIN\nunity.saml.truststore=MAIN\nunity.saml.translationProfile=sys:eduPerson\n\n#Which group should be used for providing attributes?\nunity.saml.defaultGroup=/\n\n# The fundamental setting: clients acceptance policy.\nunity.saml.spAcceptPolicy=validRequester\n\n# Certain acceptance policies require to enumerate allowed clients.\n#unity.saml.acceptedSP.xx.entity=\n#unity.saml.acceptedSP.xx.certificate=\n\nunity.saml.acceptedSP.1.entity=http://unity/as/sp\nunity.saml.acceptedSP.1.returnURL=https://dev.unity-idm.eu:9010/unitygw/spSAMLResponseConsumer\nunity.saml.acceptedSP.1.certificate=MAIN\nunity.saml.acceptedSP.1.encryptAssertion=false\nunity.saml.acceptedSP.1.redirectLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/WEB/slo1\n#unity.saml.acceptedSP.1.postLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\nunity.saml.acceptedSP.1.redirectLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\n#unity.saml.acceptedSP.1.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.acceptedSP.1.soapLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/SOAP/slo1/SingleLogoutService\n\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity \n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=20\n\n\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362590557,
+      "obj" : {
+        "name" : "UNITY administration interface",
+        "typeId" : "WebAdminUI",
+        "contextAddress" : "/admin",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY administration interface",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=true\nunity.endpoint.web.productionMode=true\nunity.endpoint.web.mainTheme=unityThemeValo\nunity.endpoint.web.authnTheme=unityThemeValo\n\nunity.endpoint.web.authnScreenColumn.1.columnContents=pwd cert ldap\nunity.endpoint.web.authnScreenColumn.2.columnContents=saml oauth\nunity.endpoint.web.authnScreenColumn.2.columnWidth=22\n\n\n",
+          "realm" : "adminRealm",
+          "authenticationOptions" : [ "pwd", "cert", "oauth", "saml" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362590607,
+      "obj" : {
+        "name" : "UNITY OAuth2 Authorization Server",
+        "typeId" : "OAuth2Authz",
+        "contextAddress" : "/oauth2-as",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Authorization Server",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "################################################\n# OAuth2 Authorization Server endpoint settings\n################################################\n\n#Note: this file is configuring both the OAuth web authorization and rest token endpoints. \n\n# Identity of the server. Should be formed from the base path of the token endpoint\nunity.oauth2.as.issuerUri=https://localhost:9010/oauth2\n\n# Credential which is used to sign OIDC tokens\nunity.oauth2.as.signingCredential=MAIN\n\n# A group in which allowed OAuth clients must be present \nunity.oauth2.as.clientsGroup=/oauth-clients\n# A group in which users allowed to use OAuth login must be present \nunity.oauth2.as.usersGroup=/\n\n# Output translation profile can be used to change Unity names into OAuth specific names\n# and to perform more advanced preprocessing of a released information.\nunity.oauth2.as.translationProfile=sys:oidc\n\n\n# Definition of scopes\n\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\n\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.scopes.2.attributes.1=name\nunity.oauth2.as.scopes.2.attributes.2=organization\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.4=address\nunity.oauth2.as.scopes.2.attributes.5=country\nunity.oauth2.as.scopes.2.attributes.6=postalCode\nunity.oauth2.as.scopes.2.attributes.7=street\nunity.oauth2.as.scopes.2.attributes.8=locality\nunity.oauth2.as.scopes.2.attributes.9=provinceName\nunity.oauth2.as.scopes.2.attributes.10=phone_number\nunity.oauth2.as.scopes.2.attributes.11=zoneinfo\nunity.oauth2.as.scopes.2.attributes.12=picture\nunity.oauth2.as.scopes.2.attributes.13=middle_name\nunity.oauth2.as.scopes.2.attributes.14=given_name\nunity.oauth2.as.scopes.2.attributes.15=family_name\nunity.oauth2.as.scopes.2.attributes.16=profile\nunity.oauth2.as.scopes.2.attributes.17=website\nunity.oauth2.as.scopes.2.attributes.18=gender\nunity.oauth2.as.scopes.2.attributes.19=nickname\nunity.oauth2.as.scopes.2.attributes.20=birthdate\nunity.oauth2.as.scopes.2.attributes.21=locale\nunity.oauth2.as.scopes.2.attributes.22=email_verified\n\n\n\n\n\n\n\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd", "oauth" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362590642,
+      "obj" : {
+        "name" : "UNITY OAuth2 Token endpoint",
+        "typeId" : "OAuth2Token",
+        "contextAddress" : "/oauth2",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY OAuth2 Token endpoint",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "################################################\n# OAuth2 Authorization Server endpoint settings\n################################################\n\n#Note: this file is configuring both the OAuth web authorization and rest token endpoints. \n\n# Identity of the server. Should be formed from the base path of the token endpoint\nunity.oauth2.as.issuerUri=https://localhost:9010/oauth2\n\n# Credential which is used to sign OIDC tokens\nunity.oauth2.as.signingCredential=MAIN\n\n# A group in which allowed OAuth clients must be present \nunity.oauth2.as.clientsGroup=/oauth-clients\n# A group in which users allowed to use OAuth login must be present \nunity.oauth2.as.usersGroup=/\n\n# Output translation profile can be used to change Unity names into OAuth specific names\n# and to perform more advanced preprocessing of a released information.\nunity.oauth2.as.translationProfile=sys:oidc\n\n\n# Definition of scopes\n\nunity.oauth2.as.scopes.1.name=openid\nunity.oauth2.as.scopes.1.description=Enables the OpenID Conenct support\n\nunity.oauth2.as.scopes.2.name=profile\nunity.oauth2.as.scopes.2.description=Provides access to the user's profile information\nunity.oauth2.as.scopes.2.attributes.1=name\nunity.oauth2.as.scopes.2.attributes.2=organization\nunity.oauth2.as.scopes.2.attributes.3=email\nunity.oauth2.as.scopes.2.attributes.4=address\nunity.oauth2.as.scopes.2.attributes.5=country\nunity.oauth2.as.scopes.2.attributes.6=postalCode\nunity.oauth2.as.scopes.2.attributes.7=street\nunity.oauth2.as.scopes.2.attributes.8=locality\nunity.oauth2.as.scopes.2.attributes.9=provinceName\nunity.oauth2.as.scopes.2.attributes.10=phone_number\nunity.oauth2.as.scopes.2.attributes.11=zoneinfo\nunity.oauth2.as.scopes.2.attributes.12=picture\nunity.oauth2.as.scopes.2.attributes.13=middle_name\nunity.oauth2.as.scopes.2.attributes.14=given_name\nunity.oauth2.as.scopes.2.attributes.15=family_name\nunity.oauth2.as.scopes.2.attributes.16=profile\nunity.oauth2.as.scopes.2.attributes.17=website\nunity.oauth2.as.scopes.2.attributes.18=gender\nunity.oauth2.as.scopes.2.attributes.19=nickname\nunity.oauth2.as.scopes.2.attributes.20=birthdate\nunity.oauth2.as.scopes.2.attributes.21=locale\nunity.oauth2.as.scopes.2.attributes.22=email_verified\n\n\n\n\n\n\n\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362590874,
+      "obj" : {
+        "name" : "RESTful administration API",
+        "typeId" : "RESTAdmin",
+        "contextAddress" : "/rest-admin",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "RESTful administration API",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362590982,
+      "obj" : {
+        "name" : "UNITY UNICORE SOAP SAML service for UNICORE server use (XUUDB replacement)",
+        "typeId" : "SAMLUnicoreSoapIdP",
+        "contextAddress" : "/unicore-soap-aip",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY UNICORE SOAP SAML service for UNICORE server use (XUUDB replacement)",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "######################################################\n# UNICORE specific SAML web IdP SAML endpoint settings\n######################################################\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server.\nunity.saml.issuerURI=http://example-saml-idp.org\n\n# The credential used to sign assertions\nunity.saml.credential=MAIN\n\n#Which group should be used for providing attributes?\nunity.saml.defaultGroup=/unicore\n\n# The fundamental setting: clients acceptance policy.\nunity.saml.spAcceptPolicy=validRequester\n\n# Certain acceptance policies require to enumerate allowed clients.\n#unity.saml.acceptedSP.xx.entity=\n#unity.saml.acceptedSP.xx.certificate=\n\nunity.saml.acceptedSP.1.entity=http://unity/as/sp\nunity.saml.acceptedSP.1.returnURL=https://dev.unity-idm.eu:9010/unitygw/spSAMLResponseConsumer\nunity.saml.acceptedSP.1.certificate=MAIN\nunity.saml.acceptedSP.1.encryptAssertion=false\nunity.saml.acceptedSP.1.redirectLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/WEB/slo1\n#unity.saml.acceptedSP.1.postLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\nunity.saml.acceptedSP.1.redirectLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\n#unity.saml.acceptedSP.1.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.acceptedSP.1.soapLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/SOAP/slo1/SingleLogoutService\n\n\n\n\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity\n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=20\n\n# Specific to UNICORE - for UNICORE extended endpoint multiple assertions need to be returned in a single response\nunity.saml.returnSingleAssertion=false\n\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "unicoreCert" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362591105,
+      "obj" : {
+        "name" : "UNITY UNICORE SOAP SAML service for REST queries",
+        "typeId" : "SAMLUnicoreSoapIdP",
+        "contextAddress" : "/unicore-soapidp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY UNICORE SOAP SAML service for REST queries",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "######################################################\n# UNICORE specific SAML web IdP SAML endpoint settings\n######################################################\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server.\nunity.saml.issuerURI=http://example-saml-idp.org\n\n# The credential used to sign assertions\nunity.saml.credential=MAIN\n\n#Which group should be used for providing attributes?\nunity.saml.defaultGroup=/unicore\n\n# The fundamental setting: clients acceptance policy.\nunity.saml.spAcceptPolicy=validRequester\n\n# Certain acceptance policies require to enumerate allowed clients.\n#unity.saml.acceptedSP.xx.entity=\n#unity.saml.acceptedSP.xx.certificate=\n\nunity.saml.acceptedSP.1.entity=http://unity/as/sp\nunity.saml.acceptedSP.1.returnURL=https://dev.unity-idm.eu:9010/unitygw/spSAMLResponseConsumer\nunity.saml.acceptedSP.1.certificate=MAIN\nunity.saml.acceptedSP.1.encryptAssertion=false\nunity.saml.acceptedSP.1.redirectLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/WEB/slo1\n#unity.saml.acceptedSP.1.postLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\nunity.saml.acceptedSP.1.redirectLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\n#unity.saml.acceptedSP.1.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.acceptedSP.1.soapLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/SOAP/slo1/SingleLogoutService\n\n\n\n\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity\n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=20\n\n# Specific to UNICORE - for UNICORE extended endpoint multiple assertions need to be returned in a single response\nunity.saml.returnSingleAssertion=false\n\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "unicorePam" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362591186,
+      "obj" : {
+        "name" : "UNITY UNICORE web authentication",
+        "typeId" : "SAMLUnicoreWebIdP",
+        "contextAddress" : "/unicore-idp",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY UNICORE web authentication",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "######################################################\n# UNICORE specific SAML web IdP SAML endpoint settings\n######################################################\n\n# This property controls the server's URI and is inserted into SAML responses\n# (Issuer field). This should be unique URI which identifies the server.\nunity.saml.issuerURI=http://example-saml-idp.org\n\n# The credential used to sign assertions\nunity.saml.credential=MAIN\n\n#Which group should be used for providing attributes?\nunity.saml.defaultGroup=/unicore\n\n# The fundamental setting: clients acceptance policy.\nunity.saml.spAcceptPolicy=validRequester\n\n# Certain acceptance policies require to enumerate allowed clients.\n#unity.saml.acceptedSP.xx.entity=\n#unity.saml.acceptedSP.xx.certificate=\n\nunity.saml.acceptedSP.1.entity=http://unity/as/sp\nunity.saml.acceptedSP.1.returnURL=https://dev.unity-idm.eu:9010/unitygw/spSAMLResponseConsumer\nunity.saml.acceptedSP.1.certificate=MAIN\nunity.saml.acceptedSP.1.encryptAssertion=false\nunity.saml.acceptedSP.1.redirectLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/WEB/slo1\n#unity.saml.acceptedSP.1.postLogoutEndpoint=https://localhost:2443/unitygw/SPSLO/WEB/slo1\nunity.saml.acceptedSP.1.redirectLogoutResponseEndpoint=https://dev.unity-idm.eu:9010/unitygw/SAMLSLOResponseConsumer\n#unity.saml.acceptedSP.1.postLogoutResponseEndpoint=https://localhost:2443/unitygw/SAMLSLOResponseConsumer\nunity.saml.acceptedSP.1.soapLogoutEndpoint=https://dev.unity-idm.eu:9010/unitygw/SPSLO/SOAP/slo1/SingleLogoutService\n\n\n\n\n\n# Controls when SAML responses should be signed. Possible values are:\n# always - obvious\n# asRequest - signs only when corresponding request was signed (default)\n# never - also obvious\nunity.saml.signResponses=asRequest\n\n# This one can be most often leaved unchanged. It controls maximal validity\n# period of attribute assertion returned to client in seconds. It is inserted\n# whenever query is compilant to \"SAML V2.0 Deployment Profiles for\n# X.509 Subjects\", what is typically true.\nunity.saml.validityPeriod=3600\n\nunity.saml.requestValidityPeriod=600\n\nunity.saml.authenticationTimeout=20\n\n# Specific to UNICORE - for UNICORE extended endpoint multiple assertions need to be returned in a single response\nunity.saml.returnSingleAssertion=false\n\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "unicorePam" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362591273,
+      "obj" : {
+        "name" : "UNITY project management",
+        "typeId" : "UpManUI",
+        "contextAddress" : "/upman",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY project management",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=false\nunity.endpoint.web.mainTheme=sidebarThemeValo\nunity.endpoint.web.authnTheme=unityThemeValo\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362591300,
+      "obj" : {
+        "name" : "UNITY user's account",
+        "typeId" : "UserHomeUI",
+        "contextAddress" : "/home",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "UNITY user's account",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "unity.endpoint.web.enableRegistration=true\n\n#unity.userhome.selfRemovalMode=remove\n#unity.userhome.disableSelfRemovalScheduling=false\n\nunity.userhome.attributes.1.attribute=cn\nunity.userhome.attributes.1.group=/\nunity.userhome.attributes.1.showGroup=false\nunity.userhome.attributes.1.editable=true\n\nunity.userhome.attributes.2.attribute=email\nunity.userhome.attributes.2.group=/\nunity.userhome.attributes.2.showGroup=false\nunity.userhome.attributes.2.editable=true\n\nunity.userhome.attributes.3.attribute=o\nunity.userhome.attributes.3.group=/\nunity.userhome.attributes.3.showGroup=false\nunity.userhome.attributes.3.editable=true\n\nunity.userhome.attributes.4.attribute=jpegPhoto\nunity.userhome.attributes.4.group=/\nunity.userhome.attributes.4.showGroup=false\nunity.userhome.attributes.4.editable=true\n\n#unity.userhome.attributes.4.attribute=\n#unity.userhome.attributes.4.group=/\n#unity.userhome.attributes.4.showGroup=true\n#unity.userhome.attributes.4.editable=true\n\n#unity.userhome.disabledComponents.1=credential\n#unity.userhome.disabledComponents.2=userDetails\n#unity.userhome.disabledComponents.3=preferences\n#unity.userhome.disabledComponents.4=accountRemoval\n#unity.userhome.disabledComponents.5=userInfo\n#unity.userhome.disabledComponents.6=attributesManagement\n",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd", "oauth", "saml" ]
+        },
+        "revision" : 0
+      }
+    }, {
+      "_updateTS" : 1550362591310,
+      "obj" : {
+        "name" : "Account service",
+        "typeId" : "WellKnownLinksHandler",
+        "contextAddress" : "/well-known",
+        "configuration" : {
+          "displayedName" : {
+            "DefaultValue" : "Account service",
+            "Map" : { }
+          },
+          "description" : "",
+          "configuration" : "",
+          "realm" : "defaultRealm",
+          "authenticationOptions" : [ "pwd" ]
+        },
+        "revision" : 0
+      }
+    } ],
+    "registrationForm" : [ ],
+    "enquiryForm" : [ ],
+    "registrationRequest" : [ ],
+    "enquiryResponse" : [ ],
+    "invitationWithCode" : [ ],
+    "authenticationFlow" : [ ]
+  }
+}

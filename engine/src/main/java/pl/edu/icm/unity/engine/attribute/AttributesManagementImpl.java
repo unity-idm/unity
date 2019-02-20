@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvider;
 import pl.edu.icm.unity.engine.api.attributes.AttributeMetadataProvidersRegistry;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
@@ -53,7 +53,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	private AttributeTypeDAO attributeTypeDAO;
 	private AttributeDAO dbAttributes;
 	private EntityResolver idResolver;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private EmailConfirmationManager confirmationManager;
 	private TransactionalRunner txRunner;
@@ -63,7 +63,7 @@ public class AttributesManagementImpl implements AttributesManagement
 	@Autowired
 	public AttributesManagementImpl(AttributeClassUtil acUtil,
 			AttributeTypeDAO attributeTypeDAO, AttributeDAO dbAttributes,
-			EntityResolver idResolver, AuthorizationManager authz,
+			EntityResolver idResolver, InternalAuthorizationManager authz,
 			AttributesHelper attributesHelper, EmailConfirmationManager confirmationManager,
 			TransactionalRunner txRunner,
 			AttributeMetadataProvidersRegistry atMetaProvidersRegistry,

@@ -5,12 +5,13 @@
 package pl.edu.icm.unity.engine.api;
 
 import java.security.cert.X509Certificate;
+import java.util.List;
 import java.util.Set;
 
 import eu.emi.security.authn.x509.X509CertChainValidatorExt;
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
-
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 
 /**
@@ -30,68 +31,95 @@ public interface PKIManagement
 	 * @return set with available credential names
 	 * @throws EngineException
 	 */
-	public Set<String> getCredentialNames() throws EngineException;
+	Set<String> getCredentialNames() throws EngineException;
 	
 	/**
 	 * @param name 
 	 * @return credential by name
 	 * @throws EngineException
 	 */
-	public X509Credential getCredential(String name) throws EngineException;
+	X509Credential getCredential(String name) throws EngineException;
 	
 	/**
 	 * @return set of available validators
 	 * @throws EngineException
 	 */
-	public Set<String> getValidatorNames() throws EngineException;
+	Set<String> getValidatorNames() throws EngineException;
 	
 	/**
 	 * @param name
 	 * @return validator by name
 	 * @throws EngineException
 	 */
-	public X509CertChainValidatorExt getValidator(String name) throws EngineException; 
+	X509CertChainValidatorExt getValidator(String name) throws EngineException; 
 	
 	/**
 	 * @return method allows to quickly get {@link IAuthnAndTrustConfiguration} of the main server.
 	 */
-	public IAuthnAndTrustConfiguration getMainAuthnAndTrust();
-	
-	
+	IAuthnAndTrustConfiguration getMainAuthnAndTrust();
+		
 	/**
 	 * @return set with available certificate names
 	 * @throws EngineException
 	 */
-	public Set<String> getCertificateNames() throws EngineException;
+	Set<String> getAllCertificateNames() throws EngineException;
 	
 	/**
 	 * @param name 
 	 * @return certificate by name
 	 * @throws EngineException
 	 */
-	public X509Certificate getCertificate(String name) throws EngineException;
+	NamedCertificate getCertificate(String name) throws EngineException;
+	
+	/**
+	 * Adds a new volatile certificate
+	 * @param name
+	 * @param updated
+	 * @throws EngineException
+	 */
+	void addVolatileCertificate(String name, X509Certificate updated) throws EngineException;
+
+	/**
+	 * 
+	 * @return set with available volatile certificates 
+	 * @throws EngineException
+	 */
+	List<NamedCertificate> getVolatileCertificates() throws EngineException;
+	
+	
+	/**
+	 * Adds a new persisted certificate
+	 * @param toAdd
+	 * @throws EngineException
+	 */
+	void addPersistedCertificate(NamedCertificate toAdd) throws EngineException;
+
+	/**
+	 * 
+	 * @return set with available persisted certificates 
+	 * @throws EngineException
+	 */
+	List<NamedCertificate> getPersistedCertificates() throws EngineException;
+
+	/**
+	 * Removes a given certificate
+	 * @param toRemove
+	 * @throws EngineException
+	 */
+	void removeCertificate(String toRemove) throws EngineException;
+
 	
 	/**
 	 * Updates a given certificate
-	 * @param name
-	 * @param updated
+	 * @param toRemove
 	 * @throws EngineException
 	 */
-	public void updateCertificate(String name, X509Certificate updated) throws EngineException;
+	void updateCertificate(NamedCertificate toUpdate) throws EngineException;
 	
 	/**
-	 * Removes a given certificate
-	 * @param name
-	 * @throws EngineException
+	 * 
+	 * @param config
 	 */
-	public void removeCertificate(String name) throws EngineException;
-	
-	/**
-	 * Adds a new certificate
-	 * @param name
-	 * @param updated
-	 * @throws EngineException
-	 */
-	public void addCertificate(String name, X509Certificate updated) throws EngineException;
+	void loadCertificatesFromConfigFile();
 	
 }

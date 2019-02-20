@@ -45,7 +45,7 @@ public class InitDB
 	 * {@link AppDataSchemaVersion#DB_VERSION} but is duplicated here as a defensive check: 
 	 * when bumping it please make sure any required SQL schema updates were implemented.  
 	 */
-	private static final String SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_6_0";
+	private static final String SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION = "2_7_0";
 
 	
 	private long dbVersionAtServerStarup;

@@ -28,6 +28,7 @@ public class NavigationInfo
 	public final Type type;
 	public final ObjectFactory<?> objectFactory;
 	public final String caption;
+	public final String shortCaption;
 	public final Resource icon;
 	public final int position;
 
@@ -40,6 +41,7 @@ public class NavigationInfo
 		this.objectFactory = builder.objectFactory;
 		this.icon = builder.icon;
 		this.caption = builder.caption;
+		this.shortCaption = builder.shortCaption;
 		this.position = builder.position;
 	}
 
@@ -51,6 +53,7 @@ public class NavigationInfo
 
 		private ObjectFactory<?> objectFactory;
 		private String caption;
+		private String shortCaption;
 		private Resource icon;
 		private int position;
 
@@ -85,6 +88,12 @@ public class NavigationInfo
 		public NavigationInfoBuilder withCaption(String caption)
 		{
 			this.caption = caption;
+			return this;
+		}
+		
+		public NavigationInfoBuilder withShortCaption(String caption)
+		{
+			this.shortCaption = caption;
 			return this;
 		}
 

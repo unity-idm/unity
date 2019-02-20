@@ -23,7 +23,7 @@ import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.notifications.InternalFacilitiesManagement;
@@ -44,7 +44,7 @@ import pl.edu.icm.unity.types.basic.MessageTemplate;
 @InvocationEventProducer
 public class MessageTemplateManagementImpl implements MessageTemplateManagement
 {
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private MessageTemplateDB mtDB;
 	private MessageTemplateConsumersRegistry registry;
 	private InternalFacilitiesManagement facilityMan;
@@ -53,7 +53,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 	private File configFile;
 
 	@Autowired
-	public MessageTemplateManagementImpl(AuthorizationManager authz, MessageTemplateDB mtDB,
+	public MessageTemplateManagementImpl(InternalAuthorizationManager authz, MessageTemplateDB mtDB,
 			MessageTemplateConsumersRegistry registry,
 			InternalFacilitiesManagement facilityMan,
 			NotificationsManagement notificationMan,

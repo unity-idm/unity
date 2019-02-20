@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.EndpointManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -52,7 +52,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	private InternalEndpointManagement internalManagement;
 	private EndpointsUpdater endpointsUpdater;
 	private EndpointInstanceLoader endpointInstanceLoader;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private EndpointDB endpointDB;
 	private RealmDB realmDB;
 	private TransactionalRunner tx;
@@ -62,7 +62,7 @@ public class EndpointManagementImpl implements EndpointManagement
 	public EndpointManagementImpl(EndpointFactoriesRegistry endpointFactoriesReg,
 			InternalEndpointManagement internalManagement,
 			EndpointsUpdater endpointsUpdater,
-			EndpointInstanceLoader endpointInstanceLoader, AuthorizationManager authz,
+			EndpointInstanceLoader endpointInstanceLoader, InternalAuthorizationManager authz,
 			EndpointDB endpointDB, RealmDB realmDB, TransactionalRunner tx)
 	{
 		this.endpointFactoriesReg = endpointFactoriesReg;

@@ -15,7 +15,7 @@ import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialVerificator;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.CredentialRequirementsHolder;
@@ -50,7 +50,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 {	
 	private EntityResolver idResolver;
 	private AttributeDAO attributeDAO;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 	private EntityCredentialsHelper credHelper;
 	private AdditionalAuthenticationService repeatedAuthnService;
@@ -58,7 +58,7 @@ public class EntityCredentialsManagementImpl implements EntityCredentialManageme
 
 	@Autowired
 	public EntityCredentialsManagementImpl(EntityResolver idResolver, AttributeDAO attributeDAO,
-			AuthorizationManager authz, AttributesHelper attributesHelper,
+			InternalAuthorizationManager authz, AttributesHelper attributesHelper,
 			EntityCredentialsHelper credHelper,
 			AdditionalAuthenticationService repeatedAuthnService)
 	{

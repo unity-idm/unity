@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.BulkProcessingManagement;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -31,12 +31,12 @@ import pl.edu.icm.unity.types.translation.TranslationRule;
 public class BulkProcessingManagementImpl implements BulkProcessingManagement, BulkProcessingInternal
 {
 	private ProcessingRuleDB db;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private BulkProcessingSupport bulkProcessingSupport;
 	private BulkOperationsUpdater updater;
 
 	@Autowired
-	public BulkProcessingManagementImpl(ProcessingRuleDB db, AuthorizationManager authz,
+	public BulkProcessingManagementImpl(ProcessingRuleDB db, InternalAuthorizationManager authz,
 			BulkProcessingSupport bulkProcessingSupport, BulkOperationsUpdater updater)
 	{
 		this.db = db;

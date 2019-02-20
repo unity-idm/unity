@@ -133,7 +133,7 @@ public class RemoteMetaManager
 		try
 		{
 			X509Certificate issuerCertificate = issuerCertificateName != null ? 
-					pkiManagement.getCertificate(issuerCertificateName) : null;
+					pkiManagement.getCertificate(issuerCertificateName).value: null;
 			verificator.validate(metadata, new Date(),
 					sigCheckingMode, issuerCertificate);
 		} catch (MetadataValidationException e)

@@ -13,6 +13,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -75,7 +76,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	@Autowired
 	public SamlSoapEndpoint(UnityMessageSource msg, NetworkServer server,
 			IdPEngine idpEngine,
-			PreferencesManagement preferencesMan, PKIManagement pkiManagement,
+			PreferencesManagement preferencesMan, @Qualifier("insecure") PKIManagement pkiManagement,
 			ExecutorsService executorsService, SessionManagement sessionMan,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			AuthenticationProcessor authnProcessor,

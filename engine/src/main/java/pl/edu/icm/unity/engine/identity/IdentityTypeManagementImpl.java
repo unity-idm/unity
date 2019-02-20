@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeDefinition;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -40,12 +40,12 @@ public class IdentityTypeManagementImpl implements IdentityTypesManagement
 {
 	private IdentityTypeDAO dbIdentities;
 	private AttributeTypeDAO dbAttributes;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private IdentityTypesRegistry idTypesRegistry;
 	
 	@Autowired
 	public IdentityTypeManagementImpl(IdentityTypeDAO dbIdentities, AttributeTypeDAO dbAttributes, 
-			AuthorizationManager authz, IdentityTypesRegistry idTypesRegistry)
+			InternalAuthorizationManager authz, IdentityTypesRegistry idTypesRegistry)
 	{
 		this.dbIdentities = dbIdentities;
 		this.dbAttributes = dbAttributes;

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeClassHelper;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.engine.identity.IdentityHelper;
@@ -49,14 +49,14 @@ public class AttributeClassManagementImpl implements AttributeClassManagement
 	private IdentityHelper identityHelper;
 	private GroupDAO dbGroups;
 	private EntityResolver idResolver;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private AttributesHelper attributesHelper;
 
 	
 	@Autowired
 	public AttributeClassManagementImpl(AttributeClassDB acDB, AttributeDAO dbAttributes,
 			IdentityHelper identityHelper, GroupDAO dbGroups, EntityResolver idResolver,
-			AuthorizationManager authz, AttributesHelper attributesHelper)
+			InternalAuthorizationManager authz, AttributesHelper attributesHelper)
 	{
 		this.acDB = acDB;
 		this.dbAttributes = dbAttributes;

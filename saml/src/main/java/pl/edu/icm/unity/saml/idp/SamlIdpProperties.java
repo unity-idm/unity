@@ -437,7 +437,7 @@ public class SamlIdpProperties extends SamlProperties
 				X509Certificate spCert;
 				try
 				{
-					spCert = pkiManagement.getCertificate(spCertName);
+					spCert = pkiManagement.getCertificate(spCertName).value;
 					authnTrustChecker.addTrustedIssuer(
 							name, type, spCert.getPublicKey());
 				} catch (EngineException e)
@@ -525,7 +525,7 @@ public class SamlIdpProperties extends SamlProperties
 		{
 			try
 			{	 
-				certs.add(pkiManagement.getCertificate(spCertName));
+				certs.add(pkiManagement.getCertificate(spCertName).value);
 
 			} catch (EngineException e)
 			{

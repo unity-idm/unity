@@ -8,10 +8,10 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 
+import io.imunity.webadmin.tprofile.TranslationActionPresenter;
 import pl.edu.icm.unity.engine.api.bulkops.EntityActionsRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
-import pl.edu.icm.unity.webadmin.tprofile.TranslationActionPresenter;
 
 /**
  * Shows details of a processing rule

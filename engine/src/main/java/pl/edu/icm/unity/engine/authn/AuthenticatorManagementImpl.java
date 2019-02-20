@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
@@ -48,7 +48,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 	private CredentialRepository credentialRepository;
 	private EndpointsUpdater endpointsUpdater;
 	private AuthenticatorLoader authenticatorLoader;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private TransactionalRunner tx;
 	
 	@Autowired
@@ -59,7 +59,7 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 			CredentialRepository credentialRepository,
 			EndpointsUpdater endpointsUpdater, 
 			AuthenticatorLoader authenticatorLoader,
-			AuthorizationManager authz, 
+			InternalAuthorizationManager authz, 
 			LocalCredentialsRegistry localCredReg)
 	{
 		this.authReg = authReg;

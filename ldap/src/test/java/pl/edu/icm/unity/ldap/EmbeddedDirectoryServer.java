@@ -33,6 +33,7 @@ import eu.emi.security.authn.x509.impl.SocketFactoryCreator;
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 
@@ -134,32 +135,61 @@ public class EmbeddedDirectoryServer
 			}
 
 			@Override
-			public Set<String> getCertificateNames() throws EngineException
+			public Set<String> getAllCertificateNames() throws EngineException
 			{
 				return null;
 			}
 
 			@Override
-			public X509Certificate getCertificate(String name) throws EngineException
+			public NamedCertificate getCertificate(String name) throws EngineException
+			{
+				return null;
+			}
+
+
+			@Override
+			public void addVolatileCertificate(String name, X509Certificate updated)
+					throws EngineException
+			{
+			}
+
+
+			@Override
+			public void addPersistedCertificate(NamedCertificate toAdd) throws EngineException
+			{
+
+				
+			}
+
+			@Override
+			public List<NamedCertificate> getPersistedCertificates() throws EngineException
 			{
 				return null;
 			}
 
 			@Override
-			public void updateCertificate(String name, X509Certificate updated)
-					throws EngineException
+			public void loadCertificatesFromConfigFile()
 			{
+				
 			}
 
 			@Override
-			public void removeCertificate(String name) throws EngineException
+			public List<NamedCertificate> getVolatileCertificates() throws EngineException
 			{
+				return null;
 			}
 
 			@Override
-			public void addCertificate(String name, X509Certificate updated)
-					throws EngineException
+			public void removeCertificate(String toRemove) throws EngineException
 			{
+				
+				
+			}
+
+			@Override
+			public void updateCertificate(NamedCertificate toUpdate) throws EngineException
+			{
+				
 			}
 		};
 	}

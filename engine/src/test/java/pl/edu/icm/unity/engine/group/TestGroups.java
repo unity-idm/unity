@@ -20,7 +20,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.group.GroupsManagementImpl.PublicChildGroupException;
 import pl.edu.icm.unity.engine.group.GroupsManagementImpl.ParentIsPrivateGroupException;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
@@ -52,7 +52,7 @@ public class TestGroups extends DBIntegrationTestBase
 	public void testGetContentsWithLimitedAuthz() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		Group a = new Group("/A");
 		groupsMan.addGroup(a);
 		Group ab = new Group("/A/B");
@@ -88,7 +88,7 @@ public class TestGroups extends DBIntegrationTestBase
 	public void shouldFailToGetContentsOfGroupWhereIsNotAMember() throws Exception
 	{
 		setupPasswordAuthn();
-		createUsernameUserWithRole(AuthorizationManagerImpl.USER_ROLE);
+		createUsernameUserWithRole(InternalAuthorizationManagerImpl.USER_ROLE);
 		Group a = new Group("/A");
 		groupsMan.addGroup(a);
 		Group ac = new Group("/A/C");

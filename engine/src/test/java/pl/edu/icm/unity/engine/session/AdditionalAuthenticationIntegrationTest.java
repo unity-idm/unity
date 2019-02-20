@@ -25,7 +25,7 @@ import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
-import pl.edu.icm.unity.engine.authz.AuthorizationManagerImpl;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordToken;
 import pl.edu.icm.unity.stdext.identity.UsernameIdentity;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition.Policy;
@@ -46,7 +46,7 @@ public class AdditionalAuthenticationIntegrationTest extends DBIntegrationTestBa
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
-		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
+		createCertUserNoPassword(InternalAuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
 		setupUserContext(sessionMan, identityResolver, "user2", null, getEndpointFlows());
 
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 
@@ -63,7 +63,7 @@ public class AdditionalAuthenticationIntegrationTest extends DBIntegrationTestBa
 	{
 		setupPasswordAuthn();
 		setupPasswordAndCertAuthn();
-		createCertUserNoPassword(AuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
+		createCertUserNoPassword(InternalAuthorizationManagerImpl.USER_ROLE); //Has no password set, but password is allowed
 		setupUserContext(sessionMan, identityResolver, "user2", null, getEndpointFlows());
 
 		EntityParam user = new EntityParam(new IdentityTaV(UsernameIdentity.ID, "user2")); 

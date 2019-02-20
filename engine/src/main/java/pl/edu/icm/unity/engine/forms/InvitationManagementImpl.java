@@ -26,7 +26,7 @@ import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -57,7 +57,7 @@ public class InvitationManagementImpl implements InvitationManagement
 {
 	private RegistrationFormDB registrationDB;
 	private EnquiryFormDB enquiryDB;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private NotificationProducer notificationProducer;
 
 	private UnityMessageSource msg;
@@ -66,7 +66,7 @@ public class InvitationManagementImpl implements InvitationManagement
 
 	@Autowired
 	public InvitationManagementImpl(RegistrationFormDB registrationDB, EnquiryFormDB  enquiryDB,
-			AuthorizationManager authz,
+			InternalAuthorizationManager authz,
 			NotificationProducer notificationProducer, UnityMessageSource msg,
 			InvitationDB invitationDB, SharedEndpointManagement sharedEndpointMan)
 	{

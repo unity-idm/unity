@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSyntaxFactoriesRegistry;
 import pl.edu.icm.unity.engine.api.identity.EntityResolver;
-import pl.edu.icm.unity.engine.authz.AuthorizationManager;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
 import pl.edu.icm.unity.engine.events.InvocationEventProducer;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -49,13 +49,13 @@ public class PreferencesManagementImpl implements PreferencesManagement
 {
 	private ObjectMapper mapper;
 	private AttributeDAO dbAttributes;
-	private AuthorizationManager authz;
+	private InternalAuthorizationManager authz;
 	private EntityResolver idResolver;
 	
 	@Autowired
 	public PreferencesManagementImpl(AttributeSyntaxFactoriesRegistry attrValueTypesReg,
 			AttributeDAO dbAttributes, 
-			EntityResolver idResolver, AuthorizationManager authz, ObjectMapper mapper)
+			EntityResolver idResolver, InternalAuthorizationManager authz, ObjectMapper mapper)
 	{
 		this.dbAttributes = dbAttributes;
 		this.idResolver = idResolver;
