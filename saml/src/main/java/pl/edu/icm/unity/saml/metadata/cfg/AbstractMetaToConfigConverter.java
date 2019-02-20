@@ -31,7 +31,6 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import xmlbeans.org.oasis.saml2.assertion.AttributeType;
@@ -195,7 +194,7 @@ public abstract class AbstractMetaToConfigConverter
 					{
 						pkiManagement.updateCertificate(new NamedCertificate(pkiKey, cert));
 					}
-				} catch (WrongArgumentException e)
+				} catch (IllegalArgumentException e)
 				{
 					pkiManagement.addVolatileCertificate(pkiKey, cert);
 				}

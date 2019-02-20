@@ -17,6 +17,13 @@ unityServer.core.endpoints.adminUI.endpointRealm=adminRealm
 unityServer.core.endpoints.adminUI.endpointName=UNITY administration interface
 unityServer.core.endpoints.adminUI.endpointAuthenticators=pwd;cert
 
+unityServer.core.endpoints.adminUI.endpointType=WebConsoleUI
+unityServer.core.endpoints.adminUI.endpointConfigurationFile=${CONF}/modules/core/console.properties
+unityServer.core.endpoints.adminUI.contextPath=/console
+unityServer.core.endpoints.adminUI.endpointRealm=adminRealm
+unityServer.core.endpoints.adminUI.endpointName=UNITY console administration interface
+unityServer.core.endpoints.adminUI.endpointAuthenticators=pwd;cert
+
 unityServer.core.endpoints.userHome.endpointType=UserHomeUI
 unityServer.core.endpoints.userHome.endpointConfigurationFile=${CONF}/modules/core/userhome.properties
 unityServer.core.endpoints.userHome.contextPath=/home
