@@ -78,7 +78,7 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, newRealm);
 
 		credList = new ListOfElementsWithActions<>(
-				Arrays.asList(new Column<>(msg.getMessage("LocalCredential.nameCaption"),
+				Arrays.asList(new Column<>(msg.getMessage("LocalCredentialsView.nameCaption"),
 						p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
 						2)),
 				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
