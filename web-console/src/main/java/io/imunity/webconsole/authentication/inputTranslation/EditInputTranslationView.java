@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
@@ -20,8 +18,8 @@ import io.imunity.webadmin.tprofile.TranslationProfileEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView.InputTranslationsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -78,17 +76,12 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 		HorizontalLayout buttons = null;
 		if (!editor.isReadOnlyMode())
 		{
-			buttons = StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("save"),
-					msg.getMessage("close"),
-
+			buttons = StandardButtonsHelper.buildConfirmEditButtonsBar(msg,
 					() -> onConfirm(), () -> onCancel());
 		} else
 		{
-			Button cancel = StandardButtonsHelper.buildCancelButton(msg.getMessage("close"),
+			buttons = StandardButtonsHelper.buildShowButtonsBar(msg,
 					() -> onCancel());
-			buttons = new HorizontalLayout();
-			buttons.addComponent(cancel);
-			buttons.setComponentAlignment(cancel, Alignment.MIDDLE_LEFT);
 		}
 
 		main.addComponent(buttons);
@@ -162,7 +155,8 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 				ObjectFactory<EditInputTranslationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+					.build());
 
 		}
 	}

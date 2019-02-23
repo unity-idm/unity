@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
-import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
@@ -73,13 +71,14 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		Button newRealm = StandardButtonsHelper.build4AddAction(msg,
-				e -> NavigationHelper.goToView(NewLocalCredentialView.VIEW_NAME));
-		HorizontalLayout buttonsBar = StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, newRealm);
+		HorizontalLayout buttonsBar = StandardButtonsHelper
+				.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
+						e -> NavigationHelper.goToView(NewLocalCredentialView.VIEW_NAME)));
 
 		credList = new ListOfElementsWithActions<>(
 				Arrays.asList(new Column<>(msg.getMessage("LocalCredentialsView.nameCaption"),
-						p -> StandardButtonsHelper.buildLinkButton(p.getName(), e -> gotoEdit(p)),
+						p -> StandardButtonsHelper.buildLinkButton(p.getName(),
+								e -> gotoEdit(p)),
 						2)),
 				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
 
@@ -114,22 +113,19 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	private List<SingleActionHandler<CredentialDefinition>> getActionsHandlers()
 	{
 		SingleActionHandler<CredentialDefinition> show = SingleActionHandler
-				.builder4ShowDetails(msg, CredentialDefinition.class).withHandler(
-					r -> gotoShowDetails(r.iterator().next())
-				).build();
-		
+				.builder4ShowDetails(msg, CredentialDefinition.class)
+				.withHandler(r -> gotoShowDetails(r.iterator().next())).build();
+
 		SingleActionHandler<CredentialDefinition> edit = SingleActionHandler
 				.builder4Edit(msg, CredentialDefinition.class)
 				.withHandler(r -> gotoEdit(r.iterator().next()))
-				.withDisabledPredicate(r -> r.isReadOnly())
-				.build();
+				.withDisabledPredicate(r -> r.isReadOnly()).build();
 
 		SingleActionHandler<CredentialDefinition> remove = SingleActionHandler
-				.builder4Delete(msg, CredentialDefinition.class).withHandler(r -> 
-					tryRemove(r.iterator().next())
-				).build();
-		
-		return  Arrays.asList(show, edit, remove);
+				.builder4Delete(msg, CredentialDefinition.class)
+				.withHandler(r -> tryRemove(r.iterator().next())).build();
+
+		return Arrays.asList(show, edit, remove);
 	}
 
 	private void tryRemove(CredentialDefinition cred)
@@ -155,9 +151,10 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	private void gotoShowDetails(CredentialDefinition cred)
 	{
 		NavigationHelper.goToView(ShowLocalCredentialView.VIEW_NAME + "/" + CommonViewParam.name.toString()
-		+ "=" + cred.getName());;
+				+ "=" + cred.getName());
+		;
 	}
-	
+
 	private void gotoEdit(CredentialDefinition cred)
 	{
 		NavigationHelper.goToView(EditLocalCredentialView.VIEW_NAME + "/" + CommonViewParam.name.toString()
@@ -188,7 +185,7 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.localCredentials"))
-					.build());
+					.withPosition(1).build());
 
 		}
 	}

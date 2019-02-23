@@ -16,7 +16,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.flows.AuthenticationFlowsView.FlowsNavigationInfoProvider;
+import io.imunity.webconsole.authentication.setup.AuthenticationSetupView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class EditAuthenticationFlowView extends CustomComponent implements UnityView
+class EditAuthenticationFlowView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "EditAuthenticationFlow";
 
@@ -63,7 +63,7 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
 		
@@ -74,7 +74,7 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
 
@@ -83,8 +83,8 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("save"),
-				msg.getMessage("close"), () -> onConfirm(), () -> onCancel()));
+		main.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg,
+				() -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}
 	
@@ -106,13 +106,13 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 			return;
 		}
 
-		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 
 	}
 
@@ -130,11 +130,11 @@ public class EditAuthenticationFlowView extends CustomComponent implements Unity
 	}
 
 	@Component
-	public static class EditFlowViewInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class EditAuthenticationFlowViewInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public EditFlowViewInfoProvider(FlowsNavigationInfoProvider parent,
+		public EditAuthenticationFlowViewInfoProvider(AuthenticationFlowsNavigationInfoProvider parent,
 				ObjectFactory<EditAuthenticationFlowView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,

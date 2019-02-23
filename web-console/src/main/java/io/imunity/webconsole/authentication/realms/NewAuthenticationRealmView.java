@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class NewAuthenticationRealmView extends CustomComponent implements UnityView
+class NewAuthenticationRealmView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "NewAuthenticationRealm";
 
@@ -59,8 +59,8 @@ public class NewAuthenticationRealmView extends CustomComponent implements Unity
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("ok"),
-				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));
+		main.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg,
+				() -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}
 	

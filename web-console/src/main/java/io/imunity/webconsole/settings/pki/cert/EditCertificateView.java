@@ -34,7 +34,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class EditCertificateView extends CustomComponent implements UnityView
+class EditCertificateView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "EditCertificate";
 
@@ -102,8 +102,8 @@ public class EditCertificateView extends CustomComponent implements UnityView
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("save"),
-				msg.getMessage("close"), () -> onConfirm(), () -> onCancel()));
+		main.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg, () -> onConfirm(),
+				() -> onCancel()));
 		setCompositionRoot(main);
 	}
 

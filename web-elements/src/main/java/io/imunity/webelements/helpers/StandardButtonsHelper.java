@@ -6,6 +6,7 @@
 package io.imunity.webelements.helpers;
 
 import com.vaadin.server.Sizeable.Unit;
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
@@ -34,22 +35,14 @@ public class StandardButtonsHelper
 		return button;
 	}
 
-	public static Button build4AddAction(UnityMessageSource msg, ClickListener clickListener)
+	public static HorizontalLayout buildTopButtonsBar(Button... buttons)
 	{
-		return buildActionButton(msg.getMessage("add"), Images.add, clickListener);
+		return buildButtonsBar(Alignment.MIDDLE_RIGHT, false, buttons);
 	}
 
-	public static HorizontalLayout buildButtonsBar(Alignment position, Button... buttons)
+	public static Button build4AddAction(UnityMessageSource msg, ClickListener clickListener)
 	{
-		HorizontalLayout buttonsBar = new HorizontalLayout();
-		HorizontalLayout wrapper = new HorizontalLayout();
-		wrapper.setMargin(false);
-		buttonsBar.setMargin(false);
-		wrapper.addComponents(buttons);
-		buttonsBar.addComponent(wrapper);
-		buttonsBar.setComponentAlignment(wrapper, position);
-		buttonsBar.setWidth(100, Unit.PERCENTAGE);
-		return buttonsBar;
+		return buildActionButton(msg.getMessage("addNew"), Images.add, clickListener);
 	}
 
 	public static Component buildLinkButton(String caption, ClickListener clickListener)
@@ -68,11 +61,26 @@ public class StandardButtonsHelper
 		return layout;
 	}
 
-	public static Button buildBackButton(UnityMessageSource msg, ClickListener clickListener)
+	public static HorizontalLayout buildConfirmNewButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+			Runnable onCancel)
 	{
-		Button back = new Button(msg.getMessage("back"), clickListener);
-		back.addStyleName("u-button-form");
-		return back;
+		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+				buildConfirmButton(msg.getMessage("add"), onConfirm),
+				buildCancelButton(msg.getMessage("cancel"), onCancel));
+	}
+
+	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,
+			Runnable onCancel)
+	{
+		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+				buildConfirmButton(msg.getMessage("update"), onConfirm),
+				buildCancelButton(msg.getMessage("cancel"), onCancel));
+	}
+
+	public static HorizontalLayout buildShowButtonsBar(UnityMessageSource msg, Runnable onCancel)
+	{
+		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+				buildCancelButton(msg.getMessage("close"), onCancel));
 	}
 
 	public static HorizontalLayout buildConfirmButtonsBar(String confirmCaption, String cancelCaption,
@@ -80,12 +88,27 @@ public class StandardButtonsHelper
 	{
 		if (cancelCaption != null)
 		{
-			return buildButtonsBar(Alignment.MIDDLE_LEFT, buildConfirmButton(confirmCaption, onConfirm),
+			return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+					buildConfirmButton(confirmCaption, onConfirm),
 					buildCancelButton(cancelCaption, onCancel));
 		} else
 		{
-			return buildButtonsBar(Alignment.MIDDLE_LEFT, buildConfirmButton(confirmCaption, onConfirm));
+			return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+					buildConfirmButton(confirmCaption, onConfirm));
 		}
+	}
+
+	private static HorizontalLayout buildButtonsBar(Alignment position, boolean vertMargin, Button... buttons)
+	{
+		HorizontalLayout buttonsBar = new HorizontalLayout();
+		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.setMargin(new MarginInfo(vertMargin, false));
+		buttonsBar.setMargin(new MarginInfo(vertMargin, false));
+		wrapper.addComponents(buttons);
+		buttonsBar.addComponent(wrapper);
+		buttonsBar.setComponentAlignment(wrapper, position);
+		buttonsBar.setWidth(100, Unit.PERCENTAGE);
+		return buttonsBar;
 	}
 
 	public static Button buildConfirmButton(String confirmCaption, Runnable onConfirm)
@@ -102,5 +125,4 @@ public class StandardButtonsHelper
 		confirm.addStyleName("u-button-form");
 		return confirm;
 	}
-
 }

@@ -28,7 +28,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @Component
-class AuthenticationFlowsController
+public class AuthenticationFlowsController
 {
 	private AuthenticationFlowManagement flowMan;
 	private AuthenticatorManagement authMan;

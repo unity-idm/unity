@@ -17,7 +17,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.flows.AuthenticationFlowsView.FlowsNavigationInfoProvider;
+import io.imunity.webconsole.authentication.setup.AuthenticationSetupView;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class NewAuthenticationFlowView extends CustomComponent implements UnityView
+class NewAuthenticationFlowView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "NewAuthenticationFlow";
 
@@ -71,7 +71,7 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
 
@@ -80,8 +80,8 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("ok"),
-				msg.getMessage("cancel"), () -> onConfirm(), () -> onCancel()));
+		main.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg,
+				() -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 
 	}
@@ -103,13 +103,13 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 			return;
 		}
 
-		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(AuthenticationFlowsView.VIEW_NAME);
+		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 
 	}
 
@@ -126,11 +126,11 @@ public class NewAuthenticationFlowView extends CustomComponent implements UnityV
 	}
 	
 	@Component
-	public static class NewRealmNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class NewAuthenticationFlowNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public NewRealmNavigationInfoProvider(FlowsNavigationInfoProvider parent,
+		public NewAuthenticationFlowNavigationInfoProvider(AuthenticationFlowsNavigationInfoProvider parent,
 				ObjectFactory<NewAuthenticationFlowView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,

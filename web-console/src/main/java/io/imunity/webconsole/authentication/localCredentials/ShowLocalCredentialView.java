@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
@@ -36,7 +35,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class ShowLocalCredentialView extends CustomComponent implements UnityView
+class ShowLocalCredentialView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "ShowLocalCredential";
 
@@ -69,7 +68,7 @@ public class ShowLocalCredentialView extends CustomComponent implements UnityVie
 		main.setMargin(false);
 		main.addComponent(viewer);
 		main.addComponent(StandardButtonsHelper
-				.buildButtonsBar(Alignment.MIDDLE_LEFT, StandardButtonsHelper.buildBackButton(msg, e -> onBack())));
+				.buildShowButtonsBar(msg, () -> onBack()));
 		setCompositionRoot(main);
 	}
 

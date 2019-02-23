@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Sets;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -55,7 +54,7 @@ public class CertificatesComponent extends CustomComponent
 	private void initUI()
 	{
 		certList = new ListOfElementsWithActions<>(
-				Arrays.asList(new Column<>(msg.getMessage("PkiView.certificateNameCaption"),
+				Arrays.asList(new Column<>(msg.getMessage("CertificatesComponent.certificateNameCaption"),
 						c -> StandardButtonsHelper.buildLinkButton(c.name, e -> gotoEdit(c)),
 						2)),
 				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
@@ -68,10 +67,10 @@ public class CertificatesComponent extends CustomComponent
 		}
 
 		VerticalLayout main = new VerticalLayout();
-		Label trustedCertCaption = new Label(msg.getMessage("TrustedCertificates.caption"));
-		trustedCertCaption.setStyleName(Styles.bold.toString());
-		main.addComponent(trustedCertCaption);
-		main.addComponent(StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, StandardButtonsHelper
+		Label certCaption = new Label(msg.getMessage("CertificatesComponent.caption"));
+		certCaption.setStyleName(Styles.bold.toString());
+		main.addComponent(certCaption);
+		main.addComponent(StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewCertificateView.VIEW_NAME))));
 		main.addComponent(certList);
 		main.setWidth(100, Unit.PERCENTAGE);
@@ -119,7 +118,7 @@ public class CertificatesComponent extends CustomComponent
 	{
 
 		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(cert.name));
-		new ConfirmDialog(msg, msg.getMessage("PkiView.confirmDeleteCertificate", confirmText),
+		new ConfirmDialog(msg, msg.getMessage("CertificatesComponent.confirmDeleteCertificate", confirmText),
 				() -> remove(cert)).show();
 	}
 

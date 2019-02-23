@@ -15,7 +15,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView;
 import io.imunity.webconsole.authentication.localCredentials.LocalCredentialsView.LocalCredentialsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
@@ -39,7 +38,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class EditLocalCredentialView extends CustomComponent implements UnityView
+class EditLocalCredentialView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "EditLocalCredential";
 
@@ -69,15 +68,15 @@ public class EditLocalCredentialView extends CustomComponent implements UnityVie
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
-			NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
+			NavigationHelper.goToView(LocalCredentialsView.VIEW_NAME);
 			return;
 		}
 
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg.getMessage("save"),
-				msg.getMessage("close"), () -> onConfirm(), () -> onCancel()));
+		main.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg,
+				() -> onConfirm(), () -> onCancel()));
 		setCompositionRoot(main);
 	}
 

@@ -18,7 +18,6 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -28,8 +27,8 @@ import io.imunity.webconsole.UnityViewWithSandbox;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -56,7 +55,7 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  *
  */
 @PrototypeComponent
-public class InputTranslationsView extends CustomComponent implements UnityViewWithSandbox
+class InputTranslationsView extends CustomComponent implements UnityViewWithSandbox
 {
 	public static final String VIEW_NAME = "InputTranslations";
 
@@ -131,7 +130,7 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 				msg.getMessage("InputTranslationProfilesView.dryRun"), Images.dryrun,
 				e -> showDryRunDialog());
 
-		return StandardButtonsHelper.buildButtonsBar(Alignment.MIDDLE_RIGHT, dryRun, wizard, newProfile);
+		return StandardButtonsHelper.buildTopButtonsBar(dryRun, wizard, newProfile);
 	}
 	
 	private void refreshProfileList()
@@ -264,6 +263,7 @@ public class InputTranslationsView extends CustomComponent implements UnityViewW
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
+					.withPosition(2)
 					.build());
 
 		}
