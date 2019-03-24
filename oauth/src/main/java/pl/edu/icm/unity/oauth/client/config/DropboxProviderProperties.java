@@ -15,8 +15,7 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
  * @author K. Benedyczak
  */
 public class DropboxProviderProperties extends CustomProviderProperties
-{
-
+{	
 	public DropboxProviderProperties(Properties properties, String prefix, PKIManagement pkiManagement) 
 			throws ConfigurationException
 	{
@@ -33,7 +32,8 @@ public class DropboxProviderProperties extends CustomProviderProperties
 		setIfUnset(properties, prefix + PROFILE_ENDPOINT, "https://api.dropboxapi.com/2/users/get_current_account");
 		setIfUnset(properties, prefix + ACCESS_TOKEN_FORMAT, AccessTokenFormat.standard.toString());
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/dropbox-small.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:dropbox");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
+				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:dropbox");
 		return properties;
 	}
 

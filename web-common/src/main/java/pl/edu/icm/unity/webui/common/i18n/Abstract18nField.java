@@ -124,8 +124,6 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		}
 		this.main = main;
 	}
-
-	
 	
 	@Override
 	protected Component initContent()
@@ -210,7 +208,7 @@ abstract class Abstract18nField<T extends AbstractTextField> extends CustomField
 		if (translationTFs != null)
 		{
 			hl.setWidth(width, unit);
-			defaultTf.setWidth(width, unit);
+			defaultTf.setWidth(100, Unit.PERCENTAGE);
 			for (T tf: translationTFs.values())
 			{
 				tf.setWidth(width, unit);

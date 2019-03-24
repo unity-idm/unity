@@ -13,15 +13,15 @@ import org.apache.log4j.Logger;
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import pl.edu.icm.unity.base.utils.Log;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
 
 /**
  * JWT endpoint's configuration.
  * @author K. Benedyczak
  */
-public class JWTAuthenticationProperties extends PropertiesHelper
+public class JWTAuthenticationProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, JWTAuthenticationProperties.class);
 	@DocumentationReferencePrefix

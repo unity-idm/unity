@@ -43,7 +43,7 @@ import pl.edu.icm.unity.webui.sandbox.wizard.SandboxWizardDialog;
  *
  */
 @Component
-class InputTranslationsController
+public class InputTranslationsController
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER, InputTranslationsController.class);
 	
@@ -55,7 +55,7 @@ class InputTranslationsController
 	private ActionParameterComponentProvider actionComponentFactory;
 
 	@Autowired
-	InputTranslationsController(UnityMessageSource msg, TranslationProfileManagement profileMan,
+	public InputTranslationsController(UnityMessageSource msg, TranslationProfileManagement profileMan,
 			InputTranslationActionsRegistry inputActionsRegistry,
 			ActionParameterComponentProvider actionComponentFactory,
 			EndpointController endpointController)
@@ -98,7 +98,7 @@ class InputTranslationsController
 		
 	}
 
-	List<TranslationProfile> getProfiles() throws ControllerException
+	public List<TranslationProfile> getProfiles() throws ControllerException
 	{
 		try
 		{
@@ -137,7 +137,7 @@ class InputTranslationsController
 		}
 	}
 
-	void addProfile(TranslationProfile profile) throws ControllerException
+	public void addProfile(TranslationProfile profile) throws ControllerException
 	{
 		try
 		{
@@ -149,7 +149,7 @@ class InputTranslationsController
 		}
 	}
 
-	void updateProfile(TranslationProfile updated) throws ControllerException
+	public void updateProfile(TranslationProfile updated) throws ControllerException
 	{
 		try
 		{

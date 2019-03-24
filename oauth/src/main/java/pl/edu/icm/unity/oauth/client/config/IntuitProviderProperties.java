@@ -32,7 +32,8 @@ public class IntuitProviderProperties extends CustomProviderProperties
 				"https://developer.api.intuit.com/.well-known/openid_configuration");
 		setIfUnset(properties, prefix + SCOPES, "openid email profile");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/external/intuit-small.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:intuit");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
+				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:intuit");
 		return properties;
 	}
 

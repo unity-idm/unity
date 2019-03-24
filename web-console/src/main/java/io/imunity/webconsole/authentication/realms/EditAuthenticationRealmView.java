@@ -43,7 +43,7 @@ class EditAuthenticationRealmView extends CustomComponent implements UnityView
 	private String realmName;
 
 	@Autowired
-	public EditAuthenticationRealmView(UnityMessageSource msg,
+	EditAuthenticationRealmView(UnityMessageSource msg,
 			AuthenticationRealmsController controller)
 	{
 		this.msg = msg;

@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
+import pl.edu.icm.unity.engine.api.translation.TranslationIncludeProfileAction;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationAction;
 import pl.edu.icm.unity.engine.api.translation.in.MappingResult;
-import pl.edu.icm.unity.engine.translation.TranslationIncludeProfileAction;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition;
 import pl.edu.icm.unity.types.translation.ActionParameterDefinition.Type;

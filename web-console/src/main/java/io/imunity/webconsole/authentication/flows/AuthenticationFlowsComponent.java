@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * 
+ * Shows all authentication flows
  * @author P.Piernik
  *
  */

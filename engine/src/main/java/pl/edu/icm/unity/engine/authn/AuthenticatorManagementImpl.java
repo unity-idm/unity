@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.AuthenticatorManagement;
 import pl.edu.icm.unity.engine.api.authn.local.LocalCredentialsRegistry;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.credential.CredentialHolder;
 import pl.edu.icm.unity.engine.credential.CredentialRepository;
 import pl.edu.icm.unity.engine.endpoint.EndpointsUpdater;
@@ -109,6 +109,17 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 				.filter(authnInfo -> (bindingId == null || authnInfo.getSupportedBindings().contains(bindingId)))
 				.collect(Collectors.toList());
 	}
+	
+	@Override
+	public AuthenticatorInfo getAuthenticator(String id) throws EngineException
+	{
+		AuthenticatorConfiguration authenticator = tx.runInTransactionRetThrowing(() -> {
+			authz.checkAuthorization(AuthzCapability.maintenance);
+			return authenticatorDB.get(id);
+		});
+
+		return getExposedAuthenticatorInfo(authenticator);
+	}
 
 	@Override
 	public void updateAuthenticator(String id, String config, String localCredential) throws EngineException
@@ -129,6 +140,12 @@ public class AuthenticatorManagementImpl implements AuthenticatorManagement
 			authenticatorDB.update(updatedConfiguration);
 		});
 		endpointsUpdater.updateManual();
+	}
+	
+	@Override
+	public Collection<AuthenticatorTypeDescription> getAvailableAuthenticatorsTypes()
+	{
+		return authReg.getAuthenticatorTypes();
 	}
 
 	@Override

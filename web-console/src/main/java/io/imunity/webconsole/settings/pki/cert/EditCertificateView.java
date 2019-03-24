@@ -45,7 +45,7 @@ class EditCertificateView extends CustomComponent implements UnityView
 	private String certName;
 
 	@Autowired
-	public EditCertificateView(UnityMessageSource msg, CertificatesController controller,
+	EditCertificateView(UnityMessageSource msg, CertificatesController controller,
 			UnityServerConfiguration config)
 	{
 		this.msg = msg;

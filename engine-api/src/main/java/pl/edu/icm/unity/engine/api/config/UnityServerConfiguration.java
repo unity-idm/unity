@@ -208,7 +208,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 				setDescription("If set to true then all configuration settings related to loading of "
 						+ "database contents (endpoints, authenticators, credentials, ...) "
 						+ "are ignored. This is useful in the case of redundant Unity instance,"
-						+ " which should use the database contents configured at the master serevr."));
+						+ " which should use the database contents configured at the master server."));
 		defaults.put(RELOAD_MSG_TEMPLATES, new PropertyMD("false").setCategory(mainCat).
 				setDescription("If set to true then message templates will be reloaded at startup "
 						+ "from files on disk. Otherwise only the new templates are "

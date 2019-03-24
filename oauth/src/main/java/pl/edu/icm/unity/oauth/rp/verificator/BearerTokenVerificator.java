@@ -45,6 +45,8 @@ import pl.edu.icm.unity.oauth.rp.AccessTokenExchange;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.verificator.ResultsCache.CacheEntry;
 import pl.edu.icm.unity.stdext.identity.IdentifierIdentity;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Verificator of bearer access token.
@@ -63,7 +65,7 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 	private TokenVerificatorProtocol tokenChecker;
 	private PKIManagement pkiMan;
 	private TokensManagement tokensMan;
-	private String translationProfile;
+	private TranslationProfile translationProfile;
 	private ResultsCache cache;
 	
 	@Autowired
@@ -98,7 +100,9 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			properties.load(new StringReader(source));
 			verificatorProperties = new OAuthRPProperties(properties, pkiMan, tokensMan);
 			tokenChecker = verificatorProperties.getTokenChecker();
-			translationProfile = verificatorProperties.getValue(OAuthRPProperties.TRANSLATION_PROFILE);
+			translationProfile = getTranslationProfile(verificatorProperties, CommonWebAuthnProperties.TRANSLATION_PROFILE,
+					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);			
+					verificatorProperties.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
 			int ttl = -1;
 			if (verificatorProperties.isSet(OAuthRPProperties.CACHE_TIME))
 				ttl = verificatorProperties.getIntValue(OAuthRPProperties.CACHE_TIME);

@@ -32,6 +32,8 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 @PrototypeComponent
 public class PAMVerificator extends AbstractRemoteVerificator implements PasswordExchange
@@ -43,7 +45,7 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 	public static final String DESCRIPTION = "Verifies passwords using local OS PAM facility";
 	
 	private PAMProperties pamProperties;
-	private String translationProfile;
+	private TranslationProfile translationProfile;
 	
 	@Autowired
 	public PAMVerificator(RemoteAuthnResultProcessor processor)
@@ -73,7 +75,9 @@ public class PAMVerificator extends AbstractRemoteVerificator implements Passwor
 			Properties properties = new Properties();
 			properties.load(new StringReader(config));
 			pamProperties = new PAMProperties(properties);
-			translationProfile = pamProperties.getValue(PAMProperties.TRANSLATION_PROFILE);
+			translationProfile = getTranslationProfile(
+					pamProperties, CommonWebAuthnProperties.TRANSLATION_PROFILE,
+					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the PAM verificator", e);

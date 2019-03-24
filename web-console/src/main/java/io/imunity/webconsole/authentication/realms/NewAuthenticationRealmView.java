@@ -45,7 +45,7 @@ class NewAuthenticationRealmView extends CustomComponent implements UnityView
 	private UnityMessageSource msg;
 
 	@Autowired
-	public NewAuthenticationRealmView(UnityMessageSource msg,
+	NewAuthenticationRealmView(UnityMessageSource msg,
 			AuthenticationRealmsController controller)
 	{
 		this.msg = msg;

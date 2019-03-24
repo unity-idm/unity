@@ -9,16 +9,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.vaadin.navigator.ViewChangeListener;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 
 import io.imunity.webelements.menu.MenuButton;
 import io.imunity.webelements.navigation.NavigationHierarchyManager;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.UnityView;
-import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 
 /**
@@ -27,29 +23,22 @@ import pl.edu.icm.unity.webui.common.SidebarStyles;
  * @author P.Piernik
  *
  */
-public class BreadCrumbs extends CustomComponent implements ViewChangeListener
+public class WebConsoleBreadCrumbs extends CustomComponent implements ViewChangeListener
 {
-
-	public static final Images BREADCRUMB_SEPARATOR = Images.rightArrow;
-
-	private HorizontalLayout main;
+	private BreadcrumbsComponent main;
 	private NavigationHierarchyManager navMan;
 
-	public BreadCrumbs(NavigationHierarchyManager navMan)
+	public WebConsoleBreadCrumbs(NavigationHierarchyManager navMan)
 	{
 		this.navMan = navMan;
-		main = new HorizontalLayout();
-		main.setWidth(100, Unit.PERCENTAGE);
-		main.setHeightUndefined();
-		main.setMargin(false);
-		main.setSpacing(true);
+		main = new BreadcrumbsComponent();
 		setCompositionRoot(main);
 		setStyleName(SidebarStyles.breadcrumbs.toString());
 	}
 
 	public void adapt(ViewChangeEvent e, List<NavigationInfo> path)
 	{
-		main.removeAllComponents();
+		main.clear();
 
 		if (path.isEmpty())
 			return;
@@ -58,7 +47,7 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 
 		for (NavigationInfo view : path.stream().skip(1).collect(Collectors.toList()))
 		{
-			addSeparator();
+			main.addSeparator();
 			addElement(view, e);
 		}
 	}
@@ -70,23 +59,24 @@ public class BreadCrumbs extends CustomComponent implements ViewChangeListener
 		if (element.type == NavigationInfo.Type.View
 				|| element.type == NavigationInfo.Type.DefaultView)
 		{
-			main.addComponent(MenuButton.get(element.id).withNavigateTo(element.id)
+			main.addButton(MenuButton.get(element.id).withNavigateTo(element.id)
 					.withCaption(element.caption).clickable());
 
 		} else if (element.type == NavigationInfo.Type.ParameterizedView)
 		{
-			main.addComponent(MenuButton.get(element.id)
+			main.addButton(MenuButton.get(element.id)
 					.withCaption(view.getDisplayedName()));
+		} else if (element.type == NavigationInfo.Type.ParameterizedViewWithSubviews)
+		{
+			main.addButton(MenuButton.get(element.id)
+					.withCaption(view.getDisplayedName()));
+			UnityViewWithSubViews viewWithSubViews = (UnityViewWithSubViews) view;
+			main.addSubBreadcrumbs(viewWithSubViews.getBreadcrumbsComponent());
+			
 		} else
 		{
-			main.addComponent(MenuButton.get(element.id).withCaption(element.caption));
+			main.addButton(MenuButton.get(element.id).withCaption(element.caption));
 		}
-	}
-
-	private void addSeparator()
-	{
-		Label s = new Label(BREADCRUMB_SEPARATOR.getHtml(), ContentMode.HTML);
-		main.addComponent(s);
 	}
 
 	@Override

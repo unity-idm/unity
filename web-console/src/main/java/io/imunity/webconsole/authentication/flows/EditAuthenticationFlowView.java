@@ -45,7 +45,7 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 	private String flowName;
 
 	@Autowired
-	public EditAuthenticationFlowView(UnityMessageSource msg,
+	EditAuthenticationFlowView(UnityMessageSource msg,
 			AuthenticationFlowsController controller)
 	{
 		this.msg = msg;
@@ -115,7 +115,6 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 
 	}
-
 
 	@Override
 	public String getDisplayedName()

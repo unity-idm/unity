@@ -213,7 +213,7 @@ public class PKIManagementImpl implements PKIManagement
 	public synchronized void addVolatileCertificate(String name, X509Certificate updated) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		assertCertificateExists(name);
+		assertCertificateIsNotPresent(name);
 		certificates.put(name, new NamedCertificate(name, updated));
 	}
 
@@ -222,7 +222,7 @@ public class PKIManagementImpl implements PKIManagement
 	public synchronized void addPersistedCertificate(NamedCertificate toAdd) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		assertCertificateExists(toAdd.name);
+		assertCertificateIsNotPresent(toAdd.name);
 		certDB.create(toStoredCert(toAdd));
 	}
 
@@ -258,7 +258,7 @@ public class PKIManagementImpl implements PKIManagement
 		certDB.update(toStoredCert(toUpdate));
 	}
 
-	void assertCertificateExists(String name)
+	void assertCertificateIsNotPresent(String name)
 	{
 		if (!certificates.containsKey(name))
 		{

@@ -47,7 +47,7 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 	private EventsBus bus;
 
 	@Autowired
-	public NewLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
+	NewLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;

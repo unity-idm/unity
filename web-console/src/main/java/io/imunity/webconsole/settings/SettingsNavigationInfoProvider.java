@@ -8,8 +8,8 @@ package io.imunity.webconsole.settings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
+import io.imunity.webconsole.WebConsoleRootNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

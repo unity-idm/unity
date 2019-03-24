@@ -79,6 +79,7 @@ import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.profile.ProfileFetcherUtils;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity;
 import pl.edu.icm.unity.types.authn.ExpectedIdentity.IdentityExpectation;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 
@@ -149,6 +150,8 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 							CustomProviderProperties.OPENID_DISCOVERY));
 				}
 			}
+			
+			
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the OAuth2 verificator", e);
@@ -238,10 +241,12 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		{
 			RemotelyAuthenticatedInput input = getRemotelyAuthenticatedInput(context);
 			verifyExpectedIdentity(input, context.getExpectedIdentity());
-			String translationProfile = config.getProvider(context.getProviderConfigKey()).getValue( 
-					CommonWebAuthnProperties.TRANSLATION_PROFILE);
-		
-			return getResult(input, translationProfile, state);
+			TranslationProfile profile = getTranslationProfile(
+					config.getProvider(context.getProviderConfigKey()),
+					CommonWebAuthnProperties.TRANSLATION_PROFILE,
+					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
+
+			return getResult(input, profile, state);
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);
@@ -250,7 +255,6 @@ public class OAuth2Verificator extends AbstractRemoteVerificator implements OAut
 		
 	}
 	
-
 	private void verifyExpectedIdentity(RemotelyAuthenticatedInput input, ExpectedIdentity expectedIdentity)
 	{
 		if (expectedIdentity == null)

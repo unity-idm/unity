@@ -26,7 +26,7 @@ class TrustedCertNavigationInfoProvider extends WebConsoleNavigationInfoProvider
 	public static final String ID = "TrustedCertificates";
 
 	@Autowired
-	public TrustedCertNavigationInfoProvider(UnityMessageSource msg,
+	TrustedCertNavigationInfoProvider(UnityMessageSource msg,
 			PKINavigationInfoProvider parent)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)

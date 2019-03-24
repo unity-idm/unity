@@ -46,7 +46,7 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 	private UnityMessageSource msg;
 
 	@Autowired
-	public NewAuthenticationFlowView(UnityMessageSource msg,
+	NewAuthenticationFlowView(UnityMessageSource msg,
 			AuthenticationFlowsController controller)
 	{
 		this.msg = msg;

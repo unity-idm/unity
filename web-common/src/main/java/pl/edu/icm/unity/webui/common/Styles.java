@@ -69,6 +69,7 @@ public enum Styles
 	hamburgerMenu("u-hamburgerMenu"),
 	uGridNoHorizontalLines("u-noGridHorizontalLines"),
 	uDenseTreeGrid("u-denseTreeGrid"),
+	smallIconLabel("u-smallIconLabel"),
 	largeIcon("u-largeIcon"),
 	veryLargeIcon("u-veryLargeIcon"),
 	signInButton("u-signInButton"),

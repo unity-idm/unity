@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class EditInputTranslationView extends CustomComponent implements UnityView
+class EditInputTranslationView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "EditInputTranslation";
 
@@ -47,7 +47,8 @@ public class EditInputTranslationView extends CustomComponent implements UnityVi
 	private TranslationProfileEditor editor;
 	private String profileName;
 
-	public EditInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
+	@Autowired
+	EditInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

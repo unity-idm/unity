@@ -121,8 +121,11 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		META.put(CommonWebAuthnProperties.REGISTRATION_FORM, new PropertyMD().
 				setDescription("Registration form to be shown for the locally unknown users which "
 						+ "were successfuly authenticated remotely."));
-		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().setMandatory().
-				setDescription("Translation profile which will be used to map received user "
+		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD().
+				setDescription("Name of translation profile which will be used to map received user "
+						+ "information to a local representation."));
+		META.put(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setHidden().
+				setDescription("Translation profile in json which will be used to map received user "
 						+ "information to a local representation."));
 		META.put(CommonWebAuthnProperties.ENABLE_ASSOCIATION, new PropertyMD().
 				setDescription("If true then unknown remote user gets an option to associate "
@@ -169,6 +172,13 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		if (!isSet(PROVIDER_NAME))
 			throw new ConfigurationException(getKeyDescription(PROVIDER_NAME) + 
 					" is mandatory");
+		
+		if (!isSet(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE)
+				&& !isSet(CommonWebAuthnProperties.TRANSLATION_PROFILE))
+		{
+			throw new ConfigurationException(getKeyDescription(CommonWebAuthnProperties.TRANSLATION_PROFILE)
+					+ " is mandatory");
+		}
 		
 		String validatorName = getValue(CLIENT_TRUSTSTORE);
 		if (validatorName != null)
@@ -249,4 +259,11 @@ public class CustomProviderProperties extends UnityPropertiesHelper implements B
 		if (!properties.containsKey(property))
 			properties.setProperty(property, value);
 	}
+	
+	public static void setIfUnset(Properties properties, String propertyToCheck, String property, String value)
+	{
+		if (!properties.containsKey(propertyToCheck))
+			properties.setProperty(property, value);
+	}
+	
 }

@@ -49,7 +49,7 @@ class EditLocalCredentialView extends CustomComponent implements UnityView
 	private EventsBus bus;
 
 	@Autowired
-	public EditLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
+	EditLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;

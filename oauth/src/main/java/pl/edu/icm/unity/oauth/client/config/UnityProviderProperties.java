@@ -27,7 +27,8 @@ public class UnityProviderProperties extends CustomProviderProperties
 	{
 		setIfUnset(properties, prefix + PROVIDER_NAME, "UnityIdM");
 		setIfUnset(properties, prefix + ICON_URL, "file:../common/img/other/logo-hand.png");
-		setIfUnset(properties, prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:oidc");
+		setIfUnset(properties, prefix + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
+				prefix + CommonWebAuthnProperties.TRANSLATION_PROFILE, "sys:oidc");
 		setIfUnset(properties, prefix + OPENID_CONNECT, "true");
 		return properties;
 	}

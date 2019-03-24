@@ -10,6 +10,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 
 /**
  * Processes {@link RemotelyAuthenticatedInput} by applying a translation profile to it and 
@@ -35,6 +36,18 @@ public interface RemoteAuthnResultProcessor
 			throws AuthenticationException;
 	
 	/**
+	 * Equivalent
+	 * to{@link #getResult(RemotelyAuthenticatedInput, String, boolean, Optional)}
+	 * but translation profile is given directly
+	 * 
+	 * @param input
+	 * @return
+	 * @throws EngineException
+	 */
+	AuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile, boolean dryRun,
+			Optional<IdentityTaV> identity) throws AuthenticationException;
+	
+	/**
 	 * Tries to resolve the primary identity from the previously created {@link RemotelyAuthenticatedContext}
 	 * (usually via {@link #processRemoteInput(RemotelyAuthenticatedInput)}) and returns a 
 	 * final {@link AuthenticationResult} depending on the success of this action.
@@ -57,5 +70,5 @@ public interface RemoteAuthnResultProcessor
 	 * @throws EngineException
 	 */
 	RemotelyAuthenticatedContext processRemoteInput(RemotelyAuthenticatedInput input, 
-			String profile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException;
+			TranslationProfile profile, boolean dryRun, Optional<IdentityTaV> identity) throws EngineException;
 }

@@ -26,7 +26,7 @@ class AuthenticationFlowsNavigationInfoProvider extends WebConsoleNavigationInfo
 	public static final String ID = "AuthenticationFlows";
 
 	@Autowired
-	public AuthenticationFlowsNavigationInfoProvider(UnityMessageSource msg,
+	AuthenticationFlowsNavigationInfoProvider(UnityMessageSource msg,
 			AuthenticationSetupNavigationInfoProvider parent)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)

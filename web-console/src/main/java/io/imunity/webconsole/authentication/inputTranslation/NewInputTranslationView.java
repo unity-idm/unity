@@ -44,7 +44,8 @@ class NewInputTranslationView extends CustomComponent implements UnityView
 	private InputTranslationsController controller;
 	private TranslationProfileEditor editor;
 
-	public NewInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
+	@Autowired
+	NewInputTranslationView(UnityMessageSource msg, InputTranslationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

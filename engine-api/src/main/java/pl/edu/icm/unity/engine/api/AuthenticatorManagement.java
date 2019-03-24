@@ -8,6 +8,7 @@ import java.util.Collection;
 
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
  * API for authenticators management.
@@ -22,6 +23,14 @@ public interface AuthenticatorManagement
 	 * @throws EngineException
 	 */
 	Collection<AuthenticatorInfo> getAuthenticators(String bindingId) throws EngineException;
+	
+	/**
+	 * 
+	 * @param id
+	 * @return authenticator with given id
+	 * @throws EngineException
+	 */
+	AuthenticatorInfo getAuthenticator(String id) throws EngineException;
 	
 	/**
 	 * Creates a new authenticator
@@ -51,4 +60,9 @@ public interface AuthenticatorManagement
 	 * @throws EngineException
 	 */
 	void removeAuthenticator(String id) throws EngineException;
+
+	/**
+	 * Gets all available authenticators types
+	 */
+	Collection<AuthenticatorTypeDescription> getAvailableAuthenticatorsTypes();
 }
