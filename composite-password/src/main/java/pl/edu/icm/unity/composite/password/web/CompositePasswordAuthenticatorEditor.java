@@ -53,20 +53,20 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
  * Composite password authenticator editor
+ * 
  * @author P.Piernik
  *
  */
 public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-
 	private UnityMessageSource msg;
 	private Collection<CredentialDefinition> credentialDefinitions;
-	private Binder<CompositePasswordConfiguration> binder;
-	private SubViewSwitcher subViewSwitcher;
 	private PamAuthenticatorEditorFactory pamFactory;
 
 	private RemoteAuthenticatorsComponent remoteAuthn;
-	
+	private Binder<CompositePasswordConfiguration> configBinder;
+	private SubViewSwitcher subViewSwitcher;
+
 	CompositePasswordAuthenticatorEditor(UnityMessageSource msg,
 			Collection<CredentialDefinition> credentialDefinitions,
 			PamAuthenticatorEditorFactory pamFactory)
@@ -82,18 +82,17 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 	{
 		this.subViewSwitcher = switcher;
 
-		boolean editMode = toEdit != null;
-		setName(editMode ? toEdit.id : msg.getMessage("CompositePasswordAuthenticatorEditor.defaultName"));
-		setNameReadOnly(editMode && !forceNameEditable);
+		boolean editMode = init(msg.getMessage("CompositePasswordAuthenticatorEditor.defaultName"), toEdit,
+				forceNameEditable);
 
-		binder = new Binder<>(CompositePasswordConfiguration.class);
+		configBinder = new Binder<>(CompositePasswordConfiguration.class);
 
 		ChipsWithDropdown<String> localCredentials = new ChipsWithDropdown<>(i -> i, true);
 		localCredentials.setItems(credentialDefinitions.stream()
 				.filter(c -> c.getTypeId().equals(PasswordVerificator.NAME)).map(c -> c.getName())
 				.collect(Collectors.toList()));
 		localCredentials.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.localCredentials"));
-		binder.forField(localCredentials).bind("localCredentials");
+		configBinder.forField(localCredentials).bind("localCredentials");
 
 		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
 
@@ -102,11 +101,11 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 		{
 			config.fromProperties(toEdit.configuration, msg);
 		}
-		binder.setBean(config);
+		configBinder.setBean(config);
 
 		remoteAuthn = new RemoteAuthenticatorsComponent();
 		remoteAuthn.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.remoteAuthenticators"));
-		remoteAuthn.setValue(binder.getBean().getRemoteAuthenticators());
+		remoteAuthn.setValue(configBinder.getBean().getRemoteAuthenticators());
 
 		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
 		header.addComponent(name);
@@ -131,18 +130,18 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 		CollapsibleLayout wrapper = new CollapsibleLayout(
 				msg.getMessage("CompositePasswordAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
-		binder.forField(retrivalName).bind("retrivalName");
+		configBinder.forField(retrivalName).bind("retrivalName");
 		return wrapper;
 	}
 
 	private String getConfiguration() throws FormValidationException
 	{
-		if (binder.validate().hasErrors())
+		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();
 
-		binder.getBean().setRemoteAuthenticators(remoteAuthn.getRemoteAuthenticators());
-		
-		return binder.getBean().toProperties();
+		configBinder.getBean().setRemoteAuthenticators(remoteAuthn.getRemoteAuthenticators());
+
+		return configBinder.getBean().toProperties();
 	}
 
 	@Override
@@ -304,10 +303,9 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 						: FileUtils.readFileToString(configFile, StandardCharsets.UTF_8);
 			} catch (IOException e)
 			{
-				return null;
+				throw new InternalException("Can not read remote authenticator config file", e);
 			}
 		}
-
 	}
 
 	private class RemoteAuthenticatorsComponent extends CustomComponent
@@ -354,7 +352,8 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 			main.setComponentAlignment(buttons, Alignment.MIDDLE_RIGHT);
 
 			remoteAuthnList = new GridWithActionColumn<>(msg, getActionsHandlers());
-			remoteAuthnList.addColumn(t -> t.name, msg.getMessage("RemoteAuthenticatorsComponent.name"), 10);
+			remoteAuthnList.addColumn(t -> t.name, msg.getMessage("RemoteAuthenticatorsComponent.name"),
+					10);
 			remoteAuthnList.addColumn(t -> t.type.toString(),
 					msg.getMessage("RemoteAuthenticatorsComponent.type"), 50);
 
@@ -408,7 +407,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 
 			return Arrays.asList(edit, remove);
 		}
-		
+
 		public List<SimpleAuthenticatorInfo> getRemoteAuthenticators()
 		{
 			return remoteAuthnList.getElements();

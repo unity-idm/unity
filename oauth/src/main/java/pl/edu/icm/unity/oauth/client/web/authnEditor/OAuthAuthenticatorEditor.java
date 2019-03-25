@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.client.web.editor;
+package pl.edu.icm.unity.oauth.client.web.authnEditor;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -36,7 +36,7 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
-import pl.edu.icm.unity.oauth.client.web.editor.EditOAuthProviderSubView.OAuthProviderConfiguration;
+import pl.edu.icm.unity.oauth.client.web.authnEditor.EditOAuthProviderSubView.OAuthProviderConfiguration;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
@@ -53,20 +53,20 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
  * OAuth authenticator editor
+ * 
  * @author P.Piernik
  *
  */
 public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private Binder<OAuthConfiguration> binder;
 	private PKIManagement pkiMan;
-	private SubViewSwitcher subViewSwitcher;
 	private EditInputTranslationProfileSubViewHelper profileHelper;
 	private RegistrationsManagement registrationMan;
-
-	private boolean editMode;
+	
 	private ProvidersComponent providersComponent;
-
+	private Binder<OAuthConfiguration> configBinder;
+	private SubViewSwitcher subViewSwitcher;
+	
 	public OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
 			EditInputTranslationProfileSubViewHelper profileHelper, RegistrationsManagement registrationMan)
 	{
@@ -82,11 +82,10 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 	{
 		this.subViewSwitcher = subViewSwitcher;
 
-		editMode = toEdit != null;
-		setName(editMode ? toEdit.id : msg.getMessage("OAuthAuthenticatorEditor.defaultName"));
-		setNameReadOnly(editMode && !forceNameEditable);
+		boolean editMode = init(msg.getMessage("OAuthAuthenticatorEditor.defaultName"), toEdit,
+				forceNameEditable);
 
-		binder = new Binder<>(OAuthConfiguration.class);
+		configBinder = new Binder<>(OAuthConfiguration.class);
 
 		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
 		header.setMargin(true);
@@ -94,18 +93,18 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 		CheckBox accountAssociation = new CheckBox(
 				msg.getMessage("OAuthAuthenticatorEditor.accountAssociation"));
 		header.addComponent(accountAssociation);
-		binder.forField(accountAssociation).bind("accountAssociation");
+		configBinder.forField(accountAssociation).bind("accountAssociation");
 
 		OAuthConfiguration config = new OAuthConfiguration();
-		if (toEdit != null)
+		if (editMode)
 		{
 			config.fromProperties(toEdit.configuration, msg);
 		}
 
-		binder.setBean(config);
+		configBinder.setBean(config);
 
 		providersComponent = new ProvidersComponent();
-		providersComponent.setValue(binder.getBean().providers);
+		providersComponent.setValue(configBinder.getBean().providers);
 		providersComponent.setCaption(msg.getMessage("OAuthAuthenticatorEditor.providers"));
 
 		header.addComponent(providersComponent);
@@ -124,7 +123,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 
 	private String getConfiguration() throws FormValidationException
 	{
-		if (binder.validate().hasErrors())
+		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();
 
 		List<OAuthProviderConfiguration> providersConfigs = providersComponent.getConfigurations();
@@ -136,7 +135,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 			throw new FormValidationException();
 		}
 
-		OAuthConfiguration config = binder.getBean();
+		OAuthConfiguration config = configBinder.getBean();
 		config.setProviders(providersComponent.getConfigurations());
 
 		return config.toProperties();
@@ -258,7 +257,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 			providersList.addColumn(p -> p.getId(), msg.getMessage("ProvidersComponent.id"), 10);
 			providersList.addColumn(p -> p.getName().getValue(msg),
 					msg.getMessage("ProvidersComponent.name"), 50);
-			
+
 			main.addComponent(providersList);
 			setCompositionRoot(main);
 		}

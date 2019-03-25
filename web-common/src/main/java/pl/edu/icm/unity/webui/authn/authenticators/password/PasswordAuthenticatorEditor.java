@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
  * Password authenticator editor
+ * 
  * @author P.Piernik
  *
  */
@@ -53,11 +54,8 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 	@Override
 	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher switcher, boolean forceNameEditable)
 	{
-		boolean editMode = toEdit != null;
-		setName(editMode ? toEdit.id : msg.getMessage("PasswordAuthenticatorEditor.defaultName"));
-		setNameReadOnly(editMode && !forceNameEditable);
-		setLocalCredential(editMode ? toEdit.localCredentialName : null);
-
+		boolean editMode = init(msg.getMessage("PasswordAuthenticatorEditor.defaultName"), toEdit,
+				forceNameEditable);
 		configBinder = new Binder<>(PasswordConfiguration.class);
 
 		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();

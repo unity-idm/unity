@@ -32,11 +32,11 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
+import pl.edu.icm.unity.oauth.client.web.authnEditor.OAuthBaseConfiguration;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
-import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
@@ -47,6 +47,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
  * OAuthRP authenticator editor
+ * 
  * @author P.Piernik
  *
  */
@@ -56,10 +57,10 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 
 	private TokensManagement tokenMan;
 	private PKIManagement pkiMan;
-	private Set<String> validators;
-	private boolean editMode;
-	private Binder<OAuthRPConfiguration> binder;
 	private EditInputTranslationProfileSubViewHelper profileHelper;
+
+	private Set<String> validators;
+	private Binder<OAuthRPConfiguration> configBinder;
 
 	public OAuthRPAuthenticatorEditor(UnityMessageSource msg, TokensManagement tokenMan, PKIManagement pkiMan,
 			EditInputTranslationProfileSubViewHelper profileHelper) throws EngineException
@@ -72,34 +73,33 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 	}
 
 	@Override
-	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher subViewSwitcher, boolean forceNameEditable)
+	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher subViewSwitcher,
+			boolean forceNameEditable)
 	{
-		editMode = toEdit != null;
-		setName(editMode ? toEdit.id : msg.getMessage("OAuthRPAuthenticatorEditor.defaultName"));
-		setNameReadOnly(editMode && !forceNameEditable);
+		boolean editMode = init(msg.getMessage("OAuthRPAuthenticatorEditor.defaultName"), toEdit,
+				forceNameEditable);
 
-		binder = new Binder<>(OAuthRPConfiguration.class);
+		configBinder = new Binder<>(OAuthRPConfiguration.class);
 
 		FormLayout header = buildHeaderSection();
 
 		TranslationRulesPresenter profileRulesViewer = profileHelper.getRulesPresenterInstance();
 		CollapsibleLayout remoteDataMapping = profileHelper.buildRemoteDataMappingEditorSection(subViewSwitcher,
-				profileRulesViewer, p -> binder.getBean().setTranslationProfile(p),
-				() -> binder.getBean().getTranslationProfile());
+				profileRulesViewer, p -> configBinder.getBean().setTranslationProfile(p),
+				() -> configBinder.getBean().getTranslationProfile());
 		CollapsibleLayout advanced = buildAdvancedSection();
 
 		OAuthRPConfiguration config = new OAuthRPConfiguration();
-		if (toEdit != null)
+		if (editMode)
 		{
 			config.fromProperties(toEdit.configuration);
 		}
 
-		binder.setBean(config);
-		profileRulesViewer.setInput(binder.getBean().getTranslationProfile().getRules());
+		configBinder.setBean(config);
+		profileRulesViewer.setInput(configBinder.getBean().getTranslationProfile().getRules());
 
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
-
 		mainView.addComponent(header);
 		mainView.addComponent(remoteDataMapping);
 		mainView.addComponent(advanced);
@@ -116,31 +116,31 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 
 		TextField clientId = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientId"));
 		clientId.setWidth(30, Unit.EM);
-		binder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
+		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
 		header.addComponent(clientId);
 
 		TextField clientSecret = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientSecret"));
 		clientSecret.setWidth(30, Unit.EM);
-		binder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
+		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
 		header.addComponent(clientSecret);
 
 		TextField requiredScopes = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.requiredScopes"));
 		requiredScopes.setWidth(30, Unit.EM);
-		binder.forField(requiredScopes).bind("requiredScopes");
+		configBinder.forField(requiredScopes).bind("requiredScopes");
 		header.addComponent(requiredScopes);
 
 		ComboBox<VerificationProtocol> verificationProtocol = new ComboBox<>(
 				msg.getMessage("OAuthRPAuthenticatorEditor.verificationProtocol"));
 		verificationProtocol.setItems(VerificationProtocol.values());
 		verificationProtocol.setValue(VerificationProtocol.unity);
-		binder.forField(verificationProtocol).bind("verificationProtocol");
+		configBinder.forField(verificationProtocol).bind("verificationProtocol");
 		header.addComponent(verificationProtocol);
 
 		TextField verificationEndpoint = new TextField(
 				msg.getMessage("OAuthRPAuthenticatorEditor.verificationEndpoint"));
 		verificationEndpoint.setWidth(LINK_FIELD_WIDTH, Unit.EM);
 		verificationEndpoint.setRequiredIndicatorVisible(false);
-		binder.forField(verificationEndpoint).asRequired((v, c) -> {
+		configBinder.forField(verificationEndpoint).asRequired((v, c) -> {
 
 			if (verificationProtocol.getValue() != VerificationProtocol.internal && v.isEmpty())
 			{
@@ -154,7 +154,7 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 
 		TextField profileEndpoint = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.profileEndpoint"));
 		profileEndpoint.setWidth(LINK_FIELD_WIDTH, Unit.EM);
-		binder.forField(profileEndpoint).bind("profileEndpoint");
+		configBinder.forField(profileEndpoint).bind("profileEndpoint");
 		header.addComponent(profileEndpoint);
 
 		return header;
@@ -164,9 +164,9 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 	{
 		FormLayoutWithFixedCaptionWidth advanced = new FormLayoutWithFixedCaptionWidth();
 		advanced.setMargin(false);
-		
+
 		TextField cacheTime = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.cacheTime"));
-		binder.forField(cacheTime)
+		configBinder.forField(cacheTime)
 				.withConverter(new StringToIntegerConverter(
 						msg.getMessage("OAuthRPAuthenticatorEditor.cacheTime.notANumber")))
 				.bind("cacheTime");
@@ -177,21 +177,21 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 				msg.getMessage("OAuthRPAuthenticatorEditor.clientHostnameChecking"));
 		clientHostnameChecking.setItems(ServerHostnameCheckingMode.values());
 		clientHostnameChecking.setValue(ServerHostnameCheckingMode.FAIL);
-		binder.forField(clientHostnameChecking).bind("clientHostnameChecking");
+		configBinder.forField(clientHostnameChecking).bind("clientHostnameChecking");
 		advanced.addComponent(clientHostnameChecking);
 
 		ComboBox<String> clientTrustStore = new ComboBox<>(
 				msg.getMessage("OAuthRPAuthenticatorEditor.clientTrustStore"));
 		clientTrustStore.setItems(validators);
 
-		binder.forField(clientTrustStore).bind("clientTrustStore");
+		configBinder.forField(clientTrustStore).bind("clientTrustStore");
 		advanced.addComponent(clientTrustStore);
 
 		ComboBox<ClientHttpMethod> clientHttpMethodForProfileAccess = new ComboBox<>(
 				msg.getMessage("OAuthRPAuthenticatorEditor.clientHttpMethodForProfileAccess"));
 		clientHttpMethodForProfileAccess.setItems(ClientHttpMethod.values());
 		clientHttpMethodForProfileAccess.setValue(ClientHttpMethod.get);
-		binder.forField(clientHttpMethodForProfileAccess).bind("clientHttpMethodForProfileAccess");
+		configBinder.forField(clientHttpMethodForProfileAccess).bind("clientHttpMethodForProfileAccess");
 		advanced.addComponent(clientHttpMethodForProfileAccess);
 
 		return new CollapsibleLayout(msg.getMessage("OAuthRPAuthenticatorEditor.advanced"), advanced);
@@ -205,32 +205,23 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 
 	private String getConfiguration() throws FormValidationException
 	{
-		if (binder.validate().hasErrors())
+		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();
 
-		return binder.getBean().toProperties();
+		return configBinder.getBean().toProperties();
 	}
 
-	public class OAuthRPConfiguration
+	public class OAuthRPConfiguration extends OAuthBaseConfiguration
 	{
 		private int cacheTime;
 		private VerificationProtocol verificationProtocol;
 		private String verificationEndpoint;
-		private String profileEndpoint;
-		private ClientAuthnMode clientAuthenticationMode;
-		private ClientAuthnMode clientAuthenticationModeForProfile;
-		private ClientHttpMethod clientHttpMethodForProfileAccess;
-		private String clientId;
-		private String clientSecret;
-		private String requiredScopes;
 		private boolean openIdMode;
-		private ServerHostnameCheckingMode clientHostnameChecking;
-		private String clientTrustStore;
-		private TranslationProfile translationProfile;
+		private String requiredScopes;
 
 		public OAuthRPConfiguration()
 		{
-			translationProfile = TranslationProfileGenerator.generateEmptyInputProfile();
+			super();
 		}
 
 		public void fromProperties(String source)
@@ -246,62 +237,57 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 
 			OAuthRPProperties oauthRPprop = new OAuthRPProperties(raw, pkiMan, tokenMan);
 
-			cacheTime = oauthRPprop.getIntValue(OAuthRPProperties.CACHE_TIME);
-			verificationProtocol = oauthRPprop.getEnumValue(OAuthRPProperties.VERIFICATION_PROTOCOL,
-					VerificationProtocol.class);
-			verificationEndpoint = oauthRPprop.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT);
-			profileEndpoint = oauthRPprop.getValue(OAuthRPProperties.PROFILE_ENDPOINT);
-
-			clientAuthenticationMode = oauthRPprop.getEnumValue(OAuthRPProperties.CLIENT_AUTHN_MODE,
-					ClientAuthnMode.class);
-			clientAuthenticationModeForProfile = oauthRPprop.getEnumValue(
-					OAuthRPProperties.CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, ClientAuthnMode.class);
-			clientHttpMethodForProfileAccess = oauthRPprop.getEnumValue(
+			setCacheTime(oauthRPprop.getIntValue(OAuthRPProperties.CACHE_TIME));
+			setVerificationProtocol(oauthRPprop.getEnumValue(OAuthRPProperties.VERIFICATION_PROTOCOL,
+					VerificationProtocol.class));
+			setVerificationEndpoint(oauthRPprop.getValue(OAuthRPProperties.VERIFICATION_ENDPOINT));
+			setProfileEndpoint(oauthRPprop.getValue(OAuthRPProperties.PROFILE_ENDPOINT));
+			setClientAuthenticationMode(oauthRPprop.getEnumValue(OAuthRPProperties.CLIENT_AUTHN_MODE,
+					ClientAuthnMode.class));
+			setClientAuthenticationModeForProfile(oauthRPprop.getEnumValue(
+					OAuthRPProperties.CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS, ClientAuthnMode.class));
+			setClientHttpMethodForProfileAccess(oauthRPprop.getEnumValue(
 					OAuthRPProperties.CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS,
-					ClientHttpMethod.class);
-			requiredScopes = oauthRPprop.getValue(OAuthRPProperties.REQUIRED_SCOPES);
+					ClientHttpMethod.class));
+			setRequiredScopes(oauthRPprop.getValue(OAuthRPProperties.REQUIRED_SCOPES));
+			setClientId(oauthRPprop.getValue(OAuthRPProperties.CLIENT_ID));
+			setClientSecret(oauthRPprop.getValue(OAuthRPProperties.CLIENT_SECRET));
+			setOpenIdMode(oauthRPprop.getBooleanValue(OAuthRPProperties.OPENID_MODE));
 
-			clientId = oauthRPprop.getValue(OAuthRPProperties.CLIENT_ID);
-			clientSecret = oauthRPprop.getValue(OAuthRPProperties.CLIENT_SECRET);
-			openIdMode = oauthRPprop.getBooleanValue(OAuthRPProperties.OPENID_MODE);
-
-			clientHostnameChecking = oauthRPprop.getEnumValue(OAuthRPProperties.CLIENT_HOSTNAME_CHECKING,
-					ServerHostnameCheckingMode.class);
-
-			clientTrustStore = oauthRPprop.getValue(OAuthRPProperties.CLIENT_TRUSTSTORE);
+			setClientHostnameChecking(oauthRPprop.getEnumValue(OAuthRPProperties.CLIENT_HOSTNAME_CHECKING,
+					ServerHostnameCheckingMode.class));
+			setClientTrustStore(oauthRPprop.getValue(OAuthRPProperties.CLIENT_TRUSTSTORE));
 
 			if (oauthRPprop.isSet(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE))
 			{
-				translationProfile = TranslationProfileGenerator.getProfileFromString(oauthRPprop
-						.getValue(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE));
+				setTranslationProfile(TranslationProfileGenerator.getProfileFromString(oauthRPprop
+						.getValue(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE)));
 
 			} else
 			{
-				translationProfile = TranslationProfileGenerator.generateIncludeInputProfile(
-						oauthRPprop.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE));
+				setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(
+						oauthRPprop.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE)));
 			}
 		}
 
 		public String toProperties()
 		{
-
 			Properties raw = new Properties();
+			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_ID, getClientId());
+			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_SECRET, getClientSecret());
 
-			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_ID, clientId);
-
-			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_SECRET, clientSecret);
-
-			if (requiredScopes != null)
+			if (getRequiredScopes() != null)
 			{
-				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.REQUIRED_SCOPES, requiredScopes);
+				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.REQUIRED_SCOPES,
+						getRequiredScopes());
 			}
 
 			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.OPENID_MODE, String.valueOf(openIdMode));
 
-			if (verificationEndpoint != null)
+			if (getVerificationEndpoint() != null)
 			{
 				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.VERIFICATION_ENDPOINT,
-						verificationEndpoint);
+						getVerificationEndpoint());
 			}
 
 			if (verificationProtocol != null)
@@ -310,54 +296,56 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 						verificationProtocol.toString());
 			}
 
-			if (profileEndpoint != null)
+			if (getProfileEndpoint() != null)
 			{
-				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.PROFILE_ENDPOINT, profileEndpoint);
+				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.PROFILE_ENDPOINT,
+						getProfileEndpoint());
 			}
 
 			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CACHE_TIME, String.valueOf(cacheTime));
 
-			if (clientAuthenticationMode != null)
+			if (getClientAuthenticationMode() != null)
 			{
 				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_AUTHN_MODE,
-						clientAuthenticationMode.toString());
+						getClientAuthenticationMode().toString());
 			}
 
-			if (clientAuthenticationModeForProfile != null)
+			if (getClientAuthenticationModeForProfile() != null)
 			{
 				raw.put(OAuthRPProperties.PREFIX
 						+ OAuthRPProperties.CLIENT_AUTHN_MODE_FOR_PROFILE_ACCESS,
-						clientAuthenticationModeForProfile.toString());
+						getClientAuthenticationModeForProfile().toString());
 			}
 
-			if (clientHttpMethodForProfileAccess != null)
+			if (getClientHttpMethodForProfileAccess() != null)
 			{
 				raw.put(OAuthRPProperties.PREFIX
 						+ OAuthRPProperties.CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS,
-						clientHttpMethodForProfileAccess.toString());
+						getClientHttpMethodForProfileAccess().toString());
 			}
 
 			try
 			{
 				raw.put(OAuthRPProperties.PREFIX
 						+ CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
-						Constants.MAPPER.writeValueAsString(translationProfile.toJsonObject()));
+						Constants.MAPPER.writeValueAsString(
+								getTranslationProfile().toJsonObject()));
 			} catch (Exception e)
 			{
 				throw new InternalException("Can't serialize authenticator translation profile to JSON",
 						e);
 			}
 
-			if (clientHostnameChecking != null)
+			if (getClientHostnameChecking() != null)
 			{
 				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_HOSTNAME_CHECKING,
-						clientHostnameChecking.toString());
+						getClientHostnameChecking().toString());
 			}
 
-			if (clientTrustStore != null)
+			if (getClientTrustStore() != null)
 			{
 				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_TRUSTSTORE,
-						clientTrustStore);
+						getClientTrustStore());
 			}
 
 			OAuthRPProperties prop = new OAuthRPProperties(raw, pkiMan, tokenMan);
@@ -395,66 +383,6 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 			this.verificationEndpoint = verificationEndpoint;
 		}
 
-		public ClientAuthnMode getClientAuthenticationMode()
-		{
-			return clientAuthenticationMode;
-		}
-
-		public void setClientAuthenticationMode(ClientAuthnMode clientAuthenticationMode)
-		{
-			this.clientAuthenticationMode = clientAuthenticationMode;
-		}
-
-		public ClientAuthnMode getClientAuthenticationModeForProfile()
-		{
-			return clientAuthenticationModeForProfile;
-		}
-
-		public void setClientAuthenticationModeForProfile(ClientAuthnMode clientAuthenticationModeForProfile)
-		{
-			this.clientAuthenticationModeForProfile = clientAuthenticationModeForProfile;
-		}
-
-		public ClientHttpMethod getClientHttpMethodForProfileAccess()
-		{
-			return clientHttpMethodForProfileAccess;
-		}
-
-		public void setClientHttpMethodForProfileAccess(ClientHttpMethod clientHttpMethodForProfileAccess)
-		{
-			this.clientHttpMethodForProfileAccess = clientHttpMethodForProfileAccess;
-		}
-
-		public String getClientId()
-		{
-			return clientId;
-		}
-
-		public void setClientId(String clientId)
-		{
-			this.clientId = clientId;
-		}
-
-		public String getClientSecret()
-		{
-			return clientSecret;
-		}
-
-		public void setClientSecret(String clientSecret)
-		{
-			this.clientSecret = clientSecret;
-		}
-
-		public String getRequiredScopes()
-		{
-			return requiredScopes;
-		}
-
-		public void setRequiredScopes(String requiredScopes)
-		{
-			this.requiredScopes = requiredScopes;
-		}
-
 		public boolean isOpenIdMode()
 		{
 			return openIdMode;
@@ -465,44 +393,14 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 			this.openIdMode = openIdMode;
 		}
 
-		public ServerHostnameCheckingMode getClientHostnameChecking()
+		public String getRequiredScopes()
 		{
-			return clientHostnameChecking;
+			return requiredScopes;
 		}
 
-		public void setClientHostnameChecking(ServerHostnameCheckingMode clientHostnameChecking)
+		public void setRequiredScopes(String requiredScopes)
 		{
-			this.clientHostnameChecking = clientHostnameChecking;
-		}
-
-		public String getClientTrustStore()
-		{
-			return clientTrustStore;
-		}
-
-		public void setClientTrustStore(String clientTrustStore)
-		{
-			this.clientTrustStore = clientTrustStore;
-		}
-
-		public TranslationProfile getTranslationProfile()
-		{
-			return translationProfile;
-		}
-
-		public void setTranslationProfile(TranslationProfile translationProfile)
-		{
-			this.translationProfile = translationProfile;
-		}
-
-		public String getProfileEndpoint()
-		{
-			return profileEndpoint;
-		}
-
-		public void setProfileEndpoint(String profileEndpoint)
-		{
-			this.profileEndpoint = profileEndpoint;
+			this.requiredScopes = requiredScopes;
 		}
 	}
 }

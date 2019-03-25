@@ -11,6 +11,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.ComboBox;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 
@@ -54,5 +55,12 @@ public class BaseLocalAuthenticatorEditor extends BaseAuthenticatorEditor
 				credential != null ? (allCredentials.isEmpty() ? "" : allCredentials.iterator().next())
 						: credential);
 		localCredentialBinder.setBean(value);
+	}
+	
+	protected boolean init(String defaultName, AuthenticatorDefinition toEdit, boolean forceNameEditable)
+	{
+		boolean editMode = super.init(defaultName, toEdit, forceNameEditable);
+		setLocalCredential(editMode ? toEdit.localCredentialName : null);
+		return editMode;	
 	}
 }

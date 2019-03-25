@@ -34,7 +34,8 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
- *  SMS authenticator editor
+ * SMS authenticator editor
+ * 
  * @author P.Piernik
  *
  */
@@ -54,15 +55,13 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 	@Override
 	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher switcher, boolean forceNameEditable)
 	{
-		boolean editMode = toEdit != null;
-		setName(editMode ? toEdit.id : msg.getMessage("SMSAuthenticatorEditor.defaultName"));
-		setNameReadOnly(editMode && !forceNameEditable);
-		setLocalCredential(editMode ? toEdit.localCredentialName: null);
-		
+		boolean editMode = init(msg.getMessage("SMSAuthenticatorEditor.defaultName"), toEdit,
+				forceNameEditable);
+
 		configBinder = new Binder<>(SMSConfiguration.class);
-		
+
 		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
-	
+
 		SMSConfiguration config = new SMSConfiguration();
 		if (editMode)
 		{
@@ -82,7 +81,7 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 
 		return main;
 	}
-	
+
 	private CollapsibleLayout buildInteractiveLoginSettingsSection()
 	{
 		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();

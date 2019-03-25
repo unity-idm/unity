@@ -201,6 +201,7 @@ public abstract class DBIntegrationTestBase extends SecuredDBIntegrationTestBase
 	{
 		CredentialDefinition credDef2 = new CredentialDefinition(
 				CertificateVerificator.NAME, "credential2");
+		credDef2.setConfiguration("");
 		credMan.addCredentialDefinition(credDef2);
 		
 		CredentialRequirements cr2 = new CredentialRequirements("cr-cert", "", 

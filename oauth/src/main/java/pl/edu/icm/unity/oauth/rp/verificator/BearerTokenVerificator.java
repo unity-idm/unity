@@ -102,7 +102,6 @@ public class BearerTokenVerificator extends AbstractRemoteVerificator implements
 			tokenChecker = verificatorProperties.getTokenChecker();
 			translationProfile = getTranslationProfile(verificatorProperties, CommonWebAuthnProperties.TRANSLATION_PROFILE,
 					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);			
-					verificatorProperties.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
 			int ttl = -1;
 			if (verificatorProperties.isSet(OAuthRPProperties.CACHE_TIME))
 				ttl = verificatorProperties.getIntValue(OAuthRPProperties.CACHE_TIME);

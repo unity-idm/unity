@@ -143,7 +143,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		} else
 		{
 			return TranslationProfileGenerator
-					.generateIncludeInputProfile(props.getValue(props.getValue(globalProfileNameKey)));
+					.generateIncludeInputProfile(props.getValue(globalProfileNameKey));
 		}
 	}
 

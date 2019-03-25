@@ -28,15 +28,15 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
- * 
+ * JWT authenticator editor 
  * @author P.Piernik
  *
  */
 public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private Binder<JWTConfiguration> configBinder;
 	private Set<String> credentials;
-
+	private Binder<JWTConfiguration> configBinder;
+	
 	public JWTAuthenticatorEditor(UnityMessageSource msg, Set<String> credentials)
 	{
 		super(msg);
@@ -46,9 +46,8 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 	@Override
 	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher switcher, boolean forceNameEditable)
 	{
-		boolean editMode = toEdit != null;
-		setName(editMode ? toEdit.id : msg.getMessage("JWTAuthenticatorEditor.defaultName"));
-		setNameReadOnly(editMode && !forceNameEditable);
+		boolean editMode = init(msg.getMessage("JWTAuthenticatorEditor.defaultName"), toEdit,
+				forceNameEditable);
 
 		ComboBox<String> credential = new ComboBox<>();
 		credential.setCaption(msg.getMessage("JWTAuthenticatorEditor.signingCredential"));
@@ -72,7 +71,7 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 			config.setCredential(credentials.iterator().next());
 		}
 		config.setTtl(3600);
-		
+
 		if (editMode)
 		{
 			config.fromProperties(toEdit.configuration, msg);

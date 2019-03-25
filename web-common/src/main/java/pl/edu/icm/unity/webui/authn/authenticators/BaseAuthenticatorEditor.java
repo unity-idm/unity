@@ -9,6 +9,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.binding.StringBindingValue;
 
@@ -45,8 +46,11 @@ public class BaseAuthenticatorEditor
 		nameBinder.setBean(value);
 	}
 	
-	protected void setNameReadOnly(boolean readOnly)
+	protected boolean init(String defaultName, AuthenticatorDefinition toEdit, boolean forceNameEditable)
 	{
-		name.setReadOnly(readOnly);
+		boolean editMode = toEdit != null;
+		setName(editMode ? toEdit.id : defaultName);
+		name.setReadOnly(editMode && !forceNameEditable);
+		return editMode;
 	}
 }

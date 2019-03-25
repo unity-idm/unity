@@ -46,10 +46,12 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	private Binder<PamConfiguration> binder;
+	
 	private List<String> registrationForms;
 	private EditInputTranslationProfileSubViewHelper profileHelper;
-
+	
+	private Binder<PamConfiguration> configBinder;
+	
 	public PamAuthenticatorEditor(UnityMessageSource msg, List<String> registrationForms,
 			EditInputTranslationProfileSubViewHelper profileHelper)
 
@@ -62,18 +64,17 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 	@Override
 	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher subViewSwitcher, boolean forceNameEditable)
 	{
-		boolean editMode = toEdit != null;
-		setName(editMode ? toEdit.id : msg.getMessage("PamAuthenticatorEditor.defaultName"));
-		setNameReadOnly(editMode && !forceNameEditable);
+		boolean editMode = init(msg.getMessage("PamAuthenticatorEditor.defaultName"), toEdit,
+				forceNameEditable);
 
-		binder = new Binder<>(PamConfiguration.class);
+		configBinder = new Binder<>(PamConfiguration.class);
 
 		FormLayout header = buildHeaderSection();
 		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
 		
 		TranslationRulesPresenter profileRulesViewer = profileHelper.getRulesPresenterInstance();
 		CollapsibleLayout remoteDataMapping = profileHelper.buildRemoteDataMappingEditorSection(subViewSwitcher, profileRulesViewer,
-				p -> binder.getBean().setTranslationProfile(p), () -> binder.getBean().getTranslationProfile());
+				p -> configBinder.getBean().setTranslationProfile(p), () -> configBinder.getBean().getTranslationProfile());
 
 		PamConfiguration config = new PamConfiguration();
 		if (editMode)
@@ -81,12 +82,11 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 			config.fromProperties(toEdit.configuration, msg);
 		}
 
-		binder.setBean(config);
-		profileRulesViewer.setInput(binder.getBean().getTranslationProfile().getRules());
+		configBinder.setBean(config);
+		profileRulesViewer.setInput(configBinder.getBean().getTranslationProfile().getRules());
 		
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
-
 		mainView.addComponent(header);
 		mainView.addComponent(remoteDataMapping);
 		mainView.addComponent(interactiveLoginSettings);
@@ -97,7 +97,7 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 	private FormLayout buildHeaderSection()
 	{
 		TextField pamFacility = new TextField(msg.getMessage("PamAuthenticatorEditor.pamFacility"));
-		binder.forField(pamFacility).asRequired(msg.getMessage("fieldRequired")).bind("pamFacility");
+		configBinder.forField(pamFacility).asRequired(msg.getMessage("fieldRequired")).bind("pamFacility");
 
 		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
 		header.setMargin(true);
@@ -123,9 +123,9 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		registrationForm.setItems(registrationForms);
 		interactiveLoginSettings.addComponent(registrationForm);
 
-		binder.forField(retrivalName).bind("retrivalName");
-		binder.forField(accountAssociation).bind("accountAssociation");
-		binder.forField(registrationForm).bind("registrationForm");
+		configBinder.forField(retrivalName).bind("retrivalName");
+		configBinder.forField(accountAssociation).bind("accountAssociation");
+		configBinder.forField(registrationForm).bind("registrationForm");
 
 		return new CollapsibleLayout(msg.getMessage("PamAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
@@ -140,10 +140,10 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 
 	private String getConfiguration() throws FormValidationException
 	{
-		if (binder.validate().hasErrors())
+		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();	
 	
-		return binder.getBean().toProperties();
+		return configBinder.getBean().toProperties();
 	}
 
 	public class PamConfiguration
