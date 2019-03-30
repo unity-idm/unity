@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.session;
 
 import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
+import static org.hamcrest.CoreMatchers.either;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
@@ -152,7 +153,7 @@ public class TestSessions extends DBIntegrationTestBase
 		
 		catchException(sessionMan).getSession(s.getId());
 		
-		assertThat(caughtException(), isA(SessionExpiredException.class));
+		assertThat(caughtException(), either(isA(SessionExpiredException.class)).or(isA(IllegalArgumentException.class)));
 	}
 
 	@Test
