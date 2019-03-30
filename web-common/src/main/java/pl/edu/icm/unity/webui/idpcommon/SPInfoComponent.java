@@ -12,6 +12,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
 
@@ -67,13 +68,13 @@ public class SPInfoComponent extends CustomComponent
 			main.addComponent(spacer);
 		}
 		
-		Label info1Id = new Label(msg.getMessage("SPInfoComponent.requesterName", name));
+		Label info1Id = new Label100(msg.getMessage("SPInfoComponent.requesterName", name));
 		info1Id.addStyleName(Styles.vLabelLarge.toString());
 		main.addComponent(info1Id);
 		
 		if (url != null)
 		{
-			Label info1Addr = new Label(msg.getMessage("SPInfoComponent.requesterAddress", url));
+			Label info1Addr = new Label100(msg.getMessage("SPInfoComponent.requesterAddress", url));
 			info1Addr.addStyleName(Styles.vLabelSmall.toString());
 			main.addComponent(info1Addr);
 		}

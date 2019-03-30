@@ -19,6 +19,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
+import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -116,20 +117,20 @@ public class IdentitySelectorComponent extends CustomComponent
 			Component help = getIdentityHelp(selectedIdentity);
 			ExpandCollapseButton expander = new ExpandCollapseButton(true, help);
 			
-			Label identityL = new Label(msg.getMessage("IdentitySelectorComponent.identity"));
+			Label identityL = new Label100(msg.getMessage("IdentitySelectorComponent.identity"));
 			identityL.setStyleName(Styles.bold.toString());
 			
 			header.addComponents(identityL);
 			
-			Label identityValue = new Label(getIdentityVisualValue(selectedIdentity));
+			Label identityValue = new Label100(getIdentityVisualValue(selectedIdentity));
 			identityValue.addStyleName(Styles.emphasized.toString());
 			
 			contents.addComponents(header, identityValue, expander, help);
 		} else
 		{
-			Label identitiesL = new Label(msg.getMessage("IdentitySelectorComponent.identities")); 
+			Label identitiesL = new Label100(msg.getMessage("IdentitySelectorComponent.identities")); 
 			identitiesL.setStyleName(Styles.bold.toString());
-			Label infoManyIds = new Label(msg.getMessage("IdentitySelectorComponent.infoManyIds"));
+			Label infoManyIds = new Label100(msg.getMessage("IdentitySelectorComponent.infoManyIds"));
 			infoManyIds.setStyleName(Styles.vLabelSmall.toString());
 			identitiesCB = new ComboBox<IdentityParam>();
 			identitiesCB.setItems(validIdentities);
@@ -153,10 +154,10 @@ public class IdentitySelectorComponent extends CustomComponent
 			String displayedValue = idTypeDef.toHumanFriendlyString(msg, identity);
 			if (!displayedValue.equals(identity.getValue()))
 			{
-				ret.addComponent(new Label(msg.getMessage(
+				ret.addComponent(new Label100(msg.getMessage(
 						"IdentitySelectorComponent.fullValue", identity.getValue())));
 			}
-			Label typeDesc = new Label(idTypeDef.getHumanFriendlyDescription(msg));
+			Label typeDesc = new Label100(idTypeDef.getHumanFriendlyDescription(msg));
 			typeDesc.addStyleName(Styles.vLabelSmall.toString());
 			ret.addComponent(typeDesc);
 			return ret;

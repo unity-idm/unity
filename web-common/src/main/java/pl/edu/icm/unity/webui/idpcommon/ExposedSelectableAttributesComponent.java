@@ -20,6 +20,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.webui.common.ExpandCollapseButton;
+import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.SelectableAttributeWithValues;
@@ -110,12 +111,13 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 		final ExpandCollapseButton showDetails = new ExpandCollapseButton(true, details);
 		showDetails.setId("ExposedSelectableAttributes.showDetails");
 		
-		Label attributesL = new Label(msg.getMessage("ExposedAttributesComponent.attributes"));
+		Label attributesL = new Label100(msg.getMessage("ExposedAttributesComponent.attributes"));
 		attributesL.addStyleName(Styles.bold.toString());
 		
 		HtmlLabel credInfo = new HtmlLabel(msg);
 		credInfo.setHtmlValue("ExposedAttributesComponent.credInfo");
 		credInfo.addStyleName(Styles.vLabelSmall.toString());
+		credInfo.setWidth(100, Unit.PERCENTAGE);
 		
 		contents.addComponent(attributesL);
 		contents.addComponent(showDetails);
@@ -127,6 +129,7 @@ public class ExposedSelectableAttributesComponent extends CustomComponent
 			HtmlLabel attributesInfo = new HtmlLabel(msg,
 					"ExposedAttributesComponent.attributesInfo");
 			attributesInfo.addStyleName(Styles.vLabelSmall.toString());
+			attributesInfo.setWidth(100, Unit.PERCENTAGE);
 			details.addComponent(attributesInfo);
 		}
 		details.addComponent(getAttributesListComponent());
