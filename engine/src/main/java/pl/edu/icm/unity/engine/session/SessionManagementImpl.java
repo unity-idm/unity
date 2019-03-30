@@ -332,7 +332,16 @@ public class SessionManagementImpl implements SessionManagement
 		@Override
 		public void run()
 		{
-			List<Token> tokens = tokensManagement.getAllTokens(SESSION_TOKEN_TYPE);
+			List<Token> tokens;
+			try
+			{
+				tokens = tokensManagement.getAllTokens(SESSION_TOKEN_TYPE);
+			} catch (Exception e)
+			{
+				log.warn("Encounterd an error when trying to obtain session tokens from DB. "
+						+ "Cleanup will be tried again in the next round.", e);
+				return;
+			}
 			long now = System.currentTimeMillis();
 			for (Token t: tokens)
 			{
