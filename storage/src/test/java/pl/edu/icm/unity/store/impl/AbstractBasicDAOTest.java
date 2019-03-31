@@ -43,7 +43,7 @@ public abstract class AbstractBasicDAOTest<T>
 	
 	@Autowired
 	protected ImportExport ie;
-	
+
 	@Before
 	public void cleanDB()
 	{

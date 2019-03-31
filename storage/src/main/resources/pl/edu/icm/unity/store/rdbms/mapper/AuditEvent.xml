@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.audit.AuditEventMapper">
+	<resultMap id="auditEventResult" type="AuditEventB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="timestamp" column="TIMESTAMP"/>
+		<result property="type" column="TYPE"/>
+		<result property="subjectId" column="SUBJECT_ID"/>
+		<result property="subjectEntityId" column="SUBJECT_ENTITY_ID"/>
+		<result property="subjectName" column="SUBJECT_NAME"/>
+		<result property="subjectEmail" column="SUBJECT_EMAIL"/>
+		<result property="initiatorId" column="INITIATOR_ID"/>
+		<result property="initiatorEntityId" column="INITIATOR_ENTITY_ID"/>
+		<result property="initiatorName" column="INITIATOR_NAME"/>
+		<result property="initiatorEmail" column="INITIATOR_EMAIL"/>
+		<result property="action" column="ACTION"/>
+		<result property="contents" column="CONTENTS"/>
+		<collection property="tags" ofType="String" javaType="java.util.HashSet">
+			<result column="TAG" />
+		</collection>
+	</resultMap>
+	
+	<insert id="create" parameterType="AuditEventB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO AUDIT_EVENTS (NAME, TIMESTAMP , TYPE, SUBJECT_ID, INITIATOR_ID, ACTION, CONTENTS)
+			VALUES (#{name}, #{timestamp}, #{type}, #{subjectId}, #{initiatorId}, #{action}, #{contents})
+	</insert>
+
+	<insert id="createWithKey" parameterType="EventB">
+		INSERT INTO AUDIT_EVENTS (ID, NAME, TIMESTAMP , TYPE, SUBJECT_ID, INITIATOR_ID, ACTION, CONTENTS)
+			VALUES (#{id}, #{timestamp}, #{type}, #{subjectId}, #{initiatorId}, #{action}, #{contents})
+	</insert>
+
+	<update id="updateByKey" parameterType="EventB">
+		UPDATE AUDIT_EVENTS SET NAME = #{name}, TIMESTAMP = #{timestamp}, TYPE = #{type},
+			SUBJECT_ID = #{subjectId}, INITIATOR_ID = #{initiatorId},
+			ACTION = #{action}, CONTENTS = #{contents}
+		WHERE ID = #{id}
+	</update>
+
+	<sql id="getWithJoin">
+		SELECT E.ID, E.NAME, E.TIMESTAMP, E.TYPE, E.ACTION, E.CONTENTS,
+       		S.ID AS SUBJECT_ID, S.ENTITY_ID AS SUBJECT_ENTITY_ID, S.NAME AS SUBJECT_NAME, S.EMAIL AS SUBJECT_EMAIL,
+       		I.ID AS INITIATOR_ID, I.ENTITY_ID AS INITIATOR_ENTITY_ID, I.NAME AS INITIATOR_NAME, I.EMAIL AS INITIATOR_EMAIL,
+       		AT.TAG AS TAG
+	  	FROM AUDIT_EVENTS AS E
+       		LEFT JOIN AUDIT_ENTITIES AS S ON E.SUBJECT_ID = S.ID
+       		LEFT JOIN AUDIT_ENTITIES AS I ON E.INITIATOR_ID = I.ID
+       		LEFT JOIN AUDIT_EVENTS_TAGS AET ON E.ID = AET.EVENT_ID
+       		LEFT JOIN AUDIT_TAGS AT ON AET.TAG_ID = AT.ID
+	</sql>
+
+	<select id="getAll" resultMap="auditEventResult">
+		<include refid="getWithJoin"/>
+	</select>
+
+	<select id="getByKey" parameterType="long" resultMap="auditEventResult">
+		<include refid="getWithJoin"/>
+		WHERE E.ID = #{id}
+	</select>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM AUDIT_EVENTS WHERE ID = #{value}
+	</delete>
+
+	<delete id="deleteAll">
+		DELETE FROM AUDIT_EVENTS
+	</delete>
+
+	<!-- custom -->
+	<select id="getAuditEntityId" parameterType="AuditEntityB" resultType="long">
+		SELECT ID FROM AUDIT_ENTITIES WHERE ENTITY_ID=#{entityId} and NAME=#{name} and EMAIL=#{email}
+	</select>
+
+	<insert id="createAuditEntity" parameterType="AuditEntityB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO AUDIT_ENTITIES (ENTITY_ID, NAME, EMAIL)
+			VALUES (#{entityId}, #{name}, #{email})
+	</insert>
+
+	<select id="getAllTags" resultType="string">
+		SELECT TAG FROM AUDIT_TAGS;
+	</select>
+
+	<insert id="createTags" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO AUDIT_TAGS (TAG) VALUES
+		<foreach collection="tagList" item="item" index="index" separator=",">
+			(#{item})
+		</foreach>
+	</insert>
+
+	<insert id="insertAuditTags">
+		INSERT INTO AUDIT_EVENTS_TAGS SELECT #{eventId},ID FROM AUDIT_TAGS WHERE TAG IN (
+		<foreach collection="tagList" item="item" index="index" separator=",">
+			#{item}
+		</foreach>
+		)
+	</insert>
+
+	<delete id="deleteTags">
+		DELETE FROM AUDIT_EVENTS_TAGS WHERE EVENT_ID=#{eventId};
+	</delete>
+</mapper>

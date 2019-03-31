@@ -38,6 +38,12 @@
 	<update id="cleardb-10">
 		DROP TABLE IF EXISTS EVENTS_QUEUE;
 	</update>
+	<update id="cleardb-11">
+		DROP TABLE IF EXISTS AUDIT_ENTITIES;
+		DROP TABLE IF EXISTS AUDIT_EVENTS;
+		DROP TABLE IF EXISTS AUDIT_TAGS;
+		DROP TABLE IF EXISTS AUDIT_EVENTS_TAGS;
+	</update>
 	<update id="cleardb-99">
 		DROP TABLE IF EXISTS UVOS_FLAG;
 	</update>
@@ -76,5 +82,11 @@
 	</delete>
 	<delete id="deletedb-09">
 		DELETE FROM EVENTS_QUEUE;
+	</delete>
+	<delete id="deletedb-10">
+		DELETE FROM AUDIT_ENTITIES;
+		DELETE FROM AUDIT_EVENTS;
+		DELETE FROM AUDIT_TAGS;
+		DELETE FROM AUDIT_EVENTS_TAGS;
 	</delete>
 </mapper>
