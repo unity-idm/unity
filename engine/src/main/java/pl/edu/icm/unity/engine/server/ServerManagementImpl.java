@@ -165,7 +165,7 @@ public class ServerManagementImpl implements ServerManagement
 		authz.checkAuthorization(AuthzCapability.maintenance);
 		try
 		{
-			config.reloadIfChanged();
+			config.reload();
 		} catch (ConfigurationException e)
 		{
 			throw new InternalException("Error in configuration file", e);
