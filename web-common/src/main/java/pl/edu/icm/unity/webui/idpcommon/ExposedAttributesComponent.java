@@ -82,6 +82,7 @@ public class ExposedAttributesComponent extends CustomComponent
 		HtmlLabel credInfo = new HtmlLabel(msg);
 		credInfo.setHtmlValue("ExposedAttributesComponent.credInfo");
 		credInfo.addStyleName(Styles.vLabelSmall.toString());
+		credInfo.setWidth(100, Unit.PERCENTAGE);
 
 		contents.addComponent(attributesL);
 		contents.addComponent(showDetails);

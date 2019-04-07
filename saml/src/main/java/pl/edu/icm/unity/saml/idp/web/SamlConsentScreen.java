@@ -32,6 +32,7 @@ import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlTag;
@@ -128,11 +129,11 @@ public class SamlConsentScreen extends CustomComponent
 		String returnAddress = samlCtx.getSamlConfiguration().getReturnAddressForRequester(
 					samlCtx.getRequest());
 
-		Label info1 = new Label(msg.getMessage("SamlIdPWebUI.info1"));
+		Label info1 = new Label100(msg.getMessage("SamlIdPWebUI.info1"));
 		info1.addStyleName(Styles.vLabelH1.toString());
 		SPInfoComponent spInfo = new SPInfoComponent(msg, null, samlRequester, returnAddress);
 		Label spc1 = HtmlTag.br();
-		Label info2 = new Label(msg.getMessage("SamlIdPWebUI.info2"));
+		Label info2 = new Label100(msg.getMessage("SamlIdPWebUI.info2"));
 		
 		contents.addComponents(info1, spInfo, spc1, info2);
 	}
@@ -153,6 +154,7 @@ public class SamlConsentScreen extends CustomComponent
 		eiLayout.addComponent(attrsPresenter);
 		
 		rememberCB = new CheckBox(msg.getMessage("SamlIdPWebUI.rememberSettings"));
+		rememberCB.setWidth(100, Unit.PERCENTAGE);
 		eiLayout.addComponent(rememberCB);
 		return exposedInfoPanel;
 	}

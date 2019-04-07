@@ -21,6 +21,16 @@
 
 	<dependencies>
 		<!-- compile -->
+		
+		<!-- enable for java 11 -->
+		<!-- 
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>jaxws-ri</artifactId>
+			<type>pom</type>
+		</dependency>
+		 -->
+		 
 		<dependency>
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-engine</artifactId>
@@ -226,7 +236,7 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-
+	
 	<build>
 		<plugins>
 			<plugin>

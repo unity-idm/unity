@@ -46,7 +46,8 @@ public class UserHomeUI extends UnityEndpointUIBase implements UnityWebUI
 
 	@Autowired
 	public UserHomeUI(UnityMessageSource msg, UserAccountComponent userAccountComponent,
-			StandardWebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher, ProjectManagementHelper projectManHelper)
+			StandardWebAuthenticationProcessor authnProcessor, EnquiresDialogLauncher enquiryDialogLauncher, 
+			ProjectManagementHelper projectManHelper)
 	{
 		super(msg, enquiryDialogLauncher);
 		this.userAccount = userAccountComponent;

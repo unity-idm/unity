@@ -37,6 +37,7 @@ import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
+import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attributes.ext.JpegImageAttributeHandler;
@@ -144,13 +145,13 @@ class OAuthConsentScreen extends CustomComponent
 					image, 
 					syntax, "jpg").getResource();
 		}
-		Label info1 = new Label(msg.getMessage("OAuthAuthzUI.info1"));
+		Label info1 = new Label100(msg.getMessage("OAuthAuthzUI.info1"));
 		info1.addStyleName(Styles.vLabelH1.toString());
 		
 		SPInfoComponent spInfo = new SPInfoComponent(msg, clientLogo, oauthRequester, returnAddress);
 		
 		Label spc1 = HtmlTag.br();
-		Label info2 = new Label(msg.getMessage("OAuthAuthzUI.info2"));
+		Label info2 = new Label100(msg.getMessage("OAuthAuthzUI.info2"));
 		
 		contents.addComponents(info1, spInfo, spc1, info2);
 	}
@@ -167,8 +168,8 @@ class OAuthConsentScreen extends CustomComponent
 
 		for (ScopeInfo si: ctx.getEffectiveRequestedScopes())
 		{
-			Label scope = new Label(si.getName());
-			Label scopeDesc = new Label(si.getDescription());
+			Label scope = new Label100(si.getName());
+			Label scopeDesc = new Label100(si.getDescription());
 			scopeDesc.addStyleName(Styles.vLabelSmall.toString());
 			eiLayout.addComponents(scope, scopeDesc);
 		}

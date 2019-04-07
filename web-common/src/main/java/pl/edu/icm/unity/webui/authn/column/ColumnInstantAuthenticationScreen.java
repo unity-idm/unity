@@ -52,6 +52,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
 import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -265,8 +266,9 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		}
 		if (mainTitle != null)
 		{
-			Label mainTitleLabel = new Label(mainTitle);
+			Label mainTitleLabel = new Label100(mainTitle);
 			mainTitleLabel.addStyleName("u-authn-title");
+			mainTitleLabel.addStyleName(Styles.textCenter.toString());
 			return mainTitleLabel;
 		}
 		return null;
