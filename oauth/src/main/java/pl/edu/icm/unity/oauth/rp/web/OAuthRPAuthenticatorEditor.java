@@ -20,6 +20,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webadmin.tprofile.TranslationRulesPresenter;
 import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
@@ -207,8 +208,13 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 	{
 		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();
-
-		return configBinder.getBean().toProperties();
+		try
+		{
+			return configBinder.getBean().toProperties();
+		} catch (ConfigurationException e)
+		{
+			throw new FormValidationException("Invalid configuration of the oauth-rp verificator", e);
+		}
 	}
 
 	public class OAuthRPConfiguration extends OAuthBaseConfiguration
@@ -270,7 +276,7 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 			}
 		}
 
-		public String toProperties()
+		public String toProperties() throws ConfigurationException
 		{
 			Properties raw = new Properties();
 			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.CLIENT_ID, getClientId());

@@ -23,6 +23,10 @@ import org.apache.commons.io.FileUtils;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickListener;
+
+import eu.unicore.util.configuration.ConfigurationException;
+
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
@@ -33,12 +37,14 @@ import pl.edu.icm.unity.composite.password.CompositePasswordProperties.Verificat
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.ldap.client.web.LdapAuthenticatorEditorFactory;
 import pl.edu.icm.unity.pam.web.PamAuthenticatorEditorFactory;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordVerificator;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
@@ -62,6 +68,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 	private UnityMessageSource msg;
 	private Collection<CredentialDefinition> credentialDefinitions;
 	private PamAuthenticatorEditorFactory pamFactory;
+	private LdapAuthenticatorEditorFactory ldapFactory;
 
 	private RemoteAuthenticatorsComponent remoteAuthn;
 	private Binder<CompositePasswordConfiguration> configBinder;
@@ -69,12 +76,13 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 
 	CompositePasswordAuthenticatorEditor(UnityMessageSource msg,
 			Collection<CredentialDefinition> credentialDefinitions,
-			PamAuthenticatorEditorFactory pamFactory)
+			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory)
 	{
 		super(msg);
 		this.msg = msg;
 		this.credentialDefinitions = credentialDefinitions;
 		this.pamFactory = pamFactory;
+		this.ldapFactory = ldapFactory;
 	}
 
 	@Override
@@ -141,7 +149,13 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 
 		configBinder.getBean().setRemoteAuthenticators(remoteAuthn.getRemoteAuthenticators());
 
-		return configBinder.getBean().toProperties();
+		try
+		{
+			return configBinder.getBean().toProperties();
+		} catch (ConfigurationException e)
+		{
+			throw new FormValidationException("Invalid configuration of the composite-password verificator", e);
+		}
 	}
 
 	@Override
@@ -331,18 +345,12 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 			main.setMargin(false);
 
 			Button addPam = new Button(msg.getMessage("RemoteAuthenticatorsComponent.addPam"));
-			addPam.addClickListener(e -> {
-				gotoEditPamSubView(null, remoteAuthnList.getElements().stream().map(p -> p.name)
-						.collect(Collectors.toSet()), c -> {
-							subViewSwitcher.exitSubView();
-							remoteAuthnList.addElement(new SimpleAuthenticatorInfo(
-									VerificatorTypes.pam, c.id, c.configuration));
-						});
-			});
+			addPam.addClickListener(getAddButtonClickListener(VerificatorTypes.pam));
 			addPam.setIcon(Images.add.getResource());
 
 			Button addLdap = new Button(msg.getMessage("RemoteAuthenticatorsComponent.addLdap"));
 			addLdap.setIcon(Images.add.getResource());
+			addLdap.addClickListener(getAddButtonClickListener(VerificatorTypes.ldap));
 
 			HorizontalLayout buttons = new HorizontalLayout();
 			buttons.setMargin(false);
@@ -362,11 +370,27 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 			setCompositionRoot(main);
 		}
 
-		private void gotoEditPamSubView(SimpleAuthenticatorInfo authenticator, Set<String> names,
+		private ClickListener getAddButtonClickListener(VerificatorTypes forType)
+		{
+			return e -> {
+				gotoEditRemoteAuthSubView(
+						forType.equals(VerificatorTypes.ldap) ? ldapFactory : pamFactory, null,
+						remoteAuthnList.getElements().stream().map(p -> p.name)
+								.collect(Collectors.toSet()),
+						c -> {
+							subViewSwitcher.exitSubView();
+							remoteAuthnList.addElement(new SimpleAuthenticatorInfo(forType,
+									c.id, c.configuration));
+						});
+			};
+		}
+
+		private void gotoEditRemoteAuthSubView(AuthenticatorEditorFactory factory,
+				SimpleAuthenticatorInfo authenticator, Set<String> names,
 				Consumer<AuthenticatorDefinition> onConfirm)
 		{
 
-			EditRemoteAuthenticatorSubView subView = new EditRemoteAuthenticatorSubView(msg, pamFactory,
+			EditRemoteAuthenticatorSubView subView = new EditRemoteAuthenticatorSubView(msg, factory,
 					authenticator != null
 							? new AuthenticatorDefinition(authenticator.name, null,
 									authenticator.config, null)
@@ -387,12 +411,18 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 			SingleActionHandler<SimpleAuthenticatorInfo> edit = SingleActionHandler
 					.builder4Edit(msg, SimpleAuthenticatorInfo.class).withHandler(r -> {
 						SimpleAuthenticatorInfo edited = r.iterator().next();
-						gotoEditPamSubView(edited, remoteAuthnList.getElements().stream()
-								.filter(p -> p.name != edited.name).map(p -> p.name)
-								.collect(Collectors.toSet()), c -> {
+						gotoEditRemoteAuthSubView(
+								edited.type.equals(VerificatorTypes.ldap) ? ldapFactory
+										: pamFactory,
+								edited,
+								remoteAuthnList.getElements().stream()
+										.filter(p -> p.name != edited.name)
+										.map(p -> p.name)
+										.collect(Collectors.toSet()),
+								c -> {
 									remoteAuthnList.replaceElement(edited,
 											new SimpleAuthenticatorInfo(
-													VerificatorTypes.pam,
+													edited.type,
 													c.id,
 													c.configuration));
 									subViewSwitcher.exitSubView();

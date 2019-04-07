@@ -27,6 +27,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
@@ -62,11 +63,11 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 	private PKIManagement pkiMan;
 	private EditInputTranslationProfileSubViewHelper profileHelper;
 	private RegistrationsManagement registrationMan;
-	
+
 	private ProvidersComponent providersComponent;
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
-	
+
 	public OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
 			EditInputTranslationProfileSubViewHelper profileHelper, RegistrationsManagement registrationMan)
 	{
@@ -137,9 +138,13 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 
 		OAuthConfiguration config = configBinder.getBean();
 		config.setProviders(providersComponent.getConfigurations());
-
-		return config.toProperties();
-
+		try
+		{
+			return config.toProperties();
+		} catch (ConfigurationException e)
+		{
+			throw new FormValidationException("Invalid configuration of the oauth2 verificator", e);
+		}
 	}
 
 	public class OAuthConfiguration
@@ -180,6 +185,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 				throw new InternalException("Invalid configuration of the oauth2 verificator", e);
 			}
 
+			
 			OAuthClientProperties oauthProp = new OAuthClientProperties(raw, pkiMan);
 			accountAssociation = oauthProp.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION);
 
@@ -198,7 +204,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 
 		}
 
-		public String toProperties()
+		public String toProperties() throws ConfigurationException
 		{
 			Properties raw = new Properties();
 
@@ -213,7 +219,6 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 			OAuthClientProperties prop = new OAuthClientProperties(raw, pkiMan);
 			return prop.getAsString();
 		}
-
 	}
 
 	private class ProvidersComponent extends CustomComponent

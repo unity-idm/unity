@@ -8,7 +8,6 @@ package pl.edu.icm.unity.webui.authn.authenticators.password;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
@@ -16,6 +15,7 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -64,6 +64,9 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 		if (editMode)
 		{
 			config.fromProperties(toEdit.configuration, msg);
+		} else
+		{
+			config.setLocalCredential(getDefaultLocalCredential());
 		}
 		configBinder.setBean(config);
 
@@ -105,7 +108,13 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();
 
-		return configBinder.getBean().toProperties();
+		try
+		{
+			return configBinder.getBean().toProperties();
+		} catch (ConfigurationException e)
+		{
+			throw new FormValidationException("Invalid configuration of the password verificator", e);
+		}
 	}
 
 	public static class PasswordConfiguration
@@ -140,13 +149,10 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 		public String toProperties()
 		{
 			Properties raw = new Properties();
-			if (retrivalName != null && !retrivalName.getMap().isEmpty())
+			if (retrivalName != null)
 			{
-				for (Map.Entry<String, String> entry : retrivalName.getMap().entrySet())
-				{
-					raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + "."
-							+ entry.getKey(), entry.getValue());
-				}
+				retrivalName.toProperties(raw,
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
 			}
 			PasswordRetrievalProperties prop = new PasswordRetrievalProperties(raw);
 			return prop.getAsString();

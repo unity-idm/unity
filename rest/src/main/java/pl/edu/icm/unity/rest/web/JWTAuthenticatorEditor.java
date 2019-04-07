@@ -17,6 +17,7 @@ import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextField;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.rest.jwt.JWTAuthenticationProperties;
@@ -100,7 +101,13 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();
 
-		return configBinder.getBean().toProperties();
+		try
+		{
+			return configBinder.getBean().toProperties();
+		} catch (ConfigurationException e)
+		{
+			throw new FormValidationException("Invalid configuration of the jwt verificator", e);
+		}
 	}
 
 	public static class JWTConfiguration

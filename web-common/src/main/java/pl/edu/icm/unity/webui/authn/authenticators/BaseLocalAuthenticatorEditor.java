@@ -52,9 +52,14 @@ public class BaseLocalAuthenticatorEditor extends BaseAuthenticatorEditor
 	protected void setLocalCredential(String credential)
 	{
 		StringBindingValue value = new StringBindingValue(
-				credential != null ? (allCredentials.isEmpty() ? "" : allCredentials.iterator().next())
+				credential == null ? getDefaultLocalCredential()
 						: credential);
 		localCredentialBinder.setBean(value);
+	}
+	
+	protected String getDefaultLocalCredential()
+	{
+		return allCredentials.isEmpty() ? "" : allCredentials.iterator().next();
 	}
 	
 	protected boolean init(String defaultName, AuthenticatorDefinition toEdit, boolean forceNameEditable)

@@ -18,6 +18,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webadmin.tprofile.TranslationRulesPresenter;
 import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
 import pl.edu.icm.unity.Constants;
@@ -143,7 +144,13 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();	
 	
-		return configBinder.getBean().toProperties();
+		try
+		{
+			return configBinder.getBean().toProperties();
+		} catch (ConfigurationException e)
+		{
+			throw new FormValidationException("Invalid configuration of the pam verificator", e);
+		}
 	}
 
 	public class PamConfiguration
