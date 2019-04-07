@@ -17,17 +17,17 @@ import com.unboundid.ldap.sdk.LDAPException;
  */
 public class SearchSpecification
 {
-	private String filterExp;
+	private String filter;
 	private String baseDN;
-	private String[] attributes;
+	private String attributes;
 	private SearchScope scope;
 	
-	public SearchSpecification(String filter, String baseDN, String[] attributes, 
+	public SearchSpecification(String filter, String baseDN, String attributes, 
 			SearchScope scope) throws LDAPException
 	{
 		super();
 		createFilter(filter, "test");
-		this.filterExp = filter;
+		this.filter = filter;
 		this.baseDN = baseDN;
 		this.attributes = attributes;
 		this.scope = scope;
@@ -35,17 +35,23 @@ public class SearchSpecification
 
 	public SearchSpecification()
 	{
+		//for binder
+		this.scope = SearchScope.base;
 	}
 	
 	public Filter getFilter(String username) throws LDAPException
 	{
-		return createFilter(filterExp, username);
+		return createFilter(filter, username);
+	}
+	
+	public String getFilter()
+	{
+		return filter;
 	}
 
-	public void setFilter(String filter) throws LDAPException
+	public void setFilter(String filter)
 	{
-		createFilter(filter, "test");
-		this.filterExp = filter;
+		this.filter = filter;
 	}
 
 	public String getBaseDN(String username)
@@ -53,18 +59,28 @@ public class SearchSpecification
 		String sanitizedInput = LdapUnsafeArgsEscaper.escapeLDAPSearchFilter(username);
 		return baseDN.replace("{USERNAME}", sanitizedInput);  
 	}
+	
+	public String getBaseDN()
+	{
+		return baseDN;
+	}
 
 	public void setBaseDN(String baseDN)
 	{
 		this.baseDN = baseDN;
 	}
 
-	public String[] getAttributes()
+	public String getAttributes()
 	{
 		return attributes;
 	}
+	
+	public String[] getSplitedAttributes()
+	{
+		return attributes!= null ? attributes.split("[ ]+") : new String[0];
+	}
 
-	public void setAttributes(String[] attributes)
+	public void setAttributes(String attributes)
 	{
 		this.attributes = attributes;
 	}
@@ -79,7 +95,7 @@ public class SearchSpecification
 		this.scope = scope;
 	}
 
-	private static Filter createFilter(String filterExp, String username) throws LDAPException
+	public static Filter createFilter(String filterExp, String username) throws LDAPException
 	{
 		String sanitizedInput = LdapUnsafeArgsEscaper.escapeLDAPSearchFilter(username);
 		String filterStr = filterExp.replace("{USERNAME}", sanitizedInput);  

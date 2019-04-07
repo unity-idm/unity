@@ -286,7 +286,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 						gotoEditSubView(edited, providersList.getElements().stream()
 								.filter(p -> p.getId() != edited.getId())
 								.map(p -> p.getId()).collect(Collectors.toSet()), c -> {
-									providersList.replaceEntry(edited, c);
+									providersList.replaceElement(edited, c);
 									subViewSwitcher.exitSubView();
 								});
 					}

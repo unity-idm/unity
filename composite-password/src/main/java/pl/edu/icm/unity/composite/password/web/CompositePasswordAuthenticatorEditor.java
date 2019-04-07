@@ -390,7 +390,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 						gotoEditPamSubView(edited, remoteAuthnList.getElements().stream()
 								.filter(p -> p.name != edited.name).map(p -> p.name)
 								.collect(Collectors.toSet()), c -> {
-									remoteAuthnList.replaceEntry(edited,
+									remoteAuthnList.replaceElement(edited,
 											new SimpleAuthenticatorInfo(
 													VerificatorTypes.pam,
 													c.id,

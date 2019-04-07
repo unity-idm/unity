@@ -31,7 +31,7 @@ import static pl.edu.icm.unity.ldap.client.LdapProperties.SERVERS;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.SYSTEM_DN;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.SYSTEM_PASSWORD;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.TLS_TRUST_ALL;
-import static pl.edu.icm.unity.ldap.client.LdapProperties.TRANSLATION_PROFILE;
+import static pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties.TRANSLATION_PROFILE;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.TRUSTSTORE;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_SEARCH_KEY;
 import static pl.edu.icm.unity.ldap.client.LdapProperties.USER_DN_TEMPLATE;

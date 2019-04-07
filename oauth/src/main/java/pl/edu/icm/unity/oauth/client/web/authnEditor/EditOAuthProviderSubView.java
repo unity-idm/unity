@@ -356,7 +356,6 @@ public class EditOAuthProviderSubView extends CustomComponent implements UnitySu
 		ComboBox<String> clientTrustStore = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.clientTrustStore"));
 		clientTrustStore.setItems(validators);
-
 		binder.forField(clientTrustStore).bind("clientTrustStore");
 		advanced.addComponent(clientTrustStore);
 

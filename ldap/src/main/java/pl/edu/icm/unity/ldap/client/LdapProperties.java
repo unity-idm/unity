@@ -12,17 +12,17 @@ import org.apache.log4j.Logger;
 
 import eu.unicore.util.configuration.DocumentationReferenceMeta;
 import eu.unicore.util.configuration.DocumentationReferencePrefix;
-import eu.unicore.util.configuration.PropertiesHelper;
 import eu.unicore.util.configuration.PropertyMD;
 import eu.unicore.util.configuration.PropertyMD.DocumentationCategory;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.ldap.client.LdapClientConfiguration.ConnectionMode;
+import pl.edu.icm.unity.engine.api.config.UnityPropertiesHelper;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Low level configuration handling - implemented with {@link Properties} as storage format.
  * @author K. Benedyczak
  */
-public class LdapProperties extends PropertiesHelper
+public class LdapProperties extends UnityPropertiesHelper
 {
 	private static final Logger log = Log.getLegacyLogger(Log.U_SERVER_CFG, LdapProperties.class);
 	
@@ -45,6 +45,8 @@ public class LdapProperties extends PropertiesHelper
 			return rScope;
 		}
 	}
+	
+	public enum ConnectionMode {plain, SSL, startTLS};
 	
 	public enum BindAs {user, system, none}
 
@@ -92,8 +94,16 @@ public class LdapProperties extends PropertiesHelper
 	public static final String GROUP_DEFINITION_MATCHBY_MEMBER_ATTR = "matchByMemberAttribute";
 	
 	public static final String TRUSTSTORE = "truststore";
-	public static final String TRANSLATION_PROFILE = "translationProfile";
 	public static final String DEFAULT_TRANSLATION_PROFILE = "sys:ldap";
+	
+	public static final BindAs DEFAULT_BIND_AS = BindAs.user;
+	public static final boolean DEFAULT_BIND_ONLY = false;
+	public static final int DEFAULT_SEARCH_TIME_LIMIT = 30;
+	public static final int DEFAULT_RESULT_ENTRIES_LIMIT = 1000;
+	public static final int DEFAULT_FOLLOW_REFERRALS = 2;
+	public static final int DEFAULT_SOCKET_TIMEOUT = 30000;
+	public static final boolean DEFAULT_GROUPS_SEARCH_IN_LDAP = true;
+	public static final ConnectionMode DEFAULT_CONNECTION_MODE = ConnectionMode.plain;
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META=new HashMap<String, PropertyMD>();
@@ -108,18 +118,18 @@ public class LdapProperties extends PropertiesHelper
 				"hostnames. Use only one if there is no redundancy."));
 		META.put(PORTS, new PropertyMD().setList(true).setCategory(main).setDescription("List of redundant LDAP server " +
 				"ports. The ports must match their corresponding servers."));
-		META.put(CONNECTION_MODE, new PropertyMD(ConnectionMode.plain).setCategory(main).setDescription("It can be controlled " +
+		META.put(CONNECTION_MODE, new PropertyMD(DEFAULT_CONNECTION_MODE).setCategory(main).setDescription("It can be controlled " +
 				"whether a connection to teh server should be made using a plain socket, over SSL socket" +
 				"or over a socket with START TLS after handshake."));
 		META.put(TLS_TRUST_ALL, new PropertyMD("false").setCategory(main).setDescription("Used only when TLS mode is enabled. " +
 				"If true then the secured TLS protocol will accept any server's certificate. " +
 				"If false - then the truststore must be configured."));
-		META.put(SOCKET_TIMEOUT, new PropertyMD("30000").setNonNegative().setCategory(main).setDescription("Number of milliseconds the " +
+		META.put(SOCKET_TIMEOUT, new PropertyMD(String.valueOf(DEFAULT_SOCKET_TIMEOUT)).setNonNegative().setCategory(main).setDescription("Number of milliseconds the " +
 				"network operations (connect and read) are allowed to lasts. Set to 0 to disable the limit."));
-		META.put(FOLLOW_REFERRALS, new PropertyMD("2").setNonNegative().setCategory(main).setDescription("Number of referrals to follow. " +
+		META.put(FOLLOW_REFERRALS, new PropertyMD(String.valueOf(DEFAULT_FOLLOW_REFERRALS)).setNonNegative().setCategory(main).setDescription("Number of referrals to follow. " +
 				"Set to 0 to disable following referrals."));
 		
-		META.put(BIND_AS, new PropertyMD(BindAs.user).setCategory(main).setDescription("Fundamental setting "
+		META.put(BIND_AS, new PropertyMD(DEFAULT_BIND_AS).setCategory(main).setDescription("Fundamental setting "
 				+ "controlling how Unity interacts with the LDAP server. By default Unity binds to the LDAP server "
 				+ "_as the user_ who is being authenticated by Unity. This may be changed to use a "
 				+ "predefined user ('system or unity user') and password. Then the credentials provided"
@@ -150,16 +160,16 @@ public class LdapProperties extends PropertiesHelper
 				+ "in the '\\{USERNAME\\}' variable. For instance this can be used to get 'uid' "
 				+ "attribute value from a DN."));
 		
-		META.put(BIND_ONLY, new PropertyMD("false").setCategory(main).setDescription("If true then the user is only authenticated" +
+		META.put(BIND_ONLY, new PropertyMD(String.valueOf(DEFAULT_BIND_ONLY)).setCategory(main).setDescription("If true then the user is only authenticated" +
 				" and no LDAP attributes (including groups) are collected for the user. " +
 				"This is much faster but maximally limits an information imported to Unity."));
 		META.put(ATTRIBUTES, new PropertyMD().setList(false).setCategory(main).setDescription("List of " +
 				"attributes to be retrieved. If the list is empty then all available attributes are fetched."));
-		META.put(SEARCH_TIME_LIMIT, new PropertyMD("60").setCategory(main).setDescription("Amount of time (in seconds) " +
+		META.put(SEARCH_TIME_LIMIT, new PropertyMD(String.valueOf(DEFAULT_SEARCH_TIME_LIMIT)).setCategory(main).setDescription("Amount of time (in seconds) " +
 				"for which a search query may be executed. Note that depending on configuration there " +
 				"might be up to two queries performed per a single authentication. The LDAP server " +
 				"might have stricter limit."));
-		META.put(RESULT_ENTRIES_LIMIT, new PropertyMD("1000").setCategory(main).setDescription(
+		META.put(RESULT_ENTRIES_LIMIT, new PropertyMD(String.valueOf(DEFAULT_RESULT_ENTRIES_LIMIT)).setCategory(main).setDescription(
 				"Maximum amount of entries that is to be loaded."
 				+ "If the limit is exceeded the query will fail. The LDAP server " +
 				"might have stricter limit."));
@@ -174,7 +184,7 @@ public class LdapProperties extends PropertiesHelper
 		META.put(GROUPS_BASE_NAME, new PropertyMD().setCategory(groups).setDescription("Base DN under which all groups are defined. " +
 				"Groups need not to be immediatelly under this DN. If not defined, then groups " +
 				"are not searched for the membership of the user."));
-		META.put(GROUPS_SEARCH_IN_LDAP, new PropertyMD("true").setCategory(groups).
+		META.put(GROUPS_SEARCH_IN_LDAP, new PropertyMD(String.valueOf(DEFAULT_GROUPS_SEARCH_IN_LDAP)).setCategory(groups).
 				setDescription("If enabled then user's groups are searched at LDAP "
 						+ "server using advanced filter. This is much faster however can fail "
 						+ "when group member is specified as a DN and not by some siple attribute."));
@@ -226,10 +236,15 @@ public class LdapProperties extends PropertiesHelper
 		META.put(ADV_SEARCH_SCOPE, new PropertyMD(SearchScope.sub).setStructuredListEntry(ADV_SEARCH_PFX).setCategory(advSearch).
 				setDescription("LDAP search scope to be used for this search."));
 
-		META.put(TRANSLATION_PROFILE, new PropertyMD(DEFAULT_TRANSLATION_PROFILE).setCategory(main).setDescription("Name of a translation" +
-				" profile, which will be used to map remotely obtained attributes and identity" +
-				" to the local counterparts. The profile should at least map the remote identity."));
-
+		META.put(CommonWebAuthnProperties.TRANSLATION_PROFILE, new PropertyMD(DEFAULT_TRANSLATION_PROFILE)
+				.setCategory(main)
+				.setDescription("Name of a translation"
+						+ " profile, which will be used to map remotely obtained attributes and identity"
+						+ " to the local counterparts. The profile should at least map the remote identity."));
+		META.put(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
+				new PropertyMD().setCategory(main).setHidden().setDescription("Translation"
+						+ " profile in json, which will be used to map remotely obtained attributes and identity"
+						+ " to the local counterparts. The profile should at least map the remote identity."));
 		
 		META.put(TRUSTSTORE, new PropertyMD().setCategory(main).
 				setDescription("Truststore name used to configure client's trust settings for the TLS connections."));

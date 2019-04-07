@@ -3,11 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package pl.edu.icm.unity.webui.common;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -25,7 +25,8 @@ import com.vaadin.ui.components.grid.GridRowDragger;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
- * Grid with actions column. 
+ * Grid with actions column.
+ * 
  * @author P.Piernik
  *
  * @param <T>
@@ -37,16 +38,17 @@ public class GridWithActionColumn<T> extends Grid<T>
 	private ListDataProvider<T> dataProvider;
 	private GridContextMenuSupport<T> contextMenuSupp;
 	private Column<T, HorizontalLayout> actionColumn;
-	
+
 	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers)
 	{
 		this(msg, actionHandlers, true);
 	}
-	
-	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers, boolean enableDrag)
+
+	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers,
+			boolean enableDrag)
 	{
 		this.msg = msg;
-		
+
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
@@ -63,12 +65,13 @@ public class GridWithActionColumn<T> extends Grid<T>
 		{
 			new GridRowDragger<>(this);
 		}
-		
+
 		setSelectionMode(SelectionMode.NONE);
 		setStyleName("u-gridWithAction");
+		setHeightByRows();
 	}
 
-	public void replaceEntry(T old, T newElement)
+	public void replaceElement(T old, T newElement)
 	{
 		contents.set(contents.indexOf(old), newElement);
 		dataProvider.refreshItem(newElement);
@@ -77,8 +80,21 @@ public class GridWithActionColumn<T> extends Grid<T>
 	public void addElement(T el)
 	{
 		contents.add(el);
-		dataProvider.refreshItem(el);
-		setHeightByRows(contents.size());
+		dataProvider.refreshAll();
+		setHeightByRows();
+	}
+
+	@Override
+	public void setItems(Collection<T> items)
+	{
+		contents.clear();
+		if (items != null)
+		{
+			contents.addAll(items);
+		}
+
+		dataProvider.refreshAll();
+		setHeightByRows();
 	}
 
 	public List<T> getElements()
@@ -90,18 +106,25 @@ public class GridWithActionColumn<T> extends Grid<T>
 	{
 		contents.remove(el);
 		dataProvider.refreshAll();
-		setHeightByRows(contents.size());
+		setHeightByRows();
 	}
 
-	public GridWithActionColumn<T> addColumn(ValueProvider<T, String> valueProvider, String caption, int expandRatio)
+	private void setHeightByRows()
+	{
+		setHeightByRows(contents.size() > 2 ? contents.size() : 2);
+	}
+
+	public GridWithActionColumn<T> addColumn(ValueProvider<T, String> valueProvider, String caption,
+			int expandRatio)
 	{
 		addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
 				.setSortable(false);
 		refreshActionColumn();
 		return this;
 	}
-	
-	public GridWithActionColumn<T> addComponentColumn(ValueProvider<T, Component> valueProvider, String caption, int expandRatio)
+
+	public GridWithActionColumn<T> addComponentColumn(ValueProvider<T, Component> valueProvider, String caption,
+			int expandRatio)
 	{
 		addComponentColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
 				.setSortable(false);
@@ -130,8 +153,9 @@ public class GridWithActionColumn<T> extends Grid<T>
 		actionColumn = addComponentColumn(t -> getButtonComponent(new HashSet<>(Arrays.asList(t))))
 				.setCaption(msg.getMessage("actions"));
 		actionColumn.setResizable(false);
-		actionColumn.setExpandRatio(1);
+		actionColumn.setExpandRatio(0);
 		actionColumn.setSortable(false);
+
 	}
 
 	private HorizontalLayout getButtonComponent(Set<T> target)
@@ -148,7 +172,8 @@ public class GridWithActionColumn<T> extends Grid<T>
 			actionButton.setDescription(handler.getCaption());
 			actionButton.addClickListener(e -> handler.handle(target));
 			actions.addComponent(actionButton);
-			actions.setComponentAlignment(actionButton, Alignment.MIDDLE_RIGHT);
+			actions.setComponentAlignment(actionButton, Alignment.TOP_LEFT);
+
 		}
 
 		return actions;

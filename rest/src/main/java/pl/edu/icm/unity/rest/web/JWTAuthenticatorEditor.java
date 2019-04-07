@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.converter.StringToIntegerConverter;
+import com.vaadin.data.validator.IntegerRangeValidator;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.TextField;
@@ -28,7 +29,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
- * JWT authenticator editor 
+ * JWT authenticator editor
+ * 
  * @author P.Piernik
  *
  */
@@ -36,7 +38,7 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 {
 	private Set<String> credentials;
 	private Binder<JWTConfiguration> configBinder;
-	
+
 	public JWTAuthenticatorEditor(UnityMessageSource msg, Set<String> credentials)
 	{
 		super(msg);
@@ -59,11 +61,10 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 
 		configBinder = new Binder<>(JWTConfiguration.class);
 		configBinder.forField(credential).asRequired(msg.getMessage("fieldRequired")).bind("credential");
-		configBinder.forField(ttl)
-				.withConverter(new StringToIntegerConverter(
-						msg.getMessage("JWTAuthenticatorEditor.tokenTTL.notANumber")))
-
-				.asRequired(msg.getMessage("fieldRequired")).bind("ttl");
+		configBinder.forField(ttl).asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(new StringToIntegerConverter(msg.getMessage("notAPositiveNumber")))
+				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
+				.bind("ttl");
 
 		JWTConfiguration config = new JWTConfiguration();
 		if (!credentials.isEmpty())

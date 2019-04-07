@@ -27,6 +27,8 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
+import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Supports {@link PasswordExchange} and verifies the password and username against a configured LDAP 
@@ -41,7 +43,7 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 	private LdapClient client;
 	private LdapClientConfiguration clientConfiguration;
 	private PKIManagement pkiManagement;
-	private String translationProfile;
+	private TranslationProfile translationProfile;
 	
 	protected LdapBaseVerificator(String name, String description, 
 			RemoteAuthnResultProcessor processor,
@@ -74,8 +76,10 @@ public abstract class LdapBaseVerificator extends AbstractRemoteVerificator impl
 			Properties properties = new Properties();
 			properties.load(new StringReader(source));
 			ldapProperties = new LdapProperties(properties);
-			translationProfile = ldapProperties.getValue(LdapProperties.TRANSLATION_PROFILE);
+			translationProfile = getTranslationProfile(ldapProperties, CommonWebAuthnProperties.TRANSLATION_PROFILE,
+					CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
 			clientConfiguration = new LdapClientConfiguration(ldapProperties, pkiManagement);
+	
 		} catch(ConfigurationException e)
 		{
 			throw new InternalException("Invalid configuration of the LDAP verificator", e);

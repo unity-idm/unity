@@ -159,7 +159,8 @@
 		height: 0px;
 		border-top: 1px solid;
 		color: #d4d4d4;
-		margin: 8px 0px;
+		margin: 7px 0px;
+		padding: 0px 0px 1px 0px;
 	}
 
 	.u-selectedButton {
@@ -691,6 +692,14 @@
 		background-color:transparent;
 	}
 	
+	.u-gridWithAction .v-grid-row > td .v-button-small {
+		margin :0px;	
+	}	
+	
+	.u-gridWithAction .v-grid-row > td .v-horizontallayout {
+		margin-right: 1px;	
+	}
+			
 	.u-gridWithAction .v-grid-cell-focused:before {
 		display:none !important;
 	}
