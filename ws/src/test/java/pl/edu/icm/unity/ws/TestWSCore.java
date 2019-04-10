@@ -52,20 +52,9 @@ public class TestWSCore extends DBIntegrationTestBase
 	private AuthenticationFlowManagement authnFlowMan;
 	
 	@Test
-	public void testBlockAccess() throws Exception
+	public void shouldBlockAccessAfterTooManyFailedLogins() throws Exception
 	{
-		setupAuth();
-		createUsers();
-		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				5, 1, RememberMePolicy.disallow , 1, 600);
-		realmsMan.addRealm(realm);
-		
-		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", Lists.newArrayList(AUTHENTICATION_FLOW), "", realm.getName());
-		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
-
-		httpServer.start();
-		
+		initializeHTTPServer();
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setCredential(getDemoCredential());
 		clientCfg.setValidator(getDemoValidator());
@@ -123,27 +112,12 @@ public class TestWSCore extends DBIntegrationTestBase
 		{
 			//ok
 		}
-		
-//		Thread.sleep(1100);
-//		//reset
-//		wsProxyOK.getAuthenticatedUser();
 	}
 	
 	@Test
 	public void shouldRespectUserOptinAttr() throws Exception
 	{
-		setupAuth();
-		createUsers();
-		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 100, RememberMePolicy.disallow , 1, 600);
-		realmsMan.addRealm(realm);
-		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", Lists.newArrayList(AUTHENTICATION_FLOW_OPTIN), "", realm.getName());
-		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
-		assertEquals(1, endpoints.size());
-
-		httpServer.start();
+		initializeHTTPServer(AUTHENTICATION_FLOW_OPTIN);
 		
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setCredential(getDemoCredential());
@@ -180,23 +154,57 @@ public class TestWSCore extends DBIntegrationTestBase
 	
 	
 	@Test
-	public void test() throws Exception
+	public void shouldFailToAuthenticateWithWrongPassword() throws Exception
 	{
-		setupAuth();
-		createUsers();
-		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
-				10, 100, RememberMePolicy.disallow , 1, 600);
-		realmsMan.addRealm(realm);
+		initializeHTTPServer();
 		
-		
-		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
-				"desc", Lists.newArrayList(AUTHENTICATION_FLOW), "", realm.getName());
-		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
-		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
-		assertEquals(1, endpoints.size());
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
+		clientCfg.setSslEnabled(true);
 
-		httpServer.start();
+		clientCfg.setHttpUser(DEF_USER);
+		clientCfg.setHttpPassword("wrong");
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
 		
+		try
+		{
+			WSClientFactory factory = new WSClientFactory(clientCfg);
+			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+					MockWSEndpointFactory.SERVLET_PATH);
+			NameIDDocument retDoc = wsProxy.getAuthenticatedUser();
+			fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
+		} catch (SOAPFaultException e)
+		{
+			//ok
+		}
+	}
+	
+	@Test
+	public void shouldAuthenticateWithTLSCert() throws Exception
+	{
+		initializeHTTPServer();
+		
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
+		clientCfg.setSslEnabled(true);
+
+		clientCfg.setSslAuthn(true);
+		clientCfg.setHttpAuthn(false);
+		WSClientFactory factory = new WSClientFactory(clientCfg);
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+				MockWSEndpointFactory.SERVLET_PATH);
+		
+		NameIDDocument ret = wsProxy.getAuthenticatedUser();
+		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
+	}
+
+	@Test
+	public void shouldAuthenticateWithPassword() throws Exception
+	{
+		initializeHTTPServer();
 		
 		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
 		clientCfg.setCredential(getDemoCredential());
@@ -212,89 +220,127 @@ public class TestWSCore extends DBIntegrationTestBase
 				MockWSEndpointFactory.SERVLET_PATH);
 		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());
+	}
+	
+	@Test
+	public void shouldAuthenticateWithTLSCertWhenWrongPasswordProvided() throws Exception
+	{
+		initializeHTTPServer();
 		
-		try
-		{
-			clientCfg.setHttpPassword("wrong");
-			factory = new WSClientFactory(clientCfg);
-			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
-					MockWSEndpointFactory.SERVLET_PATH);
-			NameIDDocument retDoc = wsProxy.getAuthenticatedUser();
-			fail("Managed to authenticate with wrong password: " + retDoc.xmlText());
-		} catch (SOAPFaultException e)
-		{
-			//ok
-		}
-		
-		clientCfg.setSslAuthn(true);
-		clientCfg.setHttpAuthn(false);
-		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
-				MockWSEndpointFactory.SERVLET_PATH);
-		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
+		clientCfg.setSslEnabled(true);
 
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
 		clientCfg.setHttpPassword("wrong");
-		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
+		WSClientFactory factory = new WSClientFactory(clientCfg);
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
 				MockWSEndpointFactory.SERVLET_PATH);
-		ret = wsProxy.getAuthenticatedUser();
+		NameIDDocument ret = wsProxy.getAuthenticatedUser();
 		assertEquals("[" + DEMO_SERVER_DN + "]", ret.getNameID().getStringValue());
+	}
+	
+	@Test
+	public void shouldAuthenticateWith2Factors() throws Exception
+	{
+		initializeHTTPServer();
+		
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
+		clientCfg.setSslEnabled(true);
 
-		clientCfg.setSslAuthn(false);
-		clientCfg.setHttpAuthn(true);
-		clientCfg.setHttpPassword(DEF_PASSWORD);
-		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock"+
-				MockWSEndpointFactory.SERVLET_PATH);
-		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[" + DEF_USER + "]", ret.getNameID().getStringValue());
-		
-
-		
-		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint2"),
-				"desc", Lists.newArrayList(AUTHENTICATION_FLOW_CERT_SECOND_FACTOR), "", realm.getName());
-		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", "/mock2", cfg2);
-		
 		clientCfg.setSslAuthn(true);
 		clientCfg.setHttpAuthn(true);
 		clientCfg.setHttpUser("user2");
 		clientCfg.setHttpPassword("mockPassword2");
-		factory = new WSClientFactory(clientCfg);
-		wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
-				MockWSEndpointFactory.SERVLET_PATH);
-		ret = wsProxy.getAuthenticatedUser();
-		assertEquals("[" + DEMO_SERVER_DN + ", user2]", ret.getNameID().getStringValue());
-
-		try
-		{
-			clientCfg.setSslAuthn(false);
-			factory = new WSClientFactory(clientCfg);
-			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
-					MockWSEndpointFactory.SERVLET_PATH);
-			wsProxy.getAuthenticatedUser();
-			fail("Managed to authenticate with single cred when 2 req");
-		} catch (SOAPFaultException e)
-		{
-			//ok
-		}
-
-		try
-		{
-			clientCfg.setSslAuthn(true);
-			clientCfg.setHttpAuthn(false);
-			factory = new WSClientFactory(clientCfg);
-			wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
-					MockWSEndpointFactory.SERVLET_PATH);
-			wsProxy.getAuthenticatedUser();
-			fail("Managed to authenticate with single cred when 2 req");
-		} catch (SOAPFaultException e)
-		{
-			//ok
-		}
 		
+		WSClientFactory factory = new WSClientFactory(clientCfg);
+		MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
+				MockWSEndpointFactory.SERVLET_PATH);
+		NameIDDocument ret = wsProxy.getAuthenticatedUser();
+		assertEquals("[" + DEMO_SERVER_DN + ", user2]", ret.getNameID().getStringValue());
+	}
+	
+	@Test
+	public void shouldFailToAuthenticateWithPasswordWhen2FactorsRequired() throws Exception
+	{
+		initializeHTTPServer();
+		
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
+		clientCfg.setSslEnabled(true);
+		clientCfg.setSslAuthn(false);
+		clientCfg.setHttpAuthn(true);
+		clientCfg.setHttpUser("user2");
+		clientCfg.setHttpPassword("mockPassword2");
+
+		try
+		{
+			WSClientFactory factory = new WSClientFactory(clientCfg);
+			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
+					MockWSEndpointFactory.SERVLET_PATH);
+			wsProxy.getAuthenticatedUser();
+			fail("Managed to authenticate with single cred when 2 req");
+		} catch (SOAPFaultException e)
+		{
+			//ok
+		}
+	}
+	
+	@Test
+	public void shouldFailToAuthenticateWithTLSCertWhen2FactorsRequired() throws Exception
+	{
+		initializeHTTPServer();
+		
+		DefaultClientConfiguration clientCfg = new DefaultClientConfiguration();
+		clientCfg.setCredential(getDemoCredential());
+		clientCfg.setValidator(getDemoValidator());
+		clientCfg.setSslEnabled(true);
+		clientCfg.setSslAuthn(true);
+		clientCfg.setHttpAuthn(false);
+
+		try
+		{
+			WSClientFactory factory = new WSClientFactory(clientCfg);
+			MockWSSEI wsProxy = factory.createPlainWSProxy(MockWSSEI.class, "https://localhost:53456/mock2"+
+					MockWSEndpointFactory.SERVLET_PATH);
+			wsProxy.getAuthenticatedUser();
+			fail("Managed to authenticate with single cred when 2 req");
+		} catch (SOAPFaultException e)
+		{
+			//ok
+		}
+	}
+	
+	private void initializeHTTPServer() throws Exception
+	{
+		initializeHTTPServer(AUTHENTICATION_FLOW);
+	}
+	
+	private void initializeHTTPServer(String authnFlow) throws Exception
+	{
+		setupAuth();
+		createUsers();
+		AuthenticationRealm realm = new AuthenticationRealm("testr", "", 
+				5, 1, RememberMePolicy.disallow , 1, 600);
+		realmsMan.addRealm(realm);
+		
+		
+		EndpointConfiguration cfg = new EndpointConfiguration(new I18nString("endpoint1"), 
+				"desc", Lists.newArrayList(authnFlow), "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint1", "/mock", cfg);
+		List<ResolvedEndpoint> endpoints = endpointMan.getEndpoints();
+		assertEquals(1, endpoints.size());
+
+		EndpointConfiguration cfg2 = new EndpointConfiguration(new I18nString("endpoint2"),
+				"desc", Lists.newArrayList(AUTHENTICATION_FLOW_CERT_SECOND_FACTOR), "", realm.getName());
+		endpointMan.deploy(MockWSEndpointFactory.NAME, "endpoint2", "/mock2", cfg2);
+		
+		httpServer.start();
 	}
 	
 	protected void createUsers() throws Exception
