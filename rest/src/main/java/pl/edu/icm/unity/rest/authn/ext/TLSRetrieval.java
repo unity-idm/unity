@@ -34,7 +34,7 @@ public class TLSRetrieval extends TLSRetrievalBase implements JAXRSAuthenticatio
 		@Autowired
 		public Factory(ObjectFactory<TLSRetrieval> factory)
 		{
-			super(NAME, DESC, JAXRSAuthentication.NAME, factory, CertificateExchange.class);
+			super(NAME, DESC, JAXRSAuthentication.NAME, factory, CertificateExchange.ID);
 		}
 	}
 }

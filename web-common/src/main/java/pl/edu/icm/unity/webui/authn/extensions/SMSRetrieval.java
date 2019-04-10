@@ -557,7 +557,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		@Autowired
 		public Factory(ObjectFactory<SMSRetrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, SMSExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, SMSExchange.ID);
 		}
 	}
 }

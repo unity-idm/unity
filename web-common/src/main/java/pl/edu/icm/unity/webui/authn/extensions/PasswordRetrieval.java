@@ -426,7 +426,7 @@ public class PasswordRetrieval extends AbstractCredentialRetrieval<PasswordExcha
 		@Autowired
 		public Factory(ObjectFactory<PasswordRetrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, PasswordExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, PasswordExchange.ID);
 		}
 	}
 }

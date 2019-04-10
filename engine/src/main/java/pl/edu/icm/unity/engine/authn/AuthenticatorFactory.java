@@ -111,7 +111,8 @@ class AuthenticatorFactory
 	
 	private CredentialRetrieval createRetrieval(CredentialVerificator verificator, String id, String binding)
 	{
-		CredentialRetrievalFactory retrievalFact = authRegistry.findCredentialRetrieval(binding, verificator);
+		CredentialRetrievalFactory retrievalFact = authRegistry.findCredentialRetrieval(binding, 
+				verificator.getExchangeId());
 		CredentialRetrieval retrieval = retrievalFact.newInstance();
 		retrieval.setCredentialExchange(verificator, id);
 		return retrieval;

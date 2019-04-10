@@ -126,7 +126,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 		@Autowired
 		public Factory(ObjectFactory<SAMLRetrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, SAMLExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, SAMLExchange.ID);
 		}
 	}
 

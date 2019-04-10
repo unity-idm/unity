@@ -259,7 +259,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		@Autowired
 		public Factory(ObjectFactory<TLSRetrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, CertificateExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, CertificateExchange.ID);
 		}
 	}
 }
