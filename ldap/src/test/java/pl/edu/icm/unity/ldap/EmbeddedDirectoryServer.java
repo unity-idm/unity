@@ -44,8 +44,21 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 public class EmbeddedDirectoryServer
 {
 	private InMemoryDirectoryServer ds;
+	private KeystoreCredential credential;
+	private String cfgDirectory;
+	
+	public EmbeddedDirectoryServer(KeystoreCredential credential, String cfgDirectory)
+	{
+		this.credential = credential;
+		this.cfgDirectory = cfgDirectory;
+	}
 
+	public EmbeddedDirectoryServer() throws Exception
+	{
+		this(DBIntegrationTestBase.getDemoCredential(), "src/test/resources");
+	}
 
+	
 	public InMemoryDirectoryServer startEmbeddedServer() throws Exception
 	{
 		InMemoryDirectoryServerConfig config =
@@ -54,7 +67,6 @@ public class EmbeddedDirectoryServer
 		List<InMemoryListenerConfig> listenerConfigs = new ArrayList<>();
 		
 		BinaryCertChainValidator acceptAll = new BinaryCertChainValidator(true);
-		KeystoreCredential credential = DBIntegrationTestBase.getDemoCredential();
 		SSLServerSocketFactory serverSocketFactory = SocketFactoryCreator.getServerSocketFactory(credential, 
 				acceptAll);
 		SSLSocketFactory clientSocketFactory = SocketFactoryCreator.getSocketFactory(null, acceptAll);
@@ -70,12 +82,12 @@ public class EmbeddedDirectoryServer
 		config.setListenerConfigs(listenerConfigs);
 		
 		Schema def = Schema.getDefaultStandardSchema();
-		Schema mini = Schema.getSchema("src/test/resources/nis-cut.ldif");
+		Schema mini = Schema.getSchema(cfgDirectory + "/nis-cut.ldif");
 		Schema merged = Schema.mergeSchemas(mini, def);
 		config.setSchema(merged);
 		
 		ds = new InMemoryDirectoryServer(config);
-		ds.importFromLDIF(true, "src/test/resources/test-data.ldif");
+		ds.importFromLDIF(true, cfgDirectory + "/test-data.ldif");
 		ds.startListening();
 		return ds;
 	}

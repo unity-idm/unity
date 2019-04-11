@@ -39,7 +39,7 @@ public class HttpBasicRetrieval extends HttpBasicRetrievalBase implements Creden
 		@Autowired
 		public Factory(ObjectFactory<HttpBasicRetrieval> factory)
 		{
-			super(NAME, DESC, WebServiceAuthentication.NAME, factory, PasswordExchange.class);
+			super(NAME, DESC, WebServiceAuthentication.NAME, factory, PasswordExchange.ID);
 		}
 	}
 }

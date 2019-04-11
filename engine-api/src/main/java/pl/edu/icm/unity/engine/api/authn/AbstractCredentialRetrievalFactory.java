@@ -17,10 +17,10 @@ public abstract class AbstractCredentialRetrievalFactory<T extends CredentialRet
 	private String description;
 	private String binding;
 	private ObjectFactory<T> factory;
-	private Class<? extends CredentialExchange> supportedExchange;
+	private String supportedExchange;
 	
 	public AbstractCredentialRetrievalFactory(String name, String description, String binding,
-			ObjectFactory<T> factory, Class<? extends CredentialExchange> supportedExchange)
+			ObjectFactory<T> factory, String supportedExchange)
 	{
 		this.description = description;
 		this.name = name;
@@ -54,8 +54,8 @@ public abstract class AbstractCredentialRetrievalFactory<T extends CredentialRet
 	}
 
 	@Override
-	public boolean isCredentialExchangeSupported(CredentialExchange e)
+	public boolean isCredentialExchangeSupported(String credentialExchangeId)
 	{
-		return supportedExchange.isAssignableFrom(e.getClass());
+		return supportedExchange.equals(credentialExchangeId);
 	}
 }
