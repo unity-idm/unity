@@ -24,7 +24,7 @@
 	<distributionManagement>
 		<site>
       		<id>unity-idm.eu</id>
-      		<url>ftps://unity-idm.eu/documentation/unity-${project.version}</url>
+      		<url>ftps://ftp.unity-idm.eu/documentation/unity-${project.version}</url>
     	</site>
 	</distributionManagement>
 
