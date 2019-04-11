@@ -4,11 +4,13 @@
  */
 package pl.edu.icm.unity.base.msgtemplates;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**
  * Defines a general purpose template with messages sent to existing users. 
@@ -44,9 +46,9 @@ public class UserNotificationTemplateDef implements MessageTemplateDefinition
 	}
 
 	@Override
-	public Set<String> getCompatibleFacilities()
+	public EnumSet<CommunicationTechnology> getCompatibleTechnologies()
 	{
-		return ALL_FACILITIES;
+		return EnumSet.allOf(CommunicationTechnology.class);
 	}
 	
 	@Override

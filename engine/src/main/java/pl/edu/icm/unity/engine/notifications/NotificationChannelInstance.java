@@ -23,9 +23,23 @@ public interface NotificationChannelInstance
 	
 	/**
 	 * Sends a given message.
+	 * May be unavailable then {@link #providesMessageTemplatingFunctionality()} returns false
 	 * @param recipientAddress resolved, facility specific address of a recipient
-	 * @param message
-	 * @param msgSubject message subject. Note that in case of some channels it may be ignored.
 	 */
 	public Future<NotificationStatus> sendNotification(String recipientAddress, Message message);
+
+	/**
+	 * Triggers sending a message from an external template with given parameters.
+	 * Available only if {@link #providesMessageTemplatingFunctionality()} returns true
+	 * @param recipientAddress resolved, facility specific address of a recipient
+	 */
+	public Future<NotificationStatus> sendExternalTemplateMessage(String recipientAddress, 
+			MessageTemplateParams templateParams);
+	
+	/**
+	 * @return true if the facility requires merely templateId and variables to send a message (i.e. has templating
+	 * feature built in). If false is returned then internal Unity's templating functionality is used to produce
+	 * an actual message to be sent.
+	 */
+	boolean providesMessageTemplatingFunctionality();
 }

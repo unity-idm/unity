@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.base.notifications.FacilityName;
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.engine.api.attributes.AttributeValueSyntax;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
@@ -40,7 +40,7 @@ import pl.edu.icm.unity.types.registration.UserRequestState;
 @Component
 public class SMSFacility implements NotificationFacility
 {
-	public static final String NAME = FacilityName.SMS.toString();
+	public static final String NAME = "SMS";
 	private ExecutorsService executorsService;
 	private AttributesHelper attributesHelper;
 	private AttributeTypeHelper atHelper;
@@ -63,6 +63,12 @@ public class SMSFacility implements NotificationFacility
 	public String getName()
 	{
 		return NAME;
+	}
+
+	@Override
+	public CommunicationTechnology getTechnology()
+	{
+		return CommunicationTechnology.SMS;
 	}
 
 	@Override
