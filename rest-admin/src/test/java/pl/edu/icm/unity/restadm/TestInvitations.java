@@ -31,7 +31,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 
 import pl.edu.icm.unity.engine.builders.NotificationChannelBuilder;
-import pl.edu.icm.unity.engine.notifications.EmailFacility;
+import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
 import pl.edu.icm.unity.engine.server.EngineInitialization;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.attr.StringAttribute;

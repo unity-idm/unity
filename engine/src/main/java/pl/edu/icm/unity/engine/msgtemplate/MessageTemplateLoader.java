@@ -32,7 +32,7 @@ import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * Loads message templates from file configuration
@@ -77,7 +77,7 @@ class MessageTemplateLoader
 	
 	void initializeMsgTemplates(Properties props, Predicate<String> filter)
 	{
-		Map<String, NotificationChannel> notificationChannels;
+		Map<String, NotificationChannelInfo> notificationChannels;
 		try
 		{
 			notificationChannels = notificationMan.getNotificationChannels();
@@ -124,7 +124,7 @@ class MessageTemplateLoader
 		}
 	}
 	
-	private void addMessageTemplate(String key, Map<String, NotificationChannel> notificationChannels,
+	private void addMessageTemplate(String key, Map<String, NotificationChannelInfo> notificationChannels,
 			Map<String, MessageTemplate> existingTemplates, Properties props) throws EngineException
 	{
 		if (existingTemplates.containsKey(key))
@@ -136,7 +136,7 @@ class MessageTemplateLoader
 		msgTemplatesManagement.addTemplate(templ);
 	}
 
-	private void addOrUpdateMessageTemplate(String key, Map<String, NotificationChannel> notificationChannels,
+	private void addOrUpdateMessageTemplate(String key, Map<String, NotificationChannelInfo> notificationChannels,
 			Map<String, MessageTemplate> existingTemplates, Properties props) throws EngineException
 	{
 		MessageTemplate templ = loadTemplate(props, key);
@@ -154,7 +154,7 @@ class MessageTemplateLoader
 	}
 	
 	private boolean verifyNotificationChannelExists(MessageTemplate templ, 
-			Map<String, NotificationChannel> notificationChannels)
+			Map<String, NotificationChannelInfo> notificationChannels)
 	{
 		String channel = templ.getNotificationChannel();
 		if (!channel.isEmpty() && !notificationChannels.keySet().contains(channel))

@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.engine.api;
 
+import java.util.EnumSet;
 import java.util.Map;
 import java.util.Set;
 
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * Management and usage of notifications subsystem (email, sms, ...)
@@ -49,12 +52,11 @@ public interface NotificationsManagement
 	 * @return map of available notification channels.
 	 * @throws EngineException
 	 */
-	public Map<String, NotificationChannel> getNotificationChannels() throws EngineException;
+	public Map<String, NotificationChannelInfo> getNotificationChannels() throws EngineException;
 	
 	/**
-	 * 
-	 * @return get available notification channels which are using given facilities.
-	 * @throws EngineException
+	 * @return get available notification channels which are using given communication technologies.
 	 */
-	public Map<String, NotificationChannel> getNotificationChannelsForFacilities(Set<String> facilites) throws EngineException;
+	public Map<String, NotificationChannelInfo> getNotificationChannelsForTechnologies(
+			EnumSet<CommunicationTechnology> facilites) throws EngineException;
 }

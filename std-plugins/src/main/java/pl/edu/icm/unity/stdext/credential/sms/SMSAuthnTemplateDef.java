@@ -4,18 +4,15 @@
  */
 package pl.edu.icm.unity.stdext.credential.sms;
 
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
-import pl.edu.icm.unity.base.notifications.FacilityName;
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**
  * Defines template used for sending authn sms code by mobile.
@@ -51,9 +48,8 @@ public class SMSAuthnTemplateDef implements MessageTemplateDefinition
 	}
 	
 	@Override
-	public Set<String> getCompatibleFacilities()
+	public EnumSet<CommunicationTechnology> getCompatibleTechnologies()
 	{
-		return Collections.unmodifiableSet(Sets.newHashSet(FacilityName.SMS.toString()));
-
+		 return EnumSet.of(CommunicationTechnology.SMS);
 	}
 }

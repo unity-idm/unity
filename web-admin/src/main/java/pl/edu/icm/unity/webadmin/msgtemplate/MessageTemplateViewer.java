@@ -4,20 +4,29 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
+import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateConsumersRegistry;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
+import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabelWithPreview;
 
 /**
  * Component presenting a complete information about message template.
  * @author P. Piernik
- * 
  */
-public class MessageTemplateViewer extends MessageTemplateViewerBase
-{	
+class MessageTemplateViewer extends VerticalLayout
+{
+	private UnityMessageSource msg;
+	private FormLayout main;
+	private Label name;
 	private Label description;
 	private Label consumer;
 	private Label notificationChannel;
@@ -25,15 +34,25 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 	
 	private MessageTemplateConsumersRegistry registry;
 
-	public MessageTemplateViewer(UnityMessageSource msg, MessageTemplateConsumersRegistry registry)
+	MessageTemplateViewer(UnityMessageSource msg, MessageTemplateConsumersRegistry registry)
 	{
-		super(msg);
+		this.msg = msg;
 		this.registry = registry;
+		initUI();
 	}
 
-	@Override
-	protected void initUI()
-	{	
+	private void initUI()
+	{
+		main = new CompactFormLayout();
+		name = new Label();
+		name.setCaption(msg.getMessage("MessageTemplateViewer.name"));
+		main.addComponent(name);
+		main.setSizeFull();
+		main.setMargin(false);
+		main.setSpacing(false);
+		addComponents(main);
+		setSizeFull();
+		
 		main.setMargin(true);
 		main.setSpacing(true);
 		description = new Label();
@@ -51,7 +70,42 @@ public class MessageTemplateViewer extends MessageTemplateViewerBase
 		
 	}
 
-	public void setTemplateInput(MessageTemplate template)
+	public void setInput(MessageTemplate template)
+	{   		
+		String nameContent = template.getName(); 
+		I18nString subjectContent = template.getMessage().getSubject();
+		I18nString bodyContent = template.getMessage().getBody();
+		
+		main.setVisible(true);
+		main.setSpacing(true);
+		name.setValue(nameContent);
+		
+		if (!subjectContent.isEmpty())
+		{
+			I18nLabelWithPreview subject = I18nLabelWithPreview.builder(msg, 
+					msg.getMessage("MessageTemplateViewer.subject"))
+				.buildWithValue(subjectContent);
+			main.addComponents(subject);
+		}
+		
+		if (!bodyContent.isEmpty())
+		{
+			I18nLabelWithPreview body = I18nLabelWithPreview.builder(msg, 
+					msg.getMessage("MessageTemplateViewer.body"))
+				.withMode(template.getType() == MessageType.HTML ? 
+						ContentMode.HTML : ContentMode.PREFORMATTED)
+				.buildWithValue(bodyContent);
+			main.addComponents(body);
+		}
+	}
+
+	void clearContent()
+	{
+		removeAllComponents();
+		initUI();
+	}
+	
+	void setTemplateInput(MessageTemplate template)
 	{   
 		clearContent();
 		description.setValue("");

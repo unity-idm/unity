@@ -201,7 +201,7 @@ public class MessageTemplateManagementImpl implements MessageTemplateManagement
 					"Cannot get facility for channel: " + channel, e);
 		}
 
-		if (!con.getCompatibleFacilities().contains(facility.getName()))
+		if (!con.getCompatibleTechnologies().contains(facility.getTechnology()))
 		{
 			throw new WrongArgumentException("Notification channel "
 					+ toValidate.getNotificationChannel()

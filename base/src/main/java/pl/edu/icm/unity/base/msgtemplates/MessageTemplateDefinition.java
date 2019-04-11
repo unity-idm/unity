@@ -4,13 +4,10 @@
  */
 package pl.edu.icm.unity.base.msgtemplates;
 
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
-import java.util.Set;
 
-import com.google.common.collect.Sets;
-
-import pl.edu.icm.unity.base.notifications.FacilityName;
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**
  * Message template definition. The implementation defines the contract between the template and the 
@@ -21,8 +18,6 @@ import pl.edu.icm.unity.base.notifications.FacilityName;
  */
 public interface MessageTemplateDefinition
 {
-	public static final Set<String> ALL_FACILITIES = Collections.unmodifiableSet(Sets
-			.newHashSet(FacilityName.EMAIL.toString(), FacilityName.SMS.toString()));
 	public static final String CUSTOM_VAR_PREFIX = "custom.";
 	public static final String INCLUDE_PREFIX = "include:";
 	
@@ -48,7 +43,7 @@ public interface MessageTemplateDefinition
 	 * @return set of supported facilities. Message from the template can be 
 	 * sent only by notification channels which are using this facilities.  
 	 */
-	Set<String> getCompatibleFacilities();
+	EnumSet<CommunicationTechnology> getCompatibleTechnologies();
 	
 	
 	default boolean allowCustomVariables()

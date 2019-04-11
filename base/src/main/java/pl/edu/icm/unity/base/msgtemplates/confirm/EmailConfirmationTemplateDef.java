@@ -4,18 +4,15 @@
  */
 package pl.edu.icm.unity.base.msgtemplates.confirm;
 
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
-import pl.edu.icm.unity.base.notifications.FacilityName;
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**
  * Message template definition for email confirmation subsystem
@@ -49,9 +46,8 @@ public class EmailConfirmationTemplateDef implements MessageTemplateDefinition
 	}
 
 	@Override
-	public Set<String> getCompatibleFacilities()
+	public EnumSet<CommunicationTechnology> getCompatibleTechnologies()
 	{
-		return Collections.unmodifiableSet(Sets
-				.newHashSet(FacilityName.EMAIL.toString()));
+		 return EnumSet.of(CommunicationTechnology.EMAIL);
 	}
 }
