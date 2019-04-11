@@ -4,15 +4,12 @@
  */
 package pl.edu.icm.unity.stdext.credential.pass;
 
-import java.util.Collections;
-import java.util.Set;
+import java.util.EnumSet;
 
 import org.springframework.stereotype.Component;
 
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
-import pl.edu.icm.unity.base.notifications.FacilityName;
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**
  * Defines template used for sending password reset confirmation code by email.
@@ -37,8 +34,8 @@ public class EmailPasswordResetTemplateDef extends PasswordResetTemplateDefBase 
 	}
 	
 	@Override
-	public Set<String> getCompatibleFacilities()
+	public EnumSet<CommunicationTechnology> getCompatibleTechnologies()
 	{
-		 return Collections.unmodifiableSet(Sets.newHashSet(FacilityName.EMAIL.toString()));
+		 return EnumSet.of(CommunicationTechnology.EMAIL);
 	}
 }

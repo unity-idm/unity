@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.DescribedObject;
@@ -42,4 +43,6 @@ public interface NotificationFacility extends DescribedObject
 	 */
 	String getAddressForUserRequest(UserRequestState<?> currentRequest) throws EngineException;
 	
+	
+	CommunicationTechnology getTechnology();
 }

@@ -21,11 +21,10 @@ import org.mockito.ArgumentCaptor;
 
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
-import pl.edu.icm.unity.engine.msgtemplate.MessageTemplateLoader;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 public class MessageTemplateLoaderTest
 {
@@ -138,7 +137,7 @@ public class MessageTemplateLoaderTest
 	private NotificationsManagement getMockNotificationManager() throws EngineException
 	{
 		NotificationsManagement notMan = mock(NotificationsManagement.class);
-		Map<String, NotificationChannel> res = new HashMap<>();
+		Map<String, NotificationChannelInfo> res = new HashMap<>();
 		res.put("", null);	
 		when(notMan.getNotificationChannels()).thenReturn(res);
 		return notMan;

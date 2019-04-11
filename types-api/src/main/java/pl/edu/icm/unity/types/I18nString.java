@@ -50,13 +50,6 @@ public class I18nString
 	/**
 	 * Loads {@link I18nString} from all message bundles which are installed in the system. The returned object 
 	 * has no default value set.
-	 * @param prefix
-	 * @param name
-	 * @param suffix
-	 * @param msg
-	 * @param msgKey
-	 * @param args
-	 * @return
 	 */
 	public I18nString(String key, MessageSource msg, Object... args)
 	{

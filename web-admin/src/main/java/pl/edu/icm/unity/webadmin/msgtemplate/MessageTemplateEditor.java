@@ -5,17 +5,19 @@
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
+import com.vaadin.data.HasValue;
 import com.vaadin.data.ValidationResult;
+import com.vaadin.data.Validator;
 import com.vaadin.data.ValueContext;
 import com.vaadin.event.FieldEvents.FocusListener;
 import com.vaadin.ui.AbstractTextField;
 import com.vaadin.ui.Button;
-import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
@@ -25,6 +27,7 @@ import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -33,10 +36,12 @@ import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator.IllegalVariablesException;
 import pl.edu.icm.unity.engine.api.msgtemplate.MessageTemplateValidator.MandatoryVariablesException;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.I18nMessage;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
 import pl.edu.icm.unity.webui.common.CompatibleNotificationChannelsComboBox;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
@@ -72,6 +77,9 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private MessageTemplateManagement msgTemplateMgr;
 	private Binder<MessageTemplate> binder;
 	private Binder<I18nMessage> messageBinder;
+	private Map<String, NotificationChannelInfo> notificationChannelsMap;
+	private boolean showTemplate;
+	private Label externalTemplateInfo;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
@@ -89,9 +97,12 @@ public class MessageTemplateEditor extends CompactFormLayout
 	
 	private void initUI(MessageTemplate toEdit)
 	{
+		initNotificationChannels();
+		
 		buttons = new HorizontalLayout();
-		buttons.setSpacing(false);
+		buttons.setSpacing(true);
 		buttons.setMargin(false);
+		buttons.setCaption(msg.getMessage("MessageTemplatesEditor.allowedVars"));
 
 		name = new TextField(msg.getMessage("MessageTemplatesEditor.name"));
 
@@ -100,16 +111,21 @@ public class MessageTemplateEditor extends CompactFormLayout
 
 		consumer = new ComboBox<>(msg.getMessage("MessageTemplatesEditor.consumer"));
 		consumer.setEmptySelectionAllowed(false);
+		consumer.setWidth(20, Unit.EM);
 		Collection<String> consumers = registry.getAll().stream().map(c -> c.getName())
 				.collect(Collectors.toList());
 		consumer.setItems(consumers);
 		consumerDescription = new Label();
 		
-		notificationChannels = new CompatibleNotificationChannelsComboBox(Collections.emptySet(), notChannelsMan);
+		notificationChannels = new CompatibleNotificationChannelsComboBox(
+				EnumSet.noneOf(CommunicationTechnology.class), notChannelsMan);
 		notificationChannels.setCaption(msg.getMessage("MessageTemplatesEditor.notificationChannel"));
 		notificationChannels.setEmptySelectionAllowed(false);
 		notificationChannels.setRequiredIndicatorVisible(true);
-		
+		notificationChannels.addValueChangeListener(event -> {
+			toggleSubjectAndBody(event.getValue());
+		});
+		notificationChannels.setWidth(20, Unit.EM);
 		subject = new I18nTextField(msg, msg.getMessage("MessageTemplatesEditor.subject"));
 		subject.setWidth(100, Unit.PERCENTAGE);
 		body = new I18nTextArea(msg, msg.getMessage("MessageTemplatesEditor.body"), 8);
@@ -132,7 +148,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 
 		consumer.addValueChangeListener(event -> {
 			notificationChannels.reload(registry.getByName(event.getValue())
-					.getCompatibleFacilities());
+					.getCompatibleTechnologies());
 			notificationChannels.setDefaultValue();
 			notificationChannels.setVisible(!notificationChannels.getItems().isEmpty());
 			setMessageConsumerDesc();
@@ -141,9 +157,11 @@ public class MessageTemplateEditor extends CompactFormLayout
 		});
 
 		Label separator = new Label("");
+		externalTemplateInfo = new Label(msg.getMessage("MessageTemplatesEditor.externalTemplateInfo"));
+		externalTemplateInfo.setVisible(false);
 		addComponents(name, description, consumer, consumerDescription,
 				notificationChannels, separator, buttons, subject, messageType,
-				body);
+				body, externalTemplateInfo);
 
 		binder = new Binder<>(MessageTemplate.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
@@ -154,10 +172,14 @@ public class MessageTemplateEditor extends CompactFormLayout
 		binder.forField(messageType).asRequired(msg.getMessage("fieldRequired"))
 				.bind("type");
 		messageBinder = new Binder<>(I18nMessage.class);
-		messageBinder.forField(subject).withValidator(subjectValidator)
-				.asRequired(msg.getMessage("fieldRequired")).bind("subject");
-		messageBinder.forField(body).withValidator(bodyValidator)
-				.asRequired(msg.getMessage("fieldRequired")).bind("body");
+		messageBinder.forField(subject)
+				.withValidator(subjectValidator)
+				.asRequired(getRequiredValidatorTemplatesShownAware(subject))
+				.bind("subject");
+		messageBinder.forField(body)
+				.asRequired(getRequiredValidatorTemplatesShownAware(body))
+				.withValidator(bodyValidator)
+				.bind("body");
 		if (editMode)
 		{
 			name.setReadOnly(true);
@@ -189,6 +211,35 @@ public class MessageTemplateEditor extends CompactFormLayout
 		setSpacing(true);
 	}
 
+	private Validator<I18nString> getRequiredValidatorTemplatesShownAware(HasValue<?> field)
+	{
+		return Validator.from(value -> !showTemplate || !Objects.equals(value, field.getEmptyValue()),
+		                    context -> msg.getMessage("fieldRequired"));
+	}
+	
+	private void toggleSubjectAndBody(String channel)
+	{
+		NotificationChannelInfo notificationChannel = notificationChannelsMap.get(channel);
+		showTemplate = !notificationChannel.isSupportingTemplates();
+		subject.setVisible(showTemplate);
+		body.setVisible(showTemplate);
+		messageType.setVisible(showTemplate);
+		subjectValidator.setEnabled(showTemplate);
+		bodyValidator.setEnabled(showTemplate);
+		externalTemplateInfo.setVisible(!showTemplate);
+	}
+	
+	private void initNotificationChannels()
+	{
+		try
+		{
+			notificationChannelsMap = notChannelsMan.getNotificationChannels();
+		} catch (EngineException e)
+		{
+			throw new InternalException("Cannot get notification channels", e);
+		}
+	}
+	
 	private String getBodyForPreview(String locale)
 	{
 		MessageTemplate tpl = getTemplate();
@@ -222,6 +273,13 @@ public class MessageTemplateEditor extends CompactFormLayout
 		}
 		MessageTemplate msgTemplate = binder.getBean();
 		msgTemplate.setMessage(messageBinder.getBean());
+		
+		NotificationChannelInfo notificationChannel = notificationChannelsMap.get(msgTemplate.getNotificationChannel());
+		if (notificationChannel.isSupportingTemplates())
+			msgTemplate.setMessage(new I18nMessage(new I18nString(), new I18nString()));
+		else
+			msgTemplate.setMessage(messageBinder.getBean());
+		
 		return msgTemplate;
 	}
 
@@ -243,14 +301,10 @@ public class MessageTemplateEditor extends CompactFormLayout
 			b.addStyleName(Styles.vButtonSmall.toString());
 			b.setCaption(var.getKey());
 			b.setDescription(msg.getMessage(var.getValue().getDescriptionKey()));
-			b.addClickListener(new Button.ClickListener()
+			b.addClickListener(event -> 
 			{
-				@Override
-				public void buttonClick(ClickEvent event)
-				{
-					if (focussedField != null)
-						addVar(focussedField, b.getCaption());
-				}
+				if (focussedField != null)
+					addVar(focussedField, b.getCaption());
 			});
 			buttons.addComponent(b);
 		}
@@ -295,21 +349,38 @@ public class MessageTemplateEditor extends CompactFormLayout
 	{
 		private MessageTemplateDefinition c;
 		private boolean checkMandatory;
+		private boolean enabled;
 		
-		public MessageValidator(MessageTemplateDefinition c, boolean checkMandatory)
+		MessageValidator(MessageTemplateDefinition c, boolean checkMandatory)
 		{
 			this.c = c;
 			this.checkMandatory = checkMandatory;
 		}
 
-		public void setConsumer(MessageTemplateDefinition c)
+		void setConsumer(MessageTemplateDefinition c)
 		{
 			this.c = c;
 		}
 
+		void setEnabled(boolean enabled)
+		{
+			this.enabled = enabled;
+			
+		}
+		
 		@Override
 		public ValidationResult apply(I18nString value, ValueContext context)
 		{
+			if (!enabled)
+				return ValidationResult.ok();
+
+			if (context.getHasValue().isPresent() && context.getHasValue().get().isEmpty())
+				ValidationResult.error(msg.getMessage("fieldRequired"));
+
+			if (value == null)
+				ValidationResult.error(msg.getMessage("fieldRequired"));
+			if (value.isEmpty())
+				ValidationResult.error(msg.getMessage("fieldRequired"));
 			try
 			{
 				MessageTemplateValidator.validateText(c, value.toString(), checkMandatory);

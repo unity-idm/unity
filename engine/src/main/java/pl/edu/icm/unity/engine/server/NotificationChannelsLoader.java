@@ -4,8 +4,14 @@
  */
 package pl.edu.icm.unity.engine.server;
 
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.EXTERNAL_NOTIFICATION_FILE;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.EXTERNAL_NOTIFICATION_NAME;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.EXTERNAL_NOTIFICATION_PFX;
+import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.EXTERNAL_NOTIFICATION_SUPPORTS_TEMPLATES;
+
 import java.io.File;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.Logger;
@@ -14,12 +20,17 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.notifications.EmailFacility;
+import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
+import pl.edu.icm.unity.engine.notifications.script.GroovyEmailNotificationFacility;
+import pl.edu.icm.unity.engine.notifications.script.GroovyNotificationChannelConfig;
 import pl.edu.icm.unity.engine.notifications.sms.SMSFacility;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * Loads notification channels. Currently we allow only for a single instance of each type,
@@ -28,7 +39,7 @@ import pl.edu.icm.unity.types.basic.NotificationChannel;
  * @author K. Benedyczak
  */
 @Component
-public class NotificationChannelsLoader
+class NotificationChannelsLoader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_CFG,
 			NotificationChannelsLoader.class);
@@ -39,18 +50,47 @@ public class NotificationChannelsLoader
 	@Autowired
 	private UnityServerConfiguration config;
 	
-	public void initialize()
+	void initialize()
 	{
 		clean();
 		initializeEmailChannel();
 		initializeSMSChannel();
+		initializeExternalChannels();
+	}
+
+	private void initializeExternalChannels()
+	{
+		Set<String> channelKeys = config.getStructuredListKeys(EXTERNAL_NOTIFICATION_PFX);
+		for (String channelKey: channelKeys)
+		{
+			String file = config.getValue(channelKey + EXTERNAL_NOTIFICATION_FILE);
+			String name = config.getValue(channelKey + EXTERNAL_NOTIFICATION_NAME);
+			boolean supportsTemplates = config.getBooleanValue(channelKey + EXTERNAL_NOTIFICATION_SUPPORTS_TEMPLATES);
+			String channelId = channelKey.substring(EXTERNAL_NOTIFICATION_PFX.length());
+			channelId = channelId.substring(0, channelId.length()-1);
+			GroovyNotificationChannelConfig config = new GroovyNotificationChannelConfig(file, supportsTemplates);
+			NotificationChannel emailCh = new NotificationChannel(
+					channelId, 
+					name, 
+					JsonUtil.toJsonString(config), 
+					GroovyEmailNotificationFacility.NAME);
+			try
+			{
+				notManagement.addNotificationChannel(emailCh);
+			} catch (EngineException e)
+			{
+				throw new ConfigurationException("Can't load external e-mail notification channel", e);
+			}
+			log.info("Created a notification channel: " + emailCh.getName() + " [" + 
+					emailCh.getFacilityId() + "]");
+		}
 	}
 
 	private void clean()
 	{
 		try
 		{
-			Map<String, NotificationChannel> existingChannels = notManagement.getNotificationChannels();
+			Map<String, NotificationChannelInfo> existingChannels = notManagement.getNotificationChannels();
 			for (String key: existingChannels.keySet())
 			{
 				notManagement.removeNotificationChannel(key);

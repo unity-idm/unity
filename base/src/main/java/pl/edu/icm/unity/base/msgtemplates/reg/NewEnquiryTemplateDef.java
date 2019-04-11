@@ -4,14 +4,15 @@
  */
 package pl.edu.icm.unity.base.msgtemplates.reg;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition;
 import pl.edu.icm.unity.base.msgtemplates.MessageTemplateVariable;
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**
  * Defines a template for new enquiry notification - intended for end users.
@@ -49,9 +50,9 @@ public class NewEnquiryTemplateDef implements MessageTemplateDefinition
 	}
 	
 	@Override
-	public Set<String> getCompatibleFacilities()
+	public EnumSet<CommunicationTechnology> getCompatibleTechnologies()
 	{
-		return ALL_FACILITIES;
+		return EnumSet.allOf(CommunicationTechnology.class);
 	}
 
 }

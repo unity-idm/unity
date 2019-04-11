@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Lists;
 
 import pl.edu.icm.unity.base.msgtemplates.confirm.EmailConfirmationTemplateDef;
-import pl.edu.icm.unity.base.notifications.FacilityName;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -849,7 +848,7 @@ public class TestEmailConfirmations extends DBIntegrationTestBase
 				.withName(channelName)
 				.withConfiguration("test")
 				.withDescription("test")
-				.withFacilityId(FacilityName.EMAIL.toString())
+				.withFacilityId("EMAIL")
 				.build());
 		
 		
