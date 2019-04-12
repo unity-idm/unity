@@ -11,6 +11,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -694,7 +695,7 @@ public class EngineInitialization extends LifecycleBase
 			String realmName = config.getValue(endpointKey + UnityServerConfiguration.ENDPOINT_REALM);
 
 			List<String> endpointAuthn = config.getEndpointAuth(endpointKey);
-			String jsonConfiguration = FileUtils.readFileToString(configFile);
+			String jsonConfiguration = FileUtils.readFileToString(configFile, Charset.defaultCharset());
 
 			log.info(" - " + name + ": " + type + " " + description);
 			EndpointConfiguration endpointConfiguration = new EndpointConfiguration(displayedName,
@@ -850,7 +851,7 @@ public class EngineInitialization extends LifecycleBase
 			File configFile = config.getFileValue(
 					credentialKey + UnityServerConfiguration.CREDENTIAL_CONFIGURATION, false);
 
-			String jsonConfiguration = FileUtils.readFileToString(configFile);
+			String jsonConfiguration = FileUtils.readFileToString(configFile, Charset.defaultCharset());
 			CredentialDefinition credentialDefinition = new CredentialDefinition(typeId, name,
 					new I18nString(name), new I18nString(description));
 			credentialDefinition.setConfiguration(jsonConfiguration);
@@ -923,7 +924,7 @@ public class EngineInitialization extends LifecycleBase
 			ObjectNode json;
 			try
 			{
-				String source = FileUtils.readFileToString(new File(profileFile));
+				String source = FileUtils.readFileToString(new File(profileFile), Charset.defaultCharset());
 				json = JsonUtil.parse(source);
 			} catch (IOException e)
 			{

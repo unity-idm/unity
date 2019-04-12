@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.engine.utils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -50,7 +51,7 @@ public class ClasspathResourceReader
 			for (Resource r : resources)
 			{
 				ObjectNode json;
-				String source = IOUtils.toString(r.getInputStream());
+				String source = IOUtils.toString(r.getInputStream(), StandardCharsets.UTF_8);
 				json = JsonUtil.parse(source);
 				jsons.add(json);
 			}

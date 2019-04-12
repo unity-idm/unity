@@ -10,6 +10,7 @@ import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.EXTERN
 import static pl.edu.icm.unity.engine.api.config.UnityServerConfiguration.EXTERNAL_NOTIFICATION_SUPPORTS_TEMPLATES;
 
 import java.io.File;
+import java.nio.charset.Charset;
 import java.util.Map;
 import java.util.Set;
 
@@ -112,7 +113,7 @@ class NotificationChannelsLoader
 				return;
 			}
 			File mailCfgFile = config.getFileValue(UnityServerConfiguration.MAIL_CONF, false);
-			String mailCfg = FileUtils.readFileToString(mailCfgFile);
+			String mailCfg = FileUtils.readFileToString(mailCfgFile, Charset.defaultCharset());
 			NotificationChannel emailCh = new NotificationChannel(
 					UnityServerConfiguration.DEFAULT_EMAIL_CHANNEL, 
 					"Default email channel", mailCfg, EmailFacility.NAME);
@@ -135,7 +136,7 @@ class NotificationChannelsLoader
 				return;
 			}
 			File smsCfgFile = config.getFileValue(UnityServerConfiguration.SMS_CONF, false);
-			String smsCfg = FileUtils.readFileToString(smsCfgFile);
+			String smsCfg = FileUtils.readFileToString(smsCfgFile, Charset.defaultCharset());
 			NotificationChannel smsCh = new NotificationChannel(
 					UnityServerConfiguration.DEFAULT_SMS_CHANNEL, 
 					"Default SMS channel", smsCfg, SMSFacility.NAME);

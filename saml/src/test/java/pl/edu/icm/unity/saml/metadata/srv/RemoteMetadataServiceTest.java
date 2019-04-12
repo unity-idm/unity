@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -41,7 +42,8 @@ public class RemoteMetadataServiceTest
 		when(executorsService.getService()).thenReturn(pool);
 		downloader = mock(MetadataDownloader.class);
 		when(downloader.getFresh("url", null)).thenAnswer((a) -> {
-			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"));
+			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"),
+					StandardCharsets.UTF_8);
 			return EntitiesDescriptorDocument.Factory.parse(xml);
 		});
 	}
@@ -81,7 +83,8 @@ public class RemoteMetadataServiceTest
 		RemoteMetadataServiceImpl service = new RemoteMetadataServiceImpl(executorsService,
 				downloader);
 		when(downloader.getCached("url")).thenAnswer((a) -> {
-			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"));
+			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"),
+					StandardCharsets.UTF_8);
 			return Optional.of(EntitiesDescriptorDocument.Factory.parse(xml));
 		});
 		

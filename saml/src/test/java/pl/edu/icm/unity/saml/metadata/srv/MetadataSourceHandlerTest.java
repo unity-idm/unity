@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -110,7 +111,8 @@ public class MetadataSourceHandlerTest
 	{
 		MetadataDownloader downloader = mock(MetadataDownloader.class);
 		when(downloader.getFresh("http://url", null)).thenAnswer((a) -> {
-			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"));
+			String xml = IOUtils.toString(new FileInputStream("src/test/resources/unity-as-sp-meta.xml"),
+					StandardCharsets.UTF_8);
 			return EntitiesDescriptorDocument.Factory.parse(xml);
 		});
 		

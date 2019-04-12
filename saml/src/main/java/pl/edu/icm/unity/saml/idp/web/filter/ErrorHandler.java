@@ -6,11 +6,11 @@ package pl.edu.icm.unity.saml.idp.web.filter;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.Logger;
-import org.apache.xml.security.utils.Base64;
 
 import eu.unicore.samly2.exceptions.SAMLServerException;
 import pl.edu.icm.unity.base.utils.Log;
@@ -52,7 +52,7 @@ public class ErrorHandler extends ResponseHandlerBase
 	{
 		ResponseDocument responseDoc = errorResponseProcessor.getErrorResponse(error);
 		String assertion = responseDoc.xmlText();
-		String encodedAssertion = Base64.encode(assertion.getBytes(StandardCharsets.UTF_8));
+		String encodedAssertion = Base64.getEncoder().encodeToString(assertion.getBytes(StandardCharsets.UTF_8));
 		return encodedAssertion;
 	}
 	

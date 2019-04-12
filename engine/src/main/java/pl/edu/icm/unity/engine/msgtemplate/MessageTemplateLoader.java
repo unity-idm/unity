@@ -6,6 +6,7 @@ package pl.edu.icm.unity.engine.msgtemplate;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.AbstractMap;
 import java.util.Collection;
 import java.util.HashSet;
@@ -223,7 +224,7 @@ class MessageTemplateLoader
 	{
 		try
 		{
-			return FileUtils.readFileToString(new File(bodyFile));
+			return FileUtils.readFileToString(new File(bodyFile), Charset.defaultCharset());
 		} catch (IOException e)
 		{
 			throw new ConfigurationException("Problem loading template " + id + " bodyFile "
