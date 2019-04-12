@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webadmin.msgtemplate;
 
+import static pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
+
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.Map;
@@ -47,6 +49,7 @@ import pl.edu.icm.unity.webui.common.CompatibleNotificationChannelsComboBox;
 import pl.edu.icm.unity.webui.common.DescriptionTextArea;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithTextfield;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextArea;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 
@@ -80,6 +83,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 	private Map<String, NotificationChannelInfo> notificationChannelsMap;
 	private boolean showTemplate;
 	private Label externalTemplateInfo;
+	private ChipsWithTextfield customVariablesPicker;
 
 	public MessageTemplateEditor(UnityMessageSource msg,
 			MessageTemplateConsumersRegistry registry, MessageTemplate toEdit,
@@ -105,7 +109,8 @@ public class MessageTemplateEditor extends CompactFormLayout
 		buttons.setCaption(msg.getMessage("MessageTemplatesEditor.allowedVars"));
 
 		name = new TextField(msg.getMessage("MessageTemplatesEditor.name"));
-
+		name.setWidth(20, Unit.EM);
+		
 		description = new DescriptionTextArea(
 				msg.getMessage("MessageTemplatesEditor.description"));
 
@@ -158,10 +163,16 @@ public class MessageTemplateEditor extends CompactFormLayout
 
 		Label separator = new Label("");
 		externalTemplateInfo = new Label(msg.getMessage("MessageTemplatesEditor.externalTemplateInfo"));
+		externalTemplateInfo.setWidth(100, Unit.PERCENTAGE);
 		externalTemplateInfo.setVisible(false);
+		customVariablesPicker = new ChipsWithTextfield();
+		customVariablesPicker.setCaption(msg.getMessage("MessageTemplatesEditor.customVariables"));
+		customVariablesPicker.setValidator(msg, str -> str.matches("[a-zA-Z0-9_\\-\\.]*"),
+				msg.getMessage("MessageTemplatesEditor.customVariableIllegalCharsError"));
+		
 		addComponents(name, description, consumer, consumerDescription,
 				notificationChannels, separator, buttons, subject, messageType,
-				body, externalTemplateInfo);
+				body, externalTemplateInfo, customVariablesPicker);
 
 		binder = new Binder<>(MessageTemplate.class);
 		binder.forField(name).asRequired(msg.getMessage("fieldRequired")).bind("name");
@@ -193,6 +204,11 @@ public class MessageTemplateEditor extends CompactFormLayout
 			}
 			notificationChannels.setValue(channel);
 			setMessageConsumerDesc();
+			
+			customVariablesPicker.setItems(
+					MessageTemplateValidator.extractCustomVariables(toEdit.getMessage()).stream()
+						.map(var -> var.substring(CUSTOM_VAR_PREFIX.length()))
+						.collect(Collectors.toList()));
 		} else
 		{
 			MessageTemplate msgTemplate = new MessageTemplate();
@@ -226,7 +242,9 @@ public class MessageTemplateEditor extends CompactFormLayout
 		messageType.setVisible(showTemplate);
 		subjectValidator.setEnabled(showTemplate);
 		bodyValidator.setEnabled(showTemplate);
+		
 		externalTemplateInfo.setVisible(!showTemplate);
+		customVariablesPicker.setVisible(!showTemplate);
 	}
 	
 	private void initNotificationChannels()
@@ -276,10 +294,18 @@ public class MessageTemplateEditor extends CompactFormLayout
 		
 		NotificationChannelInfo notificationChannel = notificationChannelsMap.get(msgTemplate.getNotificationChannel());
 		if (notificationChannel.isSupportingTemplates())
-			msgTemplate.setMessage(new I18nMessage(new I18nString(), new I18nString()));
-		else
-			msgTemplate.setMessage(messageBinder.getBean());
-		
+		{
+			String customVariables = customVariablesPicker.getItems().stream()
+					.map(variable -> "${custom." + variable + "}")
+					.collect(Collectors.joining());
+			msgTemplate.setMessage(new I18nMessage(new I18nString(), new I18nString(customVariables)));
+		} else
+		{
+			I18nMessage message = messageBinder.getBean();
+			//ensure to clean any values left from external template that could be used before.
+			message.getBody().setDefaultValue("");
+			msgTemplate.setMessage(message);
+		}
 		return msgTemplate;
 	}
 

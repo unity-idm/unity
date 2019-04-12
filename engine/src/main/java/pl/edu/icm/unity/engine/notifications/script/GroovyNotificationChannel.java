@@ -84,8 +84,8 @@ class GroovyNotificationChannel implements NotificationChannelInstance
 	private void invokeScript(Binding binding)
 	{
 		GroovyShell shell = new GroovyShell(binding);
-		log.info("Sending message to {} via Groovy script {}", config.scriptPath, 
-				binding.getProperty("recipientAddress"));
+		log.info("Sending message to {} via Groovy script {}",  
+				binding.getProperty("recipientAddress"), config.scriptPath);
 		Reader scriptReader = getFileReader(config.scriptPath);
 		Stopwatch timer = Stopwatch.createStarted();
 		try
