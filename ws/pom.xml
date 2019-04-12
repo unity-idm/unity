@@ -81,23 +81,13 @@
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>jaxws-ri</artifactId>
+			<type>pom</type>
+		</dependency>
 	</dependencies>
-	
-	<profiles>
-		<profile>
-			<id>SOAP_for_jdk11</id>
-			<dependencies>
-				<dependency>
-					<groupId>com.sun.xml.ws</groupId>
-					<artifactId>jaxws-ri</artifactId>
-					<type>pom</type>
-				</dependency>
-			</dependencies>
-			<activation>
-				<jdk>11</jdk>
-			</activation>
-		</profile>
-	</profiles>
 	
 	<build>
 		<plugins>

@@ -126,6 +126,7 @@
 					</xmlConfigs>
 					<noUpa>true</noUpa>
 					<outputJar>target/unity-server-saml-xmlbeans-${project.version}.jar</outputJar>
+					<javaSource>1.8</javaSource>
 				</configuration>
 			</plugin>
 			<plugin>
