@@ -52,7 +52,6 @@
 		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>secutils-cxf</artifactId>
-			<scope>test</scope>
 		</dependency>
 		
 		<dependency>
@@ -73,10 +72,6 @@
 			<groupId>pl.edu.icm.unity</groupId>
 			<artifactId>unity-server-std-plugins</artifactId>
 			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-databinding-xmlbeans</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>

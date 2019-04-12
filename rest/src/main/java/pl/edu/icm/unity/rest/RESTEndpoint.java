@@ -115,8 +115,7 @@ public abstract class RESTEndpoint extends AbstractWebEndpoint implements WebApp
 
 	private void deployResources(Bus bus)
 	{
-		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(getApplication(), false);
-		sf.setBus(bus);
+		JAXRSServerFactoryBean sf = ResourceUtils.createApplication(getApplication(), false, false, false, bus);
 		
 		JAXRSBindingFactory factory = new JAXRSBindingFactory();
 		factory.setBus(bus);

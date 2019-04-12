@@ -8,7 +8,8 @@ import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
 import org.apache.cxf.phase.Phase;
-import org.apache.cxf.xmlbeans.XmlBeansDataBinding;
+
+import eu.unicore.security.wsutil.cxf.XmlBeansDataBinding;
 
 /**
  * Turns on the infameous XMLBEANS NAMESPACES HACK for CXF. Without this the message returned by the server 
