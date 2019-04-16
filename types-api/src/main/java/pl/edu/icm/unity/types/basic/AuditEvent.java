@@ -28,9 +28,9 @@ import java.util.Set;
  */
 public class AuditEvent
 {
-	// TODO
+	// TODO - overall list for Audit feature
+	// - investigate issue with TAG insert on newest version of mybatis (3.5.1) working well on 3.4.6
 	// - add builder
-	// - what to do with import export - yes, add it
 	// - add DB indexes - need more details about UI abilities
 	@NonNull private String name;
 	@NonNull private EventType type;

@@ -4,16 +4,10 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import pl.edu.icm.unity.store.api.AuditEventDAO;
-import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 import pl.edu.icm.unity.types.basic.AuditEvent;
 import pl.edu.icm.unity.types.basic.AuditEvent.AuditEntity;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * RDBMS storage of {@link AuditEvent.AuditEntity}. Helper repository to handle actions related to AuditEntity entries.

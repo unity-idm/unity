@@ -22,7 +22,7 @@ import pl.edu.icm.unity.types.basic.AuditEvent.EventAction;
  * @author K. Benedyczak
  */
 @Component
-public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEvent, AuditEventBean>, JsonSerializerForKryo<AuditEvent>
+public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEvent, AuditEventBean>
 {
 	@Autowired
 	private AuditEntityRDBMSStore auditEntityDAO;
@@ -54,21 +54,5 @@ public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEven
 				bean.getTags()
 				);
 		return event;
-	}
-
-
-	@Override
-	public AuditEvent fromJson(final ObjectNode src) {
-		return null;
-	}
-
-	@Override
-	public ObjectNode toJson(final AuditEvent src) {
-		return src.toJson();
-	}
-
-	@Override
-	public Class<?> getClazz() {
-		return null;
 	}
 }

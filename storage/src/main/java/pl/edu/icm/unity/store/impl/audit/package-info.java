@@ -7,7 +7,7 @@
  */
 
 /**
- * AuditEvents DAO
+ * AuditEvents storage implementation.
  * @author R.Ledzinski
  */
 package pl.edu.icm.unity.store.impl.audit;
