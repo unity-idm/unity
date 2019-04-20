@@ -3,13 +3,12 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package pl.edu.icm.unity.ldap.client.web;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -19,6 +18,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
 /**
  * Factory for {@link LdapAuthenticatorEditor} - Ldap cert option
+ * 
  * @author P.Piernik
  *
  */
@@ -28,16 +28,17 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;
-	private EditInputTranslationProfileSubViewHelper profileHelper;
-	
+	private InputTranslationProfileFieldFactory profileFieldFactory;
+
 	@Autowired
-	public LdapAuthenticatorEditorFactory(UnityMessageSource msg, PKIManagement pkiMan, EditInputTranslationProfileSubViewHelper profileHelper)
+	public LdapAuthenticatorEditorFactory(UnityMessageSource msg, PKIManagement pkiMan,
+			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
-		this.profileHelper = profileHelper;
+		this.profileFieldFactory = profileFieldFactory;
 	}
-	
+
 	@Override
 	public String getSupportedAuthenticatorType()
 	{
@@ -47,7 +48,7 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new LdapAuthenticatorEditor(msg, pkiMan, profileHelper, LdapPasswordVerificator.NAME);
+		return new LdapAuthenticatorEditor(msg, pkiMan, profileFieldFactory, LdapPasswordVerificator.NAME);
 	}
 
 }

@@ -8,7 +8,7 @@ package pl.edu.icm.unity.ldap.client.web;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -28,15 +28,15 @@ public class LdapCertAuthenticatorEditorFactory implements AuthenticatorEditorFa
 
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;
-	private EditInputTranslationProfileSubViewHelper profileHelper;
+	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	@Autowired
 	public LdapCertAuthenticatorEditorFactory(UnityMessageSource msg, PKIManagement pkiMan,
-			EditInputTranslationProfileSubViewHelper profileHelper)
+			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
-		this.profileHelper = profileHelper;
+		this.profileFieldFactory = profileFieldFactory;
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class LdapCertAuthenticatorEditorFactory implements AuthenticatorEditorFa
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new LdapAuthenticatorEditor(msg, pkiMan, profileHelper, LdapCertVerificator.NAME);
+		return new LdapAuthenticatorEditor(msg, pkiMan, profileFieldFactory, LdapCertVerificator.NAME);
 	}
 
 }

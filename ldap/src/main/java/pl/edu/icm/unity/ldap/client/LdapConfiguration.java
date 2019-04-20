@@ -29,7 +29,6 @@ import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
 import pl.edu.icm.unity.ldap.client.LdapProperties.ConnectionMode;
 import pl.edu.icm.unity.ldap.client.LdapProperties.SearchScope;
-import pl.edu.icm.unity.ldap.client.web.LdapAuthenticatorEditor.UserDNResolving;
 import pl.edu.icm.unity.ldap.client.web.ServerSpecification;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
@@ -43,6 +42,11 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
  */
 public class LdapConfiguration
 {
+	public enum UserDNResolving
+	{
+		template, ldapSearch
+	}
+	
 	public static final String USERNAME_TOKEN = "{USERNAME}";
 	public static final String USER_DN_SEARCH_KEY = "searchUserDN";
 
@@ -283,8 +287,9 @@ public class LdapConfiguration
 		for (int i = 0; i < servers.size(); i++)
 		{
 			ServerSpecification servConfig = servers.get(i);
-			raw.put(LdapProperties.PREFIX + LdapProperties.SERVERS + i, servConfig.getServer());
-			raw.put(LdapProperties.PREFIX + LdapProperties.PORTS + i, String.valueOf(servConfig.getPort()));
+			raw.put(LdapProperties.PREFIX + LdapProperties.SERVERS + (i + 1), servConfig.getServer());
+			raw.put(LdapProperties.PREFIX + LdapProperties.PORTS + (i + 1),
+					String.valueOf(servConfig.getPort()));
 		}
 
 		// Server connection config
@@ -327,13 +332,11 @@ public class LdapConfiguration
 						getMemberOfGroupAttribute());
 			}
 
-			int i = 1;
 			if (groupSpecifications != null)
 			{
-				for (GroupSpecification group : groupSpecifications)
-				{
-					String prefix = LdapProperties.PREFIX + LdapProperties.GROUP_DEFINITION_PFX + i
-							+ ".";
+				groupSpecifications.stream().forEach(group -> {
+					String prefix = LdapProperties.PREFIX + LdapProperties.GROUP_DEFINITION_PFX
+							+ (groupSpecifications.indexOf(group) + 1) + ".";
 					raw.put(prefix + LdapProperties.GROUP_DEFINITION_NAME_ATTR,
 							group.getGroupNameAttribute());
 					raw.put(prefix + LdapProperties.GROUP_DEFINITION_MEMBER_ATTR,
@@ -341,27 +344,24 @@ public class LdapConfiguration
 					raw.put(prefix + LdapProperties.GROUP_DEFINITION_OC, group.getObjectClass());
 					raw.put(prefix + LdapProperties.GROUP_DEFINITION_MATCHBY_MEMBER_ATTR,
 							group.getMatchByMemberAttribute());
-					i++;
-				}
+				});
 			}
 
 			// Advanced attr search settings
 			if (retrievalLdapAttributes != null)
 			{
-				i = 1;
-				for (String attribute : retrievalLdapAttributes)
-				{
-					raw.put(LdapProperties.PREFIX + LdapProperties.ATTRIBUTES + i, attribute);
-					i++;
-				}
+
+				retrievalLdapAttributes.stream()
+						.forEach(a -> raw.put(LdapProperties.PREFIX + LdapProperties.ATTRIBUTES
+								+ (retrievalLdapAttributes.indexOf(a) + 1), a));
 			}
 
 			if (searchSpecifications != null)
 			{
-				i = 1;
-				for (SearchSpecification search : searchSpecifications)
-				{
-					String prefix = LdapProperties.PREFIX + LdapProperties.ADV_SEARCH_PFX + i + ".";
+
+				searchSpecifications.stream().forEach(search -> {
+					String prefix = LdapProperties.PREFIX + LdapProperties.ADV_SEARCH_PFX
+							+ (searchSpecifications.indexOf(search) + 1) + ".";
 					raw.put(prefix + LdapProperties.ADV_SEARCH_BASE, search.getBaseDN());
 					raw.put(prefix + LdapProperties.ADV_SEARCH_FILTER, search.getFilter());
 					raw.put(prefix + LdapProperties.ADV_SEARCH_SCOPE, search.getScope().toString());
@@ -369,8 +369,7 @@ public class LdapConfiguration
 							search.getAttributes() != null
 									? String.join(" ", search.getAttributes())
 									: "");
-					i++;
-				}
+				});
 			}
 
 			if (getUsernameExtractorRegexp() != null)
@@ -457,7 +456,7 @@ public class LdapConfiguration
 	private void validateUserDNSearch() throws ConfigurationException
 	{
 
-		if (nonEmpty(userDNSearchKey))
+		if (userDNResolving.equals(UserDNResolving.ldapSearch))
 		{
 			if (((!nonEmpty(systemDN)) || !nonEmpty(systemPassword)) && bindAs != BindAs.none)
 			{

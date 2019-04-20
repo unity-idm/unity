@@ -22,8 +22,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
-import io.imunity.webadmin.tprofile.TranslationRulesPresenter;
-import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -58,18 +57,18 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 
 	private TokensManagement tokenMan;
 	private PKIManagement pkiMan;
-	private EditInputTranslationProfileSubViewHelper profileHelper;
+	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	private Set<String> validators;
 	private Binder<OAuthRPConfiguration> configBinder;
 
 	public OAuthRPAuthenticatorEditor(UnityMessageSource msg, TokensManagement tokenMan, PKIManagement pkiMan,
-			EditInputTranslationProfileSubViewHelper profileHelper) throws EngineException
+			InputTranslationProfileFieldFactory profileFieldFactory) throws EngineException
 	{
 		super(msg);
 		this.tokenMan = tokenMan;
 		this.pkiMan = pkiMan;
-		this.profileHelper = profileHelper;
+		this.profileFieldFactory = profileFieldFactory;
 		validators = pkiMan.getValidatorNames();
 	}
 
@@ -84,10 +83,8 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 
 		FormLayout header = buildHeaderSection();
 
-		TranslationRulesPresenter profileRulesViewer = profileHelper.getRulesPresenterInstance();
-		CollapsibleLayout remoteDataMapping = profileHelper.buildRemoteDataMappingEditorSection(subViewSwitcher,
-				profileRulesViewer, p -> configBinder.getBean().setTranslationProfile(p),
-				() -> configBinder.getBean().getTranslationProfile());
+		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
+				configBinder, "translationProfile");
 		CollapsibleLayout advanced = buildAdvancedSection();
 
 		OAuthRPConfiguration config = new OAuthRPConfiguration();
@@ -97,7 +94,6 @@ public class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implemen
 		}
 
 		configBinder.setBean(config);
-		profileRulesViewer.setInput(configBinder.getBean().getTranslationProfile().getRules());
 
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);

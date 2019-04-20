@@ -3,54 +3,63 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.oauth.rp.web;
+package pl.edu.icm.unity.saml.sp.web.authnEditor;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.RealmsManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
+import pl.edu.icm.unity.saml.sp.SAMLVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
 /**
- * Factory for {@link OAuthRPAuthenticatorEditor}
+ * Factory for {@link SAMLAuthenticatorEditor}
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class OAuthRPAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+public class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
-	private TokensManagement tokenMan;
+	private InputTranslationProfileFieldFactory profileFieldFactory;
+	private RegistrationsManagement registrationMan;
 	private PKIManagement pkiMan;
-	private InputTranslationProfileFieldFactory profileFieldFactory;;
+	private RealmsManagement realmMan;
+	private IdentityTypesRegistry idTypesReg;
 
 	@Autowired
-	OAuthRPAuthenticatorEditorFactory(UnityMessageSource msg, TokensManagement tokenMan, PKIManagement pkiMan,
+	public SAMLAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
+			RealmsManagement realmMan, PKIManagement pkiMan, IdentityTypesRegistry idTypesReg,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
-		this.tokenMan = tokenMan;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
+		this.registrationMan = registrationMan;
+		this.realmMan = realmMan;
+		this.idTypesReg = idTypesReg;
+
 	}
 
 	@Override
 	public String getSupportedAuthenticatorType()
 	{
-		return BearerTokenVerificator.NAME;
+		return SAMLVerificator.NAME;
 	}
 
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new OAuthRPAuthenticatorEditor(msg, tokenMan, pkiMan, profileFieldFactory);
+		return new SAMLAuthenticatorEditor(msg, pkiMan, profileFieldFactory, registrationMan, realmMan,
+				idTypesReg);
 	}
 
 }

@@ -72,7 +72,6 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		{
 			config.setCredential(credentials.iterator().next());
 		}
-		config.setTtl(3600);
 
 		if (editMode)
 		{
@@ -117,6 +116,7 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 
 		public JWTConfiguration()
 		{
+			setTtl(JWTAuthenticationProperties.DEFAULT_TOKEN_TTL);
 		}
 
 		public String getCredential()

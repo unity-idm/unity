@@ -40,8 +40,7 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		super(name, description, exchangeId);
 		this.processor = processor;
 	}
-
-	//TODO TO REMOVE
+	
 	/**
 	 * This method is calling {@link #processRemoteInput(RemotelyAuthenticatedInput)} and then
 	 * {@link #assembleAuthenticationResult(RemotelyAuthenticatedContext)}.
@@ -52,18 +51,6 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	 * @return
 	 * @throws EngineException 
 	 */
-	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, String profile,
-			RemoteAuthnState state) throws AuthenticationException
-	{
-		RemoteAuthnStateImpl stateCasted = (RemoteAuthnStateImpl)state;
-		stateCasted.remoteInput = input;
-		
-		AuthenticationResult result = processor.getResult(input, profile, 
-				stateCasted.isInSandboxMode(), Optional.empty());
-		finishAuthnResponseProcessing(state, result.getRemoteAuthnContext());
-		return result;
-	}
-	
 	protected AuthenticationResult getResult(RemotelyAuthenticatedInput input, TranslationProfile profile,
 			RemoteAuthnState state) throws AuthenticationException
 	{
@@ -128,16 +115,17 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 		}
 	}
 	
-	protected TranslationProfile getTranslationProfile(UnityPropertiesHelper props, String globalProfileNameKey,
+	public static TranslationProfile getTranslationProfile(UnityPropertiesHelper props, String globalProfileNameKey,
 			String embeddedProfileKey) throws ConfigurationException
 	{
 		
-		if (!props.isSet(globalProfileNameKey) && !props.isSet(embeddedProfileKey))
+		//check getValue == null because default value can be present
+		if (props.getValue(globalProfileNameKey) == null && !props.isSet(embeddedProfileKey))
 		{
 			throw new ConfigurationException("Misconfigured translation profile");
 		}
 			
-		if (!props.isSet(globalProfileNameKey))
+		if (props.isSet(embeddedProfileKey))
 		{
 			return TranslationProfileGenerator.getProfileFromString(props.getValue(embeddedProfileKey));
 		} else

@@ -19,8 +19,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
-import io.imunity.webadmin.tprofile.TranslationRulesPresenter;
-import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
@@ -42,28 +41,30 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
  * PAM authenticator editor
+ * 
  * @author P.Piernik
  *
  */
 public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	
+
 	private List<String> registrationForms;
-	private EditInputTranslationProfileSubViewHelper profileHelper;
-	
+	private InputTranslationProfileFieldFactory profileFieldFactory;
+
 	private Binder<PamConfiguration> configBinder;
-	
+
 	public PamAuthenticatorEditor(UnityMessageSource msg, List<String> registrationForms,
-			EditInputTranslationProfileSubViewHelper profileHelper)
+			InputTranslationProfileFieldFactory profileFieldFactory)
 
 	{
 		super(msg);
 		this.registrationForms = registrationForms;
-		this.profileHelper = profileHelper;
+		this.profileFieldFactory = profileFieldFactory;
 	}
 
 	@Override
-	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher subViewSwitcher, boolean forceNameEditable)
+	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher subViewSwitcher,
+			boolean forceNameEditable)
 	{
 		boolean editMode = init(msg.getMessage("PamAuthenticatorEditor.defaultName"), toEdit,
 				forceNameEditable);
@@ -72,10 +73,8 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 
 		FormLayout header = buildHeaderSection();
 		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
-		
-		TranslationRulesPresenter profileRulesViewer = profileHelper.getRulesPresenterInstance();
-		CollapsibleLayout remoteDataMapping = profileHelper.buildRemoteDataMappingEditorSection(subViewSwitcher, profileRulesViewer,
-				p -> configBinder.getBean().setTranslationProfile(p), () -> configBinder.getBean().getTranslationProfile());
+		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
+				configBinder, "translationProfile");
 
 		PamConfiguration config = new PamConfiguration();
 		if (editMode)
@@ -84,8 +83,7 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		}
 
 		configBinder.setBean(config);
-		profileRulesViewer.setInput(configBinder.getBean().getTranslationProfile().getRules());
-		
+
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(header);
@@ -95,7 +93,7 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		return mainView;
 	}
 
-	private FormLayout buildHeaderSection()
+	private FormLayoutWithFixedCaptionWidth buildHeaderSection()
 	{
 		TextField pamFacility = new TextField(msg.getMessage("PamAuthenticatorEditor.pamFacility"));
 		configBinder.forField(pamFacility).asRequired(msg.getMessage("fieldRequired")).bind("pamFacility");
@@ -142,8 +140,8 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 	private String getConfiguration() throws FormValidationException
 	{
 		if (configBinder.validate().hasErrors())
-			throw new FormValidationException();	
-	
+			throw new FormValidationException();
+
 		try
 		{
 			return configBinder.getBean().toProperties();

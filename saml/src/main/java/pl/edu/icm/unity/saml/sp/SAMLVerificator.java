@@ -56,6 +56,7 @@ import pl.edu.icm.unity.saml.metadata.srv.RemoteMetadataService;
 import pl.edu.icm.unity.saml.slo.SAMLLogoutProcessor.SamlTrustProvider;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
 import pl.edu.icm.unity.saml.sp.web.IdPVisalSettings;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.AuthnRequestDocument;
@@ -285,8 +286,12 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			SAMLSPProperties config = context.getContextConfig();
 			String idpKey = context.getContextIdpKey();
 		
-			return getResult(input, config.getValue(idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE), 
-					state);
+			TranslationProfile profile = getTranslationProfile(
+					config, idpKey + CommonWebAuthnProperties.TRANSLATION_PROFILE,
+					idpKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
+			
+			
+			return getResult(input, profile, state);
 		} catch (Exception e)
 		{
 			finishAuthnResponseProcessing(state, e);

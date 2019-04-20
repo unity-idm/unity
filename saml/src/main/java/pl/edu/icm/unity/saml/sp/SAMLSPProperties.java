@@ -60,6 +60,7 @@ public class SAMLSPProperties extends SamlProperties
 
 	public static final String IDPMETA_PREFIX = "metadataSource.";
 	public static final String IDPMETA_TRANSLATION_PROFILE = "perMetadataTranslationProfile";
+	public static final String IDPMETA_EMBEDDED_TRANSLATION_PROFILE = "perMetadataEmbeddedTranslationProfile";
 	public static final String IDPMETA_REGISTRATION_FORM = "perMetadataRegistrationForm";
 	
 	public static final String IDP_PREFIX = "remoteIdp.";
@@ -75,6 +76,7 @@ public class SAMLSPProperties extends SamlProperties
 	public static final String IDP_GROUP_MEMBERSHIP_ATTRIBUTE = "groupMembershipAttribute";
 	
 	public static final String DEFAULT_TRANSLATION_PROFILE = "sys:saml";
+	public static final Binding DEFAULT_IDP_BINDING = Binding.HTTP_REDIRECT;
 	
 	static
 	{
@@ -88,7 +90,7 @@ public class SAMLSPProperties extends SamlProperties
 				"There must be at least one IdP defined. If there are multiple ones defined, then the user can choose which one to use."));
 		META.put(IDP_ADDRESS, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"Address of the IdP endpoint."));
-		META.put(IDP_BINDING, new PropertyMD(Binding.HTTP_REDIRECT).setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
+		META.put(IDP_BINDING, new PropertyMD(DEFAULT_IDP_BINDING).setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"SAML binding to be used to send a request to the IdP. If you use 'SOAP' here then the IdP will be available only for ECP logins, not via the web browser login."));
 		META.put(REDIRECT_LOGOUT_URL, new PropertyMD().setStructuredListEntry(IDP_PREFIX).setCategory(idp).setDescription(
 				"Address of the IdP Single Logout Endpoint supporting HTTP Redirect binding."));
@@ -136,6 +138,11 @@ public class SAMLSPProperties extends SamlProperties
 				setDescription("Name of a translation" +
 				" profile, which will be used to map remotely obtained attributes and identity" +
 				" to the local counterparts. The profile should at least map the remote identity."));
+		META.put(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setCategory(idp).setHidden()
+				.setStructuredListEntry(IDP_PREFIX)
+				.setDescription("Translation"
+						+ " profile, which will be used to map remotely obtained attributes and identity"
+						+ " to the local counterparts. The profile should at least map the remote identity."));
 		META.put(CommonWebAuthnProperties.REGISTRATION_FORM, new PropertyMD().setCategory(idp).setStructuredListEntry(IDP_PREFIX).setDescription(
 				"Name of a registration form to be shown for a remotely authenticated principal who " +
 				"has no local account. If unset such users will be denied."));	
@@ -182,6 +189,12 @@ public class SAMLSPProperties extends SamlProperties
 				setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult translation profile for all the IdPs from the metadata. "
 				+ "Can be overwritten by individual IdP configuration entries."));
+		
+		META.put(IDPMETA_EMBEDDED_TRANSLATION_PROFILE, new PropertyMD().setCategory(remoteMeta).setHidden().
+				setStructuredListEntry(IDPMETA_PREFIX).setDescription(
+				"Deafult translation profile for all the IdPs from the metadata. "
+				+ "Can be overwritten by individual IdP configuration entries."));
+		
 		META.put(IDPMETA_REGISTRATION_FORM, new PropertyMD().setCategory(remoteMeta).
 				setStructuredListEntry(IDPMETA_PREFIX).setDescription(
 				"Deafult registration form for all the IdPs from the metadata. Can be overwritten by "
@@ -404,11 +417,14 @@ public class SAMLSPProperties extends SamlProperties
 			return false;
 		}
 		String translatioProfile = getValue(key + CommonWebAuthnProperties.TRANSLATION_PROFILE);
-		if (translatioProfile == null || translatioProfile.isEmpty())
+		String embeddedTranslatioProfile = getValue(
+				key + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
+		if ((translatioProfile == null || translatioProfile.isEmpty())
+				&& (embeddedTranslatioProfile == null || embeddedTranslatioProfile.isEmpty()))
 		{
 			log.warn("No translation profile for " + entityId + " ignoring IdP");
 			return false;
-		}		
+		}
 		return true;
 	}
 	

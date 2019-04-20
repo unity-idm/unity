@@ -19,7 +19,6 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 public interface AuthenticatorEditor
 {
-
 	Component getEditor(AuthenticatorDefinition authenticator, SubViewSwitcher subViewSwitcher, boolean forceNameEditable);
 	
 	AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException;

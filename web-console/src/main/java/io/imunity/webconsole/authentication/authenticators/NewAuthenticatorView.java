@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webconsole.authentication.authenticators;
 
 import org.springframework.beans.factory.ObjectFactory;
@@ -29,6 +28,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * View for add new authenticator
+ * 
  * @author P.Piernik
  *
  */
@@ -36,13 +36,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 class NewAuthenticatorView extends ViewWithSubViewBase
 {
 	public static final String VIEW_NAME = "NewAuthenticator";
-	
+
 	private UnityMessageSource msg;
 	private AuthenticatorsController controller;
 	private MainAuthenticatorEditor editor;
-	
+
 	private VerticalLayout mainView;
-	
+
 	@Autowired
 	NewAuthenticatorView(UnityMessageSource msg, AuthenticatorsController controller)
 	{
@@ -54,15 +54,15 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	public void enter(ViewChangeEvent event)
 	{
 		editor = controller.getEditor(null, this);
-		
+
 		mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(editor);
-		mainView.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg,
-				() -> onConfirm(), () -> onCancel()));
+		mainView.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> onConfirm(),
+				() -> onCancel()));
 		setMainView(mainView);
 	}
-	
+
 	private void onConfirm()
 	{
 
@@ -70,12 +70,13 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 		try
 		{
 			authenticator = editor.getAuthenticator();
-		} catch (FormValidationException e1)
+		} catch (FormValidationException e)
 		{
+			NotificationPopup.showError(msg, msg.getMessage("NewAuthenticatorView.invalidConfiguration"),
+					e);
 			return;
 		}
-		
-		
+
 		try
 		{
 			controller.addAuthenticator(authenticator);
@@ -94,7 +95,7 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 		NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 
 	}
-	
+
 	@Override
 	public String getDisplayedName()
 	{
@@ -106,22 +107,18 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	{
 		return VIEW_NAME;
 	}
-	
+
 	@Component
 	public static class NewAuthenticatorNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public  NewAuthenticatorNavigationInfoProvider(AuthenticatorsNavigationInfoProvider parent,
+		public NewAuthenticatorNavigationInfoProvider(AuthenticatorsNavigationInfoProvider parent,
 				ObjectFactory<NewAuthenticatorView> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME,
-					Type.ParameterizedViewWithSubviews)
-							.withParent(parent.getNavigationInfo())
-							.withObjectFactory(factory).build());
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedViewWithSubviews)
+					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
 
 		}
 	}
 }
-
-

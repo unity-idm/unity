@@ -63,6 +63,8 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 	public static final String IDENTITY_LOCAL = "localIdentity";
 	public static final String IDENTITY_SAML = "samlIdentity";
 	
+	public static final int DEFAULT_METADATA_REFRESH = 3600;
+	
 	public static final DocumentationCategory samlMetaCat = new DocumentationCategory("SAML metadata settings", "6");
 	public static final DocumentationCategory remoteMeta = new DocumentationCategory(
 			"Configuration read from trusted SAML metadata", "02");
@@ -92,7 +94,7 @@ public abstract class SamlProperties extends UnityPropertiesHelper
 				+ "In case of HTTPS the server's certificate will be checked against the main "
 				+ "Unity server's truststore"
 				+ " only if " + METADATA_HTTPS_TRUSTSTORE + " is set."));
-		defaults.put(METADATA_REFRESH, new PropertyMD("3600").setCategory(remoteMeta).
+		defaults.put(METADATA_REFRESH, new PropertyMD(String.valueOf(DEFAULT_METADATA_REFRESH)).setCategory(remoteMeta).
 				setStructuredListEntry(metasPrefix).setDescription(
 				"How often the metadata should be reloaded."));
 		defaults.put(METADATA_HTTPS_TRUSTSTORE, new PropertyMD().setCategory(remoteMeta).

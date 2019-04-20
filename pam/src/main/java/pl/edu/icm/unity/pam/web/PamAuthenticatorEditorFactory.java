@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -20,6 +20,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
 /**
  * Factory for {@link PamAuthenticatorEditor}
+ * 
  * @author P.Piernik
  *
  */
@@ -29,15 +30,15 @@ public class PamAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 
 	private UnityMessageSource msg;
 	private RegistrationsManagement regMan;
-	private EditInputTranslationProfileSubViewHelper profileHelper;
+	private InputTranslationProfileFieldFactory profileFieldFactory;;
 
 	@Autowired
 	public PamAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement regMan,
-			EditInputTranslationProfileSubViewHelper profileHelper)
+			InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
-		this.profileHelper = profileHelper;
+		this.profileFieldFactory = profileFieldFactory;
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class PamAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	{
 		return new PamAuthenticatorEditor(msg,
 				regMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toList()),
-				profileHelper);
+				profileFieldFactory);
 	}
 
 }

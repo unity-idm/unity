@@ -8,7 +8,7 @@ package pl.edu.icm.unity.oauth.client.web.authnEditor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.imunity.webconsole.utils.tprofile.EditInputTranslationProfileSubViewHelper;
+import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -19,6 +19,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
 /**
  * Factory for {@link OAuthAuthenticatorEditor}
+ * 
  * @author P.Piernik
  *
  */
@@ -26,17 +27,17 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 public class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
-	private EditInputTranslationProfileSubViewHelper profileHelper;
+	private InputTranslationProfileFieldFactory profileFieldFactory;
 	private RegistrationsManagement registrationMan;
 	private PKIManagement pkiMan;
 
 	@Autowired
 	public OAuthAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
-			PKIManagement pkiMan, EditInputTranslationProfileSubViewHelper profileHelper)
+			PKIManagement pkiMan, InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
-		this.profileHelper = profileHelper;
+		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
 	}
 
@@ -49,7 +50,7 @@ public class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFacto
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new OAuthAuthenticatorEditor(msg, pkiMan, profileHelper, registrationMan);
+		return new OAuthAuthenticatorEditor(msg, pkiMan, profileFieldFactory, registrationMan);
 	}
 
 }

@@ -29,6 +29,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Edit authenticator view
+ * 
  * @author P.Piernik
  *
  */
@@ -59,35 +60,37 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 		try
 		{
 			authenticator = controller.getAuthenticator(authenticatorName);
-			
+
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);
 			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
-		
+
 		editor = controller.getEditor(authenticator, this);
 		mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(editor);
-		mainView.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg,
-				() -> onConfirm(), () -> onCancel()));
+		mainView.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg, () -> onConfirm(),
+				() -> onCancel()));
 		setMainView(mainView);
 	}
 
 	private void onConfirm()
 	{
-		
+
 		AuthenticatorDefinition authenticator;
 		try
 		{
 			authenticator = editor.getAuthenticator();
-		} catch (FormValidationException e1)
+		} catch (FormValidationException e)
 		{
+			NotificationPopup.showError(msg, msg.getMessage("EditAuthenticatorView.invalidConfiguration"),
+					e);
 			return;
 		}
-		
+
 		try
 		{
 			controller.updateAuthenticator(authenticator);

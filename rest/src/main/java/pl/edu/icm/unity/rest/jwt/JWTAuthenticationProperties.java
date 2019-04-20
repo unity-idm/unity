@@ -27,6 +27,8 @@ public class JWTAuthenticationProperties extends UnityPropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String PREFIX = "unity.jwtauthn.";
 	
+	public static final int DEFAULT_TOKEN_TTL = 3600;
+	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> META = new HashMap<String, PropertyMD>();
 
@@ -35,7 +37,7 @@ public class JWTAuthenticationProperties extends UnityPropertiesHelper
 	
 	static
 	{
-		META.put(TOKEN_TTL, new PropertyMD("3600").setPositive().setDescription(
+		META.put(TOKEN_TTL, new PropertyMD(String.valueOf(DEFAULT_TOKEN_TTL)).setPositive().setDescription(
 				"Token validity time in seconds. Relevant only for token generation"));
 		META.put(SIGNING_CREDENTIAL, new PropertyMD().setMandatory().setDescription("Name of the "
 				+ "PKI credential that will be used to sign or verify tokens. "

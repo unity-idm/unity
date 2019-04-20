@@ -29,7 +29,9 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 
 /**
- * Grid with row editor. By default action column with delete button is added as last grid column.
+ * Grid with row editor. By default action column with delete button is added as
+ * last grid column.
+ * 
  * @author P.Piernik
  *
  * @param <T>
@@ -90,14 +92,14 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		return myObject;
 	}
 
-	public Column<T, ?> addTextColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter, String caption,
-			int expandRatio, boolean required)
+	public Column<T, ?> addTextColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter,
+			String caption, int expandRatio, boolean required)
 	{
 		return addTextColumn(valueProvider, setter, caption, expandRatio, required, Optional.empty());
 	}
 
-	public Column<T, ?> addTextColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter, String caption,
-			int expandRatio, boolean required, Optional<Validator<String>> validator)
+	public Column<T, ?> addTextColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter,
+			String caption, int expandRatio, boolean required, Optional<Validator<String>> validator)
 	{
 
 		Binder<T> binder = grid.getEditor().getBinder();
@@ -119,8 +121,8 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 		return column;
 	}
 
-	public Column<T, ?> addIntColumn(ValueProvider<T, Integer> valueProvider, Setter<T, Integer> setter, String caption,
-			int expandRatio, Optional<Validator<Integer>> validator)
+	public Column<T, ?> addIntColumn(ValueProvider<T, Integer> valueProvider, Setter<T, Integer> setter,
+			String caption, int expandRatio, Optional<Validator<Integer>> validator)
 	{
 
 		Binder<T> binder = grid.getEditor().getBinder();
@@ -132,6 +134,22 @@ public class GridWithEditor<T> extends CustomField<List<T>>
 								msg.getMessage("notANumber")))
 						.withValidator(validator.orElse((v, c) -> ValidationResult.ok()))
 						.bind(valueProvider, setter));
+
+		grid.refreshActionColumn();
+		return column;
+	}
+
+	public Column<T, ?> addComboColumn(ValueProvider<T, String> valueProvider, Setter<T, String> setter, String caption,
+			List<String> items, int expandRatio, boolean emptyAllowed)
+	{
+		ComboBox<String> field = new ComboBox<String>();
+		field.setItems(items);
+		field.setEmptySelectionAllowed(emptyAllowed);
+
+		Binder<T> binder = grid.getEditor().getBinder();
+		Column<T, ?> column = grid.addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio)
+				.setResizable(false).setSortable(false)
+				.setEditorBinding(binder.forField(field).bind(valueProvider, setter));
 
 		grid.refreshActionColumn();
 		return column;

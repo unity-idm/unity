@@ -69,7 +69,7 @@ public class EditTranslationProfileSubView extends CustomComponent implements Un
 
 	public void setInput(TranslationProfile profile)
 	{
-		editor.setValue(profile.clone());
+		editor.setValue(profile);
 		editor.focusFirst();
 	}
 

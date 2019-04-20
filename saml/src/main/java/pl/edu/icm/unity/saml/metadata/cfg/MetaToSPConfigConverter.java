@@ -147,6 +147,10 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		String configKey = getExistingKey(entityId, realConfig);
 		String perMetaProfile = realConfig.getValue(metaConfigKey + 
 				SAMLSPProperties.IDPMETA_TRANSLATION_PROFILE);
+		
+		String perMetaEmbeddedProfile = realConfig.getValue(metaConfigKey + 
+				SAMLSPProperties.IDPMETA_EMBEDDED_TRANSLATION_PROFILE);
+	
 		String perMetaRegForm = realConfig.getValue(metaConfigKey + 
 				SAMLSPProperties.IDPMETA_REGISTRATION_FORM);
 	
@@ -198,10 +202,17 @@ public class MetaToSPConfigConverter extends AbstractMetaToConfigConverter
 		if (noPerIdpConfig || !properties.containsKey(configKey + SAMLSPProperties.IDP_SIGN_REQUEST))
 			properties.setProperty(configKey + SAMLSPProperties.IDP_SIGN_REQUEST, 
 					Boolean.toString(requireSignedReq));
+	
 		if ((perMetaProfile != null) && (noPerIdpConfig || 
 				!properties.containsKey(configKey + CommonWebAuthnProperties.TRANSLATION_PROFILE)))
 			properties.setProperty(configKey + CommonWebAuthnProperties.TRANSLATION_PROFILE, 
 					perMetaProfile);
+	
+		if ((perMetaEmbeddedProfile != null) && (noPerIdpConfig || 
+				!properties.containsKey(configKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE)))
+			properties.setProperty(configKey + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE, 
+					perMetaEmbeddedProfile);
+				
 		if (perMetaRegForm != null && (noPerIdpConfig || 
 				!properties.containsKey(configKey + CommonWebAuthnProperties.REGISTRATION_FORM)))
 			properties.setProperty(configKey + CommonWebAuthnProperties.REGISTRATION_FORM, 

@@ -31,7 +31,7 @@ import com.vaadin.ui.VerticalLayout;
 public class ChipsWithDropdown<T> extends CustomField<List<T>>
 {
 	private ChipsRow<T> chipsRow;
-	private ComboBox<T> combo;
+	protected ComboBox<T> combo;
 	private Function<T, String> comboRenderer;
 	private Function<T, String> chipRenderer;
 	private boolean multiSelectable;
@@ -165,9 +165,9 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		Set<T> selected = new HashSet<>(chipsRow.getChipsData());
 		
 		//remove not available which were previously selected
-		selected.stream()
-			.filter(item -> !allItems.contains(item))
-			.forEach(item -> chipsRow.removeItem(item));
+		if (combo.getNewItemProvider() == null)
+			selected.stream().filter(item -> !allItems.contains(item))
+					.forEach(item -> chipsRow.removeItem(item));
 		
 		List<T> available = checkAvailableItems(allItems, selected);
 		

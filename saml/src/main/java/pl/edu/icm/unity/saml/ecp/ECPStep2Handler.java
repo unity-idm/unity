@@ -32,6 +32,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.LoginSession.RememberMeInfo;
+import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -47,6 +48,7 @@ import pl.edu.icm.unity.saml.xmlbeans.soap.EnvelopeDocument;
 import pl.edu.icm.unity.saml.xmlbeans.soap.Header;
 import pl.edu.icm.unity.types.authn.AuthenticationRealm;
 import pl.edu.icm.unity.types.basic.EntityParam;
+import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import xmlbeans.org.oasis.saml2.assertion.NameIDType;
 import xmlbeans.org.oasis.saml2.protocol.ResponseDocument;
@@ -235,7 +237,11 @@ public class ECPStep2Handler
 	{
 		String key = findIdPKey(samlProperties, responseDoc);
 		String groupAttr = samlProperties.getValue(key + SAMLSPProperties.IDP_GROUP_MEMBERSHIP_ATTRIBUTE);
-		String profile = samlProperties.getValue(key + CommonWebAuthnProperties.TRANSLATION_PROFILE);
+		
+		TranslationProfile profile = AbstractRemoteVerificator.getTranslationProfile(
+				samlProperties, key + CommonWebAuthnProperties.TRANSLATION_PROFILE,
+				key + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE);
+		
 		SAMLResponseValidatorUtil responseValidatorUtil = new SAMLResponseValidatorUtil(samlProperties, 
 				replayAttackChecker, myAddress);
 		RemotelyAuthenticatedInput input = responseValidatorUtil.verifySAMLResponse(responseDoc, 
