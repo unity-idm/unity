@@ -59,29 +59,26 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 				forceNameEditable);
 
 		configBinder = new Binder<>(SMSConfiguration.class);
-
-		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
-
-		SMSConfiguration config = new SMSConfiguration();
-		if (editMode)
-		{
-			config.fromProperties(toEdit.configuration, msg);
-		}else
-		{
-			config.setLocalCredential(getDefaultLocalCredential());
-		}
-		configBinder.setBean(config);
-
+		
 		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
 		header.setMargin(true);
 		header.addComponent(name);
 		header.addComponent(localCredential);
-
+		
+		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+	
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(header);
 		main.addComponent(interactiveLoginSettings);
 
+		SMSConfiguration config = new SMSConfiguration();
+		if (editMode)
+		{
+			config.fromProperties(toEdit.configuration, msg);
+		}
+		configBinder.setBean(config);
+	
 		return main;
 	}
 
@@ -128,7 +125,6 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 	public static class SMSConfiguration
 	{
 		private I18nString retrivalName;
-		private String localCredential;
 		private String logoURL;
 
 		public SMSConfiguration()
@@ -143,16 +139,6 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 		public void setRetrivalName(I18nString retrivalName)
 		{
 			this.retrivalName = retrivalName;
-		}
-
-		public String getLocalCredential()
-		{
-			return localCredential;
-		}
-
-		public void setLocalCredential(String localCredential)
-		{
-			this.localCredential = localCredential;
 		}
 
 		public String getLogoURL()
@@ -195,9 +181,9 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 				throw new InternalException("Invalid configuration of the sms verificator", e);
 			}
 
-			SMSRetrievalProperties passwordRetrievalProperties = new SMSRetrievalProperties(raw);
-			retrivalName = passwordRetrievalProperties.getLocalizedString(msg, SMSRetrievalProperties.NAME);
-			logoURL = passwordRetrievalProperties.getValue(SMSRetrievalProperties.LOGO_URL);
+			SMSRetrievalProperties smsRetrievalProperties = new SMSRetrievalProperties(raw);
+			retrivalName = smsRetrievalProperties.getLocalizedString(msg, SMSRetrievalProperties.NAME);
+			logoURL = smsRetrievalProperties.getValue(SMSRetrievalProperties.LOGO_URL);
 		}
 
 	}

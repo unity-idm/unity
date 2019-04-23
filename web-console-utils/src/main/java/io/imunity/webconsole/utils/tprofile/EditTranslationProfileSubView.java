@@ -21,6 +21,7 @@ import pl.edu.icm.unity.engine.api.utils.TypesRegistryBase;
 import pl.edu.icm.unity.types.translation.ProfileType;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
 /**
@@ -61,7 +62,9 @@ public class EditTranslationProfileSubView extends CustomComponent implements Un
 				onConfirm.accept(editor.getProfile());
 			} catch (FormValidationException e)
 			{
-				// ok
+				NotificationPopup.showError(msg,
+						msg.getMessage("EditTranslationProfileSubView.inconsistentConfiguration"),
+						e);
 			}
 		}, onCancel));
 		setCompositionRoot(main);
@@ -76,7 +79,7 @@ public class EditTranslationProfileSubView extends CustomComponent implements Un
 	@Override
 	public List<String> getBredcrumbs()
 	{
-		return Arrays.asList(msg.getMessage("RemoteDataMapping.caption"), msg.getMessage("edit"));
+		return Arrays.asList(msg.getMessage("EditTranslationProfileSubView.breadcrumbs"), msg.getMessage("edit"));
 	}
 
 }

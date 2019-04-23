@@ -28,6 +28,7 @@ import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
@@ -81,7 +82,8 @@ public class EditTrustedFederationSubView extends CustomComponent implements Uni
 				onConfirm.accept(getTrustedFederation());
 			} catch (FormValidationException e)
 			{
-				// ok
+				NotificationPopup.showError(msg, msg.getMessage(
+						"EditTrustedFederationSubView.inconsistentConfiguration"), e);
 			}
 		};
 

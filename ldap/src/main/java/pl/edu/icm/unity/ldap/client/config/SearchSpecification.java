@@ -2,9 +2,10 @@
  * Copyright (c) 2014 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.ldap.client;
+package pl.edu.icm.unity.ldap.client.config;
 
-import pl.edu.icm.unity.ldap.client.LdapProperties.SearchScope;
+import pl.edu.icm.unity.ldap.client.LdapUnsafeArgsEscaper;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.SearchScope;
 
 import com.unboundid.ldap.sdk.Filter;
 import com.unboundid.ldap.sdk.LDAPException;

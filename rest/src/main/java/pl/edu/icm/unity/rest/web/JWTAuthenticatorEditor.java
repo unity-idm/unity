@@ -67,6 +67,13 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 				.withValidator(new IntegerRangeValidator(msg.getMessage("notAPositiveNumber"), 0, null))
 				.bind("ttl");
 
+
+		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
+		main.setMargin(true);
+		main.addComponents(name);
+		main.addComponent(credential);
+		main.addComponent(ttl);
+		
 		JWTConfiguration config = new JWTConfiguration();
 		if (!credentials.isEmpty())
 		{
@@ -79,12 +86,6 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		}
 
 		configBinder.setBean(config);
-
-		FormLayoutWithFixedCaptionWidth main = new FormLayoutWithFixedCaptionWidth();
-		main.setMargin(true);
-		main.addComponents(name);
-		main.addComponent(credential);
-		main.addComponent(ttl);
 
 		return main;
 	}
@@ -168,7 +169,6 @@ public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 
 			credential = jwtProp.getValue(JWTAuthenticationProperties.SIGNING_CREDENTIAL);
 			ttl = jwtProp.getIntValue(JWTAuthenticationProperties.TOKEN_TTL);
-
 		}
 	}
 }

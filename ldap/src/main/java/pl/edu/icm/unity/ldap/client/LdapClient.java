@@ -43,8 +43,11 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAttribute;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteIdentity;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
-import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.LdapProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
+import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
 import pl.edu.icm.unity.stdext.identity.X500Identity;
 
 /**

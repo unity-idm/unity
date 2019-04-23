@@ -4,7 +4,7 @@
  */
 
 
-package pl.edu.icm.unity.ldap.client.web;
+package pl.edu.icm.unity.ldap.client.config;
 
 /**
  * Ldap server specification

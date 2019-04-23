@@ -122,7 +122,5 @@ public class OAuthBaseConfiguration
 	public void setProfileEndpoint(String profileEndpoint)
 	{
 		this.profileEndpoint = profileEndpoint;
-	}
-
-	
+	}	
 }

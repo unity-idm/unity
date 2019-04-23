@@ -28,6 +28,7 @@ import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
@@ -86,7 +87,8 @@ public class EditIndividualTrustedIdpSubView extends CustomComponent implements 
 				onConfirm.accept(getTrustedFederation());
 			} catch (FormValidationException e)
 			{
-				// ok
+				NotificationPopup.showError(msg, msg.getMessage(
+						"EditIndividualTrustedIdpSubView.invalidConfiguration"), e);
 			}
 		};
 
@@ -104,8 +106,8 @@ public class EditIndividualTrustedIdpSubView extends CustomComponent implements 
 
 		TextField name = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.name"));
 		name.focus();
-		configBinder.forField(name).asRequired(msg.getMessage("fieldRequired")).withValidator(new NoSpaceValidator())
-				.withValidator((s, c) -> {
+		configBinder.forField(name).asRequired(msg.getMessage("fieldRequired"))
+				.withValidator(new NoSpaceValidator()).withValidator((s, c) -> {
 					if (usedNames.contains(s))
 					{
 						return ValidationResult.error(msg.getMessage(

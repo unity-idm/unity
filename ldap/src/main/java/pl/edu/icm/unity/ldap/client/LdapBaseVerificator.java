@@ -24,6 +24,8 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties;
 import pl.edu.icm.unity.stdext.credential.NoCredentialResetImpl;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordExchange;

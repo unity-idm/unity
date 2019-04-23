@@ -3,11 +3,11 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.ldap.client;
+package pl.edu.icm.unity.ldap.client.config;
 
-import static pl.edu.icm.unity.ldap.client.LdapProperties.PORTS;
-import static pl.edu.icm.unity.ldap.client.LdapProperties.SERVERS;
 import static pl.edu.icm.unity.ldap.client.LdapUtils.nonEmpty;
+import static pl.edu.icm.unity.ldap.client.config.LdapProperties.PORTS;
+import static pl.edu.icm.unity.ldap.client.config.LdapProperties.SERVERS;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -26,10 +26,9 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
-import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.LdapProperties.ConnectionMode;
-import pl.edu.icm.unity.ldap.client.LdapProperties.SearchScope;
-import pl.edu.icm.unity.ldap.client.web.ServerSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.SearchScope;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
@@ -118,7 +117,7 @@ public class LdapConfiguration
 		setSystemDN(ldapProp.getValue(LdapProperties.SYSTEM_DN));
 		setSystemPassword(ldapProp.getValue(LdapProperties.SYSTEM_PASSWORD));
 
-		if (ldapProp.getValue(LdapProperties.VALID_USERS_FILTER) != null)
+		if (ldapProp.isSet(LdapProperties.VALID_USERS_FILTER))
 		{
 			setValidUserFilter(ldapProp.getValue(LdapProperties.VALID_USERS_FILTER));
 		}
@@ -135,7 +134,7 @@ public class LdapConfiguration
 				port = ports.size() > i ? Integer.parseInt(ports.get(i)) : -1;
 			} catch (NumberFormatException e)
 			{
-
+				//ok
 			}
 			servers.add(new ServerSpecification(server.size() > i ? server.get(i) : "", port));
 
@@ -378,7 +377,7 @@ public class LdapConfiguration
 						getUsernameExtractorRegexp());
 			}
 
-			// Remote data mapping
+			//Remote data mapping
 			try
 			{
 				raw.put(LdapProperties.PREFIX + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,

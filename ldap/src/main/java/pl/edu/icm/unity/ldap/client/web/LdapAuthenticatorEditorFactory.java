@@ -25,7 +25,6 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 @Component
 public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
-
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;

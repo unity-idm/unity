@@ -16,7 +16,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
 /**
- * 
+ * Factory for {@link JWTAuthenticatorEditor}
  * @author P.Piernik
  *
  */

@@ -47,7 +47,6 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-
 	private List<String> registrationForms;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
@@ -76,6 +75,12 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		CollapsibleLayout remoteDataMapping = profileFieldFactory.getWrappedFieldInstance(subViewSwitcher,
 				configBinder, "translationProfile");
 
+		VerticalLayout mainView = new VerticalLayout();
+		mainView.setMargin(false);
+		mainView.addComponent(header);
+		mainView.addComponent(remoteDataMapping);
+		mainView.addComponent(interactiveLoginSettings);
+
 		PamConfiguration config = new PamConfiguration();
 		if (editMode)
 		{
@@ -83,12 +88,6 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		}
 
 		configBinder.setBean(config);
-
-		VerticalLayout mainView = new VerticalLayout();
-		mainView.setMargin(false);
-		mainView.addComponent(header);
-		mainView.addComponent(remoteDataMapping);
-		mainView.addComponent(interactiveLoginSettings);
 
 		return mainView;
 	}

@@ -27,14 +27,15 @@ import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.ldap.client.GroupSpecification;
 import pl.edu.icm.unity.ldap.client.LdapCertVerificator;
-import pl.edu.icm.unity.ldap.client.LdapConfiguration;
-import pl.edu.icm.unity.ldap.client.LdapConfiguration.UserDNResolving;
-import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
-import pl.edu.icm.unity.ldap.client.LdapProperties.ConnectionMode;
-import pl.edu.icm.unity.ldap.client.LdapProperties.SearchScope;
-import pl.edu.icm.unity.ldap.client.SearchSpecification;
+import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapConfiguration;
+import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
+import pl.edu.icm.unity.ldap.client.config.ServerSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapConfiguration.UserDNResolving;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.SearchScope;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
@@ -54,8 +55,6 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	
-
 	private PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 	private Binder<LdapConfiguration> configBinder;
@@ -128,7 +127,7 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		mainView.addComponent(remoteDataMapping);
 		mainView.addComponent(groupRetrievalSettings);
 		mainView.addComponent(advandcedAttrSearchSettings);
-		name.focus();
+
 		return mainView;
 	}
 
@@ -172,10 +171,11 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 
 		bindAsCombo.addValueChangeListener(e -> {
 			BindAs v = e.getValue();
+			if (v == null)
+				return;
 			systemDN.setVisible(v.equals(BindAs.system));
 			systemPassword.setVisible(v.equals(BindAs.system));
 			setSystemDNAndPasswordField(systemDN, systemPassword);
-
 			refreshUserDNResolvingSection();
 		});
 
@@ -517,6 +517,7 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 	@Override
 	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
 	{
+		
 		return new AuthenticatorDefinition(getName(), forType, getConfiguration(), null);
 	}
 

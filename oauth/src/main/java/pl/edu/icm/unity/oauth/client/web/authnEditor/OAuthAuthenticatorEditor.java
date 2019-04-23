@@ -90,6 +90,10 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 		configBinder.forField(providersComponent).bind("providers");
 		header.addComponent(providersComponent);
 		
+		VerticalLayout mainView = new VerticalLayout();
+		mainView.setMargin(false);
+		mainView.addComponent(header);
+		
 		OAuthConfiguration config = new OAuthConfiguration();
 		if (editMode)
 		{
@@ -97,11 +101,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 		}
 
 		configBinder.setBean(config);
-		
-
-		VerticalLayout mainView = new VerticalLayout();
-		mainView.setMargin(false);
-		mainView.addComponent(header);
+	
 		return mainView;
 	}
 
@@ -157,7 +157,6 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 						.collect(Collectors.toSet()), c -> {
 							subViewSwitcher.exitSubView();
 							providersList.addElement(c);
-							fireChange();
 						});
 			});
 			add.setIcon(Images.add.getResource());
@@ -199,7 +198,6 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 								.filter(p -> p.getId() != edited.getId())
 								.map(p -> p.getId()).collect(Collectors.toSet()), c -> {
 									providersList.replaceElement(edited, c);
-									fireChange();
 									subViewSwitcher.exitSubView();
 								});
 					}
@@ -235,10 +233,11 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, pkiMan, profileFieldFactory,
 					edited, usedIds, subViewSwitcher, forms, validators, r -> {
 						onConfirm.accept(r);
-						name.focus();
+						fireChange();
+						providersList.focus();
 					}, () -> {
 						subViewSwitcher.exitSubView();
-						name.focus();
+						providersList.focus();
 					});
 			subViewSwitcher.goToSubView(subView);
 		}

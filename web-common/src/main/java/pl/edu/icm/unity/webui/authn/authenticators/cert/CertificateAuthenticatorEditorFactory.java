@@ -4,29 +4,29 @@
  */
 
 
-package pl.edu.icm.unity.webui.authn.authenticators.sms;
+package pl.edu.icm.unity.webui.authn.authenticators.cert;
 
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.stdext.credential.sms.SMSVerificator;
+import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 
 /**
- * Factory for {@link SMSAuthenticatorEditor}
+ * Factory for {@link CertificateAuthenticatorEditor}
  * @author P.Piernik
  *
  */
 @Component
-public class SMSAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+public class CertificateAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
 	private CredentialManagement credMan;
 	
-	SMSAuthenticatorEditorFactory(UnityMessageSource msg, CredentialManagement credMan)
+	CertificateAuthenticatorEditorFactory(UnityMessageSource msg, CredentialManagement credMan)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -35,12 +35,12 @@ public class SMSAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	@Override
 	public String getSupportedAuthenticatorType()
 	{
-		return SMSVerificator.NAME;
+		return CertificateVerificator.NAME;
 	}
 
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException 
 	{
-		return new SMSAuthenticatorEditor(msg, credMan.getCredentialDefinitions());
+		return new CertificateAuthenticatorEditor(msg, credMan.getCredentialDefinitions());
 	}
 }

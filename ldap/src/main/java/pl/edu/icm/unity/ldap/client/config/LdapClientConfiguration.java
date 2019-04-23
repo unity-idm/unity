@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package pl.edu.icm.unity.ldap.client;
+package pl.edu.icm.unity.ldap.client.config;
 
 import java.util.regex.Pattern;
 
@@ -17,7 +17,9 @@ import eu.emi.security.authn.x509.helpers.BinaryCertChainValidator;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.ldap.client.LdapProperties.ConnectionMode;
+import pl.edu.icm.unity.ldap.client.LdapUnsafeArgsEscaper;
+import pl.edu.icm.unity.ldap.client.LdapUtils;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
 
 /**
  * Manages configuration of the LDAP client.

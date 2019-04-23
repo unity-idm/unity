@@ -52,5 +52,4 @@ public class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFacto
 	{
 		return new OAuthAuthenticatorEditor(msg, pkiMan, profileFieldFactory, registrationMan);
 	}
-
 }

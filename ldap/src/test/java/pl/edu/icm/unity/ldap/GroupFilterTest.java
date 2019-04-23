@@ -15,8 +15,8 @@ import com.google.common.collect.Lists;
 import com.unboundid.ldap.sdk.Attribute;
 import com.unboundid.ldap.sdk.SearchResultEntry;
 
-import pl.edu.icm.unity.ldap.client.GroupSpecification;
 import pl.edu.icm.unity.ldap.client.LdapGroupHelper;
+import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
 
 public class GroupFilterTest
 {

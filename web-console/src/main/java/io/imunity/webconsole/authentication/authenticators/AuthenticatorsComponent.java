@@ -58,7 +58,7 @@ public class AuthenticatorsComponent extends CustomComponent
 
 		authenticatorsList = new ListOfElementsWithActions<>(Arrays.asList(
 				new Column<>(msg.getMessage("AuthenticatorsComponent.nameCaption"),
-						a -> StandardButtonsHelper.buildLinkButton( a.authneticator.id,
+						a -> StandardButtonsHelper.buildLinkButton( a.authenticator.id,
 								e -> gotoEdit(a)),
 						1),
 				new Column<>(msg.getMessage("AuthenticatorsComponent.endpointsCaption"),
@@ -100,7 +100,7 @@ public class AuthenticatorsComponent extends CustomComponent
 	private void gotoEdit(AuthenticatorEntry a)
 	{
 		NavigationHelper.goToView(EditAuthenticatorView.VIEW_NAME + "/" + CommonViewParam.name.toString()
-				+ "=" + a.authneticator.id);
+				+ "=" + a.authenticator.id);
 	}
 
 	private Collection<AuthenticatorEntry> getAutheticators()
@@ -119,7 +119,7 @@ public class AuthenticatorsComponent extends CustomComponent
 	{
 		try
 		{
-			controller.removeAuthenticator(a.authneticator);
+			controller.removeAuthenticator(a.authenticator);
 			authenticatorsList.removeEntry(a);
 		} catch (ControllerException e)
 		{
@@ -130,7 +130,7 @@ public class AuthenticatorsComponent extends CustomComponent
 	private void tryRemove(AuthenticatorEntry a)
 	{
 
-		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(a.authneticator.id));
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, Sets.newHashSet(a.authenticator.id));
 		new ConfirmDialog(msg, msg.getMessage("AuthenticatorsComponent.confirmDelete", confirmText),
 				() -> remove(a)).show();
 	}

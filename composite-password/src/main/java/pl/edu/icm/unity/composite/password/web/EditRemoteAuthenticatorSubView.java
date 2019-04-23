@@ -22,21 +22,22 @@ import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
 
 /**
  * SubView for editing remote authenticator
+ * 
  * @author P.Piernik
  *
  */
 public class EditRemoteAuthenticatorSubView extends CustomComponent implements UnitySubView
 {
-
 	private UnityMessageSource msg;
 	private AuthenticatorEditorFactory factory;
 	private AuthenticatorDefinition toEdit;
-	
+
 	private boolean editMode;
 
 	public EditRemoteAuthenticatorSubView(UnityMessageSource msg, AuthenticatorEditorFactory factory,
@@ -47,9 +48,9 @@ public class EditRemoteAuthenticatorSubView extends CustomComponent implements U
 		this.msg = msg;
 		this.factory = factory;
 		this.toEdit = toEdit;
-		
+
 		editMode = toEdit != null;
-		
+
 		AuthenticatorEditor editor;
 		try
 		{
@@ -68,7 +69,9 @@ public class EditRemoteAuthenticatorSubView extends CustomComponent implements U
 				onConfirm.accept(editor.getAuthenticatorDefiniton());
 			} catch (FormValidationException e)
 			{
-				// ok
+				NotificationPopup.showError(msg,
+						msg.getMessage("EditRemoteAuthenticatorSubView.invalidConfiguration"),
+						e);
 			}
 		};
 
@@ -87,13 +90,14 @@ public class EditRemoteAuthenticatorSubView extends CustomComponent implements U
 	{
 		List<String> breadcrumbs = new ArrayList<>();
 		breadcrumbs.add(msg.getMessage("EditRemoteAuthenticatorSubView.caption"));
-		breadcrumbs.add(factory.getSupportedAuthenticatorType().equals(PAMVerificator.NAME) ? VerificatorTypes.pam.toString() : VerificatorTypes.ldap.toString());
+		breadcrumbs.add(factory.getSupportedAuthenticatorType().equals(PAMVerificator.NAME)
+				? VerificatorTypes.pam.toString()
+				: VerificatorTypes.ldap.toString());
 		if (editMode)
 		{
 			breadcrumbs.add(toEdit.id);
 		}
-		
+
 		return breadcrumbs;
 	}
-
 }

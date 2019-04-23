@@ -84,11 +84,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		{
 			Properties properties = new Properties();
 			properties.load(new StringReader(configuration));
-			SMSRetrievalProperties config = new SMSRetrievalProperties(properties);
-			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
+			TLSRetrievalProperties config = new TLSRetrievalProperties(properties);
+			name = config.getLocalizedString(msg, TLSRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebTLSRetrieval.title", msg);
-			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);
+			logoURL = config.getValue(TLSRetrievalProperties.LOGO_URL);
 			if (logoURL != null && !logoURL.isEmpty())
 				ImageUtils.getLogoResource(logoURL);
 		} catch (Exception e)

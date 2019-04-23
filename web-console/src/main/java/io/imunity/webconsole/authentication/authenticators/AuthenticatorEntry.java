@@ -20,19 +20,19 @@ import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
  */
 class AuthenticatorEntry
 {
-	final AuthenticatorDefinition authneticator;
+	final AuthenticatorDefinition authenticator;
 	final List<String> endpoints;
 
 	AuthenticatorEntry(AuthenticatorDefinition authneticator, List<String> endpoints)
 	{
-		this.authneticator = authneticator;
+		this.authenticator = authneticator;
 		this.endpoints = Collections.unmodifiableList(endpoints == null ? Collections.emptyList() : endpoints);
 	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hash(this.authneticator, this.endpoints);
+		return Objects.hash(this.authenticator, this.endpoints);
 	}
 
 	@Override
@@ -43,7 +43,7 @@ class AuthenticatorEntry
 		if (getClass() != obj.getClass())
 			return false;
 		final AuthenticatorEntry other = (AuthenticatorEntry) obj;
-		return Objects.equals(this.authneticator, other.authneticator)
+		return Objects.equals(this.authenticator, other.authenticator)
 				&& Objects.equals(this.endpoints, other.endpoints);
 	}
 }

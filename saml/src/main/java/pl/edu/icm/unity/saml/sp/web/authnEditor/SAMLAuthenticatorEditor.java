@@ -114,14 +114,6 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		metadataPublishing.expand();
 		CollapsibleLayout singleLogout = buildSingleLogoutSection();
 
-		SAMLConfiguration config = new SAMLConfiguration();
-		if (editMode)
-		{
-			config.fromProperties(pkiMan, msg, toEdit.configuration);
-		}
-
-		configBinder.setBean(config);
-
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(header);
@@ -129,6 +121,15 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		mainView.addComponent(individualTrustedIdPs);
 		mainView.addComponent(metadataPublishing);
 		mainView.addComponent(singleLogout);
+		
+		SAMLConfiguration config = new SAMLConfiguration();
+		if (editMode)
+		{
+			config.fromProperties(pkiMan, msg, toEdit.configuration);
+		}
+
+		configBinder.setBean(config);
+		
 		return mainView;
 	}
 
@@ -316,7 +317,6 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 			return configBinder.getBean().toProperties(pkiMan);
 		} catch (ConfigurationException e)
 		{
-			e.printStackTrace();
 			throw new FormValidationException("Invalid configuration of the SAML verificator", e);
 		}
 	}

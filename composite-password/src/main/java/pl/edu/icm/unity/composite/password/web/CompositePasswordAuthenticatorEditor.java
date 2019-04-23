@@ -24,14 +24,12 @@ import com.vaadin.data.Binder;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
-
-import eu.unicore.util.configuration.ConfigurationException;
-
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.CustomField;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.composite.password.CompositePasswordProperties;
 import pl.edu.icm.unity.composite.password.CompositePasswordProperties.VerificatorTypes;
 import pl.edu.icm.unity.composite.password.CompositePasswordVerificator;
@@ -74,7 +72,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 	private Binder<CompositePasswordConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
-	CompositePasswordAuthenticatorEditor(UnityMessageSource msg,
+	public CompositePasswordAuthenticatorEditor(UnityMessageSource msg,
 			Collection<CredentialDefinition> credentialDefinitions,
 			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory)
 	{
@@ -101,6 +99,9 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 				.collect(Collectors.toList()));
 		localCredentials.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.localCredentials"));
 		configBinder.forField(localCredentials).bind("localCredentials");
+		remoteAuthn = new RemoteAuthenticatorsComponent();
+		remoteAuthn.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.remoteAuthenticators"));
+		configBinder.forField(remoteAuthn).bind("remoteAuthenticators");
 
 		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
 
@@ -110,10 +111,6 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 			config.fromProperties(toEdit.configuration, msg);
 		}
 		configBinder.setBean(config);
-
-		remoteAuthn = new RemoteAuthenticatorsComponent();
-		remoteAuthn.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.remoteAuthenticators"));
-		remoteAuthn.setValue(configBinder.getBean().getRemoteAuthenticators());
 
 		FormLayoutWithFixedCaptionWidth header = new FormLayoutWithFixedCaptionWidth();
 		header.addComponent(name);
@@ -146,15 +143,13 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 	{
 		if (configBinder.validate().hasErrors())
 			throw new FormValidationException();
-
-		configBinder.getBean().setRemoteAuthenticators(remoteAuthn.getRemoteAuthenticators());
-
 		try
 		{
 			return configBinder.getBean().toProperties();
 		} catch (ConfigurationException e)
 		{
-			throw new FormValidationException("Invalid configuration of the composite-password verificator", e);
+			throw new FormValidationException("Invalid configuration of the composite-password verificator",
+					e);
 		}
 	}
 
@@ -322,9 +317,10 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 		}
 	}
 
-	private class RemoteAuthenticatorsComponent extends CustomComponent
+	private class RemoteAuthenticatorsComponent extends CustomField<List<SimpleAuthenticatorInfo>>
 	{
 		private GridWithActionColumn<SimpleAuthenticatorInfo> remoteAuthnList;
+		private VerticalLayout main;
 
 		public RemoteAuthenticatorsComponent()
 		{
@@ -341,7 +337,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 
 		private void initUI()
 		{
-			VerticalLayout main = new VerticalLayout();
+			main = new VerticalLayout();
 			main.setMargin(false);
 
 			Button addPam = new Button(msg.getMessage("RemoteAuthenticatorsComponent.addPam"));
@@ -366,8 +362,6 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 					msg.getMessage("RemoteAuthenticatorsComponent.type"), 50);
 
 			main.addComponent(remoteAuthnList);
-
-			setCompositionRoot(main);
 		}
 
 		private ClickListener getAddButtonClickListener(VerificatorTypes forType)
@@ -380,7 +374,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 						c -> {
 							subViewSwitcher.exitSubView();
 							remoteAuthnList.addElement(new SimpleAuthenticatorInfo(forType,
-									c.id, c.configuration));
+									c.id, c.configuration));	
 						});
 			};
 		}
@@ -397,10 +391,11 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 							: null,
 					r -> {
 						onConfirm.accept(r);
-						name.focus();
+						fireChange();
+						remoteAuthnList.focus();
 					}, () -> {
 						subViewSwitcher.exitSubView();
-						name.focus();
+						remoteAuthnList.focus();
 					}, subViewSwitcher);
 			subViewSwitcher.goToSubView(subView);
 
@@ -432,15 +427,37 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 					).build();
 
 			SingleActionHandler<SimpleAuthenticatorInfo> remove = SingleActionHandler
-					.builder4Delete(msg, SimpleAuthenticatorInfo.class)
-					.withHandler(r -> remoteAuthnList.removeElement(r.iterator().next())).build();
+					.builder4Delete(msg, SimpleAuthenticatorInfo.class).withHandler(r -> {
+						remoteAuthnList.removeElement(r.iterator().next());
+						fireChange();
+						remoteAuthnList.focus();
+					}).build();
 
 			return Arrays.asList(edit, remove);
 		}
 
-		public List<SimpleAuthenticatorInfo> getRemoteAuthenticators()
+		@Override
+		public List<SimpleAuthenticatorInfo> getValue()
 		{
 			return remoteAuthnList.getElements();
+		}
+
+		@Override
+		protected Component initContent()
+		{
+			return main;
+		}
+
+		@Override
+		protected void doSetValue(List<SimpleAuthenticatorInfo> value)
+		{
+			remoteAuthnList.setItems(value);
+		}
+
+		private void fireChange()
+		{
+			fireEvent(new ValueChangeEvent<List<SimpleAuthenticatorInfo>>(this,
+					remoteAuthnList.getElements(), true));
 		}
 	}
 
@@ -452,7 +469,6 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 
 		public SimpleAuthenticatorInfo(VerificatorTypes type, String name, String config)
 		{
-			super();
 			this.type = type;
 			this.name = name;
 			this.config = config;

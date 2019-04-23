@@ -13,7 +13,9 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.userimport.UserImportSPI;
-import pl.edu.icm.unity.ldap.client.LdapProperties.BindAs;
+import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties;
+import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
 
 
 /**

@@ -51,6 +51,7 @@ public class BaseAuthenticatorEditor
 		boolean editMode = toEdit != null;
 		setName(editMode ? toEdit.id : defaultName);
 		name.setReadOnly(editMode && !forceNameEditable);
+		name.focus();
 		return editMode;
 	}
 }

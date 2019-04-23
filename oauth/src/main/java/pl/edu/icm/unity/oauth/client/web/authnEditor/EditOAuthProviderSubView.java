@@ -49,6 +49,7 @@ import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -112,7 +113,8 @@ public class EditOAuthProviderSubView extends CustomComponent implements UnitySu
 				onConfirm.accept(getProvider());
 			} catch (FormValidationException e)
 			{
-				// ok
+				NotificationPopup.showError(msg,
+						msg.getMessage("EditOAuthProviderSubView.invalidConfiguration"), e);
 			}
 		};
 

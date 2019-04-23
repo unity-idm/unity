@@ -7,7 +7,6 @@ package io.imunity.webconsole.authentication.authenticators;
 
 import java.util.Collection;
 
-import com.vaadin.server.VaadinSession;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -41,8 +40,6 @@ public class MainAuthenticatorEditor extends CustomComponent
 	private AuthenticatorEditor editor;
 	private Component editorComponent;
 	private VerticalLayout mainLayout;
-
-	public static final String STATE_KEY = "MainAuthenticatorEditorState";
 
 	public MainAuthenticatorEditor(UnityMessageSource msg, AuthenticatorEditorFactoriesRegistry editorsRegistry,
 			Collection<AuthenticatorTypeDescription> autnTypes, AuthenticatorEntry toEdit,
@@ -79,24 +76,14 @@ public class MainAuthenticatorEditor extends CustomComponent
 		if (toEdit != null)
 		{
 			authenticatorType.setValue(autnTypes.stream()
-					.filter(t -> t.getVerificationMethod().equals(toEdit.authneticator.type))
+					.filter(t -> t.getVerificationMethod().equals(toEdit.authenticator.type))
 					.findFirst().orElse(null));
 			authenticatorType.setReadOnly(true);
 		} else
 		{
-			Object state = VaadinSession.getCurrent().getAttribute(STATE_KEY);
 
-			if (state == null)
-			{
+			authenticatorType.setValue(autnTypes.iterator().next());
 
-				authenticatorType.setValue(autnTypes.iterator().next());
-			} else
-			{
-				AuthenticatorTypeDescription type = (AuthenticatorTypeDescription) state;
-				authenticatorType.setValue(autnTypes.stream().filter(
-						t -> t.getVerificationMethod().equals(type.getVerificationMethod()))
-						.findAny().get());
-			}
 		}
 	}
 
@@ -104,7 +91,6 @@ public class MainAuthenticatorEditor extends CustomComponent
 	{
 
 		AuthenticatorTypeDescription type = authenticatorType.getValue();
-		VaadinSession.getCurrent().setAttribute(STATE_KEY, type);
 		if (editorComponent != null)
 		{
 			mainLayout.removeComponent(editorComponent);
@@ -113,7 +99,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 		try
 		{
 			editor = editorsRegistry.getByName(type.getVerificationMethod()).createInstance();
-			editorComponent = editor.getEditor(toEdit != null ? toEdit.authneticator : null,
+			editorComponent = editor.getEditor(toEdit != null ? toEdit.authenticator : null,
 					subViewSwitcher, false);
 			mainLayout.addComponent(editorComponent);
 		} catch (Exception e)

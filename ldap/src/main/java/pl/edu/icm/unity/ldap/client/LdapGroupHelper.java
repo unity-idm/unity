@@ -15,6 +15,8 @@ import com.unboundid.ldap.sdk.SearchResultEntry;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteGroupMembership;
+import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
+import pl.edu.icm.unity.ldap.client.config.LdapClientConfiguration;
 
 /**
  * Helper immutable object with utility methods allowing for creation of group search filters
