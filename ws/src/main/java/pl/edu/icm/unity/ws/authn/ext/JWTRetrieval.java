@@ -38,7 +38,7 @@ public class JWTRetrieval extends JWTRetrievalBase implements JAXRSAuthenticatio
 		@Autowired
 		public Factory(ObjectFactory<JWTRetrieval> factory)
 		{
-			super(NAME, DESC, JAXRSAuthentication.NAME, factory, JWTExchange.class);
+			super(NAME, DESC, JAXRSAuthentication.NAME, factory, JWTExchange.ID);
 		}
 	}
 }

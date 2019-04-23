@@ -97,7 +97,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 		@Autowired
 		public Factory(ObjectFactory<OAuth2Retrieval> factory)
 		{
-			super(NAME, DESC, VaadinAuthentication.NAME, factory, OAuthExchange.class);
+			super(NAME, DESC, VaadinAuthentication.NAME, factory, OAuthExchange.ID);
 		}
 	}
 

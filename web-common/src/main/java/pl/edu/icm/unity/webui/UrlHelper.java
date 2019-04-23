@@ -15,12 +15,17 @@ import com.vaadin.server.Page;
  */
 public final class UrlHelper
 {
+
 	public static String getCurrentRelativeURI()
 	{
-		URI requestURI = Page.getCurrent().getLocation();
-		String servletPath = requestURI.getPath();
-		String query = requestURI.getQuery() == null ? "" : "?" + requestURI.getQuery();
-		String fragment = requestURI.getFragment() == null ? "" : "#" + requestURI.getFragment();
+		return getRelativeURIFrom(Page.getCurrent().getLocation());
+	}
+	
+	public static String getRelativeURIFrom(URI requestURI)
+	{
+		String servletPath = requestURI.getRawPath();
+		String query = requestURI.getRawQuery() == null ? "" : "?" + requestURI.getRawQuery();
+		String fragment = requestURI.getRawFragment() == null ? "" : "#" + requestURI.getRawFragment();
 		String currentRelativeURI = servletPath + query + fragment; 
 		return currentRelativeURI;
 	}

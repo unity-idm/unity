@@ -37,7 +37,7 @@ public class TLSRetrieval extends TLSRetrievalBase implements WebServiceAuthenti
 		@Autowired
 		public Factory(ObjectFactory<TLSRetrieval> factory)
 		{
-			super(NAME, DESC, WebServiceAuthentication.NAME, factory, CertificateExchange.class);
+			super(NAME, DESC, WebServiceAuthentication.NAME, factory, CertificateExchange.ID);
 		}
 	}
 }

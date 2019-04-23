@@ -19,11 +19,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator;
-import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialVerificator.VerificatorType;
+import pl.edu.icm.unity.engine.api.authn.CredentialVerificatorFactory;
+import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 
 /**
@@ -68,7 +68,7 @@ public class AuthenticatorsRegistry
 			for (int i=0; i<retrievalFactories.size(); i++)
 			{
 				CredentialRetrievalFactory rf = retrievalFactories.get(i);
-				if (!rf.isCredentialExchangeSupported(verificator))
+				if (!rf.isCredentialExchangeSupported(verificator.getExchangeId()))
 					continue;
 				AuthenticatorTypeDescription desc = new AuthenticatorTypeDescription(
 						vf.getName(),
@@ -90,16 +90,25 @@ public class AuthenticatorsRegistry
 		authenticatorsByBinding = Collections.unmodifiableMap(authenticatorsByBinding);
 	}
 
-	public CredentialRetrievalFactory findCredentialRetrieval(String binding, CredentialExchange credExchange)
+	public CredentialRetrievalFactory findCredentialRetrieval(String binding, String credExchangeId)
 	{
+		CredentialRetrievalFactory returned = null;
 		for (CredentialRetrievalFactory retrieval: credentialRetrievalFactories.values())
 		{
 			if (binding.equals(retrieval.getSupportedBinding()) && 
-					retrieval.isCredentialExchangeSupported(credExchange))
-				return retrieval;
+					retrieval.isCredentialExchangeSupported(credExchangeId))
+			{
+				if (returned != null)
+					throw new InternalException("For binding " + binding +  
+							" there is more then one matching retrieval " + 
+							credExchangeId);
+				returned = retrieval;
+			}
 		}
-		throw new IllegalArgumentException("There is no credential retrieval for binding " + binding + 
-				" and credential type " + credExchange.getExchangeId());
+		if (returned == null)
+			throw new IllegalArgumentException("There is no credential retrieval for binding " + binding + 
+				" and credential type " + credExchangeId);
+		return returned;
 	}
 	
 	public Set<String> getSupportedBindings(String verificatorId)
@@ -118,7 +127,7 @@ public class AuthenticatorsRegistry
 		Set<CredentialRetrievalFactory> supported = new HashSet<>();
 		for (CredentialRetrievalFactory retrieval: credentialRetrievalFactories.values())
 		{
-			if (retrieval.isCredentialExchangeSupported(verificator))
+			if (retrieval.isCredentialExchangeSupported(verificator.getExchangeId()))
 				supported.add(retrieval);
 		}
 		return supported;

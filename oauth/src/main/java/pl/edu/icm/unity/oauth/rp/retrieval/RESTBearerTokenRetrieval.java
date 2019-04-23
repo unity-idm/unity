@@ -36,7 +36,7 @@ public class RESTBearerTokenRetrieval extends BearerRetrievalBase implements JAX
 		@Autowired
 		public Factory(ObjectFactory<RESTBearerTokenRetrieval> factory)
 		{
-			super(NAME, DESC, JAXRSAuthentication.NAME, factory, AccessTokenExchange.class);
+			super(NAME, DESC, JAXRSAuthentication.NAME, factory, AccessTokenExchange.ID);
 		}
 	}
 }
