@@ -8,7 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.Component;
 
-import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -26,21 +26,21 @@ public class OAuthTokenHomeUIProvider implements HomeUITabProvider
 	
 	private SecuredTokensManagement tokenMan;
 	private UnityMessageSource msg;
-	private AttributeSupport attrProcessor;
+	private EntityManagement entityManagement;
 	
 	@Autowired
 	public OAuthTokenHomeUIProvider(SecuredTokensManagement tokenMan, UnityMessageSource msg,
-			AttributeSupport attrProcessor)
+			EntityManagement entityManagement)
 	{
 		this.tokenMan = tokenMan;
 		this.msg = msg;
-		this.attrProcessor = attrProcessor;
+		this.entityManagement = entityManagement;
 	}
 
 	@Override
 	public Component getUI()
 	{
-		return new UserHomeTokensComponent(tokenMan, msg, attrProcessor);
+		return new UserHomeTokensComponent(tokenMan, msg, entityManagement);
 	}
 
 	@Override
