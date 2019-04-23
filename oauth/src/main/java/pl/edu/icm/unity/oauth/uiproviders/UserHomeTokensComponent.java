@@ -13,7 +13,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.base.token.Token;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -32,9 +32,9 @@ public class UserHomeTokensComponent extends AdminTokensComponent
 	private Button refreshButton;
 
 	public UserHomeTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,
-			AttributeSupport attrProcessor)
+			EntityManagement entityManagement)
 	{
-		super(tokenMan, msg, attrProcessor, false);
+		super(tokenMan, msg, entityManagement, false);
 		setCaption("");
 		HorizontalLayout buttons = new HorizontalLayout();
 		removeButton = new Button(msg.getMessage("OAuthTokenUserHomeUI.remove"));

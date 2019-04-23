@@ -39,6 +39,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -171,11 +172,24 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			NotificationPopup.showError(msg.getMessage("error"), 
-					msg.getMessage("WebSAMLRetrieval.loginInProgressError"));
+			ConfirmDialog confirmKillingPreviousAuthn = new ConfirmDialog(msg, 
+					msg.getMessage("WebSAMLRetrieval.breakLoginInProgressConfirm"), 
+					() -> {
+						breakLogin();
+						startFreshLogin(session);
+					});
+			confirmKillingPreviousAuthn.setHTMLContent(true);
+			confirmKillingPreviousAuthn.setSizeEm(35, 20);
+			confirmKillingPreviousAuthn.show();
 			return;
 		}
-		String currentRelativeURI = UrlHelper.getCurrentRelativeURI(); 
+		startFreshLogin(session);
+	}
+
+	private void startFreshLogin(WrappedSession session)
+	{
+		String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
+		RemoteAuthnContext context;
 		try
 		{
 			context = credentialExchange.createSAMLRequest(configKey, currentRelativeURI);
@@ -197,7 +211,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		String servletPath = requestURI.getPath();
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
-
+	
 	/**
 	 * Called when a SAML response is received.
 	 * @param authnContext

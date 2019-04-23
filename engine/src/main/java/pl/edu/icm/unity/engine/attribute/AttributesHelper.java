@@ -196,10 +196,6 @@ public class AttributesHelper
 	/**
 	 * Returns {@link AttributeType} which has the given metadata set. The metadata used as parameter must be
 	 * singleton, i.e. it is guaranteed that there is at maximum only one type with it.
-	 * 
-	 * @param metadataId
-	 * @return
-	 * @throws EngineException
 	 */
 	public AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId)
 			throws EngineException
@@ -222,7 +218,7 @@ public class AttributesHelper
 		if (at == null)
 			return null;
 		long entityId = idResolver.getEntityId(entity);
-		Collection<AttributeExt> ret = getAllAttributesInternal(entityId, false, 
+		Collection<AttributeExt> ret = getAllAttributesInternal(entityId, true, 
 				group, at.getName(), true);
 		return ret.size() == 1 ? ret.iterator().next() : null; 
 	}
