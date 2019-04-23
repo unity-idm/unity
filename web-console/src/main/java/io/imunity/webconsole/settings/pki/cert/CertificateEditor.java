@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.X509Certificate;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
@@ -117,8 +118,7 @@ class CertificateEditor extends CustomComponent
 		{
 			try
 			{
-				value.setValue(FileUtils.readFileToString(file));
-
+				value.setValue(FileUtils.readFileToString(file, StandardCharsets.UTF_8));
 			} catch (IOException e)
 			{
 				value.setComponentError(

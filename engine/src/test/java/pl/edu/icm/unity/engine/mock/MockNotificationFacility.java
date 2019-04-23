@@ -6,7 +6,9 @@ import java.util.concurrent.Future;
 
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
+import pl.edu.icm.unity.engine.notifications.MessageTemplateParams;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.engine.notifications.NotificationFacility;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -35,6 +37,13 @@ public class MockNotificationFacility implements NotificationFacility
 		return "test";
 	}
 
+
+	@Override
+	public CommunicationTechnology getTechnology()
+	{
+		return CommunicationTechnology.EMAIL;
+	}
+
 	@Override
 	public void validateConfiguration(String configuration) throws WrongArgumentException
 	{	
@@ -58,6 +67,19 @@ public class MockNotificationFacility implements NotificationFacility
 			public String getFacilityId()
 			{
 				return "test";
+			}
+
+			@Override
+			public boolean providesMessageTemplatingFunctionality()
+			{
+				return false;
+			}
+
+			@Override
+			public Future<NotificationStatus> sendExternalTemplateMessage(String recipientAddress,
+					MessageTemplateParams templateParams)
+			{
+				throw new UnsupportedOperationException();
 			}
 		};
 	}
@@ -103,4 +125,5 @@ public class MockNotificationFacility implements NotificationFacility
 			this.message = message;
 		}
 	}
+
 }

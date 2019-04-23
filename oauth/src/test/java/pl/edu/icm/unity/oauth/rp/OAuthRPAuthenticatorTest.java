@@ -8,6 +8,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
@@ -151,7 +152,8 @@ public class OAuthRPAuthenticatorTest extends DBIntegrationTestBase
 					"cr-pass", EntityState.valid, false);
 			profilesMan.addProfile(new TranslationProfile(
 					JsonUtil.parse(FileUtils.readFileToString(
-							new File("src/test/resources/tr-local.json")))));
+							new File("src/test/resources/tr-local.json"), 
+							StandardCharsets.UTF_8))));
 			
 			AuthenticationRealm realm = new AuthenticationRealm(REALM_NAME, "", 
 					10, 100, RememberMePolicy.disallow , 1, 600);

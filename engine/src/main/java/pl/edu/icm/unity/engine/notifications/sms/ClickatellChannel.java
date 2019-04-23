@@ -25,6 +25,7 @@ import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
+import pl.edu.icm.unity.engine.notifications.MessageTemplateParams;
 import pl.edu.icm.unity.engine.notifications.NotificationChannelInstance;
 import pl.edu.icm.unity.types.basic.MessageTemplate.Message;
 import pl.edu.icm.unity.types.basic.MessageType;
@@ -57,6 +58,12 @@ public class ClickatellChannel implements NotificationChannelInstance
 		return SMSFacility.NAME;
 	}
 
+	@Override
+	public boolean providesMessageTemplatingFunctionality()
+	{
+		return false;
+	}
+	
 	@Override
 	public Future<NotificationStatus> sendNotification(String recipientAddress, Message message)
 	{
@@ -117,5 +124,13 @@ public class ClickatellChannel implements NotificationChannelInstance
 				SMSServiceProperties.CLICKATELL_CHARSET, 
 				SMSServiceProperties.Charset.class).toString());
 		return request;
+	}
+	
+
+	@Override
+	public Future<NotificationStatus> sendExternalTemplateMessage(String recipientAddress,
+			MessageTemplateParams templateParams)
+	{
+		throw new UnsupportedOperationException();
 	}
 }

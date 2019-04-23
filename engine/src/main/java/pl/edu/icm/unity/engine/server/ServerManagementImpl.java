@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -184,7 +185,7 @@ public class ServerManagementImpl implements ServerManagement
 		File f = new File(path);
 		try
 		{
-			return FileUtils.readFileToString(f);
+			return FileUtils.readFileToString(f, Charset.defaultCharset());
 		} catch (IOException e)
 		{
 			throw new InternalException("Error loading configuration file " + path, e);

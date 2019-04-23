@@ -6,7 +6,6 @@ package pl.edu.icm.unity.engine.mock;
 
 import org.springframework.stereotype.Component;
 
-import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.CredentialRetrievalFactory;
 
@@ -38,9 +37,8 @@ public class MockPasswordRetrievalFactory2 implements CredentialRetrievalFactory
 	}
 
 	@Override
-	public boolean isCredentialExchangeSupported(CredentialExchange e)
+	public boolean isCredentialExchangeSupported(String e)
 	{
-		return MockExchange.class.isAssignableFrom(e.getClass());
+		return MockExchange.ID.equals(e);
 	}
-
 }

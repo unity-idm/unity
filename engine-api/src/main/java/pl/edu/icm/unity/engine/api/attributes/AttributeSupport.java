@@ -24,38 +24,24 @@ public interface AttributeSupport
 	 * Returns attribute type which has the given metadata set. The metadata must be singleton, 
 	 * otherwise unchecked exception is thrown. If there is no attribute type with this metadata, then
 	 * null is returned.
-	 * 
-	 * @param metadataId
-	 * @return
-	 * @throws EngineException
 	 */
 	AttributeType getAttributeTypeWithSingeltonMetadata(String metadataId) throws EngineException;
 
 	/**
 	 * Returns all attribute types which have the given metadata set.
-	 * @param metadataId
-	 * @return
-	 * @throws EngineException
 	 */
 	List<AttributeType> getAttributeTypeWithMetadata(String metadataId) throws EngineException;
 	
 	
 	/**
 	 * Returns attribute which has the given metadata set. If there is no attribute type with this metadata, then
-	 * null is returned. The metadata must be singleton, 
-	 * otherwise unchecked exception is thrown.
-	 * @param entity
-	 * @param group
-	 * @param metadataId
-	 * @return
-	 * @throws EngineException
+	 * null is returned. The metadata must be singleton, otherwise unchecked exception is thrown.
 	 */
 	AttributeExt getAttributeByMetadata(EntityParam entity, String group, String metadataId)
 			throws EngineException;
 	
 	/**
 	 * @return all attribute types as map. Not authorized anyhow 
-	 * @throws EngineException
 	 */
 	Map<String, AttributeType> getAttributeTypesAsMap() throws EngineException;
 }

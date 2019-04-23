@@ -4,14 +4,17 @@
  */
 package pl.edu.icm.unity.engine.notifications;
 
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
@@ -21,6 +24,7 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.store.api.generic.NotificationChannelDB;
 import pl.edu.icm.unity.store.api.tx.Transactional;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 
 /**
@@ -35,15 +39,18 @@ public class NotificationsManagementImpl implements NotificationsManagement
 	private NotificationChannelDB notificationDB;
 	private NotificationsManagementCore notificationsCore;
 	private InternalAuthorizationManager authz;
+	private ChannelInstanceFactory channelFactory;
 	
 	
 	@Autowired
 	public NotificationsManagementImpl(NotificationChannelDB notificationDB,
-			NotificationsManagementCore notificationsCore, InternalAuthorizationManager authz)
+			NotificationsManagementCore notificationsCore, InternalAuthorizationManager authz,
+			ChannelInstanceFactory channelFactory)
 	{
 		this.notificationDB = notificationDB;
 		this.notificationsCore = notificationsCore;
 		this.authz = authz;
+		this.channelFactory = channelFactory;
 	}
 
 
@@ -99,27 +106,43 @@ public class NotificationsManagementImpl implements NotificationsManagement
 
 	@Transactional
 	@Override
-	public Map<String, NotificationChannel> getNotificationChannels() throws EngineException
+	public Map<String, NotificationChannelInfo> getNotificationChannels() throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
-		return notificationDB.getAllAsMap();
+		return getNotificationChannelsMap();
 	}
 
+	private Map<String, NotificationChannelInfo> getNotificationChannelsMap()
+	{
+		return notificationDB.getAll().stream()
+				.map(this::enrichChannelWithInfo)
+				.collect(Collectors.toMap(channel -> channel.getName(), channel -> channel));
+	}
+	
+	private NotificationChannelInfo enrichChannelWithInfo(NotificationChannel channel)
+	{
+		NotificationChannelInstance loadedChannel = channelFactory.loadChannel(channel.getName());
+		return new NotificationChannelInfo(channel, loadedChannel.providesMessageTemplatingFunctionality());
+	}
+	
 	@Transactional
 	@Override
-	public Map<String, NotificationChannel> getNotificationChannelsForFacilities(
-			Set<String> facilites) throws EngineException
+	public Map<String, NotificationChannelInfo> getNotificationChannelsForTechnologies(
+			EnumSet<CommunicationTechnology> technologies) throws EngineException
 	{
 		authz.checkAuthorization(AuthzCapability.maintenance);
 
-		if (facilites == null)
+		if (technologies == null)
 			return new HashMap<>();
-
-		Map<String, NotificationChannel> all = notificationDB.getAllAsMap();
-		Map<String, NotificationChannel> ret = new HashMap<>(all);
+		
+		Map<String, NotificationChannelInfo> all = getNotificationChannelsMap();
+		Map<String, NotificationChannelInfo> ret = new HashMap<>(all);
 		for (NotificationChannel ch : all.values())
-			if (!facilites.contains(ch.getFacilityId()))
+		{
+			NotificationFacility facility = notificationsCore.getNotificationFacility(ch.getFacilityId());
+			if (!technologies.contains(facility.getTechnology()))
 				ret.remove(ch.getName());
+		}
 		return ret;
 	}
 }

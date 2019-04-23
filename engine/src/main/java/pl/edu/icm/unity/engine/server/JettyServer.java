@@ -316,7 +316,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 	protected SecuredServerConnector getSecuredConnectorInstance() throws ConfigurationException
 	{
 		HttpConnectionFactory httpConnFactory = getHttpConnectionFactory();
-		SslContextFactory secureContextFactory;
+		SslContextFactory.Server secureContextFactory;
 		try
 		{
 			secureContextFactory = SecuredServerConnector.createContextFactory(
@@ -338,7 +338,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		log.debug("Creating SSL NIO connector on: " + url);
 		SecuredServerConnector ssl = getSecuredConnectorInstance();
 
-		SslContextFactory factory = ssl.getSslContextFactory();
+		SslContextFactory.Server factory = ssl.getSslContextFactory();
 		factory.setNeedClientAuth(serverSettings.getBooleanValue(UnityHttpServerConfiguration.REQUIRE_CLIENT_AUTHN));
 		factory.setWantClientAuth(serverSettings.getBooleanValue(UnityHttpServerConfiguration.WANT_CLIENT_AUTHN));
 		String disabledCiphers = serverSettings.getValue(UnityHttpServerConfiguration.DISABLED_CIPHER_SUITES);

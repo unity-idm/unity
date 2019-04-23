@@ -11,6 +11,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Optional;
 
 import org.apache.commons.codec.digest.DigestUtils;
@@ -87,7 +88,7 @@ public class MetadataDownloader
 	private EntitiesDescriptorDocument loadFile(File file) throws XmlException, IOException, InterruptedException
 	{
 		InputStream is = new BufferedInputStream(new FileInputStream(file));
-		String metadata = IOUtils.toString(is);
+		String metadata = IOUtils.toString(is, Charset.defaultCharset());
 		log.trace("Read metadata:\n{}", metadata);
 		EntitiesDescriptorDocument doc = EntitiesDescriptorDocument.Factory.parse(metadata);
 		is.close();

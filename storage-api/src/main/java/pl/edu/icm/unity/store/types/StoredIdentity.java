@@ -5,8 +5,8 @@
 package pl.edu.icm.unity.store.types;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
-import org.apache.xml.security.utils.Base64;
 import org.bouncycastle.crypto.digests.SHA512Digest;
 
 import pl.edu.icm.unity.types.NamedObject;
@@ -72,7 +72,7 @@ public class StoredIdentity implements NamedObject
 		digest.update(asBytes, 0, asBytes.length);
 		byte[] hashed = new byte[size];
 		digest.doFinal(hashed, 0);
-		return Base64.encode(hashed, 0);
+		return Base64.getEncoder().encodeToString(hashed);
 	}
 
 	@Override

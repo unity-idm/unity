@@ -38,7 +38,7 @@ public class SOAPBearerTokenRetrieval extends BearerRetrievalBase implements Cre
 		@Autowired
 		public Factory(ObjectFactory<SOAPBearerTokenRetrieval> factory)
 		{
-			super(NAME, DESC, WebServiceAuthentication.NAME, factory, AccessTokenExchange.class);
+			super(NAME, DESC, WebServiceAuthentication.NAME, factory, AccessTokenExchange.ID);
 		}
 	}
 }

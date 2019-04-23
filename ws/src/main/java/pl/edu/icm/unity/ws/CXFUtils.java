@@ -11,9 +11,10 @@ import org.apache.cxf.endpoint.Endpoint;
 import org.apache.cxf.endpoint.Server;
 import org.apache.cxf.jaxws.JaxWsServerFactoryBean;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
-import org.apache.cxf.xmlbeans.XmlBeansDataBinding;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+
+import eu.unicore.security.wsutil.cxf.XmlBeansDataBinding;
 
 /**
  * Simplifies Web service creation in programmatic way.

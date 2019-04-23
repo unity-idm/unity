@@ -15,5 +15,5 @@ public interface CredentialRetrievalFactory extends DescribedObject
 {
 	CredentialRetrieval newInstance();
 	String getSupportedBinding();
-	boolean isCredentialExchangeSupported(CredentialExchange e);
+	boolean isCredentialExchangeSupported(String credentialExchangeId);
 }

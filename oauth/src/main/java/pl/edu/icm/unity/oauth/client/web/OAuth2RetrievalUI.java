@@ -45,6 +45,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationCallback;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
@@ -219,16 +220,28 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 				OAuth2Retrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			NotificationPopup.showError(msg.getMessage("error"), 
-					msg.getMessage("OAuth2Retrieval.loginInProgressError"));
+			ConfirmDialog confirmKillingPreviousAuthn = new ConfirmDialog(msg, 
+					msg.getMessage("OAuth2Retrieval.breakLoginInProgressConfirm"), 
+					() -> {
+						breakLogin();
+						startFreshLogin(session);	
+					});
+			confirmKillingPreviousAuthn.setSizeEm(35, 20);
+			confirmKillingPreviousAuthn.setHTMLContent(true);
+			confirmKillingPreviousAuthn.show();
 			return;
 		}
-		String currentRelativeURI = UrlHelper.getCurrentRelativeURI(); 
+		startFreshLogin(session);
+	}
+
+	private void startFreshLogin(WrappedSession session)
+	{
 		try
 		{
-			context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity));
+			OAuthContext context = credentialExchange.createRequest(configKey, Optional.ofNullable(expectedIdentity));
 			idpComponent.setEnabled(false);
 			callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
+			String currentRelativeURI = UrlHelper.getCurrentRelativeURI();
 			context.setReturnUrl(currentRelativeURI);
 			session.setAttribute(OAuth2Retrieval.REMOTE_AUTHN_CONTEXT, context);
 			context.setSandboxCallback(sandboxCallback);

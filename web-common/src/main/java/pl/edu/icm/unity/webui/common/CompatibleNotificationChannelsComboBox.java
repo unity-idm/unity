@@ -6,18 +6,19 @@ package pl.edu.icm.unity.webui.common;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
 import com.vaadin.ui.ComboBox;
 
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * A {@link ComboBox} showing only the notification channels which are
@@ -31,11 +32,11 @@ public class CompatibleNotificationChannelsComboBox extends ComboBox<String>
 	private Collection<String> values;
 	private NotificationsManagement notChannelsMan;
 
-	public CompatibleNotificationChannelsComboBox(Set<String> facilites,
+	public CompatibleNotificationChannelsComboBox(EnumSet<CommunicationTechnology> supportedTechnologies,
 			NotificationsManagement notChannelsMan)
 	{
 		this.notChannelsMan = notChannelsMan;
-		reload(facilites);
+		reload(supportedTechnologies);
 	}
 
 	public void setDefaultValue()
@@ -46,20 +47,19 @@ public class CompatibleNotificationChannelsComboBox extends ComboBox<String>
 			setValue(null);
 	}
 
-	public void reload(Set<String> facilites)
+	public void reload(EnumSet<CommunicationTechnology> supportedTechnologies)
 	{
-		if (facilites.isEmpty())
+		if (supportedTechnologies.isEmpty())
 		{
 			values = Collections.emptyList();
 			setItems(values);
 			return;
 		}
 
-		Map<String, NotificationChannel> channels = new HashMap<>();
+		Map<String, NotificationChannelInfo> channels = new HashMap<>();
 		try
 		{
-			channels = notChannelsMan.getNotificationChannelsForFacilities(facilites);
-
+			channels = notChannelsMan.getNotificationChannelsForTechnologies(supportedTechnologies);
 		} catch (EngineException e)
 		{
 			LOG.error("Cannot get notification channels", e);

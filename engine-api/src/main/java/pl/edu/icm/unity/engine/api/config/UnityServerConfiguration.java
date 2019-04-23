@@ -167,6 +167,12 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String SCRIPT_TYPE = "type";
 	public static final String SCRIPT_TRIGGER = "trigger";
 
+	public static final String EXTERNAL_NOTIFICATION_PFX = "extNotification.";
+	public static final String EXTERNAL_NOTIFICATION_NAME = "channelName";
+	public static final String EXTERNAL_NOTIFICATION_SUPPORTS_TEMPLATES = "supportsTemplate";
+	public static final String EXTERNAL_NOTIFICATION_FILE = "senderPath";
+
+	
 	public static final String ENABLE_LOW_LEVEL_EVENTS = "enableLowLevelEvents";
 	
 	@DocumentationReferenceMeta
@@ -463,6 +469,24 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 						+ "but change of authrization role may not be fully recognized "
 						+ "by the system untile the time defined here passes. "
 						+ "Set to 0 to disable cache."));
+
+		defaults.put(EXTERNAL_NOTIFICATION_PFX, new PropertyMD().setStructuredList(false).setCategory(mainCat)
+				.setDescription("List of message sending facilities additional to built in SMS and email."));
+		defaults.put(EXTERNAL_NOTIFICATION_FILE, new PropertyMD()
+				.setStructuredListEntry(EXTERNAL_NOTIFICATION_PFX).setMandatory().setCategory(mainCat)
+				.setDescription("A file with Groovy script to send a message. "
+						+ "Scripts context will be feeded with receipentAddress variable (String), "
+						+ "and - depending on embedded templates support - "
+						+ "variables with complete message (subject and body) or "
+						+ "just template params (templateId, templateParams map)."));
+		defaults.put(EXTERNAL_NOTIFICATION_NAME, new PropertyMD()
+				.setStructuredListEntry(EXTERNAL_NOTIFICATION_PFX).setMandatory().setCategory(mainCat)
+				.setDescription("Channel name."));
+		defaults.put(EXTERNAL_NOTIFICATION_SUPPORTS_TEMPLATES, new PropertyMD("false")
+				.setStructuredListEntry(EXTERNAL_NOTIFICATION_PFX).setCategory(mainCat)
+				.setDescription("Whether the notification service handles message "
+						+ "templating on its own or not and requires complete messages."));
+
 		
 		SUPPORTED_LOCALES.put("en", new Locale("en"));
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));

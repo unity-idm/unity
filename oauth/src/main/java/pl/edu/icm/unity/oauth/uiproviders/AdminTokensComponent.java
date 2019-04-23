@@ -23,14 +23,12 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.base.token.Token;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.SecuredTokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
-import pl.edu.icm.unity.stdext.utils.EntityNameMetadataProvider;
-import pl.edu.icm.unity.types.basic.AttributeExt;
 import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
@@ -45,14 +43,12 @@ import pl.edu.icm.unity.webui.common.Toolbar;
 /**
  * Allows for viewing and removing tokens 
  * @author P.Piernik
- *
  */
-
-public class AdminTokensComponent extends VerticalLayout
+class AdminTokensComponent extends VerticalLayout
 {	
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB,
 			AdminTokensComponent.class);
-	private AttributeSupport attrProcessor;
+	private EntityManagement entityManagement;
 	protected SecuredTokensManagement tokenMan;
 	private UnityMessageSource msg;
 	
@@ -63,13 +59,13 @@ public class AdminTokensComponent extends VerticalLayout
 	private OAuthTokenViewer viewer;
 	private boolean showViewer;
 	
-	public AdminTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,
-			AttributeSupport attrProcessor, boolean showViewer)
+	AdminTokensComponent(SecuredTokensManagement tokenMan, UnityMessageSource msg,
+			EntityManagement entityManagement, boolean showViewer)
 	{
 		
 		this.tokenMan = tokenMan;
 		this.msg = msg;
-		this.attrProcessor = attrProcessor;
+		this.entityManagement = entityManagement;
 		this.showViewer = showViewer;
 		initUI();
 	}
@@ -223,7 +219,7 @@ public class AdminTokensComponent extends VerticalLayout
 		{
 			List<Token> tokens = getTokens();
 			tokensTable.setItems(tokens.stream()
-				.map(t -> new TableTokensBean(t, msg, establishOwner(attrProcessor, t))));
+				.map(t -> new TableTokensBean(t, msg, establishOwner(t))));
 			tokensTable.deselectAll();
 			viewer.setInput(null, null);
 			viewer.setVisible(false);
@@ -238,23 +234,19 @@ public class AdminTokensComponent extends VerticalLayout
 	}
 	
 	
-	private static String establishOwner(AttributeSupport attrProcessor, Token token)
+	private String establishOwner(Token token)
 	{
 		long ownerId = token.getOwner();
 		String idLabel = "[" + ownerId + "]";
-		String attrNameValue = getAttrNameValue(attrProcessor, ownerId);
+		String attrNameValue = getDisplayedName(ownerId); 
 		return attrNameValue != null ? idLabel + " " + attrNameValue : idLabel;
 	}
 	
-	private static String getAttrNameValue(AttributeSupport attrProcessor, long owner)
+	private String getDisplayedName(long owner)
 	{
 		try
 		{
-			AttributeExt attribute = attrProcessor.getAttributeByMetadata(
-					new EntityParam(owner), "/", 
-					EntityNameMetadataProvider.NAME);
-			if (attribute != null && !attribute.getValues().isEmpty())
-				return attribute.getValues().get(0);
+			return entityManagement.getEntityLabel(new EntityParam(owner)); 
 		} catch (Exception e)
 		{
 			log.debug("Can't get user's displayed name attribute for " + owner, e);
@@ -262,7 +254,7 @@ public class AdminTokensComponent extends VerticalLayout
 		return null;
 	}
 	
-	public static class TableTokensBean
+	static class TableTokensBean
 	{
 		private Token token;
 		private OAuthToken oauthToken;

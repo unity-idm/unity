@@ -4,12 +4,13 @@
  */
 package pl.edu.icm.unity.base.msgtemplates;
 
-import java.util.Collections;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.springframework.stereotype.Component;
+
+import pl.edu.icm.unity.base.notifications.CommunicationTechnology;
 
 /**
  * This message template definition is not used directly, but can be used to create parts 
@@ -42,8 +43,8 @@ public class GenericMessageTemplateDef implements MessageTemplateDefinition
 	}
 
 	@Override
-	public Set<String> getCompatibleFacilities()
+	public EnumSet<CommunicationTechnology> getCompatibleTechnologies()
 	{
-		return Collections.emptySet();
+		return EnumSet.noneOf(CommunicationTechnology.class);
 	}
 }

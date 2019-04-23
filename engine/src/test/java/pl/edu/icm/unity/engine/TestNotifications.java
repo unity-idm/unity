@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.api.notification.NotificationStatus;
-import pl.edu.icm.unity.engine.notifications.EmailFacility;
+import pl.edu.icm.unity.engine.notifications.email.EmailFacility;
 import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttribute;
 import pl.edu.icm.unity.stdext.attr.VerifiableEmailAttributeSyntax;
@@ -35,6 +35,7 @@ import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
 import pl.edu.icm.unity.types.basic.NotificationChannel;
+import pl.edu.icm.unity.types.basic.NotificationChannelInfo;
 
 /**
  * Tests the core notifications mechanism and the email facility.
@@ -108,11 +109,11 @@ public class TestNotifications extends DBIntegrationTestBase
 		
 		String emailCfg = "";
 		String emailCfg2 = "a=b";
-		assertEquals(3, notMan.getNotificationFacilities().size());
+		assertEquals(4, notMan.getNotificationFacilities().size());
 		assertTrue(notMan.getNotificationFacilities().contains(EmailFacility.NAME));
 		assertEquals(0, notMan.getNotificationChannels().size());
 		notMan.addNotificationChannel(new NotificationChannel("ch1", "", emailCfg, EmailFacility.NAME));
-		Map<String, NotificationChannel> channels = notMan.getNotificationChannels();
+		Map<String, NotificationChannelInfo> channels = notMan.getNotificationChannels();
 		assertEquals(1, channels.size());
 		assertTrue(channels.containsKey("ch1"));
 		assertEquals(emailCfg, channels.get("ch1").getConfiguration());

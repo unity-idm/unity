@@ -52,7 +52,6 @@
 		<dependency>
 			<groupId>eu.unicore.security</groupId>
 			<artifactId>secutils-cxf</artifactId>
-			<scope>test</scope>
 		</dependency>
 		
 		<dependency>
@@ -76,33 +75,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-databinding-xmlbeans</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
 		</dependency>
+		
+		<dependency>
+			<groupId>com.sun.xml.ws</groupId>
+			<artifactId>jaxws-ri</artifactId>
+			<type>pom</type>
+		</dependency>
 	</dependencies>
-	
-	<profiles>
-		<profile>
-			<id>SOAP_for_jdk11</id>
-			<dependencies>
-				<dependency>
-					<groupId>com.sun.xml.ws</groupId>
-					<artifactId>jaxws-ri</artifactId>
-					<type>pom</type>
-				</dependency>
-			</dependencies>
-			<activation>
-				<jdk>11</jdk>
-			</activation>
-		</profile>
-	</profiles>
 	
 	<build>
 		<plugins>

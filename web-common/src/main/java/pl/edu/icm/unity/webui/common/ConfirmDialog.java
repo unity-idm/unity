@@ -45,6 +45,11 @@ public class ConfirmDialog extends AbstractDialog
 		this.callback = callback;
 	}
 	
+	public void setSizeEm(float widthEm, float heightEm)
+	{
+		super.setSizeEm(widthEm, heightEm);
+	}
+	
 	public void setHTMLContent(boolean how)
 	{
 		this.htmlContent = how;
