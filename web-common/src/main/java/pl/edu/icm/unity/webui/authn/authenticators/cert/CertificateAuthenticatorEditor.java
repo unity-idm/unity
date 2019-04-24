@@ -136,7 +136,7 @@ public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor
 		{
 		}
 
-		public I18nString getRetreivalName()
+		public I18nString getRetrievalName()
 		{
 			return retrievalName;
 		}
@@ -160,9 +160,9 @@ public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor
 		{
 			Properties raw = new Properties();
 
-			if (getRetreivalName() != null)
+			if (getRetrievalName() != null)
 			{
-				getRetreivalName().toProperties(raw,
+				getRetrievalName().toProperties(raw,
 						TLSRetrievalProperties.P + TLSRetrievalProperties.NAME + ".");
 			}
 
