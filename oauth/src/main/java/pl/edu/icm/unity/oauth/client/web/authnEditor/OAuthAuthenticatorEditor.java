@@ -226,7 +226,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, "", e);
+				NotificationPopup.showError(msg, "Can not init OAuth provider editor", e);
 				return;
 			}
 

@@ -5,6 +5,7 @@
 
 package pl.edu.icm.unity.ldap.client.web;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,6 +29,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.LdapCertVerificator;
+import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.ldap.client.config.GroupSpecification;
 import pl.edu.icm.unity.ldap.client.config.LdapConfiguration;
 import pl.edu.icm.unity.ldap.client.config.SearchSpecification;
@@ -45,6 +47,7 @@ import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GridWithEditor;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithTextField;
+import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
@@ -71,15 +74,18 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 	private CollapsibleLayout advandcedAttrSearchSettings;
 
 	private String forType;
+	private List<String> registrationForms;
 
 	public LdapAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
-			InputTranslationProfileFieldFactory profileFieldFactory, String forType) throws EngineException
+			InputTranslationProfileFieldFactory profileFieldFactory, List<String> registrationForms,
+			String forType) throws EngineException
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
 		this.validators = pkiMan.getValidatorNames();
 		this.profileFieldFactory = profileFieldFactory;
 		this.forType = forType;
+		this.registrationForms = registrationForms;
 	}
 
 	@Override
@@ -105,10 +111,12 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 
 		advandcedAttrSearchSettings = buildAdvancedAttributeSearchSettingsSection();
 
+		CollapsibleLayout interactiveLoginSettings = buildInteractiveLoginSettingsSection();
+
 		LdapConfiguration config = new LdapConfiguration();
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration);
+			config.fromProperties(toEdit.configuration, forType, msg);
 		}
 
 		if (forType.equals(LdapCertVerificator.NAME))
@@ -127,6 +135,7 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		mainView.addComponent(remoteDataMapping);
 		mainView.addComponent(groupRetrievalSettings);
 		mainView.addComponent(advandcedAttrSearchSettings);
+		mainView.addComponent(interactiveLoginSettings);
 
 		return mainView;
 	}
@@ -470,6 +479,33 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 
 	}
 
+	private CollapsibleLayout buildInteractiveLoginSettingsSection()
+	{
+		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
+		interactiveLoginSettings.setMargin(false);
+
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(forType.equals(LdapPasswordVerificator.NAME)
+				? msg.getMessage("LdapAuthenticatorEditor.passwordName")
+				: msg.getMessage("LdapAuthenticatorEditor.displayedName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		interactiveLoginSettings.addComponent(retrievalName);
+
+		CheckBox accountAssociation = new CheckBox(
+				msg.getMessage("LdapAuthenticatorEditor.accountAssociation"));
+		configBinder.forField(accountAssociation).bind("accountAssociation");
+		interactiveLoginSettings.addComponent(accountAssociation);
+
+		ComboBox<String> registrationForm = new ComboBox<>(
+				msg.getMessage("LdapAuthenticatorEditor.registrationForm"));
+		registrationForm.setItems(registrationForms);
+		configBinder.forField(registrationForm).bind("registrationForm");
+		interactiveLoginSettings.addComponent(registrationForm);
+
+		return new CollapsibleLayout(msg.getMessage("LdapAuthenticatorEditor.interactiveLoginSettings"),
+				interactiveLoginSettings);
+	}
+
 	private Validator<String> getSystemBindRequiredValidator()
 	{
 		return (v, c) -> {
@@ -517,7 +553,7 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 	@Override
 	public AuthenticatorDefinition getAuthenticatorDefiniton() throws FormValidationException
 	{
-		
+
 		return new AuthenticatorDefinition(getName(), forType, getConfiguration(), null);
 	}
 
@@ -534,11 +570,11 @@ public class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 			conf.validateConfiguration(pkiMan);
 		} catch (Exception e)
 		{
-			
+
 			throw new FormValidationException("Invalid ldap authenticator configuration", e);
 		}
 
-		return conf.toProperties();
+		return conf.toProperties(forType);
 	}
 
 }

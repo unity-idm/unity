@@ -62,7 +62,7 @@ public class CompositePasswordProperties extends UnityPropertiesHelper
 		
 
 		META.put(VERIFICATOR_CONFIG_EMBEDDED, new PropertyMD().setStructuredListEntry(VERIFICATORS)
-				.setDescription("The configuration of the remote verificator"));
+				.setDescription("The embedded configuration of the remote verificator").setHidden());
 			
 		META.put(VERIFICATOR_CREDENTIAL, new PropertyMD()
 				.setStructuredListEntry(VERIFICATORS)

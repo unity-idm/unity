@@ -23,15 +23,20 @@ import com.unboundid.ldap.sdk.LDAPException;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.BindAs;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.ConnectionMode;
 import pl.edu.icm.unity.ldap.client.config.LdapProperties.SearchScope;
+import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.extensions.PasswordRetrievalProperties;
+import pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties;
 
 /**
  * Ldap configuration. Used by {@link AuthenticatorEditor} binder.
@@ -83,6 +88,10 @@ public class LdapConfiguration
 	private String ldapSearchFilter;
 	private SearchScope ldapSearchScope;
 
+	private I18nString retrievalName;
+	private boolean accountAssociation;
+	private String registrationForm;
+	
 	public LdapConfiguration()
 	{
 		setBindOnly(LdapProperties.DEFAULT_BIND_ONLY);
@@ -243,7 +252,7 @@ public class LdapConfiguration
 
 	}
 
-	public void fromProperties(String properties)
+	public void fromProperties(String properties, String type, UnityMessageSource msg)
 	{
 		Properties raw = new Properties();
 		try
@@ -256,9 +265,40 @@ public class LdapConfiguration
 
 		LdapProperties ldapProp = new LdapProperties(raw);
 		fromProperties(ldapProp);
+		
+		if (type.equals(LdapPasswordVerificator.NAME))
+		{
+			fromPasswordRetrievalProperties(raw, msg);
+		}else
+		{
+			fromTLSRetrievalProperties(raw, msg);
+		}	
 	}
 
-	public String toProperties() throws ConfigurationException
+	private void fromPasswordRetrievalProperties(Properties raw, UnityMessageSource msg)
+	{
+		PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
+		setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+				PasswordRetrievalProperties.NAME));
+		setAccountAssociation(passwordRetrievalProperties
+				.getBooleanValue(PasswordRetrievalProperties.ENABLE_ASSOCIATION));
+		setRegistrationForm(passwordRetrievalProperties
+				.getValue(PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN));
+		
+	}
+
+	private void fromTLSRetrievalProperties(Properties raw, UnityMessageSource msg)
+	{
+		TLSRetrievalProperties tlsRetrievalProperties = new TLSRetrievalProperties(raw);
+		setRetrievalName(tlsRetrievalProperties.getLocalizedString(msg,
+				TLSRetrievalProperties.NAME));
+		setAccountAssociation(tlsRetrievalProperties
+				.getBooleanValue(TLSRetrievalProperties.ENABLE_ASSOCIATION));
+		setRegistrationForm(tlsRetrievalProperties
+				.getValue(TLSRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN));	
+	}
+
+	public String toProperties(String type) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 
@@ -402,10 +442,58 @@ public class LdapConfiguration
 			raw.put(prefix + LdapProperties.ADV_SEARCH_FILTER, getLdapSearchFilter());
 			raw.put(prefix + LdapProperties.ADV_SEARCH_SCOPE, getLdapSearchScope().toString());
 		}
+		
+		if (type.equals(LdapPasswordVerificator.NAME))
+		{
+			toPasswordRetrievalProperties(raw);
+		}else
+		{
+			toTLSRetrievalProperties(raw);
+		}
+		
 
 		LdapProperties ldapProp = new LdapProperties(raw);
 		return ldapProp.getAsString();
 	}
+	
+	
+	private void toPasswordRetrievalProperties(Properties raw)
+	{
+		if (getRetrievalName() != null)
+		{
+			getRetrievalName().toProperties(raw,
+					PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
+		}
+
+		raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.ENABLE_ASSOCIATION,
+				String.valueOf(isAccountAssociation()));
+		if (getRegistrationForm() != null)
+		{
+			raw.put(PasswordRetrievalProperties.P
+					+ PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN,
+					getRegistrationForm());
+		}		
+	}
+	
+	private void toTLSRetrievalProperties(Properties raw)
+	{
+		if (getRetrievalName() != null)
+		{
+			getRetrievalName().toProperties(raw,
+					TLSRetrievalProperties.P + TLSRetrievalProperties.NAME + ".");
+		}
+
+		raw.put(TLSRetrievalProperties.P + TLSRetrievalProperties.ENABLE_ASSOCIATION,
+				String.valueOf(isAccountAssociation()));
+		if (getRegistrationForm() != null)
+		{
+			raw.put(TLSRetrievalProperties.P
+					+ TLSRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN,
+					getRegistrationForm());
+		}		
+	}
+	
+	
 
 	public void validateConfiguration(PKIManagement pkiMan) throws ConfigurationException
 	{
@@ -814,5 +902,35 @@ public class LdapConfiguration
 	public String getUserDNSearchKey()
 	{
 		return userDNSearchKey;
+	}
+
+	public I18nString getRetrievalName()
+	{
+		return retrievalName;
+	}
+
+	public void setRetrievalName(I18nString retrievalName)
+	{
+		this.retrievalName = retrievalName;
+	}
+
+	public boolean isAccountAssociation()
+	{
+		return accountAssociation;
+	}
+
+	public void setAccountAssociation(boolean accountAssociation)
+	{
+		this.accountAssociation = accountAssociation;
+	}
+
+	public String getRegistrationForm()
+	{
+		return registrationForm;
+	}
+
+	public void setRegistrationForm(String registrationForm)
+	{
+		this.registrationForm = registrationForm;
 	}
 }

@@ -109,25 +109,23 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
 		interactiveLoginSettings.setMargin(false);
 
-		I18nTextField retrivalName = new I18nTextField(msg);
-		retrivalName.setCaption(msg.getMessage("PamAuthenticatorEditor.passwordName"));
-		interactiveLoginSettings.addComponent(retrivalName);
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(msg.getMessage("PamAuthenticatorEditor.passwordName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		interactiveLoginSettings.addComponent(retrievalName);
 
 		CheckBox accountAssociation = new CheckBox(msg.getMessage("PamAuthenticatorEditor.accountAssociation"));
+		configBinder.forField(accountAssociation).bind("accountAssociation");
 		interactiveLoginSettings.addComponent(accountAssociation);
 
 		ComboBox<String> registrationForm = new ComboBox<>(
 				msg.getMessage("PamAuthenticatorEditor.registrationForm"));
 		registrationForm.setItems(registrationForms);
-		interactiveLoginSettings.addComponent(registrationForm);
-
-		configBinder.forField(retrivalName).bind("retrivalName");
-		configBinder.forField(accountAssociation).bind("accountAssociation");
 		configBinder.forField(registrationForm).bind("registrationForm");
+		interactiveLoginSettings.addComponent(registrationForm);
 
 		return new CollapsibleLayout(msg.getMessage("PamAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
-
 	}
 
 	@Override
@@ -152,7 +150,7 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 
 	public class PamConfiguration
 	{
-		private I18nString retrivalName;
+		private I18nString retrievalName;
 		private String pamFacility;
 		private TranslationProfile translationProfile;
 		private boolean accountAssociation;
@@ -163,14 +161,86 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 			translationProfile = TranslationProfileGenerator.generateEmptyInputProfile();
 		}
 
-		public I18nString getRetrivalName()
+		public String toProperties()
 		{
-			return retrivalName;
+			Properties raw = new Properties();
+
+			raw.put(PAMProperties.PREFIX + PAMProperties.PAM_FACILITY, pamFacility);
+			raw.put(PAMProperties.PREFIX + CommonWebAuthnProperties.TRANSLATION_PROFILE,
+					translationProfile.getName());
+
+			if (getRetrievalName() != null)
+			{
+				getRetrievalName().toProperties(raw,
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
+			}
+
+			raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.ENABLE_ASSOCIATION,
+					String.valueOf(isAccountAssociation()));
+			if (getRegistrationForm() != null)
+			{
+				raw.put(PasswordRetrievalProperties.P
+						+ PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN,
+						getRegistrationForm());
+			}
+
+			try
+			{
+				raw.put(PAMProperties.PREFIX + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
+						Constants.MAPPER.writeValueAsString(
+								getTranslationProfile().toJsonObject()));
+			} catch (Exception e)
+			{
+				throw new InternalException("Can't serialize authenticator translation profile to JSON",
+						e);
+			}
+
+			PAMProperties prop = new PAMProperties(raw);
+			return prop.getAsString();
 		}
 
-		public void setRetrivalName(I18nString retrivalName)
+		public void fromProperties(String source, UnityMessageSource msg)
 		{
-			this.retrivalName = retrivalName;
+			Properties raw = new Properties();
+			try
+			{
+				raw.load(new StringReader(source));
+			} catch (IOException e)
+			{
+				throw new InternalException("Invalid configuration of the pam verificator", e);
+			}
+
+			PAMProperties pamProp = new PAMProperties(raw);
+			setPamFacility(pamProp.getValue(PAMProperties.PAM_FACILITY));
+
+			if (pamProp.isSet(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE))
+			{
+				setTranslationProfile(TranslationProfileGenerator.getProfileFromString(pamProp
+						.getValue(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE)));
+
+			} else
+			{
+				setTranslationProfile(TranslationProfileGenerator.generateIncludeInputProfile(
+						pamProp.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE)));
+			}
+
+			PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
+			setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+					PasswordRetrievalProperties.NAME));
+			setAccountAssociation(passwordRetrievalProperties
+					.getBooleanValue(PasswordRetrievalProperties.ENABLE_ASSOCIATION));
+			setRegistrationForm(passwordRetrievalProperties
+					.getValue(PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN));
+		}
+
+		public I18nString getRetrievalName()
+		{
+			return retrievalName;
+		}
+
+		public void setRetrievalName(I18nString retrivalName)
+		{
+			this.retrievalName = retrivalName;
 		}
 
 		public String getPamFacility()
@@ -211,77 +281,6 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		public void setRegistrationForm(String registrationForm)
 		{
 			this.registrationForm = registrationForm;
-		}
-
-		public String toProperties()
-		{
-			Properties raw = new Properties();
-
-			raw.put(PAMProperties.PREFIX + PAMProperties.PAM_FACILITY, pamFacility);
-			raw.put(PAMProperties.PREFIX + CommonWebAuthnProperties.TRANSLATION_PROFILE,
-					translationProfile.getName());
-
-			if (retrivalName != null)
-			{
-				retrivalName.toProperties(raw,
-						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
-			}
-
-			raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.ENABLE_ASSOCIATION,
-					String.valueOf(accountAssociation));
-			if (registrationForm != null)
-			{
-				raw.put(PasswordRetrievalProperties.P
-						+ PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN,
-						registrationForm);
-			}
-
-			try
-			{
-				raw.put(PAMProperties.PREFIX + CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE,
-						Constants.MAPPER.writeValueAsString(translationProfile.toJsonObject()));
-			} catch (Exception e)
-			{
-				throw new InternalException("Can't serialize authenticator translation profile to JSON",
-						e);
-			}
-
-			PAMProperties prop = new PAMProperties(raw);
-			return prop.getAsString();
-		}
-
-		public void fromProperties(String source, UnityMessageSource msg)
-		{
-			Properties raw = new Properties();
-			try
-			{
-				raw.load(new StringReader(source));
-			} catch (IOException e)
-			{
-				throw new InternalException("Invalid configuration of the pam verificator", e);
-			}
-
-			PAMProperties pamProp = new PAMProperties(raw);
-			pamFacility = pamProp.getValue(PAMProperties.PAM_FACILITY);
-
-			if (pamProp.isSet(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE))
-			{
-				translationProfile = TranslationProfileGenerator.getProfileFromString(pamProp
-						.getValue(CommonWebAuthnProperties.EMBEDDED_TRANSLATION_PROFILE));
-
-			} else
-			{
-				translationProfile = TranslationProfileGenerator.generateIncludeInputProfile(
-						pamProp.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE));
-			}
-
-			PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
-			retrivalName = passwordRetrievalProperties.getLocalizedString(msg,
-					PasswordRetrievalProperties.NAME);
-			accountAssociation = passwordRetrievalProperties
-					.getBooleanValue(PasswordRetrievalProperties.ENABLE_ASSOCIATION);
-			registrationForm = passwordRetrievalProperties
-					.getValue(PasswordRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN);
 		}
 
 	}

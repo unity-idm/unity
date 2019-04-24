@@ -61,6 +61,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	private UnityMessageSource msg;
 	private I18nString name;
 	private String logoURL;
+	private String registrationFormForUnknown;
+	private boolean enableAssociation;
 	private String configuration;
 	
 	@Autowired
@@ -91,6 +93,10 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			logoURL = config.getValue(TLSRetrievalProperties.LOGO_URL);
 			if (logoURL != null && !logoURL.isEmpty())
 				ImageUtils.getLogoResource(logoURL);
+			registrationFormForUnknown = config.getValue(
+					TLSRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN);
+			enableAssociation = config.getBooleanValue(TLSRetrievalProperties.ENABLE_ASSOCIATION);
+			
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -144,7 +150,12 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			if (clientCert == null)
 				return new AuthenticationResult(Status.notApplicable, null);
 
-			return credentialExchange.checkCertificate(clientCert, sandboxCallback);
+			AuthenticationResult authenticationResult = credentialExchange.checkCertificate(clientCert,
+					sandboxCallback);
+			if (registrationFormForUnknown != null)
+				authenticationResult.setFormForUnknownPrincipal(registrationFormForUnknown);
+			authenticationResult.setEnableAssociation(enableAssociation);
+			return authenticationResult;
 		}
 
 		@Override

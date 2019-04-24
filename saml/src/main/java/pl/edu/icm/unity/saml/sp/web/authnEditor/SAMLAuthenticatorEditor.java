@@ -378,7 +378,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, "", e);
+				NotificationPopup.showError(msg, "Can not init trusted federation editor", e);
 				return;
 			}
 
@@ -488,7 +488,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 
 			} catch (EngineException e)
 			{
-				NotificationPopup.showError(msg, "", e);
+				NotificationPopup.showError(msg, "Can not init trusted IdP editor", e);
 				return;
 			}
 

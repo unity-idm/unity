@@ -86,16 +86,21 @@ public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor
 	{
 		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
 		interactiveLoginSettings.setMargin(false);
-		I18nTextField retrivalName = new I18nTextField(msg);
-		retrivalName.setCaption(msg.getMessage("CertificateAuthenticatorEditor.formName"));
+		
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(msg.getMessage("CertificateAuthenticatorEditor.displayedName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		
 		TextField logoURL = new TextField();
 		logoURL.setCaption(msg.getMessage("CertificateAuthenticatorEditor.logoURL"));
-		interactiveLoginSettings.addComponents(retrivalName, logoURL);
+		configBinder.forField(logoURL).bind("logoURL");
+		
+		interactiveLoginSettings.addComponents(retrievalName, logoURL);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
 				msg.getMessage("CertificateAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
-		configBinder.forField(retrivalName).bind("retrivalName");
-		configBinder.forField(logoURL).bind("logoURL");
+		
+		
 
 		return wrapper;
 	}
@@ -124,21 +129,21 @@ public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor
 
 	public static class CertConfiguration
 	{
-		private I18nString retrivalName;
+		private I18nString retrievalName;
 		private String logoURL;
 
 		public CertConfiguration()
 		{
 		}
 
-		public I18nString getRetrivalName()
+		public I18nString getRetreivalName()
 		{
-			return retrivalName;
+			return retrievalName;
 		}
 
-		public void setRetrivalName(I18nString retrivalName)
+		public void setRetrievalName(I18nString retrievalName)
 		{
-			this.retrivalName = retrivalName;
+			this.retrievalName = retrievalName;
 		}
 
 		public String getLogoURL()
@@ -155,13 +160,13 @@ public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor
 		{
 			Properties raw = new Properties();
 
-			if (retrivalName != null)
+			if (getRetreivalName() != null)
 			{
-				retrivalName.toProperties(raw,
+				getRetreivalName().toProperties(raw,
 						TLSRetrievalProperties.P + TLSRetrievalProperties.NAME + ".");
 			}
 
-			if (logoURL != null && !logoURL.isEmpty())
+			if (getLogoURL() != null && !getLogoURL().isEmpty())
 			{
 				raw.put(TLSRetrievalProperties.P + TLSRetrievalProperties.LOGO_URL, logoURL);
 			}
@@ -182,8 +187,8 @@ public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor
 			}
 
 			TLSRetrievalProperties certRetrievalProperties = new TLSRetrievalProperties(raw);
-			retrivalName = certRetrievalProperties.getLocalizedString(msg, TLSRetrievalProperties.NAME);
-			logoURL = certRetrievalProperties.getValue(TLSRetrievalProperties.LOGO_URL);
+			setRetrievalName(certRetrievalProperties.getLocalizedString(msg, TLSRetrievalProperties.NAME));
+			setLogoURL(certRetrievalProperties.getValue(TLSRetrievalProperties.LOGO_URL));
 		}
 
 	}

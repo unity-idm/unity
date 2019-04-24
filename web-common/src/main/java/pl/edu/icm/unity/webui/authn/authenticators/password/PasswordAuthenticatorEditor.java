@@ -86,9 +86,12 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 	{
 		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
 		interactiveLoginSettings.setMargin(false);
-		I18nTextField retrivalName = new I18nTextField(msg);
-		retrivalName.setCaption(msg.getMessage("PasswordAuthenticatorEditor.passwordName"));
-		interactiveLoginSettings.addComponent(retrivalName);
+		
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(msg.getMessage("PasswordAuthenticatorEditor.passwordName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		
+		interactiveLoginSettings.addComponent(retrievalName);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
 				msg.getMessage("PasswordAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
@@ -119,21 +122,21 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 
 	public static class PasswordConfiguration
 	{
-		private I18nString retrivalName;
+		private I18nString retrievalName;
 		private String localCredential;
 
 		public PasswordConfiguration()
 		{
 		}
 
-		public I18nString getRetrivalName()
+		public I18nString getRetrievalName()
 		{
-			return retrivalName;
+			return retrievalName;
 		}
 
-		public void setRetrivalName(I18nString retrivalName)
+		public void setRetrievalName(I18nString retrivalName)
 		{
-			this.retrivalName = retrivalName;
+			this.retrievalName = retrivalName;
 		}
 
 		public String getLocalCredential()
@@ -149,9 +152,9 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 		public String toProperties()
 		{
 			Properties raw = new Properties();
-			if (retrivalName != null)
+			if (getRetrievalName() != null)
 			{
-				retrivalName.toProperties(raw,
+				getRetrievalName().toProperties(raw,
 						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
 			}
 			PasswordRetrievalProperties prop = new PasswordRetrievalProperties(raw);
@@ -170,8 +173,8 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 			}
 
 			PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
-			retrivalName = passwordRetrievalProperties.getLocalizedString(msg,
-					PasswordRetrievalProperties.NAME);
+			setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+					PasswordRetrievalProperties.NAME));
 		}
 
 	}

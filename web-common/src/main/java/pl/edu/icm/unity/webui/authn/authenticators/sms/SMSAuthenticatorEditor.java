@@ -86,17 +86,19 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 	{
 		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
 		interactiveLoginSettings.setMargin(false);
-		I18nTextField retrivalName = new I18nTextField(msg);
-		retrivalName.setCaption(msg.getMessage("SMSAuthenticatorEditor.formName"));
+		
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(msg.getMessage("SMSAuthenticatorEditor.formName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		
 		TextField logoURL = new TextField();
 		logoURL.setCaption(msg.getMessage("SMSAuthenticatorEditor.logoURL"));
-		interactiveLoginSettings.addComponents(retrivalName, logoURL);
+		configBinder.forField(logoURL).bind("logoURL");
+		
+		interactiveLoginSettings.addComponents(retrievalName, logoURL);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
 				msg.getMessage("SMSAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
-		configBinder.forField(retrivalName).bind("retrivalName");
-		configBinder.forField(logoURL).bind("logoURL");
-
 		return wrapper;
 	}
 
@@ -124,21 +126,21 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 
 	public static class SMSConfiguration
 	{
-		private I18nString retrivalName;
+		private I18nString retrievalName;
 		private String logoURL;
 
 		public SMSConfiguration()
 		{
 		}
 
-		public I18nString getRetrivalName()
+		public I18nString getRetrievalName()
 		{
-			return retrivalName;
+			return retrievalName;
 		}
 
-		public void setRetrivalName(I18nString retrivalName)
+		public void setRetrievalName(I18nString retrievalName)
 		{
-			this.retrivalName = retrivalName;
+			this.retrievalName = retrievalName;
 		}
 
 		public String getLogoURL()
@@ -155,13 +157,13 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 		{
 			Properties raw = new Properties();
 
-			if (retrivalName != null)
+			if (getRetrievalName() != null)
 			{
-				retrivalName.toProperties(raw,
+				getRetrievalName().toProperties(raw,
 						SMSRetrievalProperties.P + SMSRetrievalProperties.NAME + ".");
 			}
 
-			if (logoURL != null && !logoURL.isEmpty())
+			if (getLogoURL() != null && !getLogoURL().isEmpty())
 			{
 				raw.put(SMSRetrievalProperties.P + SMSRetrievalProperties.LOGO_URL, logoURL);
 			}
@@ -182,8 +184,8 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 			}
 
 			SMSRetrievalProperties smsRetrievalProperties = new SMSRetrievalProperties(raw);
-			retrivalName = smsRetrievalProperties.getLocalizedString(msg, SMSRetrievalProperties.NAME);
-			logoURL = smsRetrievalProperties.getValue(SMSRetrievalProperties.LOGO_URL);
+			setRetrievalName(smsRetrievalProperties.getLocalizedString(msg, SMSRetrievalProperties.NAME));
+			setLogoURL(smsRetrievalProperties.getValue(SMSRetrievalProperties.LOGO_URL));
 		}
 
 	}

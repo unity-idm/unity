@@ -5,11 +5,14 @@
 
 package pl.edu.icm.unity.ldap.client.web;
 
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.ldap.client.LdapPasswordVerificator;
@@ -27,15 +30,17 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 {
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;
+	private RegistrationsManagement regMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	@Autowired
 	public LdapAuthenticatorEditorFactory(UnityMessageSource msg, PKIManagement pkiMan,
-			InputTranslationProfileFieldFactory profileFieldFactory)
+			RegistrationsManagement regMan, InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
+		this.regMan = regMan;
 	}
 
 	@Override
@@ -47,7 +52,9 @@ public class LdapAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new LdapAuthenticatorEditor(msg, pkiMan, profileFieldFactory, LdapPasswordVerificator.NAME);
+		return new LdapAuthenticatorEditor(msg, pkiMan, profileFieldFactory,
+				regMan.getForms().stream().map(r -> r.getName()).collect(Collectors.toList()),
+				LdapPasswordVerificator.NAME);
 	}
 
 }

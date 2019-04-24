@@ -129,13 +129,16 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 	{
 		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
 		interactiveLoginSettings.setMargin(false);
-		I18nTextField retrivalName = new I18nTextField(msg);
-		retrivalName.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.passwordName"));
-		interactiveLoginSettings.addComponent(retrivalName);
+		
+		I18nTextField retrievalName = new I18nTextField(msg);
+		retrievalName.setCaption(msg.getMessage("CompositePasswordAuthenticatorEditor.passwordName"));
+		configBinder.forField(retrievalName).bind("retrievalName");
+		
+		interactiveLoginSettings.addComponent(retrievalName);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
 				msg.getMessage("CompositePasswordAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
-		configBinder.forField(retrivalName).bind("retrivalName");
+
 		return wrapper;
 	}
 
@@ -163,43 +166,13 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 
 	public static class CompositePasswordConfiguration
 	{
-		private I18nString retrivalName;
+		private I18nString retrievalName;
 		private List<String> localCredentials;
 		private List<SimpleAuthenticatorInfo> remoteAuthenticators;
 
 		public CompositePasswordConfiguration()
 		{
 			remoteAuthenticators = new ArrayList<>();
-		}
-
-		public I18nString getRetrivalName()
-		{
-			return retrivalName;
-		}
-
-		public void setRetrivalName(I18nString retrivalName)
-		{
-			this.retrivalName = retrivalName;
-		}
-
-		public List<String> getLocalCredentials()
-		{
-			return localCredentials;
-		}
-
-		public void setLocalCredentials(List<String> localCredentials)
-		{
-			this.localCredentials = localCredentials;
-		}
-
-		public List<SimpleAuthenticatorInfo> getRemoteAuthenticators()
-		{
-			return remoteAuthenticators;
-		}
-
-		public void setRemoteAuthenticators(List<SimpleAuthenticatorInfo> remoteAuthenticators)
-		{
-			this.remoteAuthenticators = remoteAuthenticators;
 		}
 
 		public String toProperties()
@@ -238,6 +211,12 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 						+ CompositePasswordProperties.VERIFICATOR_CONFIG_EMBEDDED,
 						remoteAuth.config);
 				i++;
+			}
+
+			if (getRetrievalName() != null)
+			{
+				getRetrievalName().toProperties(raw,
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
 			}
 
 			CompositePasswordProperties prop = new CompositePasswordProperties(raw);
@@ -300,8 +279,8 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 			}
 
 			PasswordRetrievalProperties passwordRetrievalProperties = new PasswordRetrievalProperties(raw);
-			retrivalName = passwordRetrievalProperties.getLocalizedString(msg,
-					PasswordRetrievalProperties.NAME);
+			setRetrievalName(passwordRetrievalProperties.getLocalizedString(msg,
+					PasswordRetrievalProperties.NAME));
 		}
 
 		private String getConfigFromFile(File configFile)
@@ -314,6 +293,36 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 			{
 				throw new InternalException("Can not read remote authenticator config file", e);
 			}
+		}
+
+		public I18nString getRetrievalName()
+		{
+			return retrievalName;
+		}
+
+		public void setRetrievalName(I18nString retrievalName)
+		{
+			this.retrievalName = retrievalName;
+		}
+
+		public List<String> getLocalCredentials()
+		{
+			return localCredentials;
+		}
+
+		public void setLocalCredentials(List<String> localCredentials)
+		{
+			this.localCredentials = localCredentials;
+		}
+
+		public List<SimpleAuthenticatorInfo> getRemoteAuthenticators()
+		{
+			return remoteAuthenticators;
+		}
+
+		public void setRemoteAuthenticators(List<SimpleAuthenticatorInfo> remoteAuthenticators)
+		{
+			this.remoteAuthenticators = remoteAuthenticators;
 		}
 	}
 
@@ -374,7 +383,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 						c -> {
 							subViewSwitcher.exitSubView();
 							remoteAuthnList.addElement(new SimpleAuthenticatorInfo(forType,
-									c.id, c.configuration));	
+									c.id, c.configuration));
 						});
 			};
 		}
