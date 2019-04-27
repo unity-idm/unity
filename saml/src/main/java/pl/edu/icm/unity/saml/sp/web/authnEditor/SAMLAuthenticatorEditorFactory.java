@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  *
  */
 @Component
-public class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
@@ -36,7 +36,7 @@ public class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	private IdentityTypesRegistry idTypesReg;
 
 	@Autowired
-	public SAMLAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
+	SAMLAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
 			RealmsManagement realmMan, PKIManagement pkiMan, IdentityTypesRegistry idTypesReg,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 	{

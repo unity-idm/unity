@@ -61,7 +61,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
+class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	private UnityMessageSource msg;
 	private Collection<CredentialDefinition> credentialDefinitions;
@@ -72,7 +72,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 	private Binder<CompositePasswordConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
-	public CompositePasswordAuthenticatorEditor(UnityMessageSource msg,
+	CompositePasswordAuthenticatorEditor(UnityMessageSource msg,
 			Collection<CredentialDefinition> credentialDefinitions,
 			PamAuthenticatorEditorFactory pamFactory, LdapAuthenticatorEditorFactory ldapFactory)
 	{
@@ -136,7 +136,7 @@ public class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEdito
 		
 		interactiveLoginSettings.addComponent(retrievalName);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
-				msg.getMessage("CompositePasswordAuthenticatorEditor.interactiveLoginSettings"),
+				msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
 
 		return wrapper;

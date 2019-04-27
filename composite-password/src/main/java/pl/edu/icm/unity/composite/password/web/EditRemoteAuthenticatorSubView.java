@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  * @author P.Piernik
  *
  */
-public class EditRemoteAuthenticatorSubView extends CustomComponent implements UnitySubView
+class EditRemoteAuthenticatorSubView extends CustomComponent implements UnitySubView
 {
 	private UnityMessageSource msg;
 	private AuthenticatorEditorFactory factory;
@@ -40,7 +40,7 @@ public class EditRemoteAuthenticatorSubView extends CustomComponent implements U
 
 	private boolean editMode;
 
-	public EditRemoteAuthenticatorSubView(UnityMessageSource msg, AuthenticatorEditorFactory factory,
+	EditRemoteAuthenticatorSubView(UnityMessageSource msg, AuthenticatorEditorFactory factory,
 			AuthenticatorDefinition toEdit, Consumer<AuthenticatorDefinition> onConfirm, Runnable onCancel,
 			SubViewSwitcher subViewSwitcher)
 	{

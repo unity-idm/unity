@@ -104,7 +104,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			Properties properties = new Properties();
 			properties.load(new StringReader(configuration));
 			SMSRetrievalProperties config = new SMSRetrievalProperties(properties);
-			name = config.getLocalizedString(msg, PasswordRetrievalProperties.NAME);
+			name = config.getLocalizedString(msg, SMSRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebSMSRetrieval.title", msg);
 			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);

@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 import com.vaadin.data.ValidationResult;
-import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CheckBox;
@@ -54,7 +53,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
+class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	public static final List<String> STANDART_NAME_FORMATS = Arrays.asList(
 			"urn:oasis:names:tc:SAML:2.0:nameid-format:persistent",
@@ -78,7 +77,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 	private CheckBox defSignRequest;
 	private IndividualTrustedIdpComponent idps;
 
-	public SAMLAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
+	SAMLAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan,
 			IdentityTypesRegistry idTypesReg) throws EngineException
@@ -141,7 +140,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		name.focus();
 
 		TextField requesterId = new TextField(msg.getMessage("SAMLAuthenticatorEditor.requesterId"));
-		requesterId.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		requesterId.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(requesterId).asRequired(msg.getMessage("fieldRequired")).bind("requesterId");
 		header.addComponent(requesterId);
 
@@ -156,7 +155,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		header.addComponent(credential);
 
 		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText();
-		acceptedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		acceptedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		acceptedNameFormats.setCaption(msg.getMessage("SAMLAuthenticatorEditor.acceptedNameFormats"));
 		acceptedNameFormats.setItems(STANDART_NAME_FORMATS);
 		header.addComponent(acceptedNameFormats);
@@ -172,7 +171,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		header.addComponent(defSignRequest);
 
 		ChipsWithFreeText defaultRequestedNameFormat = new ChipsWithFreeText();
-		defaultRequestedNameFormat.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		defaultRequestedNameFormat.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		defaultRequestedNameFormat
 				.setCaption(msg.getMessage("SAMLAuthenticatorEditor.defaultRequestedNameFormat"));
 		defaultRequestedNameFormat.setItems(STANDART_NAME_FORMATS);
@@ -229,7 +228,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		metadataPublishing.addComponent(publishMetadata);
 
 		TextField metadataPath = new TextField(msg.getMessage("SAMLAuthenticatorEditor.metadataPath"));
-		metadataPath.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		metadataPath.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(metadataPath).bind("metadataPath");
 		metadataPath.setEnabled(false);
 		metadataPublishing.addComponent(metadataPath);
@@ -281,7 +280,7 @@ public class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements 
 		sloMappings.addTextColumn(s -> s.getSamlId(), (t, v) -> t.setSamlId(v),
 				msg.getMessage("SAMLAuthenticatorEditor.sloMappings.samlId"), 70, false);
 
-		sloMappings.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		sloMappings.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(sloMappings).bind("sloMappings");
 
 		return new CollapsibleLayout(msg.getMessage("SAMLAuthenticatorEditor.singleLogout"), singleLogout);

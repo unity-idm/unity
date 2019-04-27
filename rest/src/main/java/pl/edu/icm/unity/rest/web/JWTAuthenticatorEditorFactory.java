@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  *
  */
 @Component
-public class JWTAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+class JWTAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;

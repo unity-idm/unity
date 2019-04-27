@@ -48,7 +48,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
+class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	PKIManagement pkiMan;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
@@ -57,7 +57,7 @@ public class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
-	public OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
+	OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory, RegistrationsManagement registrationMan)
 	{
 		super(msg);

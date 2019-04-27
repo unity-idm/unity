@@ -61,7 +61,7 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  * @author P.Piernik
  *
  */
-public class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
+class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 {
 	private static final String TMP_CONFIG_KEY = "tmp.";
 
@@ -74,7 +74,7 @@ public class EditOAuthProviderSubView extends CustomComponent implements UnitySu
 
 	private boolean editMode = false;
 
-	public EditOAuthProviderSubView(UnityMessageSource msg, PKIManagement pkiMan,
+	EditOAuthProviderSubView(UnityMessageSource msg, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory, OAuthProviderConfiguration toEdit,
 			Set<String> providersIds, SubViewSwitcher subViewSwitcher, Set<String> registrationForms,
 			Set<String> validators, Consumer<OAuthProviderConfiguration> onConfirm, Runnable onCancel)
@@ -170,17 +170,17 @@ public class EditOAuthProviderSubView extends CustomComponent implements UnitySu
 		header.addComponent(name);
 
 		TextField clientId = new TextField(msg.getMessage("EditOAuthProviderSubView.clientId"));
-		clientId.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		clientId.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
 		header.addComponent(clientId);
 
 		TextField clientSecret = new TextField(msg.getMessage("EditOAuthProviderSubView.clientSecret"));
-		clientSecret.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		clientSecret.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
 		header.addComponent(clientSecret);
 
 		TextField requestedScopes = new TextField(msg.getMessage("EditOAuthProviderSubView.requestedScopes"));
-		requestedScopes.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		requestedScopes.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(requestedScopes).bind("requestedScopes");
 		header.addComponent(requestedScopes);
 
@@ -194,7 +194,7 @@ public class EditOAuthProviderSubView extends CustomComponent implements UnitySu
 
 		TextField openIdDiscovery = new TextField(
 				msg.getMessage("EditOAuthProviderSubView.openIdDiscoverEndpoint"));
-		openIdDiscovery.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		openIdDiscovery.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(openIdDiscovery).asRequired(getOpenIdFieldValidator(openIdConnect, true))
 				.bind("openIdDiscoverEndpoint");
 		openIdDiscovery.setVisible(false);
@@ -207,20 +207,20 @@ public class EditOAuthProviderSubView extends CustomComponent implements UnitySu
 				msg.getMessage("EditOAuthProviderSubView.authenticationEndpoint"));
 		configBinder.forField(authenticationEndpoint).asRequired(getOpenIdFieldValidator(openIdConnect, false))
 				.bind("authenticationEndpoint");
-		authenticationEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		authenticationEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		authenticationEndpoint.setRequiredIndicatorVisible(false);
 		header.addComponent(authenticationEndpoint);
 
 		TextField accessTokenEndpoint = new TextField(
 				msg.getMessage("EditOAuthProviderSubView.accessTokenEndpoint"));
-		accessTokenEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		accessTokenEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(accessTokenEndpoint).asRequired(getOpenIdFieldValidator(openIdConnect, false))
 				.bind("accessTokenEndpoint");
 		accessTokenEndpoint.setRequiredIndicatorVisible(false);
 		header.addComponent(accessTokenEndpoint);
 
 		TextField profileEndpoint = new TextField(msg.getMessage("EditOAuthProviderSubView.profileEndpoint"));
-		profileEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		profileEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(profileEndpoint).bind("profileEndpoint");
 		header.addComponent(profileEndpoint);
 
@@ -266,7 +266,7 @@ public class EditOAuthProviderSubView extends CustomComponent implements UnitySu
 
 		TextField extraAuthorizationParameters = new TextField(
 				msg.getMessage("EditOAuthProviderSubView.extraAuthorizationParameters"));
-		extraAuthorizationParameters.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		extraAuthorizationParameters.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(extraAuthorizationParameters).bind("extraAuthorizationParameters");
 		advanced.addComponent(extraAuthorizationParameters);
 

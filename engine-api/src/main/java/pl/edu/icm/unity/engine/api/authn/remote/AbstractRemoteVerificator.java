@@ -118,20 +118,16 @@ public abstract class AbstractRemoteVerificator extends AbstractVerificator
 	public static TranslationProfile getTranslationProfile(UnityPropertiesHelper props, String globalProfileNameKey,
 			String embeddedProfileKey) throws ConfigurationException
 	{
-		
-		//check getValue == null because default value can be present
-		if (props.getValue(globalProfileNameKey) == null && !props.isSet(embeddedProfileKey))
-		{
-			throw new ConfigurationException("Misconfigured translation profile");
-		}
-			
 		if (props.isSet(embeddedProfileKey))
 		{
 			return TranslationProfileGenerator.getProfileFromString(props.getValue(embeddedProfileKey));
-		} else
+		} else if (props.getValue(globalProfileNameKey) != null)
 		{
 			return TranslationProfileGenerator
 					.generateIncludeInputProfile(props.getValue(globalProfileNameKey));
+		} else
+		{
+			throw new ConfigurationException("Translation profile is not set");
 		}
 	}
 

@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  *
  */
 @Component
-public class OAuthRPAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+class OAuthRPAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
 	private TokensManagement tokenMan;

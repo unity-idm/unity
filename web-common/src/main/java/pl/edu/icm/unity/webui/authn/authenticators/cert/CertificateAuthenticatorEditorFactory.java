@@ -21,7 +21,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  *
  */
 @Component
-public class CertificateAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+class CertificateAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
 	private CredentialManagement credMan;

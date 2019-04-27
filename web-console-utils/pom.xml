@@ -11,7 +11,7 @@
 	<name>UNITY Server ${m.name} module</name>
 	<description>Web console utils</description>
 	<properties>
-		<m.name>web-console-spi</m.name>
+		<m.name>web-console-utils</m.name>
 	</properties>
 	
 	<scm>

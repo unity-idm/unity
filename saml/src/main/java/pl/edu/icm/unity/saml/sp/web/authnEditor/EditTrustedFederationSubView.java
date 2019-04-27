@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  * @author P.Piernik
  *
  */
-public class EditTrustedFederationSubView extends CustomComponent implements UnitySubView
+class EditTrustedFederationSubView extends CustomComponent implements UnitySubView
 {
 
 	private UnityMessageSource msg;
@@ -50,7 +50,7 @@ public class EditTrustedFederationSubView extends CustomComponent implements Uni
 	private Set<String> registrationForms;
 	private Set<String> usedNames;
 
-	public EditTrustedFederationSubView(UnityMessageSource msg,
+	EditTrustedFederationSubView(UnityMessageSource msg,
 			InputTranslationProfileFieldFactory profileFieldFactory, TrustedFederationConfiguration toEdit,
 			SubViewSwitcher subViewSwitcher, Set<String> usedNames, Set<String> validators,
 			Set<String> certificates, Set<String> registrationForms,
@@ -117,7 +117,7 @@ public class EditTrustedFederationSubView extends CustomComponent implements Uni
 		name.focus();
 
 		TextField url = new TextField(msg.getMessage("EditTrustedFederationSubView.url"));
-		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		url.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		binder.forField(url).asRequired(msg.getMessage("fieldRequired")).bind("url");
 		header.addComponent(url);
 

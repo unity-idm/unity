@@ -45,14 +45,14 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
+class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	private List<String> registrationForms;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	private Binder<PamConfiguration> configBinder;
 
-	public PamAuthenticatorEditor(UnityMessageSource msg, List<String> registrationForms,
+	PamAuthenticatorEditor(UnityMessageSource msg, List<String> registrationForms,
 			InputTranslationProfileFieldFactory profileFieldFactory)
 
 	{
@@ -124,7 +124,7 @@ public class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements A
 		configBinder.forField(registrationForm).bind("registrationForm");
 		interactiveLoginSettings.addComponent(registrationForm);
 
-		return new CollapsibleLayout(msg.getMessage("PamAuthenticatorEditor.interactiveLoginSettings"),
+		return new CollapsibleLayout(msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
 	}
 

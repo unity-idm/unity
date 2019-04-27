@@ -26,7 +26,7 @@ public class SMSRetrievalProperties extends UnityPropertiesHelper
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
 
-	public static final String NAME = "i18nName";
+	public static final String NAME = "name";
 	public static final String LOGO_URL = "logoURL";
 	
 	static

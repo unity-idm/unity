@@ -35,12 +35,12 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
+class JWTAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
 	private Set<String> credentials;
 	private Binder<JWTConfiguration> configBinder;
 
-	public JWTAuthenticatorEditor(UnityMessageSource msg, Set<String> credentials)
+	JWTAuthenticatorEditor(UnityMessageSource msg, Set<String> credentials)
 	{
 		super(msg);
 		this.credentials = credentials;

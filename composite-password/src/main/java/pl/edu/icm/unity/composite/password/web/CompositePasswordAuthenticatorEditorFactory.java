@@ -23,7 +23,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  *
  */
 @Component
-public class CompositePasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+class CompositePasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
 	private CredentialManagement credMan;

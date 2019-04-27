@@ -24,7 +24,7 @@ import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactory;
  *
  */
 @Component
-public class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
+class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 {
 	private UnityMessageSource msg;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
@@ -32,7 +32,7 @@ public class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFacto
 	private PKIManagement pkiMan;
 
 	@Autowired
-	public OAuthAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
+	OAuthAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
 			PKIManagement pkiMan, InputTranslationProfileFieldFactory profileFieldFactory)
 	{
 		this.msg = msg;

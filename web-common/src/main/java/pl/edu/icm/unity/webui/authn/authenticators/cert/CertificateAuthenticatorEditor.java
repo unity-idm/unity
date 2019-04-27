@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
+class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
 	private UnityMessageSource msg;
 	private Binder<CertConfiguration> configBinder;
@@ -97,7 +97,7 @@ public class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor
 		
 		interactiveLoginSettings.addComponents(retrievalName, logoURL);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
-				msg.getMessage("CertificateAuthenticatorEditor.interactiveLoginSettings"),
+				msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
 		
 		

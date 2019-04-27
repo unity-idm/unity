@@ -42,7 +42,7 @@ import pl.edu.icm.unity.webui.common.webElements.UnitySubView;
  * @author P.Piernik
  *
  */
-public class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySubView
+class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySubView
 {
 
 	private UnityMessageSource msg;
@@ -53,7 +53,7 @@ public class EditIndividualTrustedIdpSubView extends CustomComponent implements 
 	private Set<String> registrationForms;
 	private Set<String> usedNames;
 
-	public EditIndividualTrustedIdpSubView(UnityMessageSource msg,
+	EditIndividualTrustedIdpSubView(UnityMessageSource msg,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			IndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
 			Set<String> usedNames, Set<String> certificates, Set<String> registrationForms,
@@ -131,17 +131,17 @@ public class EditIndividualTrustedIdpSubView extends CustomComponent implements 
 		header.addComponent(logo);
 
 		TextField id = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.id"));
-		id.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		id.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(id).asRequired(msg.getMessage("fieldRequired")).bind("id");
 		header.addComponent(id);
 
 		TextField address = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.address"));
-		address.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		address.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(address).bind("address");
 		header.addComponent(address);
 
 		ChipsWithFreeText requestedNameFormats = new ChipsWithFreeText();
-		requestedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_LINK_FIELD_WIDTH, Unit.EM);
+		requestedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		requestedNameFormats.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.requestedNameFormats"));
 		requestedNameFormats.setItems(SAMLAuthenticatorEditor.STANDART_NAME_FORMATS);
 		header.addComponent(requestedNameFormats);
@@ -204,31 +204,31 @@ public class EditIndividualTrustedIdpSubView extends CustomComponent implements 
 
 		TextField postLogoutEndpoint = new TextField(
 				msg.getMessage("EditIndividualTrustedIdpSubView.postLogoutEndpoint"));
-		postLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		postLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(postLogoutEndpoint).bind("postLogoutEndpoint");
 		singleLogout.addComponent(postLogoutEndpoint);
 
 		TextField postLogoutResponseEndpoint = new TextField(
 				msg.getMessage("EditIndividualTrustedIdpSubView.postLogoutResponseEndpoint"));
-		postLogoutResponseEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		postLogoutResponseEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(postLogoutResponseEndpoint).bind("postLogoutResponseEndpoint");
 		singleLogout.addComponent(postLogoutResponseEndpoint);
 
 		TextField redirectLogoutEndpoint = new TextField(
 				msg.getMessage("EditIndividualTrustedIdpSubView.redirectLogoutEndpoint"));
-		redirectLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		redirectLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(redirectLogoutEndpoint).bind("redirectLogoutEndpoint");
 		singleLogout.addComponent(redirectLogoutEndpoint);
 
 		TextField redirectLogoutResponseEndpoint = new TextField(
 				msg.getMessage("EditIndividualTrustedIdpSubView.redirectLogoutResponseEndpoint"));
-		redirectLogoutResponseEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		redirectLogoutResponseEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(redirectLogoutResponseEndpoint).bind("redirectLogoutResponseEndpoint");
 		singleLogout.addComponent(redirectLogoutResponseEndpoint);
 
 		TextField soapLogoutEndpoint = new TextField(
 				msg.getMessage("EditIndividualTrustedIdpSubView.soapLogoutEndpoint"));
-		soapLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, Unit.EM);
+		soapLogoutEndpoint.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(soapLogoutEndpoint).bind("soapLogoutEndpoint");
 		singleLogout.addComponent(soapLogoutEndpoint);
 

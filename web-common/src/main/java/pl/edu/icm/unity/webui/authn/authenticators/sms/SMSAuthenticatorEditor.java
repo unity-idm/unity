@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
+class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
 	private UnityMessageSource msg;
 	private Binder<SMSConfiguration> configBinder;
@@ -97,7 +97,7 @@ public class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor impleme
 		
 		interactiveLoginSettings.addComponents(retrievalName, logoURL);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
-				msg.getMessage("SMSAuthenticatorEditor.interactiveLoginSettings"),
+				msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
 		return wrapper;
 	}

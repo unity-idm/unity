@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  * @author P.Piernik
  *
  */
-public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
+class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
 	private UnityMessageSource msg;
 	private Binder<PasswordConfiguration> configBinder;
@@ -93,7 +93,7 @@ public class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor im
 		
 		interactiveLoginSettings.addComponent(retrievalName);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
-				msg.getMessage("PasswordAuthenticatorEditor.interactiveLoginSettings"),
+				msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
 		return wrapper;
 	}

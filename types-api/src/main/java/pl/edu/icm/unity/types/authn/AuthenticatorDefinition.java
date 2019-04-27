@@ -8,7 +8,7 @@ package pl.edu.icm.unity.types.authn;
 import java.util.Objects;
 
 /**
- * Authenticator definition.
+ *  Describes authenticator configuration.
  * 
  * @author P.Piernik
  *
