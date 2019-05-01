@@ -62,6 +62,12 @@ public class IndividualTrustedSamlIdpConfiguration
 		setId(source.getValue(prefix + SAMLSPProperties.IDP_ID));
 		setDisplayedName(source.getLocalizedString(msg, prefix + SAMLSPProperties.IDP_NAME));
 		setLogo(source.getValue(prefix + SAMLSPProperties.IDP_LOGO));
+		
+		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))
+		{
+			setBinding(source.getEnumValue(prefix + SAMLSPProperties.IDP_BINDING, Binding.class));
+		}
+		
 		setAddress(source.getValue(prefix + SAMLSPProperties.IDP_ADDRESS));
 		certificates = new ArrayList<>();
 		if (source.isSet(prefix + SAMLSPProperties.IDP_CERTIFICATE))
@@ -123,6 +129,11 @@ public class IndividualTrustedSamlIdpConfiguration
 			raw.put(prefix + SAMLSPProperties.IDP_LOGO, getLogo());
 		}
 
+		if (getBinding() != null)
+		{
+			raw.put(prefix + SAMLSPProperties.IDP_BINDING, getBinding().toString());
+		}
+		
 		if (getAddress() != null)
 		{
 			raw.put(prefix + SAMLSPProperties.IDP_ADDRESS, getAddress());
@@ -184,6 +195,7 @@ public class IndividualTrustedSamlIdpConfiguration
 		clone.setName(this.getName());
 		clone.setId(new String(this.getId()));
 		clone.setLogo(this.getLogo() != null ? new String(this.getLogo()) : null);
+		clone.setBinding(this.getBinding() != null ? Binding.valueOf(this.getBinding().toString()) : null);
 		clone.setTranslationProfile(
 				this.getTranslationProfile() != null ? this.getTranslationProfile().clone() : null);
 		clone.setDisplayedName(this.getDisplayedName() != null ? this.getDisplayedName().clone() : null);
