@@ -21,12 +21,15 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
 import pl.edu.icm.unity.saml.sp.SAMLExchange;
@@ -40,43 +43,49 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
 /**
- * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP, implements 
- * authN start and awaits for answer in the context. When it is there, the validator is contacted for verification.
- * It is also possible to cancel the authentication which is in progress.
+ * The UI part of the remote SAML authn. Shows widget with a single, chosen IdP,
+ * implements authN start and awaits for answer in the context. When it is
+ * there, the validator is contacted for verification. It is also possible to
+ * cancel the authentication which is in progress.
+ * 
  * @author K. Benedyczak
  */
 public class SAMLRetrievalUI implements VaadinAuthenticationUI
-{	
+{
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 
 	private UnityMessageSource msg;
+	private FileStorageService fileService;
+
 	private SAMLExchange credentialExchange;
 	private AuthenticationCallback callback;
 	private SandboxAuthnResultCallback sandboxCallback;
 	private String redirectParam;
-	
+
 	private String configKey;
 	private String idpKey;
 	private IdPVisalSettings configuration;
 	private SamlContextManagement samlContextManagement;
 	private Set<String> tags;
-	
+
 	private Component main;
 	private String authenticatorName;
 	private Context context;
 
 	private IdPAuthNComponent idpComponent;
 
-	public SAMLRetrievalUI(UnityMessageSource msg, SAMLExchange credentialExchange, 
-			SamlContextManagement samlContextManagement, String idpKey, 
-			String configKey, String authenticatorName, Context context)
+	public SAMLRetrievalUI(UnityMessageSource msg, FileStorageService fileService, SAMLExchange credentialExchange,
+			SamlContextManagement samlContextManagement, String idpKey, String configKey,
+			String authenticatorName, Context context)
 	{
 		this.msg = msg;
+		this.fileService = fileService;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
 		this.idpKey = idpKey;
@@ -92,28 +101,30 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		return main;
 	}
-	
+
 	@Override
 	public Component getGridCompatibleComponent()
 	{
-		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(), 
+		IdPAuthNGridComponent idpComponent = new IdPAuthNGridComponent(getRetrievalClassName(),
 				configuration.name);
 		idpComponent.addClickListener(event -> startLogin());
 		idpComponent.setWidth(100, Unit.PERCENTAGE);
 		return idpComponent;
 	}
-	
+
 	private void initUI()
 	{
 		redirectParam = installRequestHandler();
-		
+
 		String logoUrl = configuration.logoUrl;
-		
+
 		Resource logo;
 		try
 		{
-			logo = logoUrl == null ? Images.empty.getResource() : ImageUtils.getLogoResource(logoUrl);
-		} catch (MalformedURLException e)
+			logo = logoUrl == null ? Images.empty.getResource()
+					: new FileStreamResource(fileService.readImageURI(URIHelper.parseURI(logoUrl),
+							UI.getCurrent().getTheme())).getResource();
+		} catch (Exception e)
 		{
 			log.warn("Can't load logo from " + logoUrl, e);
 			logo = null;
@@ -135,20 +146,20 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		return authenticatorName + "." + idpKey;
 	}
-	
+
 	private String installRequestHandler()
 	{
 		VaadinSession session = VaadinSession.getCurrent();
 		Collection<RequestHandler> requestHandlers = session.getRequestHandlers();
-		for (RequestHandler rh: requestHandlers)
+		for (RequestHandler rh : requestHandlers)
 		{
 			if (rh instanceof VaadinRedirectRequestHandler)
 			{
-				return ((VaadinRedirectRequestHandler)rh).getTriggeringParam();
+				return ((VaadinRedirectRequestHandler) rh).getTriggeringParam();
 			}
 		}
-	
-		VaadinRedirectRequestHandler rh = new VaadinRedirectRequestHandler(); 
+
+		VaadinRedirectRequestHandler rh = new VaadinRedirectRequestHandler();
 		session.addRequestHandler(rh);
 		return rh.getTriggeringParam();
 	}
@@ -156,25 +167,24 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private void breakLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
+		RemoteAuthnContext context = (RemoteAuthnContext) session
+				.getAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
 			session.removeAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 			samlContextManagement.removeAuthnContext(context.getRelayState());
 		}
 	}
-	
+
 	private void startLogin()
 	{
 		WrappedSession session = VaadinSession.getCurrent().getSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
+		RemoteAuthnContext context = (RemoteAuthnContext) session
+				.getAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context != null)
 		{
-			ConfirmDialog confirmKillingPreviousAuthn = new ConfirmDialog(msg, 
-					msg.getMessage("WebSAMLRetrieval.breakLoginInProgressConfirm"), 
-					() -> {
+			ConfirmDialog confirmKillingPreviousAuthn = new ConfirmDialog(msg,
+					msg.getMessage("WebSAMLRetrieval.breakLoginInProgressConfirm"), () -> {
 						breakLogin();
 						startFreshLogin(session);
 					});
@@ -206,14 +216,15 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		callback.onStartedAuthentication(AuthenticationStyle.WITH_EXTERNAL_CANCEL);
 		session.setAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT, context);
 		samlContextManagement.addAuthnContext(context);
-		
+
 		URI requestURI = Page.getCurrent().getLocation();
 		String servletPath = requestURI.getPath();
 		Page.getCurrent().open(servletPath + "?" + redirectParam, null);
 	}
-	
+
 	/**
 	 * Called when a SAML response is received.
+	 * 
 	 * @param authnContext
 	 */
 	private void onSamlAnswer(RemoteAuthnContext authnContext)
@@ -221,7 +232,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 		AuthenticationResult authnResult;
 		String reason = null;
 		Exception savedException = null;
-		
+
 		try
 		{
 			authnResult = credentialExchange.verifySAMLResponse(authnContext);
@@ -242,8 +253,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			authnResult.setFormForUnknownPrincipal(authnContext.getRegistrationFormForUnknown());
 		}
 		authnResult.setEnableAssociation(authnContext.isEnableAssociation());
-		
-		
+
 		if (authnResult.getStatus() == Status.success)
 		{
 			breakLogin();
@@ -259,13 +269,13 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			else
 				log.warn("SAML response verification or processing failed");
 			clear();
-			Optional<String> errorDetail = reason == null ? Optional.empty() : 
-				Optional.of(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
+			Optional<String> errorDetail = reason == null ? Optional.empty()
+					: Optional.of(msg.getMessage("WebSAMLRetrieval.authnFailedDetailInfo", reason));
 			String error = msg.getMessage("WebSAMLRetrieval.authnFailedError");
 			callback.onFailedAuthentication(authnResult, error, errorDetail);
 		}
 	}
-	
+
 	@Override
 	public void setAuthenticationCallback(AuthenticationCallback callback)
 	{
@@ -273,18 +283,18 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public void refresh(VaadinRequest request) 
+	public void refresh(VaadinRequest request)
 	{
 		WrappedSession session = request.getWrappedSession();
-		RemoteAuthnContext context = (RemoteAuthnContext) session.getAttribute(
-				SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
+		RemoteAuthnContext context = (RemoteAuthnContext) session
+				.getAttribute(SAMLRetrieval.REMOTE_AUTHN_CONTEXT);
 		if (context == null)
 		{
 			log.trace("Either user refreshes page, or different authN arrived");
 		} else if (context.getResponse() == null)
 		{
 			log.debug("Authentication started but SAML response not arrived (user back button)");
-		} else 
+		} else
 		{
 			onSamlAnswer(context);
 		}
@@ -292,7 +302,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	@Override
 	public String getLabel()
-	{	
+	{
 		return configuration.name;
 	}
 
@@ -319,7 +329,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	}
 
 	@Override
-	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback) 
+	public void setSandboxAuthnCallback(SandboxAuthnResultCallback callback)
 	{
 		sandboxCallback = callback;
 	}

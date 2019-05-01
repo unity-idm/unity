@@ -22,12 +22,14 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.LogoFileField;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
@@ -46,6 +48,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 {
 
 	private UnityMessageSource msg;
+	private FileStorageService fileService;
 	private Binder<IndividualTrustedSamlIdpConfiguration> configBinder;
 	private boolean editMode = false;
 
@@ -53,7 +56,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 	private Set<String> registrationForms;
 	private Set<String> usedNames;
 
-	EditIndividualTrustedIdpSubView(UnityMessageSource msg,
+	EditIndividualTrustedIdpSubView(UnityMessageSource msg, FileStorageService fileService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			IndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
 			Set<String> usedNames, Set<String> certificates, Set<String> registrationForms,
@@ -63,6 +66,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		this.certificates = certificates;
 		this.registrationForms = registrationForms;
 		this.usedNames = usedNames;
+		this.fileService = fileService;
 		editMode = toEdit != null;
 
 		configBinder = new Binder<>(IndividualTrustedSamlIdpConfiguration.class);
@@ -125,11 +129,11 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		configBinder.forField(displayedName).asRequired(msg.getMessage("fieldRequired")).bind("displayedName");
 		header.addComponent(displayedName);
 
-		TextField logo = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.logo"));
+		LogoFileField logo = new LogoFileField(msg, fileService);
 		logo.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.logo"));
-		configBinder.forField(logo).bind("logo");
+		logo.configureBinding(configBinder, "logo");
 		header.addComponent(logo);
-
+		
 		TextField id = new TextField(msg.getMessage("EditIndividualTrustedIdpSubView.id"));
 		id.setWidth(FieldSizeConstans.LINK_FIELD_WIDTH, FieldSizeConstans.LINK_FIELD_WIDTH_UNIT);
 		configBinder.forField(id).asRequired(msg.getMessage("fieldRequired")).bind("id");

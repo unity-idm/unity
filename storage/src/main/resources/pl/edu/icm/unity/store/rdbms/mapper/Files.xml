@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="pl.edu.icm.unity.store.impl.files.FilesMapper">
+
+	<resultMap id="fileResult" type="FileB">
+		<result property="id" column="ID"/>
+		<result property="name" column="NAME"/>
+		<result property="ownerType" column="OWNER_TYPE"/>
+		<result property="ownerId" column="OWNER_ID"/>
+		<result property="contents" column="CONTENTS"/>
+	</resultMap>
+
+	<insert id="create" parameterType="FileB" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO FILES(NAME, CONTENTS, OWNER_TYPE, OWNER_ID) 
+			VALUES (#{name}, #{contents}, #{ownerType}, #{ownerId})
+	</insert>
+
+	<insert id="createWithKey" parameterType="FileB">
+		INSERT INTO FILES(ID, NAME, CONTENTS, OWNER_TYPE, OWNER_ID) 
+			VALUES (#{id}, #{name}, #{contents}, #{ownerType}, #{ownerId})
+	</insert>
+	
+	<update id="updateByKey" parameterType="FileB">
+		UPDATE FILES SET OWNER_TYPE=#{ownerType}, OWNER_ID=#{ownerId},CONTENTS=#{contents} WHERE ID=#{id}  
+	</update>
+
+	<delete id="deleteByKey" parameterType="long">
+		DELETE FROM FILES WHERE ID = #{id}
+	</delete>
+	
+	<delete id="delete" parameterType="string">
+		DELETE FROM FILES WHERE NAME=#{value}
+	</delete>	
+
+	<delete id="deleteAll">
+		DELETE FROM FILES
+	</delete>
+
+	<select id="getByKey" parameterType="long" resultMap="fileResult">
+		SELECT * FROM FILES WHERE ID=#{id}
+	</select>
+
+	<select id="getAll" resultMap="fileResult">
+		SELECT * FROM FILES
+	</select>
+	
+	<select id="getAllNames" resultType="string">
+		select NAME from FILES
+	</select>
+	
+	<select id="getByName" parameterType="string" resultMap="fileResult">
+		select * from FILES WHERE NAME = #{value}
+	</select>
+</mapper>

@@ -5,15 +5,23 @@
 
 package pl.edu.icm.unity.saml.sp.web.authnEditor;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import com.vaadin.ui.UI;
+
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.base.file.FileData;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
+import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
@@ -21,9 +29,11 @@ import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.LocalOrUrlResource;
 
 /**
  * SAML Individual trusted idp configuration
+ * 
  * @author P.Piernik
  *
  */
@@ -33,7 +43,7 @@ public class IndividualTrustedSamlIdpConfiguration
 	private TranslationProfile translationProfile;
 	private String id;
 	private I18nString displayedName;
-	private String logo;
+	private LocalOrUrlResource logo;
 	private String address;
 	private Binding binding;
 	private List<String> certificates;
@@ -54,20 +64,40 @@ public class IndividualTrustedSamlIdpConfiguration
 		setTranslationProfile(TranslationProfileGenerator.generateEmptyInputProfile());
 	}
 
-	public void fromProperties(UnityMessageSource msg, SAMLSPProperties source, String name)
+	public void fromProperties(UnityMessageSource msg,
+			FileStorageService fileStorageService, SAMLSPProperties source, String name)
 	{
 
 		setName(name);
 		String prefix = SAMLSPProperties.IDP_PREFIX + name + ".";
 		setId(source.getValue(prefix + SAMLSPProperties.IDP_ID));
 		setDisplayedName(source.getLocalizedString(msg, prefix + SAMLSPProperties.IDP_NAME));
-		setLogo(source.getValue(prefix + SAMLSPProperties.IDP_LOGO));
-		
+
+		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
+		{
+			String logoUri = source.getValue(prefix + SAMLSPProperties.IDP_LOGO);
+			if (URIHelper.isWebReady(logoUri))
+			{
+				setLogo(new LocalOrUrlResource(logoUri));
+			} else
+			{
+				try
+				{
+					FileData fileData = fileStorageService.readImageURI(URIHelper.parseURI(logoUri),
+							UI.getCurrent().getTheme());
+					setLogo(new LocalOrUrlResource(fileData.getContents()));
+				} catch (EngineException e)
+				{
+					// ok
+				}
+			}
+		}
+
 		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))
 		{
 			setBinding(source.getEnumValue(prefix + SAMLSPProperties.IDP_BINDING, Binding.class));
 		}
-		
+
 		setAddress(source.getValue(prefix + SAMLSPProperties.IDP_ADDRESS));
 		certificates = new ArrayList<>();
 		if (source.isSet(prefix + SAMLSPProperties.IDP_CERTIFICATE))
@@ -114,7 +144,7 @@ public class IndividualTrustedSamlIdpConfiguration
 
 	}
 
-	public void toProperties(Properties raw)
+	public void toProperties(Properties raw, FileStorageService fileService, String authName)
 	{
 		String prefix = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + getName() + ".";
 
@@ -126,14 +156,29 @@ public class IndividualTrustedSamlIdpConfiguration
 
 		if (getLogo() != null)
 		{
-			raw.put(prefix + SAMLSPProperties.IDP_LOGO, getLogo());
+			if (getLogo().getLocal() != null)
+			{
+				try
+				{
+					URI uri = fileService.storageFile(getLogo().getLocal(),
+							StandardOwner.Authenticator.toString(),
+							authName + "." + getId());
+					raw.put(prefix + SAMLSPProperties.IDP_LOGO, uri.toString());
+				} catch (EngineException e)
+				{
+					throw new InternalException("Can't save logo file into DB", e);
+				}
+			} else if (getLogo().getRemote() != null && !getLogo().getRemote().isEmpty())
+			{
+				raw.put(prefix + SAMLSPProperties.IDP_LOGO, getLogo().getRemote());
+			}
 		}
 
 		if (getBinding() != null)
 		{
 			raw.put(prefix + SAMLSPProperties.IDP_BINDING, getBinding().toString());
 		}
-		
+
 		if (getAddress() != null)
 		{
 			raw.put(prefix + SAMLSPProperties.IDP_ADDRESS, getAddress());
@@ -194,7 +239,7 @@ public class IndividualTrustedSamlIdpConfiguration
 		IndividualTrustedSamlIdpConfiguration clone = new IndividualTrustedSamlIdpConfiguration();
 		clone.setName(this.getName());
 		clone.setId(new String(this.getId()));
-		clone.setLogo(this.getLogo() != null ? new String(this.getLogo()) : null);
+		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		clone.setBinding(this.getBinding() != null ? Binding.valueOf(this.getBinding().toString()) : null);
 		clone.setTranslationProfile(
 				this.getTranslationProfile() != null ? this.getTranslationProfile().clone() : null);
@@ -271,12 +316,12 @@ public class IndividualTrustedSamlIdpConfiguration
 		this.displayedName = displayedName;
 	}
 
-	public String getLogo()
+	public LocalOrUrlResource getLogo()
 	{
 		return logo;
 	}
 
-	public void setLogo(String logo)
+	public void setLogo(LocalOrUrlResource logo)
 	{
 		this.logo = logo;
 	}

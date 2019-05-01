@@ -27,6 +27,7 @@ import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -62,6 +63,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			"urn:oasis:names:tc:SAML:2.0:nameid-format:transient");
 
 	private PKIManagement pkiMan;
+	private FileStorageService fileStorageService;
+	
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	private RegistrationsManagement registrationMan;
@@ -80,9 +83,11 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	SAMLAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan,
-			IdentityTypesRegistry idTypesReg) throws EngineException
+			IdentityTypesRegistry idTypesReg, FileStorageService fileStorageService
+			) throws EngineException
 	{
 		super(msg);
+		this.fileStorageService = fileStorageService;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
@@ -124,7 +129,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		SAMLConfiguration config = new SAMLConfiguration();
 		if (editMode)
 		{
-			config.fromProperties(pkiMan, msg, toEdit.configuration);
+			config.fromProperties(pkiMan, fileStorageService,  msg, toEdit.configuration);
 		}
 
 		configBinder.setBean(config);
@@ -313,7 +318,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			throw new FormValidationException();
 		try
 		{
-			return configBinder.getBean().toProperties(pkiMan);
+			return configBinder.getBean().toProperties(pkiMan, fileStorageService, getName());
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the SAML verificator", e);
@@ -491,7 +496,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				return;
 			}
 
-			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg,
+			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg, fileStorageService,
 					profileFieldFactory, edited, subViewSwitcher, usedNames, certificates, forms,
 					r -> {
 						onConfirm.accept(r);

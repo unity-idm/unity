@@ -15,6 +15,7 @@ import java.util.Set;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -23,6 +24,7 @@ import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 
 /**
  * Main SAML configuration
+ * 
  * @author P.Piernik
  *
  */
@@ -33,7 +35,7 @@ public class SAMLConfiguration
 	private List<String> acceptedNameFormats;
 	private boolean requireSignedAssertion;
 	private boolean defSignRequest;
-	
+
 	private List<String> defaultRequestedNameFormat;
 	private String registrationForm;
 	private boolean defAccountAssociation;
@@ -55,7 +57,8 @@ public class SAMLConfiguration
 
 	}
 
-	public String toProperties(PKIManagement pkiMan) throws ConfigurationException
+	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, String name)
+			throws ConfigurationException
 	{
 		Properties raw = new Properties();
 		raw.put(SAMLSPProperties.P + SAMLSPProperties.REQUESTER_ID, getRequesterId());
@@ -97,7 +100,7 @@ public class SAMLConfiguration
 
 		if (getIndividualTrustedIdps() != null)
 		{
-			getIndividualTrustedIdps().stream().forEach(f -> f.toProperties(raw));
+			getIndividualTrustedIdps().stream().forEach(f -> f.toProperties(raw, fileService, name));
 		}
 
 		raw.put(SAMLSPProperties.P + SamlProperties.PUBLISH_METADATA, String.valueOf(isPublishMetadata()));
@@ -139,7 +142,8 @@ public class SAMLConfiguration
 
 	}
 
-	public void fromProperties(PKIManagement pkiMan, UnityMessageSource msg, String properties)
+	public void fromProperties(PKIManagement pkiMan, FileStorageService fileStorageService, UnityMessageSource msg,
+			String properties)
 	{
 		Properties raw = new Properties();
 		try
@@ -186,7 +190,7 @@ public class SAMLConfiguration
 				key -> {
 					IndividualTrustedSamlIdpConfiguration idp = new IndividualTrustedSamlIdpConfiguration();
 					key = key.substring(SAMLSPProperties.IDP_PREFIX.length(), key.length() - 1);
-					idp.fromProperties(msg, samlProp, key);
+					idp.fromProperties(msg, fileStorageService, samlProp, key);
 					individualTrustedIdps.add(idp);
 				});
 
