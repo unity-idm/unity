@@ -86,7 +86,7 @@ public class StringAttributeSyntax extends AbstractStringAttributeSyntax
 		if (pattern != null)
 			if (!pattern.matcher(value).matches())
 				throw new IllegalAttributeValueException("Value must match the " +
-						"regualr expression: " + getRegexp());
+						"regular expression: " + getRegexp());
 	}
 
 
