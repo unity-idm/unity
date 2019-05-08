@@ -5,8 +5,10 @@
 
 package pl.edu.icm.unity.saml.sp.web.authnEditor;
 
+import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -46,7 +48,9 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
+import pl.edu.icm.unity.webui.common.file.FileField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
+import xmlbeans.org.oasis.saml2.metadata.EntityDescriptorDocument;
 
 /**
  * SAML Authenticator editor
@@ -64,7 +68,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 
 	private PKIManagement pkiMan;
 	private FileStorageService fileStorageService;
-	
+
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
 	private RegistrationsManagement registrationMan;
@@ -83,8 +87,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	SAMLAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan,
-			IdentityTypesRegistry idTypesReg, FileStorageService fileStorageService
-			) throws EngineException
+			IdentityTypesRegistry idTypesReg, FileStorageService fileStorageService) throws EngineException
 	{
 		super(msg);
 		this.fileStorageService = fileStorageService;
@@ -125,15 +128,15 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		mainView.addComponent(individualTrustedIdPs);
 		mainView.addComponent(metadataPublishing);
 		mainView.addComponent(singleLogout);
-		
+
 		SAMLConfiguration config = new SAMLConfiguration();
 		if (editMode)
 		{
-			config.fromProperties(pkiMan, fileStorageService,  msg, toEdit.configuration);
+			config.fromProperties(pkiMan, fileStorageService, msg, toEdit.configuration);
 		}
 
 		configBinder.setBean(config);
-		
+
 		return mainView;
 	}
 
@@ -160,7 +163,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		header.addComponent(credential);
 
 		ChipsWithFreeText acceptedNameFormats = new ChipsWithFreeText();
-		acceptedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		acceptedNameFormats.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
+				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		acceptedNameFormats.setCaption(msg.getMessage("SAMLAuthenticatorEditor.acceptedNameFormats"));
 		acceptedNameFormats.setItems(STANDART_NAME_FORMATS);
 		header.addComponent(acceptedNameFormats);
@@ -176,7 +180,8 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		header.addComponent(defSignRequest);
 
 		ChipsWithFreeText defaultRequestedNameFormat = new ChipsWithFreeText();
-		defaultRequestedNameFormat.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		defaultRequestedNameFormat.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH,
+				FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		defaultRequestedNameFormat
 				.setCaption(msg.getMessage("SAMLAuthenticatorEditor.defaultRequestedNameFormat"));
 		defaultRequestedNameFormat.setItems(STANDART_NAME_FORMATS);
@@ -249,15 +254,45 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		autoGenerateMetadata.setEnabled(false);
 		metadataPublishing.addComponent(autoGenerateMetadata);
 
+		FileField metadataSource = new FileField(msg, "text/xml", "metadata.xml");
+		metadataSource.setCaption(msg.getMessage("SAMLAuthenticatorEditor.metadataFile"));
+		metadataSource.configureBinding(configBinder, "metadataSource", Optional.of((v, c) -> {
+			if (v != null && v.getLocal() != null)
+			{
+				try
+				{
+					EntityDescriptorDocument.Factory.parse(new ByteArrayInputStream(v.getLocal()));
+				} catch (Exception e)
+				{
+					return ValidationResult.error(
+							msg.getMessage("SAMLAuthenticatorEditor.invalidMetadataFile"));
+				}
+			}
+
+			if (!autoGenerateMetadata.getValue() && (v == null || (v.getLocal() == null
+					&& (v.getRemote() == null || v.getRemote().isEmpty()))))
+			{
+				return ValidationResult.error(msg.getMessage("SAMLAuthenticatorEditor.spMetaEmpty"));
+			}
+
+			return ValidationResult.ok();
+
+		}));
+		metadataSource.setEnabled(false);
+
+		metadataPublishing.addComponent(metadataSource);
+
 		publishMetadata.addValueChangeListener(e -> {
 			boolean v = e.getValue();
 			metadataPath.setEnabled(v);
 			signMetadata.setEnabled(v);
 			autoGenerateMetadata.setEnabled(v);
+			metadataSource.setEnabled(!autoGenerateMetadata.getValue() && v);
 		});
 
-		// TODO Add metadata file upload/add validator for
-		// PUBLISH_METADATA && !isSet(METADATA_PATH
+		autoGenerateMetadata.addValueChangeListener(e -> {
+			metadataSource.setEnabled(!e.getValue() && publishMetadata.getValue());
+		});
 
 		return new CollapsibleLayout(msg.getMessage("SAMLAuthenticatorEditor.metadataPublishing"),
 				metadataPublishing);
@@ -496,9 +531,9 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				return;
 			}
 
-			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg, fileStorageService,
-					profileFieldFactory, edited, subViewSwitcher, usedNames, certificates, forms,
-					r -> {
+			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg,
+					fileStorageService, profileFieldFactory, edited, subViewSwitcher, usedNames,
+					certificates, forms, r -> {
 						onConfirm.accept(r);
 						idpList.focus();
 					}, () -> {

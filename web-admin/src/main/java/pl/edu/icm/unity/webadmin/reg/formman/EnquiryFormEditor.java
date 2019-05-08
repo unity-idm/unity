@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
@@ -61,6 +62,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private GroupsManagement groupsMan;
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
+	private FileStorageService fileStorageService;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequestsAndInvitation;
@@ -86,7 +88,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory)
+			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, authenticationMan);
@@ -95,6 +97,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.groupsMan = groupsMan;
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
+		this.fileStorageService = fileStorageService;
 		actionComponentProvider = actionComponentFactory;
 		this.actionComponentProvider.init();
 	}
@@ -137,7 +140,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		builder.withTranslationProfile(profileEditor.getProfile());
 		EnquiryFormNotifications notCfg = notificationsEditor.getValue();
 		builder.withNotificationsConfiguration(notCfg);
-		FormLayoutSettings settings = layoutSettingsEditor.getSettings();
+		FormLayoutSettings settings = layoutSettingsEditor.getSettings(builder.getName());
 		builder.withFormLayoutSettings(settings);
 		
 		builder.withLayout(layoutEditor.getLayout());
@@ -260,7 +263,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		main.addComponents(displayedName, formInformation, pageTitle);
 		
-		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg);
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, fileStorageService);
 		
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setMargin(true);

@@ -79,6 +79,7 @@ CREATE TABLE FILES(
 		<include refid="defaultColsBlob"/>,
 		OWNER_TYPE VARCHAR(100),
 		OWNER_ID VARCHAR(100),
+		LAST_UPDATE <include refid="dateTimeType"/> NOT NULL,
 		UNIQUE(NAME)
 		<include refid="tableOpts"/>	
 	</update>

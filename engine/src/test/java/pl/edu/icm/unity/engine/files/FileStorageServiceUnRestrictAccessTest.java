@@ -18,7 +18,11 @@ import pl.edu.icm.unity.engine.UnityIntegrationTest;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 
-
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServerFileFree.conf" })
@@ -32,7 +36,7 @@ public class FileStorageServiceUnRestrictAccessTest
 	public void shouldReadFileBeyondRoot()
 	{
 		String uri = "file:/../pom.xml";
-		Throwable exception = catchThrowable(() -> storageService.readURI(URIHelper.parseURI(uri)));
+		Throwable exception = catchThrowable(() -> storageService.readURI(URIHelper.parseURI(uri), null));
 		Assertions.assertThat(exception).isNull();
 	}
 }

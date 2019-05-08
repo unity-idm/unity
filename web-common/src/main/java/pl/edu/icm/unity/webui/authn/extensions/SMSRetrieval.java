@@ -6,7 +6,6 @@
 package pl.edu.icm.unity.webui.authn.extensions;
 
 import java.io.StringReader;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +27,7 @@ import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -39,6 +39,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -55,7 +57,7 @@ import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.sms.SMSCredentialResetController;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
-import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -76,17 +78,19 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public static final String DESC = "WebSMSRetrievalFactory.desc";
 	
 	private UnityMessageSource msg;
+	private FileStorageService fileStorageService;
 	private I18nString name;
 	private String logoURL;
 	private CredentialEditorRegistry credEditorReg;
 	private String configuration;
 	
 	@Autowired
-	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
+	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg, FileStorageService fileStorageService)
 	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
+		this.fileStorageService = fileStorageService;
 	}
 	
 	@Override
@@ -109,7 +113,10 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				name = new I18nString("WebSMSRetrieval.title", msg);
 			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);
 			if (logoURL != null && !logoURL.isEmpty())
-				ImageUtils.getLogoResource(logoURL);
+			{
+				URIHelper.parseURI(logoURL);
+			}	
+	
 		} catch (Exception e)
 		{
 			throw new ConfigurationException("The configuration of the web-" +
@@ -121,7 +128,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
-				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME)));
+				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME), fileStorageService));
 	}
 
 	@Override
@@ -448,10 +455,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	private class SMSRetrievalUI implements VaadinAuthenticationUI
 	{
 		private SMSRetrievalComponent theComponent;
+		private FileStorageService fileStorageService;
 
-		public SMSRetrievalUI(CredentialEditor credEditor)
+		public SMSRetrievalUI(CredentialEditor credEditor, FileStorageService fileStorageService)
 		{
 			this.theComponent = new SMSRetrievalComponent(credEditor);
+			this.fileStorageService = fileStorageService;
 		}
 
 		@Override
@@ -489,8 +498,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			{
 				try
 				{
-					return ImageUtils.getLogoResource(logoURL);
-				} catch (MalformedURLException e)
+					return new FileStreamResource(
+							fileStorageService
+									.readImageURI(URIHelper.parseURI(logoURL),
+											UI.getCurrent().getTheme())
+									.getContents()).getResource();
+				} catch (Exception e)
 				{
 					log.error("Can't load logo", e);
 					return null;

@@ -25,8 +25,10 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -36,6 +38,8 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorInstance;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.I18nString;
@@ -61,8 +65,8 @@ import pl.edu.icm.unity.webui.authn.column.AuthnsGridWidget;
 import pl.edu.icm.unity.webui.authn.column.FirstFactorAuthNPanel;
 import pl.edu.icm.unity.webui.authn.column.SearchComponent;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
@@ -110,13 +114,13 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement aTypeMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, 
+			GroupsManagement groupsMan, FileStorageService fileStorageService,
 			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
 			SignUpAuthNController signUpAuthNController) throws AuthenticationException
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
+				attributeHandlerRegistry, aTypeMan, credMan, groupsMan, fileStorageService);
 		this.form = form;
 		this.regCodeProvided = registrationCode;
 		this.invitation = invitation2;
@@ -236,7 +240,19 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		String logoURL = form.getLayoutSettings().getLogoURL();
 		if (logoURL != null && !logoURL.isEmpty())
 		{
-			Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+			Resource logoResource;
+			try
+			{
+				logoResource = new FileStreamResource(
+						fileStorageService
+								.readImageURI(URIHelper.parseURI(logoURL),
+										UI.getCurrent().getTheme())
+								.getContents()).getResource();
+			} catch (Exception e)
+			{
+				throw new ConfigurationException("Can not load configured image " + logoURL, e);
+			}
+			
 			Image image = new Image(null, logoResource);
 			image.addStyleName("u-signup-logo");
 			main.addComponent(image);

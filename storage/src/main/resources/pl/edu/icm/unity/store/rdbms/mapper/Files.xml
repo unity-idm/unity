@@ -9,20 +9,21 @@
 		<result property="ownerType" column="OWNER_TYPE"/>
 		<result property="ownerId" column="OWNER_ID"/>
 		<result property="contents" column="CONTENTS"/>
+		<result property="lastUpdate" column="LAST_UPDATE"/>
 	</resultMap>
 
 	<insert id="create" parameterType="FileB" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO FILES(NAME, CONTENTS, OWNER_TYPE, OWNER_ID) 
-			VALUES (#{name}, #{contents}, #{ownerType}, #{ownerId})
+		INSERT INTO FILES(NAME, CONTENTS, OWNER_TYPE, OWNER_ID, LAST_UPDATE) 
+			VALUES (#{name}, #{contents}, #{ownerType}, #{ownerId}, #{lastUpdate})
 	</insert>
 
 	<insert id="createWithKey" parameterType="FileB">
-		INSERT INTO FILES(ID, NAME, CONTENTS, OWNER_TYPE, OWNER_ID) 
-			VALUES (#{id}, #{name}, #{contents}, #{ownerType}, #{ownerId})
+		INSERT INTO FILES(ID, NAME, CONTENTS, OWNER_TYPE, OWNER_ID, LAST_UPDATE) 
+			VALUES (#{id}, #{name}, #{contents}, #{ownerType}, #{ownerId}, #{lastUpdate})
 	</insert>
 	
 	<update id="updateByKey" parameterType="FileB">
-		UPDATE FILES SET OWNER_TYPE=#{ownerType}, OWNER_ID=#{ownerId},CONTENTS=#{contents} WHERE ID=#{id}  
+		UPDATE FILES SET OWNER_TYPE=#{ownerType}, OWNER_ID=#{ownerId},CONTENTS=#{contents}, LAST_UPDATE=#{lastUpdate} WHERE ID=#{id}  
 	</update>
 
 	<delete id="deleteByKey" parameterType="long">

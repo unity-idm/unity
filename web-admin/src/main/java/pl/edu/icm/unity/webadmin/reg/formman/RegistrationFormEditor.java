@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
@@ -73,6 +74,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private CredentialRequirementManagement credReqMan;
 	private AuthenticatorSupportService authenticatorSupport;
 	private RealmsManagement realmsManagement;
+	private FileStorageService fileStorageService;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequestsAndInvitation;
@@ -111,7 +113,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 			CredentialRequirementManagement credReqMan,
 			ActionParameterComponentProvider actionComponentFactory,
 			AuthenticatorSupportService authenticatorSupport,
-			RealmsManagement realmsManagement)
+			RealmsManagement realmsManagement, FileStorageService fileStorageService)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, credMan);
@@ -125,6 +127,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.actionComponentFactory.init();
 		this.authenticatorSupport = authenticatorSupport;
 		this.realmsManagement = realmsManagement;
+		this.fileStorageService = fileStorageService;
 	}
 	
 	public RegistrationFormEditor init(boolean copyMode)
@@ -196,7 +199,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 				new ExternalSignupGridSpec(remoteAuthnGridSelections.getSelectedItems(),
 						new AuthnGridSettings(remoteAuthnGridSearchable.getValue(),
 								remoteAuthnGridHeight.getValue())));
-		FormLayoutSettings settings = layoutSettingsEditor.getSettings();
+		FormLayoutSettings settings = layoutSettingsEditor.getSettings(builder.getName());
 		settings.setShowCancel(showCancel.getValue());
 		builder.withFormLayoutSettings(settings);
 		builder.withTitle2ndStage(title2ndStage.getValue());
@@ -328,7 +331,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addComponents(displayedName, title2ndStage, formInformation, pageTitle, 
 				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton);
 
-		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg);
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, fileStorageService);
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setMargin(true);
 		wrapper.setSpacing(false);

@@ -6,6 +6,7 @@
 package pl.edu.icm.unity.base.file;
 
 import java.util.Arrays;
+import java.util.Date;
 
 import com.google.common.base.Objects;
 
@@ -22,15 +23,17 @@ public class FileData implements NamedObject
 	private String ownerType;
 	private String ownerId;
 	private byte[] contents;
-
+	private Date lastUpdate;
+	
 	public FileData()
 	{
 	}
 	
-	public FileData(String name, byte[] contents)
+	public FileData(String name, byte[] contents, Date lastUpdate)
 	{
 		this.name = name;
 		this.contents = contents;
+		this.lastUpdate = lastUpdate;
 	}
 
 	public String getName()
@@ -72,11 +75,26 @@ public class FileData implements NamedObject
 	{
 		this.contents = contents;
 	}
+	
+	public Date getLastUpdate()
+	{
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate)
+	{
+		this.lastUpdate = lastUpdate;
+	}
+	
+	public boolean equalsContent(FileData other)
+	{
+		return Arrays.equals(this.contents, other.contents);
+	}
 
 	@Override
 	public int hashCode()
 	{
-		return Objects.hashCode(name, ownerType, ownerId, contents);
+		return Objects.hashCode(name, ownerType, ownerId, contents, lastUpdate);
 	}
 
 	@Override
@@ -90,6 +108,9 @@ public class FileData implements NamedObject
 
 		return Objects.equal(this.name, other.name) && Objects.equal(this.ownerType, other.ownerType)
 				&& Objects.equal(this.ownerId, other.ownerId)
+				&& Objects.equal(this.lastUpdate, other.lastUpdate)
 				&& Arrays.equals(this.contents, other.contents);
 	}
+
+	
 }

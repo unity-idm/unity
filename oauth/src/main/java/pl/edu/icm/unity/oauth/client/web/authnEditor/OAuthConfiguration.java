@@ -14,6 +14,7 @@ import java.util.Set;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
@@ -35,7 +36,7 @@ public class OAuthConfiguration
 		providers = new ArrayList<>();
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan)
+	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService)
 	{
 		Properties raw = new Properties();
 		try
@@ -57,12 +58,12 @@ public class OAuthConfiguration
 
 			OAuthProviderConfiguration provider = new OAuthProviderConfiguration();
 			CustomProviderProperties providerProps = oauthProp.getProvider(key);
-			provider.fromProperties(msg, providerProps, idpKey);
+			provider.fromProperties(msg, fileStorageService,  providerProps, idpKey);
 			providers.add(provider);
 		}
 	}
 
-	public String toProperties(UnityMessageSource msg, PKIManagement pkiMan) throws ConfigurationException
+	public String toProperties(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, String authName) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 
@@ -71,7 +72,7 @@ public class OAuthConfiguration
 
 		for (OAuthProviderConfiguration provider : providers)
 		{
-			provider.toProperties(raw, msg);
+			provider.toProperties(raw, msg, fileStorageService, authName);
 		}
 
 		OAuthClientProperties prop = new OAuthClientProperties(raw, pkiMan);

@@ -10,22 +10,23 @@ import java.net.URISyntaxException;
 
 import pl.edu.icm.unity.exceptions.IllegalURIException;
 
+/**
+ * URI related methods. 
+ * @author P.Piernik
+ *
+ */
 public class URIHelper
 {
-	private static URI getURI(String rawURI) throws IllegalURIException
+	public static URI parseURI(String rawURI) throws IllegalURIException
 	{
+		URI uri;
 		try
 		{
-			return new URI(rawURI);
+			uri = new URI(rawURI);
 		} catch (URISyntaxException e)
 		{
 			throw new IllegalURIException("Not supported uri schema");
 		}
-	}
-
-	public static URI parseURI(String rawURI) throws IllegalURIException
-	{
-		URI uri = getURI(rawURI);
 		validateURI(uri);
 		return uri;
 	}
@@ -47,12 +48,16 @@ public class URIHelper
 		URI uri;
 		try
 		{
-			uri = new URI(rawURI);
-		} catch (URISyntaxException e)
+			uri = parseURI(rawURI);
+		} catch (IllegalURIException e)
 		{
 			return false;
 		}
-
+		return isWebReady(uri);
+	}
+	
+	public static boolean isWebReady(URI uri)
+	{
 		if (uri != null && uri.getScheme() != null)
 		{
 			String scheme = uri.getScheme();
@@ -63,5 +68,10 @@ public class URIHelper
 		}
 
 		return false;
+	}
+	
+	public static String getPathFromURI(URI uri)
+	{
+		return uri.isOpaque() ? uri.getSchemeSpecificPart() : uri.getPath();
 	}
 }

@@ -13,10 +13,13 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -26,10 +29,15 @@ import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseLocalAuthenticatorEditor;
+import pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties;
 import pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.LogoFileField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
@@ -42,14 +50,16 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
 	private UnityMessageSource msg;
+	private FileStorageService fileStorageService;
 	private Binder<CertConfiguration> configBinder;
 
-	CertificateAuthenticatorEditor(UnityMessageSource msg, Collection<CredentialDefinition> credentialDefinitions)
-			throws EngineException
+	CertificateAuthenticatorEditor(UnityMessageSource msg, FileStorageService fileStorageService,
+			Collection<CredentialDefinition> credentialDefinitions) throws EngineException
 	{
 		super(msg, credentialDefinitions.stream().filter(c -> c.getTypeId().equals(CertificateVerificator.NAME))
 				.map(c -> c.getName()).collect(Collectors.toList()));
 		this.msg = msg;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Override
@@ -72,10 +82,10 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 		main.addComponent(header);
 		main.addComponent(interactiveLoginSettings);
 
-		CertConfiguration config = new CertConfiguration();
+		CertConfiguration config = new CertConfiguration(fileStorageService);
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, msg);
+			config.fromProperties(toEdit.configuration, msg, fileStorageService);
 		}
 		configBinder.setBean(config);
 
@@ -86,21 +96,19 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 	{
 		FormLayoutWithFixedCaptionWidth interactiveLoginSettings = new FormLayoutWithFixedCaptionWidth();
 		interactiveLoginSettings.setMargin(false);
-		
+
 		I18nTextField retrievalName = new I18nTextField(msg);
 		retrievalName.setCaption(msg.getMessage("CertificateAuthenticatorEditor.displayedName"));
 		configBinder.forField(retrievalName).bind("retrievalName");
-		
-		TextField logoURL = new TextField();
-		logoURL.setCaption(msg.getMessage("CertificateAuthenticatorEditor.logoURL"));
-		configBinder.forField(logoURL).bind("logoURL");
-		
-		interactiveLoginSettings.addComponents(retrievalName, logoURL);
+
+		LogoFileField logo = new LogoFileField(msg, fileStorageService);
+		logo.setCaption(msg.getMessage("CertificateAuthenticatorEditor.logo"));
+		logo.configureBinding(configBinder, "logo");
+
+		interactiveLoginSettings.addComponents(retrievalName, logo);
 		CollapsibleLayout wrapper = new CollapsibleLayout(
 				msg.getMessage("BaseAuthenticatorEditor.interactiveLoginSettings"),
 				interactiveLoginSettings);
-		
-		
 
 		return wrapper;
 	}
@@ -120,7 +128,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 
 		try
 		{
-			return configBinder.getBean().toProperties();
+			return configBinder.getBean().toProperties(fileStorageService, getName());
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the certificate verificator", e);
@@ -130,10 +138,20 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 	public static class CertConfiguration
 	{
 		private I18nString retrievalName;
-		private String logoURL;
+		private LocalOrRemoteResource logo;
 
-		public CertConfiguration()
+		public CertConfiguration(FileStorageService fileStorageService)
 		{
+			try
+			{
+				setLogo(new LocalOrRemoteResource(fileStorageService
+						.readImageURI(URIHelper.parseURI(Images.certificate.getPath()),
+								UI.getCurrent().getTheme())
+						.getContents(), Images.certificate.getPath()));
+			} catch (Exception e)
+			{
+				// ok
+			}
 		}
 
 		public I18nString getRetrievalName()
@@ -146,17 +164,17 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 			this.retrievalName = retrievalName;
 		}
 
-		public String getLogoURL()
+		public LocalOrRemoteResource getLogo()
 		{
-			return logoURL;
+			return logo;
 		}
 
-		public void setLogoURL(String logoURL)
+		public void setLogo(LocalOrRemoteResource logo)
 		{
-			this.logoURL = logoURL;
+			this.logo = logo;
 		}
 
-		public String toProperties()
+		public String toProperties(FileStorageService fileStorageService, String authName)
 		{
 			Properties raw = new Properties();
 
@@ -166,16 +184,19 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 						TLSRetrievalProperties.P + TLSRetrievalProperties.NAME + ".");
 			}
 
-			if (getLogoURL() != null && !getLogoURL().isEmpty())
+			if (getLogo() != null)
 			{
-				raw.put(TLSRetrievalProperties.P + TLSRetrievalProperties.LOGO_URL, logoURL);
+				FileFieldUtils.saveInProperties(getLogo(),
+						TLSRetrievalProperties.P + TLSRetrievalProperties.LOGO_URL, raw,
+						fileStorageService, StandardOwner.Authenticator.toString(), authName);
 			}
 
 			TLSRetrievalProperties prop = new TLSRetrievalProperties(raw);
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg)
+		public void fromProperties(String properties, UnityMessageSource msg,
+				FileStorageService fileStorageService)
 		{
 			Properties raw = new Properties();
 			try
@@ -188,8 +209,16 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 
 			TLSRetrievalProperties certRetrievalProperties = new TLSRetrievalProperties(raw);
 			setRetrievalName(certRetrievalProperties.getLocalizedString(msg, TLSRetrievalProperties.NAME));
-			setLogoURL(certRetrievalProperties.getValue(TLSRetrievalProperties.LOGO_URL));
-		}
 
+			if (certRetrievalProperties.isSet(SMSRetrievalProperties.LOGO_URL))
+			{
+				String logoUri = certRetrievalProperties.getValue(TLSRetrievalProperties.LOGO_URL);
+				if (!logoUri.isEmpty())
+				{
+					setLogo(FileFieldUtils.getLogoResourceFromUri(logoUri,
+								fileStorageService));
+				}
+			}
+		}
 	}
 }

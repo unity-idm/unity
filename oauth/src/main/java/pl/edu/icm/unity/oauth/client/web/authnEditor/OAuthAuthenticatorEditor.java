@@ -5,7 +5,6 @@
 
 package pl.edu.icm.unity.oauth.client.web.authnEditor;
 
-import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -21,25 +20,29 @@ import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomField;
 import com.vaadin.ui.Image;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
@@ -50,20 +53,22 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements AuthenticatorEditor
 {
-	PKIManagement pkiMan;
+	private PKIManagement pkiMan;
+	private FileStorageService fileStorageService;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 	private RegistrationsManagement registrationMan;
 	private ProvidersComponent providersComponent;
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
-	OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
+	OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService,
 			InputTranslationProfileFieldFactory profileFieldFactory, RegistrationsManagement registrationMan)
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Override
@@ -97,7 +102,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		OAuthConfiguration config = new OAuthConfiguration();
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, msg, pkiMan);
+			config.fromProperties(toEdit.configuration, msg, pkiMan, fileStorageService);
 		}
 
 		configBinder.setBean(config);
@@ -128,7 +133,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		OAuthConfiguration config = configBinder.getBean();
 		try
 		{
-			return config.toProperties(msg, pkiMan);
+			return config.toProperties(msg, pkiMan, fileStorageService, getName());
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the oauth2 verificator", e);
@@ -164,7 +169,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			main.setComponentAlignment(add, Alignment.MIDDLE_RIGHT);
 
 			providersList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-			providersList.addComponentColumn(p -> getLogo(p.getIconUrl()),
+			providersList.addComponentColumn(p -> getLogo(p.getLogo()),
 					msg.getMessage("ProvidersComponent.logo"), 10);
 			providersList.addColumn(p -> p.getId(), msg.getMessage("ProvidersComponent.id"), 10);
 			providersList.addColumn(p -> p.getName().getValue(msg),
@@ -173,14 +178,20 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			main.addComponent(providersList);
 		}
 
-		private Image getLogo(String logoUrl)
+		private Image getLogo(LocalOrRemoteResource res)
 		{
 			Resource logo;
 			try
 			{
-				logo = logoUrl == null || logoUrl.isEmpty() ? Images.empty.getResource()
-						: ImageUtils.getLogoResource(logoUrl);
-			} catch (MalformedURLException e)
+				logo = res == null ? Images.empty.getResource()
+						: res.getLocal() != null
+								? new FileStreamResource(res.getLocal()).getResource()
+								: new FileStreamResource(fileStorageService
+										.readImageURI(URIHelper.parseURI(
+												res.getRemote()),
+												UI.getCurrent().getTheme())
+										.getContents()).getResource();
+			} catch (Exception e)
 			{
 				logo = Images.error.getResource();
 			}
@@ -230,7 +241,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				return;
 			}
 
-			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, pkiMan, profileFieldFactory,
+			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, pkiMan, fileStorageService, profileFieldFactory,
 					edited, usedIds, subViewSwitcher, forms, validators, r -> {
 						onConfirm.accept(r);
 						fireChange();

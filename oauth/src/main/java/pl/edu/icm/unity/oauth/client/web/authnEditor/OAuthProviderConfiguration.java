@@ -9,17 +9,21 @@ import java.util.Properties;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
-import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
+import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties;
 import pl.edu.icm.unity.oauth.client.config.OAuthClientProperties.Providers;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 
 /**
  * 
@@ -31,7 +35,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	private String type;
 	private String id;
 	private I18nString name;
-	private String iconUrl;
+	private LocalOrRemoteResource logo;
 	private boolean openIdConnect;
 	private String openIdDiscoverEndpoint;
 	private String authenticationEndpoint;
@@ -48,8 +52,8 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		type = Providers.custom.toString();
 	}
 
-	public void fromTemplate(UnityMessageSource msg, CustomProviderProperties source, String idFromTemplate,
-			String orgId)
+	public void fromTemplate(UnityMessageSource msg, FileStorageService fileStorageService,
+			CustomProviderProperties source, String idFromTemplate, String orgId)
 	{
 		String profile = source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
 		if (profile != null && !profile.isEmpty())
@@ -59,10 +63,11 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 					source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE)));
 
 		}
-		fromProperties(msg, source, orgId != null ? orgId : idFromTemplate);
+		fromProperties(msg, fileStorageService,  source, orgId != null ? orgId : idFromTemplate);
 	}
 
-	public void fromProperties(UnityMessageSource msg, CustomProviderProperties source, String id)
+	public void fromProperties(UnityMessageSource msg, FileStorageService fileStorageService,
+			CustomProviderProperties source, String id)
 	{
 		setId(id);
 		setType(source.getValue(CustomProviderProperties.PROVIDER_TYPE));
@@ -70,11 +75,14 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		setAuthenticationEndpoint(source.getValue(CustomProviderProperties.PROVIDER_LOCATION));
 		setAccessTokenEndpoint(source.getValue(CustomProviderProperties.ACCESS_TOKEN_ENDPOINT));
 		setProfileEndpoint(source.getValue(CustomProviderProperties.PROFILE_ENDPOINT));
-		
+
 		if (source.isSet(CustomProviderProperties.ICON_URL))
 		{
-			setIconUrl(source.getLocalizedString(msg, CustomProviderProperties.ICON_URL).getDefaultValue());
-		}	
+			String logoUri = source.getLocalizedString(msg, CustomProviderProperties.ICON_URL)
+					.getDefaultValue();
+			setLogo(FileFieldUtils.getLogoResourceFromUri(logoUri, fileStorageService));
+		}
+
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));
 		setClientSecret(source.getValue(CustomProviderProperties.CLIENT_SECRET));
 		setClientAuthenticationMode(
@@ -113,7 +121,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		setExtraAuthorizationParameters(source.getValue(CustomProviderProperties.ADDITIONAL_AUTHZ_PARAMS));
 	}
 
-	public void toProperties(Properties raw, UnityMessageSource msg)
+	public void toProperties(Properties raw, UnityMessageSource msg, FileStorageService fileStorageService, String authName)
 	{
 		String prefix = OAuthClientProperties.P + OAuthClientProperties.PROVIDERS + id + ".";
 
@@ -136,9 +144,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 			raw.put(prefix + CustomProviderProperties.PROFILE_ENDPOINT, getProfileEndpoint());
 		}
 
-		if (iconUrl != null)
+		if (getLogo() != null)
 		{
-			raw.put(prefix + CustomProviderProperties.ICON_URL, iconUrl);
+			FileFieldUtils.saveInProperties(getLogo(), prefix + CustomProviderProperties.ICON_URL, raw, fileStorageService,
+					StandardOwner.Authenticator.toString(), authName + "." + getId());
 		}
 
 		raw.put(prefix + CustomProviderProperties.CLIENT_ID, getClientId());
@@ -245,16 +254,6 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		this.openIdConnect = openIdConnect;
 	}
 
-	public String getIconUrl()
-	{
-		return iconUrl;
-	}
-
-	public void setIconUrl(String iconUrl)
-	{
-		this.iconUrl = iconUrl;
-	}
-
 	public String getOpenIdDiscoverEndpoint()
 	{
 		return openIdDiscoverEndpoint;
@@ -359,7 +358,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 						: null);
 		clone.setProfileEndpoint(
 				this.getProfileEndpoint() != null ? new String(this.getProfileEndpoint()) : null);
-		clone.setIconUrl(this.getIconUrl() != null ? new String(this.getIconUrl()) : null);
+		clone.setLogo(this.getLogo() != null ? this.getLogo().clone() : null);
 		clone.setClientId(this.getClientId() != null ? new String(this.getClientId()) : null);
 		clone.setClientSecret(this.getClientSecret() != null ? new String(this.getClientSecret()) : null);
 		clone.setClientAuthenticationMode(this.getClientAuthenticationMode() != null
@@ -394,5 +393,15 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 				? new String(this.getExtraAuthorizationParameters())
 				: null);
 		return clone;
+	}
+
+	public LocalOrRemoteResource getLogo()
+	{
+		return logo;
+	}
+
+	public void setLogo(LocalOrRemoteResource logo)
+	{
+		this.logo = logo;
 	}
 }

@@ -16,20 +16,24 @@ import com.vaadin.server.Page;
 import com.vaadin.server.Resource;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationManager;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationRedirectURLBuilder.Status;
 import pl.edu.icm.unity.engine.api.confirmation.EmailConfirmationServletProvider;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.webui.UnityUIBase;
 import pl.edu.icm.unity.webui.UnityWebUI;
-import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 
@@ -47,14 +51,16 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, EmailConfirmationUI.class);
 
 	private EmailConfirmationManager confirmationMan;
+	private FileStorageService fileStorageService;
 	private String defaultRedirect;
 
 	@Autowired
 	public EmailConfirmationUI(UnityMessageSource msg, EmailConfirmationManager confirmationMan,
-			TokensManagement tokensMan, UnityServerConfiguration serverConfig)
+			TokensManagement tokensMan, UnityServerConfiguration serverConfig, FileStorageService fileStorageService)
 	{
 		super(msg);
 		this.confirmationMan = confirmationMan;
+		this.fileStorageService = fileStorageService;
 		this.defaultRedirect = serverConfig.getValue(UnityServerConfiguration.CONFIRMATION_DEFAULT_RETURN_URL);
 	}
 
@@ -77,7 +83,19 @@ public class EmailConfirmationUI extends UnityUIBase implements UnityWebUI
 		
 		Resource logo = null;
 		if (!Strings.isEmpty(status.logoURL))
-			logo = ImageUtils.getConfiguredImageResource(status.logoURL);
+		{
+			try
+			{
+				logo = new FileStreamResource(
+						fileStorageService
+								.readImageURI(URIHelper.parseURI(status.logoURL),
+										UI.getCurrent().getTheme())
+								.getContents()).getResource();
+			} catch (Exception e)
+			{
+				throw new ConfigurationException("Can not load configured image " + status.logoURL, e);
+			}
+		}
 		if (logo == null)
 			logo = status.success ? Images.ok.getResource() : Images.error.getResource();
 		WorkflowCompletedComponent contents = new WorkflowCompletedComponent(status, 

@@ -24,7 +24,13 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.test.utils.ExceptionsUtils;
 
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @UnityIntegrationTest
 @TestPropertySource(properties = { "unityConfig: src/test/resources/unityServerFileRestrict.conf" })
@@ -41,8 +47,8 @@ public class FileStorageServiceRestrictAccessTest
 	public void shouldRestrictAccessToFileBeyondRoot()
 	{
 		String uri = "file:/../pom.xml";
-		Throwable exception = catchThrowable(() -> storageService.readURI(URIHelper.parseURI(uri)));
-		assertExceptionType(exception, EngineException.class);
+		Throwable exception = catchThrowable(() -> storageService.readURI(URIHelper.parseURI(uri), null));
+		ExceptionsUtils.assertExceptionType(exception, EngineException.class);
 	}
 
 	@Test
@@ -51,7 +57,7 @@ public class FileStorageServiceRestrictAccessTest
 		String uri = "file:/../pom.xml";
 		Throwable exception = catchThrowable(
 				() -> storageService.readImageURI(URIHelper.parseURI(uri), "theme1"));
-		assertExceptionType(exception, EngineException.class);
+		ExceptionsUtils.assertExceptionType(exception, EngineException.class);
 	}
 
 	@Test
@@ -70,14 +76,7 @@ public class FileStorageServiceRestrictAccessTest
 			}
 		}
 
-		String uri = "text.txt";
-		Throwable exception = catchThrowable(() -> storageService.readURI(URIHelper.parseURI(uri)));
+		Throwable exception = catchThrowable(() -> storageService.readURI(URIHelper.parseURI(toTest.toString()), null));
 		Assertions.assertThat(exception).isNull();
 	}
-
-	private void assertExceptionType(Throwable exception, Class<?> type)
-	{
-		Assertions.assertThat(exception).isNotNull().isInstanceOf(type);
-	}
-
 }

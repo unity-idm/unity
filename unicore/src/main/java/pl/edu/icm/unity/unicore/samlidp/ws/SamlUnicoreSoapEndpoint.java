@@ -20,6 +20,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -58,12 +59,12 @@ public class SamlUnicoreSoapEndpoint extends SamlSoapEndpoint
 			SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			AuthenticationProcessor authnProcessor,
 			AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService)
+			RemoteMetadataService metadataService, FileStorageService fileStorageService)
 	{
 		super(msg, server, idpEngine, preferencesMan,
 				pkiManagement, executorsService, sessionMan, 
 				logoutProcessorFactory, authnProcessor, 
-				aTypeSupport, metadataService);
+				aTypeSupport, metadataService, fileStorageService);
 		this.servletPath = SERVLET_PATH;
 	}
 

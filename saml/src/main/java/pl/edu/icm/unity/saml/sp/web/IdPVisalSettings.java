@@ -16,13 +16,13 @@ import java.util.Set;
  */
 public class IdPVisalSettings
 {
-	public final String logoUrl;
+	public final String logoURI;
 	public final Set<String> tags;
 	public final String name;
 	
-	public IdPVisalSettings(String logoUrl, Collection<String> tags, String name)
+	public IdPVisalSettings(String logoURI, Collection<String> tags, String name)
 	{
-		this.logoUrl = logoUrl;
+		this.logoURI = logoURI;
 		this.tags = Collections.unmodifiableSet(new HashSet<>(tags));
 		this.name = name;
 	}

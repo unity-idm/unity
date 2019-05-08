@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointFactory;
 import pl.edu.icm.unity.engine.api.endpoint.EndpointInstance;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.idp.IdPEngine;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
@@ -72,6 +73,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 	private SAMLLogoutProcessorFactory logoutProcessorFactory;
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
+	private FileStorageService fileStorageService;
 	
 	@Autowired
 	public SamlSoapEndpoint(UnityMessageSource msg, NetworkServer server,
@@ -81,7 +83,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 			SAMLLogoutProcessorFactory logoutProcessorFactory, 
 			AuthenticationProcessor authnProcessor,
 			AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService)
+			RemoteMetadataService metadataService, FileStorageService fileStorageService)
 	{
 		super(msg, sessionMan, authnProcessor, server, SERVLET_PATH);
 		this.idpEngine = idpEngine;
@@ -91,6 +93,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		this.logoutProcessorFactory = logoutProcessorFactory;
 		this.aTypeSupport = aTypeSupport;
 		this.metadataService = metadataService;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Override
@@ -181,7 +184,7 @@ public class SamlSoapEndpoint extends CXFEndpoint
 		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloSoap};
 		
-		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, 
+		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, fileStorageService, 
 				executorsService, ssoEndpoints, attributeQueryEndpoints, sloEndpoints);
 		return new MetadataServlet(provider);
 	}

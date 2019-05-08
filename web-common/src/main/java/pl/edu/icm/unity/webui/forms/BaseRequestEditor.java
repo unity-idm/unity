@@ -30,6 +30,7 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -38,6 +39,8 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -73,8 +76,8 @@ import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ReadOnlyField;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -105,6 +108,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected UnityMessageSource msg;
+	protected FileStorageService fileStorageService;
 	private BaseForm form;
 	protected RemotelyAuthenticatedContext remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
@@ -147,7 +151,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan) throws AuthenticationException
+			GroupsManagement groupsMan, FileStorageService fileStorageService) throws AuthenticationException
 	{
 		this.msg = msg;
 		this.form = form;
@@ -158,6 +162,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.aTypeMan = atMan;
 		this.credMan = credMan;
 		this.groupsMan = groupsMan;
+		this.fileStorageService = fileStorageService;
 		
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
@@ -441,15 +446,20 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		String logoURL = form.getLayoutSettings().getLogoURL();
 		if (logoURL != null && !logoURL.isEmpty())
 		{
-			Resource logoResource;
+			Resource logoResource;	
 			try
 			{
-				logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+				logoResource = new FileStreamResource(
+						fileStorageService
+								.readImageURI(URIHelper.parseURI(logoURL),
+										UI.getCurrent().getTheme())
+								.getContents()).getResource();
 			} catch (Exception e)
 			{
-				log.warn("Can't add logo", e);
+				log.error("Can't add logo", e);
 				return;
 			}
+			
 			Image image = new Image(null, logoResource);
 			image.addStyleName("u-signup-logo");
 			main.addComponent(image);

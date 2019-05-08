@@ -6,12 +6,7 @@ package pl.edu.icm.unity.webadmin.reg.formman;
 
 import java.util.stream.Stream;
 
-import org.springframework.util.StringUtils;
-
 import com.vaadin.data.Binder;
-import com.vaadin.data.Converter;
-import com.vaadin.data.Result;
-import com.vaadin.data.ValueContext;
 import com.vaadin.data.converter.StringToFloatConverter;
 import com.vaadin.data.validator.FloatRangeValidator;
 import com.vaadin.ui.CheckBox;
@@ -20,10 +15,14 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.LogoFileField;
 
 /**
  * General registration layouts settings editor.
@@ -33,17 +32,14 @@ import pl.edu.icm.unity.webui.common.NotNullComboBox;
 public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 {
 	private UnityMessageSource msg;
-	private CheckBox compactInputs;
-	private TextField logo;
-	private TextField columnWidth;
-	private ComboBox<String> columnWidthUnit;
+	private FileStorageService fileStorageService;
+
+	private Binder<FormLayoutSettingsWithLogo> binder;
 	
-	private Binder<FormLayoutSettings> binder;
-	
-	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg)
+	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg, FileStorageService fileStorageService)
 	{
 		this.msg = msg;
-
+		this.fileStorageService = fileStorageService;	
 		initUI();
 	}
 
@@ -51,23 +47,22 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 	{
 		FormLayout main = new FormLayout();
 		main.setSpacing(true);
-		compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
-		logo = new TextField(msg.getMessage("FormLayoutEditor.logo"));
+		CheckBox compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
+		
+		LogoFileField logo = new LogoFileField(msg, fileStorageService);
+		logo.setCaption(msg.getMessage("FormLayoutEditor.logo"));
 		logo.setDescription(msg.getMessage("FormLayoutEditor.logoDesc"));
-		logo.setWidth(100, Unit.PERCENTAGE);
-		columnWidth = new TextField(msg.getMessage("FormLayoutEditor.columnWidth"));
-		columnWidthUnit = new NotNullComboBox<>(msg.getMessage("FormLayoutEditor.columnWidthUnit"));
+	
+		TextField columnWidth = new TextField(msg.getMessage("FormLayoutEditor.columnWidth"));
+		ComboBox<String> columnWidthUnit = new NotNullComboBox<>(msg.getMessage("FormLayoutEditor.columnWidthUnit"));
 		columnWidthUnit.setItems(Stream.of(Unit.values()).map(Unit::toString));
 		
 		main.addComponents(logo, columnWidth, columnWidthUnit, compactInputs);
 		setCompositionRoot(main);
 		
-		binder = new Binder<>(FormLayoutSettings.class);
+		binder = new Binder<>(FormLayoutSettingsWithLogo.class);
 		binder.forField(compactInputs).bind("compactInputs");
-		binder.forField(logo)
-			.withConverter(emptyToNull())
-			.withNullRepresentation("")
-			.bind("logoURL");
+		logo.configureBinding(binder, "logo");
 		binder.forField(columnWidth)
 			.asRequired(msg.getMessage("fieldRequired"))
 			.withConverter(new StringToFloatConverter(msg.getMessage("FormLayoutEditor.columnWidth.mustBeFloat")))
@@ -76,36 +71,63 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 		binder.forField(columnWidthUnit)
 			.asRequired(msg.getMessage("fieldRequired"))
 			.bind("columnWidthUnit");
-		binder.setBean(FormLayoutSettings.DEFAULT);
+		binder.setBean(new FormLayoutSettingsWithLogo(FormLayoutSettings.DEFAULT, fileStorageService));
 	}
 
-	public FormLayoutSettings getSettings() throws FormValidationException
+	public FormLayoutSettings getSettings(String formName) throws FormValidationException
 	{
-		return binder.getBean();
+		return binder.getBean().toFormLayoutSettings(fileStorageService, formName);
 	}
 
 	public void setSettings(FormLayoutSettings settings)
 	{
-		binder.setBean(settings);
+		binder.setBean(new FormLayoutSettingsWithLogo(settings, fileStorageService));
 	}
-
-	private Converter<String, String> emptyToNull()
+	
+	public static class FormLayoutSettingsWithLogo extends FormLayoutSettings
 	{
-		return new Converter<String, String>()
+		private LocalOrRemoteResource logo;
+
+		public FormLayoutSettingsWithLogo()
 		{
-			@Override
-			public String convertToPresentation(String value, ValueContext context)
+
+		}
+
+		public FormLayoutSettingsWithLogo(FormLayoutSettings org, FileStorageService fileStorageService)
+		{
+			this.setColumnWidth(org.getColumnWidth());
+			this.setColumnWidthUnit(org.getColumnWidthUnit());
+			this.setShowCancel(org.isShowCancel());
+			this.setCompactInputs(org.isCompactInputs());
+			if (org.getLogoURL() != null)
 			{
-				return value;
+				this.setLogo(FileFieldUtils.getLogoResourceFromUri(org.getLogoURL(),
+						fileStorageService));
 			}
+		}
+		
+		
+		public FormLayoutSettings toFormLayoutSettings(FileStorageService fileStorageService, String formName)
+		{
+			FormLayoutSettings settings = new FormLayoutSettings();
+			settings.setColumnWidth(this.getColumnWidth());
+			settings.setColumnWidthUnit(this.getColumnWidthUnit());
+			settings.setShowCancel(this.isShowCancel());
+			settings.setCompactInputs(this.isCompactInputs());
+			settings.setLogoURL(FileFieldUtils.saveFile(getLogo(), fileStorageService, FileStorageService.StandardOwner.Form.toString(), formName));
 			
-			@Override
-			public Result<String> convertToModel(String value, ValueContext context)
-			{
-				if (StringUtils.isEmpty(value))
-					return Result.ok(null);
-				return Result.ok(value);
-			}
-		};
+			return settings;
+		}
+
+		public LocalOrRemoteResource getLogo()
+		{
+			return logo;
+		}
+
+		public void setLogo(LocalOrRemoteResource logo)
+		{
+			this.logo = logo;
+		}	
 	}
+	
 }

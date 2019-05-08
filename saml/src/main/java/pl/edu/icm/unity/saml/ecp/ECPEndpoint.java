@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.endpoint.AbstractWebEndpoint;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.endpoint.WebAppEndpointInstance;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
@@ -68,6 +69,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 	private UnityMessageSource msg;
 	private RemoteAuthnResultProcessor remoteAuthnProcessor;
 	private RemoteMetadataService metadataService;
+	private FileStorageService fileStorageService;
 	
 	@Autowired
 	public ECPEndpoint(NetworkServer server, 
@@ -78,7 +80,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 			EntityManagement identitiesMan, SessionManagement sessionMan,
 			ExecutorsService executorsService, 
 			UnityMessageSource msg, SharedEndpointManagement sharedEndpointManagement,
-			RemoteMetadataService metadataService)
+			RemoteMetadataService metadataService, FileStorageService fileStorageService)
 	{
 		super(server);
 		this.pkiManagement = pkiManagement;
@@ -94,6 +96,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 		this.msg = msg;
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
 		this.responseConsumerAddress = baseAddress + baseContext + SAMLResponseConsumerServlet.PATH;
+		this.fileStorageService = fileStorageService;
 	}
 
 	public void init(Map<String, RemoteMetaManager> remoteMetadataManagers, 
@@ -147,7 +150,7 @@ public class ECPEndpoint extends AbstractWebEndpoint implements WebAppEndpointIn
 		consumerEndpoint.setIsDefault(true);
 
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint};
-		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, 
+		MetadataProvider provider = MetadataProviderFactory.newSPInstance(samlProperties, fileStorageService,
 				executorsService, assertionConsumerEndpoints, null);
 		metadataServlet.addProvider("/" + metaPath, provider);
 	}

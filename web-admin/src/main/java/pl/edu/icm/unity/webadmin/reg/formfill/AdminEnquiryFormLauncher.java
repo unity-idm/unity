@@ -17,6 +17,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -66,6 +67,7 @@ public class AdminEnquiryFormLauncher
 	
 	private EventsBus bus;
 	private IdPLoginController idpLoginController;
+	private FileStorageService fileStorageService;
 	
 	@Autowired
 	public AdminEnquiryFormLauncher(UnityMessageSource msg,
@@ -75,7 +77,7 @@ public class AdminEnquiryFormLauncher
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement attrsMan, CredentialManagement authnMan,
 			GroupsManagement groupsMan, IdPLoginController idpLoginController,
-			EnquiryResponseEditorController responseController)
+			EnquiryResponseEditorController responseController, FileStorageService fileStorageService)
 	{
 		super();
 		this.msg = msg;
@@ -88,6 +90,7 @@ public class AdminEnquiryFormLauncher
 		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
 		this.responseController = responseController;
+		this.fileStorageService = fileStorageService;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -172,7 +175,7 @@ public class AdminEnquiryFormLauncher
 		{
 			editor = new EnquiryResponseEditor(msg, form, remoteContext, identityEditorRegistry,
 					credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan,
-					groupsMan, responseController.getPrefilledForSticky(form));
+					groupsMan, fileStorageService, responseController.getPrefilledForSticky(form));
 		} catch (Exception e)
 		{
 			errorHandler.onError(e);

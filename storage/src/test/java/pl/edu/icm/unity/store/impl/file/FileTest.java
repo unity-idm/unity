@@ -5,12 +5,14 @@
 
 package pl.edu.icm.unity.store.impl.file;
 
+import java.util.Date;
+
 import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.store.api.FileDAO;
-import pl.edu.icm.unity.store.api.NamedCRUDDAO;
+import pl.edu.icm.unity.store.api.generic.NamedCRUDDAOWithTS;
 import pl.edu.icm.unity.store.impl.AbstractNamedDAOTest;
 
 public class FileTest extends AbstractNamedDAOTest<FileData>
@@ -25,7 +27,7 @@ public class FileTest extends AbstractNamedDAOTest<FileData>
 	}
 
 	@Override
-	protected NamedCRUDDAO<FileData> getDAO()
+	protected NamedCRUDDAOWithTS<FileData> getDAO()
 	{
 		return dao;
 	}
@@ -34,7 +36,7 @@ public class FileTest extends AbstractNamedDAOTest<FileData>
 	protected FileData getObject(String id)
 	{
 
-		FileData fileData = new FileData(id, "demo".getBytes());
+		FileData fileData = new FileData(id, "demo".getBytes(), new Date());
 		fileData.setOwnerId("o1");
 		fileData.setOwnerType("oType");
 		return fileData;
@@ -46,6 +48,7 @@ public class FileTest extends AbstractNamedDAOTest<FileData>
 		src.setContents("demo2".getBytes());
 		src.setOwnerId("o2");
 		src.setOwnerType("oType");
+		src.setLastUpdate(new Date());
 		return src;
 	}
 

@@ -14,6 +14,7 @@ import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
@@ -37,6 +38,7 @@ import pl.edu.icm.unity.webui.forms.RegCodeException.ErrorCause;
 public class RequestEditorCreator
 {
 	private UnityMessageSource msg;
+	private FileStorageService fileStorageService;
 	private RegistrationForm form;
 	private RemotelyAuthenticatedContext remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
@@ -51,7 +53,7 @@ public class RequestEditorCreator
 	private FormsInvitationHelper invitationHelper;
 
 	@Autowired
-	public RequestEditorCreator(UnityMessageSource msg, 
+	public RequestEditorCreator(UnityMessageSource msg, FileStorageService fileStorageService,
 			IdentityEditorRegistry identityEditorRegistry,
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
@@ -70,6 +72,7 @@ public class RequestEditorCreator
 		this.credMan = credMan;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.authnSupport = authnSupport;
+		this.fileStorageService = fileStorageService;
 	}
 	
 
@@ -188,7 +191,7 @@ public class RequestEditorCreator
 		return new RegistrationRequestEditor(msg, form, 
 				remotelyAuthenticated, identityEditorRegistry, 
 				credentialEditorRegistry, attributeHandlerRegistry, 
-				aTypeMan, credMan, groupsMan, 
+				aTypeMan, credMan, groupsMan, fileStorageService,
 				registrationCode, invitation, authnSupport, signUpAuthNController);
 	}
 	

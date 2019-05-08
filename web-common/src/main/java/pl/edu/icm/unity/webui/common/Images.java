@@ -114,20 +114,32 @@ public enum Images
 	bullet	        (VaadinIcons.CIRCLE);
 	
 	private final Resource resource;
+	private final String path;
 	
 	private Images(String classpath)
 	{
 		this.resource = new ThemeResource(classpath);
+		this.path = classpath;
 	}
 	
 	private Images(Resource resource)
 	{
 		this.resource = resource;
+		this.path = null;
 	}
 	
 	public Resource getResource()
 	{
 		return resource;
+	}
+	
+	public String getPath()
+	{
+		if (!(resource instanceof FontIcon))
+		{
+			return path;
+		}
+		throw new IllegalArgumentException("Icon is not classpath icon and do not supprot getPath()");
 	}
 	
 	public String getHtml()

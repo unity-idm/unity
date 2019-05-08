@@ -15,8 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
@@ -37,14 +36,10 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	private Map<String, String> consumers2URL = new HashMap<>();	
 	
 	@Autowired
-	public RemoteMetadataServiceImpl(ExecutorsService executorsService, PKIManagement pkiManagement,
-			UnityServerConfiguration config)
+	public RemoteMetadataServiceImpl(FileStorageService fileStorageService, ExecutorsService executorsService)
 	{
 		this.executorsService = executorsService;
-		NetworkClient client = new NetworkClient(pkiManagement);
-		String workspaceDirectory = config.getValue(
-				UnityServerConfiguration.WORKSPACE_DIRECTORY);
-		this.downloader = new MetadataDownloader(workspaceDirectory, client);
+		this.downloader = new MetadataDownloader(fileStorageService);
 	}
 
 	RemoteMetadataServiceImpl(ExecutorsService executorsService, MetadataDownloader downloader)

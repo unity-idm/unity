@@ -6,6 +6,8 @@
 
 package pl.edu.icm.unity.store.impl.files;
 
+import java.util.Date;
+
 import pl.edu.icm.unity.store.rdbms.BaseBean;
 
 /**
@@ -17,6 +19,7 @@ public class FileBean  extends BaseBean
 {
 	private String ownerType;
 	private String ownerId;
+	private Date lastUpdate;
 	
 	public FileBean()
 	{
@@ -51,5 +54,13 @@ public class FileBean  extends BaseBean
 	public void setOwnerId(String ownerId)
 	{
 		this.ownerId = ownerId;
+	}
+	public Date getLastUpdate()
+	{
+		return lastUpdate;
+	}
+	public void setLastUpdate(Date lastUpdate)
+	{
+		this.lastUpdate = lastUpdate;
 	}
 }

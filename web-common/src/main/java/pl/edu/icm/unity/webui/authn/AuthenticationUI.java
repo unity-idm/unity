@@ -29,12 +29,16 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.UI;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.translation.in.InputTranslationEngine;
@@ -51,7 +55,7 @@ import pl.edu.icm.unity.webui.authn.column.ColumnInstantAuthenticationScreen;
 import pl.edu.icm.unity.webui.authn.outdated.CredentialChangeConfiguration;
 import pl.edu.icm.unity.webui.authn.outdated.OutdatedCredentialController;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
-import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.forms.reg.InsecureRegistrationFormLauncher;
 import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
@@ -69,6 +73,7 @@ import pl.edu.icm.unity.webui.forms.reg.StandaloneRegistrationView;
 public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 {
 	private static final Logger LOG = Log.getLogger(Log.U_SERVER_WEB, AuthenticationUI.class);
+	private FileStorageService fileStorageService;
 	private LocaleChoiceComponent localeChoice;
 	private StandardWebAuthenticationProcessor authnProcessor;
 	private RegistrationFormsLayoutController registrationFormController;
@@ -83,7 +88,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 	private boolean resetScheduled;
 	
 	@Autowired
-	public AuthenticationUI(UnityMessageSource msg, LocaleChoiceComponent localeChoice,
+	public AuthenticationUI(UnityMessageSource msg, FileStorageService fileStorageService, LocaleChoiceComponent localeChoice,
 			StandardWebAuthenticationProcessor authnProcessor,
 			RegistrationFormsLayoutController registrationFormController,
 			InsecureRegistrationFormLauncher formLauncher,
@@ -100,6 +105,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 		this.idsMan = idsMan;
 		this.inputTranslationEngine = inputTranslationEngine;
 		this.outdatedCredentialDialogFactory = outdatedCredentialDialogFactory;
+		this.fileStorageService = fileStorageService;
 	}
 
 
@@ -121,7 +127,7 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 				result -> new UnknownUserDialog(msg, result, 
 				formLauncher, sandboxRouter, inputTranslationEngine, 
 				getSandboxServletURLForAssociation());
-		authenticationUI = new ColumnInstantAuthenticationScreen(msg, config, endpointDescription,
+		authenticationUI = new ColumnInstantAuthenticationScreen(msg, fileStorageService, config, endpointDescription,
 				this::showOutdatedCredentialDialog, 
 				new CredentialResetLauncherImpl(),
 				this::showRegistration, 
@@ -289,7 +295,18 @@ public class AuthenticationUI extends UnityUIBase implements UnityWebUI
 			
 			if (!logoURL.isEmpty())
 			{
-				Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+				Resource logoResource;
+				try
+				{
+					logoResource = new FileStreamResource(
+							fileStorageService
+									.readImageURI(URIHelper.parseURI(logoURL),
+											UI.getCurrent().getTheme())
+									.getContents()).getResource();
+				} catch (Exception e)
+				{
+					throw new ConfigurationException("Can not load configured image " + logoURL, e);
+				}
 				return Optional.of(logoResource);
 			} else
 			{

@@ -15,10 +15,14 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
-import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
 
@@ -29,10 +33,25 @@ import pl.edu.icm.unity.webui.common.safehtml.HtmlConfigurableLabel;
  */
 public class WorkflowCompletedComponent extends CustomComponent
 {
-	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Consumer<String> redirector)
+	public WorkflowCompletedComponent(WorkflowFinalizationConfiguration config, Consumer<String> redirector,
+			FileStorageService fileStorageService)
 	{
-		Resource logoResource = Strings.isEmpty(config.logoURL) ? 
-				null : ImageUtils.getConfiguredImageResource(config.logoURL);
+		Resource logoResource = null;
+		if (!Strings.isEmpty(config.logoURL))
+		{
+			try
+			{
+				logoResource = new FileStreamResource(
+						fileStorageService
+								.readImageURI(URIHelper.parseURI(config.logoURL),
+										UI.getCurrent().getTheme())
+								.getContents()).getResource();
+			} catch (Exception e)
+			{
+				throw new ConfigurationException("Can not load configured image " + config.logoURL, e);
+			}
+		}
+
 		createUI(config, logoResource, redirector);
 	}
 	

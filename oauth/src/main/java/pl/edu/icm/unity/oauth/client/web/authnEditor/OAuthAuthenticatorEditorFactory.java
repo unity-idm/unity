@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.client.OAuth2Verificator;
@@ -30,15 +31,17 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 	private RegistrationsManagement registrationMan;
 	private PKIManagement pkiMan;
+	private FileStorageService fileStorageService;
 
 	@Autowired
 	OAuthAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
-			PKIManagement pkiMan, InputTranslationProfileFieldFactory profileFieldFactory)
+			PKIManagement pkiMan, InputTranslationProfileFieldFactory profileFieldFactory, FileStorageService fileStorageService)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Override
@@ -50,6 +53,6 @@ class OAuthAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new OAuthAuthenticatorEditor(msg, pkiMan, profileFieldFactory, registrationMan);
+		return new OAuthAuthenticatorEditor(msg, pkiMan, fileStorageService, profileFieldFactory, registrationMan);
 	}
 }

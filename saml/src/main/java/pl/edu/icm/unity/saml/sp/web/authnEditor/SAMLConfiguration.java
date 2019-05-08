@@ -7,20 +7,27 @@ package pl.edu.icm.unity.saml.sp.web.authnEditor;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
 import eu.unicore.util.configuration.ConfigurationException;
+import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.sp.SAMLSPProperties;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
+import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
+import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
 
 /**
  * Main SAML configuration
@@ -47,14 +54,16 @@ public class SAMLConfiguration
 	private String metadataPath;
 	private boolean signMetadata;
 	private boolean autoGenerateMetadata;
+	private LocalOrRemoteResource metadataSource;
 
+	
 	private String sloPath;
 	private String sloRealm;
 	private List<SloMapping> sloMappings;
 
 	public SAMLConfiguration()
 	{
-
+		setPublishMetadata(true);
 	}
 
 	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, String name)
@@ -109,8 +118,15 @@ public class SAMLConfiguration
 			raw.put(SAMLSPProperties.P + SAMLSPProperties.METADATA_PATH, getMetadataPath());
 		}
 
-		raw.put(SAMLSPProperties.P + SamlProperties.SIGN_METADATA, String.valueOf(isSignMetadata()));
+		raw.put(SAMLSPProperties.P + SAMLSPProperties.SIGN_METADATA, String.valueOf(isSignMetadata()));
 
+		
+		if (getMetadataSource() != null && !isAutoGenerateMetadata())
+		{
+			FileFieldUtils.saveInProperties(getMetadataSource(), SAMLSPProperties.P + SamlProperties.METADATA_SOURCE, raw, fileService,
+					StandardOwner.Authenticator.toString(), name);
+		}
+		
 		if (getSloPath() != null)
 		{
 			raw.put(SAMLSPProperties.P + SAMLSPProperties.SLO_PATH, getSloPath());
@@ -154,23 +170,23 @@ public class SAMLConfiguration
 			throw new InternalException("Invalid configuration of the SAML verificator", e);
 		}
 
-		SAMLSPProperties samlProp = new SAMLSPProperties(raw, pkiMan);
-
-		setRequesterId(samlProp.getValue(SAMLSPProperties.REQUESTER_ID));
-		setCredential(samlProp.getValue(SAMLSPProperties.CREDENTIAL));
-		setAcceptedNameFormats(samlProp.getListOfValues(SAMLSPProperties.ACCEPTED_NAME_FORMATS));
-		setRequireSignedAssertion(samlProp.getBooleanValue(SAMLSPProperties.REQUIRE_SIGNED_ASSERTION));
-		setDefSignRequest(samlProp.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST));
-		String defNameFormat = samlProp.getValue(SAMLSPProperties.DEF_REQUESTED_NAME_FORMAT);
+		SAMLSPProperties samlSpProp = new SAMLSPProperties(raw, pkiMan);
+		
+		setRequesterId(samlSpProp.getValue(SAMLSPProperties.REQUESTER_ID));
+		setCredential(samlSpProp.getValue(SAMLSPProperties.CREDENTIAL));
+		setAcceptedNameFormats(samlSpProp.getListOfValues(SAMLSPProperties.ACCEPTED_NAME_FORMATS));
+		setRequireSignedAssertion(samlSpProp.getBooleanValue(SAMLSPProperties.REQUIRE_SIGNED_ASSERTION));
+		setDefSignRequest(samlSpProp.getBooleanValue(SAMLSPProperties.DEF_SIGN_REQUEST));
+		String defNameFormat = samlSpProp.getValue(SAMLSPProperties.DEF_REQUESTED_NAME_FORMAT);
 		setDefaultRequestedNameFormat(defNameFormat != null ? Arrays.asList(defNameFormat) : null);
-		setRegistrationForm(samlProp.getValue(CommonWebAuthnProperties.REGISTRATION_FORM));
-		if (samlProp.isSet(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION))
+		setRegistrationForm(samlSpProp.getValue(CommonWebAuthnProperties.REGISTRATION_FORM));
+		if (samlSpProp.isSet(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION))
 		{
 			setDefAccountAssociation(
-					samlProp.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION));
+					samlSpProp.getBooleanValue(CommonWebAuthnProperties.DEF_ENABLE_ASSOCIATION));
 		}
 
-		Set<String> fedKeys = samlProp.getStructuredListKeys(SAMLSPProperties.IDPMETA_PREFIX);
+		Set<String> fedKeys = samlSpProp.getStructuredListKeys(SAMLSPProperties.IDPMETA_PREFIX);
 
 		trustedFederations = new ArrayList<>();
 		fedKeys.forEach(
@@ -178,11 +194,11 @@ public class SAMLConfiguration
 				key -> {
 					TrustedFederationConfiguration fed = new TrustedFederationConfiguration();
 					key = key.substring(SAMLSPProperties.IDPMETA_PREFIX.length(), key.length() - 1);
-					fed.fromProperties(samlProp, key);
+					fed.fromProperties(samlSpProp, key);
 					trustedFederations.add(fed);
 				});
 
-		Set<String> idpKeys = samlProp.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
+		Set<String> idpKeys = samlSpProp.getStructuredListKeys(SAMLSPProperties.IDP_PREFIX);
 
 		individualTrustedIdps = new ArrayList<>();
 		idpKeys.forEach(
@@ -190,44 +206,70 @@ public class SAMLConfiguration
 				key -> {
 					IndividualTrustedSamlIdpConfiguration idp = new IndividualTrustedSamlIdpConfiguration();
 					key = key.substring(SAMLSPProperties.IDP_PREFIX.length(), key.length() - 1);
-					idp.fromProperties(msg, fileStorageService, samlProp, key);
+					idp.fromProperties(msg, fileStorageService, samlSpProp, key);
 					individualTrustedIdps.add(idp);
 				});
 
-		if (samlProp.isSet(SamlProperties.PUBLISH_METADATA))
+		if (samlSpProp.isSet(SamlProperties.PUBLISH_METADATA))
 		{
-			setPublishMetadata(samlProp.getBooleanValue(SamlProperties.PUBLISH_METADATA));
+			setPublishMetadata(samlSpProp.getBooleanValue(SamlProperties.PUBLISH_METADATA));
 		}
 
-		setMetadataPath(samlProp.getValue(SAMLSPProperties.METADATA_PATH));
+		setMetadataPath(samlSpProp.getValue(SAMLSPProperties.METADATA_PATH));
 
-		if (samlProp.isSet(SamlProperties.SIGN_METADATA))
+		if (samlSpProp.isSet(SamlProperties.SIGN_METADATA))
 		{
-			setSignMetadata(samlProp.getBooleanValue(SamlProperties.SIGN_METADATA));
+			setSignMetadata(samlSpProp.getBooleanValue(SamlProperties.SIGN_METADATA));
 		}
-		// TODO FILE
+		
+		if (samlSpProp.isSet(SamlProperties.METADATA_SOURCE))
+		{
+			setAutoGenerateMetadata(false);
+			
+			String metaUri = samlSpProp.getValue(SamlProperties.METADATA_SOURCE);
+	
+			try
+			{
+				URI uri = URIHelper.parseURI(metaUri);
+				if (URIHelper.isWebReady(uri))
+				{
+					setMetadataSource(new LocalOrRemoteResource(uri.toString()));
+				} else
+				{
+					FileData fileData = fileStorageService.readURI(uri, Optional.empty());
+					setMetadataSource(new LocalOrRemoteResource(fileData.getContents(), uri.toString()));
+				}
+				
+				
+			} catch (Exception e)
+			{
+				//ok
+			}
+		}else {
+			setAutoGenerateMetadata(true);
+		}
+		
+		setSloPath(samlSpProp.getValue(SAMLSPProperties.SLO_PATH));
+		setSloRealm(samlSpProp.getValue(SAMLSPProperties.SLO_REALM));
 
-		setSloPath(samlProp.getValue(SAMLSPProperties.SLO_PATH));
-		setSloRealm(samlProp.getValue(SAMLSPProperties.SLO_REALM));
-
-		Set<String> sloMappingsKeys = samlProp.getStructuredListKeys(SAMLSPProperties.IDENTITY_MAPPING_PFX);
+		Set<String> sloMappingsKeys = samlSpProp.getStructuredListKeys(SAMLSPProperties.IDENTITY_MAPPING_PFX);
 
 		sloMappings = new ArrayList<>();
 		sloMappingsKeys.forEach(
 
 				key -> {
 					SloMapping m = new SloMapping();
-					if (samlProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL) != null
-							&& !samlProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL)
+					if (samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL) != null
+							&& !samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL)
 									.isEmpty())
 					{
-						m.setUnityId(samlProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL));
+						m.setUnityId(samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_LOCAL));
 					}
 
-					if (samlProp.getValue(key + SAMLSPProperties.IDENTITY_SAML) != null && !samlProp
+					if (samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_SAML) != null && !samlSpProp
 							.getValue(key + SAMLSPProperties.IDENTITY_SAML).isEmpty())
 					{
-						m.setSamlId(samlProp.getValue(key + SAMLSPProperties.IDENTITY_SAML));
+						m.setSamlId(samlSpProp.getValue(key + SAMLSPProperties.IDENTITY_SAML));
 					}
 					sloMappings.add(m);
 				});
@@ -401,6 +443,16 @@ public class SAMLConfiguration
 	public void setAutoGenerateMetadata(boolean autoGenerateMetadata)
 	{
 		this.autoGenerateMetadata = autoGenerateMetadata;
+	}
+
+	public LocalOrRemoteResource getMetadataSource()
+	{
+		return metadataSource;
+	}
+
+	public void setMetadataSource(LocalOrRemoteResource metadataSource)
+	{
+		this.metadataSource = metadataSource;
 	}
 
 	public static class SloMapping

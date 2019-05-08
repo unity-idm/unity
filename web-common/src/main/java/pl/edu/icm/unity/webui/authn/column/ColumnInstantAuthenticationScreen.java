@@ -26,14 +26,18 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
+import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.PartialAuthnState;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.types.authn.AuthenticationOptionKeyUtils;
@@ -51,7 +55,7 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.authn.WebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.authn.remote.UnknownUserDialog;
-import pl.edu.icm.unity.webui.common.ImageUtils;
+import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Label100;
 import pl.edu.icm.unity.webui.common.Styles;
 
@@ -64,6 +68,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, ColumnInstantAuthenticationScreen.class);
 	private final UnityMessageSource msg;
+	private final FileStorageService fileStorageService;
 	private final VaadinEndpointProperties config;
 	private final ResolvedEndpoint endpointDescription;
 	private final Supplier<Boolean> outdatedCredentialDialogLauncher;
@@ -90,7 +95,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 	private Component cancelComponent;
 	private CredentialResetLauncher credentialResetLauncher;
 	
-	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, VaadinEndpointProperties config,
+	public ColumnInstantAuthenticationScreen(UnityMessageSource msg, FileStorageService fileStorageService, VaadinEndpointProperties config,
 			ResolvedEndpoint endpointDescription,
 			Supplier<Boolean> outdatedCredentialDialogLauncher,
 			CredentialResetLauncher credentialResetLauncher,
@@ -116,6 +121,7 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		this.authnProcessor = authnProcessor;
 		this.localeChoice = localeChoice;
 		this.flows = flows;
+		this.fileStorageService = fileStorageService;
 		
 		init();
 	}
@@ -179,7 +185,19 @@ public class ColumnInstantAuthenticationScreen extends CustomComponent implement
 		String logoURL = config.getValue(VaadinEndpointProperties.AUTHN_LOGO);
 		if (!logoURL.isEmpty())
 		{
-			Resource logoResource = ImageUtils.getConfiguredImageResource(logoURL);
+			Resource logoResource;
+			try
+			{
+				logoResource = new FileStreamResource(
+						fileStorageService
+								.readImageURI(URIHelper.parseURI(logoURL),
+										UI.getCurrent().getTheme())
+								.getContents()).getResource();
+			} catch (Exception e)
+			{
+				throw new ConfigurationException("Can not load configured image " + logoURL, e);
+			}
+			
 			Image image = new Image(null, logoResource);
 			image.addStyleName("u-authn-logo");
 			authenticationMainLayout.addComponent(image);

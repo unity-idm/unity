@@ -20,6 +20,7 @@ import com.vaadin.server.VaadinService;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -54,14 +55,15 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
-
+	private FileStorageService fileStorageService;
+	
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg, 
 			LocaleChoiceComponent localeChoice,
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
-			AuthenticatorSupportService authenticatorSupport)
+			AuthenticatorSupportService authenticatorSupport, FileStorageService fileStorageService)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -69,6 +71,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		this.execService = execService;
 		this.idsMan = idsMan;
 		this.authenticatorSupport = authenticatorSupport;
+		this.fileStorageService = fileStorageService;
 	}
 	
 	@Override
@@ -87,7 +90,8 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		VaadinRequest vaadinRequest = VaadinService.getCurrentRequest();
 		boolean validationMode = vaadinRequest.getParameter(PROFILE_VALIDATION) != null;
 		this.authnProcessor.setSandboxRouter(sandboxRouter);
-		ui = new SandboxAuthenticationScreen(msg, 
+		ui = new SandboxAuthenticationScreen(msg,
+				fileStorageService,
 				config, 
 				endpointDescription, 
 				cancelHandler, 

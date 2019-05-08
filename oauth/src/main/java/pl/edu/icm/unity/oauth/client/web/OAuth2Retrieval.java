@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -43,18 +44,20 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 	public static final String DESC = "OAuth2RetrievalFactory.desc";
 	public static final String REMOTE_AUTHN_CONTEXT = OAuth2Retrieval.class.getName()+".authnContext";
 	private UnityMessageSource msg;
+	private FileStorageService fileStorageService;
 	private OAuthContextsManagement contextManagement;
 	private ExecutorsService executorsService;
 	private OAuthProxyAuthnHandler oAuthProxyAuthnHandler;
 	
 	@Autowired
-	public OAuth2Retrieval(UnityMessageSource msg, OAuthContextsManagement contextManagement, 
+	public OAuth2Retrieval(UnityMessageSource msg, FileStorageService fileStorageService, OAuthContextsManagement contextManagement, 
 			ExecutorsService executorsService)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.contextManagement = contextManagement;
 		this.executorsService = executorsService;
+		this.fileStorageService = fileStorageService;
 	}
 
 	@Override
@@ -85,7 +88,7 @@ public class OAuth2Retrieval extends AbstractCredentialRetrieval<OAuthExchange>
 		{
 			String idpKey = key.substring(OAuthClientProperties.PROVIDERS.length(), 
 					key.length()-1);
-			ret.add(new OAuth2RetrievalUI(msg, credentialExchange, contextManagement, 
+			ret.add(new OAuth2RetrievalUI(msg, fileStorageService, credentialExchange, contextManagement, 
 					executorsService, idpKey, key, getAuthenticatorId(), context));
 		}
 		return ret;

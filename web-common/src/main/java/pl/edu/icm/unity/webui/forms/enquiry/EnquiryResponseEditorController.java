@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -79,6 +80,7 @@ public class EnquiryResponseEditorController
 	private EntityManagement idMan;	
 	private AttributesManagement attrMan;
 	private IdPLoginController idpLoginController;
+	private FileStorageService fileStorageService;
 
 	@Autowired
 	public EnquiryResponseEditorController(UnityMessageSource msg,
@@ -90,7 +92,8 @@ public class EnquiryResponseEditorController
 			@Qualifier("insecure") CredentialManagement credMan,
 			@Qualifier("insecure") GroupsManagement groupsMan,
 			@Qualifier("insecure") EntityManagement idMan,
-			@Qualifier("insecure") AttributesManagement attrMan, IdPLoginController idpLoginController)
+			@Qualifier("insecure") AttributesManagement attrMan, IdPLoginController idpLoginController,
+			FileStorageService fileStorageService)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
@@ -103,6 +106,7 @@ public class EnquiryResponseEditorController
 		this.idMan = idMan;
 		this.attrMan = attrMan;
 		this.idpLoginController = idpLoginController;
+		this.fileStorageService = fileStorageService;
 	}
 
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
@@ -110,7 +114,7 @@ public class EnquiryResponseEditorController
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, set);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, fileStorageService, set);
 	}
 	
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 

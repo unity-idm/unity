@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.saml.metadata;
 
 import eu.unicore.samly2.SAMLConstants;
+import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.saml.SamlProperties;
 import pl.edu.icm.unity.saml.slo.SLOReplyInstaller;
@@ -24,18 +25,20 @@ public class LocalSPMetadataManager
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
 	private MultiMetadataServlet metadataServlet;
+	private FileStorageService fileStorageService;
 	
 	private MetadataProvider provider;
 
 	public LocalSPMetadataManager(ExecutorsService executorsService,  
 			String responseConsumerAddress, SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
-			MultiMetadataServlet metadataServlet)
+			MultiMetadataServlet metadataServlet, FileStorageService fileStorageService)
 	{
 		this.executorsService = executorsService;
 		this.responseConsumerAddress = responseConsumerAddress;
 		this.sloManager = sloManager;
 		this.sloReplyInstaller = sloReplyInstaller;
 		this.metadataServlet = metadataServlet;
+		this.fileStorageService = fileStorageService;
 	}
 	
 	public synchronized void updateConfiguration(SAMLSPProperties samlProperties)
@@ -97,7 +100,7 @@ public class LocalSPMetadataManager
 		
 		IndexedEndpointType[] assertionConsumerEndpoints = new IndexedEndpointType[] {consumerEndpoint,
 				consumerEndpoint2};
-		return MetadataProviderFactory.newSPInstance(samlProperties, 
+		return MetadataProviderFactory.newSPInstance(samlProperties, fileStorageService,
 				executorsService, assertionConsumerEndpoints, sloEndpoints);
 	}
 }

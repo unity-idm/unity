@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.saml.sp.web;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.HashSet;
@@ -13,6 +12,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Logger;
 
+import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Page;
 import com.vaadin.server.RequestHandler;
 import com.vaadin.server.Resource;
@@ -44,7 +44,6 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
-import pl.edu.icm.unity.webui.common.ImageUtils;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 
@@ -62,6 +61,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private UnityMessageSource msg;
 	private FileStorageService fileService;
+	
 
 	private SAMLExchange credentialExchange;
 	private AuthenticationCallback callback;
@@ -116,19 +116,36 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	{
 		redirectParam = installRequestHandler();
 
-		String logoUrl = configuration.logoUrl;
+		String logoURI = configuration.logoURI;
 
+		
+		
 		Resource logo;
-		try
+		if (logoURI == null)
 		{
-			logo = logoUrl == null ? Images.empty.getResource()
-					: new FileStreamResource(fileService.readImageURI(URIHelper.parseURI(logoUrl),
-							UI.getCurrent().getTheme())).getResource();
-		} catch (Exception e)
-		{
-			log.warn("Can't load logo from " + logoUrl, e);
-			logo = null;
+			logo = Images.empty.getResource();
 		}
+		else
+		{
+			try
+			{	
+				//workaround performance problems
+				URI uri = URIHelper.parseURI(logoURI);
+				if (URIHelper.isWebReady(uri))
+				{
+					logo = new ExternalResource(uri.toString());
+				}else
+				{
+					logo = new FileStreamResource(fileService.readImageURI(URIHelper.parseURI(logoURI),
+									UI.getCurrent().getTheme())).getResource();
+				}		
+			} catch (Exception e)
+			{
+				log.warn("Can't load logo from " + logoURI);
+				logo = null;
+			}	
+		}
+		
 		String signInLabel;
 		if (context == Context.LOGIN)
 			signInLabel = msg.getMessage("AuthenticationUI.signInWith", configuration.name);
@@ -136,7 +153,8 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			signInLabel = msg.getMessage("AuthenticationUI.signUpWith", configuration.name);
 		idpComponent = new IdPAuthNComponent(getRetrievalClassName(), logo, signInLabel);
 		idpComponent.addClickListener(event -> startLogin());
-		idpComponent.setWidth(100, Unit.PERCENTAGE);
+		idpComponent.setWidth(100, Unit.PERCENTAGE);	
+					
 		this.tags = new HashSet<>(configuration.tags);
 		this.tags.remove(configuration.name);
 		this.main = idpComponent;
@@ -309,14 +327,23 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	@Override
 	public Resource getImage()
 	{
-		if (configuration.logoUrl == null)
+		if (configuration.logoURI == null)
 			return null;
+
 		try
 		{
-			return ImageUtils.getLogoResource(configuration.logoUrl);
-		} catch (MalformedURLException e)
+			URI uri = URIHelper.parseURI(configuration.logoURI);
+			if (URIHelper.isWebReady(uri))
+			{
+				return new ExternalResource(uri.toString());
+			} else
+			{
+				return new FileStreamResource(fileService.readImageURI(uri, UI.getCurrent().getTheme()))
+						.getResource();
+			}
+		} catch (Exception e)
 		{
-			log.error("Invalid logo URL " + configuration.logoUrl, e);
+			log.error("Invalid logo URI " + configuration.logoURI, e);
 			return null;
 		}
 	}

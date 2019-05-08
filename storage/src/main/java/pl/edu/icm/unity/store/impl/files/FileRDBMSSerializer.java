@@ -21,13 +21,14 @@ public class FileRDBMSSerializer implements RDBMSObjectSerializer<FileData, File
 	{
 		FileBean ret = new FileBean(object.getName(), 
 				object.getOwnerType(), object.getOwnerId(), object.getContents());
+		ret.setLastUpdate(object.getLastUpdate());
 		return ret;
 	}
 
 	@Override
 	public FileData fromDB(FileBean bean)
 	{
-		FileData fileData = new FileData(bean.getName(), bean.getContents());
+		FileData fileData = new FileData(bean.getName(), bean.getContents(), bean.getLastUpdate());
 		fileData.setOwnerType(bean.getOwnerType());
 		fileData.setOwnerId(bean.getOwnerId());
 		return fileData;
