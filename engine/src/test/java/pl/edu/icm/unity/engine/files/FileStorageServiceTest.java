@@ -62,9 +62,9 @@ public class FileStorageServiceTest
 		
 		ArgumentCaptor<FileData> argument = ArgumentCaptor.forClass(FileData.class);
 		verify(dao).create(argument.capture());
-		assertThat(argument.getValue().contents, is("demo".getBytes()));
-		assertThat(argument.getValue().ownerType, is("o"));
-		assertThat(argument.getValue().ownerId, is("i"));
+		assertThat(argument.getValue().getContents(), is("demo".getBytes()));
+		assertThat(argument.getValue().getOwnerType(), is("o"));
+		assertThat(argument.getValue().getOwnerId(), is("i"));
 	}
 
 	@Test
@@ -81,7 +81,7 @@ public class FileStorageServiceTest
 
 		fileService.storeFileInWorkspace(new String("test").getBytes(), "demo/demo/test.txt");
 		FileData fileFromWorkspace = fileService.readFileFromWorkspace("demo/demo/test.txt");
-		assertThat(new String(fileFromWorkspace.contents), is("test"));
+		assertThat(new String(fileFromWorkspace.getContents()), is("test"));
 	}
 
 	@Test

@@ -85,7 +85,7 @@ class FileRDBMSStore extends GenericNamedRDBMSCRUD<FileData, FileBean> implement
 	@Override
 	public long createWithTS(FileData newValue, Date updatTS)
 	{
-		FileData ret = new FileData(newValue.name, newValue.contents, updatTS, newValue.ownerType, newValue.ownerId);
+		FileData ret = new FileData(newValue.getName(), newValue.getContents(), updatTS, newValue.getOwnerType(), newValue.getOwnerId());
 		return create(ret);
 	}
 }

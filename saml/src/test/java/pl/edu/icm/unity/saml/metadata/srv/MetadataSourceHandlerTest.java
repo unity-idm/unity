@@ -58,13 +58,14 @@ public class MetadataSourceHandlerTest
 		src = new RemoteMetadataSrc("http://url", null);
 
 		fileStorageService = mock(FileStorageService.class);
-
+		uriAccessService = mock(URIAccessService.class);
+		
 		when(fileStorageService.readFileFromWorkspace(any())).thenThrow(EngineException.class);
 		
 		when(uriAccessService.readURI(eq(new URI("http://url")))).thenAnswer((a) -> new FileData("xx",
 				Files.readAllBytes(Paths.get("src/test/resources/unity-as-sp-meta.xml")), new Date()));
 		
-		when(uriAccessService.readURI(eq(new URI("http://url")))).thenAnswer((a) -> new FileData("xx",
+		when(uriAccessService.readURI(eq(new URI("http://url")), any())).thenAnswer((a) -> new FileData("xx",
 				Files.readAllBytes(Paths.get("src/test/resources/unity-as-sp-meta.xml")), new Date()));
 		
 		when(fileStorageService.storeFileInWorkspace(any(), any())).thenAnswer((a) -> new FileData("xx",
@@ -84,7 +85,7 @@ public class MetadataSourceHandlerTest
 		
 		Awaitility.await().atMost(Duration.ONE_SECOND).until(
 				() -> gotEvent.get());
-		verify(uriAccessService).readURI(new URI("http://url"));
+		verify(uriAccessService).readURI(eq(new URI("http://url")), any());
 	}
 	
 	@Test
@@ -165,7 +166,7 @@ public class MetadataSourceHandlerTest
 		
 		Awaitility.await().atMost(Duration.ONE_SECOND).until(
 				() -> gotEvent.get());
-		verify(uriAccessService, atLeast(1)).readURI(eq(new URI("http://url")));
+		verify(uriAccessService, atLeast(1)).readURI(eq(new URI("http://url")), any());
 	}
 	
 	@Test

@@ -194,7 +194,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 										.readImageURI(URIHelper.parseURI(
 												res.getRemote()),
 												UI.getCurrent().getTheme())
-										.contents).getResource();
+										.getContents()).getResource();
 			} catch (Exception e)
 			{
 				logo = Images.error.getResource();

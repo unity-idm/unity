@@ -74,10 +74,10 @@ public class URIMetadataProvider implements MetadataProvider
 	{
 		try
 		{
-			document = EntityDescriptorDocument.Factory.parse(new ByteArrayInputStream(fileData.contents));
+			document = EntityDescriptorDocument.Factory.parse(new ByteArrayInputStream(fileData.getContents()));
 			lastLoaded = fileData;
 			lastModification = new Date();
-			log.trace("Load metadata from " + fileData.getName() + ":" + new String(fileData.contents));
+			log.trace("Load metadata from " + fileData.getName() + ":" + new String(fileData.getContents()));
 		} catch (Exception e)
 		{
 			throw new EngineException("Metadata file can not be loaded", e);

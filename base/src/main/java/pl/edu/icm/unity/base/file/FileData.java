@@ -21,12 +21,16 @@ import pl.edu.icm.unity.types.NamedObject;
  */
 public class FileData implements NamedObject
 {
-	public final String name;
-	public final String ownerType;
-	public final String ownerId;
-	public final byte[] contents;
-	public final Date lastUpdate;
+	private String name;
+	private String ownerType;
+	private String ownerId;
+	private byte[] contents;
+	private Date lastUpdate;
 
+	public FileData()
+	{
+	}
+	
 	public FileData(String name, byte[] contents, Date lastUpdate, String ownerType, String ownerId)
 	{
 		this.name = name;
@@ -73,10 +77,56 @@ public class FileData implements NamedObject
 				&& Arrays.equals(this.contents, other.contents);
 	}
 
+	public void setName(String name)
+	{
+		this.name = name;
+	}
+	
 	@Override
 	public String getName()
 	{
 		return name;
 	}
+	
+	public String getOwnerType()
+	{
+		return ownerType;
+	}
+
+	public void setOwnerType(String ownerType)
+	{
+		this.ownerType = ownerType;
+	}
+
+	public String getOwnerId()
+	{
+		return ownerId;
+	}
+
+	public void setOwnerId(String ownerId)
+	{
+		this.ownerId = ownerId;
+	}
+
+	public byte[] getContents()
+	{
+		return contents;
+	}
+
+	public void setContents(byte[] contents)
+	{
+		this.contents = contents;
+	}
+
+	public Date getLastUpdate()
+	{
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Date lastUpdate)
+	{
+		this.lastUpdate = lastUpdate;
+	}
+
 
 }

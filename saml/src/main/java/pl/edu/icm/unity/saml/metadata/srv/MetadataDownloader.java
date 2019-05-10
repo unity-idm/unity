@@ -64,7 +64,7 @@ public class MetadataDownloader
 		
 		if (!URIHelper.isWebReady(uri))
 		{
-			return EntitiesDescriptorDocument.Factory.parse(new ByteArrayInputStream(uriAccessService.readURI(uri, null).contents));
+			return EntitiesDescriptorDocument.Factory.parse(new ByteArrayInputStream(uriAccessService.readURI(uri).getContents()));
 		} else
 		{
 			return loadFile(download(uri, customTruststore));
@@ -89,7 +89,7 @@ public class MetadataDownloader
 			return Optional.empty();
 		}
 		log.debug("Get metadata file for "+ uri + " from cache");
-		return Optional.of(loadFile(new ByteArrayInputStream(data.contents)));
+		return Optional.of(loadFile(new ByteArrayInputStream(data.getContents())));
 	}
 	
 	private EntitiesDescriptorDocument loadFile(InputStream file) throws XmlException, IOException, InterruptedException
@@ -105,9 +105,9 @@ public class MetadataDownloader
 	private InputStream download(URI uri, String customTruststore) throws IOException, EngineException
 	{
 		FileData data = uriAccessService.readURI(uri, customTruststore);
-		FileData savedFile = fileStorageService.storeFileInWorkspace(data.contents, getFileName(uri.toString()));
+		FileData savedFile = fileStorageService.storeFileInWorkspace(data.getContents(), getFileName(uri.toString()));
 		log.info("Downloaded metadata from " + uri.toString() + " and stored in " + savedFile.getName());
-		return new ByteArrayInputStream(savedFile.contents);
+		return new ByteArrayInputStream(savedFile.getContents());
 	}
 		
 	public static String getFileName(String uri)

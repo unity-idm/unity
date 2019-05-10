@@ -242,7 +242,7 @@ public class SAMLConfiguration
 				} else
 				{
 					FileData fileData = uriAccessService.readURI(uri);
-					setMetadataSource(new LocalOrRemoteResource(fileData.contents, uri.toString()));
+					setMetadataSource(new LocalOrRemoteResource(fileData.getContents(), uri.toString()));
 				}
 				
 				

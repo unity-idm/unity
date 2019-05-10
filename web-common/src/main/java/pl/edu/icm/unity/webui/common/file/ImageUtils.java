@@ -40,7 +40,7 @@ public class ImageUtils
 			} else
 			{
 				FileData fileData = uriService.readImageURI(uri, UI.getCurrent().getTheme());
-				return new LocalOrRemoteResource(fileData.contents, uri.toString());
+				return new LocalOrRemoteResource(fileData.getContents(), uri.toString());
 			}
 
 		} catch (Exception e)
@@ -62,7 +62,7 @@ public class ImageUtils
 		try
 		{
 			return new FileStreamResource(uriAccessService.readImageURI(URIHelper.parseURI(logoUri),
-					UI.getCurrent().getTheme()).contents).getResource();
+					UI.getCurrent().getTheme()).getContents()).getResource();
 		} catch (Exception e)
 		{
 			log.warn("Can not read image from uri: " + logoUri);

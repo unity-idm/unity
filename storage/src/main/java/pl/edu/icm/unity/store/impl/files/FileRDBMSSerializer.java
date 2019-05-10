@@ -20,8 +20,8 @@ class FileRDBMSSerializer implements RDBMSObjectSerializer<FileData, FileBean>
 	public FileBean toDB(FileData object)
 	{
 		FileBean ret = new FileBean(object.getName(), 
-				object.ownerType, object.ownerId, object.contents);
-		ret.setLastUpdate(object.lastUpdate);
+				object.getOwnerType(), object.getOwnerId(), object.getContents());
+		ret.setLastUpdate(object.getLastUpdate());
 		return ret;
 	}
 

@@ -43,7 +43,7 @@ public class FileTest extends AbstractNamedDAOTest<FileData>
 	@Override
 	protected FileData mutateObject(FileData src)
 	{
-		FileData newV = new FileData("demo2", "demo2".getBytes(), new Date(), "oType2", "o2");
+		FileData newV = new FileData(src.getName(), "demo2".getBytes(), new Date(), "oType2", "o2");
 		return newV;
 	}
 
