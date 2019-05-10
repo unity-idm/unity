@@ -7,16 +7,25 @@ package pl.edu.icm.unity.engine.api.files;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import pl.edu.icm.unity.exceptions.IllegalURIException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * URI related methods. 
+ * A helper class for parsing uri from string and validating it against used
+ * schemes
+ * 
  * @author P.Piernik
  *
  */
 public class URIHelper
 {
+	public static final Set<String> SUPPORTED_LOCAL_FILE_SCHEMES = new HashSet<>(
+			Arrays.asList("file", "unity.internal"));
+	
+	public static final Set<String> SUPPORTED_URL_SCHEMES = new HashSet<>(
+			Arrays.asList("data", "http", "https"));
+	
 	public static URI parseURI(String rawURI) throws IllegalURIException
 	{
 		URI uri;
@@ -35,8 +44,8 @@ public class URIHelper
 	{
 		String scheme = uri.getScheme();
 
-		if (scheme == null || scheme.isEmpty() || scheme.equals("file") || scheme.equals("http")
-				|| scheme.equals("https") || scheme.equals("data") || scheme.equals("unity.internal"))
+		if (scheme == null || scheme.isEmpty() || SUPPORTED_LOCAL_FILE_SCHEMES.contains(scheme) || SUPPORTED_URL_SCHEMES.contains(scheme))
+			
 		{
 			return;
 		}
@@ -55,13 +64,13 @@ public class URIHelper
 		}
 		return isWebReady(uri);
 	}
-	
+
 	public static boolean isWebReady(URI uri)
 	{
 		if (uri != null && uri.getScheme() != null)
 		{
 			String scheme = uri.getScheme();
-			if (scheme.equals("http") || scheme.equals("https") || scheme.equals("data"))
+			if (SUPPORTED_URL_SCHEMES.contains(scheme))
 			{
 				return true;
 			}
@@ -69,7 +78,7 @@ public class URIHelper
 
 		return false;
 	}
-	
+
 	public static String getPathFromURI(URI uri)
 	{
 		return uri.isOpaque() ? uri.getSchemeSpecificPart() : uri.getPath();

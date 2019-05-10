@@ -20,7 +20,7 @@ import pl.edu.icm.unity.store.export.AbstractIEBase;
  * @author P.Piernik
  */
 @Component
-public class FileIE extends AbstractIEBase<FileData>
+class FileIE extends AbstractIEBase<FileData>
 {
 	private FileDAO dao;
 	private FileJsonSerializer serializer;

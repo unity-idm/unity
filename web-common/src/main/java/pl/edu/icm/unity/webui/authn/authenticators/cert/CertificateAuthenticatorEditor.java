@@ -13,13 +13,12 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -29,7 +28,6 @@ import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseLocalAuthenticatorEditor;
-import pl.edu.icm.unity.webui.authn.extensions.SMSRetrievalProperties;
 import pl.edu.icm.unity.webui.authn.extensions.TLSRetrievalProperties;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
@@ -37,7 +35,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.LogoFileField;
+import pl.edu.icm.unity.webui.common.file.ImageField;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
@@ -50,16 +49,19 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements AuthenticatorEditor
 {
 	private UnityMessageSource msg;
+	private URIAccessService uriAccessService;
 	private FileStorageService fileStorageService;
 	private Binder<CertConfiguration> configBinder;
 
-	CertificateAuthenticatorEditor(UnityMessageSource msg, FileStorageService fileStorageService,
+	CertificateAuthenticatorEditor(UnityMessageSource msg, FileStorageService fileStorageService, URIAccessService uriAccessService,
 			Collection<CredentialDefinition> credentialDefinitions) throws EngineException
 	{
 		super(msg, credentialDefinitions.stream().filter(c -> c.getTypeId().equals(CertificateVerificator.NAME))
 				.map(c -> c.getName()).collect(Collectors.toList()));
 		this.msg = msg;
+		this.uriAccessService = uriAccessService;
 		this.fileStorageService = fileStorageService;
+		
 	}
 
 	@Override
@@ -82,10 +84,10 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 		main.addComponent(header);
 		main.addComponent(interactiveLoginSettings);
 
-		CertConfiguration config = new CertConfiguration(fileStorageService);
+		CertConfiguration config = new CertConfiguration(uriAccessService);
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, msg, fileStorageService);
+			config.fromProperties(toEdit.configuration, msg, uriAccessService);
 		}
 		configBinder.setBean(config);
 
@@ -101,7 +103,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 		retrievalName.setCaption(msg.getMessage("CertificateAuthenticatorEditor.displayedName"));
 		configBinder.forField(retrievalName).bind("retrievalName");
 
-		LogoFileField logo = new LogoFileField(msg, fileStorageService);
+		ImageField logo = new ImageField(msg, uriAccessService);
 		logo.setCaption(msg.getMessage("CertificateAuthenticatorEditor.logo"));
 		logo.configureBinding(configBinder, "logo");
 
@@ -140,18 +142,9 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 		private I18nString retrievalName;
 		private LocalOrRemoteResource logo;
 
-		public CertConfiguration(FileStorageService fileStorageService)
+		public CertConfiguration(URIAccessService uriAccessService)
 		{
-			try
-			{
-				setLogo(new LocalOrRemoteResource(fileStorageService
-						.readImageURI(URIHelper.parseURI(Images.certificate.getPath()),
-								UI.getCurrent().getTheme())
-						.getContents(), Images.certificate.getPath()));
-			} catch (Exception e)
-			{
-				// ok
-			}
+			setLogo(ImageUtils.getImageFromUriSave(Images.certificate.getPath(), uriAccessService));
 		}
 
 		public I18nString getRetrievalName()
@@ -188,7 +181,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 			{
 				FileFieldUtils.saveInProperties(getLogo(),
 						TLSRetrievalProperties.P + TLSRetrievalProperties.LOGO_URL, raw,
-						fileStorageService, StandardOwner.Authenticator.toString(), authName);
+						fileStorageService, StandardOwner.AUTHENTICATOR.toString(), authName);
 			}
 
 			TLSRetrievalProperties prop = new TLSRetrievalProperties(raw);
@@ -196,7 +189,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 		}
 
 		public void fromProperties(String properties, UnityMessageSource msg,
-				FileStorageService fileStorageService)
+				URIAccessService uriAccessService)
 		{
 			Properties raw = new Properties();
 			try
@@ -209,16 +202,12 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 
 			TLSRetrievalProperties certRetrievalProperties = new TLSRetrievalProperties(raw);
 			setRetrievalName(certRetrievalProperties.getLocalizedString(msg, TLSRetrievalProperties.NAME));
-
-			if (certRetrievalProperties.isSet(SMSRetrievalProperties.LOGO_URL))
+			if (certRetrievalProperties.isSet(TLSRetrievalProperties.LOGO_URL))
 			{
-				String logoUri = certRetrievalProperties.getValue(TLSRetrievalProperties.LOGO_URL);
-				if (!logoUri.isEmpty())
-				{
-					setLogo(FileFieldUtils.getLogoResourceFromUri(logoUri,
-								fileStorageService));
-				}
-			}
+				setLogo(ImageUtils.getImageFromUriSave(certRetrievalProperties.getValue(TLSRetrievalProperties.LOGO_URL),
+							uriAccessService));
+			}	
+			
 		}
 	}
 }

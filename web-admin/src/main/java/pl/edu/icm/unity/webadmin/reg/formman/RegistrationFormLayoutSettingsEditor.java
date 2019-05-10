@@ -16,13 +16,15 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.registration.layout.FormLayoutSettings;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotNullComboBox;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.LogoFileField;
+import pl.edu.icm.unity.webui.common.file.ImageField;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * General registration layouts settings editor.
@@ -33,13 +35,15 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 
 	private Binder<FormLayoutSettingsWithLogo> binder;
 	
-	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg, FileStorageService fileStorageService)
+	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg, FileStorageService fileStorageService, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.fileStorageService = fileStorageService;	
+		this.uriAccessService = uriAccessService;
 		initUI();
 	}
 
@@ -49,7 +53,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 		main.setSpacing(true);
 		CheckBox compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
 		
-		LogoFileField logo = new LogoFileField(msg, fileStorageService);
+		ImageField logo = new ImageField(msg, uriAccessService);
 		logo.setCaption(msg.getMessage("FormLayoutEditor.logo"));
 		logo.setDescription(msg.getMessage("FormLayoutEditor.logoDesc"));
 	
@@ -71,7 +75,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 		binder.forField(columnWidthUnit)
 			.asRequired(msg.getMessage("fieldRequired"))
 			.bind("columnWidthUnit");
-		binder.setBean(new FormLayoutSettingsWithLogo(FormLayoutSettings.DEFAULT, fileStorageService));
+		binder.setBean(new FormLayoutSettingsWithLogo(FormLayoutSettings.DEFAULT, uriAccessService));
 	}
 
 	public FormLayoutSettings getSettings(String formName) throws FormValidationException
@@ -81,7 +85,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 
 	public void setSettings(FormLayoutSettings settings)
 	{
-		binder.setBean(new FormLayoutSettingsWithLogo(settings, fileStorageService));
+		binder.setBean(new FormLayoutSettingsWithLogo(settings, uriAccessService));
 	}
 	
 	public static class FormLayoutSettingsWithLogo extends FormLayoutSettings
@@ -93,7 +97,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 
 		}
 
-		public FormLayoutSettingsWithLogo(FormLayoutSettings org, FileStorageService fileStorageService)
+		public FormLayoutSettingsWithLogo(FormLayoutSettings org, URIAccessService uriAccessService)
 		{
 			this.setColumnWidth(org.getColumnWidth());
 			this.setColumnWidthUnit(org.getColumnWidthUnit());
@@ -101,8 +105,8 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			this.setCompactInputs(org.isCompactInputs());
 			if (org.getLogoURL() != null)
 			{
-				this.setLogo(FileFieldUtils.getLogoResourceFromUri(org.getLogoURL(),
-						fileStorageService));
+				this.setLogo(ImageUtils.getImageFromUriSave(org.getLogoURL(),
+						uriAccessService));
 			}
 		}
 		
@@ -114,7 +118,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			settings.setColumnWidthUnit(this.getColumnWidthUnit());
 			settings.setShowCancel(this.isShowCancel());
 			settings.setCompactInputs(this.isCompactInputs());
-			settings.setLogoURL(FileFieldUtils.saveFile(getLogo(), fileStorageService, FileStorageService.StandardOwner.Form.toString(), formName));
+			settings.setLogoURL(FileFieldUtils.saveFile(getLogo(), fileStorageService, FileStorageService.StandardOwner.FORM.toString(), formName));
 			
 			return settings;
 		}

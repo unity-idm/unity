@@ -15,7 +15,7 @@ import pl.edu.icm.unity.store.rdbms.BaseBean;
  * @author P.Piernik
  *
  */
-public class FileBean  extends BaseBean
+class FileBean  extends BaseBean
 {
 	private String ownerType;
 	private String ownerId;

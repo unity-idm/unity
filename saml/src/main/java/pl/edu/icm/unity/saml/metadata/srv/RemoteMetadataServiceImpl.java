@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
 
@@ -36,10 +37,10 @@ class RemoteMetadataServiceImpl implements RemoteMetadataService
 	private Map<String, String> consumers2URL = new HashMap<>();	
 	
 	@Autowired
-	public RemoteMetadataServiceImpl(FileStorageService fileStorageService, ExecutorsService executorsService)
+	public RemoteMetadataServiceImpl(FileStorageService fileStorageService, URIAccessService uriAccessService, ExecutorsService executorsService)
 	{
 		this.executorsService = executorsService;
-		this.downloader = new MetadataDownloader(fileStorageService);
+		this.downloader = new MetadataDownloader(uriAccessService, fileStorageService);
 	}
 
 	RemoteMetadataServiceImpl(ExecutorsService executorsService, MetadataDownloader downloader)

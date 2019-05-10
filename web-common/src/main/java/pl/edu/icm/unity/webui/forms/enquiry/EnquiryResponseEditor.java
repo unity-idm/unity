@@ -8,7 +8,7 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
@@ -38,10 +38,10 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, FileStorageService fileStorageService, PrefilledSet prefilled) throws Exception
+			GroupsManagement groupsMan, URIAccessService uriAccessService, PrefilledSet prefilled) throws Exception
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, fileStorageService);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, uriAccessService);
 		this.enquiryForm = form;
 		this.prefilled = prefilled;
 		initUI();

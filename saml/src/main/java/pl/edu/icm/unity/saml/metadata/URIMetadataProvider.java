@@ -7,7 +7,6 @@ package pl.edu.icm.unity.saml.metadata;
 import java.io.ByteArrayInputStream;
 import java.net.URI;
 import java.util.Date;
-import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -15,7 +14,7 @@ import org.apache.logging.log4j.Logger;
 
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -31,7 +30,7 @@ public class URIMetadataProvider implements MetadataProvider
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, URIMetadataProvider.class);
 	private Date lastModification;
 	private URI uri;
-	private FileStorageService fileService;
+	private URIAccessService uriAccessService;
 	private FileData lastLoaded;
 	private ScheduledExecutorService scheduler;
 	private EntityDescriptorDocument document;
@@ -39,12 +38,12 @@ public class URIMetadataProvider implements MetadataProvider
 	
 	private Runnable task;
 	
-	public URIMetadataProvider(ExecutorsService executorsService, FileStorageService fileStorageService, String uriRaw) throws EngineException
+	public URIMetadataProvider(ExecutorsService executorsService, URIAccessService uriAccessService, String uriRaw) throws EngineException
 	{
-		this.fileService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		this.uri = URIHelper.parseURI(uriRaw);
 		scheduler = executorsService.getService();
-		load(fileStorageService.readURI(uri, Optional.empty()));
+		load(uriAccessService.readURI(uri));
 		
 		task = () -> {
 			reloadTask();
@@ -57,7 +56,7 @@ public class URIMetadataProvider implements MetadataProvider
 	{
 		try
 		{
-			FileData data = fileService.readURI(uri, Optional.empty());
+			FileData data = uriAccessService.readURI(uri);
 			if (!lastLoaded.equalsContent(data))
 			{
 				log.info("Metadata file modification detected, reloading " + uri.toString());
@@ -75,10 +74,10 @@ public class URIMetadataProvider implements MetadataProvider
 	{
 		try
 		{
-			document = EntityDescriptorDocument.Factory.parse(new ByteArrayInputStream(fileData.getContents()));
+			document = EntityDescriptorDocument.Factory.parse(new ByteArrayInputStream(fileData.contents));
 			lastLoaded = fileData;
 			lastModification = new Date();
-			log.trace("Load metadata from " + fileData.getName() + ":" + new String(fileData.getContents()));
+			log.trace("Load metadata from " + fileData.getName() + ":" + new String(fileData.contents));
 		} catch (Exception e)
 		{
 			throw new EngineException("Metadata file can not be loaded", e);

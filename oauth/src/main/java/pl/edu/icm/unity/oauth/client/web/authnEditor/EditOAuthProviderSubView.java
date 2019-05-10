@@ -27,7 +27,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.PKIManagement;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.AccessTokenFormat;
@@ -51,7 +51,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
-import pl.edu.icm.unity.webui.common.file.LogoFileField;
+import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -69,7 +69,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private Map<String, CustomProviderProperties> templates;
 
 	private Binder<OAuthProviderConfiguration> configBinder;
@@ -77,14 +77,15 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 	private boolean editMode = false;
 
-	EditOAuthProviderSubView(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService, 
-			InputTranslationProfileFieldFactory profileFieldFactory, OAuthProviderConfiguration toEdit,
-			Set<String> providersIds, SubViewSwitcher subViewSwitcher, Set<String> registrationForms,
-			Set<String> validators, Consumer<OAuthProviderConfiguration> onConfirm, Runnable onCancel)
+	EditOAuthProviderSubView(UnityMessageSource msg, PKIManagement pkiMan, URIAccessService uriAccessService,
+			InputTranslationProfileFieldFactory profileFieldFactory,
+			OAuthProviderConfiguration toEdit, Set<String> providersIds, SubViewSwitcher subViewSwitcher,
+			Set<String> registrationForms, Set<String> validators,
+			Consumer<OAuthProviderConfiguration> onConfirm, Runnable onCancel)
 	{
 		this.msg = msg;
 		this.pkiMan = pkiMan;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 
 		editMode = toEdit != null;
 
@@ -99,7 +100,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 		templateCombo.addValueChangeListener(e -> {
 			OAuthProviderConfiguration config = new OAuthProviderConfiguration();
-			config.fromTemplate(msg, fileStorageService, templates.get(e.getValue()), e.getValue(),
+			config.fromTemplate(msg, uriAccessService, templates.get(e.getValue()), e.getValue(),
 					editMode ? configBinder.getBean().getId() : null);
 			config.setType(e.getValue());
 			configBinder.setBean(config);
@@ -188,7 +189,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		configBinder.forField(requestedScopes).bind("requestedScopes");
 		header.addComponent(requestedScopes);
 
-		LogoFileField logo = new LogoFileField(msg, fileStorageService);
+		ImageField logo = new ImageField(msg, uriAccessService);
 		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
 		logo.configureBinding(configBinder, "logo");
 		header.addComponent(logo);

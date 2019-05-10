@@ -6,7 +6,7 @@ package pl.edu.icm.unity.saml.metadata;
 
 import eu.emi.security.authn.x509.X509Credential;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.saml.SamlProperties;
@@ -27,7 +27,7 @@ public class MetadataProviderFactory
 	 * @param endpoints
 	 * @return metadata of an IDP
 	 */
-	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, FileStorageService fileStorageService, 
+	public static MetadataProvider newIdpInstance(SamlIdpProperties samlProperties, URIAccessService uriAccessService, 
 			ExecutorsService executorsService, EndpointType[] ssoEndpoints, 
 			EndpointType[] attributeQueryEndpoints, EndpointType[] sloEndpoints)
 	{
@@ -42,7 +42,7 @@ public class MetadataProviderFactory
 		{
 			try
 			{
-				metaProvider = new URIMetadataProvider(executorsService, fileStorageService, uri);
+				metaProvider = new URIMetadataProvider(executorsService, uriAccessService, uri);
 			} catch (EngineException e)
 			{
 				throw new ConfigurationException("Can't initialize metadata provider, " +
@@ -59,7 +59,7 @@ public class MetadataProviderFactory
 	 * @param endpoints
 	 * @return metadata of a SP
 	 */
-	public static MetadataProvider newSPInstance(SAMLSPProperties samlProperties, FileStorageService fileStorageService,
+	public static MetadataProvider newSPInstance(SAMLSPProperties samlProperties, URIAccessService uriAccessService,
 			ExecutorsService executorsService, IndexedEndpointType[] assertionConsumerEndpoints, 
 			EndpointType[] sloEndpoints)
 	{
@@ -73,7 +73,7 @@ public class MetadataProviderFactory
 		{
 			try
 			{
-				metaProvider = new URIMetadataProvider(executorsService, fileStorageService, uri);
+				metaProvider = new URIMetadataProvider(executorsService, uriAccessService, uri);
 			} catch (EngineException e)
 			{
 				throw new ConfigurationException("Can't initialize metadata provider, " +

@@ -4,12 +4,17 @@
  */
 
 
-package pl.edu.icm.unity.exceptions;
+package pl.edu.icm.unity.engine.api.files;
 
+import pl.edu.icm.unity.exceptions.EngineException;
+
+/**
+ * 
+ * @author P.Piernik
+ *
+ */
 public class IllegalURIException extends EngineException
 {
-	private static final long serialVersionUID = 1L;
-
 	public IllegalURIException(String msg, Throwable cause)
 	{
 		super(msg, cause);

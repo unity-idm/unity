@@ -30,7 +30,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
@@ -103,7 +103,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 	private UnityMessageSource msg;
 	protected AttributeTypeSupport aTypeSupport;
 	private RemoteMetadataService metadataService;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public SamlAuthVaadinEndpoint(NetworkServer server,
@@ -113,12 +113,12 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg, AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService, FileStorageService fileStorageService)
+			RemoteMetadataService metadataService, URIAccessService uriAccessService)
 	{
 		this(SAML_CONSUMER_SERVLET_PATH, server, applicationContext, freemarkerHandler, SamlIdPWebUI.class, 
 				pkiManagement, executorsService, dispatcherServletFactory, 
 				logoutProcessorFactory, sloReplyInstaller, msg, 
-				aTypeSupport, metadataService, fileStorageService);
+				aTypeSupport, metadataService, uriAccessService);
 	}
 	
 	protected SamlAuthVaadinEndpoint(String publicEntryServletPath, NetworkServer server,
@@ -128,7 +128,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 			IdpConsentDeciderServletFactory dispatcherServletFactory,
 			SAMLLogoutProcessorFactory logoutProcessorFactory, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg, AttributeTypeSupport aTypeSupport,
-			RemoteMetadataService metadataService, FileStorageService fileStorageService)
+			RemoteMetadataService metadataService, URIAccessService uriAccessService)
 	{
 		super(server, msg, applicationContext, uiClass.getSimpleName(), SAML_UI_SERVLET_PATH);
 		this.publicEntryPointPath = publicEntryServletPath;
@@ -141,7 +141,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		this.msg = msg;
 		this.aTypeSupport = aTypeSupport;
 		this.metadataService = metadataService;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 	
 	@Override
@@ -294,7 +294,7 @@ public class SamlAuthVaadinEndpoint extends VaadinEndpoint
 		sloSoap.setBinding(SAMLConstants.BINDING_SOAP);
 		EndpointType[] sloEndpoints = new EndpointType[] {sloPost, sloRedirect, sloSoap};
 		
-		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, fileStorageService, 
+		MetadataProvider provider = MetadataProviderFactory.newIdpInstance(samlProperties, uriAccessService, 
 				executorsService, authnEndpoints, null, sloEndpoints);
 		return new MetadataServlet(provider);
 	}

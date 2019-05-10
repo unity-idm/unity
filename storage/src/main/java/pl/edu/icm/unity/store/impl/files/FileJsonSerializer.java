@@ -18,7 +18,7 @@ import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
  * @author P.Piernik
  */
 @Component
-public class FileJsonSerializer implements JsonSerializerForKryo<FileData>
+class FileJsonSerializer implements JsonSerializerForKryo<FileData>
 {
 	@Autowired
 	private ObjectMapper mapper;

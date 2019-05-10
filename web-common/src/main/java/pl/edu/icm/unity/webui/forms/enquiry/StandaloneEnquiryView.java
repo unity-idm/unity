@@ -16,7 +16,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -34,17 +34,17 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	private Callback callback;
 	protected UnityMessageSource msg;
 	private StandardWebAuthenticationProcessor authnProcessor;
-	protected FileStorageService fileStorageService;
+	protected URIAccessService uriAccessService;
 	
 	protected VerticalLayout main;
 	
-	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, FileStorageService fileStorageService,
+	StandaloneEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, URIAccessService uriAccessService,
 			UnityMessageSource msg,	Callback callback)
 	{
 		this.editor = editor;
 		this.authnProcessor = authnProcessor;
 		this.msg = msg;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		this.callback = callback;
 		main = new VerticalLayout();
 		main.setSpacing(true);
@@ -146,7 +146,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 		setCompositionRoot(wrapper);
 
 		Component finalScreen = new WorkflowCompletedWithLogoutComponent(config, this::redirect, 
-				msg.getMessage("MainHeader.logout"), authnProcessor::logout, fileStorageService);
+				msg.getMessage("MainHeader.logout"), authnProcessor::logout, uriAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}

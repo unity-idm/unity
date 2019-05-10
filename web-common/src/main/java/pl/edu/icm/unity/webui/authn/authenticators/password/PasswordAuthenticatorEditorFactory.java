@@ -6,6 +6,7 @@
 
 package pl.edu.icm.unity.webui.authn.authenticators.password;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
@@ -26,6 +27,7 @@ class PasswordAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private UnityMessageSource msg;
 	private CredentialManagement credMan;
 	
+	@Autowired
 	PasswordAuthenticatorEditorFactory(UnityMessageSource msg, CredentialManagement credMan)
 	{
 		this.msg = msg;

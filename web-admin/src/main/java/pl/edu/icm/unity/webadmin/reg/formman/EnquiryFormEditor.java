@@ -28,6 +28,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.form.RegistrationActionsRegistry;
@@ -63,6 +64,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private NotificationsManagement notificationsMan;
 	private MessageTemplateManagement msgTempMan;
 	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequestsAndInvitation;
@@ -88,7 +90,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan,
 			CredentialManagement authenticationMan, RegistrationActionsRegistry actionsRegistry,
-			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService)
+			ActionParameterComponentProvider actionComponentFactory, FileStorageService fileStorageService, URIAccessService uriAccessService)
 			throws EngineException
 	{
 		super(msg, identitiesMan, attributeMan, authenticationMan);
@@ -98,6 +100,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.notificationsMan = notificationsMan;
 		this.msgTempMan = msgTempMan;
 		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		actionComponentProvider = actionComponentFactory;
 		this.actionComponentProvider.init();
 	}
@@ -263,7 +266,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		main.addComponents(displayedName, formInformation, pageTitle);
 		
-		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, fileStorageService);
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, fileStorageService, uriAccessService);
 		
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setMargin(true);

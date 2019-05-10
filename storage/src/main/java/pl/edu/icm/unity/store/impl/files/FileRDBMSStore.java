@@ -25,7 +25,7 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
  * @author P.Piernik
  */
 @Repository(FileRDBMSStore.BEAN)
-public class FileRDBMSStore extends GenericNamedRDBMSCRUD<FileData, FileBean> implements FileDAO
+class FileRDBMSStore extends GenericNamedRDBMSCRUD<FileData, FileBean> implements FileDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 
@@ -85,7 +85,7 @@ public class FileRDBMSStore extends GenericNamedRDBMSCRUD<FileData, FileBean> im
 	@Override
 	public long createWithTS(FileData newValue, Date updatTS)
 	{
-		newValue.setLastUpdate(updatTS);
-		return create(newValue);
+		FileData ret = new FileData(newValue.name, newValue.contents, updatTS, newValue.ownerType, newValue.ownerId);
+		return create(ret);
 	}
 }

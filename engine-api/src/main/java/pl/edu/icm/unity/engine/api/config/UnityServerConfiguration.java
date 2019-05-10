@@ -176,6 +176,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 	public static final String ENABLE_LOW_LEVEL_EVENTS = "enableLowLevelEvents";
 	
 	public static final String RESTRICT_FILE_SYSTEM_ACCESS = "restrictFileSystemAccess";
+	public static final String FILE_SIZE_LIMIT = "fileSizeLimit";
 	
 	@DocumentationReferenceMeta
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
@@ -193,10 +194,10 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		DocumentationCategory initEndpointsCat = new DocumentationCategory("Content initializers: endpoints", "7");
 		DocumentationCategory otherCat = new DocumentationCategory("Other", "8");
 		
-		//TODO DESC
 		defaults.put(RESTRICT_FILE_SYSTEM_ACCESS, new PropertyMD("false").setCategory(mainCat).
-				setDescription(""));
-		
+				setDescription("If true then files from disk can be served only if are physically located in webContents"));	
+		defaults.put(FILE_SIZE_LIMIT, new PropertyMD("2000000").setPositive().setCategory(mainCat).
+				setDescription("Max file size in bytes which can be saved by file storage service in the database"));		
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
 				setDescription("List of enabled locales. " +
 				"Each entry must have a language code as 'en' or 'pl' first, " +

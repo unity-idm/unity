@@ -19,7 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -47,19 +47,19 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleStickyEnquiryUpdater.class);
 
 	private UnityMessageSource msg;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private EnquiryResponseEditorController controller;
 	private List<String> forms;
 	private boolean showNotAppFormsInfo;
 
-	public SingleStickyEnquiryUpdater(UnityMessageSource msg, EnquiryResponseEditorController controller, FileStorageService fileStorageService, 
+	public SingleStickyEnquiryUpdater(UnityMessageSource msg, EnquiryResponseEditorController controller, URIAccessService uriAccessService, 
 			List<String> forms, boolean showNotAppFormsInfo) throws WrongArgumentException
 	{
 		this.msg = msg;
 		this.controller = controller;
 		this.forms = forms;
 		this.showNotAppFormsInfo = showNotAppFormsInfo;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		reload();
 	}
 
@@ -128,7 +128,7 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 							TriggeringState.NOT_APPLICABLE_ENQUIRY);
 			
 			
-			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, fileStorageService);
+			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, uriAccessService);
 			editorWrapper.addComponent(finalScreen);
 			editorWrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 			return editorWrapper;	

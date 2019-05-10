@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -25,6 +26,7 @@ import pl.edu.icm.unity.types.translation.TranslationProfile;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * SAML Individual trusted idp configuration
@@ -59,7 +61,7 @@ public class IndividualTrustedSamlIdpConfiguration
 		setTranslationProfile(TranslationProfileGenerator.generateEmptyInputProfile());
 	}
 
-	public void fromProperties(UnityMessageSource msg, FileStorageService fileStorageService,
+	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService,
 			SAMLSPProperties source, String name)
 	{
 
@@ -71,7 +73,7 @@ public class IndividualTrustedSamlIdpConfiguration
 		if (source.isSet(prefix + SAMLSPProperties.IDP_LOGO))
 		{
 			String logoUri = source.getValue(prefix + SAMLSPProperties.IDP_LOGO);
-			setLogo(FileFieldUtils.getLogoResourceFromUri(logoUri, fileStorageService));	
+			setLogo(ImageUtils.getImageFromUriSave(logoUri, uriAccessService));	
 		}
 
 		if (source.isSet(prefix + SAMLSPProperties.IDP_BINDING))
@@ -138,7 +140,7 @@ public class IndividualTrustedSamlIdpConfiguration
 		if (getLogo() != null)
 		{
 			FileFieldUtils.saveInProperties(getLogo(), prefix + SAMLSPProperties.IDP_LOGO, raw, fileService,
-					StandardOwner.Authenticator.toString(), authName + "." + getId());
+					StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());
 		}
 
 		if (getBinding() != null)

@@ -20,7 +20,7 @@ import pl.edu.icm.unity.engine.api.CredentialRequirementManagement;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -46,7 +46,7 @@ public class OutdatedCredentialController
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	private long entityId;
 	private String credentialId;
@@ -61,7 +61,7 @@ public class OutdatedCredentialController
 			UnityMessageSource msg, CredentialManagement credMan,
 			EntityCredentialManagement ecredMan, EntityManagement entityMan,
 			CredentialRequirementManagement credReqMan,
-			CredentialEditorRegistry credEditorReg, FileStorageService fileStorageService)
+			CredentialEditorRegistry credEditorReg, URIAccessService uriAccessService)
 	{
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.msg = msg;
@@ -69,7 +69,7 @@ public class OutdatedCredentialController
 		this.ecredMan = ecredMan;
 		this.entityMan = entityMan;
 		this.credEditorReg = credEditorReg;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	public void init(CredentialChangeConfiguration uiConfig, StandardWebAuthenticationProcessor authnProcessor,
@@ -90,7 +90,7 @@ public class OutdatedCredentialController
 		VerticalLayout master = new VerticalLayout();
 		master.setMargin(false);
 		master.setSizeFull();
-		ui = new CredentialChangePanel(msg, entityId, fileStorageService, ecredMan, entityMan,
+		ui = new CredentialChangePanel(msg, entityId, uriAccessService, ecredMan, entityMan,
 					credEditorReg, credDef, additionalAuthnHandler, uiConfig,
 					() -> afterCredentialUpdate(true),
 					() -> afterCredentialUpdate(false));

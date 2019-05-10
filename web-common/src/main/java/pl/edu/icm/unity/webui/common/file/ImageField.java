@@ -8,37 +8,37 @@ package pl.edu.icm.unity.webui.common.file;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 
 /**
- * Allows upload image file or set remote logo file url
+ * Allows upload image file or set remote image file url
  * @author P.Piernik
  *
  */
-public class LogoFileField extends FileFieldBase
+public class ImageField extends FileFieldBase
 {
-	public static final int PREVIEW_SIZE = 10;
+	private static final int PREVIEW_SIZE_EM = 10;
 	
-	private FileStorageService fileService;
+	private URIAccessService uriAccessService;
 	
 	private Image preview;
 	private VerticalLayout previewL;
 	
-	public LogoFileField(UnityMessageSource msg, FileStorageService fileStorageService)
+	public ImageField(UnityMessageSource msg, URIAccessService uriAccessService)
 	{
 		super(msg, "image/*");
-		this.fileService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		
 		preview = new Image();
-		preview.setWidth(PREVIEW_SIZE, Unit.EM);
-		preview.setHeight(PREVIEW_SIZE, Unit.EM);
+		preview.setWidth(PREVIEW_SIZE_EM, Unit.EM);
+		preview.setHeight(PREVIEW_SIZE_EM, Unit.EM);
 
 		previewL = new VerticalLayout();
-		previewL.setWidth(PREVIEW_SIZE, Unit.EM);
+		previewL.setWidth(PREVIEW_SIZE_EM, Unit.EM);
 		previewL.setMargin(false);
 		previewL.setSpacing(false);
 		previewL.addComponent(preview);
@@ -68,7 +68,7 @@ public class LogoFileField extends FileFieldBase
 			try
 			{
 				preview.setSource(new FileStreamResource(
-						fileService.readURI(URIHelper.parseURI(value.getRemote()), null))
+						uriAccessService.readURI(URIHelper.parseURI(value.getRemote()), null))
 								.getResource());
 
 			} catch (Exception e)

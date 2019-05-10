@@ -22,7 +22,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
@@ -32,7 +32,7 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithDropdown;
 import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
-import pl.edu.icm.unity.webui.common.file.LogoFileField;
+import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -48,7 +48,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 {
 
 	private UnityMessageSource msg;
-	private FileStorageService fileService;
+	private URIAccessService uriAccessService;
 	private Binder<IndividualTrustedSamlIdpConfiguration> configBinder;
 	private boolean editMode = false;
 
@@ -56,7 +56,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 	private Set<String> registrationForms;
 	private Set<String> usedNames;
 
-	EditIndividualTrustedIdpSubView(UnityMessageSource msg, FileStorageService fileService,
+	EditIndividualTrustedIdpSubView(UnityMessageSource msg, URIAccessService uriAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			IndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
 			Set<String> usedNames, Set<String> certificates, Set<String> registrationForms,
@@ -66,7 +66,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		this.certificates = certificates;
 		this.registrationForms = registrationForms;
 		this.usedNames = usedNames;
-		this.fileService = fileService;
+		this.uriAccessService = uriAccessService;
 		editMode = toEdit != null;
 
 		configBinder = new Binder<>(IndividualTrustedSamlIdpConfiguration.class);
@@ -129,7 +129,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		configBinder.forField(displayedName).asRequired(msg.getMessage("fieldRequired")).bind("displayedName");
 		header.addComponent(displayedName);
 
-		LogoFileField logo = new LogoFileField(msg, fileService);
+		ImageField logo = new ImageField(msg, uriAccessService);
 		logo.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.logo"));
 		logo.configureBinding(configBinder, "logo");
 		header.addComponent(logo);

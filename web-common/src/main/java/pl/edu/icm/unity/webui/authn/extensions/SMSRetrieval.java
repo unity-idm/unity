@@ -27,7 +27,6 @@ import com.vaadin.ui.Component.Focusable;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -39,7 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -57,12 +56,12 @@ import pl.edu.icm.unity.webui.authn.CredentialResetLauncher;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.authn.credreset.sms.SMSCredentialResetController;
 import pl.edu.icm.unity.webui.common.CaptchaComponent;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
@@ -78,19 +77,19 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public static final String DESC = "WebSMSRetrievalFactory.desc";
 	
 	private UnityMessageSource msg;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private I18nString name;
 	private String logoURL;
 	private CredentialEditorRegistry credEditorReg;
 	private String configuration;
 	
 	@Autowired
-	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg, FileStorageService fileStorageService)
+	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg, URIAccessService fileStorageService)
 	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = fileStorageService;
 	}
 	
 	@Override
@@ -128,7 +127,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
-				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME), fileStorageService));
+				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME), uriAccessService));
 	}
 
 	@Override
@@ -455,12 +454,12 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	private class SMSRetrievalUI implements VaadinAuthenticationUI
 	{
 		private SMSRetrievalComponent theComponent;
-		private FileStorageService fileStorageService;
+		private  URIAccessService uriAccessService;
 
-		public SMSRetrievalUI(CredentialEditor credEditor, FileStorageService fileStorageService)
+		public SMSRetrievalUI(CredentialEditor credEditor, URIAccessService uriAccessService)
 		{
 			this.theComponent = new SMSRetrievalComponent(credEditor);
-			this.fileStorageService = fileStorageService;
+			this.uriAccessService = uriAccessService;
 		}
 
 		@Override
@@ -496,18 +495,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 				return Images.mobile_sms.getResource();
 			else
 			{
-				try
-				{
-					return new FileStreamResource(
-							fileStorageService
-									.readImageURI(URIHelper.parseURI(logoURL),
-											UI.getCurrent().getTheme())
-									.getContents()).getResource();
-				} catch (Exception e)
-				{
-					log.error("Can't load logo", e);
-					return null;
-				}
+				return ImageUtils.getConfiguredImageResourceFromUriSave(logoURL, uriAccessService);
 			}
 		}
 

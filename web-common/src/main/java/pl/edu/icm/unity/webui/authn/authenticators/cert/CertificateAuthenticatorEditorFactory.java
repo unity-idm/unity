@@ -5,10 +5,12 @@
 
 package pl.edu.icm.unity.webui.authn.authenticators.cert;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateVerificator;
@@ -27,13 +29,16 @@ class CertificateAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	private UnityMessageSource msg;
 	private CredentialManagement credMan;
 	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
-	CertificateAuthenticatorEditorFactory(UnityMessageSource msg, FileStorageService fileStorageService,
+	@Autowired
+	CertificateAuthenticatorEditorFactory(UnityMessageSource msg, FileStorageService fileStorageService, URIAccessService uriAccessService,
 			CredentialManagement credMan)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
 		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	@Override
@@ -45,6 +50,6 @@ class CertificateAuthenticatorEditorFactory implements AuthenticatorEditorFactor
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new CertificateAuthenticatorEditor(msg, fileStorageService, credMan.getCredentialDefinitions());
+		return new CertificateAuthenticatorEditor(msg, fileStorageService, uriAccessService, credMan.getCredentialDefinitions());
 	}
 }

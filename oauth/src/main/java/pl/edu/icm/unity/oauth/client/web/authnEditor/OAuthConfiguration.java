@@ -15,6 +15,7 @@ import java.util.Set;
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
@@ -36,7 +37,7 @@ public class OAuthConfiguration
 		providers = new ArrayList<>();
 	}
 
-	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService)
+	public void fromProperties(String properties, UnityMessageSource msg, PKIManagement pkiMan, URIAccessService uriAccessService)
 	{
 		Properties raw = new Properties();
 		try
@@ -58,7 +59,7 @@ public class OAuthConfiguration
 
 			OAuthProviderConfiguration provider = new OAuthProviderConfiguration();
 			CustomProviderProperties providerProps = oauthProp.getProvider(key);
-			provider.fromProperties(msg, fileStorageService,  providerProps, idpKey);
+			provider.fromProperties(msg, uriAccessService,  providerProps, idpKey);
 			providers.add(provider);
 		}
 	}

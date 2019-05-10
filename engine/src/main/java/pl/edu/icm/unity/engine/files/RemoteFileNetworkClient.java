@@ -26,11 +26,11 @@ import pl.edu.icm.unity.exceptions.EngineException;
  * @author P.Piernik
  *
  */
-public class RemoteFileNetworkClient
+class RemoteFileNetworkClient
 {
 	private PKIManagement pkiManagement;
 
-	public RemoteFileNetworkClient(PKIManagement pkiManagement)
+	RemoteFileNetworkClient(PKIManagement pkiManagement)
 	{
 		this.pkiManagement = pkiManagement;
 	}

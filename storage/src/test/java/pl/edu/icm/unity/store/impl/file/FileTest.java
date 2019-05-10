@@ -36,20 +36,15 @@ public class FileTest extends AbstractNamedDAOTest<FileData>
 	protected FileData getObject(String id)
 	{
 
-		FileData fileData = new FileData(id, "demo".getBytes(), new Date());
-		fileData.setOwnerId("o1");
-		fileData.setOwnerType("oType");
+		FileData fileData = new FileData(id, "demo".getBytes(), new Date(), "oType", "o1");
 		return fileData;
 	}
 
 	@Override
 	protected FileData mutateObject(FileData src)
 	{
-		src.setContents("demo2".getBytes());
-		src.setOwnerId("o2");
-		src.setOwnerType("oType");
-		src.setLastUpdate(new Date());
-		return src;
+		FileData newV = new FileData("demo2", "demo2".getBytes(), new Date(), "oType2", "o2");
+		return newV;
 	}
 
 }

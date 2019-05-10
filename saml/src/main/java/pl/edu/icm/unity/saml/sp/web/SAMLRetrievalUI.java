@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.sp.RemoteAuthnContext;
@@ -60,7 +60,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLRetrievalUI.class);
 
 	private UnityMessageSource msg;
-	private FileStorageService fileService;
+	private URIAccessService uriAccessService;
 	
 
 	private SAMLExchange credentialExchange;
@@ -80,12 +80,12 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 
 	private IdPAuthNComponent idpComponent;
 
-	public SAMLRetrievalUI(UnityMessageSource msg, FileStorageService fileService, SAMLExchange credentialExchange,
+	public SAMLRetrievalUI(UnityMessageSource msg, URIAccessService uriAccessService, SAMLExchange credentialExchange,
 			SamlContextManagement samlContextManagement, String idpKey, String configKey,
 			String authenticatorName, Context context)
 	{
 		this.msg = msg;
-		this.fileService = fileService;
+		this.uriAccessService = uriAccessService;
 		this.credentialExchange = credentialExchange;
 		this.samlContextManagement = samlContextManagement;
 		this.idpKey = idpKey;
@@ -115,35 +115,14 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	private void initUI()
 	{
 		redirectParam = installRequestHandler();
-
-		String logoURI = configuration.logoURI;
-
-		
-		
 		Resource logo;
-		if (logoURI == null)
+		if (configuration.logoURI == null)
 		{
 			logo = Images.empty.getResource();
 		}
 		else
 		{
-			try
-			{	
-				//workaround performance problems
-				URI uri = URIHelper.parseURI(logoURI);
-				if (URIHelper.isWebReady(uri))
-				{
-					logo = new ExternalResource(uri.toString());
-				}else
-				{
-					logo = new FileStreamResource(fileService.readImageURI(URIHelper.parseURI(logoURI),
-									UI.getCurrent().getTheme())).getResource();
-				}		
-			} catch (Exception e)
-			{
-				log.warn("Can't load logo from " + logoURI);
-				logo = null;
-			}	
+			logo = getImage();
 		}
 		
 		String signInLabel;
@@ -328,7 +307,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 	public Resource getImage()
 	{
 		if (configuration.logoURI == null)
+		{
 			return null;
+		}
 
 		try
 		{
@@ -338,8 +319,9 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 				return new ExternalResource(uri.toString());
 			} else
 			{
-				return new FileStreamResource(fileService.readImageURI(uri, UI.getCurrent().getTheme()))
-						.getResource();
+				return new FileStreamResource(
+						uriAccessService.readImageURI(uri, UI.getCurrent().getTheme()))
+								.getResource();
 			}
 		} catch (Exception e)
 		{
@@ -347,7 +329,7 @@ public class SAMLRetrievalUI implements VaadinAuthenticationUI
 			return null;
 		}
 	}
-
+	
 	@Override
 	public void clear()
 	{

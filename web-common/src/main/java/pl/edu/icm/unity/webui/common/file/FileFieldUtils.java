@@ -8,53 +8,19 @@ package pl.edu.icm.unity.webui.common.file;
 import java.net.URI;
 import java.util.Properties;
 
-import org.apache.logging.log4j.Logger;
-
-import com.vaadin.ui.UI;
-
-import pl.edu.icm.unity.base.file.FileData;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 
 /**
- * Logo field related methods.
+ * File field related methods.
  * 
  * @author P.Piernik
  *
  */
 public class FileFieldUtils
 {
-
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, FileFieldUtils.class);
-	
-	public static LocalOrRemoteResource getLogoResourceFromUri(String logoUri,
-			FileStorageService fileStorageService) 
-	{	
-		try
-		{
-			URI uri = URIHelper.parseURI(logoUri);
-			if (URIHelper.isWebReady(uri))
-			{
-				return new LocalOrRemoteResource(uri.toString());
-			} else
-			{
-				FileData fileData = fileStorageService.readImageURI(uri, UI.getCurrent().getTheme());
-				return new LocalOrRemoteResource(fileData.getContents(), uri.toString());
-			}
-			
-			
-		} catch (EngineException e)
-		{
-			log.error("Can not read logo from uri: " + logoUri);
-		}
-		
-		return null;
-	}
-
 	public static void saveInProperties(LocalOrRemoteResource res, String prefix, Properties raw,
 			FileStorageService fileStorageService, String ownerType, String ownerId)
 	{	
@@ -77,7 +43,7 @@ public class FileFieldUtils
 			{
 				try
 				{
-					URI uri = fileStorageService.storageFile(res.getLocal(), ownerType, ownerId);
+					URI uri = fileStorageService.storeFile(res.getLocal(), ownerType, ownerId);
 					return uri.toString();
 				} catch (EngineException e)
 				{

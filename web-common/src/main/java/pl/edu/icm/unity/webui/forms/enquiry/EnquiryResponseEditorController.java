@@ -27,7 +27,7 @@ import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
@@ -80,7 +80,7 @@ public class EnquiryResponseEditorController
 	private EntityManagement idMan;	
 	private AttributesManagement attrMan;
 	private IdPLoginController idpLoginController;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 
 	@Autowired
 	public EnquiryResponseEditorController(UnityMessageSource msg,
@@ -93,7 +93,7 @@ public class EnquiryResponseEditorController
 			@Qualifier("insecure") GroupsManagement groupsMan,
 			@Qualifier("insecure") EntityManagement idMan,
 			@Qualifier("insecure") AttributesManagement attrMan, IdPLoginController idpLoginController,
-			FileStorageService fileStorageService)
+			URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.enquiryManagement = enquiryManagement;
@@ -106,7 +106,7 @@ public class EnquiryResponseEditorController
 		this.idMan = idMan;
 		this.attrMan = attrMan;
 		this.idpLoginController = idpLoginController;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 
@@ -114,7 +114,7 @@ public class EnquiryResponseEditorController
 	{
 		return new EnquiryResponseEditor(msg, form, remoteContext, 
 				identityEditorRegistry, credentialEditorRegistry, 
-				attributeHandlerRegistry, atMan, credMan, groupsMan, fileStorageService, set);
+				attributeHandlerRegistry, atMan, credMan, groupsMan, uriAccessService, set);
 	}
 	
 	public EnquiryResponseEditor getEditorInstance(EnquiryForm form, 

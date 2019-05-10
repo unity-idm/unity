@@ -10,7 +10,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
@@ -29,13 +29,13 @@ import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 public class RegistrationFormFillDialog extends AbstractDialog
 {
 	private RegistrationRequestEditor editor;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private Callback callback;
 	private boolean onFinalScreen;
 	private IdPLoginController idpLoginController;
 	private boolean withSimplifiedFinalization;
 	
-	public RegistrationFormFillDialog(UnityMessageSource msg, FileStorageService fileStorageService, String caption, 
+	public RegistrationFormFillDialog(UnityMessageSource msg, URIAccessService uriAccessService, String caption, 
 			RegistrationRequestEditor editor, Callback callback, IdPLoginController idpLoginController,
 			boolean withSimplifiedFinalization)
 	{
@@ -45,7 +45,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		this.callback = callback;
 		this.idpLoginController = idpLoginController;
 		this.withSimplifiedFinalization = withSimplifiedFinalization;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		setSizeMode(SizeMode.LARGE);
 	}
 
@@ -80,7 +80,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 		setContent(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
-			url -> redirect(url, idpLoginController), fileStorageService);
+			url -> redirect(url, idpLoginController), uriAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}

@@ -21,6 +21,7 @@ import org.apache.xmlbeans.XmlException;
 import pl.edu.icm.unity.base.file.FileData;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.exceptions.EngineException;
 import xmlbeans.org.oasis.saml2.metadata.EntitiesDescriptorDocument;
@@ -35,11 +36,13 @@ public class MetadataDownloader
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_SAML, MetadataDownloader.class);
 	private static final String CACHE_DIR = "downloadedMetadata";
+	private final URIAccessService uriAccessService;
 	private final FileStorageService fileStorageService;
 
-	public MetadataDownloader(FileStorageService fileStorageService)
+	public MetadataDownloader(URIAccessService uriAccessService, FileStorageService fileStorageService)
 	{
 		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 	
 	/**
@@ -61,7 +64,7 @@ public class MetadataDownloader
 		
 		if (!URIHelper.isWebReady(uri))
 		{
-			return EntitiesDescriptorDocument.Factory.parse(new ByteArrayInputStream(fileStorageService.readURI(uri, null).getContents()));
+			return EntitiesDescriptorDocument.Factory.parse(new ByteArrayInputStream(uriAccessService.readURI(uri, null).contents));
 		} else
 		{
 			return loadFile(download(uri, customTruststore));
@@ -86,7 +89,7 @@ public class MetadataDownloader
 			return Optional.empty();
 		}
 		log.debug("Get metadata file for "+ uri + " from cache");
-		return Optional.of(loadFile(new ByteArrayInputStream(data.getContents())));
+		return Optional.of(loadFile(new ByteArrayInputStream(data.contents)));
 	}
 	
 	private EntitiesDescriptorDocument loadFile(InputStream file) throws XmlException, IOException, InterruptedException
@@ -101,10 +104,10 @@ public class MetadataDownloader
 	
 	private InputStream download(URI uri, String customTruststore) throws IOException, EngineException
 	{
-		FileData data = fileStorageService.readURI(uri, Optional.ofNullable(customTruststore));
-		FileData savedFile = fileStorageService.stoarageFileInWorkspace(data.getContents(), getFileName(uri.toString()));
+		FileData data = uriAccessService.readURI(uri, customTruststore);
+		FileData savedFile = fileStorageService.storeFileInWorkspace(data.contents, getFileName(uri.toString()));
 		log.info("Downloaded metadata from " + uri.toString() + " and stored in " + savedFile.getName());
-		return new ByteArrayInputStream(savedFile.getContents());
+		return new ByteArrayInputStream(savedFile.contents);
 	}
 		
 	public static String getFileName(String uri)

@@ -10,6 +10,7 @@ import java.util.Properties;
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.translation.TranslationProfileGenerator;
@@ -24,6 +25,7 @@ import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.webui.authn.CommonWebAuthnProperties;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * 
@@ -52,7 +54,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		type = Providers.custom.toString();
 	}
 
-	public void fromTemplate(UnityMessageSource msg, FileStorageService fileStorageService,
+	public void fromTemplate(UnityMessageSource msg, URIAccessService uriAccessService,
 			CustomProviderProperties source, String idFromTemplate, String orgId)
 	{
 		String profile = source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE);
@@ -63,10 +65,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 					source.getValue(CommonWebAuthnProperties.TRANSLATION_PROFILE)));
 
 		}
-		fromProperties(msg, fileStorageService,  source, orgId != null ? orgId : idFromTemplate);
+		fromProperties(msg, uriAccessService,  source, orgId != null ? orgId : idFromTemplate);
 	}
 
-	public void fromProperties(UnityMessageSource msg, FileStorageService fileStorageService,
+	public void fromProperties(UnityMessageSource msg, URIAccessService uriAccessService,
 			CustomProviderProperties source, String id)
 	{
 		setId(id);
@@ -80,7 +82,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		{
 			String logoUri = source.getLocalizedString(msg, CustomProviderProperties.ICON_URL)
 					.getDefaultValue();
-			setLogo(FileFieldUtils.getLogoResourceFromUri(logoUri, fileStorageService));
+			setLogo(ImageUtils.getImageFromUriSave(logoUri, uriAccessService));
 		}
 
 		setClientId(source.getValue(CustomProviderProperties.CLIENT_ID));
@@ -147,7 +149,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		if (getLogo() != null)
 		{
 			FileFieldUtils.saveInProperties(getLogo(), prefix + CustomProviderProperties.ICON_URL, raw, fileStorageService,
-					StandardOwner.Authenticator.toString(), authName + "." + getId());
+					StandardOwner.AUTHENTICATOR.toString(), authName + "." + getId());
 		}
 
 		raw.put(prefix + CustomProviderProperties.CLIENT_ID, getClientId());

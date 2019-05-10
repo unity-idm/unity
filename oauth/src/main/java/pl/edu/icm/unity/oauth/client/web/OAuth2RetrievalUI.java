@@ -20,15 +20,13 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinSession;
 import com.vaadin.server.WrappedSession;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.oauth.client.OAuthContext;
@@ -48,9 +46,9 @@ import pl.edu.icm.unity.webui.authn.VaadinAuthentication.AuthenticationStyle;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.Context;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication.VaadinAuthenticationUI;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * UI part of OAuth retrieval. Shows a single provider, redirects to it if requested.
@@ -61,7 +59,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 	private static final Logger log = Log.getLogger(Log.U_SERVER_OAUTH, OAuth2RetrievalUI.class);
 	
 	private UnityMessageSource msg;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriService;
 	private OAuthExchange credentialExchange;
 	private OAuthContextsManagement contextManagement;
 	private final String configKey;
@@ -79,12 +77,12 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 
 	private ExpectedIdentity expectedIdentity;
 
-	public OAuth2RetrievalUI(UnityMessageSource msg, FileStorageService fileStorageService, OAuthExchange credentialExchange,
+	public OAuth2RetrievalUI(UnityMessageSource msg, URIAccessService fileStorageService, OAuthExchange credentialExchange,
 			OAuthContextsManagement contextManagement, ExecutorsService executorsService, 
 			String idpKey, String configKey, String authenticatorName, Context context)
 	{
 		this.msg = msg;
-		this.fileStorageService = fileStorageService;
+		this.uriService = fileStorageService;
 		this.credentialExchange = credentialExchange;
 		this.contextManagement = contextManagement;
 		this.idpKey = idpKey;
@@ -121,23 +119,10 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String name = providerProps.getLocalizedValue(CustomProviderProperties.PROVIDER_NAME, msg.getLocale());
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
-		Resource logo;
-		try
-		{
-			logo = logoURI == null ? Images.empty.getResource() : new FileStreamResource(
-					fileStorageService
-							.readImageURI(URIHelper.parseURI(logoURI),
-									UI.getCurrent().getTheme())
-							.getContents()).getResource();
-		} catch (Exception e)
-		{
-			log.warn("Can't load logo from " + logoURI, e);
-			logo = null;
-		}
 
-		
-		
-		
+		Resource logo = logoURI == null ? Images.empty.getResource()
+				: ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
+
 		String signInLabel;
 		if (context == Context.LOGIN)
 			signInLabel = msg.getMessage("AuthenticationUI.signInWith", name);
@@ -173,22 +158,7 @@ public class OAuth2RetrievalUI implements VaadinAuthenticationUI
 		OAuthClientProperties clientProperties = credentialExchange.getSettings();
 		CustomProviderProperties providerProps = clientProperties.getProvider(configKey);
 		String logoURI = providerProps.getLocalizedValue(CustomProviderProperties.ICON_URL, msg.getLocale());
-		if (logoURI == null)
-			return null;
-
-		
-		try
-		{
-			return new FileStreamResource(
-					fileStorageService
-							.readImageURI(URIHelper.parseURI(logoURI),
-									UI.getCurrent().getTheme())
-							.getContents()).getResource();
-		} catch (Exception e)
-		{
-			log.error("Can't load logo", e);
-			return null;
-		}
+		return ImageUtils.getConfiguredImageResourceFromUriSave(logoURI, uriService);
 	}
 
 	@Override

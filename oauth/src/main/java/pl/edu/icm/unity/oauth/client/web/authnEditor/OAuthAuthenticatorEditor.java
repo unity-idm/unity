@@ -28,6 +28,7 @@ import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -55,6 +56,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 {
 	private PKIManagement pkiMan;
 	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 	private RegistrationsManagement registrationMan;
 	private ProvidersComponent providersComponent;
@@ -62,13 +64,15 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 	private SubViewSwitcher subViewSwitcher;
 
 	OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService,
-			InputTranslationProfileFieldFactory profileFieldFactory, RegistrationsManagement registrationMan)
+			URIAccessService uriAccessService,InputTranslationProfileFieldFactory profileFieldFactory, 
+			RegistrationsManagement registrationMan)
 	{
 		super(msg);
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
 		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	@Override
@@ -102,7 +106,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		OAuthConfiguration config = new OAuthConfiguration();
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, msg, pkiMan, fileStorageService);
+			config.fromProperties(toEdit.configuration, msg, pkiMan, uriAccessService);
 		}
 
 		configBinder.setBean(config);
@@ -186,11 +190,11 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				logo = res == null ? Images.empty.getResource()
 						: res.getLocal() != null
 								? new FileStreamResource(res.getLocal()).getResource()
-								: new FileStreamResource(fileStorageService
+								: new FileStreamResource(uriAccessService
 										.readImageURI(URIHelper.parseURI(
 												res.getRemote()),
 												UI.getCurrent().getTheme())
-										.getContents()).getResource();
+										.contents).getResource();
 			} catch (Exception e)
 			{
 				logo = Images.error.getResource();
@@ -241,7 +245,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				return;
 			}
 
-			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, pkiMan, fileStorageService, profileFieldFactory,
+			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, pkiMan, uriAccessService
+					,profileFieldFactory,
 					edited, usedIds, subViewSwitcher, forms, validators, r -> {
 						onConfirm.accept(r);
 						fireChange();

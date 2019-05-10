@@ -14,23 +14,22 @@ import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
  * @author P.Piernik
  */
 @Component
-public class FileRDBMSSerializer implements RDBMSObjectSerializer<FileData, FileBean>
+class FileRDBMSSerializer implements RDBMSObjectSerializer<FileData, FileBean>
 {
 	@Override
 	public FileBean toDB(FileData object)
 	{
 		FileBean ret = new FileBean(object.getName(), 
-				object.getOwnerType(), object.getOwnerId(), object.getContents());
-		ret.setLastUpdate(object.getLastUpdate());
+				object.ownerType, object.ownerId, object.contents);
+		ret.setLastUpdate(object.lastUpdate);
 		return ret;
 	}
 
 	@Override
 	public FileData fromDB(FileBean bean)
 	{
-		FileData fileData = new FileData(bean.getName(), bean.getContents(), bean.getLastUpdate());
-		fileData.setOwnerType(bean.getOwnerType());
-		fileData.setOwnerId(bean.getOwnerId());
+		FileData fileData = new FileData(bean.getName(), bean.getContents(), bean.getLastUpdate(), bean.getOwnerType(), bean.getOwnerId());
+	
 		return fileData;
 	}
 }

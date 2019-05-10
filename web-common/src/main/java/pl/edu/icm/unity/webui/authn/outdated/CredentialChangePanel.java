@@ -4,8 +4,6 @@
  */
 package pl.edu.icm.unity.webui.authn.outdated;
 
-import org.apache.logging.log4j.util.Strings;
-
 import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.shared.ui.ContentMode;
@@ -15,14 +13,11 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.EntityCredentialManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationMisconfiguredException;
 import pl.edu.icm.unity.engine.api.session.AdditionalAuthenticationRequiredException;
@@ -33,20 +28,20 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler;
 import pl.edu.icm.unity.webui.authn.additional.AdditionalAuthnHandler.AuthnResult;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * Panel allowing to set a credential.
  */
 class CredentialChangePanel extends CustomComponent
 {
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private EntityCredentialManagement ecredMan;
 	private EntityManagement entityMan;
 	private CredentialEditorRegistry credEditorReg;
@@ -59,14 +54,14 @@ class CredentialChangePanel extends CustomComponent
 	private CredentialDefinition toEdit;
 	private final AdditionalAuthnHandler additionalAuthnHandler;
 	
-	CredentialChangePanel(UnityMessageSource msg, long entityId, FileStorageService fileStorageService,
+	CredentialChangePanel(UnityMessageSource msg, long entityId, URIAccessService uriAccessService,
 			EntityCredentialManagement ecredMan, 
 			EntityManagement entityMan, CredentialEditorRegistry credEditorReg,
 			CredentialDefinition toEdit, AdditionalAuthnHandler additionalAuthnHandler,
 			CredentialChangeConfiguration uiConfig, Runnable updatedCallback, Runnable cancelHandler)
 	{
 		this.msg = msg;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		this.ecredMan = ecredMan;
 		this.entityId = entityId;
 		this.entityMan = entityMan;
@@ -93,24 +88,13 @@ class CredentialChangePanel extends CustomComponent
 		wrapper.setWidthUndefined();
 		wrapper.setMargin(false);
 		
-		if (!Strings.isEmpty(uiConfig.logoURL))
+		Resource logo = ImageUtils.getConfiguredImageResourceFromUri(uiConfig.logoURL, uriAccessService);
+		if (logo != null)
 		{
-			Resource logoResource;
-			try
-			{
-				logoResource = new FileStreamResource(
-						fileStorageService
-								.readImageURI(URIHelper.parseURI(uiConfig.logoURL),
-										UI.getCurrent().getTheme())
-								.getContents()).getResource();
-			} catch (Exception e)
-			{
-				throw new ConfigurationException("Can not load configured image " + uiConfig.logoURL, e);
-			}
-			Image image = new Image(null, logoResource);
+			Image image = new Image(null, logo);
 			image.addStyleName("u-authn-logo");
 			wrapper.addComponent(image);
-			wrapper.setComponentAlignment(image, Alignment.TOP_CENTER);
+			wrapper.setComponentAlignment(image, Alignment.TOP_CENTER);	
 		}
 		
 		Label info = new Label(msg.getMessage("OutdatedCredentialDialog.info"));

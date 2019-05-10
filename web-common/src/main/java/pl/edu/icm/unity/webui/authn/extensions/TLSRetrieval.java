@@ -13,7 +13,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -24,27 +23,25 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServletService;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.emi.security.authn.x509.impl.X500NameUtils;
 import eu.unicore.util.configuration.ConfigurationException;
-import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.types.I18nString;
 import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * Retrieves the authenticated user from the TLS. The login happens on the HTTP connection level 
@@ -59,9 +56,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	public static final String NAME = "web-certificate";
 	public static final String DESC = "WebTLSRetrievalFactory.desc";
 	
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, TLSRetrieval.class);
 	private UnityMessageSource msg;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private I18nString name;
 	private String logoURL;
 	private String registrationFormForUnknown;
@@ -69,11 +65,11 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	private String configuration;
 	
 	@Autowired
-	public TLSRetrieval(UnityMessageSource msg, FileStorageService fileStorageService)
+	public TLSRetrieval(UnityMessageSource msg, URIAccessService uriAccessService)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 	
 	@Override
@@ -113,7 +109,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
-		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI(fileStorageService));
+		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI(uriAccessService));
 	}
 
 	@Override
@@ -133,15 +129,15 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
 	{
-		private FileStorageService fileStorageService;
+		private URIAccessService uriAccessService;
 		
 		private Component component = new TLSAuthnComponent();
 		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
-		public TLSRetrievalUI(FileStorageService fileStorageService)
+		public TLSRetrievalUI(URIAccessService uriAccessService)
 		{
-			this.fileStorageService = fileStorageService;
+			this.uriAccessService = uriAccessService;
 		}
 
 		@Override
@@ -186,18 +182,8 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 				return Images.certificate.getResource();
 			else
 			{
-				try
-				{
-					return new FileStreamResource(
-							fileStorageService
-									.readImageURI(URIHelper.parseURI(logoURL),
-											UI.getCurrent().getTheme())
-									.getContents()).getResource();
-				} catch (Exception e)
-				{
-					log.error("Can't load logo", e);
-					return null;
-				}
+				
+				return ImageUtils.getConfiguredImageResourceFromUriSave(logoURL, uriAccessService);
 			}
 
 		}

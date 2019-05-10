@@ -6,8 +6,7 @@
  * Author: P.Piernik
  */
 
-/**
- * File DAO.
+/**File read/write related
  * @author P.Piernik
  */
-package pl.edu.icm.unity.store.impl.files;
+package pl.edu.icm.unity.base.file;

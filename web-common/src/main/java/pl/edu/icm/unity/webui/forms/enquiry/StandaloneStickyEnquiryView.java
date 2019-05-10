@@ -14,7 +14,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -30,10 +30,10 @@ public class StandaloneStickyEnquiryView extends StandaloneEnquiryView
 {
 	private Runnable removeCallback;
 
-	StandaloneStickyEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, FileStorageService fileStorageService,
+	StandaloneStickyEnquiryView(EnquiryResponseEditor editor, StandardWebAuthenticationProcessor authnProcessor, URIAccessService uriAccessService,
 			UnityMessageSource msg, Callback callback, Runnable removeCallback)
 	{
-		super(editor, authnProcessor, fileStorageService, msg, callback);
+		super(editor, authnProcessor, uriAccessService, msg, callback);
 		this.removeCallback = removeCallback;
 	}
 

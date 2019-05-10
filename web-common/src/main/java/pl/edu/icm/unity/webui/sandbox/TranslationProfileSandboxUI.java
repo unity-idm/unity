@@ -20,7 +20,7 @@ import com.vaadin.server.VaadinService;
 import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -55,7 +55,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 	private EntityManagement idsMan;
 	private List<AuthenticationFlow> authnFlows;
 	private AuthenticationScreen ui;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public TranslationProfileSandboxUI(UnityMessageSource msg, 
@@ -63,7 +63,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 			SandboxAuthenticationProcessor authnProcessor,
 			ExecutorsService execService, 
 			@Qualifier("insecure") EntityManagement idsMan,
-			AuthenticatorSupportService authenticatorSupport, FileStorageService fileStorageService)
+			AuthenticatorSupportService authenticatorSupport, URIAccessService uriAccessService)
 	{
 		super(msg);
 		this.localeChoice = localeChoice;
@@ -71,7 +71,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		this.execService = execService;
 		this.idsMan = idsMan;
 		this.authenticatorSupport = authenticatorSupport;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 	
 	@Override
@@ -91,7 +91,7 @@ public class TranslationProfileSandboxUI extends UnityUIBase implements UnityWeb
 		boolean validationMode = vaadinRequest.getParameter(PROFILE_VALIDATION) != null;
 		this.authnProcessor.setSandboxRouter(sandboxRouter);
 		ui = new SandboxAuthenticationScreen(msg,
-				fileStorageService,
+				uriAccessService,
 				config, 
 				endpointDescription, 
 				cancelHandler, 

@@ -15,7 +15,7 @@ import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -50,20 +50,20 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 	private IdPLoginController idpLoginController;
 	private EventsBus bus;
 	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public InsecureRegistrationFormLauncher(UnityMessageSource msg, IdPLoginController idpLoginController,
 			ObjectFactory<RequestEditorCreator> requestEditorCreatorFatory, 
 			@Qualifier("insecure") RegistrationsManagement registrationsManagement,
-			AutoLoginAfterSignUpProcessor autoLoginProcessor, FileStorageService fileStorageService)
+			AutoLoginAfterSignUpProcessor autoLoginProcessor, URIAccessService uriAccessService)
 	{
 		super(msg, requestEditorCreatorFatory);
 		this.idpLoginController = idpLoginController;
 		this.registrationsManagement = registrationsManagement;
 		this.bus = WebSession.getCurrent().getEventBus();
 		this.autoLoginProcessor = autoLoginProcessor;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	private WorkflowFinalizationConfiguration addRequest(RegistrationRequest request, 
@@ -141,7 +141,7 @@ public class InsecureRegistrationFormLauncher extends AbstraceRegistrationFormDi
 		RegistrationContext context = new RegistrationContext(
 				idpLoginController.isLoginInProgress(), mode);
 		boolean isSimplifiedFinalization = isRemoteLoginWhenUnknownUser(mode);
-		RegistrationFormFillDialog dialog = new RegistrationFormFillDialog(msg, fileStorageService,
+		RegistrationFormFillDialog dialog = new RegistrationFormFillDialog(msg, uriAccessService,
 				msg.getMessage("RegistrationFormsChooserComponent.dialogCaption"), 
 				editor, new RegistrationFormFillDialog.Callback()
 				{

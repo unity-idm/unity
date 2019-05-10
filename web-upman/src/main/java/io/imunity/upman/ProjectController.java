@@ -14,19 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.server.Resource;
-import com.vaadin.ui.UI;
 
-import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.upman.common.ServerFaultException;
 import pl.edu.icm.unity.base.utils.Log;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroup;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupManagement;
 import pl.edu.icm.unity.types.basic.GroupDelegationConfiguration;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -42,14 +39,14 @@ public class ProjectController
 
 	private UnityMessageSource msg;
 	private DelegatedGroupManagement delGroupMan;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 
 	@Autowired
-	public ProjectController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan, FileStorageService fileStorageService)
+	public ProjectController(UnityMessageSource msg, DelegatedGroupManagement delGroupMan, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.delGroupMan = delGroupMan;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	Map<String, String> getProjectForUser(long entityId) throws ControllerException
@@ -85,22 +82,6 @@ public class ProjectController
 			return logo;
 		}
 		GroupDelegationConfiguration config = group.delegationConfiguration;
-		String logoUrl = config.logoUrl;
-		if (logoUrl != null && !logoUrl.isEmpty())
-		{
-			try
-			{
-				logo = new FileStreamResource(
-						fileStorageService
-								.readImageURI(URIHelper.parseURI(logoUrl),
-										UI.getCurrent().getTheme())
-								.getContents()).getResource();
-			} catch (Exception e)
-			{
-				throw new ConfigurationException("Can not load configured image " + logoUrl, e);
-			}
-		}
-
-		return logo;
+		return ImageUtils.getConfiguredImageResourceFromUri(config.logoUrl, uriAccessService);
 	}
 }

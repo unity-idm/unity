@@ -13,13 +13,12 @@ import java.util.stream.Collectors;
 
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -36,7 +35,8 @@ import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
 import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
-import pl.edu.icm.unity.webui.common.file.LogoFileField;
+import pl.edu.icm.unity.webui.common.file.ImageField;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
@@ -50,15 +50,17 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 {
 	private UnityMessageSource msg;
 	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	private Binder<SMSConfiguration> configBinder;
 
-	SMSAuthenticatorEditor(UnityMessageSource msg, FileStorageService fileStorageService, Collection<CredentialDefinition> credentialDefinitions)
+	SMSAuthenticatorEditor(UnityMessageSource msg, FileStorageService fileStorageService,  URIAccessService uriAccessService, Collection<CredentialDefinition> credentialDefinitions)
 			throws EngineException
 	{
 		super(msg, credentialDefinitions.stream().filter(c -> c.getTypeId().equals(SMSVerificator.NAME))
 				.map(c -> c.getName()).collect(Collectors.toList()));
 		this.msg = msg;
 		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	@Override
@@ -81,10 +83,10 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		main.addComponent(header);
 		main.addComponent(interactiveLoginSettings);
 
-		SMSConfiguration config = new SMSConfiguration(fileStorageService);
+		SMSConfiguration config = new SMSConfiguration(uriAccessService);
 		if (editMode)
 		{
-			config.fromProperties(toEdit.configuration, msg, fileStorageService);
+			config.fromProperties(toEdit.configuration, msg, uriAccessService);
 		}
 		configBinder.setBean(config);
 	
@@ -100,7 +102,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		retrievalName.setCaption(msg.getMessage("SMSAuthenticatorEditor.formName"));
 		configBinder.forField(retrievalName).bind("retrievalName");
 		
-		LogoFileField logo = new LogoFileField(msg, fileStorageService);
+		ImageField logo = new ImageField(msg, uriAccessService);
 		logo.setCaption(msg.getMessage("SMSAuthenticatorEditor.logo"));
 		logo.configureBinding(configBinder, "logo");
 		
@@ -138,18 +140,9 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 		private I18nString retrievalName;
 		private LocalOrRemoteResource logo;
 
-		public SMSConfiguration(FileStorageService fileStorageService)
+		public SMSConfiguration(URIAccessService uriAccessService)
 		{
-			try
-			{
-				setLogo(new LocalOrRemoteResource(fileStorageService
-						.readImageURI(URIHelper.parseURI(Images.mobile_sms.getPath()),
-								UI.getCurrent().getTheme())
-						.getContents(), Images.mobile_sms.getPath()));
-			} catch (Exception e)
-			{
-				// ok
-			}
+			setLogo(ImageUtils.getImageFromUriSave(Images.mobile_sms.getPath(), uriAccessService));
 		}
 
 		public I18nString getRetrievalName()
@@ -175,14 +168,14 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 			if (getLogo() != null)
 			{
 				FileFieldUtils.saveInProperties(getLogo(), SMSRetrievalProperties.P + SMSRetrievalProperties.LOGO_URL, raw, fileStorageService,
-						StandardOwner.Authenticator.toString(), authName);
+						StandardOwner.AUTHENTICATOR.toString(), authName);
 			}
 
 			SMSRetrievalProperties prop = new SMSRetrievalProperties(raw);
 			return prop.getAsString();
 		}
 
-		public void fromProperties(String properties, UnityMessageSource msg, FileStorageService fileStorageService)
+		public void fromProperties(String properties, UnityMessageSource msg, URIAccessService uriAccessService)
 		{
 			Properties raw = new Properties();
 			try
@@ -195,15 +188,12 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 
 			SMSRetrievalProperties smsRetrievalProperties = new SMSRetrievalProperties(raw);
 			setRetrievalName(smsRetrievalProperties.getLocalizedString(msg, SMSRetrievalProperties.NAME));
+			
 			if (smsRetrievalProperties.isSet(SMSRetrievalProperties.LOGO_URL))
 			{
-				String logoUri = smsRetrievalProperties.getValue(SMSRetrievalProperties.LOGO_URL);
-				if (!logoUri.isEmpty())
-				{
-					setLogo(FileFieldUtils.getLogoResourceFromUri(logoUri, fileStorageService));
-				}
+				setLogo(ImageUtils.getImageFromUriSave(smsRetrievalProperties.getValue(SMSRetrievalProperties.LOGO_URL),
+					uriAccessService));
 			}
-			
 		}
 
 		public LocalOrRemoteResource getLogo()

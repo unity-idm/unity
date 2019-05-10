@@ -21,7 +21,7 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrieval;
 import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.CredentialExchange;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -49,17 +49,17 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 	private UnityMessageSource msg;
 	private SamlContextManagement samlContextManagement;
 	private SAMLProxyAuthnHandler proxyAuthnHandler;
-	private FileStorageService fileService;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public SAMLRetrieval(UnityMessageSource msg, NetworkServer jettyServer, 
 			SharedEndpointManagement sharedEndpointMan,
-			SamlContextManagement samlContextManagement, FileStorageService fileService)
+			SamlContextManagement samlContextManagement, URIAccessService uriAccessService)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.samlContextManagement = samlContextManagement;
-		this.fileService = fileService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class SAMLRetrieval extends AbstractCredentialRetrieval<SAMLExchange>
 						SAMLSPProperties.IDP_BINDING, Binding.class);
 				if (binding == Binding.HTTP_POST || binding == Binding.HTTP_REDIRECT)
 				{
-					ret.add(new SAMLRetrievalUI(msg, fileService, credentialExchange, 
+					ret.add(new SAMLRetrievalUI(msg, uriAccessService, credentialExchange, 
 							samlContextManagement, idpKey, 
 							configKey, getAuthenticatorId(), context));
 				}

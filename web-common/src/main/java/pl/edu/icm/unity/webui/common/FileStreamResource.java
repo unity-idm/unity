@@ -32,7 +32,7 @@ public class FileStreamResource implements StreamSource
 	
 	public FileStreamResource(FileData fileData)
 	{
-		this.isData = fileData.getContents();
+		this.isData = fileData.contents;
 	}
 
 	@Override

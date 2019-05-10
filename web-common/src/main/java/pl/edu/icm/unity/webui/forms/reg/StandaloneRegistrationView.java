@@ -28,7 +28,7 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -78,7 +78,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 	private Runnable completedRegistrationHandler;
 	private Runnable gotoSignInRedirector;
 	private AutoLoginAfterSignUpProcessor autoLoginProcessor;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public StandaloneRegistrationView(UnityMessageSource msg,
@@ -87,7 +87,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 			IdPLoginController idpLoginController,
 			RequestEditorCreator editorCreator,
 			AuthenticationProcessor authnProcessor,
-			AutoLoginAfterSignUpProcessor autoLogin, FileStorageService fileStorageService)
+			AutoLoginAfterSignUpProcessor autoLogin, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.regMan = regMan;
@@ -96,7 +96,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		this.editorCreator = editorCreator;
 		this.signUpAuthNController = new SignUpAuthNController(authnProcessor, new SignUpAuthListener());
 		this.autoLoginProcessor = autoLogin;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 	
 	@Override
@@ -381,7 +381,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		setCompositionRoot(wrapper);
 
 		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, 
-			url -> redirect(url, idpLoginController), fileStorageService);
+			url -> redirect(url, idpLoginController), uriAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}

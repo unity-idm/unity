@@ -17,7 +17,7 @@ import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -67,7 +67,7 @@ public class AdminEnquiryFormLauncher
 	
 	private EventsBus bus;
 	private IdPLoginController idpLoginController;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public AdminEnquiryFormLauncher(UnityMessageSource msg,
@@ -77,7 +77,7 @@ public class AdminEnquiryFormLauncher
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement attrsMan, CredentialManagement authnMan,
 			GroupsManagement groupsMan, IdPLoginController idpLoginController,
-			EnquiryResponseEditorController responseController, FileStorageService fileStorageService)
+			EnquiryResponseEditorController responseController, URIAccessService uriAccessService)
 	{
 		super();
 		this.msg = msg;
@@ -90,7 +90,7 @@ public class AdminEnquiryFormLauncher
 		this.groupsMan = groupsMan;
 		this.idpLoginController = idpLoginController;
 		this.responseController = responseController;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
@@ -175,7 +175,7 @@ public class AdminEnquiryFormLauncher
 		{
 			editor = new EnquiryResponseEditor(msg, form, remoteContext, identityEditorRegistry,
 					credentialEditorRegistry, attributeHandlerRegistry, attrsMan, authnMan,
-					groupsMan, fileStorageService, responseController.getPrefilledForSticky(form));
+					groupsMan, uriAccessService, responseController.getPrefilledForSticky(form));
 		} catch (Exception e)
 		{
 			errorHandler.onError(e);

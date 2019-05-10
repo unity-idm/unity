@@ -29,7 +29,7 @@ import com.vaadin.ui.VerticalLayout;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.InvitationManagement;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PostFillingHandler;
@@ -69,7 +69,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandalonePublicEnquiryView.class);
 	
 	private UnityMessageSource msg;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	private VerticalLayout main;
 	private String registrationCode;
@@ -83,12 +83,12 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 	@Autowired
 	public StandalonePublicEnquiryView(EnquiryResponseEditorController editorController,
-			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg, FileStorageService fileStorageService)
+			@Qualifier("insecure") InvitationManagement invitationMan, UnityMessageSource msg, URIAccessService uriAccessService)
 	{
 		this.editorController = editorController;
 		this.invitationHelper = new FormsInvitationHelper(invitationMan);
 		this.msg = msg;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	@Override
@@ -361,7 +361,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 		setSizeFull();
 		setCompositionRoot(wrapper);
 
-		Component finalScreen = new WorkflowCompletedComponent(config, this::redirect, fileStorageService);
+		Component finalScreen = new WorkflowCompletedComponent(config, this::redirect, uriAccessService);
 		wrapper.addComponent(finalScreen);
 		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 	}

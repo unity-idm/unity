@@ -13,79 +13,40 @@ import com.google.common.base.Objects;
 import pl.edu.icm.unity.types.NamedObject;
 
 /**
+ * Contains content of local or remote file and additional info about file -
+ * name, owner and timestamp
  * 
  * @author P.Piernik
  *
  */
 public class FileData implements NamedObject
 {
-	private String name;
-	private String ownerType;
-	private String ownerId;
-	private byte[] contents;
-	private Date lastUpdate;
-	
-	public FileData()
-	{
-	}
-	
-	public FileData(String name, byte[] contents, Date lastUpdate)
+	public final String name;
+	public final String ownerType;
+	public final String ownerId;
+	public final byte[] contents;
+	public final Date lastUpdate;
+
+	public FileData(String name, byte[] contents, Date lastUpdate, String ownerType, String ownerId)
 	{
 		this.name = name;
-		this.contents = contents;
+		if (contents != null)
+		{
+			this.contents = Arrays.copyOf(contents, contents.length);
+		} else
+		{
+			this.contents = null;
+		}
 		this.lastUpdate = lastUpdate;
-	}
-
-	public String getName()
-	{
-		return name;
-	}
-
-	public void setName(String name)
-	{
-		this.name = name;
-	}
-
-	public String getOwnerType()
-	{
-		return ownerType;
-	}
-
-	public void setOwnerType(String ownerType)
-	{
 		this.ownerType = ownerType;
-	}
-
-	public String getOwnerId()
-	{
-		return ownerId;
-	}
-
-	public void setOwnerId(String ownerId)
-	{
 		this.ownerId = ownerId;
 	}
 
-	public byte[] getContents()
+	public FileData(String name, byte[] contents, Date lastUpdate)
 	{
-		return contents;
+		this(name, contents, lastUpdate, null, null);
 	}
 
-	public void setContents(byte[] contents)
-	{
-		this.contents = contents;
-	}
-	
-	public Date getLastUpdate()
-	{
-		return lastUpdate;
-	}
-
-	public void setLastUpdate(Date lastUpdate)
-	{
-		this.lastUpdate = lastUpdate;
-	}
-	
 	public boolean equalsContent(FileData other)
 	{
 		return Arrays.equals(this.contents, other.contents);
@@ -112,5 +73,10 @@ public class FileData implements NamedObject
 				&& Arrays.equals(this.contents, other.contents);
 	}
 
-	
+	@Override
+	public String getName()
+	{
+		return name;
+	}
+
 }

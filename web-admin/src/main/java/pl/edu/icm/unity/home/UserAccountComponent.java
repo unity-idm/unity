@@ -32,7 +32,7 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -101,7 +101,7 @@ public class UserAccountComponent extends VerticalLayout
 	private TokensManagement tokenMan;
 	private AdditionalAuthnHandler additionalAuthnHandler;
 	private EnquiryResponseEditorController enquiryResController;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -118,7 +118,7 @@ public class UserAccountComponent extends VerticalLayout
 			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan,
 			TokensManagement tokenMan,
 			AdditionalAuthnHandler additionalAuthnHandler,
-			EnquiryResponseEditorController enquiryResController, FileStorageService fileStorageService)
+			EnquiryResponseEditorController enquiryResController, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -142,7 +142,7 @@ public class UserAccountComponent extends VerticalLayout
 		this.tokenMan = tokenMan;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.enquiryResController = enquiryResController;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -189,7 +189,7 @@ public class UserAccountComponent extends VerticalLayout
 			VerticalLayout main = new VerticalLayout();
 			main.setSpacing(false);
 			main.setMargin(false);
-			SingleStickyEnquiryUpdater updater = new SingleStickyEnquiryUpdater(msg, enquiryResController, fileStorageService,
+			SingleStickyEnquiryUpdater updater = new SingleStickyEnquiryUpdater(msg, enquiryResController, uriAccessService,
 					enquiries, true);
 			if (updater.isFormsAreApplicable())
 			{

@@ -11,15 +11,18 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 
+import org.apache.logging.log4j.Logger;
+
 import eu.unicore.util.configuration.ConfigurationException;
 import pl.edu.icm.unity.base.file.FileData;
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.FileStorageService.StandardOwner;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.InternalException;
@@ -37,6 +40,8 @@ import pl.edu.icm.unity.webui.common.file.FileFieldUtils;
  */
 public class SAMLConfiguration
 {
+	private static Logger log = Log.getLogger(Log.U_SERVER_SAML, SAMLConfiguration.class);
+	
 	private String requesterId;
 	private String credential;
 	private List<String> acceptedNameFormats;
@@ -124,7 +129,7 @@ public class SAMLConfiguration
 		if (getMetadataSource() != null && !isAutoGenerateMetadata())
 		{
 			FileFieldUtils.saveInProperties(getMetadataSource(), SAMLSPProperties.P + SamlProperties.METADATA_SOURCE, raw, fileService,
-					StandardOwner.Authenticator.toString(), name);
+					StandardOwner.AUTHENTICATOR.toString(), name);
 		}
 		
 		if (getSloPath() != null)
@@ -158,7 +163,7 @@ public class SAMLConfiguration
 
 	}
 
-	public void fromProperties(PKIManagement pkiMan, FileStorageService fileStorageService, UnityMessageSource msg,
+	public void fromProperties(PKIManagement pkiMan, URIAccessService uriAccessService, UnityMessageSource msg,
 			String properties)
 	{
 		Properties raw = new Properties();
@@ -206,7 +211,7 @@ public class SAMLConfiguration
 				key -> {
 					IndividualTrustedSamlIdpConfiguration idp = new IndividualTrustedSamlIdpConfiguration();
 					key = key.substring(SAMLSPProperties.IDP_PREFIX.length(), key.length() - 1);
-					idp.fromProperties(msg, fileStorageService, samlSpProp, key);
+					idp.fromProperties(msg, uriAccessService, samlSpProp, key);
 					individualTrustedIdps.add(idp);
 				});
 
@@ -236,14 +241,14 @@ public class SAMLConfiguration
 					setMetadataSource(new LocalOrRemoteResource(uri.toString()));
 				} else
 				{
-					FileData fileData = fileStorageService.readURI(uri, Optional.empty());
-					setMetadataSource(new LocalOrRemoteResource(fileData.getContents(), uri.toString()));
+					FileData fileData = uriAccessService.readURI(uri);
+					setMetadataSource(new LocalOrRemoteResource(fileData.contents, uri.toString()));
 				}
 				
 				
 			} catch (Exception e)
 			{
-				//ok
+				log.error("Can not load configured metadata from uri: " + metaUri);
 			}
 		}else {
 			setAutoGenerateMetadata(true);

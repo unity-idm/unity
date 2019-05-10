@@ -18,15 +18,15 @@ import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.PublicRegistrationURLSupport;
 import pl.edu.icm.unity.exceptions.IllegalFormContentsException;
 import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
-import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
+import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
 import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -54,7 +54,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	@Autowired
 	private StandardWebAuthenticationProcessor authnProcessor;
 	@Autowired
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	/**
 	 * @implNote: due to changes in the enquiry links, below format was kept for
@@ -129,9 +129,9 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		};
 
 		return overwriteSticky
-				? new StandaloneStickyEnquiryView(editor, authnProcessor, fileStorageService, msg, callback,
+				? new StandaloneStickyEnquiryView(editor, authnProcessor, uriAccessService, msg, callback,
 						() -> removePendingRequestSafe(form.getName()) )
-				: new StandaloneEnquiryView(editor, authnProcessor, fileStorageService,  msg, callback);
+				: new StandaloneEnquiryView(editor, authnProcessor, uriAccessService,  msg, callback);
 	}
 	
 	private void removePendingRequestSafe(String formName)
@@ -211,7 +211,7 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			setSizeFull();
 			setCompositionRoot(wrapper);
 
-			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, fileStorageService);
+			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, uriAccessService);
 			wrapper.addComponent(finalScreen);
 			wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 		}

@@ -38,7 +38,7 @@ import pl.edu.icm.unity.engine.api.authn.remote.AbstractRemoteVerificator;
 import pl.edu.icm.unity.engine.api.authn.remote.RemoteAuthnResultProcessor;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedInput;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.server.NetworkServer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
@@ -87,7 +87,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 	private SLOSPManager sloManager;
 	private SLOReplyInstaller sloReplyInstaller;
 	private RemoteMetadataService metadataService;
-	private FileStorageService fileStorageService;
+	private URIAccessService uriAccessService;
 	
 	private UnityMessageSource msg;
 
@@ -101,7 +101,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 			SLOSPManager sloManager, SLOReplyInstaller sloReplyInstaller,
 			UnityMessageSource msg,
 			SharedEndpointManagement sharedEndpointManagement, 
-			NetworkServer jettyServer, FileStorageService fileStorageService)
+			NetworkServer jettyServer, URIAccessService uriAccessService)
 	{
 		super(NAME, DESC, SAMLExchange.ID, processor);
 		this.metadataService = metadataService;
@@ -111,7 +111,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		this.replayAttackChecker = replayAttackChecker;
 		this.sloManager = sloManager;
 		this.sloReplyInstaller = sloReplyInstaller;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 
 		URL baseAddress = jettyServer.getAdvertisedAddress();
 		String baseContext = sharedEndpointManagement.getBaseContextPath();
@@ -166,7 +166,7 @@ public class SAMLVerificator extends AbstractRemoteVerificator implements SAMLEx
 		{
 			LocalSPMetadataManager manager = new LocalSPMetadataManager(executorsService, 
 					responseConsumerAddress, 
-					sloManager, sloReplyInstaller, metadataServlet, fileStorageService);
+					sloManager, sloReplyInstaller, metadataServlet, uriAccessService);
 			manager.updateConfiguration(samlProperties);
 			localMetadataManagers.put(instanceName, manager);
 		} else

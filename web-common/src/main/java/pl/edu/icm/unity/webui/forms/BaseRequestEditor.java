@@ -30,7 +30,6 @@ import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.TextArea;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
@@ -39,8 +38,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationException;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
-import pl.edu.icm.unity.engine.api.files.FileStorageService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
+import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.registration.GroupPatternMatcher;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -76,7 +74,6 @@ import pl.edu.icm.unity.types.registration.layout.FormParameterElement;
 import pl.edu.icm.unity.types.registration.layout.FormSeparatorElement;
 import pl.edu.icm.unity.webui.common.ComponentWithLabel;
 import pl.edu.icm.unity.webui.common.ComponentsContainer;
-import pl.edu.icm.unity.webui.common.FileStreamResource;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.ReadOnlyField;
@@ -93,6 +90,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
 import pl.edu.icm.unity.webui.common.credentials.MissingCredentialException;
+import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.common.groups.GroupsSelection;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditor;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorContext;
@@ -108,7 +106,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 {
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, BaseRequestEditor.class);
 	protected UnityMessageSource msg;
-	protected FileStorageService fileStorageService;
+	protected URIAccessService uriAccessService;
 	private BaseForm form;
 	protected RemotelyAuthenticatedContext remotelyAuthenticated;
 	private IdentityEditorRegistry identityEditorRegistry;
@@ -151,7 +149,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, FileStorageService fileStorageService) throws AuthenticationException
+			GroupsManagement groupsMan, URIAccessService uriAccessService) throws AuthenticationException
 	{
 		this.msg = msg;
 		this.form = form;
@@ -162,7 +160,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.aTypeMan = atMan;
 		this.credMan = credMan;
 		this.groupsMan = groupsMan;
-		this.fileStorageService = fileStorageService;
+		this.uriAccessService = uriAccessService;
 		
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
@@ -444,23 +442,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	private void addLogo(VerticalLayout main)
 	{
 		String logoURL = form.getLayoutSettings().getLogoURL();
-		if (logoURL != null && !logoURL.isEmpty())
-		{
-			Resource logoResource;	
-			try
-			{
-				logoResource = new FileStreamResource(
-						fileStorageService
-								.readImageURI(URIHelper.parseURI(logoURL),
-										UI.getCurrent().getTheme())
-								.getContents()).getResource();
-			} catch (Exception e)
-			{
-				log.error("Can't add logo", e);
-				return;
-			}
 			
-			Image image = new Image(null, logoResource);
+		Resource res = ImageUtils.getConfiguredImageResourceFromUriSave(logoURL, uriAccessService);
+		
+		if (res != null)
+		{
+			Image image = new Image(null, res);
 			image.addStyleName("u-signup-logo");
 			main.addComponent(image);
 			main.setComponentAlignment(image, Alignment.TOP_CENTER);
