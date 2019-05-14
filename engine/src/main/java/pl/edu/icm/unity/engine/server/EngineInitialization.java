@@ -331,7 +331,7 @@ public class EngineInitialization extends LifecycleBase
 		// be caught
 		try
 		{
-			Thread.sleep(1000 - (System.currentTimeMillis() - endpointsLoadTime));
+			Thread.sleep(10000 - (System.currentTimeMillis() - endpointsLoadTime));
 		} catch (InterruptedException e)
 		{
 			// ok

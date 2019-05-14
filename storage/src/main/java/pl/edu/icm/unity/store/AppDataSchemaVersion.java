@@ -18,8 +18,8 @@ import pl.edu.icm.unity.store.rdbms.InitDB;
  * <li> Change CURRENT value here to newly created DumpSchemaVersion
  * <li> Change DB schema version in Initdb-common.xml
  * <li> in migration.xml add appropriate SQL schema migration. In minimal situation it must update VERSION flag in DB.
- * Bump {@link InitDB} SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION.
- * <li> Create in-place migration implementing InDBSchemaUpdater 
+ * Bump {@link InitDB} SQL_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION. // DONE
+ * <li> Create in-place migration implementing InDBSchemaUpdater  // TODO
  * (suggested separate package ...unity.store.migration.fromX_Y)
  * <li> Create JSON dump migration implementing {@link Update} in the above created package
  * <li> Bump {@link ContentsUpdater} DATA_SCHEMA_MIGRATION_SUPPORTED_UP_TO_DB_VERSION
@@ -30,7 +30,7 @@ import pl.edu.icm.unity.store.rdbms.InitDB;
  */
 public class AppDataSchemaVersion
 {
-	public static final DumpSchemaVersion CURRENT = DumpSchemaVersion.V_SINCE_2_9_0;
+	public static final DumpSchemaVersion CURRENT = DumpSchemaVersion.V_SINCE_2_10_0;
 	
 	/**
 	 * The oldest version of software which can be automatically updated to the current version 

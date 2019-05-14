@@ -82,12 +82,17 @@
 		SELECT TAG FROM AUDIT_TAGS;
 	</select>
 
-	<insert id="createTags" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO AUDIT_TAGS (TAG) VALUES
-		<foreach collection="tagList" item="item" index="index" separator=",">
-			(#{item})
-		</foreach>
-	</insert>
+    <insert id="createTags">
+        <foreach collection="tagList" item="item" index="index" separator=";">
+        	INSERT INTO AUDIT_TAGS
+            	(SELECT MAX(ID)+1, #{item} FROM AUDIT_TAGS
+            	WHERE NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{item}))
+        </foreach>
+    </insert>
+
+    <insert id="createTag">
+        INSERT INTO AUDIT_TAGS (TAG) VALUES (#{tag})
+    </insert>
 
 	<insert id="insertAuditTags">
 		INSERT INTO AUDIT_EVENTS_TAGS SELECT #{eventId},ID FROM AUDIT_TAGS WHERE TAG IN (

@@ -22,4 +22,9 @@
 	<update id="updateSchema-20700-00">
 		UPDATE UVOS_FLAG SET VAL = '2_7_0'
 	</update>
+
+	<update id="updateSchema-20800-00">
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.sql-initAuditTables"/>
+		UPDATE UVOS_FLAG SET VAL = '2_8_0'
+	</update>
 </mapper>

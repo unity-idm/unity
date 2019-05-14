@@ -111,41 +111,43 @@ CREATE TABLE EVENTS_QUEUE(
 		<include refid="sql-initEventsTableIdx"/>	
 	</update>
 
-	<update id="initdb-14">
-
+	<sql id="sql-initAuditTables">
 CREATE TABLE AUDIT_ENTITIES (
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
-		ENTITY_ID INTEGER,
-		NAME VARCHAR(200),
-		EMAIL VARCHAR(200),
+		ENTITY_ID INTEGER NOT NULL,
+		NAME VARCHAR(200) NOT NULL,
+		EMAIL VARCHAR(200) NOT NULL,
 		UNIQUE(ENTITY_ID, NAME, EMAIL),
-		<include refid="tableOpts"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
 CREATE TABLE AUDIT_EVENTS (
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
-		TIMESTAMP <include refid="dateTimeType"/> NOT NULL,
-		TYPE VARCHAR(100),
-		NAME VARCHAR(200),
+		TIMESTAMP <include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.dateTimeType"/> NOT NULL,
+		TYPE VARCHAR(100) NOT NULL,
+		NAME VARCHAR(200) NOT NULL,
 		SUBJECT_ID INTEGER,
 		INITIATOR_ID INTEGER NOT NULL,
-		ACTION VARCHAR(100),
+		ACTION VARCHAR(100) NOT NULL,
  		FOREIGN KEY (SUBJECT_ID) REFERENCES AUDIT_ENTITIES(ID) ON DELETE CASCADE,
  		FOREIGN KEY (INITIATOR_ID) REFERENCES AUDIT_ENTITIES(ID) ON DELETE CASCADE,
-		<include refid="contentsColumnBlob"/>
-		<include refid="tableOpts"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.contentsColumnBlob"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
 CREATE TABLE AUDIT_TAGS (
 		ID INTEGER PRIMARY KEY AUTO_INCREMENT,
-		TAG VARCHAR(200),
+		TAG VARCHAR(200) NOT NULL,
 		UNIQUE(TAG)
-		<include refid="tableOpts"/>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
 CREATE TABLE AUDIT_EVENTS_TAGS (
-		EVENT_ID INTEGER,
+		EVENT_ID INTEGER NOT NULL,
 		TAG_ID INTEGER,
 		UNIQUE(EVENT_ID, TAG_ID),
 		FOREIGN KEY (EVENT_ID) REFERENCES AUDIT_EVENTS(ID) ON DELETE CASCADE,
 		FOREIGN KEY (TAG_ID) REFERENCES AUDIT_TAGS(ID) ON DELETE CASCADE
-		<include refid="tableOpts"/>
-	</update>
+		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+	</sql>
 
+	<update id="initdb-14">
+		<include refid="sql-initAuditTables"/>
+	</update>
 	
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
@@ -154,6 +156,6 @@ CREATE TABLE UVOS_FLAG(
 	</update>
 
 	<insert id="initVersion">
-INSERT INTO UVOS_FLAG (VAL) VALUES ('2_7_0');
+INSERT INTO UVOS_FLAG (VAL) VALUES ('2_8_0');
 	</insert>
 </mapper>

@@ -4,7 +4,7 @@
  */
 package pl.edu.icm.unity.store.api;
 
-import pl.edu.icm.unity.types.basic.AuditEvent;
+import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
 import java.util.Set;
 

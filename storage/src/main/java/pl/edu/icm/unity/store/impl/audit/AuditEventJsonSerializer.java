@@ -4,22 +4,20 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import pl.edu.icm.unity.JsonUtil;
-import pl.edu.icm.unity.store.hz.JsonSerializerForKryo;
 import pl.edu.icm.unity.store.rdbms.RDBMSObjectSerializer;
-import pl.edu.icm.unity.types.basic.AuditEvent;
+import pl.edu.icm.unity.types.basic.audit.AuditEntity;
+import pl.edu.icm.unity.types.basic.audit.AuditEvent;
+import pl.edu.icm.unity.types.basic.audit.EventAction;
+import pl.edu.icm.unity.types.basic.audit.EventType;
 
 import static java.util.Objects.isNull;
-import pl.edu.icm.unity.types.basic.AuditEvent.AuditEntity;
-import pl.edu.icm.unity.types.basic.AuditEvent.EventType;
-import pl.edu.icm.unity.types.basic.AuditEvent.EventAction;
 
 /**
  * Serializes {@link AuditEvent} to/from DB form.
- * @author K. Benedyczak
+ * @author R. Ledzinski
  */
 @Component
 public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEvent, AuditEventBean>
@@ -32,7 +30,7 @@ public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEven
 	{
 		AuditEventBean bean = new AuditEventBean(
 				object.getName(),
-				JsonUtil.serialize2Bytes(object.getJsonDetails()),
+				JsonUtil.serialize2Bytes(object.getDetails()),
 				object.getType().toString(),
 				object.getTimestamp(),
 				auditEntityDAO.findOrCreateEntity(object.getSubject()),
@@ -44,15 +42,15 @@ public class AuditEventJsonSerializer implements RDBMSObjectSerializer<AuditEven
 	@Override
 	public AuditEvent fromDB(AuditEventBean bean)
 	{
-		AuditEvent event = new AuditEvent(bean.getName(),
-				EventType.valueOf(bean.getType()),
-				bean.getTimestamp(),
-				EventAction.valueOf(bean.getAction()),
-				JsonUtil.parse(bean.getContents()),
-				isNull(bean.getSubjectId()) ? null : new AuditEntity(bean.getSubjectEntityId(), bean.getSubjectName(), bean.getSubjectEmail()),
-				isNull(bean.getInitiatorId()) ? null : new AuditEntity(bean.getInitiatorEntityId(), bean.getInitiatorName(), bean.getInitiatorEmail()),
-				bean.getTags()
-				);
-		return event;
+		return AuditEvent.builder()
+				.name(bean.getName())
+				.type(EventType.valueOf(bean.getType()))
+				.timestamp(bean.getTimestamp())
+				.action(EventAction.valueOf(bean.getAction()))
+				.details(JsonUtil.parse(bean.getContents()))
+				.subject(isNull(bean.getSubjectId()) ? null : new AuditEntity(bean.getSubjectEntityId(), bean.getSubjectName(), bean.getSubjectEmail()))
+				.initiator(isNull(bean.getInitiatorId()) ? null : new AuditEntity(bean.getInitiatorEntityId(), bean.getInitiatorName(), bean.getInitiatorEmail()))
+				.tags(bean.getTags())
+				.build();
 	}
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import pl.edu.icm.unity.store.CachingDAO;
 import pl.edu.icm.unity.store.api.AuditEventDAO;
 import pl.edu.icm.unity.store.rdbms.GenericRDBMSCRUD;
-import pl.edu.icm.unity.types.basic.AuditEvent;
+import pl.edu.icm.unity.types.basic.audit.AuditEvent;
 
 import java.util.Set;
 
@@ -35,8 +35,6 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 	@Override
 	public long create(AuditEvent obj)
 	{
-		obj.assertValid();
-
 		long id = super.create(obj);
 		if (obj.getTags() != null && obj.getTags().size() > 0) {
 			tagDAO.insertAuditTags(id, obj.getTags());
@@ -47,8 +45,6 @@ public class AuditEventRDBMSStore extends GenericRDBMSCRUD<AuditEvent, AuditEven
 
 	@Override
 	public void updateByKey(final long key, final AuditEvent obj) {
-		obj.assertValid();
-
 		super.updateByKey(key, obj);
 
 		if (obj.getTags() != null && obj.getTags().size() > 0) {

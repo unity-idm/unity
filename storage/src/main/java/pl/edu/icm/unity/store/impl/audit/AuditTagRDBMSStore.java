@@ -4,6 +4,7 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
+import com.google.common.collect.Sets;
 import org.springframework.stereotype.Repository;
 import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 
@@ -12,7 +13,7 @@ import java.util.Set;
 
 /**
  * RDBMS storage of AuditEvent Tags. Helper repository to handle actions on Tag related tables entries.
- *
+ * <p>
  * Package private access - public methods are exposed via AuditEventDAO.
  *
  * @author R. Ledzinski
@@ -20,47 +21,47 @@ import java.util.Set;
 @Repository
 class AuditTagRDBMSStore
 {
-	private Set<String> tagsCache = null;
+    private Set<String> knownTags = Sets.newConcurrentHashSet();
 
-	synchronized void invalidateCache() {
-		tagsCache = null;
-	}
+    void invalidateCache()
+    {
+        knownTags.clear();
+    }
 
-	synchronized Set<String> getAllTags()
-	{
-		if (tagsCache == null) {
-			AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-			tagsCache = mapper.getAllTags();
-		}
-		return new HashSet<>(tagsCache);
-	}
+    Set<String> getAllTags()
+    {
 
-	void insertAuditTags(long eventId, Set<String> tagList)
-	{
-		// Make sure all tags are in DB
-		insertTags(tagList);
-		// Add tags for given event
-		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-		mapper.insertAuditTags(eventId, tagList);
-	}
+        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+        Set<String> allTags = mapper.getAllTags();
+        knownTags.addAll(allTags);
+        return allTags;
+    }
 
-	private synchronized void insertTags(Set<String> tagList)
-	{
-		Set<String> missing = new HashSet<>(tagList);
-		missing.removeAll(getAllTags());
-		if (missing.size()==0) {
-			return;
-		}
-		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-		mapper.createTags(missing);
-		invalidateCache();
-	}
+    void insertAuditTags(long eventId, Set<String> tagList)
+    {
+        // Make sure all tags are in DB
+        insertTags(tagList);
+        // Add tags for given event
+        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+        mapper.insertAuditTags(eventId, tagList);
+    }
 
+    private void insertTags(Set<String> tagList)
+    {
+        Set<String> missing = new HashSet<>(tagList);
+        missing.removeAll(knownTags);
+        if (missing.size() == 0) {
+            return;
+        }
+        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+        mapper.createTags(missing);
+        knownTags.addAll(missing);
+    }
 
-	void updateTags(long eventId, Set<String> tagList)
-	{
-		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-		mapper.deleteTags(eventId);
-		insertAuditTags(eventId, tagList);
-	}
+    void updateTags(long eventId, Set<String> tagList)
+    {
+        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+        mapper.deleteTags(eventId);
+        insertAuditTags(eventId, tagList);
+    }
 }
