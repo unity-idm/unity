@@ -5,9 +5,7 @@
 
 package io.imunity.webconsole.authentication.inputTranslation;
 
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
@@ -15,13 +13,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.tprofile.TranslationProfileEditor;
-import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.inputTranslation.InputTranslationsView.InputTranslationsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
-import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -147,18 +141,18 @@ class EditInputTranslationView extends CustomComponent implements UnityView
 		return profileName;
 	}
 
-	@Component
-	public static class EditInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
-	{
-
-		@Autowired
-		public EditInputTranslationNavigationInfoProvider(InputTranslationsNavigationInfoProvider parent,
-				ObjectFactory<EditInputTranslationView> factory)
-		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.build());
-
-		}
-	}
+//	@Component
+//	public static class EditInputTranslationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+//	{
+//
+//		@Autowired
+//		public EditInputTranslationNavigationInfoProvider(InputTranslationsNavigationInfoProvider parent,
+//				ObjectFactory<EditInputTranslationView> factory)
+//		{
+//			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
+//					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+//					.build());
+//
+//		}
+//	}
 }

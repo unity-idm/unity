@@ -12,6 +12,7 @@ import java.util.List;
 
 import com.google.common.collect.Sets;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -22,10 +23,7 @@ import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -40,7 +38,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 {
 	private AuthenticationFlowsController flowsMan;
 	private UnityMessageSource msg;
-	private ListOfElementsWithActions<AuthenticationFlowEntry> flowsList;
+	private GridWithActionColumn<AuthenticationFlowEntry> flowsList;
 
 	public AuthenticationFlowsComponent(UnityMessageSource msg, AuthenticationFlowsController flowsMan)
 	{
@@ -55,22 +53,25 @@ public class AuthenticationFlowsComponent extends CustomComponent
 				.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
 						e -> NavigationHelper.goToView(NewAuthenticationFlowView.VIEW_NAME)));
 
-		flowsList = new ListOfElementsWithActions<>(Arrays.asList(
-				new Column<>(msg.getMessage("AuthenticationFlowsComponent.nameCaption"),
-						f -> StandardButtonsHelper.buildLinkButton(f.flow.getName(),
-								e -> gotoEdit(f)),
-						1),
-				new Column<>(msg.getMessage("AuthenticationFlowsComponent.endpointsCaption"),
-						r -> new Label(String.join(", ", r.endpoints)), 4)),
-				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
+	
+		flowsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		flowsList.addComponentColumn(
+				f -> StandardButtonsHelper.buildLinkButton(f.flow.getName(), e -> gotoEdit(f)),
+				msg.getMessage("AuthenticationFlowsComponent.nameCaption"), 10);
+		flowsList.addDetailsComponent(flow -> {
+			{
+				Label endpoints = new Label();
+				endpoints.setCaption(msg.getMessage("AuthenticationFlowsComponent.endpointsCaption"));
+				endpoints.setValue(String.join(", ", flow.endpoints));
+				FormLayout wrapper = new FormLayout(endpoints);
+				endpoints.setStyleName(Styles.wordWrap.toString());
+				wrapper.setWidth(95, Unit.PERCENTAGE);
+				return wrapper;
+			}
+		});
 
-		flowsList.setAddSeparatorLine(true);
-
-		for (AuthenticationFlowEntry flow : getFlows())
-		{
-			flowsList.addEntry(flow);
-		}
-
+		flowsList.setItems(getFlows());
+		
 		VerticalLayout main = new VerticalLayout();
 		Label trustedCertCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
 		trustedCertCaption.setStyleName(Styles.bold.toString());
@@ -119,7 +120,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 		try
 		{
 			flowsMan.removeFlow(flow.flow);
-			flowsList.removeEntry(flow);
+			flowsList.removeElement(flow);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

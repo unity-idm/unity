@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.userprofile;
+package io.imunity.webconsole.directoryBrowser;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,20 +24,20 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
- * User profile view
+ * Default dashbord view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class UserProfileView extends CustomComponent implements UnityView
+public class DirectoryBrowser extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "UserProfile";
+	public static final String VIEW_NAME = "DirectoryBrowser";
 
 	private UnityMessageSource msg;
 
 	@Autowired
-	public UserProfileView(UnityMessageSource msg)
+	public DirectoryBrowser(UnityMessageSource msg)
 	{
 		this.msg = msg;
 	}
@@ -47,7 +47,7 @@ public class UserProfileView extends CustomComponent implements UnityView
 	{
 		VerticalLayout main = new VerticalLayout();
 		Label title = new Label();
-		title.setValue("User profile");
+		title.setValue("Directory browser");
 		main.addComponent(title);
 		setCompositionRoot(main);
 	}
@@ -55,7 +55,7 @@ public class UserProfileView extends CustomComponent implements UnityView
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("WebConsoleMenu.userProfile");
+		return msg.getMessage("WebConsoleMenu.directoryBrowser");
 	}
 	
 	@Override
@@ -65,21 +65,21 @@ public class UserProfileView extends CustomComponent implements UnityView
 	}
 
 	@Component
-	public static class UserProfileNavigationInfoProvider
-			extends WebConsoleNavigationInfoProviderBase
+	public class DirectoryBrowserNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 		@Autowired
-		public UserProfileNavigationInfoProvider(UnityMessageSource msg,
+		public DirectoryBrowserNavigationInfoProvider(UnityMessageSource msg,
 				WebConsoleRootNavigationInfoProvider parent,
-				ObjectFactory<UserProfileView> factory)
+				ObjectFactory<DirectoryBrowser> factory)
 		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
 					.withParent(parent.getNavigationInfo())
 					.withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.userProfile"))
-					.withIcon(Images.user.getResource()).withPosition(100)
+					.withCaption(msg.getMessage("WebConsoleMenu.directoryBrowser"))
+					.withIcon(Images.folder.getResource()).withPosition(10)
 					.build());
 
 		}
 	}
+
 }

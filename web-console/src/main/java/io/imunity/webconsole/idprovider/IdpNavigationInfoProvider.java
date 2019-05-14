@@ -33,7 +33,7 @@ public class IdpNavigationInfoProvider extends WebConsoleNavigationInfoProviderB
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.idpProvider"))
-				.withIcon(Images.globe.getResource()).withPosition(2).build());
+				.withIcon(Images.globe.getResource()).withPosition(40).build());
 
 	}
 }

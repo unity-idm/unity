@@ -80,6 +80,7 @@ public enum Styles
 	redProgressBar("u-redProgressBar"),
 	RegistrationLink("registrationLink"),
 	indentComboBox("u-indentComboBox"),
+	wordWrap("u-wordWrap"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

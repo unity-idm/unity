@@ -20,6 +20,7 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.components.grid.DetailsGenerator;
 import com.vaadin.ui.components.grid.GridRowDragger;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -138,6 +139,14 @@ public class GridWithActionColumn<T> extends Grid<T>
 		refreshActionColumn();
 	}
 
+	public void addDetailsComponent(DetailsGenerator<T> generator)
+	{
+		setDetailsGenerator(generator);
+		addItemClickListener(e -> {
+			setDetailsVisible(e.getItem(), !isDetailsVisible(e.getItem()));
+		});
+	}
+
 	public List<SingleActionHandler<T>> getActionHandlers()
 	{
 		return contextMenuSupp.getActionHandlers();
@@ -163,6 +172,7 @@ public class GridWithActionColumn<T> extends Grid<T>
 		HorizontalLayout actions = new HorizontalLayout();
 		actions.setMargin(false);
 		actions.setSpacing(false);
+		actions.setWidth(100, Unit.PERCENTAGE);
 
 		for (SingleActionHandler<T> handler : contextMenuSupp.getActionHandlers())
 		{
@@ -171,9 +181,9 @@ public class GridWithActionColumn<T> extends Grid<T>
 			actionButton.setIcon(handler.getIcon());
 			actionButton.setDescription(handler.getCaption());
 			actionButton.addClickListener(e -> handler.handle(target));
+			actionButton.setEnabled(handler.isEnabled(target));
 			actions.addComponent(actionButton);
 			actions.setComponentAlignment(actionButton, Alignment.TOP_LEFT);
-
 		}
 
 		return actions;

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.settings;
+package io.imunity.webconsole.directorySetup;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,24 +16,24 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
- * Provides @{link {@link NavigationInfo} about settings submenu
+ * Provides @{link {@link NavigationInfo} about directory setup submenu
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class SettingsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+public class DirectorySetupNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 {
-	public static final String ID = "Settings";
+	public static final String ID = "DirectorySetup";
 
 	@Autowired
-	public SettingsNavigationInfoProvider(UnityMessageSource msg,
+	public DirectorySetupNavigationInfoProvider(UnityMessageSource msg,
 			WebConsoleRootNavigationInfoProvider parent)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
-				.withCaption(msg.getMessage("WebConsoleMenu.settings"))
-				.withIcon(Images.settings.getResource()).withPosition(70).build());
+				.withCaption(msg.getMessage("WebConsoleMenu.directorySetup"))
+				.withIcon(Images.folder.getResource()).withPosition(60).build());
 
 	}
 

@@ -57,8 +57,8 @@ public class AuthenticationSetupView extends CustomComponent implements UnityVie
 
 		main.addComponent(new AuthenticatorsComponent(msg, authnMan));
 		main.addComponent(new Label());
-		main.addComponent(new Label());
 		main.addComponent(new AuthenticationFlowsComponent(msg, flowsMan));
+		main.addComponent(new Label());
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 		setCompositionRoot(main);
@@ -88,7 +88,7 @@ public class AuthenticationSetupView extends CustomComponent implements UnityVie
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.setup"))
-					.withPosition(0).build());
+					.withPosition(10).build());
 
 		}
 	}

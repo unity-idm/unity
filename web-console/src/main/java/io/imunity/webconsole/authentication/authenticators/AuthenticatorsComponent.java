@@ -3,7 +3,6 @@
  * See LICENCE.txt file for licensing information.
  */
 
-
 package io.imunity.webconsole.authentication.authenticators;
 
 import java.util.Arrays;
@@ -13,6 +12,7 @@ import java.util.List;
 
 import com.google.common.collect.Sets;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
@@ -23,10 +23,7 @@ import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -34,6 +31,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Shows all authenticators
+ * 
  * @author P.Piernik
  *
  */
@@ -41,8 +39,8 @@ public class AuthenticatorsComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private AuthenticatorsController controller;
-	private ListOfElementsWithActions<AuthenticatorEntry> authenticatorsList;
-	
+	private GridWithActionColumn<AuthenticatorEntry> authenticatorsList;
+
 	public AuthenticatorsComponent(UnityMessageSource msg, AuthenticatorsController controller)
 	{
 		this.msg = msg;
@@ -52,30 +50,31 @@ public class AuthenticatorsComponent extends CustomComponent
 
 	private void initUI()
 	{
-		HorizontalLayout buttonsBar = StandardButtonsHelper
-				.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
-						e -> NavigationHelper.goToView(NewAuthenticatorView.VIEW_NAME)));
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
+				.build4AddAction(msg, e -> NavigationHelper.goToView(NewAuthenticatorView.VIEW_NAME)));
 
-		authenticatorsList = new ListOfElementsWithActions<>(Arrays.asList(
-				new Column<>(msg.getMessage("AuthenticatorsComponent.nameCaption"),
-						a -> StandardButtonsHelper.buildLinkButton( a.authenticator.id,
-								e -> gotoEdit(a)),
-						1),
-				new Column<>(msg.getMessage("AuthenticatorsComponent.endpointsCaption"),
-						r -> new Label(String.join(", ", r.endpoints)), 4)),
-				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
+		authenticatorsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		authenticatorsList.addComponentColumn(
+				a -> StandardButtonsHelper.buildLinkButton(a.authenticator.id, e -> gotoEdit(a)),
+				msg.getMessage("AuthenticatorsComponent.nameCaption"), 10);
+		authenticatorsList.addDetailsComponent(authenticator -> {
+			{
+				Label endpoints = new Label();
+				endpoints.setCaption(msg.getMessage("AuthenticatorsComponent.endpointsCaption"));
+				endpoints.setValue(String.join(", ", authenticator.endpoints));
+				FormLayout wrapper = new FormLayout(endpoints);
+				endpoints.setStyleName(Styles.wordWrap.toString());
+				wrapper.setWidth(95, Unit.PERCENTAGE);
+				return wrapper;
+			}
+		});
 
-		authenticatorsList.setAddSeparatorLine(true);
-
-		for (AuthenticatorEntry authenticator : getAutheticators())
-		{
-			authenticatorsList.addEntry(authenticator);
-		}
+		authenticatorsList.setItems(getAuthenticators());
 
 		VerticalLayout main = new VerticalLayout();
-		Label trustedCertCaption = new Label(msg.getMessage("AuthenticatorsComponent.caption"));
-		trustedCertCaption.setStyleName(Styles.bold.toString());
-		main.addComponent(trustedCertCaption);
+		Label authCaption = new Label(msg.getMessage("AuthenticatorsComponent.caption"));
+		authCaption.setStyleName(Styles.bold.toString());
+		main.addComponent(authCaption);
 		main.addComponent(buttonsBar);
 		main.addComponent(authenticatorsList);
 		main.setWidth(100, Unit.PERCENTAGE);
@@ -99,11 +98,11 @@ public class AuthenticatorsComponent extends CustomComponent
 
 	private void gotoEdit(AuthenticatorEntry a)
 	{
-		NavigationHelper.goToView(EditAuthenticatorView.VIEW_NAME + "/" + CommonViewParam.name.toString()
-				+ "=" + a.authenticator.id);
+		NavigationHelper.goToView(EditAuthenticatorView.VIEW_NAME + "/" + CommonViewParam.name.toString() + "="
+				+ a.authenticator.id);
 	}
 
-	private Collection<AuthenticatorEntry> getAutheticators()
+	private Collection<AuthenticatorEntry> getAuthenticators()
 	{
 		try
 		{
@@ -120,7 +119,7 @@ public class AuthenticatorsComponent extends CustomComponent
 		try
 		{
 			controller.removeAuthenticator(a.authenticator);
-			authenticatorsList.removeEntry(a);
+			authenticatorsList.removeElement(a);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

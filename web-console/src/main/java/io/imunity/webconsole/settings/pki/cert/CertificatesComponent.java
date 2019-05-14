@@ -22,10 +22,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.pki.NamedCertificate;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn.Position;
-import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.Column;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -42,7 +39,7 @@ public class CertificatesComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private CertificatesController certController;
-	private ListOfElementsWithActions<NamedCertificate> certList;
+	private GridWithActionColumn<NamedCertificate> certList;
 
 	public CertificatesComponent(UnityMessageSource msg, CertificatesController controller)
 	{
@@ -53,19 +50,13 @@ public class CertificatesComponent extends CustomComponent
 
 	private void initUI()
 	{
-		certList = new ListOfElementsWithActions<>(
-				Arrays.asList(new Column<>(msg.getMessage("CertificatesComponent.certificateNameCaption"),
-						c -> StandardButtonsHelper.buildLinkButton(c.name, e -> gotoEdit(c)),
-						2)),
-				new ActionColumn<>(msg.getMessage("actions"), getActionsHandlers(), 0, Position.Right));
+		
+		certList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		certList.addComponentColumn(c -> StandardButtonsHelper.buildLinkButton(c.name, e -> 
+				gotoEdit(c)), msg.getMessage("CertificatesComponent.certificateNameCaption"), 10);
 
-		certList.setAddSeparatorLine(true);
-
-		for (NamedCertificate cert : getCertificates())
-		{
-			certList.addEntry(cert);
-		}
-
+		certList.setItems(getCertificates());
+		
 		VerticalLayout main = new VerticalLayout();
 		Label certCaption = new Label(msg.getMessage("CertificatesComponent.caption"));
 		certCaption.setStyleName(Styles.bold.toString());
@@ -107,7 +98,7 @@ public class CertificatesComponent extends CustomComponent
 		try
 		{
 			certController.removeCertificate(cert);
-			certList.removeEntry(cert);
+			certList.removeElement(cert);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(e);

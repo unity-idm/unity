@@ -33,7 +33,7 @@ public class AuthenticationNavigationInfoProvider extends WebConsoleNavigationIn
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.authentication"))
-				.withIcon(Images.key_o.getResource()).withPosition(1).build());
+				.withIcon(Images.key_o.getResource()).withPosition(50).build());
 
 	}
 

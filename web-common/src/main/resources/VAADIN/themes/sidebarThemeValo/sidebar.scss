@@ -203,17 +203,17 @@ $narrow-bar-size: 50px;
 			color: $content-color;
         
             & > .v-expand {
-                padding-left: 250px !important;
+                padding-left: 300px !important;
                 
                 .v-slot-u-leftMenu {
-                    margin-left: -250px !important;
+                    margin-left: -300px !important;
                     
                     .u-leftMenu {
                         background: $menuLeft-bg-color;
                         border-right: 1px solid $menuLeft-bg-right-border;
             			color: $menuLeft-color;
                         @include sidebarTransition(width $transition-time ease-in-out);
-                        width: 250px !important;
+                        width: 300px !important;
                         
                         & > .v-expand > .v-slot {
                            height: auto !important;

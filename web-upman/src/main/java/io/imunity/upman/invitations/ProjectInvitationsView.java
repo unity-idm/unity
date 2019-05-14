@@ -62,7 +62,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class InvitationsView extends CustomComponent implements UpManView
+public class ProjectInvitationsView extends CustomComponent implements UpManView
 {
 
 	public static final String VIEW_NAME = "Invitations";
@@ -73,7 +73,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 	private InvitationsComponent invitationsComponent;
 
 	@Autowired
-	public InvitationsView(UnityMessageSource msg, InvitationsController controller)
+	public ProjectInvitationsView(UnityMessageSource msg, InvitationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -162,7 +162,7 @@ public class InvitationsView extends CustomComponent implements UpManView
 	{
 		@Autowired
 		public InvitationsNavigationInfoProvider(UnityMessageSource msg, UpManRootNavigationInfoProvider parent,
-				ObjectFactory<InvitationsView> factory)
+				ObjectFactory<ProjectInvitationsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)

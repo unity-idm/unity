@@ -11,9 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.google.common.collect.Sets;
@@ -24,13 +22,9 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.UnityViewWithSandbox;
-import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.AuthenticationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
-import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.NavigationInfo.Type;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
@@ -252,22 +246,22 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 		
 	}
 
-	@Component
-	public static class InputTranslationsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
-	{
-		@Autowired
-		public InputTranslationsNavigationInfoProvider(UnityMessageSource msg,
-				AuthenticationNavigationInfoProvider parent,
-				ObjectFactory<InputTranslationsView> factory)
-		{
-			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
-					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
-					.withCaption(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
-					.withPosition(2)
-					.build());
-
-		}
-	}
+//	@Component
+//	public static class InputTranslationsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+//	{
+//		@Autowired
+//		public InputTranslationsNavigationInfoProvider(UnityMessageSource msg,
+//				AuthenticationNavigationInfoProvider parent,
+//				ObjectFactory<InputTranslationsView> factory)
+//		{
+//			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
+//					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
+//					.withCaption(msg.getMessage("WebConsoleMenu.authentication.inputTranslation"))
+//					.withPosition(2)
+//					.build());
+//
+//		}
+//	}
 
 	
 }
