@@ -37,30 +37,35 @@ public class GridWithActionColumn<T> extends Grid<T>
 	private UnityMessageSource msg;
 	private List<T> contents;
 	private ListDataProvider<T> dataProvider;
-	private GridContextMenuSupport<T> contextMenuSupp;
 	private Column<T, HorizontalLayout> actionColumn;
 
+	private List<SingleActionHandler<T>> actionHandlers;
+	private List<SingleActionHandler<T>> hamburgerActionHandlers;
+	private boolean heightByRows;
+	
 	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers)
 	{
-		this(msg, actionHandlers, true);
+		this(msg, actionHandlers, true, true);
+	}
+	
+	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers, boolean enableDrag)
+	{
+		this(msg, actionHandlers, enableDrag, true);
 	}
 
 	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers,
-			boolean enableDrag)
+			boolean enableDrag, boolean heightByRows)
 	{
 		this.msg = msg;
-
+		this.actionHandlers = actionHandlers;
+		this.hamburgerActionHandlers = new ArrayList<>();
+		this.heightByRows = heightByRows;
+		
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
 		setSizeFull();
-		setSelectionMode(SelectionMode.SINGLE);
-		contextMenuSupp = new GridContextMenuSupport<>(this);
-		for (SingleActionHandler<T> h : actionHandlers)
-		{
-			contextMenuSupp.addActionHandler(h);
-		}
-
+		
 		refreshActionColumn();
 		if (enableDrag)
 		{
@@ -69,20 +74,35 @@ public class GridWithActionColumn<T> extends Grid<T>
 
 		setSelectionMode(SelectionMode.NONE);
 		setStyleName("u-gridWithAction");
-		setHeightByRows();
+		refreshHeight();
 	}
 
+	public void setMultiSelect(boolean multi)
+	{
+		setSelectionMode(multi ? SelectionMode.MULTI : SelectionMode.SINGLE);
+		GridSelectionSupport.installClickListener(this);
+		if (multi)
+		{
+			addStyleName("u-gridWithActionMulti");
+		}else
+		{
+			removeStyleName("u-gridWithActionMulti");
+		}
+	}
+	
 	public void replaceElement(T old, T newElement)
 	{
 		contents.set(contents.indexOf(old), newElement);
 		dataProvider.refreshItem(newElement);
+		deselectAll();
 	}
 
 	public void addElement(T el)
 	{
 		contents.add(el);
 		dataProvider.refreshAll();
-		setHeightByRows();
+		deselectAll();
+		refreshHeight();
 	}
 
 	@Override
@@ -95,7 +115,8 @@ public class GridWithActionColumn<T> extends Grid<T>
 		}
 
 		dataProvider.refreshAll();
-		setHeightByRows();
+		deselectAll();
+		refreshHeight();
 	}
 
 	public List<T> getElements()
@@ -107,12 +128,22 @@ public class GridWithActionColumn<T> extends Grid<T>
 	{
 		contents.remove(el);
 		dataProvider.refreshAll();
-		setHeightByRows();
+		deselectAll();
+		refreshHeight();
 	}
 
-	private void setHeightByRows()
+	public void setHeightByRows(boolean byRow)
 	{
-		setHeightByRows(contents.size() > 2 ? contents.size() : 2);
+		heightByRows = byRow;
+		refreshHeight();
+	}
+	
+	private void refreshHeight()
+	{
+		if (heightByRows)
+		{
+			setHeightByRows(contents.size() > 2 ? contents.size() : 2);
+		}
 	}
 
 	public GridWithActionColumn<T> addColumn(ValueProvider<T, String> valueProvider, String caption,
@@ -135,7 +166,7 @@ public class GridWithActionColumn<T> extends Grid<T>
 
 	public void addActionHandler(SingleActionHandler<T> actionHandler)
 	{
-		contextMenuSupp.addActionHandler(actionHandler);
+		actionHandlers.add(actionHandler);
 		refreshActionColumn();
 	}
 
@@ -145,11 +176,6 @@ public class GridWithActionColumn<T> extends Grid<T>
 		addItemClickListener(e -> {
 			setDetailsVisible(e.getItem(), !isDetailsVisible(e.getItem()));
 		});
-	}
-
-	public List<SingleActionHandler<T>> getActionHandlers()
-	{
-		return contextMenuSupp.getActionHandlers();
 	}
 
 	public void refreshActionColumn()
@@ -166,6 +192,12 @@ public class GridWithActionColumn<T> extends Grid<T>
 		actionColumn.setSortable(false);
 
 	}
+	
+	public void addHamburgerActions(List<SingleActionHandler<T>> handlers)
+	{	
+		handlers.forEach(h -> this.hamburgerActionHandlers.add(h));
+		refreshActionColumn();
+	}
 
 	private HorizontalLayout getButtonComponent(Set<T> target)
 	{
@@ -174,7 +206,7 @@ public class GridWithActionColumn<T> extends Grid<T>
 		actions.setSpacing(false);
 		actions.setWidth(100, Unit.PERCENTAGE);
 
-		for (SingleActionHandler<T> handler : contextMenuSupp.getActionHandlers())
+		for (SingleActionHandler<T> handler : actionHandlers)
 		{
 			Button actionButton = new Button();
 			actionButton.setStyleName(Styles.vButtonSmall.toString());
@@ -185,7 +217,15 @@ public class GridWithActionColumn<T> extends Grid<T>
 			actions.addComponent(actionButton);
 			actions.setComponentAlignment(actionButton, Alignment.TOP_LEFT);
 		}
-
+		if (hamburgerActionHandlers != null && !hamburgerActionHandlers.isEmpty())
+		{	HamburgerMenu<T> menu = new HamburgerMenu<T>();
+			menu.setTarget(target);
+			menu.addActionHandlers(hamburgerActionHandlers);
+			menu.addStyleName(SidebarStyles.sidebar.toString());
+			actions.addComponent(menu);
+			actions.setComponentAlignment(menu, Alignment.TOP_LEFT);
+		}
+		
 		return actions;
 	}
 

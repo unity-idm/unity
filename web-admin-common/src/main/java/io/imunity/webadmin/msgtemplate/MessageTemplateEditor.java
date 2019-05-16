@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.msgtemplate;
+package io.imunity.webadmin.msgtemplate;
 
 import static pl.edu.icm.unity.base.msgtemplates.MessageTemplateDefinition.CUSTOM_VAR_PREFIX;
 

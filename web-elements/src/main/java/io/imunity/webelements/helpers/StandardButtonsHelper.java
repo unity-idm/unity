@@ -25,13 +25,19 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class StandardButtonsHelper
 {
-	public static Button buildActionButton(String caption, Images icon, ClickListener clickListener)
+	public static Button buildButton(String caption, Images icon, ClickListener clickListener)
 	{
 		Button button = new Button();
 		button.setIcon(icon.getResource());
 		button.setCaption(caption);
-		button.addStyleName("u-button-action");
 		button.addClickListener(clickListener);
+		return button;
+	}
+	
+	public static Button buildActionButton(String caption, Images icon, ClickListener clickListener)
+	{
+		Button button = buildButton(caption, icon, clickListener);
+		button.addStyleName("u-button-action");
 		return button;
 	}
 

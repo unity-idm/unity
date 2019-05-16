@@ -73,9 +73,9 @@ public class AuthenticationFlowsComponent extends CustomComponent
 		flowsList.setItems(getFlows());
 		
 		VerticalLayout main = new VerticalLayout();
-		Label trustedCertCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
-		trustedCertCaption.setStyleName(Styles.bold.toString());
-		main.addComponent(trustedCertCaption);
+		Label flowCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
+		flowCaption.setStyleName(Styles.bold.toString());
+		main.addComponent(flowCaption);
 		main.addComponent(buttonsBar);
 		main.addComponent(flowsList);
 		main.setWidth(100, Unit.PERCENTAGE);

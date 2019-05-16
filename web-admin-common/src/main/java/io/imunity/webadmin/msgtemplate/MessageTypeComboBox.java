@@ -2,7 +2,7 @@
  * Copyright (c) 2017 Bixbit - Krzysztof Benedyczak All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.msgtemplate;
+package io.imunity.webadmin.msgtemplate;
 
 import java.util.Locale;
 import java.util.function.Function;

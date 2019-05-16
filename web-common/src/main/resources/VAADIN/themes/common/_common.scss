@@ -708,23 +708,46 @@
 		padding: 0px 0px 0px 0px;	
 		word-wrap : break-word !important;
 		white-space : normal;	
-		border-top: 0.5px solid #d4d4d4;
-		border-bottom: none;
+		border-bottom: 0.5px solid #d4d4d4;
+		border-right : none;
+		border-left: none;
 	}
-		
+			
+	.u-gridWithAction .v-grid-cell.frozen {
+		box-shadow: none;	
+	}
+	
 	.u-gridWithAction .v-grid-header th {
 		background: #FFFFFF;
 		background-color : #FFFFFF;
-		border-left: none;
 		font-weight : bold;
 		border-top : none;
+		border-right : none;
+		border-left: none;
+		border-bottom: 0.5px solid #d4d4d4;
 	}
-
+	
+	.u-gridWithActionMulti .v-grid-header th:first-child {
+		padding-left: 6px ;
+	}
+	
+	.u-gridWithActionMulti .v-grid-row > td:first-child{	  
+	   padding-left: 6px ;
+	}
+	
+ 	.u-gridWithAction .v-grid-header th:nth-child(2) {
+		padding-left: 4px;
+	}
+	
+	.u-gridWithAction .v-grid-row > td:nth-child(2) {
+		padding-left: 4px;
+	}
+	
 	.u-gridWithAction .v-grid-row > th:last-child {
    	    text-align : right;
    	    padding-right : 4px;
 	}
-
+	
 	.u-gridWithAction .v-grid-tablewrapper {
     	border: none;
 	}
@@ -732,10 +755,13 @@
 	.u-gridWithAction .v-grid-row > td {
 		border-left: none;
 		background-color:transparent;
+		border-right : none;
+		border-left: none;
 	}
 	
 	.u-gridWithAction .v-grid-row > td .v-button-small {
 		margin :0px;	
+		width :35px
 	}	
 	
 	.u-gridWithAction .v-grid-row > td .v-button-small:focus {

@@ -82,6 +82,6 @@ public class ProjectController
 			return logo;
 		}
 		GroupDelegationConfiguration config = group.delegationConfiguration;
-		return ImageUtils.getConfiguredImageResourceFromUri(config.logoUrl, uriAccessService);
+		return ImageUtils.getConfiguredImageResourceFromUriSave(config.logoUrl, uriAccessService);
 	}
 }

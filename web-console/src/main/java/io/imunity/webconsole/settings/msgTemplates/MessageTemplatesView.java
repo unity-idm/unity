@@ -5,21 +5,50 @@
 
 package io.imunity.webconsole.settings.msgTemplates;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
+import com.vaadin.ui.Panel;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 
+import io.imunity.webadmin.msgtemplate.SimpleMessageTemplateViewer;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.settings.SettingsNavigationInfoProvider;
+import io.imunity.webelements.helpers.NavigationHelper;
+import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.types.basic.MessageTemplate;
+import pl.edu.icm.unity.types.basic.MessageType;
+import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.ConfirmDialog;
+import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.HamburgerMenu;
+import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SidebarStyles;
+import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Lists all message templates
@@ -33,20 +62,195 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "MessageTemplates";
 
 	private UnityMessageSource msg;
-	
+	private GridWithActionColumn<MessageTemplate> messageTemplateGrid;
+	private SimpleMessageTemplateViewer viewer;
+	private MessageTemplateController controller;
 
 	@Autowired
-	MessageTemplatesView(UnityMessageSource msg)
+	MessageTemplatesView(UnityMessageSource msg, MessageTemplateController controller)
 	{
 		this.msg = msg;
-		
+		this.controller = controller;
+
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
+
+		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(
+				StandardButtonsHelper.buildButton(
+						msg.getMessage("MessageTemplatesView.reloadFromConfiguration"),
+						Images.reload, e -> reloadFromConfig()),
+				StandardButtonsHelper.build4AddAction(msg,
+						e -> NavigationHelper.goToView(NewMessageTemplateView.VIEW_NAME)));
+
+		messageTemplateGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
+		messageTemplateGrid.addComponentColumn(
+				m -> StandardButtonsHelper.buildLinkButton(m.getName(), e -> gotoEdit(m)),
+				msg.getMessage("MessageTemplatesView.nameCaption"), 10);
+		messageTemplateGrid.addColumn(m -> m.getNotificationChannel(),
+				msg.getMessage("MessageTemplatesView.channelCaption"), 10);
+		messageTemplateGrid.addColumn(m -> m.getType().toString(),
+				msg.getMessage("MessageTemplatesView.messageTypeCaption"), 10);
+		messageTemplateGrid.addColumn(m -> m.getConsumer(),
+				msg.getMessage("MessageTemplatesView.purposeCaption"), 10);
+
+		messageTemplateGrid.addHamburgerActions(getRowHamburgerHandlers());
+		messageTemplateGrid.setMultiSelect(true);
+		messageTemplateGrid.setSizeFull();
+
+		viewer = controller.getViewer();
+
+		messageTemplateGrid.addSelectionListener(e -> {
+			try
+			{
+				viewer.setInput(e.getAllSelectedItems().size() != 1 ? null
+						: controller.getPreprocedMessageTemplate(
+								e.getFirstSelectedItem().get()));
+			} catch (ControllerException ex)
+			{
+				NotificationPopup.showError(ex);
+			}
+		});
+
+		HamburgerMenu<MessageTemplate> hamburgerMenu = new HamburgerMenu<>();
+		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
+		hamburgerMenu.addActionHandlers(getGlobalHamburgerHandlers());
+		messageTemplateGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
+
+		VerticalLayout gridWrapper = new VerticalLayout();
+		gridWrapper.setMargin(false);
+		gridWrapper.setSpacing(false);
+		HorizontalLayout hamburgerWrapper = new HorizontalLayout(hamburgerMenu);
+		hamburgerWrapper.setMargin(false);
+		hamburgerWrapper.setSpacing(false);
+		gridWrapper.addComponent(buttonsBar);
+		gridWrapper.setExpandRatio(buttonsBar, 0);
+		gridWrapper.addComponent(hamburgerWrapper);
+		gridWrapper.setExpandRatio(hamburgerWrapper, 0);
+		gridWrapper.addComponent(messageTemplateGrid);
+		gridWrapper.setExpandRatio(messageTemplateGrid, 2);
+		gridWrapper.setSizeFull();
+
+		Panel viewerPanel = new Panel();
+		viewerPanel.setContent(viewer);
+		viewerPanel.setSizeFull();
+		viewerPanel.setStyleName(Styles.vPanelBorderless.toString());
+
+		CompositeSplitPanel splitPanel = new CompositeSplitPanel(true, false, gridWrapper, viewerPanel, 50);
+		splitPanel.setSizeFull();
+
 		VerticalLayout main = new VerticalLayout();
+		main.addComponent(splitPanel);
+		main.setSizeFull();
+		main.setMargin(false);
 		setCompositionRoot(main);
+		setSizeFull();
+		refresh();
+	}
+
+	private void reloadFromConfig()
+	{
+		try
+		{
+			controller.reloadFromConfiguration(messageTemplateGrid.getElements().stream()
+					.map(m -> m.getName()).collect(Collectors.toSet()));
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		refresh();
+
+	}
+
+	private void refresh()
+	{
+		messageTemplateGrid.setItems(getMessageTemplates());
+		viewer.setInput(null);
+	}
+
+	private List<SingleActionHandler<MessageTemplate>> getRowActionsHandlers()
+	{
+		SingleActionHandler<MessageTemplate> edit = SingleActionHandler.builder4Edit(msg, MessageTemplate.class)
+				.withHandler(r -> gotoEdit(r.iterator().next())).build();
+		return Arrays.asList(edit);
+	}
+
+	private List<SingleActionHandler<MessageTemplate>> getRowHamburgerHandlers()
+	{
+		SingleActionHandler<MessageTemplate> remove = SingleActionHandler
+				.builder4Delete(msg, MessageTemplate.class)
+				.withHandler(items -> tryRemove(items)).build();
+
+		SingleActionHandler<MessageTemplate> preview = SingleActionHandler
+				.builder4ShowDetails(msg, MessageTemplate.class)
+				.withCaption(msg.getMessage("MessageTemplatesView.preview"))
+				.withHandler(items -> preview(items.iterator().next())).build();
+
+		return Arrays.asList(preview, remove);
+	}
+
+	private List<SingleActionHandler<MessageTemplate>> getGlobalHamburgerHandlers()
+	{
+		SingleActionHandler<MessageTemplate> remove = SingleActionHandler
+				.builder4Delete(msg, MessageTemplate.class)
+				.withHandler(items -> tryRemove(items)).multiTarget().build();
+
+		return Arrays.asList(remove);
+	}
+
+	private void preview(MessageTemplate toPreview)
+	{
+		MessageTemplate preprocessedTemplate;
+		try
+		{
+			preprocessedTemplate = controller.getPreprocedMessageTemplate(toPreview);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+			return;
+		}
+		getUI().addWindow(new PreviewWindow(preprocessedTemplate.getMessage().getBody().getValue(msg),
+				preprocessedTemplate.getType().equals(MessageType.HTML) ? ContentMode.HTML
+						: ContentMode.TEXT));
+	}
+
+	private void gotoEdit(MessageTemplate e)
+	{
+		NavigationHelper.goToView(EditMessageTemplateView.VIEW_NAME + "/" + CommonViewParam.name.toString()
+				+ "=" + e.getName());
+	}
+
+	private Collection<MessageTemplate> getMessageTemplates()
+	{
+		try
+		{
+			return controller.getMessageTemplates();
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+		return Collections.emptyList();
+	}
+
+	private void remove(Set<MessageTemplate> msgTemplates)
+	{
+		try
+		{
+			controller.removeMessageTemplates(msgTemplates);
+			msgTemplates.forEach(m -> messageTemplateGrid.removeElement(m));
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(e);
+		}
+	}
+
+	private void tryRemove(Set<MessageTemplate> msgTemplates)
+	{
+		String confirmText = MessageUtils.createConfirmFromStrings(msg, msgTemplates.stream().map(m -> m.getName()).collect(Collectors.toList()));
+		new ConfirmDialog(msg, msg.getMessage("MessageTemplatesView.confirmDelete", confirmText),
+				() -> remove(msgTemplates)).show();
 	}
 
 	@Override
@@ -61,14 +265,25 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		return VIEW_NAME;
 	}
 
+	public static class PreviewWindow extends Window
+	{
+		public PreviewWindow(String contentToPreview, ContentMode contentMode)
+		{
+			Label htmlPreview = new Label();
+			htmlPreview.setContentMode(contentMode);
+			htmlPreview.setValue(contentToPreview);
+			setContent(htmlPreview);
+			setModal(true);
+		}
+	}
+
 	@Component
 	public static class MessageTemplatesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
 		public MessageTemplatesNavigationInfoProvider(UnityMessageSource msg,
-				SettingsNavigationInfoProvider parent,
-				ObjectFactory<MessageTemplatesView> factory)
+				SettingsNavigationInfoProvider parent, ObjectFactory<MessageTemplatesView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
