@@ -19,7 +19,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.Column;
 import com.vaadin.ui.Grid.SelectionMode;
-import com.vaadin.ui.renderers.ImageRenderer;
+import com.vaadin.ui.Image;
 
 import pl.edu.icm.unity.engine.api.authn.AuthenticationFlow;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -65,8 +65,13 @@ public class AuthnsGridWidget extends CustomComponent
 		dataProvider = DataProvider.ofCollection(providers);
 		providersChoice = new Grid<>(dataProvider);
 		providersChoice.setSelectionMode(SelectionMode.NONE);
-		Column<AuthenticationOptionGridEntry, Resource> imageColumn = providersChoice.addColumn(
-				AuthenticationOptionGridEntry::getImage, new ImageRenderer<>());
+		
+		Column<AuthenticationOptionGridEntry, Component> imageColumn = providersChoice.addComponentColumn(e -> {
+			Image img = new Image();
+			img.setSource(e.getImage());
+			return img;
+		});
+		
 		Column<AuthenticationOptionGridEntry, Component> buttonColumn = providersChoice
 				.addComponentColumn(AuthenticationOptionGridEntry::getComponent);
 

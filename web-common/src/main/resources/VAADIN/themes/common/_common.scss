@@ -579,7 +579,7 @@
 		text-align: center;
 	}
 
-	.u-authnGrid td > img {
+	.u-authnGrid td .v-image {
 		max-height: $v-unit-size - round($v-unit-size/18);
 		max-width: 90%;
 	}
