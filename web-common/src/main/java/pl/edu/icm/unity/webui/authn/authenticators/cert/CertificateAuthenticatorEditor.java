@@ -174,7 +174,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						TLSRetrievalProperties.P + TLSRetrievalProperties.NAME + ".");
+						TLSRetrievalProperties.P + TLSRetrievalProperties.NAME);
 			}
 
 			if (getLogo() != null)

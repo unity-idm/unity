@@ -172,7 +172,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
 			}
 
 			raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.ENABLE_ASSOCIATION,

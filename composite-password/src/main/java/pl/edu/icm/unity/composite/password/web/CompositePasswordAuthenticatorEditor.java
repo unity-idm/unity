@@ -216,7 +216,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
 			}
 
 			CompositePasswordProperties prop = new CompositePasswordProperties(raw);

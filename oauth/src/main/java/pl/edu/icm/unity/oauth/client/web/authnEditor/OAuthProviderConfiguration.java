@@ -128,8 +128,10 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		String prefix = OAuthClientProperties.P + OAuthClientProperties.PROVIDERS + id + ".";
 
 		raw.put(prefix + CustomProviderProperties.PROVIDER_TYPE, type);
-		getName().toProperties(raw, prefix + CustomProviderProperties.PROVIDER_NAME);
-		raw.put(prefix + CustomProviderProperties.PROVIDER_NAME, name.getValue(msg));
+		if (getName() != null)
+		{
+			getName().toProperties(raw, prefix + CustomProviderProperties.PROVIDER_NAME);
+		}
 
 		if (authenticationEndpoint != null)
 		{

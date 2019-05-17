@@ -134,7 +134,7 @@ public class IndividualTrustedSamlIdpConfiguration
 		raw.put(prefix + SAMLSPProperties.IDP_ID, getId());
 		if (getDisplayedName() != null)
 		{
-			getDisplayedName().toProperties(raw, prefix + SAMLSPProperties.IDP_NAME + ".");
+			getDisplayedName().toProperties(raw, prefix + SAMLSPProperties.IDP_NAME);
 		}
 
 		if (getLogo() != null)

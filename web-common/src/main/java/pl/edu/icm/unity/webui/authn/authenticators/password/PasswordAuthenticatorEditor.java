@@ -155,7 +155,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
 			}
 			PasswordRetrievalProperties prop = new PasswordRetrievalProperties(raw);
 			return prop.getAsString();

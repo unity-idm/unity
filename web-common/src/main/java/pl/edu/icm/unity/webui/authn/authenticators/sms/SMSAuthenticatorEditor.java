@@ -162,7 +162,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						SMSRetrievalProperties.P + SMSRetrievalProperties.NAME + ".");
+						SMSRetrievalProperties.P + SMSRetrievalProperties.NAME);
 			}
 
 			if (getLogo() != null)

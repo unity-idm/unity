@@ -462,7 +462,7 @@ public class LdapConfiguration
 		if (getRetrievalName() != null)
 		{
 			getRetrievalName().toProperties(raw,
-					PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME + ".");
+					PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
 		}
 
 		raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.ENABLE_ASSOCIATION,
@@ -480,7 +480,7 @@ public class LdapConfiguration
 		if (getRetrievalName() != null)
 		{
 			getRetrievalName().toProperties(raw,
-					TLSRetrievalProperties.P + TLSRetrievalProperties.NAME + ".");
+					TLSRetrievalProperties.P + TLSRetrievalProperties.NAME);
 		}
 
 		raw.put(TLSRetrievalProperties.P + TLSRetrievalProperties.ENABLE_ASSOCIATION,

@@ -170,9 +170,14 @@ public class I18nString
 		{
 			for (Map.Entry<String, String> entry : values.entrySet())
 			{
-				properties.put(prefix + entry.getKey(), entry.getValue());
+				properties.put(prefix + "." + entry.getKey(), entry.getValue());
 			}
 		}
+		if (defaultValue != null)
+		{
+			properties.put(prefix, defaultValue);
+		}
+		
 	}
 	@Override
 	public boolean equals(Object obj)
