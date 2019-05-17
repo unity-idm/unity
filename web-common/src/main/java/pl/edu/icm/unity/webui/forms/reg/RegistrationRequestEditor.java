@@ -235,7 +235,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		setCompositionRoot(main);
 		
 		String logoUri = form.getLayoutSettings().getLogoURL();
-		Resource logoRes = ImageUtils.getConfiguredImageResourceFromUri(logoUri, uriAccessService);
+		Resource logoRes = ImageUtils.getConfiguredImageResourceFromUriSave(logoUri, uriAccessService);
 		if (logoRes != null)
 		{
 			Image image = new Image(null, logoRes);

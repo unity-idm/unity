@@ -34,25 +34,30 @@ public class FileFieldUtils
 	public static String saveFile(LocalOrRemoteResource res, FileStorageService fileStorageService,
 			String ownerType, String ownerId)
 	{
-		if (res.getLocal() != null)
+		if (res != null)
 		{
-			if (res.getLocalUri() != null)
+
+			if (res.getLocal() != null)
 			{
-				return res.getLocalUri();
-			} else
-			{
-				try
+				if (res.getLocalUri() != null)
 				{
-					URI uri = fileStorageService.storeFile(res.getLocal(), ownerType, ownerId);
-					return uri.toString();
-				} catch (EngineException e)
+					return res.getLocalUri();
+				} else
 				{
-					throw new InternalException("Can't save file into DB", e);
+					try
+					{
+						URI uri = fileStorageService.storeFile(res.getLocal(), ownerType,
+								ownerId);
+						return uri.toString();
+					} catch (EngineException e)
+					{
+						throw new InternalException("Can't save file into DB", e);
+					}
 				}
+			} else if (res.getRemote() != null && !res.getRemote().isEmpty())
+			{
+				return res.getRemote();
 			}
-		} else if (res.getRemote() != null && !res.getRemote().isEmpty())
-		{
-			return res.getRemote();
 		}
 
 		return null;

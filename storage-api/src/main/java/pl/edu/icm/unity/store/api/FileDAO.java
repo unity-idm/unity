@@ -18,4 +18,6 @@ public interface FileDAO extends NamedCRUDDAOWithTS<FileData>
 {
 	String DAO_ID = "FileDAO";
 	String NAME = "file";
+
 }
+

@@ -29,6 +29,15 @@ class FileRDBMSStore extends GenericNamedRDBMSCRUD<FileData, FileBean> implement
 {
 	public static final String BEAN = DAO_ID + "rdbms";
 
+	
+	
+	@Override
+	public long create(FileData obj)
+	{
+		return super.createWithoutCheckContentLimit(obj);
+	}
+	
+	
 	@Autowired
 	public FileRDBMSStore(FileRDBMSSerializer serializer)
 	{
