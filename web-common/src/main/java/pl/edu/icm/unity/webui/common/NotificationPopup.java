@@ -51,7 +51,7 @@ public class NotificationPopup
 	
 	public static void showError(ControllerException exception)
 	{
-		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.Error)
+		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.ERROR)
 		{
 			showError(exception.getCaption(), exception.getDetails());
 		}else

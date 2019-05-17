@@ -15,7 +15,6 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSAlgorithm.Family;
 import com.nimbusds.jose.jwk.Curve;
 import com.nimbusds.jose.jwk.ECKey;
-import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jose.jwk.KeyUse;
 import com.nimbusds.jose.jwk.RSAKey;
@@ -28,7 +27,6 @@ import pl.edu.icm.unity.oauth.as.OAuthASProperties;
  * 
  * @author K. Benedyczak
  */
-@Produces(JWK.MIME_TYPE)
 @Path(OAuthTokenEndpoint.JWK_PATH)
 public class KeysResource extends BaseOAuthResource
 {
@@ -41,6 +39,7 @@ public class KeysResource extends BaseOAuthResource
 
 	@Path("/")
 	@GET
+	@Produces(JWKSet.MIME_TYPE)	
 	public String getKeys()
 	{
 		JWSAlgorithm signAlg = config.getTokenSigner().getSigningAlgorithm();

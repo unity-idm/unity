@@ -121,7 +121,6 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 				try
 				{
 					controller.addInvitation(invitation);
-
 				} catch (ControllerException er)
 				{
 					NotificationPopup.showError(er);
