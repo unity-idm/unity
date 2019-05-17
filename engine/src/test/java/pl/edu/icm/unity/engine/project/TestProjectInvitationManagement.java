@@ -32,8 +32,8 @@ import pl.edu.icm.unity.engine.api.bulk.GroupMembershipInfo;
 import pl.edu.icm.unity.engine.api.endpoint.SharedEndpointManagement;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitation;
 import pl.edu.icm.unity.engine.api.project.ProjectInvitationParam;
-import pl.edu.icm.unity.engine.project.ProjectInvitationsManagementImpl.IllegalInvitationException;
-import pl.edu.icm.unity.engine.project.ProjectInvitationsManagementImpl.NotProjectInvitation;
+import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.IllegalInvitationException;
+import pl.edu.icm.unity.engine.api.project.ProjectInvitationsManagement.NotProjectInvitation;
 import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.stdext.identity.EmailIdentity;
 import pl.edu.icm.unity.types.basic.EntityInformation;
@@ -67,6 +67,7 @@ public class TestProjectInvitationManagement extends TestProjectBase
 	{
 		projectInvMan = new ProjectInvitationsManagementImpl(mockInvitationMan, mockGroupMan,
 				mockRegistrationMan, mockEnquiryMan, mockBulkQueryService,
+				mockIdMan,
 				new ProjectAttributeHelper(mockAttrMan, mockAttrHelper, mockAtHelper),
 				mockSharedEndpointMan, mockAuthz);
 	}

@@ -15,28 +15,33 @@ public class ControllerException extends Exception
 {
 	public enum Type
 	{
-		Warn, Error
+		WARN, ERROR
 	}
 
 	private Type type;
-	private String capion;
+	private String caption;
 	
-	public ControllerException(String errorCapion, Throwable cause)
+	public ControllerException(String errorCaption, Throwable cause)
 	{
-		this(Type.Error, errorCapion, "", cause);
+		this(Type.ERROR, errorCaption, "", cause);
 	}
 
-	public ControllerException(String errorCapion, String errorDetails, Throwable cause)
+	public ControllerException(String errorCaption, String errorDetails, Throwable cause)
 	{
-		this(Type.Error, errorCapion, errorDetails, cause);
+		this(Type.ERROR, errorCaption, errorDetails, cause);
 	}
 
-	public ControllerException(Type type, String errorCapion, String errorDetails,
+	public ControllerException(Type type, String errorCaption, String errorDetails,
 			Throwable cause)
 	{
 		super(errorDetails, cause);
-		this.capion = errorCapion;
+		this.caption = errorCaption;
 		this.type = type;
+	}
+	
+	public static ControllerException warning(String errorCaption, Throwable cause)
+	{
+		return new ControllerException(Type.WARN, errorCaption, "", cause);
 	}
 
 	public Type getType()
@@ -46,7 +51,7 @@ public class ControllerException extends Exception
 
 	public String getCaption()
 	{
-		return capion;
+		return caption;
 	}
 
 	public String getDetails()
