@@ -83,7 +83,7 @@ public class NotificationPopup
 			log.debug("What's more there was an exception attached which caused an error:", exception);
 		}
 
-		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.Error)
+		if (exception.getType() == pl.edu.icm.unity.webui.exceptions.ControllerException.Type.ERROR)
 		{
 			showError(exception.getCaption(), description);
 		} else
