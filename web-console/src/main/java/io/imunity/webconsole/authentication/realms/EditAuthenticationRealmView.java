@@ -60,7 +60,7 @@ class EditAuthenticationRealmView extends CustomComponent implements UnityView
 			realm = controller.getRealm(realmName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(AuthenticationRealmsView.VIEW_NAME);
 			return;
 		}
@@ -93,7 +93,7 @@ class EditAuthenticationRealmView extends CustomComponent implements UnityView
 		ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

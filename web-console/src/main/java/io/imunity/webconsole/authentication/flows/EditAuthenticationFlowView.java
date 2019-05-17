@@ -62,7 +62,7 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 			flow = controller.getFlow(flowName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
@@ -73,7 +73,7 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 			allAuthenticators = controller.getAllAuthenticators();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
@@ -102,7 +102,7 @@ class EditAuthenticationFlowView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

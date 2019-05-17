@@ -56,8 +56,7 @@ class MessageTemplateController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("MessageTemplateController.addError", toAdd.getName()),
-					e.getMessage(), e);
+					msg.getMessage("MessageTemplateController.addError", toAdd.getName()), e);
 		}
 	}
 	
@@ -70,8 +69,7 @@ class MessageTemplateController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("MessageTemplateController.updateError", toUpdate.getName()),
-					e.getMessage(), e);
+					msg.getMessage("MessageTemplateController.updateError", toUpdate.getName()), e);
 		}
 	}
 	
@@ -90,12 +88,11 @@ class MessageTemplateController
 			if (removed.isEmpty())
 			{
 				throw new ControllerException(
-						msg.getMessage("MessageTemplateController.removeError"),
-						e.getMessage(), e);
+						msg.getMessage("MessageTemplateController.removeError"), e);
 			} else
 			{
 				throw new ControllerException(
-						msg.getMessage("MessageTemplateController.removeInvitationError"),
+						msg.getMessage("MessageTemplateController.removeError"),
 						msg.getMessage("MessageTemplateController.partiallyRemoved", removed),
 						e);
 			}
@@ -111,8 +108,7 @@ class MessageTemplateController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("MessageTemplateController.getAllError"),
-					e.getMessage(), e);
+					msg.getMessage("MessageTemplateController.getAllError"), e);
 		}
 	}
 	
@@ -124,8 +120,7 @@ class MessageTemplateController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("MessageTemplateController.getError"),
-					e.getMessage(), e);
+					msg.getMessage("MessageTemplateController.getError"), e);
 		}
 	}
 	
@@ -137,8 +132,7 @@ class MessageTemplateController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("MessageTemplateController.getError"),
-					e.getMessage(), e);
+					msg.getMessage("MessageTemplateController.getError"), e);
 		}
 	}
 	
@@ -150,8 +144,7 @@ class MessageTemplateController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("MessageTemplateController.reloadError"),
-					e.getMessage(), e);
+					msg.getMessage("MessageTemplateController.reloadError"), e);
 		}
 	}
 	

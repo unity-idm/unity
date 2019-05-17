@@ -50,8 +50,7 @@ class AuthenticationRealmsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationRealmController.addError", realm.getName()),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationRealmController.addError", realm.getName()), e);
 		}
 
 	}
@@ -65,8 +64,7 @@ class AuthenticationRealmsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationRealmController.updateError", realm.getName()),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationRealmController.updateError", realm.getName()), e);
 		}
 	}
 
@@ -79,8 +77,7 @@ class AuthenticationRealmsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationRealmController.removeError", realm.getName()),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationRealmController.removeError", realm.getName()), e);
 		}
 	}
 
@@ -94,8 +91,7 @@ class AuthenticationRealmsController
 			realms = realmMan.getRealms();
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("AuthenticationRealmController.getAllError"),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("AuthenticationRealmController.getAllError"), e);
 		}
 		List<ResolvedEndpoint> endpoints = endpointController.getEndpoints();
 
@@ -118,8 +114,7 @@ class AuthenticationRealmsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("AuthenticationRealmController.getError", realmName),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticationRealmController.getError", realmName), e);
 		}
 	}
 

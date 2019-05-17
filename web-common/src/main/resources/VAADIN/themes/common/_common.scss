@@ -739,8 +739,8 @@
 	}
 	
 	.u-gridWithAction .v-grid-row > th:last-child {
-   	    text-align : right;
-   	    padding-right : 4px;
+   	    text-align: right;
+   	    padding-right: 8px;
 	}
 	
 	.u-gridWithAction .v-grid-tablewrapper {
@@ -749,8 +749,8 @@
 
 	.u-gridWithAction .v-grid-row > td {
 		border-left: none;
-		background-color:transparent;
-		border-right : none;
+		background-color: transparent;
+		border-right: none;
 		border-left: none;
 	}
 	
@@ -759,8 +759,8 @@
 	}
 	
 	.u-gridWithAction .v-grid-row > td .v-button-small {
-		margin :0px;	
-		width :35px
+		margin: 0px;	
+		width: 30px
 	}	
 	
 	.u-gridWithAction .v-grid-row > td .v-button-small:focus {
@@ -769,11 +769,11 @@
 	
 	.u-gridWithAction .v-grid-row > td .v-horizontallayout {
 		margin-right: 0px;
-		overflow : hidden;	
+		overflow: hidden;	
 	}
 			
 	.u-gridWithAction .v-grid-cell-focused:before {
-		display:none !important;
+		display: none !important;
 	}
 	
 	.u-gridWithAction .v-grid-cell div.component-wrap {
@@ -783,6 +783,14 @@
 	.v-grid-u-gridWithAction {
 		background: transparent;
 		background-color: transparent;
+	}
+	
+	.u-gridWithAction .v-grid-row .v-grid-cell:last-of-type div.component-wrap {
+		width: 100%;
+	}
+	
+	.u-gridWithAction .v-grid-row .v-grid-cell div.component-wrap {
+		width: auto;
 	}
 	
 	.u-wordWrap {

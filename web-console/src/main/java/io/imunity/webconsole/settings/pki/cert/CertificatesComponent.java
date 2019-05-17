@@ -88,7 +88,7 @@ public class CertificatesComponent extends CustomComponent
 			return certController.getCertificates();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -101,7 +101,7 @@ public class CertificatesComponent extends CustomComponent
 			certList.removeElement(cert);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 

@@ -79,8 +79,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getEditorError"),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.getEditorError"), e);
 		}
 	}
 	
@@ -92,8 +91,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.initActionFactoryError"),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.initActionFactoryError"), e);
 		}
 		
 	}
@@ -106,8 +104,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getAllError"),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.getAllError"), e);
 		}
 	}
 
@@ -119,8 +116,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("InputTranslationProfilesController.getError", name),
-					e.getMessage(), e);
+					msg.getMessage("InputTranslationProfilesController.getError", name), e);
 		}
 	}
 
@@ -133,7 +129,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.removeError",
-					profile.getName()), e.getMessage(), e);
+					profile.getName()), e);
 		}
 	}
 
@@ -145,7 +141,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.addError",
-					profile.getName()), e.getMessage(), e);
+					profile.getName()), e);
 		}
 	}
 
@@ -157,7 +153,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.updateError",
-					updated.getName()), e.getMessage(), e);
+					updated.getName()), e);
 		}
 	}
 
@@ -225,7 +221,7 @@ public class InputTranslationsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("InputTranslationProfilesController.exportError",
-					profile.getName()), e.getMessage(), e);
+					profile.getName()), e);
 		}
 
 		downloader.setFileDownloadResource(resource);

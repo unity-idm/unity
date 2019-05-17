@@ -125,7 +125,7 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 			return realmsMan.getRealms();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -138,7 +138,7 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 			realmsList.removeElement(realm);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 

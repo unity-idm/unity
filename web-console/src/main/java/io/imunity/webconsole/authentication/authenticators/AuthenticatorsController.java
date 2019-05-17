@@ -69,8 +69,7 @@ public class AuthenticatorsController
 		} catch (Exception e)
 		{
 			log.error("Can not get authenticators", e);
-			throw new ControllerException(msg.getMessage("AuthenticatorsController.getAllError"),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("AuthenticatorsController.getAllError"), e);
 		}
 
 		Collection<AuthenticationFlowDefinition> flows = getFlows();
@@ -97,8 +96,7 @@ public class AuthenticatorsController
 		{
 			log.error("Can not remove authenticator", e);
 			throw new ControllerException(
-					msg.getMessage("AuthenticatorsController.removeError", authneticator.id),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticatorsController.removeError", authneticator.id), e);
 		}
 	}
 
@@ -113,8 +111,7 @@ public class AuthenticatorsController
 		{
 			log.error("Can not add authenticator", e);
 			throw new ControllerException(
-					msg.getMessage("AuthenticatorsController.addError", authenticator.id),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticatorsController.addError", authenticator.id), e);
 		}
 	}
 
@@ -128,8 +125,7 @@ public class AuthenticatorsController
 		{
 			log.error("Can not update authenticator", e);
 			throw new ControllerException(
-					msg.getMessage("AuthenticatorsController.updateError", authenticator.id),
-					e.getMessage(), e);
+					msg.getMessage("AuthenticatorsController.updateError", authenticator.id), e);
 		}
 	}
 
@@ -149,8 +145,7 @@ public class AuthenticatorsController
 		} catch (Exception e)
 		{
 			log.error("Can not get authenticator", e);
-			throw new ControllerException(msg.getMessage("AuthenticatorsController.getError", id),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("AuthenticatorsController.getError", id), e);
 		}
 	}
 
@@ -161,8 +156,7 @@ public class AuthenticatorsController
 			return flowsMan.getAuthenticationFlows();
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("AuthenticatorsController.getAllFlowsError"),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("AuthenticatorsController.getAllFlowsError"), e);
 		}
 	}
 

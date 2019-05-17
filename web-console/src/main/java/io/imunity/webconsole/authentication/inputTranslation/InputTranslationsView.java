@@ -145,7 +145,7 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 			dryRunWizardDialog = controller.getDryRunWizardDialog(sandBoxRouter);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 		dryRunWizardDialog.show();
@@ -158,10 +158,10 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 		try
 		{
 			wizardDialog = controller.getWizardDialog(sandBoxRouter, () -> refreshProfileList(),
-					e -> NotificationPopup.showError(e));
+					e -> NotificationPopup.showError(msg, e));
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 		wizardDialog.show();
@@ -174,7 +174,7 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 			return controller.getProfiles();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -187,7 +187,7 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 			profileList.removeEntry(profile);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 
@@ -207,7 +207,7 @@ class InputTranslationsView extends CustomComponent implements UnityViewWithSand
 			downloader = controller.getDownloader(profile);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 		addExtension(downloader);

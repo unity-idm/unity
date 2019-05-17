@@ -110,7 +110,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 			return flowsMan.getFlows();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -123,7 +123,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 			flowsList.removeElement(flow);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 

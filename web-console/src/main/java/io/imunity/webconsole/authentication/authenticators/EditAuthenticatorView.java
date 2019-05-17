@@ -63,7 +63,7 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
@@ -96,7 +96,7 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 			controller.updateAuthenticator(authenticator);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

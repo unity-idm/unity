@@ -160,7 +160,6 @@ $narrow-bar-size: 50px;
         	@include sidebarTransition(background $transition-time);
         	@include sidebarTransition(border-color $transition-time);
         	padding: 2px 0px 0px 0px;
-        	width: $v-unit-size;
         	background-image: none;
         	background-color: $smallButton-bg-color;
         	color: $smallButton-color;

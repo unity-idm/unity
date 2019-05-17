@@ -98,7 +98,7 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 			return controller.getCredentials();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -137,7 +137,7 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 			credList.removeElement(cred);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 

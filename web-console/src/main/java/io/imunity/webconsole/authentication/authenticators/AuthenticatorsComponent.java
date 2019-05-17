@@ -109,7 +109,7 @@ public class AuthenticatorsComponent extends CustomComponent
 			return controller.getAllAuthenticators();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -122,7 +122,7 @@ public class AuthenticatorsComponent extends CustomComponent
 			authenticatorsList.removeElement(a);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 

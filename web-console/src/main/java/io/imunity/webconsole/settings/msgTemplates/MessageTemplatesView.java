@@ -78,11 +78,8 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	public void enter(ViewChangeEvent event)
 	{
 
-		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(
-				StandardButtonsHelper.buildButton(
-						msg.getMessage("MessageTemplatesView.reloadFromConfiguration"),
-						Images.reload, e -> reloadFromConfig()),
-				StandardButtonsHelper.build4AddAction(msg,
+		HorizontalLayout buttonsBar = StandardButtonsHelper
+				.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
 						e -> NavigationHelper.goToView(NewMessageTemplateView.VIEW_NAME)));
 
 		messageTemplateGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
@@ -110,7 +107,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 								e.getFirstSelectedItem().get()));
 			} catch (ControllerException ex)
 			{
-				NotificationPopup.showError(ex);
+				NotificationPopup.showError(msg, ex);
 			}
 		});
 
@@ -150,20 +147,6 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		refresh();
 	}
 
-	private void reloadFromConfig()
-	{
-		try
-		{
-			controller.reloadFromConfiguration(messageTemplateGrid.getElements().stream()
-					.map(m -> m.getName()).collect(Collectors.toSet()));
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(e);
-		}
-		refresh();
-
-	}
-
 	private void refresh()
 	{
 		messageTemplateGrid.setItems(getMessageTemplates());
@@ -180,12 +163,12 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	private List<SingleActionHandler<MessageTemplate>> getRowHamburgerHandlers()
 	{
 		SingleActionHandler<MessageTemplate> remove = SingleActionHandler
-				.builder4Delete(msg, MessageTemplate.class)
-				.withHandler(items -> tryRemove(items)).build();
+				.builder4Delete(msg, MessageTemplate.class).withHandler(items -> tryRemove(items))
+				.build();
 
-		SingleActionHandler<MessageTemplate> preview = SingleActionHandler
-				.builder4ShowDetails(msg, MessageTemplate.class)
+		SingleActionHandler<MessageTemplate> preview = SingleActionHandler.builder(MessageTemplate.class)
 				.withCaption(msg.getMessage("MessageTemplatesView.preview"))
+				.withIcon(Images.userMagnifier.getResource())
 				.withHandler(items -> preview(items.iterator().next())).build();
 
 		return Arrays.asList(preview, remove);
@@ -194,10 +177,14 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	private List<SingleActionHandler<MessageTemplate>> getGlobalHamburgerHandlers()
 	{
 		SingleActionHandler<MessageTemplate> remove = SingleActionHandler
-				.builder4Delete(msg, MessageTemplate.class)
-				.withHandler(items -> tryRemove(items)).multiTarget().build();
+				.builder4Delete(msg, MessageTemplate.class).withHandler(items -> tryRemove(items))
+				.multiTarget().build();
+		SingleActionHandler<MessageTemplate> reset = SingleActionHandler.builder(MessageTemplate.class)
+				.withCaption(msg.getMessage("MessageTemplatesView.resetToDefault"))
+				.withIcon(Images.reload.getResource()).withHandler(items -> resetFromConfig(items))
+				.multiTarget().build();
 
-		return Arrays.asList(remove);
+		return Arrays.asList(remove, reset);
 	}
 
 	private void preview(MessageTemplate toPreview)
@@ -208,7 +195,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 			preprocessedTemplate = controller.getPreprocedMessageTemplate(toPreview);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 		getUI().addWindow(new PreviewWindow(preprocessedTemplate.getMessage().getBody().getValue(msg),
@@ -229,7 +216,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 			return controller.getMessageTemplates();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 		return Collections.emptyList();
 	}
@@ -242,15 +229,30 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 			msgTemplates.forEach(m -> messageTemplateGrid.removeElement(m));
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 		}
 	}
 
 	private void tryRemove(Set<MessageTemplate> msgTemplates)
 	{
-		String confirmText = MessageUtils.createConfirmFromStrings(msg, msgTemplates.stream().map(m -> m.getName()).collect(Collectors.toList()));
+		String confirmText = MessageUtils.createConfirmFromStrings(msg,
+				msgTemplates.stream().map(m -> m.getName()).collect(Collectors.toList()));
 		new ConfirmDialog(msg, msg.getMessage("MessageTemplatesView.confirmDelete", confirmText),
 				() -> remove(msgTemplates)).show();
+	}
+
+	private void resetFromConfig(Set<MessageTemplate> msgTemplates)
+	{
+		try
+		{
+			controller.reloadFromConfiguration(
+					msgTemplates.stream().map(m -> m.getName()).collect(Collectors.toSet()));
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+		}
+		refresh();
+
 	}
 
 	@Override

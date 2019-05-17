@@ -73,7 +73,7 @@ class EditMessageTemplateView extends CustomComponent implements UnityView
 			editor = getEditor(templateName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(MessageTemplatesView.VIEW_NAME);
 			return;
 		}
@@ -105,7 +105,7 @@ class EditMessageTemplateView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

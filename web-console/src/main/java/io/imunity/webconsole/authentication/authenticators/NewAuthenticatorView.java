@@ -82,7 +82,7 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 			controller.addAuthenticator(authenticator);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

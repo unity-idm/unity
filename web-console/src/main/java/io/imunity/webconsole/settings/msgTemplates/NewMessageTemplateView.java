@@ -87,7 +87,7 @@ class NewMessageTemplateView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

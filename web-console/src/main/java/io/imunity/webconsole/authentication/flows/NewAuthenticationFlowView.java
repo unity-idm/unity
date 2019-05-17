@@ -70,7 +70,7 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 			allAuthenticators = controller.getAllAuthenticators();
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(AuthenticationSetupView.VIEW_NAME);
 			return;
 		}
@@ -99,7 +99,7 @@ class NewAuthenticationFlowView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 

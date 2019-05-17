@@ -48,8 +48,7 @@ class LocalCredentialsController
 			return credMan.getCredentialDefinitions();
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("LocalCredentialsController.getAllError"),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("LocalCredentialsController.getAllError"), e);
 		}
 	}
 
@@ -63,8 +62,7 @@ class LocalCredentialsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("LocalCredentialsController.removeError", toRemove.getName()),
-					e.getMessage(), e);
+					msg.getMessage("LocalCredentialsController.removeError", toRemove.getName()), e);
 		}
 	}
 
@@ -75,8 +73,7 @@ class LocalCredentialsController
 			return credMan.getCredentialDefinition(credName);
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("LocalCredentialsController.getError", credName),
-					e.getMessage(), e);
+			throw new ControllerException(msg.getMessage("LocalCredentialsController.getError", credName), e);
 		}
 	}
 
@@ -89,8 +86,7 @@ class LocalCredentialsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("LocalCredentialsController.addError", toAdd.getName()),
-					e.getMessage(), e);
+					msg.getMessage("LocalCredentialsController.addError", toAdd.getName()), e);
 		}
 	}
 
@@ -104,8 +100,7 @@ class LocalCredentialsController
 		} catch (Exception e)
 		{
 			throw new ControllerException(
-					msg.getMessage("LocalCredentialsController.updateError", updated.getName()),
-					e.getMessage(), e);
+					msg.getMessage("LocalCredentialsController.updateError", updated.getName()), e);
 		}
 	}
 

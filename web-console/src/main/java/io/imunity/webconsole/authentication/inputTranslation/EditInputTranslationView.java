@@ -59,7 +59,7 @@ class EditInputTranslationView extends CustomComponent implements UnityView
 			editor = getEditor(profileName);
 		} catch (ControllerException e)
 		{
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(InputTranslationsView.VIEW_NAME);
 			return;
 		}
@@ -102,7 +102,7 @@ class EditInputTranslationView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 
-			NotificationPopup.showError(e);
+			NotificationPopup.showError(msg, e);
 			return;
 		}
 
