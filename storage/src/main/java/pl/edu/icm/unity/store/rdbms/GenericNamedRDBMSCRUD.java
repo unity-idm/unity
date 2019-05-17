@@ -46,36 +46,18 @@ public abstract class GenericNamedRDBMSCRUD<T extends NamedObject, DBT extends B
 			return super.create(obj);
 		} catch (PersistenceException e)
 		{
-			mapException(e, obj.getName());
+			Throwable causeO = e.getCause();
+			if (!(causeO instanceof SQLException))
+				throw e;
+			SQLException cause = (SQLException) causeO;
+			if (cause.getSQLState().equals(SQL_DUP_1_ERROR) || 
+					cause.getSQLState().equals(SQL_DUP_2_ERROR))
+				throw new IllegalArgumentException(elementName + " [" + obj.getName() + 
+						"] already exist", e);
 			throw e;
 		}
 	}
-	
-	protected long createWithoutCheckContentLimit(T obj)
-	{
-		StorageLimits.checkNameLimit(obj.getName());
-		try
-		{
-			return super.createWithoutCheckContentLimit(obj);
-		} catch (PersistenceException e)
-		{
-			mapException(e, obj.getName());
-			throw e;
-		}
-	}
-	
-	private void mapException(PersistenceException e, String name)
-	{
-		Throwable causeO = e.getCause();
-		if (!(causeO instanceof SQLException))
-			throw e;
-		SQLException cause = (SQLException) causeO;
-		if (cause.getSQLState().equals(SQL_DUP_1_ERROR) || 
-				cause.getSQLState().equals(SQL_DUP_2_ERROR))
-			throw new IllegalArgumentException(elementName + " [" + name + 
-					"] already exist", e);		
-	}
-	
+
 	@Override
 	public void updateByKey(long key, T obj)
 	{

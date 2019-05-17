@@ -46,14 +46,6 @@ public abstract class GenericRDBMSCRUD<T, DBT extends GenericDBBean>
 		mapper.create(toAdd);
 		return toAdd.getId();
 	}
-	
-	protected long createWithoutCheckContentLimit(T obj)
-	{
-		BasicCRUDMapper<DBT> mapper = SQLTransactionTL.getSql().getMapper(mapperClass);
-		DBT toAdd = jsonSerializer.toDB(obj);
-		mapper.create(toAdd);
-		return toAdd.getId();
-	}
 
 	@Override
 	public void createWithId(long key, T obj)

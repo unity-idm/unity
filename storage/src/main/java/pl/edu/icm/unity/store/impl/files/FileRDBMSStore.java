@@ -28,22 +28,19 @@ import pl.edu.icm.unity.store.rdbms.tx.SQLTransactionTL;
 class FileRDBMSStore extends GenericNamedRDBMSCRUD<FileData, FileBean> implements FileDAO
 {
 	public static final String BEAN = DAO_ID + "rdbms";
-
-	
 	
 	@Override
-	public long create(FileData obj)
+	protected void assertContentsLimit(byte[] contents)
 	{
-		return super.createWithoutCheckContentLimit(obj);
+		//ok
 	}
-	
 	
 	@Autowired
 	public FileRDBMSStore(FileRDBMSSerializer serializer)
 	{
 		super(FilesMapper.class, serializer, NAME);
 	}
-
+	
 	@Override
 	public List<Entry<FileData, Date>> getAllWithUpdateTimestamps()
 	{
