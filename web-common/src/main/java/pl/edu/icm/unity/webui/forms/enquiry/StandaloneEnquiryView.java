@@ -4,6 +4,8 @@
  */
 package pl.edu.icm.unity.webui.forms.enquiry;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.server.Page;
@@ -16,6 +18,7 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.authn.StandardWebAuthenticationProcessor;
@@ -29,6 +32,7 @@ import pl.edu.icm.unity.webui.finalization.WorkflowCompletedWithLogoutComponent;
  */
 class StandaloneEnquiryView extends CustomComponent implements View
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StandaloneEnquiryView.class);
 	protected EnquiryResponseEditor editor;
 	private Callback callback;
 	protected UnityMessageSource msg;
@@ -134,6 +138,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	
 	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
+		log.debug("Enquiry is finalized, status: {}", config);
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);

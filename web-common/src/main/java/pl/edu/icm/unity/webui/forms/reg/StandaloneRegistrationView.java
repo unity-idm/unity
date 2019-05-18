@@ -271,6 +271,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 
 	private void handleError(Exception e, ErrorCause cause)
 	{
+		log.warn("Registration error", e);
 		WorkflowFinalizationConfiguration finalScreenConfig = postFillHandler
 				.getFinalRegistrationConfigurationOnError(cause.getTriggerState());
 		gotoFinalStep(finalScreenConfig);
@@ -360,6 +361,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 
 	private void gotoFinalStep(WorkflowFinalizationConfiguration config)
 	{
+		log.debug("Registration is finalized, status: {}", config);
 		if (completedRegistrationHandler != null)
 			completedRegistrationHandler.run();
 		if (config.autoRedirect)
@@ -473,12 +475,14 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onUnknownUser(AuthenticationResult result)
 		{
+			log.debug("External authentication resulted in unknown user, proceeding to 2nd stage");
 			switchTo2ndStagePostAuthn(result);
 		}
 
 		@Override
 		public void onUserExists(AuthenticationResult result)
 		{
+			log.debug("External authentication resulted in existing user, aborting registration");
 			enableSharedComponentsAndHideAuthnProgress();
 			WorkflowFinalizationConfiguration finalScreenConfig = 
 					postFillHandler.getFinalRegistrationConfigurationOnError(TriggeringState.PRESET_USER_EXISTS);
@@ -488,6 +492,7 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onAuthnError(AuthenticationException e, String authenticatorError)
 		{
+			log.debug("External authentication failed, aborting: {}, {}", e.toString(), authenticatorError);
 			enableSharedComponentsAndHideAuthnProgress();
 			String genericError = msg.getMessage(e.getMessage());
 			String errorToShow = authenticatorError == null ? genericError : authenticatorError;
@@ -497,12 +502,14 @@ public class StandaloneRegistrationView extends CustomComponent implements Stand
 		@Override
 		public void onAuthnCancelled()
 		{
+			log.debug("External authentication cancelled, performing reset");
 			enableSharedComponentsAndHideAuthnProgress();
 		}
 
 		@Override
 		public void onAuthnStarted(boolean showProgress)
 		{
+			log.debug("External authentication started");
 			enableSharedWidgets(false);
 			header.setAuthNProgressVisibility(showProgress);
 		}

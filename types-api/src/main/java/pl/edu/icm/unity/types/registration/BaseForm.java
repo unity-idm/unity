@@ -406,6 +406,10 @@ public abstract class BaseForm extends DescribedObjectROImpl
 		this.byInvitationOnly = byInvitationOnly;
 	}
 
+	public boolean isLocalSignupEnabled()
+	{
+		return !credentialParams.isEmpty();
+	}
 	
 	public abstract BaseFormNotifications getNotificationsConfiguration();
 	

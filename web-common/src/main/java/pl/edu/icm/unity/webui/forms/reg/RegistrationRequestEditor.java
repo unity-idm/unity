@@ -113,7 +113,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 			GroupsManagement groupsMan, 
 			String registrationCode, RegistrationInvitationParam invitation2, 
 			AuthenticatorSupportService authnSupport, 
-			SignUpAuthNController signUpAuthNController) throws AuthenticationException
+			SignUpAuthNController signUpAuthNController)
 	{
 		super(msg, form, remotelyAuthenticated, identityEditorRegistry, credentialEditorRegistry, 
 				attributeHandlerRegistry, aTypeMan, credMan, groupsMan);
@@ -124,19 +124,22 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 		this.authnSupport = authnSupport;
 	}
 	
-	public void showFirstStage(Runnable onLocalSignupHandler)
+	public void showFirstStage(Runnable onLocalSignupHandler) throws AuthenticationException
 	{
 		this.effectiveLayout = form.getEffectivePrimaryFormLayout(msg);
 		this.onLocalSignupHandler = onLocalSignupHandler;
 		this.stage = Stage.FIRST;
+		if (form.isLocalSignupEnabled()) //when we have only remote signup enabled, validation must be defered to 2nd stage
+			validateMandatoryRemoteInput(); 
 		initUI();
 	}
 	
-	public void showSecondStage(boolean withCredentials)
+	public void showSecondStage(boolean withCredentials) throws AuthenticationException
 	{
 		this.effectiveLayout = withCredentials ? form.getEffectiveSecondaryFormLayout(msg) 
 				: form.getEffectiveSecondaryFormLayoutWithoutCredentials(msg);
 		this.stage = Stage.SECOND;
+		validateMandatoryRemoteInput();
 		initUI();
 	}
 	
@@ -176,7 +179,7 @@ public class RegistrationRequestEditor extends BaseRequestEditor<RegistrationReq
 	 */
 	public boolean isSubmissionPossible()
 	{
-		return (stage == Stage.FIRST && !FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) 
+		return (stage == Stage.FIRST && form.isLocalSignupEnabled() && !FormLayoutUtils.hasLocalSignupButton(effectiveLayout)) 
 				|| stage == Stage.SECOND;
 	}
 

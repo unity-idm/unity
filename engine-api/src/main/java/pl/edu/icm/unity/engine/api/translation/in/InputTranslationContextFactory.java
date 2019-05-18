@@ -33,8 +33,8 @@ public class InputTranslationContextFactory
 		Map<String, Object> ret = new HashMap<>();
 		
 		ret.put(ContextKey.idp.name(), input.getIdpName());
-		Map<String, Object> attr = new HashMap<String, Object>();
-		Map<String, List<Object>> attrs = new HashMap<String, List<Object>>();
+		Map<String, Object> attr = new HashMap<>();
+		Map<String, List<Object>> attrs = new HashMap<>();
 		for (RemoteAttribute ra: input.getAttributes().values())
 		{
 			Object v = ra.getValues().isEmpty() ? "" : ra.getValues().get(0);
@@ -77,7 +77,7 @@ public class InputTranslationContextFactory
 	
 	private static Map<String, String> createExpresionValueMap(Map<String, Object> mvelCtx)
 	{
-		Map<String, String> exprValMap = new LinkedHashMap<String, String>();
+		Map<String, String> exprValMap = new LinkedHashMap<>();
 
 		for (Map.Entry<String, Object> context : mvelCtx.entrySet())
 		{

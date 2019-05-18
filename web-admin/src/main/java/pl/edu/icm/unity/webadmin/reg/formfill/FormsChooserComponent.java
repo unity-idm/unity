@@ -221,6 +221,7 @@ public class FormsChooserComponent extends CustomComponent
 	
 	private void handleError(Exception error)
 	{
+		log.warn("Registration failed", error);
 		NotificationPopup.showError(msg, 
 				msg.getMessage("FormsChooserComponent.errorShowFormEdit"), error);
 	}
