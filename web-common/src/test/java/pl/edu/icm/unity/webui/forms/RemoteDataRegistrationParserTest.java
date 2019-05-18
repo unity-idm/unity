@@ -60,8 +60,9 @@ public class RemoteDataRegistrationParserTest
 		RegistrationForm form = formBuilder.build();
 
 		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
-
-		Throwable error = catchThrowable(() -> RemoteDataRegistrationParser.parseRemoteIdentities(form, remoteCtx));
+		Map<String, IdentityTaV> identities = RemoteDataRegistrationParser.parseRemoteIdentities(form, remoteCtx);
+		Throwable error = catchThrowable(() -> 
+			RemoteDataRegistrationParser.assertMandatoryRemoteIdentitiesArePresent(form, identities));
 		
 		assertThat(error).isNotNull().isInstanceOf(AuthenticationException.class);
 	}
@@ -124,8 +125,9 @@ public class RemoteDataRegistrationParserTest
 		RegistrationForm form = formBuilder.build();
 		
 		RemotelyAuthenticatedContext remoteCtx = new RemotelyAuthenticatedContext("idp", "iprof");
-		
-		Throwable error = catchThrowable(() -> RemoteDataRegistrationParser.parseRemoteAttributes(form, remoteCtx));
+		Map<String, Attribute> remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remoteCtx);
+		Throwable error = catchThrowable(() -> 
+			RemoteDataRegistrationParser.assertMandatoryRemoteAttributesArePresent(form, remoteAttributes));
 
 		assertThat(error).isNotNull().isInstanceOf(AuthenticationException.class);
 	}
@@ -145,7 +147,9 @@ public class RemoteDataRegistrationParserTest
 		remoteCtx.addAttributes(Lists.newArrayList(StringAttribute.of(InitializerCommon.EMAIL_ATTR, 
 				"/A/notMatching", "remote@example.com")));
 		
-		Throwable error = catchThrowable(() -> RemoteDataRegistrationParser.parseRemoteAttributes(form, remoteCtx));
+		Map<String, Attribute> remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remoteCtx);
+		Throwable error = catchThrowable(() -> 
+			RemoteDataRegistrationParser.assertMandatoryRemoteAttributesArePresent(form, remoteAttributes));
 
 		assertThat(error).isNotNull().isInstanceOf(AuthenticationException.class);
 	}	

@@ -132,16 +132,6 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 	/**
 	 * Note - the two managers must be insecure, if the form is used in not-authenticated context, 
 	 * what is possible for registration form.
-	 *  
-	 * @param msg
-	 * @param form
-	 * @param remotelyAuthenticated
-	 * @param identityEditorRegistry
-	 * @param credentialEditorRegistry
-	 * @param attributeHandlerRegistry
-	 * @param atMan
-	 * @param credMan
-	 * @throws EngineException
 	 */
 	public BaseRequestEditor(UnityMessageSource msg, BaseForm form,
 			RemotelyAuthenticatedContext remotelyAuthenticated,
@@ -149,7 +139,7 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 			CredentialEditorRegistry credentialEditorRegistry,
 			AttributeHandlerRegistry attributeHandlerRegistry,
 			AttributeTypeManagement atMan, CredentialManagement credMan,
-			GroupsManagement groupsMan, URIAccessService uriAccessService) throws AuthenticationException
+			GroupsManagement groupsMan, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
 		this.form = form;
@@ -165,8 +155,12 @@ public abstract class BaseRequestEditor<T extends BaseRegistrationInput> extends
 		this.remoteAttributes = RemoteDataRegistrationParser.parseRemoteAttributes(form, remotelyAuthenticated);
 		this.remoteIdentitiesByType = RemoteDataRegistrationParser.parseRemoteIdentities(
 				form, remotelyAuthenticated);
-		
-		
+	}
+	
+	protected void validateMandatoryRemoteInput() throws AuthenticationException
+	{
+		RemoteDataRegistrationParser.assertMandatoryRemoteAttributesArePresent(form, remoteAttributes);
+		RemoteDataRegistrationParser.assertMandatoryRemoteIdentitiesArePresent(form, remoteIdentitiesByType);
 	}
 	
 	@Override

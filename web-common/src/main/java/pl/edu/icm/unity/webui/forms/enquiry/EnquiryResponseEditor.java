@@ -44,6 +44,7 @@ public class EnquiryResponseEditor extends BaseRequestEditor<EnquiryResponse>
 				attributeHandlerRegistry, atMan, credMan, groupsMan, uriAccessService);
 		this.enquiryForm = form;
 		this.prefilled = prefilled;
+		validateMandatoryRemoteInput();
 		initUI();
 	}
 	

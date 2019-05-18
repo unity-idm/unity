@@ -58,6 +58,16 @@ public class WorkflowFinalizationConfiguration
 		return new Builder().setSuccess(false).setMainInformation(mainInfo).setRedirectURL(redirectURL).build();
 	}
 	
+	@Override
+	public String toString()
+	{
+		return "WorkflowFinalizationConfiguration [success=" + success + ", autoRedirect=" + autoRedirect
+				+ ", pageTitle=" + pageTitle + ", logoURL=" + logoURL + ", mainInformation="
+				+ mainInformation + ", extraInformation=" + extraInformation + ", redirectURL="
+				+ redirectURL + ", redirectButtonText=" + redirectButtonText
+				+ ", isAutoLoginAfterSignUp=" + isAutoLoginAfterSignUp + "]";
+	}
+
 	public static class Builder
 	{
 		private boolean success;

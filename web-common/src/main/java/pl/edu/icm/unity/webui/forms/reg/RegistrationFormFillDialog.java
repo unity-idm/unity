@@ -4,11 +4,14 @@
  */
 package pl.edu.icm.unity.webui.forms.reg;
 
+import org.apache.logging.log4j.Logger;
+
 import com.vaadin.server.Page;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.VerticalLayout;
 
+import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.IdPLoginController;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.finalization.WorkflowFinalizationConfiguration;
@@ -28,6 +31,7 @@ import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
  */
 public class RegistrationFormFillDialog extends AbstractDialog
 {
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, RegistrationFormFillDialog.class);
 	private RegistrationRequestEditor editor;
 	private URIAccessService uriAccessService;
 	private Callback callback;
@@ -70,6 +74,7 @@ public class RegistrationFormFillDialog extends AbstractDialog
 	
 	private void gotoFinalScreen(WorkflowFinalizationConfiguration config)
 	{
+		log.debug("Registration is finalized, status: {}", config);
 		cancel.setVisible(false);
 		onFinalScreen = true;
 		VerticalLayout wrapper = new VerticalLayout();

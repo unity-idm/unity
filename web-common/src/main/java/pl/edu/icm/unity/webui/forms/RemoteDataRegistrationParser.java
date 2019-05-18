@@ -27,7 +27,7 @@ import pl.edu.icm.unity.types.registration.ParameterRetrievalSettings;
 class RemoteDataRegistrationParser
 {
 	static Map<String, IdentityTaV> parseRemoteIdentities(BaseForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated) throws AuthenticationException
+			RemotelyAuthenticatedContext remotelyAuthenticated)
 	{
 		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
 		Map<String, IdentityTaV> remoteIdentitiesByType = new HashMap<>();	
@@ -39,27 +39,38 @@ class RemoteDataRegistrationParser
 					continue;
 				
 				Collection<IdentityTaV> identities = remotelyAuthenticated.getIdentities();
-				boolean found = false;
 				for (IdentityTaV id: identities)
 					if (id.getTypeId().equals(idParam.getIdentityType()))
 					{
 						remoteIdentitiesByType.put(id.getTypeId(), id);
-						found = true;
 						break;
 					}
-				if (!found && !idParam.isOptional() && (idParam.getRetrievalSettings().isAutomaticOnly()))
-					throw new AuthenticationException("This registration form may be used only by " +
-							"users who were remotely authenticated first and who have " +
-							idParam.getIdentityType() + 
-							" identity provided by the remote authentication source.");
 			}
 		}
 		return remoteIdentitiesByType;
 	}
 	
+	static void assertMandatoryRemoteIdentitiesArePresent(BaseForm form,
+			Map<String, IdentityTaV> remoteIdentitiesByType) throws AuthenticationException
+	{
+		List<IdentityRegistrationParam> idParams = form.getIdentityParams();
+		if (idParams == null)
+			return;
+		for (IdentityRegistrationParam idParam: idParams)
+		{	
+			if (idParam.isOptional() || !idParam.getRetrievalSettings().isAutomaticOnly())
+				continue;
+			if (!remoteIdentitiesByType.containsKey(idParam.getIdentityType()))
+				throw new AuthenticationException("This registration form may be used only by " +
+						"users who were remotely authenticated first and who have " +
+						idParam.getIdentityType() + 
+						" identity provided by the remote authentication source.");
+		}
+	}
+
 	
 	static Map<String, Attribute> parseRemoteAttributes(BaseForm form,
-			RemotelyAuthenticatedContext remotelyAuthenticated) throws AuthenticationException
+			RemotelyAuthenticatedContext remotelyAuthenticated)
 	{
 		List<AttributeRegistrationParam> aParams = form.getAttributeParams();
 		Map<String, Attribute> remoteAttributes = new HashMap<>();
@@ -70,23 +81,34 @@ class RemoteDataRegistrationParser
 				if (aParam.getRetrievalSettings() == ParameterRetrievalSettings.interactive)
 					continue;
 				Collection<Attribute> attrs = remotelyAuthenticated.getAttributes();
-				boolean found = false;
 				for (Attribute a: attrs)
 					if (a.getName().equals(aParam.getAttributeType()) && 
 							GroupPatternMatcher.matches(a.getGroupPath(), aParam.getGroup()))
 					{
-						found = true;
 						remoteAttributes.put(getAttributeKey(aParam), a);
 						break;
 					}
-				if (!found && !aParam.isOptional() && (aParam.getRetrievalSettings().isAutomaticOnly()))
-					throw new AuthenticationException("This registration form may be used only by " +
-							"users who were remotely authenticated first and who have attribute '" +
-							aParam.getAttributeType() + "' in group '" + aParam.getGroup() 
-							+ "' provided by the remote authentication source.");
 			}
 		}
 		return remoteAttributes;
+	}
+
+	static void assertMandatoryRemoteAttributesArePresent(BaseForm form,
+			Map<String, Attribute> remoteAttributes) throws AuthenticationException
+	{
+		List<AttributeRegistrationParam> aParams = form.getAttributeParams();
+		if (aParams == null)
+			return;
+		for (AttributeRegistrationParam aParam: aParams)
+		{
+			if (aParam.isOptional() || !aParam.getRetrievalSettings().isAutomaticOnly())
+				continue;
+			if (!remoteAttributes.containsKey(getAttributeKey(aParam)))
+				throw new AuthenticationException("This registration form may be used only by " +
+						"users who were remotely authenticated first and who have attribute '" +
+						aParam.getAttributeType() + "' in group '" + aParam.getGroup() 
+						+ "' provided by the remote authentication source.");
+		}
 	}
 	
 	static String getAttributeKey(AttributeRegistrationParam aParam)

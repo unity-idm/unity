@@ -260,17 +260,20 @@ public class RegistrationForm extends BaseForm
 			List<FormElement> externalSignUpElements = getDefaultExternalSignupFormLayoutElements(msg);
 			elements.addAll(externalSignUpElements);
 		}
-		if (getFormLayouts().isLocalSignupEmbeddedAsButton())
+		
+		if (isLocalSignupEnabled())
 		{
-			elements.add(new FormLocalSignupButtonElement());
-			
-		} else
-		{
-			List<FormElement> defaultElements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
-			addRegistrationFormSpecificElements(msg, defaultElements);
-			if (!defaultElements.isEmpty() && getExternalSignupSpec().isEnabled())
-				elements.add(new FormCaptionElement(new I18nString("RegistrationRequest.or", msg)));
-			elements.addAll(defaultElements);
+			if (getFormLayouts().isLocalSignupEmbeddedAsButton())
+			{
+				elements.add(new FormLocalSignupButtonElement());
+			} else
+			{
+				List<FormElement> defaultElements = FormLayoutUtils.getDefaultFormLayoutElements(this, msg);
+				addRegistrationFormSpecificElements(msg, defaultElements);
+				if (!defaultElements.isEmpty() && getExternalSignupSpec().isEnabled())
+					elements.add(new FormCaptionElement(new I18nString("RegistrationRequest.or", msg)));
+				elements.addAll(defaultElements);
+			}
 		}
 		return new FormLayout(elements);
 	}
