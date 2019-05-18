@@ -53,9 +53,10 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	@DocumentationReferencePrefix
 	public static final String PREFIX = UnityServerConfiguration.P+HttpServerProperties.DEFAULT_PREFIX;
 
-	public static final String HTTPS_PORT = "port";
-	public static final String HTTPS_HOST = "host";
+	public static final String HTTP_PORT = "port";
+	public static final String HTTP_HOST = "host";
 	public static final String ADVERTISED_HOST = "advertisedHost";
+	public static final String DISABLE_TLS = "disableTLS";
 	
 	public static final String ENABLE_DOS_FILTER = "enableDoSFilter";
 	public static final String DOS_FILTER_PFX = "dosFilter.";
@@ -104,10 +105,10 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 		DocumentationCategory mainCat = new DocumentationCategory("General settings", "1");
 		DocumentationCategory corsCat = new DocumentationCategory("CORS settings", "8");
 		DocumentationCategory advancedCat = new DocumentationCategory("Advanced settings", "9");
-		defaults.put(HTTPS_HOST, new PropertyMD("localhost").setCategory(mainCat).
-				setDescription("The hostname or IP address for HTTPS connections. Use 0.0.0.0 to listen on all interfaces."));
-		defaults.put(HTTPS_PORT, new PropertyMD("2443").setBounds(0, 65535).setCategory(mainCat).
-				setDescription("The HTTPS port to be used. If zero (0) is set then a random free port is used."));
+		defaults.put(HTTP_HOST, new PropertyMD("localhost").setCategory(mainCat).
+				setDescription("The hostname or IP address for HTTP connections. Use 0.0.0.0 to listen on all interfaces."));
+		defaults.put(HTTP_PORT, new PropertyMD("2443").setBounds(0, 65535).setCategory(mainCat).
+				setDescription("The HTTP port to be used. If zero (0) is set then a random free port is used."));
 		defaults.put(ADVERTISED_HOST, new PropertyMD().setCategory(mainCat).
 				setDescription("The hostname or IP address (optionally with port), which is advertised externally whenever " +
 					"the server has to provide its address. By default it is set to the listen address, " + 
@@ -115,7 +116,13 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 					"also should be set whenever the server is listening on "
 					+ "a private interface accessible via DNAT or similar solutions. Examples:"
 					+ " +login.example.com+ or +login.example.com:8443+ "));		
-
+		defaults.put(DISABLE_TLS, new PropertyMD("false").setCategory(mainCat).
+				setDescription("If set to true then server will listen on plain, insecure socket. "
+						+ "Useful when Unity is hidden behind a proxy server, "
+						+ "which provides TLS on its own. "
+						+ "Note: it is still mandatory for web browser clients to access Unity over HTTPS "
+						+ "as otherwise Unity cookies won't be accepted by the browser. "
+						+ "Therefore Unity's advertised address is always be HTTPS."));
 		
 		
 		defaults.put(ENABLE_DOS_FILTER, new PropertyMD("false").setCategory(advancedCat).
@@ -209,10 +216,11 @@ public class UnityHttpServerConfiguration extends PropertiesHelper
 	{
 		super(PREFIX, source, defaults, log);
 		String advertisedHost = getValue(ADVERTISED_HOST);
-		if ("0.0.0.0".equals(getValue(HTTPS_HOST)) && advertisedHost == null)
+		if ("0.0.0.0".equals(getValue(HTTP_HOST)) && advertisedHost == null)
 			throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
 					" must be set when the listen address is 0.0.0.0 (all interfaces).");
-		if (advertisedHost != null) {
+		if (advertisedHost != null) 
+		{
 			if (advertisedHost.contains("://"))
 				throw new ConfigurationException(getKeyDescription(ADVERTISED_HOST) + 
 						" must contain hostname and optionally the port, "

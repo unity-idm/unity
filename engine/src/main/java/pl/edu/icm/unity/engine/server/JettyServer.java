@@ -432,8 +432,10 @@ public class JettyServer implements Lifecycle, NetworkServer
 	{
 		try
 		{
-			return new URL[] {new URL("https://" + conf.getValue(UnityHttpServerConfiguration.HTTPS_HOST) + 
-					":" + conf.getValue(UnityHttpServerConfiguration.HTTPS_PORT))};
+			String scheme = conf.getBooleanValue(UnityHttpServerConfiguration.DISABLE_TLS) ? 
+					"http" : "https";
+			return new URL[] {new URL(scheme + "://" + conf.getValue(UnityHttpServerConfiguration.HTTP_HOST) + 
+					":" + conf.getValue(UnityHttpServerConfiguration.HTTP_PORT))};
 		} catch (MalformedURLException e)
 		{
 			throw new ConfigurationException("Can not create server url from host and port parameters: " 
