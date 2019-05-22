@@ -26,7 +26,6 @@ import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
  */
 public class VerifiableEmail extends VerifiableElementBase
 {
-	
 	private List<String> tags;
 
 	public VerifiableEmail()
@@ -42,6 +41,7 @@ public class VerifiableEmail extends VerifiableElementBase
 	public VerifiableEmail(String value, ConfirmationInfo confirmationData)
 	{
 		super(value, confirmationData);
+		
 		this.tags = value == null ? new ArrayList<>() : extractTags(value);
 	}
 
@@ -116,6 +116,8 @@ public class VerifiableEmail extends VerifiableElementBase
 	public static String removeTags(String address)
 	{
 		int atPos = address.indexOf('@');
+		if (atPos == -1)
+			return address;
 		String local = address.substring(0, atPos);
 		String domain = address.substring(atPos);
 		
