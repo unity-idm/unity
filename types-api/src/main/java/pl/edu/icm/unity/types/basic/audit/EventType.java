@@ -6,9 +6,9 @@ package pl.edu.icm.unity.types.basic.audit;
 
 public enum EventType
 {
-    ENTITY,
-    IDENTITY,
-    GROUP,
-    SESSION,
-    CREDENTIALS;
+	ENTITY,
+	IDENTITY,
+	GROUP,
+	SESSION,
+	CREDENTIALS;
 }

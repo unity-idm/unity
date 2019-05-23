@@ -25,120 +25,120 @@ import static org.junit.Assert.assertTrue;
 
 public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 {
-    @Autowired
-    private AuditEventDAO dao;
+	@Autowired
+	private AuditEventDAO dao;
 
-    @Autowired
-    AuditTagRDBMSStore tagDAO;
+	@Autowired
+	AuditTagRDBMSStore tagDAO;
 
-    @Override
-    protected AuditEventDAO getDAO()
-    {
-        return dao;
-    }
+	@Override
+	protected AuditEventDAO getDAO()
+	{
+		return dao;
+	}
 
-    @Override
-    protected AuditEvent getObject(String id)
-    {
-        return AuditEvent.builder()
-                .name("name")
-                .type(EventType.IDENTITY)
-                .timestamp(new Date())
-                .action(EventAction.ADD)
-                .details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
-                .subject(new AuditEntity(101l, "Subject", "subject@example.com"))
-                .initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
-                .tags("TAG1", "TAG2")
-                .build();
-    }
+	@Override
+	protected AuditEvent getObject(String id)
+	{
+		return AuditEvent.builder()
+				.name("name")
+				.type(EventType.IDENTITY)
+				.timestamp(new Date())
+				.action(EventAction.ADD)
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(101l, "Subject", "subject@example.com"))
+				.initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
+				.tags("TAG1", "TAG2")
+				.build();
+	}
 
-    @Override
-    protected AuditEvent mutateObject(AuditEvent src)
-    {
-        return AuditEvent.builder()
-                .name("name2")
-                .type(EventType.IDENTITY)
-                .timestamp(new Date())
-                .action(EventAction.UPDATE)
-                .details(JsonUtil.parse("{\"comment\" : \"No new comment\"}"))
-                .subject(new AuditEntity(102l, "Subject2", "subject2@example.com"))
-                .initiator(src.getInitiator())
-                .tags("TAG2", "TAG3")
-                .build();
-    }
+	@Override
+	protected AuditEvent mutateObject(AuditEvent src)
+	{
+		return AuditEvent.builder()
+				.name("name2")
+				.type(EventType.IDENTITY)
+				.timestamp(new Date())
+				.action(EventAction.UPDATE)
+				.details(JsonUtil.parse("{\"comment\" : \"No new comment\"}"))
+				.subject(new AuditEntity(102l, "Subject2", "subject2@example.com"))
+				.initiator(src.getInitiator())
+				.tags("TAG2", "TAG3")
+				.build();
+	}
 
-    @Test
-    public void shouldStoreEventWithNulls()
-    {
-        AuditEvent event = AuditEvent.builder()
-                .name("name2")
-                .type(EventType.IDENTITY)
-                .timestamp(new Date())
-                .action(EventAction.UPDATE)
-                .initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
-                .build();
-        tx.runInTransaction(() -> {
-            long id = dao.create(event);
-            TransactionTL.manualCommit();
-            AuditEvent eventFromDB = dao.getByKey(id);
-            assertEquals(event, eventFromDB);
-            assertTrue(eventFromDB.getDetails() == null);
-            assertTrue(eventFromDB.getSubject() == null);
-            assertTrue(eventFromDB.getTags().isEmpty());
-        });
-    }
+	@Test
+	public void shouldStoreEventWithNulls()
+	{
+		AuditEvent event = AuditEvent.builder()
+				.name("name2")
+				.type(EventType.IDENTITY)
+				.timestamp(new Date())
+				.action(EventAction.UPDATE)
+				.initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
+				.build();
+		tx.runInTransaction(() -> {
+			long id = dao.create(event);
+			TransactionTL.manualCommit();
+			AuditEvent eventFromDB = dao.getByKey(id);
+			assertEquals(event, eventFromDB);
+			assertTrue(eventFromDB.getDetails() == null);
+			assertTrue(eventFromDB.getSubject() == null);
+			assertTrue(eventFromDB.getTags().isEmpty());
+		});
+	}
 
-    @Test
-    public void shouldReturnAllEventsAndTags()
-    {
-        AuditEvent event1 = AuditEvent.builder()
-                .name("Identity name")
-                .type(EventType.IDENTITY)
-                .timestamp(new Date())
-                .action(EventAction.ADD)
-                .initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
-                .details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
-                .subject(new AuditEntity(101l, "Subject", "subject@example.com"))
-                .tags("TAG1", "TAG2")
-                .build();
-        AuditEvent event2 = AuditEvent.builder()
-                .name("Identity name")
-                .type(EventType.IDENTITY)
-                .timestamp(new Date())
-                .action(EventAction.UPDATE)
-                .initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
-                .details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
-                .subject(new AuditEntity(101l, "Subject", "subject@example.com"))
-                .tags("TAG2")
-                .build();
-        AuditEvent event3 = AuditEvent.builder()
-                .name("Identity name")
-                .type(EventType.GROUP)
-                .timestamp(new Date())
-                .action(EventAction.ADD)
-                .initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
-                .details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
-                .subject(new AuditEntity(102l, "Subject2", "subject2@example.com"))
-                .tags("TAG1", "TAG3", "TAG4")
-                .build();
+	@Test
+	public void shouldReturnAllEventsAndTags()
+	{
+		AuditEvent event1 = AuditEvent.builder()
+				.name("Identity name")
+				.type(EventType.IDENTITY)
+				.timestamp(new Date())
+				.action(EventAction.ADD)
+				.initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(101l, "Subject", "subject@example.com"))
+				.tags("TAG1", "TAG2")
+				.build();
+		AuditEvent event2 = AuditEvent.builder()
+				.name("Identity name")
+				.type(EventType.IDENTITY)
+				.timestamp(new Date())
+				.action(EventAction.UPDATE)
+				.initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(101l, "Subject", "subject@example.com"))
+				.tags("TAG2")
+				.build();
+		AuditEvent event3 = AuditEvent.builder()
+				.name("Identity name")
+				.type(EventType.GROUP)
+				.timestamp(new Date())
+				.action(EventAction.ADD)
+				.initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
+				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
+				.subject(new AuditEntity(102l, "Subject2", "subject2@example.com"))
+				.tags("TAG1", "TAG3", "TAG4")
+				.build();
 
-        tx.runInTransaction(() -> {
-            dao.create(event1);
-            dao.create(event2);
-            dao.create(event3);
+		tx.runInTransaction(() -> {
+			dao.create(event1);
+			dao.create(event2);
+			dao.create(event3);
 
-            TransactionTL.manualCommit();
+			TransactionTL.manualCommit();
 
-            List<AuditEvent> events = dao.getAll();
+			List<AuditEvent> events = dao.getAll();
 
-            assertEquals(3, events.size());
-            assertTrue(events.contains(event1));
-            assertTrue(events.contains(event2));
-            assertTrue(events.contains(event3));
-            AuditEntity initiator = new AuditEntity(100l, "Initiator", "initiator@example.com");
-            assertTrue(events.stream().allMatch((event) -> event.getInitiator().equals(initiator)));
+			assertEquals(3, events.size());
+			assertTrue(events.contains(event1));
+			assertTrue(events.contains(event2));
+			assertTrue(events.contains(event3));
+			AuditEntity initiator = new AuditEntity(100l, "Initiator", "initiator@example.com");
+			assertTrue(events.stream().allMatch((event) -> event.getInitiator().equals(initiator)));
 
-            assertEquals(Sets.newHashSet("TAG1", "TAG2", "TAG3", "TAG4"), dao.getAllTags());
-        });
-    }
+			assertEquals(Sets.newHashSet("TAG1", "TAG2", "TAG3", "TAG4"), dao.getAllTags());
+		});
+	}
 }
