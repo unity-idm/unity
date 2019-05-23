@@ -44,7 +44,6 @@ class AuditEventIE extends AbstractIEBase<AuditEvent>
 	@Override
 	protected ObjectNode toJsonSingle(AuditEvent exportedObj)
 	{
-//        return exportedObj.toJson();
 		return Constants.MAPPER.valueToTree(exportedObj);
 	}
 
