@@ -21,47 +21,47 @@ import java.util.Set;
 @Repository
 class AuditTagRDBMSStore
 {
-    private Set<String> knownTags = Sets.newConcurrentHashSet();
+	private Set<String> knownTags = Sets.newConcurrentHashSet();
 
-    void invalidateCache()
-    {
-        knownTags.clear();
-    }
+	void invalidateCache()
+	{
+		knownTags.clear();
+	}
 
-    Set<String> getAllTags()
-    {
+	Set<String> getAllTags()
+	{
 
-        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-        Set<String> allTags = mapper.getAllTags();
-        knownTags.addAll(allTags);
-        return allTags;
-    }
+		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+		Set<String> allTags = mapper.getAllTags();
+		knownTags.addAll(allTags);
+		return allTags;
+	}
 
-    void insertAuditTags(long eventId, Set<String> tagList)
-    {
-        // Make sure all tags are in DB
-        insertTags(tagList);
-        // Add tags for given event
-        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-        mapper.insertAuditTags(eventId, tagList);
-    }
+	void insertAuditTags(long eventId, Set<String> tagList)
+	{
+		// Make sure all tags are in DB
+		insertTags(tagList);
+		// Add tags for given event
+		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+		mapper.insertAuditTags(eventId, tagList);
+	}
 
-    private void insertTags(Set<String> tagList)
-    {
-        Set<String> missing = new HashSet<>(tagList);
-        missing.removeAll(knownTags);
-        if (missing.size() == 0) {
-            return;
-        }
-        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-        mapper.createTags(missing);
-        knownTags.addAll(missing);
-    }
+	private void insertTags(Set<String> tagList)
+	{
+		Set<String> missing = new HashSet<>(tagList);
+		missing.removeAll(knownTags);
+		if (missing.size() == 0) {
+			return;
+		}
+		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+		mapper.createTags(missing);
+		knownTags.addAll(missing);
+	}
 
-    void updateTags(long eventId, Set<String> tagList)
-    {
-        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-        mapper.deleteTags(eventId);
-        insertAuditTags(eventId, tagList);
-    }
+	void updateTags(long eventId, Set<String> tagList)
+	{
+		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+		mapper.deleteTags(eventId);
+		insertAuditTags(eventId, tagList);
+	}
 }

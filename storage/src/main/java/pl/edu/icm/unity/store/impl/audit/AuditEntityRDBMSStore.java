@@ -18,29 +18,29 @@ import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 @Repository
 class AuditEntityRDBMSStore
 {
-    Long findOrCreateEntity(AuditEntity auditEntity)
-    {
-        if (auditEntity == null) {
-            return null;
-        }
-        Long id = getAuditEntityId(auditEntity);
-        if (id == null) {
-            id = createAuditEntity(auditEntity);
-        }
-        return id;
-    }
+	Long findOrCreateEntity(AuditEntity auditEntity)
+	{
+		if (auditEntity == null) {
+			return null;
+		}
+		Long id = getAuditEntityId(auditEntity);
+		if (id == null) {
+			id = createAuditEntity(auditEntity);
+		}
+		return id;
+	}
 
-    private Long getAuditEntityId(AuditEntity auditEntity)
-    {
-        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-        return mapper.getAuditEntityId(new AuditEntityBean(auditEntity));
-    }
+	private Long getAuditEntityId(AuditEntity auditEntity)
+	{
+		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+		return mapper.getAuditEntityId(new AuditEntityBean(auditEntity));
+	}
 
-    private long createAuditEntity(AuditEntity auditEntity)
-    {
-        AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
-        AuditEntityBean bean = new AuditEntityBean(auditEntity);
-        mapper.createAuditEntity(bean);
-        return bean.getId();
-    }
+	private long createAuditEntity(AuditEntity auditEntity)
+	{
+		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);
+		AuditEntityBean bean = new AuditEntityBean(auditEntity);
+		mapper.createAuditEntity(bean);
+		return bean.getId();
+	}
 }

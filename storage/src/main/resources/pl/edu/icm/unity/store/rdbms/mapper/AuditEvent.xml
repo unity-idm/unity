@@ -90,10 +90,6 @@
         </foreach>
     </insert>
 
-    <insert id="createTag">
-        INSERT INTO AUDIT_TAGS (TAG) VALUES (#{tag})
-    </insert>
-
 	<insert id="insertAuditTags">
 		INSERT INTO AUDIT_EVENTS_TAGS SELECT #{eventId},ID FROM AUDIT_TAGS WHERE TAG IN (
 		<foreach collection="tagList" item="item" index="index" separator=",">

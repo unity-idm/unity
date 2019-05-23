@@ -6,7 +6,7 @@ package pl.edu.icm.unity.types.basic.audit;
 
 public enum EventAction
 {
-    ADD,
-    UPDATE,
-    REMOVE;
+	ADD,
+	UPDATE,
+	REMOVE;
 }
