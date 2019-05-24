@@ -6,6 +6,7 @@ package pl.edu.icm.unity.webadmin.credreq;
 
 import com.vaadin.ui.Component;
 
+import io.imunity.webadmin.credentialRequirements.CredentialRequirementEditor;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
 import pl.edu.icm.unity.types.authn.CredentialRequirements;

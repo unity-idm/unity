@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.credreq;
+package io.imunity.webadmin.credentialRequirements;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +31,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
  */
 public class CredentialRequirementRemovalDialog extends AbstractDialog
 {
-	private static final long serialVersionUID = 1L;
 	private Callback callback;
 	private ComboBox<String> replacementCR;
 	private Collection<CredentialRequirements> allCRs;
@@ -44,7 +43,7 @@ public class CredentialRequirementRemovalDialog extends AbstractDialog
 		this.allCRs = allCRs;
 		this.removedCr = removedCr;
 		this.callback = callback;
-		setSizeMode(SizeMode.SMALL);
+		setSizeMode(SizeMode.MEDIUM);
 	}
 
 	public interface Callback 

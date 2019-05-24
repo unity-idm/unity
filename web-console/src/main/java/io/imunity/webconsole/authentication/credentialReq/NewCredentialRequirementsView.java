@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.authentication.localCredentials;
+package io.imunity.webconsole.authentication.credentialReq;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,41 +13,41 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.credentials.CredentialDefinitionEditor;
+import io.imunity.webadmin.credentialRequirements.CredentialRequirementEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.authentication.localCredentials.LocalCredentialsView.LocalCredentialsNavigationInfoProvider;
+import io.imunity.webconsole.authentication.credentialReq.CredentialRequirementsView.CredentialsRequirementsNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
-import io.imunity.webelements.navigation.UnityView;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
+import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.IllegalCredentialException;
-import pl.edu.icm.unity.types.authn.CredentialDefinition;
+import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * New local credential view
+ * New credential requirements view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-class NewLocalCredentialView extends CustomComponent implements UnityView
+class NewCredentialRequirementsView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "NewLocalCredential";
+	public static final String VIEW_NAME = "NewCredentialRequirements";
 
-	private LocalCredentialsController controller;
+	private CredentialRequirementsController controller;
 	private UnityMessageSource msg;
-	private CredentialDefinitionEditor editor;
+	private CredentialRequirementEditor editor;
 	private EventsBus bus;
 
 	@Autowired
-	NewLocalCredentialView(UnityMessageSource msg, LocalCredentialsController controller)
+	NewCredentialRequirementsView(UnityMessageSource msg, CredentialRequirementsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -57,7 +57,16 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		editor = controller.getEditor(null);
+		try
+		{
+			editor = controller.getEditor(null);
+		} catch (ControllerException e)
+		{
+			NotificationPopup.showError(msg, e);
+			NavigationHelper.goToView(CredentialRequirementsView.VIEW_NAME);
+			return;
+		}
+
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
@@ -69,10 +78,10 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 	private void onConfirm()
 	{
 
-		CredentialDefinition cred;
+		CredentialRequirements cred;
 		try
 		{
-			cred = editor.getCredentialDefinition();
+			cred = editor.getCredentialRequirements();
 		} catch (IllegalCredentialException e)
 		{
 			return;
@@ -80,7 +89,7 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 
 		try
 		{
-			controller.addCredential(cred, bus);
+			controller.addCredentialRequirements(cred, bus);
 
 		} catch (ControllerException e)
 		{
@@ -89,13 +98,13 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 			return;
 		}
 
-		NavigationHelper.goToView(LocalCredentialsView.VIEW_NAME);
+		NavigationHelper.goToView(CredentialRequirementsView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(LocalCredentialsView.VIEW_NAME);
+		NavigationHelper.goToView(CredentialRequirementsView.VIEW_NAME);
 
 	}
 
@@ -112,12 +121,12 @@ class NewLocalCredentialView extends CustomComponent implements UnityView
 	}
 
 	@Component
-	public static class NewLocalCredentialNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class NewCredentialRequirementsNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
 		@Autowired
-		public NewLocalCredentialNavigationInfoProvider(LocalCredentialsNavigationInfoProvider parent,
-				ObjectFactory<NewLocalCredentialView> factory)
+		public NewCredentialRequirementsNavigationInfoProvider(
+				CredentialsRequirementsNavigationInfoProvider parent,
+				ObjectFactory<NewCredentialRequirementsView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
