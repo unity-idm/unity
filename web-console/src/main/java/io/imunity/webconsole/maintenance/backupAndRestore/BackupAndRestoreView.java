@@ -49,6 +49,7 @@ public class BackupAndRestoreView extends CustomComponent implements UnityView
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
+		main.setMargin(false);
 		importExportComponent.setCaption(null);
 		main.addComponent(importExportComponent);
 		setCompositionRoot(main);

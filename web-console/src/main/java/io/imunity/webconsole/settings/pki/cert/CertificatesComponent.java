@@ -59,7 +59,7 @@ public class CertificatesComponent extends CustomComponent
 		
 		VerticalLayout main = new VerticalLayout();
 		Label certCaption = new Label(msg.getMessage("CertificatesComponent.caption"));
-		certCaption.setStyleName(Styles.bold.toString());
+		certCaption.setStyleName(Styles.sectionTitle.toString());
 		main.addComponent(certCaption);
 		main.addComponent(StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewCertificateView.VIEW_NAME))));

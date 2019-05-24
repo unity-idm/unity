@@ -73,7 +73,7 @@ public class ImportExportComponent extends VerticalLayout
 	private void initUI()
 	{
 		setCaption(msg.getMessage("ImportExport.caption"));
-		setMargin(true);
+		setMargin(false);
 		setSpacing(true);
 		initExportUI();
 		initImportUI();
