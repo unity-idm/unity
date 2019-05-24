@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.importExport.ImportExportComponent;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webadmin.bulk.BulkProcessingComponent;
 import pl.edu.icm.unity.webadmin.msgtemplate.MessageTemplatesComponent;
 import pl.edu.icm.unity.webadmin.serverman.AuthenticatorsComponent;
 import pl.edu.icm.unity.webadmin.serverman.EndpointsComponent;
-import pl.edu.icm.unity.webadmin.serverman.ImportExportComponent;
 import pl.edu.icm.unity.webadmin.tprofile.TranslationProfilesComponent;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.providers.AdminUITabProvider;

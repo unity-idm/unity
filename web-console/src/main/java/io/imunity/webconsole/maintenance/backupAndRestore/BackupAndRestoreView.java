@@ -13,6 +13,7 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.importExport.ImportExportComponent;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.maintenance.MaintenanceNavigationInfoProvider;
 import io.imunity.webelements.navigation.NavigationInfo;
@@ -33,12 +34,14 @@ public class BackupAndRestoreView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "BackupAndRestore";
 
 	private UnityMessageSource msg;
+	private ImportExportComponent importExportComponent;
 	
 
 	@Autowired
-	BackupAndRestoreView(UnityMessageSource msg)
+	BackupAndRestoreView(UnityMessageSource msg, ImportExportComponent importExportComponent)
 	{
 		this.msg = msg;
+		this.importExportComponent = importExportComponent;
 		
 	}
 
@@ -46,6 +49,8 @@ public class BackupAndRestoreView extends CustomComponent implements UnityView
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
+		importExportComponent.setCaption(null);
+		main.addComponent(importExportComponent);
 		setCompositionRoot(main);
 	}
 
