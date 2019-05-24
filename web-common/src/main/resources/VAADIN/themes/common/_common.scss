@@ -652,6 +652,10 @@
 		height: $v-unit-size - 6;
 	}
 	
+	.u-chip .v-button:hover{
+		background-color: #E0E0E0;
+	}
+	
 	.u-chipsCombo {
 		margin-top: 3px;
 	}

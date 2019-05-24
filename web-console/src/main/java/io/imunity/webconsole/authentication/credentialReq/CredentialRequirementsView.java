@@ -81,9 +81,9 @@ public class CredentialRequirementsView extends CustomComponent implements Unity
 			{
 				return new Label(c.getName());
 			}
-		}, msg.getMessage("CredentialReqView.nameCaption"), 10);
+		}, msg.getMessage("CredentialReqView.nameCaption"), 5);
 
-		credList.addColumn(c -> String.join(",", c.getRequiredCredentials()),
+		credList.addColumn(c -> String.join(", ", c.getRequiredCredentials()),
 				msg.getMessage("CredentialReqView.credentialsCaption"), 10);
 
 		credList.addColumn(c -> c.getDescription(), msg.getMessage("CredentialReqView.descriptionCaption"), 10);

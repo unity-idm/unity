@@ -6,6 +6,9 @@
 package io.imunity.webconsole.authentication.authenticators;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.ComboBox;
@@ -55,14 +58,15 @@ public class MainAuthenticatorEditor extends CustomComponent
 
 	private void initUI()
 	{
+		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
+
 		authenticatorType = new ComboBox<AuthenticatorTypeDescription>();
 		authenticatorType.setCaption(msg.getMessage("AuthenticatorEditor.typeCaption"));
 		authenticatorType.addSelectionListener(e -> reloadEditor());
 		authenticatorType.setEmptySelectionAllowed(false);
-		authenticatorType.setItemCaptionGenerator(
-				t -> t.getVerificationMethod() + " (" + t.getVerificationMethodDescription() + ")");
-		authenticatorType.setWidth(50, Unit.EM);
-		authenticatorType.setItems(autnTypes);
+		authenticatorType.setItemCaptionGenerator(t -> authnTypesSorted.get(t));
+		authenticatorType.setWidth(25, Unit.EM);
+		authenticatorType.setItems(authnTypesSorted.keySet());
 
 		mainLayout = new VerticalLayout();
 		mainLayout.setMargin(false);
@@ -75,16 +79,40 @@ public class MainAuthenticatorEditor extends CustomComponent
 
 		if (toEdit != null)
 		{
-			authenticatorType.setValue(autnTypes.stream()
+			authenticatorType.setValue(authnTypesSorted.keySet().stream()
 					.filter(t -> t.getVerificationMethod().equals(toEdit.authenticator.type))
 					.findFirst().orElse(null));
 			authenticatorType.setReadOnly(true);
 		} else
 		{
 
-			authenticatorType.setValue(autnTypes.iterator().next());
+			authenticatorType.setValue(authnTypesSorted.keySet().iterator().next());
 
 		}
+	}
+
+	private String getAuthenticatorTypeLabel(AuthenticatorTypeDescription t)
+	{
+		try
+		{
+			return msg.getMessageUnsafe("Verificator." + t.getVerificationMethod());
+		} catch (Exception e)
+		{
+			return t.getVerificationMethod() + " (" + t.getVerificationMethodDescription() + ")";
+		}
+	}
+
+	private Map<AuthenticatorTypeDescription, String> getAuthenticatorTypes()
+	{
+		Map<AuthenticatorTypeDescription, String> res = new LinkedHashMap<>();
+
+		for (AuthenticatorTypeDescription type : autnTypes)
+		{
+			res.put(type, getAuthenticatorTypeLabel(type));
+		}
+
+		return res.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors
+				.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new));
 	}
 
 	private void reloadEditor()

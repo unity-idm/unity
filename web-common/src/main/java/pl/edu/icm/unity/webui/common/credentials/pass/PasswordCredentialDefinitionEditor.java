@@ -28,7 +28,6 @@ import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
-import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
@@ -117,7 +116,6 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	public Component getEditor(String credentialDefinitionConfiguration)
 	{
 		Button testMe = new Button(msg.getMessage("PasswordDefinitionEditor.testMe"));
-		testMe.addStyleName(Styles.vButtonLink.toString());
 		testMe.addClickListener(this::showTestDialog);
 		minScore = new IntStepper(msg.getMessage("PasswordDefinitionEditor.minScore"));
 		minScore.setDescription(msg.getMessage("PasswordDefinitionEditor.minScoreDesc"));
@@ -155,7 +153,6 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 		workFactor.setWidth(3, Unit.EM);
 		workFactor.setDescription(msg.getMessage("PasswordDefinitionEditor.workFactorDesc"));
 		Button testWorkFactor = new Button(msg.getMessage("PasswordDefinitionEditor.testWorkFactor"));
-		testWorkFactor.addStyleName(Styles.vButtonLink.toString());
 		testWorkFactor.addClickListener(this::showTestWorkFactorDialog);
 		
 		

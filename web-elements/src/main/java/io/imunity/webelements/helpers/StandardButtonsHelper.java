@@ -33,7 +33,7 @@ public class StandardButtonsHelper
 		button.addClickListener(clickListener);
 		return button;
 	}
-	
+
 	public static Button buildActionButton(String caption, Images icon, ClickListener clickListener)
 	{
 		Button button = buildButton(caption, icon, clickListener);
@@ -71,16 +71,16 @@ public class StandardButtonsHelper
 			Runnable onCancel)
 	{
 		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
-				buildConfirmButton(msg.getMessage("add"), onConfirm),
-				buildCancelButton(msg.getMessage("cancel"), onCancel));
+				buildCancelButton(msg.getMessage("cancel"), onCancel),
+				buildConfirmButton(msg.getMessage("add"), onConfirm));
 	}
 
 	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{
 		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
-				buildConfirmButton(msg.getMessage("update"), onConfirm),
-				buildCancelButton(msg.getMessage("cancel"), onCancel));
+				buildCancelButton(msg.getMessage("cancel"), onCancel),
+				buildConfirmButton(msg.getMessage("update"), onConfirm));
 	}
 
 	public static HorizontalLayout buildShowButtonsBar(UnityMessageSource msg, Runnable onCancel)
@@ -94,9 +94,8 @@ public class StandardButtonsHelper
 	{
 		if (cancelCaption != null)
 		{
-			return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
-					buildConfirmButton(confirmCaption, onConfirm),
-					buildCancelButton(cancelCaption, onCancel));
+			return buildButtonsBar(Alignment.MIDDLE_LEFT, true, buildCancelButton(cancelCaption, onCancel),
+					buildConfirmButton(confirmCaption, onConfirm));
 		} else
 		{
 			return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
