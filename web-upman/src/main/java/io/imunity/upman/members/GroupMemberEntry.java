@@ -9,11 +9,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import io.imunity.upman.common.FilterableEntry;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.project.DelegatedGroupMember;
 import pl.edu.icm.unity.engine.api.project.GroupAuthorizationRole;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
+import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
 
 /**
  * Data object behind a row in {@link GroupMemebersGrid}. Stores group member

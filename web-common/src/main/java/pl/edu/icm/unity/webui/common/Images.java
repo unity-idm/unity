@@ -111,7 +111,8 @@ public enum Images
 	trash		(VaadinIcons.TRASH),
 	envelope	(VaadinIcons.ENVELOPE),
 	records	        (VaadinIcons.RECORDS),
-	bullet	        (VaadinIcons.CIRCLE);
+	bullet	        (VaadinIcons.CIRCLE),
+	file_add	(VaadinIcons.FILE_ADD);
 	
 	private final Resource resource;
 	private final String path;

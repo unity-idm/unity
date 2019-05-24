@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.ui.CustomComponent;
 
+import io.imunity.webadmin.reg.invitations.InvitationViewer;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
 import pl.edu.icm.unity.engine.api.EntityManagement;

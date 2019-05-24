@@ -74,7 +74,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 		
 		VerticalLayout main = new VerticalLayout();
 		Label flowCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
-		flowCaption.setStyleName(Styles.bold.toString());
+		flowCaption.setStyleName(Styles.sectionTitle.toString());
 		main.addComponent(flowCaption);
 		main.addComponent(buttonsBar);
 		main.addComponent(flowsList);

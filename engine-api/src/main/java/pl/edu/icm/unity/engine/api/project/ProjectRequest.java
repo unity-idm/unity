@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import com.google.common.base.Objects;
 
+import pl.edu.icm.unity.engine.api.registration.RequestType;
 import pl.edu.icm.unity.types.basic.VerifiableElementBase;
 
 /**

@@ -73,7 +73,7 @@ public class AuthenticatorsComponent extends CustomComponent
 
 		VerticalLayout main = new VerticalLayout();
 		Label authCaption = new Label(msg.getMessage("AuthenticatorsComponent.caption"));
-		authCaption.setStyleName(Styles.bold.toString());
+		authCaption.setStyleName(Styles.sectionTitle.toString());
 		main.addComponent(authCaption);
 		main.addComponent(buttonsBar);
 		main.addComponent(authenticatorsList);

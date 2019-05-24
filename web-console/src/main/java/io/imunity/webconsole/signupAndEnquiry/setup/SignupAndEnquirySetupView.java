@@ -11,10 +11,17 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.reg.formfill.AdminEnquiryFormLauncher;
+import io.imunity.webadmin.reg.formfill.AdminRegistrationFormLauncher;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.signupAndEnquiry.SignupAndEnquiryNavigationInfoProvider;
+import io.imunity.webconsole.signupAndEnquiry.enquiry.EnquiryFormsComponent;
+import io.imunity.webconsole.signupAndEnquiry.enquiry.EnquiryFormsController;
+import io.imunity.webconsole.signupAndEnquiry.registration.RegistrationFormsComponent;
+import io.imunity.webconsole.signupAndEnquiry.registration.RegistrationFormsController;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -33,19 +40,35 @@ public class SignupAndEnquirySetupView extends CustomComponent implements UnityV
 	public static final String VIEW_NAME = "SignupAndEnquirySetup";
 
 	private UnityMessageSource msg;
-	
+	private RegistrationFormsController regController;
+	private EnquiryFormsController enqController;
+	private AdminRegistrationFormLauncher adminRegistrationFormLauncher;
+	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
 
 	@Autowired
-	SignupAndEnquirySetupView(UnityMessageSource msg)
+	SignupAndEnquirySetupView(UnityMessageSource msg, RegistrationFormsController regController,
+			EnquiryFormsController enqController,
+			AdminRegistrationFormLauncher adminRegistrationFormLauncher,
+			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
 	{
 		this.msg = msg;
-		
+		this.regController = regController;
+		this.enqController = enqController;
+		this.adminRegistrationFormLauncher = adminRegistrationFormLauncher;
+		this.adminEnquiryFormLauncher = adminEnquiryFormLauncher;
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
+
+		main.addComponent(new RegistrationFormsComponent(msg, regController, adminRegistrationFormLauncher));
+		main.addComponent(new Label());
+		main.addComponent(new EnquiryFormsComponent(msg, enqController, adminEnquiryFormLauncher));
+		main.addComponent(new Label());
+		main.setWidth(100, Unit.PERCENTAGE);
+		main.setMargin(false);
 		setCompositionRoot(main);
 	}
 

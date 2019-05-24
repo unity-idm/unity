@@ -32,6 +32,9 @@ import com.vaadin.ui.components.grid.SingleSelectionModel;
 import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
+import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
+import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -53,8 +56,6 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
 import pl.edu.icm.unity.webadmin.identities.EntityCreationHandler;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesGrid;
-import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditor;
-import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditor;
 import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;

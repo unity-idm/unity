@@ -46,12 +46,12 @@ public class TestInvitationController
 	@Mock
 	private DelegatedGroupsHelper mockDelGroupHelper;
 
-	private InvitationsController controller;
+	private ProjectInvitationsController controller;
 
 	@Before
 	public void initController()
 	{
-		controller = new InvitationsController(mockMsg, mockInvitationMan, mockDelGroupHelper);
+		controller = new ProjectInvitationsController(mockMsg, mockInvitationMan, mockDelGroupHelper);
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class TestInvitationController
 	public void shouldForwardRemoveToCoreManager() throws ControllerException, EngineException
 	{
 		controller.removeInvitations("/project",
-				Sets.newHashSet(new InvitationEntry("code", null, null, null, null, null)));
+				Sets.newHashSet(new ProjectInvitationEntry("code", null, null, null, null, null)));
 
 		verify(mockInvitationMan).removeInvitation(eq("/project"), eq("code"));
 
@@ -83,7 +83,7 @@ public class TestInvitationController
 	public void shouldForwardSendToCoreManager() throws ControllerException, EngineException
 	{
 		controller.resendInvitations("/project",
-				Sets.newHashSet(new InvitationEntry("code", null, null, null, null, null)));
+				Sets.newHashSet(new ProjectInvitationEntry("code", null, null, null, null, null)));
 		verify(mockInvitationMan).sendInvitation(eq("/project"), eq("code"));
 	}
 

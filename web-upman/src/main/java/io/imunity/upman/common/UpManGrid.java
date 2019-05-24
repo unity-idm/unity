@@ -19,13 +19,14 @@ import com.vaadin.ui.Grid;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.GridSelectionSupport;
+import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
 
 /**
  * Base for UpMan grids
  * 
  * @author P.Piernik
  */
-public abstract class UpManGrid<T> extends Grid<T>
+public abstract class UpManGrid<T> extends Grid<T> implements FilterableGrid<T>
 {
 	protected final UnityMessageSource msg;
 	private List<T> entries;

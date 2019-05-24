@@ -7,6 +7,8 @@ package pl.edu.icm.unity.engine.api.project;
 
 import com.google.common.base.Objects;
 
+import pl.edu.icm.unity.engine.api.registration.RequestType;
+
 /**
  * Holds base information about project request
  * 
@@ -18,11 +20,6 @@ public class ProjectRequestParam
 	public static enum RequestOperation
 	{
 		Update, SignUp
-	};
-
-	public static enum RequestType
-	{
-		Registration, Enquiry
 	};
 
 	public final String id;

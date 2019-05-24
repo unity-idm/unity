@@ -8,13 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.ui.CustomComponent;
 
+import io.imunity.webadmin.reg.requests.RequestProcessingPanel;
+import io.imunity.webadmin.reg.requests.RequestSelectionListener;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
+import pl.edu.icm.unity.engine.api.EntityManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.registration.EnquiryResponseState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestState;
-import pl.edu.icm.unity.webadmin.reg.reqman.RequestsTable.RequestSelectionListener;
 import pl.edu.icm.unity.webui.ActivationListener;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
@@ -34,6 +36,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
 @PrototypeComponent
 public class RequestsComponent extends CustomComponent implements ActivationListener
 {
+	private EntityManagement idMan;
 	private RegistrationsManagement registrationsManagement;
 	private UnityMessageSource msg;
 	private EnquiryManagement enquiryManagement;
@@ -42,11 +45,12 @@ public class RequestsComponent extends CustomComponent implements ActivationList
 	private RequestsTable requestsTable;
 	
 	@Autowired
-	public RequestsComponent(RegistrationsManagement registrationsManagement, 
+	public RequestsComponent(EntityManagement idMan, RegistrationsManagement registrationsManagement, 
 			EnquiryManagement enquiryManagement,
 			UnityMessageSource msg, 
 			RequestProcessingPanel requestPanel)
 	{
+		this.idMan = idMan;
 		this.registrationsManagement = registrationsManagement;
 		this.enquiryManagement = enquiryManagement;
 		this.msg = msg;
@@ -61,7 +65,7 @@ public class RequestsComponent extends CustomComponent implements ActivationList
 	private void initUI()
 	{
 		addStyleName(Styles.visibleScroll.toString());
-		requestsTable = new RequestsTable(registrationsManagement, enquiryManagement, msg);
+		requestsTable = new RequestsTable(idMan, registrationsManagement, enquiryManagement, msg);
 		requestsTable.addValueChangeListener(new RequestSelectionListener()
 		{
 			@Override

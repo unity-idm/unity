@@ -68,12 +68,12 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 	public static final String VIEW_NAME = "Invitations";
 
 	private UnityMessageSource msg;
-	private InvitationsController controller;
+	private ProjectInvitationsController controller;
 	private String project;
-	private InvitationsComponent invitationsComponent;
+	private ProjectInvitationsComponent invitationsComponent;
 
 	@Autowired
-	public ProjectInvitationsView(UnityMessageSource msg, InvitationsController controller)
+	public ProjectInvitationsView(UnityMessageSource msg, ProjectInvitationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;
@@ -88,7 +88,7 @@ public class ProjectInvitationsView extends CustomComponent implements UpManView
 		main.setSizeFull();
 		main.setMargin(false);
 		setCompositionRoot(main);
-		invitationsComponent = new InvitationsComponent(msg, controller, project);
+		invitationsComponent = new ProjectInvitationsComponent(msg, controller, project);
 		main.addComponent(invitationsComponent);	
 	}
 

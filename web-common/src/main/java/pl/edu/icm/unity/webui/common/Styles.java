@@ -81,6 +81,7 @@ public enum Styles
 	RegistrationLink("registrationLink"),
 	indentComboBox("u-indentComboBox"),
 	wordWrap("u-wordWrap"),
+	sectionTitle("u-sectionTitle"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

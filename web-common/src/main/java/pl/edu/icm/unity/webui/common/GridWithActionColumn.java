@@ -15,6 +15,7 @@ import java.util.Set;
 import com.vaadin.data.ValueProvider;
 import com.vaadin.data.provider.DataProvider;
 import com.vaadin.data.provider.ListDataProvider;
+import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Component;
@@ -24,6 +25,7 @@ import com.vaadin.ui.components.grid.DetailsGenerator;
 import com.vaadin.ui.components.grid.GridRowDragger;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.grid.FilterableGrid;
 
 /**
  * Grid with actions column.
@@ -32,7 +34,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
  *
  * @param <T>
  */
-public class GridWithActionColumn<T> extends Grid<T>
+public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T>
 {
 	private UnityMessageSource msg;
 	private List<T> contents;
@@ -145,23 +147,32 @@ public class GridWithActionColumn<T> extends Grid<T>
 			setHeightByRows(contents.size() > 2 ? contents.size() : 2);
 		}
 	}
-
-	public GridWithActionColumn<T> addColumn(ValueProvider<T, String> valueProvider, String caption,
+	
+	public Column<T, String> addSortableColumn(ValueProvider<T, String> valueProvider, String caption,
 			int expandRatio)
 	{
-		addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
+		Column<T, String> column = addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
+				.setSortable(true);
+		refreshActionColumn();
+		return column;
+	}
+	
+	public Column<T, String> addColumn(ValueProvider<T, String> valueProvider, String caption,
+			int expandRatio)
+	{
+		Column<T, String> column = addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
 				.setSortable(false);
 		refreshActionColumn();
-		return this;
+		return column;
 	}
 
-	public GridWithActionColumn<T> addComponentColumn(ValueProvider<T, Component> valueProvider, String caption,
+	public Column<T, Component> addComponentColumn(ValueProvider<T, Component> valueProvider, String caption,
 			int expandRatio)
 	{
-		addComponentColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
+		Column<T, Component> column = addComponentColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
 				.setSortable(false);
 		refreshActionColumn();
-		return this;
+		return column;
 	}
 
 	public void addActionHandler(SingleActionHandler<T> actionHandler)
@@ -227,6 +238,18 @@ public class GridWithActionColumn<T> extends Grid<T>
 		}
 		
 		return actions;
+	}
+
+	@Override
+	public void addFilter(SerializablePredicate<T> filter)
+	{
+		dataProvider.addFilter(filter);
+	}
+	
+	@Override
+	public void clearFilters()
+	{
+		dataProvider.clearFilters();
 	}
 
 }

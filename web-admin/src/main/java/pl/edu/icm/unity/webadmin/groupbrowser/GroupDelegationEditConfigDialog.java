@@ -15,6 +15,10 @@ import org.springframework.beans.factory.ObjectFactory;
 import com.vaadin.data.Binder;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
+
+import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
+import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
+
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -37,9 +41,7 @@ import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryForm.EnquiryType;
 import pl.edu.icm.unity.types.registration.RegistrationForm;
 import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditDialog;
-import pl.edu.icm.unity.webadmin.reg.formman.EnquiryFormEditor;
 import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditDialog;
-import pl.edu.icm.unity.webadmin.reg.formman.RegistrationFormEditor;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.Images;

@@ -27,6 +27,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.credentials.CredentialDefinitionChangedEvent;
+import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -36,7 +37,6 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.webadmin.attribute.AttributeChangedEvent;
 import pl.edu.icm.unity.webadmin.attributetype.AttributeTypesUpdatedEvent;
 import pl.edu.icm.unity.webadmin.credreq.CredentialRequirementChangedEvent;
-import pl.edu.icm.unity.webadmin.groupbrowser.GroupChangedEvent;
 import pl.edu.icm.unity.webadmin.identities.IdentityCreationDialog.IdentityCreationDialogHandler;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
