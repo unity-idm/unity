@@ -46,7 +46,6 @@ public class RequestsView extends CustomComponent implements UnityView
 	private UnityMessageSource msg;
 	private RequestsController controller;
 	private RequestProcessingPanel requestPanel;
-	private RequestsGrid requestGrid;
 
 	@Autowired
 	RequestsView(UnityMessageSource msg, RequestsController controller, RequestProcessingPanel requestPanel)
@@ -54,10 +53,6 @@ public class RequestsView extends CustomComponent implements UnityView
 		this.msg = msg;
 		this.controller = controller;
 		this.requestPanel = requestPanel;
-		EventsBus eventBus = WebSession.getCurrent().getEventBus();
-		eventBus.addListener(event -> requestGrid.refresh(), RegistrationRequestChangedEvent.class);
-		eventBus.addListener(event -> requestGrid.refresh(), EnquiryResponseChangedEvent.class);
-
 	}
 
 	@Override
@@ -65,7 +60,10 @@ public class RequestsView extends CustomComponent implements UnityView
 	{
 
 		RequestsGrid requestGrid = new RequestsGrid(msg, controller);
-
+		EventsBus eventBus = WebSession.getCurrent().getEventBus();
+		eventBus.addListener(e -> requestGrid.refresh(), RegistrationRequestChangedEvent.class);
+		eventBus.addListener(e -> requestGrid.refresh(), EnquiryResponseChangedEvent.class);
+	
 		requestGrid.addValueChangeListener(new RequestSelectionListener()
 		{
 			@Override
