@@ -52,7 +52,7 @@ public class InvitationsGrid extends CustomComponent
 
 	private void initUI()
 	{
-		invitationsGrid = new GridWithActionColumn<>(msg, getHamburgerActionsHandlers(), false, false);
+		invitationsGrid = new GridWithActionColumn<>(msg, Collections.emptyList(), false, false);
 
 		invitationsGrid.addSortableColumn(InvitationEntry::getType, msg.getMessage("InvitationsGrid.type"), 10);
 
@@ -62,7 +62,7 @@ public class InvitationsGrid extends CustomComponent
 		invitationsGrid.addSortableColumn(InvitationEntry::getCode, msg.getMessage("InvitationsGrid.code"), 10);
 		invitationsGrid.addSortableColumn(InvitationEntry::getExpiration,
 				msg.getMessage("InvitationsGrid.expiration"), 10);
-
+		invitationsGrid.addHamburgerActions(getHamburgerActionsHandlers());
 		invitationsGrid.sort("contactAddress", SortDirection.ASCENDING);
 
 		invitationsGrid.setMultiSelect(true);

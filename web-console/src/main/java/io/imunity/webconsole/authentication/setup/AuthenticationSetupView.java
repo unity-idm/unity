@@ -54,7 +54,6 @@ public class AuthenticationSetupView extends CustomComponent implements UnityVie
 	public void enter(ViewChangeEvent event)
 	{
 		VerticalLayout main = new VerticalLayout();
-
 		main.addComponent(new AuthenticatorsComponent(msg, authnMan));
 		main.addComponent(new Label());
 		main.addComponent(new AuthenticationFlowsComponent(msg, flowsMan));
