@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
  *
  */
 @Component
-public class RequestsController
+class RequestsController
 {
 	private EntityManagement idMan;
 	private RegistrationsManagement regMan;

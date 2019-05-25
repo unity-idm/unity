@@ -37,13 +37,13 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-public class InvitationsGrid extends CustomComponent
+class InvitationsGrid extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private InvitationsController controller;
 	private GridWithActionColumn<InvitationEntry> invitationsGrid;
 
-	public InvitationsGrid(UnityMessageSource msg, InvitationsController controller)
+	InvitationsGrid(UnityMessageSource msg, InvitationsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

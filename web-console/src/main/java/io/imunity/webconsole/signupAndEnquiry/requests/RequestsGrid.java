@@ -45,14 +45,14 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  * @author P.Piernik
  *
  */
-public class RequestsGrid extends CustomComponent
+class RequestsGrid extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private RequestsController controller;
 	private GridWithActionColumn<RequestEntry> requestsGrid;
 	private EventsBus bus;
 
-	public RequestsGrid(UnityMessageSource msg, RequestsController controller)
+	RequestsGrid(UnityMessageSource msg, RequestsController controller)
 	{
 		this.msg = msg;
 		this.controller = controller;

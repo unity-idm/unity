@@ -49,6 +49,7 @@ public class EnquiryFormsComponent extends CustomComponent
 	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
 
 	private GridWithActionColumn<EnquiryForm> enquiryFormsList;
+	
 	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryFormsController controller,
 			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
 	{

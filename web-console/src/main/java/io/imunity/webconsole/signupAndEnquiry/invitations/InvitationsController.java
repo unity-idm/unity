@@ -48,7 +48,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @Component
-public class InvitationsController
+class InvitationsController
 {
 	private InvitationManagement invMan;
 	private UnityMessageSource msg;

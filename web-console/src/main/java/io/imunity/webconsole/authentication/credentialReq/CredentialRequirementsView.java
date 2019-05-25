@@ -47,7 +47,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class CredentialRequirementsView extends CustomComponent implements UnityView
+class CredentialRequirementsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "CredentialRequirements";
 
@@ -57,7 +57,7 @@ public class CredentialRequirementsView extends CustomComponent implements Unity
 	private EventsBus bus;
 
 	@Autowired
-	public CredentialRequirementsView(UnityMessageSource msg, CredentialRequirementsController controller)
+	CredentialRequirementsView(UnityMessageSource msg, CredentialRequirementsController controller)
 	{
 		this.controller = controller;
 		this.msg = msg;

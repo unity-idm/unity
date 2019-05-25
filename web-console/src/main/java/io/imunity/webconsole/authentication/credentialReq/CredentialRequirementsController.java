@@ -26,7 +26,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @Component
-public class CredentialRequirementsController
+class CredentialRequirementsController
 {
 	private UnityMessageSource msg;
 	private CredentialRequirementManagement credReqMan;

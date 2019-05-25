@@ -35,7 +35,7 @@ public class RegistrationFormsController
 	private ObjectFactory<RegistrationFormEditor> editorFactory;
 
 	@Autowired
-	public RegistrationFormsController(UnityMessageSource msg, RegistrationsManagement regMan,
+	RegistrationFormsController(UnityMessageSource msg, RegistrationsManagement regMan,
 			SharedEndpointManagement sharedEndpointMan, ObjectFactory<RegistrationFormEditor> editorFactory)
 	{
 		this.msg = msg;

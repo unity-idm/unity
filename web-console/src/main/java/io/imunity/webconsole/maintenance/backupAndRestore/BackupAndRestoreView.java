@@ -29,7 +29,7 @@ import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
  *
  */
 @PrototypeComponent
-public class BackupAndRestoreView extends CustomComponent implements UnityView
+class BackupAndRestoreView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "BackupAndRestore";
 

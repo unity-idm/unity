@@ -39,7 +39,7 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
  *
  */
 @PrototypeComponent
-public class RequestsView extends CustomComponent implements UnityView
+class RequestsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Requests";
 

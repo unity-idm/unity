@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class NewRegistrationFormView extends CustomComponent implements UnityView
+class NewRegistrationFormView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "NewRegistrationForm";
 

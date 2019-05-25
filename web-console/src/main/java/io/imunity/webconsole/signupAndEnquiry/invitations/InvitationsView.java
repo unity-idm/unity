@@ -35,7 +35,7 @@ import pl.edu.icm.unity.webui.common.Styles;
  *
  */
 @PrototypeComponent
-public class InvitationsView extends CustomComponent implements UnityView
+class InvitationsView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "Invitations";
 

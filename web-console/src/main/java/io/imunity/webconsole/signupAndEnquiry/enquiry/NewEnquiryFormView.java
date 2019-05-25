@@ -37,7 +37,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class NewEnquiryFormView extends CustomComponent implements UnityView
+class NewEnquiryFormView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "NewEnquiryForm";
 

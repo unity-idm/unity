@@ -35,7 +35,7 @@ public class EnquiryFormsController
 	private ObjectFactory<EnquiryFormEditor> editorFactory;
 
 	@Autowired
-	public EnquiryFormsController(UnityMessageSource msg, EnquiryManagement enqMan,
+	EnquiryFormsController(UnityMessageSource msg, EnquiryManagement enqMan,
 			SharedEndpointManagement sharedEndpointMan, ObjectFactory<EnquiryFormEditor> editorFactory)
 	{
 		this.msg = msg;
