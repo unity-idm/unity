@@ -171,7 +171,7 @@ public class EnquiryFormsComponent extends CustomComponent
 	{
 		try
 		{
-			controller.removeRegistrationForm(form, dropRequests);
+			controller.removeEnquiryForm(form, dropRequests);
 			enquiryFormsList.removeElement(form);
 		} catch (ControllerException e)
 		{

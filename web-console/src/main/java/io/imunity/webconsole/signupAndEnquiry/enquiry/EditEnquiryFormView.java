@@ -102,7 +102,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 
 		try
 		{
-			controller.updateRegistrationForm(form, ignoreRequestsAndInvitations);
+			controller.updateEnquiryForm(form, ignoreRequestsAndInvitations);
 		} catch (ControllerException e)
 		{
 

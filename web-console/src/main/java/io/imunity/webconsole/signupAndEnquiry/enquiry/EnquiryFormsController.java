@@ -57,7 +57,7 @@ public class EnquiryFormsController
 		}
 	}
 
-	void updateRegistrationForm(EnquiryForm toUpdate, boolean ignoreRequestsAndInvitations)
+	void updateEnquiryForm(EnquiryForm toUpdate, boolean ignoreRequestsAndInvitations)
 			throws ControllerException
 
 	{
@@ -71,7 +71,7 @@ public class EnquiryFormsController
 		}
 	}
 
-	void removeRegistrationForm(EnquiryForm toRemove, boolean dropRequests) throws ControllerException
+	void removeEnquiryForm(EnquiryForm toRemove, boolean dropRequests) throws ControllerException
 
 	{
 		try
