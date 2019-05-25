@@ -67,6 +67,14 @@ public class StandardButtonsHelper
 		return layout;
 	}
 
+	public static HorizontalLayout buildConfirmButtonsBar(UnityMessageSource msg, String confirm, Runnable onConfirm,
+			Runnable onCancel)
+	{
+		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
+				buildCancelButton(msg.getMessage("cancel"), onCancel),
+				buildConfirmButton(confirm, onConfirm));
+	}
+	
 	public static HorizontalLayout buildConfirmNewButtonsBar(UnityMessageSource msg, Runnable onConfirm,
 			Runnable onCancel)
 	{

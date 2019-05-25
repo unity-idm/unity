@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.signupAndEnquiry.invitations;
+package io.imunity.webconsole.directorySetup.automation;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +13,9 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.invitations.InvitationEditor;
+import io.imunity.webadmin.bulk.ScheduledRuleParamEditorImpl;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.signupAndEnquiry.invitations.InvitationsView.InvitationsNavigationInfoProvider;
+import io.imunity.webconsole.directorySetup.automation.AutomationView.AutomationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
@@ -24,27 +24,29 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRuleParam;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * New invitation view.
+ * Edit schedule rule view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class NewInvitationView extends CustomComponent implements UnityView
+class EditAutomationView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "NewInvitation";
+	public static final String VIEW_NAME = "EditAutomation";
 
-	private InvitationsController controller;
+	private AutomationController controller;
 	private UnityMessageSource msg;
-	private InvitationEditor editor;
+	private ScheduledRuleParamEditorImpl editor;
 
-	NewInvitationView(InvitationsController controller, UnityMessageSource msg)
+	private String ruleId;
+
+	EditAutomationView(AutomationController controller, UnityMessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -53,41 +55,32 @@ public class NewInvitationView extends CustomComponent implements UnityView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		String type = NavigationHelper.getParam(event, CommonViewParam.type.toString());
-		String name = NavigationHelper.getParam(event, CommonViewParam.name.toString());
+		ruleId = NavigationHelper.getParam(event, CommonViewParam.id.toString());
 
 		try
 		{
-			if (type != null && !type.isEmpty() && name != null && !name.isEmpty())
-			{
-				editor = controller.getEditor(type, name);
-			} else
-			{
-				editor = controller.getEditor();
-			}
-
+			editor = controller.getScheduleRuleEditor(controller.getScheduledRule(ruleId));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(InvitationsView.VIEW_NAME);
+			NavigationHelper.goToView(AutomationView.VIEW_NAME);
 			return;
 		}
 
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> onConfirm(),
+		main.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg, () -> onConfirm(ruleId),
 				() -> onCancel()));
 		setCompositionRoot(main);
 	}
 
-	private void onConfirm()
+	private void onConfirm(String oldId)
 	{
-
-		InvitationParam invitation;
+		ScheduledProcessingRuleParam rule;
 		try
 		{
-			invitation = editor.getInvitation();
+			rule = editor.getRule();
 		} catch (FormValidationException e)
 		{
 			return;
@@ -95,21 +88,20 @@ public class NewInvitationView extends CustomComponent implements UnityView
 
 		try
 		{
-			controller.addInvitation(invitation);
+			controller.updateScheduledRule(oldId, rule);
 		} catch (ControllerException e)
 		{
-
 			NotificationPopup.showError(msg, e);
 			return;
 		}
 
-		NavigationHelper.goToView(InvitationsView.VIEW_NAME);
+		NavigationHelper.goToView(AutomationView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(InvitationsView.VIEW_NAME);
+		NavigationHelper.goToView(AutomationView.VIEW_NAME);
 
 	}
 
@@ -122,20 +114,20 @@ public class NewInvitationView extends CustomComponent implements UnityView
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("new");
+		return msg.getMessage("edit");
 	}
 
 	@Component
-	public static class NewInvitationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class EditAutomationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
 		@Autowired
-		public NewInvitationNavigationInfoProvider(InvitationsNavigationInfoProvider parent,
-				ObjectFactory<NewInvitationView> factory)
+		public EditAutomationNavigationInfoProvider(AutomationNavigationInfoProvider parent,
+				ObjectFactory<EditAutomationView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
 
 		}
 	}
+
 }

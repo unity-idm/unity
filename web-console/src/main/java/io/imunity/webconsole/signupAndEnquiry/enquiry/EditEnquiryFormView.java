@@ -15,7 +15,6 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.settings.msgTemplates.MessageTemplatesView;
 import io.imunity.webconsole.signupAndEnquiry.setup.SignupAndEnquirySetupView;
 import io.imunity.webconsole.signupAndEnquiry.setup.SignupAndEnquirySetupView.SignupAndEnquirySetupNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -65,6 +64,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
+			NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
 			return;
 		}
 
@@ -74,7 +74,7 @@ class EditEnquiryFormView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(MessageTemplatesView.VIEW_NAME);
+			NavigationHelper.goToView(SignupAndEnquirySetupView.VIEW_NAME);
 			return;
 		}
 

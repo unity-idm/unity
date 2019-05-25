@@ -16,7 +16,7 @@ import com.vaadin.ui.UI;
  */
 public class NavigationHelper
 {
-	public static enum CommonViewParam { name, type };
+	public static enum CommonViewParam { name, type, id};
 	
 	
 	public static String getParam(ViewChangeEvent event, String paramName)

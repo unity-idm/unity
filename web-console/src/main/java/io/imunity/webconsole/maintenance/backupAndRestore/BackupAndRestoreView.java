@@ -68,11 +68,11 @@ class BackupAndRestoreView extends CustomComponent implements UnityView
 	}
 
 	@Component
-	public static class AutomationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class BackupAndRestoreInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public AutomationNavigationInfoProvider(UnityMessageSource msg,
+		public BackupAndRestoreInfoProvider(UnityMessageSource msg,
 				MaintenanceNavigationInfoProvider parent,
 				ObjectFactory<BackupAndRestoreView> factory)
 		{

@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.signupAndEnquiry.invitations;
+package io.imunity.webconsole.directorySetup.automation;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,38 +13,37 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.reg.invitations.InvitationEditor;
+import io.imunity.webadmin.bulk.RuleEditorImpl;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.signupAndEnquiry.invitations.InvitationsView.InvitationsNavigationInfoProvider;
+import io.imunity.webconsole.directorySetup.automation.AutomationView.AutomationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
-import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.registration.invite.InvitationParam;
+import pl.edu.icm.unity.types.translation.TranslationRule;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * New invitation view.
+ * Run immediate rule view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-public class NewInvitationView extends CustomComponent implements UnityView
+class RunImmediateView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "NewInvitation";
+	public static final String VIEW_NAME = "RunImmediate";
 
-	private InvitationsController controller;
+	private AutomationController controller;
 	private UnityMessageSource msg;
-	private InvitationEditor editor;
+	private RuleEditorImpl editor;
 
-	NewInvitationView(InvitationsController controller, UnityMessageSource msg)
+	RunImmediateView(AutomationController controller, UnityMessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;
@@ -53,41 +52,30 @@ public class NewInvitationView extends CustomComponent implements UnityView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		String type = NavigationHelper.getParam(event, CommonViewParam.type.toString());
-		String name = NavigationHelper.getParam(event, CommonViewParam.name.toString());
-
 		try
 		{
-			if (type != null && !type.isEmpty() && name != null && !name.isEmpty())
-			{
-				editor = controller.getEditor(type, name);
-			} else
-			{
-				editor = controller.getEditor();
-			}
-
+			editor = controller.getRuleEditor();
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(InvitationsView.VIEW_NAME);
+			NavigationHelper.goToView(AutomationView.VIEW_NAME);
 			return;
 		}
-
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
-		main.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> onConfirm(),
-				() -> onCancel()));
+		main.addComponent(StandardButtonsHelper.buildConfirmButtonsBar(msg,
+				msg.getMessage("RunImmediateView.run"), () -> onConfirm(), () -> onCancel()));
+
 		setCompositionRoot(main);
 	}
 
 	private void onConfirm()
 	{
-
-		InvitationParam invitation;
+		TranslationRule rule;
 		try
 		{
-			invitation = editor.getInvitation();
+			rule = editor.getRule();
 		} catch (FormValidationException e)
 		{
 			return;
@@ -95,21 +83,21 @@ public class NewInvitationView extends CustomComponent implements UnityView
 
 		try
 		{
-			controller.addInvitation(invitation);
+			controller.applyRule(rule);
+			NotificationPopup.showSuccess(msg.getMessage("RunImmediateView.actionInvoked"), "");
 		} catch (ControllerException e)
 		{
-
 			NotificationPopup.showError(msg, e);
 			return;
 		}
 
-		NavigationHelper.goToView(InvitationsView.VIEW_NAME);
+		NavigationHelper.goToView(AutomationView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(InvitationsView.VIEW_NAME);
+		NavigationHelper.goToView(AutomationView.VIEW_NAME);
 
 	}
 
@@ -122,20 +110,20 @@ public class NewInvitationView extends CustomComponent implements UnityView
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("new");
+		return msg.getMessage("RunImmediateView.caption");
 	}
 
 	@Component
-	public static class NewInvitationNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class RunImmadiateNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
-
 		@Autowired
-		public NewInvitationNavigationInfoProvider(InvitationsNavigationInfoProvider parent,
-				ObjectFactory<NewInvitationView> factory)
+		public RunImmadiateNavigationInfoProvider(AutomationNavigationInfoProvider parent,
+				ObjectFactory<RunImmediateView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());
 
 		}
 	}
+
 }
