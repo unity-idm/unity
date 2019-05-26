@@ -17,6 +17,10 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.attributetype.AttributeTypeEditor;
+import io.imunity.webadmin.attributetype.AttributeTypesUpdatedEvent;
+import io.imunity.webadmin.attributetype.ImmutableAttributeTypeEditor;
+import io.imunity.webadmin.attributetype.RegularAttributeTypeEditor;
 import pl.edu.icm.unity.Constants;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;

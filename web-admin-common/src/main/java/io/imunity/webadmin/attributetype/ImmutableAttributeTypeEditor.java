@@ -2,7 +2,7 @@
  * Copyright (c) 2013 ICM Uniwersytet Warszawski All rights reserved.
  * See LICENCE.txt file for licensing information.
  */
-package pl.edu.icm.unity.webadmin.attributetype;
+package io.imunity.webadmin.attributetype;
 
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
@@ -22,7 +22,7 @@ import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
  * 
  * @author K. Benedyczak
  */
-class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEditor
+public class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEditor
 {
 	private UnityMessageSource msg;
 	
@@ -32,7 +32,7 @@ class ImmutableAttributeTypeEditor extends FormLayout implements AttributeTypeEd
 	private I18nTextArea typeDescription;
 	private CheckBox selfModificable;
 	
-	ImmutableAttributeTypeEditor(UnityMessageSource msg, AttributeType toEdit)
+	public ImmutableAttributeTypeEditor(UnityMessageSource msg, AttributeType toEdit)
 	{
 		super();
 		this.msg = msg;
