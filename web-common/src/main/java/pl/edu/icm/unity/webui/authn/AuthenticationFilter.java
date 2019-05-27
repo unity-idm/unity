@@ -28,6 +28,7 @@ import com.vaadin.shared.ApplicationConstants;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
 import pl.edu.icm.unity.engine.api.authn.UnsuccessfulAuthenticationCounter;
+import pl.edu.icm.unity.engine.api.server.HTTPRequestContext;
 import pl.edu.icm.unity.engine.api.session.LoginToHttpSessionBinder;
 import pl.edu.icm.unity.engine.api.session.SessionManagement;
 import pl.edu.icm.unity.engine.api.utils.HiddenResourcesFilter;
@@ -73,7 +74,7 @@ public class AuthenticationFilter implements Filter
 	{
 		HttpServletRequest httpRequest = (HttpServletRequest) request;
 		HttpServletResponse httpResponse = (HttpServletResponse) response;
-		String clientIp = request.getRemoteAddr();
+		String clientIp = HTTPRequestContext.getCurrent().getClientIP();
 	
 		try 
 		{

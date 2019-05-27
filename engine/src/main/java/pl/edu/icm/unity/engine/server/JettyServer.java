@@ -4,6 +4,10 @@
  */
 package pl.edu.icm.unity.engine.server;
 
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOWED_IMMEDIATE_CLIENTS;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.ALLOW_NOT_PROXIED_TRAFFIC;
+import static pl.edu.icm.unity.engine.api.config.UnityHttpServerConfiguration.PROXY_COUNT;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,7 +56,6 @@ import org.springframework.stereotype.Component;
 
 import eu.unicore.security.canl.IAuthnAndTrustConfiguration;
 import eu.unicore.util.configuration.ConfigurationException;
-import eu.unicore.util.jetty.JettyLogger;
 import eu.unicore.util.jetty.PlainServerConnector;
 import eu.unicore.util.jetty.SecuredServerConnector;
 import pl.edu.icm.unity.base.utils.Log;
@@ -86,24 +89,21 @@ public class JettyServer implements Lifecycle, NetworkServer
 	private FilterHolder dosFilter = null;
 	private UnityServerConfiguration cfg;
 	
-	private final Class<? extends JettyLogger> jettyLogger;
 	private final URL[] listenUrls;
 	private final IAuthnAndTrustConfiguration securityConfiguration;
 	private final UnityHttpServerConfiguration serverSettings;
 
-	private Handler rootHandler;
 	private Server theServer;
 	
 	@Autowired
 	public JettyServer(UnityServerConfiguration cfg, PKIManagement pkiManagement)
 	{
 		this.securityConfiguration = pkiManagement.getMainAuthnAndTrust();
-		this.jettyLogger = null;
 		this.listenUrls = createURLs(cfg.getJettyProperties());
 		this.serverSettings = cfg.getJettyProperties();
 		this.cfg = cfg;
 		initServer();
-		dosFilter = getDOSFilter();
+		dosFilter = createDoSFilterInstance();
 		addRedirectHandler(cfg);
 	}
 
@@ -167,11 +167,6 @@ public class JettyServer implements Lifecycle, NetworkServer
 	
 	private void initServer() throws ConfigurationException
 	{
-		if (jettyLogger != null)
-		{
-			log.debug("Setting a custom class for handling Jetty logging: " + jettyLogger.getName());
-			System.setProperty("org.eclipse.jetty.util.log.class", jettyLogger.getName());
-		}
 		if (listenUrls.length == 1 && "0.0.0.0".equals(listenUrls[0].getHost()))
 		{
 			log.info("Creating Jetty HTTP server, will listen on all network interfaces");
@@ -194,9 +189,9 @@ public class JettyServer implements Lifecycle, NetworkServer
 			theServer.addConnector(connector);
 		}
 
-		rootHandler = createRootHandler();
+		initRootHandler();
 		
-		AbstractHandlerContainer headersRewriteHandler = configureHttpHeaders(rootHandler);
+		AbstractHandlerContainer headersRewriteHandler = configureHttpHeaders(mainContextHandler);
 		configureGzipHandler(headersRewriteHandler);
 		configureErrorHandler();
 	}
@@ -449,12 +444,11 @@ public class JettyServer implements Lifecycle, NetworkServer
 		return (theServer == null) ? false : theServer.isRunning();
 	}
 
-	private synchronized Handler createRootHandler() throws ConfigurationException
+	private synchronized void initRootHandler()
 	{
 		usedContextPaths = new HashMap<>();
 		mainContextHandler = new ContextHandlerCollection();
 		deployedEndpoints = new ArrayList<>(16);
-		return mainContextHandler;
 	}
 
 	private void addRedirectHandler(UnityServerConfiguration cfg) throws ConfigurationException
@@ -499,23 +493,17 @@ public class JettyServer implements Lifecycle, NetworkServer
 					"applications configured at the same context path: " + contextPath);
 		}
 		
-		handler.setServer(theServer);
-		configureGzip(handler);
-		if (dosFilter != null)
-		{
-			log.info("Enabling DoS filter on context " + handler.getContextPath());
-			handler.addFilter(dosFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
-		}
+		addDoSFilter(handler);
+		addCORSFilter(handler);
 		
-		configureCORS(handler);
-		
-		mainContextHandler.addHandler(handler);
+		Handler wrappedHandler = applyClientIPDiscoveryHandler(handler);
+		mainContextHandler.addHandler(wrappedHandler);
 		try
 		{
-			handler.start();
+			wrappedHandler.start();
 		} catch (Exception e)
 		{
-			mainContextHandler.removeHandler(handler);
+			mainContextHandler.removeHandler(wrappedHandler);
 			throw new EngineException("Can not start handler", e);
 		}
 		usedContextPaths.put(contextPath, handler);
@@ -567,7 +555,7 @@ public class JettyServer implements Lifecycle, NetworkServer
 		}
 	}
 	
-	private FilterHolder getDOSFilter()
+	private FilterHolder createDoSFilterInstance()
 	{
 		if (!serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_DOS_FILTER))
 			return null;
@@ -581,7 +569,16 @@ public class JettyServer implements Lifecycle, NetworkServer
 		return holder;
 	}
 	
-	private void configureCORS(ServletContextHandler handler)
+	private void addDoSFilter(ServletContextHandler handler)
+	{
+		if (dosFilter != null)
+		{
+			log.info("Enabling DoS filter on context " + handler.getContextPath());
+			handler.addFilter(dosFilter, "/*", EnumSet.of(DispatcherType.REQUEST));
+		}
+	}
+	
+	private void addCORSFilter(ServletContextHandler handler)
 	{
 		boolean enable = serverSettings.getBooleanValue(UnityHttpServerConfiguration.ENABLE_CORS);
 		if (!enable)
@@ -624,7 +621,22 @@ public class JettyServer implements Lifecycle, NetworkServer
 			throw new ConfigurationException("Error setting up CORS", e);
 		}
 		FilterHolder filterHolder = new FilterHolder(cors);
-		handler.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST));
+		handler.addFilter(filterHolder, "/*", EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD));
+	}
+
+
+	private ClientIPSettingHandler applyClientIPDiscoveryHandler(AbstractHandlerContainer baseHandler)
+	{
+		ClientIPDiscovery ipDiscovery = new ClientIPDiscovery(serverSettings.getIntValue(PROXY_COUNT),
+				serverSettings.getBooleanValue(ALLOW_NOT_PROXIED_TRAFFIC));
+		IPValidator ipValidator = new IPValidator(
+				serverSettings.getListOfValues(ALLOWED_IMMEDIATE_CLIENTS));
+		
+		log.info("Enabling client IP discovery filter");
+		ClientIPSettingHandler handler = new ClientIPSettingHandler(ipDiscovery, ipValidator);
+		handler.setServer(theServer);
+		handler.setHandler(baseHandler);
+		return handler;
 	}
 }
 
