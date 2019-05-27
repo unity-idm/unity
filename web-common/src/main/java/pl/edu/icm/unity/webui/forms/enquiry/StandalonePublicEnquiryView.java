@@ -61,7 +61,6 @@ import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 /**
  * Provides public enquiry view. Used in enqury invations flow
  * @author P.Piernik
- *
  */
 @PrototypeComponent
 public class StandalonePublicEnquiryView extends CustomComponent implements StandalonePublicView
@@ -132,6 +131,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 			invitation = (EnquiryInvitationParam) getInvitationByCode(registrationCode);
 		} catch (RegCodeException e)
 		{
+			log.error("Can not get invitation", e);
 			handleError(e, e.cause);
 			return;
 		}
@@ -153,26 +153,23 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	
 		if (!editor.isUserInteractionRequired())
 		{
-			//auto submit, we have only hidden values
-			if (editor.hasHiddenValues() && !editor.hasReadOnlyValues())
+			boolean hasOnlyROValues = editor.hasHiddenValues() && !editor.hasReadOnlyValues(); 
+			if (hasOnlyROValues)
 			{
-				
-					WorkflowFinalizationConfiguration config = submit(form, editor);
-					gotoFinalStep(config);
-					return;
-				
+				WorkflowFinalizationConfiguration config = submit(form, editor);
+				gotoFinalStep(config);
+				return;
 			}
 			
-			//empty form, not applicable
-			if (!editor.hasHiddenValues() && !editor.hasReadOnlyValues())
+			boolean formIsEmpty = !editor.hasHiddenValues() && !editor.hasReadOnlyValues(); 
+			if (formIsEmpty)
 			{
-				
 				WorkflowFinalizationConfiguration config = editorController
 						.getFinalizationHandler(form)
 						.getFinalRegistrationConfigurationNonSubmit(false, null,
 								TriggeringState.NOT_APPLICABLE_ENQUIRY);
 				gotoFinalStep(config);
-				
+				return;
 			}		
 		}
 		//user interaction or invitation read only values
@@ -354,6 +351,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
+		log.debug("Enquiry is finalized, status: {}", config);
 		VerticalLayout wrapper = new VerticalLayout();
 		wrapper.setSpacing(false);
 		wrapper.setMargin(false);
@@ -368,6 +366,7 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 	private void redirect(String redirectUrl)
 	{
+		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
 		Page.getCurrent().open(redirectUrl, null);
 	}
 	

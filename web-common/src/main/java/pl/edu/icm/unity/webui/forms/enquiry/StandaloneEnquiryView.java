@@ -158,6 +158,7 @@ class StandaloneEnquiryView extends CustomComponent implements View
 	
 	private void redirect(String redirectUrl)
 	{
+		log.debug("Enquiry is finalized, redirecting to: {}", redirectUrl);
 		Page.getCurrent().open(redirectUrl, null);
 	}
 	

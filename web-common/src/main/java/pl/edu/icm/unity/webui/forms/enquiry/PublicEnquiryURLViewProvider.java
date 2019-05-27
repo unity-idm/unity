@@ -109,8 +109,7 @@ public class PublicEnquiryURLViewProvider extends PublicFormURLProviderBase
 		if (vaadinSession == null)
 			return null;
 		
-			StandalonePublicEnquiryView view = vaadinSession.getAttribute(StandalonePublicEnquiryView.class);
-		return view;
+		return vaadinSession.getAttribute(StandalonePublicEnquiryView.class);
 	}
 	
 }
