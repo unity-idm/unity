@@ -201,7 +201,8 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		defaults.put(ENABLED_LOCALES, new PropertyMD().setList(true).setCategory(mainCat).
 				setDescription("List of enabled locales. " +
 				"Each entry must have a language code as 'en' or 'pl' first, " +
-				"and then, after a space an optional, short name which will be presented in the UI. By default the 'en' locale is installed."));
+				"and then, after a space an optional, short name which will be presented in the UI. "
+				+ "By default the 'en' locale is installed."));
 		defaults.put(DEFAULT_LOCALE, new PropertyMD("en").setCategory(mainCat).
 				setDescription("The default locale to be used. Must be one of the enabled locales."));
 		defaults.put(MAIL_CONF, new PropertyMD().setPath().setCategory(mainCat).
@@ -499,6 +500,7 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		SUPPORTED_LOCALES.put("pl", new Locale("pl"));
 		SUPPORTED_LOCALES.put("de", new Locale("de"));
 		SUPPORTED_LOCALES.put("nb", new Locale("nb"));
+		SUPPORTED_LOCALES.put("fr", new Locale("fr"));
 	}
 
 	private UnityHttpServerConfiguration jp;

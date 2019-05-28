@@ -438,6 +438,10 @@
 	.u-flag-bg-nb {
 		@include flag-bg-template($flagImageNo);
 	}
+	
+	.u-flag-bg-fr {
+		@include flag-bg-template($flagImageFr);
+	}
 
 	.v-menubar .v-menubar-submenu-indicator + .v-menubar-menuitem-caption::after {
 		margin: 0 -3px 0 -3px;

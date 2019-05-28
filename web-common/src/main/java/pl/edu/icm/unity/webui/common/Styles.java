@@ -127,6 +127,7 @@ public enum Styles
 		switch (localeCode)
 		{
 		case "en":
+		case "fr":
 		case "pl":
 		case "de":
 		case "nb":
