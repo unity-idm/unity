@@ -26,37 +26,31 @@ import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.types.registration.EnquiryForm;
 import pl.edu.icm.unity.types.registration.EnquiryResponse;
 import pl.edu.icm.unity.types.registration.RegistrationContext.TriggeringMode;
-import pl.edu.icm.unity.types.registration.RegistrationWrapUpConfig.TriggeringState;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.finalization.WorkflowCompletedComponent;
 
 /**
- * Component allows update requests for sticky enquiry. If request already
- * exists then remove last request button is visible and editor is hide. After
- * remove last request editor is shown and we can fill enquiry and submit new
- * one.
+ * Component allows for editing and also updating requests for sticky enquiry. 
+ * If request already exists then remove last request button is visible and editor is hidden. After
+ * removal of the last request, an editor is shown and enquiry can be submitted again.
  * 
  * @author P.Piernik
- *
  */
-public class SingleStickyEnquiryUpdater extends CustomComponent
+public class StickyEnquiryUpdatableComponent extends CustomComponent
 {
-	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, SingleStickyEnquiryUpdater.class);
+	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, StickyEnquiryUpdatableComponent.class);
 
 	private UnityMessageSource msg;
 	private EnquiryResponseEditorController controller;
 	private List<String> forms;
-	private boolean showNotAppFormsInfo;
 
-	public SingleStickyEnquiryUpdater(UnityMessageSource msg, EnquiryResponseEditorController controller,
-			List<String> forms, boolean showNotAppFormsInfo) throws WrongArgumentException
+	public StickyEnquiryUpdatableComponent(UnityMessageSource msg, EnquiryResponseEditorController controller,
+			List<String> forms) throws WrongArgumentException
 	{
 		this.msg = msg;
 		this.controller = controller;
 		this.forms = forms;
-		this.showNotAppFormsInfo = showNotAppFormsInfo;
 		reload();
 	}
 
@@ -117,19 +111,6 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 					"SingleStickyEnquiryUpdater.cannotSubmitRequest", form.getName()), e);
 			return editorWrapper;
 		}
-		if (!editor.isUserInteractionRequired())
-		{
-			WorkflowFinalizationConfiguration config = controller
-					.getFinalizationHandler(form)
-					.getFinalRegistrationConfigurationNonSubmit(false, null,
-							TriggeringState.NOT_APPLICABLE_ENQUIRY);
-			
-			
-			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {});
-			editorWrapper.addComponent(finalScreen);
-			editorWrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
-			return editorWrapper;	
-		}
 		
 		Button ok = new Button(msg.getMessage("SingleStickyEnquiryUpdater.submitRequest"));
 		ok.addStyleName(Styles.vButtonPrimary.toString());
@@ -189,11 +170,7 @@ public class SingleStickyEnquiryUpdater extends CustomComponent
 		}
 		if (form == null)
 		{
-			if (showNotAppFormsInfo)
-			{
-				main.addComponent(new Label(msg.getMessage("SingleStickyEnquiryUpdater.notApplicableForms")));
-			}
-		
+			main.addComponent(new Label(msg.getMessage("SingleStickyEnquiryUpdater.notApplicableForms")));
 			return;
 		}
 			
