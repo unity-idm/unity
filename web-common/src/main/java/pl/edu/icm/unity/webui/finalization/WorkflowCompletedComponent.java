@@ -12,6 +12,7 @@ import com.vaadin.event.ShortcutAction.KeyCode;
 import com.vaadin.server.Resource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Image;
 import com.vaadin.ui.Label;
@@ -83,5 +84,16 @@ public class WorkflowCompletedComponent extends CustomComponent
 		}
 		
 		setCompositionRoot(main);
+	}
+	
+	public Component getWrappedForFullSizeComponent()
+	{
+		VerticalLayout wrapper = new VerticalLayout();
+		wrapper.setSpacing(false);
+		wrapper.setMargin(false);
+		wrapper.setSizeFull();
+		wrapper.addComponent(this);
+		wrapper.setComponentAlignment(this, Alignment.MIDDLE_CENTER);
+		return wrapper;
 	}
 }

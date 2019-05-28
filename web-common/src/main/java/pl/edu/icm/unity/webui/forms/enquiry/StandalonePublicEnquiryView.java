@@ -59,7 +59,8 @@ import pl.edu.icm.unity.webui.forms.reg.GetRegistrationCodeDialog;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationFormDialogProvider;
 
 /**
- * Provides public enquiry view. Used in enqury invations flow
+ * Provides public enquiry view. Used for enquiry invitation flow.
+ * 
  * @author P.Piernik
  */
 @PrototypeComponent
@@ -146,33 +147,11 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 
 		} catch (Exception e)
 		{
-			log.error("Can not get enquiry editor", e);
+			log.error("Can not setup enquiry editor", e);
 			handleError(e, ErrorCause.MISCONFIGURED);
 			return;
 		}
 	
-		if (!editor.isUserInteractionRequired())
-		{
-			boolean hasOnlyROValues = editor.hasHiddenValues() && !editor.hasReadOnlyValues(); 
-			if (hasOnlyROValues)
-			{
-				WorkflowFinalizationConfiguration config = submit(form, editor);
-				gotoFinalStep(config);
-				return;
-			}
-			
-			boolean formIsEmpty = !editor.hasHiddenValues() && !editor.hasReadOnlyValues(); 
-			if (formIsEmpty)
-			{
-				WorkflowFinalizationConfiguration config = editorController
-						.getFinalizationHandler(form)
-						.getFinalRegistrationConfigurationNonSubmit(false, null,
-								TriggeringState.NOT_APPLICABLE_ENQUIRY);
-				gotoFinalStep(config);
-				return;
-			}		
-		}
-		//user interaction or invitation read only values
 		showEditorContent(editor);
 	}
 
@@ -352,16 +331,10 @@ public class StandalonePublicEnquiryView extends CustomComponent implements Stan
 	private void showFinalScreen(WorkflowFinalizationConfiguration config)
 	{
 		log.debug("Enquiry is finalized, status: {}", config);
-		VerticalLayout wrapper = new VerticalLayout();
-		wrapper.setSpacing(false);
-		wrapper.setMargin(false);
-		wrapper.setSizeFull();
-		setSizeFull();
+		WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, this::redirect, uriAccessService);
+		Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 		setCompositionRoot(wrapper);
-
-		Component finalScreen = new WorkflowCompletedComponent(config, this::redirect, uriAccessService);
-		wrapper.addComponent(finalScreen);
-		wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
+		setSizeFull();
 	}
 
 	private void redirect(String redirectUrl)

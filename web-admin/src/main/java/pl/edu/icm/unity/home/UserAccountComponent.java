@@ -32,7 +32,6 @@ import pl.edu.icm.unity.engine.api.PreferencesManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeSupport;
 import pl.edu.icm.unity.engine.api.authn.InvocationContext;
 import pl.edu.icm.unity.engine.api.authn.LoginSession;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
@@ -64,7 +63,7 @@ import pl.edu.icm.unity.webui.common.credentials.CredentialsPanel;
 import pl.edu.icm.unity.webui.common.identities.IdentityEditorRegistry;
 import pl.edu.icm.unity.webui.common.preferences.PreferencesHandlerRegistry;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseEditorController;
-import pl.edu.icm.unity.webui.forms.enquiry.SingleStickyEnquiryUpdater;
+import pl.edu.icm.unity.webui.forms.enquiry.StickyEnquiryUpdatableComponent;
 import pl.edu.icm.unity.webui.providers.HomeUITabProvider;
 import pl.edu.icm.unity.webui.sandbox.SandboxAuthnNotifier;
 
@@ -101,7 +100,6 @@ public class UserAccountComponent extends VerticalLayout
 	private TokensManagement tokenMan;
 	private AdditionalAuthnHandler additionalAuthnHandler;
 	private EnquiryResponseEditorController enquiryResController;
-	private URIAccessService uriAccessService;
 	
 	@Autowired
 	public UserAccountComponent(UnityMessageSource msg, CredentialManagement credMan,
@@ -118,7 +116,7 @@ public class UserAccountComponent extends VerticalLayout
 			HomeUITabProvider tabProvider, AuthenticationFlowManagement authnFlowMan,
 			TokensManagement tokenMan,
 			AdditionalAuthnHandler additionalAuthnHandler,
-			EnquiryResponseEditorController enquiryResController, URIAccessService uriAccessService)
+			EnquiryResponseEditorController enquiryResController)
 	{
 		this.msg = msg;
 		this.credMan = credMan;
@@ -142,7 +140,6 @@ public class UserAccountComponent extends VerticalLayout
 		this.tokenMan = tokenMan;
 		this.additionalAuthnHandler = additionalAuthnHandler;
 		this.enquiryResController = enquiryResController;
-		this.uriAccessService = uriAccessService;
 	}
 
 	public void initUI(HomeEndpointProperties config, SandboxAuthnNotifier sandboxNotifier, String sandboxURL)
@@ -189,8 +186,8 @@ public class UserAccountComponent extends VerticalLayout
 			VerticalLayout main = new VerticalLayout();
 			main.setSpacing(false);
 			main.setMargin(false);
-			SingleStickyEnquiryUpdater updater = new SingleStickyEnquiryUpdater(msg, enquiryResController, uriAccessService,
-					enquiries, true);
+			StickyEnquiryUpdatableComponent updater = new StickyEnquiryUpdatableComponent(msg, enquiryResController,
+					enquiries);
 			if (updater.isFormsAreApplicable())
 			{
 				main.addComponent(updater);

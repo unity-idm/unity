@@ -12,9 +12,7 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
-import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.authn.remote.RemotelyAuthenticatedContext;
@@ -83,7 +81,10 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 		String formName = getFormName(viewName);
 		EnquiryForm form = editorController.getForm(formName);
 		if (!editorController.isFormApplicable(formName) && !editorController.isStickyFormApplicable(formName))
+		{
+			log.debug("Enquiry form {} is not applicable", formName);
 			return new NotApplicableView(form);
+		}
 
 		EnquiryResponseEditor editor;
 		try
@@ -95,11 +96,6 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			log.error("Can't load enquiry editor", e);
 			return null;
 		}
-		
-		if (!editor.isUserInteractionRequired())
-		{
-			return new NotApplicableView(form);
-		}		
 		
 		boolean overwriteSticky = false;
 		if (form.getType().equals(EnquiryType.STICKY))
@@ -188,7 +184,6 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 	
 	private class NotApplicableView extends CustomComponent implements View
 	{
-
 		private EnquiryForm form;
 		
 		public NotApplicableView(EnquiryForm form)
@@ -202,18 +197,11 @@ public class EnquiryWellKnownURLViewProvider implements SecuredViewProvider
 			WorkflowFinalizationConfiguration config = editorController.getFinalizationHandler(form)
 					.getFinalRegistrationConfigurationNonSubmit(false, null,
 							TriggeringState.NOT_APPLICABLE_ENQUIRY);
-		
-			
-			VerticalLayout wrapper = new VerticalLayout();
-			wrapper.setSpacing(false);
-			wrapper.setMargin(false);
-			wrapper.setSizeFull();
+			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, 
+					uriAccessService);
+			com.vaadin.ui.Component wrapper = finalScreen.getWrappedForFullSizeComponent();
 			setSizeFull();
 			setCompositionRoot(wrapper);
-
-			WorkflowCompletedComponent finalScreen = new WorkflowCompletedComponent(config, url -> {}, uriAccessService);
-			wrapper.addComponent(finalScreen);
-			wrapper.setComponentAlignment(finalScreen, Alignment.MIDDLE_CENTER);
 		}
 	}
 }
