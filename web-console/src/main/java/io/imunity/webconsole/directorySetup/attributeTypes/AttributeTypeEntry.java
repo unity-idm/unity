@@ -16,12 +16,12 @@ import pl.edu.icm.unity.webui.common.grid.FilterableEntry;
  * @author P.Piernik
  *
  */
-public class AttributeTypeEntry implements FilterableEntry
+class AttributeTypeEntry implements FilterableEntry
 {
 	public final AttributeType attributeType;
 	private UnityMessageSource msg;
 
-	public AttributeTypeEntry(UnityMessageSource msg, AttributeType attributeType)
+	AttributeTypeEntry(UnityMessageSource msg, AttributeType attributeType)
 	{
 		this.attributeType = attributeType;
 		this.msg = msg;

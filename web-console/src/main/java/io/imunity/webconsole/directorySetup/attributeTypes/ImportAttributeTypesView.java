@@ -36,7 +36,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
  *
  */
 @PrototypeComponent
-public class ImportAttributeTypesView extends CustomComponent implements UnityView
+class ImportAttributeTypesView extends CustomComponent implements UnityView
 {
 	public static final String VIEW_NAME = "ImportAttributeTypes";
 
