@@ -60,6 +60,14 @@ public class IdentityTypeManagementImpl implements IdentityTypesManagement
 		authz.checkAuthorization(AuthzCapability.readInfo);
 		return dbIdentities.getAll();
 	}
+	
+	@Override
+	@Transactional
+	public IdentityType getIdentityType(String name) throws EngineException
+	{
+		authz.checkAuthorization(AuthzCapability.readInfo);
+		return dbIdentities.get(name);
+	}
 
 	@Transactional
 	@Override

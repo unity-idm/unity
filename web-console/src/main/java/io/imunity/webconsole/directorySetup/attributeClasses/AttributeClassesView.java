@@ -52,7 +52,7 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 	private UnityMessageSource msg;
 	private AttributeClassController controller;
 
-	private GridWithActionColumn<AttributesClass> messageTemplateGrid;
+	private GridWithActionColumn<AttributesClass> attributeClassGrid;
 
 	@Autowired
 	AttributeClassesView(UnityMessageSource msg, AttributeClassController controller)
@@ -68,22 +68,22 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewAttributeClassView.VIEW_NAME)));
 
-		messageTemplateGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
-		messageTemplateGrid.addComponentColumn(
+		attributeClassGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
+		attributeClassGrid.addComponentColumn(
 				a -> StandardButtonsHelper.buildLinkButton(a.getName(), e -> gotoEdit(a)),
 				msg.getMessage("AttributeClassesView.nameCaption"), 10);
-		messageTemplateGrid.addColumn(a -> String.join(", ", a.getAllowed()),
+		attributeClassGrid.addColumn(a -> String.join(", ", a.getAllowed()),
 				msg.getMessage("AttributeClassesView.allowedCaption"), 10);
-		messageTemplateGrid.addColumn(a -> String.join(", ", a.getMandatory()),
+		attributeClassGrid.addColumn(a -> String.join(", ", a.getMandatory()),
 				msg.getMessage("AttributeClassesView.mandatoryCaption"), 10);
-		messageTemplateGrid.addColumn(a -> a.getDescription(),
+		attributeClassGrid.addColumn(a -> a.getDescription(),
 				msg.getMessage("AttributeClassesView.descriptionCaption"), 10);
-		messageTemplateGrid.setSizeFull();
-		messageTemplateGrid.setItems(getAttributeClasses());
+		attributeClassGrid.setSizeFull();
+		attributeClassGrid.setItems(getAttributeClasses());
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
-		main.addComponent(messageTemplateGrid);
+		main.addComponent(attributeClassGrid);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 
@@ -106,7 +106,7 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 		try
 		{
 			controller.removeAttributeClass(attrClass);
-			messageTemplateGrid.removeElement(attrClass);
+			attributeClassGrid.removeElement(attrClass);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);

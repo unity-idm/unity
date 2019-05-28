@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.directorySetup.attributeClasses;
+package io.imunity.webconsole.directorySetup.identityTypes;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +13,9 @@ import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.VerticalLayout;
 
-import io.imunity.webadmin.attributeclass.AttributesClassEditor;
+import io.imunity.webadmin.identitytype.IdentityTypeEditor;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
-import io.imunity.webconsole.directorySetup.attributeClasses.AttributeClassesView.AttributeClassesNavigationInfoProvider;
+import io.imunity.webconsole.directorySetup.identityTypes.IdentityTypesView.IdentityTypesNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
@@ -24,60 +24,57 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
-import pl.edu.icm.unity.types.basic.AttributesClass;
+import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.webui.WebSession;
+import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
- * Edit attribute class view
+ * Edit identityType view
  * 
  * @author P.Piernik
  *
  */
 @PrototypeComponent
-class EditAttributeClassView extends CustomComponent implements UnityView
+class EditIdentityTypeView extends CustomComponent implements UnityView
 {
-	public static final String VIEW_NAME = "EditAttributeClass";
+	public static final String VIEW_NAME = "EditIdentityType";
 
-	private AttributeClassController controller;
+	private IdentityTypesController controller;
 	private UnityMessageSource msg;
-	private AttributesClassEditor editor;
+	private IdentityTypeEditor editor;
+	private EventsBus bus;
+	
+	private String idTypeName;
 
-	private String attributeClassName;
-
-	EditAttributeClassView(AttributeClassController controller, UnityMessageSource msg)
+	EditIdentityTypeView(IdentityTypesController controller, UnityMessageSource msg)
 	{
 		this.controller = controller;
 		this.msg = msg;
+		this.bus = WebSession.getCurrent().getEventBus();
 	}
 
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
 
-		attributeClassName = NavigationHelper.getParam(event, CommonViewParam.name.toString());
+		idTypeName = NavigationHelper.getParam(event, CommonViewParam.name.toString());
 
-		AttributesClass ac;
+		IdentityType idType;
 		try
 		{
-			ac = controller.getAttributeClass(attributeClassName);
+			idType = controller.getIdentityType(idTypeName);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(AttributeClassesView.VIEW_NAME);
+			NavigationHelper.goToView(IdentityTypesView.VIEW_NAME);
 			return;
 		}
 
-		try
-		{
-			editor = controller.getEditor(ac);
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-			NavigationHelper.goToView(AttributeClassesView.VIEW_NAME);
-			return;
-		}
+		editor = controller.getEditor(idType);
+
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);
@@ -88,21 +85,21 @@ class EditAttributeClassView extends CustomComponent implements UnityView
 
 	private void onConfirm()
 	{
-		AttributesClass attrClass;
+		IdentityType idType;
 		try
 		{
-			attrClass = editor.getAttributesClass();
+			idType = editor.getIdentityType();
 		} catch (FormValidationException e)
 		{
 			return;
 		}
 
-		if (attrClass == null)
+		if (idType == null)
 			return;
 
 		try
 		{
-			controller.updateAttributeClass(attrClass);
+			controller.updateIdentityType(idType, bus);
 		} catch (ControllerException e)
 		{
 
@@ -110,13 +107,13 @@ class EditAttributeClassView extends CustomComponent implements UnityView
 			return;
 		}
 
-		NavigationHelper.goToView(AttributeClassesView.VIEW_NAME);
+		NavigationHelper.goToView(IdentityTypesView.VIEW_NAME);
 
 	}
 
 	private void onCancel()
 	{
-		NavigationHelper.goToView(AttributeClassesView.VIEW_NAME);
+		NavigationHelper.goToView(IdentityTypesView.VIEW_NAME);
 
 	}
 
@@ -129,16 +126,16 @@ class EditAttributeClassView extends CustomComponent implements UnityView
 	@Override
 	public String getDisplayedName()
 	{
-		return attributeClassName;
+		return idTypeName;
 	}
 
 	@Component
-	public static class EditAttributeClassNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+	public static class EditIdentityTypeNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 	{
 
 		@Autowired
-		public EditAttributeClassNavigationInfoProvider(AttributeClassesNavigationInfoProvider parent,
-				ObjectFactory<EditAttributeClassView> factory)
+		public EditIdentityTypeNavigationInfoProvider(IdentityTypesNavigationInfoProvider parent,
+				ObjectFactory<EditIdentityTypeView> factory)
 		{
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.ParameterizedView)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory).build());

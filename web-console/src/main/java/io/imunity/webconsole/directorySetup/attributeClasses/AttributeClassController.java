@@ -75,6 +75,19 @@ class AttributeClassController
 		}
 
 	}
+	
+	void updateAttributeClass(AttributesClass attrClass) throws ControllerException
+	{
+		try
+		{
+			attrClassMan.updateAttributeClass(attrClass);
+		} catch (Exception e)
+		{
+			throw new ControllerException(
+					msg.getMessage("AttributeClassController.updateError", attrClass.getName()), e);
+		}
+
+	}
 
 	AttributesClass getAttributeClass(String attributeClassName) throws ControllerException
 	{
