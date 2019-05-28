@@ -18,6 +18,7 @@ import com.vaadin.data.provider.ListDataProvider;
 import com.vaadin.server.SerializablePredicate;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.HorizontalLayout;
@@ -173,6 +174,23 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 				.setSortable(false);
 		refreshActionColumn();
 		return column;
+	}
+	
+	public Column<T, CheckBox> addCheckboxColumn(ValueProvider<T, Boolean> valueProvider, String caption,
+			int expandRatio)
+	{
+		Column<T, CheckBox> column = addComponentColumn(t -> getCheckBox(valueProvider.apply(t)))
+				.setCaption(caption).setExpandRatio(expandRatio).setResizable(false).setSortable(false);
+		refreshActionColumn();
+		return column;
+	}
+
+	private CheckBox getCheckBox(boolean value)
+	{
+		CheckBox check = new CheckBox();
+		check.setValue(value);
+		check.setReadOnly(true);
+		return check;
 	}
 
 	public void addActionHandler(SingleActionHandler<T> actionHandler)

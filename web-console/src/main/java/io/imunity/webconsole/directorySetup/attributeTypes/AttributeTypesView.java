@@ -20,7 +20,6 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
-import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -103,18 +102,18 @@ public class AttributeTypesView extends CustomComponent implements UnityView
 		attrTypesGrid.addColumn(at -> at.attributeType.getValueSyntax(),
 				msg.getMessage("AttributeTypesView.typeCaption"), 10);
 
-		attrTypesGrid.addComponentColumn(at -> getCheckBox(at.attributeType.isSelfModificable()),
+		attrTypesGrid.addCheckboxColumn(at ->at.attributeType.isSelfModificable(),
 				msg.getMessage("AttributeTypesView.selfModifiableCaption"), 10);
 
 		attrTypesGrid.addColumn(at -> at.getBoundsDesc(),
 				msg.getMessage("AttributeTypesView.cardinalityCaption"), 10);
 
-		attrTypesGrid.addComponentColumn(at -> getCheckBox(at.attributeType.isUniqueValues()),
+		attrTypesGrid.addCheckboxColumn(at -> at.attributeType.isUniqueValues(),
 				msg.getMessage("AttributeTypesView.uniqueValuesCaption"), 10);
 
 		attrTypesGrid.addHamburgerActions(getHamburgerActionsHandlers());
 		attrTypesGrid.setMultiSelect(true);
-
+		
 		attrTypesGrid.setItems(getAttributeTypes());
 
 		HamburgerMenu<AttributeTypeEntry> hamburgerMenu = new HamburgerMenu<>();
@@ -146,14 +145,6 @@ public class AttributeTypesView extends CustomComponent implements UnityView
 		main.setMargin(false);
 
 		setCompositionRoot(main);
-	}
-
-	private CheckBox getCheckBox(boolean value)
-	{
-		CheckBox check = new CheckBox();
-		check.setValue(value);
-		check.setReadOnly(true);
-		return check;
 	}
 
 	private Collection<AttributeTypeEntry> getAttributeTypes()

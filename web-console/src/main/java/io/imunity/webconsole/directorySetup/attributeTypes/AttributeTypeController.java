@@ -27,7 +27,6 @@ import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.attributes.AttributeTypeSupport;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.types.basic.AttributeType;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
 import pl.edu.icm.unity.webui.common.attrmetadata.AttributeMetadataHandlerRegistry;
@@ -69,7 +68,7 @@ class AttributeTypeController
 		{
 			return attrTypeMan.getAttributeTypes().stream().map(at -> new AttributeTypeEntry(msg, at))
 					.collect(Collectors.toList());
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("AttributeTypeController.getAllError"), e);
 		}
@@ -104,31 +103,12 @@ class AttributeTypeController
 		return downloader;
 	}
 
-	AttributeTypeEditor getEditor(AttributeType attributeType)
-	{
-
-		return attributeType == null
-				? new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType,
-						attrMetaHandlerRegistry, atSupport)
-				: attributeType.isTypeImmutable() ? new ImmutableAttributeTypeEditor(msg, attributeType)
-						: new RegularAttributeTypeEditor(msg, attrHandlerRegistry,
-								attributeType, attrMetaHandlerRegistry, atSupport);
-	}
-
-	RegularAttributeTypeEditor getRegularAttributeTypeEditor(AttributeType attributeType)
-	{
-
-		return new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType, attrMetaHandlerRegistry,
-				atSupport);
-
-	}
-
 	void addAttributeType(AttributeType at) throws ControllerException
 	{
 		try
 		{
 			attrTypeMan.addAttributeType(at);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("AttributeTypeController.addError", at.getName()),
 					e);
@@ -141,7 +121,7 @@ class AttributeTypeController
 		try
 		{
 			attrTypeMan.updateAttributeType(at);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("AttributeTypeController.updateError", at.getName()), e);
@@ -154,7 +134,7 @@ class AttributeTypeController
 		try
 		{
 			return attrTypeMan.getAttributeType(attributeTypeName);
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(
 					msg.getMessage("AttributeTypeController.getError", attributeTypeName), e);
@@ -185,19 +165,6 @@ class AttributeTypeController
 
 	}
 
-	ImportAttributeTypeEditor getImportEditor() throws ControllerException
-	{
-		try
-		{
-			return new ImportAttributeTypeEditor(msg, getAttributeTypes().stream().map(a -> a.attributeType)
-					.collect(Collectors.toSet()), serverConfig, atSupport);
-		} catch (Exception e)
-		{
-			throw new ControllerException(msg.getMessage("AttributeTypeController.getImportEditorError"),
-					e);
-		}
-	}
-
 	void mergeAttributeTypes(Set<AttributeType> toMerge, boolean overwrite) throws ControllerException
 	{
 		try
@@ -221,4 +188,35 @@ class AttributeTypeController
 		}
 	}
 
+	ImportAttributeTypeEditor getImportEditor() throws ControllerException
+	{
+		try
+		{
+			return new ImportAttributeTypeEditor(msg, getAttributeTypes().stream().map(a -> a.attributeType)
+					.collect(Collectors.toSet()), serverConfig, atSupport);
+		} catch (Exception e)
+		{
+			throw new ControllerException(msg.getMessage("AttributeTypeController.getImportEditorError"),
+					e);
+		}
+	}
+
+	AttributeTypeEditor getEditor(AttributeType attributeType)
+	{
+
+		return attributeType == null
+				? new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType,
+						attrMetaHandlerRegistry, atSupport)
+				: attributeType.isTypeImmutable() ? new ImmutableAttributeTypeEditor(msg, attributeType)
+						: new RegularAttributeTypeEditor(msg, attrHandlerRegistry,
+								attributeType, attrMetaHandlerRegistry, atSupport);
+	}
+
+	RegularAttributeTypeEditor getRegularAttributeTypeEditor(AttributeType attributeType)
+	{
+
+		return new RegularAttributeTypeEditor(msg, attrHandlerRegistry, attributeType, attrMetaHandlerRegistry,
+				atSupport);
+
+	}
 }

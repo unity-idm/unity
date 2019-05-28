@@ -164,7 +164,7 @@ class AutomationController
 		{
 			return new RuleEditorImpl(msg, getActionEditor());
 
-		} catch (EngineException e)
+		} catch (Exception e)
 		{
 			throw new ControllerException(msg.getMessage("AutomationController.getEditorError"), e);
 		}
