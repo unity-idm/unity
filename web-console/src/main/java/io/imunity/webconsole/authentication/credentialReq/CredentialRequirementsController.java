@@ -121,7 +121,7 @@ class CredentialRequirementsController
 
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("CredentialRequirementsController.getEditorError"),
+			throw new ControllerException(msg.getMessage("CredentialRequirementsController.createEditorError"),
 					e);
 		}
 	}

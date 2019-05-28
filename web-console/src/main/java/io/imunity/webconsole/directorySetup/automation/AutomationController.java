@@ -166,7 +166,7 @@ class AutomationController
 
 		} catch (Exception e)
 		{
-			throw new ControllerException(msg.getMessage("AutomationController.getEditorError"), e);
+			throw new ControllerException(msg.getMessage("AutomationController.createEditorError"), e);
 		}
 	}
 

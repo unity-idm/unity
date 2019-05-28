@@ -65,4 +65,10 @@ public interface AttributeClassManagement
 	 */
 	Collection<AttributesClass> getEntityAttributeClasses(EntityParam entity, String group) 
 			throws EngineException;	
+	
+	/**
+	 * @return attribute class with given name
+	 * @throws EngineException
+	 */
+	AttributesClass getAttributeClass(String name) throws EngineException;
 }

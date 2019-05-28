@@ -47,8 +47,7 @@ public class AuthenticatorsController
 
 	@Autowired
 	AuthenticatorsController(AuthenticatorManagement authnMan, UnityMessageSource msg,
-			EndpointController endpointController, // InputTranslationsController
-								// profileController,
+			EndpointController endpointController,
 			AuthenticationFlowManagement flowsMan, AuthenticatorEditorFactoriesRegistry editorsRegistry)
 	{
 		this.authnMan = authnMan;

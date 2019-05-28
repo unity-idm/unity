@@ -11,6 +11,7 @@ import java.util.Set;
 
 import com.vaadin.ui.TwinColSelect;
 
+import io.imunity.webadmin.attributeclass.EffectiveAttrClassViewer;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;

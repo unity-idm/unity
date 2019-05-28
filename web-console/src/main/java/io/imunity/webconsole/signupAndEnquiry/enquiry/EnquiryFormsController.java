@@ -123,7 +123,7 @@ public class EnquiryFormsController
 			return editor;
 		} catch (EngineException e)
 		{
-			throw new ControllerException(msg.getMessage("RegistrationFormsController.getEditorError"), e);
+			throw new ControllerException(msg.getMessage("RegistrationFormsController.createEditorError"), e);
 
 		}
 	}

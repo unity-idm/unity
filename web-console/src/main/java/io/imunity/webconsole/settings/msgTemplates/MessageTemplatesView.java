@@ -62,9 +62,10 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	public static final String VIEW_NAME = "MessageTemplates";
 
 	private UnityMessageSource msg;
-	private GridWithActionColumn<MessageTemplate> messageTemplateGrid;
-	private SimpleMessageTemplateViewer viewer;
 	private MessageTemplateController controller;
+	private SimpleMessageTemplateViewer viewer;
+	private GridWithActionColumn<MessageTemplate> messageTemplateGrid;
+	
 
 	@Autowired
 	MessageTemplatesView(UnityMessageSource msg, MessageTemplateController controller)
