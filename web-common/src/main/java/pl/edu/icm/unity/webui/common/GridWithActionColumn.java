@@ -193,20 +193,50 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		return check;
 	}
 
+	public Column<T, Component> addShowDetailsColumn(DetailsGenerator<T> generator)
+	{
+		setDetailsGenerator(generator);
+		Column<T, Component> showDetailsColumn = addComponentColumn(t -> getShowHideDetailsButton(t)); 
+		showDetailsColumn.setResizable(false);
+		showDetailsColumn.setExpandRatio(0);
+		showDetailsColumn.setSortable(false);
+		return showDetailsColumn;
+	}
+	
 	public void addActionHandler(SingleActionHandler<T> actionHandler)
 	{
 		actionHandlers.add(actionHandler);
 		refreshActionColumn();
 	}
 
-	public void addDetailsComponent(DetailsGenerator<T> generator)
+	public void addByClickDetailsComponent(DetailsGenerator<T> generator)
 	{
 		setDetailsGenerator(generator);
 		addItemClickListener(e -> {
 			setDetailsVisible(e.getItem(), !isDetailsVisible(e.getItem()));
 		});
 	}
-
+	
+	private HorizontalLayout getShowHideDetailsButton(T t)
+	{
+		boolean isDetailsVisiable = isDetailsVisible(t);
+		Button showHide = new Button();
+		showHide.setIcon(isDetailsVisible(t) ? Images.upArrow.getResource() : Images.downArrow.getResource());
+		showHide.setStyleName(Styles.vButtonSmall.toString());
+		showHide.addClickListener(e -> {
+			
+			setDetailsVisible(t, !isDetailsVisiable);
+		});
+		
+		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.addComponent(showHide);
+		wrapper.setMargin(false);
+		wrapper.setSpacing(false);
+		wrapper.setWidth(100, Unit.PERCENTAGE);
+		
+		return wrapper;
+	}
+	
 	public void refreshActionColumn()
 	{
 		if (actionColumn != null)

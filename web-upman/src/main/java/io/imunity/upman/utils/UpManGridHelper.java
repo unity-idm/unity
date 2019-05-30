@@ -45,7 +45,7 @@ public class UpManGridHelper
 			menu.addStyleName(SidebarStyles.sidebar.toString());
 			return menu;
 
-		}).setCaption(caption).setWidth(80).setResizable(false);
+		}).setCaption(caption).setWidth(80).setResizable(false).setSortable(false);
 	}
 
 	public static <T> Column<T, String> createDateTimeColumn(Grid<T> grid, Function<T, Instant> timeProvider,

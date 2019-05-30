@@ -16,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
@@ -32,6 +34,7 @@ import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -70,9 +73,18 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 				msg.getMessage("IdentityTypesView.automaticCaption"), 10);
 		identityTypesGrid.addCheckboxColumn(i -> i.type.isSelfModificable(),
 				msg.getMessage("IdentityTypesView.modifiableByUserCaption"), 10);
-		identityTypesGrid.addColumn(i -> i.type.getDescription(),
-				msg.getMessage("IdentityTypesView.descriptionCaption"), 10);
-		
+		identityTypesGrid.addByClickDetailsComponent(i -> {
+			{
+				Label desc = new Label();
+				desc.setCaption(msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
+				desc.setValue(i.type.getDescription());
+				FormLayout wrapper = new FormLayout(desc);
+				desc.setStyleName(Styles.wordWrap.toString());
+				wrapper.setWidth(95, Unit.PERCENTAGE);
+				return wrapper;
+			}
+		});
+
 		identityTypesGrid.setSizeFull();
 		identityTypesGrid.setItems(getIdentityTypes());
 

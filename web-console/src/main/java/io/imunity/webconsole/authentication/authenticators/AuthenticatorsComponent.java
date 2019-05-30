@@ -57,7 +57,7 @@ public class AuthenticatorsComponent extends CustomComponent
 		authenticatorsList.addComponentColumn(
 				a -> StandardButtonsHelper.buildLinkButton(a.authenticator.id, e -> gotoEdit(a)),
 				msg.getMessage("AuthenticatorsComponent.nameCaption"), 10);
-		authenticatorsList.addDetailsComponent(authenticator -> {
+		authenticatorsList.addByClickDetailsComponent(authenticator -> {
 			{
 				Label endpoints = new Label();
 				endpoints.setCaption(msg.getMessage("AuthenticatorsComponent.endpointsCaption"));

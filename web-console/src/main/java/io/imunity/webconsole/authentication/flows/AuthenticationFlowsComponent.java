@@ -58,7 +58,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 		flowsList.addComponentColumn(
 				f -> StandardButtonsHelper.buildLinkButton(f.flow.getName(), e -> gotoEdit(f)),
 				msg.getMessage("AuthenticationFlowsComponent.nameCaption"), 10);
-		flowsList.addDetailsComponent(flow -> {
+		flowsList.addByClickDetailsComponent(flow -> {
 			{
 				Label endpoints = new Label();
 				endpoints.setCaption(msg.getMessage("AuthenticationFlowsComponent.endpointsCaption"));

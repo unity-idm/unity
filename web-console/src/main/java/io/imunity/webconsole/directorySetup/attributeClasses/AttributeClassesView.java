@@ -17,7 +17,9 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Sets;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
+import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
@@ -36,6 +38,7 @@ import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -76,8 +79,20 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 				msg.getMessage("AttributeClassesView.allowedCaption"), 10);
 		attributeClassGrid.addColumn(a -> String.join(", ", a.getMandatory()),
 				msg.getMessage("AttributeClassesView.mandatoryCaption"), 10);
-		attributeClassGrid.addColumn(a -> a.getDescription(),
-				msg.getMessage("AttributeClassesView.descriptionCaption"), 10);
+	
+		attributeClassGrid.addByClickDetailsComponent(a -> {
+			{
+				Label desc = new Label();
+				desc.setCaption(msg.getMessage("AttributeClassesView.descriptionLabelCaption"));
+				desc.setValue(a.getDescription());
+				FormLayout wrapper = new FormLayout(desc);
+				desc.setStyleName(Styles.wordWrap.toString());
+				wrapper.setWidth(95, Unit.PERCENTAGE);
+				return wrapper;
+			}
+		});
+		
+		
 		attributeClassGrid.setSizeFull();
 		attributeClassGrid.setItems(getAttributeClasses());
 

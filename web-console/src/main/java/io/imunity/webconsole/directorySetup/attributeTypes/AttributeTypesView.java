@@ -21,6 +21,7 @@ import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -44,7 +45,9 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
+import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -85,6 +88,17 @@ class AttributeTypesView extends CustomComponent implements UnityView
 
 		attrTypesGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 
+		attrTypesGrid.addShowDetailsColumn(a ->
+		{
+			I18nLabel desc = new I18nLabel(msg);
+			desc.setCaption(msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
+			desc.setValue(a.attributeType.getDescription());
+			FormLayout wrapper = new FormLayout(desc);
+			desc.setStyleName(Styles.wordWrap.toString());
+			wrapper.setWidth(95, Unit.PERCENTAGE);
+			return wrapper;
+		});
+		
 		attrTypesGrid.addComponentColumn(at -> {
 
 			if (at.isEditable())
@@ -113,6 +127,9 @@ class AttributeTypesView extends CustomComponent implements UnityView
 
 		attrTypesGrid.addHamburgerActions(getHamburgerActionsHandlers());
 		attrTypesGrid.setMultiSelect(true);
+	
+		
+		
 		
 		attrTypesGrid.setItems(getAttributeTypes());
 

@@ -74,7 +74,7 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 		realmsList.addComponentColumn(
 				r -> StandardButtonsHelper.buildLinkButton(r.realm.getName(), e -> gotoEdit(r)),
 				msg.getMessage("AuthenticationRealmsView.nameCaption"), 10);
-		realmsList.addDetailsComponent(realm -> {
+		realmsList.addByClickDetailsComponent(realm -> {
 			{
 				Label endpoints = new Label();
 				endpoints.setCaption(msg.getMessage("AuthenticationRealmsView.endpointsCaption"));
