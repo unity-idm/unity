@@ -10,6 +10,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,7 +93,7 @@ public class AutomationView extends CustomComponent implements UnityView
 
 		HamburgerMenu<ScheduledProcessingRule> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
-		hamburgerMenu.addActionHandlers(getHamburgerActionsHandlers());
+		hamburgerMenu.addActionHandlers(getBulkHamburgerActionsHandlers());
 		automationGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
 		VerticalLayout gridWrapper = new VerticalLayout();
@@ -132,29 +134,24 @@ public class AutomationView extends CustomComponent implements UnityView
 
 	private List<SingleActionHandler<ScheduledProcessingRule>> getHamburgerActionsHandlers()
 	{
+		SingleActionHandler<ScheduledProcessingRule> run = SingleActionHandler
+				.builder(ScheduledProcessingRule.class)
+				.withCaption(msg.getMessage("AutomationView.runNowAction"))
+				.withIcon(Images.play.getResource()).withHandler(r -> gotoRun(r.iterator().next()))
+				.build();
+
+		return Stream.concat(Arrays.asList(run).stream(), getBulkHamburgerActionsHandlers().stream())
+				.collect(Collectors.toList());
+	}
+
+	private List<SingleActionHandler<ScheduledProcessingRule>> getBulkHamburgerActionsHandlers()
+	{
 		SingleActionHandler<ScheduledProcessingRule> remove = SingleActionHandler
 				.builder4Delete(msg, ScheduledProcessingRule.class).withHandler(this::tryRemove)
 				.build();
 
-		SingleActionHandler<ScheduledProcessingRule> run = SingleActionHandler
-				.builder(ScheduledProcessingRule.class).multiTarget()
-				.withCaption(msg.getMessage("AutomationView.runNowAction"))
-				.withIcon(Images.play.getResource()).withHandler(this::run).build();
+		return Arrays.asList(remove);
 
-		return Arrays.asList(run, remove);
-
-	}
-
-	private void run(Set<ScheduledProcessingRule> items)
-	{
-		try
-		{
-			controller.runScheduleRules(items);
-
-		} catch (ControllerException e)
-		{
-			NotificationPopup.showError(msg, e);
-		}
 	}
 
 	private void tryRemove(Set<ScheduledProcessingRule> items)
@@ -181,6 +178,12 @@ public class AutomationView extends CustomComponent implements UnityView
 	private void gotoEdit(ScheduledProcessingRule rule)
 	{
 		NavigationHelper.goToView(EditAutomationView.VIEW_NAME + "/" + CommonViewParam.id.toString() + "="
+				+ rule.getId());
+	}
+
+	private void gotoRun(ScheduledProcessingRule rule)
+	{
+		NavigationHelper.goToView(RunImmediateView.VIEW_NAME + "/" + CommonViewParam.id.toString() + "="
 				+ rule.getId());
 	}
 

@@ -18,6 +18,7 @@ import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.automation.AutomationView.AutomationNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
+import io.imunity.webelements.helpers.NavigationHelper.CommonViewParam;
 import io.imunity.webelements.navigation.NavigationInfo;
 import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
@@ -52,15 +53,18 @@ class RunImmediateView extends CustomComponent implements UnityView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
+		String ruleId = NavigationHelper.getParam(event, CommonViewParam.id.toString());
+
 		try
 		{
-			editor = controller.getRuleEditor();
+			editor = controller.getRuleEditor(ruleId == null || ruleId.isEmpty() ? null : controller.getScheduledRule(ruleId));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
 			NavigationHelper.goToView(AutomationView.VIEW_NAME);
 			return;
 		}
+
 		VerticalLayout main = new VerticalLayout();
 		main.setMargin(false);
 		main.addComponent(editor);

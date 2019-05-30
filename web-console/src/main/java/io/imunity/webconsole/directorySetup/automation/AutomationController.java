@@ -158,11 +158,17 @@ class AutomationController
 		}
 	}
 
-	RuleEditorImpl getRuleEditor() throws ControllerException
+	RuleEditorImpl getRuleEditor(TranslationRule rule) throws ControllerException
 	{
 		try
 		{
-			return new RuleEditorImpl(msg, getActionEditor());
+			RuleEditorImpl editor = new RuleEditorImpl(msg, getActionEditor());
+			if (rule != null)
+			{
+				editor.setInput(rule);
+			}
+			return editor;
+			
 
 		} catch (Exception e)
 		{
