@@ -79,11 +79,11 @@ public class AutomationView extends CustomComponent implements UnityView
 
 		automationGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 
-		automationGrid.addColumn(r -> r.getCronExpression(),
+		automationGrid.addSortableColumn(r -> r.getCronExpression(),
 				msg.getMessage("AutomationView.cronExpressionCaption"), 5);
-		automationGrid.addColumn(r -> r.getAction().getName(), msg.getMessage("AutomationView.actionCaption"),
+		automationGrid.addSortableColumn(r -> r.getAction().getName(), msg.getMessage("AutomationView.actionCaption"),
 				5);
-		automationGrid.addColumn(r -> controller.getActionParamAsString(r.getAction()),
+		automationGrid.addSortableColumn(r -> controller.getActionParamAsString(r.getAction()),
 				msg.getMessage("AutomationView.parametersCaption"), 20);
 
 		automationGrid.addHamburgerActions(getHamburgerActionsHandlers());

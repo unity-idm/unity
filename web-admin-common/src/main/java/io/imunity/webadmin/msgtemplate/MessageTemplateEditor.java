@@ -235,8 +235,9 @@ public class MessageTemplateEditor extends CompactFormLayout
 	
 	private void toggleSubjectAndBody(String channel)
 	{
+		
 		NotificationChannelInfo notificationChannel = notificationChannelsMap.get(channel);
-		showTemplate = !notificationChannel.isSupportingTemplates();
+		showTemplate = !(notificationChannel != null && notificationChannel.isSupportingTemplates());
 		subject.setVisible(showTemplate);
 		body.setVisible(showTemplate);
 		messageType.setVisible(showTemplate);

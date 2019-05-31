@@ -65,7 +65,6 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	private MessageTemplateController controller;
 	private SimpleMessageTemplateViewer viewer;
 	private GridWithActionColumn<MessageTemplate> messageTemplateGrid;
-	
 
 	@Autowired
 	MessageTemplatesView(UnityMessageSource msg, MessageTemplateController controller)
@@ -84,14 +83,20 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 						e -> NavigationHelper.goToView(NewMessageTemplateView.VIEW_NAME)));
 
 		messageTemplateGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
-		messageTemplateGrid.addComponentColumn(
-				m -> StandardButtonsHelper.buildLinkButton(m.getName(), e -> gotoEdit(m)),
-				msg.getMessage("MessageTemplatesView.nameCaption"), 10);
-		messageTemplateGrid.addColumn(m -> m.getNotificationChannel(),
+		messageTemplateGrid
+				.addComponentColumn(
+						m -> StandardButtonsHelper.buildLinkButton(m.getName(),
+								e -> gotoEdit(m)),
+						msg.getMessage("MessageTemplatesView.nameCaption"), 10)
+				.setSortable(true).setComparator((m1, m2) -> {
+					return m1.getName().compareTo(m2.getName());
+				}).setId("name");
+
+		messageTemplateGrid.addSortableColumn(m -> m.getNotificationChannel(),
 				msg.getMessage("MessageTemplatesView.channelCaption"), 10);
-		messageTemplateGrid.addColumn(m -> m.getType().toString(),
+		messageTemplateGrid.addSortableColumn(m -> m.getType().toString(),
 				msg.getMessage("MessageTemplatesView.messageTypeCaption"), 10);
-		messageTemplateGrid.addColumn(m -> m.getConsumer(),
+		messageTemplateGrid.addSortableColumn(m -> m.getConsumer(),
 				msg.getMessage("MessageTemplatesView.purposeCaption"), 10);
 
 		messageTemplateGrid.addHamburgerActions(getRowHamburgerHandlers());
@@ -151,6 +156,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	private void refresh()
 	{
 		messageTemplateGrid.setItems(getMessageTemplates());
+		messageTemplateGrid.sort("name");
 		viewer.setInput(null);
 	}
 

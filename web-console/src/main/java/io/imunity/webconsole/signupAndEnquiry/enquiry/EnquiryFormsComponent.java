@@ -49,7 +49,7 @@ public class EnquiryFormsComponent extends CustomComponent
 	private AdminEnquiryFormLauncher adminEnquiryFormLauncher;
 
 	private GridWithActionColumn<EnquiryForm> enquiryFormsList;
-	
+
 	public EnquiryFormsComponent(UnityMessageSource msg, EnquiryFormsController controller,
 			AdminEnquiryFormLauncher adminEnquiryFormLauncher)
 	{
@@ -68,7 +68,11 @@ public class EnquiryFormsComponent extends CustomComponent
 		enquiryFormsList.addHamburgerActions(getHamburgerActionsHandlers());
 		enquiryFormsList.addComponentColumn(
 				f -> StandardButtonsHelper.buildLinkButton(f.getName(), e -> gotoEdit(f)),
-				msg.getMessage("EnquiryFormsComponent.nameCaption"), 10);
+				msg.getMessage("EnquiryFormsComponent.nameCaption"), 10).setSortable(true)
+				.setComparator((e1, e2) -> {
+					return e1.getName().compareTo(e2.getName());
+				});
+		;
 		enquiryFormsList.addComponentColumn(form -> {
 			Link link = new Link();
 			String linkURL = controller.getPublicEnquiryLink(form);

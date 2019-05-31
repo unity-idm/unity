@@ -81,15 +81,19 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 			{
 				return new Label(c.getName());
 			}
-		}, msg.getMessage("CredentialReqView.nameCaption"), 5);
+		}, msg.getMessage("CredentialReqView.nameCaption"), 5).setSortable(true)
+		.setComparator((cr1, cr2) -> {
+			return cr1.getName().compareTo(cr2.getName());
+		}).setId("name");;
 
-		credList.addColumn(c -> String.join(", ", c.getRequiredCredentials()),
+		credList.addSortableColumn(c -> String.join(", ", c.getRequiredCredentials()),
 				msg.getMessage("CredentialReqView.credentialsCaption"), 10);
 
-		credList.addColumn(c -> c.getDescription(), msg.getMessage("CredentialReqView.descriptionCaption"), 10);
+		credList.addSortableColumn(c -> c.getDescription(), msg.getMessage("CredentialReqView.descriptionCaption"), 10);
 
 		credList.setItems(getCredentials());
-
+		credList.sort("name");
+		
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
 		main.addComponent(credList);

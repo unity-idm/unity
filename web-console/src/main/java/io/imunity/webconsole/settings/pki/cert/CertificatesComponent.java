@@ -50,19 +50,23 @@ public class CertificatesComponent extends CustomComponent
 
 	private void initUI()
 	{
-		
+
 		certList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-		certList.addComponentColumn(c -> StandardButtonsHelper.buildLinkButton(c.name, e -> 
-				gotoEdit(c)), msg.getMessage("CertificatesComponent.certificateNameCaption"), 10);
+		certList.addComponentColumn(c -> StandardButtonsHelper.buildLinkButton(c.name, e -> gotoEdit(c)),
+				msg.getMessage("CertificatesComponent.certificateNameCaption"), 10).setSortable(true)
+				.setComparator((c1, c2) -> {
+					return c1.name.compareTo(c2.name);
+				}).setId("name");
 
 		certList.setItems(getCertificates());
+		certList.sort("name");
 		
 		VerticalLayout main = new VerticalLayout();
 		Label certCaption = new Label(msg.getMessage("CertificatesComponent.caption"));
 		certCaption.setStyleName(Styles.sectionTitle.toString());
 		main.addComponent(certCaption);
-		main.addComponent(StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
-				.build4AddAction(msg, e -> NavigationHelper.goToView(NewCertificateView.VIEW_NAME))));
+		main.addComponent(StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
+				e -> NavigationHelper.goToView(NewCertificateView.VIEW_NAME))));
 		main.addComponent(certList);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);

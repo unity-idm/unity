@@ -66,27 +66,23 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 	{
 
 		identityTypesGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
-		identityTypesGrid.addComponentColumn(
-				i -> StandardButtonsHelper.buildLinkButton(i.type.getName(), e -> gotoEdit(i.type)),
-				msg.getMessage("IdentityTypesView.nameCaption"), 10);
+		identityTypesGrid
+				.addComponentColumn(
+						i -> StandardButtonsHelper.buildLinkButton(i.type.getName(),
+								e -> gotoEdit(i.type)),
+						msg.getMessage("IdentityTypesView.nameCaption"), 10)
+				.setSortable(true).setComparator((i1, i2) -> {
+					return i1.type.getName().compareTo(i2.type.getName());
+				}).setId("name");
 		identityTypesGrid.addCheckboxColumn(i -> i.typeDefinition.isDynamic(),
 				msg.getMessage("IdentityTypesView.automaticCaption"), 10);
 		identityTypesGrid.addCheckboxColumn(i -> i.type.isSelfModificable(),
 				msg.getMessage("IdentityTypesView.modifiableByUserCaption"), 10);
-		identityTypesGrid.addByClickDetailsComponent(i -> {
-			{
-				Label desc = new Label();
-				desc.setCaption(msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
-				desc.setValue(i.type.getDescription());
-				FormLayout wrapper = new FormLayout(desc);
-				desc.setStyleName(Styles.wordWrap.toString());
-				wrapper.setWidth(95, Unit.PERCENTAGE);
-				return wrapper;
-			}
-		});
+		identityTypesGrid.addByClickDetailsComponent(i -> getDetailsComponent(i));
 
 		identityTypesGrid.setSizeFull();
 		identityTypesGrid.setItems(getIdentityTypes());
+		identityTypesGrid.sort("name");
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(identityTypesGrid);
@@ -94,6 +90,17 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 		main.setMargin(false);
 
 		setCompositionRoot(main);
+	}
+
+	private FormLayout getDetailsComponent(IdentityTypeEntry i)
+	{
+		Label desc = new Label();
+		desc.setCaption(msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
+		desc.setValue(i.type.getDescription());
+		FormLayout wrapper = new FormLayout(desc);
+		desc.setStyleName(Styles.wordWrap.toString());
+		wrapper.setWidth(95, Unit.PERCENTAGE);
+		return wrapper;
 	}
 
 	private Collection<IdentityTypeEntry> getIdentityTypes()

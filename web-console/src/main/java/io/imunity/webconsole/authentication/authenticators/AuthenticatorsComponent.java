@@ -54,22 +54,18 @@ public class AuthenticatorsComponent extends CustomComponent
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewAuthenticatorView.VIEW_NAME)));
 
 		authenticatorsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-		authenticatorsList.addComponentColumn(
-				a -> StandardButtonsHelper.buildLinkButton(a.authenticator.id, e -> gotoEdit(a)),
-				msg.getMessage("AuthenticatorsComponent.nameCaption"), 10);
-		authenticatorsList.addByClickDetailsComponent(authenticator -> {
-			{
-				Label endpoints = new Label();
-				endpoints.setCaption(msg.getMessage("AuthenticatorsComponent.endpointsCaption"));
-				endpoints.setValue(String.join(", ", authenticator.endpoints));
-				FormLayout wrapper = new FormLayout(endpoints);
-				endpoints.setStyleName(Styles.wordWrap.toString());
-				wrapper.setWidth(95, Unit.PERCENTAGE);
-				return wrapper;
-			}
-		});
-
+		authenticatorsList
+				.addComponentColumn(
+						a -> StandardButtonsHelper.buildLinkButton(a.authenticator.id,
+								e -> gotoEdit(a)),
+						msg.getMessage("AuthenticatorsComponent.nameCaption"), 10)
+				.setSortable(true).setComparator((a1, a2) -> {
+					return a1.authenticator.id.compareTo(a2.authenticator.id);
+				}).setId("name");
+		;
+		authenticatorsList.addByClickDetailsComponent(authenticator -> getDetailsComponent(authenticator));
 		authenticatorsList.setItems(getAuthenticators());
+		authenticatorsList.sort("name");
 
 		VerticalLayout main = new VerticalLayout();
 		Label authCaption = new Label(msg.getMessage("AuthenticatorsComponent.caption"));
@@ -80,6 +76,17 @@ public class AuthenticatorsComponent extends CustomComponent
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 		setCompositionRoot(main);
+	}
+	
+	private FormLayout getDetailsComponent(AuthenticatorEntry authenticator)
+	{
+		Label endpoints = new Label();
+		endpoints.setCaption(msg.getMessage("AuthenticatorsComponent.endpointsCaption"));
+		endpoints.setValue(String.join(", ", authenticator.endpoints));
+		FormLayout wrapper = new FormLayout(endpoints);
+		endpoints.setStyleName(Styles.wordWrap.toString());
+		wrapper.setWidth(95, Unit.PERCENTAGE);
+		return wrapper;
 	}
 
 	private List<SingleActionHandler<AuthenticatorEntry>> getActionsHandlers()

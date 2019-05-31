@@ -73,7 +73,11 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 		realmsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 		realmsList.addComponentColumn(
 				r -> StandardButtonsHelper.buildLinkButton(r.realm.getName(), e -> gotoEdit(r)),
-				msg.getMessage("AuthenticationRealmsView.nameCaption"), 10);
+				msg.getMessage("AuthenticationRealmsView.nameCaption"), 10).setSortable(true)
+				.setComparator((r1, r2) -> {
+					return r1.realm.getName().compareTo(r2.realm.getName());
+				}).setId("name");
+		;
 		realmsList.addByClickDetailsComponent(realm -> {
 			{
 				Label endpoints = new Label();
@@ -87,7 +91,7 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 		});
 
 		realmsList.setItems(getRealms());
-		
+		realmsList.sort("name");
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);

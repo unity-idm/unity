@@ -57,20 +57,14 @@ public class AuthenticationFlowsComponent extends CustomComponent
 		flowsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 		flowsList.addComponentColumn(
 				f -> StandardButtonsHelper.buildLinkButton(f.flow.getName(), e -> gotoEdit(f)),
-				msg.getMessage("AuthenticationFlowsComponent.nameCaption"), 10);
-		flowsList.addByClickDetailsComponent(flow -> {
-			{
-				Label endpoints = new Label();
-				endpoints.setCaption(msg.getMessage("AuthenticationFlowsComponent.endpointsCaption"));
-				endpoints.setValue(String.join(", ", flow.endpoints));
-				FormLayout wrapper = new FormLayout(endpoints);
-				endpoints.setStyleName(Styles.wordWrap.toString());
-				wrapper.setWidth(95, Unit.PERCENTAGE);
-				return wrapper;
-			}
-		});
-
+				msg.getMessage("AuthenticationFlowsComponent.nameCaption"), 10).setSortable(true)
+				.setComparator((f1, f2) -> {
+					return f1.flow.getName().compareTo(f2.flow.getName());
+				}).setId("name");
+		;
+		flowsList.addByClickDetailsComponent(flow -> getDetailsComponent(flow));
 		flowsList.setItems(getFlows());
+		flowsList.sort("name");
 		
 		VerticalLayout main = new VerticalLayout();
 		Label flowCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
@@ -81,6 +75,17 @@ public class AuthenticationFlowsComponent extends CustomComponent
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 		setCompositionRoot(main);
+	}
+	
+	private FormLayout getDetailsComponent(AuthenticationFlowEntry flow)
+	{
+		Label endpoints = new Label();
+		endpoints.setCaption(msg.getMessage("AuthenticationFlowsComponent.endpointsCaption"));
+		endpoints.setValue(String.join(", ", flow.endpoints));
+		FormLayout wrapper = new FormLayout(endpoints);
+		endpoints.setStyleName(Styles.wordWrap.toString());
+		wrapper.setWidth(95, Unit.PERCENTAGE);
+		return wrapper;
 	}
 
 	private List<SingleActionHandler<AuthenticationFlowEntry>> getActionsHandlers()

@@ -68,9 +68,15 @@ public class RegistrationFormsComponent extends CustomComponent
 
 		registrationFormsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 		registrationFormsList.addHamburgerActions(getHamburgerActionsHandlers());
-		registrationFormsList.addComponentColumn(
-				f -> StandardButtonsHelper.buildLinkButton(f.getName(), e -> gotoEdit(f)),
-				msg.getMessage("RegistrationFormsComponent.nameCaption"), 10);
+		registrationFormsList
+				.addComponentColumn(
+						f -> StandardButtonsHelper.buildLinkButton(f.getName(),
+								e -> gotoEdit(f)),
+						msg.getMessage("RegistrationFormsComponent.nameCaption"), 10)
+				.setSortable(true).setComparator((r1, r2) -> {
+					return r1.getName().compareTo(r2.getName());
+				});
+		;
 		registrationFormsList.addComponentColumn(form -> {
 			if (!form.isPubliclyAvailable())
 				return null;

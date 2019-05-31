@@ -45,13 +45,14 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private List<SingleActionHandler<T>> actionHandlers;
 	private List<SingleActionHandler<T>> hamburgerActionHandlers;
 	private boolean heightByRows;
-	
+
 	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers)
 	{
 		this(msg, actionHandlers, true, true);
 	}
-	
-	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers, boolean enableDrag)
+
+	public GridWithActionColumn(UnityMessageSource msg, List<SingleActionHandler<T>> actionHandlers,
+			boolean enableDrag)
 	{
 		this(msg, actionHandlers, enableDrag, true);
 	}
@@ -63,12 +64,12 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		this.actionHandlers = actionHandlers;
 		this.hamburgerActionHandlers = new ArrayList<>();
 		this.heightByRows = heightByRows;
-		
+
 		contents = new ArrayList<>();
 		dataProvider = DataProvider.ofCollection(contents);
 		setDataProvider(dataProvider);
 		setSizeFull();
-		
+
 		refreshActionColumn();
 		if (enableDrag)
 		{
@@ -87,12 +88,12 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		if (multi)
 		{
 			addStyleName("u-gridWithActionMulti");
-		}else
+		} else
 		{
 			removeStyleName("u-gridWithActionMulti");
 		}
 	}
-	
+
 	public void replaceElement(T old, T newElement)
 	{
 		contents.set(contents.indexOf(old), newElement);
@@ -140,7 +141,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		heightByRows = byRow;
 		refreshHeight();
 	}
-	
+
 	private void refreshHeight()
 	{
 		if (heightByRows)
@@ -148,21 +149,20 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			setHeightByRows(contents.size() > 2 ? contents.size() : 2);
 		}
 	}
-	
+
 	public Column<T, String> addSortableColumn(ValueProvider<T, String> valueProvider, String caption,
 			int expandRatio)
 	{
-		Column<T, String> column = addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
-				.setSortable(true);
+		Column<T, String> column = addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio)
+				.setResizable(false).setSortable(true);
 		refreshActionColumn();
 		return column;
 	}
-	
-	public Column<T, String> addColumn(ValueProvider<T, String> valueProvider, String caption,
-			int expandRatio)
+
+	public Column<T, String> addColumn(ValueProvider<T, String> valueProvider, String caption, int expandRatio)
 	{
-		Column<T, String> column = addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
-				.setSortable(false);
+		Column<T, String> column = addColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio)
+				.setResizable(false).setSortable(false);
 		refreshActionColumn();
 		return column;
 	}
@@ -170,17 +170,20 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public Column<T, Component> addComponentColumn(ValueProvider<T, Component> valueProvider, String caption,
 			int expandRatio)
 	{
-		Column<T, Component> column = addComponentColumn(valueProvider).setCaption(caption).setExpandRatio(expandRatio).setResizable(false)
-				.setSortable(false);
+		Column<T, Component> column = addComponentColumn(valueProvider).setCaption(caption)
+				.setExpandRatio(expandRatio).setResizable(false).setSortable(false);
 		refreshActionColumn();
 		return column;
 	}
-	
+
 	public Column<T, CheckBox> addCheckboxColumn(ValueProvider<T, Boolean> valueProvider, String caption,
 			int expandRatio)
 	{
 		Column<T, CheckBox> column = addComponentColumn(t -> getCheckBox(valueProvider.apply(t)))
-				.setCaption(caption).setExpandRatio(expandRatio).setResizable(false).setSortable(false);
+				.setCaption(caption).setExpandRatio(expandRatio).setResizable(false).setSortable(true)
+				.setComparator((t1, t2) -> {
+					return valueProvider.apply(t1).compareTo(valueProvider.apply(t2));
+				});
 		refreshActionColumn();
 		return column;
 	}
@@ -196,13 +199,13 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public Column<T, Component> addShowDetailsColumn(DetailsGenerator<T> generator)
 	{
 		setDetailsGenerator(generator);
-		Column<T, Component> showDetailsColumn = addComponentColumn(t -> getShowHideDetailsButton(t)); 
+		Column<T, Component> showDetailsColumn = addComponentColumn(t -> getShowHideDetailsButton(t));
 		showDetailsColumn.setResizable(false);
 		showDetailsColumn.setExpandRatio(0);
 		showDetailsColumn.setSortable(false);
 		return showDetailsColumn;
 	}
-	
+
 	public void addActionHandler(SingleActionHandler<T> actionHandler)
 	{
 		actionHandlers.add(actionHandler);
@@ -216,27 +219,30 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			setDetailsVisible(e.getItem(), !isDetailsVisible(e.getItem()));
 		});
 	}
-	
+
 	private HorizontalLayout getShowHideDetailsButton(T t)
 	{
 		boolean isDetailsVisiable = isDetailsVisible(t);
 		Button showHide = new Button();
-		showHide.setIcon(isDetailsVisible(t) ? Images.upArrow.getResource() : Images.downArrow.getResource());
+		showHide.setIcon(isDetailsVisiable ? Images.upArrow.getResource() : Images.downArrow.getResource());
+		showHide.setDescription(isDetailsVisiable ? msg.getMessage("GridWithActionColumn.hideDetails")
+				: msg.getMessage("GridWithActionColumn.showDetails"));
+
 		showHide.setStyleName(Styles.vButtonSmall.toString());
 		showHide.addClickListener(e -> {
-			
+
 			setDetailsVisible(t, !isDetailsVisiable);
 		});
-		
+
 		HorizontalLayout wrapper = new HorizontalLayout();
 		wrapper.addComponent(showHide);
 		wrapper.setMargin(false);
 		wrapper.setSpacing(false);
 		wrapper.setWidth(100, Unit.PERCENTAGE);
-		
+
 		return wrapper;
 	}
-	
+
 	public void refreshActionColumn()
 	{
 		if (actionColumn != null)
@@ -251,9 +257,9 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		actionColumn.setSortable(false);
 
 	}
-	
+
 	public void addHamburgerActions(List<SingleActionHandler<T>> handlers)
-	{	
+	{
 		handlers.forEach(h -> this.hamburgerActionHandlers.add(h));
 		refreshActionColumn();
 	}
@@ -277,14 +283,15 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			actions.setComponentAlignment(actionButton, Alignment.TOP_LEFT);
 		}
 		if (hamburgerActionHandlers != null && !hamburgerActionHandlers.isEmpty())
-		{	HamburgerMenu<T> menu = new HamburgerMenu<T>();
+		{
+			HamburgerMenu<T> menu = new HamburgerMenu<T>();
 			menu.setTarget(target);
 			menu.addActionHandlers(hamburgerActionHandlers);
 			menu.addStyleName(SidebarStyles.sidebar.toString());
 			actions.addComponent(menu);
 			actions.setComponentAlignment(menu, Alignment.TOP_LEFT);
 		}
-		
+
 		return actions;
 	}
 
@@ -293,7 +300,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	{
 		dataProvider.addFilter(filter);
 	}
-	
+
 	@Override
 	public void clearFilters()
 	{

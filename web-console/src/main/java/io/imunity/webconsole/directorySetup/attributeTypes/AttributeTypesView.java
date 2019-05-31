@@ -86,19 +86,8 @@ class AttributeTypesView extends CustomComponent implements UnityView
 						StandardButtonsHelper.build4AddAction(msg, e -> NavigationHelper
 								.goToView(NewAttributeTypeView.VIEW_NAME)));
 
-		attrTypesGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-
-		attrTypesGrid.addShowDetailsColumn(a ->
-		{
-			I18nLabel desc = new I18nLabel(msg);
-			desc.setCaption(msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
-			desc.setValue(a.attributeType.getDescription());
-			FormLayout wrapper = new FormLayout(desc);
-			desc.setStyleName(Styles.wordWrap.toString());
-			wrapper.setWidth(95, Unit.PERCENTAGE);
-			return wrapper;
-		});
-		
+		attrTypesGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false, true);
+		attrTypesGrid.addShowDetailsColumn(a -> getDetailsComponent(a));
 		attrTypesGrid.addComponentColumn(at -> {
 
 			if (at.isEditable())
@@ -109,35 +98,35 @@ class AttributeTypesView extends CustomComponent implements UnityView
 			{
 				return new Label(at.attributeType.getName());
 			}
-		}, msg.getMessage("AttributeTypesView.nameCaption"), 5);
+		}, msg.getMessage("AttributeTypesView.nameCaption"), 10).setId("name").setSortable(true).setComparator((a1, a2) -> {
+			return a1.attributeType.getName().compareTo(a2.attributeType.getName());
+		});
 
-		attrTypesGrid.addColumn(at -> at.getDisplayedName(),
+		attrTypesGrid.addSortableColumn(at -> at.getDisplayedName(),
 				msg.getMessage("AttributeTypesView.displayedNameCaption"), 10);
-		attrTypesGrid.addColumn(at -> at.attributeType.getValueSyntax(),
+		attrTypesGrid.addSortableColumn(at -> at.attributeType.getValueSyntax(),
 				msg.getMessage("AttributeTypesView.typeCaption"), 10);
 
-		attrTypesGrid.addCheckboxColumn(at ->at.attributeType.isSelfModificable(),
+		attrTypesGrid.addCheckboxColumn(at -> at.attributeType.isSelfModificable(),
 				msg.getMessage("AttributeTypesView.selfModifiableCaption"), 10);
 
-		attrTypesGrid.addColumn(at -> at.getBoundsDesc(),
-				msg.getMessage("AttributeTypesView.cardinalityCaption"), 10);
+		attrTypesGrid.addSortableColumn(at -> at.getBoundsDesc(),
+				msg.getMessage("AttributeTypesView.cardinalityCaption"), 10).setSortable(true);
 
 		attrTypesGrid.addCheckboxColumn(at -> at.attributeType.isUniqueValues(),
-				msg.getMessage("AttributeTypesView.uniqueValuesCaption"), 10);
+				msg.getMessage("AttributeTypesView.uniqueValuesCaption"), 10).setSortable(true);
 
 		attrTypesGrid.addHamburgerActions(getHamburgerActionsHandlers());
 		attrTypesGrid.setMultiSelect(true);
-	
-		
-		
-		
-		attrTypesGrid.setItems(getAttributeTypes());
 
+		attrTypesGrid.setItems(getAttributeTypes());
+		attrTypesGrid.sort("name");
+		
 		HamburgerMenu<AttributeTypeEntry> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(getHamburgerCommonHandlers());
-		attrTypesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
-
+		attrTypesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());		
+		
 		TextField search = FilterableGridHelper.generateSearchField(attrTypesGrid, msg);
 
 		VerticalLayout gridWrapper = new VerticalLayout();
@@ -158,12 +147,23 @@ class AttributeTypesView extends CustomComponent implements UnityView
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
 		main.addComponent(gridWrapper);
-		main.setWidth(100, Unit.PERCENTAGE);
+		main.setSizeFull();		
 		main.setMargin(false);
-
 		setCompositionRoot(main);
 	}
+	
+	private FormLayout getDetailsComponent(AttributeTypeEntry a)
+	{
+		I18nLabel desc = new I18nLabel(msg);
+		desc.setCaption(msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
+		desc.setValue(a.attributeType.getDescription());
+		FormLayout wrapper = new FormLayout(desc);
+		desc.setStyleName(Styles.wordWrap.toString());
+		wrapper.setWidth(95, Unit.PERCENTAGE);
+		return wrapper;
+	}
 
+	
 	private Collection<AttributeTypeEntry> getAttributeTypes()
 	{
 		try

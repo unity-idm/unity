@@ -72,27 +72,22 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewAttributeClassView.VIEW_NAME)));
 
 		attributeClassGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
-		attributeClassGrid.addComponentColumn(
-				a -> StandardButtonsHelper.buildLinkButton(a.getName(), e -> gotoEdit(a)),
-				msg.getMessage("AttributeClassesView.nameCaption"), 10);
-		attributeClassGrid.addColumn(a -> String.join(", ", a.getAllowed()),
+		attributeClassGrid
+				.addComponentColumn(
+						a -> StandardButtonsHelper.buildLinkButton(a.getName(),
+								e -> gotoEdit(a)),
+						msg.getMessage("AttributeClassesView.nameCaption"), 10)
+				.setSortable(true).setComparator((a1, a2) -> {
+					return a1.getName().compareTo(a2.getName());
+				}).setId("name");
+		;
+		attributeClassGrid.addSortableColumn(a -> String.join(", ", a.getAllowed()),
 				msg.getMessage("AttributeClassesView.allowedCaption"), 10);
-		attributeClassGrid.addColumn(a -> String.join(", ", a.getMandatory()),
+		attributeClassGrid.addSortableColumn(a -> String.join(", ", a.getMandatory()),
 				msg.getMessage("AttributeClassesView.mandatoryCaption"), 10);
-	
-		attributeClassGrid.addByClickDetailsComponent(a -> {
-			{
-				Label desc = new Label();
-				desc.setCaption(msg.getMessage("AttributeClassesView.descriptionLabelCaption"));
-				desc.setValue(a.getDescription());
-				FormLayout wrapper = new FormLayout(desc);
-				desc.setStyleName(Styles.wordWrap.toString());
-				wrapper.setWidth(95, Unit.PERCENTAGE);
-				return wrapper;
-			}
-		});
-		
-		
+
+		attributeClassGrid.addByClickDetailsComponent(a -> getDetailsComponent(a));
+
 		attributeClassGrid.setSizeFull();
 		attributeClassGrid.setItems(getAttributeClasses());
 
@@ -103,6 +98,17 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 		main.setMargin(false);
 
 		setCompositionRoot(main);
+	}
+
+	private FormLayout getDetailsComponent(AttributesClass a)
+	{
+		Label desc = new Label();
+		desc.setCaption(msg.getMessage("AttributeClassesView.descriptionLabelCaption"));
+		desc.setValue(a.getDescription());
+		FormLayout wrapper = new FormLayout(desc);
+		desc.setStyleName(Styles.wordWrap.toString());
+		wrapper.setWidth(95, Unit.PERCENTAGE);
+		return wrapper;
 	}
 
 	private List<SingleActionHandler<AttributesClass>> getRowActionsHandlers()

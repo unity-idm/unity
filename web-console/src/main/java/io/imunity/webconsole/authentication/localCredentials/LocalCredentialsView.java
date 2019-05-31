@@ -78,10 +78,14 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 				gotoEdit(c);
 			else
 				gotoShowDetails(c);
-		}), msg.getMessage("LocalCredentialsView.nameCaption"), 10);
+		}), msg.getMessage("LocalCredentialsView.nameCaption"), 10).setSortable(true)
+				.setComparator((c1, c2) -> {
+					return c1.getName().compareTo(c2.getName());
+				}).setId("name");
+		;
 
 		credList.setItems(getCredentials());
-
+		credList.sort("name");
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
 		main.addComponent(credList);
