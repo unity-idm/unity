@@ -28,6 +28,7 @@ import pl.edu.icm.unity.exceptions.EngineException;
 import pl.edu.icm.unity.oauth.as.OAuthASProperties;
 import pl.edu.icm.unity.oauth.as.OAuthProcessor;
 import pl.edu.icm.unity.oauth.as.OAuthToken;
+import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
 import pl.edu.icm.unity.oauth.as.token.AccessTokenResource.OAuthErrorException;
 import pl.edu.icm.unity.store.api.tx.TransactionalRunner;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -69,7 +70,7 @@ class AuthzCodeHandler
 
 		try
 		{
-			verifyPKCE(parsedAuthzCodeToken, codeVerifier);
+			verifyPKCE(parsedAuthzCodeToken.getPkcsInfo(), parsedAuthzCodeToken.getClientType(), codeVerifier);
 		} catch (OAuthErrorException e)
 		{
 			return e.response;
@@ -107,10 +108,9 @@ class AuthzCodeHandler
 	}
 
 	
-	private void verifyPKCE(OAuthToken parsedAuthzCodeToken, String codeVerifier) throws OAuthErrorException
+	private void verifyPKCE(PKCSInfo parsedAuthzCodeToken, ClientType clientType, String codeVerifier) throws OAuthErrorException
 	{
-		if (parsedAuthzCodeToken.getCodeChallenge() == null && 
-				parsedAuthzCodeToken.getClientType() == ClientType.PUBLIC)
+		if (parsedAuthzCodeToken.getCodeChallenge() == null &&	clientType == ClientType.PUBLIC)
 			throw new OAuthErrorException(
 					BaseOAuthResource.makeError(OAuth2Error.INVALID_GRANT, "missing mandatory PKCE"));
 		if (parsedAuthzCodeToken.getCodeChallenge() != null && codeVerifier == null)

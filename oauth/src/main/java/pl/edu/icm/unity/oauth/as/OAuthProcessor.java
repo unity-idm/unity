@@ -33,10 +33,8 @@ import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.engine.api.translation.out.TranslationResult;
 import pl.edu.icm.unity.exceptions.EngineException;
-import pl.edu.icm.unity.exceptions.IllegalIdentityValueException;
-import pl.edu.icm.unity.exceptions.IllegalTypeException;
-import pl.edu.icm.unity.exceptions.WrongArgumentException;
 import pl.edu.icm.unity.oauth.as.OAuthSystemAttributesProvider.GrantFlow;
+import pl.edu.icm.unity.oauth.as.OAuthToken.PKCSInfo;
 import pl.edu.icm.unity.types.basic.Attribute;
 import pl.edu.icm.unity.types.basic.DynamicAttribute;
 import pl.edu.icm.unity.types.basic.EntityParam;
@@ -54,9 +52,6 @@ public class OAuthProcessor
 	
 	/**
 	 * Returns only requested attributes for which we have mapping.
-	 * @param userInfo
-	 * @param ctx
-	 * @return
 	 */
 	public Set<DynamicAttribute> filterAttributes(TranslationResult userInfo, 
 			Set<String> requestedAttributes)
@@ -69,17 +64,6 @@ public class OAuthProcessor
 	 * Returns Authorization response to be returned and records (if needed) 
 	 * the internal state token, which is needed to associate further use of the code and/or id tokens with
 	 * the authorization that currently takes place.
-	 * @param attributes
-	 * @param identity
-	 * @param ctx
-	 * @param tokensMan
-	 * @return
-	 * @throws JsonProcessingException 
-	 * @throws JOSEException 
-	 * @throws ParseException 
-	 * @throws IllegalTypeException 
-	 * @throws IllegalIdentityValueException 
-	 * @throws WrongArgumentException 
 	 */
 	public AuthorizationSuccessResponse prepareAuthzResponseAndRecordInternalState(Collection<DynamicAttribute> attributes, 
 			IdentityParam identity,	OAuthAuthzContext ctx, TokensManagement tokensMan) 
@@ -98,11 +82,14 @@ public class OAuthProcessor
 		internalToken.setTokenValidity(config.getAccessTokenValidity()); 
 		internalToken.setAudience(ctx.getClientUsername());
 		internalToken.setIssuerUri(config.getIssuerName());
-		internalToken.setCodeChallenge(ctx.getRequest().getCodeChallenge() == null ? 
-				null : ctx.getRequest().getCodeChallenge().getValue());
-		internalToken.setCodeChallengeMethod(ctx.getRequest().getCodeChallengeMethod() == null ? 
-				null : ctx.getRequest().getCodeChallengeMethod().getValue());
 		internalToken.setClientType(ctx.getClientType());
+
+		String codeChallenge = ctx.getRequest().getCodeChallenge() == null ? 
+				null : ctx.getRequest().getCodeChallenge().getValue();
+		String codeChallengeMethod = ctx.getRequest().getCodeChallengeMethod() == null ? 
+				null : ctx.getRequest().getCodeChallengeMethod().getValue();
+		PKCSInfo pkcsInfo = new PKCSInfo(codeChallenge, codeChallengeMethod);
+		internalToken.setPkcsInfo(pkcsInfo);
 	
 		Date now = new Date();
 		
@@ -115,7 +102,8 @@ public class OAuthProcessor
 
 		if (ctx.isOpenIdMode())
 		{
-			IDTokenClaimsSet idToken = prepareIdInfoClaimSet(identity.getValue(), internalToken.getAudience(), ctx, userInfo, now);
+			IDTokenClaimsSet idToken = prepareIdInfoClaimSet(identity.getValue(), 
+					internalToken.getAudience(), ctx, userInfo, now);
 			idTokenSigned = config.getTokenSigner().sign(idToken);	
 			internalToken.setOpenidToken(idTokenSigned.serialize());
 			//we record OpenID token in internal state always in open id mode. However it may happen
@@ -221,10 +209,6 @@ public class OAuthProcessor
 	 * Creates an OIDC ID Token. The token includes regular attributes if and only if the access token is 
 	 * not issued in the flow. This is the case if the only response type is 'id_token'. Section 5.4 of 
 	 * OIDC specification.
-	 *      
-	 * @param userIdentity
-	 * @param context
-	 * @param regularAttributes
 	 */
 	private IDTokenClaimsSet prepareIdInfoClaimSet(String userIdentity, String audience, OAuthAuthzContext context, 
 			ClaimsSet regularAttributes, Date now)
@@ -265,8 +249,6 @@ public class OAuthProcessor
 	}
 	
 	/**
-	 * 
-	 * @param ctx
 	 * @return a properly set up access token. It contains the effective scopes if those
 	 * are different from requested.  
 	 */
@@ -277,8 +259,6 @@ public class OAuthProcessor
 	}
 	
 	/**
-	 * 
-	 * @param token
 	 * @return a properly set up access token. It contains the effective scopes if those
 	 * are different from requested.  
 	 */
