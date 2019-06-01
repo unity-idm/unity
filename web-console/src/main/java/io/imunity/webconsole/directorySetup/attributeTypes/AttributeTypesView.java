@@ -86,7 +86,7 @@ class AttributeTypesView extends CustomComponent implements UnityView
 						StandardButtonsHelper.build4AddAction(msg, e -> NavigationHelper
 								.goToView(NewAttributeTypeView.VIEW_NAME)));
 
-		attrTypesGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false, true);
+		attrTypesGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false, false);
 		attrTypesGrid.addShowDetailsColumn(a -> getDetailsComponent(a));
 		attrTypesGrid.addComponentColumn(at -> {
 
@@ -146,10 +146,13 @@ class AttributeTypesView extends CustomComponent implements UnityView
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
+		main.setExpandRatio(buttonsBar, 0);
 		main.addComponent(gridWrapper);
+		main.setExpandRatio(gridWrapper, 20);
 		main.setSizeFull();		
 		main.setMargin(false);
 		setCompositionRoot(main);
+		setSizeFull();
 	}
 	
 	private FormLayout getDetailsComponent(AttributeTypeEntry a)

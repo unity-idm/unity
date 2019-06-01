@@ -31,6 +31,7 @@ import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
  * Shows all authentication flows
+ * 
  * @author P.Piernik
  *
  */
@@ -38,7 +39,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 {
 	private AuthenticationFlowsController flowsMan;
 	private UnityMessageSource msg;
-	private GridWithActionColumn<AuthenticationFlowEntry> flowsList;
+	private GridWithActionColumn<AuthenticationFlowEntry> flowsGrid;
 
 	public AuthenticationFlowsComponent(UnityMessageSource msg, AuthenticationFlowsController flowsMan)
 	{
@@ -53,30 +54,28 @@ public class AuthenticationFlowsComponent extends CustomComponent
 				.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
 						e -> NavigationHelper.goToView(NewAuthenticationFlowView.VIEW_NAME)));
 
-	
-		flowsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-		flowsList.addComponentColumn(
+		flowsGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		flowsGrid.addShowDetailsColumn(f -> getDetailsComponent(f));
+		flowsGrid.addComponentColumn(
 				f -> StandardButtonsHelper.buildLinkButton(f.flow.getName(), e -> gotoEdit(f)),
 				msg.getMessage("AuthenticationFlowsComponent.nameCaption"), 10).setSortable(true)
 				.setComparator((f1, f2) -> {
 					return f1.flow.getName().compareTo(f2.flow.getName());
 				}).setId("name");
-		;
-		flowsList.addByClickDetailsComponent(flow -> getDetailsComponent(flow));
-		flowsList.setItems(getFlows());
-		flowsList.sort("name");
-		
+		flowsGrid.setItems(getFlows());
+		flowsGrid.sort("name");
+
 		VerticalLayout main = new VerticalLayout();
 		Label flowCaption = new Label(msg.getMessage("AuthenticationFlowsComponent.caption"));
 		flowCaption.setStyleName(Styles.sectionTitle.toString());
 		main.addComponent(flowCaption);
 		main.addComponent(buttonsBar);
-		main.addComponent(flowsList);
+		main.addComponent(flowsGrid);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 		setCompositionRoot(main);
 	}
-	
+
 	private FormLayout getDetailsComponent(AuthenticationFlowEntry flow)
 	{
 		Label endpoints = new Label();
@@ -125,7 +124,7 @@ public class AuthenticationFlowsComponent extends CustomComponent
 		try
 		{
 			flowsMan.removeFlow(flow.flow);
-			flowsList.removeElement(flow);
+			flowsGrid.removeElement(flow);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);

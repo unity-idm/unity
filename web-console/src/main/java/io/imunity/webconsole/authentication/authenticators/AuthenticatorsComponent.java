@@ -39,7 +39,7 @@ public class AuthenticatorsComponent extends CustomComponent
 {
 	private UnityMessageSource msg;
 	private AuthenticatorsController controller;
-	private GridWithActionColumn<AuthenticatorEntry> authenticatorsList;
+	private GridWithActionColumn<AuthenticatorEntry> authenticatorsGrid;
 
 	public AuthenticatorsComponent(UnityMessageSource msg, AuthenticatorsController controller)
 	{
@@ -53,8 +53,9 @@ public class AuthenticatorsComponent extends CustomComponent
 		HorizontalLayout buttonsBar = StandardButtonsHelper.buildTopButtonsBar(StandardButtonsHelper
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewAuthenticatorView.VIEW_NAME)));
 
-		authenticatorsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-		authenticatorsList
+		authenticatorsGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		authenticatorsGrid.addShowDetailsColumn(a -> getDetailsComponent(a));	
+		authenticatorsGrid
 				.addComponentColumn(
 						a -> StandardButtonsHelper.buildLinkButton(a.authenticator.id,
 								e -> gotoEdit(a)),
@@ -63,16 +64,15 @@ public class AuthenticatorsComponent extends CustomComponent
 					return a1.authenticator.id.compareTo(a2.authenticator.id);
 				}).setId("name");
 		;
-		authenticatorsList.addByClickDetailsComponent(authenticator -> getDetailsComponent(authenticator));
-		authenticatorsList.setItems(getAuthenticators());
-		authenticatorsList.sort("name");
+		authenticatorsGrid.setItems(getAuthenticators());
+		authenticatorsGrid.sort("name");
 
 		VerticalLayout main = new VerticalLayout();
 		Label authCaption = new Label(msg.getMessage("AuthenticatorsComponent.caption"));
 		authCaption.setStyleName(Styles.sectionTitle.toString());
 		main.addComponent(authCaption);
 		main.addComponent(buttonsBar);
-		main.addComponent(authenticatorsList);
+		main.addComponent(authenticatorsGrid);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 		setCompositionRoot(main);
@@ -126,7 +126,7 @@ public class AuthenticatorsComponent extends CustomComponent
 		try
 		{
 			controller.removeAuthenticator(a.authenticator);
-			authenticatorsList.removeElement(a);
+			authenticatorsGrid.removeElement(a);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);

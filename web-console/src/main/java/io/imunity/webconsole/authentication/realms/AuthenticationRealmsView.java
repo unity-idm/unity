@@ -53,7 +53,7 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 
 	private AuthenticationRealmsController realmsMan;
 	private UnityMessageSource msg;
-	private GridWithActionColumn<AuthenticationRealmEntry> realmsList;
+	private GridWithActionColumn<AuthenticationRealmEntry> realmsGrid;
 
 	@Autowired
 	public AuthenticationRealmsView(UnityMessageSource msg, AuthenticationRealmsController realmsMan)
@@ -70,38 +70,38 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 				.buildTopButtonsBar(StandardButtonsHelper.build4AddAction(msg,
 						e -> NavigationHelper.goToView(NewAuthenticationRealmView.VIEW_NAME)));
 
-		realmsList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
-		realmsList.addComponentColumn(
+		realmsGrid = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
+		realmsGrid.addShowDetailsColumn(r -> getDetailsComponent(r));	
+		realmsGrid.addComponentColumn(
 				r -> StandardButtonsHelper.buildLinkButton(r.realm.getName(), e -> gotoEdit(r)),
 				msg.getMessage("AuthenticationRealmsView.nameCaption"), 10).setSortable(true)
 				.setComparator((r1, r2) -> {
 					return r1.realm.getName().compareTo(r2.realm.getName());
 				}).setId("name");
-		;
-		realmsList.addByClickDetailsComponent(realm -> {
-			{
-				Label endpoints = new Label();
-				endpoints.setCaption(msg.getMessage("AuthenticationRealmsView.endpointsCaption"));
-				endpoints.setValue(String.join(", ", realm.endpoints));
-				FormLayout wrapper = new FormLayout(endpoints);
-				endpoints.setStyleName(Styles.wordWrap.toString());
-				wrapper.setWidth(95, Unit.PERCENTAGE);
-				return wrapper;
-			}
-		});
-
-		realmsList.setItems(getRealms());
-		realmsList.sort("name");
+		
+		realmsGrid.setItems(getRealms());
+		realmsGrid.sort("name");
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
-		main.addComponent(realmsList);
+		main.addComponent(realmsGrid);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 
 		setCompositionRoot(main);
 	}
 
+	private FormLayout getDetailsComponent(AuthenticationRealmEntry realm)
+	{
+		Label endpoints = new Label();
+		endpoints.setCaption(msg.getMessage("AuthenticationRealmsView.endpointsCaption"));
+		endpoints.setValue(String.join(", ", realm.endpoints));
+		FormLayout wrapper = new FormLayout(endpoints);
+		endpoints.setStyleName(Styles.wordWrap.toString());
+		wrapper.setWidth(95, Unit.PERCENTAGE);
+		return wrapper;
+	}
+	
 	private List<SingleActionHandler<AuthenticationRealmEntry>> getActionsHandlers()
 	{
 		SingleActionHandler<AuthenticationRealmEntry> edit = SingleActionHandler
@@ -139,7 +139,7 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 		try
 		{
 			realmsMan.removeRealm(realm.realm);
-			realmsList.removeElement(realm);
+			realmsGrid.removeElement(realm);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);

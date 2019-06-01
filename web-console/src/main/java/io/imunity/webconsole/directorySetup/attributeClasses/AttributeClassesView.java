@@ -72,6 +72,8 @@ public class AttributeClassesView extends CustomComponent implements UnityView
 				.build4AddAction(msg, e -> NavigationHelper.goToView(NewAttributeClassView.VIEW_NAME)));
 
 		attributeClassGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
+		attributeClassGrid.addShowDetailsColumn(a -> getDetailsComponent(a));	
+		
 		attributeClassGrid
 				.addComponentColumn(
 						a -> StandardButtonsHelper.buildLinkButton(a.getName(),

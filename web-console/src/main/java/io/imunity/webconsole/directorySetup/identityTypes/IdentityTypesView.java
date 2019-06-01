@@ -64,8 +64,8 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-
 		identityTypesGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
+		identityTypesGrid.addShowDetailsColumn(i -> getDetailsComponent(i));
 		identityTypesGrid
 				.addComponentColumn(
 						i -> StandardButtonsHelper.buildLinkButton(i.type.getName(),
@@ -78,8 +78,6 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 				msg.getMessage("IdentityTypesView.automaticCaption"), 10);
 		identityTypesGrid.addCheckboxColumn(i -> i.type.isSelfModificable(),
 				msg.getMessage("IdentityTypesView.modifiableByUserCaption"), 10);
-		identityTypesGrid.addByClickDetailsComponent(i -> getDetailsComponent(i));
-
 		identityTypesGrid.setSizeFull();
 		identityTypesGrid.setItems(getIdentityTypes());
 		identityTypesGrid.sort("name");
