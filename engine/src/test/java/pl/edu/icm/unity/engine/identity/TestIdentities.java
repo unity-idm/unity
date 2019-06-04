@@ -8,6 +8,7 @@ import static com.googlecode.catchexception.CatchException.catchException;
 import static com.googlecode.catchexception.CatchException.caughtException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.isA;
 import static org.junit.Assert.assertEquals;
@@ -26,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.google.common.collect.Sets;
 
 import pl.edu.icm.unity.engine.DBIntegrationTestBase;
+import pl.edu.icm.unity.engine.audit.AuditManager;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.exceptions.AuthorizationException;
 import pl.edu.icm.unity.exceptions.IllegalAttributeTypeException;
@@ -60,6 +64,9 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.audit.AuditEvent;
+import pl.edu.icm.unity.types.basic.audit.EventAction;
+import pl.edu.icm.unity.types.basic.audit.EventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
 
 public class TestIdentities extends DBIntegrationTestBase
@@ -69,6 +76,8 @@ public class TestIdentities extends DBIntegrationTestBase
 	private EntitiesScheduledUpdater entitiesUpdater;
 	private EntityParam entityParam;
 
+	@Autowired
+	private AuditManager auditManager;
 	
 	@Test
 	public void shouldUpdateIdentityConfirmation() throws Exception
@@ -877,6 +886,37 @@ public class TestIdentities extends DBIntegrationTestBase
 		
 		contents = groupsMan.getContents("/", GroupContents.MEMBERS);
 		assertEquals(1, contents.getMembers().size());
+
+		// Verify AuditEvents
+		// Wait for all AusitEvent logs
+		await().atMost(10, TimeUnit.SECONDS).until(() -> (auditManager.getAllEvents().size() == 6));
+		List<AuditEvent> allEvents = auditManager.getAllEvents();
+		// 3 ENTITY logs expected
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == EventType.ENTITY && log.getAction() == EventAction.ADD
+						&& log.getSubject().getEntityId().equals(id.getEntityId()))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == EventType.ENTITY && log.getAction() == EventAction.UPDATE
+						&& log.getSubject().getEntityId().equals(id.getEntityId()) && log.getDetails().toString().equals("{\"state\":\"disabled\"}"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == EventType.ENTITY && log.getAction() == EventAction.REMOVE
+						&& log.getSubject().getEntityId().equals(id.getEntityId()))
+				.count());
+		// 3 IDENTITY logs
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == EventType.IDENTITY && log.getAction() == EventAction.ADD
+						&& log.getName().equals("x500Name:cn=golbi"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == EventType.IDENTITY && log.getAction() == EventAction.ADD
+						&& log.getName().equals("x500Name:cn=golbi2"))
+				.count());
+		assertEquals(1, allEvents.stream()
+				.filter(log -> log.getType() == EventType.IDENTITY && log.getAction() == EventAction.REMOVE
+						&& log.getName().equals("x500Name:cn=golbi"))
+				.count());
 	}
 	
 	@Test

@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.types.basic.audit;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import pl.edu.icm.unity.types.AbstractEvent;
 
 import java.util.Date;
 import java.util.HashSet;
@@ -33,7 +34,7 @@ public class AuditEvent
 
 	private AuditEvent()
 	{
-		this.tags = new HashSet<String>();
+		this.tags = new HashSet<>();
 	}
 
 	public String getName()

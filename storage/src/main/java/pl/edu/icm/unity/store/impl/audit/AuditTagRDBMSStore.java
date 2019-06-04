@@ -50,7 +50,7 @@ class AuditTagRDBMSStore
 	{
 		Set<String> missing = new HashSet<>(tagList);
 		missing.removeAll(knownTags);
-		if (missing.size() == 0) {
+		if (missing.isEmpty()) {
 			return;
 		}
 		AuditEventMapper mapper = SQLTransactionTL.getSql().getMapper(AuditEventMapper.class);

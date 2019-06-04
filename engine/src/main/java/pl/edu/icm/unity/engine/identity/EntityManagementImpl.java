@@ -4,25 +4,12 @@
  */
 package pl.edu.icm.unity.engine.identity;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.TreeMap;
-
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
-
-import com.google.common.collect.Sets;
-
 import pl.edu.icm.unity.base.msgtemplates.UserNotificationTemplateDef;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.EntityManagement;
@@ -35,8 +22,9 @@ import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
 import pl.edu.icm.unity.engine.api.notification.NotificationProducer;
 import pl.edu.icm.unity.engine.attribute.AttributeClassUtil;
 import pl.edu.icm.unity.engine.attribute.AttributesHelper;
-import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
+import pl.edu.icm.unity.engine.audit.AuditManager;
 import pl.edu.icm.unity.engine.authz.AuthzCapability;
+import pl.edu.icm.unity.engine.authz.InternalAuthorizationManager;
 import pl.edu.icm.unity.engine.credential.CredentialAttributeTypeProvider;
 import pl.edu.icm.unity.engine.credential.EntityCredentialsHelper;
 import pl.edu.icm.unity.engine.credential.SystemAllCredentialRequirements;
@@ -74,7 +62,24 @@ import pl.edu.icm.unity.types.basic.Identity;
 import pl.edu.icm.unity.types.basic.IdentityParam;
 import pl.edu.icm.unity.types.basic.IdentityTaV;
 import pl.edu.icm.unity.types.basic.IdentityType;
+import pl.edu.icm.unity.types.basic.audit.AuditEntity;
+import pl.edu.icm.unity.types.basic.audit.EventAction;
+import pl.edu.icm.unity.types.basic.audit.EventType;
 import pl.edu.icm.unity.types.confirmation.ConfirmationInfo;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
+
+import static java.lang.String.join;
 
 /**
  * Implementation of identities management. Responsible for top level transaction handling,
@@ -107,7 +112,8 @@ public class EntityManagementImpl implements EntityManagement
 	private TransactionalRunner tx;
 	private UnityServerConfiguration cfg;
 	private NotificationProducer notificationProducer;
-	
+	private AuditManager auditManager;
+
 	@Autowired
 	public EntityManagementImpl(IdentityTypeDAO idTypeDAO, IdentityTypeHelper idTypeHelper,
 			IdentityDAO idDAO, EntityDAO entityDAO, GroupDAO groupDAO,
@@ -119,7 +125,8 @@ public class EntityManagementImpl implements EntityManagement
 			IdentityTypesRegistry idTypesRegistry,
 			EmailConfirmationManager confirmationManager, AttributeClassUtil acUtil,
 			TransactionalRunner tx,
-			UnityServerConfiguration cfg, NotificationProducer notificationProducer)
+			UnityServerConfiguration cfg, NotificationProducer notificationProducer,
+			AuditManager auditManager)
 	{
 		this.idTypeDAO = idTypeDAO;
 		this.idTypeHelper = idTypeHelper;
@@ -141,6 +148,7 @@ public class EntityManagementImpl implements EntityManagement
 		this.tx = tx;
 		this.cfg = cfg;
 		this.notificationProducer = notificationProducer;
+		this.auditManager = auditManager;
 	}
 
 	@Override
@@ -168,7 +176,24 @@ public class EntityManagementImpl implements EntityManagement
 		Identity ret = tx.runInTransactionRetThrowing(() -> {
 			return identityHelper.addEntity(toAdd, credReqId, initialState, 
 					extractAttributes, attributes, true);
-		}); 
+		});
+
+		auditManager.fireEvent(
+					EventType.ENTITY,
+					EventAction.ADD,
+					Long.toString(ret.getEntityId()),
+					ret.getEntityId(),
+					null,
+					"Users"
+			);
+		auditManager.fireEvent(
+				EventType.IDENTITY,
+				EventAction.ADD,
+				join(":", ret.getTypeId(), ret.getName()),
+				ret.getEntityId(),
+				null,
+				"Users"
+		);
 		return ret;
 	}
 	
@@ -223,6 +248,14 @@ public class EntityManagementImpl implements EntityManagement
 					ret.identity.getEntityId()), ret.identity, false);
 			});
 		}
+		auditManager.fireEvent(
+				EventType.IDENTITY,
+				EventAction.ADD,
+				join(":", ret.identity.getTypeId(), ret.identity.getName()),
+				ret.identity.getEntityId(),
+				null,
+				"Users"
+		);
 		return ret.identity;
 	}
 
@@ -307,30 +340,52 @@ public class EntityManagementImpl implements EntityManagement
 		String cmpValue = typeDefinition.getComparableValue(toRemove.getValue(), toRemove.getRealm(), 
 				toRemove.getTarget()); 
 		idDAO.delete(StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue));
+		auditManager.fireEvent(
+				EventType.IDENTITY,
+				EventAction.REMOVE,
+				join(":", toRemove.getTypeId(), identities.stream().filter(id -> id.getTypeId() == toRemove.getTypeId()).findFirst().get().getName()),
+				auditManager.createAuditEntity(entityId),
+				null,
+				"Users"
+		);
 	}
 
 	@Override
-	@Transactional
 	public void updateIdentity(IdentityTaV original, IdentityParam updated) throws EngineException
+	{
+		Identity identity = updateIdentityTransactional(original, updated);
+		auditManager.fireEvent(
+				EventType.IDENTITY,
+				EventAction.UPDATE,
+				join(":", identity.getTypeId(), identity.getName()),
+				identity.getEntityId(),
+				null,
+				"Users"
+		);
+	}
+
+	@Transactional
+	private Identity updateIdentityTransactional(IdentityTaV original, IdentityParam updated) throws EngineException
 	{
 		if (!Objects.equals(updated.getTypeId(), original.getTypeId()))
 			throw new IllegalArgumentException("Identity type can not be changed");
 		authz.checkAuthorization(AuthzCapability.identityModify);
-		
+
 		IdentityType identityType = idTypeDAO.get(original.getTypeId());
 		IdentityTypeDefinition typeDefinition = idTypeHelper.getTypeDefinition(identityType);
-		String cmpValue = typeDefinition.getComparableValue(original.getValue(), original.getRealm(), 
+		String cmpValue = typeDefinition.getComparableValue(original.getValue(), original.getRealm(),
 				original.getTarget());
-		String updatedCmpValue = typeDefinition.getComparableValue(updated.getValue(), updated.getRealm(), 
+		String updatedCmpValue = typeDefinition.getComparableValue(updated.getValue(), updated.getRealm(),
 				updated.getTarget());
 		if (!Objects.equals(cmpValue, updatedCmpValue))
 			throw new IllegalArgumentException("Identity change can not effect in comparable "
 					+ "value change of existing identity");
-		
+
 		String inDBKey = StoredIdentity.toInDBIdentityValue(identityType.getName(), cmpValue);
 		long entityId = idResolver.getEntityId(new EntityParam(original));
 		Identity updatedFull = idTypeHelper.upcastIdentityParam(updated, entityId);
 		idDAO.updateByName(inDBKey, new StoredIdentity(updatedFull));
+		return updatedFull;
 	}
 
 	@Override
@@ -550,16 +605,32 @@ public class EntityManagementImpl implements EntityManagement
 		resetIdentityForEntity(entityId, typeIdToReset, realm, target);
 	}
 
-	
-	@Transactional
 	@Override
 	public void removeEntity(EntityParam toRemove) throws EngineException
 	{
-		toRemove.validateInitialization();
-		long entityId = idResolver.getEntityId(toRemove);
-		authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
-		sendNotification(entityId, cfg.getValue(UnityServerConfiguration.ACCOUNT_REMOVED_NOTIFICATION));
-		entityDAO.deleteByKey(entityId);
+		long entityId = tx.runInTransactionRetThrowing(() -> idResolver.getEntityId(toRemove));
+		AuditEntity auditEntity = auditManager.createAuditEntity(entityId);
+		removeEntityTransactional(toRemove);
+		auditManager.fireEvent(
+				EventType.ENTITY,
+				EventAction.REMOVE,
+				Long.toString(entityId),
+				auditEntity,
+				null,
+				"Users"
+		);
+	}
+
+	// @Transactional - why this is not working?
+	private void removeEntityTransactional(EntityParam toRemove) throws EngineException
+	{
+		tx.runInTransactionThrowing(() -> {
+			toRemove.validateInitialization();
+			long entityId = idResolver.getEntityId(toRemove);
+			authz.checkAuthorization(authz.isSelf(entityId), AuthzCapability.identityModify);
+			sendNotification(entityId, cfg.getValue(UnityServerConfiguration.ACCOUNT_REMOVED_NOTIFICATION));
+			entityDAO.deleteByKey(entityId);
+		});
 	}
 	
 	@Override
@@ -590,6 +661,14 @@ public class EntityManagementImpl implements EntityManagement
 		
 		current.setEntityState(status);
 		entityDAO.updateByKey(entityId, current);
+
+		auditManager.fireEvent(
+					EventType.ENTITY,
+					EventAction.UPDATE,
+					Long.toString(current.getId()),
+					entityId,
+					ImmutableMap.of("state", status.toString()),
+					"Users");
 		sendNotification(entityId, notificationToSend);
 	}
 
@@ -879,6 +958,14 @@ public class EntityManagementImpl implements EntityManagement
 			}
 			id.setEntityId(targetId);
 			idDAO.update(new StoredIdentity(id));
+			auditManager.fireEvent(
+					EventType.IDENTITY,
+					EventAction.UPDATE,
+					join(":", id.getTypeId(), id.getName()),
+					id.getEntityId(),
+					null,
+					"Users"
+			);
 		}
 	}
 	
@@ -907,6 +994,14 @@ public class EntityManagementImpl implements EntityManagement
 				if (target != null && !target.equals(id.getTarget()))
 					continue;
 				idDAO.delete(sid.getName());
+				auditManager.fireEvent(
+						EventType.IDENTITY,
+						EventAction.REMOVE,
+						join(":", id.getTypeId(), id.getName()),
+						auditManager.createAuditEntity(id.getEntityId()),
+						null,
+						"Users"
+				);
 			}
 		}
 	}

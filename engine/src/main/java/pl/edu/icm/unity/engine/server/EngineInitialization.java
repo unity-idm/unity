@@ -65,6 +65,7 @@ import pl.edu.icm.unity.engine.api.server.ServerInitializer;
 import pl.edu.icm.unity.engine.api.utils.ExecutorsService;
 import pl.edu.icm.unity.engine.api.wellknown.PublicWellKnownURLServletProvider;
 import pl.edu.icm.unity.engine.attribute.AttributeTypeHelper;
+import pl.edu.icm.unity.engine.audit.AuditEventListener;
 import pl.edu.icm.unity.engine.authz.InternalAuthorizationManagerImpl;
 import pl.edu.icm.unity.engine.authz.RoleAttributeTypeProvider;
 import pl.edu.icm.unity.engine.bulkops.BulkOperationsUpdater;
@@ -214,6 +215,8 @@ public class EngineInitialization extends LifecycleBase
 	private EventProcessor eventsProcessor;
 	@Autowired
 	private ScriptTriggeringEventListener scriptEventsConsumer;
+	@Autowired
+	private AuditEventListener auditEventListener;
 	@Autowired(required = false)
 	private PublicWellKnownURLServletProvider publicWellKnownURLServlet;
 	@Autowired
@@ -229,7 +232,7 @@ public class EngineInitialization extends LifecycleBase
 	@Autowired
 	@Qualifier("insecure")
 	private AuthenticationFlowManagement authnFlowManagement;
-	
+
 	@Autowired
 	@Qualifier("insecure")
 	private PKIManagement pkiManagement;
@@ -388,6 +391,7 @@ public class EngineInitialization extends LifecycleBase
 	private void installEventListeners()
 	{
 		eventsProcessor.addEventListener(scriptEventsConsumer);
+		eventsProcessor.addEventListener(auditEventListener);
 	}
 
 	private void deployPublicWellKnownURLServlet()

@@ -11,13 +11,14 @@ import com.fasterxml.jackson.annotation.JsonValue;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import pl.edu.icm.unity.Constants;
+import pl.edu.icm.unity.types.AbstractEvent;
 
 /**
  * Describes execution of operation with its context. Suitable for auditing, 
  * time measurement, logging or sending notifications. 
  * @author K. Benedyczak
  */
-public class Event
+public class Event extends AbstractEvent
 {
 	private String trigger;
 	private Long invokerEntity;

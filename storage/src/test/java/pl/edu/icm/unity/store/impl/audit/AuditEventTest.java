@@ -4,7 +4,6 @@
  */
 package pl.edu.icm.unity.store.impl.audit;
 
-import com.google.common.collect.Sets;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import pl.edu.icm.unity.JsonUtil;
@@ -19,6 +18,7 @@ import pl.edu.icm.unity.types.basic.audit.EventType;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -70,6 +70,7 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 	@Test
 	public void shouldStoreEventWithNulls()
 	{
+		// given
 		AuditEvent event = AuditEvent.builder()
 				.name("name2")
 				.type(EventType.IDENTITY)
@@ -78,8 +79,11 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 				.initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
 				.build();
 		tx.runInTransaction(() -> {
+			// when
 			long id = dao.create(event);
 			TransactionTL.manualCommit();
+
+			// than
 			AuditEvent eventFromDB = dao.getByKey(id);
 			assertEquals(event, eventFromDB);
 			assertTrue(eventFromDB.getDetails() == null);
@@ -91,6 +95,7 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 	@Test
 	public void shouldReturnAllEventsAndTags()
 	{
+		// given
 		AuditEvent event1 = AuditEvent.builder()
 				.name("Identity name")
 				.type(EventType.IDENTITY)
@@ -99,7 +104,7 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 				.initiator(new AuditEntity(100l, "Initiator", "initiator@example.com"))
 				.details(JsonUtil.parse("{\"comment\" : \"No comment\"}"))
 				.subject(new AuditEntity(101l, "Subject", "subject@example.com"))
-				.tags("TAG1", "TAG2")
+				.tags("TAG1")
 				.build();
 		AuditEvent event2 = AuditEvent.builder()
 				.name("Identity name")
@@ -122,23 +127,51 @@ public class AuditEventTest extends AbstractBasicDAOTest<AuditEvent>
 				.tags("TAG1", "TAG3", "TAG4")
 				.build();
 
+
 		tx.runInTransaction(() -> {
+			// when
 			dao.create(event1);
 			dao.create(event2);
 			dao.create(event3);
 
 			TransactionTL.manualCommit();
 
+			// than
 			List<AuditEvent> events = dao.getAll();
-
 			assertEquals(3, events.size());
 			assertTrue(events.contains(event1));
 			assertTrue(events.contains(event2));
 			assertTrue(events.contains(event3));
 			AuditEntity initiator = new AuditEntity(100l, "Initiator", "initiator@example.com");
 			assertTrue(events.stream().allMatch((event) -> event.getInitiator().equals(initiator)));
+			Set<String> allTags = dao.getAllTags();
+			assertTrue(allTags.containsAll(Arrays.asList("TAG1", "TAG2", "TAG3", "TAG4")));
+		});
+	}
 
-			assertEquals(Sets.newHashSet("TAG1", "TAG2", "TAG3", "TAG4"), dao.getAllTags());
+	@Test
+	public void shouldIgnoreDuplicateTags()
+	{
+		// given
+		AuditEvent event1 = getObject("");
+		AuditEvent event2 = getObject("");
+
+		tx.runInTransaction(() -> {
+			//when
+			dao.create(event1);
+			TransactionTL.manualCommit();
+			// make sure cache is empty
+			tagDAO.invalidateCache();
+			dao.create(event2);
+			TransactionTL.manualCommit();
+
+			// than
+			List<AuditEvent> events = dao.getAll();
+			assertEquals(2, events.size());
+			assertTrue(events.contains(event1));
+			assertTrue(events.contains(event2));
+			Set<String> allTags = dao.getAllTags();
+			assertTrue(allTags.containsAll(Arrays.asList("TAG1", "TAG2")));
 		});
 	}
 }

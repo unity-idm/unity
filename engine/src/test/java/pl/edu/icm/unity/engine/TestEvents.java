@@ -5,18 +5,19 @@
 package pl.edu.icm.unity.engine;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
-
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import pl.edu.icm.unity.base.event.Event;
 import pl.edu.icm.unity.engine.api.IdentityTypesManagement;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.events.EventProcessor;
+import pl.edu.icm.unity.engine.events.EventProducingAspect;
 import pl.edu.icm.unity.engine.events.InvocationEventContents;
+import pl.edu.icm.unity.types.AbstractEvent;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 /**
  * Tests the core events mechanism
@@ -28,11 +29,14 @@ public class TestEvents extends DBIntegrationTestBase
 	@Autowired
 	private EventProcessor eventProcessor;
 
+	@Autowired
+	EventProducingAspect eventProducingAspect;
+
 	private MockConsumer hConsumer1 = new MockConsumer();
 	private MockConsumer hConsumer2 = new MockConsumer();
 	private MockConsumer lConsumer1 = new MockConsumer();
 	private MockConsumer lConsumer2 = new MockConsumer();
-	
+
 	@Test
 	public void test() throws Exception
 	{
@@ -126,16 +130,20 @@ public class TestEvents extends DBIntegrationTestBase
 		}
 
 		@Override
-		public boolean isWanted(Event event)
+		public boolean isWanted(AbstractEvent abstractEvent)
 		{
+			if (!(abstractEvent instanceof Event))
+				return false;
+			Event event = (Event)abstractEvent;
 			InvocationEventContents parsed = new InvocationEventContents();
 			parsed.fromJson(event.getContents());
 			return parsed.getInterfaceName().equals(IdentityTypesManagement.class.getSimpleName());
 		}
 
 		@Override
-		public boolean handleEvent(Event event)
+		public boolean handleEvent(AbstractEvent abstractEvent)
 		{
+			Event event = (Event)abstractEvent;
 			invocationTries++;
 			InvocationEventContents parsed = new InvocationEventContents();
 			parsed.fromJson(event.getContents());
@@ -157,7 +165,7 @@ public class TestEvents extends DBIntegrationTestBase
 		}
 
 		@Override
-		public boolean isAsync(Event event)
+		public boolean isAsync(AbstractEvent event)
 		{
 			return false;
 		}

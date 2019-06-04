@@ -16,6 +16,7 @@ import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.event.EventListener;
 import pl.edu.icm.unity.engine.api.initializers.ScriptConfiguration;
 import pl.edu.icm.unity.exceptions.InternalException;
+import pl.edu.icm.unity.types.AbstractEvent;
 
 /**
  * Listens to all platform {@link Event}s and triggers scripts configured for the event (if any).
@@ -49,14 +50,18 @@ public class ScriptTriggeringEventListener implements EventListener
 	}
 
 	@Override
-	public boolean isWanted(Event event)
+	public boolean isWanted(AbstractEvent event)
 	{
-		return true; //optimization - we anyway need to do another map get.
+		return (event instanceof Event); //optimization - we anyway need to do another map get.
 	}
 
 	@Override
-	public boolean handleEvent(Event event)
+	public boolean handleEvent(AbstractEvent abstractEvent)
 	{
+		if (!(abstractEvent instanceof Event)) {
+			throw new IllegalArgumentException("Has to be Event instance. Verify isWanted() implementation.");
+		}
+		Event event = (Event)abstractEvent;
 		List<ScriptConfiguration> list = scriptsByEvent.get(event.getTrigger());
 		if (list == null)
 			return true;
@@ -65,7 +70,7 @@ public class ScriptTriggeringEventListener implements EventListener
 	}
 
 	@Override
-	public boolean isAsync(Event event)
+	public boolean isAsync(AbstractEvent event)
 	{
 		return false;
 	}

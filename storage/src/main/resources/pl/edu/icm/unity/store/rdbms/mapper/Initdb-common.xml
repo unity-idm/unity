@@ -136,6 +136,8 @@ CREATE TABLE AUDIT_TAGS (
 		TAG VARCHAR(200) NOT NULL,
 		UNIQUE(TAG)
 		<include refid="pl.edu.icm.unity.store.rdbms.mapper.InitdbMapper.tableOpts"/>
+INSERT INTO AUDIT_TAGS (TAG) VALUES ('Users'), ('Groups'), ('Authn');
+
 CREATE TABLE AUDIT_EVENTS_TAGS (
 		EVENT_ID INTEGER NOT NULL,
 		TAG_ID INTEGER,
@@ -148,7 +150,7 @@ CREATE TABLE AUDIT_EVENTS_TAGS (
 	<update id="initdb-14">
 		<include refid="sql-initAuditTables"/>
 	</update>
-	
+
 	<update id="initdb-99">
 CREATE TABLE UVOS_FLAG(
 		VAL VARCHAR(128)

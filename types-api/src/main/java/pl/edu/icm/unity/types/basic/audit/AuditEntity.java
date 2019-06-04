@@ -17,9 +17,9 @@ import java.util.Objects;
  */
 public class AuditEntity
 {
-	Long entityId;
-	String name;
-	String email;
+	private Long entityId;
+	private String name;
+	private String email;
 
 	public AuditEntity(@NonNull final Long entityId, @NonNull final String name, @NonNull final String email)
 	{

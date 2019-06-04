@@ -1,8 +1,7 @@
 package pl.edu.icm.unity.types.basic;
 
-import org.junit.Rule;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import pl.edu.icm.unity.JsonUtil;
 import pl.edu.icm.unity.types.basic.audit.AuditEntity;
 import pl.edu.icm.unity.types.basic.audit.AuditEvent;
@@ -14,21 +13,21 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Set;
 
-import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.assertThat;
 
 public class AuditEventTest
 {
-	@Rule
-	public ExpectedException expectedException = ExpectedException.none();
-
 	@Test
 	public void shouldInitializeTags()
 	{
+		// given
 		AuditEvent event = getEvent();
-		assertEquals(2, event.getTags().size());
-		assertTrue(event.getTags().contains("TAG1"));
-		assertTrue(event.getTags().contains("TAG2"));
+
+		// than
+		assertThat(event.getTags().size(), is(2));
+		assertThat(event.getTags(), hasItem("TAG1"));
+		assertThat(event.getTags(), hasItem("TAG2"));
 	}
 
 	@Test
@@ -40,78 +39,121 @@ public class AuditEventTest
 	@Test
 	public void shouldBeValidWithNullableFields()
 	{
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.subject(null);
 		eventBuilder.details(null);
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		Assertions.assertThat(ex).isNull();
 	}
 
 	@Test
 	public void shouldBeValidWithNoTags()
 	{
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.tags(Collections.emptySet());
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		Assertions.assertThat(ex).isNull();
 	}
 
 	@Test
 	public void shouldRejectNullName()
 	{
-		expectedException.expect(NullPointerException.class);
-		expectedException.expectMessage("AuditEvent.name field is required!");
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.name(null);
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		assertThat(ex, instanceOf(NullPointerException.class));
+		assertThat(ex.getMessage(), is("AuditEvent.name field is required!"));
 	}
 
 	@Test
 	public void shouldRejectNullType()
 	{
-		expectedException.expect(NullPointerException.class);
-		expectedException.expectMessage("AuditEvent.type field is required!");
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.type(null);
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		assertThat(ex, instanceOf(NullPointerException.class));
+		assertThat(ex.getMessage(), is("AuditEvent.type field is required!"));
 	}
 
 	@Test
 	public void shouldRejectNullTimestamp()
 	{
-		expectedException.expect(NullPointerException.class);
-		expectedException.expectMessage("AuditEvent.timestamp field is required!");
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.timestamp(null);
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		assertThat(ex, instanceOf(NullPointerException.class));
+		assertThat(ex.getMessage(), is("AuditEvent.timestamp field is required!"));
+
 	}
 
 	@Test
 	public void shouldRejectNullInitiator()
 	{
-		expectedException.expect(NullPointerException.class);
-		expectedException.expectMessage("AuditEvent.initiator field is required!");
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.initiator(null);
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		assertThat(ex, instanceOf(NullPointerException.class));
+		assertThat(ex.getMessage(), is("AuditEvent.initiator field is required!"));
 	}
 
 	@Test
 	public void shouldRejectNullAction()
 	{
-		expectedException.expect(NullPointerException.class);
-		expectedException.expectMessage("AuditEvent.action field is required!");
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.action(null);
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		assertThat(ex, instanceOf(NullPointerException.class));
+		assertThat(ex.getMessage(), is("AuditEvent.action field is required!"));
 	}
 
 	@Test
 	public void shouldRejectNullTags()
 	{
-		expectedException.expect(NullPointerException.class);
-		expectedException.expectMessage("AuditEvent.tags field is required!");
+		// given
 		AuditEventBuilder eventBuilder = getEventBuilder();
 		eventBuilder.tags((Set<String>) null);
-		eventBuilder.build();
+
+		// when
+		Throwable ex = Assertions.catchThrowable(() -> eventBuilder.build());
+
+		// than
+		assertThat(ex, instanceOf(NullPointerException.class));
+		assertThat(ex.getMessage(), is("AuditEvent.tags field is required!"));
 	}
 
 	private AuditEvent getEvent()

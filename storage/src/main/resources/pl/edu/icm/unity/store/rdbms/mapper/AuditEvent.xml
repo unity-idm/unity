@@ -49,6 +49,7 @@
        		LEFT JOIN AUDIT_ENTITIES AS I ON E.INITIATOR_ID = I.ID
        		LEFT JOIN AUDIT_EVENTS_TAGS AET ON E.ID = AET.EVENT_ID
        		LEFT JOIN AUDIT_TAGS AT ON AET.TAG_ID = AT.ID
+       	ORDER BY E.TIMESTAMP;
 	</sql>
 
 	<select id="getAll" resultMap="auditEventResult">
@@ -81,22 +82,21 @@
 	<select id="getAllTags" resultType="string">
 		SELECT TAG FROM AUDIT_TAGS;
 	</select>
-
-    <insert id="createTags">
-        <foreach collection="tagList" item="item" index="index" separator=";">
-        	INSERT INTO AUDIT_TAGS
-            	(SELECT MAX(ID)+1, #{item} FROM AUDIT_TAGS
-            	WHERE NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{item}))
-        </foreach>
-    </insert>
-
-	<insert id="insertAuditTags">
-		INSERT INTO AUDIT_EVENTS_TAGS SELECT #{eventId},ID FROM AUDIT_TAGS WHERE TAG IN (
-		<foreach collection="tagList" item="item" index="index" separator=",">
-			#{item}
+	<insert id="createTags">
+		<foreach collection="tagList" item="item" index="index" separator=";">
+			INSERT INTO AUDIT_TAGS
+				SELECT NULL,#{item} FROM AUDIT_TAGS
+					WHERE ID=(SELECT MAX(ID) from AUDIT_TAGS)
+						AND NOT EXISTS (SELECT * FROM AUDIT_TAGS WHERE TAG=#{item})
 		</foreach>
-		)
 	</insert>
+	<insert id="insertAuditTags">
+	INSERT INTO AUDIT_EVENTS_TAGS SELECT #{eventId},ID FROM AUDIT_TAGS WHERE TAG IN (
+	<foreach collection="tagList" item="item" index="index" separator=",">
+		#{item}
+	</foreach>
+	)
+</insert>
 
 	<delete id="deleteTags">
 		DELETE FROM AUDIT_EVENTS_TAGS WHERE EVENT_ID=#{eventId};

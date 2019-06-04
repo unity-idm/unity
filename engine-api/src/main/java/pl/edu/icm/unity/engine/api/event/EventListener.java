@@ -5,6 +5,7 @@
 package pl.edu.icm.unity.engine.api.event;
 
 import pl.edu.icm.unity.base.event.Event;
+import pl.edu.icm.unity.types.AbstractEvent;
 
 /**
  * Event listeners are {@link Event} consumers. E.g. a listener can send email with notification or 
@@ -29,7 +30,7 @@ public interface EventListener
 	 * @param event
 	 * @return true if the event should be handled by this listener
 	 */
-	boolean isWanted(Event event); 
+	boolean isWanted(AbstractEvent event);
 
 	/**
 	 * This method should return whether async processing is allowed. Otherwise processing is
@@ -38,7 +39,7 @@ public interface EventListener
 	 * @param event
 	 * @return true if the event should be handled in async mode.
 	 */
-	boolean isAsync(Event event); 
+	boolean isAsync(AbstractEvent event);
 	
 	/**
 	 * Called only on events of a proper category, for which isWanted returned true. 
@@ -46,7 +47,7 @@ public interface EventListener
 	 * @return true if the event was processed successfully. Returning false is relevant only 
 	 * for the heavy-weight listeners.
 	 */
-	boolean handleEvent(Event event);
+	boolean handleEvent(AbstractEvent event);
 	
 	/**
 	 * @return system unique and constant ID of the listener instance. It is suggested to form it 
