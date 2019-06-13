@@ -67,6 +67,7 @@
 		<module>distribution</module>
 		<module>documentation</module>
 		<module>composite-password</module>
+		<module>auth-proxy</module>
   </modules>
 
 	<developers>

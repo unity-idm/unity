@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration monitorInterval="30" status="warn">
+	<!-- 
+		What to log?
+
+		Levels in order of verbosity: FATAL, ERROR, WARN, INFO, DEBUG, TRACE
+	-->
+	<Loggers>
+		<!-- Default log level -->
+		<Root level="INFO">
+			<!-- Default appender specifies where to log by default (can be changed per logger) -->
+			<AppenderRef ref="CONSOLE"/>
+		</Root>
+	
+		<!-- Everything produced by Unity (unless overwritten below) -->
+		<Logger name="unity.server" level="DEBUG"/>
+		<!-- 
+			3rd party subsystems 
+		-->
+		<Logger name="org.springframework" level="DEBUG"/>
+		<Logger name="org.eclipse.jetty" level="DEBUG"/>
+		<Logger name="org.apache" level="INFO"/>
+		<Logger name="pl.edu.icm" level="INFO"/>
+		<Logger name="org.quartz" level="WARN"/>
+	</Loggers>
+	
+	
+	<!-- Where to log? -->
+	<Appenders>
+		<Console name="CONSOLE">
+			<PatternLayout pattern="%d{ISO8601} [%t] %-5p %c:%equals{%1x}{[]}{} %m%n"/>
+		</Console>
+	</Appenders>
+	
+</Configuration>
