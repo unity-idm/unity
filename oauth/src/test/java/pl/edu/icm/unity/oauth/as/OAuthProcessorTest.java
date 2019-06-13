@@ -4,11 +4,15 @@
  */
 package pl.edu.icm.unity.oauth.as;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -20,7 +24,9 @@ import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationSuccessResponse;
 import com.nimbusds.oauth2.sdk.ResponseType;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.openid.connect.sdk.AuthenticationSuccessResponse;
 import com.nimbusds.openid.connect.sdk.OIDCResponseTypeValue;
+import com.nimbusds.openid.connect.sdk.claims.IDTokenClaimsSet;
 import com.nimbusds.openid.connect.sdk.claims.UserInfo;
 
 import pl.edu.icm.unity.base.token.Token;
@@ -80,11 +86,13 @@ public class OAuthProcessorTest
 		
 		assertNotNull(resp.getAccessToken());
 		assertNull(resp.getAuthorizationCode());
+		assertHasATHash((AuthenticationSuccessResponse) resp);
 		
 		AccessToken accessToken = resp.getAccessToken();
 		Token internalAccessToken = tokensMan.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
 				accessToken.getValue());
 		verifyToken(internalAccessToken, start, end, 100);		
+		assertHasATHash(internalAccessToken);
 	}
 	
 	@Test
@@ -106,11 +114,15 @@ public class OAuthProcessorTest
 		
 		assertNotNull(resp.getAccessToken());
 		assertNotNull(resp.getAuthorizationCode());
+		assertHasATHash((AuthenticationSuccessResponse) resp);
+		assertHasCHash((AuthenticationSuccessResponse) resp);
 		
 		AccessToken accessToken = resp.getAccessToken();
 		Token internalAccessToken = tokensMan.getTokenById(OAuthProcessor.INTERNAL_ACCESS_TOKEN, 
 				accessToken.getValue());
 		verifyToken(internalAccessToken, start, end, 100);
+		assertHasCHash(internalAccessToken);
+		assertHasATHash(internalAccessToken);
 		
 		AuthorizationCode authzCode = resp.getAuthorizationCode();
 		Token codeToken = tokensMan.getTokenById(OAuthProcessor.INTERNAL_CODE_TOKEN, 
@@ -146,6 +158,45 @@ public class OAuthProcessorTest
 		assertEquals("example@example.com", userInfo.getEmailAddress());
 		assertNotNull(userInfo.getSubject());
 		assertEquals("userA", userInfo.getSubject().getValue());		
+	}
+
+	private void assertHasATHash(AuthenticationSuccessResponse response) throws ParseException, com.nimbusds.oauth2.sdk.ParseException
+	{
+		assertHasATHash(response.getIDToken().getJWTClaimsSet());
+	}
+	
+	private void assertHasATHash(Token token) throws ParseException, com.nimbusds.oauth2.sdk.ParseException
+	{
+		OAuthToken internalToken = OAuthToken.getInstanceFromJson(token.getContents());
+		SignedJWT openidToken = SignedJWT.parse(internalToken.getOpenidInfo());
+		assertHasATHash(openidToken.getJWTClaimsSet());
+	}
+
+	private void assertHasATHash(JWTClaimsSet openidClaims) throws com.nimbusds.oauth2.sdk.ParseException
+	{
+		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(openidClaims);
+		assertThat(idTokenClaimsSet.getAccessTokenHash(), is(notNullValue()));
+		assertThat(idTokenClaimsSet.getAccessTokenHash().getValue(), is(notNullValue()));
+	}
+
+	private void assertHasCHash(AuthenticationSuccessResponse response) throws ParseException, com.nimbusds.oauth2.sdk.ParseException
+	{
+		assertHasCHash(response.getIDToken().getJWTClaimsSet());
+	}
+	
+	private void assertHasCHash(Token token) throws ParseException, com.nimbusds.oauth2.sdk.ParseException
+	{
+		OAuthToken internalToken = OAuthToken.getInstanceFromJson(token.getContents());
+		SignedJWT openidToken = SignedJWT.parse(internalToken.getOpenidInfo());
+		assertHasCHash(openidToken.getJWTClaimsSet());
+	}
+
+	private void assertHasCHash(JWTClaimsSet openidClaims) throws com.nimbusds.oauth2.sdk.ParseException
+	{
+		IDTokenClaimsSet idTokenClaimsSet = new IDTokenClaimsSet(openidClaims);
+		
+		assertThat(idTokenClaimsSet.getCodeHash(), is(notNullValue()));
+		assertThat(idTokenClaimsSet.getCodeHash().getValue(), is(notNullValue()));
 	}
 
 }
