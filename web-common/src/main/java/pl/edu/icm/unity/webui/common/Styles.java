@@ -40,6 +40,7 @@ public enum Styles
 	textXLarge("u-textXLarge"),
 	textEndpointName("u-textEndpointHeading"),
 	toolbarButton("u-toolbarButton"),
+	toolbar("u-toolbar"),
 	verticalBar("u-verticalBar"),
 	horizontalBar("u-horizontalBar"),
 	header("u-header"),
@@ -82,6 +83,7 @@ public enum Styles
 	indentComboBox("u-indentComboBox"),
 	wordWrap("u-wordWrap"),
 	sectionTitle("u-sectionTitle"),
+	showHideButton("u-showHideButton"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

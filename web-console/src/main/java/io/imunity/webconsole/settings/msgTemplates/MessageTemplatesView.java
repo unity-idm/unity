@@ -18,6 +18,8 @@ import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.shared.ui.ContentMode;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
@@ -39,6 +41,7 @@ import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.MessageTemplate;
 import pl.edu.icm.unity.types.basic.MessageType;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
@@ -48,6 +51,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -122,20 +126,22 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		hamburgerMenu.addActionHandlers(getGlobalHamburgerHandlers());
 		messageTemplateGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
+		Toolbar<MessageTemplate> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		toolbar.setWidth(100, Unit.PERCENTAGE);
+		toolbar.addHamburger(hamburgerMenu);
+		ComponentWithToolbar msgGridWithToolbar = new ComponentWithToolbar(messageTemplateGrid, toolbar, Alignment.BOTTOM_LEFT);
+		msgGridWithToolbar.setSpacing(false);
+		msgGridWithToolbar.setSizeFull();
+		
 		VerticalLayout gridWrapper = new VerticalLayout();
 		gridWrapper.setMargin(false);
 		gridWrapper.setSpacing(false);
-		HorizontalLayout hamburgerWrapper = new HorizontalLayout(hamburgerMenu);
-		hamburgerWrapper.setMargin(false);
-		hamburgerWrapper.setSpacing(false);
 		gridWrapper.addComponent(buttonsBar);
 		gridWrapper.setExpandRatio(buttonsBar, 0);
-		gridWrapper.addComponent(hamburgerWrapper);
-		gridWrapper.setExpandRatio(hamburgerWrapper, 0);
-		gridWrapper.addComponent(messageTemplateGrid);
-		gridWrapper.setExpandRatio(messageTemplateGrid, 2);
+		gridWrapper.addComponent(msgGridWithToolbar);
+		gridWrapper.setExpandRatio(msgGridWithToolbar, 2);
 		gridWrapper.setSizeFull();
-
+		
 		Panel viewerPanel = new Panel();
 		viewerPanel.setContent(viewer);
 		viewerPanel.setSizeFull();
@@ -237,6 +243,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
+			refresh();
 		}
 	}
 

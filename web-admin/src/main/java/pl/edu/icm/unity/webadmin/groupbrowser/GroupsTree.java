@@ -33,8 +33,14 @@ import com.vaadin.ui.components.grid.TreeGridDropTarget;
 import com.vaadin.ui.renderers.HtmlRenderer;
 
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
+import io.imunity.webadmin.groupbrowser.GroupAttributesClassesDialog;
+import io.imunity.webadmin.groupbrowser.GroupDelegationEditConfigDialog;
+import io.imunity.webadmin.groupbrowser.GroupEditDialog;
+import io.imunity.webadmin.groupbrowser.TreeNode;
+import io.imunity.webadmin.identities.EntityCreationHandler;
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 import io.imunity.webadmin.reg.forms.RegistrationFormEditor;
+import io.imunity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.EnquiryManagement;
@@ -53,10 +59,7 @@ import pl.edu.icm.unity.types.basic.EntityParam;
 import pl.edu.icm.unity.types.basic.Group;
 import pl.edu.icm.unity.types.basic.GroupContents;
 import pl.edu.icm.unity.types.basic.Identity;
-import pl.edu.icm.unity.webadmin.groupdetails.GroupAttributesClassesDialog;
-import pl.edu.icm.unity.webadmin.identities.EntityCreationHandler;
 import pl.edu.icm.unity.webadmin.identities.IdentitiesGrid;
-import pl.edu.icm.unity.webadmin.utils.GroupManagementHelper;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
@@ -198,7 +201,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 		{
 			// this will show error node
 			TreeNode parent = new TreeNode(msg, new Group("/"),
-					Images.folder.getHtml());
+					Images.folder_open_o.getHtml());
 			treeData.addItems(null, parent);
 			getDataProvider().refreshAll();
 			expand(parent);
@@ -260,7 +263,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			GroupContents contents = groupsMan.getContents("/",
 					GroupContents.GROUPS | GroupContents.METADATA);
 			TreeNode parent = new TreeNode(msg, contents.getGroup(),
-					Images.folder.getHtml());
+					Images.folder_open_o.getHtml());
 			treeData.clear();
 			treeData.addItem(null, parent);
 			getDataProvider().refreshAll();
@@ -311,7 +314,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 							accessibleGroups.get(i),
 							GroupContents.METADATA);
 					TreeNode parent = new TreeNode(msg, contents.getGroup(),
-							Images.folder.getHtml());
+							Images.folder_open_o.getHtml());
 					treeData.addItem(null, parent);
 
 				} catch (AuthorizationException e2)
@@ -612,7 +615,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			Map<String, GroupContents> groupAndSubgroups = bulkQueryService
 					.getGroupAndSubgroups(bulkData);
 
-			expandedNode.setIcon(Images.folder.getHtml());
+			expandedNode.setIcon(Images.folder_open_o.getHtml());
 			GroupContents contents = groupAndSubgroups.get(expandedNode.getPath());
 			expandedNode.setGroupMetadata(contents.getGroup());
 
@@ -622,7 +625,7 @@ public class GroupsTree extends TreeGrid<TreeNode>
 			{
 				GroupContents contents2 = groupAndSubgroups.get(subgroup);
 				TreeNode node = new TreeNode(msg, contents2.getGroup(),
-						Images.folder.getHtml(), expandedNode);
+						Images.folder_open_o.getHtml(), expandedNode);
 				treeData.addItem(node.getParentNode(), node);
 			}
 

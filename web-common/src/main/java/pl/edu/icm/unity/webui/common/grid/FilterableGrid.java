@@ -17,4 +17,5 @@ public interface FilterableGrid<T>
 {
 	void clearFilters();
 	void addFilter(SerializablePredicate<T> filter);
+	void removeFilter(SerializablePredicate<T> filter);
 }

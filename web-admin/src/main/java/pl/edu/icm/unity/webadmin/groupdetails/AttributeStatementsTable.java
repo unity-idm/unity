@@ -14,13 +14,14 @@ import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.GridDropTarget;
 
+import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
+import io.imunity.webadmin.attributeStatment.AttributeStatementEditDialog;
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import pl.edu.icm.unity.engine.api.AttributeTypeManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.basic.AttributeStatement;
 import pl.edu.icm.unity.types.basic.Group;
-import pl.edu.icm.unity.webadmin.attrstmt.AttributeStatementEditDialog;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;

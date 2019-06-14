@@ -17,6 +17,7 @@ import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Grid;
 import com.vaadin.ui.Grid.SelectionMode;
 
+import io.imunity.webadmin.reg.forms.EnquiryFormEditDialog;
 import io.imunity.webadmin.reg.forms.EnquiryFormEditor;
 
 import com.vaadin.ui.Link;

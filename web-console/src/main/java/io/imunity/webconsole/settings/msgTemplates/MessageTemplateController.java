@@ -97,7 +97,6 @@ class MessageTemplateController
 						e);
 			}
 		}
-
 	}
 	
 	Collection<MessageTemplate> getMessageTemplates() throws ControllerException

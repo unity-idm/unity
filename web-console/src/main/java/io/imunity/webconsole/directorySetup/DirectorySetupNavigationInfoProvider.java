@@ -33,7 +33,7 @@ public class DirectorySetupNavigationInfoProvider extends WebConsoleNavigationIn
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.directorySetup"))
-				.withIcon(Images.folder.getResource()).withPosition(60).build());
+				.withIcon(Images.folder_open_o.getResource()).withPosition(60).build());
 
 	}
 

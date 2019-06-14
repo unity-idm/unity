@@ -18,10 +18,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.Orientation;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.DirectorySetupNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -33,6 +36,7 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.bulkops.ScheduledProcessingRule;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -40,6 +44,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -96,15 +101,16 @@ public class AutomationView extends CustomComponent implements UnityView
 		hamburgerMenu.addActionHandlers(getBulkHamburgerActionsHandlers());
 		automationGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		VerticalLayout gridWrapper = new VerticalLayout();
-		gridWrapper.setMargin(false);
-		gridWrapper.setSpacing(false);
-		gridWrapper.addComponent(hamburgerMenu);
-		gridWrapper.addComponent(automationGrid);
+		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		toolbar.setWidth(100, Unit.PERCENTAGE);
+		toolbar.addHamburger(hamburgerMenu);
+		ComponentWithToolbar automationGridWithToolbar = new ComponentWithToolbar(automationGrid, toolbar, Alignment.BOTTOM_LEFT);
+		automationGridWithToolbar.setSizeFull();
+		automationGridWithToolbar.setSpacing(false);
 
 		VerticalLayout main = new VerticalLayout();
 		main.addComponent(buttonsBar);
-		main.addComponent(gridWrapper);
+		main.addComponent(automationGridWithToolbar);
 		main.setWidth(100, Unit.PERCENTAGE);
 		main.setMargin(false);
 

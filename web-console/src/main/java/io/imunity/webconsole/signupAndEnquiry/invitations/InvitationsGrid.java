@@ -12,15 +12,15 @@ import java.util.List;
 import java.util.Set;
 
 import com.vaadin.shared.data.sort.SortDirection;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webadmin.reg.invitations.InvitationSelectionListener;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -28,6 +28,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -75,22 +76,15 @@ class InvitationsGrid extends CustomComponent
 
 		TextField search = FilterableGridHelper.generateSearchField(invitationsGrid, msg);
 
-		VerticalLayout gridWrapper = new VerticalLayout();
-		gridWrapper.setMargin(false);
-		gridWrapper.setSpacing(false);
-		HorizontalLayout hamburgerAndSearchWrapper = new HorizontalLayout(hamburgerMenu, search);
-		hamburgerAndSearchWrapper.setWidth(100, Unit.PERCENTAGE);
-		hamburgerAndSearchWrapper.setComponentAlignment(hamburgerMenu, Alignment.BOTTOM_LEFT);
-		hamburgerAndSearchWrapper.setComponentAlignment(search, Alignment.BOTTOM_RIGHT);
-		hamburgerAndSearchWrapper.setMargin(false);
-		hamburgerAndSearchWrapper.setSpacing(false);
-		gridWrapper.addComponent(hamburgerAndSearchWrapper);
-		gridWrapper.setExpandRatio(hamburgerAndSearchWrapper, 0);
-		gridWrapper.addComponent(invitationsGrid);
-		gridWrapper.setExpandRatio(invitationsGrid, 2);
-		gridWrapper.setSizeFull();
-
-		setCompositionRoot(gridWrapper);
+		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		toolbar.setWidth(100, Unit.PERCENTAGE);
+		toolbar.addHamburger(hamburgerMenu);
+		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);	
+		ComponentWithToolbar InvGridWithToolbar = new ComponentWithToolbar(invitationsGrid, toolbar, Alignment.BOTTOM_LEFT);
+		InvGridWithToolbar.setSizeFull();
+		InvGridWithToolbar.setSpacing(false);
+		
+		setCompositionRoot(InvGridWithToolbar);
 		setSizeFull();
 		refresh();
 	}

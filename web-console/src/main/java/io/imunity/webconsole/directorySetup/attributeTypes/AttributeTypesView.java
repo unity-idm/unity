@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import org.vaadin.simplefiledownloader.SimpleFileDownloader;
 
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
@@ -27,6 +28,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
 import io.imunity.webconsole.directorySetup.DirectorySetupNavigationInfoProvider;
 import io.imunity.webelements.helpers.NavigationHelper;
@@ -38,6 +40,7 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmWithOptionDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -46,6 +49,7 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -129,29 +133,24 @@ class AttributeTypesView extends CustomComponent implements UnityView
 		
 		TextField search = FilterableGridHelper.generateSearchField(attrTypesGrid, msg);
 
+		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		toolbar.setWidth(100, Unit.PERCENTAGE);
+		toolbar.addHamburger(hamburgerMenu);
+		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);
+		ComponentWithToolbar attrTypeGridWithToolbar = new ComponentWithToolbar(attrTypesGrid, toolbar, Alignment.BOTTOM_LEFT);
+		attrTypeGridWithToolbar.setSpacing(false);
+		attrTypeGridWithToolbar.setSizeFull();
+		
 		VerticalLayout gridWrapper = new VerticalLayout();
 		gridWrapper.setMargin(false);
-		gridWrapper.setSpacing(false);
-		HorizontalLayout hamburgerAndSearchWrapper = new HorizontalLayout(hamburgerMenu, search);
-		hamburgerAndSearchWrapper.setWidth(100, Unit.PERCENTAGE);
-		hamburgerAndSearchWrapper.setComponentAlignment(hamburgerMenu, Alignment.BOTTOM_LEFT);
-		hamburgerAndSearchWrapper.setComponentAlignment(search, Alignment.BOTTOM_RIGHT);
-		hamburgerAndSearchWrapper.setMargin(false);
-		hamburgerAndSearchWrapper.setSpacing(false);
-		gridWrapper.addComponent(hamburgerAndSearchWrapper);
-		gridWrapper.setExpandRatio(hamburgerAndSearchWrapper, 0);
-		gridWrapper.addComponent(attrTypesGrid);
-		gridWrapper.setExpandRatio(attrTypesGrid, 2);
+		gridWrapper.setSpacing(true);
+		gridWrapper.addComponent(buttonsBar);
+		gridWrapper.setExpandRatio(buttonsBar, 0);
+		gridWrapper.addComponent(attrTypeGridWithToolbar);
+		gridWrapper.setExpandRatio(attrTypeGridWithToolbar, 2);
 		gridWrapper.setSizeFull();
-
-		VerticalLayout main = new VerticalLayout();
-		main.addComponent(buttonsBar);
-		main.setExpandRatio(buttonsBar, 0);
-		main.addComponent(gridWrapper);
-		main.setExpandRatio(gridWrapper, 20);
-		main.setSizeFull();		
-		main.setMargin(false);
-		setCompositionRoot(main);
+		
+		setCompositionRoot(gridWrapper);
 		setSizeFull();
 	}
 	

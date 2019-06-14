@@ -22,10 +22,7 @@ public class FilterableGridHelper
 	public static TextField generateSearchField(FilterableGrid<? extends FilterableEntry> grid,
 			UnityMessageSource msg)
 	{
-		TextField searchText = new TextField();
-		searchText.addStyleName(Styles.vSmall.toString());
-		searchText.setWidth(10, Unit.EM);
-		searchText.setPlaceholder(msg.getMessage("search"));
+		TextField searchText = getRowSearchField(msg);
 		searchText.addValueChangeListener(event -> {
 			String searched = event.getValue();
 			grid.clearFilters();
@@ -35,6 +32,15 @@ public class FilterableGridHelper
 			}
 			grid.addFilter(e -> e.anyFieldContains(searched, msg));
 		});
+		return searchText;
+	}
+	
+	public static TextField getRowSearchField(UnityMessageSource msg)
+	{
+		TextField searchText = new TextField();
+		searchText.addStyleName(Styles.vSmall.toString());
+		searchText.setWidth(10, Unit.EM);
+		searchText.setPlaceholder(msg.getMessage("search"));
 		return searchText;
 	}
 }

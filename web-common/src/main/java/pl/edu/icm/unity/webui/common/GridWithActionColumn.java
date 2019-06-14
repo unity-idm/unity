@@ -42,6 +42,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	private ListDataProvider<T> dataProvider;
 	private Column<T, HorizontalLayout> actionColumn;
 
+	private Collection<SerializablePredicate<T>> filters;
 	private List<SingleActionHandler<T>> actionHandlers;
 	private List<SingleActionHandler<T>> hamburgerActionHandlers;
 	private boolean heightByRows;
@@ -79,6 +80,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		setSelectionMode(SelectionMode.NONE);
 		setStyleName("u-gridWithAction");
 		refreshHeight();
+		filters = new ArrayList<>();
 	}
 
 	public void setMultiSelect(boolean multi)
@@ -97,7 +99,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public void replaceElement(T old, T newElement)
 	{
 		contents.set(contents.indexOf(old), newElement);
-		dataProvider.refreshItem(newElement);
+		dataProvider.refreshAll();
 		deselectAll();
 	}
 
@@ -109,16 +111,25 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		refreshHeight();
 	}
 
+	public void addElement(int index, T el)
+	{
+		contents.add(index, el);
+		dataProvider.refreshAll();
+		deselectAll();
+		refreshHeight();
+	}
+
 	@Override
 	public void setItems(Collection<T> items)
 	{
-		contents.clear();
+		contents = new ArrayList<>();
 		if (items != null)
 		{
 			contents.addAll(items);
 		}
-
-		dataProvider.refreshAll();
+		dataProvider = DataProvider.ofCollection(contents);
+		setDataProvider(dataProvider);
+		updateFilters();
 		deselectAll();
 		refreshHeight();
 	}
@@ -224,11 +235,13 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	{
 		boolean isDetailsVisiable = isDetailsVisible(t);
 		Button showHide = new Button();
-		showHide.setIcon(isDetailsVisiable ? Images.upArrow.getResource() : Images.downArrow.getResource());
+		showHide.setIcon(isDetailsVisiable ? Images.caret_down.getResource() : Images.caret_right.getResource());
 		showHide.setDescription(isDetailsVisiable ? msg.getMessage("GridWithActionColumn.hideDetails")
 				: msg.getMessage("GridWithActionColumn.showDetails"));
-
+	
 		showHide.setStyleName(Styles.vButtonSmall.toString());
+		showHide.addStyleName(Styles.showHideButton.toString());
+		
 		showHide.addClickListener(e -> {
 
 			setDetailsVisible(t, !isDetailsVisiable);
@@ -251,7 +264,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		}
 
 		actionColumn = addComponentColumn(t -> getButtonComponent(new HashSet<>(Arrays.asList(t))))
-				.setCaption(msg.getMessage("actions"));
+				.setCaption(msg.getMessage("actions")).setMinimumWidth(80);
 		actionColumn.setResizable(false);
 		actionColumn.setExpandRatio(0);
 		actionColumn.setSortable(false);
@@ -270,6 +283,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		actions.setMargin(false);
 		actions.setSpacing(false);
 		actions.setWidth(100, Unit.PERCENTAGE);
+		actions.addStyleName(Styles.smallSpacing.toString());
 
 		for (SingleActionHandler<T> handler : actionHandlers)
 		{
@@ -280,7 +294,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			actionButton.addClickListener(e -> handler.handle(target));
 			actionButton.setEnabled(handler.isEnabled(target));
 			actions.addComponent(actionButton);
-			actions.setComponentAlignment(actionButton, Alignment.TOP_LEFT);
+			actions.setComponentAlignment(actionButton, Alignment.TOP_CENTER);
 		}
 		if (hamburgerActionHandlers != null && !hamburgerActionHandlers.isEmpty())
 		{
@@ -289,22 +303,49 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			menu.addActionHandlers(hamburgerActionHandlers);
 			menu.addStyleName(SidebarStyles.sidebar.toString());
 			actions.addComponent(menu);
-			actions.setComponentAlignment(menu, Alignment.TOP_LEFT);
+			actions.setComponentAlignment(menu, Alignment.TOP_CENTER);
 		}
 
 		return actions;
 	}
 
+//	@Override
+//	public void addFilter(SerializablePredicate<T> filter)
+//	{
+//		dataProvider.addFilter(filter);
+//	}
+//
+//	@Override
+//	public void clearFilters()
+//	{
+//		dataProvider.clearFilters();
+//	}
+	
 	@Override
 	public void addFilter(SerializablePredicate<T> filter)
 	{
-		dataProvider.addFilter(filter);
+		if (!filters.contains(filter))
+			filters.add(filter);
+		updateFilters();
 	}
-
+	@Override
+	public void removeFilter(SerializablePredicate<T> filter)
+	{
+		if (filters.contains(filter))
+			filters.remove(filter);
+		updateFilters();
+	}
 	@Override
 	public void clearFilters()
 	{
 		dataProvider.clearFilters();
+	}
+	
+	private void updateFilters()
+	{
+		dataProvider.clearFilters();
+		for (SerializablePredicate<T> p : filters)
+			dataProvider.addFilter(p);
 	}
 
 }

@@ -16,6 +16,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
+import io.imunity.webadmin.attributeStatment.AttrStatementWithId;
 import io.imunity.webadmin.directoryBrowser.GroupChangedEvent;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.AttributeClassManagement;

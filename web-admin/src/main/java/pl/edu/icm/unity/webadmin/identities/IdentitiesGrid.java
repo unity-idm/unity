@@ -26,6 +26,14 @@ import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
 
+import io.imunity.webadmin.identities.BaseColumn;
+import io.imunity.webadmin.identities.EntitiesLoader;
+import io.imunity.webadmin.identities.EntityChangedEvent;
+import io.imunity.webadmin.identities.EntityFilter;
+import io.imunity.webadmin.identities.IdentitiesGridColumnConstans;
+import io.imunity.webadmin.identities.IdentitiesTablePreferences;
+import io.imunity.webadmin.identities.IdentityEntry;
+import io.imunity.webadmin.identities.ResolvedEntity;
 import pl.edu.icm.unity.base.utils.Log;
 import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.PreferencesManagement;
@@ -65,42 +73,6 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private static final Logger log = Log.getLogger(Log.U_SERVER_WEB, IdentitiesGrid.class);
 	public static final String ENTITY_DND_TYPE = "entity"; 
 	
-	public static final String ATTR_COL_PREFIX = "a::";
-	public static final String ATTR_ROOT_COL_PREFIX = ATTR_COL_PREFIX + "root::";
-	public static final String ATTR_CURRENT_COL_PREFIX = ATTR_COL_PREFIX + "current::";
-	public static final int ATTR_COL_RATIO = 180;
-	private static final String CRED_STATUS_COL_PREFIX = "credStatus::";
-	private static final int CRED_STATUS_COL_RATIO = 100;
-	
-	enum BaseColumn {
-		entity("Identities.entity", false, false, 200), 
-		type("Identities.type", true, false, 100), 
-		identity("Identities.identity", true, false, 300), 
-		status("Identities.status", true, false, 100), 
-		local("Identities.local", true, true, 100), 
-		dynamic("Identities.dynamic", true, true, 100), 
-		credReq("Identities.credReq", true, true, 180), 
-		target("Identities.target", true, true, 180), 
-		realm("Identities.realm", true, true, 100),
-		remoteIdP("Identities.remoteIdP", true, true, 200), 
-		profile("Identities.profile", true, true, 100), 
-		scheduledOperation("Identities.scheduledOperation", true, true, 200);
-
-		private String captionKey;
-		private boolean collapsingAllowed;
-		private boolean initiallyCollapsed;
-		private int defWidth;
-		
-		BaseColumn(String captionKey, boolean collapsingAllowed, 
-				boolean initiallyCollapsed, int defWidth)
-		{
-			this.captionKey = captionKey;
-			this.collapsingAllowed = collapsingAllowed;
-			this.initiallyCollapsed = initiallyCollapsed;
-			this.defWidth = defWidth;
-		}
-	};
-
 	private final AttributeSupport attributeSupport;
 	private final CredentialManagement credentialManagement;
 	private final IdentityTypeSupport idTypeSupport;
@@ -318,7 +290,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		for (Column<IdentityEntry, ?> column: columns)
 		{
 			String columnId = column.getId();
-			if (columnId == null || !columnId.startsWith(ATTR_COL_PREFIX))
+			if (columnId == null || !columnId.startsWith(IdentitiesGridColumnConstans.ATTR_COL_PREFIX))
 				continue;
 			Attribute attribute = getAttributeForColumnProperty(columnId, rootAttributes, curAttributes);
 			String val;
@@ -348,23 +320,23 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		}
 		for (Map.Entry<String, CredentialDefinition> cd: credentialDefinitions.entrySet())
 		{
-			String colKey = CRED_STATUS_COL_PREFIX + cd.getKey();
+			String colKey = IdentitiesGridColumnConstans.CRED_STATUS_COL_PREFIX + cd.getKey();
 			if (getColumn(colKey) == null)
 			{
 				addColumn(ie -> ie.getCredentialStatus(cd.getKey()))
 					.setId(colKey)
 					.setCaption(cd.getValue().getName())
-					.setExpandRatio(CRED_STATUS_COL_RATIO)
+					.setExpandRatio(IdentitiesGridColumnConstans.CRED_STATUS_COL_RATIO)
 					.setHidable(true)
 					.setHidden(true);
 			}
 		}
 		
 		getColumnIds().stream()
-			.filter(colId -> colId.startsWith(CRED_STATUS_COL_PREFIX))
-			.map(colId -> colId.substring(CRED_STATUS_COL_PREFIX.length()))
+			.filter(colId -> colId.startsWith(IdentitiesGridColumnConstans.CRED_STATUS_COL_PREFIX))
+			.map(colId -> colId.substring(IdentitiesGridColumnConstans.CRED_STATUS_COL_PREFIX.length()))
 			.filter(credId -> !credentialDefinitions.containsKey(credId))
-			.forEach(credId -> removeColumn(CRED_STATUS_COL_PREFIX + credId));
+			.forEach(credId -> removeColumn(IdentitiesGridColumnConstans.CRED_STATUS_COL_PREFIX + credId));
 	}
 	
 	/**
@@ -377,8 +349,8 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	 */
 	void addAttributeColumn(String attribute, String group)
 	{
-		String key = (group == null) ? ATTR_CURRENT_COL_PREFIX + attribute 
-				: ATTR_ROOT_COL_PREFIX + attribute;
+		String key = (group == null) ? IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX + attribute 
+				: IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX + attribute;
 		if (getColumn(key) != null)
 		{
 			NotificationPopup.showError(msg.getMessage("Identities.customColumnExists"), "");
@@ -387,7 +359,7 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		
 		addColumn(ie -> ie.getAttribute(key))
 			.setCaption(attribute + (group == null ? "@" + this.group : "@/"))
-			.setExpandRatio(ATTR_COL_RATIO)
+			.setExpandRatio(IdentitiesGridColumnConstans.ATTR_COL_RATIO)
 			.setHidable(true)
 			.setHidden(false)
 			.setId(key);
@@ -406,9 +378,9 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	void removeAttributeColumn(String group, String attribute)
 	{
 		if (Strings.isEmpty(group))
-			removeColumn(ATTR_ROOT_COL_PREFIX + attribute);
+			removeColumn(IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX + attribute);
 		else if (group.equals(this.group))
-			removeColumn(ATTR_CURRENT_COL_PREFIX + attribute);
+			removeColumn(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX + attribute);
 		reloadTableContentsFromData();
 		savePreferences();
 	}
@@ -422,12 +394,12 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			String property = column.getId();
 			if (root)
 			{
-				if (property.startsWith(ATTR_ROOT_COL_PREFIX))
-					ret.add(property.substring(ATTR_ROOT_COL_PREFIX.length()));
+				if (property.startsWith(IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX))
+					ret.add(property.substring(IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX.length()));
 			} else
 			{
-				if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
-					ret.add(property.substring(ATTR_CURRENT_COL_PREFIX.length()));
+				if (property.startsWith(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX))
+					ret.add(property.substring(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX.length()));
 			}
 		}
 		return ret;
@@ -439,9 +411,9 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 		for (Column<IdentityEntry, ?> column: columns)
 		{
 			String property = column.getId();
-			if (property.startsWith(ATTR_CURRENT_COL_PREFIX))
+			if (property.startsWith(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX))
 			{
-				String attrName = property.substring(ATTR_CURRENT_COL_PREFIX.length());
+				String attrName = property.substring(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX.length());
 				column.setCaption(attrName + "@" + this.group);
 			}
 		}
@@ -450,13 +422,13 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 	private Attribute getAttributeForColumnProperty(String propId, Map<String, ? extends Attribute> rootAttributes, 
 			Map<String, ? extends Attribute> curAttributes)
 	{
-		if (propId.startsWith(ATTR_CURRENT_COL_PREFIX))
+		if (propId.startsWith(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX))
 		{
-			String attributeName = propId.substring(ATTR_CURRENT_COL_PREFIX.length());
+			String attributeName = propId.substring(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX.length());
 			return curAttributes.get(attributeName);
 		} else
 		{
-			String attributeName = propId.substring(ATTR_ROOT_COL_PREFIX.length());
+			String attributeName = propId.substring(IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX.length());
 			return rootAttributes.get(attributeName);
 		}
 	}
@@ -648,15 +620,15 @@ public class IdentitiesGrid extends TreeGrid<IdentityEntry>
 			{
 				if (!columns.contains(entry.getKey().toString()))
 				{
-					if (entry.getKey().startsWith(ATTR_ROOT_COL_PREFIX))
+					if (entry.getKey().startsWith(IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX))
 					{
 						addAttributeColumn(entry.getKey().substring(
-								ATTR_ROOT_COL_PREFIX.length()),
+								IdentitiesGridColumnConstans.ATTR_ROOT_COL_PREFIX.length()),
 								"/");
-					} else if (entry.getKey().startsWith(ATTR_CURRENT_COL_PREFIX))
+					} else if (entry.getKey().startsWith(IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX))
 					{
 						addAttributeColumn(entry.getKey().substring(
-								ATTR_CURRENT_COL_PREFIX.length()),
+								IdentitiesGridColumnConstans.ATTR_CURRENT_COL_PREFIX.length()),
 								null);
 					} else
 					{

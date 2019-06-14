@@ -25,6 +25,10 @@ $narrow-bar-size: 50px;
        	background-color: $hover-bg-color;
        	background-image: none;
     }
+    
+    .v-menubar-popup .v-menubar-separator{
+		height: 1px;
+	}
 
 	.v-filterselect-suggestpopup .gwt-MenuItem-selected {
 		color: $font-color-dark;
@@ -113,9 +117,11 @@ $narrow-bar-size: 50px;
 	
 	.u-fixedWidthCaptions .v-formlayout-captioncell .v-caption {
 		width: 18em;
-	
 	}
+	
 
+	
+	
     .u-sidebar {
     
     
@@ -131,13 +137,13 @@ $narrow-bar-size: 50px;
         }
         
         .v-grid-row-selected > td {
-        	background: $selected-color;
+        	background: $selected-color !important;
         	color: $font-color-dark;
         	border-color: $color-v-table-border;
         }
         
         .v-treegrid-row-selected > td {
-        	background: $selected-color;
+        	background: $selected-color !important;
         	color: $font-color-dark;
         	border-color: $color-v-table-border;
         }
@@ -146,6 +152,136 @@ $narrow-bar-size: 50px;
         	border: 1px solid $color-v-table-border;
         }
         
+        .v-tree8-cell {
+		 	padding: 0px;
+		 	text-overflow: unset;
+		}
+		
+		.v-tree8-cell .v-menubar-borderless{
+			padding: 0px;
+			margin: 0px;
+			overflow: hidden;
+		}
+	
+		.v-tree8-row-stripe > td {
+ 		   background-color: $content-bg-color;
+		}
+
+ 		.v-tree8-row-selected > td  {
+        	background: $selected-color;
+        	color: $font-color-dark;
+        	border-color: $color-v-table-border;     	
+        }    
+        
+        .v-tree8-row-selected::before{
+        	border: none;
+			background-color: transparent !important;
+			background-image : none !important;
+   		}
+             
+        .v-tree8-row-focused::before{
+       		border : none;
+        }
+        
+        .v-tree8-cell.frozen {
+			-webkit-box-shadow: none;
+			box-shadow: none;	
+			border: none;	
+		}
+	
+		.v-tree8 .v-tree8-row > td:first-child{	  
+	   		 padding-left: 6px;
+		}
+		
+		.u-denseTreeGrid td {
+			line-height: 34px;
+			height: 34px;
+		}
+	
+		.u-denseTreeGrid .v-treegrid-row-stripe > td{
+			background-color : $content-bg-color;
+		}
+	
+		.u-denseTreeGrid .v-treegrid-header th {
+			background:$content-bg-color;
+			background-color : $content-bg-color;
+			font-weight : bold;
+			border-top : none;
+			border-right : none;
+			border-left: none;
+			border-bottom: 1px solid #d4d4d4;
+		}
+		
+		.u-denseTreeGrid .v-treegrid-tablewrapper {
+    		border: none;
+    		background-color : $content-bg-color;
+		}
+		
+		.u-denseTreeGrid .v-treegrid-row > td:first-child{	  
+	   		width: 0px !important;
+	   		padding-left: 6px;
+		}
+		
+		.u-denseTreeGrid .v-treegrid-header th:first-child{	  
+	   		width: 0px !important;
+	   		padding-left: 6px;
+		}
+           
+        .u-denseTreeGrid .v-treegrid-row-focused::before {
+        	border: none;
+        }
+        .u-denseTreeGrid .v-treegrid-cell.frozen {
+			box-shadow: none;
+			-webkit-box-shadow: none;
+		}
+		
+		.u-denseTreeGrid .v-treegrid-row td {
+			border-left: none;
+			border-right: none;
+		}
+		
+		.u-denseTreeGrid .v-treegrid-spacer-deco {
+			width :0px;
+		}
+	
+		.u-denseTreeGrid .v-treegrid-header-deco {
+			border : none;
+			background: $content-bg-color;
+			background-color : $content-bg-color;
+		}
+	
+		.u-denseTreeGrid .v-treegrid-footer-deco {
+			border: none;
+			background: $content-bg-color;
+		}
+
+		.u-denseTreeGrid .v-treegrid-scroller {
+ 	  		border : none;
+ 	  		background: $content-bg-color;
+		}
+		
+		.u-denseTreeGrid .v-treegrid-scroller {
+ 	  		border : none;
+ 	  		background: $content-bg-color;
+		}
+		
+		.u-denseTreeGrid .v-treegrid-horizontal-scrollbar-deco{
+		    background: $content-bg-color;
+		 	border : none;
+		 }
+		 
+		.u-denseTreeGrid .v-treegrid-sidebar.v-contextmenu {
+    		background-color: $content-bg-color; 
+    		background-image: none;
+    		border: none;
+		 }
+		 
+		.u-denseTreeGrid  .v-treegrid-cell div.component-wrap {
+			
+			overflow: hidden; 
+		 }
+		 
+		
         .u-headerBar {
         	background-color: $menuTop-bg-color;
         	border-bottom: 1px solid $menuTop-bottom-border;
@@ -170,7 +306,7 @@ $narrow-bar-size: 50px;
         }
 
         .v-button-small:hover {
-        	background-color: $smallButton-hover-bg-color !important;
+        	background-color: $smallButton-hover-bg-color;
         	color: $smallButton-hover-color;
         	border: 1px solid;
         	border-color: $button-border-color;
@@ -195,8 +331,7 @@ $narrow-bar-size: 50px;
  				-webkit-box-shadow: none;
 			}
 		}
-
-        
+	
         .u-rootContent {
         	background: $content-bg-color;
 			color: $content-color;

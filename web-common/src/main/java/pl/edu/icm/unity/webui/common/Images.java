@@ -35,7 +35,10 @@ public enum Images
 
 	refresh		(VaadinIcons.REFRESH),
 	userMagnifier	(VaadinIcons.SEARCH),
-	folder		(VaadinIcons.FOLDER_OPEN_O),
+	folder_open_o	(VaadinIcons.FOLDER_OPEN_O),
+	folder_close_o	(VaadinIcons.FOLDER_O),
+	folder_open     (VaadinIcons.FOLDER_OPEN),
+	folder_close    (VaadinIcons.FOLDER),
 	add		(VaadinIcons.PLUS_CIRCLE_O),
 	addIdentity	(VaadinIcons.USER_CARD),
 	addEntity	(VaadinIcons.PLUS_CIRCLE_O),
@@ -113,7 +116,11 @@ public enum Images
 	envelope	(VaadinIcons.ENVELOPE),
 	records	        (VaadinIcons.RECORDS),
 	bullet	        (VaadinIcons.CIRCLE),
-	file_add	(VaadinIcons.FILE_ADD);
+	file_add	(VaadinIcons.FILE_ADD),
+	picture		(VaadinIcons.PICTURE),
+	caret_right	(VaadinIcons.CARET_RIGHT),
+	caret_down	(VaadinIcons.CARET_DOWN);
+	
 	
 	private final Resource resource;
 	private final String path;

@@ -687,14 +687,14 @@
 	
 	.u-gridWithAction .v-grid-header-deco {
 		border : none;
-		background: #FFFFFF;
-		background-color : #FFFFFF;
+		background: $content-bg-color;
+		background-color : $content-bg-color;
 	}
 	
 	.u-gridWithAction .v-grid-footer-deco {
 		border: none;
-		background: #FFFFFF;
-		background-color: #FFFFFF;
+		background: $content-bg-color;
+		background-color: $content-bg-color;
 	}
 		
 	.u-gridWithAction .v-grid-spacer.stripe > td {
@@ -703,7 +703,23 @@
 	}
 	
 	.u-gridWithAction .v-grid-scroller-vertical {
+ 	    background: $content-bg-color;
  	    border : none;
+	}
+	
+	.u-gridWithAction .v-grid-scroller-horizontal {
+ 	    background: $content-bg-color;
+ 	    border : none;
+	}
+	
+	.u-gridWithAction .v-grid-horizontal-scrollbar-deco{
+		    background: $content-bg-color;
+		 	border : none;
+	 }
+	
+	.u-gridWithAction .v-grid-scroller {
+ 	  		border : none;
+ 	  		background: $content-bg-color;
 	}
 	
 	.u-gridWithAction .v-grid-spacer > td {
@@ -712,9 +728,7 @@
 	}
 
 	.u-gridWithAction .v-grid-cell {
-		padding: 0px 0px 0px 0px;	
-		word-wrap : break-word !important;
-		white-space : normal;	
+		padding: 0px 0px 0px 2px;	
 		border-top: 0.5px solid #d4d4d4;
 		border-bottom: none;
 		border-right : none;
@@ -726,8 +740,8 @@
 	}
 	
 	.u-gridWithAction .v-grid-header th {
-		background: #FFFFFF;
-		background-color : #FFFFFF;
+		background: $content-bg-color;;
+		background-color : $content-bg-color;;
 		font-weight : bold;
 		border-top : none;
 		border-right : none;
@@ -743,17 +757,13 @@
 	    padding-left: 6px ;
 	}
 	
- 	.u-gridWithAction .v-grid-header th:nth-child(2) {
-		padding-left: 4px;
+ 	.u-gridWithActionMulti .v-grid-header th:nth-child(2) {
+		padding: 0px 0px 0px 0px;
 	}
 	
-	.u-gridWithAction .v-grid-row > td:nth-child(2) {
-		padding-left: 4px;
+	.u-gridWithActionMulti .v-grid-row > td:nth-child(2) {
+		padding: 0px 0px 0px 0px;
 	}
-	
-	/* .u-gridWithAction .v-grid-row > th:last-child {
-   	    text-align: right;	   
-	} */
 	
 	.u-gridWithAction .v-grid-tablewrapper {
     	border: none;
@@ -761,13 +771,8 @@
 
 	.u-gridWithAction .v-grid-row > td {
 		border-left: none;
-		background-color: transparent;
+		/*background-color: transparent;*/
 		border-right: none;
-		border-left: none;
-	}
-	
-	.u-gridWithAction .v-grid-row:nth-of-type(1) > td {
-		border-top: none;
 	}
 	
 	.u-gridWithAction .v-grid-row > td .v-button-small {
@@ -805,9 +810,31 @@
 		width: auto;
 	}
 	
+	.u-gridWithAction .v-grid-sidebar.v-contextmenu {
+    	background-color: $content-bg-color; 
+    	background-image: none;
+    	border: none;
+	}
+		 
 	.u-wordWrap {
 		word-wrap : break-word !important;
 		white-space : normal !important;	
 	}
-
+	
+	.u-showHideButton {
+		color: $font-color-dark !important;
+		border: none !important;
+		cursor: default !important;
+	}	
+	
+	.u-showHideButton:hover {
+		background-color: transparent !important;
+		background: none !important;
+	}	
+	
+	.u-showHideButton:active:not(.v-disabled) {
+		opacity: 1;		
+	}
+	
 }
+

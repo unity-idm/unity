@@ -14,14 +14,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.server.UserError;
-import com.vaadin.shared.ui.ContentMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
@@ -59,10 +57,7 @@ public class EnumAttributeHandler implements WebAttributeHandler
 	@Override
 	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-		Label label = new Label(value.toString(), ContentMode.PREFORMATTED);
-		if (context.isCustomWidth())
-			label.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
-		return label;
+		return AttributeHandlerHelper.getRepresentation(value, context);
 	}
 	
 	@Override

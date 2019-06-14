@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 
+import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.requests.RequestEntry;
 import io.imunity.webadmin.reg.requests.RequestSelectionListener;
@@ -27,6 +26,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.types.registration.RegistrationRequestStatus;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
+import pl.edu.icm.unity.webui.common.ComponentWithToolbar;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
@@ -34,6 +34,7 @@ import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
+import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
@@ -90,22 +91,15 @@ class RequestsGrid extends CustomComponent
 
 		TextField search = FilterableGridHelper.generateSearchField(requestsGrid, msg);
 		
-		VerticalLayout gridWrapper = new VerticalLayout();
-		gridWrapper.setMargin(false);
-		gridWrapper.setSpacing(false);
-		HorizontalLayout hamburgerAndSearchWrapper = new HorizontalLayout(hamburgerMenu, search);
-		hamburgerAndSearchWrapper.setWidth(100, Unit.PERCENTAGE);
-		hamburgerAndSearchWrapper.setComponentAlignment(hamburgerMenu, Alignment.BOTTOM_LEFT);
-		hamburgerAndSearchWrapper.setComponentAlignment(search, Alignment.BOTTOM_RIGHT);
-		hamburgerAndSearchWrapper.setMargin(false);
-		hamburgerAndSearchWrapper.setSpacing(false);
-		gridWrapper.addComponent(hamburgerAndSearchWrapper);
-		gridWrapper.setExpandRatio(hamburgerAndSearchWrapper, 0);
-		gridWrapper.addComponent(requestsGrid);
-		gridWrapper.setExpandRatio(requestsGrid, 2);
-		gridWrapper.setSizeFull();
+		Toolbar<RequestEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
+		toolbar.setWidth(100, Unit.PERCENTAGE);
+		toolbar.addHamburger(hamburgerMenu);
+		toolbar.addSearch(search, Alignment.MIDDLE_RIGHT);	
+		ComponentWithToolbar reqGridWithToolbar = new ComponentWithToolbar(requestsGrid, toolbar, Alignment.BOTTOM_LEFT);
+		reqGridWithToolbar.setSizeFull();
+		reqGridWithToolbar.setSpacing(false);
 
-		setCompositionRoot(gridWrapper);
+		setCompositionRoot(reqGridWithToolbar);
 		setSizeFull();
 		refresh();
 	}
