@@ -270,8 +270,8 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 	}
 
 	private TreeNode getSingleSelection()
-	{
-		if (getSelectedItems().size() < 1)
+	{	
+		if (getSelectedItems() != null && getSelectedItems().size() == 1)
 		{
 			return getSelectedItems().iterator().next();
 		} else
