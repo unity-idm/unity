@@ -84,6 +84,7 @@ public enum Styles
 	wordWrap("u-wordWrap"),
 	sectionTitle("u-sectionTitle"),
 	showHideButton("u-showHideButton"),
+	imagePreview("u-imagePreview"),
 	
 	//Valo
 	vPanelLight(ValoTheme.PANEL_BORDERLESS),

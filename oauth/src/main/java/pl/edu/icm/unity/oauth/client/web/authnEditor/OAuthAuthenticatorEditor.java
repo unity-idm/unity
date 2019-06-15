@@ -27,6 +27,7 @@ import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.files.URIHelper;
@@ -57,14 +58,16 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 	private PKIManagement pkiMan;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 	private RegistrationsManagement registrationMan;
 	private ProvidersComponent providersComponent;
 	private Binder<OAuthConfiguration> configBinder;
 	private SubViewSwitcher subViewSwitcher;
 
-	OAuthAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan, FileStorageService fileStorageService,
-			URIAccessService uriAccessService,InputTranslationProfileFieldFactory profileFieldFactory, 
+	OAuthAuthenticatorEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
+			FileStorageService fileStorageService, URIAccessService uriAccessService,
+			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan)
 	{
 		super(msg);
@@ -73,6 +76,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		this.registrationMan = registrationMan;
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
+		this.serverConfig = serverConfig;
 	}
 
 	@Override
@@ -98,11 +102,11 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		providersComponent.setCaption(msg.getMessage("OAuthAuthenticatorEditor.providers"));
 		configBinder.forField(providersComponent).bind("providers");
 		header.addComponent(providersComponent);
-		
+
 		VerticalLayout mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(header);
-		
+
 		OAuthConfiguration config = new OAuthConfiguration();
 		if (editMode)
 		{
@@ -110,7 +114,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 		}
 
 		configBinder.setBean(config);
-	
+
 		return mainView;
 	}
 
@@ -190,10 +194,9 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				logo = res == null ? Images.empty.getResource()
 						: res.getLocal() != null
 								? new FileStreamResource(res.getLocal()).getResource()
-								: new FileStreamResource(uriAccessService
-										.readImageURI(URIHelper.parseURI(
-												res.getRemote()),
-												UI.getCurrent().getTheme())
+								: new FileStreamResource(uriAccessService.readImageURI(
+										URIHelper.parseURI(res.getRemote()),
+										UI.getCurrent().getTheme())
 										.getContents()).getResource();
 			} catch (Exception e)
 			{
@@ -245,9 +248,8 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				return;
 			}
 
-			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, pkiMan, uriAccessService
-					,profileFieldFactory,
-					edited, usedIds, subViewSwitcher, forms, validators, r -> {
+			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, serverConfig, pkiMan, uriAccessService,
+					profileFieldFactory, edited, usedIds, subViewSwitcher, forms, validators, r -> {
 						onConfirm.accept(r);
 						fireChange();
 						providersList.focus();

@@ -29,6 +29,7 @@ import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -70,6 +71,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private PKIManagement pkiMan;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 
 	private InputTranslationProfileFieldFactory profileFieldFactory;
 
@@ -86,7 +88,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	private CheckBox defSignRequest;
 	private IndividualTrustedIdpComponent idps;
 
-	SAMLAuthenticatorEditor(UnityMessageSource msg, PKIManagement pkiMan,
+	SAMLAuthenticatorEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			RegistrationsManagement registrationMan, RealmsManagement realmMan,
 			IdentityTypesRegistry idTypesReg, FileStorageService fileStorageService, URIAccessService uriAccessService) throws EngineException
@@ -94,6 +96,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		super(msg);
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
+		this.serverConfig = serverConfig;
 		this.pkiMan = pkiMan;
 		this.profileFieldFactory = profileFieldFactory;
 		this.registrationMan = registrationMan;
@@ -257,7 +260,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 		autoGenerateMetadata.setEnabled(false);
 		metadataPublishing.addComponent(autoGenerateMetadata);
 
-		FileField metadataSource = new FileField(msg, "text/xml", "metadata.xml");
+		FileField metadataSource = new FileField(msg, "text/xml", "metadata.xml", serverConfig.getFileSizeLimit());
 		metadataSource.setCaption(msg.getMessage("SAMLAuthenticatorEditor.metadataFile"));
 		metadataSource.configureBinding(configBinder, "metadataSource", Optional.of((value, context) -> {
 			if (value != null && value.getLocal() != null)
@@ -536,7 +539,7 @@ class SAMLAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 				return;
 			}
 
-			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg,
+			EditIndividualTrustedIdpSubView subView = new EditIndividualTrustedIdpSubView(msg, serverConfig,
 					uriAccessService, profileFieldFactory, edited, subViewSwitcher, usedNames,
 					certificates, forms, r -> {
 						onConfirm.accept(r);

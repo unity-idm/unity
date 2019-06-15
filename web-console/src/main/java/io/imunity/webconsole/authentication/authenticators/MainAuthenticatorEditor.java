@@ -14,6 +14,7 @@ import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -33,7 +34,8 @@ import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
  */
 public class MainAuthenticatorEditor extends CustomComponent
 {
-	private ComboBox<AuthenticatorTypeDescription> authenticatorType;
+	private ComboBox<AuthenticatorTypeDescription> authenticatorTypeCombo;
+	private TextField authenticatorTypeLabel;
 	private UnityMessageSource msg;
 	private AuthenticatorEditorFactoriesRegistry editorsRegistry;
 	private Collection<AuthenticatorTypeDescription> autnTypes;
@@ -60,33 +62,44 @@ public class MainAuthenticatorEditor extends CustomComponent
 	{
 		Map<AuthenticatorTypeDescription, String> authnTypesSorted = getAuthenticatorTypes();
 
-		authenticatorType = new ComboBox<AuthenticatorTypeDescription>();
-		authenticatorType.setCaption(msg.getMessage("AuthenticatorEditor.typeCaption"));
-		authenticatorType.addSelectionListener(e -> reloadEditor());
-		authenticatorType.setEmptySelectionAllowed(false);
-		authenticatorType.setItemCaptionGenerator(t -> authnTypesSorted.get(t));
-		authenticatorType.setWidth(25, Unit.EM);
-		authenticatorType.setItems(authnTypesSorted.keySet());
+		authenticatorTypeCombo = new ComboBox<AuthenticatorTypeDescription>();
+		authenticatorTypeCombo.setCaption(msg.getMessage("AuthenticatorEditor.typeComboCaption"));
+		authenticatorTypeCombo.addSelectionListener(e -> reloadEditor());
+		authenticatorTypeCombo.setEmptySelectionAllowed(false);
+		authenticatorTypeCombo.setItemCaptionGenerator(t -> authnTypesSorted.get(t));
+		authenticatorTypeCombo.setWidth(25, Unit.EM);
+		authenticatorTypeCombo.setItems(authnTypesSorted.keySet());
 
+		authenticatorTypeLabel = new TextField();
+		authenticatorTypeLabel.setWidth(25, Unit.EM);
+		authenticatorTypeLabel.setCaption(msg.getMessage("AuthenticatorEditor.typeLabelCaption"));
+		authenticatorTypeLabel.setReadOnly(true);
+		
 		mainLayout = new VerticalLayout();
 		mainLayout.setMargin(false);
 		FormLayoutWithFixedCaptionWidth typeWrapper = new FormLayoutWithFixedCaptionWidth();
 		typeWrapper.setMargin(new MarginInfo(false, true));
-		typeWrapper.addComponent(authenticatorType);
+		typeWrapper.addComponent(authenticatorTypeCombo);
+		typeWrapper.addComponent(authenticatorTypeLabel);
 		mainLayout.addComponent(typeWrapper);
 
 		setCompositionRoot(mainLayout);
 
 		if (toEdit != null)
 		{
-			authenticatorType.setValue(authnTypesSorted.keySet().stream()
+			AuthenticatorTypeDescription desc = authnTypesSorted.keySet().stream()
 					.filter(t -> t.getVerificationMethod().equals(toEdit.authenticator.type))
-					.findFirst().orElse(null));
-			authenticatorType.setReadOnly(true);
+					.findFirst().orElse(null);
+			
+			authenticatorTypeCombo.setValue(desc);
+			authenticatorTypeCombo.setVisible(false);
+			authenticatorTypeLabel.setValue(desc != null ? getAuthenticatorTypeLabel(desc) : "");
+			authenticatorTypeLabel.setVisible(true);
 		} else
 		{
-
-			authenticatorType.setValue(authnTypesSorted.keySet().iterator().next());
+			authenticatorTypeCombo.setVisible(true);
+			authenticatorTypeLabel.setVisible(false);
+			authenticatorTypeCombo.setValue(authnTypesSorted.keySet().iterator().next());
 
 		}
 	}
@@ -118,7 +131,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 	private void reloadEditor()
 	{
 
-		AuthenticatorTypeDescription type = authenticatorType.getValue();
+		AuthenticatorTypeDescription type = authenticatorTypeCombo.getValue();
 		if (editorComponent != null)
 		{
 			mainLayout.removeComponent(editorComponent);

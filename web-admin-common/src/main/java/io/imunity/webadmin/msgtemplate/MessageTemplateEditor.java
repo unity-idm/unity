@@ -152,10 +152,11 @@ public class MessageTemplateEditor extends CompactFormLayout
 		body.addFocusListener(focusListener);
 
 		consumer.addValueChangeListener(event -> {
-			notificationChannels.reload(registry.getByName(event.getValue())
-					.getCompatibleTechnologies());
+			EnumSet<CommunicationTechnology> compatibleTechnologies = registry.getByName(event.getValue())
+					.getCompatibleTechnologies();
+			notificationChannels.reload(compatibleTechnologies);
 			notificationChannels.setDefaultValue();
-			notificationChannels.setVisible(!notificationChannels.getItems().isEmpty());
+			notificationChannels.setVisible(!compatibleTechnologies.isEmpty());
 			setMessageConsumerDesc();
 			updateValidator();
 			messageBinder.validate();
@@ -179,7 +180,23 @@ public class MessageTemplateEditor extends CompactFormLayout
 		binder.bind(description, "description");
 		binder.forField(consumer).asRequired(msg.getMessage("fieldRequired"))
 				.bind("consumer");
-		binder.forField(notificationChannels).withNullRepresentation("").bind("notificationChannel");
+		binder.forField(notificationChannels).withNullRepresentation("").withValidator((value, context) -> {
+			EnumSet<CommunicationTechnology> compatibleTechnologies = registry
+					.getByName(consumer.getValue()).getCompatibleTechnologies();
+			if (compatibleTechnologies.isEmpty())
+			{
+				return ValidationResult.ok();
+			} else if (value == null || value.isEmpty())
+			{
+				return ValidationResult.error(msg.getMessage("fieldRequired"));
+			} else if (notificationChannelsMap.get(value) == null)
+			{
+				return ValidationResult.error(msg.getMessage("MessageTemplatesEditor.undefinedChannel"));
+			}
+
+			return ValidationResult.ok();
+		}).bind("notificationChannel");
+		
 		binder.forField(messageType).asRequired(msg.getMessage("fieldRequired"))
 				.bind("type");
 		messageBinder = new Binder<>(I18nMessage.class);
@@ -294,7 +311,7 @@ public class MessageTemplateEditor extends CompactFormLayout
 		msgTemplate.setMessage(messageBinder.getBean());
 		
 		NotificationChannelInfo notificationChannel = notificationChannelsMap.get(msgTemplate.getNotificationChannel());
-		if (notificationChannel.isSupportingTemplates())
+		if (notificationChannel != null && notificationChannel.isSupportingTemplates())
 		{
 			String customVariables = customVariablesPicker.getItems().stream()
 					.map(variable -> "${custom." + variable + "}")

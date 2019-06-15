@@ -633,6 +633,11 @@ public class UnityServerConfiguration extends UnityFilePropertiesHelper
 		return pkiConf;
 	}
 	
+	public int getFileSizeLimit()
+	{
+		return getIntValue(UnityServerConfiguration.FILE_SIZE_LIMIT);
+	}
+	
 	public List<String> getEndpointAuth(String endpointKey)
 	{
 		String spec = getValue(endpointKey+UnityServerConfiguration.ENDPOINT_AUTHENTICATORS);

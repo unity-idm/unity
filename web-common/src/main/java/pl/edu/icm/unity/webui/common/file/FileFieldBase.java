@@ -38,7 +38,7 @@ import pl.edu.icm.unity.webui.common.binding.LocalOrRemoteResource;
  */
 public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 {
-	public static final int MAX_FILE_SIZE = 2000000;
+	private int maxFileSize;
 	
 	protected UnityMessageSource msg;
 
@@ -51,9 +51,10 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 	private Upload upload;
 	
 
-	public FileFieldBase(UnityMessageSource msg, String mimeType)
+	public FileFieldBase(UnityMessageSource msg, String mimeType, int maxFileSize)
 	{
 		this.msg = msg;
+		this.maxFileSize = maxFileSize;
 
 		ProgressBar progress = new ProgressBar();
 		progress.setVisible(false);
@@ -165,7 +166,7 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 		@Override
 		public OutputStream receiveUpload(String filename, String mimeType)
 		{
-			fos = new LimitedOuputStream(MAX_FILE_SIZE, new ByteArrayOutputStream(MAX_FILE_SIZE));
+			fos = new LimitedOuputStream(maxFileSize, new ByteArrayOutputStream(maxFileSize));
 			return fos;
 		}
 

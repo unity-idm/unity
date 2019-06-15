@@ -80,7 +80,7 @@ public class StandardButtonsHelper
 	{
 		return buildButtonsBar(Alignment.MIDDLE_LEFT, true,
 				buildCancelButton(msg.getMessage("cancel"), onCancel),
-				buildConfirmButton(msg.getMessage("add"), onConfirm));
+				buildConfirmButton(msg.getMessage("create"), onConfirm));
 	}
 
 	public static HorizontalLayout buildConfirmEditButtonsBar(UnityMessageSource msg, Runnable onConfirm,

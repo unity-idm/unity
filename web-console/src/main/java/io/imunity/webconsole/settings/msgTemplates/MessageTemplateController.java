@@ -7,9 +7,9 @@
 package io.imunity.webconsole.settings.msgTemplates;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -73,15 +73,15 @@ class MessageTemplateController
 		}
 	}
 	
-	void removeMessageTemplates(Set<MessageTemplate> items) throws ControllerException
+	void removeMessageTemplates(Set<MessageTemplateEntry> items) throws ControllerException
 	{
 		List<String> removed = new ArrayList<>();
 		try
 		{
-			for (MessageTemplate toRemove : items)
+			for (MessageTemplateEntry toRemove : items)
 			{
-				msgMan.removeTemplate(toRemove.getName());
-				removed.add(toRemove.getName());
+				msgMan.removeTemplate(toRemove.messageTemplate.getName());
+				removed.add(toRemove.messageTemplate.getName());
 			}
 		} catch (Exception e)
 		{
@@ -99,15 +99,15 @@ class MessageTemplateController
 		}
 	}
 	
-	Collection<MessageTemplate> getMessageTemplates() throws ControllerException
+	List<MessageTemplateEntry> getMessageTemplates() throws ControllerException
 	{
 		try
 		{
-			return msgMan.listTemplates().values();
+			return msgMan.listTemplates().values().stream().map(m -> new MessageTemplateEntry(m))
+					.collect(Collectors.toList());
 		} catch (Exception e)
 		{
-			throw new ControllerException(
-					msg.getMessage("MessageTemplateController.getAllError"), e);
+			throw new ControllerException(msg.getMessage("MessageTemplateController.getAllError"), e);
 		}
 	}
 	

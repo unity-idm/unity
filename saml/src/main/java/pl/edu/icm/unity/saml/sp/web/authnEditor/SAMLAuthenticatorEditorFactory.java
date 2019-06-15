@@ -12,6 +12,7 @@ import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypesRegistry;
@@ -38,11 +39,12 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	private IdentityTypesRegistry idTypesReg;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 
 	@Autowired
-	SAMLAuthenticatorEditorFactory(UnityMessageSource msg, RegistrationsManagement registrationMan,
-			RealmsManagement realmMan, PKIManagement pkiMan, IdentityTypesRegistry idTypesReg,
-			InputTranslationProfileFieldFactory profileFieldFactory,
+	SAMLAuthenticatorEditorFactory(UnityMessageSource msg, UnityServerConfiguration serverConfig,
+			RegistrationsManagement registrationMan, RealmsManagement realmMan, PKIManagement pkiMan,
+			IdentityTypesRegistry idTypesReg, InputTranslationProfileFieldFactory profileFieldFactory,
 			FileStorageService fileStorageService, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
@@ -53,7 +55,7 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 		this.idTypesReg = idTypesReg;
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
-	
+		this.serverConfig = serverConfig;
 
 	}
 
@@ -66,8 +68,8 @@ class SAMLAuthenticatorEditorFactory implements AuthenticatorEditorFactory
 	@Override
 	public AuthenticatorEditor createInstance() throws EngineException
 	{
-		return new SAMLAuthenticatorEditor(msg, pkiMan, profileFieldFactory, registrationMan, realmMan,
-				idTypesReg, fileStorageService, uriAccessService);
+		return new SAMLAuthenticatorEditor(msg, serverConfig, pkiMan, profileFieldFactory, registrationMan,
+				realmMan, idTypesReg, fileStorageService, uriAccessService);
 	}
 
 }

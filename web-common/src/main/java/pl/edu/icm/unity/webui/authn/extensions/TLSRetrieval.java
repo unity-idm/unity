@@ -32,8 +32,6 @@ import pl.edu.icm.unity.engine.api.authn.AbstractCredentialRetrievalFactory;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.stdext.credential.cert.CertificateExchange;
 import pl.edu.icm.unity.types.I18nString;
@@ -41,7 +39,6 @@ import pl.edu.icm.unity.types.basic.Entity;
 import pl.edu.icm.unity.webui.authn.VaadinAuthentication;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
 
 /**
  * Retrieves the authenticated user from the TLS. The login happens on the HTTP connection level 
@@ -57,19 +54,16 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	public static final String DESC = "WebTLSRetrievalFactory.desc";
 	
 	private UnityMessageSource msg;
-	private URIAccessService uriAccessService;
 	private I18nString name;
-	private String logoURL;
 	private String registrationFormForUnknown;
 	private boolean enableAssociation;
 	private String configuration;
 	
 	@Autowired
-	public TLSRetrieval(UnityMessageSource msg, URIAccessService uriAccessService)
+	public TLSRetrieval(UnityMessageSource msg)
 	{
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
-		this.uriAccessService = uriAccessService;
 	}
 	
 	@Override
@@ -90,11 +84,6 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 			name = config.getLocalizedString(msg, TLSRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebTLSRetrieval.title", msg);
-			logoURL = config.getValue(TLSRetrievalProperties.LOGO_URL);
-			if (logoURL != null && !logoURL.isEmpty())
-			{
-				URIHelper.parseURI(logoURL);
-			}
 			registrationFormForUnknown = config.getValue(
 					TLSRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN);
 			enableAssociation = config.getBooleanValue(TLSRetrievalProperties.ENABLE_ASSOCIATION);
@@ -109,7 +98,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	@Override
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
-		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI(uriAccessService));
+		return Collections.<VaadinAuthenticationUI>singleton(new TLSRetrievalUI());
 	}
 
 	@Override
@@ -128,16 +117,13 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 	} 
 	
 	private class TLSRetrievalUI implements VaadinAuthenticationUI
-	{
-		private URIAccessService uriAccessService;
-		
+	{	
 		private Component component = new TLSAuthnComponent();
 		private AuthenticationCallback callback;
 		private SandboxAuthnResultCallback sandboxCallback;
 		
-		public TLSRetrievalUI(URIAccessService uriAccessService)
+		public TLSRetrievalUI()
 		{
-			this.uriAccessService = uriAccessService;
 		}
 
 		@Override
@@ -176,16 +162,7 @@ public class TLSRetrieval extends AbstractCredentialRetrieval<CertificateExchang
 		@Override
 		public Resource getImage()
 		{
-			if (logoURL == null)
-				return null;
-			if ("".equals(logoURL))
-				return Images.certificate.getResource();
-			else
-			{
-				
-				return ImageUtils.getConfiguredImageResourceFromUriSave(logoURL, uriAccessService);
-			}
-
+			return Images.certificate.getResource();
 		}
 
 		private class TLSAuthnComponent extends VerticalLayout

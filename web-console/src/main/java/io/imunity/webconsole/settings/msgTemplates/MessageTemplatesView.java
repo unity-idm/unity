@@ -24,6 +24,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -52,6 +53,7 @@ import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
+import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -68,7 +70,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 	private UnityMessageSource msg;
 	private MessageTemplateController controller;
 	private SimpleMessageTemplateViewer viewer;
-	private GridWithActionColumn<MessageTemplate> messageTemplateGrid;
+	private GridWithActionColumn<MessageTemplateEntry> messageTemplateGrid;
 
 	@Autowired
 	MessageTemplatesView(UnityMessageSource msg, MessageTemplateController controller)
@@ -89,18 +91,18 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		messageTemplateGrid = new GridWithActionColumn<>(msg, getRowActionsHandlers(), false, false);
 		messageTemplateGrid
 				.addComponentColumn(
-						m -> StandardButtonsHelper.buildLinkButton(m.getName(),
+						m -> StandardButtonsHelper.buildLinkButton(m.messageTemplate.getName(),
 								e -> gotoEdit(m)),
 						msg.getMessage("MessageTemplatesView.nameCaption"), 10)
 				.setSortable(true).setComparator((m1, m2) -> {
-					return m1.getName().compareTo(m2.getName());
+					return m1.messageTemplate.getName().compareTo(m2.messageTemplate.getName());
 				}).setId("name");
 
-		messageTemplateGrid.addSortableColumn(m -> m.getNotificationChannel(),
+		messageTemplateGrid.addSortableColumn(m -> m.messageTemplate.getNotificationChannel(),
 				msg.getMessage("MessageTemplatesView.channelCaption"), 10);
-		messageTemplateGrid.addSortableColumn(m -> m.getType().toString(),
+		messageTemplateGrid.addSortableColumn(m -> m.messageTemplate.getType().toString(),
 				msg.getMessage("MessageTemplatesView.messageTypeCaption"), 10);
-		messageTemplateGrid.addSortableColumn(m -> m.getConsumer(),
+		messageTemplateGrid.addSortableColumn(m -> m.messageTemplate.getConsumer(),
 				msg.getMessage("MessageTemplatesView.purposeCaption"), 10);
 
 		messageTemplateGrid.addHamburgerActions(getRowHamburgerHandlers());
@@ -114,28 +116,31 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 			{
 				viewer.setInput(e.getAllSelectedItems().size() != 1 ? null
 						: controller.getPreprocedMessageTemplate(
-								e.getFirstSelectedItem().get()));
+								e.getFirstSelectedItem().get().messageTemplate));
 			} catch (ControllerException ex)
 			{
 				NotificationPopup.showError(msg, ex);
 			}
 		});
 
-		HamburgerMenu<MessageTemplate> hamburgerMenu = new HamburgerMenu<>();
+		HamburgerMenu<MessageTemplateEntry> hamburgerMenu = new HamburgerMenu<>();
 		hamburgerMenu.addStyleName(SidebarStyles.sidebar.toString());
 		hamburgerMenu.addActionHandlers(getGlobalHamburgerHandlers());
 		messageTemplateGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
+		TextField search = FilterableGridHelper.generateSearchField(messageTemplateGrid, msg);
+		
 		Toolbar<MessageTemplate> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
 		toolbar.addHamburger(hamburgerMenu);
+		toolbar.addSearch(search, Alignment.BOTTOM_RIGHT);
 		ComponentWithToolbar msgGridWithToolbar = new ComponentWithToolbar(messageTemplateGrid, toolbar, Alignment.BOTTOM_LEFT);
 		msgGridWithToolbar.setSpacing(false);
 		msgGridWithToolbar.setSizeFull();
 		
 		VerticalLayout gridWrapper = new VerticalLayout();
 		gridWrapper.setMargin(false);
-		gridWrapper.setSpacing(false);
+		gridWrapper.setSpacing(true);
 		gridWrapper.addComponent(buttonsBar);
 		gridWrapper.setExpandRatio(buttonsBar, 0);
 		gridWrapper.addComponent(msgGridWithToolbar);
@@ -166,20 +171,20 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		viewer.setInput(null);
 	}
 
-	private List<SingleActionHandler<MessageTemplate>> getRowActionsHandlers()
+	private List<SingleActionHandler<MessageTemplateEntry>> getRowActionsHandlers()
 	{
-		SingleActionHandler<MessageTemplate> edit = SingleActionHandler.builder4Edit(msg, MessageTemplate.class)
+		SingleActionHandler<MessageTemplateEntry> edit = SingleActionHandler.builder4Edit(msg, MessageTemplateEntry.class)
 				.withHandler(r -> gotoEdit(r.iterator().next())).build();
 		return Arrays.asList(edit);
 	}
 
-	private List<SingleActionHandler<MessageTemplate>> getRowHamburgerHandlers()
+	private List<SingleActionHandler<MessageTemplateEntry>> getRowHamburgerHandlers()
 	{
-		SingleActionHandler<MessageTemplate> remove = SingleActionHandler
-				.builder4Delete(msg, MessageTemplate.class).withHandler(items -> tryRemove(items))
+		SingleActionHandler<MessageTemplateEntry> remove = SingleActionHandler
+				.builder4Delete(msg, MessageTemplateEntry.class).withHandler(items -> tryRemove(items))
 				.build();
 
-		SingleActionHandler<MessageTemplate> preview = SingleActionHandler.builder(MessageTemplate.class)
+		SingleActionHandler<MessageTemplateEntry> preview = SingleActionHandler.builder(MessageTemplateEntry.class)
 				.withCaption(msg.getMessage("MessageTemplatesView.preview"))
 				.withIcon(Images.userMagnifier.getResource())
 				.withHandler(items -> preview(items.iterator().next())).build();
@@ -187,12 +192,12 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		return Arrays.asList(preview, remove);
 	}
 
-	private List<SingleActionHandler<MessageTemplate>> getGlobalHamburgerHandlers()
+	private List<SingleActionHandler<MessageTemplateEntry>> getGlobalHamburgerHandlers()
 	{
-		SingleActionHandler<MessageTemplate> remove = SingleActionHandler
-				.builder4Delete(msg, MessageTemplate.class).withHandler(items -> tryRemove(items))
+		SingleActionHandler<MessageTemplateEntry> remove = SingleActionHandler
+				.builder4Delete(msg, MessageTemplateEntry.class).withHandler(items -> tryRemove(items))
 				.multiTarget().build();
-		SingleActionHandler<MessageTemplate> reset = SingleActionHandler.builder(MessageTemplate.class)
+		SingleActionHandler<MessageTemplateEntry> reset = SingleActionHandler.builder(MessageTemplateEntry.class)
 				.withCaption(msg.getMessage("MessageTemplatesView.resetToDefault"))
 				.withIcon(Images.reload.getResource()).withHandler(items -> resetFromConfig(items))
 				.multiTarget().build();
@@ -200,12 +205,12 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		return Arrays.asList(remove, reset);
 	}
 
-	private void preview(MessageTemplate toPreview)
+	private void preview(MessageTemplateEntry toPreview)
 	{
 		MessageTemplate preprocessedTemplate;
 		try
 		{
-			preprocessedTemplate = controller.getPreprocedMessageTemplate(toPreview);
+			preprocessedTemplate = controller.getPreprocedMessageTemplate(toPreview.messageTemplate);
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);
@@ -216,13 +221,14 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 						: ContentMode.TEXT));
 	}
 
-	private void gotoEdit(MessageTemplate e)
+	private void gotoEdit(MessageTemplateEntry e)
 	{
 		NavigationHelper.goToView(EditMessageTemplateView.VIEW_NAME + "/" + CommonViewParam.name.toString()
-				+ "=" + e.getName());
+				+ "=" + e.messageTemplate
+						.getName());
 	}
 
-	private Collection<MessageTemplate> getMessageTemplates()
+	private Collection<MessageTemplateEntry> getMessageTemplates()
 	{
 		try
 		{
@@ -234,7 +240,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		return Collections.emptyList();
 	}
 
-	private void remove(Set<MessageTemplate> msgTemplates)
+	private void remove(Set<MessageTemplateEntry> msgTemplates)
 	{
 		try
 		{
@@ -247,20 +253,21 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		}
 	}
 
-	private void tryRemove(Set<MessageTemplate> msgTemplates)
+	private void tryRemove(Set<MessageTemplateEntry> msgTemplates)
 	{
 		String confirmText = MessageUtils.createConfirmFromStrings(msg,
-				msgTemplates.stream().map(m -> m.getName()).collect(Collectors.toList()));
+				msgTemplates.stream().map(m -> m.messageTemplate.getName()).collect(Collectors.toList()));
 		new ConfirmDialog(msg, msg.getMessage("MessageTemplatesView.confirmDelete", confirmText),
 				() -> remove(msgTemplates)).show();
 	}
 
-	private void resetFromConfig(Set<MessageTemplate> msgTemplates)
+	private void resetFromConfig(Set<MessageTemplateEntry> msgTemplates)
 	{
 		try
 		{
 			controller.reloadFromConfiguration(
-					msgTemplates.stream().map(m -> m.getName()).collect(Collectors.toSet()));
+					msgTemplates.stream().map(m -> m.messageTemplate
+							.getName()).collect(Collectors.toSet()));
 		} catch (ControllerException e)
 		{
 			NotificationPopup.showError(msg, e);

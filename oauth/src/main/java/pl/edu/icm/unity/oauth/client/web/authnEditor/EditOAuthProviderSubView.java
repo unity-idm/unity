@@ -27,6 +27,7 @@ import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.PKIManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties;
@@ -70,6 +71,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 	private UnityMessageSource msg;
 	private PKIManagement pkiMan;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 	private Map<String, CustomProviderProperties> templates;
 
 	private Binder<OAuthProviderConfiguration> configBinder;
@@ -77,7 +79,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 	private boolean editMode = false;
 
-	EditOAuthProviderSubView(UnityMessageSource msg, PKIManagement pkiMan, URIAccessService uriAccessService,
+	EditOAuthProviderSubView(UnityMessageSource msg, UnityServerConfiguration serverConfig, PKIManagement pkiMan, URIAccessService uriAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			OAuthProviderConfiguration toEdit, Set<String> providersIds, SubViewSwitcher subViewSwitcher,
 			Set<String> registrationForms, Set<String> validators,
@@ -86,7 +88,8 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		this.msg = msg;
 		this.pkiMan = pkiMan;
 		this.uriAccessService = uriAccessService;
-
+		this.serverConfig = serverConfig;
+		
 		editMode = toEdit != null;
 
 		configBinder = new Binder<>(OAuthProviderConfiguration.class);
@@ -189,7 +192,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		configBinder.forField(requestedScopes).bind("requestedScopes");
 		header.addComponent(requestedScopes);
 
-		ImageField logo = new ImageField(msg, uriAccessService);
+		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
 		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
 		logo.configureBinding(configBinder, "logo");
 		header.addComponent(logo);

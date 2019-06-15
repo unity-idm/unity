@@ -33,6 +33,7 @@ import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
 import pl.edu.icm.unity.engine.api.RealmsManagement;
 import pl.edu.icm.unity.engine.api.authn.AuthenticatorSupportService;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -77,6 +78,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private RealmsManagement realmsManagement;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequestsAndInvitation;
@@ -107,7 +109,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 	private ComboBox<String> realmNames;
 	
 	@Autowired
-	public RegistrationFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
+	public RegistrationFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan,
@@ -131,6 +133,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		this.realmsManagement = realmsManagement;
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
+		this.serverConfig = serverConfig;
 	}
 	
 	public RegistrationFormEditor init(boolean copyMode)
@@ -334,7 +337,7 @@ public class RegistrationFormEditor extends BaseFormEditor
 		main.addComponents(displayedName, title2ndStage, formInformation, pageTitle, 
 				showGotoSignin, signInUrl, showCancel, localSignupEmbeddedAsButton);
 
-		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, fileStorageService, uriAccessService);
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, uriAccessService);
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setMargin(true);
 		wrapper.setSpacing(false);

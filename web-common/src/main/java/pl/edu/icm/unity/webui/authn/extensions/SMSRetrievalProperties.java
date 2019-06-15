@@ -35,7 +35,7 @@ public class SMSRetrievalProperties extends UnityPropertiesHelper
 				.setDescription("Label to be used on UI for this option. "
 						+ "Can have multiple language variants defined with subkeys."));
 		defaults.put(LOGO_URL, new PropertyMD()
-				.setDescription("URL of a logo to be used for this authN option on UI"));
+				.setDescription("URL of a logo to be used for this authN option on UI").setDeprecated());
 	}
 	
 	public SMSRetrievalProperties(Properties properties)

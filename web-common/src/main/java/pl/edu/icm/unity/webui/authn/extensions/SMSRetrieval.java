@@ -38,8 +38,6 @@ import pl.edu.icm.unity.engine.api.authn.AuthenticationResult;
 import pl.edu.icm.unity.engine.api.authn.AuthenticationResult.Status;
 import pl.edu.icm.unity.engine.api.authn.remote.SandboxAuthnResultCallback;
 import pl.edu.icm.unity.engine.api.confirmation.SMSCode;
-import pl.edu.icm.unity.engine.api.files.URIAccessService;
-import pl.edu.icm.unity.engine.api.files.URIHelper;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.exceptions.EngineException;
@@ -61,7 +59,6 @@ import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorRegistry;
-import pl.edu.icm.unity.webui.common.file.ImageUtils;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlLabel;
 
 /**
@@ -77,19 +74,16 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public static final String DESC = "WebSMSRetrievalFactory.desc";
 	
 	private UnityMessageSource msg;
-	private URIAccessService uriAccessService;
 	private I18nString name;
-	private String logoURL;
 	private CredentialEditorRegistry credEditorReg;
 	private String configuration;
 	
 	@Autowired
-	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg, URIAccessService fileStorageService)
+	public SMSRetrieval(UnityMessageSource msg, CredentialEditorRegistry credEditorReg)
 	{	
 		super(VaadinAuthentication.NAME);
 		this.msg = msg;
 		this.credEditorReg = credEditorReg;
-		this.uriAccessService = fileStorageService;
 	}
 	
 	@Override
@@ -110,11 +104,6 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 			name = config.getLocalizedString(msg, SMSRetrievalProperties.NAME);
 			if (name.isEmpty())
 				name = new I18nString("WebSMSRetrieval.title", msg);
-			logoURL = config.getValue(SMSRetrievalProperties.LOGO_URL);
-			if (logoURL != null && !logoURL.isEmpty())
-			{
-				URIHelper.parseURI(logoURL);
-			}	
 	
 		} catch (Exception e)
 		{
@@ -127,7 +116,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	public Collection<VaadinAuthenticationUI> createUIInstance(Context context)
 	{
 		return Collections.<VaadinAuthenticationUI>singleton(
-				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME), uriAccessService));
+				new SMSRetrievalUI(credEditorReg.getEditor(SMSVerificator.NAME)));
 	}
 
 	@Override
@@ -454,12 +443,10 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 	private class SMSRetrievalUI implements VaadinAuthenticationUI
 	{
 		private SMSRetrievalComponent theComponent;
-		private  URIAccessService uriAccessService;
 
-		public SMSRetrievalUI(CredentialEditor credEditor, URIAccessService uriAccessService)
+		public SMSRetrievalUI(CredentialEditor credEditor)
 		{
 			this.theComponent = new SMSRetrievalComponent(credEditor);
-			this.uriAccessService = uriAccessService;
 		}
 
 		@Override
@@ -489,14 +476,7 @@ public class SMSRetrieval extends AbstractCredentialRetrieval<SMSExchange> imple
 		@Override
 		public Resource getImage()
 		{
-			if (logoURL == null)
-				return null;
-			if ("".equals(logoURL))
-				return Images.mobile_sms.getResource();
-			else
-			{
-				return ImageUtils.getConfiguredImageResourceFromUriSave(logoURL, uriAccessService);
-			}
+			return Images.mobile_sms.getResource();
 		}
 
 		@Override

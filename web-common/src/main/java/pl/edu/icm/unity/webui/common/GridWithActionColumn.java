@@ -190,7 +190,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 	public Column<T, CheckBox> addCheckboxColumn(ValueProvider<T, Boolean> valueProvider, String caption,
 			int expandRatio)
 	{
-		Column<T, CheckBox> column = addComponentColumn(t -> getCheckBox(valueProvider.apply(t)))
+		Column<T, CheckBox> column = addComponentColumn(t -> createReadOnlyCheckBox(valueProvider.apply(t)))
 				.setCaption(caption).setExpandRatio(expandRatio).setResizable(false).setSortable(true)
 				.setComparator((t1, t2) -> {
 					return valueProvider.apply(t1).compareTo(valueProvider.apply(t2));
@@ -199,7 +199,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 		return column;
 	}
 
-	private CheckBox getCheckBox(boolean value)
+	private CheckBox createReadOnlyCheckBox(boolean value)
 	{
 		CheckBox check = new CheckBox();
 		check.setValue(value);
@@ -293,6 +293,7 @@ public class GridWithActionColumn<T> extends Grid<T> implements FilterableGrid<T
 			actionButton.setDescription(handler.getCaption());
 			actionButton.addClickListener(e -> handler.handle(target));
 			actionButton.setEnabled(handler.isEnabled(target));
+			actionButton.setVisible(handler.isVisible(target));
 			actions.addComponent(actionButton);
 			actions.setComponentAlignment(actionButton, Alignment.TOP_CENTER);
 		}

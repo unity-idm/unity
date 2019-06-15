@@ -15,6 +15,7 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.TextField;
 
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -36,14 +37,17 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 	private UnityMessageSource msg;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 
 	private Binder<FormLayoutSettingsWithLogo> binder;
-	
-	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg, FileStorageService fileStorageService, URIAccessService uriAccessService)
+
+	public RegistrationFormLayoutSettingsEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig,
+			FileStorageService fileStorageService, URIAccessService uriAccessService)
 	{
 		this.msg = msg;
-		this.fileStorageService = fileStorageService;	
+		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
+		this.serverConfig = serverConfig;
 		initUI();
 	}
 
@@ -52,29 +56,30 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 		FormLayout main = new FormLayout();
 		main.setSpacing(true);
 		CheckBox compactInputs = new CheckBox(msg.getMessage("FormLayoutEditor.compactInputs"));
-		
-		ImageField logo = new ImageField(msg, uriAccessService);
+
+		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
 		logo.setCaption(msg.getMessage("FormLayoutEditor.logo"));
 		logo.setDescription(msg.getMessage("FormLayoutEditor.logoDesc"));
-	
+
 		TextField columnWidth = new TextField(msg.getMessage("FormLayoutEditor.columnWidth"));
-		ComboBox<String> columnWidthUnit = new NotNullComboBox<>(msg.getMessage("FormLayoutEditor.columnWidthUnit"));
+		ComboBox<String> columnWidthUnit = new NotNullComboBox<>(
+				msg.getMessage("FormLayoutEditor.columnWidthUnit"));
 		columnWidthUnit.setItems(Stream.of(Unit.values()).map(Unit::toString));
-		
+
 		main.addComponents(logo, columnWidth, columnWidthUnit, compactInputs);
 		setCompositionRoot(main);
-		
+
 		binder = new Binder<>(FormLayoutSettingsWithLogo.class);
 		binder.forField(compactInputs).bind("compactInputs");
 		logo.configureBinding(binder, "logo");
-		binder.forField(columnWidth)
-			.asRequired(msg.getMessage("fieldRequired"))
-			.withConverter(new StringToFloatConverter(msg.getMessage("FormLayoutEditor.columnWidth.mustBeFloat")))
-			.withValidator(new FloatRangeValidator(msg.getMessage("FormLayoutEditor.columnWidth.mustBePositive"), 0f, Float.MAX_VALUE))
-			.bind("columnWidth");
-		binder.forField(columnWidthUnit)
-			.asRequired(msg.getMessage("fieldRequired"))
-			.bind("columnWidthUnit");
+		binder.forField(columnWidth).asRequired(msg.getMessage("fieldRequired"))
+				.withConverter(new StringToFloatConverter(
+						msg.getMessage("FormLayoutEditor.columnWidth.mustBeFloat")))
+				.withValidator(new FloatRangeValidator(
+						msg.getMessage("FormLayoutEditor.columnWidth.mustBePositive"), 0f,
+						Float.MAX_VALUE))
+				.bind("columnWidth");
+		binder.forField(columnWidthUnit).asRequired(msg.getMessage("fieldRequired")).bind("columnWidthUnit");
 		binder.setBean(new FormLayoutSettingsWithLogo(FormLayoutSettings.DEFAULT, uriAccessService));
 	}
 
@@ -87,7 +92,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 	{
 		binder.setBean(new FormLayoutSettingsWithLogo(settings, uriAccessService));
 	}
-	
+
 	public static class FormLayoutSettingsWithLogo extends FormLayoutSettings
 	{
 		private LocalOrRemoteResource logo;
@@ -105,12 +110,10 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			this.setCompactInputs(org.isCompactInputs());
 			if (org.getLogoURL() != null)
 			{
-				this.setLogo(ImageUtils.getImageFromUriSave(org.getLogoURL(),
-						uriAccessService));
+				this.setLogo(ImageUtils.getImageFromUriSave(org.getLogoURL(), uriAccessService));
 			}
 		}
-		
-		
+
 		public FormLayoutSettings toFormLayoutSettings(FileStorageService fileStorageService, String formName)
 		{
 			FormLayoutSettings settings = new FormLayoutSettings();
@@ -118,8 +121,9 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 			settings.setColumnWidthUnit(this.getColumnWidthUnit());
 			settings.setShowCancel(this.isShowCancel());
 			settings.setCompactInputs(this.isCompactInputs());
-			settings.setLogoURL(FileFieldUtils.saveFile(getLogo(), fileStorageService, FileStorageService.StandardOwner.FORM.toString(), formName));
-			
+			settings.setLogoURL(FileFieldUtils.saveFile(getLogo(), fileStorageService,
+					FileStorageService.StandardOwner.FORM.toString(), formName));
+
 			return settings;
 		}
 
@@ -131,7 +135,7 @@ public class RegistrationFormLayoutSettingsEditor extends CustomComponent
 		public void setLogo(LocalOrRemoteResource logo)
 		{
 			this.logo = logo;
-		}	
+		}
 	}
-	
+
 }

@@ -180,6 +180,7 @@ public class ImportExportComponent extends VerticalLayout
 			}
 		});
 		confirm.setHTMLContent(true);
+		confirm.setSizeEm(50, 30);
 		confirm.show();
 	}
 

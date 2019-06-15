@@ -27,6 +27,7 @@ import pl.edu.icm.unity.engine.api.CredentialManagement;
 import pl.edu.icm.unity.engine.api.GroupsManagement;
 import pl.edu.icm.unity.engine.api.MessageTemplateManagement;
 import pl.edu.icm.unity.engine.api.NotificationsManagement;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.FileStorageService;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.identity.IdentityTypeSupport;
@@ -65,6 +66,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	private MessageTemplateManagement msgTempMan;
 	private FileStorageService fileStorageService;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 	
 	private TabSheet tabs;
 	private CheckBox ignoreRequestsAndInvitation;
@@ -85,7 +87,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 	
 	
 	@Autowired
-	public EnquiryFormEditor(UnityMessageSource msg, GroupsManagement groupsMan,
+	public EnquiryFormEditor(UnityMessageSource msg, UnityServerConfiguration serverConfig, GroupsManagement groupsMan,
 			NotificationsManagement notificationsMan,
 			MessageTemplateManagement msgTempMan, IdentityTypeSupport identitiesMan,
 			AttributeTypeManagement attributeMan,
@@ -102,6 +104,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		this.fileStorageService = fileStorageService;
 		this.uriAccessService = uriAccessService;
 		actionComponentProvider = actionComponentFactory;
+		this.serverConfig = serverConfig;
 		this.actionComponentProvider.init();
 	}
 
@@ -266,7 +269,7 @@ public class EnquiryFormEditor extends BaseFormEditor
 		initCommonDisplayedFields();
 		main.addComponents(displayedName, formInformation, pageTitle);
 		
-		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, fileStorageService, uriAccessService);
+		layoutSettingsEditor = new RegistrationFormLayoutSettingsEditor(msg, serverConfig, fileStorageService, uriAccessService);
 		
 		VerticalLayout wrapper = new VerticalLayout(main, layoutSettingsEditor);
 		wrapper.setMargin(true);

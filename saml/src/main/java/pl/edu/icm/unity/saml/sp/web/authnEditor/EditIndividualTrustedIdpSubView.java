@@ -22,6 +22,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
 import io.imunity.webelements.helpers.StandardButtonsHelper;
+import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
 import pl.edu.icm.unity.engine.api.files.URIAccessService;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.saml.SamlProperties.Binding;
@@ -49,6 +50,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 
 	private UnityMessageSource msg;
 	private URIAccessService uriAccessService;
+	private UnityServerConfiguration serverConfig;
 	private Binder<IndividualTrustedSamlIdpConfiguration> configBinder;
 	private boolean editMode = false;
 
@@ -56,7 +58,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 	private Set<String> registrationForms;
 	private Set<String> usedNames;
 
-	EditIndividualTrustedIdpSubView(UnityMessageSource msg, URIAccessService uriAccessService,
+	EditIndividualTrustedIdpSubView(UnityMessageSource msg, UnityServerConfiguration serverConfig, URIAccessService uriAccessService,
 			InputTranslationProfileFieldFactory profileFieldFactory,
 			IndividualTrustedSamlIdpConfiguration toEdit, SubViewSwitcher subViewSwitcher,
 			Set<String> usedNames, Set<String> certificates, Set<String> registrationForms,
@@ -67,6 +69,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		this.registrationForms = registrationForms;
 		this.usedNames = usedNames;
 		this.uriAccessService = uriAccessService;
+		this.serverConfig = serverConfig;
 		editMode = toEdit != null;
 
 		configBinder = new Binder<>(IndividualTrustedSamlIdpConfiguration.class);
@@ -129,7 +132,7 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 		configBinder.forField(displayedName).asRequired(msg.getMessage("fieldRequired")).bind("displayedName");
 		header.addComponent(displayedName);
 
-		ImageField logo = new ImageField(msg, uriAccessService);
+		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
 		logo.setCaption(msg.getMessage("EditIndividualTrustedIdpSubView.logo"));
 		logo.configureBinding(configBinder, "logo");
 		header.addComponent(logo);

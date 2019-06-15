@@ -111,12 +111,14 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 	{
 		SingleActionHandler<CredentialDefinition> show = SingleActionHandler
 				.builder4ShowDetails(msg, CredentialDefinition.class)
-				.withHandler(r -> gotoShowDetails(r.iterator().next())).build();
+				.withHandler(r -> gotoShowDetails(r.iterator().next()))
+				.withDisabledPredicate(r -> !r.isReadOnly()).hideIfInactive()
+				.build();
 
 		SingleActionHandler<CredentialDefinition> edit = SingleActionHandler
 				.builder4Edit(msg, CredentialDefinition.class)
 				.withHandler(r -> gotoEdit(r.iterator().next()))
-				.withDisabledPredicate(r -> r.isReadOnly()).build();
+				.withDisabledPredicate(r -> r.isReadOnly()).hideIfInactive().build();
 
 		SingleActionHandler<CredentialDefinition> remove = SingleActionHandler
 				.builder4Delete(msg, CredentialDefinition.class)

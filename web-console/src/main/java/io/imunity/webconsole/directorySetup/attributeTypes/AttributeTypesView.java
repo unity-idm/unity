@@ -51,7 +51,6 @@ import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
-import pl.edu.icm.unity.webui.common.i18n.I18nLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -156,9 +155,9 @@ class AttributeTypesView extends CustomComponent implements UnityView
 	
 	private FormLayout getDetailsComponent(AttributeTypeEntry a)
 	{
-		I18nLabel desc = new I18nLabel(msg);
+		Label desc = new Label();
 		desc.setCaption(msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
-		desc.setValue(a.attributeType.getDescription());
+		desc.setValue(a.attributeType.getDescription().getDefaultLocaleValue(msg));
 		FormLayout wrapper = new FormLayout(desc);
 		desc.setStyleName(Styles.wordWrap.toString());
 		wrapper.setWidth(95, Unit.PERCENTAGE);
@@ -182,7 +181,7 @@ class AttributeTypesView extends CustomComponent implements UnityView
 	{
 		SingleActionHandler<AttributeTypeEntry> edit = SingleActionHandler
 				.builder4Edit(msg, AttributeTypeEntry.class)
-				.withDisabledPredicate(at -> (at.isEditable()))
+				.withDisabledPredicate(at -> !at.isEditable())
 				.withHandler(r -> gotoEdit(r.iterator().next())).build();
 
 		return Arrays.asList(edit);

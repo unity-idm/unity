@@ -36,7 +36,7 @@ public class CollapsibleLayout extends CustomComponent
 		
 		modeButton = new Button();
 		modeButton.addStyleName(Styles.vButtonLink.toString());
-		modeButton.addStyleName("u-showHideGrid");
+		modeButton.addStyleName(Styles.showHideButton.toString());
 		modeButton.addClickListener(e -> changeMode());
 	
 		Label captionLabel = new Label(caption);

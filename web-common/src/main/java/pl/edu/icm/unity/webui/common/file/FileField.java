@@ -26,9 +26,9 @@ public class FileField extends FileFieldBase
 	private Button downloadButton;
 	private String fileName;
 	
-	public FileField(UnityMessageSource msg, String mimeType, String previewFileName)
+	public FileField(UnityMessageSource msg, String mimeType, String previewFileName, int maxFileSize)
 	{
-		super(msg, mimeType);
+		super(msg, mimeType, maxFileSize);
 		this.fileName = previewFileName;
 		downloader = new SimpleFileDownloader();
 		addExtension(downloader);
