@@ -49,11 +49,11 @@
        		LEFT JOIN AUDIT_ENTITIES AS I ON E.INITIATOR_ID = I.ID
        		LEFT JOIN AUDIT_EVENTS_TAGS AET ON E.ID = AET.EVENT_ID
        		LEFT JOIN AUDIT_TAGS AT ON AET.TAG_ID = AT.ID
-       	ORDER BY E.TIMESTAMP;
 	</sql>
 
 	<select id="getAll" resultMap="auditEventResult">
 		<include refid="getWithJoin"/>
+		ORDER BY E.TIMESTAMP
 	</select>
 
 	<select id="getByKey" parameterType="long" resultMap="auditEventResult">
@@ -96,7 +96,7 @@
 		#{item}
 	</foreach>
 	)
-</insert>
+	</insert>
 
 	<delete id="deleteTags">
 		DELETE FROM AUDIT_EVENTS_TAGS WHERE EVENT_ID=#{eventId};
