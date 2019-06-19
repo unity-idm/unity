@@ -5,7 +5,9 @@
 
 package pl.edu.icm.unity.webui.common.chips;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * {@link ChipsWithDropdown} text version. Allow also for free-text input.
@@ -22,5 +24,11 @@ public class ChipsWithFreeText extends ChipsWithDropdown<String>
 			combo.setSelectedItem(s);
 			return Optional.of(s);
 		});
+	}
+	
+	@Override
+	protected void updateComboVisibility(Set<String> selected, List<String> available)
+	{
+		combo.setVisible(true);
 	}
 }

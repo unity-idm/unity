@@ -8,8 +8,10 @@ package io.imunity.webconsole.authentication.authenticators;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.vaadin.event.selection.SingleSelectionListener;
 import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
@@ -45,16 +47,18 @@ public class MainAuthenticatorEditor extends CustomComponent
 	private AuthenticatorEditor editor;
 	private Component editorComponent;
 	private VerticalLayout mainLayout;
+	private Optional<SingleSelectionListener<AuthenticatorTypeDescription>> typeChangeListener;
 
 	public MainAuthenticatorEditor(UnityMessageSource msg, AuthenticatorEditorFactoriesRegistry editorsRegistry,
 			Collection<AuthenticatorTypeDescription> autnTypes, AuthenticatorEntry toEdit,
-			SubViewSwitcher subViewSwitcher)
+			SubViewSwitcher subViewSwitcher, Optional<SingleSelectionListener<AuthenticatorTypeDescription>> typeChangeListener)
 	{
 		this.msg = msg;
 		this.toEdit = toEdit;
 		this.editorsRegistry = editorsRegistry;
 		this.autnTypes = autnTypes;
 		this.subViewSwitcher = subViewSwitcher;
+		this.typeChangeListener = typeChangeListener;
 		initUI();
 	}
 
@@ -65,6 +69,10 @@ public class MainAuthenticatorEditor extends CustomComponent
 		authenticatorTypeCombo = new ComboBox<AuthenticatorTypeDescription>();
 		authenticatorTypeCombo.setCaption(msg.getMessage("AuthenticatorEditor.typeComboCaption"));
 		authenticatorTypeCombo.addSelectionListener(e -> reloadEditor());
+		if (typeChangeListener.isPresent())
+		{
+			authenticatorTypeCombo.addSelectionListener(typeChangeListener.get());
+		}
 		authenticatorTypeCombo.setEmptySelectionAllowed(false);
 		authenticatorTypeCombo.setItemCaptionGenerator(t -> authnTypesSorted.get(t));
 		authenticatorTypeCombo.setWidth(25, Unit.EM);
@@ -93,7 +101,7 @@ public class MainAuthenticatorEditor extends CustomComponent
 			
 			authenticatorTypeCombo.setValue(desc);
 			authenticatorTypeCombo.setVisible(false);
-			authenticatorTypeLabel.setValue(desc != null ? getAuthenticatorTypeLabel(desc) : "");
+			authenticatorTypeLabel.setValue(desc != null ? AuthenticatorTypeLabelHelper.getAuthenticatorTypeLabel(msg, desc) : "");
 			authenticatorTypeLabel.setVisible(true);
 		} else
 		{
@@ -104,24 +112,13 @@ public class MainAuthenticatorEditor extends CustomComponent
 		}
 	}
 
-	private String getAuthenticatorTypeLabel(AuthenticatorTypeDescription t)
-	{
-		try
-		{
-			return msg.getMessageUnsafe("Verificator." + t.getVerificationMethod());
-		} catch (Exception e)
-		{
-			return t.getVerificationMethod() + " (" + t.getVerificationMethodDescription() + ")";
-		}
-	}
-
 	private Map<AuthenticatorTypeDescription, String> getAuthenticatorTypes()
 	{
 		Map<AuthenticatorTypeDescription, String> res = new LinkedHashMap<>();
 
 		for (AuthenticatorTypeDescription type : autnTypes)
 		{
-			res.put(type, getAuthenticatorTypeLabel(type));
+			res.put(type, AuthenticatorTypeLabelHelper.getAuthenticatorTypeLabel(msg, type));
 		}
 
 		return res.entrySet().stream().sorted(Map.Entry.comparingByValue()).collect(Collectors
@@ -146,10 +143,15 @@ public class MainAuthenticatorEditor extends CustomComponent
 		} catch (Exception e)
 		{
 			NotificationPopup.showError(msg,
-					msg.getMessage("MainAuthenticatorEditor.getSingleAuthenticatorEditorError"), e);
+					msg.getMessage("MainAuthenticatorEditor.createSingleAuthenticatorEditorError"), e);
 		}
 	}
-
+	
+	public void addTypeChangeListener(SingleSelectionListener<AuthenticatorTypeDescription> listener)
+	{
+		authenticatorTypeCombo.addSelectionListener(listener);
+	}
+	
 	AuthenticatorDefinition getAuthenticator() throws FormValidationException
 	{
 		if (editor == null)

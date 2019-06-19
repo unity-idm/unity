@@ -68,8 +68,8 @@ public class WebConsoleBreadCrumbs extends CustomComponent implements ViewChange
 					.withCaption(view.getDisplayedName()));
 		} else if (element.type == NavigationInfo.Type.ParameterizedViewWithSubviews)
 		{
-			main.addButton(MenuButton.get(element.id)
-					.withCaption(view.getDisplayedName()));
+//			main.addButton(MenuButton.get(element.id)
+//					.withCaption(view.getDisplayedName()));
 			UnityViewWithSubViews viewWithSubViews = (UnityViewWithSubViews) view;
 			main.addSubBreadcrumbs(viewWithSubViews.getBreadcrumbsComponent());
 			

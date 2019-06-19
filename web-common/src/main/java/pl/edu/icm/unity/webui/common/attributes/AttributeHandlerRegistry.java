@@ -142,7 +142,7 @@ public class AttributeHandlerRegistry
 		return factory.getSyntaxEditorComponent(syntax);
 	}
 
-	public com.vaadin.ui.Component getRepresentation(Attribute attribute)
+	public com.vaadin.ui.Component getRepresentation(Attribute attribute, AttributeViewerContext context)
 	{
 		VerticalLayout vl = new VerticalLayout();
 		vl.addStyleName(Styles.smallSpacing.toString());
@@ -164,8 +164,8 @@ public class AttributeHandlerRegistry
 		for (String value : attribute.getValues())
 		{
 			com.vaadin.ui.Component valueRep = handler.getRepresentation(value,
-					AttributeViewerContext.EMPTY);
-			valueRep.setWidth(100, Unit.PERCENTAGE);
+					context);
+			//valueRep.setWidth(100, Unit.PERCENTAGE);
 			indentedValues.addComponent(valueRep);
 		}
 		vl.addComponent(indentedValues);

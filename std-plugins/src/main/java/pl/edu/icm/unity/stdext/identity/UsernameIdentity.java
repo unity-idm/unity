@@ -60,9 +60,9 @@ public class UsernameIdentity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getDefaultDescription()
+	public String getDefaultDescriptionKey()
 	{
-		return "Username";
+		return "UsernameIdentity.description";
 	}
 
 	/**

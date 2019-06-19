@@ -34,7 +34,7 @@ public class TrustedFederationConfiguration
 	public TrustedFederationConfiguration()
 	{
 		setRefreshInterval(SamlProperties.DEFAULT_METADATA_REFRESH);
-		setIgnoreSignatureVerification(true);
+		setIgnoreSignatureVerification(false);
 		setTranslationProfile(TranslationProfileGenerator.generateEmptyInputProfile());
 	}
 

@@ -24,6 +24,7 @@ import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.token.TokensManagement;
 import pl.edu.icm.unity.exceptions.EngineException;
+import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientAuthnMode;
 import pl.edu.icm.unity.oauth.client.config.CustomProviderProperties.ClientHttpMethod;
 import pl.edu.icm.unity.oauth.rp.OAuthRPProperties.VerificationProtocol;
 import pl.edu.icm.unity.oauth.rp.verificator.BearerTokenVerificator;
@@ -31,8 +32,10 @@ import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditor;
 import pl.edu.icm.unity.webui.authn.authenticators.BaseAuthenticatorEditor;
 import pl.edu.icm.unity.webui.common.CollapsibleLayout;
+import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
 
 /**
@@ -102,24 +105,25 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 		header.addComponent(name);
 
 		TextField clientId = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientId"));
-		clientId.setWidth(30, Unit.EM);
+		clientId.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientId).asRequired(msg.getMessage("fieldRequired")).bind("clientId");
 		header.addComponent(clientId);
 
 		TextField clientSecret = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.clientSecret"));
-		clientSecret.setWidth(30, Unit.EM);
+		clientSecret.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
 		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
 		header.addComponent(clientSecret);
-
-		TextField requiredScopes = new TextField(msg.getMessage("OAuthRPAuthenticatorEditor.requiredScopes"));
-		requiredScopes.setWidth(30, Unit.EM);
-		configBinder.forField(requiredScopes).bind("requiredScopes");
+		
+		ChipsWithFreeText requiredScopes = new ChipsWithFreeText();
+		requiredScopes.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
+		requiredScopes.setCaption(msg.getMessage("OAuthRPAuthenticatorEditor.requiredScopes"));
 		header.addComponent(requiredScopes);
-
+		configBinder.forField(requiredScopes).bind("requiredScopes");
+		
 		ComboBox<VerificationProtocol> verificationProtocol = new ComboBox<>(
 				msg.getMessage("OAuthRPAuthenticatorEditor.verificationProtocol"));
 		verificationProtocol.setItems(VerificationProtocol.values());
-		verificationProtocol.setValue(VerificationProtocol.unity);
+		verificationProtocol.setEmptySelectionAllowed(false);
 		configBinder.forField(verificationProtocol).bind("verificationProtocol");
 		header.addComponent(verificationProtocol);
 
@@ -160,10 +164,23 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 
 		advanced.addComponent(cacheTime);
 
+		ComboBox<ClientAuthnMode> clientAuthenticationMode = new ComboBox<>(
+				msg.getMessage("OAuthRPAuthenticatorEditor.clientAuthenticationMode"));
+		clientAuthenticationMode.setItems(ClientAuthnMode.values());
+		clientAuthenticationMode.setEmptySelectionAllowed(false);
+		configBinder.forField(clientAuthenticationMode).bind("clientAuthenticationMode");
+		advanced.addComponent(clientAuthenticationMode);
+		
+		ComboBox<ClientAuthnMode> clientAuthenticationModeForProfile = new ComboBox<>(
+				msg.getMessage("OAuthRPAuthenticatorEditor.clientAuthenticationModeForProfile"));
+		clientAuthenticationModeForProfile.setItems(ClientAuthnMode.values());
+		configBinder.forField(clientAuthenticationModeForProfile).bind("clientAuthenticationModeForProfile");
+		advanced.addComponent(clientAuthenticationModeForProfile);
+		
 		ComboBox<ServerHostnameCheckingMode> clientHostnameChecking = new ComboBox<>(
 				msg.getMessage("OAuthRPAuthenticatorEditor.clientHostnameChecking"));
 		clientHostnameChecking.setItems(ServerHostnameCheckingMode.values());
-		clientHostnameChecking.setValue(ServerHostnameCheckingMode.FAIL);
+		clientHostnameChecking.setEmptySelectionAllowed(false);
 		configBinder.forField(clientHostnameChecking).bind("clientHostnameChecking");
 		advanced.addComponent(clientHostnameChecking);
 
@@ -177,10 +194,10 @@ class OAuthRPAuthenticatorEditor extends BaseAuthenticatorEditor implements Auth
 		ComboBox<ClientHttpMethod> clientHttpMethodForProfileAccess = new ComboBox<>(
 				msg.getMessage("OAuthRPAuthenticatorEditor.clientHttpMethodForProfileAccess"));
 		clientHttpMethodForProfileAccess.setItems(ClientHttpMethod.values());
-		clientHttpMethodForProfileAccess.setValue(ClientHttpMethod.get);
+		clientHttpMethodForProfileAccess.setEmptySelectionAllowed(false);
 		configBinder.forField(clientHttpMethodForProfileAccess).bind("clientHttpMethodForProfileAccess");
-		advanced.addComponent(clientHttpMethodForProfileAccess);
-
+		advanced.addComponent(clientHttpMethodForProfileAccess);		
+		
 		return new CollapsibleLayout(msg.getMessage("OAuthRPAuthenticatorEditor.advanced"), advanced);
 	}
 

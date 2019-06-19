@@ -44,7 +44,7 @@ class TestWorkFactorDialog extends AbstractDialog
 		super(msg, msg.getMessage("PasswordDefinitionEditor.testWorkFactor"), 
 				msg.getMessage("close"));
 		this.config = config;
-		setSizeEm(45, 25);
+		setSizeEm(35, 20);
 	}
 
 	@Override

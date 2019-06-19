@@ -20,7 +20,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.upman.UpManUI;
@@ -37,6 +36,7 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
@@ -96,7 +96,7 @@ class GroupMembersComponent extends CustomComponent
 		hamburgerMenu.addActionHandler(getAddManagerPrivilegesAction(false));
 		hamburgerMenu.addActionHandler(
 				getRevokeManagerPrivilegesAction(false, s -> checkIfAllManagersSelected(s)));
-		TextField search = FilterableGridHelper.generateSearchField(groupMemebersGrid, msg);
+		SearchField search = FilterableGridHelper.generateSearchField(groupMemebersGrid, msg);
 		
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu, search);
 		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);

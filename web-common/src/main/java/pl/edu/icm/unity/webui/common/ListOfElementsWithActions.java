@@ -61,7 +61,7 @@ public class ListOfElementsWithActions<T> extends CustomComponent
 
 		this.components = new ArrayList<>();
 		main = new VerticalLayout();
-		main.setMargin(false);
+		main.setMargin(true);
 		main.setSpacing(false);
 		main.setId("ListOfElements");
 		setCompositionRoot(main);

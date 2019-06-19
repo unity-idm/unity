@@ -20,7 +20,6 @@ import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.attribute.AttributeChangedEvent;
@@ -52,6 +51,7 @@ import pl.edu.icm.unity.webui.common.ErrorComponent;
 import pl.edu.icm.unity.webui.common.ErrorComponent.Level;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -112,7 +112,7 @@ public class IdentitiesPanel extends SafePanel
 
 		main.addComponents(toolbar, filtersBar, identitiesTable);
 		main.setExpandRatio(identitiesTable, 1);
-		main.setMargin(false);
+		main.setMargin(new MarginInfo(true, false));
 		main.setSpacing(false);
 		main.setSizeFull();
 
@@ -156,9 +156,9 @@ public class IdentitiesPanel extends SafePanel
 		setGroup(null);
 	}
 
-	private TextField getSearchField()
+	private SearchField getSearchField()
 	{
-		final TextField searchText = FilterableGridHelper.getRowSearchField(msg);
+		final SearchField searchText = FilterableGridHelper.getRowSearchField(msg);
 		searchText.addValueChangeListener(event -> {
 			String searched = event.getValue();
 			if (fastSearchFilter != null)

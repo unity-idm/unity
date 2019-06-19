@@ -119,8 +119,7 @@ public final class FormLayoutUtils
 	private static void updateSecondaryLayout(RegistrationFormLayouts layouts, RegistrationForm form)
 	{
 		if (layouts.getSecondaryLayout() == null)
-			layouts.setSecondaryLayout(new FormLayout(new ArrayList<>()));
-		
+			return;
 		FormLayout secondaryLayout = layouts.getSecondaryLayout();
 		Set<String> definedElements = getDefinedElements(secondaryLayout);
 		updateFormParametersInLayout(secondaryLayout, form, definedElements);

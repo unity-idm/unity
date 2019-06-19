@@ -15,7 +15,6 @@ import com.vaadin.shared.data.sort.SortDirection;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.TextField;
 
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
 import io.imunity.webadmin.reg.invitations.InvitationSelectionListener;
@@ -26,6 +25,7 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
@@ -74,7 +74,7 @@ class InvitationsGrid extends CustomComponent
 		hamburgerMenu.addActionHandlers(getHamburgerActionsHandlers());
 		invitationsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		TextField search = FilterableGridHelper.generateSearchField(invitationsGrid, msg);
+		SearchField search = FilterableGridHelper.generateSearchField(invitationsGrid, msg);
 
 		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);

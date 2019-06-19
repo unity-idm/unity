@@ -17,7 +17,6 @@ import org.springframework.stereotype.Component;
 import com.vaadin.navigator.ViewChangeListener.ViewChangeEvent;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webconsole.WebConsoleNavigationInfoProviderBase;
@@ -35,6 +34,7 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -92,7 +92,7 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 
 	private FormLayout getDetailsComponent(IdentityTypeEntry i)
 	{
-		Label desc = new Label();
+		HtmlSimplifiedLabel desc = new HtmlSimplifiedLabel();
 		desc.setCaption(msg.getMessage("IdentityTypesView.descriptionLabelCaption"));
 		desc.setValue(i.type.getDescription());
 		FormLayout wrapper = new FormLayout(desc);

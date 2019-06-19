@@ -43,6 +43,8 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 
 	private VerticalLayout mainView;
 
+	private String displayedName;
+	
 	@Autowired
 	NewAuthenticatorView(UnityMessageSource msg, AuthenticatorsController controller)
 	{
@@ -53,14 +55,18 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	@Override
 	public void enter(ViewChangeEvent event)
 	{
-		editor = controller.getEditor(null, this);
-
+		editor = controller.getEditor(null, this, e -> {
+			displayedName = msg.getMessage("New") + " " + AuthenticatorTypeLabelHelper
+					.getAuthenticatorTypeLabel(msg, e.getValue()).toLowerCase();
+			refreshBreadCrumbs();
+		});
 		mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(editor);
 		mainView.addComponent(StandardButtonsHelper.buildConfirmNewButtonsBar(msg, () -> onConfirm(),
 				() -> onCancel()));
 		setMainView(mainView);
+		refreshBreadCrumbs();
 	}
 
 	private void onConfirm()
@@ -99,9 +105,9 @@ class NewAuthenticatorView extends ViewWithSubViewBase
 	@Override
 	public String getDisplayedName()
 	{
-		return msg.getMessage("new");
+		return displayedName;
 	}
-
+		
 	@Override
 	public String getViewName()
 	{

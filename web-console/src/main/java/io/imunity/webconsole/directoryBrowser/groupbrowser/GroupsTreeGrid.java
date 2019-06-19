@@ -30,7 +30,6 @@ import com.vaadin.shared.ui.dnd.DropEffect;
 import com.vaadin.shared.ui.grid.DropMode;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.MenuBar;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.TreeGrid;
 import com.vaadin.ui.components.grid.GridDragSource;
 import com.vaadin.ui.components.grid.MultiSelectionModel;
@@ -54,6 +53,7 @@ import pl.edu.icm.unity.webui.common.GridSelectionSupport;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -92,7 +92,7 @@ public class GroupsTreeGrid extends TreeGrid<TreeNode>
 		((MultiSelectionModel<TreeNode>) getSelectionModel())
 				.addMultiSelectionListener(event -> selectionChanged(event.getAllSelectedItems()));
 
-		TextField search = FilterableGridHelper.getRowSearchField(msg);
+		SearchField search = FilterableGridHelper.getRowSearchField(msg);
 		search.addValueChangeListener(event -> {
 			deselectAll();
 			String searched = event.getValue();

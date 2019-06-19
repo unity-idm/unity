@@ -200,7 +200,7 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 		.collect(Collectors.toList());
 	}
 		
-	private void updateComboVisibility(Set<T> selected, List<T> available)
+	protected void updateComboVisibility(Set<T> selected, List<T> available)
 	{
 		if (!readOnly)
 		{
@@ -229,7 +229,9 @@ public class ChipsWithDropdown<T> extends CustomField<List<T>>
 	{
 		super.setWidth(width, unit);
 		if (combo != null)
+		{
 			combo.setWidth(width, unit);
+		}
 	}
 	
 	public void setMaxSelection(int maxSelection)

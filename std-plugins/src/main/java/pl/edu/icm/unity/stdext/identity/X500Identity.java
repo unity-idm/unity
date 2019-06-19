@@ -127,9 +127,9 @@ public class X500Identity extends AbstractStaticIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getDefaultDescription()
+	public String getDefaultDescriptionKey()
 	{
-		return "X.500 Distinguished Name";
+		return "X500Identity.description";
 	}
 
 	/**

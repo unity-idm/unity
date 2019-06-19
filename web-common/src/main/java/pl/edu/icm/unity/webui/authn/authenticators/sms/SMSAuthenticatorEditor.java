@@ -112,7 +112,7 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 
 		try
 		{
-			return configBinder.getBean().toProperties(getName());
+			return configBinder.getBean().toProperties(msg);
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the sms verificator", e);
@@ -137,14 +137,14 @@ class SMSAuthenticatorEditor extends BaseLocalAuthenticatorEditor implements Aut
 			this.retrievalName = retrievalName;
 		}
 
-		public String toProperties(String authName)
+		public String toProperties(UnityMessageSource msg)
 		{
 			Properties raw = new Properties();
 
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						SMSRetrievalProperties.P + SMSRetrievalProperties.NAME);
+						SMSRetrievalProperties.P + SMSRetrievalProperties.NAME, msg);
 			}
 
 			SMSRetrievalProperties prop = new SMSRetrievalProperties(raw);

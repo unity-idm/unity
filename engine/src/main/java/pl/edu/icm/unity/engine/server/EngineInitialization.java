@@ -448,7 +448,7 @@ public class EngineInitialization extends LifecycleBase
 				{
 					log.info("Adding identity type " + it.getId());
 					IdentityType idType = new IdentityType(it.getId(), it.getId());
-					idType.setDescription(idType.getDescription());
+					idType.setDescription(msg.getMessage(it.getDefaultDescriptionKey()));
 					idType.setExtractedAttributes(idType.getExtractedAttributes());
 					dbIdentities.create(idType);
 				}

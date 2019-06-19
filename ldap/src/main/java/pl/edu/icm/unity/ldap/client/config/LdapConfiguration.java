@@ -298,7 +298,7 @@ public class LdapConfiguration
 				.getValue(TLSRetrievalProperties.REGISTRATION_FORM_FOR_UNKNOWN));	
 	}
 
-	public String toProperties(String type) throws ConfigurationException
+	public String toProperties(String type, UnityMessageSource msg) throws ConfigurationException
 	{
 		Properties raw = new Properties();
 
@@ -445,10 +445,10 @@ public class LdapConfiguration
 		
 		if (type.equals(LdapPasswordVerificator.NAME))
 		{
-			toPasswordRetrievalProperties(raw);
+			toPasswordRetrievalProperties(raw, msg);
 		}else
 		{
-			toTLSRetrievalProperties(raw);
+			toTLSRetrievalProperties(raw, msg);
 		}
 		
 
@@ -457,12 +457,12 @@ public class LdapConfiguration
 	}
 	
 	
-	private void toPasswordRetrievalProperties(Properties raw)
+	private void toPasswordRetrievalProperties(Properties raw, UnityMessageSource msg)
 	{
 		if (getRetrievalName() != null)
 		{
 			getRetrievalName().toProperties(raw,
-					PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
+					PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME, msg);
 		}
 
 		raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.ENABLE_ASSOCIATION,
@@ -475,12 +475,12 @@ public class LdapConfiguration
 		}		
 	}
 	
-	private void toTLSRetrievalProperties(Properties raw)
+	private void toTLSRetrievalProperties(Properties raw, UnityMessageSource msg)
 	{
 		if (getRetrievalName() != null)
 		{
 			getRetrievalName().toProperties(raw,
-					TLSRetrievalProperties.P + TLSRetrievalProperties.NAME);
+					TLSRetrievalProperties.P + TLSRetrievalProperties.NAME, msg);
 		}
 
 		raw.put(TLSRetrievalProperties.P + TLSRetrievalProperties.ENABLE_ASSOCIATION,

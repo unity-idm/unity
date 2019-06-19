@@ -148,7 +148,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			throw new FormValidationException();
 		try
 		{
-			return configBinder.getBean().toProperties();
+			return configBinder.getBean().toProperties(msg);
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the composite-password verificator",
@@ -175,7 +175,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			remoteAuthenticators = new ArrayList<>();
 		}
 
-		public String toProperties()
+		public String toProperties(UnityMessageSource msg)
 		{
 
 			Properties raw = new Properties();
@@ -216,7 +216,7 @@ class CompositePasswordAuthenticatorEditor extends BaseAuthenticatorEditor imple
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME, msg);
 			}
 
 			CompositePasswordProperties prop = new CompositePasswordProperties(raw);

@@ -36,9 +36,9 @@ public class EmailIdentity extends AbstractStaticIdentityTypeProvider
 	}
 
 	@Override
-	public String getDefaultDescription()
+	public String getDefaultDescriptionKey()
 	{
-		return "Email";
+		return "EmailIdentity.description";
 	}
 
 	@Override

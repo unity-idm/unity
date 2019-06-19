@@ -63,9 +63,11 @@ public abstract class ViewWithSubViewBase extends CustomComponent implements Sub
 		refreshBreadCrumbs();
 	}
 
-	private void refreshBreadCrumbs()
+	protected void refreshBreadCrumbs()
 	{
 		breadCrumbs.removeAllComponents();
+		breadCrumbs.addComponent(MenuButton.get(getDisplayedName()).withCaption(getDisplayedName()));
+		
 		for (UnitySubView subView : subViews)
 		{
 			subView.getBredcrumbs().forEach(b -> {
@@ -74,10 +76,19 @@ public abstract class ViewWithSubViewBase extends CustomComponent implements Sub
 			});
 		}
 	}
+	
+	protected LinkedList<UnitySubView> getSubViews()
+	{
+		return subViews;
+	}
 
 	@Override
 	public BreadcrumbsComponent getBreadcrumbsComponent()
 	{
 		return breadCrumbs;
 	}
+	
+	public abstract String getDisplayedName();
+
+
 }

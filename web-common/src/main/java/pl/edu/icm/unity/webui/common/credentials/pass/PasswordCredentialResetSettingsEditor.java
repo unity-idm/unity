@@ -8,6 +8,8 @@ import java.util.Arrays;
 
 import org.vaadin.risto.stepper.IntStepper;
 
+import com.vaadin.data.Binder;
+import com.vaadin.data.ValidationResult;
 import com.vaadin.server.Sizeable.Unit;
 import com.vaadin.ui.CheckBox;
 import com.vaadin.ui.ComboBox;
@@ -21,6 +23,7 @@ import pl.edu.icm.unity.stdext.credential.pass.MobilePasswordResetTemplateDef;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings;
 import pl.edu.icm.unity.stdext.credential.pass.PasswordCredentialResetSettings.ConfirmationMode;
 import pl.edu.icm.unity.webui.common.CompatibleTemplatesComboBox;
+import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions;
 import pl.edu.icm.unity.webui.common.ListOfElementsWithActions.ActionColumn;
@@ -48,6 +51,8 @@ public class PasswordCredentialResetSettingsEditor
 	private MessageTemplateManagement msgTplMan;
 	private ComboBox<ConfirmationMode> confirmationMode;
 	
+	private Binder<PasswordCredentialResetSettings> binder;
+
 	public PasswordCredentialResetSettingsEditor(UnityMessageSource msg, MessageTemplateManagement msgTplMan)
 	{
 		this(msg, msgTplMan, new PasswordCredentialResetSettings());
@@ -109,13 +114,18 @@ public class PasswordCredentialResetSettingsEditor
 	
 	private void initUI()
 	{
+		
+		binder = new Binder<>(PasswordCredentialResetSettings.class);
+
 		enable = new CheckBox(msg.getMessage("PasswordCredentialResetSettings.enable"));
 		enable.addValueChangeListener(event -> setEnabled(enable.getValue()));
-		
+		binder.forField(enable).bind("enabled");
+			
 		codeLength = new IntStepper(msg.getMessage("PasswordCredentialResetSettings.codeLength"));
 		codeLength.setMinValue(2);
 		codeLength.setMaxValue(10);
-		codeLength.setWidth(3, Unit.EM);
+		codeLength.setWidth(3, Unit.EM);		
+		binder.forField(codeLength).bind("codeLength");
 	
 		confirmationMode = new ComboBox<>(msg.getMessage("PasswordCredentialResetSettings.confirmationMode"));
 		confirmationMode.setItems(ConfirmationMode.values());
@@ -124,30 +134,32 @@ public class PasswordCredentialResetSettingsEditor
 			mobileCodeMessageTemplate.setEnabled(getMobileMessageTemplateState());
 		});
 		confirmationMode.setItemCaptionGenerator(i -> msg.getMessage("PasswordCredentialResetSettings.confirmationMode" + i.toString()));
-		
 		confirmationMode.setEmptySelectionAllowed(false);
-		
-		
+		binder.forField(confirmationMode).bind("confirmationMode");	
+			
 		requireQuestionConfirmation = new CheckBox(
 				msg.getMessage("PasswordCredentialResetSettings.requireQuestionConfirmation"));
 		
 		emailCodeMessageTemplate = new CompatibleTemplatesComboBox(EmailPasswordResetTemplateDef.NAME, msgTplMan);
 		emailCodeMessageTemplate.setCaption(msg.getMessage("PasswordCredentialResetSettings.emailMessageTemplate"));
 		emailCodeMessageTemplate.setEmptySelectionAllowed(false);
+		binder.forField(emailCodeMessageTemplate).asRequired((v, c) -> ((v == null || v.isEmpty()) && getEmailMessageTemplateState())
+				? ValidationResult.error(msg.getMessage("fieldRequired"))
+				: ValidationResult.ok()).bind("emailSecurityCodeMsgTemplate");
 		
 		mobileCodeMessageTemplate = new CompatibleTemplatesComboBox(MobilePasswordResetTemplateDef.NAME, msgTplMan);
 		mobileCodeMessageTemplate.setCaption(msg.getMessage("PasswordCredentialResetSettings.mobileMessageTemplate"));
 		mobileCodeMessageTemplate.setEmptySelectionAllowed(false);
-		
-		confirmationMode.setValue(ConfirmationMode.NothingRequire);
-		
+		binder.forField(mobileCodeMessageTemplate).asRequired((v, c) -> ((v == null || v.isEmpty()) && getMobileMessageTemplateState())
+						? ValidationResult.error(msg.getMessage("fieldRequired"))
+						: ValidationResult.ok()).bind("mobileSecurityCodeMsgTemplate");
 		
 		requireQuestionConfirmation.addValueChangeListener(event -> {
 			boolean state = requireQuestionConfirmation.getValue();
 			questionAdder.setEnabled(state);
 			questions.setEnabled(state);
 		});
-		
+		binder.forField(requireQuestionConfirmation).bind("requireSecurityQuestion");
 		
 		questionAdder = new TextFieldWithButton(
 				msg.getMessage("PasswordCredentialResetSettings.defineNewQuestion"), 
@@ -226,29 +238,21 @@ public class PasswordCredentialResetSettingsEditor
 	
 	private void setValue(PasswordCredentialResetSettings initial)
 	{
-		enable.setValue(initial.isEnabled());
-		codeLength.setValue(initial.getCodeLength());
-		confirmationMode.setValue(initial.getConfirmationMode());
-		requireQuestionConfirmation.setValue(initial.isRequireSecurityQuestion());
 		for (String question: initial.getQuestions())
 			questions.addEntry(question);
-		emailCodeMessageTemplate.setValue(initial.getEmailSecurityCodeMsgTemplate());
-		mobileCodeMessageTemplate.setValue(initial.getMobileSecurityCodeMsgTemplate());
 		setEnabled(initial.isEnabled());
+		binder.setBean(initial);
+		binder.validate();
 	}
 	
-	public PasswordCredentialResetSettings getValue()
+	public PasswordCredentialResetSettings getValue() throws FormValidationException
 	{
-		PasswordCredentialResetSettings ret = new PasswordCredentialResetSettings();
-		ret.setEnabled(enable.getValue());
-		ret.setCodeLength((int)(double)codeLength.getValue());
-		ret.setRequireSecurityQuestion(requireQuestionConfirmation.getValue());
-		ret.setConfirmationMode(confirmationMode.getValue());
+		if (binder.validate().hasErrors())
+			throw new FormValidationException();
+		
+		PasswordCredentialResetSettings ret = binder.getBean();
+
 		ret.setQuestions(questions.getElements());
-		if (emailCodeMessageTemplate.getValue() != null)
-			ret.setEmailSecurityCodeMsgTemplate(emailCodeMessageTemplate.getValue().toString());
-		if (mobileCodeMessageTemplate.getValue() != null)
-			ret.setMobileSecurityCodeMsgTemplate(mobileCodeMessageTemplate.getValue().toString());
 		return ret;
 	}
 	

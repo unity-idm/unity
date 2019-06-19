@@ -51,9 +51,9 @@ public class TransientIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getDefaultDescription()
+	public String getDefaultDescriptionKey()
 	{
-		return "Transient targeted id";
+		return "TransientIdentity.description";
 	}
 	
 	@Override

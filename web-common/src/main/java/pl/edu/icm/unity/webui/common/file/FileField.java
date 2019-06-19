@@ -68,7 +68,7 @@ public class FileField extends FileFieldBase
 		downloadButton.setVisible(false);
 		downloader.setFileDownloadResource(null);
 	
-		if (value.getLocal() != null)
+		if (value != null && value.getLocal() != null)
 		{
 			downloader.setFileDownloadResource(new StreamResource(new FileStreamResource(value.getLocal()), fileName));
 			downloadButton.setVisible(true);

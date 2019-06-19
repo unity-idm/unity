@@ -15,7 +15,6 @@ import java.util.function.Predicate;
 import com.vaadin.shared.ui.Orientation;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
-import com.vaadin.ui.TextField;
 
 import io.imunity.webadmin.reg.requests.RequestEntry;
 import io.imunity.webadmin.reg.requests.RequestSelectionListener;
@@ -32,6 +31,7 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Toolbar;
@@ -89,7 +89,7 @@ class RequestsGrid extends CustomComponent
 		hamburgerMenu.addActionHandlers(getHamburgerHandlers());
 		requestsGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		TextField search = FilterableGridHelper.generateSearchField(requestsGrid, msg);
+		SearchField search = FilterableGridHelper.generateSearchField(requestsGrid, msg);
 		
 		Toolbar<RequestEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);

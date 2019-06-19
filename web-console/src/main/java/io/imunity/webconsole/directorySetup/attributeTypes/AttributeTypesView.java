@@ -25,7 +25,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import io.imunity.webadmin.reg.invitations.InvitationEntry;
@@ -46,11 +45,13 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.Toolbar;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
+import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
 
 /**
@@ -130,7 +131,7 @@ class AttributeTypesView extends CustomComponent implements UnityView
 		hamburgerMenu.addActionHandlers(getHamburgerCommonHandlers());
 		attrTypesGrid.addSelectionListener(hamburgerMenu.getSelectionListener());		
 		
-		TextField search = FilterableGridHelper.generateSearchField(attrTypesGrid, msg);
+		SearchField search = FilterableGridHelper.generateSearchField(attrTypesGrid, msg);
 
 		Toolbar<InvitationEntry> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);
@@ -155,7 +156,7 @@ class AttributeTypesView extends CustomComponent implements UnityView
 	
 	private FormLayout getDetailsComponent(AttributeTypeEntry a)
 	{
-		Label desc = new Label();
+		HtmlSimplifiedLabel desc = new HtmlSimplifiedLabel();
 		desc.setCaption(msg.getMessage("AttributeTypesView.descriptionLabelCaption"));
 		desc.setValue(a.attributeType.getDescription().getDefaultLocaleValue(msg));
 		FormLayout wrapper = new FormLayout(desc);

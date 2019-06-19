@@ -164,7 +164,7 @@ public class I18nString
 		return result;
 	}
 	
-	public void toProperties(Properties properties, String prefix)
+	public void toProperties(Properties properties, String prefix, MessageSource msg)
 	{
 		if (!values.isEmpty())
 		{
@@ -176,6 +176,9 @@ public class I18nString
 		if (defaultValue != null)
 		{
 			properties.put(prefix, defaultValue);
+		}else
+		{
+			properties.put(prefix, "");
 		}
 		
 	}

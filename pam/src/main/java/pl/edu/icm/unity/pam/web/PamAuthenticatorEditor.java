@@ -110,7 +110,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 		interactiveLoginSettings.setMargin(false);
 
 		I18nTextField retrievalName = new I18nTextField(msg);
-		retrievalName.setCaption(msg.getMessage("PamAuthenticatorEditor.passwordName"));
+		retrievalName.setCaption(msg.getMessage("PamAuthenticatorEditor.displayedName"));
 		configBinder.forField(retrievalName).bind("retrievalName");
 		interactiveLoginSettings.addComponent(retrievalName);
 
@@ -141,7 +141,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 
 		try
 		{
-			return configBinder.getBean().toProperties();
+			return configBinder.getBean().toProperties(msg);
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the pam verificator", e);
@@ -161,7 +161,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 			translationProfile = TranslationProfileGenerator.generateEmptyInputProfile();
 		}
 
-		public String toProperties()
+		public String toProperties(UnityMessageSource msg)
 		{
 			Properties raw = new Properties();
 
@@ -172,7 +172,7 @@ class PamAuthenticatorEditor extends BaseAuthenticatorEditor implements Authenti
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME, msg);
 			}
 
 			raw.put(PasswordRetrievalProperties.P + PasswordRetrievalProperties.ENABLE_ASSOCIATION,

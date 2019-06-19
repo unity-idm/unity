@@ -9,12 +9,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.vaadin.event.selection.SingleSelectionListener;
 
 import io.imunity.webconsole.common.EndpointController;
 import pl.edu.icm.unity.base.utils.Log;
@@ -24,6 +27,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.types.authn.AuthenticationFlowDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorDefinition;
 import pl.edu.icm.unity.types.authn.AuthenticatorInfo;
+import pl.edu.icm.unity.types.authn.AuthenticatorTypeDescription;
 import pl.edu.icm.unity.types.endpoint.ResolvedEndpoint;
 import pl.edu.icm.unity.webui.authn.authenticators.AuthenticatorEditorFactoriesRegistry;
 import pl.edu.icm.unity.webui.common.webElements.SubViewSwitcher;
@@ -159,11 +163,11 @@ public class AuthenticatorsController
 		}
 	}
 
-	MainAuthenticatorEditor getEditor(AuthenticatorEntry toEdit, SubViewSwitcher subViewSwitcher)
+	MainAuthenticatorEditor getEditor(AuthenticatorEntry toEdit, SubViewSwitcher subViewSwitcher, SingleSelectionListener<AuthenticatorTypeDescription> typeChangeListener)
 	{
 
 		return new MainAuthenticatorEditor(msg, editorsRegistry, authnMan.getAvailableAuthenticatorsTypes(),
-				toEdit, subViewSwitcher);
+				toEdit, subViewSwitcher, Optional.ofNullable(typeChangeListener));
 	}
 
 	private List<String> filterEndpoints(String authneticator, List<ResolvedEndpoint> endpoints,

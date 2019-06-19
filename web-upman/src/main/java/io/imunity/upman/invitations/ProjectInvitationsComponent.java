@@ -12,7 +12,6 @@ import java.util.Set;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
@@ -20,6 +19,7 @@ import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.NotificationTray;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.grid.FilterableGridHelper;
@@ -65,7 +65,7 @@ public class ProjectInvitationsComponent extends CustomComponent
 
 		hamburgerMenu.addActionHandlers(commonActions);
 
-		TextField search = FilterableGridHelper.generateSearchField(invitationsGrid, msg);
+		SearchField search = FilterableGridHelper.generateSearchField(invitationsGrid, msg);
 		HorizontalLayout menuBar = new HorizontalLayout(hamburgerMenu, search);
 		menuBar.setComponentAlignment(search, Alignment.MIDDLE_RIGHT);
 		menuBar.setWidth(100, Unit.PERCENTAGE);

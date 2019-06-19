@@ -246,8 +246,11 @@ class EditIndividualTrustedIdpSubView extends CustomComponent implements UnitySu
 	@Override
 	public List<String> getBredcrumbs()
 	{
-		return Arrays.asList(msg.getMessage("EditIndividualTrustedIdpSubView.breadcrumbs"),
-				editMode ? configBinder.getBean().getName() : msg.getMessage("new"));
+		if (editMode)
+			return Arrays.asList(msg.getMessage("EditIndividualTrustedIdpSubView.trustedIdp"),
+					configBinder.getBean().getName());
+		else
+			return Arrays.asList(msg.getMessage("EditIndividualTrustedIdpSubView.newTrustedIdp"));
 	}
 
 	private IndividualTrustedSamlIdpConfiguration getTrustedFederation() throws FormValidationException

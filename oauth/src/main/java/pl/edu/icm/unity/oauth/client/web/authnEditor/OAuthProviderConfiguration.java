@@ -5,7 +5,10 @@
 
 package pl.edu.icm.unity.oauth.client.web.authnEditor;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import eu.unicore.util.httpclient.ServerHostnameCheckingMode;
 import pl.edu.icm.unity.Constants;
@@ -46,12 +49,13 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 	private AccessTokenFormat accessTokenFormat;
 	private boolean accountAssociation;
 	private String extraAuthorizationParameters;
-	private String requestedScopes;
+	private List<String> requestedScopes;
 
 	public OAuthProviderConfiguration()
 	{
 		super();
-		type = Providers.custom.toString();
+		setType(Providers.custom.toString());
+		setAccessTokenFormat(AccessTokenFormat.standard);
 	}
 
 	public void fromTemplate(UnityMessageSource msg, URIAccessService uriAccessService,
@@ -94,7 +98,13 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		setClientHttpMethodForProfileAccess(
 				source.getEnumValue(CustomProviderProperties.CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS,
 						ClientHttpMethod.class));
-		setRequestedScopes(source.getValue(CustomProviderProperties.SCOPES));
+		
+		if (source.isSet(CustomProviderProperties.SCOPES))
+		{	
+			setRequestedScopes(Arrays.asList(source.getValue(CustomProviderProperties.SCOPES).split(" ")));
+	
+		}
+		
 		setAccessTokenFormat(source.getEnumValue(CustomProviderProperties.ACCESS_TOKEN_FORMAT,
 				AccessTokenFormat.class));
 		setOpenIdConnect(source.getBooleanValue(CustomProviderProperties.OPENID_CONNECT));
@@ -130,7 +140,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		raw.put(prefix + CustomProviderProperties.PROVIDER_TYPE, type);
 		if (getName() != null)
 		{
-			getName().toProperties(raw, prefix + CustomProviderProperties.PROVIDER_NAME);
+			getName().toProperties(raw, prefix + CustomProviderProperties.PROVIDER_NAME, msg);
 		}
 
 		if (authenticationEndpoint != null)
@@ -178,7 +188,7 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 
 		if (getRequestedScopes() != null)
 		{
-			raw.put(prefix + CustomProviderProperties.SCOPES, getRequestedScopes());
+			raw.put(prefix + CustomProviderProperties.SCOPES, String.join(" ", getRequestedScopes()));
 		}
 
 		if (getAccessTokenFormat() != null)
@@ -228,12 +238,12 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		}
 	}
 
-	public String getRequestedScopes()
+	public List<String> getRequestedScopes()
 	{
 		return requestedScopes;
 	}
 
-	public void setRequestedScopes(String requestedScopes)
+	public void setRequestedScopes(List<String> requestedScopes)
 	{
 		this.requestedScopes = requestedScopes;
 	}
@@ -374,8 +384,9 @@ public class OAuthProviderConfiguration extends OAuthBaseConfiguration
 		clone.setClientHttpMethodForProfileAccess(this.getClientHttpMethodForProfileAccess() != null
 				? ClientHttpMethod.valueOf(this.getClientHttpMethodForProfileAccess().toString())
 				: null);
-		clone.setRequestedScopes(
-				this.getRequestedScopes() != null ? new String(this.getRequestedScopes()) : null);
+		clone.setRequestedScopes(this.getRequestedScopes() != null
+				? this.getRequestedScopes().stream().map(s -> new String(s)).collect(Collectors.toList())
+				: null);
 		clone.setAccessTokenFormat(this.getAccessTokenFormat() != null
 				? AccessTokenFormat.valueOf(this.getAccessTokenFormat().toString())
 				: null);

@@ -33,7 +33,7 @@ public interface IdentityTypeDefinition
 	/**
 	 * @return identity type default description
 	 */
-	String getDefaultDescription();
+	String getDefaultDescriptionKey();
 	
 	/**
 	 * @return if true then the identity type is dynamic, and can not be created manually.

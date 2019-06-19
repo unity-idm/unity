@@ -139,7 +139,10 @@ public abstract class FileFieldBase extends CustomField<LocalOrRemoteResource>
 	{
 		this.value = value;
 		if (value == null)
+		{
+			setPreview();
 			return;
+		}
 
 		if (value.getLocal() != null)
 		{

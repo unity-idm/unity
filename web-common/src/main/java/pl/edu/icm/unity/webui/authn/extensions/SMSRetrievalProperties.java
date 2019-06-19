@@ -27,15 +27,12 @@ public class SMSRetrievalProperties extends UnityPropertiesHelper
 	public final static Map<String, PropertyMD> defaults = new HashMap<>();
 
 	public static final String NAME = "name";
-	public static final String LOGO_URL = "logoURL";
 	
 	static
 	{
 		defaults.put(NAME, new PropertyMD().setCanHaveSubkeys()
 				.setDescription("Label to be used on UI for this option. "
 						+ "Can have multiple language variants defined with subkeys."));
-		defaults.put(LOGO_URL, new PropertyMD()
-				.setDescription("URL of a logo to be used for this authN option on UI").setDeprecated());
 	}
 	
 	public SMSRetrievalProperties(Properties properties)

@@ -9,7 +9,9 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.vaadin.shared.ui.MarginInfo;
 import com.vaadin.ui.Alignment;
+import com.vaadin.ui.HorizontalLayout;
 
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.WebSession;
@@ -43,10 +45,17 @@ public class GroupBrowserPanel extends SafePanel
 	private void init()
 	{
 		setCaption(msg.getMessage("GroupBrowser.caption"));
+		
+		HorizontalLayout wrapper = new HorizontalLayout();
+		wrapper.setSizeFull();
 		ComponentWithToolbar treeWithToolbar = new ComponentWithToolbar(groupsTree, groupsTree.getToolbar(),
 				Alignment.BOTTOM_LEFT);
 		treeWithToolbar.setSizeFull();
-		setContent(treeWithToolbar);
+		wrapper.setMargin(new MarginInfo(true, false));
+		wrapper.setSpacing(true);
+		wrapper.addComponent(treeWithToolbar);
+		
+		setContent(wrapper);
 		setStyleName(Styles.vPanelLight.toString());
 		setSizeFull();
 		EventsBus bus = WebSession.getCurrent().getEventBus();

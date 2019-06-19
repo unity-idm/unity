@@ -40,6 +40,7 @@ import pl.edu.icm.unity.webui.common.ListOfSelectableElements;
 import pl.edu.icm.unity.webui.common.ListOfSelectableElements.DisableMode;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.common.attributes.AttributeHandlerRegistry;
+import pl.edu.icm.unity.webui.common.attributes.AttributeViewerContext;
 import pl.edu.icm.unity.webui.common.identities.IdentityFormatter;
 import pl.edu.icm.unity.webui.common.safehtml.HtmlSimplifiedLabel;
 import pl.edu.icm.unity.webui.common.safehtml.SafePanel;
@@ -206,8 +207,10 @@ public class RequestReviewPanelBase extends CustomComponent
 		{
 			if (ap == null)
 				continue;
-			Component rep = handlersRegistry.getRepresentation(ap);
-			rep.setWidth(100, Unit.PERCENTAGE);
+			Component rep = handlersRegistry.getRepresentation(ap,
+					AttributeViewerContext.builder().withImageScaleHeight(500)
+							.withImageScaleWidth(500).withCustomWidth(100)
+							.withCustomWidthUnit(Unit.PERCENTAGE).build());
 			attributes.addEntry(rep, false);
 		}
 		attributesPanel.setVisible(!attributes.isEmpty());

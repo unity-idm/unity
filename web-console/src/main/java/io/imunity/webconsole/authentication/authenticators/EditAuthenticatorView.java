@@ -68,12 +68,13 @@ class EditAuthenticatorView extends ViewWithSubViewBase
 			return;
 		}
 
-		editor = controller.getEditor(authenticator, this);
+		editor = controller.getEditor(authenticator, this, null);
 		mainView = new VerticalLayout();
 		mainView.setMargin(false);
 		mainView.addComponent(editor);
 		mainView.addComponent(StandardButtonsHelper.buildConfirmEditButtonsBar(msg, () -> onConfirm(),
 				() -> onCancel()));
+		refreshBreadCrumbs();
 		setMainView(mainView);
 	}
 

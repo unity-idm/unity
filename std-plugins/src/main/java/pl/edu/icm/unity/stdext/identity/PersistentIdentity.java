@@ -41,9 +41,9 @@ public class PersistentIdentity extends AbstractIdentityTypeProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public String getDefaultDescription()
+	public String getDefaultDescriptionKey()
 	{
-		return "Persistent id";
+		return "PersistentIdentity.description";
 	}
 	
 	/**

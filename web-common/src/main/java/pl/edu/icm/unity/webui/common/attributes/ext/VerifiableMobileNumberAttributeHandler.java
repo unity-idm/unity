@@ -331,9 +331,6 @@ public class VerifiableMobileNumberAttributeHandler implements WebAttributeHandl
 	@Override
 	public Component getRepresentation(String value, AttributeViewerContext context)
 	{
-//		Component component = new ReadOnlyField(getValueAsString(value));
-//		if (context.isCustomWidth())
-//			component.setWidth(context.getCustomWidth(), context.getCustomWidthUnit());
 		return AttributeHandlerHelper.getRepresentation(getValueAsString(value), context);
 	}
 

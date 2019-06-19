@@ -2,6 +2,8 @@ package pl.edu.icm.unity.oauth.rp.web;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import eu.unicore.util.configuration.ConfigurationException;
@@ -29,11 +31,12 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 		private VerificationProtocol verificationProtocol;
 		private String verificationEndpoint;
 		private boolean openIdMode;
-		private String requiredScopes;
+		private List<String> requiredScopes;
 
 		public OAuthRPConfiguration()
 		{
 			super();
+			setVerificationProtocol(VerificationProtocol.unity);
 		}
 
 		public void fromProperties(String source, PKIManagement pkiMan, TokensManagement tokenMan)
@@ -61,7 +64,11 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 			setClientHttpMethodForProfileAccess(oauthRPprop.getEnumValue(
 					OAuthRPProperties.CLIENT_HTTP_METHOD_FOR_PROFILE_ACCESS,
 					ClientHttpMethod.class));
-			setRequiredScopes(oauthRPprop.getValue(OAuthRPProperties.REQUIRED_SCOPES));
+			if (oauthRPprop.isSet(OAuthRPProperties.REQUIRED_SCOPES))
+			{	
+				setRequiredScopes(Arrays.asList(oauthRPprop.getValue(OAuthRPProperties.REQUIRED_SCOPES).split(" ")));
+		
+			}
 			setClientId(oauthRPprop.getValue(OAuthRPProperties.CLIENT_ID));
 			setClientSecret(oauthRPprop.getValue(OAuthRPProperties.CLIENT_SECRET));
 			setOpenIdMode(oauthRPprop.getBooleanValue(OAuthRPProperties.OPENID_MODE));
@@ -91,7 +98,7 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 			if (getRequiredScopes() != null)
 			{
 				raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.REQUIRED_SCOPES,
-						getRequiredScopes());
+						String.join(" ", getRequiredScopes()));
 			}
 
 			raw.put(OAuthRPProperties.PREFIX + OAuthRPProperties.OPENID_MODE, String.valueOf(openIdMode));
@@ -205,12 +212,12 @@ public class OAuthRPConfiguration extends OAuthBaseConfiguration
 			this.openIdMode = openIdMode;
 		}
 
-		public String getRequiredScopes()
+		public List<String> getRequiredScopes()
 		{
 			return requiredScopes;
 		}
 
-		public void setRequiredScopes(String requiredScopes)
+		public void setRequiredScopes(List<String> requiredScopes)
 		{
 			this.requiredScopes = requiredScopes;
 		}

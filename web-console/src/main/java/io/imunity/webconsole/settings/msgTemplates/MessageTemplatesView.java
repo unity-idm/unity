@@ -24,7 +24,6 @@ import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -49,6 +48,7 @@ import pl.edu.icm.unity.webui.common.GridWithActionColumn;
 import pl.edu.icm.unity.webui.common.HamburgerMenu;
 import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.SearchField;
 import pl.edu.icm.unity.webui.common.SidebarStyles;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -128,7 +128,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 		hamburgerMenu.addActionHandlers(getGlobalHamburgerHandlers());
 		messageTemplateGrid.addSelectionListener(hamburgerMenu.getSelectionListener());
 
-		TextField search = FilterableGridHelper.generateSearchField(messageTemplateGrid, msg);
+		SearchField search = FilterableGridHelper.generateSearchField(messageTemplateGrid, msg);
 		
 		Toolbar<MessageTemplate> toolbar = new Toolbar<>(Orientation.HORIZONTAL);
 		toolbar.setWidth(100, Unit.PERCENTAGE);

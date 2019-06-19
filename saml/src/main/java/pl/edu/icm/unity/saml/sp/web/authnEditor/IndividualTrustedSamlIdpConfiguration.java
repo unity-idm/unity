@@ -127,14 +127,14 @@ public class IndividualTrustedSamlIdpConfiguration
 
 	}
 
-	public void toProperties(Properties raw, FileStorageService fileService, String authName)
+	public void toProperties(Properties raw, UnityMessageSource msg,  FileStorageService fileService, String authName)
 	{
 		String prefix = SAMLSPProperties.P + SAMLSPProperties.IDP_PREFIX + getName() + ".";
 
 		raw.put(prefix + SAMLSPProperties.IDP_ID, getId());
 		if (getDisplayedName() != null)
 		{
-			getDisplayedName().toProperties(raw, prefix + SAMLSPProperties.IDP_NAME);
+			getDisplayedName().toProperties(raw, prefix + SAMLSPProperties.IDP_NAME, msg);
 		}
 
 		if (getLogo() != null)

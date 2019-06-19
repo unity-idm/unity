@@ -69,9 +69,11 @@ public class SAMLConfiguration
 	public SAMLConfiguration()
 	{
 		setPublishMetadata(true);
+		setAutoGenerateMetadata(true);
+		setMetadataPath("sp");
 	}
 
-	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, String name)
+	public String toProperties(PKIManagement pkiMan, FileStorageService fileService, UnityMessageSource msg, String name)
 			throws ConfigurationException
 	{
 		Properties raw = new Properties();
@@ -114,7 +116,7 @@ public class SAMLConfiguration
 
 		if (getIndividualTrustedIdps() != null)
 		{
-			getIndividualTrustedIdps().stream().forEach(f -> f.toProperties(raw, fileService, name));
+			getIndividualTrustedIdps().stream().forEach(f -> f.toProperties(raw, msg, fileService, name));
 		}
 
 		raw.put(SAMLSPProperties.P + SamlProperties.PUBLISH_METADATA, String.valueOf(isPublishMetadata()));

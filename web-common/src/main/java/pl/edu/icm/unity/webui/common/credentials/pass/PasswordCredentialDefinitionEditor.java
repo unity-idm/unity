@@ -28,6 +28,8 @@ import pl.edu.icm.unity.stdext.credential.pass.ScryptParams;
 import pl.edu.icm.unity.types.authn.CredentialDefinition;
 import pl.edu.icm.unity.webui.common.AbstractDialog;
 import pl.edu.icm.unity.webui.common.CompactFormLayout;
+import pl.edu.icm.unity.webui.common.FormValidationException;
+import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionEditor;
 import pl.edu.icm.unity.webui.common.credentials.CredentialDefinitionViewer;
 import pl.edu.icm.unity.webui.common.credentials.CredentialEditorContext;
@@ -179,15 +181,33 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 
 	private void showTestDialog(ClickEvent event)
 	{
-		new TestPasswordDialog(msg, getCredential()).show();
-	}
-
-	private void showTestWorkFactorDialog(ClickEvent event)
-	{
-		new TestWorkFactorDialog(msg, getCredential()).show();
+		PasswordCredential cred = getCredentialSave();
+		if (cred == null)
+			return;
+		
+		new TestPasswordDialog(msg, cred).show();
 	}
 	
-	private PasswordCredential getCredential()
+	private void showTestWorkFactorDialog(ClickEvent event)
+	{
+		PasswordCredential cred = getCredentialSave();
+		if (cred == null)
+			return;
+		new TestWorkFactorDialog(msg, cred).show();
+	}
+	
+	private PasswordCredential getCredentialSave()
+	{
+		try{
+			return getCredential();
+		} catch (FormValidationException e)
+		{
+			NotificationPopup.showError(msg.getMessage("PasswordDefinitionEditor.checkConfig"), "");
+			return null;
+		}
+	}
+	
+	private PasswordCredential getCredential() throws FormValidationException
 	{
 		PasswordCredential cred = new PasswordCredential();
 		cred.setDenySequences(denySequences.getValue());
@@ -212,7 +232,13 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 	@Override
 	public String getCredentialDefinition() throws IllegalCredentialException
 	{
-		return JsonUtil.serialize(getCredential().getSerializedConfiguration());
+		try
+		{
+			return JsonUtil.serialize(getCredential().getSerializedConfiguration());
+		} catch (FormValidationException e)
+		{
+			throw new IllegalCredentialException("", e);
+		}	
 	}
 
 	private void initUIState(PasswordCredential helper)
@@ -250,7 +276,7 @@ public class PasswordCredentialDefinitionEditor implements CredentialDefinitionE
 			super(msg, msg.getMessage("PasswordDefinitionEditor.testMe"), 
 					msg.getMessage("close"));
 			this.config = config;
-			setSize(45, 50);
+			setSize(35, 40);
 		}
 
 		@Override

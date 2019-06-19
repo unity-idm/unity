@@ -25,6 +25,7 @@ import com.vaadin.ui.VerticalLayout;
 
 import eu.unicore.util.configuration.ConfigurationException;
 import io.imunity.webconsole.utils.tprofile.InputTranslationProfileFieldFactory;
+import io.imunity.webelements.helpers.StandardButtonsHelper;
 import pl.edu.icm.unity.engine.api.PKIManagement;
 import pl.edu.icm.unity.engine.api.RegistrationsManagement;
 import pl.edu.icm.unity.engine.api.config.UnityServerConfiguration;
@@ -166,11 +167,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			Button add = new Button(msg.getMessage("ProvidersComponent.addProvider"));
 			add.addClickListener(e -> {
 				setComponentError(null);
-				gotoEditSubView(null, providersList.getElements().stream().map(p -> p.getId())
-						.collect(Collectors.toSet()), c -> {
-							subViewSwitcher.exitSubView();
-							providersList.addElement(c);
-						});
+				gotoNew();
 			});
 			add.setIcon(Images.add.getResource());
 			main.addComponent(add);
@@ -178,8 +175,10 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 
 			providersList = new GridWithActionColumn<>(msg, getActionsHandlers(), false);
 			providersList.addComponentColumn(p -> getLogo(p.getLogo()),
-					msg.getMessage("ProvidersComponent.logo"), 10);
-			providersList.addColumn(p -> p.getId(), msg.getMessage("ProvidersComponent.id"), 10);
+					msg.getMessage("ProvidersComponent.logo"), 2);
+			providersList.addComponentColumn(p -> StandardButtonsHelper
+					.buildLinkButton(p.getName().getValue(msg), e -> gotoEdit(p)),
+					msg.getMessage("ProvidersComponent.id"), 30);
 			providersList.addColumn(p -> p.getName().getValue(msg),
 					msg.getMessage("ProvidersComponent.name"), 50);
 
@@ -212,12 +211,7 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 			SingleActionHandler<OAuthProviderConfiguration> edit = SingleActionHandler
 					.builder4Edit(msg, OAuthProviderConfiguration.class).withHandler(r -> {
 						OAuthProviderConfiguration edited = r.iterator().next();
-						gotoEditSubView(edited, providersList.getElements().stream()
-								.filter(p -> p.getId() != edited.getId())
-								.map(p -> p.getId()).collect(Collectors.toSet()), c -> {
-									providersList.replaceElement(edited, c);
-									subViewSwitcher.exitSubView();
-								});
+						gotoEdit(edited);
 					}
 
 					).build();
@@ -229,6 +223,27 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 					}).build();
 
 			return Arrays.asList(edit, remove);
+		}
+
+		private void gotoNew()
+		{
+			gotoEditSubView(null, providersList.getElements().stream().map(p -> p.getId())
+					.collect(Collectors.toSet()), c -> {
+						subViewSwitcher.exitSubView();
+						providersList.addElement(c);
+					});
+
+		}
+
+		private void gotoEdit(OAuthProviderConfiguration edited)
+		{
+			gotoEditSubView(edited,
+					providersList.getElements().stream().filter(p -> p.getId() != edited.getId())
+							.map(p -> p.getId()).collect(Collectors.toSet()),
+					c -> {
+						providersList.replaceElement(edited, c);
+						subViewSwitcher.exitSubView();
+					});
 		}
 
 		private void gotoEditSubView(OAuthProviderConfiguration edited, Set<String> usedIds,
@@ -248,8 +263,9 @@ class OAuthAuthenticatorEditor extends BaseAuthenticatorEditor implements Authen
 				return;
 			}
 
-			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, serverConfig, pkiMan, uriAccessService,
-					profileFieldFactory, edited, usedIds, subViewSwitcher, forms, validators, r -> {
+			EditOAuthProviderSubView subView = new EditOAuthProviderSubView(msg, serverConfig, pkiMan,
+					uriAccessService, profileFieldFactory, edited, usedIds, subViewSwitcher, forms,
+					validators, r -> {
 						onConfirm.accept(r);
 						fireChange();
 						providersList.focus();

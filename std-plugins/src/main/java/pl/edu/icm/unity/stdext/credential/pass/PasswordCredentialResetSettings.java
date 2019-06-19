@@ -22,7 +22,7 @@ public class PasswordCredentialResetSettings
 	public enum ConfirmationMode {RequireEmail, RequireMobile, RequireEmailAndMobile, RequireEmailOrMobile, NothingRequire}
 	
 	private boolean enabled = false;
-	private boolean requireSecurityQuestion = true;
+	private boolean requireSecurityQuestion = false;
 	private int codeLength = 4;
 	private List<String> questions = new ArrayList<>();
 	private String emailSecurityCodeMsgTemplate;

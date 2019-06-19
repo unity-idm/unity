@@ -113,7 +113,7 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 
 		try
 		{
-			return configBinder.getBean().toProperties();
+			return configBinder.getBean().toProperties(msg);
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the password verificator", e);
@@ -149,13 +149,13 @@ class PasswordAuthenticatorEditor extends BaseLocalAuthenticatorEditor implement
 			this.localCredential = localCredential;
 		}
 
-		public String toProperties()
+		public String toProperties(UnityMessageSource msg)
 		{
 			Properties raw = new Properties();
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME);
+						PasswordRetrievalProperties.P + PasswordRetrievalProperties.NAME, msg);
 			}
 			PasswordRetrievalProperties prop = new PasswordRetrievalProperties(raw);
 			return prop.getAsString();

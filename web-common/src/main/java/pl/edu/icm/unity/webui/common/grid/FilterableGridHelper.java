@@ -5,11 +5,8 @@
 
 package pl.edu.icm.unity.webui.common.grid;
 
-import com.vaadin.server.Sizeable.Unit;
-import com.vaadin.ui.TextField;
-
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
-import pl.edu.icm.unity.webui.common.Styles;
+import pl.edu.icm.unity.webui.common.SearchField;
 
 /**
  * Helps create search field for {@link FilterableGrid}
@@ -19,10 +16,10 @@ import pl.edu.icm.unity.webui.common.Styles;
  */
 public class FilterableGridHelper
 {
-	public static TextField generateSearchField(FilterableGrid<? extends FilterableEntry> grid,
+	public static SearchField generateSearchField(FilterableGrid<? extends FilterableEntry> grid,
 			UnityMessageSource msg)
 	{
-		TextField searchText = getRowSearchField(msg);
+		SearchField searchText = getRowSearchField(msg);
 		searchText.addValueChangeListener(event -> {
 			String searched = event.getValue();
 			grid.clearFilters();
@@ -35,12 +32,13 @@ public class FilterableGridHelper
 		return searchText;
 	}
 	
-	public static TextField getRowSearchField(UnityMessageSource msg)
+	public static SearchField getRowSearchField(UnityMessageSource msg)
 	{
-		TextField searchText = new TextField();
-		searchText.addStyleName(Styles.vSmall.toString());
-		searchText.setWidth(10, Unit.EM);
-		searchText.setPlaceholder(msg.getMessage("search"));
-		return searchText;
+//		TextField searchText = new TextField();
+//		searchText.addStyleName(Styles.vSmall.toString());
+//		searchText.setWidth(10, Unit.EM);
+//		searchText.setPlaceholder(msg.getMessage("search"));
+//		return searchText;
+		return new SearchField(msg);
 	}
 }

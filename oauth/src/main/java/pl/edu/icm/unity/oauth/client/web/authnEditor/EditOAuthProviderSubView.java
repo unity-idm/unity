@@ -52,6 +52,7 @@ import pl.edu.icm.unity.webui.common.FieldSizeConstans;
 import pl.edu.icm.unity.webui.common.FormLayoutWithFixedCaptionWidth;
 import pl.edu.icm.unity.webui.common.FormValidationException;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
+import pl.edu.icm.unity.webui.common.chips.ChipsWithFreeText;
 import pl.edu.icm.unity.webui.common.file.ImageField;
 import pl.edu.icm.unity.webui.common.i18n.I18nTextField;
 import pl.edu.icm.unity.webui.common.validators.NoSpaceValidator;
@@ -150,7 +151,8 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 
 		templateCombo = new ComboBox<>();
 		templateCombo.setCaption(msg.getMessage("EditOAuthProviderSubView.template"));
-		templateCombo.setItems(templates.keySet());
+		templateCombo.setItems(templates.keySet().stream().sorted());
+		templateCombo.setEmptySelectionAllowed(false);
 
 		configBinder.forField(templateCombo).asRequired(msg.getMessage("fieldRequired")).bind("type");
 
@@ -187,11 +189,12 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		configBinder.forField(clientSecret).asRequired(msg.getMessage("fieldRequired")).bind("clientSecret");
 		header.addComponent(clientSecret);
 
-		TextField requestedScopes = new TextField(msg.getMessage("EditOAuthProviderSubView.requestedScopes"));
+		ChipsWithFreeText requestedScopes = new ChipsWithFreeText();
 		requestedScopes.setWidth(FieldSizeConstans.MEDIUM_FIELD_WIDTH, FieldSizeConstans.MEDIUM_FIELD_WIDTH_UNIT);
-		configBinder.forField(requestedScopes).bind("requestedScopes");
+		requestedScopes.setCaption(msg.getMessage("EditOAuthProviderSubView.requestedScopes"));
 		header.addComponent(requestedScopes);
-
+		configBinder.forField(requestedScopes).bind("requestedScopes");
+			
 		ImageField logo = new ImageField(msg, uriAccessService, serverConfig.getFileSizeLimit());
 		logo.setCaption(msg.getMessage("EditOAuthProviderSubView.logo"));
 		logo.configureBinding(configBinder, "logo");
@@ -250,21 +253,20 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		ComboBox<AccessTokenFormat> accessTokenFormat = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.accessTokenFormat"));
 		accessTokenFormat.setItems(AccessTokenFormat.values());
-		accessTokenFormat.setValue(AccessTokenFormat.standard);
+		accessTokenFormat.setEmptySelectionAllowed(false);
 		configBinder.forField(accessTokenFormat).bind("accessTokenFormat");
 		advanced.addComponent(accessTokenFormat);
 
 		ComboBox<ClientAuthnMode> clientAuthenticationMode = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.clientAuthenticationMode"));
 		clientAuthenticationMode.setItems(ClientAuthnMode.values());
-		clientAuthenticationMode.setValue(ClientAuthnMode.secretBasic);
+		clientAuthenticationMode.setEmptySelectionAllowed(false);
 		configBinder.forField(clientAuthenticationMode).bind("clientAuthenticationMode");
 		advanced.addComponent(clientAuthenticationMode);
 
 		ComboBox<ClientAuthnMode> clientAuthenticationModeForProfile = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.clientAuthenticationModeForProfile"));
 		clientAuthenticationModeForProfile.setItems(ClientAuthnMode.values());
-		clientAuthenticationModeForProfile.setValue(ClientAuthnMode.secretBasic);
 		configBinder.forField(clientAuthenticationModeForProfile).bind("clientAuthenticationModeForProfile");
 		advanced.addComponent(clientAuthenticationModeForProfile);
 
@@ -282,7 +284,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		ComboBox<ServerHostnameCheckingMode> clientHostnameChecking = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.clientHostnameChecking"));
 		clientHostnameChecking.setItems(ServerHostnameCheckingMode.values());
-		clientHostnameChecking.setValue(ServerHostnameCheckingMode.FAIL);
+		clientHostnameChecking.setEmptySelectionAllowed(false);
 		configBinder.forField(clientHostnameChecking).bind("clientHostnameChecking");
 		advanced.addComponent(clientHostnameChecking);
 
@@ -295,7 +297,7 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 		ComboBox<ClientHttpMethod> clientHttpMethodForProfileAccess = new ComboBox<>(
 				msg.getMessage("EditOAuthProviderSubView.clientHttpMethodForProfileAccess"));
 		clientHttpMethodForProfileAccess.setItems(ClientHttpMethod.values());
-		clientHttpMethodForProfileAccess.setValue(ClientHttpMethod.get);
+		clientHttpMethodForProfileAccess.setEmptySelectionAllowed(false);
 		configBinder.forField(clientHttpMethodForProfileAccess).bind("clientHttpMethodForProfileAccess");
 		advanced.addComponent(clientHttpMethodForProfileAccess);
 
@@ -376,7 +378,10 @@ class EditOAuthProviderSubView extends CustomComponent implements UnitySubView
 	@Override
 	public List<String> getBredcrumbs()
 	{
-		return Arrays.asList(msg.getMessage("EditOAuthProviderSubView.breadcrumbs"),
-				editMode ? configBinder.getBean().getId() : msg.getMessage("new"));
+		if (editMode)
+			return Arrays.asList(msg.getMessage("EditOAuthProviderSubView.provider"),
+					configBinder.getBean().getId());
+		else
+			return Arrays.asList(msg.getMessage("EditOAuthProviderSubView.newProvider"));
 	}
 }

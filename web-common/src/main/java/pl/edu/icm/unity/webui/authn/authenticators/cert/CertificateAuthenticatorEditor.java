@@ -113,7 +113,7 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 
 		try
 		{
-			return configBinder.getBean().toProperties(getName());
+			return configBinder.getBean().toProperties(msg);
 		} catch (ConfigurationException e)
 		{
 			throw new FormValidationException("Invalid configuration of the certificate verificator", e);
@@ -138,14 +138,14 @@ class CertificateAuthenticatorEditor extends BaseLocalAuthenticatorEditor implem
 			this.retrievalName = retrievalName;
 		}
 
-		public String toProperties(String authName)
+		public String toProperties(UnityMessageSource msg)
 		{
 			Properties raw = new Properties();
 
 			if (getRetrievalName() != null)
 			{
 				getRetrievalName().toProperties(raw,
-						TLSRetrievalProperties.P + TLSRetrievalProperties.NAME);
+						TLSRetrievalProperties.P + TLSRetrievalProperties.NAME, msg);
 			}
 
 			TLSRetrievalProperties prop = new TLSRetrievalProperties(raw);

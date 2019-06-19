@@ -92,8 +92,11 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 	public Component getEditor(AuthenticatorDefinition toEdit, SubViewSwitcher subViewSwitcher,
 			boolean forceNameEditable)
 	{
-		boolean editMode = init(msg.getMessage("LdapAuthenticatorEditor.defaultName"), toEdit,
-				forceNameEditable);
+		boolean editMode = init(
+				forType.equals(LdapCertVerificator.NAME)
+						? msg.getMessage("LdapAuthenticatorEditor.defaultLdapCertName")
+						: msg.getMessage("LdapAuthenticatorEditor.defaultName"),
+				toEdit, forceNameEditable);
 
 		configBinder = new Binder<>(LdapConfiguration.class);
 
@@ -574,7 +577,7 @@ class LdapAuthenticatorEditor extends BaseAuthenticatorEditor implements Authent
 			throw new FormValidationException("Invalid ldap authenticator configuration", e);
 		}
 
-		return conf.toProperties(forType);
+		return conf.toProperties(forType, msg);
 	}
 
 }

@@ -161,9 +161,13 @@ class EditTrustedFederationSubView extends CustomComponent implements UnitySubVi
 
 	@Override
 	public List<String> getBredcrumbs()
-	{
-		return Arrays.asList(msg.getMessage("EditTrustedFederationSubView.breadcrumbs"),
-				editMode ? binder.getBean().getName() : msg.getMessage("new"));
+	{	
+		if (editMode)
+			return Arrays.asList(msg.getMessage("EditTrustedFederationSubView.trustedFederation"),
+					binder.getBean().getName());
+		else
+			return Arrays.asList(msg.getMessage("EditTrustedFederationSubView.newTrustedFederation"));
+	
 	}
 
 	private TrustedFederationConfiguration getTrustedFederation() throws FormValidationException
