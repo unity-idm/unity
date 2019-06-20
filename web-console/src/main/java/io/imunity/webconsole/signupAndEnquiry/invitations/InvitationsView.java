@@ -26,6 +26,7 @@ import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 
 /**
@@ -112,6 +113,7 @@ class InvitationsView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.invitations"))
+					.withIcon(Images.taxi.getResource())
 					.withPosition(30).build());
 
 		}

@@ -36,6 +36,7 @@ import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -184,8 +185,8 @@ public class LocalCredentialsView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.localCredentials"))
+					.withIcon(Images.lock.getResource())
 					.withPosition(20).build());
-
 		}
 	}
 }

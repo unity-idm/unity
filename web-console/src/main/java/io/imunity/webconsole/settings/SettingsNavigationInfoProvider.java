@@ -33,7 +33,7 @@ public class SettingsNavigationInfoProvider extends WebConsoleNavigationInfoProv
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.settings"))
-				.withIcon(Images.settings.getResource()).withPosition(70).build());
+				.withIcon(Images.cogs.getResource()).withPosition(80).build());
 
 	}
 

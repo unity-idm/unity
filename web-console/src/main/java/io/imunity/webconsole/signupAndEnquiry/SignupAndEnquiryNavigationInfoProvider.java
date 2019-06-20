@@ -33,7 +33,7 @@ public class SignupAndEnquiryNavigationInfoProvider extends WebConsoleNavigation
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
 				.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry"))
-				.withIcon(Images.bullet.getResource()).withPosition(30).build());
+				.withIcon(Images.user_check.getResource()).withPosition(30).build());
 
 	}
 

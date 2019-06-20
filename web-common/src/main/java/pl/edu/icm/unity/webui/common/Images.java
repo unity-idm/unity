@@ -103,6 +103,7 @@ public enum Images
 	file_tree_sub 	(VaadinIcons.FILE_TREE_SUB),
 	file_zip	(VaadinIcons.FILE_ZIP),
 	envelope_open	(VaadinIcons.ENVELOPE_OPEN),
+	envelopes_open	(VaadinIcons.ENVELOPES_O),
 	user_check	(VaadinIcons.USER_CHECK),
 	star 		(VaadinIcons.STAR),
 	trending_down 	(VaadinIcons.TRENDIND_DOWN),
@@ -119,7 +120,23 @@ public enum Images
 	file_add	(VaadinIcons.FILE_ADD),
 	picture		(VaadinIcons.PICTURE),
 	caret_right	(VaadinIcons.CARET_RIGHT),
-	caret_down	(VaadinIcons.CARET_DOWN);
+	caret_down	(VaadinIcons.CARET_DOWN),
+	group		(VaadinIcons.GROUP),
+	form		(VaadinIcons.FORM),
+	user_card	(VaadinIcons.USER_CARD),
+	taxi		(VaadinIcons.TAXI),
+	server		(VaadinIcons.SERVER),
+	lock		(VaadinIcons.LOCK),
+	optiona_a	(VaadinIcons.OPTION_A),
+	grid		(VaadinIcons.GRID_BIG),
+	tags		(VaadinIcons.TAGS),
+	clipboard_user	(VaadinIcons.CLIPBOARD_USER),
+	archives	(VaadinIcons.ARCHIVES),
+	calendar_user   (VaadinIcons.CALENDAR_USER),
+	cogs		(VaadinIcons.COGS),
+	diploma		(VaadinIcons.DIPLOMA),
+	tools		(VaadinIcons.TOOLS),
+	cloud_download	(VaadinIcons.CLOUD_DOWNLOAD_O);
 	
 	
 	private final Resource resource;

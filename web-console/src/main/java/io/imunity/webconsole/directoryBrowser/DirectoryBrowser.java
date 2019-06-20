@@ -104,7 +104,7 @@ public class DirectoryBrowser extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.DefaultView)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directoryBrowser"))
-					.withIcon(Images.folder_open_o.getResource()).withPosition(10).build());
+					.withIcon(Images.group.getResource()).withPosition(10).build());
 
 		}
 	}

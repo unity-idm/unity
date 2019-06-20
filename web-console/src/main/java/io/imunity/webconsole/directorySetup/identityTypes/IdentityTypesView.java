@@ -31,6 +31,7 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.types.basic.IdentityType;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -151,6 +152,7 @@ public class IdentityTypesView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.identityTypes"))
+					.withIcon(Images.clipboard_user.getResource())
 					.withPosition(20).build());
 
 		}

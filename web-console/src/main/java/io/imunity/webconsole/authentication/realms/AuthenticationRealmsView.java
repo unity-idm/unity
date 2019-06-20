@@ -35,6 +35,7 @@ import pl.edu.icm.unity.engine.api.utils.MessageUtils;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
 import pl.edu.icm.unity.webui.common.ConfirmDialog;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.common.Styles;
@@ -178,6 +179,7 @@ class AuthenticationRealmsView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.realms"))
+					.withIcon(Images.grid.getResource())
 					.withPosition(40).build());
 
 		}

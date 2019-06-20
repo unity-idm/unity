@@ -36,6 +36,7 @@ import pl.edu.icm.unity.types.authn.CredentialRequirements;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.GridWithActionColumn;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.NotificationPopup;
 import pl.edu.icm.unity.webui.common.SingleActionHandler;
 import pl.edu.icm.unity.webui.exceptions.ControllerException;
@@ -189,6 +190,7 @@ class CredentialRequirementsView extends CustomComponent implements UnityView
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage(
 							"WebConsoleMenu.authentication.credentialRequirements"))
+					.withIcon(Images.optiona_a.getResource())
 					.withPosition(30).build());
 
 		}

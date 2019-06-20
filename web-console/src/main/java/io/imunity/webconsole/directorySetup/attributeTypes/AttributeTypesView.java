@@ -294,6 +294,7 @@ class AttributeTypesView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.attributeTypes"))
+					.withIcon(Images.tags.getResource())
 					.withPosition(10).build());
 
 		}

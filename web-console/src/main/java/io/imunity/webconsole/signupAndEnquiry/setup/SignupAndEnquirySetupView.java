@@ -27,6 +27,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Lists all registration and enquiry forms
@@ -96,6 +97,7 @@ public class SignupAndEnquirySetupView extends CustomComponent implements UnityV
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.setup"))
+					.withIcon(Images.form.getResource())
 					.withPosition(10).build());
 
 		}

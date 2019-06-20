@@ -28,6 +28,7 @@ import pl.edu.icm.unity.types.registration.RegistrationRequestState;
 import pl.edu.icm.unity.webui.WebSession;
 import pl.edu.icm.unity.webui.bus.EventsBus;
 import pl.edu.icm.unity.webui.common.CompositeSplitPanel;
+import pl.edu.icm.unity.webui.common.Images;
 import pl.edu.icm.unity.webui.common.Styles;
 import pl.edu.icm.unity.webui.forms.enquiry.EnquiryResponseChangedEvent;
 import pl.edu.icm.unity.webui.forms.reg.RegistrationRequestChangedEvent;
@@ -126,6 +127,7 @@ class RequestsView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.signupAndEnquiry.requests"))
+					.withIcon(Images.user_card.getResource())
 					.withPosition(20).build());
 
 		}

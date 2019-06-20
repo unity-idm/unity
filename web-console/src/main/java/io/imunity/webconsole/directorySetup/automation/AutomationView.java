@@ -216,6 +216,7 @@ public class AutomationView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.directorySetup.automation"))
+					.withIcon(Images.calendar_user.getResource())
 					.withPosition(40).build());
 
 		}

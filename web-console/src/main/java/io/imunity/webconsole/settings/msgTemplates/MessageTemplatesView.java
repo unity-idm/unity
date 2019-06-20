@@ -311,6 +311,7 @@ public class MessageTemplatesView extends CustomComponent implements UnityView
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.settings.messageTemplates"))
+					.withIcon(Images.envelopes_open.getResource())
 					.withPosition(10).build());
 
 		}

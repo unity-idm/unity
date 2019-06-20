@@ -25,6 +25,7 @@ import io.imunity.webelements.navigation.NavigationInfo.Type;
 import io.imunity.webelements.navigation.UnityView;
 import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.engine.api.utils.PrototypeComponent;
+import pl.edu.icm.unity.webui.common.Images;
 
 /**
  * Lists all authenticators and flows
@@ -87,6 +88,7 @@ public class AuthenticationSetupView extends CustomComponent implements UnityVie
 			super(new NavigationInfo.NavigationInfoBuilder(VIEW_NAME, Type.View)
 					.withParent(parent.getNavigationInfo()).withObjectFactory(factory)
 					.withCaption(msg.getMessage("WebConsoleMenu.authentication.setup"))
+					.withIcon(Images.exit.getResource())
 					.withPosition(10).build());
 
 		}

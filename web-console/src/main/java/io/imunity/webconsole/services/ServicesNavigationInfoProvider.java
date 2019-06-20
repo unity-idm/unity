@@ -3,7 +3,7 @@
  * See LICENCE.txt file for licensing information.
  */
 
-package io.imunity.webconsole.maintenance;
+package io.imunity.webconsole.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,25 +16,24 @@ import pl.edu.icm.unity.engine.api.msg.UnityMessageSource;
 import pl.edu.icm.unity.webui.common.Images;
 
 /**
- * Provides @{link {@link NavigationInfo} about maintenance setup submenu
+ * Provides @{link {@link NavigationInfo} about services submenu
  * 
  * @author P.Piernik
  *
  */
 @Component
-public class MaintenanceNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
+public class ServicesNavigationInfoProvider extends WebConsoleNavigationInfoProviderBase
 {
-	public static final String ID = "Maintenance";
+	public static final String ID = "Services";
 
 	@Autowired
-	public MaintenanceNavigationInfoProvider(UnityMessageSource msg,
+	public ServicesNavigationInfoProvider(UnityMessageSource msg,
 			WebConsoleRootNavigationInfoProvider parent)
 	{
 		super(new NavigationInfo.NavigationInfoBuilder(ID, Type.ViewGroup)
 				.withParent(parent.getNavigationInfo())
-				.withCaption(msg.getMessage("WebConsoleMenu.maintenance"))
-				.withIcon(Images.tools.getResource()).withPosition(90).build());
+				.withCaption(msg.getMessage("WebConsoleMenu.services"))
+				.withIcon(Images.server.getResource()).withPosition(50).build());
 
 	}
-
 }
